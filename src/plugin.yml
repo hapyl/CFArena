@@ -1,0 +1,6 @@
+name       : "ClassesFightArena"
+main       : "kz.hapyl.fight.Main"
+version    : "1.0"
+api-version: "1.17"
+depend     : [ "EternaAPI" ]
+authors    : [ "Plugin Developer: hapyl", "Design/Idea: sdimas74", "Design/Builder: DirtyEl", "idk he just a noob: DiDenPro"]

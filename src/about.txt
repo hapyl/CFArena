@@ -1,0 +1,4 @@
+About Damage:
+
+- Strength increases damage by 30% per effect level.
+- Resistance reduces damage by 85%.
