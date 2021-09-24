@@ -34,6 +34,15 @@ public abstract class GameTask implements Runnable {
 		return runTaskTimerTimes((a, b) -> runnable.accept(a), 0, period, maxTimes);
 	}
 
+	public static GameTask scheduleCancelTask(Runnable runnable) {
+		return new GameTask() {
+			@Override
+			public void run() {
+				runnable.run();
+			}
+		}.runTaskAtCancel().runTaskLater(Long.MAX_VALUE);
+	}
+
 	public static GameTask runTaskTimerTimes(BiConsumer<GameTask, Integer> runnable, int delay, int period, int maxTimes) {
 		return new GameTask() {
 			private int tick = Math.max(1, maxTimes);

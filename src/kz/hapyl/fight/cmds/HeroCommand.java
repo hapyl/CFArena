@@ -1,6 +1,7 @@
 package kz.hapyl.fight.cmds;
 
 import kz.hapyl.fight.Main;
+import kz.hapyl.fight.game.Manager;
 import kz.hapyl.fight.game.heroes.Heroes;
 import kz.hapyl.fight.gui.HeroSelectGUI;
 import kz.hapyl.spigotutils.module.chat.Chat;
@@ -21,7 +22,11 @@ public class HeroCommand extends SimplePlayerCommand {
 
 	@Override
 	protected void execute(Player player, String[] args) {
-		// hero (HERO)
+		if (Manager.current().isGameInProgress()) {
+			Chat.sendMessage(player, "&cUnable to change hero during the game!");
+			return;
+		}
+
 		if (args.length == 1) {
 			final Heroes hero = Validate.getEnumValue(Heroes.class, args[0]);
 

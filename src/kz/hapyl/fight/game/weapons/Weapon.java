@@ -6,19 +6,32 @@ import org.bukkit.Material;
 import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.Action;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Weapon {
 
 	private ItemStack item;
 
+	private final List<Enchant> enchants;
 	private final Material material;
 	private String name;
 	private String lore;
 	private double damage;
 
+	private String id;
+
 	public Weapon(Material material) {
 		this.material = material;
+		this.enchants = new ArrayList<>();
+	}
+
+	public Weapon addEnchant(Enchantment enchantment, int level) {
+		this.enchants.add(new Enchant(enchantment, level));
+		return this;
 	}
 
 	public Weapon setName(String name) {
@@ -26,17 +39,30 @@ public class Weapon {
 		return this;
 	}
 
-	public void onLeftClick(Player player) {
-
-	}
-
-	public void onRightClick(Player player) {
-
+	public Weapon setLore(String lore) {
+		this.lore = lore;
+		return this;
 	}
 
 	public Weapon setDamage(double damage) {
 		this.damage = damage;
 		return this;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public Material getMaterial() {
+		return material;
+	}
+
+	public String getLore() {
+		return lore;
 	}
 
 	public double getDamage() {
@@ -51,12 +77,42 @@ public class Weapon {
 		return this.item;
 	}
 
+	public void onLeftClick(Player player, ItemStack item) {
+	}
+
+	public void onRightClick(Player player, ItemStack item) {
+	}
+
+	/**
+	 * Id is required to use functions.
+	 */
+	public Weapon setId(String id) {
+		this.id = id;
+		return this;
+	}
+
 	private void createItem() {
-		final ItemBuilder builder = new ItemBuilder(this.material);
+		final ItemBuilder builder = this.id == null ? new ItemBuilder(this.material) : new ItemBuilder(this.material, this.id);
 		builder.setName(ChatColor.GREEN + notNullStr(this.name, "Standard Weapon"));
 
+		builder.addLore("&8Weapon");
+
 		if (this.lore != null) {
-			builder.addSmartLore(lore);
+			builder.addLore().addSmartLore(lore);
+		}
+
+		// add id
+		if (id != null) {
+			builder.addClickEvent(player -> onRightClick(player, player.getInventory()
+					.getItemInMainHand()), Action.RIGHT_CLICK_BLOCK, Action.RIGHT_CLICK_AIR);
+			builder.addClickEvent(player -> onLeftClick(player, player.getInventory()
+					.getItemInMainHand()), Action.LEFT_CLICK_BLOCK, Action.LEFT_CLICK_AIR);
+		}
+
+		if (!enchants.isEmpty()) {
+			enchants.forEach(enchant -> {
+				builder.addEnchant(enchant.getEnchantment(), enchant.getLevel());
+			});
 		}
 
 		builder.setPureDamage(this.damage);

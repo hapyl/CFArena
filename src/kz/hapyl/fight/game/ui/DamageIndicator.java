@@ -11,8 +11,6 @@ import java.util.Random;
 
 public class DamageIndicator {
 
-	private final static int liveTime = 20;
-
 	private final Location location;
 	private final double damage;
 
@@ -29,7 +27,7 @@ public class DamageIndicator {
 			me.setCustomNameVisible(true);
 		});
 
-		GameTask.runLater(stand::remove, liveTime).runTaskAtCancel();
+		GameTask.runLater(stand::remove, 20).runTaskAtCancel();
 	}
 
 	private Location randomizeLocation() {

@@ -1,6 +1,7 @@
 package kz.hapyl.fight.game.database;
 
 import kz.hapyl.fight.Main;
+import kz.hapyl.fight.game.database.entry.CurrencyEntry;
 import kz.hapyl.fight.game.database.entry.HeroEntry;
 import kz.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Bukkit;
@@ -54,15 +55,24 @@ public class Database {
 		return config;
 	}
 
+	// entries start
 	private HeroEntry heroEntry;
+	private CurrencyEntry currencyEntry;
 
 	public void loadEntries() {
 		this.heroEntry = new HeroEntry(this);
+		this.currencyEntry = new CurrencyEntry(this);
+	}
+
+	public CurrencyEntry getCurrency() {
+		return currencyEntry;
 	}
 
 	public HeroEntry getHeroEntry() {
 		return heroEntry;
 	}
+
+	// entries end
 
 	public void loadFile() {
 		try {

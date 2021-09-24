@@ -5,7 +5,6 @@ import kz.hapyl.fight.game.Response;
 import kz.hapyl.spigotutils.module.chat.Chat;
 import kz.hapyl.spigotutils.module.inventory.ItemBuilder;
 import kz.hapyl.spigotutils.module.util.BukkitUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -13,11 +12,14 @@ import org.bukkit.inventory.ItemStack;
 public abstract class Talent implements GameElement {
 
 	private ItemStack item;
+	private Material material;
+	private String texture;
+
 	private final String name;
 	private final String description;
 	private final Type type;
 	private int cd;
-	private Material material;
+
 
 	public Talent(String name, String description, Type type) {
 		this.name = name;
@@ -35,12 +37,10 @@ public abstract class Talent implements GameElement {
 
 	@Override
 	public void onStart() {
-
 	}
 
 	@Override
 	public void onStop() {
-		Bukkit.getOnlinePlayers().forEach(player -> player.setCooldown(this.material, 0));
 	}
 
 	private void createItem() {
@@ -50,20 +50,42 @@ public abstract class Talent implements GameElement {
 				.addLore()
 				.addSmartLore(this.description);
 
+		if (texture != null && this.material == Material.PLAYER_HEAD) {
+			builder.setHeadTexture(texture);
+		}
+
 		if (this.cd > 0) {
-			builder.addLore("&9Cooldown: &l%ss".formatted(BukkitUtils.roundTick(this.cd)));
+			builder.addLore("&9Cooldown%s: &l%ss".formatted(this instanceof ChargedTalent ? " between charges" : "", BukkitUtils.roundTick(this.cd)));
+		}
+		else if (this.cd <= -1) {
+			builder.addLore("&9Cooldown: &lDynamic");
+		}
+
+		if (this instanceof ChargedTalent charge) {
+			final int maxCharges = charge.getMaxCharges();
+			builder.addLore("&9Max Charges: &l%s", maxCharges);
+			builder.addLore("&9Recharge Time: &l%ss", BukkitUtils.roundTick(charge.getRechargeTime()));
 		}
 
 		if (this instanceof UltimateTalent ult) {
 			builder.addLore("&9Ultimate Cost: &l%s ※", ult.getCost());
+			builder.glow();
 			// ※
 		}
 
+		builder.hideFlags();
 		this.item = builder.toItemStack();
 	}
 
-	public void setItem(Material material) {
+	public Talent setItem(String headTexture) {
+		this.setItem(Material.PLAYER_HEAD);
+		this.texture = headTexture;
+		return this;
+	}
+
+	public Talent setItem(Material material) {
 		this.material = material;
+		return this;
 	}
 
 	public abstract Response execute(Player player);
@@ -80,19 +102,21 @@ public abstract class Talent implements GameElement {
 	}
 
 	public final int getCdTimeLeft(Player player) {
-		return player.getCooldown(this.item.getType());
+		return player.getCooldown(this.material);
 	}
 
 	public int getCd() {
 		return cd;
 	}
 
-	public void setCd(int cd) {
+	public Talent setCd(int cd) {
 		this.cd = cd;
+		return this;
 	}
 
-	public void setCdSec(int cd) {
+	public Talent setCdSec(int cd) {
 		this.cd = cd * 20;
+		return this;
 	}
 
 	public String getName() {

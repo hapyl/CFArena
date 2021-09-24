@@ -1,10 +1,14 @@
 package kz.hapyl.fight.game.heroes;
 
 import com.google.common.collect.Sets;
+import kz.hapyl.fight.event.DamageInput;
+import kz.hapyl.fight.event.DamageOutput;
 import kz.hapyl.fight.game.GameElement;
+import kz.hapyl.fight.game.Manager;
 import kz.hapyl.fight.game.talents.Talent;
 import kz.hapyl.fight.game.talents.UltimateTalent;
-import kz.hapyl.fight.game.weapons.Weapons;
+import kz.hapyl.fight.game.task.GameTask;
+import kz.hapyl.fight.game.weapons.Weapon;
 import kz.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -14,26 +18,49 @@ import java.util.Set;
 
 public abstract class Hero implements GameElement {
 
+	private final ClassEquipment equipment;
 	private final String name;
 	private String about;
 	private ItemStack guiTexture;
-	private Weapons weapon;
+	private Weapon weapon;
 	private final Set<Player> usingUltimate;
+
+	private UltimateTalent ultimate;
 
 	public Hero(String name) {
 		this.name = name;
-		this.about = "not much yet.";
+		this.about = "not much yet";
 		this.guiTexture = new ItemStack(Material.RED_BED);
-		this.weapon = Weapons.DEFAULT;
+		this.weapon = new Weapon(Material.WOODEN_SWORD);
 		this.usingUltimate = Sets.newHashSet();
+		this.equipment = new ClassEquipment();
+		this.ultimate = new UltimateTalent("invalid ultimate", "", 999) {
+			@Override
+			public void useUltimate(Player player) {
+			}
+		};
+	}
+
+	public ClassEquipment getEquipment() {
+		return equipment;
+	}
+
+	public void setUltimate(UltimateTalent ultimate) {
+		this.ultimate = ultimate;
 	}
 
 	public final void setUsingUltimate(Player player, boolean flag) {
 		if (flag) {
 			usingUltimate.add(player);
-		} else {
+		}
+		else {
 			usingUltimate.remove(player);
 		}
+	}
+
+	public final void setUsingUltimate(Player player, boolean flag, int reverseAfter) {
+		this.setUsingUltimate(player, flag);
+		GameTask.runLater(() -> setUsingUltimate(player, !flag), reverseAfter);
 	}
 
 	public final boolean isUsingUltimate(Player player) {
@@ -48,7 +75,7 @@ public abstract class Hero implements GameElement {
 		return about;
 	}
 
-	public void setAbout(String about) {
+	public void setInfo(String about) {
 		this.about = about;
 	}
 
@@ -72,16 +99,50 @@ public abstract class Hero implements GameElement {
 
 	public abstract Talent getSecondTalent();
 
-	public abstract UltimateTalent getUltimate();
+	public Talent getThirdTalent() {
+		return null;
+	}
+
+	public Talent getFourthTalent() {
+		return null;
+	}
+
+	public Talent getFifthTalent() {
+		return null;
+	}
 
 	public abstract Talent getPassiveTalent();
 
-	public void setWeapon(Weapons weapon) {
+	public DamageOutput processDamageAsDamager(DamageInput input) {
+		return null;
+	}
+
+	public DamageOutput processDamageAsVictim(DamageInput input) {
+		return null;
+	}
+
+	public UltimateTalent getUltimate() {
+		return this.ultimate;
+	}
+
+	public void setWeapon(Weapon weapon) {
 		this.weapon = weapon;
 	}
 
-	public Weapons getWeapon() {
+	public Weapon getWeapon() {
 		return weapon;
+	}
+
+	// some utils here
+	protected final boolean validatePlayer(Player player, Heroes heroes) {
+		final Manager current = Manager.current();
+		return validatePlayer(player) && current.getSelectedHero(player) == heroes;
+	}
+
+	protected final boolean validatePlayer(Player player) {
+		final Manager current = Manager.current();
+		return current.isGameInProgress() && current.isPlayerInGame(player);
+
 	}
 
 	@Override
@@ -93,4 +154,9 @@ public abstract class Hero implements GameElement {
 	public void onStop() {
 
 	}
+
+	public Hero getHandle() {
+		return this;
+	}
+
 }
