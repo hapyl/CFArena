@@ -79,6 +79,12 @@ public abstract class UltimateTalent extends Talent {
 		return Response.OK;
 	}
 
+	/**
+	 * Must return true in order for talent to execute. If returns false shows a message.
+	 *
+	 * @param player - player to test.
+	 * @see UltimateTalent#predicateMessage()
+	 */
 	public boolean predicate(Player player) {
 		return true;
 	}

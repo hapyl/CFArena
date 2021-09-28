@@ -95,8 +95,7 @@ public class ShockDark extends Talent implements Listener {
 		}
 
 		PlayerLib.playSound(location, sound, pitch);
-		GameTask.runLater(() -> Bukkit.getOnlinePlayers().forEach(player -> player.stopSound(sound)), cutAt);
-
+		GameTask.runLater(() -> Bukkit.getOnlinePlayers().forEach(player -> player.stopSound(sound, SoundCategory.RECORDS)), cutAt);
 	}
 
 	@Override

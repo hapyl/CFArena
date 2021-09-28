@@ -2,7 +2,7 @@
   <artifact type="jar" name="ClassesFightArena:jar">
     <output-path>$PROJECT_DIR$/../../../../Server/plugins</output-path>
     <root id="archive" name="FightStuffGame.jar">
-      <element id="module-output" name="FightStuffGame" />
+      <element id="module-output" name="ClassesFightArena" />
     </root>
   </artifact>
 </component>

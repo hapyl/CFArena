@@ -1,4 +1,4 @@
-package kz.hapyl.fight.game.talents.storage;
+package kz.hapyl.fight.game.heroes.storage;
 
 import kz.hapyl.fight.game.Manager;
 import kz.hapyl.fight.game.effect.GameEffectType;

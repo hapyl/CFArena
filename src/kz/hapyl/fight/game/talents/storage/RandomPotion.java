@@ -33,7 +33,7 @@ public class RandomPotion extends Talent {
 				.add(new Effect("&c❤", "Healing") {
 					@Override
 					public void affect(Player player) {
-						GamePlayer.getPlayerSafe(player).heal(10);
+						GamePlayer.getPlayer(player).heal(10);
 					}
 				});
 

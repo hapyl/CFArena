@@ -3,7 +3,7 @@ package kz.hapyl.fight.game.heroes.storage;
 import kz.hapyl.fight.event.DamageInput;
 import kz.hapyl.fight.event.DamageOutput;
 import kz.hapyl.fight.game.GamePlayer;
-import kz.hapyl.fight.game.IGamePlayer;
+import kz.hapyl.fight.game.AbstractGamePlayer;
 import kz.hapyl.fight.game.heroes.ClassEquipment;
 import kz.hapyl.fight.game.heroes.Hero;
 import kz.hapyl.fight.game.talents.Talent;
@@ -46,7 +46,7 @@ public class Pytaria extends Hero {
 		this.setUltimate(new UltimateTalent("Feel the Breeze", "Summon a blooming Bee in front of Pytaria.____The Bee will lock on a closest enemy and charge.____Once charged, unleashes damage in small AoE and regenerates &b" + healthRegenPercent + "% &7of Pytaria's missing health.", 60) {
 			@Override
 			public void useUltimate(Player player) {
-				final IGamePlayer gp = GamePlayer.getPlayerSafe(player);
+				final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
 				final double health = gp.getHealth();
 				final double maxHealth = gp.getMaxHealth();
 				final double missingHp = (maxHealth - health) * healthRegenPercent / maxHealth;
@@ -149,7 +149,7 @@ public class Pytaria extends Hero {
 
 	private void updateChestplateColor(Player player) {
 		final PlayerInventory inventory = player.getInventory();
-		final IGamePlayer gp = GamePlayer.getPlayerSafe(player);
+		final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
 		final double missingHealth = gp.getMaxHealth() - gp.getHealth();
 
 		if (isBetween(missingHealth, 0, 10)) {
@@ -175,7 +175,7 @@ public class Pytaria extends Hero {
 
 	// 10% DMG per 20% <3
 	public double calculateDamage(Player player, double damage) {
-		final IGamePlayer gp = GamePlayer.getPlayerSafe(player);
+		final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
 		final double health = gp.getHealth();
 		final double maxHealth = gp.getMaxHealth();
 		final double multiplier = ((maxHealth - health) / 10);

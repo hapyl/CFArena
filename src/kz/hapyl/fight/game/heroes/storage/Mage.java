@@ -150,7 +150,7 @@ public class Mage extends Hero implements UIComponent {
 
 		PlayerLib.addEffect(player, PotionEffectType.SPEED, wyvernHeartLength, 3);
 		PlayerLib.addEffect(player, PotionEffectType.WEAKNESS, wyvernHeartLength, 1);
-		GamePlayer.getPlayerSafe(player).heal(wyvernHealingAmount);
+		GamePlayer.getPlayer(player).heal(wyvernHealingAmount);
 
 		// fx
 		PlayerLib.spawnParticle(player.getLocation().add(0.0d, 1.0d, 0.0d), Particle.HEART, 7, 0.3d, 0.2d, 0.3d, 1);

@@ -1,10 +1,6 @@
 package kz.hapyl.fight.game.heroes;
 
-import kz.hapyl.fight.game.heroes.storage.Alchemist;
-import kz.hapyl.fight.game.heroes.storage.Archer;
-import kz.hapyl.fight.game.heroes.storage.Moonwalker;
-import kz.hapyl.fight.game.heroes.storage.Pytaria;
-import kz.hapyl.fight.game.talents.storage.DrEd;
+import kz.hapyl.fight.game.heroes.storage.*;
 
 /**
  * This class is used to access hero handles faster.
@@ -16,5 +12,10 @@ public class HeroHandle {
 	public static final Moonwalker MOONWALKER = (Moonwalker)Heroes.MOONWALKER.getHero();
 	public static final Pytaria PYTARIA = (Pytaria)Heroes.PYTARIA.getHero();
 	public static final DrEd DR_ED = (DrEd)Heroes.DR_ED.getHero();
+	public static final Ender ENDER = (Ender)Heroes.ENDER.getHero();
+	public static final ShadowAssassin SHADOW_ASSASSIN = (ShadowAssassin)Heroes.SHADOW_ASSASSIN.getHero();
+	public static final Vortex VORTEX = (Vortex)Heroes.VORTEX.getHero();
+	public static final Freazly FREAZLY = (Freazly)Heroes.FREAZLY.getHero();
+
 
 }

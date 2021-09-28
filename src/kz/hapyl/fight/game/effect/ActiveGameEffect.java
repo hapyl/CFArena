@@ -48,7 +48,7 @@ public class ActiveGameEffect {
 	public void forceStop() {
 		this.remainingTicks = 0;
 		type.getGameEffect().onStop(player);
-		final GamePlayer gp = GamePlayer.getPlayer(this.player);
+		final GamePlayer gp = GamePlayer.getAlivePlayer(this.player);
 		if (gp != null) {
 			gp.clearEffect(type);
 		}

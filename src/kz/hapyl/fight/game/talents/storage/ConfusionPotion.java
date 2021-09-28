@@ -82,7 +82,7 @@ public class ConfusionPotion extends Talent {
 					if (player == target) {
 						return;
 					}
-					GamePlayer.getPlayerSafe(player).addEffect(GameEffectType.AMNESIA, 20, true);
+					GamePlayer.getPlayer(player).addEffect(GameEffectType.AMNESIA, 20, true);
 				});
 
 			}

@@ -31,7 +31,7 @@ public class GameEffectCommand extends SimplePlayerAdminCommand {
 			final GameEffectType type = Validate.getEnumValue(GameEffectType.class, args[0]);
 			final int ticks = args[1].equalsIgnoreCase("stop") ? -1 : Validate.getInt(args[1]);
 
-			final GamePlayer gamePlayer = GamePlayer.getPlayer(player);
+			final GamePlayer gamePlayer = GamePlayer.getAlivePlayer(player);
 			if (type == null || gamePlayer == null) {
 				Chat.sendMessage(player, "&cInvalid effect type.");
 				return;

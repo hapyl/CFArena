@@ -6,8 +6,20 @@ public class DamageOutput {
 	private double damage; // not an additional damage, override damage
 
 	public DamageOutput() {
-		this.damage = 0.0d;
-		this.cancelDamage = false;
+		this(0.0d, false);
+	}
+
+	public DamageOutput(double damage) {
+		this(damage, false);
+	}
+
+	public DamageOutput(boolean cancelDamage) {
+		this(0.0d, cancelDamage);
+	}
+
+	public DamageOutput(double damage, boolean cancelEvent) {
+		this.damage = damage;
+		this.cancelDamage = cancelEvent;
 	}
 
 	public DamageOutput setCancelDamage(boolean cancelDamage) {

@@ -115,7 +115,7 @@ public class MoonslitePillar extends Talent {
 		PlayerLib.playSound(location, Sound.BLOCK_STONE_BREAK, 0.0f);
 		Utils.getEntitiesInRange(location, effectRange).forEach(entity -> {
 			if (entity == owner) {
-				GamePlayer.getPlayerSafe(owner).heal(2.0d);
+				GamePlayer.getPlayer(owner).heal(2.0d);
 				PlayerLib.addEffect(owner, PotionEffectType.JUMP, 20, 2);
 				PlayerLib.spawnParticle(owner.getEyeLocation().add(0.0d, 0.5d, 0.0d), Particle.HEART, 1, 0, 0, 0, 0);
 			}

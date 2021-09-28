@@ -67,7 +67,7 @@ public class Paranoia extends Talent {
 					if (player == target || !Manager.current().isPlayerInGame(target)) {
 						return;
 					}
-					GamePlayer.getPlayerSafe(target).addEffect(GameEffectType.PARANOIA, effectDuration);
+					GamePlayer.getPlayer(target).addEffect(GameEffectType.PARANOIA, effectDuration);
 				});
 
 			}

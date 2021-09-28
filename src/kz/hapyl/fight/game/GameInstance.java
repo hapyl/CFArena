@@ -3,6 +3,7 @@ package kz.hapyl.fight.game;
 import com.google.common.collect.Maps;
 import kz.hapyl.fight.game.heroes.Hero;
 import kz.hapyl.fight.game.heroes.Heroes;
+import kz.hapyl.fight.game.maps.GameMaps;
 import kz.hapyl.fight.game.talents.UltimateTalent;
 import kz.hapyl.fight.game.task.GameTask;
 import kz.hapyl.fight.game.ui.UIComponent;
@@ -22,53 +23,31 @@ public class GameInstance implements GameElement {
 	private final long startedAt;
 	private final long timeLimit;
 	private final Map<UUID, GamePlayer> players;
-
+	private final GameMaps currentMap;
 	private final GameTask gameTask;
+	private State gameState;
 
-	public GameInstance(long timeLimitSec) {
+	public GameInstance(long timeLimitSec, GameMaps map) {
 		this.startedAt = System.currentTimeMillis();
 		this.timeLimit = timeLimitSec * 1000;
 		this.players = Maps.newHashMap();
 		this.createGamePlayers();
 
+		this.gameState = State.PRE_GAME;
 		this.hexCode = generateHexCode();
+		this.currentMap = map;
 
 		// This is a main ticker of the game.
-		this.gameTask = new GameTask() {
+		this.gameTask = startTask();
 
-			int tick = 0;
+	}
 
-			@Override
-			public void run() {
+	public void setGameState(State gameState) {
+		this.gameState = gameState;
+	}
 
-				// Auto-Points
-				if (tick % 20 == 0) {
-					players.values().forEach(player -> {
-						player.addUltimatePoints(1);
-					});
-				}
-
-				// Game UI
-				if (tick % 5 == 0) {
-					players.values().forEach(gp -> {
-						if (gp.isAlive() && !gp.isSpectator()) {
-							final StringBuilder builder = new StringBuilder("&c%s &c❤ &0| &b%s &l※".formatted(BukkitUtils.decimalFormat(gp.getHealth()), getUltimateString(gp)));
-							final Player player = gp.getPlayer();
-
-							if (gp.getHero() instanceof UIComponent uiHero) {
-								builder.append(" &0| ").append(uiHero.getString(player));
-							}
-
-							Chat.sendActionbar(player, builder.toString());
-						}
-					});
-				}
-
-				++tick;
-
-			}
-		}.runTaskTimer(0, 1);
-
+	public State getGameState() {
+		return gameState;
 	}
 
 	private String getUltimateString(GamePlayer gp) {
@@ -87,8 +66,12 @@ public class GameInstance implements GameElement {
 		return pointsString;
 	}
 
+	public long getTimeLeftRaw() {
+		return (timeLimit - (System.currentTimeMillis() - startedAt));
+	}
+
 	public long getTimeLeft() {
-		return (timeLimit - (System.currentTimeMillis() - startedAt)) / 50;
+		return getTimeLeftRaw() / 50;
 	}
 
 	public boolean isTimeIsUp() {
@@ -158,10 +141,6 @@ public class GameInstance implements GameElement {
 
 	@Override
 	public void onStart() {
-		for (final Heroes value : Heroes.values()) {
-			value.getHero().onStart();
-		}
-
 		Chat.broadcast("&7&oStarting game instance #%s...", this.hexCode());
 	}
 
@@ -187,6 +166,54 @@ public class GameInstance implements GameElement {
 		//	builder.append(Integer.toHexString(new Random().nextInt(0x10) + 0x10));
 		//}
 		//return builder.toString();
+	}
+
+	private GameTask startTask() {
+		return new GameTask() {
+
+			private int tick = (int)(timeLimit / 50);
+
+			@Override
+			public void run() {
+
+				// Auto-Points
+				if (tick % 20 == 0) {
+					players.values().forEach(player -> {
+						player.addUltimatePoints(1);
+					});
+				}
+
+				// Game UI
+				if (tick % 5 == 0) {
+					players.values().forEach(gp -> {
+						if (gp.isAlive() && !gp.isSpectator()) {
+							final StringBuilder builder = new StringBuilder("&c%s &c❤ &0| &b%s &l※".formatted(
+									BukkitUtils.decimalFormat(gp.getHealth()),
+									getUltimateString(gp)
+							));
+							final Player player = gp.getPlayer();
+
+							if (gp.getHero() instanceof UIComponent uiHero) {
+								if (!uiHero.getString(player).isEmpty()) {
+									builder.append(" &0| ").append(uiHero.getString(player));
+								}
+							}
+
+							Chat.sendActionbar(player, builder.toString());
+						}
+					});
+				}
+
+				if (tick < 0) {
+					Chat.broadcast("&a&lTime is Up! &aGame Over.");
+					Manager.current().stopCurrentGame();
+					this.cancel();
+				}
+
+				--tick;
+
+			}
+		}.runTaskTimer(0, 1);
 	}
 
 	@Override

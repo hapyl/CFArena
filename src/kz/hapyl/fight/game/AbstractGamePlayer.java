@@ -3,79 +3,91 @@ package kz.hapyl.fight.game;
 import kz.hapyl.fight.game.effect.GameEffectType;
 import org.bukkit.entity.LivingEntity;
 
-public class SafeGamePlayer implements IGamePlayer {
-	@Override
+public class AbstractGamePlayer {
+
+	public static final AbstractGamePlayer NULL_GAME_PLAYER = new AbstractGamePlayer();
+
+	// this works as IllegalStateException but without the error
+	private void displayError() {
+		//Bukkit.getConsoleSender().sendMessage("&4IllegalState! &cCalled null IGamePlayer");
+	}
+
+	public String getStatusString() {
+		return isDead() ? "&cDead" : isSpectator() ? "&7Spectator" : "&aAlive";
+	}
+
+	public boolean isDead() {
+		return false;
+	}
+
+	public boolean isSpectator() {
+		return true;
+	}
+
 	public boolean isAlive() {
+		displayError();
 		return false;
 	}
 
-	@Override
 	public void heal(double d) {
-
+		displayError();
 	}
 
-	@Override
 	public void damage(double d) {
-
+		displayError();
 	}
 
-	@Override
 	public void damage(double d, EnumDamageCause cause) {
-
+		displayError();
 	}
 
-	@Override
 	public void damage(double d, LivingEntity damager, EnumDamageCause cause) {
-
+		displayError();
 	}
 
-	@Override
 	public void die(boolean force) {
-
+		displayError();
 	}
 
-	@Override
+	// effects
 	public void addEffect(GameEffectType type, int ticks) {
-
+		displayError();
 	}
 
-	@Override
 	public void addEffect(GameEffectType type, int ticks, boolean override) {
-
+		displayError();
 	}
 
-	@Override
 	public boolean hasEffect(GameEffectType type) {
+		displayError();
 		return false;
 	}
 
-	@Override
 	public void removeEffect(GameEffectType type) {
-
+		displayError();
 	}
 
-	@Override
 	public EnumDamageCause getLastDamageCause() {
-		return null;
+		displayError();
+		return EnumDamageCause.NONE;
 	}
 
-	@Override
 	public void setHealth(double d) {
-
+		displayError();
 	}
 
-	@Override
 	public double getHealth() {
-		return 0;
+		displayError();
+		return getMaxHealth();
 	}
 
-	@Override
 	public double getMaxHealth() {
-		return 0;
+		displayError();
+		return 100.d;
 	}
 
-	@Override
 	public boolean isUltimateReady() {
 		return false;
 	}
+
 }

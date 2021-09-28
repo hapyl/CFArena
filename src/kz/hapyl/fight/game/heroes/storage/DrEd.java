@@ -1,12 +1,12 @@
-package kz.hapyl.fight.game.talents.storage;
+package kz.hapyl.fight.game.heroes.storage;
 
 import kz.hapyl.fight.game.heroes.ClassEquipment;
 import kz.hapyl.fight.game.heroes.Hero;
 import kz.hapyl.fight.game.talents.Talent;
 import kz.hapyl.fight.game.talents.Talents;
 import kz.hapyl.fight.game.talents.UltimateTalent;
-import kz.hapyl.fight.game.talents.storage.extra.GravityGun;
-import kz.hapyl.fight.game.talents.storage.extra.PhysGun;
+import kz.hapyl.fight.game.heroes.storage.extra.GravityGun;
+import kz.hapyl.fight.game.heroes.storage.extra.PhysGun;
 import kz.hapyl.fight.game.task.GameTask;
 import kz.hapyl.fight.game.weapons.Weapon;
 import kz.hapyl.fight.util.ItemStacks;

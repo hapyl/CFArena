@@ -1,4 +1,4 @@
-package kz.hapyl.fight.game.talents.storage.extra;
+package kz.hapyl.fight.game.heroes.storage.extra;
 
 import kz.hapyl.fight.game.task.GameTask;
 import kz.hapyl.fight.game.weapons.Weapon;

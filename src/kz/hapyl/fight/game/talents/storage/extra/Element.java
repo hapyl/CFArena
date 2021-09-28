@@ -5,6 +5,7 @@ import com.mojang.authlib.properties.Property;
 import kz.hapyl.fight.game.EnumDamageCause;
 import kz.hapyl.fight.game.GamePlayer;
 import kz.hapyl.fight.game.heroes.HeroHandle;
+import kz.hapyl.fight.game.heroes.storage.extra.GravityGun;
 import kz.hapyl.fight.game.task.GameTask;
 import kz.hapyl.fight.util.Utils;
 import kz.hapyl.spigotutils.module.chat.Chat;
@@ -139,7 +140,7 @@ public class Element {
 
 					entityPoof();
 					players.forEach(target -> {
-						GamePlayer.getPlayerSafe(target).damage(type.getDamage(), player, EnumDamageCause.GRAVITY_GUN);
+						GamePlayer.getPlayer(target).damage(type.getDamage(), player, EnumDamageCause.GRAVITY_GUN);
 						if (type.getEffect() != null) {
 							type.getEffect().use(target);
 						}

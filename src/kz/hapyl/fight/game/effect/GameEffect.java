@@ -28,6 +28,10 @@ public abstract class GameEffect {
 		this.about = about;
 	}
 
+	public void setAbout(String about, Object... objects) {
+		this.setAbout(about.formatted(objects));
+	}
+
 	public void setPositive(boolean positive) {
 		isPositive = positive;
 	}
@@ -40,11 +44,11 @@ public abstract class GameEffect {
 		return isPositive;
 	}
 
-	public abstract void onTick(Player player, int tick);
-
 	public abstract void onStart(Player player);
 
 	public abstract void onStop(Player player);
+
+	public abstract void onTick(Player player, int tick);
 
 	public void onUpdate(Player player) {
 

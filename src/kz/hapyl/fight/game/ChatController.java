@@ -52,7 +52,7 @@ public class ChatController implements Listener {
 		final StringBuilder builder = new StringBuilder();
 
 		if (Manager.current().isGameInProgress()) {
-			final GamePlayer player = GamePlayer.getPlayer(sender);
+			final GamePlayer player = GamePlayer.getAlivePlayer(sender);
 			// nullable player if game does not exist
 			if (player != null) {
 				if (player.isDead()) {
@@ -76,7 +76,7 @@ public class ChatController implements Listener {
 			PlayerLib.playSound(receiver, Sound.BLOCK_NOTE_BLOCK_PLING, 2.0f);
 		}
 
-		builder.append(message);
+		builder.append(sender.isOp() ? ChatColor.stripColor(message) : message);
 		Chat.sendMessage(receiver, builder.toString());
 
 	}

@@ -1,6 +1,7 @@
 package kz.hapyl.fight;
 
 import kz.hapyl.fight.cmds.*;
+import kz.hapyl.fight.event.EnderPearlController;
 import kz.hapyl.fight.event.PlayerEvent;
 import kz.hapyl.fight.game.ChatController;
 import kz.hapyl.fight.game.Manager;
@@ -13,9 +14,7 @@ import kz.hapyl.spigotutils.module.command.SimplePlayerCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.World;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
@@ -115,28 +114,18 @@ public class Main extends JavaPlugin {
 
 	}
 
+	private void validateAllClasses() {
+	}
+
 	private void regEvents() {
 		final PluginManager pm = Bukkit.getServer().getPluginManager();
 		pm.registerEvents(new PlayerEvent(), this);
 		pm.registerEvents(new ChatController(), this);
-	}
-
-	private void addCommand(String cmd, CommandExecutor exec) {
-		this.getCommand(cmd).setExecutor(exec);
+		pm.registerEvents(new EnderPearlController(), this);
 	}
 
 	public void addEvent(Listener listener) {
 		getServer().getPluginManager().registerEvents(listener, this);
-	}
-
-	private void addCommand(String cmd, CommandExecutor exec, boolean includeTabCompleter) {
-		this.getCommand(cmd).setExecutor(exec);
-		if (includeTabCompleter)
-			this.getCommand(cmd).setTabCompleter((TabCompleter)exec);
-	}
-
-	public void registerEvent(Listener listener) {
-		addEvent(listener);
 	}
 
 	public static Main getPlugin() {

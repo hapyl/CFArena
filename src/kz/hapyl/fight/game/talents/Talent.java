@@ -2,12 +2,16 @@ package kz.hapyl.fight.game.talents;
 
 import kz.hapyl.fight.game.GameElement;
 import kz.hapyl.fight.game.Response;
+import kz.hapyl.fight.util.Utils;
+import kz.hapyl.spigotutils.module.annotate.Super;
 import kz.hapyl.spigotutils.module.chat.Chat;
 import kz.hapyl.spigotutils.module.inventory.ItemBuilder;
 import kz.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+
+import javax.annotation.Nonnull;
 
 public abstract class Talent implements GameElement {
 
@@ -16,16 +20,35 @@ public abstract class Talent implements GameElement {
 	private String texture;
 
 	private final String name;
-	private final String description;
 	private final Type type;
+	private String description;
 	private int cd;
 
+	public Talent(String name) {
+		this(name, "", Type.COMBAT);
+	}
+
+	public Talent(String name, String description) {
+		this(name, description, Type.COMBAT);
+	}
 
 	public Talent(String name, String description, Type type) {
 		this.name = name;
 		this.description = description;
 		this.type = type;
 		this.material = Material.BEDROCK;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public void setDescription(String description, Object... replacements) {
+		this.description = description.formatted(replacements);
+	}
+
+	public Material getMaterial() {
+		return material;
 	}
 
 	public ItemStack getItem() {
@@ -88,7 +111,21 @@ public abstract class Talent implements GameElement {
 		return this;
 	}
 
-	public abstract Response execute(Player player);
+	protected abstract Response execute(Player player);
+
+	@Super
+	@Nonnull
+	public final Response execute0(Player player) {
+		if (!Utils.playerCanUseAbility(player)) {
+			return Response.error("Talent is locked!");
+		}
+		final Response response = execute(player);
+		return response == null ? Response.ERROR_DEFAULT : response;
+	}
+
+	public final void startCd(Player player, int customCd) {
+		player.setCooldown(this.getItem().getType(), customCd);
+	}
 
 	public final void startCd(Player player) {
 		if (this.cd <= 0) {
@@ -108,6 +145,8 @@ public abstract class Talent implements GameElement {
 	public int getCd() {
 		return cd;
 	}
+
+	public static int DYNAMIC = -1;
 
 	public Talent setCd(int cd) {
 		this.cd = cd;

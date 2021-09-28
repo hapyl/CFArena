@@ -1,7 +1,7 @@
 package kz.hapyl.fight.game.heroes.storage.extra;
 
 import kz.hapyl.fight.game.GamePlayer;
-import kz.hapyl.fight.game.IGamePlayer;
+import kz.hapyl.fight.game.AbstractGamePlayer;
 import kz.hapyl.fight.game.effect.GameEffectType;
 import kz.hapyl.fight.game.talents.UltimateTalent;
 import kz.hapyl.fight.game.task.GameTask;
@@ -148,7 +148,7 @@ public class MoonwalkerUltimate extends UltimateTalent {
 		world.playSound(location, Sound.ENTITY_ENDER_DRAGON_HURT, 50, 0.5f);
 
 		Utils.getPlayersInRange(location, meteoriteExplosionRadius).forEach(player -> {
-			final IGamePlayer gp = GamePlayer.getPlayerSafe(player);
+			final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
 			gp.addEffect(GameEffectType.CORROSION, corrosionTime, true);
 			gp.damage(50.0d);
 		});

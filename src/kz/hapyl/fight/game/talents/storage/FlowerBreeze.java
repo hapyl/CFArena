@@ -1,7 +1,7 @@
 package kz.hapyl.fight.game.talents.storage;
 
 import kz.hapyl.fight.game.GamePlayer;
-import kz.hapyl.fight.game.IGamePlayer;
+import kz.hapyl.fight.game.AbstractGamePlayer;
 import kz.hapyl.fight.game.Response;
 import kz.hapyl.fight.game.talents.Talent;
 import kz.hapyl.spigotutils.module.player.PlayerLib;
@@ -37,7 +37,7 @@ public class FlowerBreeze extends Talent {
 		player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 10, 2));
 
 		final World world = location.getWorld();
-		final IGamePlayer gp = GamePlayer.getPlayerSafe(player);
+		final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
 
 		// can't go lower than 1 heart
 		gp.setHealth(Math.max(2, gp.getHealth() - damageAmount));

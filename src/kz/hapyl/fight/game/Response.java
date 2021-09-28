@@ -6,6 +6,7 @@ public class Response {
 
 	public static final Response OK = new Response(null, Type.OK);
 	public static final Response ERROR = new Response(null, Type.ERROR);
+	public static final Response ERROR_DEFAULT = error("Talent is not complete!");
 
 	private final String reason;
 	private final Type type;

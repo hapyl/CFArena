@@ -1,6 +1,8 @@
 package kz.hapyl.fight.game.scoreboard;
 
 import kz.hapyl.fight.Main;
+import kz.hapyl.fight.game.AbstractGamePlayer;
+import kz.hapyl.fight.game.GameInstance;
 import kz.hapyl.fight.game.GamePlayer;
 import kz.hapyl.fight.game.Manager;
 import kz.hapyl.fight.game.database.Database;
@@ -56,8 +58,8 @@ public class GamePlayerUI {
 
 		// Display effects if game in progress
 		if (Manager.current().isGameInProgress()) {
-			footer.append("\n&e&lActive Effects:\n");
-			final GamePlayer gp = GamePlayer.getPlayer(this.player);
+			footer.append("\n\n&e&lActive Effects:\n");
+			final GamePlayer gp = GamePlayer.getAlivePlayer(this.player);
 			if (gp == null || gp.getActiveEffects().isEmpty()) {
 				footer.append("&8None!");
 			}
@@ -86,7 +88,7 @@ public class GamePlayerUI {
 
 		if (Manager.current().isGameInProgress()) {
 			builder.append(" &0| ");
-			final GamePlayer gamePlayer = GamePlayer.getPlayer(this.player);
+			final GamePlayer gamePlayer = GamePlayer.getAlivePlayer(this.player);
 			if (gamePlayer != null) {
 				if (gamePlayer.isSpectator()) {
 					builder.append("&7&lSpectator");
@@ -113,18 +115,43 @@ public class GamePlayerUI {
 	}
 
 	public void updateScoreboard() {
-
 		final Database database = Database.getDatabase(player);
-		this.builder.setLines("",
-				"Welcome %s to the".formatted(player.getName()),
-				"&lClasses Fight &fArena!",
+		final Manager current = Manager.current();
+
+		this.builder.getLines().clear();
+		this.builder.addLines(
 				"",
-				" &e&lCoins: &f%s".formatted(database.getCurrency().getCoins()),
-				" &e&lSelected Class: &f%s".formatted(Manager.current().getSelectedHero(player).getHero().getName()),
+				"Welcome %s to the".formatted(this.player.getName()),
+				"&lClasses Fight &fArena!",
+				""
+		);
+
+		if (current.isGameInProgress()) {
+			final GameInstance currentGame = current.getCurrentGame();
+			final AbstractGamePlayer gamePlayer = GamePlayer.getPlayer(this.player);
+			this.builder.addLines(
+					"&6&lGame: &8" + currentGame.hexCode(),
+					" &e&lMap: &f%s".formatted(current.getCurrentMap().getMap().getName()),
+					" &e&lTime Left: &f%s".formatted(new SimpleDateFormat("mm:ss").format(currentGame.getTimeLeftRaw())),
+					" &e&lStatus: &f%s".formatted(gamePlayer.getStatusString())
+			);
+		}
+		else {
+			this.builder.addLines(
+					"&6&lLobby:",
+					" &e&lMap: &f%s".formatted(current.getCurrentMap().getMap().getName()),
+					" &e&lCoins: &f%s".formatted(database.getCurrency().getCoins()),
+					" &e&lHero: &f%s".formatted(current.getSelectedHero(player).getHero().getName())
+			);
+		}
+
+		this.builder.addLines(
 				"",
 				"&bTest version, report any",
 				"&bbugs you'll find!"
 		);
+
+		this.builder.updateLines();
 		this.builder.addPlayer(player);
 
 	}

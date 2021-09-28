@@ -4,6 +4,7 @@ import kz.hapyl.fight.game.effect.ActiveGameEffect;
 import kz.hapyl.fight.game.effect.GameEffectType;
 import kz.hapyl.fight.game.heroes.Hero;
 import kz.hapyl.fight.game.talents.UltimateTalent;
+import kz.hapyl.spigotutils.module.annotate.Super;
 import kz.hapyl.spigotutils.module.chat.Chat;
 import kz.hapyl.spigotutils.module.math.Numbers;
 import kz.hapyl.spigotutils.module.player.PlayerLib;
@@ -16,10 +17,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
+import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class GamePlayer implements IGamePlayer {
+public class GamePlayer extends AbstractGamePlayer {
 
 	/**
 	 * A single instance should exist per game bases and cleared after the game ends.
@@ -65,6 +67,7 @@ public class GamePlayer implements IGamePlayer {
 		player.setFlying(false);
 		player.setSaturation(0.0f);
 		player.setFoodLevel(20);
+		player.setInvulnerable(false);
 		player.getActivePotionEffects().forEach(effect -> player.removePotionEffect(effect.getType()));
 	}
 
@@ -254,16 +257,17 @@ public class GamePlayer implements IGamePlayer {
 
 	public void addUltimatePoints(int points) {
 		// cannot give points if using ultimate or dead
-		if (Manager.current().getSelectedHero(player).getHero().isUsingUltimate(player) || !this.isAlive()) {
+		if (hero.isUsingUltimate(player) || !this.isAlive() || this.ultPoints >= this.getUltPointsNeeded()) {
 			return;
 		}
 
-		if (this.ultPoints >= this.getUltPointsNeeded()) {
-			return;
-		}
 		this.ultPoints = Numbers.clamp(this.ultPoints + points, 0, this.hero.getUltimate().getCost());
+
+		// show once at broadcast
 		if (this.ultPoints >= this.getUltPointsNeeded()) {
-			Chat.sendMessage(player, "&b&l※ &bYou Ultimate is ready! Press &e&lF &bto use it!");
+			Chat.sendMessage(player, "&b&l※ &bYou ultimate is ready! Press &e&lF &bto use it!");
+			Chat.sendTitle(player, "", "&aYou ultimate is ready!", 5, 15, 5);
+			PlayerLib.playSound(player, Sound.BLOCK_CONDUIT_DEACTIVATE, 2.0f);
 		}
 	}
 
@@ -279,7 +283,7 @@ public class GamePlayer implements IGamePlayer {
 
 	// This is a shortcut that returns an GamePlayer from a game instance if there is one.
 	@Nullable
-	public static GamePlayer getPlayer(Player player) {
+	public static GamePlayer getAlivePlayer(Player player) {
 		final GameInstance gameInstance = Manager.current().getGameInstance();
 		if (gameInstance == null) {
 			return null;
@@ -287,9 +291,16 @@ public class GamePlayer implements IGamePlayer {
 		return gameInstance.getPlayer(player);
 	}
 
-	public static IGamePlayer getPlayerSafe(Player player) {
-		final GamePlayer gamePlayer = getPlayer(player);
-		return gamePlayer == null ? new SafeGamePlayer() : gamePlayer;
+	/**
+	 * Returns either an actual GamePlayer instance if there is a GameInstance, otherwise AbstractGamePlayer.
+	 *
+	 * @param player bukkit player.
+	 * @return An actual GamePlayer instance of a player or a null if called in IllegalState.
+	 */
+	@Nonnull
+	public static AbstractGamePlayer getPlayer(Player player) {
+		final GamePlayer gamePlayer = getAlivePlayer(player);
+		return gamePlayer == null ? AbstractGamePlayer.NULL_GAME_PLAYER : gamePlayer;
 	}
 
 	public Player getPlayer() {
@@ -336,6 +347,26 @@ public class GamePlayer implements IGamePlayer {
 
 	public boolean compare(Player player) {
 		return this.getPlayer() == player;
+	}
+
+	// static members
+
+	public static void damageEntity(LivingEntity entity, double damage) {
+		damageEntity(entity, damage, null, null);
+	}
+
+	public static void damageEntity(LivingEntity entity, double damage, LivingEntity damager) {
+		damageEntity(entity, damage, damager, null);
+	}
+
+	@Super
+	public static void damageEntity(LivingEntity entity, double damage, LivingEntity damager, EnumDamageCause cause) {
+		if (entity instanceof Player) {
+			getPlayer(((Player)entity).getPlayer()).damage(damage, damager, cause);
+		}
+		else {
+			entity.damage(damage);
+		}
 	}
 
 }

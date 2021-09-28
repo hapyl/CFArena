@@ -99,18 +99,6 @@ public abstract class Hero implements GameElement {
 
 	public abstract Talent getSecondTalent();
 
-	public Talent getThirdTalent() {
-		return null;
-	}
-
-	public Talent getFourthTalent() {
-		return null;
-	}
-
-	public Talent getFifthTalent() {
-		return null;
-	}
-
 	public abstract Talent getPassiveTalent();
 
 	public DamageOutput processDamageAsDamager(DamageInput input) {

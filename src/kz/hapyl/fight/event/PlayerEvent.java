@@ -2,7 +2,7 @@ package kz.hapyl.fight.event;
 
 import kz.hapyl.fight.Main;
 import kz.hapyl.fight.game.GamePlayer;
-import kz.hapyl.fight.game.IGamePlayer;
+import kz.hapyl.fight.game.AbstractGamePlayer;
 import kz.hapyl.fight.game.Manager;
 import kz.hapyl.fight.game.Response;
 import kz.hapyl.fight.game.effect.GameEffectType;
@@ -36,6 +36,7 @@ import org.bukkit.util.Vector;
 import java.util.Random;
 
 public class PlayerEvent implements Listener {
+
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void handlePlayerJoin(PlayerJoinEvent ev) {
@@ -108,7 +109,7 @@ public class PlayerEvent implements Listener {
 		final Player player = ev.getPlayer();
 		final Heroes hero = Manager.current().getSelectedHero(player);
 		if (Manager.current().isGameInProgress()) {
-			final GamePlayer gp = GamePlayer.getPlayer(player);
+			final GamePlayer gp = GamePlayer.getAlivePlayer(player);
 			if (gp == null) {
 				return;
 			}
@@ -116,29 +117,38 @@ public class PlayerEvent implements Listener {
 				final UltimateTalent ultimate = hero.getHero().getUltimate();
 
 				if (ultimate.hasCd(player)) {
-					sendUltimateMessage(player, "&cUltimate on cooldown for %ss.", BukkitUtils.roundTick(ultimate.getCdTimeLeft(player)));
-					PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
+					sendUltimateFailureMessage(player, "&cUltimate on cooldown for %ss.", BukkitUtils.roundTick(ultimate.getCdTimeLeft(player)));
 					return;
 				}
 
-				ultimate.execute(player);
+				if (!ultimate.predicate(player)) {
+					sendUltimateFailureMessage(player, "&cUnable to use ultimate! " + ultimate.predicateMessage());
+					return;
+				}
+
+				ultimate.execute0(player);
 				ultimate.startCd(player);
 				gp.setUltPoints(0);
 
 				for (final Player online : Bukkit.getOnlinePlayers()) {
-					Chat.broadcast("&b&l※ &b%s used %s!".formatted(online == player ? "You" : player.getName(), ultimate.getName()));
+					Chat.broadcast("&b&l※ &b%s used &l%s&7!".formatted(online == player ? "You" : player.getName(), ultimate.getName()));
 					PlayerLib.playSound(online, ultimate.getSound(), ultimate.getPitch());
 				}
 			}
 			else {
-				sendUltimateMessage(player, "&cYour ultimate is not ready!");
-				Chat.sendTitle(player, "&b&l※", "&cUltimate is not ready!", 5, 15, 5);
+				Chat.sendTitle(player, "&4&l※", "&cYour ultimate isn't ready!", 5, 15, 5);
+				sendUltimateFailureMessage(player, "&cYour ultimate isn't ready!");
 			}
 		}
 	}
 
-	private void sendUltimateMessage(Player player, String str, Object... objects) {
-		Chat.sendMessage(player, "&b&l※ &r" + Chat.format(str, objects));
+	private void sendUltimateSuccessMessage(Player player, String str, Object... objects) {
+		Chat.sendMessage(player, "&b&l※ &a" + Chat.format(str, objects));
+	}
+
+	private void sendUltimateFailureMessage(Player player, String str, Object... objects) {
+		Chat.sendMessage(player, "&4&l※ &c" + Chat.format(str, objects));
+		PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
@@ -147,13 +157,30 @@ public class PlayerEvent implements Listener {
 		LivingEntity damagerFinal = null;
 		double damage = ev.getDamage();
 
-		if (!(entity instanceof LivingEntity livingEntity)) {
+		// let void damage be ignored
+		final EntityDamageEvent.DamageCause cause = ev.getCause();
+		if (!(entity instanceof LivingEntity livingEntity) || cause == EntityDamageEvent.DamageCause.VOID) {
 			return;
 		}
+
+		// TODO: 027. 09/27/2021 -> calculate charge and decrease damage if non-full charge
 
 		if (entity instanceof Player && !Manager.current().isGameInProgress()) {
 			ev.setCancelled(true);
 			return;
+		}
+
+		/** Pre event tests */
+
+		if (livingEntity instanceof Player player) {
+			final AbstractGamePlayer gamePlayer = GamePlayer.getPlayer(player);
+
+			// fall damage
+			if (cause == EntityDamageEvent.DamageCause.FALL && gamePlayer.hasEffect(GameEffectType.FALL_DAMAGE_RESISTANCE)) {
+				gamePlayer.removeEffect(GameEffectType.FALL_DAMAGE_RESISTANCE);
+				ev.setCancelled(true);
+				return;
+			}
 		}
 
 		// Calculate base damage
@@ -210,6 +237,14 @@ public class PlayerEvent implements Listener {
 					damage /= 2;
 				}
 
+				/** Apply GameEffect for damager */
+				if (living instanceof Player player) {
+					final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
+					if (gp.hasEffect(GameEffectType.STUN)) {
+						damage = 0.0d;
+					}
+				}
+
 			}
 
 			/** Apply modifiers for victim */
@@ -226,37 +261,54 @@ public class PlayerEvent implements Listener {
 						damage = 0.0d;
 					}
 
+					/** Apply GameEffect for victim */
+					final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
+					if (gp.hasEffect(GameEffectType.STUN)) {
+						gp.removeEffect(GameEffectType.STUN);
+					}
+
+					if (gp.hasEffect(GameEffectType.VULNERABLE)) {
+						damage *= 2.0d;
+					}
+
 				}
 			}
 		}
 
-		// process damager and victims hero damage processors
+		// Process damager and victims hero damage processors
+
 		// victim
+		boolean cancelEvent = false;
 		if (livingEntity instanceof Player player) {
-			final DamageOutput output = getDamageOutput(player, damagerFinal, damage, true);
+			final DamageOutput output = getDamageOutput(player, damagerFinal, cause, damage, false);
 			if (output != null) {
 				damage = output.getDamage();
-				if (output.isCancelDamage()) {
-					ev.setCancelled(true);
-				}
+				cancelEvent = output.isCancelDamage();
 			}
 		}
-
 
 		// damager
 		if (damagerFinal instanceof Player player) {
-			final DamageOutput output = getDamageOutput(player, livingEntity, damage, true);
+			final DamageOutput output = getDamageOutput(player, livingEntity, cause, damage, true);
 			if (output != null) {
 				damage = output.getDamage();
-				if (output.isCancelDamage()) {
-					ev.setCancelled(true);
+				if (!cancelEvent) {
+					cancelEvent = output.isCancelDamage();
 				}
 			}
+		}
+
+		// only damage entities other that the player
+		ev.setDamage(livingEntity instanceof Player ? 0.0d : damage);
+
+		if (cancelEvent) {
+			ev.setCancelled(true);
+			return;
 		}
 
 		// make sure not to kill player but instead put them in spectator
 		if (entity instanceof Player player) {
-			final GamePlayer gamePlayer = GamePlayer.getPlayer(player);
+			final GamePlayer gamePlayer = GamePlayer.getAlivePlayer(player);
 			// if game player is null means the game is not in progress
 			if (gamePlayer != null) {
 
@@ -275,8 +327,6 @@ public class PlayerEvent implements Listener {
 
 		}
 
-		ev.setDamage(0.0d);
-
 		// display damage
 		if (damage > 0.0d) {
 			new DamageIndicator(entity.getLocation(), damage);
@@ -285,10 +335,10 @@ public class PlayerEvent implements Listener {
 
 	}
 
-	private DamageOutput getDamageOutput(Player player, LivingEntity entity, double damage, boolean asDamager) {
+	private DamageOutput getDamageOutput(Player player, LivingEntity entity, EntityDamageEvent.DamageCause cause, double damage, boolean asDamager) {
 		if (Manager.current().isPlayerInGame(player)) {
 			final Hero hero = Manager.current().getSelectedHero(player).getHero();
-			final DamageInput input = new DamageInput(player, entity, damage);
+			final DamageInput input = new DamageInput(player, entity, cause, damage);
 			return asDamager ? hero.processDamageAsDamager(input) : hero.processDamageAsVictim(input);
 		}
 		return null;
@@ -327,25 +377,24 @@ public class PlayerEvent implements Listener {
 
 		// 1 -> ability first
 		// 2 -> ability second
+		// 3-5 -> complex abilities
 		// 0 def weapon slot
 
 		final int newSlot = ev.getNewSlot();
+		if (newSlot <= 0 || newSlot > 5) {
+			return;
+		}
+
 		final Player player = ev.getPlayer();
 		final Hero hero = Manager.current().getSelectedHero(player).getHero();
 
-		if (newSlot == 1) {
-			checkAndExecuteTalent(player, hero.getFirstTalent(), newSlot);
-		}
-
-		else if (newSlot == 2) {
-			checkAndExecuteTalent(player, hero.getSecondTalent(), newSlot);
-		}
-
-		// todo -> impl additional talents (for witcher)
-
-		else {
+		// don't care if talent is null, either not a talent or not complete
+		if (Manager.current().getTalent(hero, newSlot) == null) {
 			return;
 		}
+
+		// Execute talent
+		checkAndExecuteTalent(player, Manager.current().getTalent(hero, newSlot), newSlot);
 
 		ev.setCancelled(true);
 		player.getInventory().setHeldItemSlot(0);
@@ -367,7 +416,7 @@ public class PlayerEvent implements Listener {
 		final Location to = ev.getTo();
 
 		if (Manager.current().isGameInProgress()) {
-			final IGamePlayer gp = GamePlayer.getPlayerSafe(player);
+			final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
 
 			// impl for amnesia
 			if (gp.hasEffect(GameEffectType.AMNESIA)) {
@@ -414,21 +463,14 @@ public class PlayerEvent implements Listener {
 			chargedTalent.removeChargeAndStartCooldown(player, slot);
 		}
 
-		final Response response = talent.execute(player);
-
-		if (response == null) {
-			Chat.sendMessage(player, "&4ERROR > &cTalent returned null!");
-			return;
-		}
+		final Response response = talent.execute0(player);
 
 		if (response.isError()) {
-			Chat.sendMessage(player, "&cCannot use this now! " + response.getReason());
+			Chat.sendMessage(player, "&cCannot use this! &l" + response.getReason());
 			return;
 		}
 
-
 		talent.startCd(player);
-
 	}
 
 }

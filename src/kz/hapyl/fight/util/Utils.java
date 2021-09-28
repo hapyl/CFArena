@@ -1,26 +1,32 @@
 package kz.hapyl.fight.util;
 
+import kz.hapyl.fight.Main;
+import kz.hapyl.fight.game.AbstractGamePlayer;
+import kz.hapyl.fight.game.GamePlayer;
 import kz.hapyl.fight.game.Manager;
+import kz.hapyl.fight.game.effect.GameEffectType;
+import kz.hapyl.fight.game.task.GameTask;
 import kz.hapyl.spigotutils.module.annotate.NULLABLE;
 import kz.hapyl.spigotutils.module.math.Geometry;
 import kz.hapyl.spigotutils.module.math.gometry.Quality;
 import kz.hapyl.spigotutils.module.math.gometry.WorldParticle;
 import kz.hapyl.spigotutils.module.player.PlayerLib;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.World;
+import kz.hapyl.spigotutils.module.reflect.Reflect;
+import net.minecraft.network.protocol.game.PacketPlayOutEntityDestroy;
+import net.minecraft.network.protocol.game.PacketPlayOutSpawnEntityLiving;
+import net.minecraft.world.entity.EntityLiving;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -46,6 +52,49 @@ public class Utils {
 		return builder.toString().trim();
 	}
 
+	@Nullable
+	public static Team getEntityTeam(Entity entity) {
+		final Scoreboard scoreboard = Bukkit.getScoreboardManager() == null ? null : Bukkit.getScoreboardManager().getMainScoreboard();
+		if (scoreboard == null) {
+			return null;
+		}
+
+		return getEntityTeam(entity, scoreboard);
+	}
+
+	@Nullable
+	public static Team getEntityTeam(Entity entity, Scoreboard scoreboard) {
+		return scoreboard.getEntryTeam(entity instanceof Player ? entity.getName() : entity.getUniqueId().toString());
+	}
+
+	public static void playSoundAndCut(Location location, Sound sound, float pitch, int cutAt) {
+		final Set<Player> playingTo = new HashSet<>();
+		Manager.current().getCurrentGame().getAlivePlayers().forEach(gp -> {
+			final Player player = gp.getPlayer();
+			player.playSound(location, sound, SoundCategory.RECORDS, 20f, pitch);
+			playingTo.add(player);
+		});
+		new GameTask() {
+			@Override
+			public void run() {
+				playingTo.forEach(player -> {
+					player.stopSound(sound, SoundCategory.RECORDS);
+				});
+				playingTo.clear();
+			}
+		}.runTaskLater(cutAt);
+	}
+
+	public static void playSoundAndCut(Player player, Sound sound, float pitch, int cutAt) {
+		PlayerLib.playSound(player, sound, pitch);
+		new GameTask() {
+			@Override
+			public void run() {
+				player.stopSound(sound, SoundCategory.RECORDS);
+			}
+		}.runTaskLater(cutAt);
+	}
+
 	public static boolean compare(@Nullable Object a, @Nullable Object b) {
 		// true if both objects are null
 		if (a == null && b == null) {
@@ -61,6 +110,58 @@ public class Utils {
 	public static <E> void clearCollectionAnd(Collection<E> collection, Consumer<E> action) {
 		collection.forEach(action);
 		collection.clear();
+	}
+
+	public static void hidePlayer(Player player) {
+		Manager.current().getCurrentGame().getAlivePlayers().forEach(gp -> {
+			if (gp.getPlayer() != player) {
+				gp.getPlayer().hidePlayer(Main.getPlugin(), player);
+			}
+		});
+	}
+
+	public static void showPlayer(Player player) {
+		Manager.current().getCurrentGame().getAlivePlayers().forEach(gp -> {
+			if (gp.getPlayer() != player) {
+				gp.getPlayer().showPlayer(Main.getPlugin(), player);
+			}
+		});
+	}
+
+	public static void hideEntity(Entity entity, Player player) {
+		final PacketPlayOutEntityDestroy packet = new PacketPlayOutEntityDestroy(entity.getEntityId());
+		Reflect.sendPacket(player, packet);
+	}
+
+	public static void showEntity(Entity entity, Player player) {
+		final PacketPlayOutSpawnEntityLiving packet = new PacketPlayOutSpawnEntityLiving((EntityLiving)Reflect.getNetEntity(entity));
+		Reflect.sendPacket(player, packet);
+	}
+
+	public static void rayTracePath(Location start, Location end, double shift, double searchRange, Function<LivingEntity> funcLiving, Function<Location> funcLoc) {
+		final double maxDistance = start.distance(end);
+		final Vector vector = end.toVector().subtract(start.toVector()).normalize().multiply(shift);
+
+		new GameTask() {
+			private double tick = maxDistance;
+
+			@Override
+			public void run() {
+				if (tick < 0) {
+					this.cancel();
+					return;
+				}
+
+				start.add(vector);
+
+				Nulls.runIfNotNull(funcLiving, f -> Utils.getEntitiesInRange(start, searchRange).forEach(f::execute));
+				Nulls.runIfNotNull(funcLoc, f -> f.execute(start));
+
+				tick -= shift;
+
+			}
+		}.runTaskTimer(0, 1);
+
 	}
 
 	public static void rayTraceLine(Player shooter, double maxDistance, double shift, double damage, @NULLABLE Consumer<Location> onMove, @NULLABLE Consumer<LivingEntity> onHit) {
@@ -103,6 +204,23 @@ public class Utils {
 			location.subtract(x, y, z);
 
 		}
+	}
+
+	public static boolean playerCanUseAbility(Player player) {
+		final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
+		if (gp.hasEffect(GameEffectType.STUN)) {
+			return false;
+		}
+
+		return true;
+	}
+
+	public static Player getTargetPlayer(Player player, double maxDistance) {
+		return (Player)getTargetEntity(
+				player,
+				maxDistance,
+				entity -> entity != player && entity instanceof Player p && Manager.current().isPlayerInGame(p)
+		);
 	}
 
 	@Nullable

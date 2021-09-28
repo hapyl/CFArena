@@ -1,5 +1,6 @@
 package kz.hapyl.fight.gui;
 
+import kz.hapyl.fight.game.heroes.ComplexHero;
 import kz.hapyl.fight.game.heroes.Hero;
 import kz.hapyl.fight.game.heroes.Heroes;
 import kz.hapyl.fight.game.talents.Talent;
@@ -47,6 +48,12 @@ public class HeroPreviewGUI extends PlayerGUI {
 		this.setItem(13, abilityItemOrNull(hero.getFirstTalent()));
 		this.setItem(14, abilityItemOrNull(hero.getSecondTalent()));
 		this.setItem(15, abilityItemOrNull(hero.getPassiveTalent()));
+
+		if (hero instanceof ComplexHero complexHero) {
+			this.setItem(22, abilityItemOrNull(complexHero.getThirdTalent()));
+			this.setItem(23, abilityItemOrNull(complexHero.getFourthTalent()));
+			this.setItem(24, abilityItemOrNull(complexHero.getFifthTalent()));
+		}
 
 		this.openInventory();
 	}

@@ -42,7 +42,8 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
 
 	public Alchemist() {
 		super("Alchemist");
-		this.setInfo("An alchemist who was deceived by creation of the abyss. In return of help received an Abyssal Bottle that creates potions from the &0&lvoid &7itself.");
+		this.setInfo(
+				"An alchemist who was deceived by creation of the abyss. In return of help received an Abyssal Bottle that creates potions from the &0&lvoid &7itself.");
 		this.setItem(Material.BREWING_STAND);
 		this.setWeapon(new Weapon(Material.STICK).addEnchant(Enchantment.KNOCKBACK, 1)
 				.setName("Stick")
@@ -59,7 +60,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
 				.add(new Effect("healed half of your missing health", 30) {
 					@Override
 					public void affect(Player player) {
-						final IGamePlayer gp = GamePlayer.getPlayerSafe(player);
+						final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
 						double missingHealth = gp.getMaxHealth() - gp.getHealth();
 						gp.heal(missingHealth / 2d);
 					}
@@ -72,7 +73,11 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
 				.add(new Effect("&lmade you weaker", PotionEffectType.WEAKNESS, 15, 5))
 				.add(new Effect("&lis... confusing?", PotionEffectType.CONFUSION, 15, 0));
 
-		this.setUltimate(new UltimateTalent("Alchemical Madness", "Call upon the darkest spells to cast random &c&lNegative &7effect on your foes for &b15s &7and random &a&lPositive &7effect on yourself for &b30s&7.", 50) {
+		this.setUltimate(new UltimateTalent(
+				"Alchemical Madness",
+				"Call upon the darkest spells to cast random &c&lNegative &7effect on your foes for &b15s &7and random &a&lPositive &7effect on yourself for &b30s&7.",
+				50
+		) {
 			@Override
 			public void useUltimate(Player player) {
 				final Effect positiveEffect = positiveEffects.getRandomElement();
@@ -105,7 +110,8 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
 		effect.decrementEffectPotions();
 
 		Chat.sendMessage(player, "&c¤ &eVenom Touch applied &l%s &eto %s. &l%s &echarges left.",
-				Chat.capitalize(randomEffect.getName()), victim.getName(), effect.getEffectHits());
+				Chat.capitalize(randomEffect.getName()), victim.getName(), effect.getEffectHits()
+		);
 		PlayerLib.playSound(player.getLocation(), ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 2.0f);
 		return null;
 	}

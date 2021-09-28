@@ -1,6 +1,9 @@
 package kz.hapyl.fight.game.weapons;
 
+import kz.hapyl.fight.util.Utils;
+import kz.hapyl.spigotutils.module.chat.Chat;
 import kz.hapyl.spigotutils.module.inventory.ItemBuilder;
+import kz.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
@@ -101,12 +104,28 @@ public class Weapon {
 			builder.addLore().addSmartLore(lore);
 		}
 
+		if (this instanceof RangeWeapon rangeWeapon) {
+			if (rangeWeapon.getCooldown() > 0) {
+				builder.addLore("&9Reload Time: &l%ss", BukkitUtils.roundTick(rangeWeapon.getCooldown()));
+			}
+		}
+
 		// add id
 		if (id != null) {
-			builder.addClickEvent(player -> onRightClick(player, player.getInventory()
-					.getItemInMainHand()), Action.RIGHT_CLICK_BLOCK, Action.RIGHT_CLICK_AIR);
-			builder.addClickEvent(player -> onLeftClick(player, player.getInventory()
-					.getItemInMainHand()), Action.LEFT_CLICK_BLOCK, Action.LEFT_CLICK_AIR);
+			builder.addClickEvent(player -> {
+				if (!Utils.playerCanUseAbility(player)) {
+					Chat.sendMessage(player, "&cUnable to use this!");
+					return;
+				}
+				onRightClick(player, player.getInventory().getItemInMainHand());
+			}, Action.RIGHT_CLICK_BLOCK, Action.RIGHT_CLICK_AIR);
+			builder.addClickEvent(player -> {
+				if (!Utils.playerCanUseAbility(player)) {
+					Chat.sendMessage(player, "&cUnable to use this!");
+					return;
+				}
+				onLeftClick(player, player.getInventory().getItemInMainHand());
+			}, Action.LEFT_CLICK_BLOCK, Action.LEFT_CLICK_AIR);
 		}
 
 		if (!enchants.isEmpty()) {

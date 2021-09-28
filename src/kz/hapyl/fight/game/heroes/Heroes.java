@@ -5,8 +5,9 @@ import kz.hapyl.fight.game.GameInstance;
 import kz.hapyl.fight.game.GamePlayer;
 import kz.hapyl.fight.game.Manager;
 import kz.hapyl.fight.game.heroes.storage.*;
-import kz.hapyl.fight.game.talents.storage.DrEd;
-import kz.hapyl.fight.game.talents.storage.Nightmare;
+import kz.hapyl.fight.game.heroes.storage.DrEd;
+import kz.hapyl.fight.game.heroes.storage.Ender;
+import kz.hapyl.fight.game.heroes.storage.Spark;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
@@ -15,7 +16,7 @@ import java.util.List;
 
 public enum Heroes {
 
-	// "https://tools-unite.com/tools/random-picker-wheel?names=Blast Knight,Nightmare,Dark Mage,Ender,Fire Guy,Frozen Guy,Dr. Ed,Juju,KM,Librarian,Ninja,Shadow Assassin,Shark,Star,Swooper,Taker,Tamer,Witcher"
+	// https://tools-unite.com/tools/random-picker-wheel?names=Blast Knight,Juju,KM,Librarian,Ninja,Shark,Swooper,Taker,Tamer
 
 	ARCHER(new Archer()),
 	ALCHEMIST(new Alchemist()),
@@ -26,6 +27,13 @@ public enum Heroes {
 	TROLL(new Troll()),
 	NIGHTMARE(new Nightmare()),
 	DR_ED(new DrEd()),
+	ENDER(new Ender()),
+	SPARK(new Spark()),
+	SHADOW_ASSASSIN(new ShadowAssassin()),
+	WITCHER(new WitcherClass()),
+	VORTEX(new Vortex()),
+	FREAZLY(new Freazly()),
+	DARK_MAGE(new DarkMage()),
 
 	;
 
