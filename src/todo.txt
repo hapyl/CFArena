@@ -1,0 +1,6 @@
+TODO:
+
+- Add talents for:
+    - Troll (Passive)
+    - Mage (Second)
+    - Dr. Ed (Second, Passive)

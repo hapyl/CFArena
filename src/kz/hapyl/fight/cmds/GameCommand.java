@@ -20,7 +20,7 @@ public class GameCommand extends SimplePlayerAdminCommand {
 	@Override
 	protected void execute(Player player, String[] args) {
 		// game (start/stop/pause)
-		if (args.length == 1) {
+		if (args.length >= 1) {
 			final Manager manager = Manager.current();
 
 			switch (args[0].toLowerCase(Locale.ROOT)) {
@@ -30,8 +30,10 @@ public class GameCommand extends SimplePlayerAdminCommand {
 						return;
 					}
 
-					Chat.sendMessage(player, "&aCreating new game instance...");
-					manager.createNewGameInstance();
+					final boolean debug = args.length >= 2 && args[1].equalsIgnoreCase("-d");
+
+					Chat.sendMessage(player, "&aCreating new game instance%s...", debug ? " in debug mode " : "");
+					manager.createNewGameInstance(debug);
 
 				}
 

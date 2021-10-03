@@ -1,5 +1,6 @@
 package kz.hapyl.fight.game.weapons;
 
+import kz.hapyl.fight.game.GamePlayer;
 import kz.hapyl.fight.util.Nulls;
 import kz.hapyl.fight.util.Utils;
 import kz.hapyl.spigotutils.module.player.PlayerLib;
@@ -132,7 +133,7 @@ public abstract class RangeWeapon extends Weapon {
 					continue;
 				}
 				onHit(target);
-				target.damage(this.getDamage(), player);
+				GamePlayer.damageEntity(target, this.getDamage(), player);
 				Nulls.runIfNotNull(particleHit, p -> {
 					p.display(location);
 				});

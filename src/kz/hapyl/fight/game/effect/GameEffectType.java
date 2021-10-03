@@ -1,11 +1,7 @@
 package kz.hapyl.fight.game.effect;
 
-import kz.hapyl.fight.game.effect.storage.Corrosion;
-import kz.hapyl.fight.game.effect.storage.Immovable;
-import kz.hapyl.fight.game.effect.storage.Stun;
-import kz.hapyl.fight.game.effect.storage.Vulnerable;
+import kz.hapyl.fight.game.effect.storage.*;
 import kz.hapyl.fight.game.talents.storage.Amnesia;
-import kz.hapyl.fight.game.effect.storage.FallDamageResistance;
 import kz.hapyl.fight.game.talents.storage.ParanoiaEffect;
 
 public enum GameEffectType {
@@ -17,6 +13,7 @@ public enum GameEffectType {
 	STUN(new Stun()),
 	VULNERABLE(new Vulnerable()),
 	IMMOVABLE(new Immovable()),
+	INVISIBILITY(new Invisibility()),
 
 	;
 

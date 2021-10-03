@@ -1,17 +1,21 @@
 package kz.hapyl.fight;
 
 import kz.hapyl.fight.cmds.*;
+import kz.hapyl.fight.effect.EnumEffect;
 import kz.hapyl.fight.event.EnderPearlController;
 import kz.hapyl.fight.event.PlayerEvent;
 import kz.hapyl.fight.game.ChatController;
 import kz.hapyl.fight.game.Manager;
 import kz.hapyl.fight.game.database.Database;
+import kz.hapyl.fight.game.maps.GameMaps;
 import kz.hapyl.fight.game.scoreboard.GamePlayerUI;
 import kz.hapyl.fight.game.scoreboard.ScoreList;
 import kz.hapyl.fight.game.task.TaskList;
+import kz.hapyl.spigotutils.SpigotUtils;
 import kz.hapyl.spigotutils.module.command.CommandProcessor;
 import kz.hapyl.spigotutils.module.command.SimplePlayerCommand;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -37,6 +41,8 @@ public class Main extends JavaPlugin {
 		regCommands();
 		regEvents();
 
+		SpigotUtils.hookIntoAPI(this);
+
 		for (final World world : Bukkit.getWorlds()) {
 			world.setGameRule(GameRule.NATURAL_REGENERATION, false);
 		}
@@ -49,6 +55,9 @@ public class Main extends JavaPlugin {
 		for (final Player player : Bukkit.getOnlinePlayers()) {
 			handlePlayer(player);
 		}
+
+		getConfig().options().copyDefaults(true);
+		saveConfig();
 
 	}
 
@@ -68,6 +77,11 @@ public class Main extends JavaPlugin {
 		Database.getDatabase(player); // this will create database again (load)
 		this.manager.loadLastHero(player);
 		new GamePlayerUI(player);
+
+		// teleport to spawn
+		if (player.getGameMode() != GameMode.CREATIVE) {
+			player.teleport(GameMaps.SPAWN.getMap().getLocation());
+		}
 	}
 
 	@Override
@@ -89,12 +103,13 @@ public class Main extends JavaPlugin {
 		processor.registerCommand(new UltimateCommand("ultimate"));
 		processor.registerCommand(new ParticleCommand("part"));
 		processor.registerCommand(new GameEffectCommand("gameeffect"));
+		processor.registerCommand(new MapCommand("map"));
 
 		// these are small shortcuts not feeling creating a class D:
 		processor.registerCommand(new SimplePlayerCommand("start") {
 			@Override
 			protected void execute(Player player, String[] strings) {
-				player.performCommand("cf start");
+				player.performCommand("cf start " + (strings.length > 0 ? strings[0] : ""));
 			}
 		});
 
@@ -114,14 +129,12 @@ public class Main extends JavaPlugin {
 
 	}
 
-	private void validateAllClasses() {
-	}
-
 	private void regEvents() {
 		final PluginManager pm = Bukkit.getServer().getPluginManager();
 		pm.registerEvents(new PlayerEvent(), this);
 		pm.registerEvents(new ChatController(), this);
 		pm.registerEvents(new EnderPearlController(), this);
+		pm.registerEvents(new EnumEffect(), this);
 	}
 
 	public void addEvent(Listener listener) {

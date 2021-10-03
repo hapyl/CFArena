@@ -1,24 +1,38 @@
 package kz.hapyl.fight.game;
 
+import kz.hapyl.fight.game.database.Database;
+import kz.hapyl.fight.game.database.entry.CurrencyEntry;
 import kz.hapyl.fight.game.effect.ActiveGameEffect;
 import kz.hapyl.fight.game.effect.GameEffectType;
+import kz.hapyl.fight.game.heroes.ComplexHero;
 import kz.hapyl.fight.game.heroes.Hero;
+import kz.hapyl.fight.game.talents.Talent;
 import kz.hapyl.fight.game.talents.UltimateTalent;
+import kz.hapyl.fight.util.Nulls;
 import kz.hapyl.spigotutils.module.annotate.Super;
 import kz.hapyl.spigotutils.module.chat.Chat;
+import kz.hapyl.spigotutils.module.chat.Gradient;
+import kz.hapyl.spigotutils.module.chat.gradient.Interpolators;
 import kz.hapyl.spigotutils.module.math.Numbers;
 import kz.hapyl.spigotutils.module.player.PlayerLib;
+import kz.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Sound;
 import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
+import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
 import javax.annotation.Nonnull;
+import java.awt.*;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class GamePlayer extends AbstractGamePlayer {
@@ -34,8 +48,12 @@ public class GamePlayer extends AbstractGamePlayer {
 
 	private double health;
 	private LivingEntity lastDamager;
-	private EnumDamageCause lastDamageCause; // todo -> impl this
+	private EnumDamageCause lastDamageCause = EnumDamageCause.ENTITY_ATTACK;
 
+	private final Stat stats;
+	private final Database database;
+
+	private final Set<String> teamsToRemove = new HashSet<>();
 	private final Map<GameEffectType, ActiveGameEffect> gameEffects;
 
 	// 		[Kinda Important Note]
@@ -54,6 +72,8 @@ public class GamePlayer extends AbstractGamePlayer {
 		this.isDead = false;
 		this.isSpectator = false;
 		this.gameEffects = new ConcurrentHashMap<>();
+		this.stats = new Stat(player);
+		this.database = Database.getDatabase(player);
 		this.resetPlayer();
 	}
 
@@ -69,6 +89,10 @@ public class GamePlayer extends AbstractGamePlayer {
 		player.setFoodLevel(20);
 		player.setInvulnerable(false);
 		player.getActivePotionEffects().forEach(effect -> player.removePotionEffect(effect.getType()));
+	}
+
+	public Database getDatabase() {
+		return database;
 	}
 
 	public void addEffect(GameEffectType type, int ticks) {
@@ -99,6 +123,10 @@ public class GamePlayer extends AbstractGamePlayer {
 		return gameEffects.containsKey(type);
 	}
 
+	public Stat getStats() {
+		return stats;
+	}
+
 	public void clearEffects() {
 		this.gameEffects.clear();
 	}
@@ -113,7 +141,7 @@ public class GamePlayer extends AbstractGamePlayer {
 	}
 
 	public boolean isAlive() {
-		return !isDead || !isSpectator;
+		return !isDead && !isSpectator;
 	}
 
 	public boolean isUltimateReady() {
@@ -153,11 +181,6 @@ public class GamePlayer extends AbstractGamePlayer {
 		this.lastDamager = damager;
 	}
 
-	@Override
-	public EnumDamageCause getLastDamageCause() {
-		return lastDamageCause;
-	}
-
 	/**
 	 * This should only be called in the calculations, do not call it otherwise.
 	 */
@@ -170,12 +193,17 @@ public class GamePlayer extends AbstractGamePlayer {
 		this.updateHealth();
 	}
 
+	@Override
+	public EnumDamageCause getLastDamageCause() {
+		return lastDamageCause;
+	}
+
 	public void updateScoreboard(boolean flag) {
 
-		final Team team = getOrCreateTeam(player);
+		final Team team = getOrCreateTeam();
 
 		// turn on nicknames and turn off collisions
-		if (flag) {
+		if (!flag) {
 			team.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER);
 			team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS);
 		}
@@ -184,17 +212,48 @@ public class GamePlayer extends AbstractGamePlayer {
 			team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER);
 		}
 
+		if (!teamsToRemove.isEmpty()) {
+			teamsToRemove.forEach(name -> {
+				final Team toRemove = player.getScoreboard().getTeam(name);
+				Nulls.runIfNotNull(toRemove, Team::unregister);
+			});
+			teamsToRemove.clear();
+		}
 		populateTeam(team);
 
 	}
 
-	private Team getOrCreateTeam(Player player) {
+	private void showHealth() {
+		final GameInstance game = Manager.current().getCurrentGame();
+		if (game == null) {
+			return; // ?
+		}
+
+		game.getAlivePlayers().forEach(player -> {
+			final String playerName = player.getPlayer().getName();
+			teamsToRemove.add(playerName);
+			final Team team = getOrCreateTeam(("%" + playerName).substring(0, 16));
+
+			team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS);
+
+			team.setPrefix("&6%s &e".formatted(player.getHero().getName()));
+			team.setSuffix(" &c&l%s &c❤".formatted(BukkitUtils.decimalFormat(player.getHealth())));
+
+			team.addEntry(playerName);
+		});
+	}
+
+	private Team getOrCreateTeam(String name) {
 		final Scoreboard scoreboard = player.getScoreboard();
-		Team team = scoreboard.getTeam("%Team");
+		Team team = scoreboard.getTeam("%" + name);
 		if (team == null) {
-			team = scoreboard.registerNewTeam("%Team");
+			team = scoreboard.registerNewTeam("%" + name);
 		}
 		return team;
+	}
+
+	private Team getOrCreateTeam() {
+		return getOrCreateTeam("Team");
 	}
 
 	private void populateTeam(Team team) {
@@ -220,15 +279,46 @@ public class GamePlayer extends AbstractGamePlayer {
 		if (this.health > 0.0d && !force) {
 			return;
 		}
+
 		this.isDead = true;
 		this.isSpectator = false;
 
 		PlayerLib.playSound(player, Sound.ENTITY_BLAZE_DEATH, 2.0f);
 		Chat.sendTitle(player, "&c&lYOU DIED", "", 5, 25, 10);
 
+		this.getHero().onDeath(player);
+		executeTalentsOnDeath();
+
 		this.resetPlayer();
-		player.setAllowFlight(true);
 		player.setGameMode(GameMode.SPECTATOR);
+
+		// Award killer coins for kill
+		// FIXME: 002. 10/02/2021 - doesn't work?
+		if (lastDamager != null) {
+			Player killer = null;
+			if (lastDamager instanceof Player) {
+				killer = (Player)lastDamager;
+			}
+			else if (lastDamager instanceof Projectile projectile && projectile.getShooter() instanceof Player target) {
+				killer = target;
+			}
+
+			if (killer != null) {
+				stats.setCoins(stats.getCoins() + CurrencyEntry.Award.PLAYER_KILL.getAmount());
+				Database.getDatabase(killer).getCurrency().awardCoins(CurrencyEntry.Award.PLAYER_KILL);
+			}
+		}
+
+		stats.setDeaths(stats.getDeaths() + 1);
+
+		// broadcast death
+		new Gradient(concat("☠ %s ".formatted(player.getName()), lastDamageCause.getRandomIfMultiple(), lastDamager)).rgb(
+				new Color(160, 0, 0),
+				new Color(255, 51, 51),
+				Interpolators.LINEAR
+		);
+
+		showHealth();
 
 		// send death info to manager
 		final GameInstance gameInstance = Manager.current().getGameInstance();
@@ -236,6 +326,45 @@ public class GamePlayer extends AbstractGamePlayer {
 			gameInstance.checkWinCondition();
 		}
 
+	}
+
+	private String concat(String original, EnumDamageCause.DeathMessage message, Entity killer) {
+		String suffix = "";
+		if (killer != null) {
+			final String pronoun = getValidPronoun(killer);
+			if (!message.hasSuffix()) {
+				return original + message.formatMessage(pronoun);
+			}
+			else {
+				suffix = message.getDamagerSuffix() + " " + pronoun;
+			}
+		}
+		return original + message.getMessage() + " " + suffix;
+	}
+
+	private String getValidPronoun(Entity entity) {
+		if (entity instanceof Projectile) {
+			final ProjectileSource shooter = ((Projectile)entity).getShooter();
+			if (shooter instanceof LivingEntity)
+				return ((LivingEntity)shooter).getName() + "'s " + entity.getName();
+		}
+		return entity.getName();
+	}
+
+	private void executeTalentsOnDeath() {
+		executeOnDeathIfTalentIsNotNull(hero.getFirstTalent());
+		executeOnDeathIfTalentIsNotNull(hero.getSecondTalent());
+		if (hero instanceof ComplexHero complex) {
+			executeOnDeathIfTalentIsNotNull(complex.getThirdTalent());
+			executeOnDeathIfTalentIsNotNull(complex.getFourthTalent());
+			executeOnDeathIfTalentIsNotNull(complex.getFifthTalent());
+		}
+	}
+
+	private void executeOnDeathIfTalentIsNotNull(Talent talent) {
+		if (talent != null) {
+			talent.onDeath(player);
+		}
 	}
 
 	@Override

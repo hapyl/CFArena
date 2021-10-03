@@ -1,5 +1,7 @@
 package kz.hapyl.fight.game.talents.storage;
 
+import kz.hapyl.fight.game.EnumDamageCause;
+import kz.hapyl.fight.game.GamePlayer;
 import kz.hapyl.fight.game.Response;
 import kz.hapyl.fight.game.heroes.HeroHandle;
 import kz.hapyl.fight.game.talents.Talent;
@@ -59,7 +61,9 @@ public class FlowerEscape extends Talent {
 					entity.remove();
 					PlayerLib.playSound(location, Sound.ITEM_TOTEM_USE, 2.0f);
 					PlayerLib.spawnParticle(location, Particle.SPELL_MOB, 15, 1, 0.5, 1, 0);
-					Utils.getPlayersInRange(location, flowerRadius).forEach(victim -> victim.damage(finalDamage * 2.0d, player));
+					Utils.getPlayersInRange(location, flowerRadius).forEach(victim -> {
+						GamePlayer.damageEntity(victim, finalDamage * 2.0d, player, EnumDamageCause.FLOWER);
+					});
 					this.cancel();
 					return;
 				}
@@ -78,7 +82,9 @@ public class FlowerEscape extends Talent {
 						}
 					});
 
-					Utils.getPlayersInRange(location, flowerRadius).forEach(target -> target.damage(finalDamage, player));
+					Utils.getPlayersInRange(location, flowerRadius).forEach(target -> {
+						GamePlayer.damageEntity(target, finalDamage, player, EnumDamageCause.FLOWER);
+					});
 
 					final float pitch = Math.min(0.5f + ((0.1f * (((float)flowerLifeTicks - tick) / 20))), 2.0f);
 					PlayerLib.playSound(location, Sound.ENTITY_ENDER_DRAGON_FLAP, 1.75f);

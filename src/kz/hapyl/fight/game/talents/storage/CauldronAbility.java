@@ -76,7 +76,6 @@ public class CauldronAbility extends Talent implements Listener {
 			}
 
 		}
-
 	}
 
 	private void changeItem(Player player, boolean flag) {
@@ -115,7 +114,7 @@ public class CauldronAbility extends Talent implements Listener {
 			return Response.error("You already have a cauldron!");
 		}
 
-		cauldrons.put(player, new AlchemicalCauldron(player, targetBlock.getLocation()));
+		cauldrons.put(player, new AlchemicalCauldron(player, targetBlock.getLocation().clone()));
 		return Response.OK;
 
 	}

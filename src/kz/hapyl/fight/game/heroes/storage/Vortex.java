@@ -68,9 +68,10 @@ public class Vortex extends Hero {
 							if (entity == player) {
 								return;
 							}
+
 							final int damageTicks = entity.getMaximumNoDamageTicks();
 							entity.setMaximumNoDamageTicks(0);
-							GamePlayer.damageEntity(entity, 1.0d, player, EnumDamageCause.SOTS);
+							GamePlayer.damageEntity(entity, 0.0d, player, EnumDamageCause.SOTS);
 							entity.setMaximumNoDamageTicks(damageTicks);
 						});
 
@@ -208,6 +209,6 @@ public class Vortex extends Hero {
 
 	@Override
 	public Talent getPassiveTalent() {
-		return null;
+		return Talents.EYES_OF_THE_GALAXY.getTalent();
 	}
 }

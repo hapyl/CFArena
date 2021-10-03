@@ -58,7 +58,8 @@ public enum Talents {
 	FLOWER_BREEZE(new FlowerBreeze()),
 	EXCELLENCY(new PassiveTalent(
 			"Excellency",
-			"Pytaria gains &b30% &7damage boost per each &c10% &7of her missing &chealth &c❤&7.",
+			// When Pytaria's health is lower or equal to &c50%&7, her damage is increased by &b50%&7.
+			"When Pytaria's &chealth &7is lower or equal to &c50%&7, her damage is increased by &b50%&7.",
 			Material.ROSE_BUSH
 	)),
 
@@ -111,10 +112,38 @@ public enum Talents {
 	// Vortex
 	VORTEX_STAR(new VortexStar()),
 	STAR_ALIGNER(new StarAligner()),
-	MISSING_TALENT(null),
+	EYES_OF_THE_GALAXY(new PassiveTalent(
+			"Eyes of the Galaxy",
+			"Astral Stars you place will glow different colors:____&eYellow &7indicates a placed star.____&bAqua &7indicates closest star that will be consumed upon teleport.__&aGreen &7indicates star you will blink to upon teleport.",
+			Material.ENDER_EYE
+	)),
 
 	// Freazly
 	ICE_CONE(new IceCone()),
+
+	// Dark Mage
+	BLINDING_CURSE(new BlindingCurse()),
+	SLOWING_AURA(new SlowingAura()),
+	HEALING_AURA(new HealingAura()),
+	SHADOW_CLONE(new ShadowClone()),
+
+	// Blast Knight
+	SPEAR(new Spear()),
+	SLOWNESS_POTION(new SlownessPotion()),
+	SHIELDED(new PassiveTalent(
+			"Shielded",
+			"Blocking damage using your shield will charge it. Once charged, shield will explode and create Nova Explosion, dealing damage and knocking back opponents.",
+			Material.SHIELD
+	)),
+
+	// Ninja
+	NINJA_DASH(new NinjaDash()),
+	NINJA_SMOKE(new NinjaSmoke()),
+	FLEET_FOOT(new PassiveTalent(
+			"Fleet Foot",
+			"Ninja's are fast and fragile. You gain &bSpeed &7boost and don't take fall damage.",
+			Material.ELYTRA
+	)),
 
 	// test
 	TestChargeTalent(new TestChargeTalent()),

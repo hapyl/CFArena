@@ -1,30 +1,30 @@
 package kz.hapyl.fight.game.talents.storage.extra;
 
 import kz.hapyl.spigotutils.module.annotate.NULLABLE;
-import kz.hapyl.spigotutils.module.player.PlayerLib;
 import kz.hapyl.spigotutils.module.util.Action;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public enum ElementType {
 
 	// nothing or idk slow
-	STONE(15.0d, 30, player -> PlayerLib.addEffect(player, PotionEffectType.SLOW, 20, 1)),
+	STONE(15.0d, 30, entity -> addEffect(entity, PotionEffectType.SLOW, 20, 1)),
 
 	// idk yet
-	WOOD(6.0d, 15, player -> PlayerLib.addEffect(player, PotionEffectType.BLINDNESS, 10, 1)),
+	WOOD(6.0d, 15, entity -> addEffect(entity, PotionEffectType.BLINDNESS, 10, 1)),
 
 	// flights up
-	WOOL(3.0d, 10, player -> PlayerLib.addEffect(player, PotionEffectType.LEVITATION, 10, 1)),
+	WOOL(3.0d, 10, entity -> addEffect(entity, PotionEffectType.LEVITATION, 10, 1)),
 
 	NULL(-1, 0, null);
 
 	private final double damage;
 	private final int cd;
-	private final Action<Player> effect;
+	private final Action<LivingEntity> effect;
 
-	ElementType(double damage, int cd, Action<Player> effect) {
+	ElementType(double damage, int cd, Action<LivingEntity> effect) {
 		this.damage = damage;
 		this.cd = cd;
 		this.effect = effect;
@@ -39,7 +39,7 @@ public enum ElementType {
 	}
 
 	@NULLABLE
-	public Action<Player> getEffect() {
+	public Action<LivingEntity> getEffect() {
 		return effect;
 	}
 
@@ -68,4 +68,9 @@ public enum ElementType {
 
 		return NULL;
 	}
+
+	private static void addEffect(LivingEntity entity, PotionEffectType type, int duration, int multiplier) {
+		entity.addPotionEffect(new PotionEffect(type, duration, multiplier));
+	}
+
 }

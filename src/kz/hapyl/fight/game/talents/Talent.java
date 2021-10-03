@@ -2,6 +2,7 @@ package kz.hapyl.fight.game.talents;
 
 import kz.hapyl.fight.game.GameElement;
 import kz.hapyl.fight.game.Response;
+import kz.hapyl.fight.util.Function;
 import kz.hapyl.fight.util.Utils;
 import kz.hapyl.spigotutils.module.annotate.Super;
 import kz.hapyl.spigotutils.module.chat.Chat;
@@ -39,6 +40,11 @@ public abstract class Talent implements GameElement {
 		this.material = Material.BEDROCK;
 	}
 
+	public Talent(String name, String description, Material material) {
+		this(name, description);
+		this.setItem(material);
+	}
+
 	public void setDescription(String description) {
 		this.description = description;
 	}
@@ -66,6 +72,10 @@ public abstract class Talent implements GameElement {
 	public void onStop() {
 	}
 
+	public void onDeath(Player player) {
+
+	}
+
 	private void createItem() {
 		final ItemBuilder builder = new ItemBuilder(this.material)
 				.setName("&a" + this.name)
@@ -75,6 +85,10 @@ public abstract class Talent implements GameElement {
 
 		if (texture != null && this.material == Material.PLAYER_HEAD) {
 			builder.setHeadTexture(texture);
+		}
+
+		if (itemFunction != null) {
+			itemFunction.execute(builder);
 		}
 
 		if (this.cd > 0) {
@@ -111,14 +125,24 @@ public abstract class Talent implements GameElement {
 		return this;
 	}
 
+	private Function<ItemBuilder> itemFunction;
+
+	public Talent setItem(Material material, Function<ItemBuilder> function) {
+		this.setItem(material);
+		this.itemFunction = function;
+		return this;
+	}
+
 	protected abstract Response execute(Player player);
 
 	@Super
 	@Nonnull
 	public final Response execute0(Player player) {
-		if (!Utils.playerCanUseAbility(player)) {
-			return Response.error("Talent is locked!");
+		final Response canUseRes = Utils.playerCanUseAbility(player);
+		if (canUseRes.isError()) {
+			return canUseRes;
 		}
+
 		final Response response = execute(player);
 		return response == null ? Response.ERROR_DEFAULT : response;
 	}

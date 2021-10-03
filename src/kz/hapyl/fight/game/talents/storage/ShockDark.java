@@ -1,6 +1,8 @@
 package kz.hapyl.fight.game.talents.storage;
 
 import com.google.common.collect.Sets;
+import kz.hapyl.fight.game.EnumDamageCause;
+import kz.hapyl.fight.game.GamePlayer;
 import kz.hapyl.fight.game.Response;
 import kz.hapyl.fight.game.talents.Talent;
 import kz.hapyl.fight.game.task.GameTask;
@@ -27,7 +29,11 @@ public class ShockDark extends Talent implements Listener {
 	private final Set<Arrow> arrows;
 
 	public ShockDark() {
-		super("Shock Dart", "Shoots an arrow infused with &oshocking &7power. Upon hit, charges and explodes dealing damage based on distance.", Type.COMBAT);
+		super(
+				"Shock Dart",
+				"Shoots an arrow infused with &oshocking &7power. Upon hit, charges and explodes dealing damage based on distance.",
+				Type.COMBAT
+		);
 		this.setItem(Material.LIGHT_BLUE_DYE);
 		this.setCd(120);
 
@@ -81,8 +87,14 @@ public class ShockDark extends Talent implements Listener {
 				});
 				PlayerLib.playSound(location, Sound.ENCHANT_THORNS_HIT, 1.2f);
 				Utils.getPlayersInRange(location, shockExplosionRadius)
-						.forEach(target -> target.damage(shockExplosionMaxDamage - target.getLocation().distance(location), target));
-
+						.forEach(target -> {
+							GamePlayer.damageEntity(
+									target,
+									shockExplosionMaxDamage - target.getLocation().distance(location),
+									player,
+									EnumDamageCause.SHOCK_DART
+							);
+						});
 			}
 		}.runTaskLater(shockDartWindup);
 

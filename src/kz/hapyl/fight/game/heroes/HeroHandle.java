@@ -16,6 +16,7 @@ public class HeroHandle {
 	public static final ShadowAssassin SHADOW_ASSASSIN = (ShadowAssassin)Heroes.SHADOW_ASSASSIN.getHero();
 	public static final Vortex VORTEX = (Vortex)Heroes.VORTEX.getHero();
 	public static final Freazly FREAZLY = (Freazly)Heroes.FREAZLY.getHero();
+	public static final DarkMage DARK_MAGE = (DarkMage)Heroes.DARK_MAGE.getHero();
 
 
 }

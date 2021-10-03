@@ -2,6 +2,7 @@ package kz.hapyl.fight.game.talents.storage;
 
 import kz.hapyl.fight.game.GamePlayer;
 import kz.hapyl.fight.game.Response;
+import kz.hapyl.fight.game.effect.GameEffectType;
 import kz.hapyl.fight.game.heroes.Heroes;
 import kz.hapyl.fight.game.heroes.storage.Alchemist;
 import kz.hapyl.fight.game.heroes.storage.extra.CauldronEffect;
@@ -29,7 +30,12 @@ public class RandomPotion extends Talent {
 				.add(new Effect("☕", "Jump Boost", JUMP, 100, 1))
 				.add(new Effect("&c⚔", "Strength", INCREASE_DAMAGE, 60, 5))
 				.add(new Effect("&6🛡", "Resistance", DAMAGE_RESISTANCE, 80, 1))
-				.add(new Effect("&9⁘⁙", "Invisibility", INVISIBILITY, 80, 1))
+				.add(new Effect("&9⁘⁙", "Invisibility") {
+					@Override
+					public void affect(Player player) {
+						GamePlayer.getPlayer(player).addEffect(GameEffectType.INVISIBILITY, 60, true);
+					}
+				})
 				.add(new Effect("&c❤", "Healing") {
 					@Override
 					public void affect(Player player) {
@@ -42,17 +48,42 @@ public class RandomPotion extends Talent {
 	@Override
 	public Response execute(Player player) {
 		final Alchemist hero = (Alchemist)Heroes.ALCHEMIST.getHero();
-		this.effects.getRandomElement().applyEffects(player);
+		final CauldronEffect effect = hero.getEffect(player);
+
 		hero.addToxinForUsingPotion(player);
 
-		final CauldronEffect effect = hero.getEffect(player);
 		if (effect != null && effect.getDoublePotion() > 0) {
 			effect.decrementDoublePotions();
-			Chat.sendMessage(player, "&e☕ &aDouble Potion has %s changes left, gained:", effect.getDoublePotion());
+			final Effect firstEffect = this.effects.getRandomElement();
+			final Effect secondEffect = this.effects.getRandomElement();
+			firstEffect.applyEffectsIgnoreFx(player);
+			secondEffect.applyEffectsIgnoreFx(player);
+			// Display Improved
+			Chat.sendMessage(player, "&e☕ &a&lDouble Potion has %s changes left", effect.getDoublePotion());
+			Chat.sendMessage(
+					player,
+					" &aGained %s &a%s &aand %s &a%s",
+					firstEffect.getEffectChar(),
+					firstEffect.getEffectName(),
+					secondEffect.getEffectChar(),
+					secondEffect.getEffectName()
+			);
+
+			Chat.sendTitle(
+					player,
+					"&a%s      &a%s".formatted(firstEffect.getEffectChar(), secondEffect.getEffectChar()),
+					"&6%s    &6%s".formatted(firstEffect.getEffectName(), secondEffect.getEffectName()),
+					5,
+					10,
+					5
+			);
+
 			PlayerLib.playSound(player, Sound.ITEM_BOTTLE_FILL, 1.25f);
-			this.effects.getRandomElement().applyEffects(player);
+			return Response.OK;
 		}
 
+
+		this.effects.getRandomElement().applyEffects(player);
 		return Response.OK;
 	}
 }

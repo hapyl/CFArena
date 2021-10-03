@@ -1,8 +1,8 @@
 package kz.hapyl.fight.event;
 
 import kz.hapyl.fight.Main;
-import kz.hapyl.fight.game.GamePlayer;
 import kz.hapyl.fight.game.AbstractGamePlayer;
+import kz.hapyl.fight.game.GamePlayer;
 import kz.hapyl.fight.game.Manager;
 import kz.hapyl.fight.game.Response;
 import kz.hapyl.fight.game.effect.GameEffectType;
@@ -16,6 +16,7 @@ import kz.hapyl.spigotutils.module.chat.Chat;
 import kz.hapyl.spigotutils.module.player.PlayerLib;
 import kz.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -27,21 +28,24 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
+import java.util.Locale;
 import java.util.Random;
 
 public class PlayerEvent implements Listener {
-
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void handlePlayerJoin(PlayerJoinEvent ev) {
 		final Player player = ev.getPlayer();
 		Main.getPlugin().handlePlayer(player);
+	}
+
+	@EventHandler()
+	public void handlePlayerQuit(PlayerQuitEvent ev) {
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
@@ -82,20 +86,6 @@ public class PlayerEvent implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
-	public void handleItemClick(PlayerInteractEvent ev) {
-		final Player player = ev.getPlayer();
-		if (!Manager.current().isGameInProgress() || ev.getAction() == Action.PHYSICAL || ev.getHand() == EquipmentSlot.OFF_HAND) {
-			return;
-		}
-
-		final ItemStack itemStack = player.getInventory().getItemInMainHand();
-		if (itemStack.getType().isAir()) {
-			return;
-		}
-
-	}
-
-	@EventHandler(priority = EventPriority.HIGHEST)
 	public void handleProjectileLand(ProjectileHitEvent ev) {
 		final Projectile entity = ev.getEntity();
 		if (entity.getType() == EntityType.ARROW) {
@@ -131,7 +121,7 @@ public class PlayerEvent implements Listener {
 				gp.setUltPoints(0);
 
 				for (final Player online : Bukkit.getOnlinePlayers()) {
-					Chat.broadcast("&b&l※ &b%s used &l%s&7!".formatted(online == player ? "You" : player.getName(), ultimate.getName()));
+					Chat.sendMessage(online, "&b&l※ &b%s used &l%s&7!".formatted(online == player ? "You" : player.getName(), ultimate.getName()));
 					PlayerLib.playSound(online, ultimate.getSound(), ultimate.getPitch());
 				}
 			}
@@ -163,15 +153,12 @@ public class PlayerEvent implements Listener {
 			return;
 		}
 
-		// TODO: 027. 09/27/2021 -> calculate charge and decrease damage if non-full charge
-
 		if (entity instanceof Player && !Manager.current().isGameInProgress()) {
 			ev.setCancelled(true);
 			return;
 		}
 
 		/** Pre event tests */
-
 		if (livingEntity instanceof Player player) {
 			final AbstractGamePlayer gamePlayer = GamePlayer.getPlayer(player);
 
@@ -192,7 +179,13 @@ public class PlayerEvent implements Listener {
 				if (damager instanceof Player playerDamager) {
 					final Heroes hero = Manager.current().getSelectedHero(playerDamager);
 
-					damage = getHeroDamageOr(playerDamager, 1.0d);
+					// remove critical hit
+					if (playerDamager.getFallDistance() > 0.0F
+							&& !playerDamager.isOnGround()
+							&& !playerDamager.hasPotionEffect(PotionEffectType.BLINDNESS)
+							&& playerDamager.getVehicle() == null) {
+						damage /= 1.5F;
+					}
 
 					// decrease damage if hitting with a bow
 					final Material type = hero.getHero().getWeapon().getItem().getType();
@@ -206,7 +199,6 @@ public class PlayerEvent implements Listener {
 
 				else if (damager instanceof Projectile projectile) {
 					if (projectile.getShooter() instanceof Player playerDamager) {
-						damage = getHeroDamageOr(playerDamager, 2.0d);
 
 						// increase damage if fully charged shot
 						if (projectile instanceof Arrow arrow) {
@@ -275,6 +267,10 @@ public class PlayerEvent implements Listener {
 			}
 		}
 
+		if (entity instanceof Player player) {
+			GamePlayer.getPlayer(player).setLastDamager(damagerFinal);
+		}
+
 		// Process damager and victims hero damage processors
 
 		// victim
@@ -311,13 +307,13 @@ public class PlayerEvent implements Listener {
 			final GamePlayer gamePlayer = GamePlayer.getAlivePlayer(player);
 			// if game player is null means the game is not in progress
 			if (gamePlayer != null) {
+				gamePlayer.decreaseHealth(damage, damagerFinal);
 
+				// cancel even if player died so there is no real death
 				if (damage >= gamePlayer.getHealth()) {
-					gamePlayer.die(true);
 					ev.setCancelled(true);
 					return;
 				}
-				gamePlayer.decreaseHealth(damage, damagerFinal);
 			}
 
 			// fail safe for actual health
@@ -349,6 +345,10 @@ public class PlayerEvent implements Listener {
 	}
 
 	private double getHeroDamageOr(Player player, double or) {
+		if (true) {
+			return or;
+		}
+
 		final Heroes hero = Manager.current().getSelectedHero(player);
 		// ye fuck enum saving but idk the better way ¯\_(ツ)_/¯
 		if (player.getInventory().getHeldItemSlot() != 0
@@ -356,6 +356,7 @@ public class PlayerEvent implements Listener {
 				|| hero == null
 				|| hero.getHero() == null
 				|| hero.getHero().getWeapon() == null
+				|| hero.getHero().getWeapon().getDamage() <= 0.0d // dynamic damage
 				|| hero.getHero().getWeapon().getItem().getType() != player.getInventory().getItemInMainHand().getType()) {
 			return or;
 		}
@@ -401,12 +402,42 @@ public class PlayerEvent implements Listener {
 
 	}
 
-	@EventHandler()
+	@EventHandler(ignoreCancelled = true)
 	public void handleInteraction(PlayerInteractEvent ev) {
 		final Player player = ev.getPlayer();
 		if (Manager.current().isGameInProgress() || player.getGameMode() != GameMode.CREATIVE) {
+			final ItemStack item = ev.getItem();
+			final Block clickedBlock = ev.getClickedBlock();
+
+			if (ev.getAction() == Action.PHYSICAL) {
+				return;
+			}
+
+			if (item != null) {
+				// allow to interact with intractable items
+				if (isIntractable(item)) {
+					return;
+				}
+			}
+
+			if (clickedBlock != null) {
+				// allow to click at button (secret passages)
+				// maybe rework with custom buttons but meh
+				if (clickedBlock.getType().name().toLowerCase(Locale.ROOT).contains("button")) {
+					return;
+				}
+			}
+
 			ev.setCancelled(true);
 		}
+	}
+
+	private boolean isIntractable(ItemStack stack) {
+		final Material type = stack.getType();
+		return switch (type) {
+			case BOW, CROSSBOW -> true;
+			default -> type.isInteractable();
+		};
 	}
 
 	@EventHandler()

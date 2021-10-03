@@ -25,7 +25,11 @@ public class ConfusionPotion extends Talent {
 	private final int auraDuration = 200;
 
 	public ConfusionPotion() {
-		super("Dr. Ed's Amnesia Extract Serum", "Swiftly throw a potion in the air that explodes and creates an aura for &b10s&7.____Opponents within range will be affected by Amnesia; This effect will persist for additional &b1s &7after player leaves the aura.__Dr. Ed is immune to this effect.", Type.COMBAT);
+		super(
+				"Dr. Ed's Amnesia Extract Serum",
+				"Swiftly throw a potion in the air that explodes and creates an aura for &b10s&7.____Opponents within range will be affected by Amnesia; This effect will persist for additional &b1s &7after player leaves the aura.__Dr. Ed is immune to this effect.",
+				Type.COMBAT
+		);
 		this.setItem(Material.POTION);
 		this.setCdSec(30);
 	}
@@ -82,7 +86,7 @@ public class ConfusionPotion extends Talent {
 					if (player == target) {
 						return;
 					}
-					GamePlayer.getPlayer(player).addEffect(GameEffectType.AMNESIA, 20, true);
+					GamePlayer.getPlayer(target).addEffect(GameEffectType.AMNESIA, 20, true);
 				});
 
 			}

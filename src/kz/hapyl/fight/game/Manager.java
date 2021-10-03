@@ -26,13 +26,14 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
 public class Manager {
 
 	private final int timeBeforeReveal = 100;
-	private final boolean isDebug = true;
+	private boolean isDebug = true;
 
 	private GameInstance gameInstance;
 
@@ -50,6 +51,9 @@ public class Manager {
 		slotPerComplexTalent.put(3, ComplexHero::getThirdTalent);
 		slotPerComplexTalent.put(4, ComplexHero::getFourthTalent);
 		slotPerComplexTalent.put(5, ComplexHero::getFifthTalent);
+
+		// load map
+		currentMap.set(GameMaps.byName(Main.getPlugin().getConfig().getString("current-map", null)));
 	}
 
 	public boolean isGameInProgress() {
@@ -75,14 +79,25 @@ public class Manager {
 
 	public void setCurrentMap(GameMaps maps) {
 		currentMap.set(maps);
+		// save to config
+		Main.getPlugin().getConfig().set("current-map", maps.name().toLowerCase(Locale.ROOT));
 	}
 
-	private ItemStack getTalentItemIfExists(Talent talent) {
-		return talent == null || talent.getItem() == null ? new ItemStack(Material.AIR) : talent.getItem();
-	}
+	public void setCurrentMap(GameMaps maps, @Nullable Player player) {
+		if (getCurrentMap() == maps) {
+			PlayerLib.villagerNo(player, "&cAlready selected!");
+			return;
+		}
 
-	public void countEverything() {
+		setCurrentMap(maps);
 
+		final String mapName = maps.getMap().getName();
+		if (player == null) {
+			Chat.broadcast("&aCurrent map is now &l%s&a.", mapName);
+		}
+		else {
+			Chat.broadcast("&a%s selected &l%s &aas current map!", player.getName(), mapName);
+		}
 	}
 
 	private void displayError(String message, Object... objects) {
@@ -90,12 +105,18 @@ public class Manager {
 	}
 
 	public void createNewGameInstance() {
+		createNewGameInstance(false);
+	}
+
+	public void createNewGameInstance(boolean debug) {
 		// Pre game start tests
 		final GameMaps currentMap = this.currentMap.get();
 		if (currentMap == null || !currentMap.isPlayable() || !currentMap.getMap().hasLocation()) {
 			displayError("Invalid map!");
 			return;
 		}
+
+		isDebug = debug;
 
 		// TODO: 027. 09/27/2021 -> impl player req and spectator option
 
@@ -124,10 +145,7 @@ public class Manager {
 
 			// Apply equipment
 			hero.getEquipment().equip(player);
-
-			if (hero instanceof PlayerElement playerElement) {
-				playerElement.onStart(player);
-			}
+			hero.onStart(player);
 
 			inventory.setItem(0, hero.getWeapon().getItem());
 			giveTalentItem(player, hero, 1);
@@ -162,16 +180,15 @@ public class Manager {
 					world.strikeLightningEffect(player.getLocation().add(0.0d, 1.0d, 0.0d));
 				}
 			});
-		}, isDebug ? 0 : timeBeforeReveal);
+		}, isDebug ? 1 : timeBeforeReveal);
 
 	}
-
 
 	private void giveTalentItem(Player player, Hero hero, int slot) {
 		final PlayerInventory inventory = player.getInventory();
 		final Talent talent = getTalent(hero, slot);
+		final ItemStack talentItem = talent == null || talent.getItem() == null ? new ItemStack(Material.AIR) : talent.getItem();
 
-		final ItemStack talentItem = talent == null || talent.getItem() == null ? new ItemStack(Material.BEDROCK) : talent.getItem();
 		inventory.setItem(slot, talentItem);
 		fixTalentItemAmount(player, slot, talent);
 	}
@@ -181,6 +198,7 @@ public class Manager {
 			final ParamFunction<Talent, Hero> function = slotPerTalent.get(slot);
 			return function == null ? null : function.execute(hero);
 		}
+
 		else if (hero instanceof ComplexHero complexHero) {
 			final ParamFunction<Talent, ComplexHero> function = slotPerComplexTalent.get(slot);
 			return function == null ? null : function.execute(complexHero);
@@ -200,19 +218,27 @@ public class Manager {
 		item.setAmount(chargedTalent.getMaxCharges());
 	}
 
+	// FIXME: 002. 10/02/2021 - multi
 	public void stopCurrentGame() {
-		if (this.gameInstance == null) {
+		if (this.gameInstance == null || this.gameInstance.getGameState() == State.POST_GAME) {
 			return;
 		}
+
+		this.gameInstance.calculateEverything();
 
 		// Reset player before clearing the instance
 		this.gameInstance.getPlayers().values().forEach(player -> {
 			player.updateScoreboard(false);
 			player.resetPlayer();
+
+			// keep winner in survival so it's clear for them that they have won
+			if (!this.gameInstance.isWinner(player.getPlayer())) {
+				player.getPlayer().setGameMode(GameMode.SPECTATOR);
+			}
 		});
 
 		this.gameInstance.onStop();
-		this.gameInstance = null;
+		this.gameInstance.setGameState(State.POST_GAME);
 
 		// reset all cooldowns
 		for (final Material value : Material.values()) {
@@ -221,16 +247,15 @@ public class Manager {
 
 		// call talents onStop and reset cooldowns
 		for (final Talents value : Talents.values()) {
-			if (value.getTalent() != null) {
-				value.getTalent().onStop();
-			}
+			Nulls.runIfNotNull(value.getTalent(), Talent::onStop);
 		}
 
 		// call heroes onStop
 		for (final Heroes value : Heroes.values()) {
-			if (value.getHero() != null) {
-				value.getHero().onStop();
-			}
+			Nulls.runIfNotNull(value.getHero(), hero -> {
+				hero.onStop();
+				hero.clearUsingUltimate();
+			});
 		}
 
 		// stop all game tasks
@@ -239,6 +264,27 @@ public class Manager {
 		// remove temp entities
 		Entities.killSpawned();
 
+		if (isDebug) {
+			onStop();
+			return;
+		}
+
+		// Spawn Fireworks
+		gameInstance.spawnFireworks(true);
+
+	}
+
+	public void onStop() {
+		// reset game state
+		gameInstance.setGameState(State.FINISHED);
+		gameInstance = null;
+
+		// teleport player
+		for (final Player player : Bukkit.getOnlinePlayers()) {
+			player.setInvulnerable(false);
+			player.setGameMode(GameMode.SURVIVAL);
+			player.teleport(GameMaps.SPAWN.getMap().getLocation());
+		}
 	}
 
 	public void loadLastHero(Player player) {

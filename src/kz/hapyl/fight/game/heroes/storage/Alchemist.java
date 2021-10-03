@@ -119,9 +119,11 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
 	// some effects aren't really allowed so
 	private PotionEffectType getRandomEffect() {
 		final PotionEffectType value = PotionEffectType.values()[ThreadLocalRandom.current().nextInt(PotionEffectType.values().length)];
-		return (value == BAD_OMEN || value == HEAL || value == HEALTH_BOOST || value == REGENERATION || value == ABSORPTION || value == SATURATION || value == LUCK || value == UNLUCK || value == HERO_OF_THE_VILLAGE) ?
-				getRandomEffect() :
-				value;
+		return (value == BAD_OMEN || value == HEAL || value == HEALTH_BOOST || value == REGENERATION || value == ABSORPTION || value == SATURATION || value == LUCK || value == UNLUCK || value == HERO_OF_THE_VILLAGE)
+				?
+				getRandomEffect()
+				:
+						value;
 	}
 
 	public CauldronEffect getEffect(Player player) {
@@ -140,6 +142,12 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
 	@Override
 	public void onStop() {
 		toxinLevel.clear();
+	}
+
+	@Override
+	public void onDeath(Player player) {
+		cauldronEffectMap.remove(player);
+		toxinLevel.remove(player);
 	}
 
 	private int getToxinLevel(Player player) {

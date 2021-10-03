@@ -38,7 +38,6 @@ public class Archer extends Hero implements Listener {
 		this.setWeapon(new Weapon(Material.BOW)
 				.setName("Harbinger")
 				.setLore("A custom-made bow with some unique abilities!")
-				.setId("ARCHER_BOW")
 				.setDamage(8.0d));
 
 		final ClassEquipment eq = this.getEquipment();
@@ -47,7 +46,11 @@ public class Archer extends Hero implements Listener {
 		eq.setLeggings(Material.LEATHER_LEGGINGS);
 		eq.setBoots(Material.LEATHER_BOOTS);
 
-		this.setUltimate(new UltimateTalent("Boom Bow", "Equip a &6&lBOOM BOW &7for 6s that fires explosive arrows which explodes on impact dealing massive damage.", 50) {
+		this.setUltimate(new UltimateTalent(
+				"Boom Bow",
+				"Equip a &6&lBOOM BOW &7for 6s that fires explosive arrows which explodes on impact dealing massive damage.",
+				50
+		) {
 			@Override
 			public void useUltimate(Player player) {
 				setUsingUltimate(player, true, ultimateTime);
@@ -72,6 +75,9 @@ public class Archer extends Hero implements Listener {
 			@Override
 			public void run() {
 				boomArrows.forEach(arrow -> {
+					if (arrow.isDead()) {
+						return;
+					}
 					PlayerLib.spawnParticle(arrow.getLocation(), Particle.FLAME, 2, 0, 0, 0, 0.015f);
 				});
 			}
@@ -149,7 +155,8 @@ public class Archer extends Hero implements Listener {
 		final Collection<Entity> entities = world.getNearbyEntities(location, 3.0d, 3.0d, 3.0d,
 				entity -> entity instanceof Player player ?
 						shooter != player && validatePlayer(player) :
-						entity instanceof LivingEntity && validateEntity((LivingEntity)entity));
+						entity instanceof LivingEntity && validateEntity((LivingEntity)entity)
+		);
 
 		LivingEntity nearestEntity = null;
 		double distance = -1;

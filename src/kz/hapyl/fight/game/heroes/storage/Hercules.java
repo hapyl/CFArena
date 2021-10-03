@@ -1,5 +1,8 @@
 package kz.hapyl.fight.game.heroes.storage;
 
+import kz.hapyl.fight.effect.EnumEffect;
+import kz.hapyl.fight.game.EnumDamageCause;
+import kz.hapyl.fight.game.GamePlayer;
 import kz.hapyl.fight.game.Manager;
 import kz.hapyl.fight.game.PlayerElement;
 import kz.hapyl.fight.game.heroes.ClassEquipment;
@@ -14,13 +17,12 @@ import kz.hapyl.fight.util.Utils;
 import kz.hapyl.spigotutils.module.player.PlayerLib;
 import kz.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Trident;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerStatisticIncrementEvent;
@@ -31,7 +33,6 @@ import org.bukkit.util.Vector;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class Hercules extends Hero implements Listener, PlayerElement {
 
@@ -42,10 +43,12 @@ public class Hercules extends Hero implements Listener, PlayerElement {
 	public Hercules() {
 		super("Hercules");
 		this.setItem(Material.PISTON);
-		this.setInfo("The greatest warrior of all time - \"The Great Hercules\" descended from heaven to punish the infidels! Super-Duper strong punches give you a chance to win.");
+		this.setInfo(
+				"The greatest warrior of all time - \"The Great Hercules\" descended from heaven to punish the infidels! Super-Duper strong punches give you a chance to win.");
 
 		final ClassEquipment eq = this.getEquipment();
-		eq.setHelmet("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjIxMGM5NjFiOWQ3ODczMjdjMGQxNjQ2ZTY1YWU0MGM2ZDgzNDUxNDg3NzgyNDMzNWQ0YjliNjJiMjM2NWEyNCJ9fX0=");
+		eq.setHelmet(
+				"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjIxMGM5NjFiOWQ3ODczMjdjMGQxNjQ2ZTY1YWU0MGM2ZDgzNDUxNDg3NzgyNDMzNWQ0YjliNjJiMjM2NWEyNCJ9fX0=");
 		eq.setChestplate(Color.WHITE);
 		eq.setBoots(Material.LEATHER_BOOTS);
 
@@ -54,7 +57,11 @@ public class Hercules extends Hero implements Listener, PlayerElement {
 				.setDamage(10)
 				.addEnchant(Enchantment.LOYALTY, 3));
 
-		this.setUltimate(new UltimateTalent("Crush the Ground", "Call upon divine power for &b" + BukkitUtils.roundTick(ultimateTime) + "s&7 to increase your &ejump height &7and &cplunging damage&7.", 50) {
+		this.setUltimate(new UltimateTalent(
+				"Crush the Ground",
+				"Call upon divine power for &b" + BukkitUtils.roundTick(ultimateTime) + "s&7 to increase your &ejump height &7and &cplunging damage&7.",
+				50
+		) {
 			@Override
 			public void useUltimate(Player player) {
 				setUsingUltimate(player, true, ultimateTime);
@@ -146,7 +153,6 @@ public class Hercules extends Hero implements Listener, PlayerElement {
 		if (validatePlayer(player, Heroes.HERCULES) && player.isSneaking() && canPlunge(player) && !isPlunging(player)) {
 			performPlunge(player, getPlungeDistance(player));
 		}
-
 	}
 
 	private int getPlungeDistance(Player player) {
@@ -184,99 +190,18 @@ public class Hercules extends Hero implements Listener, PlayerElement {
 					player.removeScoreboardTag("plunging");
 					PlayerLib.removeEffect(player, PotionEffectType.JUMP);
 
-					displayPlungeEffect(player);
+					EnumEffect.tempDisplayGroundPunch(player);
 
 					Utils.getEntitiesInRange(player.getLocation(), 4).forEach(target -> {
 						if (target == player) {
 							return;
 						}
-						target.damage(isUsingUltimate(player) ? plungeDamage * 2 : plungeDamage, player);
+						GamePlayer.damageEntity(target, isUsingUltimate(player) ? plungeDamage * 2 : plungeDamage, player, EnumDamageCause.PLUNGE);
 					});
 				}
 
 			}
 		}.runTaskTimer(0, 1);
-	}
-
-	private void displayPlungeEffect(Player player) {
-		final Location location = player.getLocation().clone().subtract(1, 1, 1);
-
-		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 3; j++) {
-				if (i == 1 && j == 1) {
-					continue;
-				}
-				location.add(i, 0, j);
-				propelGround(location);
-				location.subtract(i, 0, j);
-			}
-		}
-
-		new GameTask() {
-			@Override
-			public void run() {
-				location.subtract(1.0d, 0.0d, 1.0d).add(0.0d, 0.35d, 0.0d);
-				for (int i = 0; i < 5; i++) {
-					for (int j = 0; j < 5; j++) {
-						if (((i == 0 || i == 4) && j > 0 && j < 4) || j % 4 == 0) {
-							location.add(i, 0, j);
-							propelGround(location);
-							location.subtract(i, 0, j);
-						}
-					}
-				}
-			}
-		}.runTaskLater(2);
-
-		new GameTask() {
-			@Override
-			public void run() {
-				location.subtract(1.0d, 0.0d, 1.0d).add(0.0d, 0.35f, 0.0d);
-				for (int i = 0; i < 7; i++) {
-					for (int j = 0; j < 7; j++) {
-						if ((i == 0 || i == 6) && (j == 0 || j == 6)) {
-							continue;
-						}
-						if (i == 0 || i == 6 || j % 6 == 0) {
-							location.add(i, 0, j);
-							propelGround(location);
-							location.subtract(i, 0, j);
-						}
-					}
-				}
-			}
-		}.runTaskLater(4);
-	}
-
-	private void propelGround(Location location) {
-		if (!location.getBlock().getRelative(BlockFace.UP).getType().isAir() || location.getWorld() == null) {
-			return;
-		}
-		final Material block = location.getBlock().getType().isAir() ? Material.COBBLESTONE : location.getBlock().getType();
-		final BlockData blockData = block.createBlockData();
-		final FallingBlock fallingBlock = location.getWorld().spawnFallingBlock(location.clone().add(0.0d, 1.01d, 0.0d), blockData);
-
-		fallingBlock.addScoreboardTag("Cosmetic");
-		fallingBlock.setHurtEntities(false);
-		fallingBlock.setDropItem(false);
-		fallingBlock.setVelocity(new Vector(
-				0.025f * ThreadLocalRandom.current().nextFloat(),
-				0.5d,
-				0.025f * ThreadLocalRandom.current().nextFloat()));
-		final SoundGroup soundGroup = blockData.getSoundGroup();
-		location.getWorld().playSound(location,
-				soundGroup.getBreakSound(),
-				soundGroup.getVolume() * 2,
-				soundGroup.getPitch() + Math.max(0.0f, Math.min((0.1f * ThreadLocalRandom.current().nextFloat()), 2.0f)));
-	}
-
-	@EventHandler()
-	public void handleEntityChangeBlockEvent(EntityChangeBlockEvent ev) {
-		final Entity entity = ev.getEntity();
-		if (entity instanceof FallingBlock && entity.getScoreboardTags().contains("Cosmetic")) {
-			ev.setCancelled(true);
-			entity.remove();
-		}
 	}
 
 	@Override
@@ -305,11 +230,6 @@ public class Hercules extends Hero implements Listener, PlayerElement {
 	@Override
 	public Talent getPassiveTalent() {
 		return Talents.PLUNGE.getTalent();
-	}
-
-	@Override
-	public void onStart(Player player) {
-
 	}
 
 }

@@ -9,14 +9,17 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 public class GameMap implements GameElement {
 
 	private final String name;
 	private final Material material;
 	private final List<Location> locations;
-	private final Set<MapFeature> features;
+	private final List<MapFeature> features;
 
 	private final Final<Size> size;
 	private String info;
@@ -40,12 +43,24 @@ public class GameMap implements GameElement {
 		}
 	}
 
+	public Material getMaterial() {
+		return material;
+	}
+
+	public List<Location> getLocations() {
+		return locations;
+	}
+
+	public List<MapFeature> getFeatures() {
+		return features;
+	}
+
 	public GameMap(String name, String info, Material material) {
 		this.name = name;
 		this.material = material;
 		this.info = info;
 		this.locations = new ArrayList<>();
-		this.features = new HashSet<>();
+		this.features = new ArrayList<>();
 		this.size = new Final<>();
 	}
 
@@ -77,7 +92,11 @@ public class GameMap implements GameElement {
 	}
 
 	public GameMap addLocation(double x, double y, double z) {
-		return addLocation(new Location(Bukkit.getWorlds().get(0), x, y, z));
+		return addLocation(x, y, z, 0.0f, 0.0f);
+	}
+
+	public GameMap addLocation(double x, double y, double z, float a, float b) {
+		return addLocation(new Location(Bukkit.getWorlds().get(0), x + 0.5d, y, z + 0.5d, a, b));
 	}
 
 	public GameMap addLocation(Location location) {

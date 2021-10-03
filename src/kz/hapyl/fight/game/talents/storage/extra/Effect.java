@@ -26,14 +26,30 @@ public class Effect {
 		this(effectChar, effectName, null, 0, 0);
 	}
 
-	public void applyEffects(Player player) {
+	public String getEffectChar() {
+		return effectChar;
+	}
+
+	public String getEffectName() {
+		return effectName;
+	}
+
+	public PotionEffect getPotionEffect() {
+		return potionEffect;
+	}
+
+	public void applyEffectsIgnoreFx(Player player) {
 		affect(player);
 		if (potionEffect != null) {
 			PlayerLib.addEffect(player, potionEffect.getType(), potionEffect.getDuration(), potionEffect.getAmplifier());
 		}
+	}
+
+	public void applyEffects(Player player) {
+		applyEffectsIgnoreFx(player);
 		PlayerLib.playSound(player.getLocation(), Sound.ENTITY_PLAYER_SWIM, 1.8f);
-		Chat.sendTitle(player, "&a" + effectChar, "&aGained " + effectName, 5, 10, 5);
-		Chat.sendMessage(player, "&a" + effectChar + "&aGained " + effectName);
+		Chat.sendTitle(player, "&a" + effectChar, "&6Gained " + effectName, 5, 10, 5);
+		Chat.sendMessage(player, "&a" + effectChar + " &6Gained " + effectName);
 	}
 
 }

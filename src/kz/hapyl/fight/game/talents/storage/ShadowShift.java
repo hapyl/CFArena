@@ -9,6 +9,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -30,6 +31,7 @@ public class ShadowShift extends Talent implements Listener {
 	public Response execute(Player player) {
 
 		final TargetLocation targetLocation = getLocationAndCheck0(player);
+
 		if (targetLocation.getError() != ErrorCode.OK) {
 			PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
 			return Response.error(targetLocation.getError().getErrorMessage());
@@ -59,11 +61,12 @@ public class ShadowShift extends Talent implements Listener {
 			double z = vector.getZ() * i;
 			location.add(x, y, z);
 
-			for (final Player target : Utils.getPlayersInRange(location, radius)) {
-				if (target == player || !Manager.current().isPlayerInGame(target)) {
+			for (final LivingEntity target : Utils.getEntitiesInRange(location, radius)) {
+				if (target == player) {
 					continue;
 				}
-				if (!player.hasLineOfSight(target)) {
+
+				if (player.hasLineOfSight(target)) {
 					final Location behind = target.getLocation().add(target.getLocation().getDirection().multiply(-1).setY(0.0d));
 					behind.setYaw(behind.getYaw());
 					behind.setPitch(behind.getPitch());

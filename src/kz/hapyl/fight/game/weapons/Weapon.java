@@ -1,21 +1,26 @@
 package kz.hapyl.fight.game.weapons;
 
+import kz.hapyl.fight.game.Response;
 import kz.hapyl.fight.util.Utils;
 import kz.hapyl.spigotutils.module.chat.Chat;
 import kz.hapyl.spigotutils.module.inventory.ItemBuilder;
 import kz.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
-public class Weapon {
+public class Weapon implements Cloneable {
 
 	private ItemStack item;
 
@@ -56,6 +61,7 @@ public class Weapon {
 		return name;
 	}
 
+	@Nullable
 	public String getId() {
 		return id;
 	}
@@ -90,7 +96,7 @@ public class Weapon {
 	 * Id is required to use functions.
 	 */
 	public Weapon setId(String id) {
-		this.id = id;
+		this.id = id.toUpperCase(Locale.ROOT);
 		return this;
 	}
 
@@ -113,15 +119,17 @@ public class Weapon {
 		// add id
 		if (id != null) {
 			builder.addClickEvent(player -> {
-				if (!Utils.playerCanUseAbility(player)) {
-					Chat.sendMessage(player, "&cUnable to use this!");
+				final Response response = Utils.playerCanUseAbility(player);
+				if (response.isError()) {
+					Chat.sendMessage(player, "&cUnable to use! " + response.getReason());
 					return;
 				}
 				onRightClick(player, player.getInventory().getItemInMainHand());
 			}, Action.RIGHT_CLICK_BLOCK, Action.RIGHT_CLICK_AIR);
 			builder.addClickEvent(player -> {
-				if (!Utils.playerCanUseAbility(player)) {
-					Chat.sendMessage(player, "&cUnable to use this!");
+				final Response response = Utils.playerCanUseAbility(player);
+				if (response.isError()) {
+					Chat.sendMessage(player, "&cUnable to use! " + response.getReason());
 					return;
 				}
 				onLeftClick(player, player.getInventory().getItemInMainHand());
@@ -134,7 +142,12 @@ public class Weapon {
 			});
 		}
 
-		builder.setPureDamage(this.damage);
+		builder.addAttribute(
+				Attribute.GENERIC_ATTACK_DAMAGE,
+				damage - 1.0d, // have to be -1 here
+				AttributeModifier.Operation.ADD_NUMBER,
+				EquipmentSlot.HAND
+		);
 		builder.setUnbreakable(true);
 
 		if (this.material == Material.BOW || this.material == Material.CROSSBOW) {
@@ -147,6 +160,16 @@ public class Weapon {
 
 	private String notNullStr(String str, String def) {
 		return str == null ? def : str;
+	}
+
+	public Weapon clone() {
+		try {
+			super.clone();
+			return new Weapon(this.material).setName(this.name).setLore(this.lore).setDamage(this.damage).setId(this.id);
+		}
+		catch (Exception ignored) {
+		}
+		return new Weapon(Material.BEDROCK);
 	}
 
 

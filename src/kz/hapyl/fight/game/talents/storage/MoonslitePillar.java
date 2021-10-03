@@ -1,6 +1,7 @@
 package kz.hapyl.fight.game.talents.storage;
 
 import com.google.common.collect.Maps;
+import kz.hapyl.fight.game.EnumDamageCause;
 import kz.hapyl.fight.game.GamePlayer;
 import kz.hapyl.fight.game.Response;
 import kz.hapyl.fight.game.talents.Talent;
@@ -28,6 +29,12 @@ public class MoonslitePillar extends Talent {
 		super("Moonsplite Pillar", "Raises a pillar at &etarget &7location for &b10s &7that pulses in set intervals, damaging enemies and healing yourself. You can only have 1 pillar at the time.", Type.COMBAT);
 		this.setItem(Material.BONE);
 		this.setCdSec(30);
+	}
+
+	@Override
+	public void onStop() {
+		this.pillars.values().forEach(this::destroyPillar);
+		this.pillars.clear();
 	}
 
 	@Override
@@ -120,16 +127,10 @@ public class MoonslitePillar extends Talent {
 				PlayerLib.spawnParticle(owner.getEyeLocation().add(0.0d, 0.5d, 0.0d), Particle.HEART, 1, 0, 0, 0, 0);
 			}
 			else {
-				entity.damage(5.0d);
+				GamePlayer.damageEntity(entity, 5.0d, owner, EnumDamageCause.MOON_PILLAR);
 				entity.setVelocity(entity.getLocation().getDirection().multiply(-0.5).setY(0.25d));
 			}
 		});
-	}
-
-	@Override
-	public void onStop() {
-		this.pillars.values().forEach(this::destroyPillar);
-		this.pillars.clear();
 	}
 
 	@Nullable

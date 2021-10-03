@@ -2,10 +2,12 @@ package kz.hapyl.fight.game.heroes.storage;
 
 import kz.hapyl.fight.event.DamageInput;
 import kz.hapyl.fight.event.DamageOutput;
-import kz.hapyl.fight.game.GamePlayer;
 import kz.hapyl.fight.game.AbstractGamePlayer;
+import kz.hapyl.fight.game.EnumDamageCause;
+import kz.hapyl.fight.game.GamePlayer;
 import kz.hapyl.fight.game.heroes.ClassEquipment;
 import kz.hapyl.fight.game.heroes.Hero;
+import kz.hapyl.fight.game.heroes.Heroes;
 import kz.hapyl.fight.game.talents.Talent;
 import kz.hapyl.fight.game.talents.Talents;
 import kz.hapyl.fight.game.talents.UltimateTalent;
@@ -17,8 +19,10 @@ import kz.hapyl.spigotutils.module.entity.Entities;
 import kz.hapyl.spigotutils.module.inventory.ItemBuilder;
 import kz.hapyl.spigotutils.module.player.PlayerLib;
 import kz.hapyl.spigotutils.module.util.BukkitUtils;
+import kz.hapyl.spigotutils.module.util.CollectionUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Bee;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -36,14 +40,19 @@ public class Pytaria extends Hero {
 		this.setWeapon(new Weapon(Material.ALLIUM).setName("Annihilallium").setDamage(5.0).setLore("A beautiful flower, nothing more."));
 
 		final ClassEquipment equipment = this.getEquipment();
-		equipment.setHelmet("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvN2JiMDc1MmY5ZmE4N2E2OTNjMmQwZDlmMjk1NDkzNzVmZWI2Zjc2OTUyZGE5MGQ2ODgyMGU3OTAwMDgzZjgwMSJ9fX0=");
+		equipment.setHelmet(
+				"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvN2JiMDc1MmY5ZmE4N2E2OTNjMmQwZDlmMjk1NDkzNzVmZWI2Zjc2OTUyZGE5MGQ2ODgyMGU3OTAwMDgzZjgwMSJ9fX0=");
 		equipment.setChestplate(255, 128, 128);
 		equipment.setLeggings(51, 102, 255);
 		equipment.setBoots(179, 204, 204);
 
 		// Summons a blooming bee in front of her that locks to a closest enemy and deals damage (if then don't have any cover) that depends on how low her health is and regenerates &b" + healthRegenPercent + "% &7of missing health.
 
-		this.setUltimate(new UltimateTalent("Feel the Breeze", "Summon a blooming Bee in front of Pytaria.____The Bee will lock on a closest enemy and charge.____Once charged, unleashes damage in small AoE and regenerates &b" + healthRegenPercent + "% &7of Pytaria's missing health.", 60) {
+		this.setUltimate(new UltimateTalent(
+				"Feel the Breeze",
+				"Summon a blooming Bee in front of Pytaria.____The Bee will lock on a closest enemy and charge.____Once charged, unleashes damage in small AoE and regenerates &b" + healthRegenPercent + "% &7of Pytaria's missing health.",
+				60
+		) {
 			@Override
 			public void useUltimate(Player player) {
 				final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
@@ -84,7 +93,7 @@ public class Pytaria extends Hero {
 							this.cancel();
 
 							Utils.getPlayersInRange(touchLocation, 1.5d).forEach(victim -> {
-								victim.damage(finalDamage, player);
+								GamePlayer.damageEntity(victim, finalDamage, player, EnumDamageCause.FELL_THE_BREEZE);
 							});
 
 							PlayerLib.spawnParticle(touchLocation, Particle.EXPLOSION_LARGE, 3, 0.5, 0, 0.5, 0);
@@ -96,7 +105,7 @@ public class Pytaria extends Hero {
 
 				Chat.sendMessage(player, "&a&l][ &a%s healed for &c%s❤ &a!", this.getName(), BukkitUtils.decimalFormat(missingHp));
 				gp.heal(missingHp);
-				updateChestplateColor(player);
+				//updateChestplateColor(player);
 			}
 
 			private Location drawLine(Location start, Location end) {
@@ -120,8 +129,32 @@ public class Pytaria extends Hero {
 			}
 
 		}.setCdSec(50)
-				.setItem("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDQ1NzlmMWVhMzg2NDI2OWMyMTQ4ZDgyN2MwODg3YjBjNWVkNDNhOTc1YjEwMmEwMWFmYjY0NGVmYjg1Y2NmZCJ9fX0="));
+				.setItem(
+						"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDQ1NzlmMWVhMzg2NDI2OWMyMTQ4ZDgyN2MwODg3YjBjNWVkNDNhOTc1YjEwMmEwMWFmYjY0NGVmYjg1Y2NmZCJ9fX0="
+				));
 
+	}
+
+	@Override
+	public void onStart() {
+		new GameTask() {
+			@Override
+			public void run() {
+				Heroes.PYTARIA.getAlivePlayers().forEach(gp -> {
+					if (gp.getHealth() > gp.getMaxHealth() / 2) {
+						return;
+					}
+					final Player player = gp.getPlayer();
+					final Item item = player.getWorld()
+							.dropItemNaturally(
+									player.getLocation(),
+									new ItemStack(CollectionUtils.randomElement(Tag.SMALL_FLOWERS.getValues(), Material.POPPY))
+							);
+					item.setPickupDelay(10000);
+					item.setTicksLived(5980);
+				});
+			}
+		}.runTaskTimer(0, 5);
 	}
 
 	@Override
@@ -131,7 +164,7 @@ public class Pytaria extends Hero {
 
 	@Override
 	public DamageOutput processDamageAsVictim(DamageInput input) {
-		updateChestplateColor(input.getPlayer());
+		//updateChestplateColor(input.getPlayer());
 		return null;
 	}
 
@@ -173,15 +206,17 @@ public class Pytaria extends Hero {
 		return value >= min && value < max;
 	}
 
-	// 10% DMG per 20% <3
 	public double calculateDamage(Player player, double damage) {
 		final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
 		final double health = gp.getHealth();
 		final double maxHealth = gp.getMaxHealth();
-		final double multiplier = ((maxHealth - health) / 10);
-		final double addDamage = (damage * 30 / 100) * multiplier;
+		//final double multiplier = ((maxHealth - health) / 10);
+		//final double addDamage = (damage * 30 / 100) * multiplier;
+		//
+		//return Math.max(damage + addDamage, damage);
 
-		return Math.max(damage + addDamage, damage);
+		return (health <= maxHealth / 2) ? damage * 1.5d : damage;
+
 	}
 
 	@Override

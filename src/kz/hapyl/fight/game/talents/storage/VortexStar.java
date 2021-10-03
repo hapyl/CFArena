@@ -36,7 +36,6 @@ public class VortexStar extends Talent {
 		stars.clear();
 	}
 
-
 	public int getStarsAmount(Player player) {
 		return getStars(player).getStarsAmount();
 	}

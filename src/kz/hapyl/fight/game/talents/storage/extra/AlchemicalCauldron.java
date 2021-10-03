@@ -1,5 +1,6 @@
 package kz.hapyl.fight.game.talents.storage.extra;
 
+import kz.hapyl.fight.game.GamePlayer;
 import kz.hapyl.fight.game.heroes.Heroes;
 import kz.hapyl.fight.game.heroes.storage.Alchemist;
 import kz.hapyl.fight.game.talents.Talents;
@@ -48,6 +49,12 @@ public class AlchemicalCauldron {
 		new GameTask() {
 			@Override
 			public void run() {
+				if (GamePlayer.getPlayer(owner).isDead()) {
+					clear();
+					this.cancel();
+					return;
+				}
+
 				if (progress > 100) {
 					status = Status.FINISHED;
 					playSound(Sound.BLOCK_BREWING_STAND_BREW, 1.0f);
@@ -63,7 +70,7 @@ public class AlchemicalCauldron {
 				if (status == Status.BREWING) {
 					progress += 1.0d;
 
-					if (progress % 10 == 0) {
+					if (progress % 15 == 0) {
 						playSound(Sound.AMBIENT_UNDERWATER_EXIT, 1.5f);
 					}
 
@@ -81,7 +88,7 @@ public class AlchemicalCauldron {
 					// Damage players in zone
 					Utils.getPlayersInRange(location, 4.5d).forEach(player -> {
 						if (player == owner) {
-							Chat.sendTitle(player, "", "&cIntoxication Warning!", 0, 10, 0);
+							Chat.sendTitle(player, "", "&cIntoxication Warning!", 0, 20, 0);
 							((Alchemist)Heroes.ALCHEMIST.getHero()).addToxin(player, 10);
 						}
 						else {
@@ -105,11 +112,13 @@ public class AlchemicalCauldron {
 		}
 
 		world.spawnParticle(Particle.SPELL_MOB, location.getX() + 0.5d, location.getY(), location.getZ() + 0.5d, 0, 0.000, 0.471, 0.031, 1);
-
 	}
 
 	public boolean compareBlock(Block other) {
-		return this.location.getBlock().equals(other);
+		final int blockX = this.location.getBlockX();
+		final int blockY = this.location.getBlockY();
+		final int blockZ = this.location.getBlockZ();
+		return blockX == other.getX() && blockY == other.getY() && blockZ == other.getZ();
 	}
 
 	private ArmorStand createStand(Location location) {
@@ -166,9 +175,9 @@ public class AlchemicalCauldron {
 	}
 
 	public void clear() {
+		this.location.getBlock().setType(Material.AIR, false);
 		this.standOwner.remove();
 		this.standBar.remove();
-		this.location.getBlock().setType(Material.AIR, false);
 	}
 
 	public enum Status {

@@ -5,9 +5,11 @@ import kz.hapyl.spigotutils.module.entity.Entities;
 import kz.hapyl.spigotutils.module.math.Geometry;
 import kz.hapyl.spigotutils.module.math.gometry.PlayerParticle;
 import kz.hapyl.spigotutils.module.math.gometry.Quality;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Particle;
+import org.bukkit.entity.Bat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -33,16 +35,22 @@ public class AstralStars {
 	}
 
 	public void summonStar(Location location) {
-		this.bats.add(Entities.BAT.spawn(location, me -> {
+		final Bat bat = Entities.BAT.spawn(location, me -> {
 			me.setSilent(true);
 			me.setInvulnerable(true);
 			me.setInvisible(true);
 			me.setAI(false);
 			me.setAwake(false);
-			Utils.hideEntity(me, player);
 			addToGlowingTeam(me);
 			me.setGlowing(true);
-		}));
+		});
+		this.bats.add(bat);
+		for (final Player online : Bukkit.getOnlinePlayers()) {
+			if (online == player) {
+				continue;
+			}
+			Utils.hideEntity(bat, online);
+		}
 	}
 
 	public double getPickupDistance() {

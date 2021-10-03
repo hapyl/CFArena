@@ -82,9 +82,11 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
 				}.runTaskTimer(0, 1);
 
 			}
-		});
+		}.setItem(Material.DRAGON_BREATH));
 
 	}
+
+	// TODO: 028. 09/28/2021 -> impl wither attack thing
 
 	@Override
 	public void onStart(Player player) {

@@ -29,7 +29,7 @@ public class HeroSelectGUI extends PlayerGUI {
 				slot -= slot % 9 == 7 ? 3 : 1;
 				continue;
 			}
-			this.setItem(slot, new ItemBuilder(hero.getHero().getGuiTexture())
+			this.setItem(slot, new ItemBuilder(hero.getHero().getItem())
 					.setName("&a" + Chat.capitalize(hero))
 					.addLore("&8/hero " + hero.name().toLowerCase(Locale.ROOT))
 					.addLore()

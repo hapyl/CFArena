@@ -1,5 +1,6 @@
 package kz.hapyl.fight.game.talents.storage;
 
+import kz.hapyl.fight.game.EnumDamageCause;
 import kz.hapyl.fight.game.GamePlayer;
 import kz.hapyl.fight.game.Response;
 import kz.hapyl.fight.game.talents.Talent;
@@ -89,7 +90,7 @@ public class Molotov extends Talent implements Listener {
 						GamePlayer.getPlayer(player).heal(1.0d);
 					}
 					else {
-						entity.damage(3.0d, player);
+						GamePlayer.damageEntity(entity, 3.0d, player, EnumDamageCause.FIRE_MOLOTOV);
 					}
 				});
 

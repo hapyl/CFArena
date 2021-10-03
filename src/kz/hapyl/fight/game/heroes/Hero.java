@@ -5,6 +5,7 @@ import kz.hapyl.fight.event.DamageInput;
 import kz.hapyl.fight.event.DamageOutput;
 import kz.hapyl.fight.game.GameElement;
 import kz.hapyl.fight.game.Manager;
+import kz.hapyl.fight.game.PlayerElement;
 import kz.hapyl.fight.game.talents.Talent;
 import kz.hapyl.fight.game.talents.UltimateTalent;
 import kz.hapyl.fight.game.task.GameTask;
@@ -16,7 +17,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Set;
 
-public abstract class Hero implements GameElement {
+public abstract class Hero implements GameElement, PlayerElement {
 
 	private final ClassEquipment equipment;
 	private final String name;
@@ -58,6 +59,10 @@ public abstract class Hero implements GameElement {
 		}
 	}
 
+	public void clearUsingUltimate() {
+		this.usingUltimate.clear();
+	}
+
 	public final void setUsingUltimate(Player player, boolean flag, int reverseAfter) {
 		this.setUsingUltimate(player, flag);
 		GameTask.runLater(() -> setUsingUltimate(player, !flag), reverseAfter);
@@ -79,7 +84,7 @@ public abstract class Hero implements GameElement {
 		this.about = about;
 	}
 
-	public ItemStack getGuiTexture() {
+	public ItemStack getItem() {
 		return guiTexture;
 	}
 
@@ -88,11 +93,11 @@ public abstract class Hero implements GameElement {
 	}
 
 	public void setItem(Material material) {
-		this.guiTexture = new ItemStack(material);
+		this.guiTexture = new ItemBuilder(material).hideFlags().toItemStack();
 	}
 
 	public void setItem(String texture) {
-		this.guiTexture = ItemBuilder.playerHead(texture).build();
+		this.guiTexture = ItemBuilder.playerHead(texture).hideFlags().build();
 	}
 
 	public abstract Talent getFirstTalent();
@@ -107,6 +112,9 @@ public abstract class Hero implements GameElement {
 
 	public DamageOutput processDamageAsVictim(DamageInput input) {
 		return null;
+	}
+
+	public void onDeath(Player player) {
 	}
 
 	public UltimateTalent getUltimate() {

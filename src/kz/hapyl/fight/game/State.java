@@ -4,6 +4,7 @@ public enum State {
 
 	PRE_GAME,
 	IN_GAME,
-	POST_GAME
+	POST_GAME,
+	FINISHED
 
 }

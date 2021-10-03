@@ -3,6 +3,8 @@ package kz.hapyl.fight.game;
 import kz.hapyl.fight.game.effect.GameEffectType;
 import org.bukkit.entity.LivingEntity;
 
+import javax.annotation.Nullable;
+
 public class AbstractGamePlayer {
 
 	public static final AbstractGamePlayer NULL_GAME_PLAYER = new AbstractGamePlayer();
@@ -70,6 +72,15 @@ public class AbstractGamePlayer {
 	public EnumDamageCause getLastDamageCause() {
 		displayError();
 		return EnumDamageCause.NONE;
+	}
+
+	@Nullable
+	public LivingEntity getLastDamager() {
+		return null;
+	}
+
+	public void setLastDamager(LivingEntity entity) {
+
 	}
 
 	public void setHealth(double d) {

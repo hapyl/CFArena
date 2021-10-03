@@ -1,9 +1,7 @@
 package kz.hapyl.fight.util;
 
 import kz.hapyl.fight.Main;
-import kz.hapyl.fight.game.AbstractGamePlayer;
-import kz.hapyl.fight.game.GamePlayer;
-import kz.hapyl.fight.game.Manager;
+import kz.hapyl.fight.game.*;
 import kz.hapyl.fight.game.effect.GameEffectType;
 import kz.hapyl.fight.game.task.GameTask;
 import kz.hapyl.spigotutils.module.annotate.NULLABLE;
@@ -50,6 +48,12 @@ public class Utils {
 			builder.append(string).append(" ");
 		}
 		return builder.toString().trim();
+	}
+
+	public static <E> List<String> collectionToStringList(Collection<E> e, java.util.function.Function<E, String> fn) {
+		final List<String> list = new ArrayList<>();
+		e.forEach(el -> list.add(fn.apply(el)));
+		return list;
 	}
 
 	@Nullable
@@ -206,13 +210,20 @@ public class Utils {
 		}
 	}
 
-	public static boolean playerCanUseAbility(Player player) {
+	public static Response playerCanUseAbility(Player player) {
 		final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
 		if (gp.hasEffect(GameEffectType.STUN)) {
-			return false;
+			return Response.error("Talent is locked!");
 		}
 
-		return true;
+		if (Manager.current().isGameInProgress()) {
+			final State state = Manager.current().getCurrentGame().getGameState();
+			if (state != State.IN_GAME) {
+				return Response.error("Game is not yet started!");
+			}
+		}
+
+		return Response.OK;
 	}
 
 	public static Player getTargetPlayer(Player player, double maxDistance) {
@@ -346,16 +357,19 @@ public class Utils {
 			return;
 		}
 
-		Geometry.drawCircle(location, range, Quality.NORMAL, new WorldParticle(Particle.CRIT));
-		Geometry.drawCircle(location, range + 0.5d, Quality.NORMAL, new WorldParticle(Particle.ENCHANTMENT_TABLE));
-		PlayerLib.spawnParticle(location, Particle.EXPLOSION_HUGE, 1, 1, 0, 1, 0);
-
 		Utils.getEntitiesInRange(location, range).forEach(entity -> {
 			entity.damage(damage);
 			if (consumer != null) {
 				consumer.accept(entity);
 			}
 		});
+
+		// Fx
+		Geometry.drawCircle(location, range, Quality.NORMAL, new WorldParticle(Particle.CRIT));
+		Geometry.drawCircle(location, range + 0.5d, Quality.NORMAL, new WorldParticle(Particle.ENCHANTMENT_TABLE));
+		PlayerLib.spawnParticle(location, Particle.EXPLOSION_HUGE, 1, 1, 0, 1, 0);
+		PlayerLib.playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 1.0f);
+
 	}
 
 	public static void createExplosion(Location location, double range, double damage) {

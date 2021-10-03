@@ -148,6 +148,8 @@ public class IceCone extends Talent implements Listener {
 		snowball.setShooter(player);
 		snowballMap.put(player, snowball);
 
+		PlayerLib.playSound(player, Sound.ENTITY_SNOWBALL_THROW, 1.0f);
+
 		return Response.OK;
 	}
 }

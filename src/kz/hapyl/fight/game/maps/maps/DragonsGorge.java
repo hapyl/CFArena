@@ -16,8 +16,8 @@ public class DragonsGorge extends GameMap {
 
 			}
 		});
-		this.addLocation(-184, 20, 154);
-		this.addLocation(-199, 18, 140);
-		this.addLocation(-223, 18, 173);
+		this.addLocation(-143, 64, 86);
+		this.addLocation(-150, 64, 100);
+		this.addLocation(-172, 64, 119);
 	}
 }

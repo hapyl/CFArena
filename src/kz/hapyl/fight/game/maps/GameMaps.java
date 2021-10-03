@@ -2,43 +2,43 @@ package kz.hapyl.fight.game.maps;
 
 import kz.hapyl.fight.game.maps.maps.DragonsGorge;
 import kz.hapyl.fight.game.maps.maps.JapanMap;
+import kz.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public enum GameMaps {
 
 	// non-playable map, storing here for easy coordinate grab and consistency
-	SPAWN(new GameMap("Spawn", "You spawn here!", Material.BLUE_BED).addLocation(0, 15, 0), false),
+	SPAWN(new GameMap("Spawn", "You spawn here!", Material.BLUE_BED).addLocation(0, 64, 0), false),
 
-	ARENA("Arena", "A great arena to fight on!", Material.COARSE_DIRT, Size.MEDIUM, asList(asLoc(-94, 3, -112))),
+	ARENA("Arena", "A great arena to fight on!", Material.COARSE_DIRT, Size.MEDIUM, asList(asLoc(100, 64, 0))),
+
 	JAPAN(new JapanMap()),
+
 	GREENHOUSE(
 			"Greenhouse",
 			"This greenhouse has a lot of flowers to hide, and bunch of secret passages.__&8&oWho's made them?",
 			Material.OAK_SAPLING,
 			Size.SMALL,
-			asSingleLoc(10, 7, 65)
+			asSingleLoc(-99, 64, -6)
 	),
 	RAILWAY(
 			"Railway Station",
 			"The action happening in the unknown Railway Station. Big area to fight, and to hide.",
 			Material.RAIL,
 			Size.LARGE,
-			asSingleLoc(110, 16, 11)
+			asList(asLoc(32, 70, 99), asLoc(-16, 70, 99))
 	),
-	NETHER(
-			"The Nether",
-			"The nether is hot place with a bunch of lava, so if you didn't bring your suntan cream with you, don't stay there for a long time!",
-			Material.CRIMSON_NYLIUM,
-			Size.SMALL,
-			asSingleLoc(-165, 3, -66)
-	),
+	//NETHER(
+	//		"The Nether",
+	//		"The nether is hot place with a bunch of lava, so if you didn't bring your suntan cream with you, don't stay there for a long time!",
+	//		Material.CRIMSON_NYLIUM,
+	//		Size.SMALL,
+	//		asSingleLoc(-165, 3, -66)
+	//),
 	CLOUDS(
 			"The Clouds",
 			"Ruined city built on the clouds somewhere in the sky.",
@@ -50,7 +50,7 @@ public enum GameMaps {
 
 				}
 			}),
-			asSingleLoc(1052, 26, 1008)
+			asSingleLoc(500, 64, 500)
 	),
 	LIBRARY(
 			"Infinite Library",
@@ -58,9 +58,9 @@ public enum GameMaps {
 			Material.BOOKSHELF,
 			Size.MEDIUM,
 			asList(
-					asLoc(99, 10, 115, -180, 0),
-					asLoc(108, 21, 114, -180, 0),
-					asLoc(90, 21, 114, -180, 0)
+					asLoc(0, 64, -90, -180, 0),
+					asLoc(-10, 74, -95, -180, 0),
+					asLoc(9, 74, -95, -180, 0)
 			)
 	),
 	DRAGONS_GORGE(new DragonsGorge());
@@ -91,6 +91,26 @@ public enum GameMaps {
 
 	public GameMap getMap() {
 		return map;
+	}
+
+	public static List<GameMaps> getPlayableMaps() {
+		final List<GameMaps> maps = new ArrayList<>();
+		for (final GameMaps value : values()) {
+			if (value == null || !value.isPlayable()) {
+				continue;
+			}
+			maps.add(value);
+		}
+		return maps;
+	}
+
+	public String getName() {
+		return map.getName();
+	}
+
+	public static GameMaps byName(String str) {
+		final GameMaps gm = Validate.getEnumValue(GameMaps.class, str == null ? "arena" : str);
+		return gm == null ? ARENA : gm;
 	}
 
 	protected static <E> List<E> asList(E... e) {
