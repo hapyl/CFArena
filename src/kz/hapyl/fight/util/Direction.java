@@ -2,6 +2,9 @@ package kz.hapyl.fight.util;
 
 import org.bukkit.entity.Player;
 
+/**
+ * Returns player direction.
+ */
 public enum Direction {
 
 	NORTH,
