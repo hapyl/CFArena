@@ -4,7 +4,6 @@ import kz.hapyl.fight.game.GamePlayer;
 import kz.hapyl.fight.game.effect.GameEffectType;
 import kz.hapyl.spigotutils.module.chat.Chat;
 import kz.hapyl.spigotutils.module.player.PlayerLib;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
@@ -24,9 +23,9 @@ public class EnderPearlController implements Listener {
 			Location location = enderPearl.getLocation();
 			if (!isSafeLocation(location)) {
 				enderPearl.remove();
-				if (player.getGameMode() != GameMode.CREATIVE) {
-					player.getInventory().addItem(enderPearl.getItem());
-				}
+				//if (player.getGameMode() != GameMode.CREATIVE) {
+				//	player.getInventory().addItem(enderPearl.getItem());
+				//}
 				Chat.sendMessage(player, "&cYou cannot travel there using Ender Pearls!");
 				PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
 				ev.setCancelled(true);

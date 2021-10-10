@@ -6,6 +6,7 @@ import kz.hapyl.fight.game.GamePlayer;
 import kz.hapyl.fight.game.Response;
 import kz.hapyl.fight.game.talents.Talent;
 import kz.hapyl.fight.game.task.GameTask;
+import kz.hapyl.fight.util.Nulls;
 import kz.hapyl.fight.util.Utils;
 import kz.hapyl.spigotutils.module.math.Geometry;
 import kz.hapyl.spigotutils.module.math.gometry.Draw;
@@ -35,6 +36,12 @@ public class MoonslitePillar extends Talent {
 	public void onStop() {
 		this.pillars.values().forEach(this::destroyPillar);
 		this.pillars.clear();
+	}
+
+	@Override
+	public void onDeath(Player player) {
+		Nulls.runIfNotNull(pillars.get(player), this::destroyPillar);
+		pillars.remove(player);
 	}
 
 	@Override

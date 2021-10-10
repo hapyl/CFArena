@@ -39,7 +39,7 @@ public class Final<E> {
 	}
 
 	public E getOr(E or) {
-		return element;
+		return isNull() ? or : element;
 	}
 
 

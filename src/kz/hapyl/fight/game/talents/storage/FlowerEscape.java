@@ -36,6 +36,11 @@ public class FlowerEscape extends Talent {
 	}
 
 	@Override
+	public void onDeath(Player player) {
+		super.onDeath(player);
+	}
+
+	@Override
 	public Response execute(Player player) {
 		final Location location = player.getLocation();
 		final Vector vector = player.getLocation().getDirection().normalize().multiply(-1.5);
@@ -56,6 +61,11 @@ public class FlowerEscape extends Talent {
 
 			@Override
 			public void run() {
+				if (GamePlayer.getPlayer(player).isDead()) {
+					entity.remove();
+					this.cancel();
+					return;
+				}
 
 				if (tick-- <= 0) {
 					entity.remove();

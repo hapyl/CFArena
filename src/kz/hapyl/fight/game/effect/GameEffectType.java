@@ -14,6 +14,7 @@ public enum GameEffectType {
 	VULNERABLE(new Vulnerable()),
 	IMMOVABLE(new Immovable()),
 	INVISIBILITY(new Invisibility()),
+	RESPAWN_RESISTANCE(new RespawnResistance()),
 
 	;
 

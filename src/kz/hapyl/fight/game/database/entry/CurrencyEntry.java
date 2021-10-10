@@ -15,6 +15,10 @@ public class CurrencyEntry extends DatabaseEntry {
 		return this.getConfig().getLong("currency.coins", 0L);
 	}
 
+	public String getCoinsString() {
+		return String.format("%,d", getCoins());
+	}
+
 	public void addCoins(long amount) {
 		this.setCoins(this.getCoins() + amount);
 	}

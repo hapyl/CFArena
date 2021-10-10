@@ -145,6 +145,28 @@ public enum Talents {
 			Material.ELYTRA
 	)),
 
+	// Taker
+	RESERVED_TAKER(null),
+	RESERVED_TAKER0(null),
+	RESERVED_TAKER1(null),
+
+	//
+	ARROW_SHIELD(new ArrowShield()),
+	CLIMB(new Climb()),
+	ELUSIVE_BURST(new PassiveTalent(
+			"Elusive Burst",
+			"Fully charged shots while sneaking will infuse your arrow. Infused arrows exploded into small clusters dealing big damage upon hit.",
+			Material.PEONY
+	)),
+
+	// Swooper
+	BLAST_PACK(new BlastPack()),
+	SNIPER_SCOPE(new PassiveTalent(
+			"Sniper Scope",
+			"&e&lSNEAK &7to activate sniper scope and increase your rifle's damage and distance.",
+			Material.SPYGLASS
+	)),
+
 	// test
 	TestChargeTalent(new TestChargeTalent()),
 

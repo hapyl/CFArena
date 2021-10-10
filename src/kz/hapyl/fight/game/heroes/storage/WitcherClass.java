@@ -86,8 +86,6 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
 
 	}
 
-	// TODO: 028. 09/28/2021 -> impl wither attack thing
-
 	@Override
 	public void onStart(Player player) {
 		combos.put(player, new Combo(player));

@@ -197,6 +197,14 @@ public class Ender extends Hero implements Listener {
 		}
 	}
 
+	@Override
+	public void onDeath(Player player) {
+		if (hasBeacon(player)) {
+			beaconLocation.getByKey(player).remove();
+			beaconLocation.remove(player);
+		}
+	}
+
 	public void setBeaconLocation(Player player, Location location) {
 		if (hasBeacon(player)) {
 			return;

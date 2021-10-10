@@ -41,7 +41,9 @@ public class PlayerEvent implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void handlePlayerJoin(PlayerJoinEvent ev) {
 		final Player player = ev.getPlayer();
-		Main.getPlugin().handlePlayer(player);
+		final Main plugin = Main.getPlugin();
+		plugin.handlePlayer(player);
+		plugin.getTutorial().display(player);
 	}
 
 	@EventHandler()
@@ -196,7 +198,6 @@ public class PlayerEvent implements Listener {
 					// assign the damager
 					damagerFinal = playerDamager;
 				}
-
 				else if (damager instanceof Projectile projectile) {
 					if (projectile.getShooter() instanceof Player playerDamager) {
 
@@ -210,6 +211,9 @@ public class PlayerEvent implements Listener {
 						// assign the damager
 						damagerFinal = playerDamager;
 					}
+				}
+				else if (damager instanceof LivingEntity living) {
+					damagerFinal = living;
 				}
 			}
 
@@ -267,7 +271,7 @@ public class PlayerEvent implements Listener {
 			}
 		}
 
-		if (entity instanceof Player player) {
+		if (livingEntity instanceof Player player && damagerFinal != null) {
 			GamePlayer.getPlayer(player).setLastDamager(damagerFinal);
 		}
 
@@ -491,14 +495,23 @@ public class PlayerEvent implements Listener {
 				Chat.sendMessage(player, "&cOut of charges!");
 				return;
 			}
-			chargedTalent.removeChargeAndStartCooldown(player, slot);
 		}
 
+		// Execute talent and get response
 		final Response response = talent.execute0(player);
 
 		if (response.isError()) {
 			Chat.sendMessage(player, "&cCannot use this! &l" + response.getReason());
 			return;
+		}
+
+		// await stops the code here, basically OK but does not start cooldown nor remove charge if charged talent.
+		if (response.isAwait()) {
+			return;
+		}
+
+		if (talent instanceof ChargedTalent chargedTalent) {
+			chargedTalent.removeChargeAndStartCooldown(player, slot);
 		}
 
 		talent.startCd(player);

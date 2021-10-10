@@ -3,11 +3,13 @@ package kz.hapyl.fight.game.talents.storage;
 import kz.hapyl.fight.game.Response;
 import kz.hapyl.fight.game.talents.Talent;
 import kz.hapyl.fight.game.task.GameTask;
+import kz.hapyl.fight.util.Nulls;
 import kz.hapyl.fight.util.Utils;
 import kz.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -27,9 +29,23 @@ public class MoonSliteBomb extends Talent implements Listener {
 	private final Map<UUID, Set<Item>> bombs = new HashMap<>();
 
 	public MoonSliteBomb() {
-		super("Moonslite Bomb", "Drop a proximity grenade at your current location that explodes on contact with enemy or after a set period, dealing damage and applying &6&lCorrosion &7for a short time.", Type.COMBAT);
+		super(
+				"Moonslite Bomb",
+				"Drop a proximity grenade at your current location that explodes on contact with enemy or after a set period, dealing damage and applying &6&lCorrosion &7for a short time.",
+				Type.COMBAT
+		);
 		this.setItem(Material.END_STONE_BRICK_SLAB);
 		this.setCdSec(10);
+	}
+
+	@Override
+	public void onDeath(Player player) {
+		Nulls.runIfNotNull(bombs.get(player.getUniqueId()), set -> {
+			if (set.isEmpty()) {
+				return;
+			}
+			set.forEach(Entity::remove);
+		});
 	}
 
 	@Override

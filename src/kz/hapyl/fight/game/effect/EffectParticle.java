@@ -14,6 +14,10 @@ public class EffectParticle {
 	private final double oX, oY, oZ;
 	private final float speed;
 
+	public EffectParticle(Particle particle, int amount) {
+	    this(particle, amount, 0.0d, 0.0d, 0.0d, 0.0f);
+	}
+
 	public EffectParticle(Particle particle, int amount, double oX, double oY, double oZ, float speed) {
 		this.particle = particle;
 		this.amount = amount;

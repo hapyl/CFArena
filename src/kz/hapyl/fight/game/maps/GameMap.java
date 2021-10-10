@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+// TODO: 009. 10/09/2021 - Implement features
 public class GameMap implements GameElement {
 
 	private final String name;
@@ -43,6 +44,15 @@ public class GameMap implements GameElement {
 		}
 	}
 
+	public GameMap(String name, String info, Material material) {
+		this.name = name;
+		this.material = material;
+		this.info = info;
+		this.locations = new ArrayList<>();
+		this.features = new ArrayList<>();
+		this.size = new Final<>();
+	}
+
 	public Material getMaterial() {
 		return material;
 	}
@@ -55,21 +65,12 @@ public class GameMap implements GameElement {
 		return features;
 	}
 
-	public GameMap(String name, String info, Material material) {
-		this.name = name;
-		this.material = material;
-		this.info = info;
-		this.locations = new ArrayList<>();
-		this.features = new ArrayList<>();
-		this.size = new Final<>();
-	}
-
 	public GameMap addFeature(MapFeature feature) {
 		this.features.add(feature);
 		return this;
 	}
 
-	public GameMap addFeature(Set<MapFeature> feature) {
+	public GameMap addFeature(List<MapFeature> feature) {
 		this.features.addAll(feature);
 		return this;
 	}
@@ -126,23 +127,25 @@ public class GameMap implements GameElement {
 		if (features.isEmpty()) {
 			return;
 		}
+
+		features.forEach(MapFeature::onStart);
+
 		new GameTask() {
 			private int tick = 0;
 
 			@Override
 			public void run() {
-				final int tickMod20 = this.tick % 20;
+				final int tickMod20 = tick % 20;
 
 				features.forEach(feature -> feature.tick(tickMod20));
 				++tick;
-
 			}
 		}.runTaskTimer(0, 1);
 	}
 
 	@Override
 	public final void onStop() {
-
+		features.forEach(MapFeature::onStop);
 	}
 
 }

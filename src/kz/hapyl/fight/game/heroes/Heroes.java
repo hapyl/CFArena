@@ -13,7 +13,7 @@ import java.util.List;
 
 public enum Heroes {
 
-	// https://tools-unite.com/tools/random-picker-wheel?names=Juju, KM, Librarian, Shark, Swooper, Taker, Tamer
+	// https://tools-unite.com/tools/random-picker-wheel?names=KM, Librarian, Shark, Tamer
 
 	ARCHER(new Archer()),
 	ALCHEMIST(new Alchemist()),
@@ -33,8 +33,14 @@ public enum Heroes {
 	DARK_MAGE(new DarkMage()),
 	BLAST_KNIGHT(new BlastKnight()),
 	NINJA(new Ninja()),
+	TAKER(null),
+	JUJU(new JuJu()),
+	SWOOPER(new Swooper()),
+	TAMER(new Tamer()),
 
 	;
+
+	private final static InvalidHero INVALID_HERO = new InvalidHero();
 
 	private final Hero hero;
 
@@ -45,8 +51,12 @@ public enum Heroes {
 		}
 	}
 
+	public boolean isValidHero() {
+		return !this.getHero().equals(INVALID_HERO);
+	}
+
 	public Hero getHero() {
-		return hero;
+		return hero == null ? INVALID_HERO : hero;
 	}
 
 	public List<GamePlayer> getPlayers() {
@@ -71,6 +81,16 @@ public enum Heroes {
 
 	public boolean isSelected(Player player) {
 		return Manager.current().getSelectedHero(player) == this;
+	}
+
+	public static List<Heroes> playable() {
+		final List<Heroes> heroes = new ArrayList<>();
+		for (final Heroes value : values()) {
+			if (value.isValidHero()) {
+				heroes.add(value);
+			}
+		}
+		return heroes;
 	}
 
 }

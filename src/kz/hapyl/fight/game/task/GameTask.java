@@ -107,16 +107,25 @@ public abstract class GameTask implements Runnable {
 	}
 
 	public synchronized GameTask runTaskLater(long later) {
+		if (!canExecute()) {
+			return this;
+		}
 		this.validateDoesNotExists();
 		return this.setupTask(Bukkit.getScheduler().runTaskLater(Main.getPlugin(), this, later));
 	}
 
 	public synchronized GameTask runTaskTimer(long delay, long period) {
+		if (!canExecute()) {
+			return this;
+		}
 		this.validateDoesNotExists();
 		return this.setupTask(Bukkit.getScheduler().runTaskTimer(Main.getPlugin(), this, delay, period));
 	}
 
 	public synchronized GameTask runTask() {
+		if (!canExecute()) {
+			return this;
+		}
 		this.validateDoesNotExists();
 		return this.setupTask(Bukkit.getScheduler().runTask(Main.getPlugin(), this));
 	}
@@ -156,9 +165,16 @@ public abstract class GameTask implements Runnable {
 	}
 
 	public synchronized GameTask setupTask(BukkitTask task) {
+		if (!Main.getPlugin().isEnabled()) {
+			return this;
+		}
 		this.task = task;
 		Main.getPlugin().getTaskList().register(this);
 		return this;
+	}
+
+	private boolean canExecute() {
+		return Main.getPlugin().isEnabled();
 	}
 
 }

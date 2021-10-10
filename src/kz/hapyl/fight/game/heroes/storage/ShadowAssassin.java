@@ -46,19 +46,25 @@ public class ShadowAssassin extends Hero implements Listener {
 		this.setItem(Material.ENDERMAN_SPAWN_EGG);
 
 		final ClassEquipment eq = this.getEquipment();
-		eq.setHelmet("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWI4YWY1MmVmMmY3MmMzYmY1ZWNlNmU3MGE4MmYxMzcxOTU5Y2UzZmNiNzM2YzUwMDMwNWNhZGRjNTA1YzVlMiJ9fX0=");
+		eq.setHelmet(
+				"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWI4YWY1MmVmMmY3MmMzYmY1ZWNlNmU3MGE4MmYxMzcxOTU5Y2UzZmNiNzM2YzUwMDMwNWNhZGRjNTA1YzVlMiJ9fX0=");
 		eq.setChestplate(Color.BLACK);
 		eq.setLeggings(Color.BLACK);
 		eq.setBoots(Color.BLACK);
 
 		this.setWeapon(new Weapon(Material.IRON_SWORD)
 				.setName("Livid Dagger")
-				.setLore("A dagger filled with bad memories.__&e&lBACKSTAB &7to perform a charged attack that knows enemies and stuns them for a short time.__&9Cooldown: &l%ss"
-						.formatted(BukkitUtils.roundTick(backstabCd)))
+				.setLore(
+						"A dagger filled with bad memories.__&e&lBACKSTAB &7to perform a charged attack that knows enemies and stuns them for a short time.__&9Cooldown: &l%ss"
+								.formatted(BukkitUtils.roundTick(backstabCd)))
 				.setDamage(8.0d));
 
-		this.setUltimate(new UltimateTalent("Extreme Focus", "Enter &bExtreme Focus &7for &b%ss&7. While active, you will not miss your hits if target is close enough and has no cover."
-				.formatted(BukkitUtils.roundTick(ultimateDuration)), 80) {
+		this.setUltimate(new UltimateTalent(
+				"Extreme Focus",
+				"Enter &bExtreme Focus &7for &b%ss&7. While active, you will not miss your hits if target is close enough and has no cover."
+						.formatted(BukkitUtils.roundTick(ultimateDuration)),
+				80
+		) {
 			@Override
 			public void useUltimate(Player player) {
 				setUsingUltimate(player, true, ultimateDuration);
@@ -259,7 +265,7 @@ public class ShadowAssassin extends Hero implements Listener {
 		final Player player = ev.getPlayer();
 		final Location from = ev.getFrom();
 		final Location to = ev.getTo();
-		if (to == null || !validatePlayer(player, Heroes.SHADOW_ASSASSIN)) {
+		if (to == null || !validatePlayer(player, Heroes.SHADOW_ASSASSIN) || !player.isSneaking()) {
 			return;
 		}
 

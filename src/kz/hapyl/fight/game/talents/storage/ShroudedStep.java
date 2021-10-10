@@ -1,5 +1,6 @@
 package kz.hapyl.fight.game.talents.storage;
 
+import kz.hapyl.fight.game.GamePlayer;
 import kz.hapyl.fight.game.Response;
 import kz.hapyl.fight.game.heroes.HeroHandle;
 import kz.hapyl.fight.game.talents.Talent;
@@ -43,7 +44,7 @@ public class ShroudedStep extends Talent {
 			public void run() {
 
 				final Location entityLocation = entity.getLocation();
-				if (distance < 0 || entity.isDead()) {
+				if (distance < 0 || entity.isDead() || GamePlayer.getPlayer(player).isDead()) {
 					if (distance < 0) {
 						PlayerLib.spawnParticle(entityLocation, Particle.CRIT_MAGIC, 10, 0, 0, 0, 0.5f);
 						entity.remove();

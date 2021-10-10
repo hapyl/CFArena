@@ -5,6 +5,7 @@ import kz.hapyl.spigotutils.module.entity.Entities;
 import kz.hapyl.spigotutils.module.math.Geometry;
 import kz.hapyl.spigotutils.module.math.gometry.PlayerParticle;
 import kz.hapyl.spigotutils.module.math.gometry.Quality;
+import kz.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -59,7 +60,17 @@ public class AstralStars {
 
 	public void tickStars() {
 		bats.forEach(bat -> {
-			Geometry.drawCircle(bat.getLocation(), pickupDistance, Quality.HIGH, new PlayerParticle(Particle.CRIT, player));
+			// Display activation radius
+			final Location location = bat.getLocation();
+			Geometry.drawCircle(location, pickupDistance, Quality.HIGH, new PlayerParticle(Particle.CRIT, player));
+
+			// Display particles for others
+			Bukkit.getOnlinePlayers().forEach(other -> {
+				if (other == player) {
+					return;
+				}
+				PlayerLib.spawnParticle(location, Particle.CRIT, 5, 0.1d, 0.1d, 0.1d, 0.01f);
+			});
 		});
 	}
 

@@ -6,6 +6,7 @@ import kz.hapyl.fight.game.heroes.Heroes;
 import kz.hapyl.fight.game.talents.Talent;
 import kz.hapyl.fight.game.talents.storage.extra.AlchemicalCauldron;
 import kz.hapyl.fight.game.task.GameTask;
+import kz.hapyl.fight.util.Nulls;
 import kz.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -26,7 +27,11 @@ public class CauldronAbility extends Talent implements Listener {
 	private final Map<Player, AlchemicalCauldron> cauldrons = new HashMap<>();
 
 	public CauldronAbility() {
-		super("Brewing Pot", "Place a Brewing Cauldron to brew a Magic Potion. Put your Brewing Stick in it and wait! Once ready, claim you potion and enhance yourself with following effects:____&a- &7Drinking a potion will grant double effects. &8(5 charges)____&a- &7Hitting an enemy will apply random effect. &8(10 charges)", Type.COMBAT);
+		super(
+				"Brewing Pot",
+				"Place a Brewing Cauldron to brew a Magic Potion. Put your Brewing Stick in it and wait! Once ready, claim you potion and enhance yourself with following effects:____&a- &7Drinking a potion will grant double effects. &8(5 charges)____&a- &7Hitting an enemy will apply random effect. &8(10 charges)",
+				Type.COMBAT
+		);
 		this.setItem(Material.CAULDRON);
 		this.setCdSec(120);
 	}
@@ -96,6 +101,12 @@ public class CauldronAbility extends Talent implements Listener {
 	public void onStop() {
 		cauldrons.values().forEach(AlchemicalCauldron::clear);
 		cauldrons.clear();
+	}
+
+	@Override
+	public void onDeath(Player player) {
+		Nulls.runIfNotNull(cauldrons.get(player), AlchemicalCauldron::clear);
+		cauldrons.remove(player);
 	}
 
 	@Override

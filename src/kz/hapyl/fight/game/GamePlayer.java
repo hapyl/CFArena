@@ -8,7 +8,7 @@ import kz.hapyl.fight.game.heroes.ComplexHero;
 import kz.hapyl.fight.game.heroes.Hero;
 import kz.hapyl.fight.game.talents.Talent;
 import kz.hapyl.fight.game.talents.UltimateTalent;
-import kz.hapyl.fight.util.Nulls;
+import kz.hapyl.fight.game.task.GameTask;
 import kz.hapyl.spigotutils.module.annotate.Super;
 import kz.hapyl.spigotutils.module.chat.Chat;
 import kz.hapyl.spigotutils.module.chat.Gradient;
@@ -30,9 +30,8 @@ import org.bukkit.scoreboard.Team;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class GamePlayer extends AbstractGamePlayer {
@@ -50,11 +49,11 @@ public class GamePlayer extends AbstractGamePlayer {
 	private LivingEntity lastDamager;
 	private EnumDamageCause lastDamageCause = EnumDamageCause.ENTITY_ATTACK;
 
-	private final Stat stats;
+	private final StatContainer stats;
 	private final Database database;
 
-	private final Set<String> teamsToRemove = new HashSet<>();
 	private final Map<GameEffectType, ActiveGameEffect> gameEffects;
+	private final Map<GamePlayer, Team> healthTeamMap = new HashMap<>();
 
 	// 		[Kinda Important Note]
 	//  These two can never be both true.
@@ -72,12 +71,15 @@ public class GamePlayer extends AbstractGamePlayer {
 		this.isDead = false;
 		this.isSpectator = false;
 		this.gameEffects = new ConcurrentHashMap<>();
-		this.stats = new Stat(player);
+		this.stats = new StatContainer(player);
 		this.database = Database.getDatabase(player);
 		this.resetPlayer();
 	}
 
 	public void resetPlayer() {
+		lastDamager = null;
+		lastDamageCause = null;
+		setHealth(getMaxHealth());
 		player.getInventory().clear();
 		player.setMaxHealth(40.0d);
 		player.setHealth(40.0d);
@@ -123,7 +125,8 @@ public class GamePlayer extends AbstractGamePlayer {
 		return gameEffects.containsKey(type);
 	}
 
-	public Stat getStats() {
+	@Nonnull
+	public StatContainer getStats() {
 		return stats;
 	}
 
@@ -164,21 +167,23 @@ public class GamePlayer extends AbstractGamePlayer {
 	}
 
 	public void damage(double damage, @Nullable LivingEntity damager, @Nullable EnumDamageCause cause) {
-		this.player.damage(damage, damager);
 		if (damager != null) {
 			lastDamager = damager;
 		}
 		if (cause != null) {
 			lastDamageCause = cause;
 		}
+		this.player.damage(damage, damager);
 	}
 
 	/**
 	 * This should only be called in the calculations, do not call it otherwise.
 	 */
-	public void decreaseHealth(double damage, LivingEntity damager) {
+	public void decreaseHealth(double damage, @Nullable LivingEntity damager) {
 		this.decreaseHealth(damage);
-		this.lastDamager = damager;
+		if (damager != null) {
+			this.lastDamager = damager;
+		}
 	}
 
 	/**
@@ -194,8 +199,18 @@ public class GamePlayer extends AbstractGamePlayer {
 	}
 
 	@Override
-	public EnumDamageCause getLastDamageCause() {
-		return lastDamageCause;
+	public void sendMessage(String message, Object... objects) {
+		Chat.sendMessage(player, message, objects);
+	}
+
+	@Override
+	public void sendTitle(String title, String subtitle, int fadeIn, int stay, int fadeOut) {
+		Chat.sendTitle(player, title, subtitle, fadeIn, stay, fadeOut);
+	}
+
+	@Override
+	public void sendActionbar(String text, Object... objects) {
+		Chat.sendActionbar(player, text, objects);
 	}
 
 	public void updateScoreboard(boolean flag) {
@@ -212,16 +227,15 @@ public class GamePlayer extends AbstractGamePlayer {
 			team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER);
 		}
 
-		if (!teamsToRemove.isEmpty()) {
-			teamsToRemove.forEach(name -> {
-				final Team toRemove = player.getScoreboard().getTeam(name);
-				Nulls.runIfNotNull(toRemove, Team::unregister);
-			});
-			teamsToRemove.clear();
+		if (!healthTeamMap.isEmpty()) {
+			healthTeamMap.values().forEach(Team::unregister);
+			healthTeamMap.clear();
 		}
+
 		populateTeam(team);
 
 	}
+
 
 	private void showHealth() {
 		final GameInstance game = Manager.current().getCurrentGame();
@@ -229,18 +243,33 @@ public class GamePlayer extends AbstractGamePlayer {
 			return; // ?
 		}
 
-		game.getAlivePlayers().forEach(player -> {
-			final String playerName = player.getPlayer().getName();
-			teamsToRemove.add(playerName);
-			final Team team = getOrCreateTeam(("%" + playerName).substring(0, 16));
-
+		// Create player teams
+		game.getAlivePlayers().forEach(other -> {
+			final Team team = getPlayerTeam(other);
 			team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS);
-
-			team.setPrefix("&6%s &e".formatted(player.getHero().getName()));
-			team.setSuffix(" &c&l%s &c❤".formatted(BukkitUtils.decimalFormat(player.getHealth())));
-
-			team.addEntry(playerName);
+			healthTeamMap.put(other, team);
 		});
+
+		// Update team names
+		new GameTask() {
+			@Override
+			public void run() {
+				healthTeamMap.forEach((other, team) -> {
+					team.setPrefix("&6%s &e".formatted(other.getHero().getName()));
+					team.setSuffix(" &c&l%s &c❤".formatted(BukkitUtils.decimalFormat(other.getHealth())));
+
+					final String playerName = other.getPlayer().getName();
+					if (team.getEntries().contains(playerName)) {
+						team.addEntry(playerName);
+					}
+				});
+			}
+		}.runTaskTimer(0, 10);
+
+	}
+
+	private Team getPlayerTeam(GamePlayer other) {
+		return getOrCreateTeam(("%" + other.getPlayer().getName()).substring(16));
 	}
 
 	private Team getOrCreateTeam(String name) {
@@ -304,28 +333,46 @@ public class GamePlayer extends AbstractGamePlayer {
 			}
 
 			if (killer != null) {
-				stats.setCoins(stats.getCoins() + CurrencyEntry.Award.PLAYER_KILL.getAmount());
-				Database.getDatabase(killer).getCurrency().awardCoins(CurrencyEntry.Award.PLAYER_KILL);
+				final CurrencyEntry.Award playerKill = CurrencyEntry.Award.PLAYER_KILL;
+				final StatContainer killerStats = GamePlayer.getPlayer(killer).getStats();
+
+				if (killerStats != null) {
+					killerStats.addValue(StatContainer.Type.COINS, playerKill.getAmount());
+					killerStats.addValue(StatContainer.Type.KILLS, 1);
+				}
+
+				Database.getDatabase(killer).getCurrency().awardCoins(playerKill);
 			}
 		}
 
-		stats.setDeaths(stats.getDeaths() + 1);
+		stats.addValue(StatContainer.Type.DEATHS, 1);
+
+		// send death info to manager
+		final GameInstance gameInstance = Manager.current().getGameInstance();
+		if (gameInstance != null) {
+			gameInstance.getMode().onDeath(gameInstance, this);
+			gameInstance.checkWinCondition();
+		}
 
 		// broadcast death
-		new Gradient(concat("☠ %s ".formatted(player.getName()), lastDamageCause.getRandomIfMultiple(), lastDamager)).rgb(
+		final String deathMessage = new Gradient(concat("☠ %s ".formatted(player.getName()), getRandomDeathMessage(), lastDamager)).rgb(
 				new Color(160, 0, 0),
 				new Color(255, 51, 51),
 				Interpolators.LINEAR
 		);
 
-		showHealth();
+		Chat.broadcast(deathMessage);
 
-		// send death info to manager
-		final GameInstance gameInstance = Manager.current().getGameInstance();
-		if (gameInstance != null) {
-			gameInstance.checkWinCondition();
-		}
+	}
 
+	public EnumDamageCause.DeathMessage getRandomDeathMessage() {
+		final EnumDamageCause cause = getLastDamageCause();
+		return cause == null ? EnumDamageCause.ENTITY_ATTACK.getRandomIfMultiple() : cause.getRandomIfMultiple();
+	}
+
+	@Override
+	public EnumDamageCause getLastDamageCause() {
+		return lastDamageCause == null ? EnumDamageCause.ENTITY_ATTACK : lastDamageCause;
 	}
 
 	private String concat(String original, EnumDamageCause.DeathMessage message, Entity killer) {
@@ -381,7 +428,9 @@ public class GamePlayer extends AbstractGamePlayer {
 	}
 
 	public void setLastDamager(LivingEntity lastDamager) {
-		this.lastDamager = lastDamager;
+		if (lastDamager != null) {
+			this.lastDamager = lastDamager;
+		}
 	}
 
 	public void addUltimatePoints(int points) {
@@ -458,6 +507,19 @@ public class GamePlayer extends AbstractGamePlayer {
 		isDead = !spectator;
 	}
 
+	public void respawn() {
+		this.isDead = false;
+		this.isSpectator = false;
+		this.ultPoints = 0;
+		this.hero.setUsingUltimate(player, false);
+		this.setHealth(this.getMaxHealth());
+
+		Manager.current().equipPlayer(player);
+
+		this.player.setGameMode(GameMode.SURVIVAL);
+		addEffect(GameEffectType.RESPAWN_RESISTANCE, 60);
+	}
+
 	public int getUltPointsNeeded() {
 		return this.hero == null ? 999 : this.hero.getUltimate().getCost();
 	}
@@ -479,22 +541,21 @@ public class GamePlayer extends AbstractGamePlayer {
 	}
 
 	// static members
-
 	public static void damageEntity(LivingEntity entity, double damage) {
-		damageEntity(entity, damage, null, null);
+		damageEntity(entity, damage, null, EnumDamageCause.ENTITY_ATTACK);
 	}
 
 	public static void damageEntity(LivingEntity entity, double damage, LivingEntity damager) {
-		damageEntity(entity, damage, damager, null);
+		damageEntity(entity, damage, damager, EnumDamageCause.ENTITY_ATTACK);
 	}
 
 	@Super
 	public static void damageEntity(LivingEntity entity, double damage, LivingEntity damager, EnumDamageCause cause) {
-		if (entity instanceof Player) {
-			getPlayer(((Player)entity).getPlayer()).damage(damage, damager, cause);
+		if (entity instanceof Player player) {
+			getPlayer(player).damage(damage, damager, cause);
 		}
 		else {
-			entity.damage(damage);
+			entity.damage(damage, damager);
 		}
 	}
 

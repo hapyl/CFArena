@@ -168,7 +168,7 @@ public class Utils {
 
 	}
 
-	public static void rayTraceLine(Player shooter, double maxDistance, double shift, double damage, @NULLABLE Consumer<Location> onMove, @NULLABLE Consumer<LivingEntity> onHit) {
+	public static void rayTraceLine(Player shooter, double maxDistance, double shift, double damage, @NULLABLE EnumDamageCause cause, @NULLABLE Consumer<Location> onMove, @NULLABLE Consumer<LivingEntity> onHit) {
 		final Location location = shooter.getLocation().add(0, 1.5, 0);
 		final Vector vector = location.getDirection().normalize();
 
@@ -195,7 +195,7 @@ public class Utils {
 				}
 
 				if (damage > 0.0d) {
-					living.damage(damage, shooter);
+					GamePlayer.damageEntity(living, damage, shooter, cause);
 				}
 				break main;
 			}
@@ -208,6 +208,10 @@ public class Utils {
 			location.subtract(x, y, z);
 
 		}
+	}
+
+	public static void rayTraceLine(Player shooter, double maxDistance, double shift, double damage, @NULLABLE Consumer<Location> onMove, @NULLABLE Consumer<LivingEntity> onHit) {
+		rayTraceLine(shooter, maxDistance, shift, damage, null, onMove, onHit);
 	}
 
 	public static Response playerCanUseAbility(Player player) {
@@ -275,8 +279,11 @@ public class Utils {
 	}
 
 	public static Player getNearestPlayer(Location location, double radius, Player exclude) {
-		return (Player)getNearestEntity(location, radius, entity -> entity instanceof Player && entity != exclude && Manager.current()
-				.isPlayerInGame((Player)entity));
+		return (Player)getNearestEntity(
+				location,
+				radius,
+				entity -> entity instanceof Player && entity != exclude && Manager.current().isPlayerInGame((Player)entity)
+		);
 	}
 
 	public static Entity getNearestEntity(Location fromWhere, double radius, Predicate<Entity> predicate) {
@@ -358,7 +365,9 @@ public class Utils {
 		}
 
 		Utils.getEntitiesInRange(location, range).forEach(entity -> {
-			entity.damage(damage);
+			if (damage > 0.0d) {
+				entity.damage(damage);
+			}
 			if (consumer != null) {
 				consumer.accept(entity);
 			}

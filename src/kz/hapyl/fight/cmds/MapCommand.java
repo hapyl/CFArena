@@ -39,7 +39,7 @@ public class MapCommand extends SimplePlayerCommand {
 
 	@Override
 	public List<String> tabComplete(CommandSender sender, String[] args) {
-		return completerSort(Utils.collectionToStringList(GameMaps.getPlayableMaps(), GameMaps::getName), args);
+		return completerSort(Utils.collectionToStringList(GameMaps.getPlayableMaps(), GameMaps::name), args);
 	}
 
 }

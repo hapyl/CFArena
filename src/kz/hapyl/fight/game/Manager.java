@@ -2,7 +2,9 @@ package kz.hapyl.fight.game;
 
 import com.google.common.collect.Maps;
 import kz.hapyl.fight.Main;
+import kz.hapyl.fight.anotate.Entry;
 import kz.hapyl.fight.game.database.Database;
+import kz.hapyl.fight.game.gamemode.Modes;
 import kz.hapyl.fight.game.heroes.ComplexHero;
 import kz.hapyl.fight.game.heroes.Hero;
 import kz.hapyl.fight.game.heroes.Heroes;
@@ -20,6 +22,7 @@ import kz.hapyl.spigotutils.module.entity.Entities;
 import kz.hapyl.spigotutils.module.player.PlayerLib;
 import kz.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -39,6 +42,7 @@ public class Manager {
 
 	protected final Map<UUID, Heroes> selectedHero;
 	protected final Holder<GameMaps> currentMap = new Holder<>(GameMaps.ARENA);
+	protected final Holder<Modes> currentMode = new Holder<>(Modes.FFA);
 
 	private final Map<Integer, ParamFunction<Talent, Hero>> slotPerTalent = new HashMap<>();
 	private final Map<Integer, ParamFunction<Talent, ComplexHero>> slotPerComplexTalent = new HashMap<>();
@@ -53,7 +57,11 @@ public class Manager {
 		slotPerComplexTalent.put(5, ComplexHero::getFifthTalent);
 
 		// load map
-		currentMap.set(GameMaps.byName(Main.getPlugin().getConfig().getString("current-map", null)));
+		final FileConfiguration config = Main.getPlugin().getConfig();
+		currentMap.set(GameMaps.byName(config.getString("current-map"), GameMaps.ARENA));
+
+		// load mode
+		currentMode.set(Modes.byName(config.getString("current-mode"), Modes.FFA));
 	}
 
 	public boolean isGameInProgress() {
@@ -83,6 +91,21 @@ public class Manager {
 		Main.getPlugin().getConfig().set("current-map", maps.name().toLowerCase(Locale.ROOT));
 	}
 
+	public Modes getCurrentMode() {
+		return currentMode.getOr(Modes.FFA);
+	}
+
+	public void setCurrentMode(Modes mode) {
+		if (mode == getCurrentMode()) {
+			return;
+		}
+		currentMode.set(mode);
+		Chat.broadcast("&aChanged current game mode to %s.", mode.getMode().getName());
+
+		// save to config
+		Main.getPlugin().getConfig().set("current-mode", mode.name().toLowerCase(Locale.ROOT));
+	}
+
 	public void setCurrentMap(GameMaps maps, @Nullable Player player) {
 		if (getCurrentMap() == maps) {
 			PlayerLib.villagerNo(player, "&cAlready selected!");
@@ -108,8 +131,11 @@ public class Manager {
 		createNewGameInstance(false);
 	}
 
+	@Entry(
+			name = "Creating new Game Instance."
+	)
 	public void createNewGameInstance(boolean debug) {
-		// Pre game start tests
+		// Pre game start checks
 		final GameMaps currentMap = this.currentMap.get();
 		if (currentMap == null || !currentMap.isPlayable() || !currentMap.getMap().hasLocation()) {
 			displayError("Invalid map!");
@@ -118,9 +144,9 @@ public class Manager {
 
 		isDebug = debug;
 
-		// TODO: 027. 09/27/2021 -> impl player req and spectator option
+		final int playerRequirements = getCurrentMode().getMode().getPlayerRequirements(); // todo
 
-		this.gameInstance = new GameInstance(600, this.currentMap.getOr(GameMaps.ARENA));
+		this.gameInstance = new GameInstance(getCurrentMode(), getCurrentMap());
 		this.gameInstance.onStart();
 
 		for (final Heroes value : Heroes.values()) {
@@ -131,35 +157,12 @@ public class Manager {
 			Nulls.runIfNotNull(value.getTalent(), Talent::onStart);
 		}
 
+		this.gameInstance.getCurrentMap().getMap().onStart();
+
 		for (final Player player : Bukkit.getOnlinePlayers()) {
-			final PlayerInventory inventory = player.getInventory();
-			inventory.setHeldItemSlot(0);
-			player.setGameMode(GameMode.SURVIVAL);
-
-			final Heroes heroEnum = getSelectedHero(player);
-			if (heroEnum == null) {
-				continue;
-			}
-
-			final Hero hero = heroEnum.getHero();
-
-			// Apply equipment
-			hero.getEquipment().equip(player);
-			hero.onStart(player);
-
-			inventory.setItem(0, hero.getWeapon().getItem());
-			giveTalentItem(player, hero, 1);
-			giveTalentItem(player, hero, 2);
-
-			if (hero instanceof ComplexHero) {
-				giveTalentItem(player, hero, 3);
-				giveTalentItem(player, hero, 4);
-				giveTalentItem(player, hero, 5);
-			}
-
+			equipPlayer(player);
 			Utils.hidePlayer(player);
 			player.teleport(currentMap.getMap().getLocation());
-			player.updateInventory();
 		}
 
 		if (!isDebug) {
@@ -184,41 +187,9 @@ public class Manager {
 
 	}
 
-	private void giveTalentItem(Player player, Hero hero, int slot) {
-		final PlayerInventory inventory = player.getInventory();
-		final Talent talent = getTalent(hero, slot);
-		final ItemStack talentItem = talent == null || talent.getItem() == null ? new ItemStack(Material.AIR) : talent.getItem();
-
-		inventory.setItem(slot, talentItem);
-		fixTalentItemAmount(player, slot, talent);
-	}
-
-	public Talent getTalent(Hero hero, int slot) {
-		if (slot >= 1 && slot < 3) {
-			final ParamFunction<Talent, Hero> function = slotPerTalent.get(slot);
-			return function == null ? null : function.execute(hero);
-		}
-
-		else if (hero instanceof ComplexHero complexHero) {
-			final ParamFunction<Talent, ComplexHero> function = slotPerComplexTalent.get(slot);
-			return function == null ? null : function.execute(complexHero);
-		}
-		return null;
-	}
-
-	private void fixTalentItemAmount(Player player, int slot, Talent talent) {
-		if (!(talent instanceof ChargedTalent chargedTalent)) {
-			return;
-		}
-		final PlayerInventory inventory = player.getInventory();
-		final ItemStack item = inventory.getItem(slot);
-		if (item == null) {
-			return;
-		}
-		item.setAmount(chargedTalent.getMaxCharges());
-	}
-
-	// FIXME: 002. 10/02/2021 - multi
+	@Entry(
+			name = "Stopping current Game Instance."
+	)
 	public void stopCurrentGame() {
 		if (this.gameInstance == null || this.gameInstance.getGameState() == State.POST_GAME) {
 			return;
@@ -274,6 +245,70 @@ public class Manager {
 
 	}
 
+	public void equipPlayer(Player player) {
+		final PlayerInventory inventory = player.getInventory();
+		inventory.setHeldItemSlot(0);
+		player.setGameMode(GameMode.SURVIVAL);
+
+		final Heroes heroEnum = getSelectedHero(player);
+		if (heroEnum == null) {
+			return;
+		}
+
+		final Hero hero = heroEnum.getHero();
+
+		// Apply equipment
+		hero.getEquipment().equip(player);
+		hero.onStart(player);
+
+		inventory.setItem(0, hero.getWeapon().getItem());
+		giveTalentItem(player, hero, 1);
+		giveTalentItem(player, hero, 2);
+
+		if (hero instanceof ComplexHero) {
+			giveTalentItem(player, hero, 3);
+			giveTalentItem(player, hero, 4);
+			giveTalentItem(player, hero, 5);
+		}
+
+		player.updateInventory();
+	}
+
+	private void giveTalentItem(Player player, Hero hero, int slot) {
+		final PlayerInventory inventory = player.getInventory();
+		final Talent talent = getTalent(hero, slot);
+		final ItemStack talentItem = talent == null || talent.getItem() == null ? new ItemStack(Material.AIR) : talent.getItem();
+
+		inventory.setItem(slot, talentItem);
+		fixTalentItemAmount(player, slot, talent);
+	}
+
+	public Talent getTalent(Hero hero, int slot) {
+		if (slot >= 1 && slot < 3) {
+			final ParamFunction<Talent, Hero> function = slotPerTalent.get(slot);
+			return function == null ? null : function.execute(hero);
+		}
+
+		else if (hero instanceof ComplexHero complexHero) {
+			final ParamFunction<Talent, ComplexHero> function = slotPerComplexTalent.get(slot);
+			return function == null ? null : function.execute(complexHero);
+		}
+		return null;
+	}
+
+	private void fixTalentItemAmount(Player player, int slot, Talent talent) {
+		if (!(talent instanceof ChargedTalent chargedTalent)) {
+			return;
+		}
+		final PlayerInventory inventory = player.getInventory();
+		final ItemStack item = inventory.getItem(slot);
+		if (item == null) {
+			return;
+		}
+		item.setAmount(chargedTalent.getMaxCharges());
+	}
+	// FIXME: 002. 10/02/2021 - multi
+
 	public void onStop() {
 		// reset game state
 		gameInstance.setGameState(State.FINISHED);
@@ -282,6 +317,7 @@ public class Manager {
 		// teleport player
 		for (final Player player : Bukkit.getOnlinePlayers()) {
 			player.setInvulnerable(false);
+			player.setHealth(player.getMaxHealth());
 			player.setGameMode(GameMode.SURVIVAL);
 			player.teleport(GameMaps.SPAWN.getMap().getLocation());
 		}
@@ -295,6 +331,12 @@ public class Manager {
 		if (Manager.current().isGameInProgress()) {
 			PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
 			Chat.sendMessage(player, "&cUnable to change hero during the game!");
+			return;
+		}
+
+		if (!heroes.isValidHero()) {
+			Chat.sendMessage(player, "&cThis hero is currently disabled. Sorry!");
+			PlayerLib.villagerNo(player);
 			return;
 		}
 

@@ -81,7 +81,7 @@ public abstract class Talent implements GameElement {
 				.setName("&a" + this.name)
 				.addLore("&8%s %s", Chat.capitalize(this.type), this.type == Type.ULTIMATE ? "" : "Talent")
 				.addLore()
-				.addSmartLore(this.description);
+				.addSmartLore(this.description, 35);
 
 		if (texture != null && this.material == Material.PLAYER_HEAD) {
 			builder.setHeadTexture(texture);

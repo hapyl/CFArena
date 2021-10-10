@@ -6,6 +6,7 @@ public class Response {
 
 	public static final Response OK = new Response(null, Type.OK);
 	public static final Response ERROR = new Response(null, Type.ERROR);
+	public static final Response AWAIT = new Response(null, Type.AWAIT);
 	public static final Response ERROR_DEFAULT = error("Talent is not complete!");
 
 	private final String reason;
@@ -33,9 +34,14 @@ public class Response {
 		return this.type == Type.ERROR;
 	}
 
+	public boolean isAwait() {
+		return this.type == Type.AWAIT;
+	}
+
 	public enum Type {
 		ERROR,
-		OK
+		OK,
+		AWAIT // basically ok but does not start cooldown
 	}
 
 }

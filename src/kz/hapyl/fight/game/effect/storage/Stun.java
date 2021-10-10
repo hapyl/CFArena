@@ -1,7 +1,9 @@
 package kz.hapyl.fight.game.effect.storage;
 
+import kz.hapyl.fight.game.effect.EffectParticle;
 import kz.hapyl.fight.game.effect.GameEffect;
 import kz.hapyl.spigotutils.module.player.PlayerLib;
+import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
@@ -15,10 +17,12 @@ public class Stun extends GameEffect {
 		super("Stun");
 		this.setAbout("Stunned players cannot move or use their abilities. Effect will be cleared upon taking damage.");
 		this.setPositive(false);
+		this.setEffectParticle(new EffectParticle(Particle.VILLAGER_ANGRY, 1));
 	}
 
 	@Override
 	public void onTick(Player player, int tick) {
+		displayParticles(player.getLocation().add(0.0d, 1.0d, 0.0d), player);
 	}
 
 	@Override

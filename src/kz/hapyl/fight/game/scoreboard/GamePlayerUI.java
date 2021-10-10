@@ -7,15 +7,23 @@ import kz.hapyl.fight.game.GamePlayer;
 import kz.hapyl.fight.game.Manager;
 import kz.hapyl.fight.game.database.Database;
 import kz.hapyl.fight.game.effect.GameEffect;
+import kz.hapyl.fight.game.gamemode.Modes;
+import kz.hapyl.fight.game.gamemode.modes.Deathmatch;
 import kz.hapyl.fight.game.heroes.Heroes;
 import kz.hapyl.fight.game.task.GameTask;
 import kz.hapyl.fight.game.task.ShutdownAction;
+import kz.hapyl.spigotutils.SpigotUtilsPlugin;
 import kz.hapyl.spigotutils.module.chat.Chat;
+import kz.hapyl.spigotutils.module.math.IntInt;
+import kz.hapyl.spigotutils.module.player.song.Song;
+import kz.hapyl.spigotutils.module.player.song.SongPlayer;
 import kz.hapyl.spigotutils.module.scoreboard.Scoreboarder;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.text.SimpleDateFormat;
+import java.util.TreeMap;
 
 // this controls scoreboard and tab-list
 public class GamePlayerUI {
@@ -56,6 +64,26 @@ public class GamePlayerUI {
 
 		footer.append("&e&lPing: &f").append(player.getPing());
 
+		// Display NBS player if playing a song
+		final SongPlayer songPlayer = SpigotUtilsPlugin.getPlugin().getSongPlayer();
+		if (songPlayer.getCurrentSong() != null) {
+			final Song song = songPlayer.getCurrentSong();
+			final StringBuilder builder = new StringBuilder();
+			final int frame = (int)(songPlayer.getCurrentFrame() * 30 / songPlayer.getMaxFrame());
+
+			for (int i = 0; i < 30; i++) {
+				builder.append(i < frame ? ChatColor.DARK_AQUA : ChatColor.DARK_GRAY);
+				builder.append("|");
+			}
+
+			footer.append("\n\n&e&lSong Player:\n");
+			footer.append("&f%s - %s\n&8%s".formatted(
+					song.getOriginalAuthor(),
+					song.getName(),
+					songPlayer.isPaused() ? "&e&lPAUSE" : builder.toString()
+			));
+		}
+
 		// Display effects if game in progress
 		if (Manager.current().isGameInProgress()) {
 			footer.append("\n\n&e&lActive Effects:\n");
@@ -74,6 +102,7 @@ public class GamePlayerUI {
 				});
 			}
 		}
+
 		footer.append("\n");
 
 		return new String[]{"\n&e&lCLASSES FIGHT\n&cArena\n\n&fTotal Players: &l" + Bukkit.getOnlinePlayers().size(), footer.toString()};
@@ -127,30 +156,50 @@ public class GamePlayerUI {
 		);
 
 		if (current.isGameInProgress()) {
-			final GameInstance currentGame = current.getCurrentGame();
+			final GameInstance game = current.getCurrentGame();
 			final AbstractGamePlayer gamePlayer = GamePlayer.getPlayer(this.player);
 			this.builder.addLines(
-					"&6&lGame: &8" + currentGame.hexCode(),
+					"&6&lGame: &8" + game.hexCode(),
 					" &e&lMap: &f%s".formatted(current.getCurrentMap().getMap().getName()),
-					" &e&lTime Left: &f%s".formatted(new SimpleDateFormat("mm:ss").format(currentGame.getTimeLeftRaw())),
+					" &e&lTime Left: &f%s".formatted(new SimpleDateFormat("mm:ss").format(game.getTimeLeftRaw())),
 					" &e&lStatus: &f%s".formatted(gamePlayer.getStatusString())
 			);
+
+			if (game.getCurrentMode() == Modes.DEATH_MATCH) {
+
+				final TreeMap<Long, GamePlayer> top3 = ((Deathmatch)game.getMode()).getTopKills(game, 3);
+				this.builder.addLines(
+						"",
+						"&6&lDeathmatch:"
+				);
+
+				final IntInt i = new IntInt(1);
+				top3.forEach((val, pla) -> {
+					if (val == 0) {
+						return;
+					}
+					builder.addLines(" &e&l#%s &f%s &l🗡%s".formatted(i.get(), pla.getPlayer().getName(), val));
+					i.increment();
+				});
+
+				for (int j = i.get(); j <= 3; j++) {
+					builder.addLines(" &e...");
+				}
+
+			}
+
 		}
 		else {
 			this.builder.addLines(
 					"&6&lLobby:",
 					" &e&lMap: &f%s".formatted(current.getCurrentMap().getMap().getName()),
-					" &e&lCoins: &f%s".formatted(database.getCurrency().getCoins()),
+					" &e&lMode: &f%s".formatted(current.getCurrentMode().getMode().getName()),
+					" &e&lCoins: &f%s".formatted(database.getCurrency().getCoinsString()),
 					" &e&lHero: &f%s".formatted(current.getSelectedHero(player).getHero().getName())
 			);
 		}
 
-		this.builder.addLines(
-				"",
-				"&bTest version, report any",
-				"&bbugs you'll find!"
-		);
-
+		this.builder.addLine("");
 		this.builder.updateLines();
 		this.builder.addPlayer(player);
 

@@ -18,6 +18,7 @@ public class HeroCommand extends SimplePlayerCommand {
 		super(str);
 		this.setUsage("hero (Hero)");
 		this.setDescription("Allows to select a hero to play as!");
+		this.setAliases("class");
 	}
 
 	@Override

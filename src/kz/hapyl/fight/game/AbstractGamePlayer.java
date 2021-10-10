@@ -101,4 +101,19 @@ public class AbstractGamePlayer {
 		return false;
 	}
 
+	public void sendMessage(String message, Object... objects) {
+
+	}
+
+	@Nullable
+	public StatContainer getStats() {
+		return null;
+	}
+
+	public void sendTitle(String title, String subtitle, int fadeIn, int stay, int fadeOut) {
+	}
+
+	public void sendActionbar(String text, Object... objects) {
+	}
+
 }

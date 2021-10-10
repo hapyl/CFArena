@@ -67,6 +67,10 @@ public abstract class RangeWeapon extends Weapon {
 
 	public abstract void onMove(Location location);
 
+	public void onShoot(Player player) {
+
+	}
+
 	public boolean predicateBlock(Block block) {
 		return !block.getType().isOccluding();
 	}
@@ -104,6 +108,8 @@ public abstract class RangeWeapon extends Weapon {
 		if (hasCooldown(player)) {
 			return;
 		}
+
+		onShoot(player);
 
 		Nulls.runIfNotNull(sound, s -> {
 			PlayerLib.playSound(player.getLocation(), s, pitch);

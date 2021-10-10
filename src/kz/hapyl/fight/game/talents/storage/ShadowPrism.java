@@ -4,6 +4,7 @@ import kz.hapyl.fight.game.Manager;
 import kz.hapyl.fight.game.Response;
 import kz.hapyl.fight.game.talents.Talent;
 import kz.hapyl.fight.game.task.GameTask;
+import kz.hapyl.fight.util.Nulls;
 import kz.hapyl.fight.util.Utils;
 import kz.hapyl.spigotutils.module.entity.Entities;
 import kz.hapyl.spigotutils.module.player.PlayerLib;
@@ -27,14 +28,22 @@ public class ShadowPrism extends Talent {
 
 	public ShadowPrism() {
 		super("Shadow Prism");
-		this.setDescription("Deploy a teleportation orb that travels in straight line. Use again to teleport to the orb.__&e&lLOOK AT BLOCK &7to place it at fixed block.");
-		this.setItem("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODNlZDRjZTIzOTMzZTY2ZTA0ZGYxNjA3MDY0NGY3NTk5ZWViNTUzMDdmN2VhZmU4ZDkyZjQwZmIzNTIwODYzYyJ9fX0=");
+		this.setDescription(
+				"Deploy a teleportation orb that travels in straight line. Use again to teleport to the orb.__&e&lLOOK AT BLOCK &7to place it at fixed block.");
+		this.setItem(
+				"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODNlZDRjZTIzOTMzZTY2ZTA0ZGYxNjA3MDY0NGY3NTk5ZWViNTUzMDdmN2VhZmU4ZDkyZjQwZmIzNTIwODYzYyJ9fX0=");
 		this.setCd(DYNAMIC);
 	}
 
 	@Override
 	public void onStop() {
 		playerPrism.clear();
+	}
+
+	@Override
+	public void onDeath(Player player) {
+		final ArmorStand armorStand = getPrism(player);
+		Nulls.runIfNotNull(armorStand, ArmorStand::remove);
 	}
 
 	public ArmorStand getPrism(Player player) {

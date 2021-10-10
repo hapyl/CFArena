@@ -3,9 +3,9 @@ package kz.hapyl.fight.game.database;
 import kz.hapyl.fight.Main;
 import kz.hapyl.fight.game.database.entry.CurrencyEntry;
 import kz.hapyl.fight.game.database.entry.HeroEntry;
+import kz.hapyl.fight.game.database.entry.SettingEntry;
 import kz.hapyl.fight.game.database.entry.StatisticEntry;
 import kz.hapyl.spigotutils.module.chat.Chat;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class Database {
+public final class Database {
 
 	public static final Map<UUID, Database> byUuid = new HashMap<>();
 
@@ -60,11 +60,17 @@ public class Database {
 	private HeroEntry heroEntry;
 	private CurrencyEntry currencyEntry;
 	private StatisticEntry statisticEntry;
+	private SettingEntry settingEntry;
 
-	public void loadEntries() {
+	private void loadEntries() {
 		this.heroEntry = new HeroEntry(this);
 		this.currencyEntry = new CurrencyEntry(this);
 		this.statisticEntry = new StatisticEntry(this);
+		this.settingEntry = new SettingEntry(this);
+	}
+
+	public SettingEntry getSettings() {
+		return settingEntry;
 	}
 
 	public StatisticEntry getStatistics() {
@@ -80,8 +86,19 @@ public class Database {
 	}
 
 	// entries end
+	public Object getValue(String path) {
+		return config.get(path);
+	}
 
-	public void loadFile() {
+	public <E> E getValue(String path, Type<E> type) {
+		return type.fromObject(getValue(path));
+	}
+
+	public void setValue(String path, Object object) {
+		config.set(path, object);
+	}
+
+	private void loadFile() {
 		try {
 			this.file = new File(Main.getPlugin().getDataFolder() + "/players", this.player.getUniqueId() + ".yml");
 			this.config = YamlConfiguration.loadConfiguration(this.file);
@@ -103,7 +120,8 @@ public class Database {
 	private void sendInfo(String info, Object... toReplace) {
 		final String format = Chat.format("&e&lDEBUG: &f" + info, toReplace);
 		System.out.println(format);
-		Bukkit.getOnlinePlayers().stream().filter(Player::isOp).forEach(player -> player.sendMessage(format));
+		//Bukkit.getOnlinePlayers().stream().filter(Player::isOp).forEach(player -> player.sendMessage(format));
 	}
+
 
 }

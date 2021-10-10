@@ -31,6 +31,12 @@ public class VortexStar extends Talent {
 	}
 
 	@Override
+	public void onDeath(Player player) {
+		getStars(player).clear();
+		stars.remove(player);
+	}
+
+	@Override
 	public void onStop() {
 		stars.values().forEach(AstralStars::clear);
 		stars.clear();

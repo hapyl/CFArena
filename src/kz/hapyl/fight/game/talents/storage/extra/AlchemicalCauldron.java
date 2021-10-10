@@ -50,7 +50,6 @@ public class AlchemicalCauldron {
 			@Override
 			public void run() {
 				if (GamePlayer.getPlayer(owner).isDead()) {
-					clear();
 					this.cancel();
 					return;
 				}
@@ -114,11 +113,9 @@ public class AlchemicalCauldron {
 		world.spawnParticle(Particle.SPELL_MOB, location.getX() + 0.5d, location.getY(), location.getZ() + 0.5d, 0, 0.000, 0.471, 0.031, 1);
 	}
 
+	// just check for the distance at this point
 	public boolean compareBlock(Block other) {
-		final int blockX = this.location.getBlockX();
-		final int blockY = this.location.getBlockY();
-		final int blockZ = this.location.getBlockZ();
-		return blockX == other.getX() && blockY == other.getY() && blockZ == other.getZ();
+		return this.location.distance(other.getLocation()) < 2.0d;
 	}
 
 	private ArmorStand createStand(Location location) {
@@ -157,7 +154,7 @@ public class AlchemicalCauldron {
 		block.setType(Material.CAULDRON, false);
 
 		final BlockData data = block.getBlockData();
-		// TODO: 022. 09/22/2021 - idfk why it doesn't work
+		// FIXME: 022. 09/22/2021 - idfk why it doesn't work
 
 		if (data instanceof Levelled levelled) {
 			levelled.setLevel(levelled.getMaximumLevel());

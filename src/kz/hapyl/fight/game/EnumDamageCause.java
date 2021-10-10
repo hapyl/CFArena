@@ -41,6 +41,7 @@ public enum EnumDamageCause {
 	RIFLE(true, "had their brain exploded in cool slow-mo", "by"),
 	SATCHEL(true, "had their last flights", "with"),
 	TORNADO(true, "couldn't find the wind", "of"),
+	LIBRARY_VOID(true, "was consumed by &0the void"),
 
 	// *==* there are vanilla ones, have to use them *==*
 

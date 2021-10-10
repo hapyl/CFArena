@@ -2,8 +2,11 @@ package kz.hapyl.fight.game;
 
 import com.google.common.collect.Maps;
 import kz.hapyl.fight.game.database.entry.CurrencyEntry;
+import kz.hapyl.fight.game.gamemode.CFGameMode;
+import kz.hapyl.fight.game.gamemode.Modes;
 import kz.hapyl.fight.game.heroes.Heroes;
 import kz.hapyl.fight.game.maps.GameMaps;
+import kz.hapyl.fight.game.setting.Setting;
 import kz.hapyl.fight.game.talents.UltimateTalent;
 import kz.hapyl.fight.game.task.GameTask;
 import kz.hapyl.fight.game.task.ShutdownAction;
@@ -37,9 +40,10 @@ public class GameInstance implements GameElement {
 
 	private State gameState;
 
-	public GameInstance(long timeLimitSec, GameMaps map) {
+	public GameInstance(Modes mode, GameMaps map) {
 		this.startedAt = System.currentTimeMillis();
-		this.timeLimit = timeLimitSec * 1000;
+		this.mode = mode;
+		this.timeLimit = mode.getMode().getTimeLimit() * 1000L;
 		this.players = Maps.newHashMap();
 		this.createGamePlayers();
 
@@ -116,12 +120,12 @@ public class GameInstance implements GameElement {
 		GameTask.runLater(() -> {
 			for (final GamePlayer gamePlayer : players.values()) {
 				final Player player = gamePlayer.getPlayer();
-				final Stat stat = gamePlayer.getStats();
+				final StatContainer stat = gamePlayer.getStats();
 
 				Chat.sendMessage(player, "&a&lGame Report:");
-				Chat.sendMessage(player, stat.getCoinsString());
-				Chat.sendMessage(player, stat.getKillsString());
-				Chat.sendMessage(player, stat.getDeathsString());
+				Chat.sendMessage(player, stat.getString(StatContainer.Type.COINS));
+				Chat.sendMessage(player, stat.getString(StatContainer.Type.KILLS));
+				Chat.sendMessage(player, stat.getString(StatContainer.Type.DEATHS));
 			}
 		}, 20).setShutdownAction(ShutdownAction.IGNORE);
 
@@ -209,15 +213,15 @@ public class GameInstance implements GameElement {
 
 	public String formatWinnerName(GamePlayer gp) {
 		final Player player = gp.getPlayer();
-		final Stat stats = gp.getStats();
+		final StatContainer stats = gp.getStats();
 
 		return Chat.bformat(
 				"&6{Hero} &e&l{Name} &8(&c&l{Health} &c❤&8, &b&l{Kills} &b🗡&8, &c&l{Deaths} &c☠&8)",
 				gp.getHero().getName(),
 				player.getName(),
 				BukkitUtils.decimalFormat(gp.getHealth()),
-				stats.getKills(),
-				stats.getDeaths()
+				stats.getValue(StatContainer.Type.KILLS),
+				stats.getValue(StatContainer.Type.DEATHS)
 		);
 	}
 
@@ -268,12 +272,18 @@ public class GameInstance implements GameElement {
 	private void createGamePlayers() {
 		Bukkit.getOnlinePlayers().forEach(player -> {
 			final Heroes hero = Manager.current().getSelectedHero(player);
-			// todo -> impl spectator settings here!
 			final GamePlayer gamePlayer = new GamePlayer(player, hero.getHero());
+
+			if (Setting.SPECTATE.isEnabled(player)) {
+				gamePlayer.setSpectator(true);
+			}
+
 			gamePlayer.updateScoreboard(true);
 			players.put(player.getUniqueId(), gamePlayer);
 		});
 	}
+
+	private final Modes mode;
 
 	// TODO: 018. 09/18/2021 -> impl modes
 	// TODO: 018. 09/18/2021 -> impl teams
@@ -282,25 +292,23 @@ public class GameInstance implements GameElement {
 			return;
 		}
 
-		int alivePlayers = 0;
-		GamePlayer potentialWinner = null;
+		if (mode.testWinCondition(this)) {
+			// if returns false means mode will add their own winners
+			final boolean response = mode.onStop(this);
+			if (!response) {
+				winners.addAll(getAlivePlayers());
+			}
 
-		for (final GamePlayer player : this.players.values()) {
-			if (player.isAlive()) {
-				++alivePlayers;
-				potentialWinner = player;
-			}
-		}
-
-		if (alivePlayers <= 1) {
-			if (potentialWinner == null) {
-				Chat.broadcast("&eWin condition met but no winner?");
-			}
-			else {
-				winners.add(potentialWinner);
-			}
 			Manager.current().stopCurrentGame();
 		}
+	}
+
+	public CFGameMode getMode() {
+		return mode.getMode();
+	}
+
+	public Modes getCurrentMode() {
+		return mode;
 	}
 
 	public boolean isWinner(Player player) {
@@ -349,11 +357,11 @@ public class GameInstance implements GameElement {
 				}
 
 				// Award coins for minute played
-
 				if (tick % 1200 == 0 && tick < (timeLimit / 50)) {
 					getAlivePlayers().forEach(player -> {
-						player.getDatabase().getCurrency().awardCoins(CurrencyEntry.Award.MINUTE_PLAYED);
-						player.getStats().addCoins(CurrencyEntry.Award.MINUTE_PLAYED.getAmount());
+						final CurrencyEntry.Award award = CurrencyEntry.Award.MINUTE_PLAYED;
+						player.getDatabase().getCurrency().awardCoins(award);
+						player.getStats().addValue(StatContainer.Type.COINS, award.getAmount());
 					});
 				}
 

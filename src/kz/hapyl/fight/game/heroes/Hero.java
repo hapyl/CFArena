@@ -10,6 +10,7 @@ import kz.hapyl.fight.game.talents.Talent;
 import kz.hapyl.fight.game.talents.UltimateTalent;
 import kz.hapyl.fight.game.task.GameTask;
 import kz.hapyl.fight.game.weapons.Weapon;
+import kz.hapyl.fight.util.CachedItemStack;
 import kz.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -21,6 +22,8 @@ public abstract class Hero implements GameElement, PlayerElement {
 
 	private final ClassEquipment equipment;
 	private final String name;
+	private final CachedItemStack cachedItemStack;
+
 	private String about;
 	private ItemStack guiTexture;
 	private Weapon weapon;
@@ -35,6 +38,7 @@ public abstract class Hero implements GameElement, PlayerElement {
 		this.weapon = new Weapon(Material.WOODEN_SWORD);
 		this.usingUltimate = Sets.newHashSet();
 		this.equipment = new ClassEquipment();
+		this.cachedItemStack = new CachedItemStack();
 		this.ultimate = new UltimateTalent("invalid ultimate", "", 999) {
 			@Override
 			public void useUltimate(Player player) {
@@ -42,11 +46,21 @@ public abstract class Hero implements GameElement, PlayerElement {
 		};
 	}
 
+	public Hero(String name, String lore, Material material) {
+		this(name);
+		this.setInfo(lore);
+		this.setItem(material);
+	}
+
 	public ClassEquipment getEquipment() {
 		return equipment;
 	}
 
-	public void setUltimate(UltimateTalent ultimate) {
+	public CachedItemStack getMenuItem() {
+		return cachedItemStack;
+	}
+
+	protected void setUltimate(UltimateTalent ultimate) {
 		this.ultimate = ultimate;
 	}
 
