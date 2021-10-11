@@ -60,26 +60,27 @@ public class Ninja extends Hero implements Listener, UIComponent {
 		this.setWeapon(new Weapon(Material.STONE_SWORD)
 				.setName("斬馬刀")
 				.setLore(
-						"Light but sharp sword that stuns opponents upon charge hit. After using the charge hit, your weapon damage is reduced by &b50%&7.__&9Cooldown: &l" + BukkitUtils
-								.roundTick(stunCd)
-				)
-				.setDamage(damage));
+						String.format(
+								"Light but sharp sword that stuns opponents upon charge hit. After using the charge hit, your weapon damage is reduced by &b50%%&7.__&9Cooldown: &l%ss",
+								BukkitUtils.decimalFormat(ultimateDamage)
+						)
+				).setDamage(damage));
 
 		this.setUltimate(new UltimateTalent(
 				"Throwing Stars",
 				"Equip 5 dead-accurate throwing stars that deals &c%s &7damage upon hitting an enemy.".formatted(ultimateDamage),
 				70
-		) {
-			@Override
-			public void useUltimate(Player player) {
-				setUsingUltimate(player, true);
-				final PlayerInventory inventory = player.getInventory();
-				inventory.setItem(4, throwingStar);
-				inventory.setHeldItemSlot(4);
-				player.setCooldown(throwingStar.getType(), 20);
-			}
-		}.setItem(Material.NETHER_STAR).setSound(Sound.ITEM_TRIDENT_RIPTIDE_1, 0.75f));
+		).setItem(Material.NETHER_STAR).setSound(Sound.ITEM_TRIDENT_RIPTIDE_1, 0.75f));
 
+	}
+
+	@Override
+	public void useUltimate(Player player) {
+		setUsingUltimate(player, true);
+		final PlayerInventory inventory = player.getInventory();
+		inventory.setItem(4, throwingStar);
+		inventory.setHeldItemSlot(4);
+		player.setCooldown(throwingStar.getType(), 20);
 	}
 
 	private void shootStar(Player player) {

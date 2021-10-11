@@ -48,8 +48,6 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Lis
 	private final Shield shield = new Shield();
 	private final Material shieldRechargeCdItem = Material.HORSE_SPAWN_EGG;
 
-	private final int ultimateDuration = 1200;
-
 	public BlastKnight() {
 		super("Blast Knight");
 		this.setInfo("Royal Knight with high-end technology gadgets.");
@@ -66,75 +64,72 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Lis
 		this.setWeapon(new Weapon(Material.IRON_SWORD).setName("Sword").setDamage(10.0d));
 		this.setUltimate(new UltimateTalent(
 				"Royal Horse",
-				"Call upon the Royal Horse for &b%ss&7. The horse is fast, strong and comfortable. So comfortable in fact that it doubles you damage while riding."
-						.formatted(BukkitUtils.roundTick(ultimateDuration)),
+				"Call upon the Royal Horse for {duration}. The horse is fast, strong and comfortable. So comfortable in fact that it doubles you damage while riding.",
 				60
-		) {
-			@Override
-			public void useUltimate(Player player) {
-				setUsingUltimate(player, true, ultimateDuration);
+		).setCdSec(60).setDuration(1200).setItem(Material.SADDLE));
 
-				// Summon Horse
-				final Horse oldHorse = horseMap.get(player);
-				if (oldHorse != null) {
-					oldHorse.remove();
+	}
+
+	@Override
+	public void useUltimate(Player player) {
+		// Summon Horse
+		final Horse oldHorse = horseMap.get(player);
+		if (oldHorse != null) {
+			oldHorse.remove();
+		}
+
+		final Horse horse = Entities.HORSE.spawn(player.getLocation(), me -> {
+			Nulls.runIfNotNull(me.getAttribute(Attribute.GENERIC_MAX_HEALTH), at -> at.setBaseValue(100.0d));
+			Nulls.runIfNotNull(me.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED), at -> at.setBaseValue(0.25d));
+			me.setJumpStrength(1.2d);
+			me.setHealth(me.getMaxHealth());
+
+			me.setColor(Horse.Color.WHITE);
+			me.setStyle(Horse.Style.WHITE);
+
+			me.setTamed(true);
+			me.getInventory().setSaddle(new ItemStack(Material.SADDLE));
+			me.setAdult();
+
+			horseMap.put(player, me);
+		});
+
+		// Controller
+		new GameTask() {
+			private int timeLeft = 60;
+
+			@Override
+			public void run() {
+				if (timeLeft < 0 || horse.isDead()) {
+					if (timeLeft < 0) {
+						horse.getPassengers().forEach(Entity::eject);
+
+						// Fx
+						final Location location = horse.getEyeLocation();
+						Chat.sendMessage(player, "&aYou horse is gone!");
+
+						PlayerLib.spawnParticle(location, Particle.SPELL_MOB, 20, 0.5d, 0.5d, 0.5d, 0.1f);
+						PlayerLib.spawnParticle(location, Particle.EXPLOSION_NORMAL, 10, 0.5d, 0.5d, 0.5d, 0.2f);
+						PlayerLib.playSound(location, Sound.ENTITY_HORSE_GALLOP, 0.75f);
+						horse.remove();
+					}
+					this.cancel();
+					return;
 				}
 
-				final Horse horse = Entities.HORSE.spawn(player.getLocation(), me -> {
-					Nulls.runIfNotNull(me.getAttribute(Attribute.GENERIC_MAX_HEALTH), at -> at.setBaseValue(100.0d));
-					Nulls.runIfNotNull(me.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED), at -> at.setBaseValue(0.25d));
-					me.setJumpStrength(1.2d);
-					me.setHealth(me.getMaxHealth());
+				--timeLeft;
 
-					me.setColor(Horse.Color.WHITE);
-					me.setStyle(Horse.Style.WHITE);
+				horse.setCustomName(Chat.format(
+						"&6%s's Royal Horse &8(&c&l%s &c❤&8, &e&l%s&es&8)",
+						player.getName(),
+						BukkitUtils.decimalFormat(horse.getHealth()),
+						timeLeft
+				));
+				horse.setCustomNameVisible(true);
 
-					me.setTamed(true);
-					me.getInventory().setSaddle(new ItemStack(Material.SADDLE));
-					me.setAdult();
-
-					horseMap.put(player, me);
-				});
-
-				// Controller
-				new GameTask() {
-					private int timeLeft = 60;
-
-					@Override
-					public void run() {
-						if (timeLeft < 0 || horse.isDead()) {
-							if (timeLeft < 0) {
-								horse.getPassengers().forEach(Entity::eject);
-
-								// Fx
-								final Location location = horse.getEyeLocation();
-								Chat.sendMessage(player, "&aYou horse is gone!");
-
-								PlayerLib.spawnParticle(location, Particle.SPELL_MOB, 20, 0.5d, 0.5d, 0.5d, 0.1f);
-								PlayerLib.spawnParticle(location, Particle.EXPLOSION_NORMAL, 10, 0.5d, 0.5d, 0.5d, 0.2f);
-								PlayerLib.playSound(location, Sound.ENTITY_HORSE_GALLOP, 0.75f);
-								horse.remove();
-							}
-							this.cancel();
-							return;
-						}
-
-						--timeLeft;
-
-						horse.setCustomName(Chat.format(
-								"&6%s's Royal Horse &8(&c&l%s &c❤&8, &e&l%s&es&8)",
-								player.getName(),
-								BukkitUtils.decimalFormat(horse.getHealth()),
-								timeLeft
-						));
-						horse.setCustomNameVisible(true);
-
-
-					}
-				}.runTaskTimer(20, 20);
 
 			}
-		}.setCdSec(60).setItem(Material.SADDLE));
+		}.runTaskTimer(20, 20);
 
 	}
 

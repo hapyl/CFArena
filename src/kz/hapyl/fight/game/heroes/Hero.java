@@ -12,6 +12,7 @@ import kz.hapyl.fight.game.task.GameTask;
 import kz.hapyl.fight.game.weapons.Weapon;
 import kz.hapyl.fight.util.CachedItemStack;
 import kz.hapyl.spigotutils.module.inventory.ItemBuilder;
+import kz.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -39,11 +40,12 @@ public abstract class Hero implements GameElement, PlayerElement {
 		this.usingUltimate = Sets.newHashSet();
 		this.equipment = new ClassEquipment();
 		this.cachedItemStack = new CachedItemStack();
-		this.ultimate = new UltimateTalent("invalid ultimate", "", 999) {
-			@Override
-			public void useUltimate(Player player) {
-			}
-		};
+		this.ultimate = new UltimateTalent("Unknown Ultimate", "This hero's ultimate talent is not yet implemented!", Integer.MAX_VALUE);
+	}
+
+	public Hero(String name, String lore) {
+		this(name);
+		this.setInfo(lore);
 	}
 
 	public Hero(String name, String lore, Material material) {
@@ -54,6 +56,18 @@ public abstract class Hero implements GameElement, PlayerElement {
 
 	public ClassEquipment getEquipment() {
 		return equipment;
+	}
+
+	public void setUltimateDuration(int duration) {
+		this.ultimate.setDuration(duration);
+	}
+
+	public int getUltimateDuration() {
+		return ultimate.getDuration();
+	}
+
+	public String getUltimateDurationString() {
+		return BukkitUtils.roundTick(getUltimateDuration());
 	}
 
 	public CachedItemStack getMenuItem() {
@@ -77,6 +91,10 @@ public abstract class Hero implements GameElement, PlayerElement {
 		this.usingUltimate.clear();
 	}
 
+	/**
+	 * @see Hero#setUltimateDuration(int)
+	 */
+	@Deprecated
 	public final void setUsingUltimate(Player player, boolean flag, int reverseAfter) {
 		this.setUsingUltimate(player, flag);
 		GameTask.runLater(() -> setUsingUltimate(player, !flag), reverseAfter);
@@ -127,6 +145,24 @@ public abstract class Hero implements GameElement, PlayerElement {
 	public DamageOutput processDamageAsVictim(DamageInput input) {
 		return null;
 	}
+
+	/**
+	 * Moved ultimate initiation and predicates to Hero class because it was just messy using a Talent instance.
+	 *
+	 * Though talent is still used at description and cooldown tracker.
+	 */
+	public String predicateMessage() {
+		return "Unable to use now.";
+	}
+
+	public boolean predicateUltimate(Player player) {
+		return true;
+	}
+
+	/**
+	 * Unleashes hero's ultimate.
+	 */
+	public abstract void useUltimate(Player player);
 
 	public void onDeath(Player player) {
 	}

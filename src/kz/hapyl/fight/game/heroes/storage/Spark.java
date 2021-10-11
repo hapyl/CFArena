@@ -16,7 +16,6 @@ import kz.hapyl.fight.game.weapons.RangeWeapon;
 import kz.hapyl.spigotutils.module.chat.Chat;
 import kz.hapyl.spigotutils.module.entity.Entities;
 import kz.hapyl.spigotutils.module.player.PlayerLib;
-import kz.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.LivingEntity;
@@ -29,7 +28,6 @@ import java.util.Map;
 public class Spark extends Hero implements PlayerElement {
 
 	private final Map<Player, ArmorStand> markerLocation = new HashMap<>();
-	private final int ultimateDuration = 200;
 
 	public Spark() {
 		super("Spark");
@@ -61,104 +59,103 @@ public class Spark extends Hero implements PlayerElement {
 				.setName("Fire Sprayer")
 				.setLore("A long range weapon that shoots fire lasers! How cool is that..."));
 
-		this.setUltimate(new UltimateTalent("Run it Back",
-				"Instantly place a marker at your current location for &b%ss&7. Upon death or after duration ends, safely teleports to the marked location with health you had upon activating the ability."
-						.formatted(BukkitUtils.roundTick(ultimateDuration)),
+		this.setUltimate(new UltimateTalent(
+				"Run it Back",
+				"Instantly place a marker at your current location for {duration}. Upon death or after duration ends, safely teleports to the marked location with health you had upon activating the ability.",
 				80
-		) {
-			@Override
-			public void useUltimate(Player player) {
-				final Location location = getSafeLocation(player.getLocation());
-				final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
+		).setDuration(200).setItem(Material.TOTEM_OF_UNDYING).setCdSec(40));
 
-				if (location == null) {
+	}
+
+	@Override
+	public void useUltimate(Player player) {
+		final Location location = getSafeLocation(player.getLocation());
+		final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
+
+		if (location == null) {
+			return;
+		}
+
+		setUsingUltimate(player, true);
+		final ArmorStand marker = Entities.ARMOR_STAND.spawn(location, me -> {
+			me.setMaxHealth(gp.getHealth());
+			me.setHealth(gp.getHealth());
+			me.setGravity(false);
+			me.setInvisible(true);
+			me.setVisible(false);
+			me.setFireTicks(getUltimateDuration());
+		});
+
+		markerLocation.put(player, marker);
+
+		new GameTask() {
+			private int tick = getUltimateDuration();
+
+			@Override
+			public void run() {
+				// if already on rebirth, can happen when damage is called rebirth
+				if (getMarker(player) == null) {
+					this.cancel();
 					return;
 				}
 
-				setUsingUltimate(player, true);
-				final ArmorStand marker = Entities.ARMOR_STAND.spawn(location, me -> {
-					me.setMaxHealth(gp.getHealth());
-					me.setHealth(gp.getHealth());
-					me.setGravity(false);
-					me.setInvisible(true);
-					me.setVisible(false);
-					me.setFireTicks(ultimateDuration);
-				});
-
-				markerLocation.put(player, marker);
-
-				new GameTask() {
-					private int tick = ultimateDuration;
-
-					@Override
-					public void run() {
-						// if already on rebirth, can happen when damage is called rebirth
-						if (getMarker(player) == null) {
-							this.cancel();
-							return;
-						}
-
-						if (tick < 0) {
-							rebirthPlayer(player);
-							this.cancel();
-							return;
-						}
-
-						// display how much time left
-						// symbols => ■□
-						final StringBuilder builder = new StringBuilder();
-						for (int i = 0; i < 20; i++) {
-							builder.append(Chat.format(i >= (tick / 10) ? "&c|" : "&a|"));
-						}
-
-						Chat.sendTitle(player, "", builder.toString(), 0, 10, 0);
-
-						--tick;
-
-						// fx
-						PlayerLib.spawnParticle(player.getEyeLocation(), Particle.FLAME, 1, 0.5d, 0.0d, 0.5d, 0.01f);
-
-						// fx at marker
-						PlayerLib.spawnParticle(location, Particle.LANDING_LAVA, 1, 0.2d, 0.2, 0.2d, 0.05f);
-						PlayerLib.spawnParticle(location, Particle.DRIP_LAVA, 1, 0.2d, 0.2, 0.2d, 0.05f);
-
-					}
-				}.runTaskTimer(0, 1);
-
-			}
-
-			@Override
-			public boolean predicate(Player player) {
-				return isSafeLocation(player.getLocation());
-			}
-
-			@Override
-			public String predicateMessage() {
-				return "Location is not safe!";
-			}
-
-			private ArmorStand getMarker(Player player) {
-				return markerLocation.get(player);
-			}
-
-			private boolean isSafeLocation(Location location) {
-				return getSafeLocation(location) != null;
-			}
-
-			private Location getSafeLocation(Location location) {
-				// start with a bit of Y offset
-				location.add(0, 2, 0);
-				for (int i = 0; i < 10; i++) {
-					location.subtract(0, 1, 0);
-					if (!location.getBlock().getType().isAir()) {
-						return location;
-					}
+				if (tick < 0) {
+					rebirthPlayer(player);
+					this.cancel();
+					return;
 				}
-				return null;
+
+				// display how much time left
+				// symbols => ■□
+				final StringBuilder builder = new StringBuilder();
+				for (int i = 0; i < 20; i++) {
+					builder.append(Chat.format(i >= (tick / 10) ? "&c|" : "&a|"));
+				}
+
+				Chat.sendTitle(player, "", builder.toString(), 0, 10, 0);
+
+				--tick;
+
+				// fx
+				PlayerLib.spawnParticle(player.getEyeLocation(), Particle.FLAME, 1, 0.5d, 0.0d, 0.5d, 0.01f);
+
+				// fx at marker
+				PlayerLib.spawnParticle(location, Particle.LANDING_LAVA, 1, 0.2d, 0.2, 0.2d, 0.05f);
+				PlayerLib.spawnParticle(location, Particle.DRIP_LAVA, 1, 0.2d, 0.2, 0.2d, 0.05f);
+
 			}
+		}.runTaskTimer(0, 1);
 
-		}.setItem(Material.TOTEM_OF_UNDYING).setCdSec(40));
+	}
 
+	@Override
+	public boolean predicateUltimate(Player player) {
+		return isSafeLocation(player.getLocation());
+	}
+
+	@Override
+	public String predicateMessage() {
+		return "Location is not safe!";
+	}
+
+	private ArmorStand getMarker(Player player) {
+		return markerLocation.get(player);
+	}
+
+	private boolean isSafeLocation(Location location) {
+		return getSafeLocation(location) != null;
+	}
+
+	private Location getSafeLocation(Location location) {
+		// start with a bit of Y offset
+		location.add(0, 2, 0);
+		for (int i = 0; i < 10; i++) {
+			location.subtract(0, 1, 0);
+			if (!location.getBlock().getType().isAir()) {
+				return location;
+			}
+		}
+		return null;
 	}
 
 	public void rebirthPlayer(Player player) {

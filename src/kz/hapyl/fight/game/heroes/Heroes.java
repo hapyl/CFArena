@@ -13,7 +13,7 @@ import java.util.List;
 
 public enum Heroes {
 
-	// https://tools-unite.com/tools/random-picker-wheel?names=KM, Librarian, Shark, Tamer
+	// https://tools-unite.com/tools/random-picker-wheel?names=KM, Librarian, Tamer, Techie
 
 	ARCHER(new Archer()),
 	ALCHEMIST(new Alchemist()),
@@ -37,6 +37,7 @@ public enum Heroes {
 	JUJU(new JuJu()),
 	SWOOPER(new Swooper()),
 	TAMER(new Tamer()),
+	SHARK(new Shark()),
 
 	;
 

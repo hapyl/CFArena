@@ -52,7 +52,8 @@ public class Ender extends Hero implements Listener {
 		this.setInfo("Weird enderman-like looking warrior with teleportation abilities. He hits you with his arm, but it hurts like a brick.");
 
 		final ClassEquipment eq = this.getEquipment();
-		eq.setHelmet("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYWFjYjM1NzcwOWQ4Y2RmMWNkOWM5ZGJlMzEzZTdiYWIzMjc2YWU4NDIzNDk4MmU5M2UxMzgzOWFiN2NjNWQxNiJ9fX0=");
+		eq.setHelmet(
+				"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYWFjYjM1NzcwOWQ4Y2RmMWNkOWM5ZGJlMzEzZTdiYWIzMjc2YWU4NDIzNDk4MmU5M2UxMzgzOWFiN2NjNWQxNiJ9fX0=");
 		eq.setChestplate(85, 0, 102);
 		eq.setLeggings(128, 0, 128);
 		eq.setBoots(136, 0, 204);
@@ -145,32 +146,36 @@ public class Ender extends Hero implements Listener {
 
 		}.setName("Fist")
 				.setId("ender_weapon")
-				.setLore("Just a normal sized fist.__&e&lRIGHT CLICK &7to initiate teleport to the target block. &e&lRIGHT CLICK &7again to cancel.__&9Cooldown: &l%ss"
-						.formatted(BukkitUtils.roundTick(portKeyCooldown)))
+				.setLore(
+						"Just a normal sized fist.__&e&lRIGHT CLICK &7to initiate teleport to the target block. &e&lRIGHT CLICK &7again to cancel.____&9Cooldown: &l%ss",
+						BukkitUtils.roundTick(portKeyCooldown)
+				)
 				.setDamage(7.0));
 
 		// Instantly teleports you to a placed transmission beacon and gives it back.
 		// Instantly teleport to your &bTransmission Beacon &7and collect it for further use.
 
-		this.setUltimate(new UltimateTalent("Transmission!", "Instantly teleport to your &bTransmission Beacon &7and collect it for further use.", 50) {
+		this.setUltimate(new UltimateTalent(
+				"Transmission!",
+				"Instantly teleport to your &bTransmission Beacon &7and collect it for further use.",
+				50
+		).setItem(Material.SHULKER_SHELL).setCdSec(20).setSound(Sound.ENTITY_GUARDIAN_HURT_LAND, 0.75f));
 
-			@Override
-			public boolean predicate(Player player) {
-				return beaconLocation.hasKey(player);
-			}
+	}
 
-			@Override
-			public String predicateMessage() {
-				return "Transmission Beacon is not placed!";
-			}
+	@Override
+	public boolean predicateUltimate(Player player) {
+		return beaconLocation.hasKey(player);
+	}
 
-			@Override
-			public void useUltimate(Player player) {
-				teleportToBeacon(player);
-			}
+	@Override
+	public String predicateMessage() {
+		return "Transmission Beacon is not placed!";
+	}
 
-		}.setItem(Material.SHULKER_SHELL).setCdSec(20).setSound(Sound.ENTITY_GUARDIAN_HURT_LAND, 0.75f));
-
+	@Override
+	public void useUltimate(Player player) {
+		teleportToBeacon(player);
 	}
 
 	@EventHandler()

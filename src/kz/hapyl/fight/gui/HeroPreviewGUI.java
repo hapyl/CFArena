@@ -47,7 +47,6 @@ public class HeroPreviewGUI extends PlayerGUI {
 				HeroSelectGUI::new
 		);
 
-		// TODO: 030. 08/30/2021 - add color for unlocked/locked hero
 		this.setItem(11, new ItemBuilder(hero.getItem())
 				.setName("&a%s", hero.getName())
 				.addLore()

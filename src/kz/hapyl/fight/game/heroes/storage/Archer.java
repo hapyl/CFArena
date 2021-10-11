@@ -27,7 +27,6 @@ import java.util.Set;
 
 public class Archer extends Hero implements Listener {
 
-	private final int ultimateTime = 120;
 	private final Set<Arrow> boomArrows = new HashSet<>();
 	private final Weapon boomBow = new Weapon(Material.BOW).setDamage(0.0d).setName("&6&lBOOM BOW");
 
@@ -48,25 +47,22 @@ public class Archer extends Hero implements Listener {
 
 		this.setUltimate(new UltimateTalent(
 				"Boom Bow",
-				"Equip a &6&lBOOM BOW &7for 6s that fires explosive arrows which explodes on impact dealing massive damage.",
+				"Equip a &6&lBOOM BOW &7for {duration} that fires explosive arrows which explodes on impact dealing massive damage.",
 				50
-		) {
-			@Override
-			public void useUltimate(Player player) {
-				setUsingUltimate(player, true, ultimateTime);
+		).setItem(Material.BLAZE_POWDER).setDuration(120).setCdSec(20).setSound(Sound.ITEM_CROSSBOW_SHOOT, 0.25f));
 
-				final PlayerInventory inventory = player.getInventory();
-				inventory.setItem(4, boomBow.getItem());
-				inventory.setHeldItemSlot(4);
+	}
 
-				GameTask.runLater(() -> {
-					inventory.setItem(4, ItemStacks.AIR);
-					inventory.setHeldItemSlot(0);
-				}, ultimateTime);
+	@Override
+	public void useUltimate(Player player) {
+		final PlayerInventory inventory = player.getInventory();
+		inventory.setItem(4, boomBow.getItem());
+		inventory.setHeldItemSlot(4);
 
-			}
-		}.setItem(Material.BLAZE_POWDER).setCdSec(20).setSound(Sound.ITEM_CROSSBOW_SHOOT, 0.25f));
-
+		GameTask.runLater(() -> {
+			inventory.setItem(4, ItemStacks.AIR);
+			inventory.setHeldItemSlot(0);
+		}, getUltimateDuration());
 	}
 
 	@Override

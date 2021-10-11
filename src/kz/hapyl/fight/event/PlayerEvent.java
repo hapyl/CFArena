@@ -35,6 +35,7 @@ import org.bukkit.util.Vector;
 
 import java.util.Locale;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class PlayerEvent implements Listener {
 
@@ -95,32 +96,41 @@ public class PlayerEvent implements Listener {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void handlePlayerSwapEvent(PlayerSwapHandItemsEvent ev) {
 		ev.setCancelled(true);
 		final Player player = ev.getPlayer();
-		final Heroes hero = Manager.current().getSelectedHero(player);
+		final Heroes enumHero = Manager.current().getSelectedHero(player);
+
 		if (Manager.current().isGameInProgress()) {
-			final GamePlayer gp = GamePlayer.getAlivePlayer(player);
-			if (gp == null) {
+			final GamePlayer gamePlayer = GamePlayer.getAlivePlayer(player);
+			if (gamePlayer == null) {
 				return;
 			}
-			if (gp.isUltimateReady()) {
-				final UltimateTalent ultimate = hero.getHero().getUltimate();
+
+			if (gamePlayer.isUltimateReady()) {
+				final Hero hero = enumHero.getHero();
+				final UltimateTalent ultimate = hero.getUltimate();
 
 				if (ultimate.hasCd(player)) {
 					sendUltimateFailureMessage(player, "&cUltimate on cooldown for %ss.", BukkitUtils.roundTick(ultimate.getCdTimeLeft(player)));
 					return;
 				}
 
-				if (!ultimate.predicate(player)) {
-					sendUltimateFailureMessage(player, "&cUnable to use ultimate! " + ultimate.predicateMessage());
+				if (!hero.predicateUltimate(player)) {
+					sendUltimateFailureMessage(player, "&cUnable to use ultimate! " + hero.predicateMessage());
 					return;
 				}
 
-				ultimate.execute0(player);
+				//ultimate.execute0(player);
+				hero.useUltimate(player);
 				ultimate.startCd(player);
-				gp.setUltPoints(0);
+				gamePlayer.setUltPoints(0);
+
+				if (hero.getUltimateDuration() > 0) {
+					hero.setUsingUltimate(player, true, hero.getUltimateDuration());
+				}
 
 				for (final Player online : Bukkit.getOnlinePlayers()) {
 					Chat.sendMessage(online, "&b&l※ &b%s used &l%s&7!".formatted(online == player ? "You" : player.getName(), ultimate.getName()));
@@ -306,6 +316,21 @@ public class PlayerEvent implements Listener {
 			return;
 		}
 
+		int randomPoint = ThreadLocalRandom.current().nextInt(1, 3);
+
+		// grant ultimate points
+		if (damagerFinal instanceof Player player && entity != player) {
+			GamePlayer.getPlayer(player).addUltimatePoints(randomPoint);
+		}
+		else {
+			randomPoint = 0;
+		}
+
+		// display damage
+		if (damage > 1.0d) {
+			new DamageIndicator(entity.getLocation(), damage, randomPoint);
+		}
+
 		// make sure not to kill player but instead put them in spectator
 		if (entity instanceof Player player) {
 			final GamePlayer gamePlayer = GamePlayer.getAlivePlayer(player);
@@ -326,12 +351,6 @@ public class PlayerEvent implements Listener {
 			}
 
 		}
-
-		// display damage
-		if (damage > 0.0d) {
-			new DamageIndicator(entity.getLocation(), damage);
-		}
-
 
 	}
 

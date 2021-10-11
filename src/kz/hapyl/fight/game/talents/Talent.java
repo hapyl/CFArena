@@ -76,7 +76,19 @@ public abstract class Talent implements GameElement {
 
 	}
 
+	private void formatDescription() {
+		replace("{name}", "&a%s", this.getName());
+		if (this instanceof UltimateTalent ultimate) {
+			replace("{duration}", "&b%ss", BukkitUtils.roundTick(ultimate.getDuration()));
+		}
+	}
+
+	private void replace(String old, String newStr, Object... formatNew) {
+		description = description.replace(old, newStr.formatted(formatNew) + "&7");
+	}
+
 	private void createItem() {
+		formatDescription();
 		final ItemBuilder builder = new ItemBuilder(this.material)
 				.setName("&a" + this.name)
 				.addLore("&8%s %s", Chat.capitalize(this.type), this.type == Type.ULTIMATE ? "" : "Talent")
@@ -91,6 +103,11 @@ public abstract class Talent implements GameElement {
 			itemFunction.execute(builder);
 		}
 
+		// add a separation line between lore and stats
+		if (this.cd != 0) {
+			builder.addLore("");
+		}
+
 		if (this.cd > 0) {
 			builder.addLore("&9Cooldown%s: &l%ss".formatted(this instanceof ChargedTalent ? " between charges" : "", BukkitUtils.roundTick(this.cd)));
 		}
@@ -99,13 +116,24 @@ public abstract class Talent implements GameElement {
 		}
 
 		if (this instanceof ChargedTalent charge) {
+			if (this.cd == 0) {
+				builder.addLore();
+			}
+
 			final int maxCharges = charge.getMaxCharges();
 			builder.addLore("&9Max Charges: &l%s", maxCharges);
 			builder.addLore("&9Recharge Time: &l%ss", BukkitUtils.roundTick(charge.getRechargeTime()));
 		}
 
-		if (this instanceof UltimateTalent ult) {
+		else if (this instanceof UltimateTalent ult) {
+			if (this.cd == 0) {
+				builder.addLore();
+			}
+
 			builder.addLore("&9Ultimate Cost: &l%s ※", ult.getCost());
+			if (ult.getDuration() > 0) {
+				builder.addLore("&9Ultimate Duration: &l%ss", BukkitUtils.roundTick(ult.getDuration()));
+			}
 			builder.glow();
 			// ※
 		}

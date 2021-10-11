@@ -1,6 +1,7 @@
 package kz.hapyl.fight.game;
 
 import com.google.common.collect.Maps;
+import kz.hapyl.fight.game.setting.Setting;
 import kz.hapyl.spigotutils.module.chat.Chat;
 import kz.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Bukkit;
@@ -71,8 +72,8 @@ public class ChatController implements Listener {
 
 		// tag receiver
 		final String atReceiverName = "@" + receiver.getName();
-		if (message.contains(atReceiverName)) {
-			message = message.replace(atReceiverName, ChatColor.YELLOW + atReceiverName + ChatColor.WHITE);
+		if (message.contains(atReceiverName) && Setting.CHAT_PING.isEnabled(receiver)) {
+			message = message.replace(atReceiverName, "&e%s&f".formatted(atReceiverName));
 			PlayerLib.playSound(receiver, Sound.BLOCK_NOTE_BLOCK_PLING, 2.0f);
 		}
 

@@ -1,4 +1,4 @@
-package kz.hapyl.fight.util;
+package kz.hapyl.fight.anotate;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

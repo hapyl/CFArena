@@ -35,7 +35,7 @@ public class IceCone extends Talent implements Listener {
 	public IceCone() {
 		super(
 				"Ice Cone",
-				"Launches a snowball in front of you.____Upon hitting an opponent, cages them into an ice cone.____Upon hitting a block, creates a slowing aura for short duration."
+				"Launches a snowball in front of you.____Upon hitting an opponent, cages them into an ice cone.__Upon hitting a block, creates a slowing aura for short duration."
 		);
 		this.setItem(Material.SNOWBALL);
 		this.setCd(400);

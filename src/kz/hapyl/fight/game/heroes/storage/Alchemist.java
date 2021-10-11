@@ -77,23 +77,23 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
 				"Alchemical Madness",
 				"Call upon the darkest spells to cast random &c&lNegative &7effect on your foes for &b15s &7and random &a&lPositive &7effect on yourself for &b30s&7.",
 				50
-		) {
-			@Override
-			public void useUltimate(Player player) {
-				final Effect positiveEffect = positiveEffects.getRandomElement();
-				final Effect negativeEffect = negativeEffects.getRandomElement();
+		).setCdSec(30).setItem(Material.FERMENTED_SPIDER_EYE).setSound(ENTITY_WITCH_AMBIENT, 0.5f));
 
-				positiveEffect.applyEffects(player);
-				Manager.current().getGameInstance().getAlivePlayers().forEach(alivePlayer -> {
-					if (player == alivePlayer.getPlayer()) {
-						return;
-					}
+	}
 
-					negativeEffect.applyEffects(alivePlayer.getPlayer());
-				});
+	@Override
+	public void useUltimate(Player player) {
+		final Effect positiveEffect = positiveEffects.getRandomElement();
+		final Effect negativeEffect = negativeEffects.getRandomElement();
+
+		positiveEffect.applyEffects(player);
+		Manager.current().getGameInstance().getAlivePlayers().forEach(alivePlayer -> {
+			if (player == alivePlayer.getPlayer()) {
+				return;
 			}
-		}.setCdSec(30).setItem(Material.FERMENTED_SPIDER_EYE).setSound(ENTITY_WITCH_AMBIENT, 0.5f));
 
+			negativeEffect.applyEffects(alivePlayer.getPlayer());
+		});
 	}
 
 	@Override

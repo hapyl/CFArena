@@ -38,7 +38,6 @@ import javax.annotation.Nullable;
 public class ShadowAssassin extends Hero implements Listener {
 
 	private final int backstabCd = 400;
-	private final int ultimateDuration = 200;
 
 	public ShadowAssassin() {
 		super("Shadow Assassin");
@@ -55,32 +54,32 @@ public class ShadowAssassin extends Hero implements Listener {
 		this.setWeapon(new Weapon(Material.IRON_SWORD)
 				.setName("Livid Dagger")
 				.setLore(
-						"A dagger filled with bad memories.__&e&lBACKSTAB &7to perform a charged attack that knows enemies and stuns them for a short time.__&9Cooldown: &l%ss"
-								.formatted(BukkitUtils.roundTick(backstabCd)))
+						String.format(
+								"A dagger filled with bad memories.__&e&lBACKSTAB &7to perform a charged attack that knows enemies and stuns them for a short time.__&9Cooldown: &l%ss",
+								BukkitUtils.roundTick(backstabCd)
+						))
 				.setDamage(8.0d));
 
 		this.setUltimate(new UltimateTalent(
 				"Extreme Focus",
-				"Enter &bExtreme Focus &7for &b%ss&7. While active, you will not miss your hits if target is close enough and has no cover."
-						.formatted(BukkitUtils.roundTick(ultimateDuration)),
+				"Enter &bExtreme Focus &7for {duration}. While active, you will not miss your hits if target is close enough and has no cover.",
 				80
-		) {
-			@Override
-			public void useUltimate(Player player) {
-				setUsingUltimate(player, true, ultimateDuration);
-				player.setCooldown(getWeapon().getMaterial(), 0);
+		).setDuration(200).setCdSec(40).setItem(Material.GOLDEN_CARROT));
 
-				// fx
-				PlayerLib.playSound(player.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 1.75f);
-				PlayerLib.playSound(player.getLocation(), Sound.BLOCK_BEACON_AMBIENT, 1.75f);
-				PlayerLib.addEffect(player, PotionEffectType.SLOW, ultimateDuration, 0);
+	}
 
-				GameTask.runLater(() -> {
-					PlayerLib.playSound(Sound.BLOCK_BEACON_DEACTIVATE, 1.85f);
-				}, ultimateDuration);
+	@Override
+	public void useUltimate(Player player) {
+		player.setCooldown(getWeapon().getMaterial(), 0);
 
-			}
-		}.setCdSec(40).setItem(Material.GOLDEN_CARROT));
+		// fx
+		PlayerLib.playSound(player.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 1.75f);
+		PlayerLib.playSound(player.getLocation(), Sound.BLOCK_BEACON_AMBIENT, 1.75f);
+		PlayerLib.addEffect(player, PotionEffectType.SLOW, getUltimateDuration(), 0);
+
+		GameTask.runLater(() -> {
+			PlayerLib.playSound(Sound.BLOCK_BEACON_DEACTIVATE, 1.85f);
+		}, getUltimateDuration());
 
 	}
 

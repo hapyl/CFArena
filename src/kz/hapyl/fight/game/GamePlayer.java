@@ -18,6 +18,7 @@ import kz.hapyl.spigotutils.module.player.PlayerLib;
 import kz.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 import org.bukkit.entity.Entity;
@@ -91,6 +92,13 @@ public class GamePlayer extends AbstractGamePlayer {
 		player.setFoodLevel(20);
 		player.setInvulnerable(false);
 		player.getActivePotionEffects().forEach(effect -> player.removePotionEffect(effect.getType()));
+
+		// reset all cooldowns as well
+		for (final Material value : Material.values()) {
+			if (player.hasCooldown(value)) {
+				player.setCooldown(value, 0);
+			}
+		}
 	}
 
 	public Database getDatabase() {

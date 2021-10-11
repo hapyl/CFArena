@@ -1,7 +1,7 @@
 package kz.hapyl.fight.game.talents.storage;
 
-import kz.hapyl.fight.game.GamePlayer;
 import kz.hapyl.fight.game.AbstractGamePlayer;
+import kz.hapyl.fight.game.GamePlayer;
 import kz.hapyl.fight.game.Response;
 import kz.hapyl.fight.game.talents.Talent;
 import kz.hapyl.spigotutils.module.player.PlayerLib;
@@ -23,7 +23,7 @@ public class FlowerBreeze extends Talent {
 
 	public FlowerBreeze() {
 		// Feel the breeze of the flowers that damages your but grants &cStrength &7and &bResistance &7for a short duration. This ability cannot kill.
-		super("Flower Breeze", "Feel the breeze of the flowers that damages your but grants &cStrength &7and &bResistance &7for a short duration.____This ability cannot kill.", Type.COMBAT);
+		super("Flower Breeze", "Feel the breeze of the flowers that damages your but grants &cStrength &7and &bResistance &7for a short duration.__This ability cannot kill.", Type.COMBAT);
 		this.setItem(Material.RED_DYE);
 		this.setCd(effectDuration * 4);
 	}

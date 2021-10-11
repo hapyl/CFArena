@@ -51,18 +51,19 @@ public class Tamer extends Hero implements Listener {
 						.cleanToItemSack()
 		);
 
-		this.setWeapon(new Weapon(Material.FISHING_ROD).setName("Lash")
-				.setName("An old lash used to train beasts and monsters.")
+		this.setWeapon(new Weapon(Material.FISHING_ROD)
+				.setName("Lash")
+				.setLore("An old lash used to train beasts and monsters.")
 				.setId("tamer_weapon")
 				.setDamage(2.0d));
 
-		this.setUltimate(new UltimateTalent("Mine 'o Ball", "Summon a pack of beasts that will attack nearby opponents.", 25) {
-			@Override
-			public void useUltimate(Player player) {
-				createNewPack(player);
-			}
-		});
+		this.setUltimate(new UltimateTalent("Mine 'o Ball", "Summon a pack of beasts that will attack nearby opponents.", 25));
 
+	}
+
+	@Override
+	public void useUltimate(Player player) {
+		createNewPack(player);
 	}
 
 	private void createNewPack(Player player) {

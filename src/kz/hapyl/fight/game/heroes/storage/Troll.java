@@ -44,55 +44,53 @@ public class Troll extends Hero {
 
 		this.setUltimate(new UltimateTalent(
 				"Sticky Situation",
-				"Spawns a batch of cobweb at your position that only visible for your opponents.____Only one batch can exist at the same time.",
+				"Spawns a batch of cobweb at your position that only visible for your opponents.__Only one batch can exist at the same time.",
 				40
-		) {
-
-			@Override
-			public void useUltimate(Player player) {
-				Bukkit.getOnlinePlayers().forEach(target -> {
-					if (target == player) {
-						return;
-					}
-					Chat.sendMessage(target, "&aAh... Sticky! &e&lPUNCH &athe cobweb to remove it!");
-				});
-				clearCobweb(player);
-				createCobweb(player);
-			}
-
-			private void clearCobweb(Player player) {
-				final Set<Block> blocks = Troll.this.blocks.get(player);
-				if (blocks == null) {
-					return;
-				}
-				blocks.forEach(location -> location.getState().update(false, false));
-			}
-
-			private void createCobweb(Player player) {
-				final Location location = player.getLocation().clone().subtract(2, 0, 2);
-				final Set<Block> hashSet = blocks.computeIfAbsent(player, t -> new HashSet<>());
-
-				for (int i = 0; i < 5; i++) {
-					for (int j = 0; j < 5; j++) {
-						location.add(i, 0, j);
-						if (!location.getBlock().getType().isSolid()) {
-							hashSet.add(location.getBlock());
-							Bukkit.getOnlinePlayers().forEach(target -> {
-								if (target == player) {
-									return;
-								}
-								target.sendBlockChange(location, Material.COBWEB.createBlockData());
-							});
-						}
-						location.subtract(i, 0, j);
-					}
-				}
-			}
-
-		}.setSound(Sound.ENTITY_SPIDER_AMBIENT, 1.0f)
+		).setSound(Sound.ENTITY_SPIDER_AMBIENT, 1.0f)
 				.setItem(Material.COBWEB)
 				.setCd(20));
 
+	}
+
+	@Override
+	public void useUltimate(Player player) {
+		Bukkit.getOnlinePlayers().forEach(target -> {
+			if (target == player) {
+				return;
+			}
+			Chat.sendMessage(target, "&aAh... Sticky! &e&lPUNCH &athe cobweb to remove it!");
+		});
+		clearCobweb(player);
+		createCobweb(player);
+	}
+
+	private void clearCobweb(Player player) {
+		final Set<Block> blocks = Troll.this.blocks.get(player);
+		if (blocks == null) {
+			return;
+		}
+		blocks.forEach(location -> location.getState().update(false, false));
+	}
+
+	private void createCobweb(Player player) {
+		final Location location = player.getLocation().clone().subtract(2, 0, 2);
+		final Set<Block> hashSet = blocks.computeIfAbsent(player, t -> new HashSet<>());
+
+		for (int i = 0; i < 5; i++) {
+			for (int j = 0; j < 5; j++) {
+				location.add(i, 0, j);
+				if (!location.getBlock().getType().isSolid()) {
+					hashSet.add(location.getBlock());
+					Bukkit.getOnlinePlayers().forEach(target -> {
+						if (target == player) {
+							return;
+						}
+						target.sendBlockChange(location, Material.COBWEB.createBlockData());
+					});
+				}
+				location.subtract(i, 0, j);
+			}
+		}
 	}
 
 	@Override

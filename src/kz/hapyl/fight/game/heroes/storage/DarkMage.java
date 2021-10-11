@@ -1,5 +1,6 @@
 package kz.hapyl.fight.game.heroes.storage;
 
+import kz.hapyl.fight.anotate.KeepNull;
 import kz.hapyl.fight.effect.EnumEffect;
 import kz.hapyl.fight.game.EnumDamageCause;
 import kz.hapyl.fight.game.GamePlayer;
@@ -13,7 +14,6 @@ import kz.hapyl.fight.game.talents.Talents;
 import kz.hapyl.fight.game.talents.UltimateTalent;
 import kz.hapyl.fight.game.task.GameTask;
 import kz.hapyl.fight.game.weapons.Weapon;
-import kz.hapyl.fight.util.KeepNull;
 import kz.hapyl.fight.util.Utils;
 import kz.hapyl.spigotutils.module.chat.Chat;
 import kz.hapyl.spigotutils.module.entity.Entities;
@@ -39,8 +39,6 @@ import static org.bukkit.Sound.ENTITY_WITHER_SHOOT;
 
 public class DarkMage extends Hero implements ComplexHero, Listener {
 
-	private final int ultimateDuration = 240;
-
 	public DarkMage() {
 		super("Dark Mage");
 		this.setInfo("A mage that was cursed by &8&lDark &8&lMagic&7&o. But even it couldn't kill him...");
@@ -62,99 +60,96 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
 
 		this.setUltimate(new UltimateTalent(
 				"Wither Rider",
-				"Transform into the wither for &b%ss&7. While transformed, &e&lCLICK &7to shoot wither skulls that deals massive damage on impact. After wither disappears, you perform plunging attack that deals damage in AoE upon hitting the ground."
-						.formatted(BukkitUtils.roundTick(ultimateDuration)),
+				"Transform into the wither for {duration}.__While transformed, &e&lCLICK &7to shoot wither skulls that deals massive damage on impact.__After wither disappears, you perform plunging attack that deals damage in AoE upon hitting the ground.",
 				70
-		) {
+		).setItem(Material.WITHER_SKELETON_SKULL).setDuration(240).setCdSec(30).setSound(Sound.ENTITY_WITHER_SPAWN, 2.0f));
+
+	}
+
+	@Override
+	public void useUltimate(Player player) {
+		player.setAllowFlight(true);
+		player.setFlying(true);
+
+		final double playerHealth = GamePlayer.getPlayer(player).getHealth();
+		Utils.hidePlayer(player);
+
+		final Wither wither = Entities.WITHER.spawn(player.getLocation(), me -> {
+			me.setAI(false);
+			me.setMaxHealth(playerHealth);
+			me.setHealth(playerHealth);
+			me.setCustomName(player.getName());
+			me.setCustomNameVisible(true);
+			me.setGlowing(true);
+			me.setInvulnerable(false); // killable eya
+		});
+
+		updateWitherName(player, wither);
+		Utils.hideEntity(wither, player);
+
+		new GameTask() {
+			private int tick = getUltimateDuration();
+
 			@Override
-			public void useUltimate(Player player) {
-				setUsingUltimate(player, true, ultimateDuration);
+			public void run() {
 
-				player.setAllowFlight(true);
-				player.setFlying(true);
+				if (wither.isDead() || GamePlayer.getPlayer(player).isDead()) {
+					killWither(!wither.isDead() ? null : player, wither);
+					this.cancel();
+					return;
+				}
 
-				final double playerHealth = GamePlayer.getPlayer(player).getHealth();
-				Utils.hidePlayer(player);
+				if (tick < 0) {
+					killWither(player, wither);
+					plungeAttack(player);
+					this.cancel();
+					return;
+				}
 
-				final Wither wither = Entities.WITHER.spawn(player.getLocation(), me -> {
-					me.setAI(false);
-					me.setMaxHealth(playerHealth);
-					me.setHealth(playerHealth);
-					me.setCustomName(player.getName());
-					me.setCustomNameVisible(true);
-					me.setGlowing(true);
-					me.setInvulnerable(false); // killable eya
-				});
+				if (tick % 10 == 0) {
+					updateWitherName(player, wither);
+				}
 
-				updateWitherName(player, wither);
-				Utils.hideEntity(wither, player);
+				wither.teleport(player);
+				--tick;
+			}
+
+			private void plungeAttack(Player player) {
+				final int maxPlungeTime = 100;
+				GamePlayer.getPlayer(player).addEffect(GameEffectType.FALL_DAMAGE_RESISTANCE, maxPlungeTime, true);
+				player.setVelocity(new Vector(0.0d, -0.5d, 0.0d));
 
 				new GameTask() {
-					private int tick = ultimateDuration;
+					private int maxAirTicks = maxPlungeTime;
 
 					@Override
 					public void run() {
-
-						if (wither.isDead() || GamePlayer.getPlayer(player).isDead()) {
-							killWither(!wither.isDead() ? null : player, wither);
+						if (maxAirTicks-- <= 0 || player.isOnGround()) {
 							this.cancel();
-							return;
-						}
-
-						if (tick < 0) {
-							killWither(player, wither);
-							plungeAttack(player);
-							this.cancel();
-							return;
-						}
-
-						if (tick % 10 == 0) {
-							updateWitherName(player, wither);
-						}
-
-						wither.teleport(player);
-						--tick;
-					}
-
-					private void plungeAttack(Player player) {
-						final int maxPlungeTime = 100;
-						GamePlayer.getPlayer(player).addEffect(GameEffectType.FALL_DAMAGE_RESISTANCE, maxPlungeTime, true);
-						player.setVelocity(new Vector(0.0d, -0.5d, 0.0d));
-
-						new GameTask() {
-							private int maxAirTicks = maxPlungeTime;
-
-							@Override
-							public void run() {
-								if (maxAirTicks-- <= 0 || player.isOnGround()) {
-									this.cancel();
-									EnumEffect.tempDisplayGroundPunch(player);
-									Utils.getPlayersInRange(player.getLocation(), 4).forEach(target -> {
-										if (target == player) {
-											return;
-										}
-										GamePlayer.damageEntity(target, 5.0d, player);
-									});
+							EnumEffect.tempDisplayGroundPunch(player);
+							Utils.getPlayersInRange(player.getLocation(), 4).forEach(target -> {
+								if (target == player) {
+									return;
 								}
-
-							}
-						}.runTaskTimer(0, 1);
-					}
-
-					private void killWither(@Nullable Player player, Wither wither) {
-						if (player != null) {
-							player.setFlying(false);
-							player.setAllowFlight(false);
-							Utils.showPlayer(player);
+								GamePlayer.damageEntity(target, 5.0d, player);
+							});
 						}
-						PlayerLib.playSound(wither.getLocation(), ENTITY_WITHER_DEATH, 1.0f);
-						wither.remove();
+
 					}
-
 				}.runTaskTimer(0, 1);
-
 			}
-		}.setItem(Material.WITHER_SKELETON_SKULL).setCdSec(30).setSound(Sound.ENTITY_WITHER_SPAWN, 2.0f));
+
+			private void killWither(@Nullable Player player, Wither wither) {
+				if (player != null) {
+					player.setFlying(false);
+					player.setAllowFlight(false);
+					Utils.showPlayer(player);
+				}
+				PlayerLib.playSound(wither.getLocation(), ENTITY_WITHER_DEATH, 1.0f);
+				wither.remove();
+			}
+
+		}.runTaskTimer(0, 1);
 
 	}
 

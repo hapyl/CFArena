@@ -57,11 +57,13 @@ public class Mage extends Hero implements UIComponent {
 
 	public Mage() {
 		super("Mage");
-		this.setInfo("Amateur Necromancer with ability to absorb soul fragments upon hitting his foes to use them as fuel for his &e&lSoul Eater&7.__Which makes him both &bmelee &7and &brange &7warrior!");
+		this.setInfo(
+				"Amateur Necromancer with ability to absorb soul fragments upon hitting his foes to use them as fuel for his &e&lSoul Eater&7.__Which makes him both &bmelee &7and &brange &7warrior!");
 		this.setItem(Material.PHANTOM_MEMBRANE);
 
 		final ClassEquipment eq = this.getEquipment();
-		eq.setHelmet("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjQxZTZlNGJjZDI2NjdiYjI4NGZiMGRkZTM2MTg5NDg0MGVhNzgyZWZiZmI3MTdmNjI0NGUwNmI5NTFjMmIzZiJ9fX0=");
+		eq.setHelmet(
+				"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjQxZTZlNGJjZDI2NjdiYjI4NGZiMGRkZTM2MTg5NDg0MGVhNzgyZWZiZmI3MTdmNjI0NGUwNmI5NTFjMmIzZiJ9fX0=");
 		eq.setChestplate(56, 34, 70);
 		eq.setLeggings(29, 29, 33);
 		eq.setBoots(56, 34, 70);
@@ -103,19 +105,26 @@ public class Mage extends Hero implements UIComponent {
 				.setLore("A weapon capable of absorbing soul fragments and convert them into fuel.____&e&lRIGHT CLICK &7to shoot a soul laser.")
 				.setId("soul_eater"));
 
-		this.setUltimate(new UltimateTalent("Magical Trainings",
-				"Retrieve two ancient spells and use one of them to your advantage!____&a- &7Heart of Wyvern heals you for &c" + wyvernHealingAmount + "&c❤&7, makes you fast but weak for &b" + BukkitUtils
-						.roundTick(wyvernHeartLength) + "s&7.____&a- &7Dragon's Skin makes you incredible strong but slow for &b" + BukkitUtils.roundTick(dragonSkinLength) + "s&7.____Only one of the spells can be used at the same time and you will &nnot&7 gain &b&l※ &7until spell is over.", 40) {
-			@Override
-			public void useUltimate(Player player) {
-				final PlayerInventory inventory = player.getInventory();
-				setUsingUltimate(player, true);
+		this.setUltimate(new UltimateTalent(
+				"Magical Trainings",
+				String.format(
+						"Retrieve two ancient spells and use one of them to your advantage!____&a- &7Heart of Wyvern heals you for &c%s&c❤&7, makes you fast but weak for &b%ss&7.____&a- &7Dragon's Skin makes you incredible strong but slow for &b%ss&7.____Only one of the spells can be used at the same time and you will &nnot&7 gain &b&l※ &7until spell is over.",
+						wyvernHealingAmount,
+						BukkitUtils.roundTick(wyvernHeartLength),
+						BukkitUtils.roundTick(dragonSkinLength)
+				),
+				40
+		).setItem(Material.WRITABLE_BOOK).setCdSec(-1));
+	}
 
-				inventory.setItem(3, itemHeartOfWyvern);
-				inventory.setItem(5, itemDragonSkin);
-				inventory.setHeldItemSlot(4);
-			}
-		}.setItem(Material.WRITABLE_BOOK).setCdSec(-1));
+	@Override
+	public void useUltimate(Player player) {
+		final PlayerInventory inventory = player.getInventory();
+		setUsingUltimate(player, true);
+
+		inventory.setItem(3, itemHeartOfWyvern);
+		inventory.setItem(5, itemDragonSkin);
+		inventory.setHeldItemSlot(4);
 	}
 
 	@Override

@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class JuJu extends Hero implements Listener {
+
 	private final Set<Arrow> arrows = new HashSet<>();
 	private final double ultimateRadius = 7.5d;
 
@@ -62,74 +63,76 @@ public class JuJu extends Hero implements Listener {
 				"Kiss of Death, Call of Thunder",
 				"Creates a field of arrows at your target block, then, summons thunder to electrolyze everyone who is still in the zone.",
 				70
-		) {
+		).setDuration(120).setItem(Material.END_ROD));
+
+	}
+
+	@Override
+	public String predicateMessage() {
+		return "No valid blocks in sight!";
+	}
+
+	@Override
+	public boolean predicateUltimate(Player player) {
+		return getTargetLocation(player) != null;
+	}
+
+	private void drawUltimateRadius(Location location) {
+		Geometry.drawCircle(location, ultimateRadius, Quality.VERY_HIGH, new WorldParticle(Particle.CRIT));
+	}
+
+	private Location getTargetLocation(Player player) {
+		final Block targetBlockExact = player.getTargetBlockExact(20);
+		return targetBlockExact == null ? null : targetBlockExact.getRelative(BlockFace.UP).getLocation().add(0.5d, 0.0d, 0.5d);
+	}
+
+	@Override
+	public void useUltimate(Player player) {
+		final Location location = getTargetLocation(player);
+		if (location == null || location.getWorld() == null) {
+			return;
+		}
+
+		location.add(0.0d, 0.1d, 0.0d);
+		setUsingUltimate(player, true);
+		new GameTask() {
+			private final World world = location.getWorld();
+			private double theta = 0.0d;
 
 			@Override
-			public String predicateMessage() {
-				return "No valid blocks in sight!";
-			}
+			public void run() {
+				drawUltimateRadius(location);
+				if (theta >= Math.PI * 2) {
+					GameTask.runTaskTimerTimes((task, tick) -> {
+						drawUltimateRadius(location);
+						final double addX = ThreadLocalRandom.current().nextDouble(ultimateRadius);
+						final double addZ = ThreadLocalRandom.current().nextDouble(ultimateRadius);
+						final double finalAddX = ThreadRandom.nextBoolean() ? addX : -addX;
+						final double finalAddZ = ThreadRandom.nextBoolean() ? addZ : -addZ;
 
-			@Override
-			public boolean predicate(Player player) {
-				return getTargetLocation(player) != null;
-			}
+						location.add(finalAddX, 0, finalAddZ);
+						world.strikeLightning(location);
+						location.subtract(finalAddX, 0, finalAddZ);
 
-			private void drawUltimateRadius(Location location) {
-				Geometry.drawCircle(location, ultimateRadius, Quality.VERY_HIGH, new WorldParticle(Particle.CRIT));
-			}
-
-			private Location getTargetLocation(Player player) {
-				final Block targetBlockExact = player.getTargetBlockExact(20);
-				return targetBlockExact == null ? null : targetBlockExact.getRelative(BlockFace.UP).getLocation().add(0.5d, 0.0d, 0.5d);
-			}
-
-			@Override
-			public void useUltimate(Player player) {
-				final Location location = getTargetLocation(player);
-				if (location == null || location.getWorld() == null) {
+						if (tick == 0) {
+							setUsingUltimate(player, false);
+						}
+					}, 3, 40);
+					this.cancel();
 					return;
 				}
-				location.add(0.0d, 0.1d, 0.0d);
-				setUsingUltimate(player, true);
-				new GameTask() {
-					private final World world = location.getWorld();
-					private double theta = 0.0d;
 
-					@Override
-					public void run() {
-						drawUltimateRadius(location);
-						if (theta >= Math.PI * 2) {
-							GameTask.runTaskTimerTimes((task, tick) -> {
-								drawUltimateRadius(location);
-								final double addX = ThreadLocalRandom.current().nextDouble(ultimateRadius);
-								final double addZ = ThreadLocalRandom.current().nextDouble(ultimateRadius);
-								final double finalAddX = ThreadRandom.nextBoolean() ? addX : -addX;
-								final double finalAddZ = ThreadRandom.nextBoolean() ? addZ : -addZ;
-								location.add(finalAddX, 0, finalAddZ);
-								world.strikeLightning(location);
-								location.subtract(finalAddX, 0, finalAddZ);
-								if (tick == 0) {
-									setUsingUltimate(player, false);
-								}
-							}, 3, 40);
-							this.cancel();
-							return;
-						}
+				final double x = ultimateRadius * Math.sin(theta);
+				final double z = ultimateRadius * Math.cos(theta);
 
-						final double x = ultimateRadius * Math.sin(theta);
-						final double z = ultimateRadius * Math.cos(theta);
+				location.add(x, 5, z);
+				world.spawnArrow(location, new Vector(0.0d, -1.0d, 0.0d), 0.75f, 0f);
+				location.subtract(x, 5, z);
 
-						location.add(x, 5, z);
-						world.spawnArrow(location, new Vector(0.0d, -1.0d, 0.0d), 0.75f, 0f);
-						location.subtract(x, 5, z);
+				theta += Math.PI / 16;
 
-						theta += Math.PI / 16;
-
-					}
-				}.runTaskTimer(0, 1);
 			}
-		}.setItem(Material.END_ROD));
-
+		}.runTaskTimer(0, 1);
 	}
 
 	@Override

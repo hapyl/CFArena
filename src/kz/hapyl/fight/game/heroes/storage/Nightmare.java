@@ -10,7 +10,6 @@ import kz.hapyl.fight.game.talents.Talents;
 import kz.hapyl.fight.game.talents.UltimateTalent;
 import kz.hapyl.fight.game.weapons.Weapon;
 import kz.hapyl.spigotutils.module.player.PlayerLib;
-import kz.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -23,8 +22,6 @@ import org.bukkit.potion.PotionEffectType;
 
 public class Nightmare extends Hero implements Listener {
 
-	private final int ultimateTime = 240;
-
 	public Nightmare() {
 		super("Nightmare");
 		this.setInfo("A spirit from the worst dreams and nightmares, blinds enemies and strikes from behind!");
@@ -36,24 +33,28 @@ public class Nightmare extends Hero implements Listener {
 				.setDamage(7.0d));
 
 		final ClassEquipment eq = this.getEquipment();
-		eq.setHelmet("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzljNTVlMGU0YWY3MTgyNGU4ZGE2OGNkZTg3ZGU3MTdiMjE0ZjkyZTk5NDljNGIxNmRhMjJiMzU3Zjk3YjFmYyJ9fX0=");
+		eq.setHelmet(
+				"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzljNTVlMGU0YWY3MTgyNGU4ZGE2OGNkZTg3ZGU3MTdiMjE0ZjkyZTk5NDljNGIxNmRhMjJiMzU3Zjk3YjFmYyJ9fX0=");
 		eq.setChestplate(50, 0, 153);
 		eq.setLeggings(40, 0, 153);
 		eq.setBoots(30, 0, 153);
 
-		this.setUltimate(new UltimateTalent("Your Worst Nightmare", "Applies the &e&lParanoia &7effect to all alive opponents for &b%ss&7."
-				.formatted(BukkitUtils.roundTick(ultimateTime)), 55) {
-			@Override
-			public void useUltimate(Player player) {
-				Manager.current().getCurrentGame().getAlivePlayers().forEach(alive -> {
-					if (alive.compare(player)) {
-						return;
-					}
-					alive.addEffect(GameEffectType.PARANOIA, ultimateTime, true);
-				});
-			}
-		}.setCdSec(30).setItem(Material.BLACK_DYE).setSound(Sound.ENTITY_WITCH_CELEBRATE, 0.0f));
+		this.setUltimate(new UltimateTalent(
+				"Your Worst Nightmare",
+				"Applies the &e&lParanoia &7effect to all alive opponents for {duration}.",
+				55
+		).setDuration(240).setCdSec(30).setItem(Material.BLACK_DYE).setSound(Sound.ENTITY_WITCH_CELEBRATE, 0.0f));
 
+	}
+
+	@Override
+	public void useUltimate(Player player) {
+		Manager.current().getCurrentGame().getAlivePlayers().forEach(alive -> {
+			if (alive.compare(player)) {
+				return;
+			}
+			alive.addEffect(GameEffectType.PARANOIA, getUltimateDuration(), true);
+		});
 	}
 
 	@EventHandler()

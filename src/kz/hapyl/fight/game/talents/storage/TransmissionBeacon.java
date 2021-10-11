@@ -11,7 +11,11 @@ import org.bukkit.entity.Player;
 
 public class TransmissionBeacon extends Talent {
 	public TransmissionBeacon() {
-		super("Transmission Beacon", "Place the beacon somewhere hidden from your opponents. Use your &bultimate &7to instantly teleport to it's location and collect it.__&c&lThe beacon can be destroyed!__&9Cooldown if Destroyed: &l30.0s", Type.COMBAT);
+		super(
+				"Transmission Beacon",
+				"Place the beacon somewhere hidden from your opponents. Use your &bultimate &7to instantly teleport to it's location and collect it.__&c&lThe beacon can be destroyed!____&9Cooldown if Destroyed: &l30s",
+				Type.COMBAT
+		);
 		this.setItem(Material.BEACON);
 	}
 

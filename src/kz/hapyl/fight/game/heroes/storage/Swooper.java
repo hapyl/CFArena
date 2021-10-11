@@ -15,7 +15,6 @@ import kz.hapyl.spigotutils.module.chat.Chat;
 import kz.hapyl.spigotutils.module.inventory.ItemBuilder;
 import kz.hapyl.spigotutils.module.math.Numbers;
 import kz.hapyl.spigotutils.module.player.PlayerLib;
-import kz.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -29,7 +28,6 @@ import org.bukkit.util.Vector;
 public class Swooper extends Hero implements Listener {
 
 	private final int rifleCooldown = 45;
-	private final int ultimateDuration = 200;
 
 	private final ItemStack rocketLauncher = new ItemBuilder(Material.GOLDEN_HORSE_ARMOR, "swooper_ultimate")
 			.setName("&aRocket Launcher")
@@ -76,45 +74,45 @@ public class Swooper extends Hero implements Listener {
 
 		this.setUltimate(new UltimateTalent(
 				"Showstopper",
-				"Equip a rocket launcher for &b" + BukkitUtils.roundTick(ultimateDuration) + "s&7. &6&lCLICK &7to launch explosive in front of you that explodes on impact dealing massive damage.",
+				"Equip a rocket launcher for {duration}. &6&lCLICK &7to launch explosive in front of you that explodes on impact dealing massive damage.",
 				80
-		) {
-			@Override
-			public void useUltimate(Player player) {
-				setUsingUltimate(player, true);
+		).setDuration(200).setItem(Material.GOLDEN_HORSE_ARMOR));
 
-				final PlayerInventory inventory = player.getInventory();
-				inventory.setItem(4, rocketLauncher);
-				inventory.setHeldItemSlot(4);
+	}
 
-				new GameTask() {
-					private int tick = ultimateDuration;
+	@Override
+	public void useUltimate(Player player) {
+		setUsingUltimate(player, true);
 
-					private void removeRocketLauncher() {
-						setUsingUltimate(player, false);
-						player.getInventory().setItem(4, new ItemStack(Material.AIR));
-						this.cancel();
-					}
+		final PlayerInventory inventory = player.getInventory();
+		inventory.setItem(4, rocketLauncher);
+		inventory.setHeldItemSlot(4);
 
-					@Override
-					public void run() {
-						if (tick-- <= 0 || player.getInventory().getItem(4) == null) {
-							this.removeRocketLauncher();
-							return;
-						}
+		new GameTask() {
+			private int tick = getUltimateDuration();
 
-						final int tick20 = tick * 20 / ultimateDuration;
-						final StringBuilder builder = new StringBuilder();
-						for (int i = 0; i < 20; i++) {
-							builder.append(i <= tick20 ? ChatColor.GOLD : ChatColor.DARK_GRAY).append("-");
-						}
-						Chat.sendTitle(player, "&eRocket Fuse", builder.toString(), 0, 5, 2);
-
-					}
-				}.runTaskTimer(0, 1);
+			private void removeRocketLauncher() {
+				setUsingUltimate(player, false);
+				player.getInventory().setItem(4, new ItemStack(Material.AIR));
+				this.cancel();
 			}
-		}.setItem(Material.GOLDEN_HORSE_ARMOR));
 
+			@Override
+			public void run() {
+				if (tick-- <= 0 || player.getInventory().getItem(4) == null) {
+					this.removeRocketLauncher();
+					return;
+				}
+
+				final int tick20 = tick * 20 / getUltimateDuration();
+				final StringBuilder builder = new StringBuilder();
+				for (int i = 0; i < 20; i++) {
+					builder.append(i <= tick20 ? ChatColor.GOLD : ChatColor.DARK_GRAY).append("-");
+				}
+				Chat.sendTitle(player, "&eRocket Fuse", builder.toString(), 0, 5, 2);
+
+			}
+		}.runTaskTimer(0, 1);
 	}
 
 	private void launchProjectile(Player player) {

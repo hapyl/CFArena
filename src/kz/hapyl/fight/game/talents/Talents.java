@@ -114,7 +114,7 @@ public enum Talents {
 	STAR_ALIGNER(new StarAligner()),
 	EYES_OF_THE_GALAXY(new PassiveTalent(
 			"Eyes of the Galaxy",
-			"Astral Stars you place will glow different colors:____&eYellow &7indicates a placed star.____&bAqua &7indicates closest star that will be consumed upon teleport.__&aGreen &7indicates star you will blink to upon teleport.",
+			"Astral Stars you place will glow different colors:____&eYellow &7indicates a placed star.____&bAqua &7indicates closest star that will be consumed upon teleport.____&aGreen &7indicates star you will blink to upon teleport.",
 			Material.ENDER_EYE
 	)),
 
@@ -165,6 +165,14 @@ public enum Talents {
 			"Sniper Scope",
 			"&e&lSNEAK &7to activate sniper scope and increase your rifle's damage and distance.",
 			Material.SPYGLASS
+	)),
+
+	// Shark
+	SUBMERGE(new Submerge()),
+	CLAW_CRITICAL(new PassiveTalent(
+			"Sturdy Claws",
+			"Your hits have &b10% &7chance to &ccrit&7! Critical hits summons an ancient creature from beneath that deals extra damage in small AoE!",
+			Material.MILK_BUCKET
 	)),
 
 	// test

@@ -21,7 +21,7 @@ public class Climb extends Talent {
 	public Climb() {
 		super(
 				"Climb",
-				"Use the wall you're hugging to climb it and perform back-flip, gaining speed boost. Cooldown of this ability stars upon landing or after &b4s&7.__&9Cooldown: &l8s",
+				"Use the wall you're hugging to climb it and perform back-flip, gaining speed boost. Cooldown of this ability stars upon landing or after &b4s&7.____&9Cooldown: &l8s",
 				Material.LEATHER_BOOTS
 		);
 	}

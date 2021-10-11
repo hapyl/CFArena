@@ -94,93 +94,92 @@ public class Vortex extends Hero {
 
 		this.setUltimate(new UltimateTalent(
 				"All the Stars",
-				"Instantly create &b10 &7Astral Stars around you. Then, rapidly slash between them dealing double the damage.__After, perform the final blow with &b360° &7attack that slows opponents.____This will not affect already placed Astral Stars.",
+				"Instantly create &b10 &7Astral Stars around you. Then, rapidly slash between them dealing double the damage.__After, perform the final blow with &b360° &7attack that slows opponents.__This will not affect already placed Astral Stars.",
 				60
-		) {
+		).setItem(Material.QUARTZ).setCdSec(30));
 
-			private void performFinalSlash(Location location, Player player, double rad) {
-				final World world = location.getWorld();
-				if (world == null) {
+
+	}
+
+	private void performFinalSlash(Location location, Player player) {
+		final World world = location.getWorld();
+		if (world == null) {
+			return;
+		}
+
+		for (double i = 0; i < Math.PI * 2; i += Math.PI / 8) {
+			double x = (5.5 * Math.sin(i));
+			double z = (5.5 * Math.cos(i));
+			location.add(x, 0, z);
+
+			// fx
+			world.spawnParticle(Particle.SWEEP_ATTACK, location, 1, 0, 0, 0, 0);
+			world.playSound(location, Sound.ITEM_FLINTANDSTEEL_USE, 10, 0.75f);
+
+			// damage
+			Utils.getEntitiesInRange(location, 2.0d).forEach(entity -> {
+				if (player == entity) {
 					return;
 				}
+				entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 80, 2));
+				GamePlayer.damageEntity(entity, 1.0d, player, EnumDamageCause.ENTITY_ATTACK);
+			});
 
-				for (double i = 0; i < Math.PI * 2; i += Math.PI / 8) {
-					double x = (rad * Math.sin(i));
-					double z = (rad * Math.cos(i));
-					location.add(x, 0, z);
+			location.subtract(x, 0, z);
+		}
 
-					// fx
-					world.spawnParticle(Particle.SWEEP_ATTACK, location, 1, 0, 0, 0, 0);
-					world.playSound(location, Sound.ITEM_FLINTANDSTEEL_USE, 10, 0.75f);
+	}
 
-					// damage
-					Utils.getEntitiesInRange(location, 2.0d).forEach(entity -> {
-						if (player == entity) {
-							return;
-						}
-						entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 80, 2));
-						GamePlayer.damageEntity(entity, 1.0d, player, EnumDamageCause.ENTITY_ATTACK);
-					});
+	@Override
+	public void useUltimate(Player player) {
+		final double spreadDistance = 5.5d;
+		final double halfSpreadDistance = spreadDistance / 2.0d;
+		final Location location = player.getLocation();
+		final Location[] allTheStars = {
+				//up
+				location.clone().add(0, spreadDistance, 0),
+				//vert
+				location.clone().add(spreadDistance, 0, 0), location.clone().add(-spreadDistance, 0, 0),
+				location.clone().add(0, 0, spreadDistance), location.clone().add(0, 0, -spreadDistance),
+				//cor
+				location.clone().add(halfSpreadDistance, halfSpreadDistance, halfSpreadDistance), location.clone().add(
+				-halfSpreadDistance,
+				halfSpreadDistance,
+				-halfSpreadDistance
+		),
+				location.clone().add(-halfSpreadDistance, halfSpreadDistance, halfSpreadDistance), location.clone().add(
+				halfSpreadDistance,
+				halfSpreadDistance,
+				-halfSpreadDistance
+		),
+				//final
+				location.clone()
+		};
 
-					location.subtract(x, 0, z);
-				}
-
-			}
+		new GameTask() {
+			private int tick = 0;
+			private int pos = 0;
 
 			@Override
-			public void useUltimate(Player player) {
-				final double spreadDistance = 5.5d;
-				final double halfSpreadDistance = spreadDistance / 2.0d;
-				final Location location = player.getLocation();
-				final Location[] allTheStars = {
-						//up
-						location.clone().add(0, spreadDistance, 0),
-						//vert
-						location.clone().add(spreadDistance, 0, 0), location.clone().add(-spreadDistance, 0, 0),
-						location.clone().add(0, 0, spreadDistance), location.clone().add(0, 0, -spreadDistance),
-						//cor
-						location.clone().add(halfSpreadDistance, halfSpreadDistance, halfSpreadDistance), location.clone().add(
-						-halfSpreadDistance,
-						halfSpreadDistance,
-						-halfSpreadDistance
-				),
-						location.clone().add(-halfSpreadDistance, halfSpreadDistance, halfSpreadDistance), location.clone().add(
-						halfSpreadDistance,
-						halfSpreadDistance,
-						-halfSpreadDistance
-				),
-						//final
-						location.clone()
-				};
-
-				new GameTask() {
-					private int tick = 0;
-					private int pos = 0;
-
-					@Override
-					public void run() {
-						// draw circle
-						if (tick % 10 == 0) {
-							Geometry.drawCircle(location, spreadDistance, Quality.NORMAL, new WorldParticle(Particle.FIREWORKS_SPARK));
-						}
-						if (tick++ % 5 == 0) {
-							// final slash
-							if (pos >= (allTheStars.length - 1)) {
-								performFinalSlash(location, player, spreadDistance);
-								this.cancel();
-								return;
-							}
-							performStarSlash(allTheStars[pos], allTheStars[pos + 1], player, true);
-							++pos;
-						}
-
-
+			public void run() {
+				// draw circle
+				if (tick % 10 == 0) {
+					Geometry.drawCircle(location, spreadDistance, Quality.NORMAL, new WorldParticle(Particle.FIREWORKS_SPARK));
+				}
+				if (tick++ % 5 == 0) {
+					// final slash
+					if (pos >= (allTheStars.length - 1)) {
+						performFinalSlash(location, player);
+						this.cancel();
+						return;
 					}
-				}.runTaskTimer(0, 1);
+					performStarSlash(allTheStars[pos], allTheStars[pos + 1], player, true);
+					++pos;
+				}
+
+
 			}
-		}.setItem(Material.QUARTZ).setCdSec(30));
-
-
+		}.runTaskTimer(0, 1);
 	}
 
 	public void performStarSlash(Location start, Location finish, Player player, boolean ultimateStar) {

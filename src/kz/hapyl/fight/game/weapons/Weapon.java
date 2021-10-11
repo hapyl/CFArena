@@ -47,6 +47,10 @@ public class Weapon implements Cloneable {
 		return this;
 	}
 
+	public Weapon setLore(String lore, Object... replacements) {
+		return setLore(lore.formatted(replacements));
+	}
+
 	public Weapon setLore(String lore) {
 		this.lore = lore;
 		return this;

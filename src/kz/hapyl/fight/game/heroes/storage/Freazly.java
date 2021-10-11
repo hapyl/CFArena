@@ -9,7 +9,6 @@ import kz.hapyl.fight.game.talents.UltimateTalent;
 import kz.hapyl.fight.game.weapons.PackedParticle;
 import kz.hapyl.fight.game.weapons.RangeWeapon;
 import kz.hapyl.fight.util.Direction;
-import kz.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -23,7 +22,6 @@ import java.util.Map;
 
 public class Freazly extends Hero {
 
-	private final int ultimateDuration = 300;
 	private final int wallBuildDelay = 4;
 	private final int wallDecayTime = 15;
 
@@ -74,72 +72,71 @@ public class Freazly extends Hero {
 		// Get a barrier builder block. Place to build a 5x3 Ice Wall that decay after &b" + WALL_DECAY_TIME + "s&7. The wall blocks vision and grants positive effect if near it. Also, &eSnowball Cannon &7can shoot thought this wall!
 		this.setUltimate(new UltimateTalent(
 				"Ice Barrier",
-				"Summons an &bIce Barrier &7at your target block that decay over &b" + BukkitUtils.roundTick(ultimateDuration) + "s&7. The barrier blocks enemies line of sight and grants positive effects to you when nearby.",
+				"Summons an &bIce Barrier &7at your target block that decay over {duration}. The barrier blocks enemies line of sight and grants positive effects to you when nearby.",
 				60
-		) {
+		).setItem(Material.PACKED_ICE).setDuration(getUltimateDuration()));
 
-			@Override
-			public boolean predicate(Player player) {
-				return getBuildLocation(player) != null;
+	}
+
+
+	@Override
+	public boolean predicateUltimate(Player player) {
+		return getBuildLocation(player) != null;
+	}
+
+	@Override
+	public String predicateMessage() {
+		return "No valid block in sight!";
+	}
+
+	private Location getBuildLocation(Player player) {
+		final Block target = player.getTargetBlockExact(5);
+		if (target == null) {
+			return null;
+		}
+		final Block up = target.getRelative(BlockFace.UP);
+		if (!up.getType().isAir()) {
+			return null;
+		}
+		return up.getLocation();
+	}
+
+	@Override
+	public void useUltimate(Player player) {
+		final Location location = getBuildLocation(player);
+
+		// predicate
+		if (location == null) {
+			return;
+		}
+
+		// check the direction player is looking
+		final Direction direction = Direction.getDirection(player);
+
+		// remove previous wall
+		final BarrierWall oldWall = barrierWallMap.get(player);
+		if (oldWall != null) {
+			oldWall.destroy();
+			barrierWallMap.remove(player);
+		}
+
+		final boolean bool = direction.isEastWest();
+		Location startLocation = location.subtract((bool ? 0 : 2), 0, (bool ? 2 : 0));
+
+		final BarrierWall wall = new BarrierWall(player, location.clone());
+		barrierWallMap.put(player, wall);
+
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 5; j++) {
+				final Block blockToChange = startLocation.add(bool ? 0 : j, i, bool ? j : 0).getBlock();
+				if (blockToChange.getType().isAir()) {
+					wall.add(blockToChange);
+				}
+				startLocation.subtract(bool ? 0 : j, i, bool ? j : 0);
 			}
+		}
 
-			@Override
-			public String predicateMessage() {
-				return "No valid block in sight!";
-			}
-
-			private Location getBuildLocation(Player player) {
-				final Block target = player.getTargetBlockExact(5);
-				if (target == null) {
-					return null;
-				}
-				final Block up = target.getRelative(BlockFace.UP);
-				if (!up.getType().isAir()) {
-					return null;
-				}
-				return up.getLocation();
-			}
-
-			@Override
-			public void useUltimate(Player player) {
-				setUsingUltimate(player, true, ultimateDuration);
-				final Location location = getBuildLocation(player);
-
-				// predicate
-				if (location == null) {
-					return;
-				}
-
-				// check the direction player is looking
-				final Direction direction = Direction.getDirection(player);
-
-				// remove previous wall
-				final BarrierWall oldWall = barrierWallMap.get(player);
-				if (oldWall != null) {
-					oldWall.destroy();
-					barrierWallMap.remove(player);
-				}
-
-				final boolean bool = direction.isEastWest();
-				Location startLocation = location.subtract((bool ? 0 : 2), 0, (bool ? 2 : 0));
-
-				final BarrierWall wall = new BarrierWall(player, location.clone());
-				barrierWallMap.put(player, wall);
-
-				for (int i = 0; i < 3; i++) {
-					for (int j = 0; j < 5; j++) {
-						final Block blockToChange = startLocation.add(bool ? 0 : j, i, bool ? j : 0).getBlock();
-						if (blockToChange.getType().isAir()) {
-							wall.add(blockToChange);
-						}
-						startLocation.subtract(bool ? 0 : j, i, bool ? j : 0);
-					}
-				}
-
-				wall.buildSmooth(wallBuildDelay, wallDecayTime);
-			}
-		});
-
+		wall.buildSmooth(wallBuildDelay, wallDecayTime);
 	}
 
 	public Map<Player, BarrierWall> getBarrierWallMap() {

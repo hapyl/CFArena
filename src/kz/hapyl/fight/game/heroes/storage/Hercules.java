@@ -15,7 +15,6 @@ import kz.hapyl.fight.game.task.GameTask;
 import kz.hapyl.fight.game.weapons.Weapon;
 import kz.hapyl.fight.util.Utils;
 import kz.hapyl.spigotutils.module.player.PlayerLib;
-import kz.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -37,7 +36,6 @@ import java.util.Map;
 public class Hercules extends Hero implements Listener, PlayerElement {
 
 	private final int tridentCooldown = 300;
-	private final int ultimateTime = 240;
 	private final Map<Player, Trident> fragileTrident = new HashMap<>();
 
 	public Hercules() {
@@ -48,7 +46,8 @@ public class Hercules extends Hero implements Listener, PlayerElement {
 
 		final ClassEquipment eq = this.getEquipment();
 		eq.setHelmet(
-				"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjIxMGM5NjFiOWQ3ODczMjdjMGQxNjQ2ZTY1YWU0MGM2ZDgzNDUxNDg3NzgyNDMzNWQ0YjliNjJiMjM2NWEyNCJ9fX0=");
+				"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjIxMGM5NjFiOWQ3ODczMjdjMGQxNjQ2ZTY1YWU0MGM2ZDgzNDUxNDg3NzgyNDMzNWQ0YjliNjJiMjM2NWEyNCJ9fX0="
+		);
 		eq.setChestplate(Color.WHITE);
 		eq.setBoots(Material.LEATHER_BOOTS);
 
@@ -59,35 +58,34 @@ public class Hercules extends Hero implements Listener, PlayerElement {
 
 		this.setUltimate(new UltimateTalent(
 				"Crush the Ground",
-				"Call upon divine power for &b" + BukkitUtils.roundTick(ultimateTime) + "s&7 to increase your &ejump height &7and &cplunging damage&7.",
+				"Call upon divine power for {duration} to increase your &ejump height &7and &cplunging damage&7.",
 				50
-		) {
+		).setDuration(240).setItem(Material.NETHERITE_HELMET).setCdSec(30));
+
+	}
+
+	@Override
+	public void useUltimate(Player player) {
+
+		// Fx
+		new GameTask() {
+			private int tick = 0;
+
 			@Override
-			public void useUltimate(Player player) {
-				setUsingUltimate(player, true, ultimateTime);
-
-				// Fx
-				new GameTask() {
-					private int tick = 0;
-
-					@Override
-					public void run() {
-						if (tick % 4 == 0) {
-							if (tick <= 20) {
-								PlayerLib.addEffect(player, PotionEffectType.SLOW, 4, tick / 4);
-								PlayerLib.playSound(player, Sound.ENTITY_WITHER_SHOOT, (float)(0.5d + (0.1d * tick / 4)));
-							}
-							else {
-								this.cancel();
-								PlayerLib.playSound(player, Sound.ENTITY_WITHER_HURT, 1.25f);
-							}
-						}
-						++tick;
+			public void run() {
+				if (tick % 4 == 0) {
+					if (tick <= 20) {
+						PlayerLib.addEffect(player, PotionEffectType.SLOW, 4, tick / 4);
+						PlayerLib.playSound(player, Sound.ENTITY_WITHER_SHOOT, (float)(0.5d + (0.1d * tick / 4)));
 					}
-				}.runTaskTimer(0, 1);
-
+					else {
+						this.cancel();
+						PlayerLib.playSound(player, Sound.ENTITY_WITHER_HURT, 1.25f);
+					}
+				}
+				++tick;
 			}
-		}.setItem(Material.NETHERITE_HELMET).setCdSec(30));
+		}.runTaskTimer(0, 1);
 
 	}
 

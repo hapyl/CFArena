@@ -18,7 +18,6 @@ import kz.hapyl.fight.game.weapons.Weapon;
 import kz.hapyl.fight.util.Handle;
 import kz.hapyl.spigotutils.module.chat.Chat;
 import kz.hapyl.spigotutils.module.player.PlayerLib;
-import kz.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
@@ -31,7 +30,6 @@ import java.util.Map;
 public class WitcherClass extends Hero implements ComplexHero, UIComponent, PlayerElement {
 
 	private final Map<Player, Combo> combos = new HashMap<>();
-	private final int ultimateDuration = 200;
 
 	public WitcherClass() {
 		super("The Witcher");
@@ -48,41 +46,38 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
 
 		this.setWeapon(new Weapon(Material.IRON_SWORD).setName("Aerondight").setDamage(5.0d));
 
-		this.setUltimate(new UltimateTalent(
-				"All the Trainings",
-				"Remember all your trainings and unleash them at once. Creating infinite %1$s shield and %2$s aura that follows you for &b%3$ss&7. Both %1$s and %2$s starts their cooldowns."
-						.formatted(
+		this.setUltimate(
+				new UltimateTalent(
+						"All the Trainings",
+						String.format(
+								"Remember all your trainings and unleash them at once. Creating infinite %1$s shield and %2$s aura that follows you for {duration}. Both %1$s and %2$s starts their cooldowns.",
 								Talents.KVEN.getName(),
-								Talents.IRDEN.getName(),
-								BukkitUtils.roundTick(ultimateDuration)
-						),
-				80
-		) {
+								Talents.IRDEN.getName()
+						), 80
+				).setDuration(200).setItem(Material.DRAGON_BREATH));
+
+	}
+
+	@Override
+	public void useUltimate(Player player) {
+		Talents.KVEN.startCd(player);
+		Talents.IRDEN.startCd(player);
+
+		PlayerLib.addEffect(player, PotionEffectType.DAMAGE_RESISTANCE, getUltimateDuration(), 1);
+
+		new GameTask() {
+			private int tick = getUltimateDuration();
+
 			@Override
-			public void useUltimate(Player player) {
-				setUsingUltimate(player, true, ultimateDuration);
+			public void run() {
+				if (tick-- < 0) {
+					this.cancel();
+					return;
+				}
 
-				Talents.KVEN.startCd(player);
-				Talents.IRDEN.startCd(player);
-
-				PlayerLib.addEffect(player, PotionEffectType.DAMAGE_RESISTANCE, ultimateDuration, 1);
-
-				new GameTask() {
-					private int tick = ultimateDuration;
-
-					@Override
-					public void run() {
-						if (tick-- < 0) {
-							this.cancel();
-							return;
-						}
-
-						((Irden)Talents.IRDEN.getTalent()).affect(player, player.getLocation(), tick);
-					}
-				}.runTaskTimer(0, 1);
-
+				((Irden)Talents.IRDEN.getTalent()).affect(player, player.getLocation(), tick);
 			}
-		}.setItem(Material.DRAGON_BREATH));
+		}.runTaskTimer(0, 1);
 
 	}
 

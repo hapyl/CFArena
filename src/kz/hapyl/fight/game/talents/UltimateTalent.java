@@ -5,18 +5,28 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
-public abstract class UltimateTalent extends Talent {
+public class UltimateTalent extends Talent {
 
 	private final int cost;
-
 	private Sound sound;
 	private float pitch;
+	private int duration;
 
 	public UltimateTalent(String name, String description, int pointCost) {
 		super(name, description, Type.ULTIMATE);
 		this.cost = pointCost;
 		this.sound = Sound.ENTITY_ENDER_DRAGON_GROWL;
 		this.pitch = 2.0f;
+		this.duration = 0;
+	}
+
+	public UltimateTalent setDuration(int duration) {
+		this.duration = duration;
+		return this;
+	}
+
+	public int getDuration() {
+		return duration;
 	}
 
 	public UltimateTalent setSound(Sound sound) {
@@ -70,13 +80,17 @@ public abstract class UltimateTalent extends Talent {
 		return this;
 	}
 
-	public abstract void useUltimate(Player player);
+	@Deprecated
+	public void useUltimate(Player player) {
 
-	// use @useUltimate
+	}
+
+	@Deprecated
 	@Override
 	public final Response execute(Player player) {
-		this.useUltimate(player);
-		return Response.OK;
+		throw new IllegalStateException("use Hero#useUltimate");
+		//this.useUltimate(player);
+		//return Response.OK;
 	}
 
 	/**
@@ -84,13 +98,16 @@ public abstract class UltimateTalent extends Talent {
 	 *
 	 * @param player - player to test.
 	 * @see UltimateTalent#predicateMessage()
+	 * @deprecated use Hero instead
 	 */
-	public boolean predicate(Player player) {
+	@Deprecated
+	public boolean predicateUltimate(Player player) {
 		return true;
 	}
 
+	@Deprecated
 	public String predicateMessage() {
-		return "can not use this.";
+		return "invalid class call, use 'Hero#useUltimate' instead";
 	}
 
 }

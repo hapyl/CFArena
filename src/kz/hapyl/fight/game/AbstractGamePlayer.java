@@ -65,6 +65,9 @@ public class AbstractGamePlayer {
 		return false;
 	}
 
+	public void addUltimatePoints(int i) {
+	}
+
 	public void removeEffect(GameEffectType type) {
 		displayError();
 	}
