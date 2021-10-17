@@ -26,6 +26,10 @@ public class StatContainer extends Holder<Player> {
 		valueMap.compute(type, (a, b) -> b == null ? l : b + l);
 	}
 
+	public void setValue(Type type, long newValue) {
+		valueMap.put(type, newValue);
+	}
+
 	public String getString(Type type) {
 		final long value = getValue(type);
 		return " " + (value > 0 ? type.getTextHas().formatted(value) : type.getTextHasnt());

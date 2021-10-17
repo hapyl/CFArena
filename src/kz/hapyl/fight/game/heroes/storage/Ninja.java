@@ -59,7 +59,7 @@ public class Ninja extends Hero implements Listener, UIComponent {
 
 		this.setWeapon(new Weapon(Material.STONE_SWORD)
 				.setName("斬馬刀")
-				.setLore(
+				.setInfo(
 						String.format(
 								"Light but sharp sword that stuns opponents upon charge hit. After using the charge hit, your weapon damage is reduced by &b50%%&7.__&9Cooldown: &l%ss",
 								BukkitUtils.decimalFormat(ultimateDamage)

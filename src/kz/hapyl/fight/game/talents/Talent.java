@@ -16,14 +16,20 @@ import javax.annotation.Nonnull;
 
 public abstract class Talent implements GameElement {
 
+	public static final Talent NULL = null;
+
 	private ItemStack item;
 	private Material material;
 	private String texture;
 
 	private final String name;
 	private final Type type;
+
+	private String castMessage;
 	private String description;
 	private int cd;
+
+	private boolean autoAdd;
 
 	public Talent(String name) {
 		this(name, "", Type.COMBAT);
@@ -38,6 +44,7 @@ public abstract class Talent implements GameElement {
 		this.description = description;
 		this.type = type;
 		this.material = Material.BEDROCK;
+		this.autoAdd = true;
 	}
 
 	public Talent(String name, String description, Material material) {
@@ -45,12 +52,28 @@ public abstract class Talent implements GameElement {
 		this.setItem(material);
 	}
 
-	public void setDescription(String description) {
-		this.description = description;
+	public void setCastMessage(String castMessage) {
+		this.castMessage = castMessage;
 	}
 
-	public void setDescription(String description, Object... replacements) {
-		this.description = description.formatted(replacements);
+	public String getCastMessage() {
+		return castMessage;
+	}
+
+	public void setInfo(String info) {
+		this.description = info;
+	}
+
+	public void setInfo(String info, Object... replacements) {
+		this.description = info.formatted(replacements);
+	}
+
+	public void setAutoAdd(boolean autoAdd) {
+		this.autoAdd = autoAdd;
+	}
+
+	public boolean isAutoAdd() {
+		return autoAdd;
 	}
 
 	public Material getMaterial() {
@@ -103,6 +126,11 @@ public abstract class Talent implements GameElement {
 			itemFunction.execute(builder);
 		}
 
+		if (!this.isAutoAdd()) {
+			builder.addLore("");
+			builder.addSmartLore("This talent is not given when the game starts, but there is a way to use it.", "&8&o", 35);
+		}
+
 		// add a separation line between lore and stats
 		if (this.cd != 0) {
 			builder.addLore("");
@@ -122,7 +150,10 @@ public abstract class Talent implements GameElement {
 
 			final int maxCharges = charge.getMaxCharges();
 			builder.addLore("&9Max Charges: &l%s", maxCharges);
-			builder.addLore("&9Recharge Time: &l%ss", BukkitUtils.roundTick(charge.getRechargeTime()));
+			builder.addLore(
+					"&9Recharge Time: &l%s",
+					charge.getRechargeTime() <= -1 ? "None" : (BukkitUtils.roundTick(charge.getRechargeTime()) + "s")
+			);
 		}
 
 		else if (this instanceof UltimateTalent ult) {
@@ -169,6 +200,10 @@ public abstract class Talent implements GameElement {
 		final Response canUseRes = Utils.playerCanUseAbility(player);
 		if (canUseRes.isError()) {
 			return canUseRes;
+		}
+
+		if (castMessage != null) {
+			Chat.sendMessage(player, castMessage);
 		}
 
 		final Response response = execute(player);

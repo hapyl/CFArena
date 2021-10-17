@@ -4,44 +4,49 @@ import kz.hapyl.spigotutils.module.util.CollectionUtils;
 import kz.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.event.entity.EntityDamageEvent;
 
+/**
+ * This allows to display custom damage cause messages.
+ *
+ * ToDo -> add many more, for each ability at least
+ * ToDo -> add custom gradient colors (:
+ */
 public enum EnumDamageCause {
 
-	// *==* those are custom damages *==*
-	CREEPER_EXPLOSION(true, "'sploded by lovely friend", "of"),
-	NOVA_EXPLOSION(true, "has been split into atoms", "by"),
-	SHOCK_DART(true, "got shocked", "by"),
-	BOOM_BOW_ULTIMATE(true, "went out with a BIG BANG", "of"),
-	FIRE_MOLOTOV(true, "couldn't find a way out of {player}'s fire"),
-	FIRE_SPRAY(true, "got sprayed to death", "by"),
-	FROZEN_WEAPON(true, "has been frozen to death", "by"),
-	LEASHED(true, "leashed to death", "by"),
-	SOUL_WHISPER(true, "has entered {player}'s souls collection"),
-	TOXIN(true, "drunk too many potions"),
-
-	// NEW ONES POGGGG
-	METEORITE(true, "felt the wrath of the rock", "of"),
-	MOON_PILLAR(true, "couldn't handle the beat", "of"),
-	WITHER_SKULLED(true, "was scared to death", "by"),
-	GRAVITY_GUN(true, "clearly couldn't see {player}'s block of size of their head flying in their direction.."),
-	PLUNGE(true, "was stepped on", "by"),
-	BLACK_HOLE(true, "was sucked into the black hole created", "by"),
-	DARKNESS(true, "was blinded to death", "by"),
-	THROWING_STARS(true, "felt the absolute pain {player}'s dagger"),
-	STARFALL(true, "doesn't know how danger looks like, yes {player}?"),
-	GOLDEN_PATH(true, "couldn't fight against their willpower", "created by shine of"),
-	FLOWER(true, "was pruned to death", "by"),
-	FELL_THE_BREEZE(true, "felt {player}'s breeze..."),
-	NEVERMISS(true, "couldn't dodge {player}'s attack, what a noob.."),
-	FEET_ATTACK(true, "probably lost their pinky"),
-	SUBMERGE(true, "didn't know that Sharks bite"),
-	SOTS(true, "couldn't hide from the stars", "of"),
-	STAR_SLASH(true, "was slashed in half", "by"),
-	RAINFIRE(true, "though it's raining, but in reality it were {player}'s arrows.."),
-	SWEEP(true, "was swept to death", "by"),
-	RIFLE(true, "had their brain exploded in cool slow-mo", "by"),
-	SATCHEL(true, "had their last flights", "with"),
-	TORNADO(true, "couldn't find the wind", "of"),
-	LIBRARY_VOID(true, "was consumed by &0the void"),
+	CREEPER_EXPLOSION("'sploded by lovely friend", "of"),
+	NOVA_EXPLOSION("has been split into atoms", "by"),
+	SHOCK_DART("got shocked", "by"),
+	BOOM_BOW_ULTIMATE("went out with a BIG BANG", "of"),
+	FIRE_MOLOTOV("couldn't find a way out of {player}'s fire"),
+	FIRE_SPRAY("got sprayed to death", "by"),
+	FROZEN_WEAPON("has been frozen to death", "by"),
+	LEASHED("leashed to death", "by"),
+	SOUL_WHISPER("has entered {player}'s souls collection"),
+	TOXIN("drunk too many potions"),
+	METEORITE("felt the wrath of the rock", "of"),
+	MOON_PILLAR("couldn't handle the beat", "of"),
+	WITHER_SKULLED("was scared to death", "by"),
+	GRAVITY_GUN("clearly couldn't see {player}'s block of size of their head flying in their direction.."),
+	PLUNGE("was stepped on", "by"),
+	BLACK_HOLE("was sucked into the black hole created", "by"),
+	DARKNESS("was blinded to death", "by"),
+	THROWING_STARS("felt the absolute pain {player}'s dagger"),
+	STARFALL("doesn't know how danger looks like, yes {player}?"),
+	GOLDEN_PATH("couldn't fight against their willpower", "created by shine of"),
+	FLOWER("was pruned to death", "by"),
+	FELL_THE_BREEZE("felt {player}'s breeze..."),
+	NEVERMISS("couldn't dodge {player}'s attack, what a noob.."),
+	FEET_ATTACK("probably lost their pinky"),
+	SUBMERGE("didn't know that Sharks bite"),
+	SOTS("couldn't hide from the stars", "of"),
+	STAR_SLASH("was slashed in half", "by"),
+	RAINFIRE("though it's raining, but in reality it were {player}'s arrows.."),
+	SWEEP("was swept to death", "by"),
+	RIFLE("had their brain exploded in cool slow-mo", "by"),
+	SATCHEL("had their last flights", "with"),
+	TORNADO("couldn't find the wind", "of"),
+	LIBRARY_VOID("was consumed by &0the void"),
+	RIPTIDE("was splashed", "by"),
+	FREEZE("froze to death", "with help of"),
 
 	// *==* there are vanilla ones, have to use them *==*
 
@@ -68,6 +73,14 @@ public enum EnumDamageCause {
 
 	private final boolean customDamage;
 	private final DeathMessage[] deathMessage;
+
+	EnumDamageCause(String message, String suffix) {
+		this(true, message, suffix);
+	}
+
+	EnumDamageCause(String message) {
+		this(message, "");
+	}
 
 	EnumDamageCause(boolean custom, String message, String suffix) {
 		this.deathMessage = new DeathMessage[]{new DeathMessage(message, suffix)};

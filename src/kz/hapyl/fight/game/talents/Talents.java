@@ -175,6 +175,20 @@ public enum Talents {
 			Material.MILK_BUCKET
 	)),
 
+	// Librarian
+	BLACK_HOLE(new BlackHole()),
+	ENTITY_DARKNESS(new EntityDarkness()),
+	LIBRARIAN_SHIELD(new LibrarianShield()),
+	WEAPON_DARKNESS(new WeaponDarkness()),
+
+	// Harbinger
+	STANCE(new MeleeStance()),
+	RIPTIDE(new PassiveTalent(
+			"Riptide",
+			"Fully charged shot in &e&lRange Stance&7 applies &bRiptide &7effect to opponents.__Hitting opponents affected by &bRiptide&7 in &e&lRange Stance &7executes &bRiptide Slash&7, that clears &bRiptide&7 and rapidly deals damage.",
+			Material.HEART_OF_THE_SEA
+	)),
+
 	// test
 	TestChargeTalent(new TestChargeTalent()),
 

@@ -50,6 +50,62 @@ public class Utils {
 		return builder.toString().trim();
 	}
 
+	public static class ProgressBar implements Builder<String> {
+
+		private final String indicator;
+		private final ChatColor[] colors;
+		private int max;
+
+		public ProgressBar(String indicator, ChatColor color, int max) {
+			this.indicator = indicator;
+			this.colors = new ChatColor[]{ChatColor.GRAY, color};
+			this.max = max;
+		}
+
+		public void setPrimaryColor(ChatColor color) {
+			colors[0] = color;
+		}
+
+		public void setSecondaryColor(ChatColor color) {
+			colors[1] = color;
+		}
+
+		public ProgressBar(String indicator, ChatColor color) {
+			this(indicator, color, 20);
+		}
+
+		public ProgressBar(String indicator) {
+			this(indicator, ChatColor.GREEN);
+		}
+
+		public void setMax(int max) {
+			this.max = max;
+		}
+
+		public int getMax() {
+			return max;
+		}
+
+		public String build(int value) {
+			final StringBuilder builder = new StringBuilder();
+			for (int i = 0; i < max; i++) {
+				builder.append(value <= i ? getColor(true) : getColor(false));
+				builder.append(indicator);
+			}
+			return builder.toString();
+		}
+
+		private ChatColor getColor(boolean primary) {
+			return colors[primary ? 0 : 1];
+		}
+
+		@Override
+		public String build() {
+			return build(0);
+		}
+	}
+
+
 	public static <E> List<String> collectionToStringList(Collection<E> e, java.util.function.Function<E, String> fn) {
 		final List<String> list = new ArrayList<>();
 		e.forEach(el -> list.add(fn.apply(el)));

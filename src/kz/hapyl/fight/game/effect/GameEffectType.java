@@ -15,6 +15,7 @@ public enum GameEffectType {
 	IMMOVABLE(new Immovable()),
 	INVISIBILITY(new Invisibility()),
 	RESPAWN_RESISTANCE(new RespawnResistance()),
+	RIPTIDE(new Riptide()),
 
 	;
 

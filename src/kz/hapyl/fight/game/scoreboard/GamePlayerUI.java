@@ -1,8 +1,8 @@
 package kz.hapyl.fight.game.scoreboard;
 
 import kz.hapyl.fight.Main;
+import kz.hapyl.fight.game.AbstractGameInstance;
 import kz.hapyl.fight.game.AbstractGamePlayer;
-import kz.hapyl.fight.game.GameInstance;
 import kz.hapyl.fight.game.GamePlayer;
 import kz.hapyl.fight.game.Manager;
 import kz.hapyl.fight.game.database.Database;
@@ -156,7 +156,7 @@ public class GamePlayerUI {
 		);
 
 		if (current.isGameInProgress()) {
-			final GameInstance game = current.getCurrentGame();
+			final AbstractGameInstance game = current.getCurrentGame();
 			final AbstractGamePlayer gamePlayer = GamePlayer.getPlayer(this.player);
 			this.builder.addLines(
 					"&6&lGame: &8" + game.hexCode(),

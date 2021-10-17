@@ -53,7 +53,7 @@ public class Tamer extends Hero implements Listener {
 
 		this.setWeapon(new Weapon(Material.FISHING_ROD)
 				.setName("Lash")
-				.setLore("An old lash used to train beasts and monsters.")
+				.setInfo("An old lash used to train beasts and monsters.")
 				.setId("tamer_weapon")
 				.setDamage(2.0d));
 

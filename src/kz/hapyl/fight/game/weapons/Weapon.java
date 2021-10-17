@@ -2,7 +2,6 @@ package kz.hapyl.fight.game.weapons;
 
 import kz.hapyl.fight.game.Response;
 import kz.hapyl.fight.util.Utils;
-import kz.hapyl.spigotutils.module.chat.Chat;
 import kz.hapyl.spigotutils.module.inventory.ItemBuilder;
 import kz.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.ChatColor;
@@ -47,11 +46,11 @@ public class Weapon implements Cloneable {
 		return this;
 	}
 
-	public Weapon setLore(String lore, Object... replacements) {
-		return setLore(lore.formatted(replacements));
+	public Weapon setInfo(String info, Object... replacements) {
+		return setInfo(info.formatted(replacements));
 	}
 
-	public Weapon setLore(String lore) {
+	public Weapon setInfo(String lore) {
 		this.lore = lore;
 		return this;
 	}
@@ -125,7 +124,7 @@ public class Weapon implements Cloneable {
 			builder.addClickEvent(player -> {
 				final Response response = Utils.playerCanUseAbility(player);
 				if (response.isError()) {
-					Chat.sendMessage(player, "&cUnable to use! " + response.getReason());
+					response.sendError(player);
 					return;
 				}
 				onRightClick(player, player.getInventory().getItemInMainHand());
@@ -133,7 +132,7 @@ public class Weapon implements Cloneable {
 			builder.addClickEvent(player -> {
 				final Response response = Utils.playerCanUseAbility(player);
 				if (response.isError()) {
-					Chat.sendMessage(player, "&cUnable to use! " + response.getReason());
+					response.sendError(player);
 					return;
 				}
 				onLeftClick(player, player.getInventory().getItemInMainHand());
@@ -169,7 +168,7 @@ public class Weapon implements Cloneable {
 	public Weapon clone() {
 		try {
 			super.clone();
-			return new Weapon(this.material).setName(this.name).setLore(this.lore).setDamage(this.damage).setId(this.id);
+			return new Weapon(this.material).setName(this.name).setInfo(this.lore).setDamage(this.damage).setId(this.id);
 		}
 		catch (Exception ignored) {
 		}

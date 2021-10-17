@@ -37,7 +37,7 @@ public class Pytaria extends Hero {
 		this.setItem(Material.POPPY);
 		this.setInfo("Beautiful, but deadly opponent with addiction to flowers. She suffered all her youth, which at the end, made her only stronger.");
 
-		this.setWeapon(new Weapon(Material.ALLIUM).setName("Annihilallium").setDamage(5.0).setLore("A beautiful flower, nothing more."));
+		this.setWeapon(new Weapon(Material.ALLIUM).setName("Annihilallium").setDamage(5.0).setInfo("A beautiful flower, nothing more."));
 
 		final ClassEquipment equipment = this.getEquipment();
 		equipment.setHelmet(

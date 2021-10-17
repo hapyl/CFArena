@@ -12,8 +12,8 @@ public class UltimateTalent extends Talent {
 	private float pitch;
 	private int duration;
 
-	public UltimateTalent(String name, String description, int pointCost) {
-		super(name, description, Type.ULTIMATE);
+	public UltimateTalent(String name, String info, int pointCost) {
+		super(name, info, Type.ULTIMATE);
 		this.cost = pointCost;
 		this.sound = Sound.ENTITY_ENDER_DRAGON_GROWL;
 		this.pitch = 2.0f;

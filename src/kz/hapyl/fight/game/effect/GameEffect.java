@@ -60,10 +60,14 @@ public abstract class GameEffect {
 
 
 	public void displayParticles(Location location, Player ignore) {
-		if (effectParticle == null) {
+		displayParticles(location, ignore, this.effectParticle);
+	}
+
+	public void displayParticles(Location location, Player ignore, EffectParticle particle) {
+		if (particle == null) {
 			return;
 		}
-		effectParticle.display(location, ignore);
+		particle.display(location, ignore);
 	}
 
 }

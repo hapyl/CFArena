@@ -87,7 +87,7 @@ public class Vortex extends Hero {
 			}
 		}.setName("Sword of Thousands Stars")
 				.setId("sots_weapon")
-				.setLore(
+				.setInfo(
 						"A sword with ability to summon thousands stars that follows your crosshair! These stars rapidly hit and knock opponents back."
 				)
 				.setDamage(8.0d));

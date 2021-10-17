@@ -23,7 +23,7 @@ public class AbstractGamePlayer {
 	}
 
 	public boolean isSpectator() {
-		return true;
+		return false;
 	}
 
 	public boolean isAlive() {
@@ -119,4 +119,8 @@ public class AbstractGamePlayer {
 	public void sendActionbar(String text, Object... objects) {
 	}
 
+	@Override
+	public String toString() {
+		return "AbstractGamePlayer{}";
+	}
 }

@@ -56,7 +56,7 @@ public class Shark extends Hero implements Listener {
 
 		setWeapon(new Weapon(Material.QUARTZ)
 				.setName("Claws")
-				.setLore("Using one's claws is the better idea than using a stick, don't you think so?")
+				.setInfo("Using one's claws is the better idea than using a stick, don't you think so?")
 				.setDamage(7.0d));
 
 		setUltimate(new UltimateTalent(

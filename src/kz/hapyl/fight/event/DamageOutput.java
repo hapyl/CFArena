@@ -4,6 +4,7 @@ public class DamageOutput {
 
 	private boolean cancelDamage;
 	private double damage; // not an additional damage, override damage
+	private String[] extraDisplayStrings;
 
 	public DamageOutput() {
 		this(0.0d, false);
@@ -20,6 +21,19 @@ public class DamageOutput {
 	public DamageOutput(double damage, boolean cancelEvent) {
 		this.damage = damage;
 		this.cancelDamage = cancelEvent;
+		this.extraDisplayStrings = null;
+	}
+
+	public String[] getExtraDisplayStrings() {
+		return extraDisplayStrings;
+	}
+
+	public boolean hasExtraDisplayStrings() {
+		return extraDisplayStrings != null;
+	}
+
+	public void addExtraDisplayStrings(String... strings) {
+		this.extraDisplayStrings = strings;
 	}
 
 	public DamageOutput setCancelDamage(boolean cancelDamage) {

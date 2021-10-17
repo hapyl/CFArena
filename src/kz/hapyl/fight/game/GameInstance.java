@@ -27,7 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Predicate;
 
-public class GameInstance implements GameElement {
+public class GameInstance extends AbstractGameInstance implements GameElement {
 
 	private final String hexCode;
 
@@ -37,6 +37,7 @@ public class GameInstance implements GameElement {
 	private final Set<GamePlayer> winners;
 	private final GameMaps currentMap;
 	private final GameTask gameTask;
+	private final Modes mode;
 
 	private State gameState;
 
@@ -57,10 +58,12 @@ public class GameInstance implements GameElement {
 
 	}
 
+	@Override
 	public void setGameState(State gameState) {
 		this.gameState = gameState;
 	}
 
+	@Override
 	public State getGameState() {
 		return gameState;
 	}
@@ -86,6 +89,7 @@ public class GameInstance implements GameElement {
 	}
 
 
+	@Override
 	public void calculateEverything() {
 		final String gameDuration = new SimpleDateFormat("mm:ss").format(System.currentTimeMillis() - this.startedAt);
 
@@ -147,6 +151,7 @@ public class GameInstance implements GameElement {
 		return location;
 	}
 
+	@Override
 	public void spawnFireworks(boolean flag) {
 		final Location location = getFireworkSpawnLocation();
 		final Set<Firework> fireworks = new HashSet<>();
@@ -211,6 +216,7 @@ public class GameInstance implements GameElement {
 		return Color.fromRGB(new Random().nextInt(255), new Random().nextInt(255), new Random().nextInt(255));
 	}
 
+	@Override
 	public String formatWinnerName(GamePlayer gp) {
 		final Player player = gp.getPlayer();
 		final StatContainer stats = gp.getStats();
@@ -225,40 +231,49 @@ public class GameInstance implements GameElement {
 		);
 	}
 
+	@Override
 	public long getTimeLeftRaw() {
 		return (timeLimit - (System.currentTimeMillis() - startedAt));
 	}
 
+	@Override
 	public long getTimeLeft() {
 		return getTimeLeftRaw() / 50;
 	}
 
+	@Override
 	public boolean isTimeIsUp() {
 		return System.currentTimeMillis() >= startedAt + timeLimit;
 	}
 
+	@Override
 	@Nullable
 	public GamePlayer getPlayer(Player player) {
 		return getPlayer(player.getUniqueId());
 	}
 
+	@Override
 	@Nullable
 	public GamePlayer getPlayer(UUID uuid) {
 		return players.get(uuid);
 	}
 
+	@Override
 	public Map<UUID, GamePlayer> getPlayers() {
 		return players;
 	}
 
+	@Override
 	public List<GamePlayer> getAlivePlayers(Heroes heroes) {
 		return getAlivePlayers(gp -> gp.getHero() == heroes.getHero());
 	}
 
+	@Override
 	public List<GamePlayer> getAlivePlayers() {
 		return getAlivePlayers(gp -> gp.getPlayer().isOnline());
 	}
 
+	@Override
 	public List<GamePlayer> getAlivePlayers(Predicate<GamePlayer> predicate) {
 		final List<GamePlayer> players = new ArrayList<>();
 		this.players.forEach((uuid, gp) -> {
@@ -283,34 +298,31 @@ public class GameInstance implements GameElement {
 		});
 	}
 
-	private final Modes mode;
 
 	// TODO: 018. 09/18/2021 -> impl modes
 	// TODO: 018. 09/18/2021 -> impl teams
+	@Override
 	public void checkWinCondition() {
 		if (gameState == State.POST_GAME) {
 			return;
 		}
 
 		if (mode.testWinCondition(this)) {
-			// if returns false means mode will add their own winners
-			final boolean response = mode.onStop(this);
-			if (!response) {
-				winners.addAll(getAlivePlayers());
-			}
-
 			Manager.current().stopCurrentGame();
 		}
 	}
 
+	@Override
 	public CFGameMode getMode() {
 		return mode.getMode();
 	}
 
+	@Override
 	public Modes getCurrentMode() {
 		return mode;
 	}
 
+	@Override
 	public boolean isWinner(Player player) {
 		if (winners.isEmpty()) {
 			return false;
@@ -398,14 +410,17 @@ public class GameInstance implements GameElement {
 		}.runTaskTimer(0, 1);
 	}
 
+	@Override
 	public Set<GamePlayer> getWinners() {
 		return winners;
 	}
 
+	@Override
 	public GameMaps getCurrentMap() {
 		return currentMap;
 	}
 
+	@Override
 	public GameTask getGameTask() {
 		return gameTask;
 	}

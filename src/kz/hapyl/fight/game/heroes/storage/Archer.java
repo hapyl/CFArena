@@ -36,7 +36,7 @@ public class Archer extends Hero implements Listener {
 		this.setItem(Material.BOW);
 		this.setWeapon(new Weapon(Material.BOW)
 				.setName("Harbinger")
-				.setLore("A custom-made bow with some unique abilities!")
+				.setInfo("A custom-made bow with some unique abilities!")
 				.setDamage(8.0d));
 
 		final ClassEquipment eq = this.getEquipment();

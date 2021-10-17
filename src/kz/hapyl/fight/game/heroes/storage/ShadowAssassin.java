@@ -53,7 +53,7 @@ public class ShadowAssassin extends Hero implements Listener {
 
 		this.setWeapon(new Weapon(Material.IRON_SWORD)
 				.setName("Livid Dagger")
-				.setLore(
+				.setInfo(
 						String.format(
 								"A dagger filled with bad memories.__&e&lBACKSTAB &7to perform a charged attack that knows enemies and stuns them for a short time.__&9Cooldown: &l%ss",
 								BukkitUtils.roundTick(backstabCd)

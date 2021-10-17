@@ -48,7 +48,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
 		this.setWeapon(new Weapon(Material.STICK).addEnchant(Enchantment.KNOCKBACK, 1)
 				.setName("Stick")
 				.setDamage(5.0d)
-				.setLore("Turns out that a stick used in brewing can also be used in battle."));
+				.setInfo("Turns out that a stick used in brewing can also be used in battle."));
 
 		final ClassEquipment equipment = this.getEquipment();
 		equipment.setHelmet(Material.IRON_HELMET);

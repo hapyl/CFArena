@@ -15,8 +15,8 @@ import java.util.Map;
 
 // FIXME: 009. 10/09/2021 - Maybe a little rework on how the system works.
 //  1. Start each cooldown after previous is complete, not whenever is used.
-//  2. Add a way to start cooldown upon whenever called, not ability use. (Blast Packs)
-//  3. Make it clearer about the cooldowns, since blast packs has charcoal whenever it can be still exploded. (#2 should maybe fix this)
+//  2. [x] Add a way to start cooldown upon whenever called, not ability use. (Blast Packs)
+//  3. [x] Make it clearer about the cooldowns, since blast packs has charcoal whenever it can be still exploded. (#2 should maybe fix this)
 public class ChargedTalent extends Talent {
 
 	private final ItemStack noChargesItem = new ItemBuilder(Material.CHARCOAL)
@@ -71,12 +71,17 @@ public class ChargedTalent extends Talent {
 		}
 
 		final int amount = item.getAmount();
-		if (amount == 1) {
+
+		// if recharge time is -1 = ability does not recharge
+		if (amount == 1 && getRechargeTime() >= 0) {
 			player.setCooldown(noChargesItem.getType(), getRechargeTime());
 			inventory.setItem(slot, noChargesItem);
 		}
 		else {
 			item.setAmount(amount - 1);
+			if (getRechargeTime() <= -1) {
+				return;
+			}
 		}
 
 		// give item back

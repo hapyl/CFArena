@@ -163,7 +163,7 @@ public class Main extends JavaPlugin {
 		processor.registerCommand(new GameEffectCommand("gameEffect"));
 		processor.registerCommand(new MapCommand("map"));
 		processor.registerCommand(new ModeCommand("mode"));
-		processor.registerCommand(new AdminCommand("cfa"));
+		processor.registerCommand(new AdminCommand("admin"));
 		processor.registerCommand(new DebugBooster("debugBooster"));
 
 		processor.registerCommand(new SimplePlayerAdminCommand("riptide") {

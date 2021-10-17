@@ -52,7 +52,7 @@ public class Hercules extends Hero implements Listener, PlayerElement {
 		eq.setBoots(Material.LEATHER_BOOTS);
 
 		this.setWeapon(new Weapon(Material.TRIDENT).setName("Gorynych")
-				.setLore("A loyal trident which will return to you no matter what!____&e&lTHROW &7the trident to deal range damage.")
+				.setInfo("A loyal trident which will return to you no matter what!____&e&lTHROW &7the trident to deal range damage.")
 				.setDamage(10)
 				.addEnchant(Enchantment.LOYALTY, 3));
 

@@ -29,7 +29,7 @@ public class Nightmare extends Hero implements Listener {
 
 		this.setWeapon(new Weapon(Material.NETHERITE_SWORD)
 				.setName("Omen")
-				.setLore("A sword that is capable of splitting dreams in half.")
+				.setInfo("A sword that is capable of splitting dreams in half.")
 				.setDamage(7.0d));
 
 		final ClassEquipment eq = this.getEquipment();

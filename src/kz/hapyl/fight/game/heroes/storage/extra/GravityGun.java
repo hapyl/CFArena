@@ -23,7 +23,7 @@ public class GravityGun extends Weapon {
 		this.setDamage(0.0d);
 		this.setId("dr_ed_gun");
 		this.setName("Dr. Ed's Gravity Energy Capacitor Mk. 3");
-		this.setLore("A tool that is capable of absorbing blocks elements.____&e&lRIGHT CLICK &7a block to harvest element from it.____&e&lRIGHT CLICK &7again with element equipped to launch it forward, damaging up to &bone &7opponents on it's way. The damage and cooldown is scaled based on the element.");
+		this.setInfo("A tool that is capable of absorbing blocks elements.____&e&lRIGHT CLICK &7a block to harvest element from it.____&e&lRIGHT CLICK &7again with element equipped to launch it forward, damaging up to &bone &7opponents on it's way. The damage and cooldown is scaled based on the element.");
 		GameTask.scheduleCancelTask(() -> {
 			elements.values().forEach(Element::remove);
 			elements.clear();

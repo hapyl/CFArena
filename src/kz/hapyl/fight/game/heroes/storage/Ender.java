@@ -82,7 +82,7 @@ public class Ender extends Hero implements Listener {
 
 				// Initiate
 				final Block block = player.getTargetBlockExact(25);
-				if (block == null) {
+				if (block == null || block.getType() == Material.BARRIER) {
 					Chat.sendMessage(player, "&cNo valid block in sight!");
 					PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
 					return;
@@ -146,7 +146,7 @@ public class Ender extends Hero implements Listener {
 
 		}.setName("Fist")
 				.setId("ender_weapon")
-				.setLore(
+				.setInfo(
 						"Just a normal sized fist.__&e&lRIGHT CLICK &7to initiate teleport to the target block. &e&lRIGHT CLICK &7again to cancel.____&9Cooldown: &l%ss",
 						BukkitUtils.roundTick(portKeyCooldown)
 				)

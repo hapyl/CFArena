@@ -1,5 +1,6 @@
 package kz.hapyl.fight.game.gamemode.modes;
 
+import kz.hapyl.fight.game.AbstractGameInstance;
 import kz.hapyl.fight.game.GameInstance;
 import kz.hapyl.fight.game.GamePlayer;
 import kz.hapyl.fight.game.StatContainer;
@@ -31,7 +32,7 @@ public class Deathmatch extends CFGameMode {
 		return false;
 	}
 
-	public final TreeMap<Long, GamePlayer> getTopKills(@Nonnull GameInstance instance, int limit) {
+	public final TreeMap<Long, GamePlayer> getTopKills(@Nonnull AbstractGameInstance instance, int limit) {
 		final TreeMap<Long, GamePlayer> players = new TreeMap<>();
 		instance.getPlayers().values().forEach(player -> {
 			players.put(player.getStats().getValue(StatContainer.Type.KILLS), player);

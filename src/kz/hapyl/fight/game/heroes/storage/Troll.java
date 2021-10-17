@@ -38,7 +38,7 @@ public class Troll extends Hero {
 		equipment.setBoots(255, 204, 84);
 
 		this.setWeapon(new Weapon(Material.STICK).setName("Stickonator")
-				.setLore("- What's brown and sticky?__- What?__- A stick!__- ...")
+				.setInfo("- What's brown and sticky?__- What?__- A stick!__- ...")
 				.setDamage(4.0)
 				.addEnchant(Enchantment.KNOCKBACK, 1));
 

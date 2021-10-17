@@ -65,7 +65,7 @@ public class Freazly extends Hero {
 				.setParticleTick(new PackedParticle(Particle.SNOWBALL, 1, 0.0d, 0.0d, 0.0d, 0.0f))
 				.setParticleHit(new PackedParticle(Particle.SNOWFLAKE, 5, 0.0d, 0.0d, 0.0d, 0.05f))
 				.setName("Snowball Cannon")
-				.setLore("Shoots a beam of freezing energy, damage and slowing enemies upon hit. Pierce through ice blocks.")
+				.setInfo("Shoots a beam of freezing energy, damage and slowing enemies upon hit. Pierce through ice blocks.")
 				.setDamage(7.5d));
 
 

@@ -60,7 +60,7 @@ public class Moonwalker extends Hero implements PlayerElement {
 				player.setCooldown(Material.BOW, 20);
 			}
 		}.setName("Stinger")
-				.setLore(
+				.setInfo(
 						"A unique bow made of unknown materials, seems to have two firing modes.__&e&lLEFT &e&lCLICK &7to fire quick arrow that deals 50% of normal damage."
 				)
 				.setDamage(7.0)

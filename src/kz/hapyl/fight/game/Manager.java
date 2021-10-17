@@ -28,6 +28,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
+import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -68,17 +69,20 @@ public class Manager {
 		return gameInstance != null && !gameInstance.isTimeIsUp();
 	}
 
+	/**
+	 * @return game instance is present.
+	 */
 	@Nullable
-	public GameInstance getGameInstance() {
+	public GameInstance getGameInstance() throws RuntimeException {
 		return gameInstance;
 	}
 
-	public GameInstance getCurrentGame() throws RuntimeException {
-		final GameInstance gameInstance = getGameInstance();
-		if (gameInstance == null) {
-			throw new IllegalStateException("Game Instance called outside a game.");
-		}
-		return gameInstance;
+	/**
+	 * @return game instance is present, else abstract version.
+	 */
+	@Nonnull
+	public AbstractGameInstance getCurrentGame() {
+		return gameInstance == null ? AbstractGameInstance.NULL_GAME_INSTANCE : gameInstance;
 	}
 
 	public GameMaps getCurrentMap() {
@@ -195,7 +199,14 @@ public class Manager {
 			return;
 		}
 
-		this.gameInstance.calculateEverything();
+		// Call mode onStop to clear player and assign winners
+		final boolean response = gameInstance.getMode().onStop(this.gameInstance);
+
+		if (!response) { // if returns false means mode will add their own winners
+			gameInstance.getWinners().addAll(gameInstance.getAlivePlayers());
+		}
+
+		gameInstance.calculateEverything();
 
 		// Reset player before clearing the instance
 		this.gameInstance.getPlayers().values().forEach(player -> {
@@ -278,6 +289,10 @@ public class Manager {
 		final PlayerInventory inventory = player.getInventory();
 		final Talent talent = getTalent(hero, slot);
 		final ItemStack talentItem = talent == null || talent.getItem() == null ? new ItemStack(Material.AIR) : talent.getItem();
+
+		if (talent != null && !talent.isAutoAdd()) {
+			return;
+		}
 
 		inventory.setItem(slot, talentItem);
 		fixTalentItemAmount(player, slot, talent);

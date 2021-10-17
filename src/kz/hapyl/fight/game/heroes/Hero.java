@@ -132,6 +132,11 @@ public abstract class Hero implements GameElement, PlayerElement {
 		this.guiTexture = ItemBuilder.playerHead(texture).hideFlags().build();
 	}
 
+	/**
+	 * Unleashes hero's ultimate.
+	 */
+	public abstract void useUltimate(Player player);
+
 	public abstract Talent getFirstTalent();
 
 	public abstract Talent getSecondTalent();
@@ -158,11 +163,6 @@ public abstract class Hero implements GameElement, PlayerElement {
 	public boolean predicateUltimate(Player player) {
 		return true;
 	}
-
-	/**
-	 * Unleashes hero's ultimate.
-	 */
-	public abstract void useUltimate(Player player);
 
 	public void onDeath(Player player) {
 	}

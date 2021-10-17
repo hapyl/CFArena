@@ -48,7 +48,7 @@ public class GamePlayer extends AbstractGamePlayer {
 
 	private double health;
 	private LivingEntity lastDamager;
-	private EnumDamageCause lastDamageCause = EnumDamageCause.ENTITY_ATTACK;
+	private EnumDamageCause lastDamageCause = null;
 
 	private final StatContainer stats;
 	private final Database database;
@@ -75,6 +75,51 @@ public class GamePlayer extends AbstractGamePlayer {
 		this.stats = new StatContainer(player);
 		this.database = Database.getDatabase(player);
 		this.resetPlayer();
+	}
+
+	public void resetPlayer(Ignore... ignores) {
+		if (isNotIgnored(ignores, Ignore.DAMAGER)) {
+			lastDamager = null;
+		}
+		if (isNotIgnored(ignores, Ignore.DAMAGE_CAUSE)) {
+			lastDamageCause = null;
+		}
+
+		setHealth(getMaxHealth());
+		player.getInventory().clear();
+		player.setMaxHealth(40.0d);
+		player.setHealth(40.0d);
+		player.setFireTicks(0);
+		player.setVisualFire(false);
+		player.setFlying(false);
+		player.setSaturation(0.0f);
+		player.setFoodLevel(20);
+		player.setInvulnerable(false);
+		player.getActivePotionEffects().forEach(effect -> player.removePotionEffect(effect.getType()));
+
+		if (isNotIgnored(ignores, Ignore.GAMEMODE)) {
+			player.setGameMode(GameMode.SURVIVAL);
+		}
+
+		// reset all cooldowns as well
+		if (isNotIgnored(ignores, Ignore.COOLDOWNS)) {
+			for (final Material value : Material.values()) {
+				if (player.hasCooldown(value)) {
+					player.setCooldown(value, 0);
+				}
+			}
+		}
+
+
+	}
+
+	private boolean isNotIgnored(Ignore[] ignores, Ignore target) {
+		for (final Ignore ignore : ignores) {
+			if (ignore == target) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public void resetPlayer() {
@@ -160,18 +205,18 @@ public class GamePlayer extends AbstractGamePlayer {
 	}
 
 	@Override
+	public void setHealth(double health) {
+		this.health = health;
+		this.updateHealth();
+	}
+
+	@Override
 	public void damage(double d) {
 		damage(d, null, null);
 	}
 
 	public void damage(double d, EnumDamageCause cause) {
 		damage(d, null, cause);
-	}
-
-	@Override
-	public void setHealth(double health) {
-		this.health = health;
-		this.updateHealth();
 	}
 
 	public void damage(double damage, @Nullable LivingEntity damager, @Nullable EnumDamageCause cause) {
@@ -241,15 +286,11 @@ public class GamePlayer extends AbstractGamePlayer {
 		}
 
 		populateTeam(team);
-
 	}
 
 
 	private void showHealth() {
-		final GameInstance game = Manager.current().getCurrentGame();
-		if (game == null) {
-			return; // ?
-		}
+		final AbstractGameInstance game = Manager.current().getCurrentGame();
 
 		// Create player teams
 		game.getAlivePlayers().forEach(other -> {
@@ -320,17 +361,16 @@ public class GamePlayer extends AbstractGamePlayer {
 		this.isDead = true;
 		this.isSpectator = false;
 
+		this.resetPlayer(Ignore.DAMAGE_CAUSE, Ignore.DAMAGER);
+		player.setGameMode(GameMode.SPECTATOR);
+
 		PlayerLib.playSound(player, Sound.ENTITY_BLAZE_DEATH, 2.0f);
 		Chat.sendTitle(player, "&c&lYOU DIED", "", 5, 25, 10);
 
 		this.getHero().onDeath(player);
 		executeTalentsOnDeath();
 
-		this.resetPlayer();
-		player.setGameMode(GameMode.SPECTATOR);
-
 		// Award killer coins for kill
-		// FIXME: 002. 10/02/2021 - doesn't work?
 		if (lastDamager != null) {
 			Player killer = null;
 			if (lastDamager instanceof Player) {
@@ -355,6 +395,10 @@ public class GamePlayer extends AbstractGamePlayer {
 
 		stats.addValue(StatContainer.Type.DEATHS, 1);
 
+		// broadcast death
+		final String deathMessage = new Gradient(concat("☠ %s ".formatted(player.getName()), getRandomDeathMessage(), lastDamager))
+				.rgb(new Color(160, 0, 0), new Color(255, 51, 51), Interpolators.LINEAR);
+
 		// send death info to manager
 		final GameInstance gameInstance = Manager.current().getGameInstance();
 		if (gameInstance != null) {
@@ -362,23 +406,15 @@ public class GamePlayer extends AbstractGamePlayer {
 			gameInstance.checkWinCondition();
 		}
 
-		// broadcast death
-		final String deathMessage = new Gradient(concat("☠ %s ".formatted(player.getName()), getRandomDeathMessage(), lastDamager)).rgb(
-				new Color(160, 0, 0),
-				new Color(255, 51, 51),
-				Interpolators.LINEAR
-		);
-
 		Chat.broadcast(deathMessage);
-
 	}
 
 	public EnumDamageCause.DeathMessage getRandomDeathMessage() {
-		final EnumDamageCause cause = getLastDamageCause();
-		return cause == null ? EnumDamageCause.ENTITY_ATTACK.getRandomIfMultiple() : cause.getRandomIfMultiple();
+		return getLastDamageCause().getRandomIfMultiple();
 	}
 
 	@Override
+	@Nonnull
 	public EnumDamageCause getLastDamageCause() {
 		return lastDamageCause == null ? EnumDamageCause.ENTITY_ATTACK : lastDamageCause;
 	}
@@ -565,6 +601,28 @@ public class GamePlayer extends AbstractGamePlayer {
 		else {
 			entity.damage(damage, damager);
 		}
+	}
+
+	@Override
+	public String toString() {
+		final StringBuffer sb = new StringBuffer("GamePlayer{");
+		sb.append("player=").append(player);
+		sb.append(", hero=").append(hero);
+		sb.append(", health=").append(health);
+		sb.append(", isDead=").append(isDead);
+		sb.append(", isSpectator=").append(isSpectator);
+		sb.append(", ultPoints=").append(ultPoints);
+		sb.append('}');
+		return sb.toString();
+	}
+
+	public enum Ignore {
+
+		GAMEMODE,
+		DAMAGER,
+		DAMAGE_CAUSE,
+		COOLDOWNS
+
 	}
 
 }

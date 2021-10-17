@@ -1,5 +1,8 @@
 package kz.hapyl.fight.game;
 
+import kz.hapyl.spigotutils.module.chat.Chat;
+import org.bukkit.entity.Player;
+
 import javax.annotation.Nullable;
 
 public class Response {
@@ -22,7 +25,7 @@ public class Response {
 	}
 
 	@Nullable
-	public String getReason() {
+	protected String getReason() {
 		return reason;
 	}
 
@@ -36,6 +39,12 @@ public class Response {
 
 	public boolean isAwait() {
 		return this.type == Type.AWAIT;
+	}
+
+	public void sendError(Player player) {
+		if (this.isError() && getReason() != null) {
+			Chat.sendMessage(player, "&cCannot use this! &l" + getReason());
+		}
 	}
 
 	public enum Type {

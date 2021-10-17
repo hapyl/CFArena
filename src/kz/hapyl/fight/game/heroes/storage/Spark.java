@@ -57,7 +57,7 @@ public class Spark extends Hero implements PlayerElement {
 				.setParticleTick(new PackedParticle(Particle.FLAME).setSpeed(0.001f))
 				.setDamage(8.0d)
 				.setName("Fire Sprayer")
-				.setLore("A long range weapon that shoots fire lasers! How cool is that..."));
+				.setInfo("A long range weapon that shoots fire lasers! How cool is that..."));
 
 		this.setUltimate(new UltimateTalent(
 				"Run it Back",

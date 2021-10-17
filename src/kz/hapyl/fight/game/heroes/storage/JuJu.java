@@ -56,7 +56,7 @@ public class JuJu extends Hero implements Listener {
 
 		this.setWeapon(new Weapon(Material.BOW)
 				.setName("Twisted")
-				.setLore("A bow made of anything you can find in the middle of the jungle.")
+				.setInfo("A bow made of anything you can find in the middle of the jungle.")
 				.setDamage(8.0d));
 
 		this.setUltimate(new UltimateTalent(

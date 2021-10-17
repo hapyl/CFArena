@@ -29,12 +29,12 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-import java.util.Locale;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class PlayerEvent implements Listener {
@@ -286,6 +286,7 @@ public class PlayerEvent implements Listener {
 		}
 
 		// Process damager and victims hero damage processors
+		final List<String> extraStrings = new ArrayList<>();
 
 		// victim
 		boolean cancelEvent = false;
@@ -294,6 +295,9 @@ public class PlayerEvent implements Listener {
 			if (output != null) {
 				damage = output.getDamage();
 				cancelEvent = output.isCancelDamage();
+				if (output.hasExtraDisplayStrings()) {
+					extraStrings.addAll(Arrays.stream(output.getExtraDisplayStrings()).toList());
+				}
 			}
 		}
 
@@ -304,6 +308,9 @@ public class PlayerEvent implements Listener {
 				damage = output.getDamage();
 				if (!cancelEvent) {
 					cancelEvent = output.isCancelDamage();
+					if (output.hasExtraDisplayStrings()) {
+						extraStrings.addAll(Arrays.stream(output.getExtraDisplayStrings()).toList());
+					}
 				}
 			}
 		}
@@ -328,7 +335,12 @@ public class PlayerEvent implements Listener {
 
 		// display damage
 		if (damage > 1.0d) {
-			new DamageIndicator(entity.getLocation(), damage, randomPoint);
+			final DamageIndicator damageIndicator = new DamageIndicator(entity.getLocation(), damage, randomPoint);
+			if (!extraStrings.isEmpty()) {
+				damageIndicator.setExtra(extraStrings);
+			}
+
+			damageIndicator.display(20);
 		}
 
 		// make sure not to kill player but instead put them in spectator
@@ -336,10 +348,11 @@ public class PlayerEvent implements Listener {
 			final GamePlayer gamePlayer = GamePlayer.getAlivePlayer(player);
 			// if game player is null means the game is not in progress
 			if (gamePlayer != null) {
+				final double health = gamePlayer.getHealth();
 				gamePlayer.decreaseHealth(damage, damagerFinal);
 
 				// cancel even if player died so there is no real death
-				if (damage >= gamePlayer.getHealth()) {
+				if (damage >= health) {
 					ev.setCancelled(true);
 					return;
 				}
@@ -411,18 +424,30 @@ public class PlayerEvent implements Listener {
 
 		final Player player = ev.getPlayer();
 		final Hero hero = Manager.current().getSelectedHero(player).getHero();
+		final PlayerInventory inventory = player.getInventory();
 
 		// don't care if talent is null, either not a talent or not complete
-		if (Manager.current().getTalent(hero, newSlot) == null) {
+		// null or air item means this skill should be ignored for now (not active)
+		final Talent talent = Manager.current().getTalent(hero, newSlot);
+		final ItemStack itemOnNewSlot = inventory.getItem(newSlot);
+
+		if (talent == null || !(isValidItem(talent, itemOnNewSlot))) {
 			return;
 		}
 
 		// Execute talent
-		checkAndExecuteTalent(player, Manager.current().getTalent(hero, newSlot), newSlot);
+		checkAndExecuteTalent(player, talent, newSlot);
 
 		ev.setCancelled(true);
-		player.getInventory().setHeldItemSlot(0);
+		inventory.setHeldItemSlot(0);
 
+	}
+
+	private boolean isValidItem(Talent talent, ItemStack stack) {
+		if (stack == null || stack.getType().isAir()) {
+			return false;
+		}
+		return talent.getMaterial() == stack.getType();
 	}
 
 	@EventHandler(ignoreCancelled = true)
@@ -520,7 +545,7 @@ public class PlayerEvent implements Listener {
 		final Response response = talent.execute0(player);
 
 		if (response.isError()) {
-			Chat.sendMessage(player, "&cCannot use this! &l" + response.getReason());
+			response.sendError(player);
 			return;
 		}
 
