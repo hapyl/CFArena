@@ -39,7 +39,6 @@ public class LibraryFeature extends MapFeature implements Listener {
 
 	@Override
 	public void onStart() {
-		// todo -> void cat
 		new GameTask() {
 			private int tick = 0;
 
@@ -61,6 +60,14 @@ public class LibraryFeature extends MapFeature implements Listener {
 
 			}
 		}.runTaskTimer(5, 5);
+	}
+
+	private void spawnVoidCat() {
+
+	}
+
+	private void killVoidCat() {
+
 	}
 
 	private void removeVoidValue(GamePlayer gamePlayer) {

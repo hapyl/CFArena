@@ -5,6 +5,7 @@ import kz.hapyl.fight.game.talents.Talent;
 import kz.hapyl.fight.game.task.GameTask;
 import kz.hapyl.fight.util.Supplier;
 import kz.hapyl.spigotutils.module.player.PlayerLib;
+import kz.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -16,14 +17,20 @@ import java.util.Map;
 
 public class Climb extends Talent {
 
+	private final int cdDeadLine = 80;
+	private final int cooldown = 160;
 	private final Map<Player, GameTask> tasks = new HashMap<>();
 
 	public Climb() {
-		super(
-				"Climb",
-				"Use the wall you're hugging to climb it and perform back-flip, gaining speed boost. Cooldown of this ability stars upon landing or after &b4s&7.____&9Cooldown: &l8s",
-				Material.LEATHER_BOOTS
+		super("Climb");
+		this.setItem(Material.LEATHER_BOOTS);
+
+		this.setInfo(
+				"Use the wall you're hugging to climb it and perform back-flip, gaining speed boost. Cooldown of this ability stars upon landing or after &b%ss&7.",
+				BukkitUtils.roundTick(cdDeadLine)
 		);
+
+		this.addExtraInfo("Cooldown: &l%ss", BukkitUtils.roundTick(cooldown));
 	}
 
 	@Override
@@ -35,6 +42,7 @@ public class Climb extends Talent {
 	protected Response execute(Player player) {
 		final Location playerLocation = player.getLocation();
 		final Location location = playerLocation.add(playerLocation.getDirection().multiply(1).setY(0.0d));
+
 		if (location.getBlock().getType().isAir()) {
 			return Response.error("Not hugging wall.");
 		}
@@ -61,11 +69,11 @@ public class Climb extends Talent {
 				tasks.remove(player);
 				self.cancel();
 			}
-		}, 1, 80));
+		}, 1, cdDeadLine));
 	}
 
 	private void startCooldown(Player player) {
-		player.setCooldown(this.getItem().getType(), 8 * 20);
+		player.setCooldown(this.getItem().getType(), cooldown);
 	}
 
 }

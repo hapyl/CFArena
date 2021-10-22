@@ -5,6 +5,7 @@ import kz.hapyl.fight.game.heroes.ClassEquipment;
 import kz.hapyl.fight.game.heroes.Hero;
 import kz.hapyl.fight.game.heroes.Heroes;
 import kz.hapyl.fight.game.talents.Talent;
+import kz.hapyl.fight.game.talents.TalentHandle;
 import kz.hapyl.fight.game.talents.Talents;
 import kz.hapyl.fight.game.talents.UltimateTalent;
 import kz.hapyl.fight.game.task.GameTask;
@@ -53,7 +54,8 @@ public class Ender extends Hero implements Listener {
 
 		final ClassEquipment eq = this.getEquipment();
 		eq.setHelmet(
-				"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYWFjYjM1NzcwOWQ4Y2RmMWNkOWM5ZGJlMzEzZTdiYWIzMjc2YWU4NDIzNDk4MmU5M2UxMzgzOWFiN2NjNWQxNiJ9fX0=");
+				"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYWFjYjM1NzcwOWQ4Y2RmMWNkOWM5ZGJlMzEzZTdiYWIzMjc2YWU4NDIzNDk4MmU5M2UxMzgzOWFiN2NjNWQxNiJ9fX0="
+		);
 		eq.setChestplate(85, 0, 102);
 		eq.setLeggings(128, 0, 128);
 		eq.setBoots(136, 0, 204);
@@ -147,7 +149,7 @@ public class Ender extends Hero implements Listener {
 		}.setName("Fist")
 				.setId("ender_weapon")
 				.setInfo(
-						"Just a normal sized fist.__&e&lRIGHT CLICK &7to initiate teleport to the target block. &e&lRIGHT CLICK &7again to cancel.____&9Cooldown: &l%ss",
+						"Just a normal sized fist.__&e&lRIGHT CLICK &7to initiate teleport to the target block. &e&lRIGHT CLICK &7again to cancel.____&aCooldown: &l%ss",
 						BukkitUtils.roundTick(portKeyCooldown)
 				)
 				.setDamage(7.0));
@@ -193,7 +195,7 @@ public class Ender extends Hero implements Listener {
 			final Player owner = beaconLocation.getByValue(stand);
 			stand.remove();
 			beaconLocation.remove(owner);
-			Talents.TRANSMISSION_BEACON.getTalent().startCd(owner, 600);
+			Talents.TRANSMISSION_BEACON.getTalent().startCd(owner, TalentHandle.TRANSMISSION_BEACON.getDestroyCd());
 
 			// Fx
 			PlayerLib.playSound(stand.getLocation(), Sound.BLOCK_GLASS_BREAK, 0.0f);

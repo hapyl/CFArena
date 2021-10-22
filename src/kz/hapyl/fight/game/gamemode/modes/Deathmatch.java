@@ -11,6 +11,7 @@ import kz.hapyl.spigotutils.module.player.PlayerLib;
 import kz.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
@@ -23,8 +24,9 @@ public class Deathmatch extends CFGameMode {
 
 	public Deathmatch() {
 		super("Deathmatch", 300);
-		this.setInfo("todo");
+		this.setInfo("Free for All deathmatch when everyone is fighting for kills. Player with most kills in time limit wins.");
 		this.setPlayerRequirements(2);
+		this.setMaterial(Material.SKELETON_SKULL);
 	}
 
 	@Override

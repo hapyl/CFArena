@@ -110,12 +110,13 @@ public class Weapon implements Cloneable {
 		builder.addLore("&8Weapon");
 
 		if (this.lore != null) {
-			builder.addLore().addSmartLore(lore);
+			builder.addLore().addSmartLore(lore, 35);
 		}
 
 		if (this instanceof RangeWeapon rangeWeapon) {
 			if (rangeWeapon.getCooldown() > 0) {
-				builder.addLore("&9Reload Time: &l%ss", BukkitUtils.roundTick(rangeWeapon.getCooldown()));
+				builder.addLore();
+				builder.addLore("&aReload Time: &l%ss", BukkitUtils.roundTick(rangeWeapon.getCooldown()));
 			}
 		}
 
@@ -155,6 +156,10 @@ public class Weapon implements Cloneable {
 
 		if (this.material == Material.BOW || this.material == Material.CROSSBOW) {
 			builder.addEnchant(Enchantment.ARROW_INFINITE, 1);
+		}
+
+		if (this.material == Material.TRIDENT) {
+			builder.addEnchant(Enchantment.LOYALTY, 3);
 		}
 
 		builder.hideFlags();

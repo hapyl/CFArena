@@ -14,7 +14,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-// TODO: 009. 10/09/2021 - Implement features
 public class GameMap implements GameElement {
 
 	private final String name;

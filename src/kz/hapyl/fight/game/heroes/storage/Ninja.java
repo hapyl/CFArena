@@ -36,10 +36,9 @@ import org.bukkit.util.Vector;
 public class Ninja extends Hero implements Listener, UIComponent {
 
 	private final double damage = 8.0d;
+	private final double ultimateDamage = 20.0d;
 	private final int stunCd = 200;
 	private final Weapon normalSword = new Weapon(Material.STONE_SWORD).setName("斬馬刀").setDamage(damage / 2.0d);
-
-	private final double ultimateDamage = 20.0d;
 
 	private final ItemStack throwingStar = new ItemBuilder(Material.NETHER_STAR, "THROWING_STAR")
 			.setName("Throwing Star")
@@ -61,7 +60,7 @@ public class Ninja extends Hero implements Listener, UIComponent {
 				.setName("斬馬刀")
 				.setInfo(
 						String.format(
-								"Light but sharp sword that stuns opponents upon charge hit. After using the charge hit, your weapon damage is reduced by &b50%%&7.__&9Cooldown: &l%ss",
+								"Light but sharp sword that stuns opponents upon charge hit. After using the charge hit, your weapon damage is reduced by &b50%%&7.____&aCooldown: &l%ss",
 								BukkitUtils.decimalFormat(ultimateDamage)
 						)
 				).setDamage(damage));

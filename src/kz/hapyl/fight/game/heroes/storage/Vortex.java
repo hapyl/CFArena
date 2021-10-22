@@ -5,24 +5,28 @@ import kz.hapyl.fight.game.GamePlayer;
 import kz.hapyl.fight.game.heroes.ClassEquipment;
 import kz.hapyl.fight.game.heroes.Hero;
 import kz.hapyl.fight.game.talents.Talent;
+import kz.hapyl.fight.game.talents.TalentHandle;
 import kz.hapyl.fight.game.talents.Talents;
 import kz.hapyl.fight.game.talents.UltimateTalent;
 import kz.hapyl.fight.game.task.GameTask;
+import kz.hapyl.fight.game.ui.UIComponent;
 import kz.hapyl.fight.game.weapons.Weapon;
 import kz.hapyl.fight.util.Utils;
 import kz.hapyl.spigotutils.module.math.Geometry;
 import kz.hapyl.spigotutils.module.math.gometry.Quality;
 import kz.hapyl.spigotutils.module.math.gometry.WorldParticle;
 import kz.hapyl.spigotutils.module.player.PlayerLib;
+import kz.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-public class Vortex extends Hero {
+public class Vortex extends Hero implements UIComponent {
 
 	private final double starDamage = 5.0d;
+	private final int sotsCooldown = 800;
 
 	public Vortex() {
 		super("Vortex");
@@ -39,7 +43,6 @@ public class Vortex extends Hero {
 
 		this.setWeapon(new Weapon(Material.STONE_SWORD) {
 
-			private final int cooldown = 800;
 
 			@Override
 			public void onRightClick(Player player, ItemStack item) {
@@ -76,21 +79,26 @@ public class Vortex extends Hero {
 						});
 
 						if (((distanceFlew += distanceShift) >= maxDistance) || nextLocation.getBlock().getType().isOccluding()) {
-							player.setCooldown(Material.STONE_SWORD, cooldown);
+							player.setCooldown(Material.STONE_SWORD, sotsCooldown);
 							this.cancel();
 						}
 
 					}
 				}.runTaskTimer(0, 1);
 
-				player.setCooldown(this.getMaterial(), cooldown);
+				player.setCooldown(this.getMaterial(), sotsCooldown);
 			}
 		}.setName("Sword of Thousands Stars")
 				.setId("sots_weapon")
+				// A sword with ability to summon thousands stars.____&e&lRIGHT CLICK &7to launch vortex energy in front of you, that follows your crosshair and rapidly knocks enemies back upon hit.
 				.setInfo(
-						"A sword with ability to summon thousands stars that follows your crosshair! These stars rapidly hit and knock opponents back."
+						String.format(
+								"A sword with ability to summon thousands stars.____&e&lRIGHT CLICK &7to launch vortex energy in front of you, that follows your crosshair and rapidly knocks enemies back upon hit.____&aCooldown: &l%ss",
+								BukkitUtils.roundTick(sotsCooldown)
+						)
 				)
 				.setDamage(8.0d));
+
 
 		this.setUltimate(new UltimateTalent(
 				"All the Stars",
@@ -209,5 +217,10 @@ public class Vortex extends Hero {
 	@Override
 	public Talent getPassiveTalent() {
 		return Talents.EYES_OF_THE_GALAXY.getTalent();
+	}
+
+	@Override
+	public String getString(Player player) {
+		return "&6⭐ &l" + TalentHandle.VORTEX_STAR.getStarsAmount(player);
 	}
 }

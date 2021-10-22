@@ -9,6 +9,7 @@ import kz.hapyl.fight.game.heroes.Hero;
 import kz.hapyl.fight.game.talents.Talent;
 import kz.hapyl.fight.game.talents.UltimateTalent;
 import kz.hapyl.fight.game.task.GameTask;
+import kz.hapyl.fight.util.Nulls;
 import kz.hapyl.spigotutils.module.annotate.Super;
 import kz.hapyl.spigotutils.module.chat.Chat;
 import kz.hapyl.spigotutils.module.chat.Gradient;
@@ -35,6 +36,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+// TODO: 019. 10/19/2021 - Maybe rework it to be a online player instance instead of only gameInstance
 public class GamePlayer extends AbstractGamePlayer {
 
 	/**
@@ -63,6 +65,7 @@ public class GamePlayer extends AbstractGamePlayer {
 	private boolean isDead;
 	private boolean isSpectator;
 
+	private boolean valid = true; // valid means if game player is being used somewhere, should probably rework how this works
 	private int ultPoints;
 
 	public GamePlayer(Player player, Hero hero) {
@@ -75,6 +78,9 @@ public class GamePlayer extends AbstractGamePlayer {
 		this.stats = new StatContainer(player);
 		this.database = Database.getDatabase(player);
 		this.resetPlayer();
+
+		// supply self to GamePlayerUI
+		Nulls.runIfNotNull(Manager.current().getPlayerUI(player), ui -> ui.supplyGamePlayer(this));
 	}
 
 	public void resetPlayer(Ignore... ignores) {
@@ -110,7 +116,6 @@ public class GamePlayer extends AbstractGamePlayer {
 			}
 		}
 
-
 	}
 
 	private boolean isNotIgnored(Ignore[] ignores, Ignore target) {
@@ -122,6 +127,11 @@ public class GamePlayer extends AbstractGamePlayer {
 		return true;
 	}
 
+	/**
+	 * @see GamePlayer#resetPlayer(Ignore...)
+	 * @deprecated
+	 */
+	@Deprecated
 	public void resetPlayer() {
 		lastDamager = null;
 		lastDamageCause = null;
@@ -614,6 +624,14 @@ public class GamePlayer extends AbstractGamePlayer {
 		sb.append(", ultPoints=").append(ultPoints);
 		sb.append('}');
 		return sb.toString();
+	}
+
+	public void setValid(boolean flag) {
+		valid = flag;
+	}
+
+	public boolean isValid() {
+		return valid;
 	}
 
 	public enum Ignore {

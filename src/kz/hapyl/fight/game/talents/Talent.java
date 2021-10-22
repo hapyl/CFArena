@@ -8,11 +8,14 @@ import kz.hapyl.spigotutils.module.annotate.Super;
 import kz.hapyl.spigotutils.module.chat.Chat;
 import kz.hapyl.spigotutils.module.inventory.ItemBuilder;
 import kz.hapyl.spigotutils.module.util.BukkitUtils;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class Talent implements GameElement {
 
@@ -24,9 +27,11 @@ public abstract class Talent implements GameElement {
 
 	private final String name;
 	private final Type type;
+	private final List<String> extraInfo; // adds extra information after cooldowns
 
 	private String castMessage;
 	private String description;
+	private Function<ItemBuilder> itemFunction;
 	private int cd;
 
 	private boolean autoAdd;
@@ -45,11 +50,20 @@ public abstract class Talent implements GameElement {
 		this.type = type;
 		this.material = Material.BEDROCK;
 		this.autoAdd = true;
+		this.extraInfo = new ArrayList<>();
 	}
 
 	public Talent(String name, String description, Material material) {
 		this(name, description);
 		this.setItem(material);
+	}
+
+	public void addExtraInfo(String info) {
+		addExtraInfo(info, new Object[]{});
+	}
+
+	public void addExtraInfo(String info, Object... objects) {
+		extraInfo.add(ChatColor.GREEN + String.format(info, objects));
 	}
 
 	public void setCastMessage(String castMessage) {
@@ -112,6 +126,7 @@ public abstract class Talent implements GameElement {
 
 	private void createItem() {
 		formatDescription();
+
 		final ItemBuilder builder = new ItemBuilder(this.material)
 				.setName("&a" + this.name)
 				.addLore("&8%s %s", Chat.capitalize(this.type), this.type == Type.ULTIMATE ? "" : "Talent")
@@ -131,39 +146,43 @@ public abstract class Talent implements GameElement {
 			builder.addSmartLore("This talent is not given when the game starts, but there is a way to use it.", "&8&o", 35);
 		}
 
-		// add a separation line between lore and stats
-		if (this.cd != 0) {
-			builder.addLore("");
+		if (addExtraSpace()) {
+			builder.addLore();
 		}
 
 		if (this.cd > 0) {
-			builder.addLore("&9Cooldown%s: &l%ss".formatted(this instanceof ChargedTalent ? " between charges" : "", BukkitUtils.roundTick(this.cd)));
+			builder.addLore("&aCooldown%s: &l%ss".formatted(
+					this instanceof ChargedTalent ? " between charges" : "",
+					BukkitUtils.roundTick(this.cd)
+			));
 		}
 		else if (this.cd <= -1) {
-			builder.addLore("&9Cooldown: &lDynamic");
+			builder.addLore("&aCooldown: &lDynamic");
+		}
+
+		if (!extraInfo.isEmpty()) {
+			for (final String s : extraInfo) {
+				builder.addLore(s);
+			}
 		}
 
 		if (this instanceof ChargedTalent charge) {
-			if (this.cd == 0) {
-				builder.addLore();
-			}
-
 			final int maxCharges = charge.getMaxCharges();
-			builder.addLore("&9Max Charges: &l%s", maxCharges);
+			builder.addLore("&aMax Charges: &l%s", maxCharges);
 			builder.addLore(
-					"&9Recharge Time: &l%s",
+					"&aRecharge Time: &l%s",
 					charge.getRechargeTime() <= -1 ? "None" : (BukkitUtils.roundTick(charge.getRechargeTime()) + "s")
 			);
 		}
 
 		else if (this instanceof UltimateTalent ult) {
-			if (this.cd == 0) {
-				builder.addLore();
-			}
+			//if (this.cd == 0) {
+			//	builder.addLore();
+			//}
 
-			builder.addLore("&9Ultimate Cost: &l%s ※", ult.getCost());
+			builder.addLore("&aUltimate Cost: &l%s ※", ult.getCost());
 			if (ult.getDuration() > 0) {
-				builder.addLore("&9Ultimate Duration: &l%ss", BukkitUtils.roundTick(ult.getDuration()));
+				builder.addLore("&aUltimate Duration: &l%ss", BukkitUtils.roundTick(ult.getDuration()));
 			}
 			builder.glow();
 			// ※
@@ -171,6 +190,10 @@ public abstract class Talent implements GameElement {
 
 		builder.hideFlags();
 		this.item = builder.toItemStack();
+	}
+
+	private boolean addExtraSpace() {
+		return (this.cd != 0) || this instanceof ChargedTalent || this instanceof UltimateTalent || !extraInfo.isEmpty();
 	}
 
 	public Talent setItem(String headTexture) {
@@ -183,8 +206,6 @@ public abstract class Talent implements GameElement {
 		this.material = material;
 		return this;
 	}
-
-	private Function<ItemBuilder> itemFunction;
 
 	public Talent setItem(Material material, Function<ItemBuilder> function) {
 		this.setItem(material);

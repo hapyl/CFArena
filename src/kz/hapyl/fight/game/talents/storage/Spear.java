@@ -5,14 +5,12 @@ import kz.hapyl.fight.game.GamePlayer;
 import kz.hapyl.fight.game.Response;
 import kz.hapyl.fight.game.talents.Talent;
 import kz.hapyl.fight.game.task.GameTask;
-import kz.hapyl.fight.util.Nulls;
 import kz.hapyl.fight.util.Utils;
 import kz.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.meta.PotionMeta;
 
 public class Spear extends Talent {
 	public Spear() {
@@ -21,10 +19,7 @@ public class Spear extends Talent {
 				"A knight without a spear is not a knight! Use your spear to dash forward and damage opponents on the way."
 		);
 		this.setItem(Material.TIPPED_ARROW, builder -> {
-			Nulls.runIfNotNull((PotionMeta)builder.getItem().getItemMeta(), meta -> {
-				meta.setColor(Color.GRAY);
-				builder.setItemMeta(meta);
-			});
+			builder.setPotionColor(Color.GRAY);
 		});
 		this.setCd(100);
 	}

@@ -1,6 +1,7 @@
 package kz.hapyl.fight.game.maps;
 
 import kz.hapyl.fight.game.maps.features.CloudBoosters;
+import kz.hapyl.fight.game.maps.features.LibraryCat;
 import kz.hapyl.fight.game.maps.features.LibraryFeature;
 import kz.hapyl.fight.game.maps.maps.DragonsGorge;
 import kz.hapyl.fight.game.maps.maps.JapanMap;
@@ -15,6 +16,7 @@ public enum GameMaps {
 
 	// non-playable map, storing here for easy coordinate grab and consistency
 	SPAWN(new GameMap("Spawn", "You spawn here!", Material.BLUE_BED).addLocation(0, 64, 0), false),
+	TRAINING_GROUNDS(new GameMap("Training Grounds", "Test heroes abilities here!", Material.WITHER_SKELETON_SKULL).addLocation(100, 64, 100), false),
 
 	ARENA("Arena", "A great arena to fight on!", Material.COARSE_DIRT, Size.MEDIUM, asList(asLoc(100, 64, 0))),
 
@@ -50,7 +52,7 @@ public enum GameMaps {
 			"A library that stuck in the void.",
 			Material.BOOKSHELF,
 			Size.MEDIUM,
-			asList(new LibraryFeature()),
+			asList(new LibraryFeature(), new LibraryCat()),
 			asList(
 					asLoc(0, 64, -90, -180, 0),
 					asLoc(-10, 74, -95, -180, 0),

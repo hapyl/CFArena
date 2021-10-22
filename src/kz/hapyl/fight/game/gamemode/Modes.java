@@ -1,6 +1,7 @@
 package kz.hapyl.fight.game.gamemode;
 
 import kz.hapyl.fight.game.GameInstance;
+import kz.hapyl.fight.game.Manager;
 import kz.hapyl.fight.game.gamemode.modes.Deathmatch;
 import kz.hapyl.fight.game.gamemode.modes.FreeForAll;
 import kz.hapyl.spigotutils.module.util.Validate;
@@ -22,6 +23,18 @@ public enum Modes {
 
 	public CFGameMode getMode() {
 		return mode;
+	}
+
+	public boolean isSelected() {
+		return Manager.current().getCurrentMode() == this;
+	}
+
+	public void select() {
+		if (isSelected()) {
+			return;
+		}
+
+		Manager.current().setCurrentMode(this);
 	}
 
 	public boolean testWinCondition(@Nonnull GameInstance instance) {

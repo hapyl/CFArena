@@ -1,6 +1,5 @@
 package kz.hapyl.fight.game;
 
-import com.google.common.collect.Maps;
 import kz.hapyl.fight.game.setting.Setting;
 import kz.hapyl.spigotutils.module.chat.Chat;
 import kz.hapyl.spigotutils.module.player.PlayerLib;
@@ -12,14 +11,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
-import java.util.Map;
-import java.util.UUID;
-
 public class ChatController implements Listener {
 
 	private boolean chatStatus = true;
 	private final String format = "&4&l%s &6%s %s%s: &f%s";
-	private final Map<UUID, Long> muteDuration = Maps.newHashMap();
 
 	/**
 	 * Mojang can't make this actually async...
@@ -82,9 +77,20 @@ public class ChatController implements Listener {
 
 	}
 
+	/**
+	 * Using scoreboard tags for now.
+	 */
 	public boolean isMuted(Player player) {
-		// todo
-		return false;
+		return player.getScoreboardTags().contains("Muted");
+	}
+
+	public void setMuted(Player player, boolean flag) {
+		if (flag) {
+			player.addScoreboardTag("Muted");
+		}
+		else {
+			player.removeScoreboardTag("Muted");
+		}
 	}
 
 }

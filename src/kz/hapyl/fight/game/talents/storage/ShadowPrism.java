@@ -8,6 +8,7 @@ import kz.hapyl.fight.util.Nulls;
 import kz.hapyl.fight.util.Utils;
 import kz.hapyl.spigotutils.module.entity.Entities;
 import kz.hapyl.spigotutils.module.player.PlayerLib;
+import kz.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -23,16 +24,21 @@ import java.util.Map;
 
 public class ShadowPrism extends Talent {
 
+	private final int deployCd = 20;
 	private final int teleportCd = 400;
 	private final Map<Player, ArmorStand> playerPrism = new HashMap<>();
 
 	public ShadowPrism() {
 		super("Shadow Prism");
 		this.setInfo(
-				"Deploy a teleportation orb that travels in straight line. Use again to teleport to the orb.__&e&lLOOK AT BLOCK &7to place it at fixed block.");
+				"Deploy a teleportation orb that travels in straight line. Use again to teleport to the orb.__&e&lLOOK AT BLOCK &7to place it at fixed block."
+		);
 		this.setItem(
-				"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODNlZDRjZTIzOTMzZTY2ZTA0ZGYxNjA3MDY0NGY3NTk5ZWViNTUzMDdmN2VhZmU4ZDkyZjQwZmIzNTIwODYzYyJ9fX0=");
-		this.setCd(DYNAMIC);
+				"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODNlZDRjZTIzOTMzZTY2ZTA0ZGYxNjA3MDY0NGY3NTk5ZWViNTUzMDdmN2VhZmU4ZDkyZjQwZmIzNTIwODYzYyJ9fX0="
+		);
+
+		this.addExtraInfo("Cooldown on Deploy: &l%ss", BukkitUtils.roundTick(deployCd));
+		this.addExtraInfo("Cooldown on Teleport: &l%ss", BukkitUtils.roundTick(teleportCd));
 	}
 
 	@Override
@@ -76,7 +82,7 @@ public class ShadowPrism extends Talent {
 			});
 
 			playerPrism.put(player, entity);
-			startCd(player, 20); // fix instant use
+			startCd(player, deployCd); // fix instant use
 
 			Manager.current().getCurrentGame().getAlivePlayers().forEach(gp -> {
 				final Player gpPlayer = gp.getPlayer();

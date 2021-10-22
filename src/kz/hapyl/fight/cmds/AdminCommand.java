@@ -3,8 +3,10 @@ package kz.hapyl.fight.cmds;
 import kz.hapyl.fight.cmds.extra.Acceptor;
 import kz.hapyl.fight.game.GamePlayer;
 import kz.hapyl.fight.game.StatContainer;
+import kz.hapyl.fight.game.maps.GameMaps;
 import kz.hapyl.spigotutils.module.chat.Chat;
 import kz.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
+import kz.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -19,7 +21,7 @@ public class AdminCommand extends SimplePlayerAdminCommand {
 
 	public AdminCommand(String str) {
 		super(str);
-		this.setUsage("/admin [damage, setkills] (Value)");
+		this.setUsage("/admin [damage, setkills, map] (Value)");
 
 		acceptors = new HashMap<>();
 		initAcceptors();
@@ -62,10 +64,27 @@ public class AdminCommand extends SimplePlayerAdminCommand {
 
 				stats.setValue(StatContainer.Type.KILLS, newKills);
 				sendMessage(player, "&aSet your kills to &l%s&a.", newKills);
-
-
 			}
 		});
+
+		acceptors.put("map", new Acceptor() {
+			@Override
+			public void execute(Player player, String[] args) {
+				if (!checkLength(args, 1)) {
+					return;
+				}
+
+				final GameMaps map = Validate.getEnumValue(GameMaps.class, args[0]);
+				if (map == null) {
+					sendMessage(player, "&cInvalid map!");
+					return;
+				}
+
+				player.teleport(map.getMap().getLocation());
+				sendMessage(player, "&aTeleported to %s!", map.getName());
+			}
+		});
+
 	}
 
 	@Override

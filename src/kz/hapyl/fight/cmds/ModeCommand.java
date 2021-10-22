@@ -2,6 +2,7 @@ package kz.hapyl.fight.cmds;
 
 import kz.hapyl.fight.game.Manager;
 import kz.hapyl.fight.game.gamemode.Modes;
+import kz.hapyl.fight.gui.ModeSelectGUI;
 import kz.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
 import kz.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.command.CommandSender;
@@ -20,7 +21,7 @@ public class ModeCommand extends SimplePlayerAdminCommand {
 	@Override
 	protected void execute(Player player, String[] args) {
 		if (args.length == 0) {
-			// todo open menu
+			new ModeSelectGUI(player);
 			return;
 		}
 

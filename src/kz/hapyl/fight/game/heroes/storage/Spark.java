@@ -57,11 +57,13 @@ public class Spark extends Hero implements PlayerElement {
 				.setParticleTick(new PackedParticle(Particle.FLAME).setSpeed(0.001f))
 				.setDamage(8.0d)
 				.setName("Fire Sprayer")
-				.setInfo("A long range weapon that shoots fire lasers! How cool is that..."));
+				// A long range weapon that shoots fire lasers! How cool is that...
+				// A long range weapon that can shoot fire lasers in front of you! How cool is that...
+				.setInfo("A long range weapon that can shoot fire lasers in front of you! How cool is that..."));
 
 		this.setUltimate(new UltimateTalent(
 				"Run it Back",
-				"Instantly place a marker at your current location for {duration}. Upon death or after duration ends, safely teleports to the marked location with health you had upon activating the ability.",
+				"Instantly place a marker at your current location for {duration}.____Upon death or after duration ends, safely teleports to the marked location with health you had upon activating the ability.",
 				80
 		).setDuration(200).setItem(Material.TOTEM_OF_UNDYING).setCdSec(40));
 

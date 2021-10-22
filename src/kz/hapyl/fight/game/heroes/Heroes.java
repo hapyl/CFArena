@@ -100,4 +100,12 @@ public enum Heroes {
 		return heroes;
 	}
 
+	public static List<String> playableStings() {
+		final List<String> list = new ArrayList<>();
+		for (final Heroes heroes : playable()) {
+			list.add(heroes.name());
+		}
+		return list;
+	}
+
 }

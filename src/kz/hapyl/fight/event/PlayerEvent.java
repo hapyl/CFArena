@@ -1,6 +1,7 @@
 package kz.hapyl.fight.event;
 
 import kz.hapyl.fight.Main;
+import kz.hapyl.fight.anotate.Entry;
 import kz.hapyl.fight.game.AbstractGamePlayer;
 import kz.hapyl.fight.game.GamePlayer;
 import kz.hapyl.fight.game.Manager;
@@ -43,6 +44,7 @@ public class PlayerEvent implements Listener {
 	public void handlePlayerJoin(PlayerJoinEvent ev) {
 		final Player player = ev.getPlayer();
 		final Main plugin = Main.getPlugin();
+
 		plugin.handlePlayer(player);
 		plugin.getTutorial().display(player);
 	}
@@ -96,51 +98,62 @@ public class PlayerEvent implements Listener {
 		}
 	}
 
+	private GamePlayer getAlivePlayer(Player player) {
+		final Manager manager = Manager.current();
+		if (manager.isTrialExistsAndIsOwner(player)) {
+			return manager.getTrial().getGamePlayer();
+		}
+
+		return GamePlayer.getAlivePlayer(player);
+	}
+
 	@SuppressWarnings("deprecation")
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void handlePlayerSwapEvent(PlayerSwapHandItemsEvent ev) {
 		ev.setCancelled(true);
 		final Player player = ev.getPlayer();
-		final Heroes enumHero = Manager.current().getSelectedHero(player);
+		final Hero hero = Manager.current().getCurrentHero(player);
 
-		if (Manager.current().isGameInProgress()) {
-			final GamePlayer gamePlayer = GamePlayer.getAlivePlayer(player);
-			if (gamePlayer == null) {
+		if (!Manager.current().isAbleToUse(player)) {
+			return;
+		}
+
+		final GamePlayer gamePlayer = getAlivePlayer(player);
+		if (gamePlayer == null) {
+			return;
+		}
+
+		if (gamePlayer.isUltimateReady()) {
+			final UltimateTalent ultimate = hero.getUltimate();
+
+			if (ultimate.hasCd(player)) {
+				sendUltimateFailureMessage(player, "&cUltimate on cooldown for %ss.", BukkitUtils.roundTick(ultimate.getCdTimeLeft(player)));
 				return;
 			}
 
-			if (gamePlayer.isUltimateReady()) {
-				final Hero hero = enumHero.getHero();
-				final UltimateTalent ultimate = hero.getUltimate();
-
-				if (ultimate.hasCd(player)) {
-					sendUltimateFailureMessage(player, "&cUltimate on cooldown for %ss.", BukkitUtils.roundTick(ultimate.getCdTimeLeft(player)));
-					return;
-				}
-
-				if (!hero.predicateUltimate(player)) {
-					sendUltimateFailureMessage(player, "&cUnable to use ultimate! " + hero.predicateMessage());
-					return;
-				}
-
-				//ultimate.execute0(player);
-				hero.useUltimate(player);
-				ultimate.startCd(player);
-				gamePlayer.setUltPoints(0);
-
-				if (hero.getUltimateDuration() > 0) {
-					hero.setUsingUltimate(player, true, hero.getUltimateDuration());
-				}
-
-				for (final Player online : Bukkit.getOnlinePlayers()) {
-					Chat.sendMessage(online, "&b&l※ &b%s used &l%s&7!".formatted(online == player ? "You" : player.getName(), ultimate.getName()));
-					PlayerLib.playSound(online, ultimate.getSound(), ultimate.getPitch());
-				}
+			if (!hero.predicateUltimate(player)) {
+				sendUltimateFailureMessage(player, "&cUnable to use ultimate! " + hero.predicateMessage());
+				return;
 			}
-			else {
-				Chat.sendTitle(player, "&4&l※", "&cYour ultimate isn't ready!", 5, 15, 5);
-				sendUltimateFailureMessage(player, "&cYour ultimate isn't ready!");
+
+			//ultimate.execute0(player);
+			hero.useUltimate(player);
+			ultimate.startCd(player);
+			gamePlayer.setUltPoints(0);
+
+			if (hero.getUltimateDuration() > 0) {
+				hero.setUsingUltimate(player, true, hero.getUltimateDuration());
 			}
+
+			for (final Player online : Bukkit.getOnlinePlayers()) {
+				Chat.sendMessage(online, "&b&l※ &b%s used &l%s&7!".formatted(online == player ? "You" : player.getName(), ultimate.getName()));
+				PlayerLib.playSound(online, ultimate.getSound(), ultimate.getPitch());
+			}
+		}
+		else {
+			Chat.sendTitle(player, "&4&l※", "&cYour ultimate isn't ready!", 5, 15, 5);
+			sendUltimateFailureMessage(player, "&cYour ultimate isn't ready!");
+
 		}
 	}
 
@@ -165,7 +178,7 @@ public class PlayerEvent implements Listener {
 			return;
 		}
 
-		if (entity instanceof Player && !Manager.current().isGameInProgress()) {
+		if (entity instanceof Player player && !Manager.current().isAbleToUse(player)) {
 			ev.setCancelled(true);
 			return;
 		}
@@ -376,29 +389,6 @@ public class PlayerEvent implements Listener {
 		return null;
 	}
 
-	private boolean validatePlayer(Player player) {
-		return Manager.current().isPlayerInGame(player);
-	}
-
-	private double getHeroDamageOr(Player player, double or) {
-		if (true) {
-			return or;
-		}
-
-		final Heroes hero = Manager.current().getSelectedHero(player);
-		// ye fuck enum saving but idk the better way ¯\_(ツ)_/¯
-		if (player.getInventory().getHeldItemSlot() != 0
-				|| player.getInventory().getItemInMainHand().getType().isAir()
-				|| hero == null
-				|| hero.getHero() == null
-				|| hero.getHero().getWeapon() == null
-				|| hero.getHero().getWeapon().getDamage() <= 0.0d // dynamic damage
-				|| hero.getHero().getWeapon().getItem().getType() != player.getInventory().getItemInMainHand().getType()) {
-			return or;
-		}
-		return hero.getHero().getWeapon().getDamage();
-	}
-
 	@EventHandler(priority = EventPriority.HIGH)
 	public void handleInventoryClickEvent(InventoryClickEvent ev) {
 		if (Manager.current().isGameInProgress()) {
@@ -406,24 +396,25 @@ public class PlayerEvent implements Listener {
 		}
 	}
 
+	@Entry(
+			name = "Talent usage"
+	)
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void handlePlayerClick(PlayerItemHeldEvent ev) {
-		if (!Manager.current().isGameInProgress()) {
+		final Player player = ev.getPlayer();
+		if (!Manager.current().isAbleToUse(player)) {
 			return;
 		}
 
-		// 1 -> ability first
-		// 2 -> ability second
-		// 3-5 -> complex abilities
-		// 0 def weapon slot
+		// 1-2 -> Simple Abilities, 3-5 -> Complex Abilities (Extra)
+		// 0 -> Weapon Slot
 
 		final int newSlot = ev.getNewSlot();
 		if (newSlot <= 0 || newSlot > 5) {
 			return;
 		}
 
-		final Player player = ev.getPlayer();
-		final Hero hero = Manager.current().getSelectedHero(player).getHero();
+		final Hero hero = Manager.current().getCurrentHero(player);
 		final PlayerInventory inventory = player.getInventory();
 
 		// don't care if talent is null, either not a talent or not complete
@@ -431,7 +422,7 @@ public class PlayerEvent implements Listener {
 		final Talent talent = Manager.current().getTalent(hero, newSlot);
 		final ItemStack itemOnNewSlot = inventory.getItem(newSlot);
 
-		if (talent == null || !(isValidItem(talent, itemOnNewSlot))) {
+		if (talent == null || !isValidItem(talent, itemOnNewSlot)) {
 			return;
 		}
 
@@ -444,10 +435,8 @@ public class PlayerEvent implements Listener {
 	}
 
 	private boolean isValidItem(Talent talent, ItemStack stack) {
-		if (stack == null || stack.getType().isAir()) {
-			return false;
-		}
-		return talent.getMaterial() == stack.getType();
+		return stack != null && !stack.getType().isAir();
+		//return talent.getMaterial() == stack.getType();
 	}
 
 	@EventHandler(ignoreCancelled = true)

@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 
 public class Utils {
 
-	// TODO: 030. 08/30/2021
 	public static String colorString(String str, String defColor) {
 		final StringBuilder builder = new StringBuilder();
 		final String[] strings = str.split(" ");

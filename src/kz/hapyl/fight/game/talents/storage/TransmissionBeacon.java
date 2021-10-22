@@ -3,6 +3,7 @@ package kz.hapyl.fight.game.talents.storage;
 import kz.hapyl.fight.game.Response;
 import kz.hapyl.fight.game.heroes.HeroHandle;
 import kz.hapyl.fight.game.talents.Talent;
+import kz.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -10,13 +11,20 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 
 public class TransmissionBeacon extends Talent {
+	private final int destroyCd = 600;
+
 	public TransmissionBeacon() {
-		super(
-				"Transmission Beacon",
-				"Place the beacon somewhere hidden from your opponents. Use your &bultimate &7to instantly teleport to it's location and collect it.__&c&lThe beacon can be destroyed!____&9Cooldown if Destroyed: &l30s",
-				Type.COMBAT
-		);
+		super("Transmission Beacon");
+		this.setInfo(
+				String.format(
+						"Place the beacon somewhere hidden from your opponents. Use your &bultimate &7to instantly teleport to it's location and collect it.__&c&lThe beacon can be destroyed!____&aCooldown if Destroyed: &l%ss",
+						BukkitUtils.roundTick(destroyCd)
+				));
 		this.setItem(Material.BEACON);
+	}
+
+	public int getDestroyCd() {
+		return destroyCd;
 	}
 
 	@Override

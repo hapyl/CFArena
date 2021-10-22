@@ -7,10 +7,8 @@ import kz.hapyl.fight.game.gamemode.Modes;
 import kz.hapyl.fight.game.heroes.Heroes;
 import kz.hapyl.fight.game.maps.GameMaps;
 import kz.hapyl.fight.game.setting.Setting;
-import kz.hapyl.fight.game.talents.UltimateTalent;
 import kz.hapyl.fight.game.task.GameTask;
 import kz.hapyl.fight.game.task.ShutdownAction;
-import kz.hapyl.fight.game.ui.UIComponent;
 import kz.hapyl.spigotutils.module.chat.Chat;
 import kz.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Bukkit;
@@ -67,27 +65,6 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
 	public State getGameState() {
 		return gameState;
 	}
-
-	private String getUltimateString(GamePlayer gp) {
-		final Player player = gp.getPlayer();
-		final UltimateTalent ultimate = gp.getUltimate();
-		final String pointsString = "%s/%s".formatted(gp.getUltPoints(), gp.getUltPointsNeeded());
-
-		if (gp.getHero().isUsingUltimate(player)) {
-			return "&b&lIN USE";
-		}
-
-		if (ultimate.hasCd(player)) {
-			return "&7%s &b(%ss)".formatted(pointsString, BukkitUtils.roundTick(ultimate.getCdTimeLeft(player)));
-		}
-
-		else if (gp.isUltimateReady()) {
-			return "&b&lREADY";
-		}
-
-		return pointsString;
-	}
-
 
 	@Override
 	public void calculateEverything() {
@@ -299,7 +276,6 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
 	}
 
 
-	// TODO: 018. 09/18/2021 -> impl modes
 	// TODO: 018. 09/18/2021 -> impl teams
 	@Override
 	public void checkWinCondition() {
@@ -377,26 +353,7 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
 					});
 				}
 
-				// Game UI
-				if (tick % 5 == 0) {
-					players.values().forEach(gp -> {
-						if (gp.isAlive() && !gp.isSpectator()) {
-							final StringBuilder builder = new StringBuilder("&c%s &c❤ &0| &b%s &l※".formatted(
-									BukkitUtils.decimalFormat(gp.getHealth()),
-									getUltimateString(gp)
-							));
-							final Player player = gp.getPlayer();
-
-							if (gp.getHero() instanceof UIComponent uiHero) {
-								if (!uiHero.getString(player).isEmpty()) {
-									builder.append(" &0| ").append(uiHero.getString(player));
-								}
-							}
-
-							Chat.sendActionbar(player, builder.toString());
-						}
-					});
-				}
+				// Game UI -> Moved to GamePlayerUI
 
 				if (tick < 0) {
 					Chat.broadcast("&a&lTime is Up! &aGame Over.");

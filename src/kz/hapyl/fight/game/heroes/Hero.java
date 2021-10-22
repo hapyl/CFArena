@@ -24,6 +24,7 @@ public abstract class Hero implements GameElement, PlayerElement {
 	private final ClassEquipment equipment;
 	private final String name;
 	private final CachedItemStack cachedItemStack;
+	private final CachedItemStack guiTextureDetailed;
 
 	private String about;
 	private ItemStack guiTexture;
@@ -34,12 +35,13 @@ public abstract class Hero implements GameElement, PlayerElement {
 
 	public Hero(String name) {
 		this.name = name;
-		this.about = "not much yet";
+		this.about = "No description provided.";
 		this.guiTexture = new ItemStack(Material.RED_BED);
 		this.weapon = new Weapon(Material.WOODEN_SWORD);
 		this.usingUltimate = Sets.newHashSet();
 		this.equipment = new ClassEquipment();
 		this.cachedItemStack = new CachedItemStack();
+		this.guiTextureDetailed = new CachedItemStack();
 		this.ultimate = new UltimateTalent("Unknown Ultimate", "This hero's ultimate talent is not yet implemented!", Integer.MAX_VALUE);
 	}
 
@@ -52,6 +54,10 @@ public abstract class Hero implements GameElement, PlayerElement {
 		this(name);
 		this.setInfo(lore);
 		this.setItem(material);
+	}
+
+	public CachedItemStack getGuiTextureDetailed() {
+		return guiTextureDetailed;
 	}
 
 	public ClassEquipment getEquipment() {

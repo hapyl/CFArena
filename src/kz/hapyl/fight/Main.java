@@ -5,16 +5,15 @@ import kz.hapyl.fight.effect.EnumEffect;
 import kz.hapyl.fight.event.EnderPearlController;
 import kz.hapyl.fight.event.PlayerEvent;
 import kz.hapyl.fight.game.ChatController;
-import kz.hapyl.fight.game.ChatTutorial;
 import kz.hapyl.fight.game.Manager;
-import kz.hapyl.fight.game.Tutorial;
 import kz.hapyl.fight.game.database.Database;
 import kz.hapyl.fight.game.maps.GameMaps;
 import kz.hapyl.fight.game.maps.features.BoosterController;
-import kz.hapyl.fight.game.scoreboard.GamePlayerUI;
 import kz.hapyl.fight.game.scoreboard.ScoreList;
 import kz.hapyl.fight.game.task.GameTask;
 import kz.hapyl.fight.game.task.TaskList;
+import kz.hapyl.fight.game.tutorial.ChatTutorial;
+import kz.hapyl.fight.game.tutorial.Tutorial;
 import kz.hapyl.spigotutils.SpigotUtils;
 import kz.hapyl.spigotutils.module.chat.Chat;
 import kz.hapyl.spigotutils.module.chat.Gradient;
@@ -116,7 +115,7 @@ public class Main extends JavaPlugin {
 	public void handlePlayer(Player player) {
 		Database.getDatabase(player); // this will create database again (load)
 		this.manager.loadLastHero(player);
-		new GamePlayerUI(player);
+		this.manager.createUIInstance(player);
 
 		// teleport to spawn
 		if (player.getGameMode() != GameMode.CREATIVE) {
@@ -165,6 +164,7 @@ public class Main extends JavaPlugin {
 		processor.registerCommand(new ModeCommand("mode"));
 		processor.registerCommand(new AdminCommand("admin"));
 		processor.registerCommand(new DebugBooster("debugBooster"));
+		processor.registerCommand(new TrialCommand("trial"));
 
 		processor.registerCommand(new SimplePlayerAdminCommand("riptide") {
 

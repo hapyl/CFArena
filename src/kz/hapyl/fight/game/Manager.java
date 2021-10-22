@@ -9,10 +9,13 @@ import kz.hapyl.fight.game.heroes.ComplexHero;
 import kz.hapyl.fight.game.heroes.Hero;
 import kz.hapyl.fight.game.heroes.Heroes;
 import kz.hapyl.fight.game.maps.GameMaps;
+import kz.hapyl.fight.game.scoreboard.GamePlayerUI;
+import kz.hapyl.fight.game.setting.Setting;
 import kz.hapyl.fight.game.talents.ChargedTalent;
 import kz.hapyl.fight.game.talents.Talent;
 import kz.hapyl.fight.game.talents.Talents;
 import kz.hapyl.fight.game.task.GameTask;
+import kz.hapyl.fight.game.trial.Trial;
 import kz.hapyl.fight.util.Holder;
 import kz.hapyl.fight.util.Nulls;
 import kz.hapyl.fight.util.ParamFunction;
@@ -29,10 +32,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Manager {
 
@@ -41,6 +42,7 @@ public class Manager {
 
 	private GameInstance gameInstance;
 
+	protected final Map<Player, GamePlayerUI> gamePlayerUIMap;
 	protected final Map<UUID, Heroes> selectedHero;
 	protected final Holder<GameMaps> currentMap = new Holder<>(GameMaps.ARENA);
 	protected final Holder<Modes> currentMode = new Holder<>(Modes.FFA);
@@ -48,7 +50,10 @@ public class Manager {
 	private final Map<Integer, ParamFunction<Talent, Hero>> slotPerTalent = new HashMap<>();
 	private final Map<Integer, ParamFunction<Talent, ComplexHero>> slotPerComplexTalent = new HashMap<>();
 
+	private Trial trial;
+
 	public Manager() {
+		this.gamePlayerUIMap = new HashMap<>();
 		this.selectedHero = Maps.newHashMap();
 
 		slotPerTalent.put(1, Hero::getFirstTalent);
@@ -63,6 +68,19 @@ public class Manager {
 
 		// load mode
 		currentMode.set(Modes.byName(config.getString("current-mode"), Modes.FFA));
+	}
+
+	public void createUIInstance(Player player) {
+		gamePlayerUIMap.put(player, new GamePlayerUI(player));
+	}
+
+	@Nullable
+	public GamePlayerUI getPlayerUI(Player player) {
+		return gamePlayerUIMap.get(player);
+	}
+
+	public boolean isAbleToUse(Player player) {
+		return isGameInProgress() || isTrialExistsAndIsOwner(player);
 	}
 
 	public boolean isGameInProgress() {
@@ -93,6 +111,38 @@ public class Manager {
 		currentMap.set(maps);
 		// save to config
 		Main.getPlugin().getConfig().set("current-map", maps.name().toLowerCase(Locale.ROOT));
+	}
+
+	public Trial getTrial() {
+		return trial;
+	}
+
+	public boolean hasTrial() {
+		return getTrial() != null;
+	}
+
+	public boolean isTrialExistsAndIsOwner(Player player) {
+		return hasTrial() && getTrial().getPlayer() == player;
+	}
+
+	public void startTrial(Player player, Heroes heroes) {
+		if (hasTrial()) {
+			return;
+		}
+
+		trial = new Trial(player, heroes);
+		trial.onStart();
+		trial.broadcastMessage("&a%s started a trial of %s.", player.getName(), heroes.getHero().getName());
+	}
+
+	public void stopTrial() {
+		if (!hasTrial()) {
+			return;
+		}
+
+		trial.broadcastMessage("&a%s has stopped trial challenge.", trial.getPlayer().getName());
+		trial.onStop();
+		trial = null;
 	}
 
 	public Modes getCurrentMode() {
@@ -146,10 +196,21 @@ public class Manager {
 			return;
 		}
 
+		if (hasTrial()) {
+			stopTrial();
+		}
+
 		isDebug = debug;
 
-		final int playerRequirements = getCurrentMode().getMode().getPlayerRequirements(); // todo
+		final int playerRequirements = getCurrentMode().getMode().getPlayerRequirements();
 
+		final Collection<Player> nonSpectatorPlayers = getNonSpectatorPlayers();
+		if (nonSpectatorPlayers.size() < playerRequirements && !isDebug) {
+			displayError("Not enough players! &l(%s/%s)", nonSpectatorPlayers.size(), playerRequirements);
+			return;
+		}
+
+		// Create new instance and call onStart methods
 		this.gameInstance = new GameInstance(getCurrentMode(), getCurrentMap());
 		this.gameInstance.onStart();
 
@@ -191,6 +252,10 @@ public class Manager {
 
 	}
 
+	private Collection<Player> getNonSpectatorPlayers() {
+		return Bukkit.getOnlinePlayers().stream().filter(player -> !Setting.SPECTATE.isEnabled(player)).collect(Collectors.toSet());
+	}
+
 	@Entry(
 			name = "Stopping current Game Instance."
 	)
@@ -212,6 +277,7 @@ public class Manager {
 		this.gameInstance.getPlayers().values().forEach(player -> {
 			player.updateScoreboard(false);
 			player.resetPlayer();
+			player.setValid(false);
 
 			// keep winner in survival so it's clear for them that they have won
 			if (!this.gameInstance.isWinner(player.getPlayer())) {
@@ -256,17 +322,12 @@ public class Manager {
 
 	}
 
-	public void equipPlayer(Player player) {
+	public void equipPlayer(Player player, Heroes heroes) {
 		final PlayerInventory inventory = player.getInventory();
 		inventory.setHeldItemSlot(0);
 		player.setGameMode(GameMode.SURVIVAL);
 
-		final Heroes heroEnum = getSelectedHero(player);
-		if (heroEnum == null) {
-			return;
-		}
-
-		final Hero hero = heroEnum.getHero();
+		final Hero hero = heroes.getHero();
 
 		// Apply equipment
 		hero.getEquipment().equip(player);
@@ -283,6 +344,10 @@ public class Manager {
 		}
 
 		player.updateInventory();
+	}
+
+	public void equipPlayer(Player player) {
+		equipPlayer(player, getSelectedHero(player));
 	}
 
 	private void giveTalentItem(Player player, Hero hero, int slot) {
@@ -372,6 +437,23 @@ public class Manager {
 
 	public Map<UUID, Heroes> getPerPlayerHeroes() {
 		return selectedHero;
+	}
+
+	/**
+	 * @return actual hero player is using right now, trial, lobby or game.
+	 */
+	public Hero getCurrentHero(Player player) {
+		if (isTrialExistsAndIsOwner(player)) {
+			return getTrial().getHeroes().getHero();
+		}
+		else if (isPlayerInGame(player)) {
+			final GamePlayer gamePlayer = getCurrentGame().getPlayer(player);
+			if (gamePlayer == null) {
+				return Heroes.ARCHER.getHero();
+			}
+			return gamePlayer.getHero();
+		}
+		return getSelectedHero(player).getHero();
 	}
 
 	public Heroes getSelectedHero(Player player) {

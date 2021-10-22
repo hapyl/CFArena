@@ -63,8 +63,14 @@ public class HeroSelectGUI extends PlayerGUI {
 						.addLore()
 						.addSmartLore(hero.getHero().getAbout(), "&7&o", 35)
 						.addLore()
-						.addLore("&eLeft click to select")
-						.addLore("&eRight click to view details")
+						//.addLore(" &e▄&8▄        &8▄&e▄")
+						//.addLore(" &8█&8█        &8█&8█")
+						//.addLore(" &8▀&8▀        &8▀&8▀")
+						.addLore("&e&lLEFT CLICK &7to select")
+						.addLore("&e&lRIGHT CLICK &7for details")
+						// ▄▄
+						// ██
+						// ▀▀
 						.toItemStack());
 			}
 
