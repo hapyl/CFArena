@@ -1,7 +1,9 @@
 package kz.hapyl.fight.game;
 
 import kz.hapyl.fight.game.effect.GameEffectType;
+import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nullable;
 
@@ -31,6 +33,17 @@ public class AbstractGamePlayer {
 		return false;
 	}
 
+	public void markLastMoved() {
+	}
+
+	public long getLastMoved() {
+		return -1;
+	}
+
+	public boolean hasMovedInLast(long millis) {
+		return getLastMoved() != 0 && (System.currentTimeMillis() - getLastMoved()) < millis;
+	}
+
 	public void heal(double d) {
 		displayError();
 	}
@@ -54,6 +67,12 @@ public class AbstractGamePlayer {
 	// effects
 	public void addEffect(GameEffectType type, int ticks) {
 		displayError();
+	}
+
+	public void addPotionEffect(PotionEffectType type, int duration, int amplifier) {
+	}
+
+	public void removePotionEffect(PotionEffectType type) {
 	}
 
 	public void addEffect(GameEffectType type, int ticks, boolean override) {
@@ -119,8 +138,12 @@ public class AbstractGamePlayer {
 	public void sendActionbar(String text, Object... objects) {
 	}
 
+	public void playSound(Sound sound, float pitch) {
+	}
+
 	@Override
 	public String toString() {
 		return "AbstractGamePlayer{}";
 	}
+
 }

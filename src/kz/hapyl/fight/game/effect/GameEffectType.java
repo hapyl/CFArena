@@ -16,6 +16,7 @@ public enum GameEffectType {
 	INVISIBILITY(new Invisibility()),
 	RESPAWN_RESISTANCE(new RespawnResistance()),
 	RIPTIDE(new Riptide()),
+	LOCK_DOWN(new LockdownEffect()),
 
 	;
 

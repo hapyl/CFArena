@@ -16,10 +16,8 @@ import net.minecraft.world.entity.EntityLiving;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
@@ -271,8 +269,13 @@ public class Utils {
 
 	public static Response playerCanUseAbility(Player player) {
 		final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
+
 		if (gp.hasEffect(GameEffectType.STUN)) {
 			return Response.error("Talent is locked!");
+		}
+
+		if (gp.hasEffect(GameEffectType.LOCK_DOWN)) {
+			return Response.error("Talent is locked! (Lockdown)");
 		}
 
 		if (Manager.current().isGameInProgress()) {
@@ -439,4 +442,21 @@ public class Utils {
 	public static void createExplosion(Location location, double range, double damage) {
 		createExplosion(location, range, damage, null);
 	}
+
+	public static void lockArmorStand(ArmorStand stand) {
+		for (final EquipmentSlot value : EquipmentSlot.values()) {
+			for (final ArmorStand.LockType lockType : ArmorStand.LockType.values()) {
+				stand.addEquipmentLock(value, lockType);
+			}
+		}
+	}
+
+	public static void unlockArmorStand(ArmorStand stand) {
+		for (final EquipmentSlot value : EquipmentSlot.values()) {
+			for (final ArmorStand.LockType lockType : ArmorStand.LockType.values()) {
+				stand.removeEquipmentLock(value, lockType);
+			}
+		}
+	}
+
 }

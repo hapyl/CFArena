@@ -11,10 +11,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ChatController implements Listener {
 
-	private boolean chatStatus = true;
+	private final boolean chatStatus = true;
 	private final String format = "&4&l%s &6%s %s%s: &f%s";
+	private final Map<Player, String> lastMessage = new HashMap<>();
 
 	/**
 	 * Mojang can't make this actually async...
@@ -36,10 +40,17 @@ public class ChatController implements Listener {
 			return;
 		}
 
+		// Pre-Checks
+		if (isSameMessageAsLast(player, message) && !player.isOp()) {
+			Chat.sendMessage(player, "&cYou cannot send the same message twice.");
+			return;
+		}
+
+		lastMessage.put(player, message);
+
 		Bukkit.getOnlinePlayers().forEach(online -> {
 			formatAndSendMessage(player, message, online);
 		});
-
 
 	}
 
@@ -72,9 +83,18 @@ public class ChatController implements Listener {
 			PlayerLib.playSound(receiver, Sound.BLOCK_NOTE_BLOCK_PLING, 2.0f);
 		}
 
-		builder.append(sender.isOp() ? ChatColor.stripColor(message) : message);
+		message = Chat.format(message);
+		if (!sender.isOp()) {
+			message = ChatColor.stripColor(message);
+		}
+
+		builder.append(message);
 		Chat.sendMessage(receiver, builder.toString());
 
+	}
+
+	public boolean isSameMessageAsLast(Player player, String string) {
+		return lastMessage.containsKey(player) && lastMessage.get(player).contains(string);
 	}
 
 	/**

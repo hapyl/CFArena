@@ -25,7 +25,6 @@ public class CloudBoosters extends MapFeature implements Listener {
 		new Booster(499, 73, 448, -0.5, 0.0, 2.0);
 		new Booster(538, 73, 446, 1.0, 1.0, 3.0);
 		new Booster(528, 55, 460, -2.5, 1.0, 1.5);
-
 	}
 
 	@Override

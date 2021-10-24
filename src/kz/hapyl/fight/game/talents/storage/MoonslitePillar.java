@@ -27,7 +27,11 @@ public class MoonslitePillar extends Talent {
 	private final Map<Player, Location> pillars = Maps.newHashMap();
 
 	public MoonslitePillar() {
-		super("Moonsplite Pillar", "Raises a pillar at &etarget &7location for &b10s &7that pulses in set intervals, damaging enemies and healing yourself. You can only have 1 pillar at the time.", Type.COMBAT);
+		super(
+				"Moonsplite Pillar",
+				"Raises a pillar at &etarget &7location for &b10s &7that pulses in set intervals, damaging enemies and healing yourself. You can only have 1 pillar at the time.",
+				Type.COMBAT
+		);
 		this.setItem(Material.BONE);
 		this.setCdSec(30);
 	}
@@ -51,7 +55,7 @@ public class MoonslitePillar extends Talent {
 			return Response.error("No valid target block!");
 		}
 
-		final Location location = block.getLocation();
+		final Location location = block.getLocation().add(0.5d, 0.0d, 0.5d);
 		if (!canFit(location)) {
 			return Response.error("Cannot fit pillar!");
 		}
@@ -82,7 +86,7 @@ public class MoonslitePillar extends Talent {
 				}
 
 			}
-		}.runTaskTimer(0, period);
+		}.addCancelEvent(() -> destroyPillar(location)).runTaskTimer(0, period);
 
 		return Response.OK;
 	}

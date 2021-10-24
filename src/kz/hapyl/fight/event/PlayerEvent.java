@@ -2,10 +2,7 @@ package kz.hapyl.fight.event;
 
 import kz.hapyl.fight.Main;
 import kz.hapyl.fight.anotate.Entry;
-import kz.hapyl.fight.game.AbstractGamePlayer;
-import kz.hapyl.fight.game.GamePlayer;
-import kz.hapyl.fight.game.Manager;
-import kz.hapyl.fight.game.Response;
+import kz.hapyl.fight.game.*;
 import kz.hapyl.fight.game.effect.GameEffectType;
 import kz.hapyl.fight.game.heroes.Hero;
 import kz.hapyl.fight.game.heroes.Heroes;
@@ -35,6 +32,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -47,10 +45,36 @@ public class PlayerEvent implements Listener {
 
 		plugin.handlePlayer(player);
 		plugin.getTutorial().display(player);
+
+		ev.setJoinMessage(Chat.format(
+				"&7[&a+&7] %s%s &ewants to fight!",
+				player.isOp() ? "&c" : "",
+				player.getName()
+		));
 	}
 
 	@EventHandler()
 	public void handlePlayerQuit(PlayerQuitEvent ev) {
+		final Player player = ev.getPlayer();
+
+		if (Manager.current().isGameInProgress()) {
+			final AbstractGameInstance game = Manager.current().getCurrentGame();
+			final GamePlayer gamePlayer = game.getPlayer(player);
+
+			if (!gamePlayer.isAlive()) {
+				return;
+			}
+
+			Chat.broadcast("&c%s left while fighting and was removed from the game!", player.getName());
+			gamePlayer.setSpectator(true);
+			game.checkWinCondition();
+		}
+
+		ev.setQuitMessage(Chat.format(
+				"&7[&c-&7] %s%s &ehas fallen!",
+				player.isOp() ? "&c" : "",
+				player.getName()
+		));
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
@@ -166,6 +190,9 @@ public class PlayerEvent implements Listener {
 		PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
 	}
 
+	@Entry(
+			name = "Damage calculation."
+	)
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void handleDamage(EntityDamageEvent ev) {
 		final Entity entity = ev.getEntity();
@@ -193,6 +220,7 @@ public class PlayerEvent implements Listener {
 				ev.setCancelled(true);
 				return;
 			}
+
 		}
 
 		// Calculate base damage
@@ -261,6 +289,13 @@ public class PlayerEvent implements Listener {
 					final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
 					if (gp.hasEffect(GameEffectType.STUN)) {
 						damage = 0.0d;
+					}
+
+					// lockdown
+					if (gp.hasEffect(GameEffectType.LOCK_DOWN)) {
+						ev.setCancelled(true);
+						gp.sendTitle("&c&lLOCKDOWN", "&cUnable to deal damage.", 0, 20, 0);
+						return;
 					}
 				}
 
@@ -339,7 +374,7 @@ public class PlayerEvent implements Listener {
 		int randomPoint = ThreadLocalRandom.current().nextInt(1, 3);
 
 		// grant ultimate points
-		if (damagerFinal instanceof Player player && entity != player) {
+		if (damagerFinal instanceof Player player && isEntityOk(entity)) {
 			GamePlayer.getPlayer(player).addUltimatePoints(randomPoint);
 		}
 		else {
@@ -377,7 +412,10 @@ public class PlayerEvent implements Listener {
 			}
 
 		}
+	}
 
+	private boolean isEntityOk(Entity entity) {
+		return entity instanceof LivingEntity living && (living.getType() != EntityType.ARMOR_STAND && !living.isInvisible() && !living.isDead());
 	}
 
 	private DamageOutput getDamageOutput(Player player, LivingEntity entity, EntityDamageEvent.DamageCause cause, double damage, boolean asDamager) {
@@ -387,6 +425,14 @@ public class PlayerEvent implements Listener {
 			return asDamager ? hero.processDamageAsDamager(input) : hero.processDamageAsVictim(input);
 		}
 		return null;
+	}
+
+	@EventHandler()
+	public void handleArmorStandDeath(EntityDeathEvent ev) {
+		if (ev.getEntity() instanceof ArmorStand) {
+			ev.getDrops().clear();
+			ev.setDroppedExp(0);
+		}
 	}
 
 	@EventHandler(priority = EventPriority.HIGH)
@@ -472,7 +518,7 @@ public class PlayerEvent implements Listener {
 	private boolean isIntractable(ItemStack stack) {
 		final Material type = stack.getType();
 		return switch (type) {
-			case BOW, CROSSBOW -> true;
+			case BOW, CROSSBOW, TRIDENT -> true;
 			default -> type.isInteractable();
 		};
 	}
@@ -486,18 +532,33 @@ public class PlayerEvent implements Listener {
 		if (Manager.current().isGameInProgress()) {
 			final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
 
-			// impl for amnesia
-			if (gp.hasEffect(GameEffectType.AMNESIA)) {
-				if (to == null || from.getX() == to.getX() && from.getY() == to.getY() && from.getZ() == to.getZ()) {
-					return;
-				}
-				final double pushSpeed = player.isSneaking() ? 0.05d : 0.1d;
-				player.setVelocity(new Vector(new Random().nextBoolean() ? pushSpeed : -pushSpeed, -0.2723, new Random().nextBoolean() ?
-						pushSpeed :
-						-pushSpeed));
+			if (hasNotMoved(from, to)) {
+				return;
 			}
+
+			// Amnesia
+			if (gp.hasEffect(GameEffectType.AMNESIA)) {
+
+				final double pushSpeed = player.isSneaking() ? 0.05d : 0.1d;
+				player.setVelocity(new Vector(
+						new Random().nextBoolean() ? pushSpeed : -pushSpeed,
+						-0.2723,
+						new Random().nextBoolean() ? pushSpeed : -pushSpeed
+				));
+			}
+
+			// AFK detection
+			gp.markLastMoved();
+
 		}
 
+	}
+
+	private boolean hasNotMoved(Location from, @Nullable Location to) {
+		if (to == null) {
+			return true;
+		}
+		return from.getX() == to.getX() && from.getY() == to.getY() && from.getZ() == to.getZ();
 	}
 
 	@EventHandler()
@@ -544,7 +605,8 @@ public class PlayerEvent implements Listener {
 		}
 
 		if (talent instanceof ChargedTalent chargedTalent) {
-			chargedTalent.removeChargeAndStartCooldown(player, slot);
+			chargedTalent.setLastKnownSlot(player, slot);
+			chargedTalent.removeChargeAndStartCooldown(player);
 		}
 
 		talent.startCd(player);

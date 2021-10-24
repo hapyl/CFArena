@@ -41,6 +41,7 @@ public class Submerge extends Talent {
 		final ArmorStand marker = Entities.ARMOR_STAND.spawn(location.subtract(finOffset[0], finOffset[1], finOffset[2]), me -> {
 			me.setSilent(true);
 			me.setMarker(true);
+			me.setInvisible(true);
 			me.setInvulnerable(true);
 			me.setHeadPose(new EulerAngle(Math.toRadians(90), Math.toRadians(45), Math.toRadians(90)));
 

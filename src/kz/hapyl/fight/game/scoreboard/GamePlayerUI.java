@@ -10,6 +10,7 @@ import kz.hapyl.fight.game.effect.GameEffect;
 import kz.hapyl.fight.game.gamemode.Modes;
 import kz.hapyl.fight.game.gamemode.modes.Deathmatch;
 import kz.hapyl.fight.game.heroes.Heroes;
+import kz.hapyl.fight.game.setting.Setting;
 import kz.hapyl.fight.game.talents.UltimateTalent;
 import kz.hapyl.fight.game.task.GameTask;
 import kz.hapyl.fight.game.task.ShutdownAction;
@@ -59,14 +60,19 @@ public class GamePlayerUI {
 					player.setPlayerListName(formatPlayerListName());
 
 					updateScoreboard();
+
+					if (Setting.SPECTATE.isEnabled(player)) {
+						Chat.sendActionbar(player, "&aYou will spectate when the game starts.");
+					}
 				}
 
 				if (tick % 5 == 0 && gamePlayer != null) {
 					if (!gamePlayer.isValid()) {
 						gamePlayer = null;
-						return;
 					}
-					sendInGameUI();
+					else {
+						sendInGameUI();
+					}
 				}
 
 				tick += 5;
@@ -111,37 +117,48 @@ public class GamePlayerUI {
 		if (current.isGameInProgress()) {
 			final AbstractGameInstance game = current.getCurrentGame();
 			final AbstractGamePlayer gamePlayer = GamePlayer.getPlayer(this.player);
-			this.builder.addLines(
-					"&6&lGame: &8" + game.hexCode(),
-					" &e&lMap: &f%s".formatted(current.getCurrentMap().getMap().getName()),
-					" &e&lTime Left: &f%s".formatted(new SimpleDateFormat("mm:ss").format(game.getTimeLeftRaw())),
-					" &e&lStatus: &f%s".formatted(gamePlayer.getStatusString())
-			);
 
-			if (game.getCurrentMode() == Modes.DEATH_MATCH) {
+			// Have to reduce this so everything fits
+			if (!gamePlayer.isAlive()) {
+				this.builder.addLines("&6&lSpectator: &f%s".formatted(getTimeLeftString(game)));
+				for (final GamePlayer alive : game.getPlayers().values()) {
+					this.builder.addLine(" &6%s &e%s &8| &c%s ❤", alive.getHero().getName(), alive.getPlayer().getName(), alive.getHealth());
+				}
+			}
 
-				final TreeMap<Long, GamePlayer> top3 = ((Deathmatch)game.getMode()).getTopKills(game, 3);
+			else {
+				// Default Game Lines
 				this.builder.addLines(
-						"",
-						"&6&lDeathmatch:"
+						"&6&lGame: &8" + game.hexCode(),
+						" &e&lMap: &f%s".formatted(current.getCurrentMap().getMap().getName()),
+						" &e&lTime Left: &f%s".formatted(getTimeLeftString(game)),
+						" &e&lStatus: &f%s".formatted(gamePlayer.getStatusString())
 				);
 
-				final IntInt i = new IntInt(1);
-				top3.forEach((val, pla) -> {
-					if (val == 0) {
-						return;
+				// Death match
+				if (game.getCurrentMode() == Modes.DEATH_MATCH) {
+					final TreeMap<Long, GamePlayer> top3 = ((Deathmatch)game.getMode()).getTopKills(game, 3);
+					this.builder.addLines(
+							"", "&6&lDeathmatch:"
+					);
+
+					final IntInt i = new IntInt(1);
+					top3.forEach((val, pla) -> {
+						if (val == 0) {
+							return;
+						}
+						builder.addLines(" &e&l#%s &f%s &l🗡%s".formatted(i.get(), pla.getPlayer().getName(), val));
+						i.increment();
+					});
+
+					for (int j = i.get(); j <= 3; j++) {
+						builder.addLines(" &e...");
 					}
-					builder.addLines(" &e&l#%s &f%s &l🗡%s".formatted(i.get(), pla.getPlayer().getName(), val));
-					i.increment();
-				});
-
-				for (int j = i.get(); j <= 3; j++) {
-					builder.addLines(" &e...");
 				}
-
 			}
 
 		}
+		// Trial
 		else if (Manager.current().isTrialExistsAndIsOwner(player)) {
 			final Trial trial = Manager.current().getTrial();
 			this.builder.addLines(
@@ -156,7 +173,10 @@ public class GamePlayerUI {
 					" &e&lMap: &f%s".formatted(current.getCurrentMap().getMap().getName()),
 					" &e&lMode: &f%s".formatted(current.getCurrentMode().getMode().getName()),
 					" &e&lCoins: &f%s".formatted(database.getCurrency().getCoinsString()),
-					" &e&lHero: &f%s".formatted(current.getSelectedHero(player).getHero().getName())
+					String.format(
+							" &e&lHero: &f%s",
+							Setting.RANDOM_HERO.isEnabled(player) ? "Random" : current.getSelectedHero(player).getHero().getName()
+					)
 			);
 		}
 
@@ -164,6 +184,10 @@ public class GamePlayerUI {
 		this.builder.updateLines();
 		this.builder.addPlayer(player);
 
+	}
+
+	private String getTimeLeftString(AbstractGameInstance game) {
+		return new SimpleDateFormat("mm:ss").format(game.getTimeLeftRaw());
 	}
 
 	private String getUltimateString(GamePlayer gp) {
@@ -234,16 +258,18 @@ public class GamePlayerUI {
 		}
 
 		footer.append("\n");
-
 		return new String[]{"\n&e&lCLASSES FIGHT\n&cArena\n\n&fTotal Players: &l" + Bukkit.getOnlinePlayers().size(), footer.toString()};
 	}
 
 	private String formatPlayerListName() {
 		final StringBuilder builder = new StringBuilder();
 		final Heroes hero = Manager.current().getSelectedHero(player);
+		final boolean isSpectator = Setting.SPECTATE.isEnabled(player);
 
-		builder.append("&6&l").append(hero.getHero().getName()).append(" ");
-		builder.append(player.isOp() ? "&c🛡 " : "&e").append(player.getName());
+		builder.append(isSpectator ? "&7&o" : "&6&l");
+		builder.append(hero.getHero().getName()).append(" ");
+		builder.append(player.isOp() ? (isSpectator ? "&7🛡 " : "&c🛡 ") : isSpectator ? "" : "&e");
+		builder.append(player.getName());
 
 		if (Manager.current().isGameInProgress()) {
 			builder.append(" &0| ");

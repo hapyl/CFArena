@@ -5,6 +5,7 @@ import kz.hapyl.fight.game.GameInstance;
 import kz.hapyl.fight.game.GamePlayer;
 import kz.hapyl.fight.game.Manager;
 import kz.hapyl.fight.game.heroes.storage.*;
+import kz.hapyl.spigotutils.module.util.CollectionUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
@@ -15,7 +16,6 @@ public enum Heroes {
 
 	// https://tools-unite.com/tools/random-picker-wheel?names=KM, Techie
 
-	// New Hero -> Childe
 	// New Hero -> Halloween
 
 	ARCHER(new Archer()),
@@ -42,6 +42,7 @@ public enum Heroes {
 	TAMER(new Tamer()),
 	SHARK(new Shark()),
 	LIBRARIAN(new Librarian()),
+	TECHIE(new Techie()),
 
 	HARBINGER(new Harbinger()),
 
@@ -106,6 +107,10 @@ public enum Heroes {
 			list.add(heroes.name());
 		}
 		return list;
+	}
+
+	public static Heroes randomHero() {
+		return CollectionUtils.randomElement(playable());
 	}
 
 }

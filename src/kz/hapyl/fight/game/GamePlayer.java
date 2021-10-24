@@ -26,6 +26,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
@@ -68,6 +69,8 @@ public class GamePlayer extends AbstractGamePlayer {
 	private boolean valid = true; // valid means if game player is being used somewhere, should probably rework how this works
 	private int ultPoints;
 
+	private long lastMoved;
+
 	public GamePlayer(Player player, Hero hero) {
 		this.player = player;
 		this.hero = hero;
@@ -77,7 +80,7 @@ public class GamePlayer extends AbstractGamePlayer {
 		this.gameEffects = new ConcurrentHashMap<>();
 		this.stats = new StatContainer(player);
 		this.database = Database.getDatabase(player);
-		this.resetPlayer();
+		this.lastMoved = System.currentTimeMillis();
 
 		// supply self to GamePlayerUI
 		Nulls.runIfNotNull(Manager.current().getPlayerUI(player), ui -> ui.supplyGamePlayer(this));
@@ -116,6 +119,14 @@ public class GamePlayer extends AbstractGamePlayer {
 			}
 		}
 
+	}
+
+	public void markLastMoved() {
+		this.lastMoved = System.currentTimeMillis();
+	}
+
+	public long getLastMoved() {
+		return lastMoved;
 	}
 
 	private boolean isNotIgnored(Ignore[] ignores, Ignore target) {
@@ -162,6 +173,15 @@ public class GamePlayer extends AbstractGamePlayer {
 
 	public void addEffect(GameEffectType type, int ticks) {
 		addEffect(type, ticks, false);
+	}
+
+	@Override
+	public void addPotionEffect(PotionEffectType type, int duration, int amplifier) {
+		PlayerLib.addEffect(player, type, duration, amplifier);
+	}
+
+	public void removePotionEffect(PotionEffectType type) {
+		PlayerLib.removeEffect(player, type);
 	}
 
 	public void addEffect(GameEffectType type, int ticks, boolean override) {
@@ -276,8 +296,13 @@ public class GamePlayer extends AbstractGamePlayer {
 		Chat.sendActionbar(player, text, objects);
 	}
 
-	public void updateScoreboard(boolean flag) {
+	@Override
+	public void playSound(Sound sound, float pitch) {
+		pitch = Numbers.clamp(pitch, 0.0f, 2.0f);
+		PlayerLib.playSound(player, sound, pitch);
+	}
 
+	public void updateScoreboard(boolean flag) {
 		final Team team = getOrCreateTeam();
 
 		// turn on nicknames and turn off collisions

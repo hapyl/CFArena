@@ -8,9 +8,11 @@ import kz.hapyl.fight.game.heroes.ClassEquipment;
 import kz.hapyl.fight.game.heroes.Hero;
 import kz.hapyl.fight.game.heroes.Heroes;
 import kz.hapyl.fight.game.talents.Talent;
+import kz.hapyl.fight.game.talents.TalentHandle;
 import kz.hapyl.fight.game.talents.Talents;
 import kz.hapyl.fight.game.talents.UltimateTalent;
 import kz.hapyl.fight.game.task.GameTask;
+import kz.hapyl.fight.game.ui.UIComponent;
 import kz.hapyl.fight.game.weapons.Weapon;
 import kz.hapyl.fight.util.Utils;
 import kz.hapyl.spigotutils.module.chat.Chat;
@@ -32,7 +34,7 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Moonwalker extends Hero implements PlayerElement {
+public class Moonwalker extends Hero implements PlayerElement, UIComponent {
 
 	public Moonwalker() {
 		super("Moonwalker");
@@ -278,5 +280,11 @@ public class Moonwalker extends Hero implements PlayerElement {
 	@Override
 	public Talent getPassiveTalent() {
 		return Talents.TARGET.getTalent();
+	}
+
+	@Override
+	public String getString(Player player) {
+		final int bombs = TalentHandle.MOON_SLITE_BOMB.getBombsSize(player);
+		return "&e■ &l" + bombs;
 	}
 }

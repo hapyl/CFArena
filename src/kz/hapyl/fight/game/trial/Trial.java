@@ -56,7 +56,7 @@ public class Trial implements MessageSender, GameElement {
 
 	private void start() {
 		startedAt = System.currentTimeMillis();
-		manager.equipPlayer(player, heroes);
+		manager.equipPlayer(player);
 
 		// Call onStart
 		// not sure if onStart() should be called or no

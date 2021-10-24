@@ -168,11 +168,12 @@ public abstract class Talent implements GameElement {
 
 		if (this instanceof ChargedTalent charge) {
 			final int maxCharges = charge.getMaxCharges();
+			final int rechargeTime = charge.getRechargeTime();
+
 			builder.addLore("&aMax Charges: &l%s", maxCharges);
-			builder.addLore(
-					"&aRecharge Time: &l%s",
-					charge.getRechargeTime() <= -1 ? "None" : (BukkitUtils.roundTick(charge.getRechargeTime()) + "s")
-			);
+			if (rechargeTime >= 0) {
+				builder.addLore("&aRecharge Time: &l%ss", BukkitUtils.roundTick(rechargeTime));
+			}
 		}
 
 		else if (this instanceof UltimateTalent ult) {
@@ -181,7 +182,7 @@ public abstract class Talent implements GameElement {
 			//}
 
 			builder.addLore("&aUltimate Cost: &l%s ※", ult.getCost());
-			if (ult.getDuration() > 0) {
+			if (ult.getDuration() >= 0) {
 				builder.addLore("&aUltimate Duration: &l%ss", BukkitUtils.roundTick(ult.getDuration()));
 			}
 			builder.glow();
@@ -281,6 +282,7 @@ public abstract class Talent implements GameElement {
 	public enum Type {
 		PASSIVE,
 		COMBAT,
+		COMBAT_CHARGED,
 		ULTIMATE
 	}
 }

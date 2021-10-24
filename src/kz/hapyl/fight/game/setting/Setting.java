@@ -1,6 +1,7 @@
 package kz.hapyl.fight.game.setting;
 
 import kz.hapyl.fight.game.database.Database;
+import kz.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -8,8 +9,10 @@ import java.util.Locale;
 
 public enum Setting {
 
-	SPECTATE("Spectate", "Whenever you will spectate the game instead of playing it."),
-	CHAT_PING("Chat Notification", "Whenever you will hear a ping in chat if someone mentions you."),
+	SPECTATE(10, Material.ENDER_EYE, "Spectate", "Whenever you will spectate the game instead of playing it."),
+	CHAT_PING(11, Material.GOLD_INGOT, "Chat Notification", "Whenever you will hear a ping in chat if someone mentions you.", true),
+	RANDOM_HERO(12, Material.TOTEM_OF_UNDYING, "Always Random Hero", "Whenever you start the game with a random hero every time."),
+
 
 	;
 
@@ -17,16 +20,22 @@ public enum Setting {
 	private final String name;
 	private final String info;
 	private final boolean def;
+	private final int slot;
 
-	Setting(String name, String info, Material material, boolean def) {
+	Setting(int slot, Material material, String name, String info, boolean def) {
+		this.slot = slot;
 		this.name = name;
 		this.material = material;
 		this.info = info;
 		this.def = def;
 	}
 
-	Setting(String name, String info) {
-		this(name, info, Material.COBBLESTONE, false);
+	Setting(int slot, Material material, String name, String info) {
+		this(slot, material, name, info, false);
+	}
+
+	public int getSlot() {
+		return slot;
 	}
 
 	public Material getMaterial() {
@@ -54,7 +63,13 @@ public enum Setting {
 	}
 
 	public void setEnabled(Player player, boolean flag) {
+		if (isEnabled(player) == flag) {
+			Chat.sendMessage(player, "&c%s is already %s!", this.getName(), flag ? "enabled" : "disabled");
+			return;
+		}
+
 		Database.getDatabase(player).getSettings().setValue(this, flag);
+		Chat.sendMessage(player, "%s%s is now %s.", flag ? "&a" : "&c", this.getName(), flag ? "enabled" : "disabled");
 	}
 
 }

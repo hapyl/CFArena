@@ -40,12 +40,20 @@ public class MoonSliteBomb extends Talent implements Listener {
 
 	@Override
 	public void onDeath(Player player) {
-		Nulls.runIfNotNull(bombs.get(player.getUniqueId()), set -> {
+		final UUID uniqueId = player.getUniqueId();
+		Nulls.runIfNotNull(bombs.get(uniqueId), set -> {
 			if (set.isEmpty()) {
 				return;
 			}
 			set.forEach(Entity::remove);
 		});
+		bombs.remove(uniqueId);
+	}
+
+	@Override
+	public void onStop() {
+		bombs.values().forEach(items -> items.forEach(Item::remove));
+		bombs.clear();
 	}
 
 	@Override
@@ -72,20 +80,22 @@ public class MoonSliteBomb extends Talent implements Listener {
 
 				final Location location = item.getLocation().clone().add(0.0d, 0.15d, 0.0d);
 				PlayerLib.spawnParticle(location, Particle.END_ROD, 1, 0.1d, 0.0d, 0.1d, 0.01f);
-
 			}
 		}.runTaskTimer(0, 5);
 
 		return Response.OK;
 	}
 
-	private Set<Item> getBombs(Player player) {
-		return bombs.computeIfAbsent(player.getUniqueId(), k -> new HashSet<>());
+	public int getBombsSize(Player player) {
+		return getBombs(player).size();
 	}
 
-	@Override
-	public void onStop() {
-		bombs.values().forEach(items -> items.forEach(Item::remove));
+	private Set<Item> getBombs(Player player) {
+		return getBombs(player.getUniqueId());
+	}
+
+	private Set<Item> getBombs(UUID uuid) {
+		return bombs.computeIfAbsent(uuid, k -> new HashSet<>());
 	}
 
 	@EventHandler()
@@ -110,9 +120,9 @@ public class MoonSliteBomb extends Talent implements Listener {
 	private void explode(Item item) {
 		final UUID owner = item.getOwner();
 		if (owner != null) {
-			final Set<Item> items = bombs.getOrDefault(owner, new HashSet<>());
-			items.remove(item);
+			getBombs(owner).remove(item);
 		}
+
 		Utils.createExplosion(item.getLocation(), 2.5, 5.0d, this::applyCorrosion);
 		item.remove();
 	}

@@ -18,6 +18,7 @@ public class HeroHandle {
 	public static final Freazly FREAZLY = (Freazly)Heroes.FREAZLY.getHero();
 	public static final DarkMage DARK_MAGE = (DarkMage)Heroes.DARK_MAGE.getHero();
 	public static final Librarian LIBRARIAN = (Librarian)Heroes.LIBRARIAN.getHero();
+	public static final Techie TECHIE = (Techie)Heroes.TECHIE.getHero();
 
 
 }

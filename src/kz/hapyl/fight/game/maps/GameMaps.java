@@ -38,6 +38,22 @@ public enum GameMaps {
 			asList(asLoc(32, 70, 99), asLoc(-16, 70, 99))
 	),
 
+	NEW_RAILWAY(
+			"Railway",
+			"{}",
+			Material.POWERED_RAIL,
+			Size.LARGE,
+			asList(
+					asLoc(10, 72, 217),
+					asLoc(10, 72, 184),
+					asLoc(20, 64, 200),
+					asLoc(-2, 64, 200),
+					asLoc(41, 72, 200),
+					asLoc(-19, 76, 200),
+					asLoc(2, 52, 200)
+			)
+	),
+
 	CLOUDS(
 			"The Clouds",
 			"Ruined city built on the clouds somewhere in the sky.",

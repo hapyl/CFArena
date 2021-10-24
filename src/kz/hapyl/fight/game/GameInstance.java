@@ -6,20 +6,19 @@ import kz.hapyl.fight.game.gamemode.CFGameMode;
 import kz.hapyl.fight.game.gamemode.Modes;
 import kz.hapyl.fight.game.heroes.Heroes;
 import kz.hapyl.fight.game.maps.GameMaps;
+import kz.hapyl.fight.game.report.GameReport;
 import kz.hapyl.fight.game.setting.Setting;
 import kz.hapyl.fight.game.task.GameTask;
 import kz.hapyl.fight.game.task.ShutdownAction;
 import kz.hapyl.spigotutils.module.chat.Chat;
 import kz.hapyl.spigotutils.module.util.BukkitUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.FireworkEffect;
-import org.bukkit.Location;
+import org.bukkit.*;
 import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.potion.PotionEffectType;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -36,6 +35,7 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
 	private final GameMaps currentMap;
 	private final GameTask gameTask;
 	private final Modes mode;
+	private final GameReport gameReport;
 
 	private State gameState;
 
@@ -46,6 +46,7 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
 		this.players = Maps.newHashMap();
 		this.createGamePlayers();
 
+		this.gameReport = new GameReport(this);
 		this.winners = new HashSet<>();
 		this.gameState = State.PRE_GAME;
 		this.hexCode = generateHexCode();
@@ -53,7 +54,6 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
 
 		// This is a main ticker of the game.
 		this.gameTask = startTask();
-
 	}
 
 	@Override
@@ -64,6 +64,10 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
 	@Override
 	public State getGameState() {
 		return gameState;
+	}
+
+	public GameReport getGameReport() {
+		return gameReport;
 	}
 
 	@Override
@@ -83,7 +87,7 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
 				for (final GamePlayer winner : winners) {
 					Chat.sendCenterMessage(player, formatWinnerName(winner));
 					if (winner.compare(player)) {
-						Chat.sendTitle(player, "&6&lVICTORY", "&eYou're is the winner!", 10, 60, 5);
+						Chat.sendTitle(player, "&6&lVICTORY", "&eYou're the winner!", 10, 60, 5);
 					}
 					else {
 						Chat.sendTitle(player, "&c&lDEFEAT", "&e%s is the winner!".formatted(winner.getPlayer().getName()), 10, 60, 5);
@@ -263,11 +267,22 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
 
 	private void createGamePlayers() {
 		Bukkit.getOnlinePlayers().forEach(player -> {
-			final Heroes hero = Manager.current().getSelectedHero(player);
+			final Heroes hero = getHero(player);
 			final GamePlayer gamePlayer = new GamePlayer(player, hero.getHero());
 
+			// Spectate Setting
 			if (Setting.SPECTATE.isEnabled(player)) {
 				gamePlayer.setSpectator(true);
+				player.setGameMode(GameMode.SPECTATOR);
+			}
+			else {
+				if (Setting.RANDOM_HERO.isEnabled(player)) {
+					gamePlayer.sendMessage("");
+					gamePlayer.sendMessage("&a&l%s &awas randomly selected as your hero!", gamePlayer.getHero().getName());
+					gamePlayer.sendMessage("&e/setting &ato turn off this feature.");
+					gamePlayer.sendMessage("");
+				}
+				gamePlayer.resetPlayer();
 			}
 
 			gamePlayer.updateScoreboard(true);
@@ -275,6 +290,9 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
 		});
 	}
 
+	private Heroes getHero(Player player) {
+		return Setting.RANDOM_HERO.isEnabled(player) ? Heroes.randomHero() : Manager.current().getSelectedHero(player);
+	}
 
 	// TODO: 018. 09/18/2021 -> impl teams
 	@Override
@@ -313,12 +331,12 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
 
 	@Override
 	public void onStart() {
-		Chat.broadcast("&7&oStarting game instance #%s...", this.hexCode());
+		//Chat.broadcast("&7&oStarting game instance #%s...", this.hexCode());
 	}
 
 	@Override
 	public void onStop() {
-		Chat.broadcast("&7&oStopping game instance #%s...".formatted(this.hexCode()));
+		//Chat.broadcast("&7&oStopping game instance #%s...".formatted(this.hexCode()));
 	}
 
 	public String hexCode() {
@@ -331,11 +349,26 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
 
 	private GameTask startTask() {
 		return new GameTask() {
-
 			private int tick = (int)(timeLimit / 50);
 
 			@Override
 			public void run() {
+
+				// AFK detection
+				if (!Manager.current().isDebug()) {
+					getAlivePlayers().forEach(player -> {
+						if (player.hasMovedInLast(15000)) { // 15s afk detection
+							return;
+						}
+
+						player.addPotionEffect(PotionEffectType.GLOWING, 20, 1);
+						player.sendTitle("&c&lYOU'RE AFK", "&aMove to return from afk!", 0, 10, 0);
+						if (tick % 10 == 0) {
+							player.playSound(Sound.BLOCK_NOTE_BLOCK_HAT, 1.0f);
+						}
+
+					});
+				}
 
 				// Auto-Points
 				if (tick % 20 == 0) {

@@ -113,6 +113,10 @@ public class Manager {
 		Main.getPlugin().getConfig().set("current-map", maps.name().toLowerCase(Locale.ROOT));
 	}
 
+	public boolean isDebug() {
+		return isDebug;
+	}
+
 	public Trial getTrial() {
 		return trial;
 	}
@@ -224,9 +228,13 @@ public class Manager {
 
 		this.gameInstance.getCurrentMap().getMap().onStart();
 
-		for (final Player player : Bukkit.getOnlinePlayers()) {
-			equipPlayer(player);
-			Utils.hidePlayer(player);
+		for (final GamePlayer gamePlayer : this.gameInstance.getPlayers().values()) {
+			final Player player = gamePlayer.getPlayer();
+			if (!gamePlayer.isSpectator()) {
+				equipPlayer(player, gamePlayer.getHero());
+				Utils.hidePlayer(player);
+			}
+
 			player.teleport(currentMap.getMap().getLocation());
 		}
 
@@ -238,7 +246,7 @@ public class Manager {
 		GameTask.runLater(() -> {
 			Chat.broadcast("&a&l➺ &aPlayers have been revealed. &lFIGHT!");
 			gameInstance.setGameState(State.IN_GAME);
-			gameInstance.getPlayers().values().forEach(target -> {
+			gameInstance.getAlivePlayers().forEach(target -> {
 				final Player player = target.getPlayer();
 				final World world = player.getLocation().getWorld();
 
@@ -322,12 +330,10 @@ public class Manager {
 
 	}
 
-	public void equipPlayer(Player player, Heroes heroes) {
+	public void equipPlayer(Player player, Hero hero) {
 		final PlayerInventory inventory = player.getInventory();
 		inventory.setHeldItemSlot(0);
 		player.setGameMode(GameMode.SURVIVAL);
-
-		final Hero hero = heroes.getHero();
 
 		// Apply equipment
 		hero.getEquipment().equip(player);
@@ -347,7 +353,7 @@ public class Manager {
 	}
 
 	public void equipPlayer(Player player) {
-		equipPlayer(player, getSelectedHero(player));
+		equipPlayer(player, getSelectedHero(player).getHero());
 	}
 
 	private void giveTalentItem(Player player, Hero hero, int slot) {
@@ -430,6 +436,13 @@ public class Manager {
 		player.closeInventory();
 		PlayerLib.villagerYes(player);
 		Chat.sendMessage(player, "&aSelected %s!", heroes.getHero().getName());
+
+		if (Setting.RANDOM_HERO.isEnabled(player)) {
+			Chat.sendMessage(player, "");
+			Chat.sendMessage(player, "&aKeep in mind &l%s &ais enabled! Use &e/setting", Setting.RANDOM_HERO.getName());
+			Chat.sendMessage(player, "&aturn the feature off and play as %s!", heroes.getHero().getName());
+			Chat.sendMessage(player, "");
+		}
 
 		// save to database
 		Database.getDatabase(player).getHeroEntry().setSelectedHero(heroes);

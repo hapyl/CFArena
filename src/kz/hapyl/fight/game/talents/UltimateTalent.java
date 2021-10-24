@@ -25,6 +25,10 @@ public class UltimateTalent extends Talent {
 		return this;
 	}
 
+	public UltimateTalent setDurationSec(int duration) {
+		return setDuration(duration * 20);
+	}
+
 	public int getDuration() {
 		return duration;
 	}

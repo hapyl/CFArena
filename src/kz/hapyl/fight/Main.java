@@ -165,11 +165,12 @@ public class Main extends JavaPlugin {
 		processor.registerCommand(new AdminCommand("admin"));
 		processor.registerCommand(new DebugBooster("debugBooster"));
 		processor.registerCommand(new TrialCommand("trial"));
+		processor.registerCommand(new SettingCommand("setting"));
+		processor.registerCommand(new HelpCommand("help"));
 
 		processor.registerCommand(new SimplePlayerAdminCommand("riptide") {
 
 			private final Set<Player> riptideActive = new HashSet<>();
-
 			private HumanNPC npc;
 
 			@Override
@@ -240,13 +241,9 @@ public class Main extends JavaPlugin {
 
 					@Override
 					public void run() {
-
 						if (maxTick-- < 0) {
 							this.cancel();
-							return;
 						}
-
-
 					}
 				}.runTaskTimer(0, 1);
 			}
