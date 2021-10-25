@@ -72,7 +72,7 @@ public class ArrowShield extends Talent implements Listener {
 	}
 
 	@Override
-	protected Response execute(Player player) {
+	public Response execute(Player player) {
 		final List<Arrow> list = getArrows(player);
 		removeArrows(player);
 

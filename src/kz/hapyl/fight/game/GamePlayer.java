@@ -628,6 +628,24 @@ public class GamePlayer extends AbstractGamePlayer {
 		damageEntity(entity, damage, damager, EnumDamageCause.ENTITY_ATTACK);
 	}
 
+
+	public static void damageEntityTick(LivingEntity entity, double damage, int tick) {
+		damageEntityTick(entity, damage, null, EnumDamageCause.ENTITY_ATTACK, tick);
+	}
+
+	public static void damageEntityTick(LivingEntity entity, double damage, @Nullable LivingEntity damager, int tick) {
+		damageEntityTick(entity, damage, damager, EnumDamageCause.ENTITY_ATTACK, tick);
+	}
+
+	public static void damageEntityTick(LivingEntity entity, double damage, @Nullable LivingEntity damager, @Nullable EnumDamageCause cause, int tick) {
+		final int maximumNoDamageTicks = entity.getMaximumNoDamageTicks();
+		tick = Numbers.clamp(tick, 0, maximumNoDamageTicks);
+
+		entity.setMaximumNoDamageTicks(tick);
+		damageEntity(entity, damage, damager, cause == null ? EnumDamageCause.ENTITY_ATTACK : cause);
+		entity.setMaximumNoDamageTicks(maximumNoDamageTicks);
+	}
+
 	@Super
 	public static void damageEntity(LivingEntity entity, double damage, LivingEntity damager, EnumDamageCause cause) {
 		if (entity instanceof Player player) {

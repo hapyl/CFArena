@@ -27,7 +27,7 @@ public class SlowingAura extends Talent {
 	}
 
 	@Override
-	protected Response execute(Player player) {
+	public Response execute(Player player) {
 		if (HeroHandle.DARK_MAGE.isUsingUltimate(player)) {
 			return Response.error("Unable to use while in ultimate form!");
 		}

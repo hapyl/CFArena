@@ -189,7 +189,7 @@ public enum Talents {
 			Material.HEART_OF_THE_SEA
 	)),
 
-	// TECHIE
+	// Techie
 	TRAP_CAGE(new TrapCage()),
 	TRAP_WIRE(new TrapWire()),
 	NEURAL_THEFT(new PassiveTalent(
@@ -198,6 +198,10 @@ public enum Talents {
 			"Every &b10s&7, hacks into opponents revealing their location and health.____&b&lCYber Hack:__&7A small virus that reveals opponent's location, slows them and applies &6&lVulnerability&7 for short duration.",
 			Material.CHAINMAIL_HELMET
 	)),
+
+	// Killing Machine
+	LASER_EYE(new LaserEye()),
+	GRENADE(new ShellGrande()),
 
 	// test
 	TestChargeTalent(new TestChargeTalent()),

@@ -14,7 +14,7 @@ import java.util.List;
 
 public enum Heroes {
 
-	// https://tools-unite.com/tools/random-picker-wheel?names=KM, Techie
+	// https://tools-unite.com/tools/random-picker-wheel?names=KM
 
 	// New Hero -> Halloween
 
@@ -43,6 +43,7 @@ public enum Heroes {
 	SHARK(new Shark()),
 	LIBRARIAN(new Librarian()),
 	TECHIE(new Techie()),
+	WAR_MACHINE(new KillingMachine()),
 
 	HARBINGER(new Harbinger()),
 

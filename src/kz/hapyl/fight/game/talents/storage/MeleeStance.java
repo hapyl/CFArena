@@ -45,7 +45,7 @@ public class MeleeStance extends Talent {
 	}
 
 	@Override
-	protected Response execute(Player player) {
+	public Response execute(Player player) {
 		final StanceData data = getData(player);
 
 		// Switch to Melee

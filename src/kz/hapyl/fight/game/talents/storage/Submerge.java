@@ -34,7 +34,7 @@ public class Submerge extends Talent {
 	}
 
 	@Override
-	protected Response execute(Player player) {
+	public Response execute(Player player) {
 		player.setGameMode(GameMode.SPECTATOR);
 
 		final Location location = player.getLocation();

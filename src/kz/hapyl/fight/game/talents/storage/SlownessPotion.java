@@ -29,7 +29,7 @@ public class SlownessPotion extends Talent {
 	}
 
 	@Override
-	protected Response execute(Player player) {
+	public Response execute(Player player) {
 
 		final ThrownPotion potion = player.launchProjectile(ThrownPotion.class);
 		potion.setItem(potionItem);

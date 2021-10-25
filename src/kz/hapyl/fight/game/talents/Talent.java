@@ -214,7 +214,7 @@ public abstract class Talent implements GameElement {
 		return this;
 	}
 
-	protected abstract Response execute(Player player);
+	public abstract Response execute(Player player);
 
 	@Super
 	@Nonnull

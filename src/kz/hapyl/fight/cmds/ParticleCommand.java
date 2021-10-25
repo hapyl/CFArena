@@ -13,7 +13,7 @@ import java.util.List;
 public class ParticleCommand extends SimplePlayerAdminCommand {
 	public ParticleCommand(String name) {
 		super(name);
-		this.setUsage("part (Particle) [offsetX] [offsetY] [offsetZ] [speed] [amount]");
+		this.setUsage("part (Particle) [amount] [offsetX] [offsetY] [offsetZ] [speed]");
 	}
 
 	@Override
@@ -30,11 +30,11 @@ public class ParticleCommand extends SimplePlayerAdminCommand {
 			return;
 		}
 
-		final double offsetX = Validate.getDouble(args.length >= 2 ? args[1] : 0.0d);
-		final double offsetY = Validate.getDouble(args.length >= 3 ? args[2] : 0.0d);
-		final double offsetZ = Validate.getDouble(args.length >= 4 ? args[3] : 0.0d);
-		final float speed = Validate.getFloat(args.length >= 5 ? args[4] : 0.0d);
-		final int amount = Validate.getInt(args.length >= 6 ? args[5] : 1);
+		final int amount = Validate.getInt(args.length >= 2 ? args[1] : 1);
+		final double offsetX = Validate.getDouble(args.length >= 3 ? args[2] : 0.0d);
+		final double offsetY = Validate.getDouble(args.length >= 4 ? args[3] : 0.0d);
+		final double offsetZ = Validate.getDouble(args.length >= 5 ? args[4] : 0.0d);
+		final float speed = Validate.getFloat(args.length >= 6 ? args[5] : 0.0d);
 
 		PlayerLib.spawnParticle(player.getEyeLocation().add(0.0d, 0.5d, 0.0d), particle, amount, offsetX, offsetY, offsetZ, speed);
 		final StringBuilder builder = new StringBuilder("&aSpawned x%s &l%s &a[%s, %s, %s]".formatted(amount, Chat.capitalize(particle), offsetX, offsetY, offsetZ));

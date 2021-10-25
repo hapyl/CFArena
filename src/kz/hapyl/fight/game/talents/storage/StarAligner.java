@@ -26,7 +26,7 @@ public class StarAligner extends Talent {
 	}
 
 	@Override
-	protected Response execute(Player player) {
+	public Response execute(Player player) {
 		final AstralStars stars = starHandle.getHandle().getStars(player);
 		final List<LivingEntity> lastTwo = stars.getLastTwoStars();
 

@@ -25,7 +25,7 @@ public class NinjaSmoke extends Talent {
 	}
 
 	@Override
-	protected Response execute(Player player) {
+	public Response execute(Player player) {
 		final Location location = player.getLocation();
 		GamePlayer.getPlayer(player).addEffect(GameEffectType.INVISIBILITY, 120);
 

@@ -417,6 +417,10 @@ public class Utils {
 	}
 
 	public static void createExplosion(Location location, double range, double damage, Consumer<LivingEntity> consumer) {
+		createExplosion(location, range, damage, null, null, consumer);
+	}
+
+	public static void createExplosion(Location location, double range, double damage, @Nullable LivingEntity damager, @Nullable EnumDamageCause cause, @Nullable Consumer<LivingEntity> consumer) {
 		final World world = location.getWorld();
 		if (world == null) {
 			return;
@@ -424,7 +428,7 @@ public class Utils {
 
 		Utils.getEntitiesInRange(location, range).forEach(entity -> {
 			if (damage > 0.0d) {
-				entity.damage(damage);
+				GamePlayer.damageEntity(entity, damage, damager, cause);
 			}
 			if (consumer != null) {
 				consumer.accept(entity);

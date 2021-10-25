@@ -382,7 +382,7 @@ public class PlayerEvent implements Listener {
 		}
 
 		// display damage
-		if (damage > 1.0d) {
+		if (damage >= 1.0d) {
 			final DamageIndicator damageIndicator = new DamageIndicator(entity.getLocation(), damage, randomPoint);
 			if (!extraStrings.isEmpty()) {
 				damageIndicator.setExtra(extraStrings);

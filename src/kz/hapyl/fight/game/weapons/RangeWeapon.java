@@ -87,10 +87,15 @@ public abstract class RangeWeapon extends Weapon {
 	}
 
 	public void startCooldown(Player player) {
+		startCooldown(player, this.cooldown);
+	}
+
+	public void startCooldown(Player player, int cd) {
 		if (this.getItem() == null) {
 			return;
 		}
-		player.setCooldown(this.getItem().getType(), cooldown);
+		player.setCooldown(this.getItem().getType(), cd);
+
 	}
 
 	public boolean hasCooldown(Player player) {

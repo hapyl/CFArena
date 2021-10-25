@@ -64,7 +64,7 @@ public class VortexStar extends Talent {
 	}
 
 	@Override
-	protected Response execute(Player player) {
+	public Response execute(Player player) {
 		final int starsAmount = getStarsAmount(player);
 		final AstralStars stars = getStars(player);
 		final List<LivingEntity> twoStars = stars.getLastTwoStars();

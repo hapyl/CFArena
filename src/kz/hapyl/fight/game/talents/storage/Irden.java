@@ -31,7 +31,7 @@ public class Irden extends Talent {
 	}
 
 	@Override
-	protected Response execute(Player player) {
+	public Response execute(Player player) {
 		final Location location = player.getLocation();
 
 		new GameTask() {

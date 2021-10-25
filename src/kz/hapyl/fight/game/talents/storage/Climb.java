@@ -39,7 +39,7 @@ public class Climb extends Talent {
 	}
 
 	@Override
-	protected Response execute(Player player) {
+	public Response execute(Player player) {
 		final Location playerLocation = player.getLocation();
 		final Location location = playerLocation.add(playerLocation.getDirection().multiply(1).setY(0.0d));
 

@@ -47,6 +47,7 @@ public enum EnumDamageCause {
 	LIBRARY_VOID("was consumed by &0the void"),
 	RIPTIDE("was splashed", "by"),
 	FREEZE("froze to death", "with help of"),
+	LASER("was lasered to death", "by"),
 
 	// *==* there are vanilla ones, have to use them *==*
 

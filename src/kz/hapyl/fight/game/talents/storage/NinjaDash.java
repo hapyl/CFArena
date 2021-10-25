@@ -16,7 +16,7 @@ public class NinjaDash extends Talent {
 	}
 
 	@Override
-	protected Response execute(Player player) {
+	public Response execute(Player player) {
 		final Vector vector = player.getLocation().getDirection();
 		player.setVelocity(new Vector(vector.getX(), 0, vector.getZ()).normalize().multiply(1.5f));
 		PlayerLib.playSound(player.getLocation(), Sound.ITEM_TRIDENT_RIPTIDE_1, 1.1f);

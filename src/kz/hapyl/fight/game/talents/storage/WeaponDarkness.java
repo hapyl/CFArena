@@ -19,7 +19,7 @@ public class WeaponDarkness extends Talent implements GrimoireTalent {
 	}
 
 	@Override
-	protected Response execute(Player player) {
+	public Response execute(Player player) {
 		if (HeroHandle.LIBRARIAN.hasICD(player)) {
 			return ERROR;
 		}

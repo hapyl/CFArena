@@ -25,7 +25,7 @@ public class Spear extends Talent {
 	}
 
 	@Override
-	protected Response execute(Player player) {
+	public Response execute(Player player) {
 		player.setVelocity(player.getLocation().getDirection().setY(0.0d).multiply(1.5d));
 
 		new GameTask() {

@@ -142,7 +142,7 @@ public class IceCone extends Talent implements Listener {
 	}
 
 	@Override
-	protected Response execute(Player player) {
+	public Response execute(Player player) {
 
 		final Snowball snowball = player.launchProjectile(Snowball.class);
 		snowball.setShooter(player);
