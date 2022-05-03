@@ -19,7 +19,7 @@ public class LockdownEffect extends GameEffect {
 	public LockdownEffect() {
 		super("Lockdown");
 		this.setPositive(false);
-		this.setEffectParticle(new EffectParticle(Particle.BARRIER, 1));
+		this.setEffectParticle(new EffectParticle(Particle.BLOCK_MARKER, 1));
 	}
 
 	@Override
