@@ -37,176 +37,185 @@ import java.util.Set;
 
 public class Techie extends Hero implements UIComplexComponent, Listener {
 
-	private final Set<Lockdown> lockdownSet = new HashSet<>();
+    private final Set<Lockdown> lockdownSet = new HashSet<>();
 
-	public final int lockdownWindupTime = 200;
-	public final int lockdownRadius = 20;
-	public final int lockdownAffectTime = 170;
+    public final int lockdownWindupTime = 200;
+    public final int lockdownRadius = 20;
+    public final int lockdownAffectTime = 170;
 
-	private final int neuralTheftPeriod = 200;
+    private final int neuralTheftPeriod = 200;
 
-	public Techie() {
-		super("Techie");
-		this.setInfo("Anonymous hacker, who hacked his way to the fight. Weak by himself, but specifies on traps that makes him stronger.");
-		this.setItem(Material.IRON_TRAPDOOR);
+    public Techie() {
+        super("Techie");
+        this.setInfo(
+                "Anonymous hacker, who hacked his way to the fight. Weak by himself, but specifies on traps that makes him stronger.");
+        this.setItem(Material.IRON_TRAPDOOR);
 
-		final ClassEquipment equipment = this.getEquipment();
-		equipment.setHelmet(
-				"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWU1Yjc4OTg3YzcwZDczZjJhZDkzYTQ1NGY4NWRjYWI0NzZjNWI1Njc5ZjUwZWFhZjU1M2QyNDA0ZWRjOWMifX19"
-		);
-		equipment.setChestplate(205, 205, 205);
-		equipment.setLeggings(217, 217, 217);
-		equipment.setBoots(255, 230, 204);
+        final ClassEquipment equipment = this.getEquipment();
+        equipment.setHelmet(
+                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWU1Yjc4OTg3YzcwZDczZjJhZDkzYTQ1NGY4NWRjYWI0NzZjNWI1Njc5ZjUwZWFhZjU1M2QyNDA0ZWRjOWMifX19"
+        );
+        equipment.setChestplate(205, 205, 205);
+        equipment.setLeggings(217, 217, 217);
+        equipment.setBoots(255, 230, 204);
 
-		this.setWeapon(new Weapon(Material.IRON_SWORD).setName("Nano Sword").setDamage(7.0d).addEnchant(Enchantment.KNOCKBACK, 1));
+        this.setWeapon(new Weapon(Material.IRON_SWORD).setName("Nano Sword")
+                                                      .setDamage(7.0d)
+                                                      .addEnchant(Enchantment.KNOCKBACK, 1));
 
-		this.setUltimate(new UltimateTalent("Lockdown",
-				String.format(
-						"Place a device that charges over &b%ss&7. When charged, explodes and affects all opponents in &b%s &7blocks radius by &6&lLockdown &7for &b%ss&7.__&c&lThe device can be broken.",
-						BukkitUtils.roundTick(lockdownWindupTime),
-						lockdownRadius,
-						BukkitUtils.roundTick(lockdownAffectTime)
-				), 60
-		).setItem(Material.DAYLIGHT_DETECTOR).setSound(Sound.BLOCK_BELL_USE, 0.0f));
+        this.setUltimate(new UltimateTalent("Lockdown",
+                                            String.format(
+                                                    "Place a device that charges over &b%ss&7. When charged, explodes and affects all opponents in &b%s &7blocks radius by &6&lLockdown &7for &b%ss&7.__&c&lThe device can be broken.",
+                                                    BukkitUtils.roundTick(lockdownWindupTime),
+                                                    lockdownRadius,
+                                                    BukkitUtils.roundTick(lockdownAffectTime)
+                                            ), 60
+        ).setItem(Material.DAYLIGHT_DETECTOR).setSound(Sound.BLOCK_BELL_USE, 0.0f));
 
-	}
+    }
 
-	@Override
-	public void onStop() {
-		lockdownSet.forEach(Lockdown::remove);
-		lockdownSet.clear();
-	}
+    @Override
+    public void onStop() {
+        lockdownSet.forEach(Lockdown::remove);
+        lockdownSet.clear();
+    }
 
-	@EventHandler()
-	public void handleMovement(PlayerMoveEvent ev) {
-		final Player player = ev.getPlayer();
-		if (Manager.current().isGameInProgress() && GamePlayer.getPlayer(player).hasEffect(GameEffectType.LOCK_DOWN)) {
-			ev.setCancelled(true);
-			Chat.sendTitle(player, "&c&lLOCKDOWN", "&cUnable to move!", 0, 20, 0);
-		}
-	}
+    @EventHandler()
+    public void handleMovement(PlayerMoveEvent ev) {
+        final Player player = ev.getPlayer();
+        if (Manager.current().isGameInProgress() && GamePlayer.getPlayer(player).hasEffect(GameEffectType.LOCK_DOWN)) {
+            ev.setCancelled(true);
+            Chat.sendTitle(player, "&c&lLOCKDOWN", "&cUnable to move!", 0, 20, 0);
+        }
+    }
 
-	@Override
-	public void onStart() {
-		new GameTask() {
-			@Override
-			public void run() {
-				Heroes.TECHIE.getAlivePlayers().forEach(player -> {
-					int amountRevealed = 0;
-					final AbstractGameInstance game = Manager.current().getCurrentGame();
+    @Override
+    public void onStart() {
+        new GameTask() {
+            @Override
+            public void run() {
+                Heroes.TECHIE.getAlivePlayers().forEach(player -> {
+                    int amountRevealed = 0;
+                    final AbstractGameInstance game = Manager.current().getCurrentGame();
 
-					for (final GamePlayer alive : game.getAlivePlayers()) {
-						if (alive.compare(player)) {
-							continue;
-						}
+                    for (final GamePlayer alive : game.getAlivePlayers()) {
+                        if (alive.compare(player)) {
+                            continue;
+                        }
 
-						++amountRevealed;
-						revealPlayer(player.getPlayer(), alive.getPlayer());
-					}
+                        ++amountRevealed;
+                        revealPlayer(player.getPlayer(), alive.getPlayer());
+                    }
 
-					if (amountRevealed > 0) {
-						player.sendTitle("", "&l%s &fPlayers Revealed".formatted(amountRevealed), 5, 15, 5);
-						player.playSound(Sound.ENCHANT_THORNS_HIT, 2.0f);
-					}
+                    if (amountRevealed > 0) {
+                        player.sendTitle("", "&l%s &fPlayers Revealed".formatted(amountRevealed), 5, 15, 5);
+                        player.playSound(Sound.ENCHANT_THORNS_HIT, 2.0f);
+                    }
 
-				});
-			}
-		}.runTaskTimer(neuralTheftPeriod, neuralTheftPeriod);
-	}
+                });
+            }
+        }.runTaskTimer(neuralTheftPeriod, neuralTheftPeriod);
+    }
 
-	@EventHandler()
-	public void handleEntityDamage(EntityDamageEvent ev) {
-		final Entity entity = ev.getEntity();
-		if (!(entity instanceof LivingEntity living) || !Lockdown.isLockdownEntity(living)) {
-			return;
-		}
+    @EventHandler()
+    public void handleEntityDamage(EntityDamageEvent ev) {
+        final Entity entity = ev.getEntity();
+        if (!(entity instanceof LivingEntity living) || !Lockdown.isLockdownEntity(living)) {
+            return;
+        }
 
-		ev.setCancelled(true);
-		living.setHealth(living.getHealth() - ev.getDamage());
+        ev.setCancelled(true);
+        living.setHealth(living.getHealth() - ev.getDamage());
 
-		if (living.getHealth() <= 0.0d) {
-			living.remove();
-		}
+        if (living.getHealth() <= 0.0d) {
+            living.remove();
+        }
 
-	}
+    }
 
-	private void revealPlayer(Player player, LivingEntity revealed) {
-		// Glowing
-		new Glowing(revealed, ChatColor.AQUA, 20).addViewer(player);
+    private void revealPlayer(Player player, LivingEntity revealed) {
+        // Glowing
+        final Glowing glowing = new Glowing(revealed, ChatColor.AQUA, 20);
+        glowing.addViewer(player);
+        glowing.glow();
 
-		// Don't show health if further than 10 blocks, will not be visible
-		if (revealed.getLocation().distance(player.getLocation()) > 10.0d) {
-			return;
-		}
+        // If revealed not player don't show health.
+        if (!(revealed instanceof Player revealedPlayer)) {
+            return;
+        }
 
-		// Health
-		final Hologram hologram = new Hologram();
-		hologram.addLine("&a" + revealed.getName())
-				.addLine("&c" + BukkitUtils.decimalFormat(revealed instanceof Player revealedPlayer
-						? GamePlayer.getPlayer(revealedPlayer).getHealth()
-						: revealed.getHealth()) + " ❤")
-				.create(revealed.getEyeLocation())
-				.show(player);
+        // Don't show health if further than 10 blocks, will not be visible
+        if (revealed.getLocation().distance(player.getLocation()) > 10.0d) {
+            return;
+        }
 
-		new GameTask() {
-			private int tick = 20;
+        // Health
+        final Hologram hologram = new Hologram();
+        hologram.addLine("&a&l" + revealed.getName())
+                .addLine("&c&l%s &c❤".formatted(GamePlayer.getPlayer(revealedPlayer).getHealthFormatted()))
+                .create(revealed.getEyeLocation())
+                .show(player);
 
-			@Override
-			public void run() {
-				if (tick < 0) {
-					hologram.destroy();
-					this.cancel();
-					return;
-				}
+        new GameTask() {
+            private int tick = 30;
 
-				hologram.teleport(revealed.getEyeLocation().add(0.0d, 0.25d, 0.0d));
-				--tick;
-			}
-		}.addCancelEvent(hologram::destroy).runTaskTimer(0, 1);
-	}
+            @Override
+            public void run() {
+                if (tick < 0) {
+                    hologram.destroy();
+                    this.cancel();
+                    return;
+                }
 
-	@Override
-	public void useUltimate(Player player) {
-		final Location location = player.getLocation();
+                hologram.teleport(revealed.getEyeLocation().add(0.0d, 0.25d, 0.0d));
+                --tick;
+            }
+        }.addCancelEvent(hologram::destroy).runTaskTimer(0, 1);
+    }
 
-		if (!location.getBlock().getType().isAir()) {
-			return;
-		}
+    @Override
+    public void useUltimate(Player player) {
+        final Location location = player.getLocation();
 
-		lockdownSet.add(new Lockdown(player));
-		Chat.sendMessage(player, "&aCountdown initiated!");
+        if (!location.getBlock().getType().isAir()) {
+            return;
+        }
 
-	}
+        lockdownSet.add(new Lockdown(player));
+        Chat.sendMessage(player, "&aCountdown initiated!");
 
-	@Override
-	public String predicateMessage() {
-		return "Location is obstructed.";
-	}
+    }
 
-	@Override
-	public boolean predicateUltimate(Player player) {
-		return player.getLocation().getBlock().getType().isAir();
-	}
+    @Override
+    public String predicateMessage() {
+        return "Location is obstructed.";
+    }
+
+    @Override
+    public boolean predicateUltimate(Player player) {
+        return player.getLocation().getBlock().getType().isAir();
+    }
 
 
-	@Override
-	public Talent getFirstTalent() {
-		return Talents.TRAP_CAGE.getTalent();
-	}
+    @Override
+    public Talent getFirstTalent() {
+        return Talents.TRAP_CAGE.getTalent();
+    }
 
-	@Override
-	public Talent getSecondTalent() {
-		return Talents.TRAP_WIRE.getTalent();
-	}
+    @Override
+    public Talent getSecondTalent() {
+        return Talents.TRAP_WIRE.getTalent();
+    }
 
-	@Override
-	public Talent getPassiveTalent() {
-		return Talents.NEURAL_THEFT.getTalent();
-	}
+    @Override
+    public Talent getPassiveTalent() {
+        return Talents.NEURAL_THEFT.getTalent();
+    }
 
-	@Override
-	public String[] getStrings(Player player) {
-		return new String[]{"&f⁂ &l" + TalentHandle.TRAP_CAGE.getCages(player).size(), "&f⁑ &l" + TalentHandle.TRAP_WIRE.getTraps(player).size()};
-	}
+    @Override
+    public String[] getStrings(Player player) {
+        return new String[] { "&f⁂ &l" + TalentHandle.TRAP_CAGE.getCages(player).size(),
+                              "&f⁑ &l" + TalentHandle.TRAP_WIRE.getTraps(player).size() };
+    }
 
 }

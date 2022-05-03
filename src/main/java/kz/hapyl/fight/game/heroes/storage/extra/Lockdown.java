@@ -23,161 +23,175 @@ import org.bukkit.inventory.ItemStack;
 
 public class Lockdown {
 
-	@StaticField private final String emptyStringTitle = "                  ";
-	@StaticField private final String emptyString = "                          ";
-	@StaticField private final double lockdownHealth = 200.0d;
+    @StaticField
+    private final String emptyStringTitle = "                  ";
+    @StaticField
+    private final String emptyString = "                          ";
+    @StaticField
+    private final double lockdownHealth = 200.0d;
 
-	private final Player player;
-	private final Location location;
-	private final LivingEntity entity;
-	private final GameTask tasks;
+    private final Player player;
+    private final Location location;
+    private final LivingEntity entity;
+    private final GameTask tasks;
 
-	public Lockdown(Player player) {
-		this.player = player;
-		this.location = player.getLocation();
-		this.entity = createEntity();
-		this.tasks = createTasks();
-	}
+    public Lockdown(Player player) {
+        this.player = player;
+        this.location = player.getLocation();
+        this.entity = createEntity();
+        this.tasks = createTasks();
+    }
 
-	public void remove() {
-		entity.remove();
-		tasks.cancel();
-	}
+    public void remove() {
+        entity.remove();
+        tasks.cancel();
+    }
 
 
-	private GameTask createTasks() {
+    private GameTask createTasks() {
 
-		final AbstractParticleBuilder particleSelf = ParticleBuilder.redstoneDust(Color.fromRGB(57, 123, 189))
-				.setAmount(2)
-				.setOffX(0.2d)
-				.setOffZ(0.2d)
-				.setSpeed(10);
-		final AbstractParticleBuilder particleOther = ParticleBuilder.redstoneDust(Color.fromRGB(255, 51, 51))
-				.setAmount(2)
-				.setOffX(0.2d)
-				.setOffZ(0.2d)
-				.setSpeed(10);
-		final int delayBetweenDraw = 15;
+        final AbstractParticleBuilder particleSelf = ParticleBuilder.redstoneDust(Color.fromRGB(57, 123, 189))
+                                                                    .setAmount(2)
+                                                                    .setOffX(0.2d)
+                                                                    .setOffZ(0.2d)
+                                                                    .setSpeed(10);
 
-		return new GameTask() {
-			private int tick = HeroHandle.TECHIE.lockdownWindupTime;
+        final AbstractParticleBuilder particleOther = ParticleBuilder.redstoneDust(Color.fromRGB(255, 51, 51))
+                                                                     .setAmount(2)
+                                                                     .setOffX(0.2d)
+                                                                     .setOffZ(0.2d)
+                                                                     .setSpeed(10);
+        final int delayBetweenDraw = 15;
 
-			@Override
-			public void run() {
-				if (entity.isDead() || entity.getHealth() <= 0.0d) {
-					PlayerLib.playSound(location, Sound.BLOCK_BEACON_DEACTIVATE, 2.0f);
-					PlayerLib.playSound(location, Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 2.0f);
-					Chat.sendTitle(Lockdown.this.player, "", "&cLockdown Destroyed!", 10, 20, 10);
-					this.cancel();
-					return;
-				}
+        return new GameTask() {
+            private int tick = HeroHandle.TECHIE.lockdownWindupTime;
 
-				if (tick < 0) {
-					affect();
-					return;
-				}
+            @Override
+            public void run() {
+                if (entity.isDead() || entity.getHealth() <= 0.0d) {
+                    PlayerLib.playSound(location, Sound.BLOCK_BEACON_DEACTIVATE, 2.0f);
+                    PlayerLib.playSound(location, Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 2.0f);
+                    Chat.sendTitle(Lockdown.this.player, "", "&cLockdown Destroyed!", 10, 20, 10);
+                    this.cancel();
+                    return;
+                }
 
-				// Teleport FX
-				final Location entityLocation = entity.getLocation();
-				entityLocation.setYaw(entityLocation.getYaw() + 2.5f);
-				entity.teleport(entityLocation);
+                if (tick < 0) {
+                    affect();
+                    return;
+                }
 
-				// Fx
-				if (tick % delayBetweenDraw == 0) {
-					int lockdownRadius = HeroHandle.TECHIE.lockdownRadius;
-					Utils.getPlayersInRange(Lockdown.this.location, lockdownRadius).forEach(target -> {
-						// Fx
-						PlayerLib.playSound(target, Sound.BLOCK_BEACON_AMBIENT, 2.0f);
-						//Chat.sendTitle(target, "", "&c&lLockdown Warning!", 0, 20, 0);
-					});
+                // Teleport FX
+                final Location entityLocation = entity.getLocation();
+                entityLocation.setYaw(entityLocation.getYaw() + 2.5f);
+                entity.teleport(entityLocation);
 
-					Geometry.drawSphere(Lockdown.this.location, lockdownRadius * 1.5d, lockdownRadius, new Draw(Particle.VILLAGER_ANGRY) {
-						@Override
-						public void draw(Location location) {
-							Bukkit.getOnlinePlayers().forEach(player -> {
-								if (player == Lockdown.this.player) {
-									particleSelf.display(location, player);
-								}
-								else {
-									particleOther.display(location, player);
-								}
-							});
-						}
-					}, true);
-				}
+                // Fx
+                if (tick % delayBetweenDraw == 0) {
+                    int lockdownRadius = HeroHandle.TECHIE.lockdownRadius;
+                    Utils.getPlayersInRange(Lockdown.this.location, lockdownRadius).forEach(target -> {
+                        // Fx
+                        PlayerLib.playSound(target, Sound.BLOCK_BEACON_AMBIENT, 2.0f);
+                        //Chat.sendTitle(target, "", "&c&lLockdown Warning!", 0, 20, 0);
+                    });
 
-				// Countdown
-				Manager.current().getCurrentGame().getAlivePlayers().forEach(gamePlayer -> {
-					final String timeLeft = BukkitUtils.decimalFormat(tick * 5, "##,##");
-					displayLockdownMessage(
-							"&aAlly Lockdown", "&a&l" + timeLeft,
-							"&cEnemy Lockdown", "&c&l" + timeLeft, 20
-					);
-				});
+                    Geometry.drawSphere(
+                            Lockdown.this.location,
+                            lockdownRadius * 1.5d,
+                            lockdownRadius,
+                            new Draw(Particle.VILLAGER_ANGRY) {
+                                @Override
+                                public void draw(Location location) {
+                                    Bukkit.getOnlinePlayers().forEach(player -> {
+                                        if (player == Lockdown.this.player) {
+                                            particleSelf.display(location, player);
+                                        }
+                                        else {
+                                            particleOther.display(location, player);
+                                        }
+                                    });
+                                }
+                            },
+                            true
+                    );
+                }
 
-				--tick;
-			}
-		}.runTaskTimer(0, 1);
-	}
+                // Countdown
+                Manager.current().getCurrentGame().getAlivePlayers().forEach(gamePlayer -> {
+                    final String timeLeft = BukkitUtils.decimalFormat(tick * 5, "##,##");
+                    displayLockdownMessage(
+                            "&aAlly Lockdown",
+                            "&a&l" + timeLeft,
+                            "&cEnemy Lockdown",
+                            "&c&l" + timeLeft,
+                            20
+                    );
+                });
 
-	public void displayLockdownMessage(String allyTitle, String allySub, String enemyTitle, String enemySub, int length) {
-		Manager.current().getCurrentGame().getAlivePlayers().forEach(gamePlayer -> {
-			if (gamePlayer.compare(Lockdown.this.player)) {
-				gamePlayer.sendTitle(allyTitle + emptyStringTitle, allySub + emptyString, 0, length, 0);
-			}
-			else {
-				gamePlayer.sendTitle(emptyStringTitle + enemyTitle, emptyString + enemySub, 0, length, 0);
-			}
-		});
-	}
+                --tick;
+            }
+        }.runTaskTimer(0, 1);
+    }
 
-	public void affect() {
-		tasks.cancel();
-		entity.remove();
+    public void displayLockdownMessage(String allyTitle, String allySub, String enemyTitle, String enemySub, int length) {
+        Manager.current().getCurrentGame().getAlivePlayers().forEach(gamePlayer -> {
+            if (gamePlayer.compare(Lockdown.this.player)) {
+                gamePlayer.sendTitle(allyTitle + emptyStringTitle, allySub + emptyString, 0, length, 0);
+            }
+            else {
+                gamePlayer.sendTitle(emptyStringTitle + enemyTitle, emptyString + enemySub, 0, length, 0);
+            }
+        });
+    }
 
-		int affectedSize = 0;
-		for (final Player player : Utils.getPlayersInRange(location, HeroHandle.TECHIE.lockdownRadius)) {
-			if (player == Lockdown.this.player) {
-				continue;
-			}
+    public void affect() {
+        tasks.cancel();
+        entity.remove();
 
-			++affectedSize;
-			GamePlayer.getPlayer(player).addEffect(GameEffectType.LOCK_DOWN, HeroHandle.TECHIE.lockdownAffectTime);
-		}
+        int affectedSize = 0;
+        for (final Player player : Utils.getPlayersInRange(location, HeroHandle.TECHIE.lockdownRadius)) {
+            if (player == Lockdown.this.player) {
+                continue;
+            }
 
-		displayLockdownMessage(
-				"&aLockdown Affected",
-				"&a&L" + affectedSize + " &aopponents.",
-				"&cLockdown Affected",
-				"&c&L" + affectedSize + " &cplayers.", 80
-		);
+            ++affectedSize;
+            GamePlayer.getPlayer(player).addEffect(GameEffectType.LOCK_DOWN, HeroHandle.TECHIE.lockdownAffectTime);
+        }
 
-		if ((affectedSize - 1) == Manager.current().getCurrentGame().getAlivePlayers().size()) {
-			Chat.sendMessage(player, "&aLockdown affected opponents!");
-			PlayerLib.playSound(player, Sound.ENTITY_WITCH_CELEBRATE, 1.25f);
-		}
+        displayLockdownMessage(
+                "&aLockdown Affected",
+                "&a&L" + affectedSize + " &aopponents.",
+                "&cLockdown Affected",
+                "&c&L" + affectedSize + " &cplayers.",
+                80
+        );
 
-		// Fx
-		PlayerLib.playSound(location, Sound.ITEM_TOTEM_USE, 2.0f);
-	}
+        if ((affectedSize - 1) == Manager.current().getCurrentGame().getAlivePlayers().size()) {
+            Chat.sendMessage(player, "&aLockdown affected opponents!");
+            PlayerLib.playSound(player, Sound.ENTITY_WITCH_CELEBRATE, 1.25f);
+        }
 
-	private LivingEntity createEntity() {
-		return Entities.ARMOR_STAND.spawn(player.getLocation().subtract(0.0d, 1.25d, 0.0d), me -> {
-			me.setMarker(false);
-			me.setInvisible(true);
-			me.setGravity(false);
-			me.setMaxHealth(lockdownHealth);
-			me.setHealth(lockdownHealth);
-			me.addScoreboardTag("LockdownDevice");
+        // Fx
+        PlayerLib.playSound(location, Sound.ITEM_TOTEM_USE, 2.0f);
+    }
 
-			Utils.lockArmorStand(me);
-			Nulls.runIfNotNull(me.getEquipment(), eq -> eq.setHelmet(new ItemStack(Material.DAYLIGHT_DETECTOR)));
-		});
-	}
+    private LivingEntity createEntity() {
+        return Entities.ARMOR_STAND.spawn(player.getLocation().subtract(0.0d, 1.25d, 0.0d), me -> {
+            me.setMarker(false);
+            me.setInvisible(true);
+            me.setGravity(false);
+            me.setMaxHealth(lockdownHealth);
+            me.setHealth(lockdownHealth);
+            me.addScoreboardTag("LockdownDevice");
 
-	public static boolean isLockdownEntity(LivingEntity entity) {
-		return entity.getScoreboardTags().contains("LockdownDevice");
-	}
+            Utils.lockArmorStand(me);
+            Nulls.runIfNotNull(me.getEquipment(), eq -> eq.setHelmet(new ItemStack(Material.DAYLIGHT_DETECTOR)));
+        });
+    }
+
+    public static boolean isLockdownEntity(LivingEntity entity) {
+        return entity.getScoreboardTags().contains("LockdownDevice");
+    }
 
 
 }

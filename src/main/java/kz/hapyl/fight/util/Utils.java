@@ -10,9 +10,6 @@ import kz.hapyl.spigotutils.module.math.gometry.Quality;
 import kz.hapyl.spigotutils.module.math.gometry.WorldParticle;
 import kz.hapyl.spigotutils.module.player.PlayerLib;
 import kz.hapyl.spigotutils.module.reflect.Reflect;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityDestroy;
-import net.minecraft.network.protocol.game.PacketPlayOutSpawnEntityLiving;
-import net.minecraft.world.entity.EntityLiving;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
@@ -187,14 +184,11 @@ public class Utils {
     }
 
     public static void hideEntity(Entity entity, Player player) {
-        final PacketPlayOutEntityDestroy packet = new PacketPlayOutEntityDestroy(entity.getEntityId());
-        Reflect.sendPacket(player, packet);
+        Reflect.hideEntity(entity, player);
     }
 
     public static void showEntity(Entity entity, Player player) {
-        final PacketPlayOutSpawnEntityLiving packet = new PacketPlayOutSpawnEntityLiving((EntityLiving) Reflect.getNetEntity(
-                entity));
-        Reflect.sendPacket(player, packet);
+        Reflect.showEntity(entity, player);
     }
 
     public static void rayTracePath(Location start, Location end, double shift, double searchRange, Function<LivingEntity> funcLiving, Function<Location> funcLoc) {

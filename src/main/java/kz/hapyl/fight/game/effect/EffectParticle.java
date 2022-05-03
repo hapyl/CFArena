@@ -37,4 +37,27 @@ public class EffectParticle {
         });
     }
 
+    public Particle getParticle() {
+        return particle;
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    public double getoX() {
+        return oX;
+    }
+
+    public double getoY() {
+        return oY;
+    }
+
+    public double getoZ() {
+        return oZ;
+    }
+
+    public float getSpeed() {
+        return speed;
+    }
 }

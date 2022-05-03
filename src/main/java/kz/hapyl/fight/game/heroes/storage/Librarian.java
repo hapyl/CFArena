@@ -43,237 +43,247 @@ import java.util.Map;
  */
 public class Librarian extends Hero implements ComplexHero, Listener {
 
-	private final Map<Integer, GrimoireTalent> talentMap = new HashMap<>();
-	private final Map<Player, Grimoire> grimoireMap = new HashMap<>();
-	private final String grimoireLevelUpGradient = new Gradient("Grimoire Level Up!")
-			.makeBold()
-			.rgb(ChatColor.RED.getColor(), ChatColor.BLUE.getColor(), Interpolators.LINEAR);
+    private final Map<Integer, GrimoireTalent> talentMap = new HashMap<>();
+    private final Map<Player, Grimoire> grimoireMap = new HashMap<>();
+    private final String grimoireLevelUpGradient = new Gradient("Grimoire Level Up!")
+            .makeBold()
+            .rgb(ChatColor.RED.getColor(), ChatColor.BLUE.getColor(), Interpolators.LINEAR);
 
-	private final String grimoireIsMaxGradient = new Gradient("Grimoire Maxed!")
-			.rgb(ChatColor.RED.getColor(), ChatColor.BLUE.getColor(), Interpolators.LINEAR);
+    private final String grimoireIsMaxGradient = new Gradient("Grimoire Maxed!")
+            .rgb(ChatColor.RED.getColor(), ChatColor.BLUE.getColor(), Interpolators.LINEAR);
 
-	public Librarian() {
-		super("Librarian of Void", "Mislead by the &0void&7, sacrifices were made.", Material.BOOK);
+    public Librarian() {
+        super("Librarian of Void", "Mislead by the &0void&7, sacrifices were made.", Material.BOOK);
 
-		talentMap.put(1, (GrimoireTalent)Talents.BLACK_HOLE.getTalent());
-		talentMap.put(2, (GrimoireTalent)Talents.ENTITY_DARKNESS.getTalent());
-		talentMap.put(3, (GrimoireTalent)Talents.LIBRARIAN_SHIELD.getTalent());
-		talentMap.put(4, (GrimoireTalent)Talents.WEAPON_DARKNESS.getTalent());
+        talentMap.put(1, (GrimoireTalent) Talents.BLACK_HOLE.getTalent());
+        talentMap.put(2, (GrimoireTalent) Talents.ENTITY_DARKNESS.getTalent());
+        talentMap.put(3, (GrimoireTalent) Talents.LIBRARIAN_SHIELD.getTalent());
+        talentMap.put(4, (GrimoireTalent) Talents.WEAPON_DARKNESS.getTalent());
 
-		final ClassEquipment equipment = this.getEquipment();
-		equipment.setHelmet(
-				"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTg4YjFjZDk1NzQ2NzJlOGUzMjYyZjIxMGMwZGRkYmMwODJlYTc1NjllOGU3MGYwYzA3YjRiZWU3NWUzMmY2MiJ9fX0="
-		);
-		equipment.setChestplate(47, 32, 40);
-		equipment.setLeggings(Material.NETHERITE_LEGGINGS);
-		equipment.setBoots(84, 37, 62);
+        final ClassEquipment equipment = this.getEquipment();
+        equipment.setHelmet(
+                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTg4YjFjZDk1NzQ2NzJlOGUzMjYyZjIxMGMwZGRkYmMwODJlYTc1NjllOGU3MGYwYzA3YjRiZWU3NWUzMmY2MiJ9fX0="
+        );
+        equipment.setChestplate(47, 32, 40);
+        equipment.setLeggings(Material.NETHERITE_LEGGINGS);
+        equipment.setBoots(84, 37, 62);
 
-		this.setWeapon(new Weapon(Material.NETHERITE_SHOVEL).setName("Staff").setDamage(7.5d));
+        this.setWeapon(new Weapon(Material.NETHERITE_SHOVEL).setName("Staff").setDamage(7.5d));
 
-		this.setUltimate(new UltimateTalent(
-				"Void of Blindness",
-				"Create massive void of blindness field for {duration}. Everyone who dares steps inside, will be affected by paranoia and glow. Librarian also gets a &c&ldamage &7and &b&lspeed &7boost.",
-				70
-		).setItem(Material.SQUID_SPAWN_EGG).setDuration(240));
+        this.setUltimate(new UltimateTalent(
+                "Void of Blindness",
+                "Create massive void of blindness field for {duration}. Everyone who dares steps inside, will be affected by paranoia and glow. Librarian also gets a &c&ldamage &7and &b&lspeed &7boost.",
+                70
+        ).setItem(Material.SQUID_SPAWN_EGG).setDuration(240));
 
-	}
+    }
 
-	@Override
-	public void onStart(Player player) {
-		grimoireMap.put(player, new Grimoire(player));
-		giveGrimoireBook(player);
-	}
+    @Override
+    public void onStart(Player player) {
+        grimoireMap.put(player, new Grimoire(player));
+        giveGrimoireBook(player);
+    }
 
-	@Override
-	public void onStart() {
-		final int grimoreLevelUpDelay = 900; // 40
+    @Override
+    public void onStart() {
+        final int grimoreLevelUpDelay = 900; // 40
 
-		new GameTask() {
-			@Override
-			public void run() {
+        new GameTask() {
+            @Override
+            public void run() {
 
-				Manager.current().getCurrentGame().getAlivePlayers(Heroes.LIBRARIAN).forEach(player -> {
-					final Player playerPlayer = player.getPlayer();
-					final Grimoire grimoire = grimoireMap.get(playerPlayer);
+                Manager.current().getCurrentGame().getAlivePlayers(Heroes.LIBRARIAN).forEach(player -> {
+                    final Player playerPlayer = player.getPlayer();
+                    final Grimoire grimoire = grimoireMap.get(playerPlayer);
 
-					if (grimoire.isMaxed()) {
-						return;
-					}
+                    if (grimoire.isMaxed()) {
+                        return;
+                    }
 
-					grimoire.nextBook();
+                    grimoire.nextBook();
 
-					// Update book if not using spells
-					final PlayerInventory inventory = playerPlayer.getInventory();
-					final ItemStack item = inventory.getItem(1);
-					if (GrimoireBook.isGrimmoreItem(item)) {
-						inventory.setItem(1, grimoire.getCurrentBook().getItem());
-					}
+                    // Update book if not using spells
+                    final PlayerInventory inventory = playerPlayer.getInventory();
+                    final ItemStack item = inventory.getItem(1);
+                    if (GrimoireBook.isGrimmoreItem(item)) {
+                        inventory.setItem(1, grimoire.getCurrentBook().getItem());
+                    }
 
-					// Fx
-					Chat.sendTitle(playerPlayer, "", grimoire.isMaxed() ? grimoireIsMaxGradient : grimoireLevelUpGradient, 5, 15, 5);
-					PlayerLib.playSound(playerPlayer, Sound.ENTITY_PLAYER_LEVELUP, 1.75f);
+                    // Fx
+                    Chat.sendTitle(
+                            playerPlayer,
+                            "",
+                            grimoire.isMaxed() ? grimoireIsMaxGradient : grimoireLevelUpGradient,
+                            5,
+                            15,
+                            5
+                    );
+                    PlayerLib.playSound(playerPlayer, Sound.ENTITY_PLAYER_LEVELUP, 1.75f);
 
-				});
+                });
 
-			}
-		}.runTaskTimer(grimoreLevelUpDelay, grimoreLevelUpDelay);
-	}
+            }
+        }.runTaskTimer(grimoreLevelUpDelay, grimoreLevelUpDelay);
+    }
 
-	public int getGrimoireLevel(Player player) {
-		return grimoireMap.getOrDefault(player, new Grimoire(player)).getUsedAtLevel();
-	}
+    public int getGrimoireLevel(Player player) {
+        return grimoireMap.getOrDefault(player, new Grimoire(player)).getUsedAtLevel();
+    }
 
-	@Override
-	public void useUltimate(Player player) {
-		final Location castLocation = player.getLocation().add(0.0d, 0.5d, 0.0d);
-		PlayerLib.playSound(castLocation, Sound.ENTITY_SQUID_SQUIRT, 0.0f);
+    @Override
+    public void useUltimate(Player player) {
+        final Location castLocation = player.getLocation().add(0.0d, 0.5d, 0.0d);
+        PlayerLib.playSound(castLocation, Sound.ENTITY_SQUID_SQUIRT, 0.0f);
 
-		new GameTask() {
-			private int tick = getUltimateDuration();
+        new GameTask() {
+            private int tick = getUltimateDuration();
 
-			@Override
-			public void run() {
-				if ((tick -= 10) <= 0) {
-					this.cancel();
-					return;
-				}
+            @Override
+            public void run() {
+                if ((tick -= 10) <= 0) {
+                    this.cancel();
+                    return;
+                }
 
-				PlayerLib.spawnParticle(castLocation, Particle.SQUID_INK, 50, 5, 1.5, 5, 0.05f);
-				PlayerLib.spawnParticle(castLocation, Particle.SQUID_INK, 10, 5, 1.5, 5, 2.0f);
+                PlayerLib.spawnParticle(castLocation, Particle.SQUID_INK, 50, 5, 1.5, 5, 0.05f);
+                PlayerLib.spawnParticle(castLocation, Particle.SQUID_INK, 10, 5, 1.5, 5, 2.0f);
 
-				Utils.getEntitiesInRange(castLocation, 20).forEach(entity -> {
-					if (entity == player) {
-						PlayerLib.addEffect(player, EffectType.SPEED, 20, 1);
-						PlayerLib.addEffect(player, EffectType.STRENGTH, 20, 0);
-					}
-					else {
-						entity.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 20, 1));
-					}
-					entity.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20, 1));
-				});
+                Utils.getEntitiesInRange(castLocation, 20).forEach(entity -> {
+                    if (entity == player) {
+                        PlayerLib.addEffect(player, EffectType.SPEED, 20, 1);
+                        PlayerLib.addEffect(player, EffectType.STRENGTH, 20, 0);
+                    }
+                    else {
+                        entity.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 20, 1));
+                    }
+                    entity.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20, 1));
+                });
 
-			}
-		}.runTaskTimer(0, 10);
-	}
+            }
+        }.runTaskTimer(0, 10);
+    }
 
-	@Override
-	public Talent getFirstTalent() {
-		return Talents.BLACK_HOLE.getTalent();
-	}
+    @Override
+    public Talent getFirstTalent() {
+        return Talents.BLACK_HOLE.getTalent();
+    }
 
-	@Override
-	public Talent getSecondTalent() {
-		return Talents.ENTITY_DARKNESS.getTalent();
-	}
+    @Override
+    public Talent getSecondTalent() {
+        return Talents.ENTITY_DARKNESS.getTalent();
+    }
 
-	@Override
-	public Talent getThirdTalent() {
-		return Talents.LIBRARIAN_SHIELD.getTalent();
-	}
+    @Override
+    public Talent getThirdTalent() {
+        return Talents.LIBRARIAN_SHIELD.getTalent();
+    }
 
-	@Override
-	public Talent getFourthTalent() {
-		return Talents.WEAPON_DARKNESS.getTalent();
-	}
+    @Override
+    public Talent getFourthTalent() {
+        return Talents.WEAPON_DARKNESS.getTalent();
+    }
 
-	@Override
-	@KeepNull
-	public Talent getFifthTalent() {
-		return Talent.NULL;
-	}
+    @Override
+    @KeepNull
+    public Talent getFifthTalent() {
+        return Talent.NULL;
+    }
 
-	@Override
-	public Talent getPassiveTalent() {
-		return null;
-	}
+    @Override
+    public Talent getPassiveTalent() {
+        return null;
+    }
 
-	public void grantSpellItems(Player player) {
-		final PlayerInventory inventory = player.getInventory();
-		applyICD(player);
+    public void grantSpellItems(Player player) {
+        final PlayerInventory inventory = player.getInventory();
+        applyICD(player);
 
-		talentMap.forEach((slot, talent) -> {
-			inventory.setItem(slot, ((Talent)talent).getItem());
-			if (slot == 2) {
-				Nulls.runIfNotNull(inventory.getItem(2), item -> item.setAmount(3));
-			}
-		});
+        talentMap.forEach((slot, talent) -> {
+            inventory.setItem(slot, ((Talent) talent).getItem());
+            if (slot == 2) {
+                Nulls.runIfNotNull(inventory.getItem(2), item -> item.setAmount(3));
+            }
+        });
 
-		// Fx
-		PlayerLib.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 0.75f);
-		PlayerLib.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1.25f);
-	}
+        // Fx
+        PlayerLib.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 0.75f);
+        PlayerLib.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1.25f);
+    }
 
-	public boolean hasICD(Player player) {
-		return player.hasCooldown(getItem().getType());
-	}
+    public boolean hasICD(Player player) {
+        return player.hasCooldown(getItem().getType());
+    }
 
-	public void applyICD(Player player) {
-		player.setCooldown(getItem().getType(), 10);
-	}
+    public void applyICD(Player player) {
+        player.setCooldown(getItem().getType(), 10);
+    }
 
-	public void removeSpellItems(Player player, Talents enumTalent) {
-		final Talent talent = enumTalent.getTalent();
-		if (!(talent instanceof GrimoireTalent grimoire)) {
-			return;
-		}
+    public void removeSpellItems(Player player, Talents enumTalent) {
+        final Talent talent = enumTalent.getTalent();
+        if (!(talent instanceof GrimoireTalent grimoire)) {
+            return;
+        }
 
-		final int talentIndex = indexOfTalent(enumTalent);
-		final PlayerInventory inventory = player.getInventory();
-		for (int i = 1; i <= 4; i++) {
-			final ItemStack item = inventory.getItem(i);
+        final int talentIndex = indexOfTalent(enumTalent);
+        final PlayerInventory inventory = player.getInventory();
+        for (int i = 1; i <= 4; i++) {
+            final ItemStack item = inventory.getItem(i);
 
-			if (item != null) {
-				item.setAmount(item.getAmount() - (talentIndex == i ? 1 : 64));
-			}
-		}
+            if (item != null) {
+                item.setAmount(item.getAmount() - (talentIndex == i ? 1 : 64));
+            }
+        }
 
-		final ItemStack currentItem = inventory.getItem(talentIndex);
-		if (currentItem == null) {
-			GrimoireBook.applyCooldown(player, (grimoire.getGrimoireCd() * 20));
-			giveGrimoireBook(player);
-		}
+        final ItemStack currentItem = inventory.getItem(talentIndex);
+        if (currentItem == null) {
+            GrimoireBook.applyCooldown(player, (grimoire.getGrimoireCd() * 20));
+            giveGrimoireBook(player);
+        }
 
-	}
+    }
 
-	public void giveGrimoireBook(Player player) {
-		final PlayerInventory inventory = player.getInventory();
-		final Grimoire grimoire = grimoireMap.get(player);
+    public void giveGrimoireBook(Player player) {
+        final PlayerInventory inventory = player.getInventory();
+        final Grimoire grimoire = grimoireMap.get(player);
 
-		if (grimoire != null) {
-			inventory.setItem(1, grimoire.getCurrentBook().getItem());
-		}
-	}
+        if (grimoire != null) {
+            inventory.setItem(1, grimoire.getCurrentBook().getItem());
+        }
+    }
 
-	private int indexOfTalent(Talents enumTalent) {
-		return switch (enumTalent) {
-			default -> 1;
-			case ENTITY_DARKNESS -> 2;
-			case LIBRARIAN_SHIELD -> 3;
-			case WEAPON_DARKNESS -> 4;
-		};
-	}
+    private int indexOfTalent(Talents enumTalent) {
+        return switch (enumTalent) {
+            default -> 1;
+            case ENTITY_DARKNESS -> 2;
+            case LIBRARIAN_SHIELD -> 3;
+            case WEAPON_DARKNESS -> 4;
+        };
+    }
 
-	@EventHandler()
-	public void handlePlayerInteract(PlayerItemHeldEvent ev) {
-		final Player player = ev.getPlayer();
-		if (!validatePlayer(player, Heroes.LIBRARIAN) || ev.getNewSlot() != 1) {
-			return;
-		}
+    @EventHandler()
+    public void handlePlayerInteract(PlayerItemHeldEvent ev) {
+        final Player player = ev.getPlayer();
+        if (!validatePlayer(player, Heroes.LIBRARIAN) || ev.getNewSlot() != 1) {
+            return;
+        }
 
-		final ItemStack item = player.getInventory().getItem(ev.getNewSlot());
-		if (!GrimoireBook.isGrimmoreItem(item)) {
-			return;
-		}
+        final ItemStack item = player.getInventory().getItem(ev.getNewSlot());
+        if (!GrimoireBook.isGrimmoreItem(item)) {
+            return;
+        }
 
-		final Grimoire grimoire = grimoireMap.get(player);
-		if (GrimoireBook.hasCooldown(player) || grimoire == null) {
-			Chat.sendMessage(player, "&cCannot use Grimore now! On cooldown for %ss.".formatted(GrimoireBook.getCooldownString(player)));
-			return;
-		}
+        final Grimoire grimoire = grimoireMap.get(player);
+        if (GrimoireBook.hasCooldown(player) || grimoire == null) {
+            Chat.sendMessage(
+                    player,
+                    "&cCannot use Grimore now! On cooldown for %ss.".formatted(GrimoireBook.getCooldownString(player))
+            );
+            return;
+        }
 
-		grimoire.markUsedNow();
-		grantSpellItems(player);
-		player.getInventory().setHeldItemSlot(0);
-	}
+        grimoire.markUsedNow();
+        grantSpellItems(player);
+        player.getInventory().setHeldItemSlot(0);
+    }
 
 }

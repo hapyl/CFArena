@@ -63,8 +63,9 @@ public class Main extends JavaPlugin {
         for (final World world : Bukkit.getWorlds()) {
             world.setGameRule(GameRule.NATURAL_REGENERATION, false);
             world.setGameRule(GameRule.DO_FIRE_TICK, false);
+            world.setGameRule(GameRule.MOB_GRIEFING, false);
             world.setGameRule(GameRule.DO_MOB_SPAWNING, false);
-            world.setGameRule(GameRule.DO_MOB_SPAWNING, false);
+            world.setGameRule(GameRule.DO_MOB_LOOT, false);
             world.setGameRule(GameRule.DO_TILE_DROPS, false);
             world.setGameRule(GameRule.DO_TRADER_SPAWNING, false);
             world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
@@ -166,6 +167,7 @@ public class Main extends JavaPlugin {
         processor.registerCommand(new TrialCommand("trial"));
         processor.registerCommand(new SettingCommand("setting"));
         processor.registerCommand(new HelpCommand("help"));
+        processor.registerCommand(new GamemodeShortcut("gamemode"));
 
         processor.registerCommand(new SimplePlayerAdminCommand("riptide") {
 
@@ -183,7 +185,6 @@ public class Main extends JavaPlugin {
 
                         @Override
                         public void run() {
-
                             if (maxTick-- < 0) {
                                 Chat.sendMessage(player, "&aLaunch finished!");
                                 this.cancel();
@@ -226,10 +227,7 @@ public class Main extends JavaPlugin {
                     return;
                 }
 
-                final Entity minecraftEntity = Reflect.getMinecraftEntity(player);
-
                 if (riptideActive.contains(player)) {
-
                     riptideActive.remove(player);
                     return;
                 }
@@ -245,6 +243,33 @@ public class Main extends JavaPlugin {
                         }
                     }
                 }.runTaskTimer(0, 1);
+            }
+        });
+
+        processor.registerCommand(new SimplePlayerAdminCommand("spawnfreezingme") {
+
+            HumanNPC npc;
+
+            @Override
+            protected void execute(Player player, String[] strings) {
+                if (npc != null) {
+
+                    if (strings.length > 0) {
+                        Chat.sendMessage(player, "&aApplying skin...");
+                        npc.setSkinAsync(strings[0]);
+                        return;
+                    }
+
+                    npc.remove();
+                    npc = null;
+                    Chat.sendMessage(player, "&aRemoved!");
+                    return;
+                }
+
+                npc = new HumanNPC(player.getLocation(), player.getName(), player.getName());
+                npc.show(player);
+                Chat.sendMessage(player, "&aSpawned!");
+
             }
         });
 

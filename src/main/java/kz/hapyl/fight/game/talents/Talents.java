@@ -194,7 +194,6 @@ public enum Talents {
 	TRAP_WIRE(new TrapWire()),
 	NEURAL_THEFT(new PassiveTalent(
 			"Neural Theft/CYber Hack",
-			// that stuns, reveals location and applies &6&lVulnerability&7.
 			"Every &b10s&7, hacks into opponents revealing their location and health.____&b&lCYber Hack:__&7A small virus that reveals opponent's location, slows them and applies &6&lVulnerability&7 for short duration.",
 			Material.CHAINMAIL_HELMET
 	)),

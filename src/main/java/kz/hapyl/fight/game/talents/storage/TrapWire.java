@@ -1,6 +1,6 @@
 package kz.hapyl.fight.game.talents.storage;
 
-import io.netty.util.internal.ConcurrentSet;
+import com.google.common.collect.Sets;
 import kz.hapyl.fight.game.Manager;
 import kz.hapyl.fight.game.Response;
 import kz.hapyl.fight.game.talents.ChargedTalent;
@@ -39,7 +39,7 @@ public class TrapWire extends ChargedTalent implements Listener {
         this.setCdSec(3);
 
         this.addExtraInfo("&aRecharge Time: &l%ss", BukkitUtils.roundTick(pickupDelay));
-        this.addExtraInfo(" &8&oRecharges upon activation.");
+        this.addExtraInfo(" &8&oRecharges upon activation or pickup.");
     }
 
     @Override
@@ -86,7 +86,7 @@ public class TrapWire extends ChargedTalent implements Listener {
     }
 
     public Set<Tripwire> getTraps(Player player) {
-        return trapMap.computeIfAbsent(player, k -> new ConcurrentSet<>());
+        return trapMap.computeIfAbsent(player, k -> Sets.newConcurrentHashSet());
     }
 
     public void removeTrap(Tripwire trap) {
@@ -134,6 +134,7 @@ public class TrapWire extends ChargedTalent implements Listener {
 
         if (tripwire != null && tripwire.getPlayer() == player) {
             removeTrap(tripwire);
+            grantCharge(player);
             startCd(player, pickupDelay);
 
             // Fx
