@@ -7,6 +7,7 @@ import kz.hapyl.fight.event.PlayerEvent;
 import kz.hapyl.fight.game.ChatController;
 import kz.hapyl.fight.game.Manager;
 import kz.hapyl.fight.game.database.Database;
+import kz.hapyl.fight.game.exp.Experience;
 import kz.hapyl.fight.game.maps.GameMaps;
 import kz.hapyl.fight.game.maps.features.BoosterController;
 import kz.hapyl.fight.game.scoreboard.ScoreList;
@@ -14,7 +15,7 @@ import kz.hapyl.fight.game.task.GameTask;
 import kz.hapyl.fight.game.task.TaskList;
 import kz.hapyl.fight.game.tutorial.ChatTutorial;
 import kz.hapyl.fight.game.tutorial.Tutorial;
-import kz.hapyl.spigotutils.SpigotUtils;
+import kz.hapyl.spigotutils.EternaAPI;
 import kz.hapyl.spigotutils.module.chat.Chat;
 import kz.hapyl.spigotutils.module.chat.Gradient;
 import kz.hapyl.spigotutils.module.chat.gradient.Interpolators;
@@ -51,6 +52,7 @@ public class Main extends JavaPlugin {
     private TaskList taskList;
     private ScoreList scoreList;
     private BoosterController boosters;
+    private Experience experience;
 
     @Override
     public void onEnable() {
@@ -58,7 +60,7 @@ public class Main extends JavaPlugin {
         regCommands();
         regEvents();
 
-        SpigotUtils.hookIntoAPI(this);
+        new EternaAPI(this);
 
         for (final World world : Bukkit.getWorlds()) {
             world.setGameRule(GameRule.NATURAL_REGENERATION, false);
@@ -82,6 +84,7 @@ public class Main extends JavaPlugin {
         this.scoreList = new ScoreList();
         this.tutorial = new ChatTutorial();
         this.boosters = new BoosterController();
+        this.experience = new Experience();
 
         // update database
         for (final Player player : Bukkit.getOnlinePlayers()) {
@@ -91,6 +94,10 @@ public class Main extends JavaPlugin {
         getConfig().options().copyDefaults(true);
         saveConfig();
 
+    }
+
+    public Experience getExperience() {
+        return experience;
     }
 
     public Manager getManager() {
@@ -246,7 +253,7 @@ public class Main extends JavaPlugin {
             }
         });
 
-        processor.registerCommand(new SimplePlayerAdminCommand("spawnfreezingme") {
+        processor.registerCommand(new SimplePlayerAdminCommand("spawnme") {
 
             HumanNPC npc;
 
@@ -267,6 +274,11 @@ public class Main extends JavaPlugin {
                 }
 
                 npc = new HumanNPC(player.getLocation(), player.getName(), player.getName());
+                npc.setLookAtCloseDist(5);
+                npc.addDialogLine("Hello {player}, my name is {name} and I'm here as a test!", 40);
+                npc.addDialogLine("I'm located at {location}", 20);
+                npc.addDialogLine("That's it then, bye &c❤");
+                npc.setInteractionDelay(60);
                 npc.show(player);
                 Chat.sendMessage(player, "&aSpawned!");
 

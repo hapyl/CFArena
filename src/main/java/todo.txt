@@ -1,5 +1,7 @@
 TODO:
 
+- Experience System
+
 - Add talents for:
     - Troll (Passive)
     - Mage (Second)

@@ -16,7 +16,7 @@ import kz.hapyl.fight.game.task.GameTask;
 import kz.hapyl.fight.game.task.ShutdownAction;
 import kz.hapyl.fight.game.trial.Trial;
 import kz.hapyl.fight.game.ui.UIComponent;
-import kz.hapyl.spigotutils.SpigotUtilsPlugin;
+import kz.hapyl.spigotutils.EternaPlugin;
 import kz.hapyl.spigotutils.module.chat.Chat;
 import kz.hapyl.spigotutils.module.math.IntInt;
 import kz.hapyl.spigotutils.module.player.song.Song;
@@ -219,7 +219,7 @@ public class GamePlayerUI {
 		footer.append("&e&lPing: &f").append(player.getPing());
 
 		// Display NBS player if playing a song
-		final SongPlayer songPlayer = SpigotUtilsPlugin.getPlugin().getSongPlayer();
+		final SongPlayer songPlayer = EternaPlugin.getPlugin().getSongPlayer();
 		if (songPlayer.getCurrentSong() != null) {
 			final Song song = songPlayer.getCurrentSong();
 			final StringBuilder builder = new StringBuilder();

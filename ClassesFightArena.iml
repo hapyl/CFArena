@@ -91,7 +91,7 @@
     <orderEntry type="module-library">
       <library name="Maven: local.spigotutils:local:1.0">
         <CLASSES>
-          <root url="jar://E:/_Server18/plugins/SpigotUtils.jar!/" />
+          <root url="jar://E:/_Server18/plugins/EternaAPI.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

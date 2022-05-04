@@ -117,7 +117,7 @@
             <artifactId>local</artifactId>
             <version>1.0</version>
             <scope>system</scope>
-            <systemPath>E:/_Server18/plugins/SpigotUtils.jar
+            <systemPath>E:/_Server18/plugins/EternaAPI.jar
             </systemPath>
         </dependency>
 

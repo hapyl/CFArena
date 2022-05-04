@@ -17,101 +17,135 @@ import java.util.Map;
 
 public class AdminCommand extends SimplePlayerAdminCommand {
 
-	private final Map<String, Acceptor> acceptors;
+    private final Map<String, Acceptor> acceptors;
 
-	public AdminCommand(String str) {
-		super(str);
-		this.setUsage("/admin [damage, setkills, map] (Value)");
+    public AdminCommand(String str) {
+        super(str);
+        this.setUsage("/admin [damage, setkills, map] (Value)");
 
-		acceptors = new HashMap<>();
-		initAcceptors();
-	}
+        acceptors = new HashMap<>();
+        initAcceptors();
+    }
 
-	private void initAcceptors() {
+    private void initAcceptors() {
 
-		acceptors.put("damage", new Acceptor() {
-			@Override
-			public void execute(Player player, String[] args) {
-				if (!checkLength(args, 1)) {
-					return;
-				}
+        acceptors.put("damage", new Acceptor() {
+            @Override
+            public void execute(Player player, String[] args) {
+                if (!checkLength(args, 1)) {
+                    return;
+                }
 
-				final double value = doubleValue(args, 0);
-				GamePlayer.damageEntity(player, value);
-				sendMessage(player, "&aDealt &l%s&a damage to you!", value);
+                final double value = doubleValue(args, 0);
+                GamePlayer.damageEntity(player, value);
+                sendMessage(player, "&aDealt &l%s&a damage to you!", value);
 
-			}
-		});
+            }
+        });
 
-		acceptors.put("setkills", new Acceptor() {
-			@Override
-			public void execute(Player player, String[] args) {
-				if (!checkLength(args, 1)) {
-					return;
-				}
+        acceptors.put("setkills", new Acceptor() {
+            @Override
+            public void execute(Player player, String[] args) {
+                if (!checkLength(args, 1)) {
+                    return;
+                }
 
-				final long newKills = longValue(args, 0);
-				if (newKills < 0) {
-					sendMessage(player, "&cKills cannot be negative.");
-					return;
-				}
+                final long newKills = longValue(args, 0);
+                if (newKills < 0) {
+                    sendMessage(player, "&cKills cannot be negative.");
+                    return;
+                }
 
-				final StatContainer stats = GamePlayer.getPlayer(player).getStats();
-				if (stats == null) {
-					sendMessage(player, "&cStats are null! Game is not in progress?");
-					return;
-				}
+                final StatContainer stats = GamePlayer.getPlayer(player).getStats();
+                if (stats == null) {
+                    sendMessage(player, "&cStats are null! Game is not in progress?");
+                    return;
+                }
 
-				stats.setValue(StatContainer.Type.KILLS, newKills);
-				sendMessage(player, "&aSet your kills to &l%s&a.", newKills);
-			}
-		});
+                stats.setValue(StatContainer.Type.KILLS, newKills);
+                sendMessage(player, "&aSet your kills to &l%s&a.", newKills);
+            }
+        });
 
-		acceptors.put("map", new Acceptor() {
-			@Override
-			public void execute(Player player, String[] args) {
-				if (!checkLength(args, 1)) {
-					return;
-				}
+        acceptors.put("map", new Acceptor() {
+            @Override
+            public void execute(Player player, String[] args) {
+                if (!checkLength(args, 1)) {
+                    return;
+                }
 
-				final GameMaps map = Validate.getEnumValue(GameMaps.class, args[0]);
-				if (map == null) {
-					sendMessage(player, "&cInvalid map!");
-					return;
-				}
+                final GameMaps map = Validate.getEnumValue(GameMaps.class, args[0]);
+                if (map == null) {
+                    sendMessage(player, "&cInvalid map!");
+                    return;
+                }
 
-				player.teleport(map.getMap().getLocation());
-				sendMessage(player, "&aTeleported to %s!", map.getName());
-			}
-		});
+                player.teleport(map.getMap().getLocation());
+                sendMessage(player, "&aTeleported to %s!", map.getName());
+            }
+        });
 
-	}
+        acceptors.put("coins", new Acceptor() {
+            @Override
+            public void execute(Player player, String[] args) {
+                // set
+                if (!checkLength(args, 2)) {
+                    return;
+                }
 
-	@Override
-	protected void execute(Player player, String[] args) {
-		if (args.length == 0) {
-			Chat.sendMessage(player, "Admin GUI not yet implemented!");
-			sendInvalidUsageMessage(player);
-			return;
-		}
+            }
 
-		final Acceptor acceptor = acceptors.get(args[0].toLowerCase(Locale.ROOT));
-		if (acceptor != null) {
-			final String[] strings = new String[args.length - 1];
+            @Override
+            public void createAdditionalArguments() {
+                addArgument(1, "add", "set", "remove");
+            }
+        });
 
-			System.arraycopy(args, 1, strings, 0, args.length - 1);
-			acceptor.execute(player, strings);
-		}
+    }
 
-	}
+    @Override
+    protected void execute(Player player, String[] args) {
+        if (args.length == 0) {
+            Chat.sendMessage(player, "Admin GUI not yet implemented!");
+            sendInvalidUsageMessage(player);
+            return;
+        }
 
-	private void sendMessage(Player player, String message, Object... objects) {
-		Chat.sendMessage(player, "&c&lADMIN&7: " + message, objects);
-	}
+        final Acceptor acceptor = acceptors.get(args[0].toLowerCase(Locale.ROOT));
+        if (acceptor != null) {
+            final String[] strings = new String[args.length - 1];
 
-	@Override
-	public List<String> tabComplete(CommandSender sender, String[] args) {
-		return super.completerSort(acceptors.keySet().stream().toList(), args);
-	}
+            System.arraycopy(args, 1, strings, 0, args.length - 1);
+            acceptor.execute(player, strings);
+        }
+
+    }
+
+    private void sendMessage(Player player, String message, Object... objects) {
+        Chat.sendMessage(player, "&c&lADMIN&7: " + message, objects);
+    }
+
+    @Override
+    public List<String> tabComplete(CommandSender sender, String[] args) {
+        if (args.length == 1) {
+            return super.completerSort(acceptors.keySet().stream().toList(), args);
+        }
+        else {
+            for (String leader : acceptors.keySet()) {
+                if (!leader.equalsIgnoreCase(args[0])) {
+                    return null;
+                }
+
+                final Acceptor acceptor = acceptors.get(leader);
+                final Map<Integer, List<String>> map = acceptor.additionalArguments();
+                if (map.isEmpty()) {
+                    return null;
+                }
+
+                return super.completerSort(map.get(args.length), args);
+            }
+        }
+        return null;
+    }
 
 }
