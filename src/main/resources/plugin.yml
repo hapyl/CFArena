@@ -1,5 +1,5 @@
 name       : "ClassesFightArena"
-main       : "kz.hapyl.fight.Main"
+main: "Main"
 version    : "0.24"
 api-version: "1.17"
 depend     : [ "EternaAPI" ]
