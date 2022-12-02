@@ -54,7 +54,8 @@ public class Totem extends Talent {
             public void run() {
                 playerTotems.values().forEach(totems -> totems.forEach(totem -> {
                     final ResonanceType resonanceType = totem.getResonanceType();
-                    if (tick % resonanceType.getInterval() != 0) {
+                    final int interval = resonanceType.getInterval();
+                    if (interval != 0 && tick % interval != 0) {
                         return;
                     }
 
