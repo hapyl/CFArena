@@ -1,6 +1,7 @@
-name       : "ClassesFightArena"
-main: "Main"
-version    : "0.24"
+name: "ClassesFightArena"
+main: "me.hapyl.fight.Main"
+version: ${version}
 api-version: "1.17"
-depend     : [ "EternaAPI" ]
-authors    : [ "Plugin Developer: hapyl", "Design/Idea: sdimas74", "Design/Builder: DirtyEl", "idk he just a noob: DiDenPro" ]
+description: ${description}
+depend: [ "EternaAPI" ]
+authors: [ "hapyl", "sdimas74", "DirtyEl", "DiDenPro" ]

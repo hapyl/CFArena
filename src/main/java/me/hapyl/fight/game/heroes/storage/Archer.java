@@ -49,7 +49,7 @@ public class Archer extends Hero implements Listener {
 
         this.setUltimate(new UltimateTalent(
                 "Boom Bow",
-                "Equip a &6&lBOOM BOW &7for {duration} that fires explosive arrows which explodes on impact dealing massive damage.",
+                "Equip a &6&lBOOM BOW &7for {duration} that fires explosive arrows that explodes on impact dealing massive damage.",
                 50
         ).setItem(Material.BLAZE_POWDER).setDuration(120).setCdSec(20).setSound(Sound.ITEM_CROSSBOW_SHOOT, 0.25f));
 
@@ -128,7 +128,8 @@ public class Archer extends Hero implements Listener {
                             return;
                         }
 
-                        final Vector vector = target.getLocation()
+                        final Vector vector = target
+                                .getLocation()
                                 .clone()
                                 .add(0d, 0.5d, 0.0d)
                                 .toVector()
@@ -150,11 +151,15 @@ public class Archer extends Hero implements Listener {
             return null;
         }
 
-        final Collection<Entity> entities = world.getNearbyEntities(location, 3.0d, 3.0d, 3.0d,
-                                                                    entity -> entity instanceof Player player ?
-                                                                            shooter != player && validatePlayer(player) :
-                                                                            entity instanceof LivingEntity &&
-                                                                                    validateEntity((LivingEntity) entity)
+        final Collection<Entity> entities = world.getNearbyEntities(
+                location,
+                3.0d,
+                3.0d,
+                3.0d,
+                entity -> entity instanceof Player player ?
+                        shooter != player && validatePlayer(player) :
+                        entity instanceof LivingEntity &&
+                                validateEntity((LivingEntity) entity)
         );
 
         LivingEntity nearestEntity = null;

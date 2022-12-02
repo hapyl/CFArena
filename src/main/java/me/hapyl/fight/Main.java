@@ -57,8 +57,10 @@ public class Main extends JavaPlugin {
         regCommands();
         regEvents();
 
+        // Init api
         new EternaAPI(this);
 
+        // Preset gamerules
         for (final World world : Bukkit.getWorlds()) {
             world.setGameRule(GameRule.NATURAL_REGENERATION, false);
             world.setGameRule(GameRule.DO_FIRE_TICK, false);
@@ -92,7 +94,6 @@ public class Main extends JavaPlugin {
 
         getConfig().options().copyDefaults(true);
         saveConfig();
-
     }
 
     public Experience getExperience() {

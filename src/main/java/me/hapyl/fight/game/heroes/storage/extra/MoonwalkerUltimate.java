@@ -69,7 +69,7 @@ public class MoonwalkerUltimate extends UltimateTalent {
 
                 // Last tick (explode and stop sound)
                 if (tick >= (distanceFromLanding + 1)) {
-                    Bukkit.getOnlinePlayers().forEach(player -> player.stopSound(Sound.ENTITY_WITHER_DEATH, PlayerLib.defaultCategory));
+                    Bukkit.getOnlinePlayers().forEach(player -> player.stopSound(Sound.ENTITY_WITHER_DEATH, PlayerLib.SOUND_CATEGORY));
                     explode(player, playerLocation);
                     this.cancel();
                     return;

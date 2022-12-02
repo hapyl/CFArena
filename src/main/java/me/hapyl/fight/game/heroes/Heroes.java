@@ -51,6 +51,7 @@ public enum Heroes {
     WAR_MACHINE(new KillingMachine()),
 
     HARBINGER(new Harbinger()),
+    SHAMAN(new Shaman()),
 
     ;
 

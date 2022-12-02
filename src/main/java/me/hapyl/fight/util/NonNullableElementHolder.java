@@ -2,7 +2,7 @@ package me.hapyl.fight.util;
 
 import org.apache.commons.lang.Validate;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 
 public class NonNullableElementHolder<E> {
 
@@ -12,7 +12,7 @@ public class NonNullableElementHolder<E> {
         set(element);
     }
 
-    @Nullable
+    @Nonnull
     public E getElement() {
         return element;
     }

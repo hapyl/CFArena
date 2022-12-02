@@ -2,18 +2,23 @@ package me.hapyl.fight.game.talents;
 
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.talents.storage.*;
+import me.hapyl.fight.game.talents.storage.shaman.ResonanceType;
+import me.hapyl.fight.game.talents.storage.shaman.Totem;
+import me.hapyl.fight.game.talents.storage.shaman.TotemTalent;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
 public enum Talents {
 
+    // TODO: 003, Dec 3, 2022 - Repackage talent classes into their hero owner
+
     // Archer
     TRIPLE_SHOT(new TripleShot()),
     SHOCK_DARK(new ShockDark()),
     HAWKEYE_ARROW(new PassiveTalent(
             "Hawkeye Arrow",
-            "Fully charged shots while sneaking have 25% chance to fire hawkeye arrow which homes to nearby enemies.",
+            "Fully charged shots while sneaking have 25% chance to fire hawkeye arrow that homes to nearby enemies.",
             Material.ENDER_EYE
     )),
 
@@ -205,6 +210,12 @@ public enum Talents {
     // Killing Machine
     LASER_EYE(new LaserEye()),
     GRENADE(new ShellGrande()),
+
+    // Shaman
+    TOTEM(new Totem()),
+    TOTEM_SLOWING_AURA(new TotemTalent(ResonanceType.SLOWING_AURA, 6)),
+    TOTEM_HEALING_AURA(new TotemTalent(ResonanceType.HEALING_AURA, 12)),
+    TOTEM_CYCLONE_AURA(new TotemTalent(ResonanceType.CYCLONE_AURA, 16)),
 
     // test
     TestChargeTalent(new TestChargeTalent()),
