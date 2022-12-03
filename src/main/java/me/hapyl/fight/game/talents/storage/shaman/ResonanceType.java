@@ -73,6 +73,18 @@ public enum ResonanceType {
             }
     ),
 
+    ACCELERATING_AURA(
+            Material.RED_MUSHROOM,
+            ChatColor.RED,
+            ChatColor.DARK_RED,
+            "Accelerates cooldowns and ultimate point generation of all players around the totem.",
+            3.0d,
+            10,
+            (totem) -> {
+
+            }
+    ),
+
 
     ;
 
