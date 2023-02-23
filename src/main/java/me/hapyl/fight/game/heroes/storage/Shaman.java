@@ -73,7 +73,7 @@ public class Shaman extends Hero implements ComplexHero {
 
     @Override
     public Talent getFifthTalent() {
-        return null;
+        return Talents.TOTEM_ACCELERATION_AURA.getTalent();
     }
 
     @Override

@@ -15,6 +15,7 @@ import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.trial.Trial;
 import me.hapyl.fight.util.NonNullableElementHolder;
 import me.hapyl.fight.util.Nulls;
@@ -32,10 +33,7 @@ import org.bukkit.inventory.PlayerInventory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Manager {
@@ -53,7 +51,6 @@ public class Manager {
     private final Map<Integer, ParamFunction<Talent, ComplexHero>> slotPerComplexTalent = new HashMap<>();
 
     private Trial trial;
-    private boolean teamMode;
 
     public Manager() {
         profiles = Maps.newHashMap();
@@ -89,18 +86,6 @@ public class Manager {
 
     public boolean hasProfile(Player player) {
         return profiles.containsKey(player);
-    }
-
-    public void setTeamMode(boolean teamMode) {
-        this.teamMode = teamMode;
-    }
-
-    public void toggleTeamMode() {
-        setTeamMode(!isTeamMode());
-    }
-
-    public boolean isTeamMode() {
-        return teamMode;
     }
 
     @Nullable
@@ -224,7 +209,7 @@ public class Manager {
     public void createNewGameInstance(boolean debug) {
         // Pre game start checks
         final GameMaps currentMap = this.currentMap.getElement();
-        if (currentMap == null || !currentMap.isPlayable() || !currentMap.getMap().hasLocation()) {
+        if (!currentMap.isPlayable() || !currentMap.getMap().hasLocation()) {
             displayError("Invalid map!");
             return;
         }
@@ -236,16 +221,39 @@ public class Manager {
         isDebug = debug;
 
         final int playerRequirements = getCurrentMode().getMode().getPlayerRequirements();
-
         final Collection<Player> nonSpectatorPlayers = getNonSpectatorPlayers();
+
+        // Check for minimum players
+        // fixme -> Check for teams, not players
         if (nonSpectatorPlayers.size() < playerRequirements && !isDebug) {
             displayError("Not enough players! &l(%s/%s)", nonSpectatorPlayers.size(), playerRequirements);
             return;
         }
 
+        // Check for team balance
+        // todo -> Maybe add config support for unbalanced teams
+        final List<GameTeam> populatedTeams = GameTeam.getPopulatedTeams();
+        int teamPlayers = 0;
+        for (GameTeam populatedTeam : populatedTeams) {
+            final int size = populatedTeam.getPlayers().size();
+            if (teamPlayers == 0) {
+                teamPlayers = size;
+                continue;
+            }
+
+            if (size != teamPlayers) {
+                Chat.broadcast("&6&lUnbalanced Team! &e%s has more players than other teams.", populatedTeam.getName());
+                //                displayError("Teams are not balanced! &l(%s)", populatedTeam.getName());
+                //                return;
+            }
+        }
+
         // Create new instance and call onStart methods
         this.gameInstance = new GameInstance(getCurrentMode(), getCurrentMap());
         this.gameInstance.onStart();
+
+        // Populate teams
+        GameTeam.getPopulatedTeams().forEach(GameTeam::clearAndPopulateTeams);
 
         for (final Heroes value : Heroes.values()) {
             Nulls.runIfNotNull(value.getHero(), Hero::onStart);
@@ -331,6 +339,9 @@ public class Manager {
 
         this.gameInstance.onStop();
         this.gameInstance.setGameState(State.POST_GAME);
+
+        // Clear teams
+        GameTeam.clearAllPlayers();
 
         // reset all cooldowns
         for (final Material value : Material.values()) {

@@ -168,6 +168,7 @@ public class Main extends JavaPlugin {
         processor.registerCommand(new HelpCommand("help"));
         processor.registerCommand(new GamemodeShortcut("gamemode"));
         processor.registerCommand(new TeamCommand("team"));
+        processor.registerCommand(new TestWinConditionCommand("testWinCondition"));
 
         processor.registerCommand(new SimplePlayerAdminCommand("riptide") {
 

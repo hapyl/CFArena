@@ -5,12 +5,12 @@ import me.hapyl.fight.game.talents.TalentHandle;
 import me.hapyl.fight.game.talents.storage.shaman.ResonanceType;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.entity.Entities;
+import me.hapyl.spigotutils.module.math.Geometry;
+import me.hapyl.spigotutils.module.math.gometry.Quality;
+import me.hapyl.spigotutils.module.math.gometry.WorldParticle;
 import me.hapyl.spigotutils.module.reflect.Reflect;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
@@ -82,10 +82,6 @@ public class ActiveTotem {
         shulkerTeam.setColor(color);
     }
 
-    public Set<Shulker> getShulkers() {
-        return shulkers;
-    }
-
     public ResonanceType getResonanceType() {
         return resonanceType;
     }
@@ -146,5 +142,14 @@ public class ActiveTotem {
 
     public List<Player> getPlayerInRange() {
         return Utils.getPlayersInRange(getLocationCentered(), resonanceType.getRange());
+    }
+
+    public void drawCircle(Particle particle) {
+        Geometry.drawCircle(
+                getLocationCentered(),
+                getResonanceType().getRange(),
+                Quality.HIGH,
+                new WorldParticle(particle)
+        );
     }
 }

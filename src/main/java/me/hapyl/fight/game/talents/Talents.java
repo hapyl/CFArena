@@ -213,9 +213,10 @@ public enum Talents {
 
     // Shaman
     TOTEM(new Totem()),
-    TOTEM_SLOWING_AURA(new TotemTalent(ResonanceType.SLOWING_AURA, 6)),
+    TOTEM_SLOWING_AURA(new TotemTalent(ResonanceType.SLOWING_AURA, 10)),
     TOTEM_HEALING_AURA(new TotemTalent(ResonanceType.HEALING_AURA, 12)),
     TOTEM_CYCLONE_AURA(new TotemTalent(ResonanceType.CYCLONE_AURA, 16)),
+    TOTEM_ACCELERATION_AURA(new TotemTalent(ResonanceType.ACCELERATING_AURA, 20)),
 
     // test
     TestChargeTalent(new TestChargeTalent()),

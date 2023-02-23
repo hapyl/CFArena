@@ -40,6 +40,7 @@ public class ChatTutorial implements Tutorial {
 		Chat.sendMessage(player, "&7Welcome, %s, to the &6Classes Fight &cArena&7!", player.getName());
 		Chat.sendMessage(player, "");
 		Chat.sendMessage(player, " &7Use &e/hero &7to select a hero to play as.");
+		Chat.sendMessage(player, " &7Use &e/team &7to change a team.");
 		Chat.sendMessage(player, " &7Use &e/map &7to select a map to play on.");
 		Chat.sendMessage(player, " &7Use &e/mode &7to select a game mode.");
 		Chat.sendMessage(player, "");

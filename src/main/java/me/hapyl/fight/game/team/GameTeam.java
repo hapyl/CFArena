@@ -8,7 +8,9 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.List;
 
 public enum GameTeam {
@@ -16,7 +18,19 @@ public enum GameTeam {
     RED(ChatColor.RED, Material.RED_WOOL),
     GREEN(ChatColor.GREEN, Material.GREEN_WOOL),
     BLUE(ChatColor.BLUE, Material.BLUE_WOOL),
-    YELLOW(ChatColor.YELLOW, Material.YELLOW_WOOL);
+    YELLOW(ChatColor.YELLOW, Material.YELLOW_WOOL),
+    GOLD(ChatColor.GOLD, Material.ORANGE_WOOL),
+    AQUA(ChatColor.AQUA, Material.CYAN_WOOL),
+    LIGHT_PURPLE(ChatColor.LIGHT_PURPLE, Material.PURPLE_WOOL),
+    WHITE(ChatColor.WHITE, Material.WHITE_WOOL),
+
+    ;
+
+    private static final List<GameTeam> TEAMS = Lists.newArrayList();
+
+    static {
+        TEAMS.addAll(Arrays.asList(values()));
+    }
 
     private final ChatColor color;
     private final Material material;
@@ -30,6 +44,53 @@ public enum GameTeam {
         this.maxPlayers = 4;
         this.lobbyPlayers = Lists.newArrayList();
         this.players = Lists.newArrayList();
+    }
+
+    /**
+     * Returns team with the least amount of players.
+     *
+     * @return team with the least amount of players.
+     * @throws IllegalArgumentException if all teams are full
+     */
+    @Nonnull
+    public static GameTeam getSmallestTeam() {
+        int minPlayers = 0;
+        GameTeam smallestTeam = null;
+
+        for (GameTeam value : values()) {
+            final int size = value.getPlayers().size();
+            if (size <= minPlayers || smallestTeam == null) {
+                minPlayers = size;
+                smallestTeam = value;
+            }
+        }
+
+        if (smallestTeam == null) {
+            throw new IllegalArgumentException("Couldn't find smallest team.");
+        }
+        return smallestTeam;
+    }
+
+    public static List<GameTeam> getPopulatedTeams() {
+        final List<GameTeam> populatedTeams = Lists.newArrayList();
+
+        for (GameTeam value : values()) {
+            if (value.getLobbyPlayers().size() > 0) {
+                populatedTeams.add(value);
+            }
+        }
+
+        return populatedTeams;
+    }
+
+    public static List<GameTeam> getTeams() {
+        return TEAMS;
+    }
+
+    public static void clearAllPlayers() {
+        for (GameTeam value : values()) {
+            value.clear();
+        }
     }
 
     /**
@@ -54,7 +115,7 @@ public enum GameTeam {
 
     // container start
     public void clearAndPopulateTeams() {
-        players.clear();
+        clear();
         for (Player player : getLobbyPlayers()) {
             players.add(Shortcuts.getProfile(player).getGamePlayer());
         }
@@ -76,7 +137,7 @@ public enum GameTeam {
         return players.contains(player);
     }
 
-    public boolean isTeamAlive(GameTeam team) {
+    public boolean isTeamAlive() {
         for (GamePlayer player : players) {
             if (player.isAlive()) {
                 return true;
@@ -85,8 +146,8 @@ public enum GameTeam {
         return false;
     }
 
-    public boolean isTeamDead(GameTeam team) {
-        return !isTeamAlive(team);
+    public boolean isTeamDead() {
+        return !isTeamAlive();
     }
 
     // static members
@@ -169,4 +230,9 @@ public enum GameTeam {
     public void removeFromTeam(Player player) {
         lobbyPlayers.remove(player);
     }
+
+    public void addPlayer(GamePlayer player) {
+        players.add(player);
+    }
+
 }

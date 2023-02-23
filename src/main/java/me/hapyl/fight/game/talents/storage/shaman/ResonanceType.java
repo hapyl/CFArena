@@ -1,14 +1,14 @@
 package me.hapyl.fight.game.talents.storage.shaman;
 
+import me.hapyl.fight.game.AbstractGamePlayer;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.talents.storage.extra.ActiveTotem;
 import me.hapyl.fight.game.talents.storage.extra.ActiveTotemResonance;
+import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.math.Geometry;
-import me.hapyl.spigotutils.module.math.gometry.Quality;
-import me.hapyl.spigotutils.module.math.gometry.WorldParticle;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.potion.PotionEffectType;
@@ -19,14 +19,7 @@ public enum ResonanceType {
     SLOWING_AURA(Material.BLUE_DYE, ChatColor.AQUA, ChatColor.BLUE, "Slows all enemies around the totem.", 3.0d, 10, (totem) -> {
         // Heal
         totem.getPlayerInRange().forEach(player -> PlayerLib.addEffect(player, PotionEffectType.SLOW, 10, 0));
-
-        // Fx
-        Geometry.drawCircle(
-                totem.getLocationCentered(),
-                totem.getResonanceType().getRange(),
-                Quality.HIGH,
-                new WorldParticle(Particle.SPELL_MOB)
-        );
+        totem.drawCircle(Particle.SPELL_MOB);
     }),
 
     HEALING_AURA(
@@ -52,12 +45,7 @@ public enum ResonanceType {
                 });
 
                 // Fx
-                Geometry.drawCircle(
-                        totem.getLocationCentered(),
-                        totem.getResonanceType().getRange(),
-                        Quality.HIGH,
-                        new WorldParticle(Particle.VILLAGER_HAPPY)
-                );
+                totem.drawCircle(Particle.VILLAGER_HAPPY);
             }
     ),
 
@@ -67,9 +55,15 @@ public enum ResonanceType {
             ChatColor.GOLD,
             "Continuously pulls all enemies to the center of the totem.",
             4.25d,
-            5,
+            10,
             (totem) -> {
+                final Location location = totem.getLocationCentered();
+                Utils.getPlayersInRange(location, totem.getResonanceType().getRange()).forEach(player -> {
+                    final Location entityLocation = player.getLocation();
+                    player.setVelocity(location.toVector().subtract(entityLocation.toVector()).multiply(0.1d));
+                });
 
+                totem.drawCircle(Particle.CRIT);
             }
     ),
 
@@ -77,14 +71,19 @@ public enum ResonanceType {
             Material.RED_MUSHROOM,
             ChatColor.RED,
             ChatColor.DARK_RED,
-            "Accelerates cooldowns and ultimate point generation of all players around the totem.",
+            "Accelerates movement speed and ultimate point generation of all players around the totem.",
             3.0d,
             10,
             (totem) -> {
+                totem.getPlayerInRange().forEach(player -> {
+                    final AbstractGamePlayer gamePlayer = GamePlayer.getPlayer(player);
+                    gamePlayer.addPotionEffect(PotionEffectType.SPEED, 15, 0);
+                    gamePlayer.addUltimatePoints(1);
+                });
 
+                totem.drawCircle(Particle.LAVA);
             }
     ),
-
 
     ;
 

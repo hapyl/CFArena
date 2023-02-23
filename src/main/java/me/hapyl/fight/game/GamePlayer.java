@@ -6,6 +6,7 @@ import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.ComplexHero;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -73,6 +74,9 @@ public class GamePlayer extends AbstractGamePlayer {
     private boolean valid = true; // valid means if game player is being used somewhere, should probably rework how this works
     private int ultPoints;
 
+    private double cdModifier;
+    private double ultimateModifier;
+
     private long lastMoved;
 
     public GamePlayer(PlayerProfile profile, Hero hero) {
@@ -81,6 +85,8 @@ public class GamePlayer extends AbstractGamePlayer {
         this.hero = hero;
         this.health = maxHealth;
         this.isDead = false;
+        this.cdModifier = 1.0d;
+        this.ultimateModifier = 1.0d;
         this.isSpectator = false;
         this.gameEffects = new ConcurrentHashMap<>();
         this.stats = new StatContainer(player);
@@ -88,6 +94,23 @@ public class GamePlayer extends AbstractGamePlayer {
 
         // supply to profile
         profile.setGamePlayer(this);
+    }
+
+    protected GamePlayer(boolean fake) {
+        if (!fake) {
+            throw new IllegalArgumentException("validate fake player");
+        }
+
+        this.player = null;
+        this.profile = null;
+        this.stats = null;
+        this.hero = Heroes.randomHero().getHero();
+
+        this.gameEffects = null;
+        this.isDead = false;
+        this.isSpectator = false;
+
+        Debugger.warning("Created fake game player instance, expect errors!");
     }
 
     public void resetPlayer(Ignore... ignores) {
@@ -140,6 +163,24 @@ public class GamePlayer extends AbstractGamePlayer {
 
     public void markLastMoved() {
         this.lastMoved = System.currentTimeMillis();
+    }
+
+    @Override
+    public double getCooldownAccelerationModifier() {
+        return cdModifier;
+    }
+
+    @Override
+    public double getUltimateAccelerationModifier() {
+        return ultimateModifier;
+    }
+
+    public void setCooldownAccelerationModifier(double cdModifier) {
+        this.cdModifier = cdModifier;
+    }
+
+    public void setUltimateAccelerationModifier(double ultimateModifier) {
+        this.ultimateModifier = ultimateModifier;
     }
 
     public long getLastMoved() {
@@ -621,7 +662,6 @@ public class GamePlayer extends AbstractGamePlayer {
     public static void damageEntity(LivingEntity entity, double damage, LivingEntity damager) {
         damageEntity(entity, damage, damager, EnumDamageCause.ENTITY_ATTACK);
     }
-
 
     public static void damageEntityTick(LivingEntity entity, double damage, int tick) {
         damageEntityTick(entity, damage, null, EnumDamageCause.ENTITY_ATTACK, tick);

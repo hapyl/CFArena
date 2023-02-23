@@ -5,6 +5,7 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.database.Database;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.scoreboard.GamePlayerUI;
+import me.hapyl.fight.game.team.GameTeam;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
@@ -39,6 +40,7 @@ public class PlayerProfile {
 
         // load some data after init method
         selectedHero = database.getHeroEntry().getSelectedHero();
+        GameTeam.getSmallestTeam().addToTeam(player);
         playerUI = new GamePlayerUI(this);
     }
 

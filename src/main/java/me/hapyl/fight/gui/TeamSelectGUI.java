@@ -4,6 +4,8 @@ import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.PlayerGUI;
+import me.hapyl.spigotutils.module.inventory.gui.SlotPattern;
+import me.hapyl.spigotutils.module.inventory.gui.SmartComponent;
 import org.bukkit.entity.Player;
 
 public class TeamSelectGUI extends PlayerGUI {
@@ -17,6 +19,8 @@ public class TeamSelectGUI extends PlayerGUI {
         clearEverything();
         final Player owner = getPlayer();
         int slot = 10;
+
+        final SmartComponent smartComponent = newSmartComponent();
 
         for (GameTeam team : GameTeam.values()) {
             final ItemBuilder builder = new ItemBuilder(team.getMaterial()).setName(team.getColor() + team.getName());
@@ -43,20 +47,20 @@ public class TeamSelectGUI extends PlayerGUI {
             }
             else {
                 builder.addLore("&eClick to join");
-                setClick(slot, player -> {
-                    if (team.addToTeam(player)) {
-                        Chat.sendMessage(player, "&aJoined %s team.", team.getName());
-                    }
-                    else {
-                        Chat.sendMessage(player, "&cThis team is full!");
-                    }
-                    updateMenu();
-                });
             }
 
-            setItem(slot, builder.predicate(team.isLobbyPlayer(owner), ItemBuilder::glow).build());
-            slot += 2;
+            smartComponent.add(builder.predicate(team.isLobbyPlayer(owner), ItemBuilder::glow).build(), player -> {
+                if (team.addToTeam(player)) {
+                    Chat.sendMessage(player, "&aJoined %s team.", team.getName());
+                }
+                else {
+                    Chat.sendMessage(player, "&cThis team is full!");
+                }
+                updateMenu();
+            });
         }
+
+        smartComponent.fillItems(this, SlotPattern.DEFAULT);
     }
 
 }
