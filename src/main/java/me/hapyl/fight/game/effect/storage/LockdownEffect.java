@@ -18,13 +18,13 @@ public class LockdownEffect extends GameEffect {
 
     public LockdownEffect() {
         super("Lockdown");
+        this.setDescription("Removes player's ability to move, attack or use abilities.");
         this.setPositive(false);
         this.setEffectParticle(new EffectParticleBlockMarker(1, Material.BARRIER));
     }
 
     @Override
     public void onStart(Player player) {
-
         if (data.containsKey(player)) {
             data.get(player).applyData(player);
         }
@@ -39,8 +39,9 @@ public class LockdownEffect extends GameEffect {
         PlayerLib.addEffect(player, PotionEffectType.WEAKNESS, Integer.MAX_VALUE, 100);
         PlayerLib.playSound(player, Sound.BLOCK_BEACON_ACTIVATE, 0.75f);
 
+        // Force set slot to 7 so abilities cannot be used.
+        // Slot 8 is used for extra items like Relics.
         player.getInventory().setHeldItemSlot(7);
-
     }
 
     @Override

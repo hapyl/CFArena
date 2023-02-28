@@ -13,15 +13,15 @@ public class DamageIndicator {
 	private final Hologram hologram;
 	private final Location location;
 
-	public DamageIndicator(Location location, double damage, int points) {
+	public DamageIndicator(Location location, double damage) {
 		this.location = location;
 
 		hologram = new Hologram();
 		hologram.addLine("&a&l" + BukkitUtils.decimalFormat(damage));
 
-		if (points > 0) {
-			hologram.addLine("&b+%s &l※".formatted(points));
-		}
+		//		if (points > 0) {
+		//			hologram.addLine("&b+%s &l※".formatted(points));
+		//		}
 
 	}
 

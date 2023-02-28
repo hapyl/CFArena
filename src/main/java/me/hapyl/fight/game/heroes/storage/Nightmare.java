@@ -9,6 +9,7 @@ import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
@@ -16,12 +17,9 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.potion.PotionEffectType;
 
-public class Nightmare extends Hero implements Listener {
+public class Nightmare extends Hero {
 
     public Nightmare() {
         super("Nightmare");
@@ -51,6 +49,26 @@ public class Nightmare extends Hero implements Listener {
 
     }
 
+    // Moved light level test in runnable
+    @Override
+    public void onStart() {
+        new GameTask() {
+            @Override
+            public void run() {
+                Manager.current().getCurrentGame().getPlayers().forEach((uuid, player) -> {
+                    if (validatePlayer(player.getPlayer(), Heroes.NIGHTMARE)) {
+                        final Location location = player.getPlayer().getLocation();
+                        if (location.getBlock().getLightLevel() <= 7) {
+                            PlayerLib.spawnParticle(location, Particle.LAVA, 2, 0.15d, 0.15d, 0.15d, 0);
+                            PlayerLib.addEffect(player.getPlayer(), PotionEffectType.SPEED, 30, 1);
+                            PlayerLib.addEffect(player.getPlayer(), PotionEffectType.INCREASE_DAMAGE, 30, 0);
+                        }
+                    }
+                });
+            }
+        }.runTaskTimer(0, 20);
+    }
+
     @Override
     public void useUltimate(Player player) {
         Manager.current().getCurrentGame().getAlivePlayers().forEach(alive -> {
@@ -59,24 +77,6 @@ public class Nightmare extends Hero implements Listener {
             }
             alive.addEffect(GameEffectType.PARANOIA, getUltimateDuration(), true);
         });
-    }
-
-    @EventHandler()
-    public void handleMovement(PlayerMoveEvent ev) {
-        final Player player = ev.getPlayer();
-        final Location from = ev.getFrom();
-        final Location to = ev.getTo();
-        if (!validatePlayer(player, Heroes.NIGHTMARE) || to == null) {
-            return;
-        }
-
-        // check if only we moved a full block
-        if (to.getBlock().getLightLevel() <= 7) {
-            PlayerLib.spawnParticle(player.getLocation(), Particle.LAVA, 2, 0.15d, 0.15d, 0.15d, 0);
-            PlayerLib.addEffect(player, PotionEffectType.SPEED, 20, 1);
-            PlayerLib.addEffect(player, PotionEffectType.INCREASE_DAMAGE, 20, 0);
-        }
-
     }
 
     @Override

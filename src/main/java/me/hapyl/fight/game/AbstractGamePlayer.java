@@ -1,10 +1,13 @@
 package me.hapyl.fight.game;
 
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.team.GameTeam;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffectType;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class AbstractGamePlayer {
@@ -16,8 +19,17 @@ public class AbstractGamePlayer {
         //Bukkit.getConsoleSender().sendMessage("&4IllegalState! &cCalled null IGamePlayer");
     }
 
+    @Nonnull
+    public Hero getHero() {
+        throw new NullPointerException("must override getHero()");
+    }
+
     public String getStatusString() {
-        return isDead() ? "&cDead" : isSpectator() ? "&7Spectator" : "&aAlive";
+        return isDead() ? "&cDead" : isSpectator() ? "&7Spectator" : isRespawning() ? "&eRespawning" : "&aAlive";
+    }
+
+    public boolean isAbstract() {
+        return true;
     }
 
     /**
@@ -274,9 +286,9 @@ public class AbstractGamePlayer {
      *
      * @return current players' health in integer format.
      */
-    public int getHealthFormatted() {
+    public String getHealthFormatted() {
         displayError();
-        return (int) getHealth();
+        return "-1";
     }
 
     /**
@@ -352,4 +364,25 @@ public class AbstractGamePlayer {
         return "AbstractGamePlayer{}";
     }
 
+    public boolean isRespawning() {
+        return false;
+    }
+
+    public GamePlayer getGamePlayer() {
+        return (GamePlayer) this;
+    }
+
+    public GameTeam getTeam() {
+        return GameTeam.getPlayerTeam(getGamePlayer());
+    }
+
+    public void respawn() {
+    }
+
+    public void respawnIn(int i) {
+    }
+
+    public void setDead(boolean b) {
+
+    }
 }

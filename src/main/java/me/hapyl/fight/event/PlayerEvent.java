@@ -6,10 +6,10 @@ import me.hapyl.fight.annotate.Entry;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.DamageIndicator;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -35,7 +35,6 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class PlayerEvent implements Listener {
 
@@ -43,15 +42,18 @@ public class PlayerEvent implements Listener {
     public void handlePlayerJoin(PlayerJoinEvent ev) {
         final Player player = ev.getPlayer();
         final Main plugin = Main.getPlugin();
+        final Manager manager = Manager.current();
 
-        plugin.handlePlayer(player);
-        plugin.getTutorial().display(player);
+        if (manager.isGameInProgress()) {
+            final AbstractGameInstance currentGame = manager.getCurrentGame();
+            currentGame.getMode().onJoin((GameInstance) currentGame, player);
+        }
+        else {
+            plugin.handlePlayer(player);
+            plugin.getTutorial().display(player);
+        }
 
-        ev.setJoinMessage(Chat.format(
-                "&7[&a+&7] %s%s &ewants to fight!",
-                player.isOp() ? "&c" : "",
-                player.getName()
-        ));
+        ev.setJoinMessage(Chat.format("&7[&a+&7] %s%s &ewants to fight!", player.isOp() ? "&c" : "", player.getName()));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -66,19 +68,13 @@ public class PlayerEvent implements Listener {
                 return;
             }
 
-            Chat.broadcast("&c%s left while fighting and was removed from the game!", player.getName());
-            gamePlayer.setSpectator(true);
-            game.checkWinCondition();
+            game.getMode().onLeave((GameInstance) game, player);
         }
 
         // save database
         Shortcuts.getDatabase(player).saveToFile();
 
-        ev.setQuitMessage(Chat.format(
-                "&7[&c-&7] %s%s &ehas fallen!",
-                player.isOp() ? "&c" : "",
-                player.getName()
-        ));
+        ev.setQuitMessage(Chat.format("&7[&c-&7] %s%s &ehas fallen!", player.isOp() ? "&c" : "", player.getName()));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -121,9 +117,25 @@ public class PlayerEvent implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handleProjectileLand(ProjectileHitEvent ev) {
         final Projectile entity = ev.getEntity();
-        if (entity.getType() == EntityType.ARROW) {
-            entity.remove();
+        if (!(entity instanceof Arrow arrow)) {
+            return;
         }
+
+        arrow.remove();
+
+        // Assign bow damage to shot arrow
+        //        if ((!(arrow.getShooter() instanceof Player player)) || !Manager.current().isGameInProgress()) {
+        //            return;
+        //        }
+        //
+        //        final AbstractGamePlayer gamePlayer = GamePlayer.getPlayer(player);
+        //        final Hero hero = gamePlayer.getHero();
+        //
+        //        if (!hero.getWeapon().isRanged()) {
+        //            return;
+        //        }
+        //
+        //        arrow.setDamage(hero.getWeapon().getDamage());
     }
 
     private GamePlayer getAlivePlayer(Player player) {
@@ -197,76 +209,79 @@ public class PlayerEvent implements Listener {
         PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
     }
 
-    @Entry(
-            name = "Damage calculation."
-    )
+    /**
+     * This event calculates all the custom damage.
+     */
+    @Entry(name = "Damage calculation.")
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handleDamage(EntityDamageEvent ev) {
         final Entity entity = ev.getEntity();
         LivingEntity damagerFinal = null;
         double damage = ev.getDamage();
 
-        // let void damage be ignored
+        // Ignore non living entity and void damage
         final EntityDamageEvent.DamageCause cause = ev.getCause();
         if (!(entity instanceof LivingEntity livingEntity) || cause == EntityDamageEvent.DamageCause.VOID) {
             return;
         }
 
+        // Ignore trial or non instanced damage
         if (entity instanceof Player player && !Manager.current().isAbleToUse(player)) {
             ev.setCancelled(true);
             return;
         }
 
-        /** Pre event tests */
+        // Pre events tests, such as GameEffect etc
         if (livingEntity instanceof Player player) {
             final AbstractGamePlayer gamePlayer = GamePlayer.getPlayer(player);
 
-            // fall damage
-            if (cause == EntityDamageEvent.DamageCause.FALL && gamePlayer.hasEffect(GameEffectType.FALL_DAMAGE_RESISTANCE)) {
-                gamePlayer.removeEffect(GameEffectType.FALL_DAMAGE_RESISTANCE);
-                ev.setCancelled(true);
+            // Fall damage
+            if (cause == EntityDamageEvent.DamageCause.FALL) {
+                if (gamePlayer.hasEffect(GameEffectType.CANCEL_FALL_DAMAGE) || gamePlayer.hasEffect(GameEffectType.FALL_DAMAGE_RESISTANCE)) {
+                    gamePlayer.removeEffect(GameEffectType.FALL_DAMAGE_RESISTANCE);
+                    ev.setCancelled(true);
+                }
                 return;
             }
-
         }
 
         // Calculate base damage
         if (ev instanceof EntityDamageByEntityEvent event) {
             final Entity damager = event.getDamager();
 
-            // ignore all this if self damage (fall damage, explosion etc.)
+            // Ignore all this if self damage (fall damage, explosion etc.)
             if (damager != entity) {
                 if (damager instanceof Player playerDamager) {
-                    final Heroes hero = Manager.current().getSelectedHero(playerDamager);
-
-                    // remove critical hit
-                    if (playerDamager.getFallDistance() > 0.0F
-                            && !playerDamager.isOnGround()
-                            && !playerDamager.hasPotionEffect(PotionEffectType.BLINDNESS)
-                            && playerDamager.getVehicle() == null) {
+                    // Remove critical hit
+                    if (playerDamager.getFallDistance() > 0.0F && !playerDamager.isOnGround() &&
+                            !playerDamager.hasPotionEffect(PotionEffectType.BLINDNESS) && playerDamager.getVehicle() == null) {
                         damage /= 1.5F;
                     }
 
-                    // decrease damage if hitting with a bow
-                    final Material type = hero.getHero().getWeapon().getItem().getType();
+                    final Material type = playerDamager.getInventory().getItemInMainHand().getType();
+                    // Decrease damage if hitting with a bow
                     if (type == Material.BOW || type == Material.CROSSBOW) {
                         damage *= 0.4d;
                     }
 
-                    // assign the damager
+                    // Assign the damager
                     damagerFinal = playerDamager;
                 }
                 else if (damager instanceof Projectile projectile) {
                     if (projectile.getShooter() instanceof Player playerDamager) {
+                        // Increase damage if fully charged shot
+                        if (projectile instanceof AbstractArrow arrow) {
+                            final double weaponDamage = GamePlayer.getPlayer(playerDamager).getHero().getWeapon().getDamage();
+                            final double scale = 1 + (damage / 8.933d);
 
-                        // increase damage if fully charged shot
-                        if (projectile instanceof Arrow arrow) {
+                            damage = weaponDamage * scale;
+
                             if (arrow.isCritical()) {
-                                damage *= 1.75d;
+                                damage *= 1.5d;
                             }
                         }
 
-                        // assign the damager
+                        // Assign the damager
                         damagerFinal = playerDamager;
                     }
                 }
@@ -275,14 +290,23 @@ public class PlayerEvent implements Listener {
                 }
             }
 
-            /** Apply modifiers for damager */
+            // Check for teammate
+            if (damagerFinal instanceof Player playerDamager && entity instanceof Player playerVictim &&
+                    (GameTeam.isTeammate(playerDamager, playerVictim))) {
+                Chat.sendMessage(playerDamager, "&cCannot damage teammates!");
+                ev.setCancelled(true);
+                ev.setDamage(0.0d);
+                return;
+            }
+
+            // Apply modifiers for damager
             if (damager instanceof LivingEntity living) {
                 final PotionEffect effectStrength = living.getPotionEffect(PotionEffectType.INCREASE_DAMAGE);
                 final PotionEffect effectWeakness = living.getPotionEffect(PotionEffectType.WEAKNESS);
 
                 // add 30% of damage per strength level
                 if (effectStrength != null) {
-                    damage += ((damage * 3 / 10) * (effectStrength.getAmplifier() + 1));
+                    damage += ((damage * 0.2d) * (effectStrength.getAmplifier() + 1));
                 }
 
                 // --------------------------------------------reduce damage by 13% for each weakness level
@@ -378,19 +402,9 @@ public class PlayerEvent implements Listener {
             return;
         }
 
-        int randomPoint = ThreadLocalRandom.current().nextInt(1, 3);
-
-        // grant ultimate points
-        if (damagerFinal instanceof Player player && isEntityOk(entity)) {
-            GamePlayer.getPlayer(player).addUltimatePoints(randomPoint);
-        }
-        else {
-            randomPoint = 0;
-        }
-
-        // display damage
+        // Create damage indicator if dealt 1 or more damage
         if (damage >= 1.0d) {
-            final DamageIndicator damageIndicator = new DamageIndicator(entity.getLocation(), damage, randomPoint);
+            final DamageIndicator damageIndicator = new DamageIndicator(entity.getLocation(), damage);
             if (!extraStrings.isEmpty()) {
                 damageIndicator.setExtra(extraStrings);
             }
@@ -413,7 +427,7 @@ public class PlayerEvent implements Listener {
                 }
             }
 
-            // fail safe for actual health
+            // fail-safe for actual health
             if (player.getHealth() <= 0.0d) {
                 ev.setCancelled(true);
             }
@@ -421,20 +435,32 @@ public class PlayerEvent implements Listener {
         }
     }
 
-    private boolean isEntityOk(Entity entity) {
-        return entity instanceof LivingEntity living &&
-                (living.getType() != EntityType.ARMOR_STAND && !living.isInvisible() && !living.isDead());
+    @EventHandler()
+    public void handleProjectileDamage(ProjectileLaunchEvent ev) {
+        //        if (Manager.current().isGameInProgress() && ev.getEntity() instanceof AbstractArrow projectile) {
+        //            if (projectile.getShooter() instanceof Player player) {
+        //                final AbstractGamePlayer gamePlayer = GamePlayer.getPlayer(player);
+        //                if (!gamePlayer.isAbstract()) {
+        //                    return;
+        //                }
+        //
+        //                final Hero hero = gamePlayer.getHero();
+        //                final double damage = hero.getWeapon().getDamage();
+        //                projectile.setDamage(damage);
+        //            }
+        //        }
     }
 
     private DamageOutput getDamageOutput(Player player, LivingEntity entity, EntityDamageEvent.DamageCause cause, double damage, boolean asDamager) {
         if (Manager.current().isPlayerInGame(player)) {
-            final Hero hero = Manager.current().getSelectedHero(player).getHero();
+            final Hero hero = GamePlayer.getPlayer(player).getHero();
             final DamageInput input = new DamageInput(player, entity, cause, damage);
             return asDamager ? hero.processDamageAsDamager(input) : hero.processDamageAsVictim(input);
         }
         return null;
     }
 
+    // I... I don't know what this is...
     @EventHandler()
     public void handleArmorStandDeath(EntityDeathEvent ev) {
         if (ev.getEntity() instanceof ArmorStand) {
@@ -450,9 +476,7 @@ public class PlayerEvent implements Listener {
         }
     }
 
-    @Entry(
-            name = "Talent usage"
-    )
+    @Entry(name = "Talent usage")
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handlePlayerClick(PlayerItemHeldEvent ev) {
         final Player player = ev.getPlayer();
@@ -485,7 +509,6 @@ public class PlayerEvent implements Listener {
 
         ev.setCancelled(true);
         inventory.setHeldItemSlot(0);
-
     }
 
     private boolean isValidItem(Talent talent, ItemStack stack) {
@@ -557,7 +580,6 @@ public class PlayerEvent implements Listener {
 
             // AFK detection
             gp.markLastMoved();
-
         }
 
     }
@@ -612,9 +634,16 @@ public class PlayerEvent implements Listener {
             return;
         }
 
+        // \/ Talent executed \/
+
         if (talent instanceof ChargedTalent chargedTalent) {
             chargedTalent.setLastKnownSlot(player, slot);
             chargedTalent.removeChargeAndStartCooldown(player);
+        }
+
+        final int point = talent.getPoint();
+        if (point > 0) {
+            GamePlayer.getPlayer(player).addUltimatePoints(point);
         }
 
         talent.startCd(player);

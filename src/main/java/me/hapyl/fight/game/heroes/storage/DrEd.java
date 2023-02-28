@@ -21,7 +21,7 @@ public class DrEd extends Hero {
 
     public DrEd() {
         super("Dr. Ed");
-        setRole(Role.STRATEGIST);
+        this.setRole(Role.STRATEGIST);
         this.setInfo("Simple named scientist with not so simple inventions...");
         this.setItem(Material.GLASS_BOTTLE);
 
@@ -41,10 +41,8 @@ public class DrEd extends Hero {
                 String.format(
                         "Grants Dr. Ed an upgraded version of &a%s &7for {duration} that is capable of capturing entities' flesh and energy, allowing to manipulate them.",
                         getWeapon().getName()
-                ),
-                70
+                ), 70
         ).setDuration(200).setItem(Material.GOLDEN_HORSE_ARMOR));
-
     }
 
     @Override

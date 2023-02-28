@@ -8,6 +8,7 @@ import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.task.GameTask;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
@@ -44,10 +45,6 @@ public abstract class AbstractGameInstance {
 
     }
 
-    public String formatWinnerName(GamePlayer gp) {
-        return gp.getPlayer().getName();
-    }
-
     public long getTimeLeftRaw() {
         return 0;
     }
@@ -78,6 +75,7 @@ public abstract class AbstractGameInstance {
         return new ArrayList<>();
     }
 
+    @Nonnull
     public List<GamePlayer> getAlivePlayers() {
         return new ArrayList<>();
     }
@@ -108,10 +106,6 @@ public abstract class AbstractGameInstance {
 
     public boolean isWinner(Player player) {
         return false;
-    }
-
-    public Set<GamePlayer> getWinners() {
-        return new HashSet<>();
     }
 
     public GameMaps getCurrentMap() {

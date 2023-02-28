@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.storage;
 
 import me.hapyl.fight.game.heroes.ClassEquipment;
+import me.hapyl.fight.game.heroes.DeprecatedHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.heroes.storage.extra.BarrierWall;
@@ -21,7 +22,7 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Freazly extends Hero {
+public class Freazly extends Hero implements DeprecatedHero {
 
     private final int wallBuildDelay = 4;
     private final int wallDecayTime = 15;
@@ -31,7 +32,7 @@ public class Freazly extends Hero {
     public Freazly() {
         super("Freazly");
 
-        setRole(Role.RANGE);
+        this.setRole(Role.RANGE);
 
         this.setInfo("A great warrior from the Frozen Castle is here with deadly freezing attacks!");
         this.setItem(Material.ICE);
@@ -78,7 +79,6 @@ public class Freazly extends Hero {
                 "Summons an &bIce Barrier &7at your target block that decay over {duration}. The barrier blocks enemies line of sight and grants positive effects to you when nearby.",
                 60
         ).setItem(Material.PACKED_ICE).setDuration(getUltimateDuration()));
-
     }
 
 

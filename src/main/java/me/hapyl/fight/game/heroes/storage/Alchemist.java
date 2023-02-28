@@ -17,6 +17,7 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.RandomTable;
+import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -27,6 +28,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,7 +59,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
 
         positiveEffects.add(new Effect("made you &lFASTER", PotionEffectType.SPEED, 30, 2))
                 .add(new Effect("gave you &lJUMP BOOST", PotionEffectType.JUMP, 30, 1))
-                .add(new Effect("made you &lSTRONGER", PotionEffectType.INCREASE_DAMAGE, 30, 4))
+                .add(new Effect("made you &lSTRONGER", PotionEffectType.INCREASE_DAMAGE, 30, 3))
                 .add(new Effect("gave you &lRESISTANCE", PotionEffectType.DAMAGE_RESISTANCE, 30, 1))
                 .add(new Effect("healed half of your missing health", 30) {
                     @Override
@@ -80,7 +82,6 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
                 "Call upon the darkest spells to cast random &c&lNegative &7effect on your foes for &b15s &7and random &a&lPositive &7effect on yourself for &b30s&7.",
                 50
         ).setCdSec(30).setItem(Material.FERMENTED_SPIDER_EYE).setSound(ENTITY_WITCH_AMBIENT, 0.5f));
-
     }
 
     @Override
@@ -89,13 +90,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
         final Effect negativeEffect = negativeEffects.getRandomElement();
 
         positiveEffect.applyEffects(player);
-        Manager.current().getGameInstance().getAlivePlayers().forEach(alivePlayer -> {
-            if (player == alivePlayer.getPlayer()) {
-                return;
-            }
-
-            negativeEffect.applyEffects(alivePlayer.getPlayer());
-        });
+        Utils.getEnemyPlayers(player).forEach(alivePlayer -> negativeEffect.applyEffects(alivePlayer.getPlayer()));
     }
 
     @Override
@@ -103,6 +98,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
         final LivingEntity victim = input.getEntity();
         final Player player = input.getPlayer();
         final CauldronEffect effect = cauldronEffectMap.get(player);
+
         if (effect == null || effect.getEffectHits() <= 0 || victim == null) {
             return null;
         }
@@ -111,8 +107,12 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
         victim.addPotionEffect(new PotionEffect(randomEffect, 20, 3));
         effect.decrementEffectPotions();
 
-        Chat.sendMessage(player, "&c¤ &eVenom Touch applied &l%s &eto %s. &l%s &echarges left.",
-                         Chat.capitalize(randomEffect.getName()), victim.getName(), effect.getEffectHits()
+        Chat.sendMessage(
+                player,
+                "&c¤ &eVenom Touch applied &l%s &eto %s. &l%s &echarges left.",
+                Chat.capitalize(randomEffect.getName()),
+                victim.getName(),
+                effect.getEffectHits()
         );
         PlayerLib.playSound(player.getLocation(), ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 2.0f);
         return null;
@@ -122,11 +122,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
     private PotionEffectType getRandomEffect() {
         final PotionEffectType value = PotionEffectType.values()[ThreadLocalRandom.current().nextInt(PotionEffectType.values().length)];
         return (value == BAD_OMEN || value == HEAL || value == HEALTH_BOOST || value == REGENERATION || value == ABSORPTION ||
-                value == SATURATION || value == LUCK || value == UNLUCK || value == HERO_OF_THE_VILLAGE)
-                ?
-                getRandomEffect()
-                :
-                value;
+                value == SATURATION || value == LUCK || value == UNLUCK || value == HERO_OF_THE_VILLAGE) ? getRandomEffect() : value;
     }
 
     public CauldronEffect getEffect(Player player) {
@@ -171,13 +167,13 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
         new GameTask() {
             @Override
             public void run() {
-                Manager.current().getGameInstance().getAlivePlayers(Heroes.ALCHEMIST).forEach(gp -> {
+                Manager.current().getCurrentGame().getAlivePlayers(Heroes.ALCHEMIST).forEach(gp -> {
                     final Player player = gp.getPlayer();
                     if (isToxinLevelBetween(player, 50, 75)) {
-                        PlayerLib.addEffect(player, POISON, 100, 2);
+                        PlayerLib.addEffect(player, POISON, 20, 2);
                     }
                     else if (isToxinLevelBetween(player, 75, 90)) {
-                        PlayerLib.addEffect(player, WITHER, 50, 1);
+                        PlayerLib.addEffect(player, WITHER, 20, 1);
                     }
                     else if (getToxinLevel(player) >= 100) {
                         gp.setLastDamageCause(EnumDamageCause.TOXIN);
@@ -205,7 +201,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
     }
 
     public void addToxinForUsingPotion(Player player) {
-        setToxinLevel(player, getToxinLevel(player) + 15);
+        setToxinLevel(player, getToxinLevel(player) + 10);
     }
 
     public void addToxin(Player player, int value) {
@@ -213,7 +209,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
     }
 
     @Override
-    public String getString(Player player) {
+    public @Nonnull String getString(Player player) {
         final int toxinLevel = getToxinLevel(player);
         return getToxinColor(player) + "☠ &l" + toxinLevel + "%%";
     }

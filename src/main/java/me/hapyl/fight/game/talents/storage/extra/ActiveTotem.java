@@ -8,9 +8,12 @@ import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.gometry.Quality;
 import me.hapyl.spigotutils.module.math.gometry.WorldParticle;
-import me.hapyl.spigotutils.module.reflect.Reflect;
+import me.hapyl.spigotutils.module.reflect.visibility.Visibility;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
-import org.bukkit.*;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
@@ -127,13 +130,14 @@ public class ActiveTotem {
     }
 
     private void hideShulker(Shulker shulker) {
-        for (Player online : Bukkit.getOnlinePlayers()) {
-            if (online == owner) {
-                continue;
-            }
-
-            Reflect.hideEntity(shulker, online);
-        }
+        Visibility.of(shulker, owner);
+        //        for (Player online : Bukkit.getOnlinePlayers()) {
+        //            if (online == owner) {
+        //                continue;
+        //            }
+        //
+        //            Reflect.hideEntity(shulker, online);
+        //        }
     }
 
     public void defaultColor() {

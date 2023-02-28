@@ -12,10 +12,7 @@ import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.report.GameReport;
 import me.hapyl.fight.game.setting.Setting;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.game.task.ShutdownAction;
-import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Firework;
@@ -23,8 +20,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.potion.PotionEffectType;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -34,13 +31,12 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
 
     private final long startedAt;
     private final long timeLimit;
-    private final Map<UUID, GameTeam> teams;
     private final Map<UUID, GamePlayer> players;
-    private final Set<GamePlayer> winners;
     private final GameMaps currentMap;
     private final GameTask gameTask;
     private final Modes mode;
     private final GameReport gameReport;
+    private final GameResult gameResult;
 
     private State gameState;
 
@@ -48,18 +44,21 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
         this.startedAt = System.currentTimeMillis();
         this.mode = mode;
         this.timeLimit = mode.getMode().getTimeLimit() * 1000L;
-        this.teams = Maps.newHashMap();
         this.players = Maps.newHashMap();
         this.createGamePlayers();
 
+        this.gameResult = new GameResult(this);
         this.gameReport = new GameReport(this);
-        this.winners = new HashSet<>();
         this.gameState = State.PRE_GAME;
         this.hexCode = generateHexCode();
         this.currentMap = map;
 
         // This is a main ticker of the game.
         this.gameTask = startTask();
+    }
+
+    public GameResult getGameResult() {
+        return gameResult;
     }
 
     @Override
@@ -78,70 +77,23 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
 
     @Override
     public void calculateEverything() {
-        final String gameDuration = new SimpleDateFormat("mm:ss").format(System.currentTimeMillis() - this.startedAt);
-
-        // show the winners
-        Chat.broadcast("&6&l▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀");
-
-        Bukkit.getOnlinePlayers().forEach(player -> {
-            Chat.sendCenterMessage(player, "&a&lGAME OVER");
-            Chat.sendCenterMessage(player, "&8" + gameDuration);
-            Chat.sendMessage(player, "");
-
-            if (winners.size() > 0) {
-                Chat.sendCenterMessage(player, "&a&lWINNER" + (winners.size() > 1 ? "S" : "") + ":");
-                for (final GamePlayer winner : winners) {
-                    Chat.sendCenterMessage(player, formatWinnerName(winner));
-                    if (winner.compare(player)) {
-                        Chat.sendTitle(player, "&6&lVICTORY", "&eYou're the winner!", 10, 60, 5);
-                    }
-                    else {
-                        Chat.sendTitle(
-                                player,
-                                "&c&lDEFEAT",
-                                "&e%s is the winner!".formatted(winner.getPlayer().getName()),
-                                10,
-                                60,
-                                5
-                        );
-                    }
-                }
-            }
-            else {
-                Chat.sendTitle(player, "&6&lGAME OVER", "&eThere is no winners!", 10, 60, 5);
-            }
-        });
-
-        Chat.broadcast("&6&l▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀");
-
-        // show each player their game report
-        GameTask.runLater(() -> {
-            for (final GamePlayer gamePlayer : players.values()) {
-                final Player player = gamePlayer.getPlayer();
-                final StatContainer stat = gamePlayer.getStats();
-
-                Chat.sendMessage(player, "&a&lGame Report:");
-                Chat.sendMessage(player, stat.getString(StatContainer.Type.COINS));
-                Chat.sendMessage(player, stat.getString(StatContainer.Type.KILLS));
-                Chat.sendMessage(player, stat.getString(StatContainer.Type.DEATHS));
-            }
-        }, 20).setShutdownAction(ShutdownAction.IGNORE);
-
+        gameResult.calculate();
     }
 
     private Location getFireworkSpawnLocation() {
         Location location = null;
-        if (winners.isEmpty()) {
+        if (!gameResult.isWinners()) {
             location = currentMap.getMap().getLocation();
         }
         else {
-            for (final GamePlayer winner : winners) {
+            for (final GamePlayer winner : gameResult.getWinners()) {
                 if (winner.isAlive()) {
                     location = winner.getPlayer().getLocation();
                     break;
                 }
             }
         }
+
         return location;
     }
 
@@ -215,21 +167,6 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
     }
 
     @Override
-    public String formatWinnerName(GamePlayer gp) {
-        final Player player = gp.getPlayer();
-        final StatContainer stats = gp.getStats();
-
-        return Chat.bformat(
-                "&6{Hero} &e&l{Name} &8(&c&l{Health} &c❤&8, &b&l{Kills} &b🗡&8, &c&l{Deaths} &c☠&8)",
-                gp.getHero().getName(),
-                player.getName(),
-                BukkitUtils.decimalFormat(gp.getHealth()),
-                stats.getValue(StatContainer.Type.KILLS),
-                stats.getValue(StatContainer.Type.DEATHS)
-        );
-    }
-
-    @Override
     public long getTimeLeftRaw() {
         return (timeLimit - (System.currentTimeMillis() - startedAt));
     }
@@ -266,6 +203,7 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
         return getAlivePlayers(gp -> gp.getHero() == heroes.getHero());
     }
 
+    @Nonnull
     @Override
     public List<GamePlayer> getAlivePlayers() {
         return getAlivePlayers(gp -> gp.getPlayer().isOnline());
@@ -323,16 +261,16 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
                 gamePlayer.resetPlayer();
             }
 
-            gamePlayer.updateScoreboard(true);
+            gamePlayer.updateScoreboard(false);
             players.put(player.getUniqueId(), gamePlayer);
         });
     }
+
 
     private Heroes getHero(Player player) {
         return Setting.RANDOM_HERO.isEnabled(player) ? Heroes.randomHero() : Manager.current().getSelectedHero(player);
     }
 
-    // TODO: 018. 09/18/2021 -> impl teams
     @Override
     public void checkWinCondition() {
         if (gameState == State.POST_GAME) {
@@ -356,15 +294,7 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
 
     @Override
     public boolean isWinner(Player player) {
-        if (winners.isEmpty()) {
-            return false;
-        }
-        for (final GamePlayer winner : winners) {
-            if (winner.compare(player)) {
-                return true;
-            }
-        }
-        return false;
+        return gameResult.isWinner(player);
     }
 
     @Override
@@ -438,11 +368,6 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
     }
 
     @Override
-    public Set<GamePlayer> getWinners() {
-        return winners;
-    }
-
-    @Override
     public GameMaps getCurrentMap() {
         return currentMap;
     }
@@ -467,5 +392,9 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
     @Override
     public int hashCode() {
         return Objects.hash(startedAt, timeLimit, players);
+    }
+
+    public long getStartedAt() {
+        return startedAt;
     }
 }

@@ -38,6 +38,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Ender extends Hero implements Listener {
@@ -49,8 +50,7 @@ public class Ender extends Hero implements Listener {
     public Ender() {
         super("Ender");
         this.setItem(Material.ENDER_PEARL);
-
-        setRole(Role.ASSASSIN);
+        this.setRole(Role.ASSASSIN);
 
         // Weird enderman-like looking warrior with teleportation abilities. He hits you with his arm, but it hurts like a brick.
         this.setInfo("Weird enderman-like looking warrior with teleportation abilities. He hits you with his arm, but it hurts like a brick.");
@@ -93,7 +93,18 @@ public class Ender extends Hero implements Listener {
                     return;
                 }
 
-                // TODO: 023. 23/05/2022 -- add last 2 blocks check to prevent out of bounds
+                final List<Block> lastTwoTargetBlocks = player.getLastTwoTargetBlocks(null, 25);
+
+                final Block preLastBlock = lastTwoTargetBlocks.get(0);
+                final Block lastBlock = lastTwoTargetBlocks.get(1);
+
+                if (preLastBlock.getType().isAir()) {
+                    final Block downBlock = lastBlock.getRelative(BlockFace.DOWN);
+                    if (downBlock.getLocation().equals(preLastBlock.getLocation())) {
+                        Chat.sendMessage(player, "&cCannot teleport from below a block!");
+                        return;
+                    }
+                }
 
                 final Location location = block.getRelative(BlockFace.UP).getLocation().add(0.5d, 0.0d, 0.5d);
                 if (!location.getBlock().getType().isAir() || !location.getBlock().getRelative(BlockFace.UP).getType().isAir()) {

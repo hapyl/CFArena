@@ -23,7 +23,7 @@ public class KillingMachine extends Hero {
     public KillingMachine() {
         super("War Machine");
 
-        setRole(Role.RANGE);
+        this.setRole(Role.RANGE);
 
         this.setInfo("A machine of war that was left for scrap, until now...");
         this.setItem(
@@ -78,7 +78,7 @@ public class KillingMachine extends Hero {
             final Player alivePlayer = gamePlayer.getPlayer();
 
             // Add player to see our glowing
-            glowing.addViewer(alivePlayer);
+            glowing.addPlayer(alivePlayer);
 
             if (alivePlayer == player) {
                 return;
@@ -86,7 +86,7 @@ public class KillingMachine extends Hero {
 
             // Highlight other players unless self
             final Glowing glowingOther = new Glowing(alivePlayer, ChatColor.AQUA, getUltimateDuration());
-            glowingOther.addViewer(player);
+            glowingOther.addPlayer(player);
             glowingOther.glow();
         });
 

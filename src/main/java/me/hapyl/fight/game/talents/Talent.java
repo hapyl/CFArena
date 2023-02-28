@@ -32,6 +32,7 @@ public abstract class Talent implements GameElement {
     private String castMessage;
     private String description;
     private Function<ItemBuilder> itemFunction;
+    private int point;
     private int cd;
 
     private boolean autoAdd;
@@ -50,7 +51,16 @@ public abstract class Talent implements GameElement {
         this.type = type;
         this.material = Material.BEDROCK;
         this.autoAdd = true;
+        this.point = 1;
         this.extraInfo = new ArrayList<>();
+    }
+
+    public int getPoint() {
+        return point;
+    }
+
+    public void setPoint(int point) {
+        this.point = point;
     }
 
     public Talent(String name, String description, Material material) {
@@ -101,16 +111,26 @@ public abstract class Talent implements GameElement {
         return this.item;
     }
 
+    /**
+     * Called once on game start.
+     */
     @Override
     public void onStart() {
     }
 
+    /**
+     * Called once on game stop.
+     */
     @Override
     public void onStop() {
     }
 
+    /**
+     * Called every time player dies.
+     *
+     * @param player - Player that died.
+     */
     public void onDeath(Player player) {
-
     }
 
     private void formatDescription() {
@@ -160,6 +180,10 @@ public abstract class Talent implements GameElement {
             builder.addLore("&aCooldown: &lDynamic");
         }
 
+        if (point > 0) {
+            builder.addLore("&aPoints: &l" + point);
+        }
+
         if (!extraInfo.isEmpty()) {
             for (final String s : extraInfo) {
                 builder.addLore(s);
@@ -194,7 +218,7 @@ public abstract class Talent implements GameElement {
     }
 
     private boolean addExtraSpace() {
-        return (this.cd != 0) || this instanceof ChargedTalent || this instanceof UltimateTalent || !extraInfo.isEmpty();
+        return (this.cd != 0) || this instanceof ChargedTalent || this instanceof UltimateTalent || !extraInfo.isEmpty() || (point > 0);
     }
 
     public Talent setItem(String headTexture) {

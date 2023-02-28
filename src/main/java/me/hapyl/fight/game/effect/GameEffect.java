@@ -6,13 +6,14 @@ import org.bukkit.entity.Player;
 public abstract class GameEffect {
 
     private final String name;
-    private String about;
-    private boolean isPositive;
+
+    private String description;
     private EffectParticle effectParticle;
+    private boolean isPositive;
 
     public GameEffect(String name) {
         this.name = name;
-        this.about = "";
+        this.description = "";
         this.isPositive = true;
     }
 
@@ -24,20 +25,20 @@ public abstract class GameEffect {
         return name;
     }
 
-    public void setAbout(String about) {
-        this.about = about;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public void setAbout(String about, Object... objects) {
-        this.setAbout(about.formatted(objects));
+    public void setDescription(String about, Object... objects) {
+        this.setDescription(about.formatted(objects));
     }
 
     public void setPositive(boolean positive) {
         isPositive = positive;
     }
 
-    public String getAbout() {
-        return about;
+    public String getDescription() {
+        return description;
     }
 
     public boolean isPositive() {

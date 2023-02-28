@@ -33,7 +33,7 @@ public class EffectParticle {
             if (ignored != null && player == ignored) {
                 return;
             }
-            PlayerLib.spawnParticle(location, particle, amount, oX, oY, oZ, speed);
+            PlayerLib.spawnParticle(player, location, particle, amount, oX, oY, oZ, speed);
         });
     }
 
@@ -45,15 +45,15 @@ public class EffectParticle {
         return amount;
     }
 
-    public double getoX() {
+    public double getOffsetX() {
         return oX;
     }
 
-    public double getoY() {
+    public double getOffsetY() {
         return oY;
     }
 
-    public double getoZ() {
+    public double getOffsetZ() {
         return oZ;
     }
 

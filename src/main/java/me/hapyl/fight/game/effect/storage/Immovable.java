@@ -14,8 +14,13 @@ public class Immovable extends GameEffect {
 
     public Immovable() {
         super("Immovable");
-        this.setAbout("Players are not be affected by knockback.");
-        this.setPositive(false);
+        this.setDescription("Players are not be affected by knockback.");
+        this.setPositive(false); // I mean kinda positive but kinda not you know but there is only one character that can do this, and it's their ability that you know kinda to make enemies like bad, so you can like easier hit them and deal damaje :|
+    }
+
+    @Override
+    public void onTick(Player player, int tick) {
+
     }
 
     @Override
@@ -38,10 +43,5 @@ public class Immovable extends GameEffect {
 
         attribute.setBaseValue(oldValue.getOrDefault(player, 0.0d));
         oldValue.remove(player);
-    }
-
-    @Override
-    public void onTick(Player player, int tick) {
-
     }
 }

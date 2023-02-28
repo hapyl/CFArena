@@ -5,7 +5,6 @@ import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.PlayerGUI;
@@ -21,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HeroPreviewGUI extends PlayerGUI {
+
+    private static final ItemStack UNFINISHED_ABILITY = ItemBuilder.of(Material.BARRIER, "&cThis ability is not finished.").asIcon();
 
     private final Heroes heroes;
 
@@ -148,7 +149,7 @@ public class HeroPreviewGUI extends PlayerGUI {
 
     private ItemStack abilityItemOrNull(Talent talent) {
         if (talent == null) {
-            return ItemStacks.AIR;
+            return new ItemStack(Material.AIR);
         }
         return talent.getItem();
     }

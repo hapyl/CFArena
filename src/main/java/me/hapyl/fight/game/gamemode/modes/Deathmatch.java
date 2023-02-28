@@ -1,107 +1,120 @@
 package me.hapyl.fight.game.gamemode.modes;
 
-import me.hapyl.fight.game.AbstractGameInstance;
-import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.StatContainer;
+import com.google.common.collect.Maps;
+import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.gamemode.CFGameMode;
-import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
-import java.util.TreeMap;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Deathmatch extends CFGameMode {
-	private final ChatColor[] colors = {ChatColor.GREEN, ChatColor.DARK_GREEN, ChatColor.YELLOW, ChatColor.GOLD, ChatColor.RED};
+    private final ChatColor[] colors = { ChatColor.GREEN, ChatColor.DARK_GREEN, ChatColor.YELLOW, ChatColor.GOLD, ChatColor.RED };
 
-	public Deathmatch() {
-		super("Deathmatch", 300);
-		this.setInfo("Free for All deathmatch when everyone is fighting for kills. Player with most kills in time limit wins.");
-		this.setPlayerRequirements(2);
-		this.setMaterial(Material.SKELETON_SKULL);
-	}
+    public Deathmatch() {
+        super("Deathmatch", 300);
+        this.setInfo("Free for All death-match when everyone is fighting for kills. Player with most kills in time limit wins.");
+        this.setPlayerRequirements(2);
+        this.setMaterial(Material.SKELETON_SKULL);
 
-	@Override
-	public boolean testWinCondition(@Nonnull GameInstance instance) {
-		return false;
-	}
+        this.setAllowRespawn(true);
+        this.setRespawnTime(40);
+    }
 
-	public final TreeMap<Long, GamePlayer> getTopKills(@Nonnull AbstractGameInstance instance, int limit) {
-		final TreeMap<Long, GamePlayer> players = new TreeMap<>();
-		instance.getPlayers().values().forEach(player -> {
-			players.put(player.getStats().getValue(StatContainer.Type.KILLS), player);
-		});
+    @Override
+    public boolean testWinCondition(@Nonnull GameInstance instance) {
+        return false;
+    }
 
-		// limit players
-		final TreeMap<Long, GamePlayer> limitedPlayers = new TreeMap<>();
-		players.descendingMap().forEach((value, player) -> {
-			if (limitedPlayers.size() >= limit) {
-				return;
-			}
-			limitedPlayers.put(value, player);
-		});
+    @Override
+    public boolean onStart(@Nonnull GameInstance instance) {
+        return false;
+    }
 
-		players.clear();
-		return limitedPlayers;
-	}
+    public final LinkedHashMap<GamePlayer, Long> getTopKills(@Nonnull AbstractGameInstance instance, int limit) {
+        final Map<GamePlayer, Long> map = getAllKills(instance);
+        return map.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .limit(limit)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+    }
 
-	@Override
-	public void onDeath(@Nonnull GameInstance instance, @Nonnull GamePlayer player) {
-		final Player bukkitPlayer = player.getPlayer();
+    public final Map<GamePlayer, Long> getAllKills(@Nonnull AbstractGameInstance instance) {
+        final Map<GamePlayer, Long> topKills = Maps.newHashMap();
 
-		new GameTask() {
-			private int timeBeforeRespawn = 3;
+        instance.getPlayers().values().forEach(player -> {
+            topKills.put(player, player.getStats().getValue(StatContainer.Type.KILLS));
+        });
 
-			@Override
-			public void run() {
+        return topKills;
+    }
 
-				if (timeBeforeRespawn <= 0) {
-					respawnPlayer(player, instance.getCurrentMap().getMap().getLocation());
-					this.cancel();
-					return;
-				}
+    /**
+     * @deprecated Respawn is now handles in GamePlayer
+     */
+    @Override
+    @Deprecated
+    public void onDeath(@Nonnull GameInstance instance, @Nonnull GamePlayer player) {
+    }
 
-				Chat.sendTitle(bukkitPlayer, "&aRespawning in", (colors[timeBeforeRespawn - 1] + "" + timeBeforeRespawn), 0, 25, 0);
-				PlayerLib.playSound(bukkitPlayer, Sound.BLOCK_NOTE_BLOCK_PLING, 2.0f - (0.2f * timeBeforeRespawn));
-				--timeBeforeRespawn;
+    @Override
+    public void onLeave(@Nonnull GameInstance instance, @Nonnull Player player) {
+        final GamePlayer gamePlayer = instance.getPlayer(player);
+        if (gamePlayer == null || gamePlayer.isSpectator()) {
+            return;
+        }
 
-			}
-		}.runTaskTimer(0, 20);
+        player.setGameMode(GameMode.SPECTATOR);
+        gamePlayer.setDead(true);
 
-	}
+        Chat.broadcast("");
+        Chat.broadcast("&c%s left the game. Them may rejoin and continue playing!", player.getName());
+        Chat.broadcast("");
+    }
 
-	@Override
-	public boolean onStop(@Nonnull GameInstance instance) {
-		GamePlayer player = null;
-		long mostKills = 0;
+    @Override
+    public void onJoin(@Nonnull GameInstance instance, @Nonnull Player player) {
+        final GamePlayer gamePlayer = instance.getPlayer(player);
+        if (gamePlayer == null || gamePlayer.isSpectator()) {
+            return;
+        }
 
-		for (final GamePlayer value : instance.getPlayers().values()) {
-			final long currentKills = value.getStats().getValue(StatContainer.Type.KILLS);
-			if (player == null || currentKills > mostKills) {
-				player = value;
-				mostKills = currentKills;
-			}
-		}
+        gamePlayer.setHandle(player);
+        GamePlayer.getPlayer(player).respawnIn(60);
 
-		instance.getWinners().add(player);
-		return true;
-	}
+        Chat.broadcast("");
+        Chat.broadcast("&a%s rejoined the game!", player.getName());
+        Chat.broadcast("");
+    }
 
-	private void respawnPlayer(GamePlayer player, Location location) {
-		final Player bukkitPlayer = player.getPlayer();
-		BukkitUtils.mergePitchYaw(bukkitPlayer.getLocation(), location);
-		Chat.sendTitle(bukkitPlayer, "&aRespawned!", "", 0, 20, 5);
-		bukkitPlayer.teleport(location);
-		PlayerLib.addEffect(bukkitPlayer, PotionEffectType.BLINDNESS, 20, 1);
-		player.respawn();
-	}
+    @Override
+    public boolean onStop(@Nonnull GameInstance instance) {
+        final LinkedHashMap<GamePlayer, Long> topKillsSorted = getTopKills(instance, getAllKills(instance).size());
+        final GameResult gameResult = instance.getGameResult();
+
+        long topKills = -1;
+
+        // First player is always a winner
+        for (GamePlayer player : topKillsSorted.keySet()) {
+            final long kills = topKillsSorted.get(player);
+
+            // Check for first player or other players that have the same kills
+            if (topKills == -1 || kills == topKills) {
+                topKills = kills;
+                gameResult.getWinners().add(player);
+                gameResult.getWinningTeams().add(player.getTeam());
+            }
+
+        }
+
+        return true;
+    }
 
 }

@@ -140,7 +140,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener {
     private void revealPlayer(Player player, LivingEntity revealed) {
         // Glowing
         final Glowing glowing = new Glowing(revealed, ChatColor.AQUA, 20);
-        glowing.addViewer(player);
+        glowing.addPlayer(player);
         glowing.glow();
 
         // If revealed not player don't show health.

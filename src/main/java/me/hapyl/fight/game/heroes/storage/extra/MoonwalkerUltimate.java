@@ -25,7 +25,7 @@ import java.util.Set;
 
 public class MoonwalkerUltimate extends UltimateTalent {
 
-    private final int CORROSION_TIME = 130; //update this in lore manually if changed
+    private final int CORROSION_TIME = 130;
     private final double METEORITE_RADIUS = 8.5d;
     private final double METEORITE_DAMAGE = 50.0d;
 

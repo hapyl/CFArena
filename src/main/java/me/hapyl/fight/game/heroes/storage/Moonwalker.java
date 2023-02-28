@@ -24,6 +24,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class Moonwalker extends Hero implements PlayerElement, UIComponent {
@@ -31,7 +32,7 @@ public class Moonwalker extends Hero implements PlayerElement, UIComponent {
     public Moonwalker() {
         super("Moonwalker");
 
-        setRole(Role.RANGE);
+        this.setRole(Role.RANGE);
 
         this.setInfo("A traveller from another planet... or, should I say moon? Brings his skills and... planets... with himself!");
         this.setItem(Material.END_STONE);
@@ -63,7 +64,7 @@ public class Moonwalker extends Hero implements PlayerElement, UIComponent {
                                .setName("Stinger")
                                .setInfo(
                                        "A unique bow made of unknown materials, seems to have two firing modes.__&e&lLEFT &e&lCLICK &7to fire quick arrow that deals 50% of normal damage.")
-                               .setDamage(7.0)
+                               .setDamage(4.5d)
                                .setId("MOON_WEAPON"));
 
         // moved to its own class because it was unreadable lol
@@ -135,7 +136,7 @@ public class Moonwalker extends Hero implements PlayerElement, UIComponent {
     }
 
     @Override
-    public String getString(Player player) {
+    public @Nonnull String getString(Player player) {
         final int bombs = TalentHandle.MOON_SLITE_BOMB.getBombsSize(player);
         return "&e■ &l" + bombs;
     }

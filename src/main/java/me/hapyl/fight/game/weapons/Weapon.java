@@ -26,13 +26,27 @@ public class Weapon implements Cloneable {
     private final List<Enchant> enchants;
     private final Material material;
     private String name;
+    private String description;
     private String lore;
     private double damage;
+    private double damageMax;
 
     private String id;
 
+    public Weapon(Material material, String name, String about, double damage) {
+        this(material, name, about, damage, damage);
+    }
+
     public Weapon(Material material) {
+        this(material, "unnamed weapon", null, 1);
+    }
+
+    public Weapon(Material material, String name, String about, double damageMin, double damageMax) {
         this.material = material;
+        this.name = name;
+        this.description = about;
+        this.damage = damageMin;
+        this.damageMax = damageMax;
         this.enchants = new ArrayList<>();
     }
 
@@ -51,11 +65,14 @@ public class Weapon implements Cloneable {
     }
 
     public Weapon setInfo(String lore) {
-        this.lore = lore;
+        this.description = lore;
         return this;
     }
 
     public Weapon setDamage(double damage) {
+        if (damage < 0) {
+            throw new IllegalArgumentException("damage cannot be negative.");
+        }
         this.damage = damage;
         return this;
     }
@@ -73,12 +90,16 @@ public class Weapon implements Cloneable {
         return material;
     }
 
-    public String getLore() {
-        return lore;
+    public String getDescription() {
+        return description;
     }
 
     public double getDamage() {
         return damage;
+    }
+
+    public double getDamageMax() {
+        return damageMax;
     }
 
     @Nullable
@@ -96,7 +117,7 @@ public class Weapon implements Cloneable {
     }
 
     /**
-     * Id is required to use functions.
+     * ID is required to use functions.
      */
     public Weapon setId(String id) {
         this.id = id.toUpperCase(Locale.ROOT);
@@ -112,8 +133,12 @@ public class Weapon implements Cloneable {
         builder.setName(ChatColor.GREEN + notNullStr(this.name, "Standard Weapon"));
         builder.addLore("&8Weapon");
 
+        if (this.description != null) {
+            builder.addLore().addSmartLore(description, 35);
+        }
+
         if (this.lore != null) {
-            builder.addLore().addSmartLore(lore, 35);
+            builder.addLore().addSmartLore(lore, "&8&o");
         }
 
         if (this instanceof RangeWeapon rangeWeapon) {
@@ -151,11 +176,13 @@ public class Weapon implements Cloneable {
 
         builder.addAttribute(
                 Attribute.GENERIC_ATTACK_DAMAGE,
-                damage - 1.0d, // have to be -1 here
+                damage - 1.0d, // has to be -1 here
                 AttributeModifier.Operation.ADD_NUMBER,
                 EquipmentSlot.HAND
         );
+
         builder.setUnbreakable(true);
+        builder.setCancelClicks(false);
 
         if (this.material == Material.BOW || this.material == Material.CROSSBOW) {
             builder.addEnchant(Enchantment.ARROW_INFINITE, 1);
@@ -176,7 +203,7 @@ public class Weapon implements Cloneable {
     public Weapon clone() {
         try {
             super.clone();
-            return new Weapon(this.material).setName(this.name).setInfo(this.lore).setDamage(this.damage)
+            return new Weapon(this.material).setName(this.name).setInfo(this.description).setDamage(this.damage)
                     .setId(this.id);
         } catch (Exception ignored) {
         }
@@ -184,4 +211,16 @@ public class Weapon implements Cloneable {
     }
 
 
+    public Material getType() {
+        return item == null ? Material.AIR : item.getType();
+    }
+
+    public Weapon setWeaponLore(String lore) {
+        this.lore = lore;
+        return this;
+    }
+
+    public boolean isRanged() {
+        return material == Material.BOW || material == Material.CROSSBOW || material == Material.TRIDENT;
+    }
 }

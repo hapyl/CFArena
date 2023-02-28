@@ -28,7 +28,6 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerStatisticIncrementEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
 
 import java.util.HashMap;
@@ -41,17 +40,14 @@ public class Hercules extends Hero implements Listener, PlayerElement {
 
     public Hercules() {
         super("Hercules");
-
-        setRole(Role.MELEE);
-
+        this.setRole(Role.MELEE);
         this.setItem(Material.PISTON);
         this.setInfo(
                 "The greatest warrior of all time - \"The Great Hercules\" descended from heaven to punish the infidels! Super-Duper strong punches give you a chance to win.");
 
         final ClassEquipment eq = this.getEquipment();
         eq.setHelmet(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjIxMGM5NjFiOWQ3ODczMjdjMGQxNjQ2ZTY1YWU0MGM2ZDgzNDUxNDg3NzgyNDMzNWQ0YjliNjJiMjM2NWEyNCJ9fX0="
-        );
+                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjIxMGM5NjFiOWQ3ODczMjdjMGQxNjQ2ZTY1YWU0MGM2ZDgzNDUxNDg3NzgyNDMzNWQ0YjliNjJiMjM2NWEyNCJ9fX0=");
         eq.setChestplate(Color.WHITE);
         eq.setBoots(Material.LEATHER_BOOTS);
 
@@ -66,12 +62,10 @@ public class Hercules extends Hero implements Listener, PlayerElement {
                 "Call upon divine power for {duration} to increase your &ejump height &7and &cplunging damage&7.",
                 50
         ).setDuration(240).setItem(Material.NETHERITE_HELMET).setCdSec(30));
-
     }
 
     @Override
     public void useUltimate(Player player) {
-
         // Fx
         new GameTask() {
             private int tick = 0;
@@ -91,7 +85,6 @@ public class Hercules extends Hero implements Listener, PlayerElement {
                 ++tick;
             }
         }.runTaskTimer(0, 1);
-
     }
 
     @Override
@@ -102,17 +95,31 @@ public class Hercules extends Hero implements Listener, PlayerElement {
 
     @EventHandler
     public void handleFragileTrident(ProjectileLaunchEvent ev) {
-        if (ev.getEntity() instanceof final Trident trident) {
-            if (trident.getShooter() instanceof final Player player) {
-                if (player.hasCooldown(Material.TRIDENT)) {
-                    ev.setCancelled(true);
-                    return;
-                }
-                if (fragileTrident.containsKey(player)) {
-                    fragileTrident.get(player).remove();
-                }
-                fragileTrident.put(player, trident);
+        if (ev.getEntity() instanceof final Trident trident && trident.getShooter() instanceof final Player player) {
+            if (player.hasCooldown(Material.TRIDENT)) {
+                ev.setCancelled(true);
+                return;
             }
+
+            trident.setDamage(getWeapon().getDamage() * 1.5f);
+            trident.setInvulnerable(true);
+            trident.setPersistent(true);
+
+            new GameTask() {
+                @Override
+                public void run() {
+                    if (trident.isDead()) {
+                        return;
+                    }
+
+                    giveTridentBack(player, false);
+                }
+            }.runTaskLater(15 * 20);
+
+            if (fragileTrident.containsKey(player)) {
+                fragileTrident.get(player).remove();
+            }
+            fragileTrident.put(player, trident);
         }
     }
 
@@ -120,16 +127,17 @@ public class Hercules extends Hero implements Listener, PlayerElement {
     public void handleFragileBack(ProjectileHitEvent ev) {
         if (Manager.current().isGameInProgress()) {
             final Projectile entity = ev.getEntity();
-            if (entity instanceof Trident) {
-                final ProjectileSource shooter = ev.getEntity().getShooter();
-                if (shooter instanceof Player) {
-                    giveTridentBack((Player) shooter, ev.getHitEntity() != null);
-                }
+            if (entity instanceof Trident trident && trident.getShooter() instanceof Player player) {
+                giveTridentBack(player, ev.getHitEntity() != null);
             }
         }
     }
 
     private void giveTridentBack(Player player, boolean lessCooldown) {
+        if (!fragileTrident.containsKey(player)) {
+            return;
+        }
+
         final Trident trident = fragileTrident.get(player);
         trident.remove();
         player.setCooldown(Material.TRIDENT, lessCooldown ? tridentCooldown / 3 : tridentCooldown);

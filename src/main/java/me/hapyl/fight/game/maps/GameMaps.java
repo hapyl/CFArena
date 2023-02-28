@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.maps;
 
-import me.hapyl.fight.game.maps.features.CloudBoosters;
+import me.hapyl.fight.game.maps.features.CloudFeatures;
 import me.hapyl.fight.game.maps.features.LibraryCat;
 import me.hapyl.fight.game.maps.features.LibraryFeature;
 import me.hapyl.fight.game.maps.maps.DragonsGorge;
@@ -60,7 +60,7 @@ public enum GameMaps {
             Material.WHITE_STAINED_GLASS,
             120,
             Size.MASSIVE,
-            asList(new CloudBoosters()),
+            asList(new CloudFeatures()),
             asSingleLoc(500, 64, 500)
     ),
 

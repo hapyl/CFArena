@@ -10,6 +10,7 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.util.SmallCaps;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Material;
@@ -174,6 +175,14 @@ public abstract class Hero implements GameElement, PlayerElement {
         return this.ultimate;
     }
 
+    public void setWeapon(Material material, String name, String lore, double damage) {
+        setWeapon(new Weapon(material, name, lore, damage));
+    }
+
+    public void setWeapon(Material material, String name, double damage) {
+        setWeapon(new Weapon(material, name, null, damage));
+    }
+
     public void setWeapon(Weapon weapon) {
         this.weapon = weapon;
     }
@@ -208,4 +217,31 @@ public abstract class Hero implements GameElement, PlayerElement {
         return this;
     }
 
+    //    public void resetTalents(Player player) {
+    //        for (Talent talent : getTalents()) {
+    //            if (talent instanceof ChargedTalent chargedTalent) {
+    //                chargedTalent.stopCd(player);
+    //            }
+    //        }
+    //    }
+
+    public Set<Talent> getTalents() {
+        final Set<Talent> talents = Sets.newHashSet();
+
+        talents.add(getFirstTalent());
+        talents.add(getSecondTalent());
+        talents.add(getPassiveTalent());
+
+        if (this instanceof ComplexHero complex) {
+            talents.add(complex.getThirdTalent());
+            talents.add(complex.getFourthTalent());
+            talents.add(complex.getFifthTalent());
+        }
+
+        return talents;
+    }
+
+    public String getNameSmallCaps() {
+        return SmallCaps.format(getName());
+    }
 }

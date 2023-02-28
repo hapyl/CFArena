@@ -11,8 +11,8 @@ import me.hapyl.fight.game.heroes.storage.extra.Combo;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.storage.Irden;
-import me.hapyl.fight.game.talents.storage.Kven;
+import me.hapyl.fight.game.talents.storage.witcher.Irden;
+import me.hapyl.fight.game.talents.storage.witcher.Kven;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -25,6 +25,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
+import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -181,7 +182,7 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
     private final Handle<Kven> kvenHandle = () -> (Kven) Talents.KVEN.getTalent();
 
     @Override
-    public String getString(Player player) {
+    public @Nonnull String getString(Player player) {
         final int shieldLevel = kvenHandle.getHandle().getShieldCharge(player);
         return shieldLevel > 0 ? "&2🛡 &l" + shieldLevel : "";
     }

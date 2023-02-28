@@ -31,7 +31,7 @@ public interface GrimoireTalent {
 	}
 
 	default double getCurrentValue(int level) {
-		return getValues()[Numbers.clamp(level, 0, 4)];
+		return getValues()[Numbers.clamp(level, 0, 3)];
 	}
 
 	default double getCurrentValue(Player player) {

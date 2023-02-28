@@ -5,19 +5,26 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.storage.Alchemist;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
+import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.gometry.Draw;
 import me.hapyl.spigotutils.module.math.gometry.Quality;
 import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.spigotutils.module.util.Action;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.Levelled;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.EulerAngle;
 
 public class AlchemicalCauldron {
 
@@ -25,6 +32,7 @@ public class AlchemicalCauldron {
     private final Location location;
     private final ArmorStand standBar;
     private final ArmorStand standOwner;
+    private final ArmorStand standAnimation;
 
     private double progress;
     private Status status;
@@ -38,15 +46,32 @@ public class AlchemicalCauldron {
 
         this.standOwner = createStand(location.clone().add(0.5d, 1.25d, 0.5d));
         this.standBar = createStand(location.clone().add(0.5d, 1.0d, 0.5d));
+        this.standAnimation = createStand(location.clone().add(0.5, -0.75d, 0.5d), self -> {
+            final EntityEquipment equipment = self.getEquipment();
+            if (equipment == null) {
+                return;
+            }
+
+            equipment.setItemInMainHand(ItemBuilder.of(Material.AIR).toItemStack());
+            self.setRightArmPose(new EulerAngle(Math.toRadians(-85.0d), Math.toRadians(-90), 0));
+
+            self.setSmall(false);
+            self.setCustomNameVisible(false);
+        });
 
         updateName();
         startTask();
     }
 
     private void startTask() {
+        // Progress Task
         new GameTask() {
+            private int tick = 0;
+
             @Override
             public void run() {
+                tick++;
+
                 if (GamePlayer.getPlayer(owner).isDead()) {
                     this.cancel();
                     return;
@@ -64,8 +89,16 @@ public class AlchemicalCauldron {
                     return;
                 }
 
+
                 if (status == Status.BREWING) {
-                    progress += 1.0d;
+                    // Animate every tick but progress every 10
+                    animateCauldron();
+
+                    if (tick % 10 != 0) {
+                        return;
+                    }
+
+                    progress += 1.5d;
 
                     if (progress % 15 == 0) {
                         playSound(Sound.AMBIENT_UNDERWATER_EXIT, 1.5f);
@@ -75,7 +108,7 @@ public class AlchemicalCauldron {
                     spawnParticle(location);
 
                     // Draw the zone
-                    Geometry.drawCircle(location, 4.5d, Quality.HIGH, new Draw(Particle.SPELL) {
+                    Geometry.drawCircle(location, 4.5d, Quality.VERY_HIGH, new Draw(Particle.SPELL) {
                         @Override
                         public void draw(Location location) {
                             spawnParticle(location);
@@ -93,9 +126,14 @@ public class AlchemicalCauldron {
                         }
                     });
                 }
-
             }
-        }.runTaskTimer(0, 10);
+        }.runTaskTimer(0, 1);
+    }
+
+    private void animateCauldron() {
+        final Location standLocation = this.standAnimation.getLocation();
+        standLocation.setYaw(standLocation.getYaw() + 10);
+        this.standAnimation.teleport(standLocation);
     }
 
     private void playSound(Sound sound, float pitch) {
@@ -117,11 +155,18 @@ public class AlchemicalCauldron {
     }
 
     private ArmorStand createStand(Location location) {
+        return createStand(location, null);
+    }
+
+    private ArmorStand createStand(Location location, Action<ArmorStand> action) {
         return Entities.ARMOR_STAND.spawn(location, me -> {
             me.setMarker(true);
             me.setSmall(true);
             me.setInvisible(true);
             me.setCustomNameVisible(true);
+            if (action != null) {
+                action.use(me);
+            }
         });
     }
 
@@ -129,8 +174,14 @@ public class AlchemicalCauldron {
         if (owner.hasCooldown(Material.STICK)) {
             return;
         }
-        owner.setCooldown(Material.STICK, 10);
         this.status = status;
+
+        if (status == Status.BREWING) {
+            Nulls.runIfNotNull(standAnimation.getEquipment(), eq -> eq.setItemInMainHand(new ItemStack(Material.STICK)));
+        }
+        else if (status == Status.PAUSED) {
+            Nulls.runIfNotNull(standAnimation.getEquipment(), eq -> eq.setItemInMainHand(new ItemStack(Material.AIR)));
+        }
     }
 
     public Status getStatus() {
@@ -151,7 +202,13 @@ public class AlchemicalCauldron {
 
     private void createCauldron() {
         final Block block = this.location.getBlock();
-        block.setType(Material.CAULDRON, false);
+        block.setType(Material.WATER_CAULDRON, false);
+
+        if (block.getState() instanceof Levelled levelled) {
+            levelled.setLevel(levelled.getMaximumLevel());
+        }
+
+        block.getState().update(true, false);
     }
 
     public void finish() {
@@ -166,6 +223,7 @@ public class AlchemicalCauldron {
         this.location.getBlock().setType(Material.AIR, false);
         this.standOwner.remove();
         this.standBar.remove();
+        this.standAnimation.remove();
     }
 
     public enum Status {

@@ -19,22 +19,12 @@ public class EffectParticleBlockMarker extends EffectParticle {
     @Override
     public void display(Location location, @Nullable Player ignored) {
         Bukkit.getOnlinePlayers().forEach(player -> {
-            if (ignored != null && player == ignored) {
-                return;
-            }
             final World world = location.getWorld();
-            if (world == null) {
+            if ((ignored != null && player == ignored) || world == null) {
                 return;
             }
-            world.spawnParticle(
-                    getParticle(),
-                    location,
-                    getAmount(),
-                    getoX(),
-                    getoY(),
-                    getoZ(),
-                    block.createBlockData()
-            );
+
+            world.spawnParticle(getParticle(), location, getAmount(), getOffsetX(), getOffsetY(), getOffsetZ(), block.createBlockData());
         });
     }
 }

@@ -33,19 +33,18 @@ public class Archer extends Hero implements Listener {
 
     public Archer() {
         super("Archer");
-        setRole(Role.RANGE);
+
+        this.setRole(Role.RANGE);
         this.setInfo("One of the best archers joins the fight! Not alone though but with his &bcustom-made &7&obow.");
         this.setItem(Material.BOW);
-        this.setWeapon(new Weapon(Material.BOW)
-                               .setName("Harbinger")
-                               .setInfo("A custom-made bow with some unique abilities!")
-                               .setDamage(8.0d));
 
-        final ClassEquipment eq = this.getEquipment();
-        eq.setHelmet(Material.CHAINMAIL_HELMET);
-        eq.setChestplate(Material.CHAINMAIL_CHESTPLATE);
-        eq.setLeggings(Material.LEATHER_LEGGINGS);
-        eq.setBoots(Material.LEATHER_BOOTS);
+        this.setWeapon(Material.BOW, "Bow of Destiny", "A custom-made bow with some unique abilities!", 5.0d);
+
+        final ClassEquipment equipment = this.getEquipment();
+        equipment.setHelmet(Material.CHAINMAIL_HELMET);
+        equipment.setChestplate(Material.CHAINMAIL_CHESTPLATE);
+        equipment.setLeggings(Material.LEATHER_LEGGINGS);
+        equipment.setBoots(Material.LEATHER_BOOTS);
 
         this.setUltimate(new UltimateTalent(
                 "Boom Bow",
@@ -128,8 +127,7 @@ public class Archer extends Hero implements Listener {
                             return;
                         }
 
-                        final Vector vector = target
-                                .getLocation()
+                        final Vector vector = target.getLocation()
                                 .clone()
                                 .add(0d, 0.5d, 0.0d)
                                 .toVector()
@@ -137,8 +135,6 @@ public class Archer extends Hero implements Listener {
                                 .normalize()
                                 .multiply(0.7);
                         arrow.setVelocity(vector);
-
-
                     }
                 }.runTaskTimer(0, 1);
             }
@@ -157,9 +153,7 @@ public class Archer extends Hero implements Listener {
                 3.0d,
                 3.0d,
                 entity -> entity instanceof Player player ?
-                        shooter != player && validatePlayer(player) :
-                        entity instanceof LivingEntity &&
-                                validateEntity((LivingEntity) entity)
+                        shooter != player && validatePlayer(player) : entity instanceof LivingEntity && validateEntity((LivingEntity) entity)
         );
 
         LivingEntity nearestEntity = null;

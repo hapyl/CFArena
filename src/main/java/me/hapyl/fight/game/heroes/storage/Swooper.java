@@ -185,7 +185,7 @@ public class Swooper extends Hero implements Listener {
 
     @Override
     public Talent getSecondTalent() {
-        return null;
+        return Talents.BLINK.getTalent();
     }
 
     @Override

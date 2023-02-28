@@ -3,83 +3,127 @@ package me.hapyl.fight.game.gamemode;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.setting.Setting;
+import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import java.util.stream.Collectors;
 
 public abstract class CFGameMode {
 
-	private final String name;
-	private final int timeLimit; // in seconds
+    private final String name;
+    private final int timeLimit; // in seconds
 
-	private Material material;
-	private String info;
-	private int playerRequirements;
+    private Material material;
+    private String info;
+    private int playerRequirements;
+    private boolean allowRespawn;
+    private int respawnTime;
 
-	public CFGameMode(String name, int timeLimit) {
-		this.name = name;
-		this.timeLimit = timeLimit;
-		this.info = "";
-		this.material = Material.BEDROCK;
-		this.playerRequirements = 2;
-	}
+    public CFGameMode(String name, int timeLimit) {
+        this.name = name;
+        this.timeLimit = timeLimit;
+        this.info = "";
+        this.material = Material.BEDROCK;
+        this.playerRequirements = 2;
+        this.allowRespawn = false;
+    }
 
-	public void setMaterial(Material material) {
-		this.material = material;
-	}
+    public void setRespawnTime(int respawnTime) {
+        this.respawnTime = respawnTime;
+    }
 
-	public Material getMaterial() {
-		return material;
-	}
+    public int getRespawnTime() {
+        return respawnTime;
+    }
 
-	public void setInfo(String info) {
-		this.info = info;
-	}
+    public void setAllowRespawn(boolean allowRespawn) {
+        this.allowRespawn = allowRespawn;
+    }
 
-	public String getInfo() {
-		return info;
-	}
+    public boolean isAllowRespawn() {
+        return allowRespawn;
+    }
 
-	public void setPlayerRequirements(int playerRequirements) {
-		this.playerRequirements = playerRequirements;
-	}
+    public void setMaterial(Material material) {
+        this.material = material;
+    }
 
-	public int getPlayerRequirements() {
-		return playerRequirements;
-	}
+    public Material getMaterial() {
+        return material;
+    }
 
-	public boolean isPlayerRequirementsMet() {
-		return Bukkit.getOnlinePlayers()
-				.stream()
-				.filter(player -> !Setting.SPECTATE.isEnabled(player))
-				.collect(Collectors.toSet())
-				.size() >= getPlayerRequirements();
-	}
+    public void setInfo(String info) {
+        this.info = info;
+    }
 
-	public int getTimeLimit() {
-		return timeLimit;
-	}
+    public String getInfo() {
+        return info;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public void setPlayerRequirements(int playerRequirements) {
+        this.playerRequirements = playerRequirements;
+    }
 
-	public abstract boolean testWinCondition(@Nonnull GameInstance instance);
+    public int getPlayerRequirements() {
+        return playerRequirements;
+    }
 
-	public void onDeath(@Nonnull GameInstance instance, @Nonnull GamePlayer player) {
+    // FIXME: 024, Feb 24, 2023 -> Might need to check for teams, not players
+    public boolean isPlayerRequirementsMet() {
+        return Bukkit.getOnlinePlayers()
+                .stream()
+                .filter(player -> !Setting.SPECTATE.isEnabled(player))
+                .collect(Collectors.toSet())
+                .size() >= getPlayerRequirements();
+    }
 
-	}
+    public int getTimeLimit() {
+        return timeLimit;
+    }
 
-	/**
-	 * Use this to calculate winners if not default.
-	 *
-	 * @param instance - game instance.
-	 * @return false to mark all alive players as winners.
-	 */
-	public boolean onStop(@Nonnull GameInstance instance) {
-		return false;
-	}
+    public String getName() {
+        return name;
+    }
 
+    public abstract boolean testWinCondition(@Nonnull GameInstance instance);
+
+    public void onDeath(@Nonnull GameInstance instance, @Nonnull GamePlayer player) {
+
+    }
+
+    // Default impl, override if used
+    public void onLeave(@Nonnull GameInstance instance, @Nonnull Player player) {
+        final GamePlayer gamePlayer = instance.getPlayer(player);
+        if (gamePlayer == null) {
+            return;
+        }
+
+        Chat.broadcast("");
+        Chat.broadcast("&c%s left while fighting and was removed from the game!");
+        Chat.broadcast("");
+
+        gamePlayer.setDead(true);
+        instance.checkWinCondition();
+    }
+
+    // Default impl, override if used
+    public void onJoin(@Nonnull GameInstance instance, @Nonnull Player player) {
+    }
+
+    public boolean onStart(@Nonnull GameInstance instance) {
+        return false;
+    }
+
+    /**
+     * Use this to calculate winners if not default.
+     *
+     * @param instance - game instance.
+     * @return false to mark all alive players as winners.
+     */
+    public boolean onStop(@Nonnull GameInstance instance) {
+        return false;
+    }
 }

@@ -2,6 +2,7 @@ package me.hapyl.fight.gui;
 
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.heroes.ComplexHero;
+import me.hapyl.fight.game.heroes.DeprecatedHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.util.ItemStacks;
@@ -57,6 +58,12 @@ public class HeroSelectGUI extends PlayerGUI {
                     .addLore("&7Role: &b%s", hero.getHero().getRole().getName())
                     .addLore()
                     .addSmartLore(heroClass.getAbout(), "&7&o", 35);
+
+            if (heroClass instanceof DeprecatedHero) {
+                builder.addLore();
+                builder.addLore("&2&lDeprecated Hero!");
+                builder.addSmartLore("&aThis hero is deprecated and needs to be reworked.");
+            }
 
             if (heroClass instanceof ComplexHero) {
                 builder.addLore();

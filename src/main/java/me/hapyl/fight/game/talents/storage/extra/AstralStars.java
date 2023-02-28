@@ -1,11 +1,11 @@
 package me.hapyl.fight.game.talents.storage.extra;
 
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.gometry.PlayerParticle;
 import me.hapyl.spigotutils.module.math.gometry.Quality;
 import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.spigotutils.module.reflect.visibility.Visibility;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -46,12 +46,13 @@ public class AstralStars {
 			me.setGlowing(true);
 		});
 		this.bats.add(bat);
-		for (final Player online : Bukkit.getOnlinePlayers()) {
-			if (online == player) {
-				continue;
-			}
-			Utils.hideEntity(bat, online);
-		}
+		Visibility.of(bat, player);
+		//		for (final Player online : Bukkit.getOnlinePlayers()) {
+		//			if (online == player) {
+		//				continue;
+		//			}
+		//			Utils.hideEntity(bat, online);
+		//		}
 	}
 
 	public double getPickupDistance() {

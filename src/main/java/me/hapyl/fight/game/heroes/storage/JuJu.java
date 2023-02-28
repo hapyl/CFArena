@@ -9,22 +9,19 @@ import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.storage.ArrowShield;
+import me.hapyl.fight.game.talents.storage.juju.ArrowShield;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.spigotutils.module.math.Geometry;
-import me.hapyl.spigotutils.module.math.gometry.Quality;
-import me.hapyl.spigotutils.module.math.gometry.WorldParticle;
+import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.util.ThreadRandom;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
-import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -35,17 +32,15 @@ import org.bukkit.util.Vector;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class JuJu extends Hero implements Listener {
 
     private final Set<Arrow> arrows = new HashSet<>();
-    private final double ultimateRadius = 7.5d;
 
     public JuJu() {
-        super("JuJu the Archer");
+        super("JuJu the Bandit");
 
-        setRole(Role.RANGE);
+        this.setRole(Role.RANGE);
 
         this.setInfo("A bandit from the depths of the jungle. Highly skilled in range combat.");
         this.setItem(Material.OAK_SAPLING);
@@ -61,82 +56,43 @@ public class JuJu extends Hero implements Listener {
         this.setWeapon(new Weapon(Material.BOW)
                                .setName("Twisted")
                                .setInfo("A bow made of anything you can find in the middle of the jungle.")
-                               .setDamage(8.0d));
+                               .setDamage(4.0d));
 
         this.setUltimate(new UltimateTalent(
-                "Kiss of Death, Call of Thunder",
-                "Creates a field of arrows at your target block, then, summons thunder to electrolyze everyone who is still in the zone.",
-                70
-        ).setDuration(120).setItem(Material.END_ROD));
-
+                "Trick Shot",
+                "Your arrows will ricochet off walls and other surfaces for {duration}, giving you the ability to hit targets that are out of sight or hiding behind cover.__The damage is increased with each bounce and speed of ricochet arrows is based on your charge time.",
+                65
+        ).setDurationSec(8).setItem(Material.ARROW));
     }
 
-    @Override
-    public String predicateMessage() {
-        return "No valid blocks in sight!";
-    }
+    @EventHandler
+    public void onProjectileHit(ProjectileHitEvent event) {
+        if (event.getEntityType() == EntityType.ARROW && event.getEntity().getShooter() instanceof Player player) {
+            final Arrow arrow = (Arrow) event.getEntity();
+            final BlockFace hitBlockFace = event.getHitBlockFace();
 
-    @Override
-    public boolean predicateUltimate(Player player) {
-        return getTargetLocation(player) != null;
-    }
+            if (!validatePlayer(player, Heroes.JUJU) || !isUsingUltimate(player) || hitBlockFace == null) {
+                return;
+            }
 
-    private void drawUltimateRadius(Location location) {
-        Geometry.drawCircle(location, ultimateRadius, Quality.VERY_HIGH, new WorldParticle(Particle.CRIT));
-    }
+            // Calculate the angle of reflection for the arrow.
+            final Vector arrowVelocity = arrow.getVelocity();
+            final Vector surfaceNormal = hitBlockFace.getDirection();
+            final Vector reflectedVelocity = arrowVelocity.subtract(surfaceNormal.multiply(1.5d * arrowVelocity.dot(surfaceNormal)));
 
-    private Location getTargetLocation(Player player) {
-        final Block targetBlockExact = player.getTargetBlockExact(20);
-        return targetBlockExact == null ? null : targetBlockExact.getRelative(BlockFace.UP).getLocation().add(0.5d, 0.0d, 0.5d);
+            // Set the new velocity of the arrow to the reflected velocity.
+            Entities.ARROW.spawn(arrow.getLocation(), self -> {
+                self.setShooter(player);
+                self.setDamage(arrow.getDamage() * 2);
+                self.setColor(Color.GREEN);
+                self.setCritical(arrow.isCritical());
+                self.setVelocity(reflectedVelocity);
+            });
+        }
     }
 
     @Override
     public void useUltimate(Player player) {
-        final Location location = getTargetLocation(player);
-        if (location == null || location.getWorld() == null) {
-            return;
-        }
-
-        location.add(0.0d, 0.1d, 0.0d);
-        setUsingUltimate(player, true);
-        new GameTask() {
-            private final World world = location.getWorld();
-            private double theta = 0.0d;
-
-            @Override
-            public void run() {
-                drawUltimateRadius(location);
-                if (theta >= Math.PI * 2) {
-                    GameTask.runTaskTimerTimes((task, tick) -> {
-                        drawUltimateRadius(location);
-                        final double addX = ThreadLocalRandom.current().nextDouble(ultimateRadius);
-                        final double addZ = ThreadLocalRandom.current().nextDouble(ultimateRadius);
-                        final double finalAddX = ThreadRandom.nextBoolean() ? addX : -addX;
-                        final double finalAddZ = ThreadRandom.nextBoolean() ? addZ : -addZ;
-
-                        location.add(finalAddX, 0, finalAddZ);
-                        world.strikeLightning(location);
-                        location.subtract(finalAddX, 0, finalAddZ);
-
-                        if (tick == 0) {
-                            setUsingUltimate(player, false);
-                        }
-                    }, 3, 40);
-                    this.cancel();
-                    return;
-                }
-
-                final double x = ultimateRadius * Math.sin(theta);
-                final double z = ultimateRadius * Math.cos(theta);
-
-                location.add(x, 5, z);
-                world.spawnArrow(location, new Vector(0.0d, -1.0d, 0.0d), 0.75f, 0f);
-                location.subtract(x, 5, z);
-
-                theta += Math.PI / 16;
-
-            }
-        }.runTaskTimer(0, 1);
     }
 
     @Override
@@ -167,7 +123,7 @@ public class JuJu extends Hero implements Listener {
     @EventHandler()
     public void handleProjectileLaunch(ProjectileLaunchEvent ev) {
         if (ev.getEntity() instanceof Arrow arrow && arrow.getShooter() instanceof Player player) {
-            if (validatePlayer(player, Heroes.JUJU) && player.isSneaking() && arrow.isCritical()) {
+            if (validatePlayer(player, Heroes.JUJU) && player.isSneaking() && arrow.isCritical() && !isUsingUltimate(player)) {
                 arrows.add(arrow);
             }
         }

@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 
 public class TeamSelectGUI extends PlayerGUI {
     public TeamSelectGUI(Player player) {
-        super(player, "Select Team", 3);
+        super(player, "Select Team", 4);
         updateMenu();
         openInventory();
     }
@@ -37,10 +37,6 @@ public class TeamSelectGUI extends PlayerGUI {
 
             if (team.isLobbyPlayer(owner)) {
                 builder.addLore("&eClick to leave");
-                setClick(slot, player -> {
-                    team.removeFromTeam(player);
-                    updateMenu();
-                });
             }
             else if (team.isFull()) {
                 builder.addLore("&cTeam is full!");
@@ -50,12 +46,19 @@ public class TeamSelectGUI extends PlayerGUI {
             }
 
             smartComponent.add(builder.predicate(team.isLobbyPlayer(owner), ItemBuilder::glow).build(), player -> {
-                if (team.addToTeam(player)) {
-                    Chat.sendMessage(player, "&aJoined %s team.", team.getName());
+                if (team.isLobbyPlayer(owner)) { // is in team
+                    team.removeFromTeam(owner);
+                    Chat.sendMessage(player, "&aLeft %s team.", team.getName());
                 }
                 else {
-                    Chat.sendMessage(player, "&cThis team is full!");
+                    if (team.addToTeam(player)) {
+                        Chat.sendMessage(player, "&aJoined %s team.", team.getName());
+                    }
+                    else {
+                        Chat.sendMessage(player, "&cThis team is full!");
+                    }
                 }
+
                 updateMenu();
             });
         }

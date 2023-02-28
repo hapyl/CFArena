@@ -51,7 +51,6 @@ public class ChatController implements Listener {
 		Bukkit.getOnlinePlayers().forEach(online -> {
 			formatAndSendMessage(player, message, online);
 		});
-
 	}
 
 	private void formatAndSendMessage(Player sender, String message, Player receiver) {
@@ -90,7 +89,6 @@ public class ChatController implements Listener {
 
 		builder.append(message);
 		Chat.sendMessage(receiver, builder.toString());
-
 	}
 
 	public boolean isSameMessageAsLast(Player player, String string) {

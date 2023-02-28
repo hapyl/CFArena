@@ -15,8 +15,8 @@ public class Stun extends GameEffect {
 
 	public Stun() {
 		super("Stun");
-		this.setAbout("Stunned players cannot move or use their abilities. Effect will be cleared upon taking damage.");
-		this.setPositive(false);
+        this.setDescription("Stunned players cannot move or use their abilities. Effect will be cleared upon taking damage.");
+        this.setPositive(false);
 		this.setEffectParticle(new EffectParticle(Particle.VILLAGER_ANGRY, 1));
 	}
 

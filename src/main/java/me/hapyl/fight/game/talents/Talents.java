@@ -1,17 +1,66 @@
 package me.hapyl.fight.game.talents;
 
 import me.hapyl.fight.Main;
-import me.hapyl.fight.game.talents.storage.*;
+import me.hapyl.fight.game.talents.storage.TestChargeTalent;
+import me.hapyl.fight.game.talents.storage.alchemist.CauldronAbility;
+import me.hapyl.fight.game.talents.storage.alchemist.RandomPotion;
+import me.hapyl.fight.game.talents.storage.archer.ShockDark;
+import me.hapyl.fight.game.talents.storage.archer.TripleShot;
+import me.hapyl.fight.game.talents.storage.darkmage.BlindingCurse;
+import me.hapyl.fight.game.talents.storage.darkmage.HealingAura;
+import me.hapyl.fight.game.talents.storage.darkmage.ShadowClone;
+import me.hapyl.fight.game.talents.storage.darkmage.SlowingAura;
+import me.hapyl.fight.game.talents.storage.doctor.ConfusionPotion;
+import me.hapyl.fight.game.talents.storage.ender.TeleportPearl;
+import me.hapyl.fight.game.talents.storage.ender.TransmissionBeacon;
+import me.hapyl.fight.game.talents.storage.freazly.IceCone;
+import me.hapyl.fight.game.talents.storage.harbinger.MeleeStance;
+import me.hapyl.fight.game.talents.storage.hercules.HerculesJump;
+import me.hapyl.fight.game.talents.storage.hercules.HerculesShift;
+import me.hapyl.fight.game.talents.storage.juju.ArrowShield;
+import me.hapyl.fight.game.talents.storage.juju.Climb;
+import me.hapyl.fight.game.talents.storage.km.LaserEye;
+import me.hapyl.fight.game.talents.storage.km.ShellGrande;
+import me.hapyl.fight.game.talents.storage.knight.SlownessPotion;
+import me.hapyl.fight.game.talents.storage.knight.Spear;
+import me.hapyl.fight.game.talents.storage.librarian.BlackHole;
+import me.hapyl.fight.game.talents.storage.librarian.EntityDarkness;
+import me.hapyl.fight.game.talents.storage.librarian.LibrarianShield;
+import me.hapyl.fight.game.talents.storage.librarian.WeaponDarkness;
+import me.hapyl.fight.game.talents.storage.mage.ArcaneMute;
+import me.hapyl.fight.game.talents.storage.mage.MageTransmission;
+import me.hapyl.fight.game.talents.storage.moonwalker.MoonSliteBomb;
+import me.hapyl.fight.game.talents.storage.moonwalker.MoonslitePillar;
+import me.hapyl.fight.game.talents.storage.nightmare.Paranoia;
+import me.hapyl.fight.game.talents.storage.nightmare.ShadowShift;
+import me.hapyl.fight.game.talents.storage.ninja.NinjaDash;
+import me.hapyl.fight.game.talents.storage.ninja.NinjaSmoke;
+import me.hapyl.fight.game.talents.storage.pytaria.FlowerBreeze;
+import me.hapyl.fight.game.talents.storage.pytaria.FlowerEscape;
+import me.hapyl.fight.game.talents.storage.shadowassassin.ShadowPrism;
+import me.hapyl.fight.game.talents.storage.shadowassassin.ShroudedStep;
 import me.hapyl.fight.game.talents.storage.shaman.ResonanceType;
 import me.hapyl.fight.game.talents.storage.shaman.Totem;
 import me.hapyl.fight.game.talents.storage.shaman.TotemTalent;
+import me.hapyl.fight.game.talents.storage.shark.Submerge;
+import me.hapyl.fight.game.talents.storage.spark.Molotov;
+import me.hapyl.fight.game.talents.storage.spark.SparkFlash;
+import me.hapyl.fight.game.talents.storage.swooper.BlastPack;
+import me.hapyl.fight.game.talents.storage.swooper.Blink;
+import me.hapyl.fight.game.talents.storage.techie.TrapCage;
+import me.hapyl.fight.game.talents.storage.techie.TrapWire;
+import me.hapyl.fight.game.talents.storage.troll.Repulsor;
+import me.hapyl.fight.game.talents.storage.troll.TrollSpin;
+import me.hapyl.fight.game.talents.storage.vortex.StarAligner;
+import me.hapyl.fight.game.talents.storage.vortex.VortexStar;
+import me.hapyl.fight.game.talents.storage.witcher.*;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
-public enum Talents {
+import javax.annotation.Nonnull;
 
-    // TODO: 003, Dec 3, 2022 - Repackage talent classes into their hero owner
+public enum Talents {
 
     // Archer
     TRIPLE_SHOT(new TripleShot()),
@@ -35,9 +84,9 @@ public enum Talents {
     MOONSLITE_PILLAR(new MoonslitePillar()),
     MOONSLITE_BOMB(new MoonSliteBomb()),
     TARGET(new PassiveTalent(
-            "Target",
-            "Hold &e&lSNEAK &7to show your target block. Most of your abilities will spawn at the target block.",
-            Material.SPECTRAL_ARROW
+            "Space Suit",
+            "You suit grants you slow falling ability.",
+            Material.FEATHER
     )),
 
     // Hercules
@@ -51,7 +100,7 @@ public enum Talents {
 
     // Mage
     MAGE_TRANSMISSION(new MageTransmission()),
-    MAGE_TODO(null),
+    ARCANE_MUTE(new ArcaneMute()),
     SOUL_HARVEST(new PassiveTalent(
             "Soul Harvest",
             "Deal &bmelee &7damage to gain soul fragment as fuel for your &e&lSoul &e&lEater&7's range attacks.",
@@ -164,12 +213,13 @@ public enum Talents {
     CLIMB(new Climb()),
     ELUSIVE_BURST(new PassiveTalent(
             "Elusive Burst",
-            "Fully charged shots while sneaking will infuse your arrow. Infused arrows exploded into small clusters dealing big damage upon hit.",
+            "Fully charged shots while sneaking will infuse your arrow. Infused arrows exploded into small clusters dealing big damage upon hit. This ability cannot be used during ultimate.",
             Material.PEONY
     )),
 
     // Swooper
     BLAST_PACK(new BlastPack()),
+    BLINK(new Blink()),
     SNIPER_SCOPE(new PassiveTalent(
             "Sniper Scope",
             "&e&lSNEAK &7to activate sniper scope and increase your rifle's damage and distance.",
@@ -243,6 +293,7 @@ public enum Talents {
         return getTalent().getName();
     }
 
+    @Nonnull
     public Talent getTalent() {
         return talent;
     }

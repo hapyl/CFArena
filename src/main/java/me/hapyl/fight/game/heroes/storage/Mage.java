@@ -27,6 +27,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffectType;
 
+import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,14 +35,16 @@ public class Mage extends Hero implements UIComponent {
 
     private final double wyvernHealingAmount = 25.0d;
     private final int wyvernHeartLength = 500;
+
     private final int dragonSkinLength = 400;
+
     private final int maxSoulsAmount = 26;
 
     private final ItemStack itemHeartOfWyvern = new ItemBuilder(Material.FERMENTED_SPIDER_EYE, "wyvern")
             .addClickEvent(this::useWyvern)
             .setName("&aHeart of Wyvern &7(Right Click)")
             .addLore("")
-            .addLore("&a+ %s ❤")
+            .addLore("&a+ %s ❤".formatted(wyvernHealingAmount))
             .addLore("&a+ Speed")
             .addLore("&c+ Weakness")
             .build();
@@ -59,18 +62,18 @@ public class Mage extends Hero implements UIComponent {
     public Mage() {
         super("Mage");
 
-        setRole(Role.MELEE_RANGE);
+        this.setRole(Role.MELEE_RANGE);
 
         this.setInfo(
                 "Amateur Necromancer with ability to absorb soul fragments upon hitting his foes to use them as fuel for his &e&lSoul Eater&7.__Which makes him both &bmelee &7and &brange &7warrior!");
         this.setItem(Material.PHANTOM_MEMBRANE);
 
-        final ClassEquipment eq = this.getEquipment();
-        eq.setHelmet(
+        final ClassEquipment equipment = this.getEquipment();
+        equipment.setHelmet(
                 "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjQxZTZlNGJjZDI2NjdiYjI4NGZiMGRkZTM2MTg5NDg0MGVhNzgyZWZiZmI3MTdmNjI0NGUwNmI5NTFjMmIzZiJ9fX0=");
-        eq.setChestplate(56, 34, 70);
-        eq.setLeggings(29, 29, 33);
-        eq.setBoots(56, 34, 70);
+        equipment.setChestplate(56, 34, 70);
+        equipment.setLeggings(29, 29, 33);
+        equipment.setBoots(56, 34, 70);
 
         this.setWeapon(new Weapon(Material.IRON_HOE) {
             @Override
@@ -162,7 +165,7 @@ public class Mage extends Hero implements UIComponent {
     private void useWyvern(Player player) {
         this.setUsingUltimate(player, true, wyvernHeartLength);
 
-        PlayerLib.addEffect(player, PotionEffectType.SPEED, wyvernHeartLength, 3);
+        PlayerLib.addEffect(player, PotionEffectType.SPEED, wyvernHeartLength, wyvernHeartLength);
         PlayerLib.addEffect(player, PotionEffectType.WEAKNESS, wyvernHeartLength, 1);
         GamePlayer.getPlayer(player).heal(wyvernHealingAmount);
 
@@ -176,7 +179,7 @@ public class Mage extends Hero implements UIComponent {
         this.setUsingUltimate(player, true, dragonSkinLength);
 
         PlayerLib.addEffect(player, PotionEffectType.SLOW, dragonSkinLength, 2);
-        PlayerLib.addEffect(player, PotionEffectType.INCREASE_DAMAGE, dragonSkinLength, 7);
+        PlayerLib.addEffect(player, PotionEffectType.INCREASE_DAMAGE, dragonSkinLength, 3);
         PlayerLib.addEffect(player, PotionEffectType.JUMP, dragonSkinLength, 250);
 
         // fx
@@ -198,7 +201,7 @@ public class Mage extends Hero implements UIComponent {
 
     @Override
     public Talent getSecondTalent() {
-        return null;
+        return Talents.ARCANE_MUTE.getTalent();
     }
 
     @Override
@@ -207,7 +210,7 @@ public class Mage extends Hero implements UIComponent {
     }
 
     @Override
-    public String getString(Player player) {
+    public @Nonnull String getString(Player player) {
         final int souls = getSouls(player);
         return "&e⦾ &l" + souls + (souls == maxSoulsAmount ? " FULL" : "");
     }

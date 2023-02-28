@@ -7,8 +7,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
 public class Invisibility extends GameEffect {
+
 	public Invisibility() {
 		super("Invisibility");
+		setDescription("Makes player invisible.");
 	}
 
 	@Override

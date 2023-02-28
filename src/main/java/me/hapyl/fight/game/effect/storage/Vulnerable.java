@@ -9,7 +9,7 @@ public class Vulnerable extends GameEffect {
 
     public Vulnerable() {
         super("Vulnerable");
-        this.setAbout("Players affected by vulnerability take 50% more damage.");
+        this.setDescription("Players affected by vulnerability take 50% more damage.");
         this.setPositive(false);
     }
 

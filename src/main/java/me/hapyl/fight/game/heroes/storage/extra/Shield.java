@@ -118,7 +118,6 @@ public class Shield {
                 .addPattern(PatternType.STRIPE_BOTTOM)
                 .addPattern(DyeColor.WHITE, PatternType.BORDER)
                 .build());
-
     }
 
     public void updateTexture(Player player, int charge) {

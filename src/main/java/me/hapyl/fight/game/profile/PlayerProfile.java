@@ -2,10 +2,11 @@ package me.hapyl.fight.game.profile;
 
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.ScoreboardTeams;
 import me.hapyl.fight.game.database.Database;
 import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.scoreboard.GamePlayerUI;
 import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.game.ui.GamePlayerUI;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
@@ -18,6 +19,7 @@ public class PlayerProfile {
 
     private final Player player;
     private final Database database;
+    private final ScoreboardTeams scoreboardTeams;
 
     @Nullable
     private GamePlayer gamePlayer; // current game player
@@ -29,7 +31,12 @@ public class PlayerProfile {
     public PlayerProfile(Player player) {
         this.player = player;
         this.database = new Database(player);
+        this.scoreboardTeams = new ScoreboardTeams(player);
         this.loaded = false;
+    }
+
+    public ScoreboardTeams getScoreboardTeams() {
+        return scoreboardTeams;
     }
 
     public void loadData() {

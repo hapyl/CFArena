@@ -7,33 +7,42 @@ import me.hapyl.fight.event.PlayerEvent;
 import me.hapyl.fight.game.ChatController;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.exp.Experience;
+import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.maps.features.BoosterController;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TaskList;
 import me.hapyl.fight.game.tutorial.ChatTutorial;
 import me.hapyl.fight.game.tutorial.Tutorial;
+import me.hapyl.fight.protocol.ArcaneMuteProtocol;
 import me.hapyl.spigotutils.EternaAPI;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.chat.Gradient;
 import me.hapyl.spigotutils.module.chat.gradient.Interpolators;
 import me.hapyl.spigotutils.module.command.CommandProcessor;
+import me.hapyl.spigotutils.module.command.SimpleAdminCommand;
 import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
 import me.hapyl.spigotutils.module.command.SimplePlayerCommand;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.reflect.DataWatcherType;
 import me.hapyl.spigotutils.module.reflect.Reflect;
+import me.hapyl.spigotutils.module.reflect.glow.Glowing;
 import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
+import me.hapyl.spigotutils.module.reflect.npc.NPCPose;
 import me.hapyl.spigotutils.module.util.Action;
+import me.hapyl.spigotutils.module.util.Runnables;
 import net.minecraft.world.entity.Entity;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Pig;
 import org.bukkit.entity.Piglin;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.awt.Color;
 import java.util.Arrays;
@@ -56,6 +65,7 @@ public class Main extends JavaPlugin {
         plugin = this;
         regCommands();
         regEvents();
+        regProtocol();
 
         // Init api
         new EternaAPI(this);
@@ -123,6 +133,8 @@ public class Main extends JavaPlugin {
         if (player.getGameMode() != GameMode.CREATIVE) {
             player.teleport(GameMaps.SPAWN.getMap().getLocation());
         }
+
+        LobbyItems.giveAll(player);
     }
 
     @Override
@@ -169,6 +181,33 @@ public class Main extends JavaPlugin {
         processor.registerCommand(new GamemodeShortcut("gamemode"));
         processor.registerCommand(new TeamCommand("team"));
         processor.registerCommand(new TestWinConditionCommand("testWinCondition"));
+        processor.registerCommand(new TriggerWinCommand("triggerWin"));
+        processor.registerCommand(new DummyCommand("dummy"));
+        processor.registerCommand(new CooldownCommand("cooldown"));
+
+        processor.registerCommand(new SimplePlayerAdminCommand("chatgpt") {
+
+            private BukkitTask task;
+            private BukkitTask task2;
+
+            @Override
+            protected void execute(Player player, String[] strings) {
+                if (strings.length > 0 || task != null) {
+                    task.cancel();
+                    task = null;
+
+                    Chat.sendMessage(player, "&aCancelled!");
+                    return;
+                }
+
+                // ChatGPT start
+
+
+                // ChatGPT end
+
+                Chat.sendMessage(player, "&aCreated.");
+            }
+        });
 
         processor.registerCommand(new SimplePlayerAdminCommand("riptide") {
 
@@ -217,8 +256,9 @@ public class Main extends JavaPlugin {
                 location.setPitch(90f);
 
                 final HumanNPC npc = new HumanNPC(location, "", player.getName());
-                npc.showAll();
                 npc.bukkitEntity().setInvisible(true);
+                npc.showAll();
+
                 npc.setDataWatcherByteValue(8, (byte) 0x04);
 
                 this.npc = npc;
@@ -244,6 +284,20 @@ public class Main extends JavaPlugin {
                         }
                     }
                 }.runTaskTimer(0, 1);
+            }
+        });
+
+        processor.registerCommand(new SimplePlayerAdminCommand("stopglow") {
+            @Override
+            protected void execute(Player player, String[] strings) {
+                final Pig spawn = Entities.PIG.spawn(player.getLocation());
+
+                Glowing.glowInfinitly(spawn, ChatColor.GOLD, player);
+
+                Runnables.runLater(() -> {
+                    Glowing.stopGlowing(spawn);
+                    Chat.sendMessage(player, "Stop glowing");
+                }, 60);
             }
         });
 
@@ -273,9 +327,13 @@ public class Main extends JavaPlugin {
                 npc.addDialogLine("I'm located at {location}", 20);
                 npc.addDialogLine("That's it then, bye &c❤");
                 npc.setInteractionDelay(60);
-                npc.show(player);
-                Chat.sendMessage(player, "&aSpawned!");
 
+                npc.getEquipment().setChestplate(new ItemStack(Material.IRON_CHESTPLATE));
+                npc.setPose(NPCPose.CROUCHING);
+
+                npc.show(player);
+
+                Chat.sendMessage(player, "&aSpawned!");
             }
         });
 
@@ -310,13 +368,14 @@ public class Main extends JavaPlugin {
             player.performCommand("cf start " + (args.length > 0 ? args[0] : ""));
         }));
 
-        processor.registerCommand(new SimplePlayerCommand("stop") {
+        processor.registerCommand(new SimpleAdminCommand("stop") {
             // true -> stop server, false -> stop game instance
+
             @Override
-            protected void execute(Player player, String[] args) {
-                final boolean type = args.length == 1 && (args[0].equalsIgnoreCase("server") || args[0].equalsIgnoreCase(
-                        "s"));
-                player.performCommand(type ? "minecraft:stop" : "cf stop");
+            protected void execute(CommandSender sender, String[] args) {
+                final boolean type = args.length == 1 && (args[0].equalsIgnoreCase("server") || args[0].equalsIgnoreCase("s"));
+
+                Bukkit.dispatchCommand(sender, type ? "minecraft:stop" : "cf stop");
             }
 
             @Override
@@ -334,6 +393,10 @@ public class Main extends JavaPlugin {
                 action.use(player, strings);
             }
         };
+    }
+
+    private void regProtocol() {
+        new ArcaneMuteProtocol();
     }
 
     private void regEvents() {

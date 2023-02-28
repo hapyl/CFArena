@@ -61,7 +61,7 @@ public class Tripwire {
 	public void affectPlayer(Player player) {
 		PlayerLib.addEffect(player, PotionEffectType.SLOW, 80, 4);
 		GamePlayer.getPlayer(player).addEffect(GameEffectType.VULNERABLE, 80);
-		new Glowing(player, ChatColor.AQUA, 80).addViewer(this.getPlayer());
+		new Glowing(player, ChatColor.AQUA, 80).addPlayer(this.getPlayer());
 
 		// Fx
 		PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_SCREAM, 1.25f);

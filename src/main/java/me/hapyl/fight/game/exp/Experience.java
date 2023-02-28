@@ -47,9 +47,6 @@ public class Experience {
         }
     }
 
-    /**
-     * Manual process :|
-     */
     private void setupRewards() {
 
     }
@@ -72,7 +69,7 @@ public class Experience {
     /**
      * This iterates through all rewards and grants
      * or revokes them depending on players level.
-     * <p>
+     *
      * Needed in case of new reward to grant, or admin
      * manipulations.
      */

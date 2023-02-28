@@ -12,6 +12,7 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -36,14 +37,14 @@ import org.bukkit.util.Vector;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class ShadowAssassin extends Hero implements Listener {
+public class ShadowAssassin extends Hero implements Listener, UIComponent {
 
     private final int BACK_STAB_CD = 400;
 
     public ShadowAssassin() {
         super("Shadow Assassin");
 
-        setRole(Role.ASSASSIN);
+        this.setRole(Role.ASSASSIN);
 
         this.setInfo("Well trained assassin from dimension of shadows.");
         this.setItem(Material.ENDERMAN_SPAWN_EGG);
@@ -141,9 +142,16 @@ public class ShadowAssassin extends Hero implements Listener {
     @Override
     public DamageOutput processDamageAsVictim(DamageInput input) {
         final Player player = input.getPlayer();
+        if (!canHide(player)) {
+            return null;
+        }
+
         if (player.isSneaking()) {
             player.setSneaking(false);
             kickFromDarkCover(player);
+        }
+        else {
+            setDarkCoverCd(player, 60);
         }
 
         return null;
@@ -158,27 +166,15 @@ public class ShadowAssassin extends Hero implements Listener {
     }
 
     public void setDarkCover(Player player, boolean flag) {
-        final boolean sneaking = !player.isSneaking();
-
         // Enter
-        if (flag && sneaking) {
-            if (getDarkCoverCd(player) > 0) {
-                Chat.sendMessage(
-                        player,
-                        "&cCannot enter &lDark Cover &cfor another &l%ss&c.",
-                        BukkitUtils.roundTick(getDarkCoverCd(player))
-                );
-                player.setSneaking(false);
-                return;
-            }
-
+        if (flag) {
             PlayerLib.addEffect(player, PotionEffectType.INVISIBILITY, 999999, 5);
             Utils.hidePlayer(player);
 
             playDarkCoverFx(player, true);
-
         }
-        else if (!sneaking) {
+
+        else {
             PlayerLib.removeEffect(player, PotionEffectType.INVISIBILITY);
             Utils.showPlayer(player);
 
@@ -203,16 +199,24 @@ public class ShadowAssassin extends Hero implements Listener {
             PlayerLib.spawnParticle(location, Particle.CRIT_MAGIC, 20, 0, 0.2, 0, 0.5f);
             PlayerLib.spawnParticle(location, Particle.WARPED_SPORE, 10, 0, 0.5, 0, 0);
             PlayerLib.playSound(location, Sound.ENTITY_ENDERMAN_TELEPORT, 1.75f);
+
+            Chat.sendTitle(player, "&8&l\uD83E\uDEA3", "&7In Dark Cover", 0, 200000, 0);
         }
         else {
             PlayerLib.spawnParticle(location, Particle.ENCHANTMENT_TABLE, 10, 0, 0, 0, 2);
             PlayerLib.playSound(location, Sound.ENTITY_ENDERMAN_TELEPORT, 1.25f);
+
+            Chat.clearTitle(player);
         }
+    }
+
+    public boolean canHide(Player player) {
+        return getDarkCoverCd(player) == 0;
     }
 
     public void kickFromDarkCover(Player player) {
         final Location location = player.getEyeLocation();
-        setDarkCoverCd(player, 60);
+        setDarkCoverCd(player, 200);
         setDarkCover(player, false);
 
         // fx
@@ -252,7 +256,7 @@ public class ShadowAssassin extends Hero implements Listener {
     @EventHandler()
     public void handlePlayerToggleSneakEvent(PlayerToggleSneakEvent ev) {
         final Player player = ev.getPlayer();
-        if (!validatePlayer(player, Heroes.SHADOW_ASSASSIN)) {
+        if (!validatePlayer(player, Heroes.SHADOW_ASSASSIN) || !canHide(player)) {
             return;
         }
 
@@ -290,4 +294,12 @@ public class ShadowAssassin extends Hero implements Listener {
     public Talent getPassiveTalent() {
         return Talents.SECRET_SHADOW_WARRIOR_TECHNIQUE.getTalent();
     }
+
+    @Nonnull
+    @Override
+    public String getString(Player player) {
+        final int cooldown = getDarkCoverCd(player);
+        return cooldown > 0 ? "&f&l\uD83E\uDEA3 &f%ss".formatted(BukkitUtils.roundTick(cooldown)) : "";
+    }
+
 }

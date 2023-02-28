@@ -10,6 +10,7 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.ui.UIFormat;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -39,32 +40,27 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
 
     public DarkMage() {
         super("Dark Mage");
-        setRole(Role.MELEE);
+        this.setRole(Role.MELEE);
         this.setInfo("A mage that was cursed by &8&lDark &8&lMagic&7&o. But even it couldn't kill him...");
         this.setItem(Material.CHARCOAL);
 
-        final ClassEquipment eq = this.getEquipment();
-        eq.setHelmet(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTZjYTYzNTY5ZTg3Mjg3MjJlY2M0ZDEyMDIwZTQyZjA4NjgzMGUzNGU4MmRiNTVjZjVjOGVjZDUxYzhjOGMyOSJ9fX0="
-        );
-        eq.setChestplate(102, 255, 255);
-        eq.setLeggings(Material.IRON_LEGGINGS);
-        eq.setBoots(153, 51, 51);
+        final ClassEquipment equipment = this.getEquipment();
+        equipment.setHelmet(
+                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTZjYTYzNTY5ZTg3Mjg3MjJlY2M0ZDEyMDIwZTQyZjA4NjgzMGUzNGU4MmRiNTVjZjVjOGVjZDUxYzhjOGMyOSJ9fX0=");
+        equipment.setChestplate(102, 255, 255);
+        equipment.setLeggings(Material.IRON_LEGGINGS);
+        equipment.setBoots(153, 51, 51);
 
-        this.setWeapon(new Weapon(Material.WOODEN_HOE).setName("Wand").setDamage(5.0d));
-
-        /**
-         * Transform to the wither for &b%ss&7. While transformed, &e&lCLICK &7to shoot wither skulls that deals massive damage on impact. After wither disappears, you perform plunging attack that deals damage in AoE upon hitting the ground.
-         */
+        this.setWeapon(new Weapon(Material.WOODEN_HOE).setName("Ancient Wand")
+                               .setDamage(5.0d)
+                               .setWeaponLore(
+                                       "Long ago, a powerful wand was crafted from the bones of long-dead wizards and imbued with dark magic, granting immense power to its wielder. The wand was used by a cruel and merciless ruler to subjugate kingdoms."));
 
         this.setUltimate(new UltimateTalent(
                 "Wither Rider",
-                "Transform into the wither for {duration}.__While transformed, &e&lCLICK &7to shoot wither skulls that deals massive damage on impact.__After wither disappears, you perform plunging attack that deals damage in AoE upon hitting the ground.",
+                "Transform into the wither for {duration}.__While transformed, &e&lRIGHT CLICK &7to shoot wither skulls that deals massive damage on impact.__After wither disappears, you perform plunging attack that deals damage in AoE upon hitting the ground.",
                 70
-        ).setItem(Material.WITHER_SKELETON_SKULL)
-                                 .setDuration(240)
-                                 .setCdSec(30)
-                                 .setSound(Sound.ENTITY_WITHER_SPAWN, 2.0f));
+        ).setItem(Material.WITHER_SKELETON_SKULL).setDuration(240).setCdSec(30).setSound(Sound.ENTITY_WITHER_SPAWN, 2.0f));
 
     }
 
@@ -150,15 +146,14 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
                 PlayerLib.playSound(wither.getLocation(), ENTITY_WITHER_DEATH, 1.0f);
                 wither.remove();
             }
-
         }.runTaskTimer(0, 1);
-
     }
 
     private void updateWitherName(Player player, Wither wither) {
         wither.setCustomName(Chat.format(
-                "&4&l☠ &c%s &8| &a&l%s ❤",
+                "&4&l☠ &c%s %s &a&l%s ❤",
                 player.getName(),
+                UIFormat.DIV,
                 BukkitUtils.decimalFormat(wither.getHealth())
         ));
     }
@@ -172,7 +167,6 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         Utils.getPlayersInRange(skull.getLocation(), 3.0d).forEach(victim -> {
             GamePlayer.damageEntity(victim, 10.0d, player, EnumDamageCause.WITHER_SKULLED);
         });
-
     }
 
     @EventHandler()
@@ -180,31 +174,24 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         final Player player = ev.getPlayer();
         final Action action = ev.getAction();
 
-        if (!validatePlayer(player, Heroes.DARK_MAGE)
-                || !isUsingUltimate(player)
-                || ev.getHand() == EquipmentSlot.OFF_HAND
-                || action == Action.PHYSICAL) {
+        if (!validatePlayer(player, Heroes.DARK_MAGE) || !isUsingUltimate(player) || ev.getHand() == EquipmentSlot.OFF_HAND ||
+                action == Action.PHYSICAL) {
             return;
         }
 
-        if (action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK) {
+        if (action == Action.RIGHT_CLICK_BLOCK || action == Action.RIGHT_CLICK_AIR) {
             if (player.hasCooldown(this.getWeapon().getMaterial())) {
                 return;
             }
 
-            final WitherSkull skull = player.launchProjectile(
-                    WitherSkull.class,
-                    player.getLocation().getDirection().multiply(3.0d)
-            );
+            final WitherSkull skull = player.launchProjectile(WitherSkull.class, player.getLocation().getDirection().multiply(3.0d));
             skull.setCharged(true);
             skull.setYield(0.0f);
             skull.setShooter(player);
 
             player.setCooldown(this.getWeapon().getMaterial(), 20);
             PlayerLib.playSound(player, ENTITY_WITHER_SHOOT, 1.0f);
-
         }
-
     }
 
     @Override

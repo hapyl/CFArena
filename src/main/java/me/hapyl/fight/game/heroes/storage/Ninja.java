@@ -34,6 +34,8 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
+
 public class Ninja extends Hero implements Listener, UIComponent {
 
     private final double damage = 8.0d;
@@ -41,34 +43,28 @@ public class Ninja extends Hero implements Listener, UIComponent {
     private final int stunCd = 200;
     private final Weapon normalSword = new Weapon(Material.STONE_SWORD).setName("斬馬刀").setDamage(damage / 2.0d);
 
-    private final ItemStack throwingStar = new ItemBuilder(Material.NETHER_STAR, "THROWING_STAR")
-            .setName("Throwing Star")
+    private final ItemStack throwingStar = new ItemBuilder(Material.NETHER_STAR, "THROWING_STAR").setName("Throwing Star")
             .setAmount(5)
             .addClickEvent(this::shootStar)
             .withCooldown(10)
             .build();
 
     public Ninja() {
-        super("Ninja");
-
-        setRole(Role.ASSASSIN);
-
-        this.setInfo(
-                "Extremely well trained fighter with a gift from the wind, that allows him to Dash, Double Jump and take no fall damage.");
-        this.setItem(Material.IRON_BOOTS);
+        super(
+                "Ninja",
+                "Extremely well trained fighter with a gift from the wind, that allows him to Dash, Double Jump and take no fall damage.",
+                Material.IRON_BOOTS
+        );
+        this.setRole(Role.ASSASSIN);
 
         final ClassEquipment equipment = this.getEquipment();
         equipment.setLeggings(Material.CHAINMAIL_LEGGINGS);
         equipment.setBoots(Material.CHAINMAIL_BOOTS);
 
-        this.setWeapon(new Weapon(Material.STONE_SWORD)
-                               .setName("斬馬刀")
-                               .setInfo(
-                                       String.format(
-                                               "Light but sharp sword that stuns opponents upon charge hit. After using the charge hit, your weapon damage is reduced by &b50%%&7.____&aCooldown: &l%ss",
-                                               BukkitUtils.decimalFormat(ultimateDamage)
-                                       )
-                               ).setDamage(damage));
+        this.setWeapon(new Weapon(Material.STONE_SWORD).setName("斬馬刀").setInfo(String.format(
+                "Light but sharp sword that stuns opponents upon charge hit. After using the charge hit, your weapon damage is reduced by &b50%%&7.____&aCooldown: &l%ss",
+                BukkitUtils.decimalFormat(ultimateDamage)
+        )).setDamage(damage));
 
         this.setUltimate(new UltimateTalent(
                 "Throwing Stars",
@@ -110,9 +106,10 @@ public class Ninja extends Hero implements Listener, UIComponent {
 
     @Override
     public void onStart(Player player) {
-        PlayerLib.addEffect(player, PotionEffectType.SPEED, 999999, 0);
-        PlayerLib.addEffect(player, PotionEffectType.JUMP, 999999, 255);
         player.setAllowFlight(true);
+
+        PlayerLib.addEffect(player, PotionEffectType.SPEED, 999999, 0);
+        GamePlayer.getPlayer(player).addEffect(GameEffectType.CANCEL_FALL_DAMAGE, Integer.MAX_VALUE);
     }
 
     @EventHandler()
@@ -139,10 +136,9 @@ public class Ninja extends Hero implements Listener, UIComponent {
     }
 
     @Override
-    public String getString(Player player) {
-        return player.hasCooldown(this.getItem().getType())
-                ? "&f🌊 &l%ss".formatted(BukkitUtils.roundTick(player.getCooldown(this.getItem().getType())))
-                : "";
+    public @Nonnull String getString(Player player) {
+        return player.hasCooldown(this.getItem().getType()) ? "&f🌊 &l%ss".formatted(BukkitUtils.roundTick(player.getCooldown(this.getItem()
+                                                                                                                                      .getType()))) : "";
     }
 
     @Override

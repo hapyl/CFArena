@@ -7,9 +7,9 @@ import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.heroes.ComplexHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.game.scoreboard.GamePlayerUI;
 import me.hapyl.fight.game.setting.Setting;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.Talent;
@@ -17,6 +17,7 @@ import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.trial.Trial;
+import me.hapyl.fight.game.ui.GamePlayerUI;
 import me.hapyl.fight.util.NonNullableElementHolder;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.ParamFunction;
@@ -24,6 +25,7 @@ import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.spigotutils.module.reflect.glow.Glowing;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -252,8 +254,12 @@ public class Manager {
         this.gameInstance = new GameInstance(getCurrentMode(), getCurrentMap());
         this.gameInstance.onStart();
 
-        // Populate teams
-        GameTeam.getPopulatedTeams().forEach(GameTeam::clearAndPopulateTeams);
+        final boolean customSetup = this.gameInstance.getMode().onStart(this.gameInstance);
+
+        if (!customSetup) {
+            // Populate teams
+            GameTeam.getPopulatedTeams().forEach(GameTeam::clearAndPopulateTeams);
+        }
 
         for (final Heroes value : Heroes.values()) {
             Nulls.runIfNotNull(value.getHero(), Hero::onStart);
@@ -267,6 +273,8 @@ public class Manager {
 
         for (final GamePlayer gamePlayer : this.gameInstance.getPlayers().values()) {
             final Player player = gamePlayer.getPlayer();
+
+            // Equip and hide players
             if (!gamePlayer.isSpectator()) {
                 equipPlayer(player, gamePlayer.getHero());
                 Utils.hidePlayer(player);
@@ -291,6 +299,7 @@ public class Manager {
                 final World world = player.getLocation().getWorld();
 
                 Utils.showPlayer(player);
+                Nulls.runIfNotNull(GameTeam.getPlayerTeam(player), GameTeam::glowTeammates);
 
                 if (world != null) {
                     world.strikeLightningEffect(player.getLocation().add(0.0d, 1.0d, 0.0d));
@@ -317,14 +326,15 @@ public class Manager {
         final boolean response = gameInstance.getMode().onStop(this.gameInstance);
 
         if (!response) { // if returns false means mode will add their own winners
-            gameInstance.getWinners().addAll(gameInstance.getAlivePlayers());
+            gameInstance.getGameResult().supplyDefaultWinners();
         }
 
         gameInstance.calculateEverything();
 
         // Reset player before clearing the instance
         this.gameInstance.getPlayers().values().forEach(player -> {
-            player.updateScoreboard(false);
+            Glowing.stopGlowing(player.getPlayer());
+            player.updateScoreboard(true);
             player.resetPlayer();
             player.setValid(false);
 
@@ -437,11 +447,14 @@ public class Manager {
         if (!(talent instanceof ChargedTalent chargedTalent)) {
             return;
         }
+
         final PlayerInventory inventory = player.getInventory();
         final ItemStack item = inventory.getItem(slot);
+
         if (item == null) {
             return;
         }
+
         item.setAmount(chargedTalent.getMaxCharges());
     }
     // FIXME: 002. 10/02/2021 - multi
@@ -457,6 +470,8 @@ public class Manager {
             player.setHealth(player.getMaxHealth());
             player.setGameMode(GameMode.SURVIVAL);
             player.teleport(GameMaps.SPAWN.getMap().getLocation());
+
+            LobbyItems.giveAll(player);
         }
     }
 

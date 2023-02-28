@@ -4,6 +4,7 @@ import me.hapyl.fight.Main;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.gometry.Quality;
 import me.hapyl.spigotutils.module.math.gometry.WorldParticle;
@@ -41,6 +42,16 @@ public class Utils {
             builder.append(string).append(" ");
         }
         return builder.toString().trim();
+    }
+
+    /**
+     * Returns List of GamePlayers that are not:
+     * Spectator, Teammate nor player itself
+     */
+    public static List<GamePlayer> getEnemyPlayers(Player player) {
+        return Manager.current()
+                .getCurrentGame()
+                .getAlivePlayers(predicate -> !predicate.isSpectator() && !predicate.compare(player) && !predicate.isTeammate(player));
     }
 
     public static class ProgressBar implements Builder<String> {
@@ -107,8 +118,7 @@ public class Utils {
 
     @Nullable
     public static Team getEntityTeam(Entity entity) {
-        final Scoreboard scoreboard = Bukkit.getScoreboardManager() == null ? null : Bukkit.getScoreboardManager()
-                .getMainScoreboard();
+        final Scoreboard scoreboard = Bukkit.getScoreboardManager() == null ? null : Bukkit.getScoreboardManager().getMainScoreboard();
         if (scoreboard == null) {
             return null;
         }
@@ -166,11 +176,25 @@ public class Utils {
         collection.clear();
     }
 
+    public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
+        final List<Map.Entry<K, V>> list = new ArrayList<>(map.entrySet());
+        list.sort(Map.Entry.comparingByValue());
+
+        Map<K, V> result = new LinkedHashMap<>();
+        for (Map.Entry<K, V> entry : list) {
+            result.put(entry.getKey(), entry.getValue());
+        }
+
+        return result;
+    }
+
     public static void hidePlayer(Player player) {
         Manager.current().getCurrentGame().getAlivePlayers().forEach(gp -> {
-            if (gp.getPlayer() != player) {
-                gp.getPlayer().hidePlayer(Main.getPlugin(), player);
+            if (gp.getPlayer() == player || gp.isSpectator() || GameTeam.isTeammate(gp.getPlayer(), player)) {
+                return;
             }
+
+            gp.getPlayer().hidePlayer(Main.getPlugin(), player);
         });
     }
 
@@ -258,6 +282,43 @@ public class Utils {
         }
     }
 
+    @Nullable
+    public static Entity getTargetEntity(Player player, double range, double dot, Predicate<Entity> predicate) {
+        final List<LivingEntity> nearbyEntities = Utils.getEntitiesInRange(player.getLocation(), range);
+        Vector casterDirection = player.getLocation().getDirection().normalize();
+
+        for (Entity entity : nearbyEntities) {
+            // Static tests, don't allow spectators and dead players
+            if (entity instanceof Player entityPlayer) {
+                if (Manager.current().isGameInProgress() && !GamePlayer.getPlayer(entityPlayer).isAlive()) {
+                    continue;
+                }
+            }
+            // Don't allow armor stands, invisible and dead entities.
+            else if (entity instanceof LivingEntity living &&
+                    (living.getType() == EntityType.ARMOR_STAND || living.isInvisible() || living.isDead())) {
+                continue;
+            }
+
+            // Test Predicate
+            if (predicate != null && !predicate.test(entity)) {
+                continue;
+            }
+
+            Vector playerDirection = entity.getLocation().subtract(player.getLocation()).toVector().normalize();
+
+            double dotProduct = casterDirection.dot(playerDirection);
+            double distance = player.getLocation().distance(entity.getLocation());
+
+            if (dotProduct > dot && distance <= range) {
+                return entity;
+            }
+        }
+
+        return null;
+    }
+
+
     public static void rayTraceLine(Player shooter, double maxDistance, double shift, double damage, @Nullable Consumer<Location> onMove, @Nullable Consumer<LivingEntity> onHit) {
         rayTraceLine(shooter, maxDistance, shift, damage, null, onMove, onHit);
     }
@@ -271,6 +332,10 @@ public class Utils {
 
         if (gp.hasEffect(GameEffectType.LOCK_DOWN)) {
             return Response.error("Talent is locked! (Lockdown)");
+        }
+
+        if (gp.hasEffect(GameEffectType.ARCANE_MUTE)) {
+            return Response.error("Unable to use talent! (Arcane Mute)");
         }
 
         if (Manager.current().isGameInProgress()) {
@@ -335,8 +400,8 @@ public class Utils {
         return (Player) getNearestEntity(
                 location,
                 radius,
-                entity -> entity instanceof Player && entity != exclude && Manager.current()
-                        .isPlayerInGame((Player) entity)
+                entity -> entity instanceof Player && entity != exclude &&
+                        Manager.current().isPlayerInGame((Player) entity)
         );
     }
 
@@ -344,7 +409,8 @@ public class Utils {
         if (fromWhere.getWorld() == null) {
             throw new NullPointerException("Cannot find entity in null world!");
         }
-        final List<Entity> list = fromWhere.getWorld().getNearbyEntities(fromWhere, radius, radius, radius)
+        final List<Entity> list = fromWhere.getWorld()
+                .getNearbyEntities(fromWhere, radius, radius, radius)
                 .stream()
                 .filter(predicate)
                 .collect(Collectors.toList());
@@ -389,7 +455,6 @@ public class Utils {
         }).forEach(entity -> entities.add((LivingEntity) entity));
 
         return entities;
-
     }
 
     public static List<Player> getPlayersInRange(Location location, double range) {

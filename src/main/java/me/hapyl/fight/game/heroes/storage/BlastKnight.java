@@ -14,7 +14,6 @@ import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
-import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Utils;
@@ -36,6 +35,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.spigotmc.event.entity.EntityMountEvent;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,15 +55,14 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Lis
         this.setInfo("Royal Knight with high-end technology gadgets.");
         this.setItem(Material.SHIELD);
 
-        final ClassEquipment eq = this.getEquipment();
-        eq.setHelmet(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTJkZmRlNmMyYzhmMGE3YWRmN2FlNGU5NDlhODA0ZmVkZjk1YzZiOTU2Mjc2N2VhZTZjMjJhNDAxY2QwMmNiZCJ9fX0="
-        );
-        eq.setChestplate(Color.BLUE);
-        eq.setLeggings(Material.CHAINMAIL_LEGGINGS);
-        eq.setBoots(Material.IRON_BOOTS);
+        final ClassEquipment equipment = this.getEquipment();
+        equipment.setHelmet(
+                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTJkZmRlNmMyYzhmMGE3YWRmN2FlNGU5NDlhODA0ZmVkZjk1YzZiOTU2Mjc2N2VhZTZjMjJhNDAxY2QwMmNiZCJ9fX0=");
+        equipment.setChestplate(Color.BLUE);
+        equipment.setLeggings(Material.CHAINMAIL_LEGGINGS);
+        equipment.setBoots(Material.IRON_BOOTS);
 
-        this.setWeapon(new Weapon(Material.IRON_SWORD).setName("Sword").setDamage(10.0d));
+        this.setWeapon(Material.IRON_SWORD, "Sword", "", 10.0d);
         this.setUltimate(new UltimateTalent(
                 "Royal Horse",
                 "Call upon the Royal Horse for {duration}. The horse is fast, strong and comfortable. So comfortable in fact that it doubles you damage while riding.",
@@ -89,6 +88,7 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Lis
             me.setColor(Horse.Color.WHITE);
             me.setStyle(Horse.Style.WHITE);
 
+            me.setOwner(player);
             me.setTamed(true);
             me.getInventory().setSaddle(new ItemStack(Material.SADDLE));
             me.setAdult();
@@ -128,11 +128,8 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Lis
                         timeLeft
                 ));
                 horse.setCustomNameVisible(true);
-
-
             }
         }.runTaskTimer(20, 20);
-
     }
 
     @EventHandler()
@@ -152,10 +149,7 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Lis
     public DamageOutput processDamageAsDamager(DamageInput input) {
         final Player player = input.getPlayer();
         final Horse playerHorse = getPlayerHorse(player);
-        if (!isUsingUltimate(player)
-                || playerHorse == null
-                || input.getEntity() == null
-                || input.getEntity() == player) {
+        if (!isUsingUltimate(player) || playerHorse == null || input.getEntity() == null || input.getEntity() == player) {
             return null;
         }
 
@@ -226,7 +220,6 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Lis
 
         PlayerLib.playSound(location, Sound.ITEM_SHIELD_BREAK, 0.0f);
         PlayerLib.playSound(location, Sound.ENTITY_BLAZE_HURT, 0.0f);
-
     }
 
     public int getShieldCharge(Player player) {
@@ -262,7 +255,7 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Lis
     }
 
     @Override
-    public String getString(Player player) {
+    public @Nonnull String getString(Player player) {
         if (player.hasCooldown(shieldRechargeCdItem)) {
             return "&7🛡 &l" + BukkitUtils.roundTick(player.getCooldown(shieldRechargeCdItem)) + "s";
         }

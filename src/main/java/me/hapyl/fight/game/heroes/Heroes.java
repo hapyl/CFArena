@@ -19,8 +19,6 @@ import java.util.Map;
 
 public enum Heroes {
 
-    // https://tools-unite.com/tools/random-picker-wheel?names=KM
-
     // New Hero -> Halloween
 
     ARCHER(new Archer()),
@@ -98,14 +96,17 @@ public enum Heroes {
     public List<GamePlayer> getPlayers() {
         final List<GamePlayer> players = new ArrayList<>();
         final GameInstance gameInstance = Manager.current().getGameInstance();
+
         if (gameInstance == null) {
             return players;
         }
+
         gameInstance.getPlayers().forEach((uuid, gp) -> {
             if (isSelected(gp.getPlayer())) {
                 players.add(gp);
             }
         });
+
         return players;
     }
 
@@ -129,6 +130,10 @@ public enum Heroes {
 
     public String getName() {
         return hero.getName();
+    }
+
+    public String getNameSmallCaps() {
+        return hero.getNameSmallCaps();
     }
 
     // static members

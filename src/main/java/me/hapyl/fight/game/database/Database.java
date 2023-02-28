@@ -102,7 +102,6 @@ public final class Database {
         }
     }
 
-
     // this sent to console and admins
     private void sendInfo(String info, Object... toReplace) {
         final String format = Chat.format("&e&lDEBUG: &f" + info, toReplace);

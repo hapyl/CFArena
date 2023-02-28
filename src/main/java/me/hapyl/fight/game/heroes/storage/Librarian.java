@@ -57,7 +57,7 @@ public class Librarian extends Hero implements ComplexHero, Listener {
         talentMap.put(3, (GrimoireTalent) Talents.LIBRARIAN_SHIELD.getTalent());
         talentMap.put(4, (GrimoireTalent) Talents.WEAPON_DARKNESS.getTalent());
 
-        setRole(Role.STRATEGIST);
+        this.setRole(Role.STRATEGIST);
 
         final ClassEquipment equipment = this.getEquipment();
         equipment.setHelmet(
@@ -85,7 +85,7 @@ public class Librarian extends Hero implements ComplexHero, Listener {
 
     @Override
     public void onStart() {
-        final int grimoreLevelUpDelay = 900; // 40
+        final int grimoireLevelUpDelay = 900; // 40
 
         new GameTask() {
             @Override
@@ -118,11 +118,9 @@ public class Librarian extends Hero implements ComplexHero, Listener {
                             5
                     );
                     PlayerLib.playSound(playerPlayer, Sound.ENTITY_PLAYER_LEVELUP, 1.75f);
-
                 });
-
             }
-        }.runTaskTimer(grimoreLevelUpDelay, grimoreLevelUpDelay);
+        }.runTaskTimer(grimoireLevelUpDelay, grimoireLevelUpDelay);
     }
 
     public int getGrimoireLevel(Player player) {
@@ -275,7 +273,7 @@ public class Librarian extends Hero implements ComplexHero, Listener {
         if (GrimoireBook.hasCooldown(player) || grimoire == null) {
             Chat.sendMessage(
                     player,
-                    "&cCannot use Grimore now! On cooldown for %ss.".formatted(GrimoireBook.getCooldownString(player))
+                    "&cCannot use Grimoire now! On cooldown for %ss.".formatted(GrimoireBook.getCooldownString(player))
             );
             return;
         }

@@ -4,13 +4,16 @@ import me.hapyl.fight.game.database.Database;
 import me.hapyl.fight.game.database.entry.CurrencyEntry;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.heroes.ComplexHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.profile.PlayerProfile;
+import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.spigotutils.module.annotate.Super;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -19,8 +22,8 @@ import me.hapyl.spigotutils.module.chat.gradient.Interpolators;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
@@ -30,7 +33,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
-import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
 import javax.annotation.Nonnull;
@@ -50,8 +52,8 @@ public class GamePlayer extends AbstractGamePlayer {
     private final double maxHealth = 100.0d;
     private final double maxShield = 50.0d;
 
-    private final Player player;
-    private final PlayerProfile profile;
+    private Player player;
+    private PlayerProfile profile;
     private final Hero hero; // this represents hero that player locked in game with, cannot be changed
 
     private double health;
@@ -70,6 +72,10 @@ public class GamePlayer extends AbstractGamePlayer {
     //  spectator means if player started as spectator
     private boolean isDead;
     private boolean isSpectator;
+
+    // Had to introduce this flag to
+    // prevent spectator checks.
+    private boolean isRespawning;
 
     private boolean valid = true; // valid means if game player is being used somewhere, should probably rework how this works
     private int ultPoints;
@@ -101,7 +107,7 @@ public class GamePlayer extends AbstractGamePlayer {
             throw new IllegalArgumentException("validate fake player");
         }
 
-        this.player = null;
+        this.player = new BukkitPlayer();
         this.profile = null;
         this.stats = null;
         this.hero = Heroes.randomHero().getHero();
@@ -126,6 +132,7 @@ public class GamePlayer extends AbstractGamePlayer {
         player.setMaxHealth(40.0d);
         player.setHealth(40.0d);
         player.setFireTicks(0);
+        player.setWalkSpeed(0.2f);
         player.setVisualFire(false);
         player.setFlying(false);
         player.setSaturation(0.0f);
@@ -175,12 +182,42 @@ public class GamePlayer extends AbstractGamePlayer {
         return ultimateModifier;
     }
 
+    /**
+     * Returns formatted string of ultimate status.
+     *
+     * @return formatted string of ultimate status.
+     */
+    public String getUltimateString() {
+        final Player player = getPlayer();
+        final UltimateTalent ultimate = getUltimate();
+        final String pointsString = "&b&l%s&b/&b&l%s".formatted(getUltPoints(), getUltPointsNeeded());
+
+        if (getHero().isUsingUltimate(player)) {
+            return "&b&lIN USE";
+        }
+
+        if (ultimate.hasCd(player)) {
+            return "&7%s &b(%ss)".formatted(pointsString, BukkitUtils.roundTick(ultimate.getCdTimeLeft(player)));
+        }
+
+        else if (isUltimateReady()) {
+            return "&b&lREADY";
+        }
+
+        return pointsString;
+    }
+
     public void setCooldownAccelerationModifier(double cdModifier) {
         this.cdModifier = cdModifier;
     }
 
     public void setUltimateAccelerationModifier(double ultimateModifier) {
         this.ultimateModifier = ultimateModifier;
+    }
+
+    @Override
+    public boolean isAbstract() {
+        return false;
     }
 
     public long getLastMoved() {
@@ -332,36 +369,18 @@ public class GamePlayer extends AbstractGamePlayer {
         PlayerLib.playSound(player, sound, pitch);
     }
 
-    public void updateScoreboard(boolean flag) {
-        final Team team = getOrCreateTeam();
-
-        // turn on nicknames and turn off collisions
-        if (!flag) {
-            team.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER);
-            team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS);
-        }
-        else {
-            team.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.ALWAYS);
-            team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER);
-        }
-
-        if (!healthTeamMap.isEmpty()) {
-            healthTeamMap.values().forEach(Team::unregister);
-            healthTeamMap.clear();
-        }
-
-        populateTeam(team);
+    public void updateScoreboard(boolean toLobby) {
+        profile.getScoreboardTeams().populate(toLobby);
     }
-
 
     private void showHealth() {
         final AbstractGameInstance game = Manager.current().getCurrentGame();
 
         // Create player teams
         game.getAlivePlayers().forEach(other -> {
-            final Team team = getPlayerTeam(other);
-            team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS);
-            healthTeamMap.put(other, team);
+            //            final Team team = getPlayerTeam(other);
+            //            team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS);
+            //            healthTeamMap.put(other, team);
         });
 
         // Update team names
@@ -382,31 +401,6 @@ public class GamePlayer extends AbstractGamePlayer {
 
     }
 
-    private Team getPlayerTeam(GamePlayer other) {
-        return getOrCreateTeam(("%" + other.getPlayer().getName()).substring(16));
-    }
-
-    private Team getOrCreateTeam(String name) {
-        final Scoreboard scoreboard = player.getScoreboard();
-        Team team = scoreboard.getTeam("%" + name);
-        if (team == null) {
-            team = scoreboard.registerNewTeam("%" + name);
-        }
-        return team;
-    }
-
-    private Team getOrCreateTeam() {
-        return getOrCreateTeam("Team");
-    }
-
-    private void populateTeam(Team team) {
-        for (final String entry : team.getEntries()) {
-            team.removeEntry(entry);
-        }
-
-        Bukkit.getOnlinePlayers().forEach(player -> team.addEntry(player.getName()));
-    }
-
     public void updateHealth() {
         // update player visual health
         player.setMaxHealth(40.d);
@@ -420,6 +414,11 @@ public class GamePlayer extends AbstractGamePlayer {
 
     public void die(boolean force) {
         if (this.health > 0.0d && !force) {
+            return;
+        }
+
+        // Don't kill creative players
+        if (player.getGameMode() == GameMode.CREATIVE) {
             return;
         }
 
@@ -470,9 +469,17 @@ public class GamePlayer extends AbstractGamePlayer {
         // send death info to manager
         final GameInstance gameInstance = Manager.current().getGameInstance();
         if (gameInstance != null) {
-            gameInstance.getMode().onDeath(gameInstance, this);
+            final CFGameMode mode = gameInstance.getMode();
+
+            mode.onDeath(gameInstance, this);
             gameInstance.checkWinCondition();
+
+            // Handle respawn
+            if (mode.isAllowRespawn()) {
+                respawnIn(mode.getRespawnTime() + 1);
+            }
         }
+
 
         Chat.broadcast(deathMessage);
     }
@@ -524,12 +531,25 @@ public class GamePlayer extends AbstractGamePlayer {
     private void executeOnDeathIfTalentIsNotNull(Talent talent) {
         if (talent != null) {
             talent.onDeath(player);
+            if (talent instanceof ChargedTalent chargedTalent) {
+                chargedTalent.onDeathCharged(player);
+            }
         }
     }
 
     @Override
     public double getMaxHealth() {
         return maxHealth;
+    }
+
+    @Override
+    public boolean isRespawning() {
+        return isRespawning;
+    }
+
+    @Override
+    public String getHealthFormatted() {
+        return "" + Math.ceil(health);
     }
 
     public UltimateTalent getUltimate() {
@@ -599,6 +619,7 @@ public class GamePlayer extends AbstractGamePlayer {
         return player;
     }
 
+    @Nonnull
     public Hero getHero() {
         return hero;
     }
@@ -622,16 +643,32 @@ public class GamePlayer extends AbstractGamePlayer {
     }
 
     public void respawn() {
+        this.isRespawning = false;
         this.isDead = false;
         this.isSpectator = false;
         this.ultPoints = 0;
         this.hero.setUsingUltimate(player, false);
         this.setHealth(this.getMaxHealth());
 
+        // charged attack fix
+        //        hero.resetTalents(player);
+
         Manager.current().equipPlayer(player);
 
         this.player.setGameMode(GameMode.SURVIVAL);
+
+        // Add spawn protection
         addEffect(GameEffectType.RESPAWN_RESISTANCE, 60);
+
+        // Respawn location
+        final AbstractGameInstance gameInstance = Manager.current().getCurrentGame();
+        final Location location = gameInstance.getCurrentMap().getMap().getLocation();
+
+        BukkitUtils.mergePitchYaw(player.getLocation(), location);
+        sendTitle("&aRespawned!", "", 0, 20, 5);
+        player.teleport(location);
+
+        addPotionEffect(PotionEffectType.BLINDNESS, 20, 1);
     }
 
     public int getUltPointsNeeded() {
@@ -683,6 +720,11 @@ public class GamePlayer extends AbstractGamePlayer {
     @Super
     public static void damageEntity(LivingEntity entity, double damage, LivingEntity damager, EnumDamageCause cause) {
         if (entity instanceof Player player) {
+            //            // Check for teammate
+            //            if (damager instanceof Player playerDamager && GameTeam.isTeammate(player, playerDamager)) {
+            //                Chat.sendMessage(playerDamager, "&cCannot damage teammates!");
+            //                return;
+            //            }
             getPlayer(player).damage(damage, damager, cause);
         }
         else {
@@ -717,6 +759,46 @@ public class GamePlayer extends AbstractGamePlayer {
 
     public PlayerProfile getProfile() {
         return profile;
+    }
+
+    public void respawnIn(int tick) {
+        isRespawning = true;
+        new GameTask() {
+            private int tickBeforeRespawn = tick;
+
+            @Override
+            public void run() {
+                if (tickBeforeRespawn < 0) {
+                    respawn();
+                    this.cancel();
+                    return;
+                }
+
+                sendTitle("&aRespawning in", "&a&l" + BukkitUtils.roundTick(tickBeforeRespawn) + "s", 0, 25, 0);
+                if (tickBeforeRespawn % 20 == 0) {
+                    playSound(Sound.BLOCK_NOTE_BLOCK_PLING, 2.0f - (0.2f * (tickBeforeRespawn / 20f)));
+                }
+                --tickBeforeRespawn;
+            }
+        }.runTaskTimer(0, 1);
+    }
+
+    @Override
+    public GameTeam getTeam() {
+        return GameTeam.getPlayerTeam(player);
+    }
+
+    public boolean isTeammate(Player player) {
+        return GameTeam.isTeammate(this.player, player);
+    }
+
+    public String getName() {
+        return player.getName();
+    }
+
+    public void setHandle(Player player) {
+        this.player = player;
+        this.profile = Manager.current().getProfile(player);
     }
 
     public enum Ignore {

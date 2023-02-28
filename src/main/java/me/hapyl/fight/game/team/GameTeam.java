@@ -3,7 +3,10 @@ package me.hapyl.fight.game.team;
 import com.google.common.collect.Lists;
 import me.hapyl.fight.Shortcuts;
 import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.util.SmallCaps;
 import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.reflect.glow.Glowing;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -12,6 +15,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 
 public enum GameTeam {
 
@@ -21,9 +26,8 @@ public enum GameTeam {
     YELLOW(ChatColor.YELLOW, Material.YELLOW_WOOL),
     GOLD(ChatColor.GOLD, Material.ORANGE_WOOL),
     AQUA(ChatColor.AQUA, Material.CYAN_WOOL),
-    LIGHT_PURPLE(ChatColor.LIGHT_PURPLE, Material.PURPLE_WOOL),
+    PINK(ChatColor.LIGHT_PURPLE, Material.PURPLE_WOOL),
     WHITE(ChatColor.WHITE, Material.WHITE_WOOL),
-
     ;
 
     private static final List<GameTeam> TEAMS = Lists.newArrayList();
@@ -35,7 +39,7 @@ public enum GameTeam {
     private final ChatColor color;
     private final Material material;
     private final int maxPlayers;
-    private final List<Player> lobbyPlayers; // represents lobby players
+    private final List<UUID> lobbyPlayers; // represents lobby players
     private final List<GamePlayer> players;  // represents actual players in game
 
     GameTeam(ChatColor color, Material material) {
@@ -58,7 +62,7 @@ public enum GameTeam {
         GameTeam smallestTeam = null;
 
         for (GameTeam value : values()) {
-            final int size = value.getPlayers().size();
+            final int size = value.getLobbyPlayers().size();
             if (size <= minPlayers || smallestTeam == null) {
                 minPlayers = size;
                 smallestTeam = value;
@@ -93,6 +97,17 @@ public enum GameTeam {
         }
     }
 
+    public static boolean isTeammate(Player player, Player other) {
+        if ((player == null || other == null) || (player == other)) {
+            return false;
+        }
+
+        final GameTeam teamA = getPlayerTeam(player);
+        final GameTeam teamB = getPlayerTeam(other);
+
+        return (teamA != null && teamB != null) && (teamA == teamB);
+    }
+
     /**
      * Adds player to the team if it's not empty.
      *
@@ -109,7 +124,7 @@ public enum GameTeam {
             oldTeam.removeFromTeam(player);
         }
 
-        this.lobbyPlayers.add(player);
+        this.lobbyPlayers.add(player.getUniqueId());
         return true;
     }
 
@@ -196,7 +211,7 @@ public enum GameTeam {
     }
 
     public boolean isLobbyPlayer(Player player) {
-        return lobbyPlayers.contains(player);
+        return lobbyPlayers.contains(player.getUniqueId());
     }
 
     public void emptyTeam() {
@@ -211,16 +226,32 @@ public enum GameTeam {
         return color;
     }
 
+    public void glowTeammates() {
+        for (Player player : getLobbyPlayers()) {
+            for (Player other : getLobbyPlayers()) {
+                if (other == player) {
+                    continue;
+                }
+                Glowing.glowInfinitly(other, ChatColor.GREEN, player);
+            }
+        }
+    }
+
     public Material getMaterial() {
         return material;
     }
 
     public List<Player> getLobbyPlayers() {
-        return lobbyPlayers;
+        final List<Player> list = Lists.newArrayList();
+        for (UUID uuid : lobbyPlayers) {
+            list.add(Bukkit.getPlayer(uuid));
+        }
+        return list;
     }
 
     public Player getLobbyPlayer(int index) {
-        return index >= lobbyPlayers.size() ? null : lobbyPlayers.get(index);
+        final List<Player> list = getLobbyPlayers();
+        return index >= list.size() ? null : list.get(index);
     }
 
     public String getName() {
@@ -228,11 +259,18 @@ public enum GameTeam {
     }
 
     public void removeFromTeam(Player player) {
-        lobbyPlayers.remove(player);
+        lobbyPlayers.remove(player.getUniqueId());
     }
 
     public void addPlayer(GamePlayer player) {
         players.add(player);
     }
 
+    public String getNameSmallCaps() {
+        return SmallCaps.format(getName());
+    }
+
+    public String getNameCaps() {
+        return color + "&l" + getName().toUpperCase(Locale.ROOT);
+    }
 }
