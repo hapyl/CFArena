@@ -1,6 +1,5 @@
 package me.hapyl.fight.gui;
 
-import me.hapyl.fight.game.heroes.ComplexHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.Talent;
@@ -21,8 +20,7 @@ import java.util.List;
 
 public class HeroPreviewGUI extends PlayerGUI {
 
-    private static final ItemStack UNFINISHED_ABILITY = ItemBuilder.of(Material.BARRIER, "&cThis ability is not finished.").asIcon();
-
+    private final int[] ABILITY_SLOTS = new int[] { 13, 14, 15, 22, 23, 24 };
     private final Heroes heroes;
 
     public HeroPreviewGUI(Player player, Heroes heroes) {
@@ -67,15 +65,7 @@ public class HeroPreviewGUI extends PlayerGUI {
         setItem(29, hero.getWeapon().getItem());
         setItem(32, abilityItemOrNull(hero.getUltimate()));
 
-        setItem(13, abilityItemOrNull(hero.getFirstTalent()));
-        setItem(14, abilityItemOrNull(hero.getSecondTalent()));
-        setItem(15, abilityItemOrNull(hero.getPassiveTalent()));
-
-        if (hero instanceof ComplexHero complexHero) {
-            setItem(22, abilityItemOrNull(complexHero.getThirdTalent()));
-            setItem(23, abilityItemOrNull(complexHero.getFourthTalent()));
-            setItem(24, abilityItemOrNull(complexHero.getFifthTalent()));
-        }
+        setAbilityItems(hero);
 
         // favourite item
         final boolean favourite = heroes.isFavourite(getPlayer());
@@ -107,6 +97,16 @@ public class HeroPreviewGUI extends PlayerGUI {
         fixAbilityItemsCount();
         openInventory();
     }
+
+    private void setAbilityItems(Hero hero) {
+        int slot = 0;
+        for (Talent talent : hero.getTalentsSorted()) {
+            if (talent != null) {
+                setItem(ABILITY_SLOTS[slot++], abilityItemOrNull(talent));
+            }
+        }
+    }
+
 
     private void formatDebug() {
         if (!getPlayer().isOp()) {

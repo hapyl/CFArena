@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>ClassesFightArena</groupId>
+    <groupId>me.hapyl</groupId>
     <artifactId>ClassesFightArena</artifactId>
     <version>1.4.1-SNAPSHOT</version>
 
@@ -107,13 +107,26 @@
         </dependency>
 
         <dependency>
-            <groupId>local.spigotutils</groupId>
-            <artifactId>local</artifactId>
-            <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>E:/_Server18/plugins/EternaAPI.jar
-            </systemPath>
+            <groupId>me.hapyl</groupId>
+            <artifactId>EternaAPI</artifactId>
+            <version>2.9.1-SNAPSHOT</version>
         </dependency>
+
+
+        <!--        <dependency>-->
+        <!--            <groupId>me.hapyl</groupId>-->
+        <!--            <artifactId>EternaAPI</artifactId>-->
+        <!--            <version>2.9.1-SNAPSHOT</version>-->
+        <!--        </dependency>-->
+
+        <!--        <dependency>-->
+        <!--            <groupId>local.spigotutils</groupId>-->
+        <!--            <artifactId>local</artifactId>-->
+        <!--            <version>1.0</version>-->
+        <!--            <scope>system</scope>-->
+        <!--            <systemPath>E:/_Server18/plugins/EternaAPI.jar-->
+        <!--            </systemPath>-->
+        <!--        </dependency>-->
 
     </dependencies>
 

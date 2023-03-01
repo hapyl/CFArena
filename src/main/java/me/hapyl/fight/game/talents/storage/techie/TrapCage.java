@@ -30,11 +30,11 @@ public class TrapCage extends ChargedTalent implements Listener {
 
 	public TrapCage() {
 		super("CYber Cage", 3);
-		this.setInfo(
-				// Toss a cage in front of you, masking itself upon landing as a block below it. If an opponent steps on it, it will create explosion in small AoE that stuns, reveals location and applies &6&lVulnerability&7.____&e&lSNEAK &7near your cage to pick it up.
-				// Toss a cage in front of you, masking itself upon landing as a block below it. Activates upon opponents touch and explodes in small AoE applying &bCYber Hack&7.____&e&lSNEAK &7near your cage to pick it up.
-				"Toss a cage in front of you, masking itself upon landing as a block below it. Activates upon opponents touch and explodes in small AoE applying &bCYber Hack&7.____&e&lSNEAK &7near your cage to pick it up."
-		);
+		this.setDescription(
+                // Toss a cage in front of you, masking itself upon landing as a block below it. If an opponent steps on it, it will create explosion in small AoE that stuns, reveals location and applies &6&lVulnerability&7.____&e&lSNEAK &7near your cage to pick it up.
+                // Toss a cage in front of you, masking itself upon landing as a block below it. Activates upon opponents touch and explodes in small AoE applying &bCYber Hack&7.____&e&lSNEAK &7near your cage to pick it up.
+                "Toss a cage in front of you, masking itself upon landing as a block below it. Activates upon opponents touch and explodes in small AoE applying &bCYber Hack&7.____&e&lSNEAK &7near your cage to pick it up."
+        );
 		this.setItem(Material.IRON_TRAPDOOR);
 		this.setCdSec(2);
 

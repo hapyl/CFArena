@@ -23,7 +23,7 @@ import java.util.Set;
 public class ShockDark extends Talent implements Listener {
 
     private final double shockExplosionRadius = 3.7d;
-    private final double shockExplosionMaxDamage = 9.0d;
+    private final double shockExplosionMaxDamage = 15.0d; //9.0
     private final int shockDartWindup = 18;
 
     private final Set<Arrow> arrows;
@@ -87,12 +87,11 @@ public class ShockDark extends Talent implements Listener {
                 });
                 PlayerLib.playSound(location, Sound.ENCHANT_THORNS_HIT, 1.2f);
                 Utils.getEntitiesInRange(location, shockExplosionRadius)
-                        .forEach(target -> GamePlayer.damageEntity(
-                                target,
-                                shockExplosionMaxDamage - target.getLocation().distance(location),
-                                player,
-                                EnumDamageCause.SHOCK_DART
-                        ));
+                        .forEach(target -> {
+                            final double distance = target.getLocation().distance(location);
+                            final double damage = distance <= 1 ? shockExplosionMaxDamage : (shockExplosionMaxDamage - (distance * 2));
+                            GamePlayer.damageEntity(target, damage, player, EnumDamageCause.SHOCK_DART);
+                        });
             }
         }.runTaskLater(shockDartWindup);
 

@@ -40,7 +40,7 @@ public class DebugBooster extends SimplePlayerAdminCommand {
 			final double[] vectors = getVectors(args);
 			final BlockLocation location = new BlockLocation(player.getLocation());
 			final Vector vector = new Vector(vectors[0], vectors[1], vectors[2]);
-			final Booster booster = new Booster(location, vector);
+            final Booster booster = new Booster(location, vector, true);
 
 			booster.launch(true);
 

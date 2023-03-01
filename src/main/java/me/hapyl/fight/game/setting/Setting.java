@@ -14,6 +14,8 @@ public enum Setting {
     CHAT_PING(11, Material.GOLD_INGOT, "Chat Notification", "Whenever you will hear a ping in chat if someone mentions you.", true),
     RANDOM_HERO(12, Material.TOTEM_OF_UNDYING, "Always Random Hero", "Whenever you start the game with a random hero every time."),
 
+    SEE_OTHERS_CONTRAIL(14, Material.FIREWORK_ROCKET, "See Others Contrail", "Whenever you will see other players contrails.", true),
+
     ;
 
     private final Material material;
@@ -72,4 +74,7 @@ public enum Setting {
         Chat.sendMessage(player, "%s%s is now %s.", flag ? "&a" : "&c", this.getName(), flag ? "enabled" : "disabled");
     }
 
+    public boolean isDisabled(Player player) {
+        return !isEnabled(player);
+    }
 }

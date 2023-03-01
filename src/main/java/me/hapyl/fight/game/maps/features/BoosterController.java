@@ -66,7 +66,6 @@ public class BoosterController implements Listener {
 
 		final Entity entity = booster.launchAndRide(player, false);
 		boosterMap.put(player, entity);
-
 	}
 
 	@EventHandler()

@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="ClassesFightArena:jar">
-    <output-path>E:/_Server18/plugins</output-path>
-    <root id="archive" name="ClassesFightArena.jar">
-      <element id="module-output" name="ClassesFightArena" />
-    </root>
-  </artifact>
-</component>

@@ -17,8 +17,9 @@ import org.bukkit.util.Vector;
 public class ShroudedStep extends Talent {
 	public ShroudedStep() {
 		super("Shrouded Step");
-		this.setInfo("Deploy fake footsteps that travel in straight line to fool your opponents.____Can only be used while in Dark Cover!");
-		this.setCd(600);
+        this.setDescription(
+                "Deploy fake footsteps that travel in straight line to fool your opponents.____Can only be used while in Dark Cover!");
+        this.setCd(600);
 		this.setItem(Material.NETHERITE_BOOTS);
 	}
 

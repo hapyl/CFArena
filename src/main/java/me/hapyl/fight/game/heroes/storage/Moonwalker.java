@@ -32,6 +32,7 @@ public class Moonwalker extends Hero implements PlayerElement, UIComponent {
     public Moonwalker() {
         super("Moonwalker");
 
+        this.setMinimumLevel(3);
         this.setRole(Role.RANGE);
 
         this.setInfo("A traveller from another planet... or, should I say moon? Brings his skills and... planets... with himself!");

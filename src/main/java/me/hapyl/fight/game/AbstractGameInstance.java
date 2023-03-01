@@ -121,4 +121,7 @@ public abstract class AbstractGameInstance {
         return "null";
     }
 
+    public Collection<GamePlayer> getAllPlayers() {
+        return Lists.newArrayList();
+    }
 }

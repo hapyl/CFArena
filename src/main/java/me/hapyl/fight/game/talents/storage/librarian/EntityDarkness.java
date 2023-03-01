@@ -20,10 +20,10 @@ import org.bukkit.util.Vector;
 public class EntityDarkness extends Talent implements GrimoireTalent {
 	public EntityDarkness() {
 		super("Darkness Spell");
-		this.setInfo(String.format(
-				"Launches a sprite of darkness, dealing %s damage and applying paranoia. This spell has 3 charges.",
-				formatValues()
-		));
+		this.setDescription(String.format(
+                "Launches a sprite of darkness, dealing %s damage and applying paranoia. This spell has 3 charges.",
+                formatValues()
+        ));
 		this.setCd(10);
 		this.setItem(Material.WITHER_ROSE);
 		this.setAutoAdd(false);

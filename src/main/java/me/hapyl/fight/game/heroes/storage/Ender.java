@@ -52,6 +52,8 @@ public class Ender extends Hero implements Listener {
         this.setItem(Material.ENDER_PEARL);
         this.setRole(Role.ASSASSIN);
 
+        this.setMinimumLevel(5);
+
         // Weird enderman-like looking warrior with teleportation abilities. He hits you with his arm, but it hurts like a brick.
         this.setInfo("Weird enderman-like looking warrior with teleportation abilities. He hits you with his arm, but it hurts like a brick.");
 

@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.heroes.storage;
 
-import me.hapyl.fight.effect.EnumEffect;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.PlayerElement;
+import me.hapyl.fight.game.cosmetic.CosmeticsHandle;
 import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -201,7 +201,7 @@ public class Hercules extends Hero implements Listener, PlayerElement {
                     player.removeScoreboardTag("plunging");
                     PlayerLib.removeEffect(player, PotionEffectType.JUMP);
 
-                    EnumEffect.tempDisplayGroundPunch(player);
+                    CosmeticsHandle.GROUND_PUNCH_COSMETIC.playAnimation(player.getLocation(), 2);
 
                     Utils.getEntitiesInRange(player.getLocation(), 4).forEach(target -> {
                         if (target == player) {

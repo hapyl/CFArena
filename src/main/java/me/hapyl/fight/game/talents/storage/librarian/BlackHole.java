@@ -20,7 +20,7 @@ import org.bukkit.entity.Player;
 public class BlackHole extends Talent implements GrimoireTalent {
     public BlackHole() {
         super("Black Hole");
-        this.setInfo(String.format(
+        this.setDescription(String.format(
                 "Creates a black hole at your target block. Pulling enemies in and dealing %s damage per second based on &cGrimoire &7level.",
                 formatValues()
         ));

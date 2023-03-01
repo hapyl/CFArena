@@ -2,6 +2,7 @@ package me.hapyl.fight.game.database;
 
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.database.entry.*;
+import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -20,6 +21,10 @@ public final class Database {
         this.player = player;
         this.loadFile();
         this.loadEntries();
+    }
+
+    public static Database getDatabase(Player player) {
+        return PlayerProfile.getProfile(player).getDatabase();
     }
 
     public void saveToFile() {
@@ -46,6 +51,7 @@ public final class Database {
     private StatisticEntry statisticEntry;
     private SettingEntry settingEntry;
     private ExperienceEntry experienceEntry;
+    private CosmeticEntry cosmeticEntry;
 
     private void loadEntries() {
         this.heroEntry = new HeroEntry(this);
@@ -53,6 +59,7 @@ public final class Database {
         this.statisticEntry = new StatisticEntry(this);
         this.settingEntry = new SettingEntry(this);
         this.experienceEntry = new ExperienceEntry(this);
+        this.cosmeticEntry = new CosmeticEntry(this);
     }
 
     public ExperienceEntry getExperienceEntry() {
@@ -73,6 +80,10 @@ public final class Database {
 
     public HeroEntry getHeroEntry() {
         return heroEntry;
+    }
+
+    public CosmeticEntry getCosmetics() {
+        return cosmeticEntry;
     }
 
     // entries end
@@ -101,13 +112,12 @@ public final class Database {
             Bukkit.getLogger().info("Successfully created database instance for %s.".formatted(player.getName()));
         }
     }
-
     // this sent to console and admins
+
     private void sendInfo(String info, Object... toReplace) {
         final String format = Chat.format("&e&lDEBUG: &f" + info, toReplace);
         System.out.println(format);
         //Bukkit.getOnlinePlayers().stream().filter(Player::isOp).forEach(player -> player.sendMessage(format));
     }
-
 
 }

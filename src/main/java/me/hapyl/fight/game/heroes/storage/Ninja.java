@@ -109,7 +109,7 @@ public class Ninja extends Hero implements Listener, UIComponent {
         player.setAllowFlight(true);
 
         PlayerLib.addEffect(player, PotionEffectType.SPEED, 999999, 0);
-        GamePlayer.getPlayer(player).addEffect(GameEffectType.CANCEL_FALL_DAMAGE, Integer.MAX_VALUE);
+        GamePlayer.getPlayer(player).addEffect(GameEffectType.NINJA_PASSIVE, Integer.MAX_VALUE);
     }
 
     @EventHandler()

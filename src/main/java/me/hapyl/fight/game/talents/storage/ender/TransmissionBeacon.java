@@ -15,11 +15,11 @@ public class TransmissionBeacon extends Talent {
 
 	public TransmissionBeacon() {
 		super("Transmission Beacon");
-		this.setInfo(
-				String.format(
-						"Place the beacon somewhere hidden from your opponents. Use your &bultimate &7to instantly teleport to it's location and collect it.__&c&lThe beacon can be destroyed!____&aCooldown if Destroyed: &l%ss",
-						BukkitUtils.roundTick(destroyCd)
-				));
+		this.setDescription(
+                String.format(
+                        "Place the beacon somewhere hidden from your opponents. Use your &bultimate &7to instantly teleport to it's location and collect it.__&c&lThe beacon can be destroyed!____&aCooldown if Destroyed: &l%ss",
+                        BukkitUtils.roundTick(destroyCd)
+                ));
 		this.setItem(Material.BEACON);
 	}
 

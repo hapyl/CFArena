@@ -16,10 +16,10 @@ public class Akciy extends Talent {
 
 	public Akciy() {
 		super("Axii");
-		this.setInfo(
-				"Stuns your target opponent for &b%ss &7or until they get hit. Stunned opponent are immovable and cannot use their abilities.",
-				BukkitUtils.roundTick(stunDuration)
-		);
+		this.setDescription(
+                "Stuns your target opponent for &b%ss &7or until they get hit. Stunned opponent are immovable and cannot use their abilities.",
+                BukkitUtils.roundTick(stunDuration)
+        );
 		this.setCdSec(40);
 		this.setItem(Material.SLIME_BALL);
 	}

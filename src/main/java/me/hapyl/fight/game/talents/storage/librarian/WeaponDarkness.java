@@ -13,8 +13,8 @@ import org.bukkit.entity.Player;
 public class WeaponDarkness extends Talent implements GrimoireTalent {
 	public WeaponDarkness() {
 		super("Infusion of Darkness");
-		this.setInfo(String.format("Infuses your weapon for &b%ss&7 with higher damage.", formatValues()));
-		this.setItem(Material.INK_SAC);
+        this.setDescription(String.format("Infuses your weapon for &b%ss&7 with higher damage.", formatValues()));
+        this.setItem(Material.INK_SAC);
 		this.setAutoAdd(false);
 	}
 

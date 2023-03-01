@@ -1,7 +1,10 @@
 package me.hapyl.fight.game.database.entry;
 
+import me.hapyl.fight.Main;
 import me.hapyl.fight.game.database.Database;
 import me.hapyl.fight.game.database.DatabaseEntry;
+import me.hapyl.fight.game.experience.Experience;
+import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Numbers;
 
 public class ExperienceEntry extends DatabaseEntry {
@@ -15,12 +18,12 @@ public class ExperienceEntry extends DatabaseEntry {
         LEVEL("Current level.", 1, 20),
         POINT("Points unspent.", 1);
 
-        private final String name;
+        private final String description;
         private final long minValue;
         private final long maxValue;
 
         Type(String name, long defaultValue, long maxValue) {
-            this.name = name;
+            this.description = name;
             this.minValue = defaultValue;
             this.maxValue = maxValue;
         }
@@ -33,8 +36,12 @@ public class ExperienceEntry extends DatabaseEntry {
             return minValue;
         }
 
+        public String getDescription() {
+            return description;
+        }
+
         public String getName() {
-            return name;
+            return Chat.capitalize(this);
         }
 
         public long getMaxValue() {
@@ -55,8 +62,19 @@ public class ExperienceEntry extends DatabaseEntry {
         return this.getConfig().getLong(type.path(), type.minValue);
     }
 
+    // Super
     public void set(Type type, long value) {
         this.getConfig().set(type.path(), Numbers.clamp(value, type.getMinValue(), type.getMaxValue()));
+
+        // Update experience
+        final Experience experience = Main.getPlugin().getExperience();
+
+        experience.levelUp(getPlayer(), false);
+        experience.triggerUpdate(getPlayer());
+    }
+
+    public void remove(Type type, long value) {
+        add(type, -value);
     }
 
     public void add(Type type, long value) {

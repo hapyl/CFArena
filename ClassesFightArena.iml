@@ -89,14 +89,6 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: com.mojang:brigadier:1.0.18" level="project" />
     <orderEntry type="library" name="Maven: com.comphenix.protocol:ProtocolLib:5.0.0-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: net.bytebuddy:byte-buddy:1.12.12" level="project" />
-    <orderEntry type="module-library">
-      <library name="Maven: local.spigotutils:local:1.0">
-        <CLASSES>
-          <root url="jar://E:/_Server18/plugins/EternaAPI.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
+    <orderEntry type="library" name="Maven: me.hapyl:EternaAPI:2.9.1-SNAPSHOT" level="project" />
   </component>
 </module>

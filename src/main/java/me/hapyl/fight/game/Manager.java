@@ -76,12 +76,15 @@ public class Manager {
      *
      * @param player - Player.
      */
+    @Nonnull
     public PlayerProfile getProfile(Player player) {
         PlayerProfile profile = profiles.get(player);
         if (profile == null) {
             profile = new PlayerProfile(player);
             profiles.put(player, profile);
             profile.loadData();
+
+            Main.getPlugin().getExperience().triggerUpdate(player);
         }
         return profile;
     }
@@ -337,6 +340,8 @@ public class Manager {
             player.updateScoreboard(true);
             player.resetPlayer();
             player.setValid(false);
+
+            Utils.showPlayer(player.getPlayer());
 
             // keep winner in survival, so it's clear for them that they have won
             if (!this.gameInstance.isWinner(player.getPlayer())) {

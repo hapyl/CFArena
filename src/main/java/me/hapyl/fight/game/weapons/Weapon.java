@@ -174,12 +174,14 @@ public class Weapon implements Cloneable {
             });
         }
 
-        builder.addAttribute(
-                Attribute.GENERIC_ATTACK_DAMAGE,
-                damage - 1.0d, // has to be -1 here
-                AttributeModifier.Operation.ADD_NUMBER,
-                EquipmentSlot.HAND
-        );
+        if (!isRanged()) {
+            builder.addAttribute(
+                    Attribute.GENERIC_ATTACK_DAMAGE,
+                    damage - 1.0d, // has to be -1 here
+                    AttributeModifier.Operation.ADD_NUMBER,
+                    EquipmentSlot.HAND
+            );
+        }
 
         builder.setUnbreakable(true);
         builder.setCancelClicks(false);

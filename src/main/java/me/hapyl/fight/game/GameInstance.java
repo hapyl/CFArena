@@ -3,7 +3,7 @@ package me.hapyl.fight.game;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Shortcuts;
-import me.hapyl.fight.game.database.entry.CurrencyEntry;
+import me.hapyl.fight.game.database.Award;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -78,6 +78,7 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
     @Override
     public void calculateEverything() {
         gameResult.calculate();
+        gameResult.awardWinners();
     }
 
     private Location getFireworkSpawnLocation() {
@@ -196,6 +197,11 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
     @Override
     public Map<UUID, GamePlayer> getPlayers() {
         return players;
+    }
+
+    @Override
+    public Collection<GamePlayer> getAllPlayers() {
+        return players.values();
     }
 
     @Override
@@ -347,16 +353,12 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
 
                 // Award coins for minute played
                 if (tick % 1200 == 0 && tick < (timeLimit / 50)) {
-                    getAlivePlayers().forEach(player -> {
-                        final CurrencyEntry.Award award = CurrencyEntry.Award.MINUTE_PLAYED;
-                        player.getDatabase().getCurrency().awardCoins(award);
-                        player.getStats().addValue(StatContainer.Type.COINS, award.getAmount());
-                    });
+                    getAlivePlayers().forEach(Award.MINUTE_PLAYED::award);
                 }
 
                 // Game UI -> Moved to GamePlayerUI
 
-                if (tick < 0) {
+                if (tick < 0 && !Manager.current().isDebug()) {
                     Chat.broadcast("&a&lTime is Up! &aGame Over.");
                     Manager.current().stopCurrentGame();
                     this.cancel();

@@ -41,6 +41,7 @@ public class JuJu extends Hero implements Listener {
         super("JuJu the Bandit");
 
         this.setRole(Role.RANGE);
+        this.setMinimumLevel(5);
 
         this.setInfo("A bandit from the depths of the jungle. Highly skilled in range combat.");
         this.setItem(Material.OAK_SAPLING);

@@ -9,6 +9,7 @@ import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.GamePlayerUI;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -33,6 +34,11 @@ public class PlayerProfile {
         this.database = new Database(player);
         this.scoreboardTeams = new ScoreboardTeams(player);
         this.loaded = false;
+    }
+
+    @Nonnull
+    public static PlayerProfile getProfile(Player player) {
+        return Manager.current().getProfile(player);
     }
 
     public ScoreboardTeams getScoreboardTeams() {

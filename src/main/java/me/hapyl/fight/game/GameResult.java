@@ -1,6 +1,7 @@
 package me.hapyl.fight.game;
 
 import com.google.common.collect.Sets;
+import me.hapyl.fight.game.database.Award;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.game.team.GameTeam;
@@ -45,6 +46,12 @@ public class GameResult {
 
     public boolean isDraw() {
         return winningTeams.size() >= 2;
+    }
+
+    public void awardWinners() {
+        for (GamePlayer winner : winners) {
+            Award.GAME_WON.award(winner);
+        }
     }
 
     public void calculate() {
@@ -108,8 +115,10 @@ public class GameResult {
                 final Player player = gamePlayer.getPlayer();
                 final StatContainer stat = gamePlayer.getStats();
 
+                // TODO: 028, Feb 28, 2023 -> Either automate report or actually add it every time.
                 Chat.sendMessage(player, "&a&lGame Report:");
                 Chat.sendMessage(player, stat.getString(StatContainer.Type.COINS));
+                Chat.sendMessage(player, stat.getString(StatContainer.Type.EXP));
                 Chat.sendMessage(player, stat.getString(StatContainer.Type.KILLS));
                 Chat.sendMessage(player, stat.getString(StatContainer.Type.DEATHS));
             }

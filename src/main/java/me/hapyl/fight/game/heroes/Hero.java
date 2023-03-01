@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
@@ -17,6 +18,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.List;
 import java.util.Set;
 
 public abstract class Hero implements GameElement, PlayerElement {
@@ -30,6 +32,8 @@ public abstract class Hero implements GameElement, PlayerElement {
     private Weapon weapon;
     private final Set<Player> usingUltimate;
 
+    private long minimumLevel;
+
     private UltimateTalent ultimate;
 
     public Hero(String name) {
@@ -40,7 +44,16 @@ public abstract class Hero implements GameElement, PlayerElement {
         this.usingUltimate = Sets.newHashSet();
         this.equipment = new ClassEquipment();
         this.role = Role.NONE;
+        this.minimumLevel = 0;
         this.ultimate = new UltimateTalent("Unknown Ultimate", "This hero's ultimate talent is not yet implemented!", Integer.MAX_VALUE);
+    }
+
+    public long getMinimumLevel() {
+        return minimumLevel;
+    }
+
+    public void setMinimumLevel(long minimumLevel) {
+        this.minimumLevel = minimumLevel;
     }
 
     public Hero(String name, String lore) {
@@ -243,5 +256,21 @@ public abstract class Hero implements GameElement, PlayerElement {
 
     public String getNameSmallCaps() {
         return SmallCaps.format(getName());
+    }
+
+    public List<Talent> getTalentsSorted() {
+        final List<Talent> talents = Lists.newArrayList();
+        talents.add(getFirstTalent());
+        talents.add(getSecondTalent());
+
+        if (this instanceof ComplexHero complex) {
+            talents.add(complex.getThirdTalent());
+            talents.add(complex.getFourthTalent());
+            talents.add(complex.getFifthTalent());
+        }
+
+        talents.add(getPassiveTalent());
+
+        return talents;
     }
 }

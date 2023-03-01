@@ -176,7 +176,7 @@ public class GamePlayerUI {
     }
 
     private String getTimeLeftString(AbstractGameInstance game) {
-        return new SimpleDateFormat("mm:ss").format(game.getTimeLeftRaw());
+        return Manager.current().isDebug() ? "&4&lDEBUG" : new SimpleDateFormat("mm:ss").format(game.getTimeLeftRaw());
     }
 
     private String[] formatHeaderFooter() {
@@ -186,7 +186,6 @@ public class GamePlayerUI {
         // teammates
         final GameTeam team = GameTeam.getPlayerTeam(player);
         if (Manager.current().isGameInProgress() && team != null) {
-            // TODO: 028, Feb 28, 2023 dont show in lobby and self idk test this
             footer.append("&e&lTeammates:\n");
             if (team.getPlayers().size() == 1) {
                 footer.append("&8None!");
@@ -212,10 +211,11 @@ public class GamePlayerUI {
                     i++;
                 }
             }
+            footer.append("\n\n");
         }
 
         // effects
-        footer.append("\n\n&e&lPing: &f").append(player.getPing());
+        footer.append("&e&lPing: &f").append(player.getPing());
 
         // Display NBS player if playing a song
         final SongPlayer songPlayer = EternaPlugin.getPlugin().getSongPlayer();
@@ -280,32 +280,42 @@ public class GamePlayerUI {
         builder.append(player.isOp() ? (isSpectator ? "&7🛡 " : "&c🛡 ") : isSpectator ? "" : "&e");
         builder.append(player.getName());
 
+        // append players ping colored depending on their ping
+        builder.append(" ").append(formatPing(player.getPing()));
+
         if (Manager.current().isGameInProgress()) {
-            builder.append(UIFormat.DIV);
             final GamePlayer gamePlayer = GamePlayer.getAlivePlayer(this.player);
-            if (gamePlayer != null) {
+            if (gamePlayer != null && !gamePlayer.isAlive()) {
+                builder.append(UIFormat.DIV);
+
                 if (gamePlayer.isSpectator()) {
                     builder.append("&7&lSpectator");
                 }
                 else if (gamePlayer.isDead()) {
                     builder.append("&4☠☠☠");
                 }
-                else {
-                    //                    final boolean usingUltimate = hero.getHero().isUsingUltimate(player);
-                    //                    if (usingUltimate) {
-                    //                        builder.append("&b&lIN USE");
-                    //                    }
-                    //                    else if (gamePlayer.isUltimateReady()) {
-                    //                        builder.append("&b&lREADY");
-                    //                    }
-                    //                    else {
-                    //                        builder.append("&b%s/%s &l※".formatted(gamePlayer.getUltPoints(), gamePlayer.getUltPointsNeeded()));
-                    //                    }
-                }
             }
         }
 
         return Chat.format(builder.toString());
+    }
+
+    private String formatPing(int ping) {
+        if (ping <= 50) {
+            return "&a" + ping;
+        }
+        else if (ping <= 100) {
+            return "&e" + ping;
+        }
+        else if (ping <= 150) {
+            return "&6" + ping;
+        }
+        else if (ping <= 200) {
+            return "&c" + ping;
+        }
+        else {
+            return "&4" + ping;
+        }
     }
 
     public Player getPlayer() {

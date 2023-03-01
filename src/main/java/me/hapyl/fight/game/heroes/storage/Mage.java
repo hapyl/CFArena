@@ -179,7 +179,7 @@ public class Mage extends Hero implements UIComponent {
         this.setUsingUltimate(player, true, dragonSkinLength);
 
         PlayerLib.addEffect(player, PotionEffectType.SLOW, dragonSkinLength, 2);
-        PlayerLib.addEffect(player, PotionEffectType.INCREASE_DAMAGE, dragonSkinLength, 3);
+        PlayerLib.addEffect(player, PotionEffectType.INCREASE_DAMAGE, dragonSkinLength, 4);
         PlayerLib.addEffect(player, PotionEffectType.JUMP, dragonSkinLength, 250);
 
         // fx

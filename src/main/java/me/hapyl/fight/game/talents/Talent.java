@@ -84,11 +84,11 @@ public abstract class Talent implements GameElement {
         return castMessage;
     }
 
-    public void setInfo(String info) {
+    public void setDescription(String info) {
         this.description = info;
     }
 
-    public void setInfo(String info, Object... replacements) {
+    public void setDescription(String info, Object... replacements) {
         this.description = info.formatted(replacements);
     }
 

@@ -237,9 +237,11 @@ public class PlayerEvent implements Listener {
 
             // Fall damage
             if (cause == EntityDamageEvent.DamageCause.FALL) {
-                if (gamePlayer.hasEffect(GameEffectType.CANCEL_FALL_DAMAGE) || gamePlayer.hasEffect(GameEffectType.FALL_DAMAGE_RESISTANCE)) {
-                    gamePlayer.removeEffect(GameEffectType.FALL_DAMAGE_RESISTANCE);
+                if (gamePlayer.hasEffect(GameEffectType.NINJA_PASSIVE) || gamePlayer.hasEffect(GameEffectType.FALL_DAMAGE_RESISTANCE)) {
                     ev.setCancelled(true);
+                }
+                if (gamePlayer.hasEffect(GameEffectType.FALL_DAMAGE_RESISTANCE)) {
+                    gamePlayer.removeEffect(GameEffectType.FALL_DAMAGE_RESISTANCE);
                 }
                 return;
             }
@@ -260,9 +262,10 @@ public class PlayerEvent implements Listener {
 
                     final Material type = playerDamager.getInventory().getItemInMainHand().getType();
                     // Decrease damage if hitting with a bow
-                    if (type == Material.BOW || type == Material.CROSSBOW) {
-                        damage *= 0.4d;
-                    }
+                    //                    if (cause == EntityDamageEvent.DamageCause.ENTITY_ATTACK && type == Material.BOW || type == Material.CROSSBOW) {
+                    //                        Debugger.log("reduced damage");
+                    //                        damage *= 0.4d;
+                    //                    }
 
                     // Assign the damager
                     damagerFinal = playerDamager;
@@ -537,7 +540,8 @@ public class PlayerEvent implements Listener {
             if (clickedBlock != null) {
                 // allow to click at button (secret passages)
                 // maybe rework with custom buttons but meh
-                if (clickedBlock.getType().name().toLowerCase(Locale.ROOT).contains("button")) {
+                final String blockName = clickedBlock.getType().name().toLowerCase(Locale.ROOT);
+                if (blockName.contains("button") || blockName.contains("lever")) {
                     return;
                 }
             }

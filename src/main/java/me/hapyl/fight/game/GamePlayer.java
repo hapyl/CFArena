@@ -1,7 +1,10 @@
 package me.hapyl.fight.game;
 
+import me.hapyl.fight.game.cosmetic.Cosmetics;
+import me.hapyl.fight.game.cosmetic.Display;
+import me.hapyl.fight.game.cosmetic.Type;
+import me.hapyl.fight.game.database.Award;
 import me.hapyl.fight.game.database.Database;
-import me.hapyl.fight.game.database.entry.CurrencyEntry;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.gamemode.CFGameMode;
@@ -281,7 +284,9 @@ public class GamePlayer extends AbstractGamePlayer {
 
     public void removeEffect(GameEffectType type) {
         final ActiveGameEffect gameEffect = gameEffects.get(type);
-        gameEffect.forceStop();
+        if (gameEffect != null) {
+            gameEffect.forceStop();
+        }
     }
 
     public void clearEffect(GameEffectType type) {
@@ -445,15 +450,20 @@ public class GamePlayer extends AbstractGamePlayer {
             }
 
             if (killer != null) {
-                final CurrencyEntry.Award playerKill = CurrencyEntry.Award.PLAYER_KILL;
                 final StatContainer killerStats = GamePlayer.getPlayer(killer).getStats();
 
                 if (killerStats != null) {
-                    killerStats.addValue(StatContainer.Type.COINS, playerKill.getAmount());
                     killerStats.addValue(StatContainer.Type.KILLS, 1);
                 }
 
-                Manager.current().getProfile(killer).getDatabase().getCurrency().awardCoins(playerKill);
+                // Award elimination to killer
+                Award.PLAYER_ELIMINATION.award(killer);
+
+                // Display cosmetics
+                final Cosmetics killCosmetic = Cosmetics.getSelected(killer, Type.KILL);
+                if (killCosmetic != null) {
+                    killCosmetic.getCosmetic().onDisplay(new Display(killer, player.getLocation()));
+                }
             }
         }
 
@@ -480,6 +490,11 @@ public class GamePlayer extends AbstractGamePlayer {
             }
         }
 
+        // Display death cosmetics
+        final Cosmetics deathCosmetic = Cosmetics.getSelected(player, Type.DEATH);
+        if (deathCosmetic != null) {
+            deathCosmetic.getCosmetic().onDisplay(player);
+        }
 
         Chat.broadcast(deathMessage);
     }

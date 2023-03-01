@@ -15,6 +15,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Locale;
 
+// TODO: 001, Mar 1, 2023 - Why is this static, make PlayerGUI instead
 public class MapSelectGUI extends GUI {
 
     private static final MapSelectGUI staticGUI = new MapSelectGUI();
@@ -56,7 +57,7 @@ public class MapSelectGUI extends GUI {
             });
         }
 
-        component.fillItems(this, SlotPattern.CHUNKY);
+        component.fillItems(this, SlotPattern.FANCY);
     }
 
     public static void openGUI(Player player) {

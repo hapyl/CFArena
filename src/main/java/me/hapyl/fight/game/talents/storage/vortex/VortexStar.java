@@ -22,10 +22,10 @@ public class VortexStar extends Talent {
 
 	public VortexStar() {
 		super("Astral Star");
-		this.setInfo(
-				"Summons an Astral Star at you current location. If used nearby placed Astral Star, the star will be picked up.____You may have maximum of &b%s &7stars at the same time.",
-				maxStars
-		);
+		this.setDescription(
+                "Summons an Astral Star at you current location. If used nearby placed Astral Star, the star will be picked up.____You may have maximum of &b%s &7stars at the same time.",
+                maxStars
+        );
 		this.setItem(Material.NETHER_STAR);
 		this.setCd(DYNAMIC);
 	}

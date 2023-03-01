@@ -46,6 +46,7 @@ public class Harbinger extends Hero implements Listener {
         super("Harbinger", "She is a harbinger of unknown organization. Nothing else is known.", Material.ANVIL);
 
         this.setRole(Role.STRATEGIST);
+        this.setMinimumLevel(5);
 
         final ClassEquipment equipment = this.getEquipment();
         equipment.setHelmet(

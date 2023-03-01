@@ -1,4 +1,4 @@
-## ClassesFightArena, a Minecraft mini game plugin.
+## ClassesFightArena, a Minecraft minigame plugin.
 
 ### Copyright (C) 2021-2022 hapyl
 

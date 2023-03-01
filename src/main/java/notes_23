@@ -28,27 +28,28 @@ Vortex:
 
 System:
 
-- Spectators don't work (cant see players)
-- ninja jump
-- Levers don't work
-- NERF FREEZE and reset after respawn
-- Rework glowing entities to be packed
-- Bats are not despawning when out of range
-- Buff JUJU bounce
-- Reset invis and fix invis while spec
-- Hercules can lose trident
-- Fix jump boost for ninja
-- No class perms
-- Techie red glowing dont go away
-- Reset charges talents on DM properly
-- Leaving DM keeps player in spectaror and doesn't remove
-- Spectators in DM can see abilities
-- Reset abilities TECHIE DM
-- Team win shows as DEFEAT for teammates other than 1st player
-- Add health above head for teammates (or scoreboard maybe?)
+- NONE!
 
+- Spectators don't work (cant see players) ✔
+- Levers don't work ✔
+- ninja jump ✔
+- NERF FREEZE and reset after respawn ✔
+- Rework glowing entities to be packed ✔
+- Bats are not despawning when out of range ✔
+- Buff JUJU bounce ✔
+- Reset invis and fix invis while spec ✔
+- Hercules can lose trident ✔
+- Fix jump boost for ninja ✔
+- No class perms ✔
+- Techie red glowing dont go away ✔
+- Reset charges talents on DM properly ✔
+- Leaving DM keeps player in spectaror and doesn't remove ✔
+- Spectators in DM can see abilities ✔
+- Reset abilities TECHIE DM ✔
+- Team win shows as DEFEAT for teammates other than 1st player ✔
+- Add health above head for teammates (or scoreboard maybe?) ✔
 - Nighmare game task stars even if random selected ✔
-- Rework win screen ✔
+- Rework win screen
 - Deathmatch draw ✔
 - Deathmath score wrong score yes ✔
 - Handle invisibility event-like ✔

@@ -5,8 +5,8 @@ import org.bukkit.entity.Player;
 
 public class FallDamageResistance extends GameEffect {
 
-    public FallDamageResistance() {
-        super("Fall Damage Resistance");
+    public FallDamageResistance(String name) {
+        super(name);
         this.setDescription("Negates all fall damage.");
     }
 

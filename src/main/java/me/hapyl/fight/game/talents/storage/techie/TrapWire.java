@@ -31,7 +31,7 @@ public class TrapWire extends ChargedTalent implements Listener {
 
     public TrapWire() {
         super("Tripwire", 2);
-        this.setInfo(
+        this.setDescription(
                 // Place a tripwire between two points. Activates upon opponents touch and applies &bCYber Hack&7.____&e&lPUNCH &7the wire to pick it up.
                 "Place a tripwire between two points. Activates upon opponents touch and applies &bCYber Hack&7.____&e&lPUNCH &7the wire to pick it up."
         );

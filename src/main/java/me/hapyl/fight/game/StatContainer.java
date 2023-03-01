@@ -42,6 +42,7 @@ public class StatContainer extends NonNullableElementHolder<Player> {
     public enum Type {
         COINS("&7You've earned &e&l%s &7coins this game!", "&7You haven't earned any coins this game."),
         KILLS("&7You've killed &e&l%s &7opponents this game!", "&7You haven't killed anyone this game."),
+        EXP("&7You've earned &b&l%s &7exp this game!", "&7You haven't earned any exp this game."),
         DEATHS("&7You've died &e&l%s &7times this game!", "&7You haven't died this game. Wow.");
 
         private final String textHas;

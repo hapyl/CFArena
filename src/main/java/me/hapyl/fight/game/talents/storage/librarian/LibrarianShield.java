@@ -13,7 +13,7 @@ import org.bukkit.entity.Player;
 public class LibrarianShield extends Talent implements GrimoireTalent {
     public LibrarianShield() {
         super("Voidless Shield");
-        this.setInfo(String.format(
+        this.setDescription(String.format(
                 "Creates a shield with voidless capacity of absorbing damage for &b%s&7 seconds.",
                 formatValues()
         ));

@@ -33,7 +33,7 @@ public class ShadowPrism extends Talent {
 
     public ShadowPrism() {
         super("Shadow Prism");
-        this.setInfo(
+        this.setDescription(
                 "Deploy a teleportation orb that travels in straight line. Use again to teleport to the orb.__&e&lLOOK AT BLOCK &7to place it at fixed block and prevent it from travelling.____This ability is invisible to your opponents!");
         this.setItem(
                 "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODNlZDRjZTIzOTMzZTY2ZTA0ZGYxNjA3MDY0NGY3NTk5ZWViNTUzMDdmN2VhZmU4ZDkyZjQwZmIzNTIwODYzYyJ9fX0=");

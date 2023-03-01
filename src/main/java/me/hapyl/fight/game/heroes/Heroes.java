@@ -84,7 +84,6 @@ public enum Heroes {
         }
     }
 
-
     public boolean isValidHero() {
         return !this.getHero().equals(INVALID_HERO);
     }

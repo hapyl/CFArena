@@ -1,9 +1,9 @@
 package me.hapyl.fight.game.heroes.storage;
 
 import me.hapyl.fight.annotate.KeepNull;
-import me.hapyl.fight.effect.EnumEffect;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.cosmetic.CosmeticsHandle;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.Talent;
@@ -124,7 +124,8 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
                     public void run() {
                         if (maxAirTicks-- <= 0 || player.isOnGround()) {
                             this.cancel();
-                            EnumEffect.tempDisplayGroundPunch(player);
+                            CosmeticsHandle.GROUND_PUNCH_COSMETIC.playAnimation(player.getLocation(), 2);
+
                             Utils.getPlayersInRange(player.getLocation(), 4).forEach(target -> {
                                 if (target == player) {
                                     return;
