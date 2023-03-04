@@ -84,8 +84,8 @@ public class HeroPreviewGUI extends PlayerGUI {
                     PlayerLib.playSound(player, Sound.BLOCK_NOTE_BLOCK_PLING, 2.0f);
                     Chat.sendMessage(
                             player,
-                            "%s %s %s from your favourites.",
-                            (favourite ? "removed" : "added"),
+                            "&a%s %s %s from your favourites.",
+                            (favourite ? "Removed" : "Added"),
                             hero.getName(),
                             (favourite ? "from" : "to")
                     );

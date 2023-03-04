@@ -6,8 +6,6 @@ import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
-import java.util.Locale;
-
 public enum Setting {
 
     SPECTATE(10, Material.ENDER_EYE, "Spectate", "Whenever you will spectate the game instead of playing it."),
@@ -53,7 +51,7 @@ public enum Setting {
     }
 
     public String getPath() {
-        return "setting." + name().toLowerCase(Locale.ROOT);
+        return name();
     }
 
     public String getInfo() {

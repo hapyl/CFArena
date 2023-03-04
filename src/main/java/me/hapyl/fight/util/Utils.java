@@ -6,8 +6,8 @@ import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.spigotutils.module.math.Geometry;
-import me.hapyl.spigotutils.module.math.gometry.Quality;
-import me.hapyl.spigotutils.module.math.gometry.WorldParticle;
+import me.hapyl.spigotutils.module.math.geometry.Quality;
+import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.Reflect;
 import org.bukkit.*;
@@ -22,7 +22,6 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class Utils {
 
@@ -400,20 +399,54 @@ public class Utils {
         return (Player) getNearestEntity(
                 location,
                 radius,
-                entity -> entity instanceof Player && entity != exclude &&
-                        Manager.current().isPlayerInGame((Player) entity)
+                entity -> {
+                    return entity instanceof Player && entity != exclude && Manager.current().isPlayerInGame((Player) entity) &&
+                            !GameTeam.isTeammate(exclude, (Player) entity);
+                }
         );
+    }
+
+    public static LivingEntity getNearestLivingEntity(Location location, double radius, Player player) {
+        return (LivingEntity) getNearestEntity(location, radius, entity -> {
+            if (!(entity instanceof LivingEntity)) {
+                return false;
+            }
+
+            return isEntityValid(entity, player);
+        });
+    }
+
+    public static boolean isEntityValid(Entity entity, @Nullable Player player) {
+        if (entity == null || (player != null && entity == player) || entity instanceof ArmorStand) {
+            return false;
+        }
+
+        if (entity instanceof LivingEntity livingEntity) {
+            if (livingEntity.isDead() || livingEntity.isInvisible()) {
+                return false;
+            }
+        }
+
+        if (entity instanceof Player targetPlayer) {
+            if (Manager.current().isGameInProgress() && !GamePlayer.getPlayer(targetPlayer).isAlive()) {
+                return false;
+            }
+            return !GameTeam.isTeammate(player, targetPlayer);
+        }
+
+        return true;
     }
 
     public static Entity getNearestEntity(Location fromWhere, double radius, Predicate<Entity> predicate) {
         if (fromWhere.getWorld() == null) {
             throw new NullPointerException("Cannot find entity in null world!");
         }
+
         final List<Entity> list = fromWhere.getWorld()
                 .getNearbyEntities(fromWhere, radius, radius, radius)
                 .stream()
-                .filter(predicate)
-                .collect(Collectors.toList());
+                .filter(predicate).toList();
+
         Entity nearest = null;
         double dist = -1;
         for (Entity entity : list) {
@@ -436,22 +469,25 @@ public class Utils {
     public static List<LivingEntity> getEntitiesInRange(Location location, double range) {
         final World world = location.getWorld();
         final List<LivingEntity> entities = new ArrayList<>();
+
         if (world == null) {
             return entities;
         }
 
         world.getNearbyEntities(location, range, range, range).stream().filter(entity -> {
-            if (entity instanceof Player player) {
-                if (Manager.current().isGameInProgress()) {
-                    return GamePlayer.getPlayer(player).isAlive();
-                }
-            }
+            return isEntityValid(entity, null);
 
-            if (entity instanceof LivingEntity living) {
-                return living.getType() != EntityType.ARMOR_STAND && !living.isInvisible() && !living.isDead();
-            }
-
-            return false;
+            //if (entity instanceof Player player) {
+            //    if (Manager.current().isGameInProgress()) {
+            //        return GamePlayer.getPlayer(player).isAlive();
+            //    }
+            //}
+            //
+            //if (entity instanceof LivingEntity living) {
+            //    return living.getType() != EntityType.ARMOR_STAND && !living.isInvisible() && !living.isDead();
+            //}
+            //
+            //return false;
         }).forEach(entity -> entities.add((LivingEntity) entity));
 
         return entities;
@@ -460,6 +496,7 @@ public class Utils {
     public static List<Player> getPlayersInRange(Location location, double range) {
         final World world = location.getWorld();
         final List<Player> players = new ArrayList<>();
+
         if (world == null) {
             return players;
         }
@@ -501,7 +538,6 @@ public class Utils {
         Geometry.drawCircle(location, range + 0.5d, Quality.NORMAL, new WorldParticle(Particle.ENCHANTMENT_TABLE));
         PlayerLib.spawnParticle(location, Particle.EXPLOSION_HUGE, 1, 1, 0, 1, 0);
         PlayerLib.playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 1.0f);
-
     }
 
     public static void createExplosion(Location location, double range, double damage) {

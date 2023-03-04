@@ -17,7 +17,7 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.math.Geometry;
-import me.hapyl.spigotutils.module.math.gometry.WorldParticle;
+import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
 import org.bukkit.entity.Arrow;

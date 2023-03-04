@@ -49,9 +49,9 @@ public class GravityGun extends Weapon {
 
 	@Override
 	public void onRightClick(Player player, ItemStack item) {
-		if (player.hasCooldown(this.getItem().getType())) {
-			return;
-		}
+		if (player.hasCooldown(getMaterial())) {
+            return;
+        }
 
 		final Block targetBlock = player.getTargetBlockExact(7);
 
@@ -70,10 +70,10 @@ public class GravityGun extends Weapon {
 			return;
 		}
 
-		if (ElementType.getElementOf(targetBlock.getType()) == ElementType.NULL) {
-			Chat.sendMessage(player, "&cTarget block does not have any valid elements...");
-			return;
-		}
+        if (ElementType.getElement(targetBlock.getType()) == ElementType.NULL) {
+            Chat.sendMessage(player, "&cTarget block does not have any valid elements...");
+            return;
+        }
 
 		if (!targetBlock.getType().isBlock()) {
 			Chat.sendMessage(player, "&cTarget block is not a block?");
@@ -82,8 +82,8 @@ public class GravityGun extends Weapon {
 
 		final Element element = new Element(player, targetBlock);
 		// fix instant throw
-		player.setCooldown(this.getItem().getType(), 2);
-		element.startTask();
+        player.setCooldown(getType(), 2);
+        element.startTask();
 		setElement(player, element);
 		Chat.sendMessage(player, "&aPicked up element of %s!", Chat.capitalize(targetBlock.getType()));
 

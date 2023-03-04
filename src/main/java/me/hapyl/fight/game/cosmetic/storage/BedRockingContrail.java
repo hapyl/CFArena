@@ -13,7 +13,6 @@ public class BedRockingContrail extends BlockContrailCosmetic {
         super("Bed Rocking", "The strongest of it's kind!", ShopItem.NOT_PURCHASABLE, Rarity.LEGENDARY);
 
         setIcon(Material.BEDROCK);
-
         addMaterials(Material.BEDROCK);
     }
 

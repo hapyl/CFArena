@@ -180,7 +180,7 @@ public abstract class Talent implements GameElement {
             builder.addLore("&aCooldown: &lDynamic");
         }
 
-        if (point > 0) {
+        if (point > 0 && !(this instanceof PassiveTalent || this instanceof UltimateTalent)) {
             builder.addLore("&aPoints: &l" + point);
         }
 

@@ -8,8 +8,8 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Geometry;
-import me.hapyl.spigotutils.module.math.gometry.Quality;
-import me.hapyl.spigotutils.module.math.gometry.WorldParticle;
+import me.hapyl.spigotutils.module.math.geometry.Quality;
+import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -81,13 +81,13 @@ public class ConfusionPotion extends Talent {
 					return;
 				}
 
-				Geometry.drawCircle(location, 3.5d, Quality.LOW, new WorldParticle(Particle.END_ROD, 0.0d, 0.0d, 0.0d, 0.01f));
-				Utils.getPlayersInRange(location, 3.5d).forEach(target -> {
-					if (player == target) {
-						return;
-					}
-					GamePlayer.getPlayer(target).addEffect(GameEffectType.AMNESIA, 20, true);
-				});
+                Geometry.drawCircle(location, 3.5d, Quality.HIGH, new WorldParticle(Particle.END_ROD, 0.0d, 0.0d, 0.0d, 0.01f));
+                Utils.getPlayersInRange(location, 3.5d).forEach(target -> {
+                    if (player == target) {
+                        return;
+                    }
+                    GamePlayer.getPlayer(target).addEffect(GameEffectType.AMNESIA, 20, true);
+                });
 
 			}
 		}.runTaskTimer(timeBeforeExplode, 1);

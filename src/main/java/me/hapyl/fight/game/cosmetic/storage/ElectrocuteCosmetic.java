@@ -5,10 +5,11 @@ import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.shop.Rarity;
 import me.hapyl.fight.game.task.GameTask;
+import org.bukkit.Material;
 
 public class ElectrocuteCosmetic extends Cosmetic {
     public ElectrocuteCosmetic() {
-        super("Electrocute", "Bzz~t.", 1000, Type.DEATH, Rarity.UNCOMMON);
+        super("Electrocute", "Bzz~t.", 1000, Type.DEATH, Rarity.UNCOMMON, Material.LIGHT_BLUE_STAINED_GLASS);
     }
 
     @Override

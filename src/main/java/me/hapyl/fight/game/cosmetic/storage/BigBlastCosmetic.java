@@ -5,10 +5,7 @@ import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.shop.Rarity;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
-import org.bukkit.Color;
-import org.bukkit.FireworkEffect;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Firework;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -22,7 +19,7 @@ public class BigBlastCosmetic extends Cosmetic implements Listener {
     };
 
     public BigBlastCosmetic() {
-        super("Big Blast", "A big explosion with a random color.", 500, Type.DEATH, Rarity.RARE);
+        super("Big Blast", "A big explosion with a random color.", 500, Type.DEATH, Rarity.RARE, Material.FIREWORK_ROCKET);
     }
 
     @Override

@@ -11,6 +11,7 @@ import me.hapyl.fight.game.talents.storage.darkmage.HealingAura;
 import me.hapyl.fight.game.talents.storage.darkmage.ShadowClone;
 import me.hapyl.fight.game.talents.storage.darkmage.SlowingAura;
 import me.hapyl.fight.game.talents.storage.doctor.ConfusionPotion;
+import me.hapyl.fight.game.talents.storage.doctor.HarvestBlocks;
 import me.hapyl.fight.game.talents.storage.ender.TeleportPearl;
 import me.hapyl.fight.game.talents.storage.ender.TransmissionBeacon;
 import me.hapyl.fight.game.talents.storage.freazly.IceCone;
@@ -133,7 +134,7 @@ public enum Talents {
 
     // Dr. Ed
     CONFUSION_POTION(new ConfusionPotion()),
-    MISSING_TALENT_0(null),
+    HARVEST(new HarvestBlocks()),
     MISSING_TALENT_1(new PassiveTalent("missing", "missing", Material.BEDROCK)),
 
     // Ender

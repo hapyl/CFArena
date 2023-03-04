@@ -11,7 +11,7 @@ import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Geometry;
-import me.hapyl.spigotutils.module.math.gometry.Draw;
+import me.hapyl.spigotutils.module.math.geometry.Draw;
 import me.hapyl.spigotutils.module.particle.AbstractParticleBuilder;
 import me.hapyl.spigotutils.module.particle.ParticleBuilder;
 import me.hapyl.spigotutils.module.player.PlayerLib;

@@ -1,12 +1,15 @@
 package me.hapyl.fight.cmds;
 
 import me.hapyl.fight.cmds.extra.Acceptor;
+import me.hapyl.fight.database.Database;
+import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.StatContainer;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
 import me.hapyl.spigotutils.module.util.Validate;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -88,11 +91,54 @@ public class AdminCommand extends SimplePlayerAdminCommand {
         acceptors.put("coins", new Acceptor() {
             @Override
             public void execute(Player player, String[] args) {
-                // set
-                if (!checkLength(args, 2)) {
-                    return;
-                }
+                // admin coins <set,add,remove|get> <player> <value>
+                if (checkLength(args, 2)) {
 
+                    final String action = args[0].toLowerCase();
+                    final Player target = Bukkit.getPlayer(args[1]);
+
+                    if (target == null) {
+                        sendMessage(player, "&cInvalid player!");
+                        return;
+                    }
+
+                    final CurrencyEntry currency = Database.getDatabase(target).getCurrency();
+
+                    if (action.equalsIgnoreCase("get")) {
+                        sendMessage(player, "&a%s has &l%s&a coins.", target.getName(), currency.getCoins());
+                        return;
+                    }
+
+                    if (checkLength(args, 3)) {
+                        final long value = longValue(args, 2);
+
+                        if (value < 0) {
+                            sendMessage(player, "&cValue cannot be negative!");
+                            return;
+                        }
+
+                        switch (action) {
+                            case "set" -> {
+                                currency.setCoins(value);
+                                sendMessage(player, "&aSet %s's coins to &l%s&a.", target.getName(), value);
+                            }
+
+                            case "add" -> {
+                                currency.addCoins(value);
+                                sendMessage(player, "&aAdded &l%s&a coins to %s.", value, target.getName());
+                            }
+
+                            case "remove" -> {
+                                currency.removeCoins(value);
+                                sendMessage(player, "&aRemoved &l%s&a coins from %s.", value, target.getName());
+                            }
+
+                            default -> sendMessage(player, "&cInvalid action!");
+                        }
+                    }
+
+
+                }
             }
 
             @Override

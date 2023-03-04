@@ -1,9 +1,9 @@
 package me.hapyl.fight.game.profile;
 
+import me.hapyl.fight.database.Database;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.ScoreboardTeams;
-import me.hapyl.fight.game.database.Database;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.GamePlayerUI;
@@ -21,6 +21,7 @@ public class PlayerProfile {
     private final Player player;
     private final Database database;
     private final ScoreboardTeams scoreboardTeams;
+    private final ProfileDisplay display;
 
     @Nullable
     private GamePlayer gamePlayer; // current game player
@@ -33,12 +34,17 @@ public class PlayerProfile {
         this.player = player;
         this.database = new Database(player);
         this.scoreboardTeams = new ScoreboardTeams(player);
+        this.display = new ProfileDisplay(this);
         this.loaded = false;
     }
 
     @Nonnull
     public static PlayerProfile getProfile(Player player) {
         return Manager.current().getProfile(player);
+    }
+
+    public ProfileDisplay getDisplay() {
+        return display;
     }
 
     public ScoreboardTeams getScoreboardTeams() {

@@ -2,8 +2,8 @@ package me.hapyl.fight.game.cosmetic;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import me.hapyl.fight.database.Database;
 import me.hapyl.fight.game.cosmetic.storage.*;
-import me.hapyl.fight.game.database.Database;
 import me.hapyl.fight.game.shop.Rarity;
 import me.hapyl.fight.game.shop.ShopItem;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -18,7 +18,7 @@ import java.util.Map;
 
 public enum Cosmetics {
 
-    BLOOD(new Cosmetic("Blood", "A classic redstone particles mimicking blood.", 200, Type.KILL, Rarity.COMMON) {
+    BLOOD(new Cosmetic("Blood", "A classic redstone particles mimicking blood.", 200, Type.KILL, Rarity.COMMON, Material.REDSTONE) {
         @Override
         public void onDisplay(Display display) {
             display.particle(Particle.BLOCK_CRACK, 20, 0.4d, 0.4d, 0.4d, 0.0f, Bukkit.createBlockData(Material.REDSTONE_BLOCK));
@@ -26,7 +26,7 @@ public enum Cosmetics {
         }
     }),
 
-    COOKIE_MADNESS(new Cosmetic("Cookie Madness", "More cookies! Mo-o-ore!", 400, Type.KILL, Rarity.UNCOMMON) {
+    COOKIE_MADNESS(new Cosmetic("Cookie Madness", "More cookies! Mo-o-ore!", 400, Type.KILL, Rarity.UNCOMMON, Material.COOKIE) {
         @Override
         public void onDisplay(Display display) {
             display.repeat(10, 2, (r, tick) -> {
@@ -39,7 +39,7 @@ public enum Cosmetics {
     SQUID_LAUNCH(new SquidLaunchCosmetic()),
     GROUND_PUNCH(new GroundPunchCosmetic()),
     GIANT_SWORD(new GiantSwordCosmetic()),
-    LIGHTNING(new Cosmetic("Light Strike", "Strikes a lightning effect.", 100, Type.KILL, Rarity.COMMON) {
+    LIGHTNING(new Cosmetic("Light Strike", "Strikes a lightning effect.", 100, Type.KILL, Rarity.COMMON, Material.LIGHTNING_ROD) {
         @Override
         public void onDisplay(Display display) {
             final World world = display.getLocation().getWorld();
@@ -53,7 +53,7 @@ public enum Cosmetics {
     COUTURE_KILL(new CoutureCosmetic(Type.KILL)),
 
     // Death Cosmetics
-    SCARY_DOOKIE(new Cosmetic("Scary Dookie", "The ultimate scare.", 1000, Type.DEATH, Rarity.RARE) {
+    SCARY_DOOKIE(new Cosmetic("Scary Dookie", "The ultimate scare.", 1000, Type.DEATH, Rarity.RARE, Material.COCOA_BEANS) {
         @Override
         public void onDisplay(Display display) {
             final Item item = display.item(Material.COCOA_BEANS, 6000);
@@ -107,11 +107,11 @@ public enum Cosmetics {
 
     ;
 
-    private final static Map<Type, List<Cosmetic>> byType = Maps.newHashMap();
+    private final static Map<Type, List<Cosmetics>> byType = Maps.newHashMap();
 
     static {
         for (Cosmetics value : values()) {
-            byType.computeIfAbsent(value.getCosmetic().getType(), k -> Lists.newArrayList()).add(value.getCosmetic());
+            byType.computeIfAbsent(value.getCosmetic().getType(), k -> Lists.newArrayList()).add(value);
         }
     }
 
@@ -119,15 +119,6 @@ public enum Cosmetics {
 
     Cosmetics(Cosmetic cosmetic) {
         this.cosmetic = cosmetic;
-    }
-
-    public static List<Cosmetic> getByType(Type type) {
-        return byType.getOrDefault(type, Lists.newArrayList());
-    }
-
-    @Nullable
-    public static Cosmetics getSelected(Player player, Type type) {
-        return Database.getDatabase(player).getCosmetics().getSelected(type);
     }
 
     public Cosmetic getCosmetic() {
@@ -138,4 +129,17 @@ public enum Cosmetics {
         return cosmetic.getType();
     }
 
+    public boolean isUnlocked(Player player) {
+        return Database.getDatabase(player).getCosmetics().hasCosmetic(this);
+    }
+
+    // static members
+    public static List<Cosmetics> getByType(Type type) {
+        return byType.getOrDefault(type, Lists.newArrayList());
+    }
+
+    @Nullable
+    public static Cosmetics getSelected(Player player, Type type) {
+        return Database.getDatabase(player).getCosmetics().getSelected(type);
+    }
 }

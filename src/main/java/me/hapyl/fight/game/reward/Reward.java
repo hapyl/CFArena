@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.reward;
 
+import me.hapyl.fight.database.Database;
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.database.Database;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;

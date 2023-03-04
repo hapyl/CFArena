@@ -1,6 +1,8 @@
 package me.hapyl.fight.game.shop;
 
+import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
 
@@ -25,8 +27,23 @@ public class ShopItem {
         this.icon = Material.BARRIER;
     }
 
-    public String getDisplay() {
-        return description;
+    public ItemBuilder createItem(Player player) {
+        final ItemBuilder builder = ItemBuilder.of(icon, name);
+
+        builder.addLore();
+        builder.addSmartLore(description);
+
+        if (extra != null) {
+            builder.addLore();
+            builder.addSmartLore(extra);
+        }
+
+        if (isPurchaseable()) {
+            builder.addLore();
+            builder.addLore("&eCost: &a%s", cost);
+        }
+
+        return builder.addLore();
     }
 
     public ShopItem setExtra(String extra) {

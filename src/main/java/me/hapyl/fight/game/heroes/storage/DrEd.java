@@ -64,7 +64,7 @@ public class DrEd extends Hero {
 
     @Override
     public Talent getSecondTalent() {
-        return null;
+        return Talents.HARVEST.getTalent();
     }
 
     @Override

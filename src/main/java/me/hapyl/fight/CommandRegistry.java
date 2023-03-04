@@ -63,6 +63,7 @@ public class CommandRegistry {
         register(new CooldownCommand("cooldown"));
         register(new ExperienceCommand("experience"));
         register(new CosmeticCommand("cosmetic"));
+        register(new DatabaseCommand("database"));
 
         register(new SimplePlayerAdminCommand("chatgpt") {
 

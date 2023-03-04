@@ -4,12 +4,15 @@ import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.contrail.ParticleContrailCosmetic;
 import me.hapyl.fight.game.shop.Rarity;
 import me.hapyl.spigotutils.module.util.ThreadRandom;
+import org.bukkit.Material;
 import org.bukkit.Particle;
 
 public class MusicContrail extends ParticleContrailCosmetic {
 
     public MusicContrail() {
         super(Particle.NOTE, "Music", "Leave a note behind you.", 500, Rarity.COMMON);
+
+        setIcon(Material.MUSIC_DISC_CAT);
     }
 
     @Override

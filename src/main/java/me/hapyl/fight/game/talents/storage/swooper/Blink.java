@@ -24,7 +24,7 @@ public class Blink extends ChargedTalent implements ChatGPT {
     public Blink() {
         super(
                 "Blink",
-                "Teleport forward a short distance, passing through any non-solid blocks in the way. Cannot be used to teleport through walls.",
+                "Teleport forward a short distance, passing through any non-solid blocks in the way. Cannot teleport through walls.",
                 2
         );
 

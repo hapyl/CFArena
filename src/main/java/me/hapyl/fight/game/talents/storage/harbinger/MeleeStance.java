@@ -21,7 +21,7 @@ public class MeleeStance extends Talent {
 	private final Map<Player, StanceData> dataMap = new HashMap<>();
 	private final int maxDuration = 600;
 
-	private final Weapon abilityItem = new Weapon(Material.IRON_SWORD).setDamage(7.5d)
+	private final Weapon abilityItem = new Weapon(Material.IRON_SWORD).setDamage(8.0d)
 			.setName("Raging Blade")
 			.setInfo("A blade made of unknown material.");
 

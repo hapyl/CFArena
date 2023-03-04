@@ -3,7 +3,7 @@ package me.hapyl.fight.game;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Shortcuts;
-import me.hapyl.fight.game.database.Award;
+import me.hapyl.fight.database.Award;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.heroes.Heroes;

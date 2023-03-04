@@ -1,7 +1,7 @@
 package me.hapyl.fight.game;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.game.database.Award;
+import me.hapyl.fight.database.Award;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.game.team.GameTeam;

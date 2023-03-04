@@ -9,12 +9,13 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
 import me.hapyl.spigotutils.module.reflect.npc.NPCAnimation;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 
 public class StylishFallCosmetic extends Cosmetic {
     public StylishFallCosmetic() {
-        super("Stylish Fall", "Fall in style.", ShopItem.NOT_PURCHASABLE, Type.DEATH, Rarity.LEGENDARY);
+        super("Stylish Fall", "Fall in style.", ShopItem.NOT_PURCHASABLE, Type.DEATH, Rarity.LEGENDARY, Material.PLAYER_HEAD);
     }
 
     @Override

@@ -1,11 +1,10 @@
 package me.hapyl.fight.game.ui;
 
+import me.hapyl.fight.database.Database;
 import me.hapyl.fight.game.*;
-import me.hapyl.fight.game.database.Database;
 import me.hapyl.fight.game.effect.GameEffect;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.gamemode.modes.Deathmatch;
-import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.setting.Setting;
 import me.hapyl.fight.game.task.GameTask;
@@ -50,7 +49,7 @@ public class GamePlayerUI {
                 // update player list and scoreboard
                 final String[] headerFooter = formatHeaderFooter();
                 player.setPlayerListHeaderFooter(Chat.format(headerFooter[0]), Chat.format(headerFooter[1]));
-                player.setPlayerListName(formatPlayerListName());
+                player.setPlayerListName(profile.getDisplay().getDisplayNameTab());
 
                 animateScoreboard();
                 updateScoreboard();
@@ -211,11 +210,8 @@ public class GamePlayerUI {
                     i++;
                 }
             }
-            footer.append("\n\n");
+            footer.append("\n");
         }
-
-        // effects
-        footer.append("&e&lPing: &f").append(player.getPing());
 
         // Display NBS player if playing a song
         final SongPlayer songPlayer = EternaPlugin.getPlugin().getSongPlayer();
@@ -268,54 +264,6 @@ public class GamePlayerUI {
         return new String[] {
                 "\n&e&lCLASSES FIGHT\n&c&lᴀʀᴇɴᴀ\n\n&fTotal Players: &l" + Bukkit.getOnlinePlayers().size(), footer.toString()
         };
-    }
-
-    private String formatPlayerListName() {
-        final StringBuilder builder = new StringBuilder();
-        final Heroes hero = Manager.current().getSelectedHero(player);
-        final boolean isSpectator = Setting.SPECTATE.isEnabled(player);
-
-        builder.append(isSpectator ? "&7&o" : "&6&l");
-        builder.append(hero.getHero().getName()).append(" ");
-        builder.append(player.isOp() ? (isSpectator ? "&7🛡 " : "&c🛡 ") : isSpectator ? "" : "&e");
-        builder.append(player.getName());
-
-        // append players ping colored depending on their ping
-        builder.append(" ").append(formatPing(player.getPing()));
-
-        if (Manager.current().isGameInProgress()) {
-            final GamePlayer gamePlayer = GamePlayer.getAlivePlayer(this.player);
-            if (gamePlayer != null && !gamePlayer.isAlive()) {
-                builder.append(UIFormat.DIV);
-
-                if (gamePlayer.isSpectator()) {
-                    builder.append("&7&lSpectator");
-                }
-                else if (gamePlayer.isDead()) {
-                    builder.append("&4☠☠☠");
-                }
-            }
-        }
-
-        return Chat.format(builder.toString());
-    }
-
-    private String formatPing(int ping) {
-        if (ping <= 50) {
-            return "&a" + ping;
-        }
-        else if (ping <= 100) {
-            return "&e" + ping;
-        }
-        else if (ping <= 150) {
-            return "&6" + ping;
-        }
-        else if (ping <= 200) {
-            return "&c" + ping;
-        }
-        else {
-            return "&4" + ping;
-        }
     }
 
     public Player getPlayer() {

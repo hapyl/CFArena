@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.cosmetic;
 
-import me.hapyl.fight.game.database.Database;
+import me.hapyl.fight.database.Database;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

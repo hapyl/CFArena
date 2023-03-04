@@ -15,7 +15,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class GiantSwordCosmetic extends Cosmetic {
     public GiantSwordCosmetic() {
-        super("Giant Sword", "A big R.I.P for the fallen warrior.", 5000, Type.KILL, Rarity.LEGENDARY);
+        super("Giant Sword", "A big R.I.P for the fallen warrior.", 5000, Type.KILL, Rarity.LEGENDARY, Material.IRON_SWORD);
     }
 
     @Override

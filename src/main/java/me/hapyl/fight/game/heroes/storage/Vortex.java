@@ -14,8 +14,8 @@ import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.math.Geometry;
-import me.hapyl.spigotutils.module.math.gometry.Quality;
-import me.hapyl.spigotutils.module.math.gometry.WorldParticle;
+import me.hapyl.spigotutils.module.math.geometry.Quality;
+import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
@@ -48,7 +48,6 @@ public class Vortex extends Hero implements UIComponent {
         equipment.setBoots(255, 140, 26);
 
         this.setWeapon(new Weapon(Material.STONE_SWORD) {
-
 
             @Override
             public void onRightClick(Player player, ItemStack item) {

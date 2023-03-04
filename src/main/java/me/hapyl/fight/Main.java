@@ -1,5 +1,6 @@
 package me.hapyl.fight;
 
+import me.hapyl.fight.database.DatabaseMongo;
 import me.hapyl.fight.event.EnderPearlController;
 import me.hapyl.fight.event.PlayerEvent;
 import me.hapyl.fight.game.ChatController;
@@ -32,6 +33,7 @@ public class Main extends JavaPlugin {
     private TaskList taskList;
     private BoosterController boosters;
     private Experience experience;
+    private DatabaseMongo database;
 
     @Override
     public void onEnable() {
@@ -39,6 +41,14 @@ public class Main extends JavaPlugin {
 
         // Register commands
         new CommandRegistry(this);
+
+        // Load mongo database
+        this.database = new DatabaseMongo();
+
+        if (!this.database.createConnection()) {
+            Bukkit.getLogger().severe("Failed to connect to database! Disabling plugin...");
+            Bukkit.getPluginManager().disablePlugin(this);
+        }
 
         registerEvents();
         regProtocol();
@@ -66,20 +76,20 @@ public class Main extends JavaPlugin {
         Bukkit.advancementIterator().forEachRemaining(advancement -> {
         });
 
-
         this.manager = new Manager();
         this.taskList = new TaskList();
         this.tutorial = new ChatTutorial();
         this.boosters = new BoosterController();
         this.experience = new Experience();
 
+        getConfig().options().copyDefaults(true);
+        saveConfig();
+
         // update database
         for (final Player player : Bukkit.getOnlinePlayers()) {
             handlePlayer(player);
         }
 
-        getConfig().options().copyDefaults(true);
-        saveConfig();
     }
 
     private void registerEvents() {
@@ -89,6 +99,10 @@ public class Main extends JavaPlugin {
         pm.registerEvents(new EnderPearlController(), this);
         pm.registerEvents(new BoosterController(), this);
         pm.registerEvents(new CosmeticsListener(), this);
+    }
+
+    public DatabaseMongo getDatabase() {
+        return database;
     }
 
     public Experience getExperience() {
@@ -131,6 +145,10 @@ public class Main extends JavaPlugin {
         }, "database save");
 
         runSafe(() -> {
+            database.stopConnection();
+        }, "mongodb connection stop");
+
+        runSafe(() -> {
             if (this.manager.isGameInProgress()) {
                 this.manager.stopCurrentGame();
             }
@@ -150,6 +168,7 @@ public class Main extends JavaPlugin {
 
     private void regProtocol() {
         new ArcaneMuteProtocol();
+        //new ConfusionPotionProtocol(); -> doesn't work as good as I thought :(
     }
 
     public void addEvent(Listener listener) {

@@ -7,6 +7,7 @@ import me.hapyl.fight.game.shop.Rarity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.util.ThreadRandom;
+import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Squid;
@@ -14,7 +15,14 @@ import org.bukkit.util.Vector;
 
 public class SquidLaunchCosmetic extends Cosmetic {
     public SquidLaunchCosmetic() {
-        super("Squid Launch", "Launches a squid into the space!__&8&oIs this the first one?", 1000, Type.KILL, Rarity.RARE);
+        super(
+                "Squid Launch",
+                "Launches a squid into the space!__&8&oIs this the first one?",
+                1000,
+                Type.KILL,
+                Rarity.RARE,
+                Material.SQUID_SPAWN_EGG
+        );
     }
 
     @Override

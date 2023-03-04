@@ -108,7 +108,7 @@ public class Hercules extends Hero implements Listener, PlayerElement {
             new GameTask() {
                 @Override
                 public void run() {
-                    if (trident.isDead()) {
+                    if (trident.isDead() || !player.getInventory().contains(Material.TRIDENT)) {
                         return;
                     }
 

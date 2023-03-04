@@ -1,8 +1,8 @@
 package me.hapyl.fight.cmds;
 
 import me.hapyl.fight.Main;
+import me.hapyl.fight.database.entry.ExperienceEntry;
 import me.hapyl.fight.game.Debugger;
-import me.hapyl.fight.game.database.entry.ExperienceEntry;
 import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;

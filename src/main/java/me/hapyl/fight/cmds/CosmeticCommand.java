@@ -1,31 +1,50 @@
 package me.hapyl.fight.cmds;
 
+import me.hapyl.fight.database.Database;
+import me.hapyl.fight.database.entry.CosmeticEntry;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Type;
-import me.hapyl.fight.game.database.Database;
-import me.hapyl.fight.game.database.entry.CosmeticEntry;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class CosmeticCommand extends SimplePlayerAdminCommand {
     public CosmeticCommand(String name) {
         super(name);
 
         setDescription("Allows to preview cosmetics.");
-        setUsage("/cosmetic <cosmetic>");
-        addCompleterValues(1, Cosmetics.values());
-        addCompleterValues(3, Cosmetics.values());
-        addCompleterValues(1, "set", "has", "give", "remove");
+        addCompleterValues(1, "play", "set", "has", "give", "remove");
+    }
+
+    @Override
+    protected List<String> tabComplete(CommandSender sender, String[] args) {
+        if ((args.length >= 1 && args[0].equalsIgnoreCase("play")) || args.length == 3) {
+            return completerSort(Cosmetics.values(), args);
+        }
+
+        return null;
     }
 
     @Override
     protected void execute(Player player, String[] args) {
-        if (args.length == 3) {
+        if (args.length == 2 && args[0].equalsIgnoreCase("play")) {
+            // cosmetic play <cosmetic>
+            final Cosmetics cosmetic = Validate.getEnumValue(Cosmetics.class, args[1]);
+            if (cosmetic == null) {
+                Chat.sendMessage(player, "&cInvalid cosmetic! &7Valid cosmetics: %s", Arrays.toString(Cosmetics.values()));
+                return;
+            }
+
+            cosmetic.getCosmetic().onDisplay(player);
+            Chat.sendMessage(player, "&aDisplaying cosmetic %s", cosmetic.name());
+        }
+        else if (args.length == 3) {
 
             final String action = args[0];
             final Player target = Bukkit.getPlayer(args[1]);
@@ -74,21 +93,8 @@ public class CosmeticCommand extends SimplePlayerAdminCommand {
 
                 default -> {
                     Chat.sendMessage(player, "&cInvalid action! &7Valid actions: set, has, give, remove");
-                    return;
                 }
             }
-
-            return;
         }
-
-        final Cosmetics cosmetic = Validate.getEnumValue(Cosmetics.class, args[0]);
-
-        if (cosmetic == null) {
-            Chat.sendMessage(player, "&cInvalid cosmetic! &7Valid cosmetics: %s", Arrays.toString(Cosmetics.values()));
-            return;
-        }
-
-        cosmetic.getCosmetic().onDisplay(player);
-        Chat.sendMessage(player, "&aDisplaying cosmetic %s", cosmetic.name());
     }
 }

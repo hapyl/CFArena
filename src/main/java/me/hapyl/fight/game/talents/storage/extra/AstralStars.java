@@ -2,8 +2,8 @@ package me.hapyl.fight.game.talents.storage.extra;
 
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Geometry;
-import me.hapyl.spigotutils.module.math.gometry.PlayerParticle;
-import me.hapyl.spigotutils.module.math.gometry.Quality;
+import me.hapyl.spigotutils.module.math.geometry.PlayerParticle;
+import me.hapyl.spigotutils.module.math.geometry.Quality;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.visibility.Visibility;
 import org.bukkit.Bukkit;

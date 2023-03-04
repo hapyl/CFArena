@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.lobby;
 
-import me.hapyl.fight.game.cosmetic.CollectionGUI;
+import me.hapyl.fight.game.cosmetic.gui.CollectionGUI;
 import me.hapyl.fight.gui.HeroSelectGUI;
 import me.hapyl.fight.gui.MapSelectGUI;
 import me.hapyl.fight.gui.SettingsGUI;

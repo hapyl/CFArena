@@ -14,8 +14,9 @@ import org.bukkit.Sound;
 
 public class CoutureCosmetic extends Cosmetic {
     public CoutureCosmetic(Type type) {
-        super("Couture", "Very stylish!", ShopItem.NOT_PURCHASABLE, type, Rarity.LEGENDARY);
+        super("Couture", "Very stylish!", ShopItem.NOT_PURCHASABLE, type);
 
+        setRarity(Rarity.LEGENDARY);
         setIcon(Material.GOLD_INGOT);
     }
 

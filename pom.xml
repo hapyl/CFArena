@@ -6,15 +6,19 @@
 
     <groupId>me.hapyl</groupId>
     <artifactId>ClassesFightArena</artifactId>
-    <version>1.4.1-SNAPSHOT</version>
+    <version>1.5-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
+        <java.version>17</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <build>
         <plugins>
+
+            <!-- Compiler Plugin-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -24,10 +28,12 @@
                     <target>${java.version}</target>
                 </configuration>
             </plugin>
+
+            <!-- Shade Plugin-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.4</version>
+                <version>3.3.0</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -35,11 +41,40 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
+
+                            <artifactSet>
+                                <includes>
+                                    <include>org.mongodb:mongo-java-driver</include>
+                                </includes>
+                            </artifactSet>
+
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- Copy Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <!-- Copy to server -->
+                    <execution>
+                        <phase>install</phase>
+                        <configuration>
+                            <target>
+                                <copy file="${project.build.directory}/${project.build.finalName}.jar"
+                                      todir="E:/_ServerCF/plugins"/>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
         <resources>
             <resource>
@@ -47,6 +82,9 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
+
+        <finalName>${project.artifactId}</finalName>
+
     </build>
 
     <!--    Repos-->
@@ -109,24 +147,14 @@
         <dependency>
             <groupId>me.hapyl</groupId>
             <artifactId>EternaAPI</artifactId>
-            <version>2.9.1-SNAPSHOT</version>
+            <version>2.9.2-SNAPSHOT</version>
         </dependency>
 
-
-        <!--        <dependency>-->
-        <!--            <groupId>me.hapyl</groupId>-->
-        <!--            <artifactId>EternaAPI</artifactId>-->
-        <!--            <version>2.9.1-SNAPSHOT</version>-->
-        <!--        </dependency>-->
-
-        <!--        <dependency>-->
-        <!--            <groupId>local.spigotutils</groupId>-->
-        <!--            <artifactId>local</artifactId>-->
-        <!--            <version>1.0</version>-->
-        <!--            <scope>system</scope>-->
-        <!--            <systemPath>E:/_Server18/plugins/EternaAPI.jar-->
-        <!--            </systemPath>-->
-        <!--        </dependency>-->
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+            <version>3.12.12</version>
+        </dependency>
 
     </dependencies>
 

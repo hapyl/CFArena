@@ -19,7 +19,7 @@ public class ArcaneMute extends Talent implements ChatGPT {
                 Material.FEATHER
         );
 
-        setCdSec(30);
+        setCdSec(35);
     }
 
     @Override

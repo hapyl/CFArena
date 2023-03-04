@@ -1,10 +1,10 @@
 package me.hapyl.fight.game;
 
+import me.hapyl.fight.database.Award;
+import me.hapyl.fight.database.Database;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
-import me.hapyl.fight.game.database.Award;
-import me.hapyl.fight.game.database.Database;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.gamemode.CFGameMode;
