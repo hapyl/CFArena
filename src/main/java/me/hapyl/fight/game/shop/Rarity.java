@@ -4,20 +4,26 @@ import org.bukkit.ChatColor;
 
 public enum Rarity {
 
-    UNSET(ChatColor.DARK_RED, "set rarity you idiot"),
-    COMMON(ChatColor.GRAY, "Common"),
-    UNCOMMON(ChatColor.GREEN, "Uncommon"),
-    RARE(ChatColor.BLUE, "Rare"),
-    EPIC(ChatColor.DARK_PURPLE, "Epic"),
-    LEGENDARY(ChatColor.GOLD, "Legendary"),
-    MYTHIC(ChatColor.LIGHT_PURPLE, "Mythic");
+    UNSET(ChatColor.DARK_RED, "set rarity you idiot", -1),
+    COMMON(ChatColor.GRAY, "Common", 100),
+    UNCOMMON(ChatColor.GREEN, "Uncommon", 200),
+    RARE(ChatColor.BLUE, "Rare", 400),
+    EPIC(ChatColor.DARK_PURPLE, "Epic", 1000),
+    LEGENDARY(ChatColor.GOLD, "Legendary", 5000),
+    MYTHIC(ChatColor.LIGHT_PURPLE, "Mythic", 10000);
 
     private final ChatColor color;
     private final String name;
+    private final long defaultPrice;
 
-    Rarity(ChatColor color, String name) {
+    Rarity(ChatColor color, String name, long defaultPrice) {
         this.color = color;
         this.name = name;
+        this.defaultPrice = defaultPrice;
+    }
+
+    public long getDefaultPrice() {
+        return defaultPrice;
     }
 
     public String getName() {

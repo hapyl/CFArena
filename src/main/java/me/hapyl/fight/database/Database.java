@@ -10,22 +10,35 @@ import org.bson.conversions.Bson;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-public final class Database {
+public sealed class Database permits DatabaseLegacy {
 
     private final DatabaseMongo mongo;
     private final Document filter;
-    private final Player player;
+    protected final Player player;
 
     private Document config;
+    private boolean legacy;
+
+    protected Database(Player player, boolean legacy) {
+        this.player = player;
+        this.mongo = null;
+        this.filter = null;
+        this.legacy = true;
+    }
 
     public Database(Player player) {
         this.mongo = Main.getPlugin().getDatabase();
         this.player = player;
+        this.legacy = false;
 
         this.filter = new Document("uuid", player.getUniqueId().toString());
 
         this.loadFile();
         this.loadEntries();
+    }
+
+    public boolean isLegacy() {
+        return legacy;
     }
 
     public static Database getDatabase(Player player) {
@@ -45,12 +58,12 @@ public final class Database {
     }
 
     // entries start
-    private HeroEntry heroEntry;
-    private CurrencyEntry currencyEntry;
-    private StatisticEntry statisticEntry;
-    private SettingEntry settingEntry;
-    private ExperienceEntry experienceEntry;
-    private CosmeticEntry cosmeticEntry;
+    protected HeroEntry heroEntry;
+    protected CurrencyEntry currencyEntry;
+    protected StatisticEntry statisticEntry;
+    protected SettingEntry settingEntry;
+    protected ExperienceEntry experienceEntry;
+    protected CosmeticEntry cosmeticEntry;
 
     private void loadEntries() {
         this.heroEntry = new HeroEntry(this);
@@ -95,6 +108,11 @@ public final class Database {
     }
 
     public void setValue(String path, Object object) {
+    }
+
+    public final void sync() {
+        saveToFile();
+        loadFile();
     }
 
     public void saveToFile() {

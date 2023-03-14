@@ -49,7 +49,6 @@ public abstract class GameTask implements Runnable {
 
 			@Override
 			public void run() {
-
 				if (tick-- <= 0) {
 					this.cancel();
 					return;

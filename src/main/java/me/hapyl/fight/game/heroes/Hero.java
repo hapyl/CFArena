@@ -12,12 +12,16 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.SmallCaps;
+import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Material;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.inventory.ItemStack;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Set;
 
@@ -160,12 +164,24 @@ public abstract class Hero implements GameElement, PlayerElement {
 
     public abstract Talent getPassiveTalent();
 
+    @Nullable
     public DamageOutput processDamageAsDamager(DamageInput input) {
         return null;
     }
 
+    @Nullable
     public DamageOutput processDamageAsVictim(DamageInput input) {
         return null;
+    }
+
+    @Nullable
+    public DamageOutput processDamageAsDamagerProjectile(DamageInput input, Projectile projectile) {
+        return null;
+    }
+
+    public boolean processInvisibilityDamage(Player player, LivingEntity entity, double damage) {
+        Chat.sendMessage(player, "&cCannot deal damage while invisible!");
+        return true;
     }
 
     /**
@@ -205,12 +221,12 @@ public abstract class Hero implements GameElement, PlayerElement {
     }
 
     // some utils here
-    protected final boolean validatePlayer(Player player, Heroes heroes) {
+    public final boolean validatePlayer(Player player, Heroes heroes) {
         final Manager current = Manager.current();
         return validatePlayer(player) && current.getSelectedHero(player) == heroes;
     }
 
-    protected final boolean validatePlayer(Player player) {
+    public final boolean validatePlayer(Player player) {
         final Manager current = Manager.current();
         return current.isGameInProgress() && current.isPlayerInGame(player);
 
@@ -218,12 +234,13 @@ public abstract class Hero implements GameElement, PlayerElement {
 
     @Override
     public void onStart() {
-
     }
 
     @Override
     public void onStop() {
+    }
 
+    public void onRespawn(Player player) {
     }
 
     public Hero getHandle() {
@@ -273,4 +290,6 @@ public abstract class Hero implements GameElement, PlayerElement {
 
         return talents;
     }
+
+
 }

@@ -17,6 +17,7 @@ import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -73,6 +74,10 @@ public class PlayerEvent implements Listener {
 
         // save database
         Shortcuts.getDatabase(player).saveToFile();
+        final GameTeam playerTeam = GameTeam.getPlayerTeam(player);
+        if (playerTeam != null) {
+            playerTeam.removeFromTeam(player);
+        }
 
         ev.setQuitMessage(Chat.format("&7[&c-&7] %s%s &ehas fallen!", player.isOp() ? "&c" : "", player.getName()));
     }
@@ -181,6 +186,9 @@ public class PlayerEvent implements Listener {
             ultimate.startCd(player);
             gamePlayer.setUltPoints(0);
 
+            // Stats
+            gamePlayer.getStats().addValue(StatContainer.Type.ULTIMATE_USED, 1);
+
             if (hero.getUltimateDuration() > 0) {
                 hero.setUsingUltimate(player, true, hero.getUltimateDuration());
             }
@@ -212,10 +220,13 @@ public class PlayerEvent implements Listener {
     /**
      * This event calculates all the custom damage.
      */
+    // FIXME: 014, Mar 14, 2023 -> Clean up this mess
     @Entry(name = "Damage calculation.")
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handleDamage(EntityDamageEvent ev) {
         final Entity entity = ev.getEntity();
+
+        Projectile projectile = null;
         LivingEntity damagerFinal = null;
         double damage = ev.getDamage();
 
@@ -239,11 +250,9 @@ public class PlayerEvent implements Listener {
             if (cause == EntityDamageEvent.DamageCause.FALL) {
                 if (gamePlayer.hasEffect(GameEffectType.NINJA_PASSIVE) || gamePlayer.hasEffect(GameEffectType.FALL_DAMAGE_RESISTANCE)) {
                     ev.setCancelled(true);
-                }
-                if (gamePlayer.hasEffect(GameEffectType.FALL_DAMAGE_RESISTANCE)) {
                     gamePlayer.removeEffect(GameEffectType.FALL_DAMAGE_RESISTANCE);
+                    return;
                 }
-                return;
             }
         }
 
@@ -270,36 +279,71 @@ public class PlayerEvent implements Listener {
                     // Assign the damager
                     damagerFinal = playerDamager;
                 }
-                else if (damager instanceof Projectile projectile) {
-                    if (projectile.getShooter() instanceof Player playerDamager) {
-                        // Increase damage if fully charged shot
-                        if (projectile instanceof AbstractArrow arrow) {
-                            final double weaponDamage = GamePlayer.getPlayer(playerDamager).getHero().getWeapon().getDamage();
-                            final double scale = 1 + (damage / 8.933d);
+                else if (damager instanceof Projectile proj && proj.getShooter() instanceof Player playerDamager) {
+                    // Increase damage if fully charged shot
+                    if (proj instanceof AbstractArrow arrow) {
+                        final double weaponDamage = GamePlayer.getPlayer(playerDamager).getHero().getWeapon().getDamage();
+                        final double scale = 1 + (damage / 8.933d);
 
-                            damage = weaponDamage * scale;
+                        damage = weaponDamage * scale;
 
-                            if (arrow.isCritical()) {
-                                damage *= 1.5d;
-                            }
+                        if (arrow.isCritical()) {
+                            damage *= 1.5d;
                         }
-
-                        // Assign the damager
-                        damagerFinal = playerDamager;
                     }
+
+                    // Assign the damager
+                    projectile = proj;
+                    damagerFinal = playerDamager;
                 }
                 else if (damager instanceof LivingEntity living) {
                     damagerFinal = living;
                 }
             }
 
-            // Check for teammate
-            if (damagerFinal instanceof Player playerDamager && entity instanceof Player playerVictim &&
-                    (GameTeam.isTeammate(playerDamager, playerVictim))) {
-                Chat.sendMessage(playerDamager, "&cCannot damage teammates!");
-                ev.setCancelled(true);
-                ev.setDamage(0.0d);
+            // Invisibility Check
+            if (damagerFinal instanceof Player playerDamager && playerDamager.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
+                final boolean cancel = GamePlayer.getPlayer(playerDamager)
+                        .getHero()
+                        .processInvisibilityDamage(playerDamager, livingEntity, damage);
+
+                if (cancel) {
+                    ev.setDamage(0.0d);
+                    ev.setCancelled(true);
+                }
                 return;
+            }
+
+            // Player to Player tests
+            if (damagerFinal instanceof Player playerDamager && entity instanceof Player playerVictim) {
+                boolean cancelDamage = false;
+
+                // Teammate check
+                if ((GameTeam.isTeammate(playerDamager, playerVictim))) {
+                    Chat.sendMessage(playerDamager, "&cCannot damage teammates!");
+                    cancelDamage = true;
+                }
+
+                // Invisibility
+                //if (!playerVictim.canSee(playerDamager)) {
+                //    Chat.sendMessage(playerDamager, "&cCannot damage while invisible!");
+                //    cancelDamage = true;
+                //}
+
+                if (cancelDamage) {
+                    ev.setCancelled(true);
+                    ev.setDamage(0.0d);
+                    return;
+                }
+
+                // Reassign last damager
+                // This is kinda a workaround, but its fine unless rewriting the whole damage system using custom event
+                final EntityDamageEvent lastDamageCause = playerVictim.getLastDamageCause();
+
+                if (lastDamageCause == null || lastDamageCause.getCause() != EntityDamageEvent.DamageCause.CUSTOM) {
+                    GamePlayer.getPlayer(playerVictim).setLastDamageCause(EnumDamageCause.ENTITY_ATTACK);
+                    playerVictim.setLastDamageCause(null);
+                }
             }
 
             // Apply modifiers for damager
@@ -307,18 +351,17 @@ public class PlayerEvent implements Listener {
                 final PotionEffect effectStrength = living.getPotionEffect(PotionEffectType.INCREASE_DAMAGE);
                 final PotionEffect effectWeakness = living.getPotionEffect(PotionEffectType.WEAKNESS);
 
-                // add 30% of damage per strength level
+                // Add 20% of damage per strength level
                 if (effectStrength != null) {
                     damage += ((damage * 0.2d) * (effectStrength.getAmplifier() + 1));
                 }
 
-                // --------------------------------------------reduce damage by 13% for each weakness level
-                // reduce damage by half is has weakness effect
+                // Reduce damage by half is has weakness effect
                 if (effectWeakness != null) {
                     damage /= 2;
                 }
 
-                /** Apply GameEffect for damager */
+                // Apply GameEffect for damager
                 if (living instanceof Player player) {
                     final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
                     if (gp.hasEffect(GameEffectType.STUN)) {
@@ -335,7 +378,7 @@ public class PlayerEvent implements Listener {
 
             }
 
-            /** Apply modifiers for victim */
+            // Apply modifiers for victim
             {
                 final PotionEffect effectResistance = livingEntity.getPotionEffect(PotionEffectType.DAMAGE_RESISTANCE);
                 // reduce damage by 85% if we have resistance
@@ -349,7 +392,7 @@ public class PlayerEvent implements Listener {
                         damage = 0.0d;
                     }
 
-                    /** Apply GameEffect for victim */
+                    // Apply GameEffect for victim */
                     final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
                     if (gp.hasEffect(GameEffectType.STUN)) {
                         gp.removeEffect(GameEffectType.STUN);
@@ -358,7 +401,6 @@ public class PlayerEvent implements Listener {
                     if (gp.hasEffect(GameEffectType.VULNERABLE)) {
                         damage *= 2.0d;
                     }
-
                 }
             }
         }
@@ -370,8 +412,9 @@ public class PlayerEvent implements Listener {
         // Process damager and victims hero damage processors
         final List<String> extraStrings = new ArrayList<>();
 
-        // victim
+        // Victim
         boolean cancelEvent = false;
+
         if (livingEntity instanceof Player player) {
             final DamageOutput output = getDamageOutput(player, damagerFinal, cause, damage, false);
             if (output != null) {
@@ -383,7 +426,7 @@ public class PlayerEvent implements Listener {
             }
         }
 
-        // damager
+        // Damager
         if (damagerFinal instanceof Player player) {
             final DamageOutput output = getDamageOutput(player, livingEntity, cause, damage, true);
             if (output != null) {
@@ -397,9 +440,27 @@ public class PlayerEvent implements Listener {
             }
         }
 
-        // only damage entities other that the player
+        // Damager Projectile
+        if (damagerFinal instanceof Player player && projectile != null && Manager.current().isGameInProgress()) {
+            final DamageOutput output = GamePlayer.getPlayer(player)
+                    .getHero()
+                    .processDamageAsDamagerProjectile(new DamageInput(player, livingEntity, cause, damage), projectile);
+
+            if (output != null) {
+                damage = output.getDamage();
+                if (!cancelEvent) {
+                    cancelEvent = output.isCancelDamage();
+                    if (output.hasExtraDisplayStrings()) {
+                        extraStrings.addAll(Arrays.stream(output.getExtraDisplayStrings()).toList());
+                    }
+                }
+            }
+        }
+
+        // Only damage entities other that the player
         ev.setDamage(livingEntity instanceof Player ? 0.0d : damage);
 
+        // Cancel even if necessary
         if (cancelEvent) {
             ev.setCancelled(true);
             return;
@@ -415,15 +476,27 @@ public class PlayerEvent implements Listener {
             damageIndicator.display(20);
         }
 
-        // make sure not to kill player but instead put them in spectator
+        if (damagerFinal instanceof Player player) {
+            final GamePlayer gamePlayer = GamePlayer.getAlivePlayer(player);
+
+            if (gamePlayer != null) {
+                gamePlayer.getStats().addValue(StatContainer.Type.DAMAGE_DEALT, damage);
+            }
+        }
+
+        // Make sure not to kill player but instead put them in spectator
         if (entity instanceof Player player) {
             final GamePlayer gamePlayer = GamePlayer.getAlivePlayer(player);
-            // if game player is null means the game is not in progress
+
+            // If game player is null means the game is not in progress
             if (gamePlayer != null) {
                 final double health = gamePlayer.getHealth();
                 gamePlayer.decreaseHealth(damage, damagerFinal);
 
-                // cancel even if player died so there is no real death
+                // Stats
+                gamePlayer.getStats().addValue(StatContainer.Type.DAMAGE_TAKEN, damage);
+
+                // Cancel even if player died so there is no real death
                 if (damage >= health) {
                     ev.setCancelled(true);
                     return;
@@ -434,7 +507,6 @@ public class PlayerEvent implements Listener {
             if (player.getHealth() <= 0.0d) {
                 ev.setCancelled(true);
             }
-
         }
     }
 
@@ -453,6 +525,7 @@ public class PlayerEvent implements Listener {
         //            }
         //        }
     }
+
 
     private DamageOutput getDamageOutput(Player player, LivingEntity entity, EntityDamageEvent.DamageCause cause, double damage, boolean asDamager) {
         if (Manager.current().isPlayerInGame(player)) {
@@ -519,7 +592,7 @@ public class PlayerEvent implements Listener {
         //return talent.getMaterial() == stack.getType();
     }
 
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void handleInteraction(PlayerInteractEvent ev) {
         final Player player = ev.getPlayer();
         if (Manager.current().isGameInProgress() || player.getGameMode() != GameMode.CREATIVE) {
@@ -533,27 +606,28 @@ public class PlayerEvent implements Listener {
             if (item != null) {
                 // allow to interact with intractable items
                 if (isIntractable(item)) {
-                    return;
+                    //return;
                 }
             }
 
-            if (clickedBlock != null) {
-                // allow to click at button (secret passages)
-                // maybe rework with custom buttons but meh
+            if (clickedBlock != null && clickedBlock.getType().isInteractable()) {
                 final String blockName = clickedBlock.getType().name().toLowerCase(Locale.ROOT);
+
                 if (blockName.contains("button") || blockName.contains("lever")) {
                     return;
                 }
+
+                // I think this should be used instead of cancel to not cancel bows etc.
+                ev.setUseInteractedBlock(Event.Result.DENY);
             }
 
-            ev.setCancelled(true);
         }
     }
 
     private boolean isIntractable(ItemStack stack) {
         final Material type = stack.getType();
         return switch (type) {
-            case BOW, CROSSBOW, TRIDENT -> true;
+            case BOW, CROSSBOW, TRIDENT, FISHING_ROD -> true;
             default -> type.isInteractable();
         };
     }

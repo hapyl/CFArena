@@ -37,7 +37,7 @@ public enum LobbyItems {
         this.itemStack = new ItemBuilder(material, "cf_" + name()).setName(name)
                 .addSmartLore(description)
                 .addClickEvent(click::use)
-                .setAllowInventoryClick(true)
+                //.setAllowInventoryClick(true)
                 .asIcon();
 
     }

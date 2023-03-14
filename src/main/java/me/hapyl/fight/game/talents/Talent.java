@@ -1,7 +1,9 @@
 package me.hapyl.fight.game.talents;
 
 import me.hapyl.fight.game.GameElement;
+import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.StatContainer;
 import me.hapyl.fight.util.Function;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.annotate.Super;
@@ -24,6 +26,7 @@ public abstract class Talent implements GameElement {
     private ItemStack item;
     private Material material;
     private String texture;
+    private String texture64;
 
     private final String name;
     private final Type type;
@@ -31,14 +34,17 @@ public abstract class Talent implements GameElement {
 
     private String castMessage;
     private String description;
+    private String altUsage;
     private Function<ItemBuilder> itemFunction;
     private int point;
     private int cd;
+    private int duration;
 
     private boolean autoAdd;
 
     public Talent(String name) {
         this(name, "", Type.COMBAT);
+        setDescription("translate.talent.%s".formatted(getClass().getSimpleName()));
     }
 
     public Talent(String name, String description) {
@@ -50,9 +56,28 @@ public abstract class Talent implements GameElement {
         this.description = description;
         this.type = type;
         this.material = Material.BEDROCK;
+        this.altUsage = "This talent is not given when the game starts, but there is a way to use it.";
         this.autoAdd = true;
         this.point = 1;
+        this.duration = 0;
         this.extraInfo = new ArrayList<>();
+    }
+
+    public void setAltUsage(String altUsage) {
+        this.altUsage = altUsage;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public Talent setDuration(int duration) {
+        this.duration = duration;
+        return this;
+    }
+
+    public Talent setDurationSec(int duration) {
+        return setDuration(duration * 20);
     }
 
     public int getPoint() {
@@ -133,6 +158,10 @@ public abstract class Talent implements GameElement {
     public void onDeath(Player player) {
     }
 
+    public void displayDuration(Player player) {
+        // TODO: 010, Mar 10, 2023 -> this
+    }
+
     private void formatDescription() {
         replace("{name}", "&a%s", this.getName());
         if (this instanceof UltimateTalent ultimate) {
@@ -157,17 +186,25 @@ public abstract class Talent implements GameElement {
             builder.setHeadTexture(texture);
         }
 
+        if (texture64 != null && this.material == Material.PLAYER_HEAD) {
+            builder.setHeadTextureUrl(texture64);
+        }
+
         if (itemFunction != null) {
             itemFunction.execute(builder);
         }
 
         if (!this.isAutoAdd()) {
             builder.addLore("");
-            builder.addSmartLore("This talent is not given when the game starts, but there is a way to use it.", "&8&o", 35);
+            builder.addSmartLore(altUsage, "&8&o", 35);
         }
 
         if (addExtraSpace()) {
             builder.addLore();
+        }
+
+        if (this.duration > 0) {
+            builder.addLore("&aDuration: &l%ss", BukkitUtils.roundTick(this.duration));
         }
 
         if (this.cd > 0) {
@@ -227,6 +264,12 @@ public abstract class Talent implements GameElement {
         return this;
     }
 
+    public Talent setTexture(String texture64) {
+        this.setItem(Material.PLAYER_HEAD);
+        this.texture64 = texture64;
+        return this;
+    }
+
     public Talent setItem(Material material) {
         this.material = material;
         return this;
@@ -252,6 +295,12 @@ public abstract class Talent implements GameElement {
             Chat.sendMessage(player, castMessage);
         }
 
+        // Progress ability usage
+        final StatContainer stats = GamePlayer.getPlayer(player).getStats();
+        if (stats != null) {
+            stats.addAbilityUsage(Talents.fromTalent(this));
+        }
+
         final Response response = execute(player);
         return response == null ? Response.ERROR_DEFAULT : response;
     }
@@ -264,6 +313,7 @@ public abstract class Talent implements GameElement {
         if (this.cd <= 0) {
             return;
         }
+
         player.setCooldown(this.getItem().getType(), this.cd);
     }
 

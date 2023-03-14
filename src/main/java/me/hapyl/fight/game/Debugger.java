@@ -6,11 +6,15 @@ import org.bukkit.entity.Player;
 
 public class Debugger {
 
+    public static void keepLog(Object any, Object... format) {
+        log(any, format);
+    }
+
     public static void log(Object any, Object... format) {
         send("&7" + any, format);
     }
 
-    public static void warning(Object any, Object... format) {
+    public static void warn(Object any, Object... format) {
         send("&e" + any, format);
     }
 

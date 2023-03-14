@@ -1,11 +1,15 @@
 package me.hapyl.fight.game.cosmetic;
 
 import me.hapyl.fight.database.Database;
+import me.hapyl.fight.game.AbstractGameInstance;
+import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.State;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.potion.PotionEffectType;
 
 public class CosmeticsListener implements Listener {
 
@@ -23,6 +27,18 @@ public class CosmeticsListener implements Listener {
         // Check if player has a contrail
         final Cosmetics selectedContrail = Database.getDatabase(player).getCosmetics().getSelected(Type.CONTRAIL);
         if (selectedContrail == null) {
+            return;
+        }
+
+        // Check for player
+        if (player.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
+            return;
+        }
+
+        // Don't display if game is not started but exists
+        final AbstractGameInstance currentGame = Manager.current().getCurrentGame();
+
+        if (!currentGame.isAbstract() && currentGame.getGameState() != State.IN_GAME) {
             return;
         }
 

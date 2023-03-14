@@ -54,16 +54,16 @@ public class Spark extends Hero implements PlayerElement {
 			@Override
 			public void onMove(Location location) {
 
-			}
-		}.setCooldown(30)
-				.setSound(Sound.ENTITY_BLAZE_SHOOT, 1.75f)
-				.setParticleHit(new PackedParticle(Particle.LAVA).setAmount(3).setSpeed(0.2f))
-				.setParticleTick(new PackedParticle(Particle.FLAME).setSpeed(0.001f))
-				.setDamage(8.0d)
-				.setName("Fire Sprayer")
-				// A long range weapon that shoots fire lasers! How cool is that...
-				// A long range weapon that can shoot fire lasers in front of you! How cool is that...
-				.setInfo("A long range weapon that can shoot fire lasers in front of you! How cool is that..."));
+            }
+        }.setCooldown(30)
+                .setSound(Sound.ENTITY_BLAZE_SHOOT, 1.75f)
+                .setParticleHit(new PackedParticle(Particle.LAVA).setAmount(3).setSpeed(0.2f))
+                .setParticleTick(new PackedParticle(Particle.FLAME).setSpeed(0.001f))
+                .setDamage(8.0d)
+                .setName("Fire Sprayer")
+                // A long range weapon that shoots fire lasers! How cool is that...
+                // A long range weapon that can shoot fire lasers in front of you! How cool is that...
+                .setDescription("A long range weapon that can shoot fire lasers in front of you! How cool is that..."));
 
 		this.setUltimate(new UltimateTalent(
 				"Run it Back",

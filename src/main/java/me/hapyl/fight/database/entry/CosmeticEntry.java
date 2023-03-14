@@ -51,8 +51,9 @@ public class CosmeticEntry extends DatabaseEntry {
     }
 
     public void addOwned(Cosmetics cosmetic) {
-        //        final List<String> ownedCosmetics = getOwnedCosmetics();
-        //        ownedCosmetics.add(cosmetic.name());
+        if (hasCosmetic(cosmetic)) {
+            return;
+        }
 
         final Document cosmetics = getConfig().get("cosmetics", new Document());
         final ArrayList<Object> owned = cosmetics.get("owned", Lists.newArrayList());
@@ -63,9 +64,6 @@ public class CosmeticEntry extends DatabaseEntry {
     }
 
     public void removeOwned(Cosmetics cosmetic) {
-        //        final List<String> ownedCosmetics = getOwnedCosmetics();
-        //        ownedCosmetics.remove(cosmetic.name());
-
         final Document cosmetics = getConfig().get("cosmetics", new Document());
         final ArrayList<Object> owned = cosmetics.get("owned", Lists.newArrayList());
         owned.remove(cosmetic.name());

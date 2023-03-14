@@ -108,6 +108,10 @@ public enum GameTeam {
         return (teamA != null && teamB != null) && (teamA == teamB);
     }
 
+    public void removePlayer(Player player) {
+        lobbyPlayers.remove(player.getUniqueId());
+    }
+
     /**
      * Adds player to the team if it's not empty.
      *
@@ -131,8 +135,11 @@ public enum GameTeam {
     // container start
     public void clearAndPopulateTeams() {
         clear();
+
         for (Player player : getLobbyPlayers()) {
-            players.add(Shortcuts.getProfile(player).getGamePlayer());
+            if (player.isOnline()) {
+                players.add(Shortcuts.getProfile(player).getGamePlayer());
+            }
         }
     }
 
@@ -272,5 +279,9 @@ public enum GameTeam {
 
     public String getNameCaps() {
         return color + "&l" + getName().toUpperCase(Locale.ROOT);
+    }
+
+    public String getFirstLetterCaps() {
+        return color + "&l" + getName().toUpperCase(Locale.ROOT).charAt(0);
     }
 }

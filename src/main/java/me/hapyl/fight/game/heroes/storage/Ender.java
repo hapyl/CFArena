@@ -11,8 +11,7 @@ import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.util.maps.IMap;
-import me.hapyl.fight.util.maps.KVMap;
+import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Geometry;
@@ -21,6 +20,7 @@ import me.hapyl.spigotutils.module.math.geometry.Quality;
 import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
+import me.hapyl.spigotutils.module.util.LinkedKeyValMap;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -33,7 +33,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 
@@ -43,7 +42,8 @@ import java.util.Map;
 
 public class Ender extends Hero implements Listener {
 
-    private final IMap<Player, Entity> beaconLocation = new KVMap<>();
+    private final LinkedKeyValMap<Player, Entity> beaconLocation = new LinkedKeyValMap<>();
+    //private final IMap<Player, Entity> beaconLocation = new KVMap<>();
     private final int portKeyCooldown = 160;
     private final double locationError = 1.3;
 
@@ -169,12 +169,12 @@ public class Ender extends Hero implements Listener {
             }
 
         }.setName("Fist")
-                               .setId("ender_weapon")
-                               .setInfo(
-                                       "Just a normal sized fist.__&e&lRIGHT CLICK &7to initiate teleport to the target block. &e&lRIGHT CLICK &7again to cancel.____&aCooldown: &l%ss",
-                                       BukkitUtils.roundTick(portKeyCooldown)
-                               )
-                               .setDamage(7.0));
+                .setId("ender_weapon")
+                .setDescription(
+                        "Just a normal sized fist.__&e&lRIGHT CLICK &7to initiate teleport to the target block. &e&lRIGHT CLICK &7again to cancel.____&aCooldown: &l%ss",
+                        BukkitUtils.roundTick(portKeyCooldown)
+                )
+                .setDamage(7.0));
 
         // Instantly teleports you to a placed transmission beacon and gives it back.
         // Instantly teleport to your &bTransmission Beacon &7and collect it for further use.
@@ -189,7 +189,7 @@ public class Ender extends Hero implements Listener {
 
     @Override
     public boolean predicateUltimate(Player player) {
-        return beaconLocation.hasKey(player);
+        return beaconLocation.containsKey(player);
     }
 
     @Override
@@ -210,11 +210,15 @@ public class Ender extends Hero implements Listener {
                 && ev.getDamager() instanceof Player player
                 && current.isPlayerInGame(player)) {
 
-            if (!beaconLocation.hasValue(stand)) {
+            if (!beaconLocation.containsValue(stand)) {
                 return;
             }
 
-            final Player owner = beaconLocation.getByValue(stand);
+            final Player owner = beaconLocation.getKey(stand);
+            if (owner == null) {
+                return;
+            }
+
             stand.remove();
             beaconLocation.remove(owner);
             Talents.TRANSMISSION_BEACON.getTalent().startCd(owner, TalentHandle.TRANSMISSION_BEACON.getDestroyCd());
@@ -228,10 +232,7 @@ public class Ender extends Hero implements Listener {
 
     @Override
     public void onDeath(Player player) {
-        if (hasBeacon(player)) {
-            beaconLocation.getByKey(player).remove();
-            beaconLocation.remove(player);
-        }
+        beaconLocation.useValueAndRemove(player, Entity::remove);
     }
 
     public void setBeaconLocation(Player player, Location location) {
@@ -249,20 +250,25 @@ public class Ender extends Hero implements Listener {
                 me.getEquipment().setHelmet(new ItemStack(Material.BEACON));
             }
             // lock all the slots (I think that's how it works?)
-            for (final EquipmentSlot value : EquipmentSlot.values()) {
-                for (final ArmorStand.LockType lockType : ArmorStand.LockType.values()) {
-                    me.addEquipmentLock(value, lockType);
-                }
-            }
+            Utils.lockArmorStand(me);
+            //for (final EquipmentSlot value : EquipmentSlot.values()) {
+            //    for (final ArmorStand.LockType lockType : ArmorStand.LockType.values()) {
+            //        me.addEquipmentLock(value, lockType);
+            //    }
+            //}
         }));
     }
 
     public boolean hasBeacon(Player player) {
-        return beaconLocation.hasKey(player);
+        return beaconLocation.containsKey(player);
     }
 
     public void teleportToBeacon(Player player) {
-        final Entity entity = beaconLocation.getByKey(player);
+        final Entity entity = beaconLocation.getValue(player);
+        if (entity == null) {
+            return;
+        }
+
         beaconLocation.remove(player);
         entity.remove();
 
@@ -276,6 +282,7 @@ public class Ender extends Hero implements Listener {
     @Override
     public void onStop() {
         // Utils.clearCollection; modCheck
+        // beaconLocation is not a collection you dumbo
         beaconLocation.values().forEach(Entity::remove);
         beaconLocation.clear();
     }

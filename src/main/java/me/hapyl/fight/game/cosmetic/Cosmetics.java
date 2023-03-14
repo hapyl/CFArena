@@ -7,12 +7,15 @@ import me.hapyl.fight.game.cosmetic.storage.*;
 import me.hapyl.fight.game.shop.Rarity;
 import me.hapyl.fight.game.shop.ShopItem;
 import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.command.DisabledCommand;
 import org.bukkit.*;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -79,6 +82,8 @@ public enum Cosmetics {
     MUSIC(new MusicContrail()),
     RAINBOW(new RainbowContrail()),
     BED_ROCKING(new BedRockingContrail()),
+    FLOWER_PATH(new FlowerPathContrail()),
+    SHADOW_TRAIL(new ShadowTrail()),
 
     // Prefixes
     FIGHTER(new PrefixCosmetic(
@@ -89,21 +94,68 @@ public enum Cosmetics {
             Rarity.COMMON
     ).setIcon(Material.WOODEN_SWORD)),
 
-    /**
-     * 	FIGHTER(Type.PREFIX, new Fighter()),
-     * 	OCTAVE(Type.PREFIX, new Octave()),
-     * 	STAR(Type.PREFIX, new Prefix("Star", "I'm on a roll!", "&e★&6&lStar&e☆", 1000, Material.GOLD_NUGGET, ShopItemRarity.EPIC)),
-     * 	BIOHAZARD(Type.PREFIX, new Prefix("Biohazard", "Put your mask on!", "&a☢&2&lBiohazard&a☣", 1000, Material.SLIME_BALL, ShopItemRarity.EPIC)),
-     * 	LOVE(Type.PREFIX, new Prefix("Love", "Love is...", "&c♥&d&lLove&c❤", 777, Material.APPLE, ShopItemRarity.RARE)),
-     * 	HAPPY(Type.PREFIX, new Prefix("Happy", "Just be happy!", "&a☺&lHappy&a☻", 200, Material.EMERALD, ShopItemRarity.COMMON)),
-     * 	// gender series
-     * 	MALE(Type.PREFIX, new Prefix("Gender: Male", "Express your gender!", "&b♂&3&lMale&b♂", 300, Material.SOUL_LANTERN, ShopItemRarity.RARE)),
-     * 	FEMALE(Type.PREFIX, new Prefix("Gender: Female", "Express your gender!", "&d♀&5&lFemale&d♀", 300, Material.LANTERN, ShopItemRarity.RARE)),
-     * 	ANNIHILATOR(Type.PREFIX, new Prefix("Annihilator", "Show me what you got!", "&c☠&4&lAnnihilator&c&l☠", 1000, Material.WITHER_SKELETON_SKULL, ShopItemRarity.LEGENDARY)),
-     * 	SUNNY(Type.PREFIX, new Prefix("Sunny", "It's a nice weather outside :)", "&e☀&6&lSunny&e☀", 500, Material.GOLD_BLOCK, ShopItemRarity.EPIC)),
-     * 	RAINY(Type.PREFIX, new Prefix("Rainy", "I've got my umbrella!", "&b🌧&3&lRainy&b☂", 500, Material.WATER_BUCKET, ShopItemRarity.EPIC)),
-     * 	GLITCH(Type.PREFIX, new Prefix("Glitch", "Is this thing on?", "&a✚&lGl&k&l1&atch&a&k&l✚&R", 666, Material.REDSTONE_TORCH, ShopItemRarity.RARE)),
-     */
+    OCTAVE(new PrefixCosmetic("Octave", "♪ ♪♫ ♪ ♫♫", "&d♪&lOctave&d♫", 1000, Rarity.RARE).setIcon(Material.NOTE_BLOCK)),
+
+    STAR(new PrefixCosmetic("Star", "I'm on a roll!", "&e★&6&lStar&e☆", 1500, Rarity.EPIC).setIcon(Material.GOLD_NUGGET)),
+
+    BIOHAZARD(new PrefixCosmetic("Biohazard", "Put your mask on!", "&a☢&2&lBiohazard&a☣", 1500, Rarity.EPIC).setIcon(Material.SLIME_BALL)),
+
+    LOVE(new PrefixCosmetic("Love", "Love is...", "&c♥&d&lLove&c❤", 1000, Rarity.RARE).setIcon(Material.APPLE)),
+    PEACE(new PrefixCosmetic("Peace", "Peace!", "&2&l✌", 0, Rarity.LEGENDARY).setIcon(Material.WHITE_WOOL)),
+    HAPPY(new PrefixCosmetic("Happy", "Just be happy!", "&a☺&lHappy&a☻", 500, Rarity.COMMON).setIcon(Material.EMERALD)),
+
+    GENDER_MALE(new PrefixCosmetic(
+            "Gender: Male",
+            "Express your gender!",
+            "&b♂&3&lMale&b♂",
+            1000,
+            Rarity.RARE
+    ).setIcon(Material.SOUL_LANTERN)),
+
+    GENDER_FEMALE(new PrefixCosmetic(
+            "Gender: Female",
+            "Express your gender!",
+            "&d♀&5&lFemale&d♀",
+            1000,
+            Rarity.RARE
+    ).setIcon(Material.LANTERN)),
+
+    ANNIHILATOR(new PrefixCosmetic(
+            "Annihilator",
+            "Show me what you got!",
+            "&c☠&4&lAnnihilator&c&l☠",
+            5000,
+            Rarity.LEGENDARY
+    ).setIcon(Material.WITHER_SKELETON_SKULL)),
+
+    SUNNY(new PrefixCosmetic(
+            "Sunny",
+            "It's a nice weather outside :)",
+            "&e☀&6&lSunny&e☀",
+            2000,
+            Rarity.EPIC
+    ).setIcon(Material.GOLD_BLOCK)),
+
+    RAINY(new PrefixCosmetic(
+            "Rainy",
+            "I've got my umbrella!",
+            "&b🌧&3&lRainy&b☂",
+            2000,
+            Rarity.EPIC
+    ).setIcon(Material.WATER_BUCKET)),
+
+    GLITCH(new PrefixCosmetic(
+            "Glitch",
+            "Is this thing on?",
+            "&a✚&lGl&k&l1&atch&a&k&l✚&R",
+            1000,
+            Rarity.RARE
+    ).setIcon(Material.REDSTONE_TORCH)),
+
+    // Win Effects
+    FIREWORKS(new FireworksWinEffect(), true),
+    AVALANCHE(new AvalancheWinEffect()),
+    TWERK(new TwerkWinEffect()),
 
     ;
 
@@ -111,20 +163,31 @@ public enum Cosmetics {
 
     static {
         for (Cosmetics value : values()) {
+            if (value.ignore || value.cosmetic instanceof DisabledCommand) {
+                continue;
+            }
+
             byType.computeIfAbsent(value.getCosmetic().getType(), k -> Lists.newArrayList()).add(value);
         }
     }
 
+    private final boolean ignore;
     private final Cosmetic cosmetic;
 
     Cosmetics(Cosmetic cosmetic) {
+        this(cosmetic, false);
+    }
+
+    Cosmetics(Cosmetic cosmetic, boolean force) {
         this.cosmetic = cosmetic;
+        this.ignore = force;
     }
 
     public Cosmetic getCosmetic() {
         return cosmetic;
     }
 
+    @Nonnull
     public Type getType() {
         return cosmetic.getType();
     }
@@ -133,9 +196,13 @@ public enum Cosmetics {
         return Database.getDatabase(player).getCosmetics().hasCosmetic(this);
     }
 
+    public boolean isSelected(Player player) {
+        return Database.getDatabase(player).getCosmetics().getSelected(getType()) == this;
+    }
+
     // static members
     public static List<Cosmetics> getByType(Type type) {
-        return byType.getOrDefault(type, Lists.newArrayList());
+        return new ArrayList<>(byType.getOrDefault(type, Lists.newArrayList()));
     }
 
     @Nullable

@@ -56,7 +56,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
         eq.setLeggings(Color.BLACK);
         eq.setBoots(Color.BLACK);
 
-        this.setWeapon(new Weapon(Material.IRON_SWORD).setName("Livid Dagger").setInfo(String.format(
+        this.setWeapon(new Weapon(Material.IRON_SWORD).setName("Livid Dagger").setDescription(String.format(
                 "A dagger made of bad memories.____&e&lBACKSTAB &7to perform a charged attack that knocks enemies and stuns them for a short time.____&aCooldown: &l%ss",
                 BukkitUtils.roundTick(BACK_STAB_CD)
         )).setDamage(8.0d));

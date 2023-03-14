@@ -29,6 +29,7 @@ import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
 import java.net.InetSocketAddress;
 import java.util.*;
 
@@ -39,7 +40,11 @@ public class BukkitPlayer implements Player {
 
     public BukkitPlayer() {
         this.uuid = UUID.randomUUID();
-        this.name = this.uuid.toString();
+        this.name = "FakePlayer_" + this.uuid;
+    }
+
+    private void thisIsAFakePlayerClassYouDumbo() {
+        throw new IllegalStateException("Not supported in fake player!");
     }
 
     @Override
@@ -47,18 +52,23 @@ public class BukkitPlayer implements Player {
         return true;
     }
 
+    @Nonnull
     @Override
     public String getName() {
         return name;
     }
 
+    @Nonnull
     @Override
     public PlayerInventory getInventory() {
+        thisIsAFakePlayerClassYouDumbo();
         return null;
     }
 
     @Override
+    @Nonnull
     public Inventory getEnderChest() {
+        thisIsAFakePlayerClassYouDumbo();
         return null;
     }
 
@@ -793,6 +803,16 @@ public class BukkitPlayer implements Player {
     }
 
     @Override
+    public void setVisibleByDefault(boolean visible) {
+
+    }
+
+    @Override
+    public boolean isVisibleByDefault() {
+        return false;
+    }
+
+    @Override
     public void setGlowing(boolean flag) {
 
     }
@@ -1164,6 +1184,21 @@ public class BukkitPlayer implements Player {
 
     @Override
     public void sendMap(MapView map) {
+
+    }
+
+    @Override
+    public void addCustomChatCompletions(Collection<String> completions) {
+
+    }
+
+    @Override
+    public void removeCustomChatCompletions(Collection<String> completions) {
+
+    }
+
+    @Override
+    public void setCustomChatCompletions(Collection<String> completions) {
 
     }
 

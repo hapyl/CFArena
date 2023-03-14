@@ -49,6 +49,10 @@ public class ExperienceEntry extends DatabaseEntry {
             return maxValue;
         }
 
+        public String pathLegacy() {
+            return "exp." + name().toLowerCase();
+        }
+
     }
 
     public void reset(Type type) {
@@ -65,9 +69,16 @@ public class ExperienceEntry extends DatabaseEntry {
 
     // Super
     public void set(Type type, long value) {
-        getExperience().put(type.name(), Numbers.clamp(value, type.getMinValue(), type.getMaxValue()));
+        final Document experience = getExperience();
+        experience.put(type.name(), Numbers.clamp(value, type.getMinValue(), type.getMaxValue()));
+
+        getConfig().put("experience", experience);
 
         // Update experience
+        updateExperience();
+    }
+
+    public void updateExperience() {
         final Experience experience = Main.getPlugin().getExperience();
 
         experience.levelUp(getPlayer(), false);

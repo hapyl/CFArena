@@ -1,6 +1,7 @@
 package me.hapyl.fight;
 
 import me.hapyl.fight.database.DatabaseMongo;
+import me.hapyl.fight.database.Databases;
 import me.hapyl.fight.event.EnderPearlController;
 import me.hapyl.fight.event.PlayerEvent;
 import me.hapyl.fight.game.ChatController;
@@ -10,15 +11,15 @@ import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.maps.features.BoosterController;
+import me.hapyl.fight.game.parkour.CFParkourManager;
 import me.hapyl.fight.game.task.TaskList;
 import me.hapyl.fight.game.tutorial.ChatTutorial;
 import me.hapyl.fight.game.tutorial.Tutorial;
+import me.hapyl.fight.notifier.Notifier;
 import me.hapyl.fight.protocol.ArcaneMuteProtocol;
 import me.hapyl.spigotutils.EternaAPI;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.GameRule;
-import org.bukkit.World;
+import me.hapyl.spigotutils.module.chat.Chat;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
@@ -34,21 +35,26 @@ public class Main extends JavaPlugin {
     private BoosterController boosters;
     private Experience experience;
     private DatabaseMongo database;
+    private Notifier notifier;
+    private Databases databases;
+    private CFParkourManager parkourManager;
+
+    private boolean databaseLegacy;
 
     @Override
     public void onEnable() {
         plugin = this;
+        databaseLegacy = false;
+
+        // Init config
+        getConfig().options().copyDefaults(true);
+        saveConfig();
 
         // Register commands
         new CommandRegistry(this);
 
-        // Load mongo database
-        this.database = new DatabaseMongo();
-
-        if (!this.database.createConnection()) {
-            Bukkit.getLogger().severe("Failed to connect to database! Disabling plugin...");
-            Bukkit.getPluginManager().disablePlugin(this);
-        }
+        // Auth database
+        initDatabase();
 
         registerEvents();
         regProtocol();
@@ -69,6 +75,7 @@ public class Main extends JavaPlugin {
             world.setGameRule(GameRule.DISABLE_RAIDS, false);
             world.setGameRule(GameRule.NATURAL_REGENERATION, false);
             world.setGameRule(GameRule.KEEP_INVENTORY, true);
+            world.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
         }
 
         // Remove recipes and achievements
@@ -81,15 +88,43 @@ public class Main extends JavaPlugin {
         this.tutorial = new ChatTutorial();
         this.boosters = new BoosterController();
         this.experience = new Experience();
+        this.notifier = new Notifier(this);
 
-        getConfig().options().copyDefaults(true);
-        saveConfig();
+        if (isDatabaseLegacy()) {
+            Bukkit.getLogger().severe("Databases are not supported in legacy mode!");
+        }
+        else {
+            this.parkourManager = new CFParkourManager(this);
+            this.databases = new Databases(this);
+        }
 
         // update database
         for (final Player player : Bukkit.getOnlinePlayers()) {
             handlePlayer(player);
         }
+    }
 
+    private void initDatabase() {
+        this.database = new DatabaseMongo();
+
+        final boolean useMongoDb = getConfig().getBoolean("database.use_mongodb");
+        boolean connection = false;
+
+        if (useMongoDb) {
+            // Don't try to connect if disabled
+            connection = this.database.createConnection();
+        }
+
+        if (!useMongoDb || !connection) {
+            final String message = useMongoDb ?
+                    (ChatColor.RED + "Failed to connect to MongoDB, initializing legacy database...") :
+                    (ChatColor.YELLOW + "Using legacy database because MongoDB is disabled in config.yml!");
+
+            Bukkit.getLogger().severe(message);
+            Bukkit.getScheduler().runTaskLater(this, () -> Chat.broadcast("&6&lWarning! " + message), 20L);
+
+            databaseLegacy = true;
+        }
     }
 
     private void registerEvents() {
@@ -99,6 +134,14 @@ public class Main extends JavaPlugin {
         pm.registerEvents(new EnderPearlController(), this);
         pm.registerEvents(new BoosterController(), this);
         pm.registerEvents(new CosmeticsListener(), this);
+    }
+
+    public Notifier getNotifier() {
+        return notifier;
+    }
+
+    public Databases getDatabases() {
+        return databases;
     }
 
     public DatabaseMongo getDatabase() {
@@ -131,18 +174,22 @@ public class Main extends JavaPlugin {
         // teleport to spawn unless in creative
         if (player.getGameMode() != GameMode.CREATIVE) {
             player.teleport(GameMaps.SPAWN.getMap().getLocation());
+            LobbyItems.giveAll(player);
         }
-
-        LobbyItems.giveAll(player);
     }
 
     @Override
     public void onDisable() {
         runSafe(() -> {
+            databases.saveAll();
+            parkourManager.saveAll();
+        }, "database save");
+
+        runSafe(() -> {
             for (final Player player : Bukkit.getOnlinePlayers()) {
                 Manager.current().getProfile(player).getDatabase().saveToFile();
             }
-        }, "database save");
+        }, "player database save");
 
         runSafe(() -> {
             database.stopConnection();
@@ -179,4 +226,7 @@ public class Main extends JavaPlugin {
         return plugin;
     }
 
+    public boolean isDatabaseLegacy() {
+        return databaseLegacy;
+    }
 }

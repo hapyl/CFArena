@@ -25,9 +25,9 @@ public class Response {
 	}
 
 	@Nullable
-	protected String getReason() {
-		return reason;
-	}
+    public String getReason() {
+        return reason;
+    }
 
 	public boolean isOk() {
 		return this.type == Type.OK;

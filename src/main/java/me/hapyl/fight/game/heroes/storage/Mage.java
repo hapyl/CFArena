@@ -108,9 +108,9 @@ public class Mage extends Hero implements UIComponent {
             }
 
         }.setDamage(10.0d)
-                               .setName("Soul Eater")
-                               .setInfo(
-                                       "A weapon capable of absorbing soul fragments and convert them into fuel.____&e&lRIGHT CLICK &7to shoot a soul laser.")
+                .setName("Soul Eater")
+                .setDescription(
+                        "A weapon capable of absorbing soul fragments and convert them into fuel.____&e&lRIGHT CLICK &7to shoot a soul laser.")
                                .setId("soul_eater"));
 
         this.setUltimate(new UltimateTalent(

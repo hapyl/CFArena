@@ -8,6 +8,7 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.entity.Entities;
+import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -22,127 +23,142 @@ import java.util.Locale;
 
 public class Submerge extends Talent {
 
-	private final float[] finOffset = {0.2f, 1.8f, 0.2f};
+    private final float[] finOffset = { 0.2f, 1.8f, 0.2f };
+    private final double DAMAGE = 10.0d;
 
-	public Submerge() {
-		super(
-				"Submerge",
-				"Swiftly submerge under ground and dash forward revealing a hidden shark fin that deals damage and knocks back nearby enemies.",
-				Material.PRISMARINE_SHARD
-		);
-		this.setCdSec(10);
-	}
+    public Submerge() {
+        super(
+                "Submerge",
+                "Swiftly submerge under ground and dash forward revealing a hidden shark fin that deals damage and knocks back nearby enemies.",
+                Material.PRISMARINE_SHARD
+        );
 
-	@Override
-	public Response execute(Player player) {
-		player.setGameMode(GameMode.SPECTATOR);
+        setDuration(20);
+        setCdSec(10);
+    }
 
-		final Location location = player.getLocation();
-		final ArmorStand marker = Entities.ARMOR_STAND.spawn(location.subtract(finOffset[0], finOffset[1], finOffset[2]), me -> {
-			me.setSilent(true);
-			me.setMarker(true);
-			me.setInvisible(true);
-			me.setInvulnerable(true);
-			me.setHeadPose(new EulerAngle(Math.toRadians(90), Math.toRadians(45), Math.toRadians(90)));
+    @Override
+    public Response execute(Player player) {
+        player.setGameMode(GameMode.SPECTATOR);
 
-			Nulls.runIfNotNull(me.getEquipment(), eq -> eq.setHelmet(new ItemStack(this.getMaterial())));
-		});
+        final Location location = LocationHelper.getToTheRight(player.getLocation(), 1.2d);
+        location.setPitch(0.0f);
 
-		player.setInvulnerable(true);
+        final ArmorStand marker = Entities.ARMOR_STAND.spawn(location.subtract(finOffset[0], finOffset[1], finOffset[2]), me -> {
+            me.setSilent(true);
+            me.setMarker(true);
+            me.setInvisible(true);
+            me.setInvulnerable(true);
+            me.setHeadPose(new EulerAngle(Math.toRadians(90), Math.toRadians(45), Math.toRadians(90)));
 
-		// Runnable
-		new GameTask() {
-			private int maxTick = 20;
+            Nulls.runIfNotNull(me.getEquipment(), eq -> eq.setHelmet(new ItemStack(getMaterial())));
+        });
 
-			private void raise(Location exitLocation) {
-				exitLocation.add(0.0d, 1.5d, 0.0d);
-				marker.remove();
+        player.setInvulnerable(true);
 
-				player.setGameMode(GameMode.SURVIVAL);
-				player.setInvulnerable(false);
-				player.setFlying(false);
-				player.setAllowFlight(false);
+        // Runnable
+        new GameTask() {
+            //private final Set<Block> affectedBlocks = Sets.newHashSet();
+            private int maxTick = getDuration();
 
-				player.teleport(exitLocation);
-				player.setVelocity(exitLocation.getDirection().setY(0.5d));
+            private void raise(Location exitLocation) {
+                exitLocation.add(0.0d, 1.5d, 0.0d);
+                marker.remove();
 
-				// Fx
-				PlayerLib.playSound(exitLocation, Sound.AMBIENT_UNDERWATER_EXIT, 1.25f);
-			}
+                // Clear effect
+                //affectedBlocks.forEach(block -> block.getState().update(true, false));
+                //affectedBlocks.clear();
 
-			@Override
-			public void run() {
-				final Location entityLocation = marker.getLocation();
-				final Location fixedLocation = entityLocation.clone().add(finOffset[0], finOffset[1], finOffset[2]);
-				final Vector vector = location.getDirection().setY(0.0d).multiply(0.5);
-				final Location nextLocation = entityLocation.add(vector);
+                player.setGameMode(GameMode.SURVIVAL);
+                player.setInvulnerable(false);
+                player.setFlying(false);
+                player.setAllowFlight(false);
 
-				// Next location (Kinda weird I know)
-				final Location nextCheckLocation = nextLocation.clone().add(0.0, 2.0d, 0.0d);
+                player.teleport(exitLocation);
+                player.setVelocity(exitLocation.getDirection().setY(0.5d));
 
-				// if block is not passable then go back one step and raise
-				if (!isPassable(nextCheckLocation.getBlock())) {
-					raise(entityLocation.subtract(vector));
-					this.cancel();
-					return;
-				}
+                // Fx
+                PlayerLib.playSound(exitLocation, Sound.AMBIENT_UNDERWATER_EXIT, 1.25f);
+            }
 
-				// Ability always drops down
-				if (nextCheckLocation.clone().getBlock().getRelative(BlockFace.DOWN).getType().isAir()) {
-					nextLocation.subtract(0.0d, 1.0d, 0.0d);
-				}
+            @Override
+            public void run() {
+                final Location entityLocation = marker.getLocation();
+                final Location fixedLocation = entityLocation.clone().add(finOffset[0], finOffset[1], finOffset[2]);
+                final Vector vector = location.getDirection().setY(0.0d).multiply(0.5);
+                final Location nextLocation = entityLocation.add(vector);
 
-				// Sync player
-				player.teleport(nextLocation.clone().add(0.0d, 0.75d, 0.0d));
-				marker.teleport(nextLocation);
-				PlayerLib.spawnParticle(fixedLocation, Particle.BUBBLE_COLUMN_UP, 3, 0.2, 0.1, 0.2, 0.1f);
-				PlayerLib.spawnParticle(fixedLocation, Particle.WATER_SPLASH, 1, 0.2, 0.1, 0.2, 0.1f);
+                // Next location (Kinda weird I know)
+                final Location nextCheckLocation = nextLocation.clone().add(0.0, 2.0d, 0.0d);
 
-				// Hit detection
-				Utils.getEntitiesInRange(fixedLocation, 1.0d).forEach(victim -> {
-					if (victim == player) {
-						return;
-					}
+                // if block is not passable then go back one step and raise
+                if (!isPassable(nextCheckLocation.getBlock())) {
+                    raise(entityLocation.subtract(vector));
+                    this.cancel();
+                    return;
+                }
 
-					GamePlayer.damageEntity(victim, 8.0d, player, EnumDamageCause.SUBMERGE);
-					victim.setVelocity(victim.getLocation().getDirection().multiply(-1.0d).setY(0.5d));
-				});
+                // Ability always drops down
+                if (nextCheckLocation.clone().getBlock().getRelative(BlockFace.DOWN).getType().isAir()) {
+                    nextLocation.subtract(0.0d, 1.0d, 0.0d);
+                }
 
-				if (maxTick < 0) {
-					raise(nextLocation);
-					this.cancel();
-					return;
-				}
+                // Sync player
+                player.teleport(nextLocation.clone().add(0.0d, 0.75d, 0.0d));
+                marker.teleport(nextLocation);
 
-				--maxTick;
-			}
+                //final Block block = player.getEyeLocation().getBlock();
+                //player.sendBlockChange(block.getLocation(), Material.WATER.createBlockData());
+                //affectedBlocks.add(block);
 
-			private boolean isPassable(Block block) {
-				final String name = block.getType().name().toLowerCase(Locale.ROOT);
-				if (block.getType().isAir()) {
-					return true;
-				}
+                PlayerLib.spawnParticle(fixedLocation, Particle.BUBBLE_COLUMN_UP, 3, 0.2, 0.1, 0.2, 0.1f);
+                PlayerLib.spawnParticle(fixedLocation, Particle.WATER_SPLASH, 1, 0.2, 0.1, 0.2, 0.1f);
 
-				return stringHasAny(name, "carpet", "rail", "trapdoor", "button", "door");
-			}
+                // Hit detection
+                Utils.getEntitiesInRange(fixedLocation, 1.0d).forEach(victim -> {
+                    if (victim == player) {
+                        return;
+                    }
 
-			private boolean stringHasAny(String string, String... any) {
-				string = string.toLowerCase(Locale.ROOT);
-				for (String str : any) {
-					if (string.contains(str.toLowerCase(Locale.ROOT))) {
-						return true;
-					}
-				}
-				return false;
-			}
+                    GamePlayer.damageEntity(victim, DAMAGE, player, EnumDamageCause.SUBMERGE);
+                    victim.setVelocity(victim.getLocation().getDirection().multiply(-1.0d).setY(0.5d));
+                });
 
-		}.runTaskTimer(0, 1);
+                if (maxTick < 0) {
+                    raise(nextLocation);
+                    this.cancel();
+                    return;
+                }
 
-		// Fx
-		PlayerLib.playSound(location, Sound.WEATHER_RAIN_ABOVE, 1.75f);
-		PlayerLib.playSound(location, Sound.AMBIENT_UNDERWATER_ENTER, 1.75f);
+                --maxTick;
+            }
 
-		return Response.OK;
-	}
+            private boolean isPassable(Block block) {
+                final String name = block.getType().name().toLowerCase(Locale.ROOT);
+                if (block.getType().isAir()) {
+                    return true;
+                }
+
+                return stringHasAny(name, "carpet", "rail", "trapdoor", "button", "door");
+            }
+
+            private boolean stringHasAny(String string, String... any) {
+                string = string.toLowerCase(Locale.ROOT);
+                for (String str : any) {
+                    if (string.contains(str.toLowerCase(Locale.ROOT))) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+        }.runTaskTimer(0, 1);
+
+        // Fx
+        PlayerLib.playSound(location, Sound.WEATHER_RAIN_ABOVE, 1.75f);
+        PlayerLib.playSound(location, Sound.AMBIENT_UNDERWATER_ENTER, 1.75f);
+
+        return Response.OK;
+    }
 
 }

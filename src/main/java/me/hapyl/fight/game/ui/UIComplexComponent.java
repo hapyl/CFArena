@@ -3,21 +3,32 @@ package me.hapyl.fight.game.ui;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
 
 public interface UIComplexComponent extends UIComponent {
 
-	String[] getStrings(Player player);
+    @Nullable
+    List<String> getStrings(Player player);
 
-	@Override
-	default @Nonnull String getString(Player player) {
-		final String[] strings = getStrings(player);
-		final StringBuilder builder = new StringBuilder();
-		for (int i = 0; i < strings.length; i++) {
-			builder.append(strings[i]);
-			if (i < (strings.length - 1)) {
-				builder.append(" %s ".formatted(UIFormat.DIV));
-			}
-		}
-		return builder.toString();
-	}
+    @Override
+    default @Nonnull String getString(Player player) {
+        final List<String> strings = getStrings(player);
+        final StringBuilder builder = new StringBuilder();
+
+        if (strings == null) {
+            return "";
+        }
+
+        int i = 0;
+        for (String string : strings) {
+            if (i++ != 0) {
+                builder.append(" %s ".formatted(UIFormat.DIV));
+            }
+
+            builder.append(string);
+        }
+
+        return builder.toString();
+    }
 }

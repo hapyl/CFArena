@@ -73,7 +73,7 @@ public class Swooper extends Hero implements Listener {
                 );
             }
 
-        }.setId("swooper_weapon").setName("Sniper Rifle").setInfo("Slow firing, but high damage rifle."));
+        }.setId("swooper_weapon").setName("Sniper Rifle").setDescription("Slow firing, but high damage rifle."));
 
 
         this.setUltimate(new UltimateTalent(

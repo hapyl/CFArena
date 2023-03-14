@@ -24,9 +24,10 @@ public class DamageInput {
 		this(player, entity, null, originalDamage);
 	}
 
-	public LivingEntity getEntity() {
-		return entity;
-	}
+    @Nullable
+    public LivingEntity getEntity() {
+        return entity;
+    }
 
 	public EntityDamageEvent.DamageCause getDamageCause() {
 		return cause;

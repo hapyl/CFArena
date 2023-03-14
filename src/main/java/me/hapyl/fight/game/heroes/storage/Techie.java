@@ -34,6 +34,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Techie extends Hero implements UIComplexComponent, Listener {
@@ -64,16 +65,16 @@ public class Techie extends Hero implements UIComplexComponent, Listener {
         equipment.setBoots(255, 230, 204);
 
         this.setWeapon(new Weapon(Material.IRON_SWORD).setName("Nano Sword")
-                                                      .setDamage(7.0d)
-                                                      .addEnchant(Enchantment.KNOCKBACK, 1));
+                .setDamage(7.0d)
+                .addEnchant(Enchantment.KNOCKBACK, 1));
 
         this.setUltimate(new UltimateTalent("Lockdown",
-                                            String.format(
-                                                    "Place a device that charges over &b%ss&7. When charged, explodes and affects all opponents in &b%s &7blocks radius by &6&lLockdown &7for &b%ss&7.__&c&lThe device can be broken.",
-                                                    BukkitUtils.roundTick(lockdownWindupTime),
-                                                    lockdownRadius,
-                                                    BukkitUtils.roundTick(lockdownAffectTime)
-                                            ), 60
+                String.format(
+                        "Place a device that charges over &b%ss&7. When charged, explodes and affects all opponents in &b%s &7blocks radius by &6&lLockdown &7for &b%ss&7.__&c&lThe device can be broken.",
+                        BukkitUtils.roundTick(lockdownWindupTime),
+                        lockdownRadius,
+                        BukkitUtils.roundTick(lockdownAffectTime)
+                ), 60
         ).setItem(Material.DAYLIGHT_DETECTOR).setSound(Sound.BLOCK_BELL_USE, 0.0f));
 
     }
@@ -217,9 +218,8 @@ public class Techie extends Hero implements UIComplexComponent, Listener {
     }
 
     @Override
-    public String[] getStrings(Player player) {
-        return new String[] { "&f⁂ &l" + TalentHandle.TRAP_CAGE.getCages(player).size(),
-                              "&f⁑ &l" + TalentHandle.TRAP_WIRE.getTraps(player).size() };
+    public List<String> getStrings(Player player) {
+        return List.of("&f⁂ &l" + TalentHandle.TRAP_CAGE.getCages(player).size(), "&f⁑ &l" + TalentHandle.TRAP_WIRE.getTraps(player).size());
     }
 
 }

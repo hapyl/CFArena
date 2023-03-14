@@ -51,7 +51,16 @@ public enum Heroes {
     HARBINGER(new Harbinger()),
     SHAMAN(new Shaman()),
 
+    // 1.5
+    //HEALER(new Healer()),
+    VAMPIRE(new Vampire()),
+    SWORD_MASTER(new SwordMaster()),
+
     ;
+
+    public static class Handle {
+        public static final Vampire VAMPIRE = (Vampire) Heroes.VAMPIRE.getHero();
+    }
 
     private final static InvalidHero INVALID_HERO = new InvalidHero();
     private final static List<Heroes> PLAYABLE = Lists.newArrayList();

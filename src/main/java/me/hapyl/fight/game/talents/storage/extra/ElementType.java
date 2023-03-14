@@ -14,7 +14,7 @@ public enum ElementType {
     HEAVY(
             15.0d,
             30,
-            material -> checkName(material, "stone", "cobblestone", "terracotta"),
+            material -> checkName(material, "stone", "cobblestone", "terracotta", "quartz", "sandstone"),
             entity -> addEffect(entity, PotionEffectType.SLOW, 20, 1)
     ),
 
@@ -28,7 +28,7 @@ public enum ElementType {
     SOFT(
             3.0d,
             10,
-            material -> checkName(material, "wool", "carpet", "bed"),
+            material -> checkName(material, "wool", "carpet", "bed", "sand", "gravel", "clay"),
             entity -> addEffect(entity, PotionEffectType.LEVITATION, 10, 1)
     ),
 

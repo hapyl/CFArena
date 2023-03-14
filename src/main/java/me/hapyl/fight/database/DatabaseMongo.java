@@ -4,11 +4,10 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.internal.session.ServerSessionPool;
 import me.hapyl.fight.Main;
 import org.bson.Document;
 import org.bukkit.configuration.file.FileConfiguration;
-
-import java.util.logging.Logger;
 
 public class DatabaseMongo {
 
@@ -18,14 +17,15 @@ public class DatabaseMongo {
     private MongoDatabase database;
     private MongoCollection<Document> players;
     private MongoCollection<Document> settings;
+    private MongoCollection<Document> parkour;
+    private MongoCollection<Document> stats;
 
     public DatabaseMongo() {
         this.config = Main.getPlugin().getConfig();
 
         // Suppress logging
-        Logger.getLogger("org.mongodb.driver.cluster").setLevel(java.util.logging.Level.OFF);
 
-        //loadClasses();
+        loadClasses();
     }
 
     public void stopConnection() {
@@ -37,9 +37,10 @@ public class DatabaseMongo {
         }
     }
 
+    // This is needed to prevent NoClassDefFoundError
     private void loadClasses() {
         try {
-            Class.forName("com.mongodb.internal.session.ServerSessionPool");
+            new ServerSessionPool(null);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -58,6 +59,8 @@ public class DatabaseMongo {
             database = client.getDatabase("classes_fight");
             players = database.getCollection("players");
             settings = database.getCollection("settings");
+            parkour = database.getCollection("parkour");
+            stats = database.getCollection("stats");
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -76,5 +79,13 @@ public class DatabaseMongo {
 
     public MongoCollection<Document> getPlayers() {
         return players;
+    }
+
+    public MongoCollection<Document> getParkour() {
+        return parkour;
+    }
+
+    public MongoCollection<Document> getStats() {
+        return stats;
     }
 }

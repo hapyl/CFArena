@@ -3,6 +3,8 @@ package me.hapyl.fight.game;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.annotate.Entry;
+import me.hapyl.fight.database.collection.HeroStatsCollection;
+import me.hapyl.fight.game.cosmetic.skin.SkinEffectManager;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.heroes.ComplexHero;
 import me.hapyl.fight.game.heroes.Hero;
@@ -22,8 +24,10 @@ import me.hapyl.fight.util.NonNullableElementHolder;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.ParamFunction;
 import me.hapyl.fight.util.Utils;
+import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
+import me.hapyl.spigotutils.module.parkour.ParkourManager;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.glow.Glowing;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
@@ -52,10 +56,12 @@ public class Manager {
     private final Map<Integer, ParamFunction<Talent, Hero>> slotPerTalent = new HashMap<>();
     private final Map<Integer, ParamFunction<Talent, ComplexHero>> slotPerComplexTalent = new HashMap<>();
 
+    private final SkinEffectManager skinEffectManager;
     private Trial trial;
 
     public Manager() {
         profiles = Maps.newHashMap();
+
 
         slotPerTalent.put(1, Hero::getFirstTalent);
         slotPerTalent.put(2, Hero::getSecondTalent);
@@ -69,6 +75,9 @@ public class Manager {
 
         // load mode
         currentMode.set(Modes.byName(config.getString("current-mode"), Modes.FFA));
+
+        // init skin effect manager
+        skinEffectManager = new SkinEffectManager(Main.getPlugin());
     }
 
     /**
@@ -108,8 +117,10 @@ public class Manager {
 
     /**
      * @return game instance is present.
+     * @deprecated please use {@link #getCurrentGame()} instead.
      */
     @Nullable
+    @Deprecated
     public GameInstance getGameInstance() throws RuntimeException {
         return gameInstance;
     }
@@ -219,6 +230,7 @@ public class Manager {
             return;
         }
 
+        // Stop trial
         if (hasTrial()) {
             stopTrial();
         }
@@ -251,6 +263,12 @@ public class Manager {
                 //                displayError("Teams are not balanced! &l(%s)", populatedTeam.getName());
                 //                return;
             }
+        }
+
+        // Stop parkour
+        final ParkourManager parkourManager = EternaPlugin.getPlugin().getParkourManager();
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            parkourManager.quitParkour(player);
         }
 
         // Create new instance and call onStart methods
@@ -332,6 +350,7 @@ public class Manager {
             gameInstance.getGameResult().supplyDefaultWinners();
         }
 
+        final HeroStatsCollection heroStats = Main.getPlugin().getDatabases().getHeroStats();
         gameInstance.calculateEverything();
 
         // Reset player before clearing the instance
@@ -343,17 +362,23 @@ public class Manager {
 
             Utils.showPlayer(player.getPlayer());
 
-            // keep winner in survival, so it's clear for them that they have won
+            // Keep winner in survival, so it's clear for them that they have won
             if (!this.gameInstance.isWinner(player.getPlayer())) {
                 player.getPlayer().setGameMode(GameMode.SPECTATOR);
             }
 
-            // reset game player
+            // Reset game player
             player.getProfile().resetGamePlayer();
+
+            // Save stats
+            heroStats.fromPlayerStatistic(player.getEnumHero(), player.getStats());
         });
 
         this.gameInstance.onStop();
         this.gameInstance.setGameState(State.POST_GAME);
+
+        // Save stats
+        heroStats.saveAsync();
 
         // Clear teams
         GameTeam.clearAllPlayers();
@@ -393,7 +418,7 @@ public class Manager {
         }
 
         // Spawn Fireworks
-        gameInstance.spawnFireworks(true);
+        gameInstance.executeWinCosmetic();
     }
 
     public void equipPlayer(Player player, Hero hero) {

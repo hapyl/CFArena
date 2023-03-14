@@ -1,14 +1,14 @@
 package me.hapyl.fight.game.heroes.storage;
 
-import io.netty.util.internal.ConcurrentSet;
+import com.google.common.collect.Maps;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.Role;
+import me.hapyl.fight.game.heroes.storage.extra.RiptideStatus;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentHandle;
 import me.hapyl.fight.game.talents.Talents;
@@ -21,43 +21,46 @@ import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
 import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.Vector;
 
-import java.util.HashMap;
+import javax.annotation.Nullable;
 import java.util.Map;
-import java.util.Random;
-import java.util.Set;
 
 public class Harbinger extends Hero implements Listener {
 
     private final double ultimateRadius = 4.0d;
-    private final Map<Player, Set<LivingEntity>> riptideAffected = new HashMap<>();
+    private final Map<Player, RiptideStatus> riptideStatus = Maps.newHashMap();
+    //private final Map<Player, Set<LivingEntity>> riptideAffected = new HashMap<>();
+
+    /**
+     * Changes to riptide:
+     * - Is now a status effect that lasts for certain duration regardless.
+     * - Riptide Slash can now be executed every 2.5 seconds.
+     * - Riptide can more be executed with a fully charged bow as well as melee.
+     */
 
     public Harbinger() {
         super("Harbinger", "She is a harbinger of unknown organization. Nothing else is known.", Material.ANVIL);
 
-        this.setRole(Role.STRATEGIST);
-        this.setMinimumLevel(5);
+        setRole(Role.STRATEGIST);
+        setMinimumLevel(5);
 
-        final ClassEquipment equipment = this.getEquipment();
+        final ClassEquipment equipment = getEquipment();
         equipment.setHelmet(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjJhMWFjMmE4ZGQ0OGMzNzE0ODI4MDZiMzk2MzU3MTk1Mjk5N2E1NzEyODA2ZTJjODA2MGI4ZTc3Nzc3NTQifX19");
+                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjJhMWFjMmE4ZGQ0OGMzNzE0ODI4MDZiMzk2MzU3MTk1Mjk5N2E1NzEyODA2ZTJjODA2MGI4ZTc3Nzc3NTQifX19"
+        );
         equipment.setChestplate(82, 82, 76);
         equipment.setLeggings(54, 48, 48);
         equipment.setBoots(183, 183, 180);
 
-        this.setWeapon(new Weapon(Material.BOW).setDamage(2.0d).setName("Bow").setInfo("Just a normal bow."));
+        setWeapon(new Weapon(Material.BOW).setDamage(2.0d).setName("Bow").setDescription("Just a normal bow."));
 
-        this.setUltimate(new UltimateTalent(
+        setUltimate(new UltimateTalent(
                 "Crowned Mastery",
                 "Gather the energy around you to execute a fatal slash:____While in &e&lRange Stance&7, shoot a magic arrow in front of you that explodes on impact, dealing AoE damage and applying &bRiptide &7effect to opponents.____While in &e&lMelee Stance&7, perform a slash around you that deals AoE damage and executes &bRiptide Slash &7if opponent is affected by &bRiptide&7.",
                 70
@@ -69,63 +72,53 @@ public class Harbinger extends Hero implements Listener {
         final Player player = input.getPlayer();
         final LivingEntity entity = input.getEntity();
 
-        if (!TalentHandle.MELEE_STANCE.isActive(player) || !isAffectedByRiptide(player, entity)) {
+        if (entity == null || !TalentHandle.MELEE_STANCE.isActive(player)) {
             return null;
         }
 
-        removeRiptide(player, entity);
-        executeRiptideSlash(player, entity);
+        executeRiptideSlashIfPossible(player, entity);
 
         return null;
     }
 
-    public void executeRiptideSlash(Player player, LivingEntity entity) {
-        if (entity.isDead()) {
-            return;
+    @Nullable
+    @Override
+    public DamageOutput processDamageAsDamagerProjectile(DamageInput input, Projectile projectile) {
+        if (!(projectile instanceof Arrow arrow) || !arrow.isCritical()) {
+            return null;
         }
 
-        final int maxTicks = entity.getMaximumNoDamageTicks();
-        entity.setMaximumNoDamageTicks(0);
+        final Player player = input.getPlayer();
+        final LivingEntity entity = input.getEntity();
 
-        GameTask.runTaskTimerTimes((task, tick) -> {
-            GamePlayer.damageEntity(entity, 3.0d, player, EnumDamageCause.RIPTIDE);
-            entity.setVelocity(new Vector(new Random().nextDouble() * 0.5d, 0.25d, new Random().nextDouble() * 0.5d));
-
-            if (tick == 0) {
-                entity.setMaximumNoDamageTicks(maxTicks);
-            }
-
-            final Location location = entity.getLocation();
-            PlayerLib.spawnParticle(location, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0);
-            PlayerLib.playSound(location, Sound.ITEM_BUCKET_FILL, 1.75f);
-        }, 0, 2, 5);
-    }
-
-    @EventHandler()
-    public void handleRiptide(ProjectileHitEvent ev) {
-        if (ev.getEntity() instanceof Arrow arrow && arrow.getShooter() instanceof Player player) {
-            if (!arrow.isCritical() || !validatePlayer(player, Heroes.HARBINGER)) {
-                return;
-            }
-
-            final Entity hitEntity = ev.getHitEntity();
-            if (!(hitEntity instanceof LivingEntity living)) {
-                return;
-            }
-
-            if (!isAffectedByRiptide(player, living)) {
-                addRiptide(player, living);
-            }
+        if (entity != null) {
+            executeRiptideSlashIfPossible(player, entity);
+            addRiptide(player, entity, 150, false);
         }
+
+        return null;
     }
 
-    public Set<LivingEntity> getAffectedSet(Player player) {
-        return riptideAffected.computeIfAbsent(player, (t) -> new ConcurrentSet<>());
+    public void executeRiptideSlashIfPossible(Player player, LivingEntity entity) {
+        getRiptideStatus(player).executeRiptideSlash(entity);
+    }
+
+    public void addRiptide(Player player, LivingEntity entity, long amount, boolean force) {
+        getRiptideStatus(player).setRiptide(entity, amount, force);
+    }
+
+    public RiptideStatus getRiptideStatus(Player player) {
+        return this.riptideStatus.computeIfAbsent(player, r -> new RiptideStatus(player));
     }
 
     @Override
     public void onStop() {
-        riptideAffected.clear();
+        riptideStatus.clear();
+    }
+
+    @Override
+    public void onDeath(Player player) {
+        riptideStatus.remove(player);
     }
 
     @Override
@@ -134,56 +127,13 @@ public class Harbinger extends Hero implements Listener {
     }
 
     @Override
-    public void onDeath(Player player) {
-        riptideAffected.remove(player);
-    }
-
-    @Override
     public void onStart() {
         new GameTask() {
             @Override
             public void run() {
-                if (riptideAffected.isEmpty()) {
-                    return;
-                }
-
-                // display particles for riptide owner
-                riptideAffected.forEach((player, set) -> {
-                    for (final LivingEntity living : set) {
-                        if (living.isDead()) {
-                            executeRiptideSlash(player, living);
-                            set.remove(living);
-                            return;
-                        }
-
-                        final Location location = living.getEyeLocation().add(0.0d, 0.2d, 0.0d);
-                        PlayerLib.spawnParticle(location, Particle.WATER_SPLASH, 10, 0.15d, 0.5d, 0.15d, 0.01f);
-                        PlayerLib.spawnParticle(location, Particle.GLOW, 5, 0.15d, 0.15d, 0.5d, 0.025f);
-
-                        living.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 20, 0));
-                        living.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 20, 0));
-                    }
-                });
+                riptideStatus.forEach((p, r) -> r.tick());
             }
-        }.runTaskTimer(0, 10);
-    }
-
-    private void addRiptide(Player player, LivingEntity living) {
-        getAffectedSet(player).add(living);
-        if (living instanceof Player victim) {
-            PlayerLib.playSound(victim, Sound.AMBIENT_UNDERWATER_ENTER, 1.25f);
-        }
-    }
-
-    private void removeRiptide(Player player, LivingEntity living) {
-        getAffectedSet(player).remove(living);
-        if (living instanceof Player victim) {
-            PlayerLib.playSound(victim, Sound.AMBIENT_UNDERWATER_EXIT, 1.75f);
-        }
-    }
-
-    private boolean isAffectedByRiptide(Player player, LivingEntity entity) {
-        return getAffectedSet(player).contains(entity);
+        }.runTaskTimer(0, 1);
     }
 
     @Override
@@ -218,7 +168,7 @@ public class Harbinger extends Hero implements Listener {
                                         return;
                                     }
 
-                                    GamePlayer.damageEntity(entity, 40.0d, player);
+                                    GamePlayer.damageEntity(entity, 40.0d, player, EnumDamageCause.RIPTIDE);
                                 });
 
                                 PlayerLib.spawnParticle(location, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0);
@@ -253,17 +203,16 @@ public class Harbinger extends Hero implements Listener {
         new GameTask() {
             @Override
             public void run() {
-
                 Utils.getEntitiesInRange(location, ultimateRadius).forEach(entity -> {
                     if (entity == player) {
                         return;
                     }
 
-                    GamePlayer.damageEntity(entity, 25.0d, player);
+                    GamePlayer.damageEntity(entity, 25.0d, player, EnumDamageCause.RIPTIDE);
                     PlayerLib.playSound(entity.getLocation(), Sound.ENTITY_GENERIC_BIG_FALL, 0.75f);
                     PlayerLib.playSound(entity.getLocation(), Sound.ENTITY_GENERIC_HURT, 1.25f);
 
-                    addRiptide(player, entity);
+                    addRiptide(player, entity, 500, false);
                 });
 
                 // Fx
@@ -281,7 +230,7 @@ public class Harbinger extends Hero implements Listener {
 
     @Override
     public Talent getSecondTalent() {
-        return null;
+        return Talents.TIDAL_WAVE.getTalent();
     }
 
     @Override

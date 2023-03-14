@@ -36,6 +36,7 @@ public class AlchemicalCauldron {
 
     private double progress;
     private Status status;
+    private Block cauldronBlock;
 
     public AlchemicalCauldron(Player owner, Location location) {
         this.owner = owner;
@@ -108,7 +109,7 @@ public class AlchemicalCauldron {
                     spawnParticle(location);
 
                     // Draw the zone
-                    Geometry.drawCircle(location, 4.5d, Quality.VERY_HIGH, new Draw(Particle.SPELL) {
+                    Geometry.drawCircle(location, 4.5d, Quality.SUPER_HIGH, new Draw(Particle.SPELL) {
                         @Override
                         public void draw(Location location) {
                             spawnParticle(location);
@@ -201,14 +202,14 @@ public class AlchemicalCauldron {
     }
 
     private void createCauldron() {
-        final Block block = this.location.getBlock();
-        block.setType(Material.WATER_CAULDRON, false);
+        cauldronBlock = this.location.getBlock();
+        cauldronBlock.setType(Material.WATER_CAULDRON, false);
 
-        if (block.getState() instanceof Levelled levelled) {
+        if (cauldronBlock.getState() instanceof Levelled levelled) {
             levelled.setLevel(levelled.getMaximumLevel());
         }
 
-        block.getState().update(true, false);
+        cauldronBlock.getState().update(true, false);
     }
 
     public void finish() {
@@ -217,10 +218,13 @@ public class AlchemicalCauldron {
         Chat.sendMessage(owner, "&aYou have gained the Cauldron Buff!");
         Talents.CAULDRON.getTalent().startCd(owner);
         ((Alchemist) Heroes.ALCHEMIST.getHero()).startCauldronBoost(owner);
+        clear();
     }
 
     public void clear() {
-        this.location.getBlock().setType(Material.AIR, false);
+        // FIXME: 011, Mar 11, 2023 This doesnt remove the block sometimes, maybe store the block sa well
+        //this.location.getBlock().setType(Material.AIR, false);
+        this.cauldronBlock.setType(Material.AIR, false);
         this.standOwner.remove();
         this.standBar.remove();
         this.standAnimation.remove();

@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.storage.darkmage;
 
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.heroes.HeroHandle;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.heroes.storage.extra.DarkMageSpell;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.math.Geometry;
@@ -18,62 +18,77 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
+import javax.annotation.Nonnull;
+
 import static org.bukkit.Sound.BLOCK_HONEY_BLOCK_SLIDE;
 
-public class SlowingAura extends Talent {
-	public SlowingAura() {
-		super("Slowing Aura", "Creates a slowness pool at your target block that slows anyone in range.", Material.BONE_MEAL);
-		this.setCd(200);
-	}
+public class SlowingAura extends DarkMageTalent {
 
-	@Override
-	public Response execute(Player player) {
-		if (HeroHandle.DARK_MAGE.isUsingUltimate(player)) {
-			return Response.error("Unable to use while in ultimate form!");
-		}
+    public SlowingAura() {
+        super("Slowing Aura", "Creates a slowness pool at your target block that slows anyone in range.", Material.BONE_MEAL);
+        this.setCd(200);
+    }
 
-		final Block targetBlock = player.getTargetBlockExact(20);
+    @Nonnull
+    @Override
+    public DarkMageSpell.SpellButton first() {
+        return DarkMageSpell.SpellButton.RIGHT;
+    }
 
-		if (targetBlock == null) {
-			return Response.error("No valid block in sight!");
-		}
+    @Nonnull
+    @Override
+    public DarkMageSpell.SpellButton second() {
+        return DarkMageSpell.SpellButton.LEFT;
+    }
 
-		final Location location = targetBlock.getRelative(BlockFace.UP).getLocation();
+    @Override
+    public Response execute(Player player) {
+        if (HeroHandle.DARK_MAGE.isUsingUltimate(player)) {
+            return Response.error("Unable to use while in ultimate form!");
+        }
 
-		new GameTask() {
-			private int tick = 10;
+        final Block targetBlock = player.getTargetBlockExact(20);
 
-			@Override
-			public void run() {
-				if (tick-- <= 0) {
-					this.cancel();
-					return;
-				}
+        if (targetBlock == null) {
+            return Response.error("No valid block in sight!");
+        }
 
-				double radius = 4.0d;
-				Geometry.drawCircle(location, radius, Quality.LOW, new Draw(Particle.SPELL) {
-					@Override
-					public void draw(Location location) {
-						final World world = location.getWorld();
-						if (world != null) {
-							world.spawnParticle(
-									this.getParticle(),
-									location.getX(),
-									location.getY(),
-									location.getZ(),
-									1, 0, 0, 0, null
-							);
-						}
-					}
-				});
+        final Location location = targetBlock.getRelative(BlockFace.UP).getLocation();
 
-				PlayerLib.playSound(location, BLOCK_HONEY_BLOCK_SLIDE, 0.0f);
-				Utils.getPlayersInRange(location, radius).forEach(entity -> {
-					PlayerLib.addEffect(entity, PotionEffectType.SLOW, 10, 3);
-				});
+        new GameTask() {
+            private int tick = 10;
 
-			}
-		}.runTaskTimer(0, 5);
-		return Response.OK;
-	}
+            @Override
+            public void run() {
+                if (tick-- <= 0) {
+                    this.cancel();
+                    return;
+                }
+
+                double radius = 4.0d;
+                Geometry.drawCircle(location, radius, Quality.LOW, new Draw(Particle.SPELL) {
+                    @Override
+                    public void draw(Location location) {
+                        final World world = location.getWorld();
+                        if (world != null) {
+                            world.spawnParticle(
+                                    this.getParticle(),
+                                    location.getX(),
+                                    location.getY(),
+                                    location.getZ(),
+                                    1, 0, 0, 0, null
+                            );
+                        }
+                    }
+                });
+
+                PlayerLib.playSound(location, BLOCK_HONEY_BLOCK_SLIDE, 0.0f);
+                Utils.getPlayersInRange(location, radius).forEach(entity -> {
+                    PlayerLib.addEffect(entity, PotionEffectType.SLOW, 10, 3);
+                });
+
+            }
+        }.runTaskTimer(0, 5);
+        return Response.OK;
+    }
 }

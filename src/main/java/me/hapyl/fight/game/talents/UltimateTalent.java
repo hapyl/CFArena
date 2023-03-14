@@ -73,6 +73,12 @@ public class UltimateTalent extends Talent {
     }
 
     @Override
+    public UltimateTalent setTexture(String texture64) {
+        super.setTexture(texture64);
+        return this;
+    }
+
+    @Override
     public UltimateTalent setCd(int cd) {
         super.setCd(cd);
         return this;
@@ -92,8 +98,6 @@ public class UltimateTalent extends Talent {
     @Override
     public final Response execute(Player player) {
         throw new IllegalStateException("use Hero#useUltimate");
-        //this.useUltimate(player);
-        //return Response.OK;
     }
 
     /**

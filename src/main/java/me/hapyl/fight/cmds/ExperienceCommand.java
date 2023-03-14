@@ -25,7 +25,7 @@ public class ExperienceCommand extends SimplePlayerAdminCommand {
 
         if (args.length == 0) {
             for (int i = 1; i < experience.MAX_LEVEL; i++) {
-                Debugger.log(i + "=" + experience.getExpRequired(i));
+                Debugger.keepLog(i + "=" + experience.getExpRequired(i));
             }
             return;
         }

@@ -4,6 +4,11 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Shortcuts;
 import me.hapyl.fight.database.Award;
+import me.hapyl.fight.exception.ClassesFightException;
+import me.hapyl.fight.game.cosmetic.Cosmetics;
+import me.hapyl.fight.game.cosmetic.Display;
+import me.hapyl.fight.game.cosmetic.Type;
+import me.hapyl.fight.game.cosmetic.WinCosmetic;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -12,12 +17,13 @@ import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.report.GameReport;
 import me.hapyl.fight.game.setting.Setting;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.Nulls;
 import me.hapyl.spigotutils.module.chat.Chat;
-import org.bukkit.*;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Firework;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
@@ -26,6 +32,8 @@ import java.util.*;
 import java.util.function.Predicate;
 
 public class GameInstance extends AbstractGameInstance implements GameElement {
+
+    private final Cosmetics DEFAULT_WIN_COSMETIC = Cosmetics.FIREWORKS;
 
     private final String hexCode;
 
@@ -67,6 +75,11 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
     }
 
     @Override
+    public boolean isAbstract() {
+        return false;
+    }
+
+    @Override
     public State getGameState() {
         return gameState;
     }
@@ -81,90 +94,36 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
         gameResult.awardWinners();
     }
 
-    private Location getFireworkSpawnLocation() {
-        Location location = null;
-        if (!gameResult.isWinners()) {
-            location = currentMap.getMap().getLocation();
-        }
-        else {
-            for (final GamePlayer winner : gameResult.getWinners()) {
-                if (winner.isAlive()) {
-                    location = winner.getPlayer().getLocation();
+    public void executeWinCosmetic() {
+        Cosmetics cosmetic = DEFAULT_WIN_COSMETIC;
+        Location location = currentMap.getMap().getLocation();
+        Player winner = null;
+
+        // Find winner's cosmetic and location
+        if (gameResult.isWinners()) {
+            for (final GamePlayer player : gameResult.getWinners()) {
+                if (!player.isDead()) { // isDead to allow respawning players to have their cosmetics
+                    cosmetic = Nulls.notNullOr(player.getDatabase().getCosmetics().getSelected(Type.WIN), DEFAULT_WIN_COSMETIC);
+                    location = player.getPlayer().getLocation();
+                    winner = player.getPlayer();
                     break;
                 }
             }
         }
 
-        return location;
-    }
-
-    @Override
-    public void spawnFireworks(boolean flag) {
-        final Location location = getFireworkSpawnLocation();
-        final Set<Firework> fireworks = new HashSet<>();
-        final int maxTimes = 18;
-        final int delayPer = 5;
-
-        if (location != null) {
-            new GameTask() {
-                int currentTimes = 0;
-
-                @Override
-                public void run() {
-
-                    if (++currentTimes >= (maxTimes + 1)) {
-                        fireworks.forEach(Entity::remove);
-                        fireworks.clear();
-                        this.cancel();
-                    }
-                    else {
-                        final int randomX = new Random().nextInt(10);
-                        final int randomY = new Random().nextInt(5);
-                        final int randomZ = new Random().nextInt(10);
-
-                        final boolean negativeX = new Random().nextBoolean();
-                        final boolean negativeZ = new Random().nextBoolean();
-
-                        final Location cloned = location.clone().add(
-                                negativeX ? -randomX : randomX,
-                                randomY,
-                                negativeZ ? -randomZ : randomZ
-                        );
-                        if (cloned.getWorld() == null) {
-                            return;
-                        }
-
-                        fireworks.add(cloned.getWorld().spawn(cloned, Firework.class, me -> {
-                            final FireworkMeta meta = me.getFireworkMeta();
-                            meta.setPower(2);
-                            //new FireworkEffect(true, true, getRandomColors(), getRandomColors(), FireworkEffect.Type.BURST))
-                            meta.addEffect(FireworkEffect.builder()
-                                                   .with(FireworkEffect.Type.BURST)
-                                                   .withColor(getRandomColor())
-                                                   .withFade(getRandomColor())
-                                                   .withTrail()
-                                                   .build());
-                            me.setFireworkMeta(meta);
-                        }));
-                    }
-
-                }
-            }.runTaskTimer(0, delayPer);
+        if (!(cosmetic.getCosmetic() instanceof WinCosmetic winCosmetic)) {
+            Manager.current().onStop();
+            throw new ClassesFightException("Cosmetic is not a WinCosmetic!");
         }
 
-        if (flag) {
-            GameTask.runLater(() -> {
-                fireworks.forEach(Entity::remove);
-                fireworks.clear();
+        final int delay = winCosmetic.getDelay();
+        winCosmetic.onDisplay(new Display(winner, location));
 
-                Manager.current().onStop();
-            }, (maxTimes * delayPer) + 20);
-        }
-
-    }
-
-    private Color getRandomColor() {
-        return Color.fromRGB(new Random().nextInt(255), new Random().nextInt(255), new Random().nextInt(255));
+        final Location finalLocation = location;
+        GameTask.runLater(() -> {
+            winCosmetic.onStop(finalLocation);
+            Manager.current().onStop();
+        }, delay);
     }
 
     @Override
@@ -247,7 +206,7 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
         Bukkit.getOnlinePlayers().forEach(player -> {
             final Heroes hero = getHero(player);
             final PlayerProfile profile = Shortcuts.getProfile(player);
-            final GamePlayer gamePlayer = new GamePlayer(profile, hero.getHero());
+            final GamePlayer gamePlayer = new GamePlayer(profile, hero);
 
             // Spectate Setting
             if (Setting.SPECTATE.isEnabled(player)) {
@@ -327,22 +286,26 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
 
             @Override
             public void run() {
+                if (Manager.current().isDebug()) {
+                    getAlivePlayers().forEach(player -> {
+                        player.setUltPoints(player.getUltPointsNeeded());
+                    });
+                    return;
+                }
 
                 // AFK detection
-                if (!Manager.current().isDebug()) {
-                    getAlivePlayers().forEach(player -> {
-                        if (player.hasMovedInLast(15000)) { // 15s afk detection
-                            return;
-                        }
+                getAlivePlayers().forEach(player -> {
+                    if (player.hasMovedInLast(15000)) { // 15s afk detection
+                        return;
+                    }
 
-                        player.addPotionEffect(PotionEffectType.GLOWING, 20, 1);
-                        player.sendTitle("&c&lYOU'RE AFK", "&aMove to return from afk!", 0, 10, 0);
-                        if (tick % 10 == 0) {
-                            player.playSound(Sound.BLOCK_NOTE_BLOCK_HAT, 1.0f);
-                        }
+                    player.addPotionEffect(PotionEffectType.GLOWING, 20, 1);
+                    player.sendTitle("&c&lYOU'RE AFK", "&aMove to return from afk!", 0, 10, 0);
+                    if (tick % 10 == 0) {
+                        player.playSound(Sound.BLOCK_NOTE_BLOCK_HAT, 1.0f);
+                    }
 
-                    });
-                }
+                });
 
                 // Auto-Points
                 if (tick % 20 == 0) {
@@ -358,7 +321,7 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
 
                 // Game UI -> Moved to GamePlayerUI
 
-                if (tick < 0 && !Manager.current().isDebug()) {
+                if (tick < 0) {
                     Chat.broadcast("&a&lTime is Up! &aGame Over.");
                     Manager.current().stopCurrentGame();
                     this.cancel();

@@ -7,6 +7,7 @@ import me.hapyl.fight.game.shop.Rarity;
 import org.bukkit.event.Listener;
 
 public abstract class ContrailCosmetic extends Cosmetic implements Listener {
+
     public ContrailCosmetic(String name, String description, long cost, Rarity rarity) {
         super(name, description, cost, Type.CONTRAIL, rarity);
     }

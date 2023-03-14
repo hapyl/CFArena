@@ -1,0 +1,39 @@
+Troll:
+
+- Repulsor is now has a range restriction of 10 blocks. (As it should be)
+
+####################################################################
+
+Bugs:
+
+- Holograms don't reappear on TP? (could not reproduce)
+
+- [✔] Dracula keeps shooting when the game is over
+- [✔] Vampire lightning strike does not work
+- [✔] Fall death did not count.
+- [Needs Testing] Alchemist's cauldron does not remove
+- [✔] Alchemist cauldron effect does not reset
+- [✔] Don't display contrail while invisibility or yes
+- [✔] Invis dont work!!!!
+- [✔] Random class does not work in deathmatch, actually change how random class works
+- Fix random class in tab and chat
+
+- Custom damage type does not reset when hit using vanilla
+- librari door broken
+
+####################################################################
+
+- Cleanup Code
+- Add friends, idk why?
+
+- Add talents for:
+    - [✔] Troll (Passive✔)
+    - Dr. Ed (Second✔, Passive)
+    - Freazly (Second, Passive)
+    - Dark Mage (Passive)
+    - Swooper (Second✔)
+    - Tamer (First, Second, Passive)
+    - Shark (Second)
+    - Librarian (Passive)
+    - KM (Passive)
+    - Harbinger (Second)

@@ -45,7 +45,7 @@ public class HarvestBlocks extends Talent {
         super("Block Harvest");
         setDescription(
                 Formatter.of(
-                        "Quickly gather resources from up to {} nearby blocks, then combine them in one big pile before throwing it at your enemies.__{}'s damage is based on the amount of blocks gathered.",
+                        "Quickly gather resources from up to {} nearby blocks, then combine them in one big pile before throwing it at your enemies.____{}'s damage is based on the amount of blocks gathered.",
                         MAX_BLOCKS,
                         this
                 ),

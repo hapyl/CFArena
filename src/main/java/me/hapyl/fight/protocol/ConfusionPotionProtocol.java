@@ -28,6 +28,10 @@ public class ConfusionPotionProtocol extends ProtocolListener {
 
     @Override
     public void onPacketReceiving(PacketEvent ev) {
+        if (true) {
+            return;
+        }
+
         final Player player = ev.getPlayer();
         final PacketContainer packet = ev.getPacket();
 

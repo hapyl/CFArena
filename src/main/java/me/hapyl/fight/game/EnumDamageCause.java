@@ -35,7 +35,7 @@ public enum EnumDamageCause {
     FLOWER("was pruned to death", "by"),
     FELL_THE_BREEZE("felt {player}'s breeze..."),
     NEVERMISS("couldn't dodge {player}'s attack, what a noob.."),
-    FEET_ATTACK("probably lost their pinky"),
+    FEET_ATTACK("probably lost their toe"),
     SUBMERGE("didn't know that Sharks bite"),
     SOTS("couldn't hide from the stars", "of"),
     STAR_SLASH("was slashed in half", "by"),
@@ -49,6 +49,10 @@ public enum EnumDamageCause {
     FREEZE("froze to death", "with help of"),
     LASER("was lasered to death", "by"),
     WATER("really liked the water"),
+    SWARM("was swarmed to death by {player}'s bats"),
+    LIGHTNING("was struck by lightning", "by"),
+    TROLL_LAUGH("was trolled to death", "by"),
+    BLOCK_SHIELD("was hit by {player}'s circling block"),
 
     // *==* there are vanilla ones, have to use them *==*
 

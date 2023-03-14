@@ -1,17 +1,1 @@
-TODO:
 
-- Cleanup Code
-- Rework Class preview GUI
-- Experience System
-
-- Add talents for:
-    - Troll (Passive)
-    - Dr. Ed (Second, Passive)
-    - Freazly (Second, Passive)
-    - Dark Mage (Passive)
-    - Swooper (Second)
-    - Tamer (First, Second, Passive)
-    - Shark (Second)
-    - Librarian (Passive)
-    - KM (Passive)
-    - Harbinger (Second)

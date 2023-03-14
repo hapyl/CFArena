@@ -26,7 +26,7 @@ public class ModeSelectGUI extends PlayerGUI {
 					new ItemBuilder(mode.getMaterial())
 							.setName((value.isSelected() ? "&a" : "&c") + mode.getName())
 							.addLore()
-							.addSmartLore(mode.getInfo(), 35)
+							.addSmartLore(mode.getDescription(), 35)
 							.addLore()
 							.addLore("%s Players Required: &f%s", mode.isPlayerRequirementsMet() ? "&a✔" : "&c❌", mode.getPlayerRequirements())
 							.addLore("Time Limit: &f%s", new SimpleDateFormat("mm:ss").format(mode.getTimeLimit() * 1000))

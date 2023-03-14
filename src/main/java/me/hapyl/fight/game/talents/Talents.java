@@ -16,6 +16,9 @@ import me.hapyl.fight.game.talents.storage.ender.TeleportPearl;
 import me.hapyl.fight.game.talents.storage.ender.TransmissionBeacon;
 import me.hapyl.fight.game.talents.storage.freazly.IceCone;
 import me.hapyl.fight.game.talents.storage.harbinger.MeleeStance;
+import me.hapyl.fight.game.talents.storage.harbinger.TidalWave;
+import me.hapyl.fight.game.talents.storage.healer.HealingPotion;
+import me.hapyl.fight.game.talents.storage.healer.ReviveTotem;
 import me.hapyl.fight.game.talents.storage.hercules.HerculesJump;
 import me.hapyl.fight.game.talents.storage.hercules.HerculesShift;
 import me.hapyl.fight.game.talents.storage.juju.ArrowShield;
@@ -44,14 +47,18 @@ import me.hapyl.fight.game.talents.storage.shaman.ResonanceType;
 import me.hapyl.fight.game.talents.storage.shaman.Totem;
 import me.hapyl.fight.game.talents.storage.shaman.TotemTalent;
 import me.hapyl.fight.game.talents.storage.shark.Submerge;
+import me.hapyl.fight.game.talents.storage.shark.Whirlpool;
 import me.hapyl.fight.game.talents.storage.spark.Molotov;
 import me.hapyl.fight.game.talents.storage.spark.SparkFlash;
 import me.hapyl.fight.game.talents.storage.swooper.BlastPack;
 import me.hapyl.fight.game.talents.storage.swooper.Blink;
+import me.hapyl.fight.game.talents.storage.tamer.MineOBall;
 import me.hapyl.fight.game.talents.storage.techie.TrapCage;
 import me.hapyl.fight.game.talents.storage.techie.TrapWire;
 import me.hapyl.fight.game.talents.storage.troll.Repulsor;
 import me.hapyl.fight.game.talents.storage.troll.TrollSpin;
+import me.hapyl.fight.game.talents.storage.vampire.BatSwarm;
+import me.hapyl.fight.game.talents.storage.vampire.VampirePet;
 import me.hapyl.fight.game.talents.storage.vortex.StarAligner;
 import me.hapyl.fight.game.talents.storage.vortex.VortexStar;
 import me.hapyl.fight.game.talents.storage.witcher.*;
@@ -84,11 +91,7 @@ public enum Talents {
     // Moonwalker
     MOONSLITE_PILLAR(new MoonslitePillar()),
     MOONSLITE_BOMB(new MoonSliteBomb()),
-    TARGET(new PassiveTalent(
-            "Space Suit",
-            "You suit grants you slow falling ability.",
-            Material.FEATHER
-    )),
+    TARGET(new PassiveTalent("Space Suit", "You suit grants you slow falling ability.", Material.FEATHER)),
 
     // Hercules
     HERCULES_DASH(new HerculesShift()),
@@ -111,17 +114,18 @@ public enum Talents {
     // Pytaria
     FLOWER_ESCAPE(new FlowerEscape()),
     FLOWER_BREEZE(new FlowerBreeze()),
-    EXCELLENCY(new PassiveTalent(
-            "Excellency",
+    EXCELLENCY(new PassiveTalent("Excellency",
             // When Pytaria's health is lower or equal to &c50%&7, her damage is increased by &b50%&7.
-            "When Pytaria's &chealth &7is lower or equal to &c50%&7, her damage is increased by &b50%&7.",
-            Material.ROSE_BUSH
+            "When Pytaria's &chealth &7is lower or equal to &c50%&7, her damage is increased by &b50%&7.", Material.ROSE_BUSH
     )),
 
     // Troll
     TROLL_SPIN(new TrollSpin()),
     REPULSOR(new Repulsor()),
-    TROLL_PASSIVE(new PassiveTalent("idk yet", "idk yet", Material.STONE)),
+    TROLL_PASSIVE(new PassiveTalent("Last Laugh", "Your hits have &b0.1% &7chance to instantly kill enemy.", Material.BLAZE_POWDER)),
+
+    // Tamer
+    MINE_O_BALL(new MineOBall()),
 
     // Nightmare
     PARANOIA(new Paranoia()),
@@ -135,7 +139,11 @@ public enum Talents {
     // Dr. Ed
     CONFUSION_POTION(new ConfusionPotion()),
     HARVEST(new HarvestBlocks()),
-    MISSING_TALENT_1(new PassiveTalent("missing", "missing", Material.BEDROCK)),
+    BLOCK_SHIELD(new PassiveTalent(
+            "Block Maelstrom",
+            "Creates a block that orbits around you, dealing damage based on the element upon contact with opponents.____&7Refreshes every &b10s&7.",
+            Material.BRICK
+    )),
 
     // Ender
     TELEPORT_PEARL(new TeleportPearl()),
@@ -229,9 +237,10 @@ public enum Talents {
 
     // Shark
     SUBMERGE(new Submerge()),
+    WHIRLPOOL(new Whirlpool()),
     CLAW_CRITICAL(new PassiveTalent(
             "Sturdy Claws",
-            "Your hits have &b10% &7chance to &ccrit&7! Critical hits summons an ancient creature from beneath that deals extra damage in small AoE!",
+            "Your hits have &b10% &7chance to &ccrit&7!____Critical hits summons an ancient creature from beneath that deals extra damage!",
             Material.MILK_BUCKET
     )),
 
@@ -243,9 +252,10 @@ public enum Talents {
 
     // Harbinger
     STANCE(new MeleeStance()),
+    TIDAL_WAVE(new TidalWave()),
     RIPTIDE(new PassiveTalent(
             "Riptide",
-            "Fully charged shot in &e&lRange Stance&7 applies &bRiptide &7effect to opponents.__Hitting opponents affected by &bRiptide&7 in &e&lRange Stance &7executes &bRiptide Slash&7, that clears &bRiptide&7 and rapidly deals damage.",
+            "Fully charged shot in &e&lRange Stance&7 applies &bRiptide &7effect to opponents.____Hitting opponents affected by &bRiptide&7 with &nfully charged shots&7 or in &e&lRange &e&lStance &7executes &bRiptide Slash&7, that rapidly deals damage.____&bRiptide Slash&7 can be executed once every &b2.5s&7.",
             Material.HEART_OF_THE_SEA
     )),
 
@@ -269,10 +279,26 @@ public enum Talents {
     TOTEM_CYCLONE_AURA(new TotemTalent(ResonanceType.CYCLONE_AURA, 16)),
     TOTEM_ACCELERATION_AURA(new TotemTalent(ResonanceType.ACCELERATING_AURA, 20)),
 
-    // test
-    TestChargeTalent(new TestChargeTalent()),
+    // Healer
+    HEALING_POTION(new HealingPotion()),
+    REVIVE_TOTEM(new ReviveTotem()),
+    REVIVE(new PassiveTalent(
+            "Revive",
+            "When taking lethal damage, instead of dying, become a ghost and seek placed &bRevive Catalyst&7 to revive yourself. Once you use &bRevive Catalyst&7, it will be destroyed. All your catalysts will be highlighted for enemy players.",
+            Material.GHAST_TEAR
+    )),
 
-    ;
+    // Vampire
+    VAMPIRE_PET(new VampirePet()),
+    BAT_SWARM(new BatSwarm()),
+    BLOOD_THIRST(new PassiveTalent(
+            "Blood Thirst",
+            "Your health is constantly drained.____Whenever you hit an opponent you will gain a stack of blood, up to 10 stacks.____Drink the blood to increase your damage and heal yourself.__Healing, damage boost, duration and cooldown is based on the amount of stacks consumed.",
+            Material.REDSTONE
+    )),
+
+    // test (keep last)
+    TestChargeTalent(new TestChargeTalent());
 
     private final Talent talent;
 
@@ -284,6 +310,16 @@ public enum Talents {
         if (talent instanceof Listener listener) {
             Main.getPlugin().addEvent(listener);
         }
+    }
+
+    public static Talents fromTalent(Talent talent) {
+        for (Talents value : values()) {
+            if (value.getTalent() == talent) {
+                return value;
+            }
+        }
+
+        throw new IllegalArgumentException("non-registered talent");
     }
 
     public void startCd(Player player) {

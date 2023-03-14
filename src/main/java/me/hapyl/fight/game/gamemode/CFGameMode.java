@@ -17,15 +17,15 @@ public abstract class CFGameMode {
     private final int timeLimit; // in seconds
 
     private Material material;
-    private String info;
+    private String description;
     private int playerRequirements;
     private boolean allowRespawn;
     private int respawnTime;
 
-    public CFGameMode(String name, int timeLimit) {
+    public CFGameMode(String name, int timeLimitSec) {
         this.name = name;
-        this.timeLimit = timeLimit;
-        this.info = "";
+        this.timeLimit = timeLimitSec;
+        this.description = "";
         this.material = Material.BEDROCK;
         this.playerRequirements = 2;
         this.allowRespawn = false;
@@ -55,12 +55,12 @@ public abstract class CFGameMode {
         return material;
     }
 
-    public void setInfo(String info) {
-        this.info = info;
+    public void setDescription(String info) {
+        this.description = info;
     }
 
-    public String getInfo() {
-        return info;
+    public String getDescription() {
+        return description;
     }
 
     public void setPlayerRequirements(int playerRequirements) {

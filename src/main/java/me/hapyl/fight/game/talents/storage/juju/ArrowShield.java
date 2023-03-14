@@ -53,12 +53,15 @@ public class ArrowShield extends Talent implements Listener {
 	public void removeCharge(Player player) {
 		final List<Arrow> list = getArrows(player);
 		final int sizeMinusOne = list.size() - 1;
-		if (sizeMinusOne <= 0) {
+
+        if (sizeMinusOne <= 0) {
 			Chat.sendMessage(player, "&a🛡 Your shield has broke!");
 			shieldMap.remove(player);
 		}
-		final Arrow arrow = list.remove(sizeMinusOne);
-		Utils.createExplosion(
+
+        final Arrow arrow = list.remove(sizeMinusOne);
+
+        Utils.createExplosion(
 				arrow.getLocation(),
 				1.0d,
 				0.0d,
@@ -68,7 +71,8 @@ public class ArrowShield extends Talent implements Listener {
 					}
 				}
 		);
-		arrow.remove();
+
+        arrow.remove();
 	}
 
 	@Override
@@ -126,8 +130,6 @@ public class ArrowShield extends Talent implements Listener {
 				if (theta >= Math.PI * 2) {
 					theta = 0;
 				}
-
-
 			}
 		}.runTaskTimer(0, 1);
 

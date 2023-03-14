@@ -3,7 +3,9 @@ package me.hapyl.fight.cmds;
 import me.hapyl.fight.database.Database;
 import me.hapyl.fight.database.entry.CosmeticEntry;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
+import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
+import me.hapyl.fight.game.cosmetic.gui.CollectionGUI;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
 import me.hapyl.spigotutils.module.util.Validate;
@@ -33,6 +35,11 @@ public class CosmeticCommand extends SimplePlayerAdminCommand {
 
     @Override
     protected void execute(Player player, String[] args) {
+        if (args.length == 0) {
+            new CollectionGUI(player);
+            return;
+        }
+
         if (args.length == 2 && args[0].equalsIgnoreCase("play")) {
             // cosmetic play <cosmetic>
             final Cosmetics cosmetic = Validate.getEnumValue(Cosmetics.class, args[1]);
@@ -41,7 +48,7 @@ public class CosmeticCommand extends SimplePlayerAdminCommand {
                 return;
             }
 
-            cosmetic.getCosmetic().onDisplay(player);
+            cosmetic.getCosmetic().onDisplay(new Display(player, player.getLocation()));
             Chat.sendMessage(player, "&aDisplaying cosmetic %s", cosmetic.name());
         }
         else if (args.length == 3) {
@@ -82,6 +89,11 @@ public class CosmeticCommand extends SimplePlayerAdminCommand {
                 }
 
                 case "give" -> {
+                    if (cosmetics.hasCosmetic(cosmetic)) {
+                        Chat.sendMessage(player, "&c%s already has %s!", target.getName(), cosmetic.name());
+                        return;
+                    }
+
                     cosmetics.addOwned(cosmetic);
                     Chat.sendMessage(player, "&aGave %s to %s", cosmetic.name(), target.getName());
                 }

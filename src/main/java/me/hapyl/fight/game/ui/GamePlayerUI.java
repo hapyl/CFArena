@@ -35,7 +35,7 @@ public class GamePlayerUI {
     public GamePlayerUI(PlayerProfile profile) {
         this.profile = profile;
         this.player = profile.getPlayer();
-        this.builder = new Scoreboarder("&e&lCLASSES FIGHT &c&lᴀʀᴇɴᴀ ");
+        this.builder = new Scoreboarder("&e&lCLASSES FIGHT &c&lᴀʀᴇɴᴀ");
         this.updateScoreboard();
 
         new GameTask() {
@@ -127,7 +127,7 @@ public class GamePlayerUI {
                     this.builder.addLines(
                             "",
                             "&6&lDeathmatch: &f(&b🗡 &l%s&f)".formatted(gamePlayer.getStats()
-                                                                                .getValue(StatContainer.Type.KILLS))
+                                    .getValue(StatContainer.Type.KILLS))
                     );
 
                     final IntInt i = new IntInt(1);
@@ -178,16 +178,15 @@ public class GamePlayerUI {
         return Manager.current().isDebug() ? "&4&lDEBUG" : new SimpleDateFormat("mm:ss").format(game.getTimeLeftRaw());
     }
 
-    private String[] formatHeaderFooter() {
-        final StringBuilder footer = new StringBuilder();
-        footer.append("\n");
-
-        // teammates
+    private StringBuilder buildGameFooter() {
         final GameTeam team = GameTeam.getPlayerTeam(player);
-        if (Manager.current().isGameInProgress() && team != null) {
-            footer.append("&e&lTeammates:\n");
+        final StringBuilder builder = new StringBuilder();
+
+        // Display teammate information:
+        if (team != null) {
+            builder.append("\n&e&lTeammates:\n");
             if (team.getPlayers().size() == 1) {
-                footer.append("&8None!");
+                builder.append("&8None!");
             }
             else {
                 int i = 0;
@@ -195,10 +194,10 @@ public class GamePlayerUI {
                     final boolean usingUltimate = teammate.getHero().isUsingUltimate(teammate.getPlayer());
 
                     if (i != 0) {
-                        footer.append("\n");
+                        builder.append("\n");
                     }
 
-                    footer.append("&a%s &7⁑ &c&l%s &c❤  &b%s".formatted(
+                    builder.append("&a%s &7⁑ &c&l%s &c❤  &b%s".formatted(
                             teammate.getName(),
                             teammate.getHealthFormatted(),
                             usingUltimate ? "&b&lIN USE" : teammate.isUltimateReady() ? "&b&lREADY" : ("&b%s/%s &l※".formatted(
@@ -210,7 +209,41 @@ public class GamePlayerUI {
                     i++;
                 }
             }
-            footer.append("\n");
+        }
+
+        // Display active effects
+        builder.append("\n\n&e&lActive Effects:\n");
+        final GamePlayer gp = GamePlayer.getAlivePlayer(this.player);
+        if (gp == null || gp.getActiveEffects().isEmpty()) {
+            builder.append("&8None!");
+        }
+        else {
+            // {Positive}{Name} - {Time}
+            final IntInt i = new IntInt(0);
+            gp.getActiveEffects().forEach((type, active) -> {
+                final GameEffect gameEffect = type.getGameEffect();
+                builder.append(gameEffect.isPositive() ? "&a" : "&c");
+                builder.append(gameEffect.getName());
+                builder.append(" &f- ");
+                builder.append(new SimpleDateFormat("mm:ss").format(active.getRemainingTicks() * 50));
+                builder.append(" ");
+
+                i.increment();
+                if (i.get() >= 2) {
+                    builder.append("\n");
+                    i.set(0);
+                }
+            });
+        }
+
+        return builder;
+    }
+
+    private String[] formatHeaderFooter() {
+        final StringBuilder footer = new StringBuilder();
+
+        if (Manager.current().isGameInProgress()) {
+            footer.append(buildGameFooter());
         }
 
         // Display NBS player if playing a song
@@ -233,34 +266,8 @@ public class GamePlayerUI {
             ));
         }
 
-        // Display effects if game in progress
-        if (Manager.current().isGameInProgress()) {
-            footer.append("\n\n&e&lActive Effects:\n");
-            final GamePlayer gp = GamePlayer.getAlivePlayer(this.player);
-            if (gp == null || gp.getActiveEffects().isEmpty()) {
-                footer.append("&8None!");
-            }
-            else {
-                // {Positive}{Name} - {Time}
-                final IntInt i = new IntInt(0);
-                gp.getActiveEffects().forEach((type, active) -> {
-                    final GameEffect gameEffect = type.getGameEffect();
-                    footer.append(gameEffect.isPositive() ? "&a" : "&c");
-                    footer.append(gameEffect.getName());
-                    footer.append(" &f- ");
-                    footer.append(new SimpleDateFormat("mm:ss").format(active.getRemainingTicks() * 50));
-                    footer.append(" ");
-
-                    i.increment();
-                    if (i.get() >= 2) {
-                        footer.append("\n");
-                        i.set(0);
-                    }
-                });
-            }
-        }
-
         footer.append("\n");
+
         return new String[] {
                 "\n&e&lCLASSES FIGHT\n&c&lᴀʀᴇɴᴀ\n\n&fTotal Players: &l" + Bukkit.getOnlinePlayers().size(), footer.toString()
         };

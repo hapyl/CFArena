@@ -76,6 +76,10 @@ public class ClassEquipment {
 		return this.setHelmet(ItemBuilder.playerHead(headTexture).cleanToItemSack());
 	}
 
+	public ClassEquipment setTexture(String texture64) {
+		return this.setHelmet(ItemBuilder.playerHeadUrl(texture64).cleanToItemSack());
+	}
+
 	public ClassEquipment setHelmet(int red, int green, int blue) {
 		return this.setHelmet(ItemBuilder.leatherHat(Color.fromRGB(red, green, blue)).cleanToItemSack());
 	}

@@ -20,12 +20,13 @@ public class Deathmatch extends CFGameMode {
 
     public Deathmatch() {
         super("Deathmatch", 300);
-        this.setInfo("Free for All death-match when everyone is fighting for kills. Player with most kills in time limit wins.");
-        this.setPlayerRequirements(2);
-        this.setMaterial(Material.SKELETON_SKULL);
 
-        this.setAllowRespawn(true);
-        this.setRespawnTime(40);
+        setDescription("Free for All death-match when everyone is fighting for kills. Player with most kills in time limit wins.");
+        setPlayerRequirements(2);
+        setMaterial(Material.SKELETON_SKULL);
+
+        setAllowRespawn(true);
+        setRespawnTime(40);
     }
 
     @Override
@@ -50,7 +51,7 @@ public class Deathmatch extends CFGameMode {
         final Map<GamePlayer, Long> topKills = Maps.newHashMap();
 
         instance.getPlayers().values().forEach(player -> {
-            topKills.put(player, player.getStats().getValue(StatContainer.Type.KILLS));
+            topKills.put(player, (long) player.getStats().getValue(StatContainer.Type.KILLS));
         });
 
         return topKills;

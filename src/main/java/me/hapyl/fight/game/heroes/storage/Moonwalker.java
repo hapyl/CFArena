@@ -62,9 +62,9 @@ public class Moonwalker extends Hero implements PlayerElement, UIComponent {
                 PlayerLib.playSound(player, Sound.ENTITY_ARROW_SHOOT, 1.25f);
             }
         }
-                               .setName("Stinger")
-                               .setInfo(
-                                       "A unique bow made of unknown materials, seems to have two firing modes.__&e&lLEFT &e&lCLICK &7to fire quick arrow that deals 50% of normal damage.")
+                .setName("Stinger")
+                .setDescription(
+                        "A unique bow made of unknown materials, seems to have two firing modes.__&e&lLEFT &e&lCLICK &7to fire quick arrow that deals 50% of normal damage.")
                                .setDamage(4.5d)
                                .setId("MOON_WEAPON"));
 

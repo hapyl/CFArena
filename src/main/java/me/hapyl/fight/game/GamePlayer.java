@@ -5,6 +5,7 @@ import me.hapyl.fight.database.Database;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
+import me.hapyl.fight.game.cosmetic.skin.Skins;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.gamemode.CFGameMode;
@@ -34,6 +35,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.scoreboard.Team;
@@ -57,7 +59,9 @@ public class GamePlayer extends AbstractGamePlayer {
 
     private Player player;
     private PlayerProfile profile;
+    private final Heroes enumHero;
     private final Hero hero; // this represents hero that player locked in game with, cannot be changed
+    private final Skins skin;
 
     private double health;
     private double shield;
@@ -88,10 +92,11 @@ public class GamePlayer extends AbstractGamePlayer {
 
     private long lastMoved;
 
-    public GamePlayer(PlayerProfile profile, Hero hero) {
+    public GamePlayer(PlayerProfile profile, Heroes enumHero) {
         this.profile = profile;
         this.player = profile.getPlayer();
-        this.hero = hero;
+        this.enumHero = enumHero;
+        this.hero = enumHero.getHero();
         this.health = maxHealth;
         this.isDead = false;
         this.cdModifier = 1.0d;
@@ -100,6 +105,7 @@ public class GamePlayer extends AbstractGamePlayer {
         this.gameEffects = new ConcurrentHashMap<>();
         this.stats = new StatContainer(player);
         this.lastMoved = System.currentTimeMillis();
+        this.skin = Database.getDatabase(player).getHeroEntry().getSkin(enumHero);
 
         // supply to profile
         profile.setGamePlayer(this);
@@ -110,16 +116,18 @@ public class GamePlayer extends AbstractGamePlayer {
             throw new IllegalArgumentException("validate fake player");
         }
 
+        this.enumHero = null;
         this.player = new BukkitPlayer();
         this.profile = null;
         this.stats = null;
+        this.skin = null;
         this.hero = Heroes.randomHero().getHero();
 
         this.gameEffects = null;
         this.isDead = false;
         this.isSpectator = false;
 
-        Debugger.warning("Created fake game player instance, expect errors!");
+        Debugger.warn("Created fake game player instance, expect errors!");
     }
 
     public void resetPlayer(Ignore... ignores) {
@@ -131,6 +139,7 @@ public class GamePlayer extends AbstractGamePlayer {
         }
 
         setHealth(getMaxHealth());
+        player.setLastDamageCause(null);
         player.getInventory().clear();
         player.setMaxHealth(40.0d);
         player.setHealth(40.0d);
@@ -157,6 +166,12 @@ public class GamePlayer extends AbstractGamePlayer {
             }
         }
 
+    }
+
+    @Nullable
+    @Override
+    public Skins getSkin() {
+        return skin;
     }
 
     public double getShield() {
@@ -321,6 +336,7 @@ public class GamePlayer extends AbstractGamePlayer {
         damage(d, damager, null);
     }
 
+    @Super
     public void damage(double damage, @Nullable LivingEntity damager, @Nullable EnumDamageCause cause) {
         if (damager != null) {
             lastDamager = damager;
@@ -328,6 +344,8 @@ public class GamePlayer extends AbstractGamePlayer {
         if (cause != null) {
             lastDamageCause = cause;
         }
+
+        this.player.setLastDamageCause(new EntityDamageEvent(player, EntityDamageEvent.DamageCause.CUSTOM, damage));
         this.player.damage(damage, damager);
     }
 
@@ -639,6 +657,10 @@ public class GamePlayer extends AbstractGamePlayer {
         return hero;
     }
 
+    public Heroes getEnumHero() {
+        return enumHero;
+    }
+
     public boolean isDead() {
         return isDead;
     }
@@ -668,7 +690,9 @@ public class GamePlayer extends AbstractGamePlayer {
         // charged attack fix
         //        hero.resetTalents(player);
 
-        Manager.current().equipPlayer(player);
+        Manager.current().equipPlayer(player, hero);
+
+        hero.onRespawn(player);
 
         this.player.setGameMode(GameMode.SURVIVAL);
 
@@ -735,29 +759,11 @@ public class GamePlayer extends AbstractGamePlayer {
     @Super
     public static void damageEntity(LivingEntity entity, double damage, LivingEntity damager, EnumDamageCause cause) {
         if (entity instanceof Player player) {
-            //            // Check for teammate
-            //            if (damager instanceof Player playerDamager && GameTeam.isTeammate(player, playerDamager)) {
-            //                Chat.sendMessage(playerDamager, "&cCannot damage teammates!");
-            //                return;
-            //            }
             getPlayer(player).damage(damage, damager, cause);
         }
         else {
             entity.damage(damage, damager);
         }
-    }
-
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("GamePlayer{");
-        sb.append("player=").append(player);
-        sb.append(", hero=").append(hero);
-        sb.append(", health=").append(health);
-        sb.append(", isDead=").append(isDead);
-        sb.append(", isSpectator=").append(isSpectator);
-        sb.append(", ultPoints=").append(ultPoints);
-        sb.append('}');
-        return sb.toString();
     }
 
     public void setValid(boolean flag) {
@@ -789,7 +795,7 @@ public class GamePlayer extends AbstractGamePlayer {
                     return;
                 }
 
-                sendTitle("&aRespawning in", "&a&l" + BukkitUtils.roundTick(tickBeforeRespawn) + "s", 0, 25, 0);
+                sendTitle("&aRespawning in", "&a&l" + BukkitUtils.roundTick(tickBeforeRespawn, ".00") + "s", 0, 25, 0);
                 if (tickBeforeRespawn % 20 == 0) {
                     playSound(Sound.BLOCK_NOTE_BLOCK_PLING, 2.0f - (0.2f * (tickBeforeRespawn / 20f)));
                 }
@@ -836,6 +842,19 @@ public class GamePlayer extends AbstractGamePlayer {
         public double getAmount() {
             return amount;
         }
+    }
+
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("GamePlayer{");
+        sb.append("player=").append(player);
+        sb.append(", hero=").append(hero);
+        sb.append(", health=").append(health);
+        sb.append(", isDead=").append(isDead);
+        sb.append(", isSpectator=").append(isSpectator);
+        sb.append(", ultPoints=").append(ultPoints);
+        sb.append('}');
+        return sb.toString();
     }
 
 }

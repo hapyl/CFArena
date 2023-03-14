@@ -2,6 +2,7 @@ package me.hapyl.fight.game.experience;
 
 import com.google.common.collect.Lists;
 import me.hapyl.fight.Main;
+import me.hapyl.fight.game.cosmetic.gui.CollectionGUI;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.reward.HeroUnlockReward;
 import me.hapyl.fight.game.reward.Reward;
@@ -48,6 +49,9 @@ public class ExperienceGUI extends PlayerGUI {
             setItem(7, ItemBuilder.of(Material.ARROW, "Next Page").asIcon(), e -> update(index + slots.length));
         }
 
+        // Set back button at slot 18
+        setItem(18, ItemBuilder.of(Material.ARROW, "Go Back").asIcon(), CollectionGUI::new);
+
         // put emerald icon in the middle
         // add a lore to the icon
         setItem(
@@ -89,7 +93,7 @@ public class ExperienceGUI extends PlayerGUI {
         if (level.getLevel() == experience.getLevel(player) + 1) {
             builder.addLore();
             builder.addLore("&7Progress: &e" + experience.getProgressBar(player) + " &e" + experience.getExpScaled(player) + "&7/&a" +
-                                    experience.getExpScaledNext(player));
+                    experience.getExpScaledNext(player));
         }
 
         builder.setAmount((int) level.getLevel());
@@ -123,7 +127,7 @@ public class ExperienceGUI extends PlayerGUI {
                         .map(Heroes::getName)
                         .collect(Collectors.joining("&7, &6"))
                         .replaceFirst(",([^,]*)$", " &7and$1") + " &7" + (heroesUnlock.size() == 1 ? "hero" : "heroes") + " &7" +
-                                             rewards.get(rewards.size() - 1).getDisplay(), "  ");
+                        rewards.get(rewards.size() - 1).getDisplay(), "  ");
             }
 
 

@@ -77,10 +77,12 @@ public class Vortex extends Hero implements UIComponent {
                                 return;
                             }
 
-                            final int damageTicks = entity.getMaximumNoDamageTicks();
-                            entity.setMaximumNoDamageTicks(0);
-                            GamePlayer.damageEntity(entity, sotsDamage, player, EnumDamageCause.SOTS);
-                            entity.setMaximumNoDamageTicks(damageTicks);
+                            GamePlayer.damageEntityTick(entity, sotsDamage, player, EnumDamageCause.SOTS, 0);
+
+                            //final int damageTicks = entity.getMaximumNoDamageTicks();
+                            //entity.setMaximumNoDamageTicks(0);
+                            //GamePlayer.damageEntity(entity, sotsDamage, player, EnumDamageCause.SOTS);
+                            //entity.setMaximumNoDamageTicks(damageTicks);
                         });
 
                         if (((distanceFlew += distanceShift) >= maxDistance) || nextLocation.getBlock().getType().isOccluding()) {
@@ -94,10 +96,10 @@ public class Vortex extends Hero implements UIComponent {
                 player.setCooldown(this.getMaterial(), sotsCooldown);
             }
         }.setName("Sword of Thousands Stars").setId("sots_weapon")
-                               .setInfo(String.format(
-                                       "A sword with ability to summon thousands stars.____&e&lRIGHT CLICK &7to launch vortex energy in front of you, that follows your crosshair and rapidly damages and knocks enemies back upon hit.____&aCooldown: &l%ss",
-                                       BukkitUtils.roundTick(sotsCooldown)
-                               )).setDamage(6.5d));
+                .setDescription(String.format(
+                        "A sword with ability to summon thousands stars.____&e&lRIGHT CLICK &7to launch vortex energy in front of you, that follows your crosshair and rapidly damages and knocks enemies back upon hit.____&aCooldown: &l%ss",
+                        BukkitUtils.roundTick(sotsCooldown)
+                )).setDamage(6.5d));
 
 
         this.setUltimate(new UltimateTalent(

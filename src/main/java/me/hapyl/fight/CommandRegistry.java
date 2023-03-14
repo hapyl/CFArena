@@ -25,7 +25,6 @@ import org.bukkit.entity.Piglin;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -55,7 +54,7 @@ public class CommandRegistry {
         register(new TrialCommand("trial"));
         register(new SettingCommand("setting"));
         register(new HelpCommand("help"));
-        register(new GamemodeShortcut("gamemode"));
+        //register(new GamemodeShortcut("gamemode"));
         register(new TeamCommand("team"));
         register(new TestWinConditionCommand("testWinCondition"));
         register(new TriggerWinCommand("triggerWin"));
@@ -64,28 +63,14 @@ public class CommandRegistry {
         register(new ExperienceCommand("experience"));
         register(new CosmeticCommand("cosmetic"));
         register(new DatabaseCommand("database"));
+        register(new SyncDatabaseCommand("syncDatabase"));
+        register(new CastSpellCommand("cast"));
+        register(new ThrowExceptionCommand("throwClassesFightException"));
+        register(new UpdateParkourLeaderboardCommand("updateParkourLeaderboard"));
 
-        register(new SimplePlayerAdminCommand("chatgpt") {
-
-            private BukkitTask task;
-            private BukkitTask task2;
-
+        register(new SimplePlayerAdminCommand("testnpcpose") {
             @Override
             protected void execute(Player player, String[] strings) {
-                if (strings.length > 0 || task != null) {
-                    task.cancel();
-                    task = null;
-
-                    Chat.sendMessage(player, "&aCancelled!");
-                    return;
-                }
-
-                // ChatGPT start
-
-
-                // ChatGPT end
-
-                Chat.sendMessage(player, "&aCreated.");
             }
         });
 

@@ -169,7 +169,7 @@ public class GameResult {
 
         return Chat.bformat(
                 "{Team} &7⁑ &6{Hero} &e&l{Name} &7⁑ &c&l{Health} &c❤  &b&l{Kills} &b🗡  &c&l{Deaths} &c☠",
-                winnerTeam.getNameCaps(),
+                winnerTeam.getFirstLetterCaps(),
                 winner.getHero().getNameSmallCaps(),
                 winner.getName(),
                 winner.getHealthFormatted(),

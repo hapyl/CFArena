@@ -1,5 +1,6 @@
 package me.hapyl.fight.game;
 
+import me.hapyl.fight.game.cosmetic.skin.Skins;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.team.GameTeam;
@@ -63,6 +64,16 @@ public class AbstractGamePlayer {
      * Marks that player has moved.
      */
     public void markLastMoved() {
+    }
+
+    /**
+     * Returns currently equipped skin for {@link #getHero()} or null if none.
+     *
+     * @return currently equipped skin for {@link #getHero()} or null if none.
+     */
+    @Nullable
+    public Skins getSkin() {
+        return null;
     }
 
     /**
@@ -143,7 +154,6 @@ public class AbstractGamePlayer {
      * @param damager - Damager.
      */
     public void damage(double d, LivingEntity damager) {
-
     }
 
     /**
@@ -242,6 +252,9 @@ public class AbstractGamePlayer {
     public EnumDamageCause getLastDamageCause() {
         displayError();
         return EnumDamageCause.NONE;
+    }
+
+    public void setLastDamageCause(EnumDamageCause cause) {
     }
 
     /**

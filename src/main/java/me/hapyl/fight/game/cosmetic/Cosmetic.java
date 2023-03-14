@@ -23,11 +23,14 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
+import javax.annotation.Nonnull;
+
 public abstract class Cosmetic extends ShopItem {
 
+    @Nonnull
     private final Type type;
 
-    public Cosmetic(String name, String description, long cost, Type type, Rarity rarity, Material icon) {
+    public Cosmetic(String name, String description, long cost, @Nonnull Type type, Rarity rarity, Material icon) {
         super(name, description, cost);
         this.setIcon(icon);
         this.setRarity(rarity);
@@ -190,6 +193,7 @@ public abstract class Cosmetic extends ShopItem {
         onDisplay(new Display(null, location));
     }
 
+    @Nonnull
     public Type getType() {
         return type;
     }

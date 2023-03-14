@@ -24,6 +24,7 @@ import org.bukkit.entity.Player;
 import java.util.Set;
 
 // TODO: 019. 10/19/2021
+// TODO: 006, Mar 6, 2023 This literally doesn't work (Uses wrong hero)
 public class Trial implements MessageSender, GameElement {
 
     private final String prefix = "&c&lTRIAL &cBeta";
@@ -40,7 +41,7 @@ public class Trial implements MessageSender, GameElement {
 
     public Trial(PlayerProfile profile, Heroes heroes) {
         this.trialEntities = Sets.newConcurrentHashSet();
-        this.gamePlayer = new GamePlayer(profile, heroes.getHero());
+        this.gamePlayer = new GamePlayer(profile, heroes);
         this.player = profile.getPlayer();
         this.heroes = heroes;
     }

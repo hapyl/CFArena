@@ -22,8 +22,8 @@ public class MeleeStance extends Talent {
 	private final int maxDuration = 600;
 
 	private final Weapon abilityItem = new Weapon(Material.IRON_SWORD).setDamage(8.0d)
-			.setName("Raging Blade")
-			.setInfo("A blade made of unknown material.");
+            .setName("Raging Blade")
+            .setDescription("A blade made of unknown material.");
 
 	public MeleeStance() {
 		super("Melee Stance");
@@ -31,24 +31,29 @@ public class MeleeStance extends Talent {
                 "Enter a Melee Stance for maximum of &b%ss&7 to replace you bow with a sword!__Use again in &e&lMelee Stance&7 to get your bow back.____The longer you're in &e&lMelee Stance&7, the longer the cooldown of this ability.",
                 BukkitUtils.roundTick(maxDuration)
         );
-		this.setItem(Material.IRON_INGOT);
-		this.setCd(-1);
-	}
+        this.setItem(Material.IRON_INGOT);
+        this.setCd(-1);
+    }
 
-	@Override
-	public void onStop() {
-		dataMap.clear();
-	}
+    @Override
+    public void onStop() {
+        dataMap.clear();
+    }
 
-	public boolean isActive(Player player) {
-		return getData(player) != null;
-	}
+    @Override
+    public void onDeath(Player player) {
+        dataMap.remove(player);
+    }
 
-	@Override
-	public Response execute(Player player) {
-		final StanceData data = getData(player);
+    public boolean isActive(Player player) {
+        return getData(player) != null;
+    }
 
-		// Switch to Melee
+    @Override
+    public Response execute(Player player) {
+        final StanceData data = getData(player);
+
+        // Switch to Melee
 		if (data == null) {
 			switchToMelee(player);
 		}

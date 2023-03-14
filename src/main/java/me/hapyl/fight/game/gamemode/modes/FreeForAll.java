@@ -13,9 +13,10 @@ import java.util.Set;
 public class FreeForAll extends CFGameMode {
     public FreeForAll() {
         super("Free for All", 600);
-        this.setInfo("One life, one chance to win. Last man standing wins.");
-        this.setPlayerRequirements(2);
-        this.setMaterial(Material.IRON_SWORD);
+
+        setDescription("One life, one chance to win. Last man standing wins.");
+        setPlayerRequirements(2);
+        setMaterial(Material.IRON_SWORD);
     }
 
     @Override

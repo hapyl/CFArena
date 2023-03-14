@@ -41,10 +41,6 @@ public abstract class AbstractGameInstance {
 
     }
 
-    public void spawnFireworks(boolean flag) {
-
-    }
-
     public long getTimeLeftRaw() {
         return 0;
     }
@@ -123,5 +119,9 @@ public abstract class AbstractGameInstance {
 
     public Collection<GamePlayer> getAllPlayers() {
         return Lists.newArrayList();
+    }
+
+    public boolean isAbstract() {
+        return true;
     }
 }

@@ -14,6 +14,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,7 @@ public class Weapon implements Cloneable {
     private String lore;
     private double damage;
     private double damageMax;
+    private double attackSpeed;
 
     private String id;
 
@@ -45,9 +47,15 @@ public class Weapon implements Cloneable {
         this.material = material;
         this.name = name;
         this.description = about;
+        this.attackSpeed = 0.0d;
         this.damage = damageMin;
         this.damageMax = damageMax;
         this.enchants = new ArrayList<>();
+    }
+
+    public Weapon setAttackSpeed(double attackSpeed) {
+        this.attackSpeed = attackSpeed;
+        return this;
     }
 
     public Weapon addEnchant(Enchantment enchantment, int level) {
@@ -60,11 +68,11 @@ public class Weapon implements Cloneable {
         return this;
     }
 
-    public Weapon setInfo(String info, Object... replacements) {
-        return setInfo(info.formatted(replacements));
+    public Weapon setDescription(String info, Object... replacements) {
+        return setDescription(info.formatted(replacements));
     }
 
-    public Weapon setInfo(String lore) {
+    public Weapon setDescription(String lore) {
         this.description = lore;
         return this;
     }
@@ -137,7 +145,7 @@ public class Weapon implements Cloneable {
             builder.addLore().addSmartLore(description, 35);
         }
 
-        if (this.lore != null) {
+        if (this.lore != null && false/*don't add lor for now*/) {
             builder.addLore().addSmartLore(lore, "&8&o");
         }
 
@@ -169,15 +177,22 @@ public class Weapon implements Cloneable {
         }
 
         if (!enchants.isEmpty()) {
-            enchants.forEach(enchant -> {
-                builder.addEnchant(enchant.getEnchantment(), enchant.getLevel());
-            });
+            enchants.forEach(enchant -> builder.addEnchant(enchant.getEnchantment(), enchant.getLevel()));
         }
 
         if (!isRanged()) {
             builder.addAttribute(
                     Attribute.GENERIC_ATTACK_DAMAGE,
                     damage - 1.0d, // has to be -1 here
+                    AttributeModifier.Operation.ADD_NUMBER,
+                    EquipmentSlot.HAND
+            );
+        }
+
+        if (attackSpeed != 0) {
+            builder.addAttribute(
+                    Attribute.GENERIC_ATTACK_SPEED,
+                    attackSpeed,
                     AttributeModifier.Operation.ADD_NUMBER,
                     EquipmentSlot.HAND
             );
@@ -205,14 +220,14 @@ public class Weapon implements Cloneable {
     public Weapon clone() {
         try {
             super.clone();
-            return new Weapon(this.material).setName(this.name).setInfo(this.description).setDamage(this.damage)
+            return new Weapon(this.material).setName(this.name).setDescription(this.description).setDamage(this.damage)
                     .setId(this.id);
         } catch (Exception ignored) {
         }
         return new Weapon(Material.BEDROCK);
     }
 
-
+    @Nonnull
     public Material getType() {
         return item == null ? Material.AIR : item.getType();
     }

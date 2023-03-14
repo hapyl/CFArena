@@ -4,6 +4,7 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.trial.Trial;
 import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.command.DisabledCommand;
 import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.command.CommandSender;
@@ -11,17 +12,17 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 
-public class TrialCommand extends SimplePlayerAdminCommand {
+public class TrialCommand extends SimplePlayerAdminCommand implements DisabledCommand {
 
-	public TrialCommand(String str) {
-		super(str);
-		setUsage("trial (Hero)");
-		setDescription("Starts or ends a trial challenge.");
-	}
+    public TrialCommand(String str) {
+        super(str);
+        setUsage("trial (Hero)");
+        setDescription("Starts or ends a trial challenge.");
+    }
 
-	@Override
-	protected void execute(Player player, String[] strings) {
-		final Manager manager = Manager.current();
+    @Override
+    protected void execute(Player player, String[] strings) {
+        final Manager manager = Manager.current();
 		final Heroes hero = strings.length >= 1 ? Validate.getEnumValue(Heroes.class, strings[0]) : Heroes.ARCHER;
 
 		if (hero == null) {

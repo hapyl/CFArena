@@ -5,6 +5,7 @@ import me.hapyl.fight.game.maps.features.LibraryCat;
 import me.hapyl.fight.game.maps.features.LibraryFeature;
 import me.hapyl.fight.game.maps.maps.DragonsGorge;
 import me.hapyl.fight.game.maps.maps.JapanMap;
+import me.hapyl.fight.game.maps.maps.WineryMap;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -74,7 +75,11 @@ public enum GameMaps {
             asList(asLoc(0, 64, -90, -180, 0), asLoc(-10, 74, -95, -180, 0), asLoc(9, 74, -95, -180, 0))
     ),
 
-    DRAGONS_GORGE(new DragonsGorge());
+    DRAGONS_GORGE(new DragonsGorge()),
+
+    WINERY(new WineryMap()),
+
+    ;
 
     private final GameMap map;
     private final boolean isPlayable;

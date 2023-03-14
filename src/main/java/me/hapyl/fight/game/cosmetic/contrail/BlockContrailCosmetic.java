@@ -1,6 +1,9 @@
 package me.hapyl.fight.game.cosmetic.contrail;
 
 import com.google.common.collect.Lists;
+import me.hapyl.fight.game.AbstractGameInstance;
+import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.State;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.shop.Rarity;
 import me.hapyl.fight.game.task.GameTask;
@@ -9,7 +12,9 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffectType;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public class BlockContrailCosmetic extends ContrailCosmetic {
@@ -46,25 +51,48 @@ public class BlockContrailCosmetic extends ContrailCosmetic {
         this.stay = stay;
     }
 
+    public boolean isValidBlock(Block block) {
+        return block.getType().isOccluding();
+    }
+
+    public boolean canUseContrail(@Nullable Player player) {
+        if (player == null) {
+            return false;
+        }
+
+        final Manager manager = Manager.current();
+        final AbstractGameInstance currentGame = manager.getCurrentGame();
+
+        // Not in game
+        if (currentGame.isAbstract()) {
+            return true;
+        }
+
+        return !player.hasPotionEffect(PotionEffectType.INVISIBILITY) && currentGame.getGameState() == State.IN_GAME;
+    }
+
+    public boolean isValid(Player player, Block block) {
+        return canUseContrail(player) && isValidBlock(block);
+    }
+
     @Override
     public void onMove(Display display) {
         final Location location = display.getLocation().subtract(0.0d, 1.0d, 0.0);
         final Block block = location.getBlock();
+        final Player player = display.getPlayer();
 
-        if (!block.getType().isOccluding()) {
+        if (!isValid(player, block)) {
             return;
         }
 
         // Get random material
         final Material material = randomElement();
 
-        for (Player player : display.getPlayersWhoCanSeeContrail()) {
-            player.sendBlockChange(location, material.createBlockData());
+        for (Player canSee : display.getPlayersWhoCanSeeContrail()) {
+            canSee.sendBlockChange(location, material.createBlockData());
         }
 
-        GameTask.runLater(() -> {
-            block.getState().update(true, false);
-        }, getStay()).runTaskAtCancel();
+        GameTask.runLater(() -> block.getState().update(true, false), getStay()).runTaskAtCancel();
     }
 
     private Material randomElement() {

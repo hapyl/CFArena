@@ -71,7 +71,7 @@ public class BlockLocation {
 	}
 
 	public Location centralize() {
-		// center the location so it doesn't spawn at the corner of a block
+		// center the location, so it doesn't spawn at the corner of a block
 		return new Location(Bukkit.getWorlds().get(0), this.x + .5, this.y + .5, this.z + .5);
 	}
 

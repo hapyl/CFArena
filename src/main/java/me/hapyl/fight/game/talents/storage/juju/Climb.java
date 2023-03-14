@@ -54,7 +54,7 @@ public class Climb extends Talent {
         }, 1);
 
         PlayerLib.addEffect(player, PotionEffectType.SPEED, 60, 1);
-        PlayerLib.playSound(playerLocation, Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.0f);
+        PlayerLib.playSound(playerLocation, Sound.BLOCK_SLIME_BLOCK_BREAK, 0.75f);
 
         taskController(player);
         return Response.OK;

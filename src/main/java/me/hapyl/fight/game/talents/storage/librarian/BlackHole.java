@@ -3,9 +3,7 @@ package me.hapyl.fight.game.talents.storage.librarian;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.heroes.HeroHandle;
-import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.talents.storage.extra.GrimoireTalent;
+import me.hapyl.fight.game.talents.storage.extra.LibrarianTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -17,28 +15,19 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 
-public class BlackHole extends Talent implements GrimoireTalent {
+public class BlackHole extends LibrarianTalent {
     public BlackHole() {
         super("Black Hole");
-        this.setDescription(String.format(
-                "Creates a black hole at your target block. Pulling enemies in and dealing %s damage per second based on &cGrimoire &7level.",
-                formatValues()
-        ));
-        this.setItem(Material.BLACK_CANDLE);
-        this.setAutoAdd(false);
+
+        setDescription(
+                "Creates a black hole at your target block. Pulling enemies in and dealing {} damage per second based on &cGrimoire &7level."
+        );
+
+        setItem(Material.BLACK_CANDLE);
     }
 
     @Override
-    public int getGrimoireCd() {
-        return 60;
-    }
-
-    @Override
-    public Response execute(Player player) {
-        if (HeroHandle.LIBRARIAN.hasICD(player)) {
-            return ERROR;
-        }
-
+    public Response executeGrimoire(Player player) {
         final Block block = player.getTargetBlockExact(10);
 
         if (block == null) {
@@ -84,8 +73,12 @@ public class BlackHole extends Talent implements GrimoireTalent {
 
         }, 1, 60);
 
-        HeroHandle.LIBRARIAN.removeSpellItems(player, Talents.BLACK_HOLE);
         return Response.OK;
+    }
+
+    @Override
+    public int getGrimoireCd() {
+        return 60;
     }
 
     @Override

@@ -18,7 +18,7 @@ public class DummyCommand extends SimplePlayerAdminCommand {
             self.setCustomName(Chat.format("&aDummy"));
             self.setCustomNameVisible(true);
             self.setAI(false);
-        });
+        }, false);
 
         Chat.sendMessage(player, "&aSpawned dummy.");
     }

@@ -5,6 +5,7 @@ import me.hapyl.fight.database.entry.CosmeticEntry;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.experience.ExperienceGUI;
+import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.PlayerAnimatedGUI;
@@ -16,6 +17,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 public class CollectionGUI extends PlayerAnimatedGUI {
+
     public static final SlotPattern PATTERN = new SlotPattern(new byte[][] {
             { 0, 1, 0, 1, 0, 0, 0, 0, 0 }, { 0, 0, 1, 0, 0, 0, 0, 0, 0 }
     });
@@ -54,6 +56,9 @@ public class CollectionGUI extends PlayerAnimatedGUI {
     public void update() {
         final SmartComponent component = newSmartComponent();
         final CosmeticEntry cosmetics = Database.getDatabase(getPlayer()).getCosmetics();
+
+        fillLine(0, ItemStacks.BLACK_BAR);
+        fillLine(4, ItemStacks.BLACK_BAR);
 
         for (Type type : Type.values()) {
             final String name = Chat.capitalize(type) + " Cosmetics";

@@ -1,10 +1,10 @@
 package me.hapyl.fight.util.formatter;
 
+import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.talents.Talent;
 
 import java.util.Map;
 
-// TODO: 003, Mar 3, 2023
 public class Formatter {
 
     private static final String DEFAULT_COLOR = "&7";
@@ -18,7 +18,13 @@ public class Formatter {
                         return talent.getName();
                     }
                 },
-                Number.class, new Entry<>(Number.class, "&b")
+                Number.class, new Entry<>(Number.class, "&b"),
+                Hero.class, new Entry<>(Hero.class, "&c") {
+                    @Override
+                    public String display(Hero hero) {
+                        return hero.getName();
+                    }
+                }
         );
     }
 

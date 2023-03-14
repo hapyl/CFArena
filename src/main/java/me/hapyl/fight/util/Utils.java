@@ -22,6 +22,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class Utils {
 
@@ -53,7 +54,7 @@ public class Utils {
                 .getAlivePlayers(predicate -> !predicate.isSpectator() && !predicate.compare(player) && !predicate.isTeammate(player));
     }
 
-    public static class ProgressBar implements Builder<String> {
+    public static class ProgressBar implements IBuilder<String> {
 
         private final String indicator;
         private final ChatColor[] colors;
@@ -396,14 +397,10 @@ public class Utils {
     }
 
     public static Player getNearestPlayer(Location location, double radius, Player exclude) {
-        return (Player) getNearestEntity(
-                location,
-                radius,
-                entity -> {
-                    return entity instanceof Player && entity != exclude && Manager.current().isPlayerInGame((Player) entity) &&
-                            !GameTeam.isTeammate(exclude, (Player) entity);
-                }
-        );
+        return (Player) getNearestEntity(location, radius, entity -> {
+            return entity instanceof Player && entity != exclude && Manager.current().isPlayerInGame((Player) entity) &&
+                    !GameTeam.isTeammate(exclude, (Player) entity);
+        });
     }
 
     public static LivingEntity getNearestLivingEntity(Location location, double radius, Player player) {
@@ -437,6 +434,46 @@ public class Utils {
         return true;
     }
 
+    public static List<LivingEntity> getEntitiesInRange(Player player, double range) {
+        return getEntitiesInRange(player.getLocation(), range).stream()
+                .filter(entity -> entity != player && isEntityValid(entity, player))
+                .collect(Collectors.toList());
+    }
+
+    // TODO: 013, Mar 13, 2023 -> Maybe use this method for other stuff too?
+    public static List<LivingEntity> getEntitiesInRangeValidateRange(Location location, double range) {
+        final List<LivingEntity> entities = getEntitiesInRange(location, range);
+        entities.removeIf(entity -> entity.getLocation().distance(location) > range);
+
+        return entities;
+    }
+
+    public static List<LivingEntity> getEntitiesInRange(Location location, double range) {
+        final World world = location.getWorld();
+        final List<LivingEntity> entities = new ArrayList<>();
+
+        if (world == null) {
+            return entities;
+        }
+
+        world.getNearbyEntities(location, range, range, range).stream().filter(entity -> {
+            return isEntityValid(entity, null) && entity instanceof LivingEntity;
+            //if (entity instanceof Player player) {
+            //    if (Manager.current().isGameInProgress()) {
+            //        return GamePlayer.getPlayer(player).isAlive();
+            //    }
+            //}
+            //
+            //if (entity instanceof LivingEntity living) {
+            //    return living.getType() != EntityType.ARMOR_STAND && !living.isInvisible() && !living.isDead();
+            //}
+            //
+            //return false;
+        }).forEach(entity -> entities.add((LivingEntity) entity));
+
+        return entities;
+    }
+
     public static Entity getNearestEntity(Location fromWhere, double radius, Predicate<Entity> predicate) {
         if (fromWhere.getWorld() == null) {
             throw new NullPointerException("Cannot find entity in null world!");
@@ -445,7 +482,8 @@ public class Utils {
         final List<Entity> list = fromWhere.getWorld()
                 .getNearbyEntities(fromWhere, radius, radius, radius)
                 .stream()
-                .filter(predicate).toList();
+                .filter(predicate)
+                .toList();
 
         Entity nearest = null;
         double dist = -1;
@@ -464,33 +502,6 @@ public class Utils {
             }
         }
         return nearest;
-    }
-
-    public static List<LivingEntity> getEntitiesInRange(Location location, double range) {
-        final World world = location.getWorld();
-        final List<LivingEntity> entities = new ArrayList<>();
-
-        if (world == null) {
-            return entities;
-        }
-
-        world.getNearbyEntities(location, range, range, range).stream().filter(entity -> {
-            return isEntityValid(entity, null);
-
-            //if (entity instanceof Player player) {
-            //    if (Manager.current().isGameInProgress()) {
-            //        return GamePlayer.getPlayer(player).isAlive();
-            //    }
-            //}
-            //
-            //if (entity instanceof LivingEntity living) {
-            //    return living.getType() != EntityType.ARMOR_STAND && !living.isInvisible() && !living.isDead();
-            //}
-            //
-            //return false;
-        }).forEach(entity -> entities.add((LivingEntity) entity));
-
-        return entities;
     }
 
     public static List<Player> getPlayersInRange(Location location, double range) {

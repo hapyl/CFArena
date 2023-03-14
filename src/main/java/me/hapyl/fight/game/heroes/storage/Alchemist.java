@@ -50,9 +50,9 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
                 "An alchemist who was deceived by creation of the abyss. In return of help received an Abyssal Bottle that creates potions from the &0&lvoid &7itself.");
         this.setItem(Material.BREWING_STAND);
         this.setWeapon(new Weapon(Material.STICK).addEnchant(Enchantment.KNOCKBACK, 1)
-                               .setName("Stick")
-                               .setDamage(5.0d)
-                               .setInfo("Turns out that a stick used in brewing can also be used in battle."));
+                .setName("Stick")
+                .setDamage(5.0d)
+                .setDescription("Turns out that a stick used in brewing can also be used in battle."));
 
         final ClassEquipment equipment = this.getEquipment();
         equipment.setHelmet(Material.IRON_HELMET);
@@ -141,6 +141,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
     @Override
     public void onStop() {
         toxinLevel.clear();
+        cauldronEffectMap.clear();
     }
 
     @Override

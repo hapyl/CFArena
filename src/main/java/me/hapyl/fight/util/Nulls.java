@@ -1,6 +1,9 @@
 package me.hapyl.fight.util;
 
+import me.hapyl.fight.game.cosmetic.Cosmetics;
+
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class Nulls {
 
@@ -10,5 +13,11 @@ public class Nulls {
         }
     }
 
+    public static Cosmetics notNullOr(@Nullable Cosmetics selected, @Nonnull Cosmetics def) {
+        if (selected == null) {
+            return def;
+        }
 
+        return selected;
+    }
 }

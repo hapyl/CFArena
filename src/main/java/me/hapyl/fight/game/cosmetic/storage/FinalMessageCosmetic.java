@@ -1,14 +1,18 @@
 package me.hapyl.fight.game.cosmetic.storage;
 
+import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
+import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.shop.Rarity;
+import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.ArmorStand;
 
 public class FinalMessageCosmetic extends Cosmetic {
 
@@ -41,12 +45,18 @@ public class FinalMessageCosmetic extends Cosmetic {
     }
 
     private void createArmorStand(Location location, String message) {
-        Entities.ARMOR_STAND_MARKER.spawn(location, armorStand -> {
+        final ArmorStand stand = Entities.ARMOR_STAND_MARKER.spawn(location, armorStand -> {
             armorStand.setVisible(false);
             armorStand.setSmall(true);
             armorStand.setInvulnerable(true);
             armorStand.setCustomName(Chat.format(message));
             armorStand.setCustomNameVisible(true);
         });
+
+        // Remove upon respawn in respawn allowed modes.
+        final CFGameMode currentMode = Manager.current().getCurrentGame().getMode();
+        if (currentMode.isAllowRespawn()) {
+            GameTask.runLater(stand::remove, currentMode.getRespawnTime());
+        }
     }
 }

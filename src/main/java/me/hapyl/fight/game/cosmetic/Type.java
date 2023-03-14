@@ -27,5 +27,4 @@ public enum Type {
     public String getDescription() {
         return description;
     }
-
 }

@@ -1,42 +1,34 @@
 package me.hapyl.fight.game.talents.storage.librarian;
 
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.heroes.HeroHandle;
-import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.talents.storage.extra.GrimoireTalent;
+import me.hapyl.fight.game.talents.storage.extra.LibrarianTalent;
 import me.hapyl.spigotutils.module.player.EffectType;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
-public class WeaponDarkness extends Talent implements GrimoireTalent {
-	public WeaponDarkness() {
-		super("Infusion of Darkness");
-        this.setDescription(String.format("Infuses your weapon for &b%ss&7 with higher damage.", formatValues()));
-        this.setItem(Material.INK_SAC);
-		this.setAutoAdd(false);
-	}
+public class WeaponDarkness extends LibrarianTalent {
+    public WeaponDarkness() {
+        super("Infusion of Darkness");
 
-	@Override
-	public Response execute(Player player) {
-		if (HeroHandle.LIBRARIAN.hasICD(player)) {
-			return ERROR;
-		}
+        setDescription("Infuses your weapon for &b%ss&7 with higher damage.");
+        setItem(Material.INK_SAC);
+    }
 
-		PlayerLib.addEffect(player, EffectType.STRENGTH, (int)(getCurrentValue(player) * 20), 1);
+    @Override
+    public Response executeGrimoire(Player player) {
+        PlayerLib.addEffect(player, EffectType.STRENGTH, (int) (getCurrentValue(player) * 20), 1);
 
-		HeroHandle.LIBRARIAN.removeSpellItems(player, Talents.WEAPON_DARKNESS);
-		return Response.OK;
-	}
+        return Response.OK;
+    }
 
-	@Override
-	public int getGrimoireCd() {
-		return 30;
-	}
+    @Override
+    public int getGrimoireCd() {
+        return 30;
+    }
 
-	@Override
-	public double[] getValues() {
-		return new double[]{10.0d, 13.0d, 16.0d, 19.0d};
-	}
+    @Override
+    public double[] getValues() {
+        return new double[] { 5.0d, 6.0d, 7.0d, 8.0d };
+    }
 }

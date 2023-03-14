@@ -13,6 +13,7 @@ public enum Setting {
     RANDOM_HERO(12, Material.TOTEM_OF_UNDYING, "Always Random Hero", "Whenever you start the game with a random hero every time."),
 
     SEE_OTHERS_CONTRAIL(14, Material.FIREWORK_ROCKET, "See Others Contrail", "Whenever you will see other players contrails.", true),
+    SEE_NOTIFICATIONS(15, Material.PAPER, "See Notifications", "Whenever you will see notifications.", true),
 
     ;
 
@@ -74,5 +75,9 @@ public enum Setting {
 
     public boolean isDisabled(Player player) {
         return !isEnabled(player);
+    }
+
+    public String getPathLegacy() {
+        return "setting." + getPath();
     }
 }

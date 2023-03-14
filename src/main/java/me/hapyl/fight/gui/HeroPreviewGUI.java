@@ -7,6 +7,8 @@ import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.PlayerGUI;
+import me.hapyl.spigotutils.module.inventory.gui.SlotPattern;
+import me.hapyl.spigotutils.module.inventory.gui.SmartComponent;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -19,6 +21,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HeroPreviewGUI extends PlayerGUI {
+
+    private final SlotPattern PATTERN = new SlotPattern(new byte[][] {
+            { 0, 0, 0, 0, 1, 1, 1, 0, 0 },
+            { 0, 0, 0, 0, 1, 0, 1, 0, 0 },
+            { 0, 0, 0, 0, 0, 1, 0, 0, 0 }
+    });
 
     private final int[] ABILITY_SLOTS = new int[] { 13, 14, 15, 22, 23, 24 };
     private final Heroes heroes;
@@ -41,8 +49,7 @@ public class HeroPreviewGUI extends PlayerGUI {
 
         setItem(
                 18,
-                ItemBuilder
-                        .playerHead(
+                ItemBuilder.playerHead(
                                 "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmQ2OWUwNmU1ZGFkZmQ4NGU1ZjNkMWMyMTA2M2YyNTUzYjJmYTk0NWVlMWQ0ZDcxNTJmZGM1NDI1YmMxMmE5In19fQ==")
                         .setName("&aGo Back")
                         .setLore("&7To Hero Selection")
@@ -52,8 +59,7 @@ public class HeroPreviewGUI extends PlayerGUI {
 
         setItem(
                 11,
-                new ItemBuilder(hero.getItem())
-                        .setName("&a%s", hero.getName())
+                new ItemBuilder(hero.getItem()).setName("&a%s", hero.getName())
                         .addLore()
                         .addLore("&7Role: &b%s", hero.getRole().getName())
                         .addSmartLore(hero.getRole().getDescription(), "&8&o")
@@ -65,14 +71,22 @@ public class HeroPreviewGUI extends PlayerGUI {
         setItem(29, hero.getWeapon().getItem());
         setItem(32, abilityItemOrNull(hero.getUltimate()));
 
-        setAbilityItems(hero);
+        final SmartComponent component = newSmartComponent();
+
+        //setAbilityItems(hero);
+        hero.getTalentsSorted().forEach(talent -> {
+            if (talent != null) {
+                component.add(abilityItemOrNull(talent));
+            }
+        });
+
+        component.apply(this, PATTERN, 1);
 
         // favourite item
         final boolean favourite = heroes.isFavourite(getPlayer());
         setItem(
                 26,
-                new ItemBuilder(favourite ? Material.LIME_DYE : Material.GRAY_DYE)
-                        .setName("&aFavourite")
+                new ItemBuilder(favourite ? Material.LIME_DYE : Material.GRAY_DYE).setName("&aFavourite")
                         .addLore()
                         .addSmartLore("Favourite heroes appear first in hero selection screen.")
                         .addLore()
@@ -106,7 +120,6 @@ public class HeroPreviewGUI extends PlayerGUI {
             }
         }
     }
-
 
     private void formatDebug() {
         if (!getPlayer().isOp()) {

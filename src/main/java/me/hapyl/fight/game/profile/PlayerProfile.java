@@ -1,6 +1,8 @@
 package me.hapyl.fight.game.profile;
 
+import me.hapyl.fight.Main;
 import me.hapyl.fight.database.Database;
+import me.hapyl.fight.database.DatabaseLegacy;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.ScoreboardTeams;
@@ -25,14 +27,21 @@ public class PlayerProfile {
 
     @Nullable
     private GamePlayer gamePlayer; // current game player
-    private Heroes selectedHero;   // selected hero
     private GamePlayerUI playerUI; // ui
+    private Heroes selectedHero;   // selected hero
 
     private boolean loaded;
 
     public PlayerProfile(Player player) {
         this.player = player;
-        this.database = new Database(player);
+
+        // Init database
+        if (Main.getPlugin().isDatabaseLegacy()) {
+            this.database = new DatabaseLegacy(player);
+        }
+        else {
+            this.database = new Database(player);
+        }
         this.scoreboardTeams = new ScoreboardTeams(player);
         this.display = new ProfileDisplay(this);
         this.loaded = false;

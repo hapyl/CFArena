@@ -11,42 +11,42 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 
 public class TransmissionBeacon extends Talent {
-	private final int destroyCd = 600;
+    private final int destroyCd = 600;
 
-	public TransmissionBeacon() {
-		super("Transmission Beacon");
-		this.setDescription(
-                String.format(
-                        "Place the beacon somewhere hidden from your opponents. Use your &bultimate &7to instantly teleport to it's location and collect it.__&c&lThe beacon can be destroyed!____&aCooldown if Destroyed: &l%ss",
-                        BukkitUtils.roundTick(destroyCd)
-                ));
-		this.setItem(Material.BEACON);
-	}
+    public TransmissionBeacon() {
+        super("Transmission Beacon");
+        setDescription(
+                "Place the beacon somewhere hidden from your opponents. Use your &bultimate &7to instantly teleport to it's location and collect it.__&c&lThe beacon can be destroyed!"
+        );
 
-	public int getDestroyCd() {
-		return destroyCd;
-	}
+        addExtraInfo("&aCooldown if Destroyed: &l%ss", BukkitUtils.roundTick(destroyCd));
+        setItem(Material.BEACON);
+    }
 
-	@Override
-	public Response execute(Player player) {
-		if (HeroHandle.ENDER.hasBeacon(player)) {
-			return Response.error("Beacon is already present!");
-		}
+    public int getDestroyCd() {
+        return destroyCd;
+    }
 
-		final Block block = player.getTargetBlockExact(5);
-		if (block == null || !isSafeLocation(block)) {
-			return Response.error("Location is not safe!");
-		}
+    @Override
+    public Response execute(Player player) {
+        if (HeroHandle.ENDER.hasBeacon(player)) {
+            return Response.error("Beacon is already present!");
+        }
 
-		final Location location = block.getRelative(BlockFace.UP).getLocation();
-		HeroHandle.ENDER.setBeaconLocation(player, location);
+        final Block block = player.getTargetBlockExact(5);
+        if (block == null || !isSafeLocation(block)) {
+            return Response.error("Location is not safe!");
+        }
 
-		return Response.OK;
-	}
+        final Location location = block.getRelative(BlockFace.UP).getLocation();
+        HeroHandle.ENDER.setBeaconLocation(player, location);
 
-	private boolean isSafeLocation(Block block) {
-		final Block relative = block.getRelative(BlockFace.UP);
-		return relative.getType().isAir() && relative.getRelative(BlockFace.UP).getType().isAir();
-	}
+        return Response.OK;
+    }
+
+    private boolean isSafeLocation(Block block) {
+        final Block relative = block.getRelative(BlockFace.UP);
+        return relative.getType().isAir() && relative.getRelative(BlockFace.UP).getType().isAir();
+    }
 
 }

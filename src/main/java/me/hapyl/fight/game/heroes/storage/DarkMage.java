@@ -1,11 +1,13 @@
 package me.hapyl.fight.game.heroes.storage;
 
+import com.google.common.collect.Maps;
 import me.hapyl.fight.annotate.KeepNull;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.cosmetic.CosmeticsHandle;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.storage.extra.DarkMageSpell;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -32,11 +34,14 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
+import java.util.Map;
 
 import static org.bukkit.Sound.ENTITY_WITHER_DEATH;
 import static org.bukkit.Sound.ENTITY_WITHER_SHOOT;
 
 public class DarkMage extends Hero implements ComplexHero, Listener {
+
+    private final Map<Player, DarkMageSpell> spellMap = Maps.newHashMap();
 
     public DarkMage() {
         super("Dark Mage");
@@ -52,13 +57,19 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         equipment.setBoots(153, 51, 51);
 
         this.setWeapon(new Weapon(Material.WOODEN_HOE).setName("Ancient Wand")
-                               .setDamage(5.0d)
-                               .setWeaponLore(
-                                       "Long ago, a powerful wand was crafted from the bones of long-dead wizards and imbued with dark magic, granting immense power to its wielder. The wand was used by a cruel and merciless ruler to subjugate kingdoms."));
+                .setDamage(7.0d)
+                .setDescription(
+                        "A powerful wand, that's capable of casting multiple spells!__&e&lRIGHT CLICK &7to enter casting, then, combine &e&lRIGHT CLICK &7and/or &e&lLEFT CLICK &7to execute the spell!"
+                )
+                .setWeaponLore(
+                        "Long ago, a powerful wand was crafted from the bones of long-dead wizards and imbued with dark magic, granting immense power to its wielder. The wand was used by a cruel and merciless ruler to subjugate kingdoms."
+                ));
 
         this.setUltimate(new UltimateTalent(
                 "Wither Rider",
-                "Transform into the wither for {duration}.__While transformed, &e&lRIGHT CLICK &7to shoot wither skulls that deals massive damage on impact.__After wither disappears, you perform plunging attack that deals damage in AoE upon hitting the ground.",
+                "Transform into the wither for {duration}.__" +
+                        "While transformed, &e&lRIGHT CLICK &7to shoot wither skulls that deals massive damage on impact.__" +
+                        "After wither disappears, you perform plunging attack that deals damage in AoE upon hitting the ground.",
                 70
         ).setItem(Material.WITHER_SKELETON_SKULL).setDuration(240).setCdSec(30).setSound(Sound.ENTITY_WITHER_SPAWN, 2.0f));
 
@@ -133,7 +144,6 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
                                 GamePlayer.damageEntity(target, 5.0d, player);
                             });
                         }
-
                     }
                 }.runTaskTimer(0, 1);
             }
@@ -171,28 +181,63 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
     }
 
     @EventHandler()
-    public void handleProjectileLaunch(PlayerInteractEvent ev) {
+    public void handleInteraction(PlayerInteractEvent ev) {
         final Player player = ev.getPlayer();
         final Action action = ev.getAction();
 
-        if (!validatePlayer(player, Heroes.DARK_MAGE) || !isUsingUltimate(player) || ev.getHand() == EquipmentSlot.OFF_HAND ||
-                action == Action.PHYSICAL) {
+        if (!validatePlayer(player, Heroes.DARK_MAGE) || ev.getHand() == EquipmentSlot.OFF_HAND ||
+                player.hasCooldown(getWeapon().getMaterial())) {
             return;
         }
 
-        if (action == Action.RIGHT_CLICK_BLOCK || action == Action.RIGHT_CLICK_AIR) {
-            if (player.hasCooldown(this.getWeapon().getMaterial())) {
-                return;
+        final boolean isLeftClick = action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK;
+        final boolean isRightClick = !isLeftClick;
+
+        // Handle wand
+        if (!isUsingUltimate(player)) {
+            final DarkMageSpell spell = spellMap.computeIfAbsent(player, a -> new DarkMageSpell(player));
+
+            // When empty:
+            // - Right-clicking ONCE will enter the mode.
+
+            // When not empty:
+            // Either left-clicking or right-clicking will add the button.
+            // If after adding the button, the spell is full, it will be casted.
+
+            // Check for timeout
+            if (spell.isTimeout()) {
+                spell.clear();
             }
 
-            final WitherSkull skull = player.launchProjectile(WitherSkull.class, player.getLocation().getDirection().multiply(3.0d));
-            skull.setCharged(true);
-            skull.setYield(0.0f);
-            skull.setShooter(player);
+            if (isRightClick) {
+                if (spell.isEmpty()) {
+                    spell.markUsed();
+                    spell.display();
+                    return;
+                }
 
-            player.setCooldown(this.getWeapon().getMaterial(), 20);
-            PlayerLib.playSound(player, ENTITY_WITHER_SHOOT, 1.0f);
+                spell.addButton(DarkMageSpell.SpellButton.RIGHT);
+            }
+            else if (!spell.isEmpty()) {
+                spell.addButton(DarkMageSpell.SpellButton.LEFT);
+            }
+
+            if (spell.isFull()) {
+                spell.cast();
+            }
+
+            ev.setCancelled(true);
+            return;
         }
+
+        // Handle ultimate
+        final WitherSkull skull = player.launchProjectile(WitherSkull.class, player.getLocation().getDirection().multiply(3.0d));
+        skull.setCharged(true);
+        skull.setYield(0.0f);
+        skull.setShooter(player);
+
+        player.setCooldown(this.getWeapon().getMaterial(), 20);
+        PlayerLib.playSound(player, ENTITY_WITHER_SHOOT, 1.0f);
     }
 
     @Override

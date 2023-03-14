@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.heroes.storage.extra;
 
-import me.hapyl.fight.game.AbstractGamePlayer;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.effect.GameEffectType;
@@ -181,10 +180,10 @@ public class MoonwalkerUltimate extends UltimateTalent {
         }
 
         Utils.getEntitiesInRange(location, METEORITE_RADIUS).forEach(entity -> {
+            GamePlayer.damageEntity(entity, METEORITE_DAMAGE, executor, EnumDamageCause.METEORITE);
+
             if (entity instanceof Player player) {
-                final AbstractGamePlayer gamePlayer = GamePlayer.getPlayer(player);
-                gamePlayer.damage(METEORITE_DAMAGE, executor, EnumDamageCause.METEORITE);
-                gamePlayer.addEffect(GameEffectType.CORROSION, CORROSION_TIME, true);
+                GamePlayer.getPlayer(player).addEffect(GameEffectType.CORROSION, CORROSION_TIME, true);
             }
         });
 
@@ -195,7 +194,6 @@ public class MoonwalkerUltimate extends UltimateTalent {
         PlayerLib.playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 0.0f);
         PlayerLib.playSound(location, Sound.ENTITY_WITHER_HURT, 0.25f);
         PlayerLib.playSound(location, Sound.ENTITY_ENDER_DRAGON_HURT, 0.5f);
-
     }
 
 }

@@ -65,11 +65,11 @@ public class Freazly extends Hero implements DeprecatedHero {
             }
 
         }.setCooldown(25)
-         .setSound(Sound.BLOCK_GLASS_BREAK, 1.5f)
-         .setParticleTick(new PackedParticle(Particle.SNOWBALL, 1, 0.0d, 0.0d, 0.0d, 0.0f))
-         .setParticleHit(new PackedParticle(Particle.SNOWFLAKE, 5, 0.0d, 0.0d, 0.0d, 0.05f))
-         .setName("Snowball Cannon")
-         .setInfo("Shoots a beam of freezing energy, damaging and slowing enemies upon hit. Pierce through ice blocks.")
+                .setSound(Sound.BLOCK_GLASS_BREAK, 1.5f)
+                .setParticleTick(new PackedParticle(Particle.SNOWBALL, 1, 0.0d, 0.0d, 0.0d, 0.0f))
+                .setParticleHit(new PackedParticle(Particle.SNOWFLAKE, 5, 0.0d, 0.0d, 0.0d, 0.05f))
+                .setName("Snowball Cannon")
+                .setDescription("Shoots a beam of freezing energy, damaging and slowing enemies upon hit. Pierce through ice blocks.")
          .setDamage(7.5d));
 
 

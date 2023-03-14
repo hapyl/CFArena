@@ -8,7 +8,8 @@ import me.hapyl.fight.game.heroes.storage.extra.GrimoireBook;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.storage.extra.GrimoireTalent;
+import me.hapyl.fight.game.talents.storage.extra.LibrarianTalent;
+import me.hapyl.fight.game.talents.storage.librarian.EntityDarkness;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Nulls;
@@ -36,11 +37,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * This hero is pain in the ass...
  * Slows are hardcoded, make sure not to change them.
  */
 public class Librarian extends Hero implements ComplexHero, Listener {
 
-    private final Map<Integer, GrimoireTalent> talentMap = new HashMap<>();
+    private final Map<Integer, LibrarianTalent> talentMap = new HashMap<>();
     private final Map<Player, Grimoire> grimoireMap = new HashMap<>();
     private final String grimoireLevelUpGradient = new Gradient("Grimoire Level Up!")
             .makeBold()
@@ -52,10 +54,10 @@ public class Librarian extends Hero implements ComplexHero, Listener {
     public Librarian() {
         super("Librarian of Void", "Mislead by the &0void&7, sacrifices were made.", Material.BOOK);
 
-        talentMap.put(1, (GrimoireTalent) Talents.BLACK_HOLE.getTalent());
-        talentMap.put(2, (GrimoireTalent) Talents.ENTITY_DARKNESS.getTalent());
-        talentMap.put(3, (GrimoireTalent) Talents.LIBRARIAN_SHIELD.getTalent());
-        talentMap.put(4, (GrimoireTalent) Talents.WEAPON_DARKNESS.getTalent());
+        talentMap.put(1, (LibrarianTalent) Talents.BLACK_HOLE.getTalent());
+        talentMap.put(2, (LibrarianTalent) Talents.ENTITY_DARKNESS.getTalent());
+        talentMap.put(3, (LibrarianTalent) Talents.LIBRARIAN_SHIELD.getTalent());
+        talentMap.put(4, (LibrarianTalent) Talents.WEAPON_DARKNESS.getTalent());
 
         this.setRole(Role.STRATEGIST);
 
@@ -151,9 +153,9 @@ public class Librarian extends Hero implements ComplexHero, Listener {
                         PlayerLib.addEffect(player, EffectType.STRENGTH, 20, 0);
                     }
                     else {
-                        entity.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 20, 1));
+                        entity.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 30, 1));
                     }
-                    entity.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20, 1));
+                    entity.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 30, 1));
                 });
 
             }
@@ -196,7 +198,7 @@ public class Librarian extends Hero implements ComplexHero, Listener {
         applyICD(player);
 
         talentMap.forEach((slot, talent) -> {
-            inventory.setItem(slot, ((Talent) talent).getItem());
+            inventory.setItem(slot, talent.getItem());
             if (slot == 2) {
                 Nulls.runIfNotNull(inventory.getItem(2), item -> item.setAmount(3));
             }
@@ -217,26 +219,28 @@ public class Librarian extends Hero implements ComplexHero, Listener {
 
     public void removeSpellItems(Player player, Talents enumTalent) {
         final Talent talent = enumTalent.getTalent();
-        if (!(talent instanceof GrimoireTalent grimoire)) {
+
+        if (!(talent instanceof LibrarianTalent grimoire)) {
             return;
         }
 
         final int talentIndex = indexOfTalent(enumTalent);
         final PlayerInventory inventory = player.getInventory();
+
         for (int i = 1; i <= 4; i++) {
             final ItemStack item = inventory.getItem(i);
 
             if (item != null) {
-                item.setAmount(item.getAmount() - (talentIndex == i ? 1 : 64));
+                item.setAmount(item.getAmount() - (grimoire instanceof EntityDarkness ? 1 : 64));
             }
         }
 
         final ItemStack currentItem = inventory.getItem(talentIndex);
+
         if (currentItem == null) {
             GrimoireBook.applyCooldown(player, (grimoire.getGrimoireCd() * 20));
             giveGrimoireBook(player);
         }
-
     }
 
     public void giveGrimoireBook(Player player) {
@@ -282,5 +286,4 @@ public class Librarian extends Hero implements ComplexHero, Listener {
         grantSpellItems(player);
         player.getInventory().setHeldItemSlot(0);
     }
-
 }

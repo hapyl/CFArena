@@ -30,8 +30,8 @@ public class Nightmare extends Hero {
         this.setItem(Material.WITHER_SKELETON_SKULL);
 
         this.setWeapon(new Weapon(Material.NETHERITE_SWORD)
-                               .setName("Omen")
-                               .setInfo("A sword that is capable of splitting dreams in half.")
+                .setName("Omen")
+                .setDescription("A sword that is capable of splitting dreams in half.")
                                .setDamage(7.0d));
 
         final ClassEquipment eq = this.getEquipment();
