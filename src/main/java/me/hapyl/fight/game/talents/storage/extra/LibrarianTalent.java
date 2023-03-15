@@ -3,7 +3,6 @@ package me.hapyl.fight.game.talents.storage.extra;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.heroes.HeroHandle;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Numbers;
 import org.bukkit.entity.Player;
@@ -30,8 +29,8 @@ public abstract class LibrarianTalent extends Talent {
         final Response response = executeGrimoire(player);
 
         if (response.isOk()) {
-            HeroHandle.LIBRARIAN.removeSpellItems(player, Talents.BLACK_HOLE);
-            //Chat.sendMessage(player, "&aUsed %s!", this.getName());
+            HeroHandle.LIBRARIAN.removeSpellItems(player, this);
+            Chat.sendMessage(player, "&aUsed %s!", this.getName());
         }
 
         return response;

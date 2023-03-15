@@ -2,6 +2,7 @@ package me.hapyl.fight.game.heroes.storage;
 
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.ClassEquipment;
@@ -27,7 +28,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -176,7 +176,7 @@ public class Ninja extends Hero implements Listener, UIComponent {
 
     @Override
     public DamageOutput processDamageAsVictim(DamageInput input) {
-        if (input.getDamageCause() == EntityDamageEvent.DamageCause.FALL) {
+        if (input.getDamageCause() == EnumDamageCause.FALL) {
             return new DamageOutput(true);
         }
         return null;

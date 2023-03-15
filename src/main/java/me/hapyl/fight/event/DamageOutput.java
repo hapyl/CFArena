@@ -4,7 +4,7 @@ public class DamageOutput {
 
 	private boolean cancelDamage;
 	private double damage; // not an additional damage, override damage
-	private String[] extraDisplayStrings;
+	//private String[] extraDisplayStrings;
 
 	public DamageOutput() {
 		this(0.0d, false);
@@ -14,36 +14,36 @@ public class DamageOutput {
 		this(damage, false);
 	}
 
-	public DamageOutput(boolean cancelDamage) {
-		this(0.0d, cancelDamage);
-	}
+    public DamageOutput(boolean cancelDamage) {
+        this(0.0d, cancelDamage);
+    }
 
-	public DamageOutput(double damage, boolean cancelEvent) {
-		this.damage = damage;
-		this.cancelDamage = cancelEvent;
-		this.extraDisplayStrings = null;
-	}
+    public DamageOutput(double damage, boolean cancelEvent) {
+        this.damage = damage;
+        this.cancelDamage = cancelEvent;
+        //this.extraDisplayStrings = null;
+    }
 
-	public String[] getExtraDisplayStrings() {
-		return extraDisplayStrings;
-	}
+    //public String[] getExtraDisplayStrings() {
+    //	return extraDisplayStrings;
+    //}
+    //
+    //public boolean hasExtraDisplayStrings() {
+    //	return extraDisplayStrings != null;
+    //}
+    //
+    //public void addExtraDisplayStrings(String... strings) {
+    //	this.extraDisplayStrings = strings;
+    //}
 
-	public boolean hasExtraDisplayStrings() {
-		return extraDisplayStrings != null;
-	}
+    public DamageOutput setCancelDamage(boolean cancelDamage) {
+        this.cancelDamage = cancelDamage;
+        return this;
+    }
 
-	public void addExtraDisplayStrings(String... strings) {
-		this.extraDisplayStrings = strings;
-	}
-
-	public DamageOutput setCancelDamage(boolean cancelDamage) {
-		this.cancelDamage = cancelDamage;
-		return this;
-	}
-
-	public boolean isCancelDamage() {
-		return cancelDamage;
-	}
+    public boolean isCancelDamage() {
+        return cancelDamage;
+    }
 
 	public DamageOutput addDamage(DamageInput input, double damage) {
 		this.damage = input.getDamage() + damage;

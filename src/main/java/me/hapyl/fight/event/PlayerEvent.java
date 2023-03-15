@@ -35,7 +35,10 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Random;
 
 public class PlayerEvent implements Listener {
 
@@ -314,6 +317,16 @@ public class PlayerEvent implements Listener {
                 return;
             }
 
+            // Reassign damage cause
+            if (livingEntity instanceof Player playerVictim) {
+                final EntityDamageEvent lastDamageCause = playerVictim.getLastDamageCause();
+
+                if (lastDamageCause == null || lastDamageCause.getCause() != EntityDamageEvent.DamageCause.CUSTOM) {
+                    GamePlayer.getPlayer(playerVictim).setLastDamageCause(EnumDamageCause.getFromCause(cause));
+                    playerVictim.setLastDamageCause(null);
+                }
+            }
+
             // Player to Player tests
             if (damagerFinal instanceof Player playerDamager && entity instanceof Player playerVictim) {
                 boolean cancelDamage = false;
@@ -334,15 +347,6 @@ public class PlayerEvent implements Listener {
                     ev.setCancelled(true);
                     ev.setDamage(0.0d);
                     return;
-                }
-
-                // Reassign last damager
-                // This is kinda a workaround, but its fine unless rewriting the whole damage system using custom event
-                final EntityDamageEvent lastDamageCause = playerVictim.getLastDamageCause();
-
-                if (lastDamageCause == null || lastDamageCause.getCause() != EntityDamageEvent.DamageCause.CUSTOM) {
-                    GamePlayer.getPlayer(playerVictim).setLastDamageCause(EnumDamageCause.ENTITY_ATTACK);
-                    playerVictim.setLastDamageCause(null);
                 }
             }
 
@@ -416,26 +420,26 @@ public class PlayerEvent implements Listener {
         boolean cancelEvent = false;
 
         if (livingEntity instanceof Player player) {
-            final DamageOutput output = getDamageOutput(player, damagerFinal, cause, damage, false);
+            final DamageOutput output = getDamageOutput(player, damagerFinal, damage, false);
             if (output != null) {
                 damage = output.getDamage();
                 cancelEvent = output.isCancelDamage();
-                if (output.hasExtraDisplayStrings()) {
-                    extraStrings.addAll(Arrays.stream(output.getExtraDisplayStrings()).toList());
-                }
+                //if (output.hasExtraDisplayStrings()) {
+                //    extraStrings.addAll(Arrays.stream(output.getExtraDisplayStrings()).toList());
+                //}
             }
         }
 
         // Damager
         if (damagerFinal instanceof Player player) {
-            final DamageOutput output = getDamageOutput(player, livingEntity, cause, damage, true);
+            final DamageOutput output = getDamageOutput(player, livingEntity, damage, true);
             if (output != null) {
                 damage = output.getDamage();
                 if (!cancelEvent) {
                     cancelEvent = output.isCancelDamage();
-                    if (output.hasExtraDisplayStrings()) {
-                        extraStrings.addAll(Arrays.stream(output.getExtraDisplayStrings()).toList());
-                    }
+                    //if (output.hasExtraDisplayStrings()) {
+                    //    extraStrings.addAll(Arrays.stream(output.getExtraDisplayStrings()).toList());
+                    //}
                 }
             }
         }
@@ -444,15 +448,15 @@ public class PlayerEvent implements Listener {
         if (damagerFinal instanceof Player player && projectile != null && Manager.current().isGameInProgress()) {
             final DamageOutput output = GamePlayer.getPlayer(player)
                     .getHero()
-                    .processDamageAsDamagerProjectile(new DamageInput(player, livingEntity, cause, damage), projectile);
+                    .processDamageAsDamagerProjectile(new DamageInput(player, livingEntity, damage), projectile);
 
             if (output != null) {
                 damage = output.getDamage();
                 if (!cancelEvent) {
                     cancelEvent = output.isCancelDamage();
-                    if (output.hasExtraDisplayStrings()) {
-                        extraStrings.addAll(Arrays.stream(output.getExtraDisplayStrings()).toList());
-                    }
+                    //if (output.hasExtraDisplayStrings()) {
+                    //    extraStrings.addAll(Arrays.stream(output.getExtraDisplayStrings()).toList());
+                    //}
                 }
             }
         }
@@ -469,9 +473,9 @@ public class PlayerEvent implements Listener {
         // Create damage indicator if dealt 1 or more damage
         if (damage >= 1.0d) {
             final DamageIndicator damageIndicator = new DamageIndicator(entity.getLocation(), damage);
-            if (!extraStrings.isEmpty()) {
-                damageIndicator.setExtra(extraStrings);
-            }
+            //if (!extraStrings.isEmpty()) {
+            //    damageIndicator.setExtra(extraStrings);
+            //}
 
             damageIndicator.display(20);
         }
@@ -527,10 +531,12 @@ public class PlayerEvent implements Listener {
     }
 
 
-    private DamageOutput getDamageOutput(Player player, LivingEntity entity, EntityDamageEvent.DamageCause cause, double damage, boolean asDamager) {
+    private DamageOutput getDamageOutput(Player player, LivingEntity entity, double damage, boolean asDamager) {
         if (Manager.current().isPlayerInGame(player)) {
-            final Hero hero = GamePlayer.getPlayer(player).getHero();
-            final DamageInput input = new DamageInput(player, entity, cause, damage);
+            final AbstractGamePlayer gamePlayer = GamePlayer.getPlayer(player);
+            final Hero hero = gamePlayer.getHero();
+
+            final DamageInput input = new DamageInput(player, entity, gamePlayer.getLastDamageCause(), damage);
             return asDamager ? hero.processDamageAsDamager(input) : hero.processDamageAsVictim(input);
         }
         return null;

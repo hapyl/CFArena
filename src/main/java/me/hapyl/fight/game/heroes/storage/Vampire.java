@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.heroes.ClassEquipment;
@@ -33,7 +34,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.PlayerInventory;
@@ -194,7 +194,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent {
         final VampireData data = getData(player);
 
         if (isUsingUltimate(player)) {
-            if (input.getDamageCause() == EntityDamageEvent.DamageCause.LIGHTNING) {
+            if (input.getDamageCause() == EnumDamageCause.LIGHTNING) {
                 return null;
             }
 

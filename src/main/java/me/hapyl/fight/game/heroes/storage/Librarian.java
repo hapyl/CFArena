@@ -92,7 +92,6 @@ public class Librarian extends Hero implements ComplexHero, Listener {
         new GameTask() {
             @Override
             public void run() {
-
                 Manager.current().getCurrentGame().getAlivePlayers(Heroes.LIBRARIAN).forEach(player -> {
                     final Player playerPlayer = player.getPlayer();
                     final Grimoire grimoire = grimoireMap.get(playerPlayer);
@@ -217,30 +216,23 @@ public class Librarian extends Hero implements ComplexHero, Listener {
         player.setCooldown(getItem().getType(), 10);
     }
 
-    public void removeSpellItems(Player player, Talents enumTalent) {
-        final Talent talent = enumTalent.getTalent();
-
-        if (!(talent instanceof LibrarianTalent grimoire)) {
-            return;
-        }
-
-        final int talentIndex = indexOfTalent(enumTalent);
+    public void removeSpellItems(Player player, LibrarianTalent talent) {
         final PlayerInventory inventory = player.getInventory();
 
         for (int i = 1; i <= 4; i++) {
             final ItemStack item = inventory.getItem(i);
 
             if (item != null) {
-                item.setAmount(item.getAmount() - (grimoire instanceof EntityDarkness ? 1 : 64));
+                item.setAmount(item.getAmount() - (talent instanceof EntityDarkness ? 1 : 3));
             }
         }
 
-        final ItemStack currentItem = inventory.getItem(talentIndex);
-
-        if (currentItem == null) {
-            GrimoireBook.applyCooldown(player, (grimoire.getGrimoireCd() * 20));
-            giveGrimoireBook(player);
+        if (inventory.contains(talent.getMaterial())) {
+            return;
         }
+
+        GrimoireBook.applyCooldown(player, (talent.getGrimoireCd() * 20));
+        giveGrimoireBook(player);
     }
 
     public void giveGrimoireBook(Player player) {
