@@ -36,7 +36,7 @@ public class Tamer extends Hero implements Listener {
     private final int WEAPON_COOLDOWN = 10;
 
     public Tamer() {
-        super("Tamer", "A former circus pet trainer, with pets that loyal to him only!", Material.FISHING_ROD);
+        super("Tamr", "A former circus pet trainer, with pets that loyal to him only!", Material.FISHING_ROD);
         setItem("fbad693d041db13ff36b81480b06456cd0ad6a57655338b956ea015a150516e2");
 
         setRole(Role.STRATEGIST);
