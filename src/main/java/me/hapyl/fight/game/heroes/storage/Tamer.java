@@ -132,6 +132,10 @@ public class Tamer extends Hero implements Listener, DisabledHero {
         player.setCooldown(Material.FISHING_ROD, WEAPON_COOLDOWN);
     }
 
+    /**
+     * This is a test
+     */
+
     @Override
     public Talent getFirstTalent() {
         return Talents.MINE_O_BALL.getTalent();
