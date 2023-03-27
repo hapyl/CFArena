@@ -230,9 +230,5 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
         return "&a";
     }
 
-    @Override
-    public Alchemist getHandle() {
-        return this;
-    }
 
 }

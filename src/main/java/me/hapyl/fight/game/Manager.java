@@ -62,7 +62,6 @@ public class Manager {
     public Manager() {
         profiles = Maps.newHashMap();
 
-
         slotPerTalent.put(1, Hero::getFirstTalent);
         slotPerTalent.put(2, Hero::getSecondTalent);
         slotPerComplexTalent.put(3, ComplexHero::getThirdTalent);

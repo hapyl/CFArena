@@ -163,6 +163,7 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
         return players.values();
     }
 
+    @Nonnull
     @Override
     public List<GamePlayer> getAlivePlayers(Heroes heroes) {
         return getAlivePlayers(gp -> gp.getHero() == heroes.getHero());
@@ -230,7 +231,6 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
             players.put(player.getUniqueId(), gamePlayer);
         });
     }
-
 
     private Heroes getHero(Player player) {
         return Setting.RANDOM_HERO.isEnabled(player) ? Heroes.randomHero() : Manager.current().getSelectedHero(player);

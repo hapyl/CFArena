@@ -41,14 +41,14 @@ Bugs:
 - [✔] void doesn't reset ond death
 
 - Maybe genshin slowing aura for freazly
-- Black hole works with grimoire
+- [✔] Black hole works with grimoire
 - [✔] Store class wins
 - [✔] Fix techie trips
 - Stop paintings from breaking
 - harbinger riptide not going away?
-- weakness level matters for client
+- [✔] weakness level matters for client
 - [✔] deathmath when die who dead keeps yes
-- [?] me.hapyl.fight.game.heroes.storage.extra.BlockShield.randomBlock(BlockShield.java:132) ~[ClassesFightArena.jar:?]
+- [✔] me.hapyl.fight.game.heroes.storage.extra.BlockShield.randomBlock(BlockShield.java:132) ~[ClassesFightArena.jar:?]
 - [✔] spark does not take dmg?
 
 - add glowing on death for teammates

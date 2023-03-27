@@ -26,6 +26,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
+import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
@@ -62,6 +63,14 @@ public class PlayerEvent implements Listener {
         }
 
         ev.setJoinMessage(Chat.format("&7[&a+&7] %s%s &ewants to fight!", player.isOp() ? "&c" : "", player.getName()));
+    }
+
+    // Prevent painting breaking while the game is in progress
+    @EventHandler()
+    public void handlePaintingBreaking(HangingBreakEvent ev) {
+        if (Manager.current().isGameInProgress()) {
+            ev.setCancelled(true);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -707,6 +716,12 @@ public class PlayerEvent implements Listener {
                 Chat.sendMessage(player, "&cOut of charges!");
                 return;
             }
+        }
+
+        // Make sure the talent item is still in the slot
+        final ItemStack itemInSlot = player.getInventory().getItem(slot);
+        if (itemInSlot == null || itemInSlot.getType() != talent.getMaterial()) {
+            return;
         }
 
         // Execute talent and get response

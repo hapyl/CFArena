@@ -87,7 +87,6 @@ public class GamePlayer extends AbstractGamePlayer {
     private boolean valid = true; // valid means if game player is being used somewhere, should probably rework how this works
     private int ultPoints;
 
-    private double cdModifier;
     private double ultimateModifier;
 
     private long lastMoved;
@@ -100,7 +99,6 @@ public class GamePlayer extends AbstractGamePlayer {
         this.hero = enumHero.getHero();
         this.health = maxHealth;
         this.isDead = false;
-        this.cdModifier = 1.0d;
         this.ultimateModifier = 1.0d;
         this.isSpectator = false;
         this.gameEffects = new ConcurrentHashMap<>();
@@ -198,11 +196,6 @@ public class GamePlayer extends AbstractGamePlayer {
     }
 
     @Override
-    public double getCooldownAccelerationModifier() {
-        return cdModifier;
-    }
-
-    @Override
     public double getUltimateAccelerationModifier() {
         return ultimateModifier;
     }
@@ -230,10 +223,6 @@ public class GamePlayer extends AbstractGamePlayer {
         }
 
         return pointsString;
-    }
-
-    public void setCooldownAccelerationModifier(double cdModifier) {
-        this.cdModifier = cdModifier;
     }
 
     public void setUltimateAccelerationModifier(double ultimateModifier) {
