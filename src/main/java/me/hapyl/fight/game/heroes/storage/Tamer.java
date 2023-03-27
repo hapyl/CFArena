@@ -93,6 +93,7 @@ public class Tamer extends Hero implements Listener, DisabledHero {
         return null;
     }
 
+    // FIXME: 028, Mar 28, 2023 -> This doesn't work
     // prevent pack members from damaging each other
     @EventHandler()
     public void handleMinionDamage(EntityDamageByEntityEvent ev) {
@@ -135,6 +136,7 @@ public class Tamer extends Hero implements Listener, DisabledHero {
     public Talent getFirstTalent() {
         return Talents.MINE_O_BALL.getTalent();
     }
+
 
     @Override
     public Talent getSecondTalent() {
