@@ -34,7 +34,6 @@ public class GameCommand extends SimpleCommand {
 
                     Chat.sendMessage(sender, "&aCreating new game instance%s...", debug ? " in debug mode " : "");
                     manager.createNewGameInstance(debug);
-
                 }
 
                 case "stop" -> {
