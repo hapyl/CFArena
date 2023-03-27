@@ -9,6 +9,7 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentHandle;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.storage.tamer.TamerPack;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -69,12 +70,33 @@ public class Tamer extends Hero implements Listener, DisabledHero {
                 .setId("tamer_weapon")
                 .setDamage(2.0d)); // This is melee damage, weapon damage is handled in the event
 
-        setUltimate(new UltimateTalent("", "", 100));
+        setUltimate(new UltimateTalent("NAME", "DESCRIPTION", 100));
+    }
+
+    @Override
+    public boolean predicateUltimate(Player player) {
+        return getPlayerPack(player) != null;
+    }
+
+    @Override
+    public String predicateMessage() {
+        return "You don't have a pack!";
     }
 
     @Override
     public void useUltimate(Player player) {
+        final TamerPack playerPack = getPlayerPack(player);
+        if (playerPack == null) {
+            return;
+        }
+
+        playerPack.getPack().onUltimate(player, playerPack);
     }
+
+    public TamerPack getPlayerPack(Player player) {
+        return TalentHandle.MINE_O_BALL.getPack(player);
+    }
+
 
     @Override
     public void onStart() {

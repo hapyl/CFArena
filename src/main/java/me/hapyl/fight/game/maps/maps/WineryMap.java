@@ -28,7 +28,7 @@ public class WineryMap extends GameMap {
 
             @Override
             public void onStart() {
-                GameTask.runTaskTimerTimes(task -> {
+                GameTask.runTaskTimer(task -> {
                     // Howl
                     final Location location = BukkitUtils.defLocation(201.5, 64.0, 217.5);
                     final World world = location.getWorld();

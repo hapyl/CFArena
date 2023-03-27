@@ -24,6 +24,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 
 public class MineOBall extends Talent implements Listener {
@@ -86,6 +87,7 @@ public class MineOBall extends Talent implements Listener {
         return entity != null && pack != null && pack.isInPack(entity);
     }
 
+    @Nullable
     public TamerPack getPack(Player player) {
         return tamerPackMap.get(player);
     }

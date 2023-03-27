@@ -4,6 +4,7 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Utils;
+import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
@@ -28,6 +29,11 @@ public enum TamerPacks {
         @Override
         public void spawnEntity(Player player, Location location, TamerPack pack) {
             pack.createEntity(location, Entities.ZOMBIE);
+        }
+
+        @Override
+        public void onUltimate(Player player, TamerPack pack) {
+            Chat.sendMessage(player, "YOU USED ULTIMATE WITH ZOMBIES???? ARE YOU DUMB???");
         }
     }),
 
@@ -60,6 +66,8 @@ public enum TamerPacks {
         public int spawnAmount() {
             return 1;
         }
+
+        // FIXME: 028, Mar 28, 2023 -> Piglins don't aggro, change to pigman?
 
         @Override
         public void spawnEntity(Player player, Location location, TamerPack pack) {

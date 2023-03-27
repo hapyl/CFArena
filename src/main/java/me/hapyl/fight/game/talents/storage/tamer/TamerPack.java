@@ -19,6 +19,9 @@ import org.bukkit.util.Consumer;
 import javax.annotation.Nullable;
 import java.util.Set;
 
+/**
+ * Represents a pack of entities that are tamed by a player.
+ */
 public class TamerPack {
 
     private final double maxDistance = 30;
@@ -56,27 +59,50 @@ public class TamerPack {
         }.runTaskTimer(0, 1);
     }
 
+    /**
+     * Returns true if the pack exists.
+     *
+     * @return true if the pack exists.
+     */
     public boolean exists() {
         return !entities.isEmpty();
     }
 
+    /**
+     * Returns true any of the entities are alive.
+     *
+     * @return true if any of the entities are alive.
+     */
+    public boolean isAlive() {
+        for (LivingEntity entity : entities) {
+            if (!entity.isDead()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns all entities in the pack, no matter if they are dead or not.
+     *
+     * @return all entities in the pack.
+     */
     public Set<LivingEntity> getEntities() {
         return entities;
     }
 
+    /**
+     * Returns the name of the pack.
+     *
+     * @return the name of the pack.
+     */
     public String getName() {
         return pack.getName();
     }
 
     public boolean isInPack(LivingEntity entity) {
         return entities.contains(entity);
-        //
-        //for (final LivingEntity living : entities) {
-        //    if (living == entity) {
-        //        return true;
-        //    }
-        //}
-        //return false;
     }
 
     public final void updateEntitiesNames(Player player) {
@@ -158,7 +184,11 @@ public class TamerPack {
         });
     }
 
-
+    /**
+     * Returns the nearest target for this pack.
+     *
+     * @return the nearest target or null if none found.
+     */
     @Nullable
     public LivingEntity findNearestTarget() {
         LivingEntity nearest = Utils.getNearestPlayer(getLocation(), maxDistance, player);
@@ -171,10 +201,16 @@ public class TamerPack {
         return nearest;
     }
 
+    /**
+     * Get FIRST entity in a pack with a specific type.
+     *
+     * @param type - Type.
+     * @return the entity or null if none found.
+     */
     @Nullable
-    public LivingEntity getEntity(EntityType guardian) {
+    public LivingEntity getEntity(EntityType type) {
         for (LivingEntity entity : entities) {
-            if (entity.getType() == guardian) {
+            if (entity.getType() == type) {
                 return entity;
             }
         }
@@ -190,5 +226,8 @@ public class TamerPack {
         return BukkitUtils.defLocation(0.0d, 0.0d, 0.0d);
     }
 
+    public Pack getPack() {
+        return pack;
+    }
 }
 

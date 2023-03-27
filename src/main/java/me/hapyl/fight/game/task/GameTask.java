@@ -45,6 +45,10 @@ public abstract class GameTask implements Runnable {
         return runTaskTimerTimes((a, b) -> runnable.accept(a), delay, period, maxTimes);
     }
 
+    public static GameTask runTaskTimer(Consumer<GameTask> runnable, int delay, int period) {
+        return runTaskTimerTimes((a, b) -> runnable.accept(a), delay, period, Integer.MAX_VALUE);
+    }
+
     public static GameTask runTaskTimerTimes(Consumer<GameTask> runnable, int period, int maxTimes) {
         return runTaskTimerTimes((a, b) -> runnable.accept(a), 0, period, maxTimes);
     }
