@@ -20,8 +20,6 @@ import java.util.List;
 
 public class Test {
 
-    // Test push
-
     private final Main main;
     private boolean b = false;
 
