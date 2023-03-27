@@ -2,18 +2,18 @@ package me.hapyl.fight.cmds;
 
 import me.hapyl.fight.game.Manager;
 import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.command.SimpleAdminCommand;
+import me.hapyl.spigotutils.module.command.SimpleCommand;
 import org.bukkit.command.CommandSender;
 
 import java.util.List;
 import java.util.Locale;
 
-public class GameCommand extends SimpleAdminCommand {
+public class GameCommand extends SimpleCommand {
 
     public GameCommand(String str) {
         super(str);
-        this.setUsage("game (Start/Stop)");
-        this.setDescription("Allows admins to control the game instance.");
+        setUsage("game (Start/Stop)");
+        setDescription("Allows admins to control the game instance.");
     }
 
     @Override
@@ -21,6 +21,7 @@ public class GameCommand extends SimpleAdminCommand {
         // game (start/stop/pause)
         if (args.length >= 1) {
             final Manager manager = Manager.current();
+            // TODO: 027, Mar 27, 2023 -> Add checks for admins or add votes
 
             switch (args[0].toLowerCase(Locale.ROOT)) {
                 case "start" -> {

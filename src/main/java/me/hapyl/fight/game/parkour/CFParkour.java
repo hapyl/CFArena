@@ -31,8 +31,8 @@ public class CFParkour extends Parkour implements ParkourHandler {
                 final Player player = data.get();
                 Chat.sendMessage(
                         player,
-                        "&6&lCHECKPOINT! &eYou passed a checkpoint! &7(%s/%s)",
-                        data.passedCheckpointsCount(), data.getParkour().getCheckpoints().size()
+                        "&6&lCHECKPOINT! &eYou passed a checkpoint! &7(%s/%s) &8(%ss)",
+                        data.passedCheckpointsCount(), data.getParkour().getCheckpoints().size(), data.getTimePassedFormatted()
                 );
 
                 PlayerLib.playSound(player, Sound.BLOCK_NOTE_BLOCK_PLING, 2.0f);
