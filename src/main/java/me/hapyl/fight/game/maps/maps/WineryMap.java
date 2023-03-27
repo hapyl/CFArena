@@ -4,12 +4,8 @@ import me.hapyl.fight.game.maps.GameMap;
 import me.hapyl.fight.game.maps.MapFeature;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.math.Tick;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.WeatherType;
+import org.bukkit.*;
 
 import java.util.Random;
 
@@ -35,11 +31,15 @@ public class WineryMap extends GameMap {
                 GameTask.runTaskTimerTimes(task -> {
                     // Howl
                     final Location location = BukkitUtils.defLocation(201.5, 64.0, 217.5);
+                    final World world = location.getWorld();
 
                     location.add(new Random().nextDouble(-howlRange, howlRange), 0.0d, new Random().nextDouble(-howlRange, howlRange));
 
-                    PlayerLib.playSound(location, Sound.ENTITY_WOLF_HOWL, 0.0f);
+                    if (world == null) {
+                        return;
+                    }
 
+                    world.playSound(location, Sound.ENTITY_WOLF_HOWL, SoundCategory.RECORDS, 8.0f, new Random().nextFloat(0.0f, 1.0f));
                 }, howlPeriod, howlPeriod);
             }
 

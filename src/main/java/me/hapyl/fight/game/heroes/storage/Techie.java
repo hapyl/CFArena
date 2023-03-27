@@ -130,8 +130,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener {
     }
 
     private void revealPlayer(Player player, LivingEntity revealed) {
-        // Glowing
-        Glowing.stopGlowing(revealed);
+        //Glowing.stopGlowing(revealed); fixme -> This is not needed?
 
         Glowing.glow(revealed, ChatColor.AQUA, 20, player);
 

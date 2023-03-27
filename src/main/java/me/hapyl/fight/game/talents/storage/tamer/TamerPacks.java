@@ -61,8 +61,6 @@ public enum TamerPacks {
             return 1;
         }
 
-        // FIXME: 027, Mar 27, 2023 - Cannot target?
-
         @Override
         public void spawnEntity(Player player, Location location, TamerPack pack) {
             pack.createEntity(location, Entities.PIGLIN, self -> {

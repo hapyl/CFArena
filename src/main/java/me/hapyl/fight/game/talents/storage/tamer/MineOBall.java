@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.talents.storage.tamer;
 
 import com.google.common.collect.Maps;
-import me.hapyl.fight.game.Debugger;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.Response;
@@ -126,15 +125,13 @@ public class MineOBall extends Talent implements Listener {
 
                             final LivingEntity newTarget = pack.findNearestTarget();
 
-                            Debugger.log(creature.getTarget());
-
                             if (newTarget == null) {
                                 return; // don't care
                             }
 
-                            // setGoalTarget GPT
-
                             creature.setTarget(newTarget);
+                            creature.setAware(true);
+
                             Bukkit.getPluginManager()
                                     .callEvent(new EntityTargetLivingEntityEvent(
                                             entity,

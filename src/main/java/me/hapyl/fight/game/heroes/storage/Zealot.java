@@ -1,10 +1,11 @@
 package me.hapyl.fight.game.heroes.storage;
 
+import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.talents.Talent;
 import org.bukkit.entity.Player;
 
-public class Zealot extends Hero {
+public class Zealot extends Hero implements DisabledHero {
     public Zealot() {
         super("Zealot");
 

@@ -28,7 +28,7 @@ public class HeroCommand extends SimplePlayerCommand {
             return;
         }
 
-        if (args.length == 1) {
+        if (args.length >= 1) {
             final Heroes hero = Validate.getEnumValue(Heroes.class, args[0]);
 
             if (hero == null) {
@@ -36,7 +36,9 @@ public class HeroCommand extends SimplePlayerCommand {
                 return;
             }
 
-            Main.getPlugin().getManager().setSelectedHero(player, hero);
+            Main.getPlugin()
+                    .getManager()
+                    .setSelectedHero(player, hero, args.length >= 2 && args[1].equals("-IKnowItsDisabledHeroAndWillBreakTheGame"));
             return;
         }
 

@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.storage;
 
 import me.hapyl.fight.game.heroes.ClassEquipment;
+import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -9,7 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
-public class SwordMaster extends Hero {
+public class SwordMaster extends Hero implements DisabledHero {
 
     /**
      * BIG ASS SWORD

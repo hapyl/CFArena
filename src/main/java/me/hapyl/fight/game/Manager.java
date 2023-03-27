@@ -540,6 +540,10 @@ public class Manager {
     }
 
     public void setSelectedHero(Player player, Heroes heroes) {
+        setSelectedHero(player, heroes, false);
+    }
+
+    public void setSelectedHero(Player player, Heroes heroes, boolean force) {
         if (Manager.current().isGameInProgress()) {
             Chat.sendMessage(player, "&cUnable to change hero during the game!");
             PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
@@ -547,9 +551,21 @@ public class Manager {
         }
 
         if (!heroes.isValidHero()) {
-            Chat.sendMessage(player, "&cThis hero is currently disabled. Sorry!");
-            PlayerLib.villagerNo(player);
-            return;
+            if (!player.isOp()) {
+                Chat.sendMessage(player, "&cThis hero is currently disabled. Sorry!");
+                PlayerLib.villagerNo(player);
+                return;
+            }
+
+            if (!force) {
+                Chat.sendMessage(player, "&cNot selecting disabled hero without &e-IKnowItsDisabledHeroAndWillBreakTheGame&c argument!");
+                PlayerLib.villagerNo(player);
+                return;
+            }
+
+            Chat.sendMessage(player, "&cYou've selected &lDISABLED&c hero, which is either broken or not finished yet!");
+            Chat.sendMessage(player, "It &lwill&c throw errors and break the game!");
+            Chat.sendMessage(player, "&4&lYOU HAVE BEEN WARNED");
         }
 
         if (getSelectedHero(player) == heroes) {
