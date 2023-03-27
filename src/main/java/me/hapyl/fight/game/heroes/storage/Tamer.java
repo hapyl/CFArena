@@ -137,6 +137,8 @@ public class Tamer extends Hero implements Listener, DisabledHero {
         return Talents.MINE_O_BALL.getTalent();
     }
 
+    // Changes to dev
+
     @Override
     public Talent getSecondTalent() {
         return null;
