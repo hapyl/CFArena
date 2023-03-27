@@ -9,7 +9,6 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -19,16 +18,16 @@ import org.bukkit.entity.Player;
 
 public class Paranoia extends Talent {
 
-    private final int effectDuration = 100;
-
     public Paranoia() {
         super("Paranoia");
 
-        this.setDescription(
-                "Launch a cloud of darkness in front of you that travels forward, applying &e&lParanoia &7effect to whoever it touches for &b3s&7.".formatted(
-                        BukkitUtils.roundTick(effectDuration)));
-        this.setItem(Material.CHARCOAL);
-        this.setCd(360);
+        addDescription(
+                "Launch a cloud of darkness in front of you that travels forward, applying &e&lParanoia &7effect to whoever it touches for {duration}&7."
+        );
+
+        setDuration(100);
+        setItem(Material.CHARCOAL);
+        setCd(360);
     }
 
     @Override
@@ -50,7 +49,6 @@ public class Paranoia extends Talent {
 
             @Override
             public void run() {
-
                 if ((currentIteration -= 0.1d) <= 0) {
                     stand.remove();
                     this.cancel();
@@ -70,7 +68,7 @@ public class Paranoia extends Talent {
                     if (player == target || !Manager.current().isPlayerInGame(target)) {
                         return;
                     }
-                    GamePlayer.getPlayer(target).addEffect(GameEffectType.PARANOIA, effectDuration, true);
+                    GamePlayer.getPlayer(target).addEffect(GameEffectType.PARANOIA, getDuration(), true);
                 });
 
             }

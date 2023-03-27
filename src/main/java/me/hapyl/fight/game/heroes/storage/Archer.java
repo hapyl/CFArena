@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.storage;
 
+import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -20,6 +21,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
 
 import java.util.Collection;
@@ -29,28 +31,33 @@ import java.util.Set;
 public class Archer extends Hero implements Listener {
 
     private final Set<Arrow> boomArrows = new HashSet<>();
-    private final Weapon boomBow = new Weapon(Material.BOW).setDamage(0.0d).setName("&6&lBOOM BOW");
+    private final Weapon boomBow = new Weapon(Material.BOW).setDamage(1.0d).setName("&6&lBOOM BOW");
+
+    private final double explosionRadius = 5.0d;
+    private final double explosionDamage = 30.0d;
 
     public Archer() {
         super("Archer");
 
-        this.setRole(Role.RANGE);
-        this.setInfo("One of the best archers joins the fight! Not alone though but with his &bcustom-made &7&obow.");
-        this.setItem(Material.BOW);
+        setRole(Role.RANGE);
+        setInfo("One of the best archers joins the fight! Not alone though but with his &bcustom-made &7&obow.");
+        setItem("106c16817c73ff64a4a49b590d2cdb25bcfa52c630fe7281a177eabacdaa857b");
 
-        this.setWeapon(Material.BOW, "Bow of Destiny", "A custom-made bow with some unique abilities!", 5.0d);
+        setWeapon(Material.BOW, "Bow of Destiny", "A custom-made bow with some unique abilities!", 5.0d);
 
-        final ClassEquipment equipment = this.getEquipment();
-        equipment.setHelmet(Material.CHAINMAIL_HELMET);
-        equipment.setChestplate(Material.CHAINMAIL_CHESTPLATE);
-        equipment.setLeggings(Material.LEATHER_LEGGINGS);
-        equipment.setBoots(Material.LEATHER_BOOTS);
+        final ClassEquipment equipment = getEquipment();
+        equipment.setChestplate(86, 86, 87);
+        equipment.setLeggings(75, 75, 87);
+        equipment.setBoots(51, 51, 51);
 
-        this.setUltimate(new UltimateTalent(
+        setUltimate(new UltimateTalent(
                 "Boom Bow",
                 "Equip a &6&lBOOM BOW &7for {duration} that fires explosive arrows that explodes on impact dealing massive damage.",
                 50
         ).setItem(Material.BLAZE_POWDER).setDuration(120).setCdSec(20).setSound(Sound.ITEM_CROSSBOW_SHOOT, 0.25f));
+
+        getUltimate().addAttributeDescription("Explosion Radius", explosionRadius + " blocks");
+        getUltimate().addAttributeDescription("Explosion Damage", explosionDamage);
 
     }
 
@@ -89,14 +96,24 @@ public class Archer extends Hero implements Listener {
     @EventHandler()
     public void handleProjectileHitEvent(ProjectileHitEvent ev) {
         if (ev.getEntity() instanceof Arrow arrow && boomArrows.contains(arrow)) {
-            Utils.createExplosion(arrow.getLocation(), 5.0d, 30.0d);
+            final ProjectileSource shooter = arrow.getShooter();
+
+            if (shooter instanceof Player player) {
+                Utils.createExplosion(
+                        arrow.getLocation(),
+                        explosionRadius,
+                        explosionDamage,
+                        player,
+                        EnumDamageCause.BOOM_BOW_ULTIMATE,
+                        null
+                );
+            }
         }
     }
 
     @EventHandler()
     public void handleProjectileLaunchEvent(ProjectileLaunchEvent ev) {
         if (ev.getEntity() instanceof Arrow arrow && arrow.getShooter() instanceof Player player) {
-
             final int selectedSlot = player.getInventory().getHeldItemSlot();
 
             // Handle ultimate arrows

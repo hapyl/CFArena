@@ -4,6 +4,7 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -16,16 +17,19 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 public class SparkFlash extends Talent {
-    private final int flashDuration = 60;
+
+    @DisplayField private final int flashDuration = 60;
+    @DisplayField private final int windupTime = 20;
 
     public SparkFlash() {
         super(
                 "Blinding Fire",
-                "Throw an energy blast filled with blinding energy that curves up and explodes after a short delay blinding anyone who has line of sight with it.",
+                "Throw an energy blast filled with blinding energy that curves up and explodes after a short delay blinding anyone who is looking at it.",
                 Type.COMBAT
         );
-        this.setItem(Material.WHITE_DYE);
-        this.setCd(600);
+
+        setItem(Material.WHITE_DYE);
+        setCd(600);
     }
 
     @Override
@@ -41,40 +45,44 @@ public class SparkFlash extends Talent {
         item.setVelocity(location.getDirection().add(new Vector(0.0d, 0.75d, 0.0d)));
 
         new GameTask() {
-            private int windupTime = 20;
+            private int tick = windupTime;
 
             @Override
             public void run() {
                 // Explode
                 final Location itemLocation = item.getLocation();
-                if (windupTime-- < 0) {
+                if (tick-- < 0) {
 
                     Manager.current().getCurrentGame().getAlivePlayers().forEach(victim -> {
                         final Player victimPlayer = victim.getPlayer();
-                        if (!victimPlayer.hasLineOfSight(item)) {
-                            return;
+
+                        // Check for dot instead of line of sight
+                        final Vector playerDirection = item.getLocation().subtract(player.getLocation()).toVector().normalize();
+                        final Vector vector = victim.getPlayer().getLocation().getDirection().normalize();
+
+                        final double dotProduct = vector.dot(playerDirection);
+                        final double distance = player.getLocation().distance(item.getLocation());
+
+                        if (dotProduct >= 0.4f && distance <= 50) {
+                            PlayerLib.addEffect(victimPlayer, PotionEffectType.BLINDNESS, flashDuration, 1);
+                            PlayerLib.playSoundAndCut(player, Sound.ITEM_ELYTRA_FLYING, 2.0f, flashDuration);
                         }
-
-                        PlayerLib.addEffect(victimPlayer, PotionEffectType.BLINDNESS, flashDuration, 1);
-                        PlayerLib.playSoundAndCut(player, Sound.ITEM_ELYTRA_FLYING, 2.0f, flashDuration);
-
                     });
 
-                    // fx
+                    // Fx
                     PlayerLib.playSound(itemLocation, Sound.ENTITY_FIREWORK_ROCKET_BLAST, 0.0f);
                     PlayerLib.spawnParticle(itemLocation, Particle.FLASH, 2, 0, 0, 0, 0);
 
-                    this.cancel();
+                    cancel();
                     return;
                 }
 
-                // fx
+                // Fx
                 PlayerLib.spawnParticle(itemLocation, Particle.ELECTRIC_SPARK, 1, 0, 0, 0, 0);
-
             }
         }.runTaskTimer(0, 1);
 
-        // fx
+        // Fx
         PlayerLib.playSound(location, Sound.ENTITY_ARROW_SHOOT, 1.5f);
 
         return Response.OK;

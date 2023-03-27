@@ -7,6 +7,7 @@ import me.hapyl.fight.game.shop.Rarity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.spigotutils.module.entity.Entities;
+import me.hapyl.spigotutils.module.entity.EntityUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -33,6 +34,8 @@ public class GiantSwordCosmetic extends Cosmetic {
             Nulls.runIfNotNull(self.getEquipment(), equipment -> {
                 equipment.setItemInMainHand(new ItemStack(Material.IRON_SWORD));
             });
+
+            EntityUtils.setCollision(self, EntityUtils.Collision.DENY);
         });
 
         Nulls.runIfNotNull(location.getWorld(), world -> {

@@ -31,7 +31,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 
 import java.util.HashSet;
 import java.util.List;
@@ -52,46 +51,39 @@ public class Techie extends Hero implements UIComplexComponent, Listener {
 
         setRole(Role.STRATEGIST);
 
-        this.setInfo(
-                "Anonymous hacker, who hacked his way to the fight. Weak by himself, but specifies on traps that makes him stronger.");
-        this.setItem(Material.IRON_TRAPDOOR);
-
-        final ClassEquipment equipment = this.getEquipment();
-        equipment.setHelmet(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWU1Yjc4OTg3YzcwZDczZjJhZDkzYTQ1NGY4NWRjYWI0NzZjNWI1Njc5ZjUwZWFhZjU1M2QyNDA0ZWRjOWMifX19"
+        setInfo(
+                "Anonymous hacker, who hacked his way to the fight. Weak by himself, but specifies on traps that makes him stronger."
         );
+
+        setItemTexture(
+                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWU1Yjc4OTg3YzcwZDczZjJhZDkzYTQ1NGY4NWRjYWI0NzZjNWI1Njc5ZjUwZWFhZjU1M2QyNDA0ZWRjOWMifX19");
+
+        final ClassEquipment equipment = getEquipment();
         equipment.setChestplate(205, 205, 205);
         equipment.setLeggings(217, 217, 217);
         equipment.setBoots(255, 230, 204);
 
-        this.setWeapon(new Weapon(Material.IRON_SWORD).setName("Nano Sword")
+        setWeapon(new Weapon(Material.IRON_SWORD).setName("Nano Sword")
                 .setDamage(7.0d)
                 .addEnchant(Enchantment.KNOCKBACK, 1));
 
-        this.setUltimate(new UltimateTalent("Lockdown",
+        setUltimate(new UltimateTalent("Lockdown",
                 String.format(
-                        "Place a device that charges over &b%ss&7. When charged, explodes and affects all opponents in &b%s &7blocks radius by &6&lLockdown &7for &b%ss&7.__&c&lThe device can be broken.",
+                        "Place a device that charges over &b%ss&7. When charged, explodes and affects all opponents in &b%s &7blocks radius by &6&lLockdown &7for &b%ss&7.____%s____&cThis ability can be destroyed!",
+                        GameEffectType.LOCK_DOWN.getGameEffect().getDescription(),
                         BukkitUtils.roundTick(lockdownWindupTime),
                         lockdownRadius,
                         BukkitUtils.roundTick(lockdownAffectTime)
                 ), 60
         ).setItem(Material.DAYLIGHT_DETECTOR).setSound(Sound.BLOCK_BELL_USE, 0.0f));
 
+        getUltimate().addAttributeDescription("Lockdown Health", Lockdown.HEALTH);
     }
 
     @Override
     public void onStop() {
         lockdownSet.forEach(Lockdown::remove);
         lockdownSet.clear();
-    }
-
-    @EventHandler()
-    public void handleMovement(PlayerMoveEvent ev) {
-        final Player player = ev.getPlayer();
-        if (Manager.current().isGameInProgress() && GamePlayer.getPlayer(player).hasEffect(GameEffectType.LOCK_DOWN)) {
-            ev.setCancelled(true);
-            Chat.sendTitle(player, "&c&lLOCKDOWN", "&cUnable to move!", 0, 20, 0);
-        }
     }
 
     @Override
@@ -135,14 +127,17 @@ public class Techie extends Hero implements UIComplexComponent, Listener {
         if (living.getHealth() <= 0.0d) {
             living.remove();
         }
-
     }
 
     private void revealPlayer(Player player, LivingEntity revealed) {
         // Glowing
-        final Glowing glowing = new Glowing(revealed, ChatColor.AQUA, 20);
-        glowing.addPlayer(player);
-        glowing.glow();
+        Glowing.stopGlowing(revealed);
+
+        Glowing.glow(revealed, ChatColor.AQUA, 20, player);
+
+        //final Glowing glowing = new Glowing(revealed, ChatColor.AQUA, 20);
+        //glowing.addPlayer(player);
+        //glowing.glow();
 
         // If revealed not player don't show health.
         if (!(revealed instanceof Player revealedPlayer)) {
@@ -188,7 +183,6 @@ public class Techie extends Hero implements UIComplexComponent, Listener {
 
         lockdownSet.add(new Lockdown(player));
         Chat.sendMessage(player, "&aCountdown initiated!");
-
     }
 
     @Override
@@ -200,7 +194,6 @@ public class Techie extends Hero implements UIComplexComponent, Listener {
     public boolean predicateUltimate(Player player) {
         return player.getLocation().getBlock().getType().isAir();
     }
-
 
     @Override
     public Talent getFirstTalent() {

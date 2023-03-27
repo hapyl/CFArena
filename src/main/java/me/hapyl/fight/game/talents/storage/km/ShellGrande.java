@@ -22,7 +22,7 @@ public class ShellGrande extends Talent {
 
     public ShellGrande() {
         super("Grenade");
-        this.setDescription(
+        this.addDescription(
                 "Throw a grenade that bounce off walls. Explodes after &b%ss &7in medium AoE dealing significant damage.____&e&lSNEAK &7while throwing to toss closer.".formatted(
                         BukkitUtils.roundTick(explosionDelay)));
         this.setItem(Material.FIREWORK_STAR);

@@ -129,23 +129,23 @@ public enum GameMaps {
         return gm == null ? def : gm;
     }
 
-    protected static <E> List<E> asList(E... e) {
+    private static <E> List<E> asList(E... e) {
         return Arrays.asList(e);
     }
 
-    protected static <E> Set<E> asSet(E... e) {
+    private static <E> Set<E> asSet(E... e) {
         return new HashSet<>(Arrays.asList(e));
     }
 
-    protected static List<Location> asSingleLoc(double x, double y, double z) {
+    private static List<Location> asSingleLoc(double x, double y, double z) {
         return asList(asLoc(x, y, z));
     }
 
-    protected static Location asLoc(double x, double y, double z) {
+    private static Location asLoc(double x, double y, double z) {
         return new Location(Bukkit.getWorlds().get(0), x, y, z);
     }
 
-    protected static Location asLoc(double x, double y, double z, float f, float b) {
+    private static Location asLoc(double x, double y, double z, float f, float b) {
         return new Location(Bukkit.getWorlds().get(0), x, y, z, f, b);
     }
 

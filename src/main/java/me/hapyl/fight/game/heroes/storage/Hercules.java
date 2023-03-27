@@ -40,26 +40,26 @@ public class Hercules extends Hero implements Listener, PlayerElement {
 
     public Hercules() {
         super("Hercules");
-        this.setRole(Role.MELEE);
-        this.setItem(Material.PISTON);
-        this.setInfo(
-                "The greatest warrior of all time - \"The Great Hercules\" descended from heaven to punish the infidels! Super-Duper strong punches give you a chance to win.");
+        setRole(Role.MELEE);
+        setInfo(
+                "The greatest warrior of all time - \"The Great Hercules\" descended from heaven to punish the infidels! Super-Duper strong punches give you a chance to win."
+        );
+        setItem("f210c961b9d787327c0d1646e65ae40c6d834514877824335d4b9b62b2365a24");
 
-        final ClassEquipment eq = this.getEquipment();
-        eq.setHelmet(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjIxMGM5NjFiOWQ3ODczMjdjMGQxNjQ2ZTY1YWU0MGM2ZDgzNDUxNDg3NzgyNDMzNWQ0YjliNjJiMjM2NWEyNCJ9fX0=");
-        eq.setChestplate(Color.WHITE);
-        eq.setBoots(Material.LEATHER_BOOTS);
+        final ClassEquipment equipment = getEquipment();
+        equipment.setChestplate(Color.WHITE);
+        equipment.setBoots(Material.LEATHER_BOOTS);
 
-        this.setWeapon(new Weapon(Material.TRIDENT).setName("Gorynych")
+        setWeapon(new Weapon(Material.TRIDENT).setName("Gorynych")
                 .setDescription(
-                        "A loyal trident which will return to you no matter what!____&e&lTHROW &7the trident to deal range damage.")
-                               .setDamage(10)
-                               .addEnchant(Enchantment.LOYALTY, 3));
+                        "A loyal trident which will return to you no matter what!____&e&lTHROW &7the trident to deal range damage."
+                )
+                .setDamage(10)
+                .addEnchant(Enchantment.LOYALTY, 3));
 
-        this.setUltimate(new UltimateTalent(
+        setUltimate(new UltimateTalent(
                 "Crush the Ground",
-                "Call upon divine power for {duration} to increase your &ejump height &7and &cplunging damage&7.",
+                "Call upon divine power to increase your &ejump height &7and &cplunging damage&7 for {duration}.",
                 50
         ).setDuration(240).setItem(Material.NETHERITE_HELMET).setCdSec(30));
     }
@@ -78,7 +78,7 @@ public class Hercules extends Hero implements Listener, PlayerElement {
                         PlayerLib.playSound(player, Sound.ENTITY_WITHER_SHOOT, (float) (0.5d + (0.1d * tick / 4)));
                     }
                     else {
-                        this.cancel();
+                        cancel();
                         PlayerLib.playSound(player, Sound.ENTITY_WITHER_HURT, 1.25f);
                     }
                 }
@@ -89,8 +89,8 @@ public class Hercules extends Hero implements Listener, PlayerElement {
 
     @Override
     public void onStop() {
-        this.fragileTrident.values().forEach(Trident::remove);
-        this.fragileTrident.clear();
+        fragileTrident.values().forEach(Trident::remove);
+        fragileTrident.clear();
     }
 
     @EventHandler
@@ -140,9 +140,11 @@ public class Hercules extends Hero implements Listener, PlayerElement {
 
         final Trident trident = fragileTrident.get(player);
         trident.remove();
+
         player.setCooldown(Material.TRIDENT, lessCooldown ? tridentCooldown / 3 : tridentCooldown);
         player.getInventory().setItem(0, this.getWeapon().getItem());
         player.updateInventory();
+
         fragileTrident.remove(player);
     }
 

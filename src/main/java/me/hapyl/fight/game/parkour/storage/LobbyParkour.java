@@ -18,6 +18,6 @@ public class LobbyParkour extends CFParkour {
         addCheckpoint(-11, 73, 11, -135.0f, 0.0f);
         addCheckpoint(18, 68, 18, -153.0f, 27.0f);
 
-        setLeaderboard(new ParkourLeaderboard(this, 25.5d, 63.5d, 11.5d));
+        setLeaderboard(new ParkourLeaderboard(this, 25.5d, 62.5d, 11.5d));
     }
 }

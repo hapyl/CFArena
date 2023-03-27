@@ -10,18 +10,18 @@ public class UltimateTalent extends Talent {
     private final int cost;
     private Sound sound;
     private float pitch;
-    private int duration;
 
     public UltimateTalent(String name, String info, int pointCost) {
         super(name, info, Type.ULTIMATE);
-        this.cost = pointCost;
-        this.sound = Sound.ENTITY_ENDER_DRAGON_GROWL;
-        this.pitch = 2.0f;
-        this.duration = 0;
+        cost = pointCost;
+        sound = Sound.ENTITY_ENDER_DRAGON_GROWL;
+        pitch = 2.0f;
+
+        setDuration(0);
     }
 
     public UltimateTalent setDuration(int duration) {
-        this.duration = duration;
+        super.setDuration(duration);
         return this;
     }
 
@@ -30,7 +30,7 @@ public class UltimateTalent extends Talent {
     }
 
     public int getDuration() {
-        return duration;
+        return super.getDuration();
     }
 
     public UltimateTalent setSound(Sound sound) {

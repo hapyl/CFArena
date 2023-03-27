@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
@@ -45,15 +46,34 @@ public class ChargedTalent extends Talent {
         return noChargedMaterial;
     }
 
-    @Override
-    public void onStop() {
-        data.forEach((p, d) -> d.reset());
-        data.clear();
+    public void onStartCharged() {
     }
 
-    public final void onDeathCharged(Player player) {
+    public void onStopCharged() {
+    }
+
+    public void onDeathCharged(Player player) {
+    }
+
+    @Override
+    public final void onStart() {
+        onStartCharged();
+    }
+
+    @Override
+    public final void onDeath(Player player) {
         getData(player).reset();
         data.remove(player);
+
+        onDeathCharged(player);
+    }
+
+    @Override
+    public final void onStop() {
+        data.forEach((p, d) -> d.reset());
+        data.clear();
+
+        onStopCharged();
     }
 
     public void setRechargeTime(int i) {
@@ -129,6 +149,10 @@ public class ChargedTalent extends Talent {
         }
 
         getData(player).workTask();
+    }
+
+    public void grantCharge(Player player, int delay) {
+        GameTask.runLater(() -> grantCharge(player), delay);
     }
 
     public void grantCharge(Player player) {

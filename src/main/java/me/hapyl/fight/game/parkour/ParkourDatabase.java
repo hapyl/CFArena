@@ -10,22 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * {
- * "parkour": "lobby_parkour",
- * "players": {
- * "uuid": {
- * "time": 0L,
- * "completed": true,
- * "stats": {
- * "checkpoints": 0,
- * "deaths": 0
- * ...
- * }
- * }
- * }
- * }
- */
 public class ParkourDatabase {
 
     private final DatabaseMongo mongo;

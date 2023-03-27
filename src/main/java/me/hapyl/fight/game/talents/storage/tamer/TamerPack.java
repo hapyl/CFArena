@@ -1,6 +1,9 @@
 package me.hapyl.fight.game.talents.storage.tamer;
 
+import com.google.common.collect.Sets;
+import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Nulls;
+import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -8,15 +11,17 @@ import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Consumer;
 
 import javax.annotation.Nullable;
-import java.util.HashSet;
 import java.util.Set;
 
-public abstract class TamerPack {
+public class TamerPack {
+
+    private final double maxDistance = 30;
 
     private final double[][] relativeOffsets = {
             { -1.0d, 0.0d },
@@ -29,12 +34,30 @@ public abstract class TamerPack {
             { -1.0d, -1.0d }
     };
 
-    private final String name;
+    protected final Player player;
+    private final Pack pack;
     private final Set<LivingEntity> entities;
 
-    public TamerPack(String name) {
-        this.name = name;
-        this.entities = new HashSet<>();
+    public TamerPack(Pack pack, Player player) {
+        this.player = player;
+        this.pack = pack;
+        this.entities = Sets.newHashSet();
+
+        new GameTask() {
+            @Override
+            public void run() {
+                if (!exists()) {
+                    this.cancel();
+                    return;
+                }
+
+                pack.onTick(player, TamerPack.this);
+            }
+        }.runTaskTimer(0, 1);
+    }
+
+    public boolean exists() {
+        return !entities.isEmpty();
     }
 
     public Set<LivingEntity> getEntities() {
@@ -42,45 +65,18 @@ public abstract class TamerPack {
     }
 
     public String getName() {
-        return name;
+        return pack.getName();
     }
 
     public boolean isInPack(LivingEntity entity) {
-        for (final LivingEntity living : entities) {
-            if (living == entity) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    protected final <T extends LivingEntity> T createEntity(Location location, Entities<T> entities) {
-        return createEntity(location, entities, null);
-    }
-
-    protected final <T extends LivingEntity> T createEntity(Location location, Entities<T> entities, @Nullable Consumer<T> consumer) {
-        return entities.spawn(location, me -> {
-            me.setMaxHealth(64.0d);
-            me.setHealth(64.0d);
-            me.setCustomNameVisible(true);
-
-            // Add helmet if possible
-            Nulls.runIfNotNull(me.getEquipment(), equipment -> {
-                equipment.setHelmet(
-                        new ItemBuilder(Material.LEATHER_HELMET)
-                                .setUnbreakable()
-                                .setLeatherArmorColor(Color.fromRGB(509659))
-                                .build()
-                );
-            });
-
-            // Apply consumer if not null
-            Nulls.runIfNotNull(consumer, cons -> {
-                cons.accept(me);
-            });
-
-            this.entities.add(me);
-        });
+        return entities.contains(entity);
+        //
+        //for (final LivingEntity living : entities) {
+        //    if (living == entity) {
+        //        return true;
+        //    }
+        //}
+        //return false;
     }
 
     public final void updateEntitiesNames(Player player) {
@@ -98,14 +94,26 @@ public abstract class TamerPack {
         });
     }
 
-    public abstract void spawn(Player player);
+    public void spawn() {
+        final Location location = player.getLocation();
 
+        for (int i = 0; i < pack.spawnAmount(); i++) {
+            final Location relative = addRelativeOffset(location, i);
+            pack.spawnEntity(player, relative, this);
+        }
+    }
+
+    /**
+     * Removes entities.
+     */
     public final void remove() {
         entities.forEach(Entity::remove);
         entities.clear();
     }
 
-    // This is the same as remove but with effect
+    /**
+     * Removes entities with effect.
+     */
     public final void recall() {
         entities.forEach(entity -> {
             final Location location = entity.getLocation().add(0.0d, 1.0d, 0.0d);
@@ -119,6 +127,67 @@ public abstract class TamerPack {
     protected final Location addRelativeOffset(Location location, int offset) {
         final double[] doubles = relativeOffsets[offset >= relativeOffsets.length ? 0 : offset];
         return location.clone().add(doubles[0], 0.0d, doubles[1]);
+    }
+
+    protected <T extends LivingEntity> T createEntity(Location location, Entities<T> entity) {
+        return createEntity(location, entity, null);
+    }
+
+    protected <T extends LivingEntity> T createEntity(Location location, Entities<T> entity, @Nullable Consumer<T> consumer) {
+        return entity.spawn(location, self -> {
+            self.setMaxHealth(64.0d);
+            self.setHealth(64.0d);
+            self.setCustomNameVisible(true);
+
+            // Add helmet if possible
+            Nulls.runIfNotNull(self.getEquipment(), equipment -> {
+                equipment.setHelmet(
+                        new ItemBuilder(Material.LEATHER_HELMET)
+                                .setUnbreakable()
+                                .setLeatherArmorColor(Color.fromRGB(509659))
+                                .build()
+                );
+            });
+
+            // Apply consumer if not null
+            Nulls.runIfNotNull(consumer, cons -> {
+                cons.accept(self);
+            });
+
+            entities.add(self);
+        });
+    }
+
+
+    @Nullable
+    public LivingEntity findNearestTarget() {
+        LivingEntity nearest = Utils.getNearestPlayer(getLocation(), maxDistance, player);
+
+        // If not player nearby then find the nearest mob
+        if (nearest == null) {
+            nearest = Utils.getNearestLivingEntity(getLocation(), maxDistance, entity -> !isInPack(entity) && entity != player);
+        }
+
+        return nearest;
+    }
+
+    @Nullable
+    public LivingEntity getEntity(EntityType guardian) {
+        for (LivingEntity entity : entities) {
+            if (entity.getType() == guardian) {
+                return entity;
+            }
+        }
+
+        return null;
+    }
+
+    public Location getLocation() {
+        for (LivingEntity entity : entities) {
+            return entity.getLocation();
+        }
+
+        return BukkitUtils.defLocation(0.0d, 0.0d, 0.0d);
     }
 
 }

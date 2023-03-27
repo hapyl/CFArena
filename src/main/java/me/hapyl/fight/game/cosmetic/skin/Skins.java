@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.cosmetic.skin;
 
+import me.hapyl.fight.game.cosmetic.skin.storage.SkinMegalodon;
 import me.hapyl.fight.game.heroes.Heroes;
 
 // Skins are separated from the rest of the cosmetics because they are handled differently.
@@ -7,7 +8,9 @@ public enum Skins {
 
     // Namespace is HERO:SKINNAME
 
-    ARCHER_HUNTER(new Skin(Heroes.ARCHER, "Hunter")),
+    ARCHER_HUNTER(new SkinNoEffect(Heroes.ARCHER, "Hunter")),
+
+    SHARK_MEGALODON(new SkinMegalodon()),
 
     ;
 

@@ -40,26 +40,23 @@ public class JuJu extends Hero implements Listener {
     public JuJu() {
         super("JuJu the Bandit");
 
-        this.setRole(Role.RANGE);
-        this.setMinimumLevel(5);
+        setRole(Role.RANGE);
+        setMinimumLevel(5);
 
-        this.setInfo("A bandit from the depths of the jungle. Highly skilled in range combat.");
-        this.setItem(Material.OAK_SAPLING);
+        setInfo("A bandit from the depths of the jungle. Highly skilled in range combat.");
+        setItem("9dcff46588f394987979b7dd770adea94d8ee1fb1f7b8704e1baf91227f6a4d");
 
-        final ClassEquipment equipment = this.getEquipment();
-        equipment.setHelmet(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWRjZmY0NjU4OGYzOTQ5ODc5NzliN2RkNzcwYWRlYTk0ZDhlZTFmYjFmN2I4NzA0ZTFiYWY5MTIyN2Y2YTRkIn19fQ=="
-        );
+        final ClassEquipment equipment = getEquipment();
         equipment.setChestplate(62, 51, 40);
         equipment.setLeggings(62, 51, 40);
         equipment.setBoots(16, 13, 10);
 
-        this.setWeapon(new Weapon(Material.BOW)
+        setWeapon(new Weapon(Material.BOW)
                 .setName("Twisted")
                 .setDescription("A bow made of anything you can find in the middle of the jungle.")
                 .setDamage(4.0d));
 
-        this.setUltimate(new UltimateTalent(
+        setUltimate(new UltimateTalent(
                 "Trick Shot",
                 "Your arrows will ricochet off walls and other surfaces for {duration}, giving you the ability to hit targets that are out of sight or hiding behind cover.__The damage is increased with each bounce and speed of ricochet arrows is based on your charge time.",
                 65
@@ -167,7 +164,8 @@ public class JuJu extends Hero implements Listener {
         final Player player = input.getPlayer();
         if (shield.getCharges(player) > 0) {
             shield.removeCharge(player);
-            return new DamageOutput(true);
+
+            return DamageOutput.CANCEL;
         }
         return null;
     }

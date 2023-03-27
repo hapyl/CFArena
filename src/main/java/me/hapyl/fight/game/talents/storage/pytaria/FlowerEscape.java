@@ -6,7 +6,9 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.heroes.HeroHandle;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.Draw;
@@ -23,87 +25,97 @@ import org.bukkit.util.Vector;
 
 public class FlowerEscape extends Talent {
 
-	private final int flowerLifeTicks = 120;
+    @DisplayField(suffix = "blocks") private final double flowerRadius = 2.5d;
+    @DisplayField private final double flowerDamage = 5.0d;
+    @DisplayField private final int pulsePeriod = 20;
 
-	private final double flowerRadius = 2.5;
-	private final double flowerDamage = 5.0d;
+    public FlowerEscape() {
+        super(
+                "Flower Escape",
+                "Throw a deadly flower at your current location and dash backwards.____The flower will continuously pulse and deal damage to nearby players.____After duration is over, it will explode dealing double the damage.",
+                Type.COMBAT
+        );
 
-	public FlowerEscape() {
-		// Throw a deadly flower at your current location and dash backwards. The flower will continuously pulse and deal damage to surrounding opponents. After duration is over, it will explode dealing double the damage.
-		super("Flower Escape", "Throw a deadly flower at your current location and dash backwards.__The flower will continuously pulse and deal damage to nearby players.__After duration is over, it will explode dealing double the damage.", Type.COMBAT);
-		this.setItem(Material.RED_TULIP);
-		this.setCd(flowerLifeTicks * 2);
-	}
+        setItem(Material.RED_TULIP);
+        setDuration(120);
+        setCd(getDuration() * 2);
+    }
 
-	@Override
-	public void onDeath(Player player) {
-		super.onDeath(player);
-	}
+    @Override
+    public Response execute(Player player) {
+        final Location location = player.getLocation();
+        final Vector vector = player.getLocation().getDirection().normalize().multiply(-1.5d);
+        player.setVelocity(vector.setY(0.5d));
 
-	@Override
-	public Response execute(Player player) {
-		final Location location = player.getLocation();
-		final Vector vector = player.getLocation().getDirection().normalize().multiply(-1.5);
-		player.setVelocity(vector.setY(0.5d));
+        final ArmorStand entity = Entities.ARMOR_STAND.spawn(location, me -> {
+            me.setMarker(true);
+            me.setInvisible(true);
 
-		final ArmorStand entity = Entities.ARMOR_STAND.spawn(location, me -> {
-			me.setMarker(true);
-			me.setInvisible(true);
-			if (me.getEquipment() != null) {
-				me.getEquipment().setHelmet(new ItemStack(this.getItem().getType()));
-			}
-		});
+            Nulls.runIfNotNull(me.getEquipment(), equipment -> equipment.setHelmet(new ItemStack(getMaterial())));
+        });
 
-		final double finalDamage = HeroHandle.PYTARIA.calculateDamage(player, flowerDamage);
+        final double finalDamage = HeroHandle.PYTARIA.calculateDamage(player, flowerDamage);
 
-		new GameTask() {
-			private int tick = flowerLifeTicks;
+        new GameTask() {
+            private int tick = getDuration();
 
-			@Override
-			public void run() {
-				if (GamePlayer.getPlayer(player).isDead()) {
-					entity.remove();
-					this.cancel();
-					return;
-				}
+            @Override
+            public void run() {
+                if (GamePlayer.getPlayer(player).isDead()) {
+                    entity.remove();
+                    cancel();
+                    return;
+                }
 
-				if (tick-- <= 0) {
-					entity.remove();
-					PlayerLib.playSound(location, Sound.ITEM_TOTEM_USE, 2.0f);
-					PlayerLib.spawnParticle(location, Particle.SPELL_MOB, 15, 1, 0.5, 1, 0);
-					Utils.getPlayersInRange(location, flowerRadius).forEach(victim -> {
-						GamePlayer.damageEntity(victim, finalDamage * 2.0d, player, EnumDamageCause.FLOWER);
-					});
-					this.cancel();
-					return;
-				}
+                if (tick-- <= 0) {
+                    entity.remove();
+                    PlayerLib.playSound(location, Sound.ITEM_TOTEM_USE, 2.0f);
+                    PlayerLib.spawnParticle(location, Particle.SPELL_MOB, 15, 1, 0.5, 1, 0);
+                    Utils.getPlayersInRange(location, flowerRadius).forEach(victim -> {
+                        GamePlayer.damageEntity(victim, finalDamage * 2.0d, player, EnumDamageCause.FLOWER);
+                    });
 
-				// pulse
-				if (tick % 20 == 0) {
+                    cancel();
+                    return;
+                }
 
-					// fx
-					Geometry.drawCircle(location, flowerRadius, Quality.LOW, new Draw(Particle.TOTEM) {
-						@Override
-						public void draw(Location location) {
-							if (location.getWorld() == null) {
-								return;
-							}
-							location.getWorld().spawnParticle(this.getParticle(), location, 1, 0, 0, 0, 0.2);
-						}
-					});
+                // Animation
+                final int tickModPulse = tick % pulsePeriod;
+                if (tickModPulse > 0 && tickModPulse < 10) {
+                    entity.teleport(location.add(0, 0.1d, 0));
+                }
+                else {
+                    entity.teleport(location.subtract(0, 0.1d, 0));
+                }
 
-					Utils.getPlayersInRange(location, flowerRadius).forEach(target -> {
-						GamePlayer.damageEntity(target, finalDamage, player, EnumDamageCause.FLOWER);
-					});
+                entity.setHeadPose(entity.getHeadPose().add(0.0d, 0.1d, 0.0d));
 
-					final float pitch = Math.min(0.5f + ((0.1f * (((float)flowerLifeTicks - tick) / 20))), 2.0f);
-					PlayerLib.playSound(location, Sound.ENTITY_ENDER_DRAGON_FLAP, 1.75f);
-					PlayerLib.playSound(location, Sound.BLOCK_NOTE_BLOCK_COW_BELL, pitch);
+                // pulse
+                if (tickModPulse == 0) {
+                    final Location fixedLocation = entity.getEyeLocation().add(0.0d, 1.5d, 0.0d);
 
-				}
+                    Geometry.drawCircle(fixedLocation, flowerRadius, Quality.HIGH, new Draw(Particle.TOTEM) {
+                        @Override
+                        public void draw(Location location) {
+                            if (location.getWorld() == null) {
+                                return;
+                            }
+                            location.getWorld().spawnParticle(getParticle(), location, 1, 0, 0, 0, 0.2);
+                        }
+                    });
 
-			}
-		}.runTaskTimer(0, 1);
-		return Response.OK;
-	}
+                    Utils.getPlayersInRange(fixedLocation, flowerRadius).forEach(target -> {
+                        GamePlayer.damageEntity(target, finalDamage, player, EnumDamageCause.FLOWER);
+                    });
+
+                    final float pitch = Math.min(0.5f + ((0.1f * (((float) getDuration() - tick) / 20))), 2.0f);
+
+                    PlayerLib.playSound(fixedLocation, Sound.ENTITY_ENDER_DRAGON_FLAP, 1.75f);
+                    PlayerLib.playSound(fixedLocation, Sound.BLOCK_NOTE_BLOCK_COW_BELL, pitch);
+                }
+
+            }
+        }.runTaskTimer(0, 1);
+        return Response.OK;
+    }
 }

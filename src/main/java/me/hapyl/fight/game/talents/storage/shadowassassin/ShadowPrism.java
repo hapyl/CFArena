@@ -4,10 +4,10 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Nulls;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.visibility.Visibility;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -26,20 +26,21 @@ import java.util.Map;
 
 public class ShadowPrism extends Talent {
 
-    private final int deployCd = 20;
-    private final int teleportCd = 400;
+    @DisplayField(name = "Cooldown on Deploy") private final int deployCd = 20;
+    @DisplayField(name = "Cooldown on Teleport") private final int teleportCd = 400;
+    @DisplayField private final int windupTime = 20;
     private final double prismTravelSpeed = 0.4d;
     private final Map<Player, ArmorStand> playerPrism = new HashMap<>();
 
     public ShadowPrism() {
         super("Shadow Prism");
-        this.setDescription(
-                "Deploy a teleportation orb that travels in straight line. Use again to teleport to the orb.__&e&lLOOK AT BLOCK &7to place it at fixed block and prevent it from travelling.____This ability is invisible to your opponents!");
-        this.setItem(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODNlZDRjZTIzOTMzZTY2ZTA0ZGYxNjA3MDY0NGY3NTk5ZWViNTUzMDdmN2VhZmU4ZDkyZjQwZmIzNTIwODYzYyJ9fX0=");
 
-        this.addExtraInfo("Cooldown on Deploy: &l%ss", BukkitUtils.roundTick(deployCd));
-        this.addExtraInfo("Cooldown on Teleport: &l%ss", BukkitUtils.roundTick(teleportCd));
+        addDescription(
+                "Deploy a teleportation orb that travels in straight line.____&e&lLOOK AT BLOCK &7to place it at fixed block and prevent it from travelling.____Use again to teleport to the orb after a short windup.____&bThis ability is invisible to your opponents!"
+        );
+        setItem(
+                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODNlZDRjZTIzOTMzZTY2ZTA0ZGYxNjA3MDY0NGY3NTk5ZWViNTUzMDdmN2VhZmU4ZDkyZjQwZmIzNTIwODYzYyJ9fX0="
+        );
     }
 
     @Override
@@ -66,12 +67,18 @@ public class ShadowPrism extends Talent {
         final ArmorStand prism = getPrism(player);
 
         // Deploy Prism
+        final Location playerLocation = player.getLocation();
         if (prism == null) {
             final Block targetBlock = player.getTargetBlockExact(5);
             final boolean isStill = targetBlock != null;
-            Location spawnLocation = player.getLocation();
+            Location spawnLocation = playerLocation;
+
             if (targetBlock != null) {
                 spawnLocation = targetBlock.getRelative(BlockFace.UP).getLocation().add(0.5d, 0.0d, 0.5d);
+            }
+
+            if (!spawnLocation.getBlock().getType().isAir()) {
+                return Response.error("Invalid block.");
             }
 
             final ArmorStand entity = Entities.ARMOR_STAND.spawn(spawnLocation, me -> {
@@ -79,7 +86,8 @@ public class ShadowPrism extends Talent {
                 me.setSilent(true);
                 me.setInvulnerable(true);
                 me.setSmall(true);
-                me.getLocation().setYaw(player.getLocation().getYaw());
+                me.getLocation().setYaw(playerLocation.getYaw());
+
                 if (me.getEquipment() != null) {
                     me.getEquipment().setHelmet(this.getItem());
                 }
@@ -90,16 +98,8 @@ public class ShadowPrism extends Talent {
 
             // Hide prism for everyone but player
             Visibility.of(entity, player);
-            //            Reflect.hideEntity(
-            //                    entity,
-            //                    Manager
-            //                            .current()
-            //                            .getCurrentGame()
-            //                            .getAlivePlayersAsPlayers(gp -> !gp.compare(player))
-            //                            .toArray(new Player[] {})
-            //            );
 
-            // add glowing
+            // Add glowing
             handleGlowing(entity, player);
 
             // Move task
@@ -108,7 +108,6 @@ public class ShadowPrism extends Talent {
 
                 @Override
                 public void run() {
-
                     if (tick < 0 || entity.isDead()) {
                         this.cancel();
                         return;
@@ -134,19 +133,41 @@ public class ShadowPrism extends Talent {
         }
 
         // Teleport to Prism
-        startCd(player, teleportCd);
-        final Location location = prism.getLocation().add(0.5d, 0.0d, 0.5d);
-        location.setYaw(player.getLocation().getYaw());
-        location.setPitch(player.getLocation().getPitch());
+        startCd(player, 9999);
+        final float pitchPerTick = 2.0f / windupTime;
 
-        player.teleport(location);
+        PlayerLib.addEffect(player, PotionEffectType.SLOW, windupTime, 100);
+        PlayerLib.addEffect(player, PotionEffectType.SLOW_FALLING, windupTime, 0);
 
-        prism.remove();
-        playerPrism.remove(player);
+        GameTask.runTaskTimerTimes((task, i) -> {
+            final Location eyeLocation = player.getEyeLocation();
+            if (i != 0) {
+                PlayerLib.spawnParticle(eyeLocation, Particle.CRIT_MAGIC, 10, 0.5d, 0.5d, 0.5d, 0.0f);
+                PlayerLib.spawnParticle(eyeLocation, Particle.PORTAL, 10, 0.5d, 0.5d, 0.5d, 0.0f);
+                PlayerLib.playSound(eyeLocation, Sound.ENTITY_SHULKER_AMBIENT, 2.0f - (i * pitchPerTick));
+                return;
+            }
 
-        // fx
-        PlayerLib.addEffect(player, PotionEffectType.BLINDNESS, 20, 1);
-        PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.75f);
+            startCd(player, teleportCd);
+
+            final Location prismLocation = prism.getLocation();
+            final Location location = new Location(
+                    prismLocation.getWorld(),
+                    prismLocation.getBlockX() + 0.5d,
+                    prismLocation.getBlockY(),
+                    prismLocation.getBlockZ() + 0.5d,
+                    playerLocation.getYaw(),
+                    playerLocation.getPitch()
+            );
+
+            player.teleport(location);
+            prism.remove();
+            playerPrism.remove(player);
+
+            // Fx
+            PlayerLib.addEffect(player, PotionEffectType.BLINDNESS, 20, 1);
+            PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.75f);
+        }, 1, windupTime);
 
         return Response.OK;
     }

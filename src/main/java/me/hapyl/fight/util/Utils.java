@@ -10,9 +10,13 @@ import me.hapyl.spigotutils.module.math.geometry.Quality;
 import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.Reflect;
+import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.entity.*;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
@@ -282,33 +286,33 @@ public class Utils {
         }
     }
 
+    public static Location lerp(Location start, Location end, double percent) {
+        return BukkitUtils.newLocation(start).add(end.toVector().subtract(start.toVector()).multiply(percent));
+    }
+
+    public static Location lerpf(Location start, Location end, float f) {
+        double x = start.getX() + f * (end.getX() - start.getX());
+        double y = start.getY() + f * (end.getY() - start.getY());
+        double z = start.getZ() + f * (end.getZ() - start.getZ());
+
+        return new Location(start.getWorld(), x, y, z);
+    }
+
     @Nullable
-    public static Entity getTargetEntity(Player player, double range, double dot, Predicate<Entity> predicate) {
+    public static LivingEntity getTargetEntity(Player player, double range, double dot, Predicate<LivingEntity> predicate) {
         final List<LivingEntity> nearbyEntities = Utils.getEntitiesInRange(player.getLocation(), range);
         Vector casterDirection = player.getLocation().getDirection().normalize();
 
-        for (Entity entity : nearbyEntities) {
-            // Static tests, don't allow spectators and dead players
-            if (entity instanceof Player entityPlayer) {
-                if (Manager.current().isGameInProgress() && !GamePlayer.getPlayer(entityPlayer).isAlive()) {
-                    continue;
-                }
-            }
-            // Don't allow armor stands, invisible and dead entities.
-            else if (entity instanceof LivingEntity living &&
-                    (living.getType() == EntityType.ARMOR_STAND || living.isInvisible() || living.isDead())) {
-                continue;
-            }
-
+        for (LivingEntity entity : nearbyEntities) {
             // Test Predicate
-            if (predicate != null && !predicate.test(entity)) {
+            if ((!isEntityValid(entity, player)) || (predicate != null && !predicate.test(entity))) {
                 continue;
             }
 
-            Vector playerDirection = entity.getLocation().subtract(player.getLocation()).toVector().normalize();
+            final Vector playerDirection = entity.getLocation().subtract(player.getLocation()).toVector().normalize();
 
-            double dotProduct = casterDirection.dot(playerDirection);
-            double distance = player.getLocation().distance(entity.getLocation());
+            final double dotProduct = casterDirection.dot(playerDirection);
+            final double distance = player.getLocation().distance(entity.getLocation());
 
             if (dotProduct > dot && distance <= range) {
                 return entity;
@@ -440,12 +444,20 @@ public class Utils {
                 .collect(Collectors.toList());
     }
 
-    // TODO: 013, Mar 13, 2023 -> Maybe use this method for other stuff too?
+    // This method gets entities in range but checks for distance to make sure
     public static List<LivingEntity> getEntitiesInRangeValidateRange(Location location, double range) {
         final List<LivingEntity> entities = getEntitiesInRange(location, range);
         entities.removeIf(entity -> entity.getLocation().distance(location) > range);
 
         return entities;
+    }
+
+    // This method gets entities in range but checks for distance to make sure
+    public static List<Player> getPlayersInRangeValidateRange(Location location, double range) {
+        return getEntitiesInRangeValidateRange(location, range).stream()
+                .filter(entity -> entity instanceof Player)
+                .map(entity -> (Player) entity)
+                .collect(Collectors.toList());
     }
 
     public static List<LivingEntity> getEntitiesInRange(Location location, double range) {
@@ -474,6 +486,17 @@ public class Utils {
         return entities;
     }
 
+    public static LivingEntity getNearestLivingEntity(Location location, double radius, Predicate<LivingEntity> predicate) {
+        return (LivingEntity) getNearestEntity(location, radius, test -> {
+            if (!(test instanceof LivingEntity)) {
+                return false;
+            }
+
+            return predicate.test((LivingEntity) test) && isEntityValid(test, null);
+        });
+    }
+
+    @Warning(reason = "This does not do any checks")
     public static Entity getNearestEntity(Location fromWhere, double radius, Predicate<Entity> predicate) {
         if (fromWhere.getWorld() == null) {
             throw new NullPointerException("Cannot find entity in null world!");
@@ -527,6 +550,10 @@ public class Utils {
 
     public static void createExplosion(Location location, double range, double damage, Consumer<LivingEntity> consumer) {
         createExplosion(location, range, damage, null, null, consumer);
+    }
+
+    public static void createExplosion(Location location, double range, double damage, @Nullable LivingEntity damager, @Nullable EnumDamageCause cause) {
+        createExplosion(location, range, damage, damager, cause, null);
     }
 
     public static void createExplosion(Location location, double range, double damage, @Nullable LivingEntity damager, @Nullable EnumDamageCause cause, @Nullable Consumer<LivingEntity> consumer) {

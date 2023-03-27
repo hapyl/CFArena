@@ -7,6 +7,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.util.ThreadRandom;
 import org.bukkit.Location;
@@ -20,24 +21,24 @@ import java.util.Set;
 
 public class BatSwarm extends Talent {
 
-    private final int BAT_COUNT = 15; // each hit removes 1 bat
+    @DisplayField private final short batCount = 15; // each hit removes 1 bat
 
     public BatSwarm() {
         super("Swarm");
 
         setItem(Material.FLINT);
-        setDescription(
+        addDescription(
                 "Launch a swarm of bats at your enemies, rapidly dealing damage and blinding them for a short duration."
         );
         setDurationSec(5);
-        setCdSec(BAT_COUNT);
+        setCdSec(batCount);
     }
 
     @Override
     public Response execute(Player player) {
         final Set<Bat> bats = Sets.newConcurrentHashSet();
 
-        for (int i = 0; i < BAT_COUNT; i++) {
+        for (int i = 0; i < batCount; i++) {
             bats.add(createBat(player));
         }
 

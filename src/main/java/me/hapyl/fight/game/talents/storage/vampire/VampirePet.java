@@ -21,7 +21,7 @@ public class VampirePet extends Talent {
         super("Dracula Jr.");
         setItem(Material.BAT_SPAWN_EGG);
 
-        setDescription("Call upon the lord of bats to aid you in battle, summoning a bat that will periodically nearby attack opponents.");
+        addDescription("Call upon the lord of bats to aid you in battle, summoning a bat that will periodically nearby attack opponents.");
         setDurationSec(10);
         setCd(getDuration() + (8 * 20));
 

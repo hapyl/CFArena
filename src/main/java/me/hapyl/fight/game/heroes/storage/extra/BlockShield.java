@@ -6,6 +6,7 @@ import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.inventory.ItemStackBuilder;
 import me.hapyl.spigotutils.module.particle.ParticleBuilder;
 import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -17,6 +18,7 @@ import java.util.Random;
 
 public class BlockShield {
 
+    private static final Block DEFAULT_BLOCK = BukkitUtils.defLocation(0, 48, 0).getBlock();
     private final Player player;
 
     private Entity entity;
@@ -129,8 +131,12 @@ public class BlockShield {
 
         final Block block = location.getBlock();
 
-        if (!block.getType().isOccluding()) {
-            return randomBlock();
+        try {
+            if (!block.getType().isOccluding()) {
+                return randomBlock();
+            }
+        } catch (StackOverflowError error) {
+            return DEFAULT_BLOCK;
         }
 
         return block;

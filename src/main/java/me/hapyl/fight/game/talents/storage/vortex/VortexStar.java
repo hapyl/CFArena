@@ -4,6 +4,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.storage.extra.AstralStars;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
@@ -17,17 +18,18 @@ import java.util.Map;
 
 public class VortexStar extends Talent {
 
-	private final int maxStars = 5;
+	@DisplayField private final int maximumStars = 5;
 	private final Map<Player, AstralStars> stars = new HashMap<>();
 
 	public VortexStar() {
 		super("Astral Star");
-		this.setDescription(
-                "Summons an Astral Star at you current location. If used nearby placed Astral Star, the star will be picked up.____You may have maximum of &b%s &7stars at the same time.",
-                maxStars
-        );
-		this.setItem(Material.NETHER_STAR);
-		this.setCd(DYNAMIC);
+		addDescription(
+				"Summons an Astral Star at you current location. If used nearby placed Astral Star, the star will be picked up.____You may have maximum of &b%s &7stars at the same time.",
+				maximumStars
+		);
+
+		setItem(Material.NETHER_STAR);
+		setCd(DYNAMIC);
 	}
 
 	@Override
@@ -82,7 +84,7 @@ public class VortexStar extends Talent {
 			}
 		}
 
-		if (starsAmount >= maxStars) {
+		if (starsAmount >= maximumStars) {
 			PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
 			return Response.error("Out of stars!");
 		}

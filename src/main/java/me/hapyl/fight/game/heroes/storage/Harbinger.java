@@ -49,11 +49,10 @@ public class Harbinger extends Hero implements Listener {
 
         setRole(Role.STRATEGIST);
         setMinimumLevel(5);
+        setItemTexture(
+                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjJhMWFjMmE4ZGQ0OGMzNzE0ODI4MDZiMzk2MzU3MTk1Mjk5N2E1NzEyODA2ZTJjODA2MGI4ZTc3Nzc3NTQifX19");
 
         final ClassEquipment equipment = getEquipment();
-        equipment.setHelmet(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjJhMWFjMmE4ZGQ0OGMzNzE0ODI4MDZiMzk2MzU3MTk1Mjk5N2E1NzEyODA2ZTJjODA2MGI4ZTc3Nzc3NTQifX19"
-        );
         equipment.setChestplate(82, 82, 76);
         equipment.setLeggings(54, 48, 48);
         equipment.setBoots(183, 183, 180);

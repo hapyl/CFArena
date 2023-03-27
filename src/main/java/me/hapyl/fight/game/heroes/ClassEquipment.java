@@ -32,10 +32,11 @@ public class ClassEquipment {
 		return this;
 	}
 
-	public ClassEquipment setHelmet(Material material) {
-		this.armor[0] = new ItemBuilder(material).cleanToItemSack();
-		return this;
-	}
+    @Deprecated
+    public ClassEquipment setHelmet(Material material) {
+        this.armor[0] = new ItemBuilder(material).cleanToItemSack();
+        return this;
+    }
 
 	public ClassEquipment setChestplate(Material material) {
 		this.armor[1] = new ItemBuilder(material).cleanToItemSack();

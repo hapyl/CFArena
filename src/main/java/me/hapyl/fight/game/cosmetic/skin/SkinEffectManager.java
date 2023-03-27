@@ -24,18 +24,18 @@ public class SkinEffectManager implements Listener, GameElement {
                 final AbstractGameInstance currentGame = Manager.current().getCurrentGame();
 
                 for (GamePlayer player : currentGame.getAlivePlayers()) {
-                    final Skins skin = player.getSkin();
-                    if (skin == null) {
-                        return;
+                    final Skins enumSkin = player.getSkin();
+                    if (enumSkin == null) {
+                        continue;
                     }
 
-                    final EffectHandler effectHandler = skin.getSkin().getEffectHandler();
+                    final Skin skin = enumSkin.getSkin();
 
                     if (!player.hasMovedInLast(1000)) {
-                        effectHandler.onStandingStill(player.getPlayer());
+                        skin.onStandingStill(player.getPlayer());
                     }
 
-                    effectHandler.onTick(player.getPlayer(), tick);
+                    skin.onTick(player.getPlayer(), tick);
                 }
 
                 tick++;

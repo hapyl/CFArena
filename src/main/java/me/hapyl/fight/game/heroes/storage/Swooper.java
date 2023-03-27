@@ -40,18 +40,17 @@ public class Swooper extends Hero implements Listener {
 
         setRole(Role.RANGE);
 
-        this.setInfo("A sniper with slow firing rifle, but fast ways to move around the battlefield.");
-        this.setItem(Material.SUGAR);
-
-        final ClassEquipment equipment = this.getEquipment();
-        equipment.setHelmet(
+        setInfo("A sniper with slow firing rifle, but fast ways to move around the battlefield.");
+        setItemTexture(
                 "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjE4MWM4MTFhZDM3NDY3NTUwZDdjMDFjYWMyZTUyMjNjNGU5OWZhNzkwNjM0OGY5NDBjOTQ1NmQ4YWEwY2QxYiJ9fX0="
         );
+
+        final ClassEquipment equipment = this.getEquipment();
         equipment.setChestplate(25, 53, 82);
         equipment.setLeggings(25, 53, 92);
         equipment.setBoots(25, 53, 102);
 
-        this.setWeapon(new Weapon(Material.WOODEN_HOE) {
+        setWeapon(new Weapon(Material.WOODEN_HOE) {
 
             @Override
             public void onRightClick(Player player, ItemStack item) {
@@ -75,13 +74,11 @@ public class Swooper extends Hero implements Listener {
 
         }.setId("swooper_weapon").setName("Sniper Rifle").setDescription("Slow firing, but high damage rifle."));
 
-
-        this.setUltimate(new UltimateTalent(
+        setUltimate(new UltimateTalent(
                 "Showstopper",
                 "Equip a rocket launcher for {duration}. &6&lCLICK &7to launch explosive in front of you that explodes on impact dealing massive damage.",
                 80
         ).setDuration(200).setItem(Material.GOLDEN_HORSE_ARMOR));
-
     }
 
     @Override

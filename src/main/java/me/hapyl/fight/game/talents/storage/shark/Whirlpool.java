@@ -3,6 +3,7 @@ package me.hapyl.fight.game.talents.storage.shark;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.Quality;
@@ -52,7 +53,7 @@ public class Whirlpool extends Talent {
 
                     // Pull enemies towards center
                     Utils.getEntitiesInRangeValidateRange(location, range).forEach(entity -> {
-                        if (entity == player) {
+                        if (entity == player || GameTeam.isTeammate(player, entity)) {
                             return;
                         }
 

@@ -78,10 +78,9 @@ public class Vampire extends Hero implements Listener, UIComplexComponent {
 
         vampireData = Maps.newHashMap();
 
-        setItem("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOGQ0NDc1NmUwYjRlY2U4ZDc0NjI5NmEzZDVlMjk3ZTE0MTVmNGJhMTc2NDdmZmUyMjgzODUzODNkMTYxYTkifX19");
+        setItem("8d44756e0b4ece8d746296a3d5e297e1415f4ba17647ffe228385383d161a9");
 
         final ClassEquipment equipment = getEquipment();
-        equipment.setTexture("473af69ed9bf67e2f5403dd7d28bbe32034749bbfb635ac1789a412053cdcbf0");
         equipment.setChestplate(Color.BLACK);
         equipment.setLeggings(Color.BLACK);
         equipment.setBoots(Color.BLACK);
@@ -153,7 +152,6 @@ public class Vampire extends Hero implements Listener, UIComplexComponent {
                 // Sync bat
                 bat.teleport(player);
 
-                // fixme -> Needs custom event handling!
                 //Utils.getEntitiesInRange(player, 5.0d)
                 //        .stream()
                 //        .filter(entity -> !(entity instanceof Bat) && !hitEntities.contains(entity))
@@ -199,7 +197,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent {
             }
 
             Chat.sendMessage(player, "&4&l❧ &cCannot deal while in ultimate form!");
-            return new DamageOutput(true);
+            return DamageOutput.CANCEL;
         }
 
         if (!player.hasCooldown(BLOOD_MATERIAL) && data.getBlood() < MAX_BLOOD_STACKS) {
@@ -265,7 +263,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent {
     }
 
     @Override
-    public void onStart() {
+    public void onPlayersReveal() {
         new GameTask() {
             @Override
             public void run() {

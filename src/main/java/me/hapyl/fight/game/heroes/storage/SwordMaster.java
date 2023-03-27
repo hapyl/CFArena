@@ -27,11 +27,9 @@ public class SwordMaster extends Hero {
     public SwordMaster() {
         super("Heavy Knight");
 
-        setItem(Material.NETHERITE_CHESTPLATE);
+        setItem("4b2a75f05437ba2e28fb2a7d0eb6697a6e091ce91072b5c4ff1945295b092");
 
         final ClassEquipment equipment = getEquipment();
-
-        equipment.setTexture("4b2a75f05437ba2e28fb2a7d0eb6697a6e091ce91072b5c4ff1945295b092");
         equipment.setChestplate(Material.NETHERITE_CHESTPLATE);
         equipment.setLeggings(Material.IRON_LEGGINGS);
         equipment.setBoots(Material.NETHERITE_BOOTS);

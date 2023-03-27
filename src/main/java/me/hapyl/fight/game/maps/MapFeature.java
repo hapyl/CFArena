@@ -3,33 +3,35 @@ package me.hapyl.fight.game.maps;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.PlayerElement;
 import org.bukkit.event.Listener;
 
-public abstract class MapFeature implements GameElement {
+public abstract class MapFeature implements GameElement, PlayerElement {
 
-	private final String name;
-	private final String info;
+    private final String name;
+    private final String info;
 
-	public MapFeature(String name, String info) {
-		this.name = name;
-		this.info = info;
-		if (this instanceof Listener listener) {
-			Main.getPlugin().addEvent(listener);
-		}
-	}
+    public MapFeature(String name, String info) {
+        this.name = name;
+        this.info = info;
 
-	public String getName() {
-		return name;
-	}
+        if (this instanceof Listener listener) {
+            Main.getPlugin().addEvent(listener);
+        }
+    }
 
-	public String getInfo() {
-		return info;
-	}
+    public String getName() {
+        return name;
+    }
 
-	@Override
-	public void onStart() {
+    public String getInfo() {
+        return info;
+    }
 
-	}
+    @Override
+    public void onStart() {
+
+    }
 
     @Override
     public void onStop() {

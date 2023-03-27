@@ -1,10 +1,13 @@
 package me.hapyl.fight.game.talents.storage.moonwalker;
 
+import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -25,124 +28,137 @@ import java.util.*;
 
 public class MoonSliteBomb extends Talent implements Listener {
 
-	private final int bombLimit = 3;
-	private final Map<UUID, Set<Item>> bombs = new HashMap<>();
+    private final int bombLimit = 3;
+    private final Map<UUID, Set<Item>> bombs = new HashMap<>();
 
-	public MoonSliteBomb() {
-		super(
-				"Moonslite Bomb",
-				"Drop a proximity grenade at your current location that explodes on contact with enemy or after a set period, dealing damage and applying &6&lCorrosion &7for a short time.",
-				Type.COMBAT
-		);
-		this.setItem(Material.END_STONE_BRICK_SLAB);
-		this.setCdSec(10);
-	}
+    @DisplayField private final double explosionRadius = 2.5d;
+    @DisplayField private final double explosionDamage = 5.0d;
+    @DisplayField private final int explosionDuration = 600;
+    @DisplayField private final int corrosionDuration = 35;
 
-	@Override
-	public void onDeath(Player player) {
-		final UUID uniqueId = player.getUniqueId();
-		Nulls.runIfNotNull(bombs.get(uniqueId), set -> {
-			if (set.isEmpty()) {
-				return;
-			}
-			set.forEach(Entity::remove);
-		});
-		bombs.remove(uniqueId);
-	}
+    public MoonSliteBomb() {
+        super("Moonslite Bomb");
 
-	@Override
-	public void onStop() {
-		bombs.values().forEach(items -> items.forEach(Item::remove));
-		bombs.clear();
-	}
+        setDescription(
+                "Drop a proximity grenade at your current location that explodes on contact with enemy or after a set period, dealing damage and applying &6&lCorrosion &7for a short time."
+        );
 
-	@Override
-	public Response execute(Player player) {
-		final Set<Item> playerBombs = getBombs(player);
-		if (playerBombs.size() >= bombLimit) {
-			return Response.error("Limit reached!");
-		}
+        addDescription();
+        addDescription("&6You can only have %s bombs at the time.", bombLimit);
 
-		final Item item = player.getWorld().dropItem(player.getLocation(), new ItemStack(this.getItem().getType()));
-		item.setPickupDelay(20);
-		item.setTicksLived(5600);
-		item.setOwner(player.getUniqueId());
-		playerBombs.add(item);
+        setItem(Material.END_STONE_BRICK_SLAB);
+        setCdSec(10);
+    }
 
-		// Fx
-		new GameTask() {
-			@Override
-			public void run() {
-				if (item.isDead()) {
-					this.cancel();
-					return;
-				}
+    @Override
+    public void onDeath(Player player) {
+        final UUID uniqueId = player.getUniqueId();
+        Nulls.runIfNotNull(bombs.get(uniqueId), set -> {
+            if (set.isEmpty()) {
+                return;
+            }
+            set.forEach(Entity::remove);
+        });
+        bombs.remove(uniqueId);
+    }
 
-				final Location location = item.getLocation().clone().add(0.0d, 0.15d, 0.0d);
-				PlayerLib.spawnParticle(location, Particle.END_ROD, 1, 0.1d, 0.0d, 0.1d, 0.01f);
-			}
-		}.runTaskTimer(0, 5);
+    @Override
+    public void onStop() {
+        bombs.values().forEach(items -> items.forEach(Item::remove));
+        bombs.clear();
+    }
 
-		return Response.OK;
-	}
+    @Override
+    public Response execute(Player player) {
+        final Set<Item> playerBombs = getBombs(player);
+        if (playerBombs.size() >= bombLimit) {
+            return Response.error("Limit reached!");
+        }
 
-	public int getBombsSize(Player player) {
-		return getBombs(player).size();
-	}
+        final Item item = player.getWorld().dropItem(player.getLocation(), new ItemStack(this.getItem().getType()));
+        item.setPickupDelay(20);
+        item.setTicksLived(6000 - explosionDuration);
+        item.setOwner(player.getUniqueId());
+        playerBombs.add(item);
 
-	private Set<Item> getBombs(Player player) {
-		return getBombs(player.getUniqueId());
-	}
+        // Fx
+        new GameTask() {
+            @Override
+            public void run() {
+                if (item.isDead()) {
+                    this.cancel();
+                    return;
+                }
 
-	private Set<Item> getBombs(UUID uuid) {
-		return bombs.computeIfAbsent(uuid, k -> new HashSet<>());
-	}
+                final Location location = item.getLocation().clone().add(0.0d, 0.15d, 0.0d);
+                PlayerLib.spawnParticle(location, Particle.END_ROD, 1, 0.1d, 0.0d, 0.1d, 0.01f);
+            }
+        }.runTaskTimer(0, 5);
 
-	@EventHandler()
-	public void handleEntityPickupItemEvent(EntityPickupItemEvent ev) {
-		final Item item = ev.getItem();
-		if (isBombItem(item)) {
-			ev.setCancelled(true);
-			if (!Utils.compare(item.getOwner(), ev.getEntity().getUniqueId())) {
-				explode(item);
-			}
-		}
-	}
+        return Response.OK;
+    }
 
-	@EventHandler()
-	public void handleItemDespawnEvent(ItemDespawnEvent ev) {
-		final Item item = ev.getEntity();
-		if (isBombItem(item)) {
-			explode(item);
-		}
-	}
+    public int getBombsSize(Player player) {
+        return getBombs(player).size();
+    }
 
-	private void explode(Item item) {
-		final UUID owner = item.getOwner();
-		if (owner != null) {
-			getBombs(owner).remove(item);
-		}
+    private Set<Item> getBombs(Player player) {
+        return getBombs(player.getUniqueId());
+    }
 
-		Utils.createExplosion(item.getLocation(), 2.5, 5.0d, this::applyCorrosion);
-		item.remove();
-	}
-	// yes this is temporary, effects are not yet implemented
+    private Set<Item> getBombs(UUID uuid) {
+        return bombs.computeIfAbsent(uuid, k -> new HashSet<>());
+    }
 
-	private void applyCorrosion(LivingEntity entity) {
-		int duration = 35;
-		entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, duration, 4));
-		entity.addPotionEffect(new PotionEffect(PotionEffectType.POISON, duration, 4));
-		entity.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, duration, 4));
-	}
+    @EventHandler()
+    public void handleEntityPickupItemEvent(EntityPickupItemEvent ev) {
+        final Item item = ev.getItem();
+        if (isBombItem(item)) {
+            ev.setCancelled(true);
+            if (!Utils.compare(item.getOwner(), ev.getEntity().getUniqueId())) {
+                explode(item);
+            }
+        }
+    }
 
-	private boolean isBombItem(Item item) {
-		for (final Set<Item> value : bombs.values()) {
-			for (final Item item1 : value) {
-				if (item1.equals(item)) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
+    @EventHandler()
+    public void handleItemDespawnEvent(ItemDespawnEvent ev) {
+        final Item item = ev.getEntity();
+        if (isBombItem(item)) {
+            explode(item);
+        }
+    }
+
+    private void explode(Item item) {
+        final UUID owner = item.getOwner();
+        if (owner != null) {
+            getBombs(owner).remove(item);
+        }
+
+        Utils.createExplosion(item.getLocation(), explosionRadius, explosionDamage, this::applyCorrosion);
+        item.remove();
+    }
+
+    private void applyCorrosion(LivingEntity entity) {
+        if (entity instanceof Player player) {
+            GamePlayer.getPlayer(player).addEffect(GameEffectType.CORROSION, corrosionDuration);
+            return;
+        }
+
+        // Keeping this for entity damage
+        entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, corrosionDuration, 4));
+        entity.addPotionEffect(new PotionEffect(PotionEffectType.POISON, corrosionDuration, 4));
+        entity.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, corrosionDuration, 4));
+    }
+
+    private boolean isBombItem(Item item) {
+        for (final Set<Item> value : bombs.values()) {
+            for (final Item item1 : value) {
+                if (item1.equals(item)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

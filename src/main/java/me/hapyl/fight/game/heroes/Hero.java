@@ -27,6 +27,27 @@ import java.util.Set;
 
 public abstract class Hero implements GameElement, PlayerElement {
 
+    public static final Hero DISABLED = new Hero("Disabled Hero") {
+        @Override
+        public void useUltimate(Player player) {
+        }
+
+        @Override
+        public Talent getFirstTalent() {
+            return null;
+        }
+
+        @Override
+        public Talent getSecondTalent() {
+            return null;
+        }
+
+        @Override
+        public Talent getPassiveTalent() {
+            return null;
+        }
+    };
+
     private final ClassEquipment equipment;
     private final String name;
 
@@ -67,8 +88,8 @@ public abstract class Hero implements GameElement, PlayerElement {
 
     public Hero(String name, String lore, Material material) {
         this(name);
-        this.setInfo(lore);
-        this.setItem(material);
+        setInfo(lore);
+        setItem(material);
     }
 
     public void setRole(Role role) {
@@ -138,19 +159,27 @@ public abstract class Hero implements GameElement, PlayerElement {
     }
 
     public ItemStack getItem() {
-        return guiTexture;
+        return (guiTexture.getType() == Material.RED_BED) ? getEquipment().getHelmet() : guiTexture;
     }
 
+    @Deprecated
     public void setItem(ItemStack guiTexture) {
         this.guiTexture = guiTexture;
     }
 
+    @Deprecated
     public void setItem(Material material) {
         this.guiTexture = new ItemBuilder(material).hideFlags().toItemStack();
     }
 
-    public void setItem(String texture) {
-        this.guiTexture = ItemBuilder.playerHead(texture).hideFlags().build();
+    public void setItem(String texture64) {
+        guiTexture = ItemBuilder.playerHeadUrl(texture64).asIcon();
+        getEquipment().setTexture(texture64);
+    }
+
+    public void setItemTexture(String longString) {
+        guiTexture = ItemBuilder.playerHead(longString).asIcon();
+        getEquipment().setHelmet(longString);
     }
 
     /**
@@ -179,6 +208,14 @@ public abstract class Hero implements GameElement, PlayerElement {
         return null;
     }
 
+    /**
+     * Called whenever invisible player dealt damage.
+     *
+     * @param player - Player who dealt damage. Always invisible.
+     * @param entity - Entity that took damage.
+     * @param damage - Damage dealt.
+     * @return if damage should be cancelled.
+     */
     public boolean processInvisibilityDamage(Player player, LivingEntity entity, double damage) {
         Chat.sendMessage(player, "&cCannot deal damage while invisible!");
         return true;
@@ -255,8 +292,8 @@ public abstract class Hero implements GameElement, PlayerElement {
     //        }
     //    }
 
-    public Set<Talent> getTalents() {
-        final Set<Talent> talents = Sets.newHashSet();
+    public List<Talent> getTalents() {
+        final List<Talent> talents = Lists.newArrayList();
 
         talents.add(getFirstTalent());
         talents.add(getSecondTalent());
@@ -290,6 +327,5 @@ public abstract class Hero implements GameElement, PlayerElement {
 
         return talents;
     }
-
 
 }

@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.storage.extra;
 
+import com.google.common.collect.Maps;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Utils;
@@ -17,103 +18,115 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class PhysGun extends Weapon {
 
-	private final Map<Player, LivingEntity> capturedEntity = new HashMap<>();
+    private final Map<Player, LivingEntity> capturedEntity = Maps.newHashMap();
+    private final Map<Player, Boolean> flightMap = Maps.newHashMap();
 
-	public PhysGun() {
-		super(Material.GOLDEN_HORSE_ARMOR);
-		this.setId("dr_ed_gun_2");
-		this.setName("Upgraded Dr. Ed's Gravity Energy Capacitor Mk. 4");
-		GameTask.scheduleCancelTask(capturedEntity::clear);
-	}
+    public PhysGun() {
+        super(Material.GOLDEN_HORSE_ARMOR);
+        setId("dr_ed_gun_2");
+        setName("Upgraded Dr. Ed's Gravity Energy Capacitor Mk. 4");
 
-	@Override
-	public void onRightClick(Player player, ItemStack item) {
+        GameTask.scheduleCancelTask(capturedEntity::clear);
+    }
 
-		// Throw
-		if (capturedEntity.containsKey(player)) {
-			final LivingEntity entity = capturedEntity.get(player);
-			final Location location = player.getLocation().add(player.getLocation().getDirection().multiply(2.0d));
+    @Override
+    public void onRightClick(Player player, ItemStack item) {
 
-			capturedEntity.remove(player);
+        // Throw
+        if (capturedEntity.containsKey(player)) {
+            final LivingEntity entity = capturedEntity.get(player);
+            final Location location = player.getLocation().add(player.getLocation().getDirection().multiply(2.0d));
 
-			entity.setVelocity(player.getLocation().getDirection().multiply(2.5d));
-			PlayerLib.spawnParticle(location, Particle.EXPLOSION_NORMAL, 10, 0.2, 0.05, 0.2, 0.02f);
-			PlayerLib.playSound(location, Sound.ITEM_CROSSBOW_SHOOT, 0.5f);
-			return;
-		}
+            capturedEntity.remove(player);
 
-		// Get the target entity
-		final LivingEntity target = Utils.getTargetEntity(player, 3.0d, e -> e != player);
+            if (entity instanceof Player targetPlayer) {
+                targetPlayer.setAllowFlight(flightMap.getOrDefault(targetPlayer, false));
+                flightMap.remove(targetPlayer);
+            }
 
-		if (target == null) {
-			Chat.sendMessage(player, "&cNo valid target!");
-			return;
-		}
+            entity.setVelocity(player.getLocation().getDirection().multiply(2.0d));
+            PlayerLib.spawnParticle(location, Particle.EXPLOSION_NORMAL, 10, 0.2, 0.05, 0.2, 0.02f);
+            PlayerLib.playSound(location, Sound.ITEM_CROSSBOW_SHOOT, 0.5f);
+            return;
+        }
 
-		capturedEntity.put(player, target);
+        // Get the target entity
+        final LivingEntity target = Utils.getTargetEntity(player, 3.0d, e -> e != player);
 
-		new GameTask() {
-			@Override
-			public void run() {
+        if (target == null) {
+            Chat.sendMessage(player, "&cNo valid target!");
+            return;
+        }
 
-				if (player.getInventory().getHeldItemSlot() != 4 || (capturedEntity.get(player) == null) || (capturedEntity.get(player) != target)) {
-					dismountEntity(player, target);
-					this.cancel();
-					return;
-				}
+        capturedEntity.put(player, target);
+        if (target instanceof Player targetPlayer) {
+            flightMap.put(targetPlayer, targetPlayer.getAllowFlight());
+            targetPlayer.setAllowFlight(true);
+        }
 
-				final Location playerLocation = player.getLocation();
-				final Location location = target.getLocation();
-				Location finalLocation = playerLocation.add(0.0d, 1.0d, 0.0d).add(playerLocation.getDirection().multiply(2.0d));
+        // Tick entity
+        new GameTask() {
+            @Override
+            public void run() {
+                if (player.getInventory().getHeldItemSlot() != 4 || (capturedEntity.get(player) == null) ||
+                        (capturedEntity.get(player) != target)) {
+                    dismountEntity(player, target);
+                    this.cancel();
+                    return;
+                }
 
-				finalLocation.setYaw(location.getYaw());
-				finalLocation.setPitch(location.getPitch());
+                final Location playerLocation = player.getLocation();
+                final Location location = target.getLocation();
+                Location finalLocation = playerLocation.add(0.0d, 1.0d, 0.0d).add(playerLocation.getDirection().multiply(2.0d));
 
-				if (!finalLocation.getBlock().getType().isAir() || !finalLocation.getBlock().getRelative(BlockFace.UP).getType().isAir()) {
-					finalLocation = playerLocation;
-				}
+                finalLocation.setYaw(location.getYaw());
+                finalLocation.setPitch(location.getPitch());
 
-				target.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 20, 1, true));
-				if (target instanceof Player targetPlayer) {
-					Chat.sendActionbar(targetPlayer, "&f&lCaptured by &a%s&f&l!", player.getName());
-				}
+                if (!finalLocation.getBlock().getType().isAir() || !finalLocation.getBlock().getRelative(BlockFace.UP).getType().isAir()) {
+                    finalLocation = playerLocation;
+                }
 
-				target.teleport(finalLocation);
-				Chat.sendTitle(player, "", "&f&lCarrying &a%s".formatted(target.getName()), 0, 10, 0);
+                target.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 20, 1, true));
+                if (target instanceof Player targetPlayer) {
+                    Chat.sendActionbar(targetPlayer, "&f&lCaptured by &a%s&f&l!", player.getName());
+                }
 
-			}
-		}.runTaskTimer(0, 1);
-	}
+                target.teleport(finalLocation);
+                Chat.sendTitle(player, "", "&f&lCarrying &a%s".formatted(target.getName()), 0, 10, 0);
 
-	private void dismountEntity(Player player, LivingEntity entity) {
-		final Location location = entity.getLocation();
-		final Block block = location.getBlock();
+            }
+        }.runTaskTimer(0, 1);
+    }
 
-		if (!block.getType().isAir() || !block.getRelative(BlockFace.UP).getType().isAir()) {
-			Chat.sendMessage(player, "&a%s was teleported to your since they would suffocate.", entity.getName());
-			entity.teleport(player);
-		}
+    private void dismountEntity(Player player, LivingEntity entity) {
+        final Location location = entity.getLocation();
+        final Block block = location.getBlock();
 
-		boolean solid = false;
-		// check for solid ground
-		for (double y = 0; y <= location.getY(); ++y) {
-			if (!location.clone().subtract(0.0d, y, 0.0d).getBlock().getType().isAir()) {
-				solid = true;
-				break;
-			}
-		}
+        if (!block.getType().isAir() || !block.getRelative(BlockFace.UP).getType().isAir()) {
+            Chat.sendMessage(player, "&a%s was teleported to your since they would suffocate.", entity.getName());
+            entity.teleport(player);
+        }
 
-		if (!solid) {
-			Chat.sendMessage(player, "&a%s was teleported to your since they would fall into void.", entity.getName());
-			entity.teleport(player);
-		}
+        boolean solid = false;
+        // check for solid ground
+        for (double y = 0; y <= location.getY(); ++y) {
+            if (!location.clone().subtract(0.0d, y, 0.0d).getBlock().getType().isAir()) {
+                solid = true;
+                break;
+            }
+        }
 
-		capturedEntity.remove(player);
-	}
+        if (!solid) {
+            Chat.sendMessage(player, "&a%s was teleported to your since they would fall into void.", entity.getName());
+            entity.teleport(player);
+        }
+
+        player.setAllowFlight(flightMap.remove(player));
+        capturedEntity.remove(player);
+    }
 
 }

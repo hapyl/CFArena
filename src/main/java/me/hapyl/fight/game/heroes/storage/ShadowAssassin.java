@@ -40,33 +40,33 @@ import javax.annotation.Nullable;
 public class ShadowAssassin extends Hero implements Listener, UIComponent {
 
     private final int BACK_STAB_CD = 400;
+    private final int NEVERMISS_CD = 15;
 
     public ShadowAssassin() {
         super("Shadow Assassin");
 
-        this.setRole(Role.ASSASSIN);
+        setRole(Role.ASSASSIN);
 
-        this.setInfo("Well trained assassin from dimension of shadows.");
-        this.setItem(Material.ENDERMAN_SPAWN_EGG);
+        setInfo("Well trained assassin from dimension of shadows.");
+        setItem("9598fcbbf65b9ff66da99487403e4baf7e4c50144d06c7417bbded578d76d004");
 
-        final ClassEquipment eq = this.getEquipment();
-        eq.setHelmet(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWI4YWY1MmVmMmY3MmMzYmY1ZWNlNmU3MGE4MmYxMzcxOTU5Y2UzZmNiNzM2YzUwMDMwNWNhZGRjNTA1YzVlMiJ9fX0=");
-        eq.setChestplate(Color.BLACK);
-        eq.setLeggings(Color.BLACK);
-        eq.setBoots(Color.BLACK);
+        final ClassEquipment equipment = getEquipment();
+        equipment.setChestplate(Color.BLACK);
+        equipment.setLeggings(Color.BLACK);
+        equipment.setBoots(Color.BLACK);
 
-        this.setWeapon(new Weapon(Material.IRON_SWORD).setName("Livid Dagger").setDescription(String.format(
+        setWeapon(new Weapon(Material.IRON_SWORD).setName("Livid Dagger").setDescription(String.format(
                 "A dagger made of bad memories.____&e&lBACKSTAB &7to perform a charged attack that knocks enemies and stuns them for a short time.____&aCooldown: &l%ss",
                 BukkitUtils.roundTick(BACK_STAB_CD)
         )).setDamage(8.0d));
 
-        this.setUltimate(new UltimateTalent(
+        setUltimate(new UltimateTalent(
                 "Extreme Focus",
                 "Enter &bExtreme Focus &7for {duration}. While active, you will not miss your hits if target is close enough and has no cover.",
                 80
         ).setDuration(200).setCdSec(40).setItem(Material.GOLDEN_CARROT));
 
+        getUltimate().addAttributeDescription("Cooldown Per Hit", NEVERMISS_CD);
     }
 
     @Override
@@ -85,18 +85,19 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
     public void handleUltimate(PlayerInteractEvent ev) {
         final Player player = ev.getPlayer();
         if (ev.getHand() == EquipmentSlot.OFF_HAND || ev.getAction() == Action.PHYSICAL || !validatePlayer(player, Heroes.SHADOW_ASSASSIN) ||
-                !isUsingUltimate(player) || player.hasCooldown(this.getWeapon().getMaterial())) {
+                !isUsingUltimate(player) || player.hasCooldown(getWeapon().getMaterial())) {
             return;
         }
 
         final LivingEntity livingEntity = getNearestEntity(player);
+
         if (livingEntity == null) {
             Chat.sendMessage(player, "&cNo valid opponent!");
             return;
         }
 
-        GamePlayer.damageEntity(livingEntity, this.getWeapon().getDamage(), player, EnumDamageCause.NEVERMISS);
-        player.setCooldown(this.getWeapon().getMaterial(), 20);
+        GamePlayer.damageEntity(livingEntity, getWeapon().getDamage(), player, EnumDamageCause.NEVERMISS);
+        player.setCooldown(getWeapon().getMaterial(), NEVERMISS_CD);
 
         // fx
         PlayerLib.playSound(player.getLocation(), Sound.BLOCK_NETHER_ORE_BREAK, 1.75f);
@@ -104,31 +105,40 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
 
     @Nullable
     private LivingEntity getNearestEntity(Player player) {
-        final Location location = player.getLocation();
-        LivingEntity closest = null;
-        double distance = 0.0d;
-        for (final LivingEntity living : Utils.getEntitiesInRange(location, 10)) {
-            if (player == living) {
-                continue;
-            }
-            final double currentDistance = living.getLocation().distance(location);
-            if (closest == null || currentDistance < distance) {
-                closest = living;
-                distance = currentDistance;
-            }
+        return Utils.getTargetEntity(player, 10, 0.5d, player::hasLineOfSight);
+
+        //final Location location = player.getLocation();
+        //LivingEntity closest = null;
+        //double distance = 0.0d;
+        //for (final LivingEntity living : Utils.getEntitiesInRange(location, 10)) {
+        //    if (player == living) {
+        //        continue;
+        //    }
+        //    final double currentDistance = living.getLocation().distance(location);
+        //    if (closest == null || currentDistance < distance) {
+        //        closest = living;
+        //        distance = currentDistance;
+        //    }
+        //}
+        //return closest;
+    }
+
+    @Override
+    public boolean processInvisibilityDamage(Player player, LivingEntity entity, double damage) {
+        if (player.isSneaking()) {
+            PlayerLib.playSoundMessage(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f, "&cCannot deal damage while in &lDark Cover&c!");
+
+            return true;
         }
-        return closest;
+
+        return false;
     }
 
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
         final Player player = input.getPlayer();
-        if (player.isSneaking() && (input.getEntity() != null && input.getEntity() != player)) {
-            PlayerLib.playSoundMessage(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f, "&cCannot deal damage while in &lDark Cover&c!");
-            return new DamageOutput().setCancelDamage(true);
-        }
 
-        // calculate back stab
+        // Calculate back stab
         final LivingEntity entity = input.getEntity();
         if (validateCanBackStab(player, entity)) {
             if (player.getLocation().getDirection().dot(entity.getLocation().getDirection()) > 0) {
@@ -180,7 +190,6 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
 
             playDarkCoverFx(player, false);
         }
-
     }
 
     public void displayFootprints(Location location) {
@@ -231,7 +240,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
         return entity != null
                 && !isUsingUltimate(player)
                 && player != entity
-                && !player.hasCooldown(this.getWeapon().getMaterial()) && player.getInventory().getHeldItemSlot() == 0;
+                && !player.hasCooldown(getWeapon().getMaterial()) && player.getInventory().getHeldItemSlot() == 0;
     }
 
     public void performBackStab(Player player, @Nonnull LivingEntity entity) {
@@ -246,7 +255,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
             Chat.sendMessage(playerEntity, "&a%s stabbed you!", player.getName());
         }
 
-        player.setCooldown(this.getWeapon().getMaterial(), BACK_STAB_CD);
+        player.setCooldown(getWeapon().getMaterial(), BACK_STAB_CD);
 
         // fx
         PlayerLib.playSound(location, Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 0.65f);

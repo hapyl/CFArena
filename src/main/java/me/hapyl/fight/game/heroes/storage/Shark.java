@@ -31,6 +31,8 @@ import org.bukkit.event.player.PlayerMoveEvent;
 
 public class Shark extends Hero implements Listener {
 
+    private final double CRITICAL_AMOUNT = 15.0d;
+
     public Shark() {
         super(
                 "Shark",
@@ -39,14 +41,10 @@ public class Shark extends Hero implements Listener {
 
         setRole(Role.STRATEGIST);
 
-        setItem(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzQ0N2U3ZTgyNzFmNTczOTY5ZjJkYTczNGM0MTI1ZjkzYjI4NjRmYjUxZGI2OWRhNWVjYmE3NDg3Y2Y4ODJiMCJ9fX0="
-        );
+        // b86df01f51556ba8c8e781b0bb0f8d69496bf40a8845a9a3d456638d9b242ee6 -> This one looks better, maybe a skin?
+        setItem("3447e7e8271f573969f2da734c4125f93b2864fb51db69da5ecba7487cf882b0");
 
         final ClassEquipment equipment = getEquipment();
-        equipment.setHelmet(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzQ0N2U3ZTgyNzFmNTczOTY5ZjJkYTczNGM0MTI1ZjkzYjI4NjRmYjUxZGI2OWRhNWVjYmE3NDg3Y2Y4ODJiMCJ9fX0="
-        );
         equipment.setChestplate(116, 172, 204);
         equipment.setLeggings(116, 172, 204);
         equipment.setBoots(ItemBuilder.leatherBoots(Color.fromRGB(116, 172, 204))
@@ -63,7 +61,6 @@ public class Shark extends Hero implements Listener {
                 "Creates a &bShark Aura &7that follow you for {duration} and imitates water.",
                 70
         ).setItem(Material.WATER_BUCKET).setDuration(120).setSound(Sound.AMBIENT_UNDERWATER_ENTER, 0.0f).setCdSec(60));
-
     }
 
     @Override
@@ -105,7 +102,7 @@ public class Shark extends Hero implements Listener {
 
     public void setState(Player player, boolean state, int duration) {
         if (state) {
-            player.setWalkSpeed(0.6f);
+            player.setWalkSpeed(0.4f);
             PlayerLib.addEffect(player, EffectType.STRENGTH, duration, 2);
             PlayerLib.addEffect(player, EffectType.RESISTANCE, duration, 1);
         }
@@ -136,7 +133,10 @@ public class Shark extends Hero implements Listener {
 
         // Sync for effect only
         GameTask.runTaskTimerTimes(r -> fangs.teleport(entity.getLocation()), 0, 1, 30);
-        GamePlayer.damageEntity(entity, 5.0d, player, EnumDamageCause.FEET_ATTACK);
+
+        // Perform critical hit
+        GamePlayer.damageEntity(entity, CRITICAL_AMOUNT, player, EnumDamageCause.FEET_ATTACK);
+        GamePlayer.getPlayer(player).heal(CRITICAL_AMOUNT);
     }
 
     @Override

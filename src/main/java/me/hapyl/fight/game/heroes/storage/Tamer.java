@@ -20,11 +20,13 @@ import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Creature;
 import org.bukkit.entity.FishHook;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
@@ -35,14 +37,15 @@ public class Tamer extends Hero implements Listener {
 
     public Tamer() {
         super("Tamer", "A former circus pet trainer, with pets that loyal to him only!", Material.FISHING_ROD);
+        setItem("fbad693d041db13ff36b81480b06456cd0ad6a57655338b956ea015a150516e2");
 
         setRole(Role.STRATEGIST);
 
-        final ClassEquipment equipment = this.getEquipment();
+        final ClassEquipment equipment = getEquipment();
 
         equipment.setChestplate(
                 ItemBuilder.leatherTunic(Color.fromRGB(14557974))
-                        .addEnchant(Enchantment.THORNS, 1)
+                        .addEnchant(Enchantment.THORNS, 3)
                         .cleanToItemSack()
         );
 
@@ -63,19 +66,18 @@ public class Tamer extends Hero implements Listener {
                         .cleanToItemSack()
         );
 
-        this.setWeapon(new Weapon(Material.FISHING_ROD)
+        setWeapon(new Weapon(Material.FISHING_ROD)
                 .setName("Lash")
                 .setDescription("An old lash used to train beasts and monsters.")
                 .setId("tamer_weapon")
                 .setDamage(2.0d)); // This is melee damage, weapon damage is handled in the event
 
-        this.setUltimate(new UltimateTalent("", "", 100));
+        setUltimate(new UltimateTalent("", "", 100));
     }
 
     @Override
     public void useUltimate(Player player) {
     }
-
 
     @Override
     public void onStart() {
@@ -88,10 +90,25 @@ public class Tamer extends Hero implements Listener {
 
         if (TalentHandle.MINE_O_BALL.isPackEntity(player, entity)) {
             Chat.sendMessage(player, "&cYou cannot damage your own minion!");
-            return new DamageOutput(true);
+            return DamageOutput.CANCEL;
         }
 
         return null;
+    }
+
+    // prevent pack members from damaging each other
+    @EventHandler()
+    public void handleMinionDamage(EntityDamageByEntityEvent ev) {
+        if (ev.getEntity() instanceof LivingEntity entity && ev.getDamager() instanceof LivingEntity damager) {
+            if (TalentHandle.MINE_O_BALL.isInSamePack(entity, damager)) {
+                ev.setCancelled(true);
+                ev.setDamage(0.0d);
+
+                if (damager instanceof Creature creature) {
+                    creature.setTarget(null);
+                }
+            }
+        }
     }
 
     @EventHandler()

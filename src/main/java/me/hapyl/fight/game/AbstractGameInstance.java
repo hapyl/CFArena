@@ -89,7 +89,6 @@ public abstract class AbstractGameInstance {
     }
 
     public void checkWinCondition() {
-
     }
 
     public CFGameMode getMode() {

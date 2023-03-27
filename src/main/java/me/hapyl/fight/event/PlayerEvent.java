@@ -10,6 +10,7 @@ import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.game.tutorial.Tutorial;
 import me.hapyl.fight.game.ui.DamageIndicator;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -54,7 +55,10 @@ public class PlayerEvent implements Listener {
         }
         else {
             plugin.handlePlayer(player);
-            plugin.getTutorial().display(player);
+
+            if (!player.hasPlayedBefore()) {
+                new Tutorial(player);
+            }
         }
 
         ev.setJoinMessage(Chat.format("&7[&a+&7] %s%s &ewants to fight!", player.isOp() ? "&c" : "", player.getName()));
@@ -66,7 +70,7 @@ public class PlayerEvent implements Listener {
 
         if (Manager.current().isGameInProgress()) {
             final AbstractGameInstance game = Manager.current().getCurrentGame();
-            final GamePlayer gamePlayer = GamePlayer.getAlivePlayer(player);
+            final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
 
             if (gamePlayer == null) {
                 return;
@@ -152,7 +156,7 @@ public class PlayerEvent implements Listener {
             return manager.getTrial().getGamePlayer();
         }
 
-        return GamePlayer.getAlivePlayer(player);
+        return GamePlayer.getExistingPlayer(player);
     }
 
     @SuppressWarnings("deprecation")
@@ -481,7 +485,7 @@ public class PlayerEvent implements Listener {
         }
 
         if (damagerFinal instanceof Player player) {
-            final GamePlayer gamePlayer = GamePlayer.getAlivePlayer(player);
+            final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
 
             if (gamePlayer != null) {
                 gamePlayer.getStats().addValue(StatContainer.Type.DAMAGE_DEALT, damage);
@@ -490,7 +494,7 @@ public class PlayerEvent implements Listener {
 
         // Make sure not to kill player but instead put them in spectator
         if (entity instanceof Player player) {
-            final GamePlayer gamePlayer = GamePlayer.getAlivePlayer(player);
+            final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
 
             // If game player is null means the game is not in progress
             if (gamePlayer != null) {

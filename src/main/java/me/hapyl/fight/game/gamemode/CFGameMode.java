@@ -4,6 +4,7 @@ import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.setting.Setting;
 import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.scoreboard.Scoreboarder;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -89,6 +90,10 @@ public abstract class CFGameMode {
     }
 
     public abstract boolean testWinCondition(@Nonnull GameInstance instance);
+
+    public void formatScoreboard(Scoreboarder builder, GameInstance instance, GamePlayer player) {
+
+    }
 
     public void onDeath(@Nonnull GameInstance instance, @Nonnull GamePlayer player) {
 

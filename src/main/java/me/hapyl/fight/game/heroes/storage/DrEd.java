@@ -37,13 +37,11 @@ public class DrEd extends Hero implements UIComponent {
 
     public DrEd() {
         super("Dr. Ed");
-        this.setRole(Role.STRATEGIST);
-        this.setInfo("Simple named scientist with not so simple inventions...");
-        this.setItem(Material.GLASS_BOTTLE);
+        setRole(Role.STRATEGIST);
+        setInfo("Simple named scientist with not so simple inventions...");
+        setItem("3b51e96bddd177992d68278c9d5f1e685b60fbb94aaa709259e9f2781c76f8");
 
         final ClassEquipment equipment = getEquipment();
-        equipment.setHelmet(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2I1MWU5NmJkZGQxNzc5OTJkNjgyNzhjOWQ1ZjFlNjg1YjYwZmJiOTRhYWE3MDkyNTllOWYyNzgxYzc2ZjgifX19");
         equipment.setChestplate(179, 204, 204);
         equipment.setLeggings(148, 184, 184);
         equipment.setBoots(71, 107, 107);

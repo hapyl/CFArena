@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.storage;
 
 import me.hapyl.fight.game.heroes.ClassEquipment;
-import me.hapyl.fight.game.heroes.DeprecatedHero;
+import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.heroes.storage.extra.BarrierWall;
@@ -22,7 +22,7 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Freazly extends Hero implements DeprecatedHero {
+public class Freazly extends Hero implements DisabledHero {
 
     private final int wallBuildDelay = 4;
     private final int wallDecayTime = 15;
@@ -30,21 +30,21 @@ public class Freazly extends Hero implements DeprecatedHero {
     private final Map<Player, BarrierWall> barrierWallMap = new HashMap<>();
 
     public Freazly() {
-        super("Freazly");
+        super("Iceologer");
 
-        this.setRole(Role.RANGE);
+        setRole(Role.RANGE);
 
-        this.setInfo("A great warrior from the Frozen Castle is here with deadly freezing attacks!");
-        this.setItem(Material.ICE);
+        setInfo("");
+        setItem(Material.ICE);
 
-        final ClassEquipment equipment = this.getEquipment();
-        equipment.setHelmet(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvY2FkNzQ4NmI1ZDIwODIzZDVjMjRjYmExODUwYTYwMGE3NzQ0MjA5ODk5ODI4YjE5Y2NmOTNmNjlmMjE4NzA1OCJ9fX0=");
+        final ClassEquipment equipment = getEquipment();
+        equipment.setTexture("f4e0318ef6ded7f3e60fe1c6d9f0649b7b0f601b74be70b179a78416c09e6c47");
+
         equipment.setChestplate(Color.AQUA);
         equipment.setLeggings(Color.OLIVE);
         equipment.setBoots(Color.AQUA);
 
-        this.setWeapon(new RangeWeapon(Material.IRON_SHOVEL, "snow_weapon") {
+        setWeapon(new RangeWeapon(Material.IRON_SHOVEL, "snow_weapon") {
             @Override
             public void onHit(LivingEntity entity) {
                 entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 10, 1));

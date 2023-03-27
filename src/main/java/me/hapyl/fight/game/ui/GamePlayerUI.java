@@ -1,10 +1,9 @@
 package me.hapyl.fight.game.ui;
 
+import me.hapyl.fight.Main;
 import me.hapyl.fight.database.Database;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.effect.GameEffect;
-import me.hapyl.fight.game.gamemode.Modes;
-import me.hapyl.fight.game.gamemode.modes.Deathmatch;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.setting.Setting;
 import me.hapyl.fight.game.task.GameTask;
@@ -22,7 +21,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.text.SimpleDateFormat;
-import java.util.Map;
 
 // this controls all UI based elements such as scoreboard, tab-list and actionbar (while in game)
 public class GamePlayerUI {
@@ -35,7 +33,7 @@ public class GamePlayerUI {
     public GamePlayerUI(PlayerProfile profile) {
         this.profile = profile;
         this.player = profile.getPlayer();
-        this.builder = new Scoreboarder("&e&lCLASSES FIGHT &c&lᴀʀᴇɴᴀ");
+        this.builder = new Scoreboarder(Main.GAME_NAME);
         this.updateScoreboard();
 
         new GameTask() {
@@ -95,7 +93,6 @@ public class GamePlayerUI {
         if (current.isGameInProgress()) {
             final AbstractGameInstance game = current.getCurrentGame();
             final AbstractGamePlayer gamePlayer = GamePlayer.getPlayer(this.player);
-            final Modes mode = game.getCurrentMode();
 
             // Have to reduce this so everything fits
             if (!gamePlayer.isAlive() && !gamePlayer.isRespawning()) {
@@ -120,30 +117,7 @@ public class GamePlayerUI {
                         " &e&lStatus: &f%s".formatted(gamePlayer.getStatusString())
                 );
 
-                // Death match
-                if (mode == Modes.DEATH_MATCH && gamePlayer.getStats() != null) {
-                    final int limit = 5;
-                    final Map<GamePlayer, Long> topKills = ((Deathmatch) game.getMode()).getTopKills(game, limit);
-                    this.builder.addLines(
-                            "",
-                            "&6&lDeathmatch: &f(&b🗡 &l%s&f)".formatted(gamePlayer.getStats()
-                                    .getValue(StatContainer.Type.KILLS))
-                    );
-
-                    final IntInt i = new IntInt(1);
-                    topKills.forEach((pla, val) -> {
-                        builder.addLines(" &e#&l%s &f%s &b🗡 &l%s".formatted(
-                                i.get(),
-                                pla.getPlayer().getName(),
-                                val + ((pla.compare(player) ? " &a←&l YOU" : ""))
-                        ));
-                        i.increment();
-                    });
-
-                    for (int j = i.get(); j <= limit; j++) {
-                        builder.addLines(" &e...");
-                    }
-                }
+                game.getMode().formatScoreboard(builder, (GameInstance) game, (GamePlayer) gamePlayer);
             }
 
         }
@@ -175,7 +149,7 @@ public class GamePlayerUI {
     }
 
     private String getTimeLeftString(AbstractGameInstance game) {
-        return Manager.current().isDebug() ? "&4&lDEBUG" : new SimpleDateFormat("mm:ss").format(game.getTimeLeftRaw());
+        return new SimpleDateFormat("mm:ss").format(game.getTimeLeftRaw());
     }
 
     private StringBuilder buildGameFooter() {
@@ -185,7 +159,7 @@ public class GamePlayerUI {
         // Display teammate information:
         if (team != null) {
             builder.append("\n&e&lTeammates:\n");
-            if (team.getPlayers().size() == 1) {
+            if ((team.getPlayers().size() == 1) && (Setting.SHOW_YOURSELF_AS_TEAMMATE.isDisabled(player))) {
                 builder.append("&8None!");
             }
             else {
@@ -213,7 +187,7 @@ public class GamePlayerUI {
 
         // Display active effects
         builder.append("\n\n&e&lActive Effects:\n");
-        final GamePlayer gp = GamePlayer.getAlivePlayer(this.player);
+        final GamePlayer gp = GamePlayer.getExistingPlayer(this.player);
         if (gp == null || gp.getActiveEffects().isEmpty()) {
             builder.append("&8None!");
         }
@@ -236,7 +210,7 @@ public class GamePlayerUI {
             });
         }
 
-        return builder;
+        return builder.append("\n");
     }
 
     private String[] formatHeaderFooter() {
@@ -266,7 +240,7 @@ public class GamePlayerUI {
             ));
         }
 
-        footer.append("\n");
+        footer.append("\n&ehapyl.github.io/classes_fight");
 
         return new String[] {
                 "\n&e&lCLASSES FIGHT\n&c&lᴀʀᴇɴᴀ\n\n&fTotal Players: &l" + Bukkit.getOnlinePlayers().size(), footer.toString()

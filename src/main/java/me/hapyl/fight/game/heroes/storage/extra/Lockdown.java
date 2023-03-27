@@ -1,11 +1,11 @@
 package me.hapyl.fight.game.heroes.storage.extra;
 
-import me.hapyl.fight.annotate.Constant;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.HeroHandle;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -23,9 +23,9 @@ import org.bukkit.inventory.ItemStack;
 
 public class Lockdown {
 
-    @Constant private final String emptyStringTitle = "                  ";
-    @Constant private final String emptyString = "                          ";
-    @Constant private final double lockdownHealth = 200.0d;
+    private final String emptyStringTitle = "                  ";
+    private final String emptyString = "                          ";
+    public static final double HEALTH = 100.0d;
 
     private final Player player;
     private final Location location;
@@ -46,7 +46,6 @@ public class Lockdown {
 
 
     private GameTask createTasks() {
-
         final AbstractParticleBuilder particleSelf = ParticleBuilder
                 .redstoneDust(Color.fromRGB(57, 123, 189))
                 .setAmount(2)
@@ -89,17 +88,17 @@ public class Lockdown {
                 // Fx
                 if (tick % delayBetweenDraw == 0) {
                     int lockdownRadius = HeroHandle.TECHIE.lockdownRadius;
+
                     Utils.getPlayersInRange(Lockdown.this.location, lockdownRadius).forEach(target -> {
-                        // Fx
                         PlayerLib.playSound(target, Sound.BLOCK_BEACON_AMBIENT, 2.0f);
-                        //Chat.sendTitle(target, "", "&c&lLockdown Warning!", 0, 20, 0);
+                        GamePlayer.getPlayer(target).sendWarning("Lockdown Warning!", 5);
                     });
 
                     Geometry.drawSphere(Lockdown.this.location, lockdownRadius * 1.5d, lockdownRadius, new Draw(Particle.VILLAGER_ANGRY) {
                         @Override
                         public void draw(Location location) {
                             Bukkit.getOnlinePlayers().forEach(player -> {
-                                if (player == Lockdown.this.player) {
+                                if (GameTeam.isSelfOrTeammate(Lockdown.this.player, player)) {
                                     particleSelf.display(location, player);
                                 }
                                 else {
@@ -123,7 +122,8 @@ public class Lockdown {
 
     public void displayLockdownMessage(String allyTitle, String allySub, String enemyTitle, String enemySub, int length) {
         Manager.current().getCurrentGame().getAlivePlayers().forEach(gamePlayer -> {
-            if (gamePlayer.compare(Lockdown.this.player)) {
+            final Player other = gamePlayer.getPlayer();
+            if (GameTeam.isSelfOrTeammate(player, other)) {
                 gamePlayer.sendTitle(allyTitle + emptyStringTitle, allySub + emptyString, 0, length, 0);
             }
             else {
@@ -168,8 +168,8 @@ public class Lockdown {
             me.setMarker(false);
             me.setInvisible(true);
             me.setGravity(false);
-            me.setMaxHealth(lockdownHealth);
-            me.setHealth(lockdownHealth);
+            me.setMaxHealth(HEALTH);
+            me.setHealth(HEALTH);
             me.addScoreboardTag("LockdownDevice");
 
             Utils.lockArmorStand(me);
@@ -180,6 +180,5 @@ public class Lockdown {
     public static boolean isLockdownEntity(LivingEntity entity) {
         return entity.getScoreboardTags().contains("LockdownDevice");
     }
-
 
 }

@@ -25,7 +25,7 @@ public class Climb extends Talent {
         super("Climb");
         this.setItem(Material.LEATHER_BOOTS);
 
-        this.setDescription(
+        this.addDescription(
                 "Use the wall you're hugging to climb it and perform back-flip, gaining speed boost. Cooldown of this ability stars upon landing or after &b%ss&7.",
                 BukkitUtils.roundTick(cdDeadLine)
         );

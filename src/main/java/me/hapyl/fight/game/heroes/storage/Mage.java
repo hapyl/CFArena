@@ -62,20 +62,20 @@ public class Mage extends Hero implements UIComponent {
     public Mage() {
         super("Mage");
 
-        this.setRole(Role.MELEE_RANGE);
+        setRole(Role.MELEE_RANGE);
 
-        this.setInfo(
-                "Amateur Necromancer with ability to absorb soul fragments upon hitting his foes to use them as fuel for his &e&lSoul Eater&7.__Which makes him both &bmelee &7and &brange &7warrior!");
-        this.setItem(Material.PHANTOM_MEMBRANE);
+        setInfo(
+                "Amateur Necromancer with ability to absorb soul fragments upon hitting his foes to use them as fuel for his &e&lSoul Eater&7.__Which makes him both &bmelee &7and &brange &7warrior!"
+        );
+
+        setItem("f41e6e4bcd2667bb284fb0dde361894840ea782efbfb717f6244e06b951c2b3f");
 
         final ClassEquipment equipment = this.getEquipment();
-        equipment.setHelmet(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjQxZTZlNGJjZDI2NjdiYjI4NGZiMGRkZTM2MTg5NDg0MGVhNzgyZWZiZmI3MTdmNjI0NGUwNmI5NTFjMmIzZiJ9fX0=");
-        equipment.setChestplate(56, 34, 70);
-        equipment.setLeggings(29, 29, 33);
-        equipment.setBoots(56, 34, 70);
+        equipment.setChestplate(82, 12, 135);
+        equipment.setLeggings(163, 52, 247);
+        equipment.setBoots(82, 12, 135);
 
-        this.setWeapon(new Weapon(Material.IRON_HOE) {
+        setWeapon(new Weapon(Material.IRON_HOE) {
             @Override
             public void onRightClick(Player player, ItemStack item) {
                 if (player.hasCooldown(Material.IRON_HOE)) {
@@ -111,9 +111,9 @@ public class Mage extends Hero implements UIComponent {
                 .setName("Soul Eater")
                 .setDescription(
                         "A weapon capable of absorbing soul fragments and convert them into fuel.____&e&lRIGHT CLICK &7to shoot a soul laser.")
-                               .setId("soul_eater"));
+                .setId("soul_eater"));
 
-        this.setUltimate(new UltimateTalent(
+        setUltimate(new UltimateTalent(
                 "Magical Trainings",
                 String.format(
                         "Retrieve two ancient spells and use one of them to your advantage!____&a- &7Heart of Wyvern heals you for &c%s&c❤&7, makes you fast but weak for &b%ss&7.____&a- &7Dragon's Skin makes you incredible strong but slow for &b%ss&7.____Only one of the spells can be used at the same time and you will &nnot&7 gain &b&l※ &7until spell is over.",
@@ -149,6 +149,11 @@ public class Mage extends Hero implements UIComponent {
         return null;
     }
 
+    @Override
+    public void onDeath(Player player) {
+        soulsCharge.remove(player);
+    }
+
     private void addSouls(Player player, int amount) {
         this.soulsCharge.put(player, Numbers.clamp(getSouls(player) + amount, 0, maxSoulsAmount));
     }
@@ -165,7 +170,7 @@ public class Mage extends Hero implements UIComponent {
     private void useWyvern(Player player) {
         this.setUsingUltimate(player, true, wyvernHeartLength);
 
-        PlayerLib.addEffect(player, PotionEffectType.SPEED, wyvernHeartLength, wyvernHeartLength);
+        PlayerLib.addEffect(player, PotionEffectType.SPEED, wyvernHeartLength, 2);
         PlayerLib.addEffect(player, PotionEffectType.WEAKNESS, wyvernHeartLength, 1);
         GamePlayer.getPlayer(player).heal(wyvernHealingAmount);
 

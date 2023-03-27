@@ -1,6 +1,7 @@
 package me.hapyl.fight.database.collection;
 
 import com.mongodb.client.MongoCollection;
+import me.hapyl.fight.database.StatisticType;
 import me.hapyl.fight.game.StatContainer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.Talents;
@@ -28,19 +29,19 @@ public class HeroStatsCollection extends DatabaseCollection {
         return document.get(heroes.name(), new Document());
     }
 
-    public double getStat(Heroes heroes, Type type) {
-        return getHeroDocument(heroes).get(type.name(), 0d);
+    public double getStat(Heroes heroes, StatisticType statisticType) {
+        return getHeroDocument(heroes).get(statisticType.name(), 0d);
     }
 
-    public void setStat(Heroes heroes, Type type, double value) {
+    public void setStat(Heroes heroes, StatisticType statisticType, double value) {
         final Document stats = getHeroDocument(heroes);
 
-        stats.put(type.name(), value);
+        stats.put(statisticType.name(), value);
         document.put(heroes.name(), stats);
     }
 
-    public void addStat(Heroes heroes, Type type, double value) {
-        setStat(heroes, type, getStat(heroes, type) + value);
+    public void addStat(Heroes heroes, StatisticType statisticType, double value) {
+        setStat(heroes, statisticType, getStat(heroes, statisticType) + value);
     }
 
     public long getAbilityUsage(Heroes heroes, Talents talent) {
@@ -64,23 +65,19 @@ public class HeroStatsCollection extends DatabaseCollection {
     }
 
     public void fromPlayerStatistic(Heroes hero, StatContainer stat) {
-        addStat(hero, Type.PLAYED, 1);
-        addStat(hero, Type.KILLS, stat.getValue(StatContainer.Type.KILLS));
-        addStat(hero, Type.DEATHS, stat.getValue(StatContainer.Type.DEATHS));
-        addStat(hero, Type.DAMAGE_DEALT, stat.getValue(StatContainer.Type.DAMAGE_DEALT));
-        addStat(hero, Type.DAMAGE_TAKEN, stat.getValue(StatContainer.Type.DAMAGE_TAKEN));
-        addStat(hero, Type.ULTIMATE_USED, stat.getValue(StatContainer.Type.ULTIMATE_USED));
+        addStat(hero, StatisticType.PLAYED, 1);
+        addStat(hero, StatisticType.KILLS, stat.getValue(StatContainer.Type.KILLS));
+        addStat(hero, StatisticType.DEATHS, stat.getValue(StatContainer.Type.DEATHS));
+        addStat(hero, StatisticType.DAMAGE_DEALT, stat.getValue(StatContainer.Type.DAMAGE_DEALT));
+        addStat(hero, StatisticType.DAMAGE_TAKEN, stat.getValue(StatContainer.Type.DAMAGE_TAKEN));
+        addStat(hero, StatisticType.ULTIMATE_USED, stat.getValue(StatContainer.Type.ULTIMATE_USED));
+
+        if (stat.isWinner()) {
+            addStat(hero, StatisticType.WINS, 1);
+        }
 
         stat.getUsedAbilities().forEach((talent, integer) -> addAbilityUsage(hero, talent, integer));
     }
 
-    public enum Type {
-        PLAYED,
-        KILLS,
-        DEATHS,
-        ULTIMATE_USED,
-        DAMAGE_DEALT,
-        DAMAGE_TAKEN
-    }
 
 }

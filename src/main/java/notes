@@ -6,26 +6,66 @@ Troll:
 
 Bugs:
 
-- Holograms don't reappear on TP? (could not reproduce)
-
 - [✔] Dracula keeps shooting when the game is over
 - [✔] Vampire lightning strike does not work
 - [✔] Fall death did not count.
-- [Needs Testing] Alchemist's cauldron does not remove
+- [✔] Alchemist's cauldron does not remove
 - [✔] Alchemist cauldron effect does not reset
 - [✔] Don't display contrail while invisibility or yes
 - [✔] Invis dont work!!!!
 - [✔] Random class does not work in deathmatch, actually change how random class works
 - Fix random class in tab and chat
 
-- Custom damage type does not reset when hit using vanilla
-- librari door broken
+- [✔] Custom damage statisticType does not reset when hit using vanilla
+- librabi door broken
 
 ####################################################################
+
+- [✔] Shark dash broken
+- [✔, Fixed concurrent (well, removed) glowing] Techie glowing STILL bro
+- [✔] Mage souls don't reset ond death
+- [✔] Mage speed boost is broken
+- [✔, Holy Hologram did NOT work properly.] Parkour leader board not loading for all players (return instead of break)
+- [✔] SA tp in wall
+- [✔] Shaman totems visible sometimes
+
+- [✔] Parkour leader board not working?
+- [✔] Fix suicide giving score
+- [✔] Phoenix don't work
+- [✔] DA can phys action staff
+- [✔] ED can pickup blocks during shh
+- [✔] Troll last laugh not formatted
+- [FUCK KM] Glowing for KM broken (blinks)
+- [✔] Ninja invisibility don't go at dmg
+- [✖] Ninja takes fall dmg
+- [✔] void doesn't reset ond death
+
+- Maybe genshin slowing aura for freazly
+- black hole works with grimoire
+- Store class wins
+- [✔] Fix techie trips
+- Stop paintings from breaking
+- harbinger riptide not going away?
+- weakness level matters for client
+- deathmath when die who dead keeps yes
+- [?] me.hapyl.fight.game.heroes.storage.extra.BlockShield.randomBlock(BlockShield.java:132) ~[ClassesFightArena.jar:?]
+- [✔] spark does not take dmg?
+
+- Buff Vortex
+- add glowing on death for teammates
+- fix mmu3 . -> / not cancelling msg
+- Kill deathmatch
+- [✔] Blast knight horse
+- wolf howl 201.5 64.0 217.5 rand
+- patch notes type the the
+- Parkour button actual pressing remove this wtf
+- leaving breaks the game
+- tripwire does not refresh on cauht?
 
 - Cleanup Code
 - Add friends, idk why?
 - Maybe remove re-join ability, it kinda sucks and breaks the game
+- Add /colorItem command or something
 
 - Add talents for:
     - [✔] Troll (Passive✔)

@@ -37,13 +37,13 @@ public abstract class LibrarianTalent extends Talent {
     }
 
     @Override
-    public void setDescription(String info, Object... replacements) {
-        this.setDescription(Chat.format(info, replacements));
+    public void addDescription(String description, Object... format) {
+        this.addDescription(Chat.format(description, format));
     }
 
     @Override
-    public void setDescription(String info) {
-        super.setDescription(info.replace("{}", formatValues("")));
+    public void addDescription(String description) {
+        super.addDescription(description.replace("{}", formatValues("")));
     }
 
     public abstract double[] getValues();

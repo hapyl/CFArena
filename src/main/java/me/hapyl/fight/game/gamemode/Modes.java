@@ -3,6 +3,7 @@ package me.hapyl.fight.game.gamemode;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.gamemode.modes.Deathmatch;
+import me.hapyl.fight.game.gamemode.modes.DeathmatchKills;
 import me.hapyl.fight.game.gamemode.modes.FreeForAll;
 import me.hapyl.spigotutils.module.util.Validate;
 
@@ -11,18 +12,19 @@ import javax.annotation.Nullable;
 
 public enum Modes {
 
-	FFA(new FreeForAll()),
-	DEATH_MATCH(new Deathmatch()),
-	;
+    FFA(new FreeForAll()),
+    DEATH_MATCH(new Deathmatch()),
+    DEATH_MATCH_KILLS(new DeathmatchKills()),
+    ;
 
-	private final CFGameMode mode;
+    private final CFGameMode mode;
 
-	Modes(CFGameMode mode) {
-		this.mode = mode;
-	}
+    Modes(CFGameMode mode) {
+        this.mode = mode;
+    }
 
-	public CFGameMode getMode() {
-		return mode;
+    public CFGameMode getMode() {
+        return mode;
 	}
 
 	public boolean isSelected() {

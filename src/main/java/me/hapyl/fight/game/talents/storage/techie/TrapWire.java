@@ -6,9 +6,9 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.storage.extra.Tripwire;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -27,23 +27,24 @@ import java.util.*;
 public class TrapWire extends ChargedTalent implements Listener {
 
     private final Map<Player, Set<Tripwire>> trapMap = new HashMap<>();
-    private final int pickupDelay = 8 * 20;
+    @DisplayField private final int pickupDelay = 8 * 20;
+    @DisplayField(extra = "Recharges upon activation") private final int rechargeCd = 80;
+    @DisplayField private final int destroyedCd = 160;
+    @DisplayField(suffix = "blocks") private final short tripwireMaxLength = 10;
 
     public TrapWire() {
-        super("Tripwire", 2);
-        this.setDescription(
-                // Place a tripwire between two points. Activates upon opponents touch and applies &bCYber Hack&7.____&e&lPUNCH &7the wire to pick it up.
-                "Place a tripwire between two points. Activates upon opponents touch and applies &bCYber Hack&7.____&e&lPUNCH &7the wire to pick it up."
-        );
-        this.setItem(Material.STRING);
-        this.setCdSec(3);
+        super("Tripwire", 3);
 
-        this.addExtraInfo("&aRecharge Time: &l%ss", BukkitUtils.roundTick(pickupDelay));
-        this.addExtraInfo(" &8&oRecharges upon activation or pickup.");
+        addDescription(
+                "Place a tripwire between two points. Activates upon opponents touch and applies &bCYber Hack&7.____&e&lPUNCH &7the wire to pick it up.____&cThis ability can be destroyed!"
+        );
+
+        setItem(Material.STRING);
+        setCdSec(3);
     }
 
     @Override
-    public void onStop() {
+    public void onStopCharged() {
         trapMap.values().forEach(set -> {
             set.forEach(Tripwire::clearBlocks);
             set.clear();
@@ -52,13 +53,13 @@ public class TrapWire extends ChargedTalent implements Listener {
     }
 
     @Override
-    public void onDeath(Player player) {
+    public void onDeathCharged(Player player) {
         getTraps(player).forEach(Tripwire::clearBlocks);
         trapMap.remove(player);
     }
 
     @Override
-    public void onStart() {
+    public void onStartCharged() {
         new GameTask() {
             @Override
             public void run() {
@@ -99,8 +100,9 @@ public class TrapWire extends ChargedTalent implements Listener {
         final Player player = ev.getPlayer();
         final Location location = player.getLocation();
 
-        if (!Manager.current().isGameInProgress() || this.trapMap.isEmpty() || !Manager.current()
-                                                                                       .isPlayerInGame(player)) {
+        if (!Manager.current().isGameInProgress()
+                || trapMap.isEmpty()
+                || !Manager.current().isPlayerInGame(player)) {
             return;
         }
 
@@ -108,9 +110,11 @@ public class TrapWire extends ChargedTalent implements Listener {
         for (Block block = location.getBlock(); bit <= 1; block = block.getRelative(BlockFace.UP), ++bit) {
             if (block.getType() == Material.TRIPWIRE) {
                 final Tripwire trap = byBlock(block);
+
                 if (trap != null && trap.getPlayer() != player) {
                     trap.affectPlayer(player);
-                    this.removeTrap(trap);
+                    removeTrap(trap);
+                    grantCharge(player, rechargeCd);
                     return;
                 }
             }
@@ -132,14 +136,29 @@ public class TrapWire extends ChargedTalent implements Listener {
         ev.setCancelled(true);
         final Tripwire tripwire = byBlock(block);
 
-        if (tripwire != null && tripwire.getPlayer() == player) {
-            removeTrap(tripwire);
-            grantCharge(player);
-            startCd(player, pickupDelay);
+        if (tripwire == null) {
+            return;
+        }
+
+        removeTrap(tripwire);
+
+        final Player trapOwner = tripwire.getPlayer();
+
+        if (trapOwner == player) {
+            grantCharge(player, pickupDelay);
+            //startCd(player, pickupDelay);
 
             // Fx
-            Chat.sendMessage(player, "&aPicked up Tripwire.");
+            Chat.sendMessage(player, "&aPicked up tripwire.");
             PlayerLib.playSound(player, Sound.ENTITY_SPIDER_AMBIENT, 1.75f);
+        }
+        else {
+            removeTrap(tripwire);
+            grantCharge(trapOwner, destroyedCd);
+
+            // Fx
+            Chat.sendMessage(player, "&cYou destroyed %s's tripwire.", trapOwner.getName());
+            PlayerLib.playSound(player, Sound.ITEM_SHIELD_BREAK, 1.25f);
         }
 
     }
@@ -183,11 +202,12 @@ public class TrapWire extends ChargedTalent implements Listener {
         final Set<Block> blocks = new HashSet<>();
         Block next = adjacentBlock;
 
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < tripwireMaxLength; i++) {
             // Hit another block, break the loop
             if (!next.getType().isAir()) {
                 break;
             }
+
             blocks.add(next);
             next = next.getRelative(face);
         }

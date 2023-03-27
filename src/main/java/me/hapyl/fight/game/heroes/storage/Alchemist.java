@@ -46,16 +46,18 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
     public Alchemist() {
         super("Alchemist");
         setRole(Role.STRATEGIST);
-        this.setInfo(
-                "An alchemist who was deceived by creation of the abyss. In return of help received an Abyssal Bottle that creates potions from the &0&lvoid &7itself.");
-        this.setItem(Material.BREWING_STAND);
-        this.setWeapon(new Weapon(Material.STICK).addEnchant(Enchantment.KNOCKBACK, 1)
+        setInfo(
+                "An alchemist who was deceived by creation of the abyss. In return of help received an Abyssal Bottle that creates potions from the &0&lvoid &7itself."
+        );
+        setItem("661691fb01825b9d9ec1b8f04199443146aa7d5627aa745962c0704b6a236027");
+
+        setWeapon(new Weapon(Material.STICK).addEnchant(Enchantment.KNOCKBACK, 1)
                 .setName("Stick")
                 .setDamage(5.0d)
                 .setDescription("Turns out that a stick used in brewing can also be used in battle."));
 
-        final ClassEquipment equipment = this.getEquipment();
-        equipment.setHelmet(Material.IRON_HELMET);
+        final ClassEquipment equipment = getEquipment();
+        equipment.setChestplate(31, 5, 3);
 
         positiveEffects.add(new Effect("made you &lFASTER", PotionEffectType.SPEED, 30, 2))
                 .add(new Effect("gave you &lJUMP BOOST", PotionEffectType.JUMP, 30, 1))
@@ -74,10 +76,10 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
                 .add(new Effect("&lblinded you", PotionEffectType.BLINDNESS, 15, 0))
                 .add(new Effect("&lis withering your blood", PotionEffectType.WITHER, 7, 0))
                 .add(new Effect("&lslowed you", PotionEffectType.SLOW, 15, 2))
-                .add(new Effect("&lmade you weaker", PotionEffectType.WEAKNESS, 15, 5))
+                .add(new Effect("&lmade you weaker", PotionEffectType.WEAKNESS, 15, 0))
                 .add(new Effect("&lis... confusing?", PotionEffectType.CONFUSION, 15, 0));
 
-        this.setUltimate(new UltimateTalent(
+        setUltimate(new UltimateTalent(
                 "Alchemical Madness",
                 "Call upon the darkest spells to cast random &c&lNegative &7effect on your foes for &b15s &7and random &a&lPositive &7effect on yourself for &b30s&7.",
                 50
@@ -199,10 +201,6 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
     @Override
     public Talent getPassiveTalent() {
         return Talents.INTOXICATION.getTalent();
-    }
-
-    public void addToxinForUsingPotion(Player player) {
-        setToxinLevel(player, getToxinLevel(player) + 10);
     }
 
     public void addToxin(Player player, int value) {

@@ -15,7 +15,7 @@ public class CastSpellCommand extends SimplePlayerAdminCommand {
         setUsage("/cast <spell> [-f]");
 
         addCompleterValues(1, Talents.values());
-        addCompleterHandler(1, arg -> {
+        addCompleterHandler(1, (player, arg) -> {
             final Talents talent = Validate.getEnumValue(Talents.class, arg);
 
             if (talent == null) {
@@ -25,7 +25,7 @@ public class CastSpellCommand extends SimplePlayerAdminCommand {
             return "&a&nWill cast: " + talent.getName();
         });
 
-        addCompleterHandler(2, arg -> {
+        addCompleterHandler(2, (player, arg) -> {
             if (arg.equalsIgnoreCase("-f")) {
                 return "&a&nSpell will be forced!";
             }

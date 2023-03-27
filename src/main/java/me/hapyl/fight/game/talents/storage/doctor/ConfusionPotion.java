@@ -6,6 +6,7 @@ import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.Quality;
@@ -21,77 +22,68 @@ import org.bukkit.inventory.ItemStack;
 
 public class ConfusionPotion extends Talent {
 
-	private final int timeBeforeExplode = 20;
-	private final int auraDuration = 200;
+    @DisplayField private final int explosionDelay = 20;
 
-	public ConfusionPotion() {
-		super(
-				"Dr. Ed's Amnesia Extract Serum",
-				"Swiftly throw a potion in the air that explodes and creates an aura for &b10s&7.__Opponents within range will be affected by Amnesia; This effect will persist for additional &b1s &7after player leaves the aura.__Dr. Ed is immune to this effect.",
-				Type.COMBAT
-		);
-		this.setItem(Material.POTION);
-		this.setCdSec(30);
-	}
+    public ConfusionPotion() {
+        super(
+                "Dr. Ed's Amnesia Extract Serum",
+                "Swiftly throw a potion in the air that explodes and creates an aura for &b{duration}&7.____Opponents within range will be affected by Amnesia; This effect will persist for additional &b1s &7after player leaves the aura.____Dr. Ed is immune to his own amnesia.",
+                Type.COMBAT
+        );
 
-	@Override
-	public Response execute(Player player) {
-		final Location location = player.getLocation();
-		final ArmorStand entity = Entities.ARMOR_STAND.spawn(location.add(0.0d, 1.0d, 0.0d), me -> {
-			me.setSilent(true);
-			me.setMarker(true);
-			me.setVisible(false);
-			if (me.getEquipment() != null) {
-				me.getEquipment().setHelmet(new ItemStack(Material.POTION));
-			}
-		});
+        setDuration(200);
+        setItem(Material.POTION);
+        setCdSec(30);
+    }
 
-		PlayerLib.playSound(location, Sound.ENTITY_CHICKEN_EGG, 0.0f);
+    @Override
+    public Response execute(Player player) {
+        final Location location = player.getLocation();
+        final ArmorStand entity = Entities.ARMOR_STAND.spawn(location.add(0.0d, 1.0d, 0.0d), me -> {
+            me.setSilent(true);
+            me.setMarker(true);
+            me.setVisible(false);
+            if (me.getEquipment() != null) {
+                me.getEquipment().setHelmet(new ItemStack(Material.POTION));
+            }
+        });
 
-		// Fx
-		new GameTask() {
-			private int tick = 0;
+        PlayerLib.playSound(location, Sound.ENTITY_CHICKEN_EGG, 0.0f);
 
-			@Override
-			public void run() {
-				final Location location = entity.getLocation();
-				if (tick++ >= timeBeforeExplode) {
+        // Fx
+        new GameTask() {
+            private int tick = 0;
 
-					PlayerLib.playSound(location, Sound.ENTITY_FIREWORK_ROCKET_TWINKLE, 1.75f);
-					PlayerLib.spawnParticle(location, Particle.CLOUD, 5, 0.1, 0.05, 0.1, 0.02f);
+            @Override
+            public void run() {
+                final Location location = entity.getLocation();
+                if (tick++ >= explosionDelay) {
 
-					entity.remove();
-					this.cancel();
-					return;
-				}
+                    PlayerLib.playSound(location, Sound.ENTITY_FIREWORK_ROCKET_TWINKLE, 1.75f);
+                    PlayerLib.spawnParticle(location, Particle.CLOUD, 5, 0.1, 0.05, 0.1, 0.02f);
 
-				entity.teleport(location.clone().add(0.0d, (0.18d / (tick / Math.PI)), 0.0d));
-				entity.setHeadPose(entity.getHeadPose().add(0.15d, 0.0d, 0.0d));
+                    entity.remove();
+                    cancel();
+                    return;
+                }
 
-			}
-		}.runTaskTimer(0, 1);
+                entity.teleport(location.clone().add(0.0d, (0.18d / (tick / Math.PI)), 0.0d));
+                entity.setHeadPose(entity.getHeadPose().add(0.15d, 0.0d, 0.0d));
 
-		new GameTask() {
-			private int tick = 0;
+            }
+        }.runTaskTimer(0, 1);
 
-			@Override
-			public void run() {
-				if (tick++ > auraDuration) {
-					this.cancel();
-					return;
-				}
+        GameTask.runDuration(this, i -> {
+            Geometry.drawCircle(location, 3.5d, Quality.HIGH, new WorldParticle(Particle.END_ROD, 0.0d, 0.0d, 0.0d, 0.01f));
+            Utils.getPlayersInRange(location, 3.5d).forEach(target -> {
+                if (player == target) {
+                    return;
+                }
 
-                Geometry.drawCircle(location, 3.5d, Quality.HIGH, new WorldParticle(Particle.END_ROD, 0.0d, 0.0d, 0.0d, 0.01f));
-                Utils.getPlayersInRange(location, 3.5d).forEach(target -> {
-                    if (player == target) {
-                        return;
-                    }
-                    GamePlayer.getPlayer(target).addEffect(GameEffectType.AMNESIA, 20, true);
-                });
+                GamePlayer.getPlayer(target).addEffect(GameEffectType.AMNESIA, 20, true);
+            });
+        }, explosionDelay, 1);
 
-			}
-		}.runTaskTimer(timeBeforeExplode, 1);
-
-		return Response.OK;
-	}
+        return Response.OK;
+    }
 }

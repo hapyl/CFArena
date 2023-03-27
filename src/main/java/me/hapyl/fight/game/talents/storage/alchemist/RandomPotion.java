@@ -9,6 +9,7 @@ import me.hapyl.fight.game.heroes.storage.extra.CauldronEffect;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.storage.extra.Effect;
 import me.hapyl.fight.util.RandomTable;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
@@ -20,11 +21,16 @@ import static org.bukkit.potion.PotionEffectType.*;
 public class RandomPotion extends Talent {
 
     private final RandomTable<Effect> effects = new RandomTable<>();
+    @DisplayField private final short toxinAccumulation = 10;
 
     public RandomPotion() {
-        super("Abyssal Bottle", "A bottle that is capable of creating potions from the &0&lvoid &7itself.", Type.COMBAT);
-        this.setItem(Material.POTION);
-        this.setCd(50);
+        super(
+                "Abyssal Bottle",
+                "A bottle that is capable of creating potions from the &0&lvoid &7itself.__Drink to gain random positive effect.",
+                Type.COMBAT
+        );
+        setItem(Material.POTION);
+        setCd(50);
 
         effects.add(new Effect("&b\uD83C\uDF0A", "Speed Boost", SPEED, 60, 1))
                 .add(new Effect("☕", "Jump Boost", JUMP, 100, 1))
@@ -50,12 +56,12 @@ public class RandomPotion extends Talent {
         final Alchemist hero = (Alchemist) Heroes.ALCHEMIST.getHero();
         final CauldronEffect effect = hero.getEffect(player);
 
-        hero.addToxinForUsingPotion(player);
+        hero.addToxin(player, toxinAccumulation);
 
         if (effect != null && effect.getDoublePotion() > 0) {
             effect.decrementDoublePotions();
-            final Effect firstEffect = this.effects.getRandomElement();
-            final Effect secondEffect = this.effects.getRandomElement();
+            final Effect firstEffect = effects.getRandomElement();
+            final Effect secondEffect = effects.getRandomElement();
             firstEffect.applyEffectsIgnoreFx(player);
             secondEffect.applyEffectsIgnoreFx(player);
             // Display Improved
@@ -82,8 +88,7 @@ public class RandomPotion extends Talent {
             return Response.OK;
         }
 
-
-        this.effects.getRandomElement().applyEffects(player);
+        effects.getRandomElement().applyEffects(player);
         return Response.OK;
     }
 }

@@ -28,9 +28,9 @@ public class Blink extends ChargedTalent implements ChatGPT {
                 2
         );
 
-        this.setItem(Material.ENDER_PEARL);
-        this.setRechargeTimeSec(5);
-        this.setNoChargedMaterial(Material.ENDER_EYE);
+        setItem(Material.ENDER_PEARL);
+        setRechargeTimeSec(5);
+        setNoChargedMaterial(Material.ENDER_EYE);
     }
 
     @Override

@@ -26,7 +26,7 @@ public class SlowingAura extends DarkMageTalent {
 
     public SlowingAura() {
         super("Slowing Aura", "Creates a slowness pool at your target block that slows anyone in range.", Material.BONE_MEAL);
-        this.setCd(200);
+        setCd(200);
     }
 
     @Nonnull

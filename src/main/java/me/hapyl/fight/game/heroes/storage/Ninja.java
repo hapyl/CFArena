@@ -2,6 +2,7 @@ package me.hapyl.fight.game.heroes.storage;
 
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.game.AbstractGamePlayer;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.effect.GameEffectType;
@@ -20,10 +21,7 @@ import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -52,32 +50,45 @@ public class Ninja extends Hero implements Listener, UIComponent {
     public Ninja() {
         super(
                 "Ninja",
-                "Extremely well trained fighter with a gift from the wind, that allows him to Dash, Double Jump and take no fall damage.",
-                Material.IRON_BOOTS
+                "Extremely well trained fighter with a gift from the wind, that allows him to Dash, Double Jump and take no fall damage."
         );
-        this.setRole(Role.ASSASSIN);
+
+        setRole(Role.ASSASSIN);
+        setItem("1413159cfab50aba283e68c1659d74412392fbcb1f7d663d1bd2a2a6430c2743");
 
         final ClassEquipment equipment = this.getEquipment();
+        equipment.setChestplate(Color.WHITE);
         equipment.setLeggings(Material.CHAINMAIL_LEGGINGS);
         equipment.setBoots(Material.CHAINMAIL_BOOTS);
 
-        this.setWeapon(new Weapon(Material.STONE_SWORD).setName("斬馬刀").setDescription(String.format(
+        setWeapon(new Weapon(Material.STONE_SWORD).setName("斬馬刀").setDescription(String.format(
                 "Light but sharp sword that stuns opponents upon charge hit. After using the charge hit, your weapon damage is reduced by &b50%%&7.____&aCooldown: &l%ss",
                 BukkitUtils.decimalFormat(ultimateDamage)
         )).setDamage(damage));
 
-        this.setUltimate(new UltimateTalent(
+        setUltimate(new UltimateTalent(
                 "Throwing Stars",
                 "Equip 5 dead-accurate throwing stars that deals &c%s &7damage upon hitting an enemy.".formatted(ultimateDamage),
                 70
         ).setItem(Material.NETHER_STAR).setSound(Sound.ITEM_TRIDENT_RIPTIDE_1, 0.75f));
+    }
 
+    @Override
+    public boolean processInvisibilityDamage(Player player, LivingEntity entity, double damage) {
+        final AbstractGamePlayer gamePlayer = GamePlayer.getPlayer(player);
+        gamePlayer.removeEffect(GameEffectType.INVISIBILITY);
+        gamePlayer.sendMessage("&cYou dealt damage and lost your invisibility!");
+
+        PlayerLib.spawnParticle(player.getEyeLocation(), Particle.EXPLOSION_NORMAL, 20, 0.25, 0.5, 0.25, 0.02f);
+
+        return false;
     }
 
     @Override
     public void useUltimate(Player player) {
-        setUsingUltimate(player, true);
         final PlayerInventory inventory = player.getInventory();
+
+        setUsingUltimate(player, true);
         inventory.setItem(4, throwingStar);
         inventory.setHeldItemSlot(4);
         player.setCooldown(throwingStar.getType(), 20);
@@ -138,7 +149,7 @@ public class Ninja extends Hero implements Listener, UIComponent {
     @Override
     public @Nonnull String getString(Player player) {
         return player.hasCooldown(this.getItem().getType()) ? "&f🌊 &l%ss".formatted(BukkitUtils.roundTick(player.getCooldown(this.getItem()
-                                                                                                                                      .getType()))) : "";
+                .getType()))) : "";
     }
 
     @Override
@@ -177,7 +188,7 @@ public class Ninja extends Hero implements Listener, UIComponent {
     @Override
     public DamageOutput processDamageAsVictim(DamageInput input) {
         if (input.getDamageCause() == EnumDamageCause.FALL) {
-            return new DamageOutput(true);
+            return DamageOutput.CANCEL;
         }
         return null;
     }

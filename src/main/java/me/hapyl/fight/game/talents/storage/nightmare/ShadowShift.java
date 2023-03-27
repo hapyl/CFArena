@@ -4,6 +4,7 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -18,16 +19,18 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public class ShadowShift extends Talent implements Listener {
+
+    @DisplayField private final int immobilizationDuration = 20;
+
     public ShadowShift() {
-        // Instantly teleports behind target player, but loses ability to move for the teleport time.
-        // Instantly teleport behind player you're looking at to strike from behind. You will lose ability to move for a short duration.
         super(
                 "Shadow Shift",
                 "Instantly teleport behind player you're looking at to strike from behind. You will lose ability to move for a short duration.",
                 Type.COMBAT
         );
-        this.setItem(Material.LEAD);
-        this.setCd(200);
+
+        setItem(Material.LEAD);
+        setCd(200);
     }
 
     @Override
@@ -39,9 +42,9 @@ public class ShadowShift extends Talent implements Listener {
             return Response.error(targetLocation.getError().getErrorMessage());
         }
 
-        player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20, 20));
-        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 20, 20));
-        player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 20, 250));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, immobilizationDuration, 20));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, immobilizationDuration, 20));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, immobilizationDuration, 250));
 
         final Location location = targetLocation.getLocation();
         player.teleport(location);
@@ -68,39 +71,6 @@ public class ShadowShift extends Talent implements Listener {
         else {
             return new TargetLocation(behind, ErrorCode.OK);
         }
-
-        //		for (double i = 0; i < 50; i += 0.75) {
-        //
-        //			double x = vector.getX() * i;
-        //			double y = vector.getY() * i;
-        //			double z = vector.getZ() * i;
-        //			location.add(x, y, z);
-        //
-        //			for (final LivingEntity target : Utils.getEntitiesInRange(location, radius)) {
-        //				if (target == player) {
-        //					continue;
-        //				}
-        //
-        //				if (player.hasLineOfSight(target)) {
-        //					final Location behind = target.getLocation().add(target.getLocation().getDirection().multiply(-1).setY(0.0d));
-        //					behind.setYaw(behind.getYaw());
-        //					behind.setPitch(behind.getPitch());
-        //
-        //					if (behind.getBlock().getType().isOccluding()) {
-        //						return new TargetLocation(null, ErrorCode.OCCLUDING);
-        //					}
-        //					else {
-        //						return new TargetLocation(behind, ErrorCode.OK);
-        //					}
-        //				}
-        //				else {
-        //					return new TargetLocation(null, ErrorCode.NO_LOS);
-        //				}
-        //			}
-        //			location.subtract(x, y, z);
-        //		}
-
-
     }
 
     @EventHandler()

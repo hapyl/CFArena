@@ -30,11 +30,12 @@ public class CauldronAbility extends Talent implements Listener {
     public CauldronAbility() {
         super(
                 "Brewing Pot",
-                "Place a Brewing Cauldron to brew a Magic Potion. Put your Brewing Stick in it and wait! Once ready, claim you potion and enhance yourself with following effects:____&a- &7Drinking a potion will grant double effects. &8(5 charges)____&a- &7Hitting an enemy will apply random effect. &8(10 charges)",
+                "Place a Brewing Cauldron to brew a Magic Potion.__Put your Brewing Stick in it and wait! Once ready, claim you potion and enhance yourself with following effects:____&a- &7Drinking a potion will grant double effects. &8(5 charges)____&a- &7Hitting an enemy will apply random effect. &8(10 charges)",
                 Type.COMBAT
         );
-        this.setItem(Material.CAULDRON);
-        this.setCdSec(120);
+
+        setItem(Material.CAULDRON);
+        setCdSec(120);
     }
 
     @EventHandler()

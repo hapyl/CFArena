@@ -10,7 +10,7 @@ import me.hapyl.fight.game.talents.storage.extra.ElementType;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Utils;
-import me.hapyl.fight.util.formatter.Formatter;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.locaiton.LocationHelper;
@@ -38,19 +38,15 @@ import java.util.stream.Collectors;
 public class HarvestBlocks extends Talent {
 
     private final int TASK_PERIOD = 2;
-    private final int MAX_BLOCKS = 10;
-    private final int WINDUP_TIME = 20;
+    @DisplayField private final int maximumBlocks = 10;
+    @DisplayField private final int collectDelay = 20;
 
     public HarvestBlocks() {
         super("Block Harvest");
+
         setDescription(
-                Formatter.of(
-                        "Quickly gather resources from up to {} nearby blocks, then combine them in one big pile before throwing it at your enemies.____{}'s damage is based on the amount of blocks gathered.",
-                        MAX_BLOCKS,
-                        this
-                ),
-                //"Quickly gather resources from up to %s nearby blocks, then combine them in one big pile before throwing it at your enemies. The damage is based on the amount of blocks gathered.",
-                MAX_BLOCKS
+                "Quickly gather resources from up to %s nearby blocks, then combine them in one big pile before throwing it at your enemies.____{name}'s damage is based on the amount of blocks gathered.",
+                maximumBlocks
         );
 
         setCdSec(30);
@@ -61,8 +57,6 @@ public class HarvestBlocks extends Talent {
 
     @Override
     public Response execute(Player player) {
-        // Check if player has element or entity later.
-
         final Location start = player.getLocation().add(3, 3, 3);
         final Location end = player.getLocation().subtract(3, 3, 3);
 
@@ -74,7 +68,7 @@ public class HarvestBlocks extends Talent {
 
         Collections.shuffle(blocks);
 
-        blocks.stream().limit(MAX_BLOCKS).forEach(b -> {
+        blocks.stream().limit(maximumBlocks).forEach(b -> {
             final ElementType element = ElementType.getElement(b.getType());
             if (element != ElementType.NULL) {
                 blockMap.put(b, element);
@@ -99,14 +93,14 @@ public class HarvestBlocks extends Talent {
 
         for (Entity entity : entities) {
             final double totalDistance = entity.getLocation().distance(player.getLocation());
-            final double distancePerTick = totalDistance / (WINDUP_TIME - 10);
+            final double distancePerTick = totalDistance / (collectDelay - 10);
 
             new GameTask() {
                 private int tick = 0;
 
                 @Override
                 public void run() {
-                    if (tick >= WINDUP_TIME) {
+                    if (tick >= collectDelay) {
                         entities.forEach(Entity::remove);
                         this.cancel();
                         return;
@@ -144,7 +138,7 @@ public class HarvestBlocks extends Talent {
 
         // Fx task
         new GameTask() {
-            private int tick = WINDUP_TIME;
+            private int tick = collectDelay;
 
             @Override
             public void run() {
@@ -153,14 +147,14 @@ public class HarvestBlocks extends Talent {
                     return;
                 }
 
-                PlayerLib.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f + (tick * (1.8f / WINDUP_TIME)));
+                PlayerLib.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f + (tick * (1.8f / collectDelay)));
                 tick -= TASK_PERIOD;
             }
         }.runTaskTimer(0, 2);
 
-        GameTask.runLater(() -> launchProjectile(player, damage.get() / 1.5d), WINDUP_TIME);
+        GameTask.runLater(() -> launchProjectile(player, damage.get() / 1.5d), collectDelay);
 
-        PlayerLib.addEffect(player, PotionEffectType.SLOW, WINDUP_TIME, 10);
+        PlayerLib.addEffect(player, PotionEffectType.SLOW, collectDelay, 10);
 
         return Response.OK;
     }

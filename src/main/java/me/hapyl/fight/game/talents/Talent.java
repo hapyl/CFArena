@@ -1,14 +1,16 @@
 package me.hapyl.fight.game.talents;
 
-import me.hapyl.fight.game.GameElement;
-import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.StatContainer;
+import com.google.common.collect.Lists;
+import me.hapyl.fight.game.*;
 import me.hapyl.fight.util.Function;
+import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
+import me.hapyl.fight.util.displayfield.DisplayFieldSerializer;
 import me.hapyl.spigotutils.module.annotate.Super;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -16,24 +18,23 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Talent implements GameElement {
+public abstract class Talent extends NonnullItemStackCreatable implements GameElement, DisplayFieldProvider {
 
     public static final Talent NULL = null;
 
-    private ItemStack item;
+    private ItemStack itemStats;
     private Material material;
     private String texture;
     private String texture64;
 
     private final String name;
     private final Type type;
-    private final List<String> extraInfo; // adds extra information after cooldowns
+    private final List<String> description;
+    private final List<String> attributeDescription;
 
     private String castMessage;
-    private String description;
     private String altUsage;
     private Function<ItemBuilder> itemFunction;
     private int point;
@@ -42,25 +43,44 @@ public abstract class Talent implements GameElement {
 
     private boolean autoAdd;
 
-    public Talent(String name) {
+    public Talent(@Nonnull String name) {
         this(name, "", Type.COMBAT);
-        setDescription("translate.talent.%s".formatted(getClass().getSimpleName()));
     }
 
-    public Talent(String name, String description) {
+    public Talent(@Nonnull String name, @Nonnull String description) {
         this(name, description, Type.COMBAT);
     }
 
-    public Talent(String name, String description, Type type) {
+    public Talent(@Nonnull String name, @Nonnull String description, @Nonnull Material material) {
+        this(name, description);
+        setItem(material);
+    }
+
+    public Talent(@Nonnull String name, @Nonnull String description, @Nonnull Type type) {
         this.name = name;
-        this.description = description;
+        this.description = Lists.newArrayList();
+        this.attributeDescription = Lists.newArrayList();
+
+        if (!description.isEmpty()) {
+            addDescription(description);
+        }
+
         this.type = type;
         this.material = Material.BEDROCK;
         this.altUsage = "This talent is not given when the game starts, but there is a way to use it.";
         this.autoAdd = true;
         this.point = 1;
         this.duration = 0;
-        this.extraInfo = new ArrayList<>();
+    }
+
+    // defaults to 1 point per 10 seconds of cooldown
+    public void defaultPointGeneration() {
+        if (cd <= 0) {
+            point = 1;
+            return;
+        }
+
+        point = Numbers.clamp(cd / 200, 1, 100);
     }
 
     public void setAltUsage(String altUsage) {
@@ -88,17 +108,14 @@ public abstract class Talent implements GameElement {
         this.point = point;
     }
 
-    public Talent(String name, String description, Material material) {
-        this(name, description);
-        this.setItem(material);
-    }
-
+    @Deprecated(forRemoval = true)
     public void addExtraInfo(String info) {
         addExtraInfo(info, new Object[] {});
     }
 
+    @Deprecated(forRemoval = true)
     public void addExtraInfo(String info, Object... objects) {
-        extraInfo.add(ChatColor.GREEN + String.format(info, objects));
+        description.add(ChatColor.GREEN + String.format(info, objects));
     }
 
     public void setCastMessage(String castMessage) {
@@ -109,12 +126,26 @@ public abstract class Talent implements GameElement {
         return castMessage;
     }
 
-    public void setDescription(String info) {
-        this.description = info;
+    public void addDescription() {
+        addDescription("");
     }
 
-    public void setDescription(String info, Object... replacements) {
-        this.description = info.formatted(replacements);
+    public void addAttributeDescription(String key, Object value) {
+        this.attributeDescription.add(DisplayFieldSerializer.DEFAULT_FORMATTER.format(key, String.valueOf(value)));
+    }
+
+    public void addDescription(String description) {
+        this.description.add(description);
+    }
+
+    public void addDescription(String description, Object... format) {
+        this.description.add(description.formatted(format));
+    }
+
+    // This removes existing description!
+    public void setDescription(String description, Object... format) {
+        this.description.clear();
+        this.description.add(description.formatted(format));
     }
 
     public void setAutoAdd(boolean autoAdd) {
@@ -129,11 +160,12 @@ public abstract class Talent implements GameElement {
         return material;
     }
 
-    public ItemStack getItem() {
-        if (this.item == null) {
-            this.createItem();
+    public ItemStack getItemAttributes() {
+        if (itemStats == null) {
+            createItem();
         }
-        return this.item;
+
+        return itemStats;
     }
 
     /**
@@ -158,104 +190,132 @@ public abstract class Talent implements GameElement {
     public void onDeath(Player player) {
     }
 
-    public void displayDuration(Player player) {
+    public void displayDuration(Player player, int duration, byte b) {
         // TODO: 010, Mar 10, 2023 -> this
     }
 
-    private void formatDescription() {
-        replace("{name}", "&a%s", this.getName());
-        if (this instanceof UltimateTalent ultimate) {
-            replace("{duration}", "&b%ss", BukkitUtils.roundTick(ultimate.getDuration()));
-        }
-    }
+    public void createItem() {
+        final ItemBuilder builderItem = ItemBuilder.of(material)
+                .setName(name)
+                .addLore("&8%s %s", Chat.capitalize(type), type == Type.ULTIMATE ? "" : "Talent")
+                .addLore();
 
-    private void replace(String old, String newStr, Object... formatNew) {
-        description = description.replace(old, newStr.formatted(formatNew) + "&7");
-    }
-
-    private void createItem() {
-        formatDescription();
-
-        final ItemBuilder builder = new ItemBuilder(this.material)
-                .setName("&a" + this.name)
-                .addLore("&8%s %s", Chat.capitalize(this.type), this.type == Type.ULTIMATE ? "" : "Talent")
-                .addLore()
-                .addSmartLore(this.description, 35);
-
-        if (texture != null && this.material == Material.PLAYER_HEAD) {
-            builder.setHeadTexture(texture);
+        // Add head texture if item is a player head
+        if (material == Material.PLAYER_HEAD) {
+            if (texture != null) {
+                builderItem.setHeadTexture(texture);
+            }
+            else if (texture64 != null) {
+                builderItem.setHeadTextureUrl(texture64);
+            }
         }
 
-        if (texture64 != null && this.material == Material.PLAYER_HEAD) {
-            builder.setHeadTextureUrl(texture64);
+        // Execute functions is present
+        Nulls.runIfNotNull(itemFunction, function -> function.execute(builderItem));
+
+        // Description and Attributes
+        for (String string : description) {
+            if (string.isEmpty() || string.isBlank()) {
+                builderItem.addLore();
+                continue;
+            }
+
+            final List<String> strings = ItemBuilder.splitString(null, string, 35);
+
+            for (int i = 0; i < strings.size(); i++) {
+                final String lore = strings.get(i);
+                final String lastColor = i > 0 ? getLastColor(strings.get(i - 1)) : "";
+                final String formatted = formatDescription(lore);
+
+                builderItem.addLore(lastColor + formatted);
+            }
         }
 
-        if (itemFunction != null) {
-            itemFunction.execute(builder);
+        // Is ability has alternative usage, tell how to use it
+        if (!autoAdd) {
+            builderItem.addLore("");
+            builderItem.addSmartLore(altUsage, "&8&o", 35);
         }
 
-        if (!this.isAutoAdd()) {
-            builder.addLore("");
-            builder.addSmartLore(altUsage, "&8&o", 35);
+        if (this instanceof UltimateTalent) {
+            builderItem.glow();
         }
 
-        if (addExtraSpace()) {
-            builder.addLore();
-        }
+        // Attributes
+        super.setItem(builderItem.asIcon());
 
-        if (this.duration > 0) {
-            builder.addLore("&aDuration: &l%ss", BukkitUtils.roundTick(this.duration));
-        }
+        final ItemBuilder builderAttributes = new ItemBuilder(getItemUnsafe());
 
-        if (this.cd > 0) {
-            builder.addLore("&aCooldown%s: &l%ss".formatted(
+        builderAttributes.removeLore();
+        builderAttributes.setName(name).addLore("&8Attributes").addLore();
+
+        // Cooldown first
+        if (cd > 0) {
+            builderAttributes.addLore("Cooldown%s: &f&l%ss".formatted(
                     this instanceof ChargedTalent ? " between charges" : "",
                     BukkitUtils.roundTick(this.cd)
             ));
         }
-        else if (this.cd <= -1) {
-            builder.addLore("&aCooldown: &lDynamic");
+
+        else if (cd <= -1) {
+            builderAttributes.addLore("Cooldown: &f&lDynamic");
         }
 
+        // Duration
+        if (duration > 0) {
+            builderAttributes.addLore("Duration: &f&l%ss", BukkitUtils.roundTick(duration));
+        }
+
+        // Points generation
         if (point > 0 && !(this instanceof PassiveTalent || this instanceof UltimateTalent)) {
-            builder.addLore("&aPoints: &l" + point);
+            builderAttributes.addLore("Point%s Generation: &f&l%s", point == 1 ? "" : "s", point);
         }
 
-        if (!extraInfo.isEmpty()) {
-            for (final String s : extraInfo) {
-                builder.addLore(s);
+        // Display Fields
+        DisplayFieldSerializer.serialize(builderAttributes, this);
+
+        // Extra fields
+        if (!attributeDescription.isEmpty()) {
+            for (String string : attributeDescription) {
+                builderAttributes.addLore(string);
             }
         }
 
+        // Recharge time
         if (this instanceof ChargedTalent charge) {
             final int maxCharges = charge.getMaxCharges();
             final int rechargeTime = charge.getRechargeTime();
 
-            builder.addLore("&aMax Charges: &l%s", maxCharges);
+            builderAttributes.addLore("Max Charges: &f&l%s", maxCharges);
             if (rechargeTime >= 0) {
-                builder.addLore("&aRecharge Time: &l%ss", BukkitUtils.roundTick(rechargeTime));
+                builderAttributes.addLore("Recharge Time: &f&l%ss", BukkitUtils.roundTick(rechargeTime));
             }
         }
 
         else if (this instanceof UltimateTalent ult) {
-            //if (this.cd == 0) {
-            //	builder.addLore();
-            //}
-
-            builder.addLore("&aUltimate Cost: &l%s ※", ult.getCost());
-            if (ult.getDuration() >= 0) {
-                builder.addLore("&aUltimate Duration: &l%ss", BukkitUtils.roundTick(ult.getDuration()));
-            }
-            builder.glow();
+            builderAttributes.addLore("Ultimate Cost: &f&l%s ※", ult.getCost());
+            builderAttributes.glow();
             // ※
         }
 
-        builder.hideFlags();
-        this.item = builder.toItemStack();
+        itemStats = builderAttributes.asIcon();
     }
 
-    private boolean addExtraSpace() {
-        return (this.cd != 0) || this instanceof ChargedTalent || this instanceof UltimateTalent || !extraInfo.isEmpty() || (point > 0);
+    private String getLastColor(String input) {
+        final int lastCharIndex = input.lastIndexOf(ChatColor.COLOR_CHAR);
+
+        if (lastCharIndex == -1 || (lastCharIndex + 1 > input.length())) {
+            return "";
+        }
+
+        final char colorChar = input.charAt(lastCharIndex + 1);
+        return "&" + colorChar;
+    }
+
+    private String formatDescription(String description) {
+        return description
+                .replace("{name}", "&a" + getName() + "&7")
+                .replace("{duration}", "&b" + BukkitUtils.roundTick(duration) + "s&7");
     }
 
     public Talent setItem(String headTexture) {
@@ -276,8 +336,9 @@ public abstract class Talent implements GameElement {
     }
 
     public Talent setItem(Material material, Function<ItemBuilder> function) {
-        this.setItem(material);
-        this.itemFunction = function;
+        setItem(material);
+        itemFunction = function;
+
         return this;
     }
 
@@ -295,26 +356,28 @@ public abstract class Talent implements GameElement {
             Chat.sendMessage(player, castMessage);
         }
 
+        final Response response = execute(player);
+
         // Progress ability usage
         final StatContainer stats = GamePlayer.getPlayer(player).getStats();
-        if (stats != null) {
+
+        if ((response != null && !response.isError()) && stats != null) {
             stats.addAbilityUsage(Talents.fromTalent(this));
         }
 
-        final Response response = execute(player);
         return response == null ? Response.ERROR_DEFAULT : response;
     }
 
     public final void startCd(Player player, int customCd) {
-        player.setCooldown(this.getItem().getType(), customCd);
+        player.setCooldown(material, customCd);
     }
 
     public final void startCd(Player player) {
-        if (this.cd <= 0) {
+        if (cd <= 0) {
             return;
         }
 
-        player.setCooldown(this.getItem().getType(), this.cd);
+        player.setCooldown(material, cd);
     }
 
     public final void stopCd(Player player) {
@@ -354,7 +417,11 @@ public abstract class Talent implements GameElement {
     }
 
     public String getDescription() {
-        return description;
+        if (description.isEmpty()) {
+            return "";
+        }
+
+        return description.get(0);
     }
 
     public enum Type {

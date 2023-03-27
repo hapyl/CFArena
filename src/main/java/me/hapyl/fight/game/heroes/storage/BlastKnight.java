@@ -30,6 +30,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -51,19 +52,20 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Lis
 
     public BlastKnight() {
         super("Blast Knight");
-        setRole(Role.MELEE);
-        this.setInfo("Royal Knight with high-end technology gadgets.");
-        this.setItem(Material.SHIELD);
 
-        final ClassEquipment equipment = this.getEquipment();
-        equipment.setHelmet(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTJkZmRlNmMyYzhmMGE3YWRmN2FlNGU5NDlhODA0ZmVkZjk1YzZiOTU2Mjc2N2VhZTZjMjJhNDAxY2QwMmNiZCJ9fX0=");
+        setRole(Role.MELEE);
+        setInfo("Royal Knight with high-end technology gadgets.");
+        setItemTexture(
+                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTJkZmRlNmMyYzhmMGE3YWRmN2FlNGU5NDlhODA0ZmVkZjk1YzZiOTU2Mjc2N2VhZTZjMjJhNDAxY2QwMmNiZCJ9fX0="
+        );
+
+        final ClassEquipment equipment = getEquipment();
         equipment.setChestplate(Color.BLUE);
         equipment.setLeggings(Material.CHAINMAIL_LEGGINGS);
         equipment.setBoots(Material.IRON_BOOTS);
 
-        this.setWeapon(Material.IRON_SWORD, "Sword", "", 10.0d);
-        this.setUltimate(new UltimateTalent(
+        setWeapon(Material.IRON_SWORD, "Sword", "", 10.0d);
+        setUltimate(new UltimateTalent(
                 "Royal Horse",
                 "Call upon the Royal Horse for {duration}. The horse is fast, strong and comfortable. So comfortable in fact that it doubles you damage while riding.",
                 60
@@ -98,7 +100,7 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Lis
 
         // Controller
         new GameTask() {
-            private int timeLeft = 60;
+            private int timeLeft = getUltimateDuration() / 20;
 
             @Override
             public void run() {
@@ -108,7 +110,7 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Lis
 
                         // Fx
                         final Location location = horse.getEyeLocation();
-                        Chat.sendMessage(player, "&aYou horse is gone!");
+                        Chat.sendMessage(player, "&aRoyal Horse is gone!");
 
                         PlayerLib.spawnParticle(location, Particle.SPELL_MOB, 20, 0.5d, 0.5d, 0.5d, 0.1f);
                         PlayerLib.spawnParticle(location, Particle.EXPLOSION_NORMAL, 10, 0.5d, 0.5d, 0.5d, 0.2f);
@@ -133,8 +135,17 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Lis
     }
 
     @EventHandler()
+    public void handleEntityDeath(EntityDeathEvent ev) {
+        final Entity entity = ev.getEntity();
+        if (entity instanceof Horse horse && horseMap.containsValue(horse)) {
+            ev.getDrops().clear();
+            horseMap.values().remove(horse);
+        }
+    }
+
+    @EventHandler()
     public void handleHorseInteract(EntityMountEvent ev) {
-        if (ev.getMount() instanceof Horse horse && ev.getEntity() instanceof Player player) {
+        if (ev.getMount() instanceof Horse horse && ev.getEntity() instanceof Player player && horseMap.containsValue(horse)) {
             if (horseMap.get(player) == horse) {
                 return;
             }
@@ -149,13 +160,18 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Lis
     public DamageOutput processDamageAsDamager(DamageInput input) {
         final Player player = input.getPlayer();
         final Horse playerHorse = getPlayerHorse(player);
-        if (!isUsingUltimate(player) || playerHorse == null || input.getEntity() == null || input.getEntity() == player) {
+        final LivingEntity victim = input.getEntity();
+        if (!isUsingUltimate(player) || playerHorse == null || victim == null || victim == player) {
             return null;
         }
 
+        if (victim == playerHorse) {
+            return DamageOutput.CANCEL;
+        }
+
         if (playerHorse.getPassengers().contains(player)) {
-            final LivingEntity entity = input.getEntity();
-            entity.setVelocity(entity.getLocation().getDirection().normalize().multiply(-1.0d));
+            victim.setVelocity(victim.getLocation().getDirection().normalize().multiply(-1.0d));
+
             return new DamageOutput(input.getDamage() * 1.5d);
         }
 
@@ -181,7 +197,7 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Lis
                 explodeShield(player);
             }
 
-            return new DamageOutput(true);
+            return DamageOutput.CANCEL;
         }
         return null;
     }

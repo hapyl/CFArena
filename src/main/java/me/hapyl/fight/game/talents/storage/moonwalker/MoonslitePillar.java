@@ -8,6 +8,7 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.Draw;
 import me.hapyl.spigotutils.module.math.geometry.Quality;
@@ -26,20 +27,30 @@ public class MoonslitePillar extends Talent {
 
     private final Map<Player, Location> pillars = Maps.newHashMap();
 
+    @DisplayField private final int pulseInterval = 15;
+    @DisplayField(suffix = "&f❤") private final double healingPerPulse = 2.0d;
+    @DisplayField private final double pulseDamage = 5.0d;
+    @DisplayField(suffix = "blocks") private final double pulseRange = 2.5d;
+
     public MoonslitePillar() {
         super(
-                "Moonsplite Pillar",
-                "Raises a pillar at &etarget &7location for &b10s &7that pulses in set intervals, damaging enemies and healing yourself. You can only have 1 pillar at the time.",
+                "Moonslite Pillar",
+                "Raises a pillar at &etarget &7location for {duration} &7that pulses in set intervals, damaging enemies and healing yourself.",
                 Type.COMBAT
         );
-        this.setItem(Material.BONE);
-        this.setCdSec(30);
+
+        addDescription();
+        addDescription("&6You can only have 1 pillar at the time.");
+
+        setDurationSec(10);
+        setItem(Material.BONE);
+        setCdSec(30);
     }
 
     @Override
     public void onStop() {
-        this.pillars.values().forEach(this::destroyPillar);
-        this.pillars.clear();
+        pillars.values().forEach(this::destroyPillar);
+        pillars.clear();
     }
 
     @Override
@@ -68,23 +79,23 @@ public class MoonslitePillar extends Talent {
         raisePillar(location);
 
         final int period = 5;
+
         new GameTask() {
             private int tick = 0;
 
             @Override
             public void run() {
-                if ((tick += period) >= (10 * 20)) {
+                if ((tick += period) >= getDuration()) {
                     destroyPillar(location);
                     pillars.remove(player);
-                    this.cancel();
+                    cancel();
                     return;
                 }
 
                 // pulse
-                if (tick % 15 == 0) {
+                if (tick % pulseInterval == 0) {
                     pulsePillar(location, player);
                 }
-
             }
         }.addCancelEvent(() -> destroyPillar(location)).runTaskTimer(0, period);
 
@@ -118,16 +129,16 @@ public class MoonslitePillar extends Talent {
         PlayerLib.playSound(location, Sound.ENTITY_IRON_GOLEM_DAMAGE, 0.75f);
 
         if (location.getWorld() == null) {
-            throw new NullPointerException("world null?");
+            return;
         }
-        location.getWorld().spawnParticle(Particle.SPIT, location.clone().add(0, 2, 0), 15, 0, 1, 0, 0.05);
 
+        location.getWorld().spawnParticle(Particle.SPIT, location.clone().add(0, 2, 0), 15, 0, 1, 0, 0.05);
     }
 
     private void pulsePillar(Location location, Player owner) {
-        final double effectRange = 2.5d;
         final BlockData blockData = Material.END_STONE.createBlockData();
-        Geometry.drawCircle(location, effectRange, Quality.NORMAL, new Draw(Particle.BLOCK_DUST) {
+
+        Geometry.drawCircle(location, pulseRange, Quality.NORMAL, new Draw(Particle.BLOCK_DUST) {
             @Override
             public void draw(Location location) {
                 final World world = location.getWorld();
@@ -136,15 +147,17 @@ public class MoonslitePillar extends Talent {
                 }
             }
         });
+
         PlayerLib.playSound(location, Sound.BLOCK_STONE_BREAK, 0.0f);
-        Utils.getEntitiesInRange(location, effectRange).forEach(entity -> {
+
+        Utils.getEntitiesInRange(location, pulseRange).forEach(entity -> {
             if (entity == owner) {
-                GamePlayer.getPlayer(owner).heal(2.0d);
+                GamePlayer.getPlayer(owner).heal(healingPerPulse);
                 PlayerLib.addEffect(owner, PotionEffectType.JUMP, 20, 2);
                 PlayerLib.spawnParticle(owner.getEyeLocation().add(0.0d, 0.5d, 0.0d), Particle.HEART, 1, 0, 0, 0, 0);
             }
             else {
-                GamePlayer.damageEntity(entity, 5.0d, owner, EnumDamageCause.MOON_PILLAR);
+                GamePlayer.damageEntity(entity, pulseDamage, owner, EnumDamageCause.MOON_PILLAR);
                 entity.setVelocity(entity.getLocation().getDirection().multiply(-0.5).setY(0.25d));
             }
         });

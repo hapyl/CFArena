@@ -9,16 +9,4 @@ public class StatisticEntryLegacy extends StatisticEntry {
         super(database);
     }
 
-    private long getValue(Type type) {
-        return getConfigLegacy().getLong(type.name, 0L);
-    }
-
-    private void setValue(Type type, long value) {
-        getConfigLegacy().set(type.name, value);
-    }
-
-    private void addValue(Type type, long value) {
-        getConfigLegacy().set(type.name, getValue(type) + value);
-    }
-
 }

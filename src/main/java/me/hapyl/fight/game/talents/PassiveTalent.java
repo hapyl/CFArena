@@ -8,8 +8,8 @@ public class PassiveTalent extends Talent {
 
     public PassiveTalent(String name, String description, Material item) {
         super(name, description, Type.PASSIVE);
-        this.setItem(item);
-        this.setPoint(0);
+        setItem(item);
+        setPoint(0);
     }
 
     @Override

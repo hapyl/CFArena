@@ -3,6 +3,7 @@ package me.hapyl.fight.game.heroes.storage;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.heroes.ClassEquipment;
+import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
@@ -17,7 +18,8 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 
-public class KillingMachine extends Hero {
+public class KillingMachine extends Hero implements DisabledHero {
+
     private final int weaponCd = 35;
 
     public KillingMachine() {
@@ -55,10 +57,10 @@ public class KillingMachine extends Hero {
             }
 
         }.setSound(Sound.BLOCK_IRON_TRAPDOOR_OPEN, 1.4f)
-                               .setParticleTick(new PackedParticle(Particle.END_ROD))
-                               .setParticleHit(new PackedParticle(Particle.END_ROD, 1, 0, 0, 0, 0.1f))
-                               .setDamage(5.0d)
-                               .setName("Rifle"));
+                .setParticleTick(new PackedParticle(Particle.END_ROD))
+                .setParticleHit(new PackedParticle(Particle.END_ROD, 1, 0, 0, 0, 0.1f))
+                .setDamage(5.0d)
+                .setName("Rifle"));
 
         this.setUltimate(new UltimateTalent(
                 "Overload",
@@ -83,6 +85,8 @@ public class KillingMachine extends Hero {
             if (alivePlayer == player) {
                 return;
             }
+
+            // FIXME: 020, Mar 20, 2023 -> This blinks for some reason
 
             // Highlight other players unless self
             final Glowing glowingOther = new Glowing(alivePlayer, ChatColor.AQUA, getUltimateDuration());

@@ -39,7 +39,7 @@ public enum Heroes {
     DARK_MAGE(new DarkMage()),
     BLAST_KNIGHT(new BlastKnight()),
     NINJA(new Ninja()),
-    TAKER(null),
+    TAKER(new Taker()),
     JUJU(new JuJu()),
     SWOOPER(new Swooper()),
     TAMER(new Tamer()),
@@ -55,6 +55,7 @@ public enum Heroes {
     //HEALER(new Healer()),
     VAMPIRE(new Vampire()),
     SWORD_MASTER(new SwordMaster()),
+    ZEALOT(new Zealot()),
 
     ;
 
@@ -88,13 +89,14 @@ public enum Heroes {
 
     Heroes(Hero hero) {
         this.hero = hero;
+
         if (hero instanceof Listener listener) {
             Main.getPlugin().addEvent(listener);
         }
     }
 
     public boolean isValidHero() {
-        return !this.getHero().equals(INVALID_HERO);
+        return !hero.equals(INVALID_HERO) && !(hero instanceof DisabledHero);
     }
 
     public Hero getHero() {
@@ -134,6 +136,10 @@ public enum Heroes {
 
     public void setFavourite(Player player, boolean flag) {
         Shortcuts.getDatabase(player).getHeroEntry().setFavourite(this, flag);
+    }
+
+    public boolean isLocked(Player player) {
+        return false;
     }
 
     public String getName() {

@@ -15,11 +15,14 @@ public class StatContainer extends NonNullableElementHolder<Player> {
     private final Map<Talents, Long> abilityUsage;
     private final Map<Type, Double> valueMap;
 
+    private boolean winner;
+
     public StatContainer(Player player) {
         super(player);
 
         abilityUsage = Maps.newHashMap();
         valueMap = Maps.newHashMap();
+        winner = false;
     }
 
     public void addAbilityUsage(Talents talent) {
@@ -49,6 +52,14 @@ public class StatContainer extends NonNullableElementHolder<Player> {
 
     public Map<Talents, Long> getUsedAbilities() {
         return abilityUsage;
+    }
+
+    public void markAsWinner() {
+        this.winner = true;
+    }
+
+    public boolean isWinner() {
+        return winner;
     }
 
     public enum Type {

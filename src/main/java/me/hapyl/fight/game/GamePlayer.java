@@ -13,7 +13,6 @@ import me.hapyl.fight.game.heroes.ComplexHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
@@ -25,7 +24,10 @@ import me.hapyl.spigotutils.module.chat.Gradient;
 import me.hapyl.spigotutils.module.chat.gradient.Interpolators;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.spigotutils.module.reflect.Reflect;
+import me.hapyl.spigotutils.module.reflect.ReflectPacket;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
+import net.minecraft.network.protocol.game.PacketPlayOutAnimation;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -36,14 +38,13 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
-import org.bukkit.scoreboard.Team;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.awt.*;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -71,7 +72,6 @@ public class GamePlayer extends AbstractGamePlayer {
     private final StatContainer stats;
 
     private final Map<GameEffectType, ActiveGameEffect> gameEffects;
-    private final Map<GamePlayer, Team> healthTeamMap = new HashMap<>();
 
     // 		[Kinda Important Note]
     //  These two can never be both true.
@@ -91,6 +91,7 @@ public class GamePlayer extends AbstractGamePlayer {
     private double ultimateModifier;
 
     private long lastMoved;
+    private int killStreak;
 
     public GamePlayer(PlayerProfile profile, Heroes enumHero) {
         this.profile = profile;
@@ -138,6 +139,8 @@ public class GamePlayer extends AbstractGamePlayer {
             lastDamageCause = null;
         }
 
+        killStreak = 0;
+
         setHealth(getMaxHealth());
         player.setLastDamageCause(null);
         player.getInventory().clear();
@@ -166,6 +169,10 @@ public class GamePlayer extends AbstractGamePlayer {
             }
         }
 
+    }
+
+    public int getKillStreak() {
+        return killStreak;
     }
 
     @Nullable
@@ -324,7 +331,7 @@ public class GamePlayer extends AbstractGamePlayer {
 
     @Override
     public void damage(double d) {
-        damage(d, null, EnumDamageCause.WATER);
+        damage(d, null, EnumDamageCause.NONE);
     }
 
     public void damage(double d, EnumDamageCause cause) {
@@ -396,38 +403,21 @@ public class GamePlayer extends AbstractGamePlayer {
         profile.getScoreboardTeams().populate(toLobby);
     }
 
-    private void showHealth() {
-        final AbstractGameInstance game = Manager.current().getCurrentGame();
-
-        // Create player teams
-        game.getAlivePlayers().forEach(other -> {
-            //            final Team team = getPlayerTeam(other);
-            //            team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS);
-            //            healthTeamMap.put(other, team);
-        });
-
-        // Update team names
-        new GameTask() {
-            @Override
-            public void run() {
-                healthTeamMap.forEach((other, team) -> {
-                    team.setPrefix("&6%s &e".formatted(other.getHero().getName()));
-                    team.setSuffix(" &c&l%s &c❤".formatted(BukkitUtils.decimalFormat(other.getHealth())));
-
-                    final String playerName = other.getPlayer().getName();
-                    if (team.getEntries().contains(playerName)) {
-                        team.addEntry(playerName);
-                    }
-                });
-            }
-        }.runTaskTimer(0, 10);
-
-    }
-
     public void updateHealth() {
         // update player visual health
         player.setMaxHealth(40.d);
-        player.setHealth(Math.max(0.5d, 40.0d * this.health / maxHealth));
+        player.setHealth(Math.max(0.5d, 40.0d * health / maxHealth));
+    }
+
+    public void interrupt() {
+        final PlayerInventory inventory = player.getInventory();
+        inventory.setHeldItemSlot(inventory.firstEmpty());
+
+        ReflectPacket.wrapAndSend(new PacketPlayOutAnimation(Reflect.getMinecraftPlayer(player), 1), player);
+
+        GameTask.runLater(() -> {
+            inventory.setHeldItemSlot(0);
+        }, 1);
     }
 
     public void heal(double amount) {
@@ -454,7 +444,8 @@ public class GamePlayer extends AbstractGamePlayer {
         PlayerLib.playSound(player, Sound.ENTITY_BLAZE_DEATH, 2.0f);
         Chat.sendTitle(player, "&c&lYOU DIED", "", 5, 25, 10);
 
-        this.getHero().onDeath(player);
+        Manager.current().getCurrentGame().getCurrentMap().getMap().onDeath(player);
+        getHero().onDeath(player);
         executeTalentsOnDeath();
 
         // Award killer coins for kill
@@ -468,19 +459,23 @@ public class GamePlayer extends AbstractGamePlayer {
             }
 
             if (killer != null) {
-                final StatContainer killerStats = GamePlayer.getPlayer(killer).getStats();
+                final GamePlayer gameKiller = GamePlayer.getExistingPlayer(killer);
+                if (gameKiller != null && player != killer) { // should never be the case
+                    final StatContainer killerStats = gameKiller.getStats();
 
-                if (killerStats != null) {
                     killerStats.addValue(StatContainer.Type.KILLS, 1);
-                }
 
-                // Award elimination to killer
-                Award.PLAYER_ELIMINATION.award(killer);
+                    // Add kill streak for killer
+                    gameKiller.killStreak++;
 
-                // Display cosmetics
-                final Cosmetics killCosmetic = Cosmetics.getSelected(killer, Type.KILL);
-                if (killCosmetic != null) {
-                    killCosmetic.getCosmetic().onDisplay(new Display(killer, player.getLocation()));
+                    // Award elimination to killer
+                    Award.PLAYER_ELIMINATION.award(killer);
+
+                    // Display cosmetics
+                    final Cosmetics killCosmetic = Cosmetics.getSelected(killer, Type.KILL);
+                    if (killCosmetic != null) {
+                        killCosmetic.getCosmetic().onDisplay(new Display(killer, player.getLocation()));
+                    }
                 }
             }
         }
@@ -554,6 +549,7 @@ public class GamePlayer extends AbstractGamePlayer {
     private void executeTalentsOnDeath() {
         executeOnDeathIfTalentIsNotNull(hero.getFirstTalent());
         executeOnDeathIfTalentIsNotNull(hero.getSecondTalent());
+
         if (hero instanceof ComplexHero complex) {
             executeOnDeathIfTalentIsNotNull(complex.getThirdTalent());
             executeOnDeathIfTalentIsNotNull(complex.getFourthTalent());
@@ -564,9 +560,6 @@ public class GamePlayer extends AbstractGamePlayer {
     private void executeOnDeathIfTalentIsNotNull(Talent talent) {
         if (talent != null) {
             talent.onDeath(player);
-            if (talent instanceof ChargedTalent chargedTalent) {
-                chargedTalent.onDeathCharged(player);
-            }
         }
     }
 
@@ -625,10 +618,14 @@ public class GamePlayer extends AbstractGamePlayer {
         return health;
     }
 
-    // This is a shortcut that returns an GamePlayer from a game instance if there is one.
-    // One should not use this method unless checked for null before calling.
+    /**
+     * Returns a player from existing instance, no matter if they're alive or not.
+     *
+     * @param player - bukkit player.
+     * @return GamePlayer instance if there is a GameInstance, otherwise null.
+     */
     @Nullable
-    public static GamePlayer getAlivePlayer(Player player) {
+    public static GamePlayer getExistingPlayer(Player player) {
         final GameInstance gameInstance = Manager.current().getGameInstance();
         if (gameInstance == null) {
             return null;
@@ -644,7 +641,7 @@ public class GamePlayer extends AbstractGamePlayer {
      */
     @Nonnull
     public static AbstractGamePlayer getPlayer(Player player) {
-        final GamePlayer gamePlayer = getAlivePlayer(player);
+        final GamePlayer gamePlayer = getExistingPlayer(player);
         return gamePlayer == null ? AbstractGamePlayer.NULL_GAME_PLAYER : gamePlayer;
     }
 
@@ -758,6 +755,10 @@ public class GamePlayer extends AbstractGamePlayer {
 
     @Super
     public static void damageEntity(LivingEntity entity, double damage, LivingEntity damager, EnumDamageCause cause) {
+        if (entity == null) {
+            return;
+        }
+
         if (entity instanceof Player player) {
             getPlayer(player).damage(damage, damager, cause);
         }
@@ -791,11 +792,11 @@ public class GamePlayer extends AbstractGamePlayer {
             public void run() {
                 if (tickBeforeRespawn < 0) {
                     respawn();
-                    this.cancel();
+                    cancel();
                     return;
                 }
 
-                sendTitle("&aRespawning in", "&a&l" + BukkitUtils.roundTick(tickBeforeRespawn, ".00") + "s", 0, 25, 0);
+                sendTitle("&aRespawning in", "&a&l" + BukkitUtils.roundTick(tickBeforeRespawn) + "s", 0, 25, 0);
                 if (tickBeforeRespawn % 20 == 0) {
                     playSound(Sound.BLOCK_NOTE_BLOCK_PLING, 2.0f - (0.2f * (tickBeforeRespawn / 20f)));
                 }

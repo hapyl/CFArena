@@ -53,7 +53,6 @@ public class DarkMageSpell {
         }
     }
 
-    // TODO: 008, Mar 8, 2023 -> Maybe add formatting so it's clear which button is which? (It really is but it's not clear enough)
     private String nonnullButton(SpellButton button) {
         return button == null ? "&8_" : "&a&n" + button.getName() + "&r";
     }

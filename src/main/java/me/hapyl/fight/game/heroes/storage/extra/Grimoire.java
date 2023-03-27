@@ -40,4 +40,5 @@ public class Grimoire {
 	public GrimoireBook getCurrentBook() {
 		return currentBook;
 	}
+
 }

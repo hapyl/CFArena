@@ -35,7 +35,7 @@ public class DamageIndicator {
 		hologram.create(randomizeLocation());
 		hologram.showAll();
 
-		GameTask.runLater(hologram::hide, duration).runTaskAtCancel();
+		GameTask.runLater(hologram::destroy, duration).runTaskAtCancel();
 	}
 
 	private Location randomizeLocation() {

@@ -37,17 +37,17 @@ public class Vortex extends Hero implements UIComponent {
 
         setRole(Role.STRATEGIST);
 
-        this.setInfo("A young boy with power of speaking to starts...");
-        this.setItem(Material.NETHER_STAR);
+        setInfo("A young boy with power of speaking to starts...");
+        setItemTexture(
+                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMmFkYzQ1OGRmYWJjMjBiOGQ1ODdiMDQ3NjI4MGRhMmZiMzI1ZmM2MTZhNTIxMjc4NDQ2NmE3OGI4NWZiN2U0ZCJ9fX0="
+        );
 
         final ClassEquipment equipment = this.getEquipment();
-        equipment.setHelmet(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMmFkYzQ1OGRmYWJjMjBiOGQ1ODdiMDQ3NjI4MGRhMmZiMzI1ZmM2MTZhNTIxMjc4NDQ2NmE3OGI4NWZiN2U0ZCJ9fX0=");
         equipment.setChestplate(102, 51, 0);
         equipment.setLeggings(179, 89, 0);
         equipment.setBoots(255, 140, 26);
 
-        this.setWeapon(new Weapon(Material.STONE_SWORD) {
+        setWeapon(new Weapon(Material.STONE_SWORD) {
 
             @Override
             public void onRightClick(Player player, ItemStack item) {
@@ -78,11 +78,6 @@ public class Vortex extends Hero implements UIComponent {
                             }
 
                             GamePlayer.damageEntityTick(entity, sotsDamage, player, EnumDamageCause.SOTS, 0);
-
-                            //final int damageTicks = entity.getMaximumNoDamageTicks();
-                            //entity.setMaximumNoDamageTicks(0);
-                            //GamePlayer.damageEntity(entity, sotsDamage, player, EnumDamageCause.SOTS);
-                            //entity.setMaximumNoDamageTicks(damageTicks);
                         });
 
                         if (((distanceFlew += distanceShift) >= maxDistance) || nextLocation.getBlock().getType().isOccluding()) {
@@ -95,20 +90,31 @@ public class Vortex extends Hero implements UIComponent {
 
                 player.setCooldown(this.getMaterial(), sotsCooldown);
             }
-        }.setName("Sword of Thousands Stars").setId("sots_weapon")
-                .setDescription(String.format(
-                        "A sword with ability to summon thousands stars.____&e&lRIGHT CLICK &7to launch vortex energy in front of you, that follows your crosshair and rapidly damages and knocks enemies back upon hit.____&aCooldown: &l%ss",
-                        BukkitUtils.roundTick(sotsCooldown)
-                )).setDamage(6.5d));
+        }.setName("Sword of Thousands Stars").setId("sots_weapon").setDescription(String.format(
+                "A sword with ability to summon thousands stars.____&e&lRIGHT CLICK &7to launch vortex energy in front of you, that follows your crosshair and rapidly damages and knocks enemies back upon hit.____&aCooldown: &l%ss",
+                BukkitUtils.roundTick(sotsCooldown)
+        )).setDamage(6.5d));
 
 
-        this.setUltimate(new UltimateTalent(
+        setUltimate(new UltimateTalent(
                 "All the Stars",
-                "Instantly create &b10 &7Astral Stars around you. Then, rapidly slash between them dealing double the damage.__After, perform the final blow with &b360° &7attack that slows opponents.__This will not affect already placed Astral Stars.",
-                60
+                "Instantly create &b10 &7Astral Stars around you.__Then, rapidly slash between them, dealing the normal star damage.__After, perform the final blow with &b360° &7attack that slows opponents.____&6This will not affect already placed Astral Stars.",
+                70
         ).setItem(Material.QUARTZ).setCdSec(30));
+    }
 
+    @Override
+    public void onStart(Player player) {
+        startInitWeaponCooldown(player);
+    }
 
+    @Override
+    public void onRespawn(Player player) {
+        startInitWeaponCooldown(player);
+    }
+
+    public void startInitWeaponCooldown(Player player) {
+        player.setCooldown(getWeapon().getMaterial(), sotsCooldown / 2);
     }
 
     private void performFinalSlash(Location location, Player player) {
@@ -175,26 +181,25 @@ public class Vortex extends Hero implements UIComponent {
                 if (tick++ % 5 == 0) {
                     // final slash
                     if (pos >= (allTheStars.length - 1)) {
-                        performFinalSlash(location, player);
-                        this.cancel();
+                        performFinalSlash(location.add(0.0d, 0.5d, 0.0d), player);
+                        cancel();
                         return;
                     }
-                    performStarSlash(allTheStars[pos], allTheStars[pos + 1], player, true);
+                    performStarSlash(allTheStars[pos], allTheStars[pos + 1], player);
                     ++pos;
                 }
-
-
             }
         }.runTaskTimer(0, 1);
     }
 
-    public void performStarSlash(Location start, Location finish, Player player, boolean ultimateStar) {
+    public void performStarSlash(Location start, Location finish, Player player) {
         // ray-trace path
         Utils.rayTracePath(start, finish, 1.0d, 2.0d, living -> {
             if (living == player) {
                 return;
             }
-            GamePlayer.damageEntity(living, ultimateStar ? starDamage * 2 : starDamage, player, EnumDamageCause.STAR_SLASH);
+
+            GamePlayer.damageEntity(living, starDamage, player, EnumDamageCause.STAR_SLASH);
         }, loc -> {
             PlayerLib.spawnParticle(loc, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0);
             PlayerLib.playSound(loc, Sound.ITEM_FLINTANDSTEEL_USE, 0.75f);

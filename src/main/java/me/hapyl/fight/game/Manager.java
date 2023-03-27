@@ -166,6 +166,7 @@ public class Manager {
 
         trial = new Trial(getProfile(player), heroes);
         trial.onStart();
+        trial.onPlayersReveal();
         trial.broadcastMessage("&a%s started a trial of %s.", player.getName(), heroes.getHero().getName());
     }
 
@@ -290,9 +291,9 @@ public class Manager {
             Nulls.runIfNotNull(value.getTalent(), Talent::onStart);
         }
 
-        this.gameInstance.getCurrentMap().getMap().onStart();
+        gameInstance.getCurrentMap().getMap().onStart();
 
-        for (final GamePlayer gamePlayer : this.gameInstance.getPlayers().values()) {
+        for (final GamePlayer gamePlayer : gameInstance.getPlayers().values()) {
             final Player player = gamePlayer.getPlayer();
 
             // Equip and hide players
@@ -311,10 +312,34 @@ public class Manager {
                     BukkitUtils.roundTick(currentMap.getMap().getTimeBeforeReveal())
             );
         }
+        else {
+            this.gameInstance.setTimeLeft(10000000000L);
+        }
 
+        // On reveal
         GameTask.runLater(() -> {
             Chat.broadcast("&a&l➺ &aPlayers have been revealed. &lFIGHT!");
             gameInstance.setGameState(State.IN_GAME);
+
+            // Call onPlayersReveal
+            gameInstance.onPlayersReveal();
+
+            for (final Heroes value : Heroes.values()) {
+                Nulls.runIfNotNull(value.getHero(), Hero::onPlayersReveal);
+            }
+
+            for (final Talents value : Talents.values()) {
+                Nulls.runIfNotNull(value.getTalent(), Talent::onPlayersReveal);
+            }
+
+            gameInstance.getCurrentMap().getMap().onPlayersReveal();
+
+            if (debug) {
+                Chat.broadcast("&4Running in debug mode!");
+                Chat.broadcast("&cRunning in debug mode!");
+                Chat.broadcast("&6Running in debug mode!");
+            }
+
             gameInstance.getAlivePlayers().forEach(target -> {
                 final Player player = target.getPlayer();
                 final World world = player.getLocation().getWorld();
@@ -322,8 +347,8 @@ public class Manager {
                 Utils.showPlayer(player);
                 Nulls.runIfNotNull(GameTeam.getPlayerTeam(player), GameTeam::glowTeammates);
 
-                if (world != null) {
-                    world.strikeLightningEffect(player.getLocation().add(0.0d, 1.0d, 0.0d));
+                if (world != null && !debug) {
+                    world.strikeLightningEffect(player.getLocation().add(0.0d, 2.0d, 0.0d));
                 }
             });
         }, isDebug ? 1 : currentMap.getMap().getTimeBeforeReveal());
@@ -355,6 +380,9 @@ public class Manager {
 
         // Reset player before clearing the instance
         this.gameInstance.getPlayers().values().forEach(player -> {
+            final Heroes hero = player.getEnumHero();
+            final StatContainer stats = player.getStats();
+
             Glowing.stopGlowing(player.getPlayer());
             player.updateScoreboard(true);
             player.resetPlayer();
@@ -362,16 +390,22 @@ public class Manager {
 
             Utils.showPlayer(player.getPlayer());
 
+
             // Keep winner in survival, so it's clear for them that they have won
-            if (!this.gameInstance.isWinner(player.getPlayer())) {
+            final boolean isWinner = this.gameInstance.isWinner(player.getPlayer());
+            if (!isWinner) {
                 player.getPlayer().setGameMode(GameMode.SPECTATOR);
+            }
+            else {
+                stats.markAsWinner();
             }
 
             // Reset game player
             player.getProfile().resetGamePlayer();
 
             // Save stats
-            heroStats.fromPlayerStatistic(player.getEnumHero(), player.getStats());
+            player.getDatabase().getStatistics().fromPlayerStatistic(hero, stats);
+            heroStats.fromPlayerStatistic(hero, stats);
         });
 
         this.gameInstance.onStop();

@@ -20,8 +20,9 @@ public class NinjaSmoke extends Talent {
 				"Smoke Bomb",
 				"Instantly throw a smoke bomb at your current location and become invisible. Players inside the smoke will have their vision disturbed."
 		);
-		this.setItem(Material.INK_SAC);
-		this.setCdSec(20);
+
+		setItem(Material.INK_SAC);
+		setCdSec(20);
 	}
 
 	@Override

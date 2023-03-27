@@ -3,18 +3,20 @@ package me.hapyl.fight.game.maps;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.GameElement;
+import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Final;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
 import org.bukkit.*;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-public class GameMap implements GameElement {
+public class GameMap implements GameElement, PlayerElement {
 
     private final String name;
     private final Material material;
@@ -46,6 +48,13 @@ public class GameMap implements GameElement {
         this.hordeSpawnLocations = Lists.newArrayList();
         this.size = new Final<>();
         this.ticksBeforeReveal = ticksBeforeReveal;
+    }
+
+    @Override
+    public void onDeath(Player player) {
+        for (MapFeature feature : getFeatures()) {
+            feature.onDeath(player);
+        }
     }
 
     public int getTime() {
@@ -192,4 +201,8 @@ public class GameMap implements GameElement {
         features.forEach(MapFeature::onStop);
     }
 
+    @Override
+    public final void onPlayersReveal() {
+        features.forEach(MapFeature::onPlayersReveal);
+    }
 }

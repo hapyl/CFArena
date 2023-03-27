@@ -26,26 +26,26 @@ public class Nightmare extends Hero {
 
         setRole(Role.ASSASSIN);
 
-        this.setInfo("A spirit from the worst dreams and nightmares, blinds enemies and strikes from behind!");
-        this.setItem(Material.WITHER_SKELETON_SKULL);
+        setInfo("A spirit from the worst dreams and nightmares, blinds enemies and strikes from behind!");
+        setItem("79c55e0e4af71824e8da68cde87de717b214f92e9949c4b16da22b357f97b1fc");
 
-        this.setWeapon(new Weapon(Material.NETHERITE_SWORD)
-                .setName("Omen")
+        setWeapon(new Weapon(Material.NETHERITE_SWORD).setName("Omen")
                 .setDescription("A sword that is capable of splitting dreams in half.")
-                               .setDamage(7.0d));
+                .setDamage(7.0d));
 
-        final ClassEquipment eq = this.getEquipment();
-        eq.setHelmet(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzljNTVlMGU0YWY3MTgyNGU4ZGE2OGNkZTg3ZGU3MTdiMjE0ZjkyZTk5NDljNGIxNmRhMjJiMzU3Zjk3YjFmYyJ9fX0=");
-        eq.setChestplate(50, 0, 153);
-        eq.setLeggings(40, 0, 153);
-        eq.setBoots(30, 0, 153);
+        final ClassEquipment equipment = getEquipment();
+        equipment.setChestplate(50, 0, 153);
+        equipment.setLeggings(40, 0, 153);
+        equipment.setBoots(30, 0, 153);
 
-        this.setUltimate(new UltimateTalent(
+        setUltimate(new UltimateTalent(
                 "Your Worst Nightmare",
                 "Applies the &e&lParanoia &7effect to all alive opponents for {duration}.",
                 55
-        ).setDuration(240).setCdSec(30).setItem(Material.BLACK_DYE).setSound(Sound.ENTITY_WITCH_CELEBRATE, 0.0f));
+        ).setDuration(240)
+                .setCdSec(30)
+                .setItem(Material.BLACK_DYE)
+                .setSound(Sound.ENTITY_WITCH_CELEBRATE, 0.0f));
 
     }
 

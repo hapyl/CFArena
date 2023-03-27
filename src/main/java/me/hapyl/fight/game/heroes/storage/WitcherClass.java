@@ -38,20 +38,18 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
 
         setRole(Role.MELEE);
 
-        this.setInfo("Some say, that he's the most trained Witcher ever; Well versed in any kind of magic...");
-        this.setItem(Material.CRIMSON_ROOTS);
+        setInfo("Some say, that he's the most trained Witcher ever; Well versed in any kind of magic...");
+        setItemTexture(
+                "e3RleHR1cmVzOntTS0lOOnt1cmw6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTEwOTA1YmU0ZjY3ZTJmY2FkMjkxY2RmOGFlYjJlOWZmNTVmZTkzZjI3YjhjMWYwOTU5MDI0YTNjYjRhNzA1MiJ9fX0=");
 
-        final ClassEquipment equipment = this.getEquipment();
-        equipment.setHelmet(
-                "e3RleHR1cmVzOntTS0lOOnt1cmw6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTEwOTA1YmU0ZjY3ZTJmY2FkMjkxY2RmOGFlYjJlOWZmNTVmZTkzZjI3YjhjMWYwOTU5MDI0YTNjYjRhNzA1MiJ9fX0="
-        );
+        final ClassEquipment equipment = getEquipment();
         equipment.setChestplate(44, 48, 101);
         equipment.setLeggings(60, 66, 69);
         equipment.setBoots(29, 29, 33);
 
-        this.setWeapon(new Weapon(Material.IRON_SWORD).setName("Aerondight").setDamage(5.0d));
+        setWeapon(new Weapon(Material.IRON_SWORD).setName("Aerondight").setDamage(5.0d));
 
-        this.setUltimate(
+        setUltimate(
                 new UltimateTalent(
                         "All the Trainings",
                         String.format(
@@ -144,7 +142,8 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
         final Player player = input.getPlayer();
         if (kven.getShieldCharge(player) > 0) {
             kven.removeShieldCharge(player);
-            return new DamageOutput().setCancelDamage(true);
+
+            return DamageOutput.CANCEL;
         }
         return null;
     }

@@ -38,34 +38,31 @@ public class Pytaria extends Hero {
 
         setRole(Role.ASSASSIN);
 
-        this.setItem(Material.POPPY);
-        this.setInfo(
-                "Beautiful, but deadly opponent with addiction to flowers. She suffered all her youth, which at the end, made her only stronger.");
+        setInfo(
+                "Beautiful, but deadly opponent with addiction to flowers. She suffered all her youth, which at the end, made her only stronger."
+        );
+        setItem("7bb0752f9fa87a693c2d0d9f29549375feb6f76952da90d68820e7900083f801");
 
-        this.setWeapon(new Weapon(Material.ALLIUM).setName("Annihilallium")
-                .setDamage(5.0)
+        setWeapon(new Weapon(Material.ALLIUM).setName("Annihilallium")
+                .setDamage(8.0)
                 .setDescription("A beautiful flower, nothing more."));
 
-        final ClassEquipment equipment = this.getEquipment();
-        equipment.setHelmet(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvN2JiMDc1MmY5ZmE4N2E2OTNjMmQwZDlmMjk1NDkzNzVmZWI2Zjc2OTUyZGE5MGQ2ODgyMGU3OTAwMDgzZjgwMSJ9fX0="
-        );
-        equipment.setChestplate(255, 128, 128);
-        equipment.setLeggings(51, 102, 255);
+        final ClassEquipment equipment = getEquipment();
+        equipment.setChestplate(222, 75, 85);
+        equipment.setLeggings(54, 158, 110);
         equipment.setBoots(179, 204, 204);
 
-        // Summons a blooming bee in front of her that locks to a closest enemy and deals damage (if then don't have any cover) that depends on how low her health is and regenerates &b" + healthRegenPercent + "% &7of missing health.
-
-        this.setUltimate(new UltimateTalent(
+        setUltimate(new UltimateTalent(
                 "Feel the Breeze",
-                "Summon a blooming Bee in front of Pytaria.____The Bee will lock on a closest enemy and charge.____Once charged, unleashes damage in small AoE and regenerates &b" +
-                        healthRegenPercent + "% &7of Pytaria's missing health.",
+                "Summon a blooming Bee in front of Pytaria.____The Bee will lock on a closest enemy and charge.____Once charged, unleashes damage in small AoE and regenerates %s%% &7of Pytaria's missing health.".formatted(
+                        healthRegenPercent),
                 60
         ).setCdSec(50)
-                                 .setDuration(60)
-                                 .setItem(
-                                         "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDQ1NzlmMWVhMzg2NDI2OWMyMTQ4ZDgyN2MwODg3YjBjNWVkNDNhOTc1YjEwMmEwMWFmYjY0NGVmYjg1Y2NmZCJ9fX0="
-                                 ));
+                .setDuration(60)
+                .setSound(Sound.ENTITY_BEE_DEATH, 0.0f)
+                .setItem(
+                        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDQ1NzlmMWVhMzg2NDI2OWMyMTQ4ZDgyN2MwODg3YjBjNWVkNDNhOTc1YjEwMmEwMWFmYjY0NGVmYjg1Y2NmZCJ9fX0="
+                ));
 
     }
 
@@ -76,7 +73,7 @@ public class Pytaria extends Hero {
         final double maxHealth = gp.getMaxHealth();
         final double missingHp = (maxHealth - health) * healthRegenPercent / maxHealth;
 
-        final double finalDamage = calculateDamage(player, 10.0d);
+        final double finalDamage = calculateDamage(player, 30.0d);
 
         final Location location = player.getLocation();
         final Vector vector = location.getDirection();
@@ -96,7 +93,6 @@ public class Pytaria extends Hero {
 
             @Override
             public void run() {
-
                 final Location lockLocation = nearestPlayer == null ? location.clone().subtract(0, 9, 0) : nearestPlayer.getLocation();
                 final Location touchLocation = drawLine(location.clone(), lockLocation.clone());
 
@@ -106,9 +102,9 @@ public class Pytaria extends Hero {
                     PlayerLib.spawnParticle(location, Particle.EXPLOSION_NORMAL, 5, 0.2, 0.2, 0.2, 0.1f);
                     PlayerLib.playSound(location, Sound.ENTITY_BEE_DEATH, 1.5f);
                     bee.remove();
-                    this.cancel();
+                    cancel();
 
-                    Utils.getPlayersInRange(touchLocation, 1.5d).forEach(victim -> {
+                    Utils.getEntitiesInRange(touchLocation, 1.5d).forEach(victim -> {
                         GamePlayer.damageEntity(victim, finalDamage, player, EnumDamageCause.FELL_THE_BREEZE);
                     });
 
@@ -121,7 +117,6 @@ public class Pytaria extends Hero {
 
         Chat.sendMessage(player, "&a&l][ &a%s healed for &c%s❤ &a!", this.getName(), BukkitUtils.decimalFormat(missingHp));
         gp.heal(missingHp);
-        //updateChestplateColor(player);
     }
 
     private Location drawLine(Location start, Location end) {
@@ -168,7 +163,7 @@ public class Pytaria extends Hero {
 
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        return new DamageOutput().setDamage(calculateDamage(input.getPlayer(), input.getDamage()));
+        return new DamageOutput(calculateDamage(input.getPlayer(), input.getDamage()));
     }
 
     @Override

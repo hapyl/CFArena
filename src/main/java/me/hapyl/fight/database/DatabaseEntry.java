@@ -38,6 +38,14 @@ public class DatabaseEntry {
         return this.database.getPlayer();
     }
 
+    protected final <T> T getValue(String paths, T def) {
+        return MongoUtils.get(getConfig(), paths, def);
+    }
+
+    protected final <T> void setValue(String paths, T value) {
+        MongoUtils.set(getConfig(), paths, value);
+    }
+
     protected Document getDocument(String path) {
         return getConfig().get(path, new Document());
     }
@@ -46,11 +54,7 @@ public class DatabaseEntry {
         final Document document = getDocument(path);
 
         consumer.accept(document);
-        updateDocument(path);
-    }
-
-    protected void updateDocument(String path) {
-        getConfig().put(path, getDocument(path));
+        getConfig().put(path, document);
     }
 
     public <E> List<String> eToStringList(Collection<E> collection, ParamFunction<String, E> function) {

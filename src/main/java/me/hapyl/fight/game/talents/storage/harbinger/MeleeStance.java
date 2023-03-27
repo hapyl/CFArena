@@ -26,9 +26,9 @@ public class MeleeStance extends Talent {
             .setDescription("A blade made of unknown material.");
 
 	public MeleeStance() {
-		super("Melee Stance");
-		this.setDescription(
-                "Enter a Melee Stance for maximum of &b%ss&7 to replace you bow with a sword!__Use again in &e&lMelee Stance&7 to get your bow back.____The longer you're in &e&lMelee Stance&7, the longer the cooldown of this ability.",
+        super("Melee Stance");
+        addDescription(
+                "Enter a Melee Stance for maximum of &b{}s&7 to replace you bow with a sword!__Use again in &e&lMelee Stance&7 to get your bow back.____The longer you're in &e&lMelee Stance&7, the longer the cooldown of this ability.",
                 BukkitUtils.roundTick(maxDuration)
         );
         this.setItem(Material.IRON_INGOT);

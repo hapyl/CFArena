@@ -18,24 +18,25 @@ public class LockdownEffect extends GameEffect {
 
     public LockdownEffect() {
         super("Lockdown");
-        this.setDescription("Removes player's ability to move, attack or use abilities.");
-        this.setPositive(false);
-        this.setEffectParticle(new EffectParticleBlockMarker(1, Material.BARRIER));
+
+        setDescription("Drastically reduce player's movement speed, locks their ability to attack and use abilities.");
+        setPositive(false);
+        setEffectParticle(new EffectParticleBlockMarker(1, Material.BARRIER));
     }
 
     @Override
     public void onStart(Player player) {
-        if (data.containsKey(player)) {
-            data.get(player).applyData(player);
-        }
+        //if (data.containsKey(player)) {
+        //    data.get(player).applyData(player);
+        //}
+        //
+        //data.put(player, new LockdownData(player));
 
-        data.put(player, new LockdownData(player));
+        //player.setAllowFlight(true);
+        //player.setFlying(true);
+        //player.setFlySpeed(0.0f);
 
-        player.setAllowFlight(true);
-        player.setFlying(true);
-        player.setFlySpeed(0.0f);
-
-        PlayerLib.addEffect(player, PotionEffectType.SLOW, Integer.MAX_VALUE, 100);
+        PlayerLib.addEffect(player, PotionEffectType.SLOW, Integer.MAX_VALUE, 5);
         PlayerLib.addEffect(player, PotionEffectType.WEAKNESS, Integer.MAX_VALUE, 100);
         PlayerLib.playSound(player, Sound.BLOCK_BEACON_ACTIVATE, 0.75f);
 
@@ -46,8 +47,8 @@ public class LockdownEffect extends GameEffect {
 
     @Override
     public void onStop(Player player) {
-        applyOldData(player);
-        data.remove(player);
+        //applyOldData(player);
+        //data.remove(player);
 
         PlayerLib.removeEffect(player, PotionEffectType.SLOW);
         PlayerLib.removeEffect(player, PotionEffectType.WEAKNESS);

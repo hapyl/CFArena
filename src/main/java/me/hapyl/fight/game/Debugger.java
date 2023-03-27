@@ -18,6 +18,10 @@ public class Debugger {
         send("&e" + any, format);
     }
 
+    public static void svr(Object any, Object... format) {
+        send("&4&l" + any, format);
+    }
+
     private static void send(String string, Object... format) {
         final String formattedMessage = Chat.format("&c&lDEBUG &f" + string, format);
 

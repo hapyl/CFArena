@@ -131,13 +131,6 @@ public class ActiveTotem {
 
     private void hideShulker(Shulker shulker) {
         Visibility.of(shulker, owner);
-        //        for (Player online : Bukkit.getOnlinePlayers()) {
-        //            if (online == owner) {
-        //                continue;
-        //            }
-        //
-        //            Reflect.hideEntity(shulker, online);
-        //        }
     }
 
     public void defaultColor() {

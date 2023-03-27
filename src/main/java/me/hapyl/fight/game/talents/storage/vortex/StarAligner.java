@@ -42,12 +42,13 @@ public class StarAligner extends Talent {
 		}
 
 		stars.removeStar(starStart);
+
 		final Location location = starEnd.getLocation().clone();
 		location.setYaw(player.getLocation().getYaw());
 		location.setPitch(player.getLocation().getPitch());
 		player.teleport(location);
 
-		HeroHandle.VORTEX.performStarSlash(starStart.getEyeLocation(), starEnd.getEyeLocation(), player, false);
+		HeroHandle.VORTEX.performStarSlash(starStart.getEyeLocation(), starEnd.getEyeLocation(), player);
 
 		PlayerLib.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 1.75f);
 		return Response.OK;

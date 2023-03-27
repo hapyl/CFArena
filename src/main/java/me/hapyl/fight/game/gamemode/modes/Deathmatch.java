@@ -4,7 +4,8 @@ import com.google.common.collect.Maps;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.spigotutils.module.chat.Chat;
-import org.bukkit.ChatColor;
+import me.hapyl.spigotutils.module.math.nn.IntInt;
+import me.hapyl.spigotutils.module.scoreboard.Scoreboarder;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -16,12 +17,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Deathmatch extends CFGameMode {
-    private final ChatColor[] colors = { ChatColor.GREEN, ChatColor.DARK_GREEN, ChatColor.YELLOW, ChatColor.GOLD, ChatColor.RED };
 
     public Deathmatch() {
         super("Deathmatch", 300);
 
-        setDescription("Free for All death-match when everyone is fighting for kills. Player with most kills in time limit wins.");
+        setDescription("Free for All death-match when everyone is fighting for kills.__Player with most kills in time limit wins.");
         setPlayerRequirements(2);
         setMaterial(Material.SKELETON_SKULL);
 
@@ -37,6 +37,31 @@ public class Deathmatch extends CFGameMode {
     @Override
     public boolean onStart(@Nonnull GameInstance instance) {
         return false;
+    }
+
+    @Override
+    public void formatScoreboard(Scoreboarder builder, GameInstance instance, GamePlayer gamePlayer) {
+        final int limit = 5;
+        final Map<GamePlayer, Long> topKills = getTopKills(instance, limit);
+        builder.addLines(
+                "",
+                "&6&lDeathmatch: &f(&b🗡 &l%s&f)".formatted(gamePlayer.getStats()
+                        .getValue(StatContainer.Type.KILLS))
+        );
+
+        final IntInt i = new IntInt(1);
+        topKills.forEach((pla, val) -> {
+            builder.addLines(" &e#&l%s &f%s &b🗡 &l%s".formatted(
+                    i.get(),
+                    pla.getPlayer().getName(),
+                    val + ((pla.compare(gamePlayer) ? " &a←&l YOU" : ""))
+            ));
+            i.increment();
+        });
+
+        for (int j = i.get(); j <= limit; j++) {
+            builder.addLines(" &e...");
+        }
     }
 
     public final LinkedHashMap<GamePlayer, Long> getTopKills(@Nonnull AbstractGameInstance instance, int limit) {

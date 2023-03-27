@@ -20,7 +20,6 @@ public class ParkourLeaderboard {
 
     private final CFParkour parkour;
     private final Location location;
-
     private final Hologram hologram;
 
     public ParkourLeaderboard(CFParkour parkour, double x, double y, double z) {
@@ -46,13 +45,14 @@ public class ParkourLeaderboard {
         topPlayers.forEach((uuid, record) -> {
             final OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
 
-            this.hologram.addLine("&b#%d - &a%s &7%s".formatted(i.incrementAndGet(), player.getName(), formatTime(record)));
+            this.hologram.addLine("&b#%d - &a%s &7%ss".formatted(i.incrementAndGet(), player.getName(), formatTime(record)));
         });
 
         for (int j = i.get(); j < 5; j++) {
             this.hologram.addLine("&b#%d - &8...".formatted(j + 1));
         }
 
+        this.hologram.updateLines();
         this.hologram.showAll();
     }
 

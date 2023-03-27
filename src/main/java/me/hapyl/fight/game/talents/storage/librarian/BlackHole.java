@@ -16,10 +16,13 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 
 public class BlackHole extends LibrarianTalent {
+
+    // FIXME: 027, Mar 27, 2023 -> this works without grimoire
+
     public BlackHole() {
         super("Black Hole");
 
-        setDescription(
+        addDescription(
                 "Creates a black hole at your target block. Pulling enemies in and dealing {} damage per second based on &cGrimoire &7level."
         );
 

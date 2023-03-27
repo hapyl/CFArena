@@ -38,7 +38,7 @@ import java.util.Map;
 
 /**
  * This hero is pain in the ass...
- * Slows are hardcoded, make sure not to change them.
+ * Slots are hardcoded, make sure not to change them.
  */
 public class Librarian extends Hero implements ComplexHero, Listener {
 
@@ -59,30 +59,33 @@ public class Librarian extends Hero implements ComplexHero, Listener {
         talentMap.put(3, (LibrarianTalent) Talents.LIBRARIAN_SHIELD.getTalent());
         talentMap.put(4, (LibrarianTalent) Talents.WEAPON_DARKNESS.getTalent());
 
-        this.setRole(Role.STRATEGIST);
-
-        final ClassEquipment equipment = this.getEquipment();
-        equipment.setHelmet(
+        setRole(Role.STRATEGIST);
+        setItemTexture(
                 "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTg4YjFjZDk1NzQ2NzJlOGUzMjYyZjIxMGMwZGRkYmMwODJlYTc1NjllOGU3MGYwYzA3YjRiZWU3NWUzMmY2MiJ9fX0="
         );
+
+        final ClassEquipment equipment = getEquipment();
         equipment.setChestplate(47, 32, 40);
         equipment.setLeggings(Material.NETHERITE_LEGGINGS);
         equipment.setBoots(84, 37, 62);
 
-        this.setWeapon(new Weapon(Material.NETHERITE_SHOVEL).setName("Staff").setDamage(7.5d));
+        setWeapon(new Weapon(Material.NETHERITE_SHOVEL).setName("Staff").setDamage(7.5d));
 
-        this.setUltimate(new UltimateTalent(
+        setUltimate(new UltimateTalent(
                 "Void of Blindness",
                 "Create massive void of blindness field for {duration}. Everyone who dares steps inside, will be affected by paranoia and glow. Librarian also gets a &c&ldamage &7and &b&lspeed &7boost.",
                 70
         ).setItem(Material.SQUID_SPAWN_EGG).setDuration(240));
-
     }
 
     @Override
     public void onStart(Player player) {
         grimoireMap.put(player, new Grimoire(player));
         giveGrimoireBook(player);
+    }
+
+    @Override
+    public void onDeath(Player player) {
     }
 
     @Override

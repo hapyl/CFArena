@@ -15,10 +15,11 @@ public class ArcaneMute extends Talent implements ChatGPT {
     public ArcaneMute() {
         super(
                 "Arcane Mute",
-                "Use the Arcane Mute ability on a targeted player to silence them, preventing them from using talents for a short time.",
+                "Use on a targeted player to silence them, preventing them from using talents for {duration}.",
                 Material.FEATHER
         );
 
+        setDurationSec(4);
         setCdSec(35);
     }
 
@@ -34,7 +35,7 @@ public class ArcaneMute extends Talent implements ChatGPT {
         }
 
         if (target instanceof Player targetPlayer) {
-            GamePlayer.getPlayer(targetPlayer).addEffect(GameEffectType.ARCANE_MUTE, 4 * 20);
+            GamePlayer.getPlayer(targetPlayer).addEffect(GameEffectType.ARCANE_MUTE, getDuration());
 
             Chat.sendMessage(targetPlayer, "&e&l☠ &cYou have been cursed by Arcane Mute! &8(%s)", player.getName());
             Chat.sendMessage(player, "&aArcane Mute cursed %s.", targetPlayer.getName());

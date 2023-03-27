@@ -4,13 +4,18 @@ import me.hapyl.fight.game.cosmetic.skin.Skins;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+/**
+ * Abstraction is used to safely use {@link GamePlayer} without having to check if it's null.
+ */
 public class AbstractGamePlayer {
 
     public static final AbstractGamePlayer NULL_GAME_PLAYER = new AbstractGamePlayer();
@@ -117,6 +122,13 @@ public class AbstractGamePlayer {
      */
     public boolean hasMovedInLast(long millis) {
         return getLastMoved() != 0 && (System.currentTimeMillis() - getLastMoved()) < millis;
+    }
+
+    /**
+     * Interrupts player's current action
+     */
+    public void interrupt() {
+
     }
 
     /**
@@ -389,6 +401,10 @@ public class AbstractGamePlayer {
         return GameTeam.getPlayerTeam(getGamePlayer());
     }
 
+    public int getKillStreak() {
+        return 0;
+    }
+
     public void respawn() {
     }
 
@@ -398,4 +414,13 @@ public class AbstractGamePlayer {
     public void setDead(boolean b) {
 
     }
+
+    public Player getPlayer() {
+        throw new IllegalStateException("must override getPlayer()");
+    }
+
+    public void sendWarning(String warning, int stay) {
+        Chat.sendTitle(getPlayer(), "&4&l⚠", warning, 0, stay, 5);
+    }
+
 }

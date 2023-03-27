@@ -18,11 +18,17 @@ public class TriggerWinCommand extends SimplePlayerAdminCommand {
     @Override
     protected void execute(Player player, String[] strings) {
         final AbstractGameInstance gameInstance = Manager.current().getCurrentGame();
+
         if (!(gameInstance instanceof GameInstance)) {
             Chat.sendMessage(player, "&cNo game instance.");
             return;
         }
 
+        final boolean winCondition = gameInstance.getMode().testWinCondition((GameInstance) gameInstance);
+        if (!winCondition) {
+            Chat.sendMessage(player, "&cWin Condition is not met.");
+            return;
+        }
         gameInstance.checkWinCondition();
     }
 

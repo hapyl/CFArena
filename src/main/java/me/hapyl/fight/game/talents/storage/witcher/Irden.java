@@ -6,6 +6,7 @@ import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.Quality;
 import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
@@ -18,55 +19,55 @@ import org.bukkit.potion.PotionEffectType;
 
 public class Irden extends Talent {
 
-	private final int lifeTime = 200;
-	private final double radius = 3.5d;
+    @DisplayField private final double radius = 3.5d;
 
-	public Irden() {
-		super(
-				"Yrden",
-				"Creates Yrden aura at your current location. Opponents inside the aura are &bslowed&7, &binvulnerable&7, &bweakened &7and aren't affected by knockback."
-		);
-		this.setCdSec(25);
-		this.setItem(Material.POPPED_CHORUS_FRUIT);
-	}
+    public Irden() {
+        super(
+                "Yrden",
+                "Creates Yrden aura at your current location. Opponents inside the aura are &bslowed&7, &binvulnerable&7, &bweakened &7and aren't affected by knockback."
+        );
 
-	@Override
-	public Response execute(Player player) {
-		final Location location = player.getLocation();
+        setDuration(200);
+        setCdSec(25);
+        setItem(Material.POPPED_CHORUS_FRUIT);
+    }
 
-		new GameTask() {
-			private int tick = lifeTime;
+    @Override
+    public Response execute(Player player) {
+        final Location location = player.getLocation();
 
-			@Override
-			public void run() {
+        new GameTask() {
+            private int tick = getDuration();
 
-				if (tick-- <= 0) {
-					this.cancel();
-					return;
-				}
+            @Override
+            public void run() {
 
-				affect(player, location, tick);
+                if (tick-- <= 0) {
+                    this.cancel();
+                    return;
+                }
 
-			}
-		}.runTaskTimer(0, 1);
-		return Response.OK;
-	}
+                affect(player, location, tick);
+            }
+        }.runTaskTimer(0, 1);
+        return Response.OK;
+    }
 
-	public void affect(Player player, Location location, int tick) {
-		if (tick % 20 == 0 || tick == (lifeTime - 1)) {
-			Geometry.drawCircle(location, radius, Quality.HIGH, new WorldParticle(Particle.SPELL_WITCH));
-		}
+    public void affect(Player player, Location location, int tick) {
+        if (tick % 20 == 0 || tick == (getDuration() - 1)) {
+            Geometry.drawCircle(location, radius, Quality.HIGH, new WorldParticle(Particle.SPELL_WITCH));
+        }
 
-		Utils.getPlayersInRange(location, radius).forEach(target -> {
-			if (target == player) {
-				return;
-			}
+        Utils.getPlayersInRange(location, radius).forEach(target -> {
+            if (target == player) {
+                return;
+            }
 
-			PlayerLib.addEffect(target, PotionEffectType.SLOW, 5, 3);
-			PlayerLib.addEffect(target, PotionEffectType.WEAKNESS, 5, 3);
-			GamePlayer.getPlayer(player).addEffect(GameEffectType.VULNERABLE, 5, true);
-			GamePlayer.getPlayer(player).addEffect(GameEffectType.IMMOVABLE, 5, true);
-		});
-	}
+            PlayerLib.addEffect(target, PotionEffectType.SLOW, 5, 3);
+            PlayerLib.addEffect(target, PotionEffectType.WEAKNESS, 5, 0);
+            GamePlayer.getPlayer(target).addEffect(GameEffectType.VULNERABLE, 5, true);
+            GamePlayer.getPlayer(target).addEffect(GameEffectType.IMMOVABLE, 5, true);
+        });
+    }
 
 }

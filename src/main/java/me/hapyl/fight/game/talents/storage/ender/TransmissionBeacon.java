@@ -3,7 +3,7 @@ package me.hapyl.fight.game.talents.storage.ender;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.heroes.HeroHandle;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -11,20 +11,21 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 
 public class TransmissionBeacon extends Talent {
-    private final int destroyCd = 600;
+
+    @DisplayField private final int cooldownIfDestroyed = 600;
 
     public TransmissionBeacon() {
         super("Transmission Beacon");
-        setDescription(
+
+        addDescription(
                 "Place the beacon somewhere hidden from your opponents. Use your &bultimate &7to instantly teleport to it's location and collect it.__&c&lThe beacon can be destroyed!"
         );
 
-        addExtraInfo("&aCooldown if Destroyed: &l%ss", BukkitUtils.roundTick(destroyCd));
         setItem(Material.BEACON);
     }
 
     public int getDestroyCd() {
-        return destroyCd;
+        return cooldownIfDestroyed;
     }
 
     @Override
@@ -34,6 +35,7 @@ public class TransmissionBeacon extends Talent {
         }
 
         final Block block = player.getTargetBlockExact(5);
+
         if (block == null || !isSafeLocation(block)) {
             return Response.error("Location is not safe!");
         }

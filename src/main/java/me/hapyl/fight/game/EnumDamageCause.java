@@ -53,6 +53,8 @@ public enum EnumDamageCause {
     LIGHTNING("was struck by lightning", "by"),
     TROLL_LAUGH("was trolled to death", "by"),
     BLOCK_SHIELD("was hit by {player}'s circling block"),
+    DECOY("was bamboozled", "by"),
+    MINION("was killed by {player}'s minion"),
 
     // *==* there are vanilla ones, have to use them *==*
 

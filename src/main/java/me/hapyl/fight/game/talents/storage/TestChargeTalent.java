@@ -8,9 +8,9 @@ import org.bukkit.entity.Player;
 public class TestChargeTalent extends ChargedTalent {
 	public TestChargeTalent() {
 		super("Test Ability", "this is a test ability", 3);
-		this.setRechargeTime(60);
-		this.setCd(20);
-		this.setItem(Material.COBWEB);
+		setRechargeTime(60);
+		setCd(20);
+		setItem(Material.COBWEB);
 	}
 
 	@Override

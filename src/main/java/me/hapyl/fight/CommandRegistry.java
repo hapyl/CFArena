@@ -53,7 +53,7 @@ public class CommandRegistry {
         register(new DebugBooster("debugBooster"));
         register(new TrialCommand("trial"));
         register(new SettingCommand("setting"));
-        register(new HelpCommand("help"));
+        register(new TutorialCommand("tutorial"));
         //register(new GamemodeShortcut("gamemode"));
         register(new TeamCommand("team"));
         register(new TestWinConditionCommand("testWinCondition"));
@@ -67,6 +67,10 @@ public class CommandRegistry {
         register(new CastSpellCommand("cast"));
         register(new ThrowExceptionCommand("throwClassesFightException"));
         register(new UpdateParkourLeaderboardCommand("updateParkourLeaderboard"));
+        register(new InterruptCommand("interrupt"));
+        register(new TestDatabaseCommand("testdatabase"));
+        register(new EquipCommand("equip"));
+        register(new HeadCommand("head"));
 
         register(new SimplePlayerAdminCommand("testnpcpose") {
             @Override

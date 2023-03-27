@@ -222,7 +222,6 @@ public class AlchemicalCauldron {
     }
 
     public void clear() {
-        // FIXME: 011, Mar 11, 2023 This doesnt remove the block sometimes, maybe store the block sa well
         //this.location.getBlock().setType(Material.AIR, false);
         this.cauldronBlock.setType(Material.AIR, false);
         this.standOwner.remove();

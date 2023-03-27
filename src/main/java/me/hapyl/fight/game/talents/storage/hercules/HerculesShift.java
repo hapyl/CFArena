@@ -9,11 +9,12 @@ import org.bukkit.entity.Player;
 
 public class HerculesShift extends ChargedTalent {
 	public HerculesShift() {
-		super("Shift", "Instantly propel yourself forward.", 3);
-		this.setItem(Material.FEATHER);
-		this.setCdSec(1);
-		this.setRechargeTimeSec(6);
-	}
+        super("Shift", "Instantly propel yourself forward.", 3);
+
+        setItem(Material.FEATHER);
+        setCdSec(1);
+        setRechargeTimeSec(6);
+    }
 
 	@Override
 	public Response execute(Player player) {

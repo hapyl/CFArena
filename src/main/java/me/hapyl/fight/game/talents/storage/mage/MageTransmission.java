@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.storage.mage;
 
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Effect;
 import org.bukkit.Location;
@@ -14,24 +15,25 @@ import org.bukkit.potion.PotionEffectType;
 
 public class MageTransmission extends Talent {
 
-	private final double teleportMaxDist = 30.0d;
+	@DisplayField(suffix = "blocks") private final double maxDistance = 30.0d;
 
 	public MageTransmission() {
 		super("Transmission", "Instantly teleport to your target block, but lose ability to move for a short duration.", Type.COMBAT);
-		this.setItem(Material.ENDER_PEARL);
-		this.setCdSec(30);
+
+		setItem(Material.ENDER_PEARL);
+		setCdSec(30);
 	}
 
 	@Override
 	public Response execute(Player player) {
-		final Location location = getTragetLocation(player);
+		final Location location = getTargetLocation(player);
 		if (location == null) {
 			return Response.error("No valid block in sight!");
 		}
 		location.setYaw(player.getLocation().getYaw());
 		location.setPitch(player.getLocation().getPitch());
 
-		if (location.distance(player.getLocation()) >= teleportMaxDist) {
+		if (location.distance(player.getLocation()) >= maxDistance) {
 			return Response.error("Too far away!");
 		}
 
@@ -49,7 +51,7 @@ public class MageTransmission extends Talent {
 		return Response.OK;
 	}
 
-	private Location getTragetLocation(Player player) {
+	private Location getTargetLocation(Player player) {
 		final Block block = player.getTargetBlockExact(30);
 		if (block == null) {
 			return null;

@@ -18,58 +18,58 @@ import java.util.Set;
 
 public class Tripwire {
 
-	private final Player player;
-	private final Set<Block> blocks;
+    private final Player player;
+    private final Set<Block> blocks;
 
-	public Tripwire(Player player, Set<Block> blocks) {
-		this.player = player;
-		this.blocks = blocks;
-		PlayerLib.playSound(player, Sound.ENTITY_SPIDER_AMBIENT, 0.75f);
-	}
+    public Tripwire(Player player, Set<Block> blocks) {
+        this.player = player;
+        this.blocks = blocks;
+        PlayerLib.playSound(player, Sound.ENTITY_SPIDER_AMBIENT, 0.75f);
+    }
 
-	public Player getPlayer() {
-		return player;
-	}
+    public Player getPlayer() {
+        return player;
+    }
 
-	public Set<Block> getBlocks() {
-		return blocks;
-	}
+    public Set<Block> getBlocks() {
+        return blocks;
+    }
 
-	public void drawLine() {
-		for (Block block : blocks) {
-			PlayerLib.spawnParticle(
-					this.getPlayer(),
-					BukkitUtils.centerLocation(block.getLocation()).subtract(0.0d, 0.4d, 0.0d),
-					Particle.CRIT,
-					1,
-					0,
-					0,
-					0,
-					0
-			);
-		}
-	}
+    public void drawLine() {
+        for (Block block : blocks) {
+            PlayerLib.spawnParticle(
+                    getPlayer(),
+                    BukkitUtils.centerLocation(block.getLocation()).subtract(0.0d, 0.4d, 0.0d),
+                    Particle.CRIT,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0
+            );
+        }
+    }
 
-	public void setBlocks() {
-		this.blocks.forEach(block -> block.setType(Material.TRIPWIRE, false));
-	}
+    public void setBlocks() {
+        this.blocks.forEach(block -> block.setType(Material.TRIPWIRE, false));
+    }
 
-	public void clearBlocks() {
-		this.blocks.forEach(block -> block.setType(Material.AIR, false));
-	}
+    public void clearBlocks() {
+        this.blocks.forEach(block -> block.setType(Material.AIR, false));
+    }
 
-	public void affectPlayer(Player player) {
-		PlayerLib.addEffect(player, PotionEffectType.SLOW, 80, 4);
-		GamePlayer.getPlayer(player).addEffect(GameEffectType.VULNERABLE, 80);
-		new Glowing(player, ChatColor.AQUA, 80).addPlayer(this.getPlayer());
+    public void affectPlayer(Player player) {
+        PlayerLib.addEffect(player, PotionEffectType.SLOW, 80, 4);
+        GamePlayer.getPlayer(player).addEffect(GameEffectType.VULNERABLE, 80);
 
-		// Fx
-		PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_SCREAM, 1.25f);
-		Chat.sendTitle(this.getPlayer(), "&aTripwire Triggered!", "&7You caught " + player.getName(), 10, 20, 10);
-	}
+        // Fx
+        Glowing.glow(player, ChatColor.AQUA, 80, getPlayer());
+        PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_SCREAM, 1.25f);
+        Chat.sendTitle(this.getPlayer(), "&aTripwire Triggered!", "&7You caught " + player.getName(), 10, 20, 10);
+    }
 
-	public boolean isBlockATrap(Block block) {
-		return this.getBlocks().contains(block);
-	}
+    public boolean isBlockATrap(Block block) {
+        return this.getBlocks().contains(block);
+    }
 
 }

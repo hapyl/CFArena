@@ -67,6 +67,12 @@ public class Totem extends Talent {
     }
 
     @Override
+    public void onDeath(Player player) {
+        getPlayerTotems(player).forEach(ActiveTotem::destroy);
+        playerTotems.remove(player);
+    }
+
+    @Override
     public void onStop() {
         playerTotems.values().forEach(totems -> totems.forEach(ActiveTotem::destroy));
         playerTotems.clear();
@@ -116,6 +122,7 @@ public class Totem extends Talent {
 
     @Nullable
     public ActiveTotem getTargetTotem(Player player) {
+        // TODO: 019, Mar 19, 2023 - Maybe use dot
         final Location location = player.getLocation().add(0, 1.5, 0);
         final Vector vector = location.getDirection().normalize();
 

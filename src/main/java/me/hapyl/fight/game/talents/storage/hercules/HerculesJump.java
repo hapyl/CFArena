@@ -10,10 +10,11 @@ import org.bukkit.util.Vector;
 
 public class HerculesJump extends Talent {
 	public HerculesJump() {
-		super("Updraft", "Instantly propel yourself high up to perform plunging attack.", Type.COMBAT);
-		this.setCdSec(10);
-		this.setItem(Material.SLIME_BALL);
-	}
+        super("Updraft", "Instantly propel yourself high up to perform plunging attack.", Type.COMBAT);
+
+        setCdSec(10);
+        setItem(Material.SLIME_BALL);
+    }
 
 	@Override
 	public Response execute(Player player) {

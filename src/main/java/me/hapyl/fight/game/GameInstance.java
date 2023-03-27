@@ -38,7 +38,7 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
     private final String hexCode;
 
     private final long startedAt;
-    private final long timeLimit;
+    private long timeLimit;
     private final Map<UUID, GamePlayer> players;
     private final GameMaps currentMap;
     private final GameTask gameTask;
@@ -361,5 +361,9 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
 
     public long getStartedAt() {
         return startedAt;
+    }
+
+    public void setTimeLeft(long timeLeft) {
+        this.timeLimit = timeLeft;
     }
 }

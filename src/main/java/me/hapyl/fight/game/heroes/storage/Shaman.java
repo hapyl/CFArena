@@ -1,9 +1,7 @@
 package me.hapyl.fight.game.heroes.storage;
 
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.heroes.ComplexHero;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentHandle;
 import me.hapyl.fight.game.talents.Talents;
@@ -13,14 +11,18 @@ import me.hapyl.fight.game.weapons.Weapon;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
-public class Shaman extends Hero implements ComplexHero {
+public class Shaman extends Hero implements ComplexHero, DisabledHero {
+
     public Shaman() {
         super("Shaman");
 
-        setItem(Material.OBSIDIAN);
+        setWeapon(new Weapon(Material.BAMBOO).setName("Shaman's Weapon").setDamage(5.0d));
+        setItem("a90515c41b3e131b623cc04978f101aab2e5b82c892890df991b7c079f91d2bd");
 
-        setWeapon(new Weapon(Material.STICK).setName("Shaman's Weapon").setDamage(5.0d));
+        final ClassEquipment equipment = getEquipment();
 
+        equipment.setChestplate(110, 94, 74);
+        equipment.setLeggings(57, 40, 90);
     }
 
     @Override

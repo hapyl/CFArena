@@ -9,6 +9,7 @@ import me.hapyl.spigotutils.module.reflect.glow.Glowing;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -97,7 +98,24 @@ public enum GameTeam {
         }
     }
 
+    public static boolean isTeammate(Player player, Entity other) {
+        if (!(other instanceof Player otherPlayer)) {
+            return false;
+        }
+
+        return isTeammate(player, otherPlayer);
+    }
+
+    public static boolean isSelfOrTeammate(Player player, Player other) {
+        if (player == other) {
+            return true;
+        }
+
+        return isTeammate(player, other);
+    }
+
     public static boolean isTeammate(Player player, Player other) {
+        // Must consider self check as NOT teammate.
         if ((player == null || other == null) || (player == other)) {
             return false;
         }

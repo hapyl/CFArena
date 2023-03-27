@@ -8,6 +8,7 @@ import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -28,23 +29,24 @@ import java.util.Map;
 public class BlastPack extends ChargedTalent {
 
     private final Map<Player, Entity> blastPackMap = new HashMap<>();
-    private final double explosionRadius = 4.0d;
+    @DisplayField(suffix = "blocks") private final double explosionRadius = 4.0d;
 
     public BlastPack() {
         super("Blast Pack", "&b1) &7Throw the blast pack!__&b2) &7Click again to explode!__&b3) &7???__&b4) &7Fly!", 2);
-        this.setItem(Material.DETECTOR_RAIL);
-        this.setCd(3);
-        this.setRechargeTimeSec(12);
+
+        setItem(Material.DETECTOR_RAIL);
+        setCd(3);
+        setRechargeTimeSec(12);
     }
 
     @Override
-    public void onStop() {
+    public void onStopCharged() {
         blastPackMap.values().forEach(Entity::remove);
         blastPackMap.clear();
     }
 
     @Override
-    public void onDeath(Player player) {
+    public void onDeathCharged(Player player) {
         Nulls.runIfNotNull(blastPackMap.get(player), Entity::remove);
         blastPackMap.remove(player);
     }

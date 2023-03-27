@@ -32,7 +32,12 @@ public class LibraryFeature extends MapFeature implements Listener {
                 "The Void",
                 "A chunk of void that can transport you anywhere. But be aware that continuous usage may as well consume you..."
         );
-        this.portals = new LibraryKeyport();
+        portals = new LibraryKeyport();
+    }
+
+    @Override
+    public void onDeath(Player player) {
+        voidMap.remove(player);
     }
 
     @Override

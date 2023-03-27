@@ -38,14 +38,9 @@ public class Troll extends Hero {
         setRole(Role.MELEE);
 
         setInfo("Not a good fighter... but definitely a good troll!");
-        setItem(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTYyNmMwMTljOGI0MWM3YjI0OWFlOWJiNjc2MGM0ZTY5ODAwNTFjZjBkNjg5NWNiM2U2ODQ2ZDgxMjQ1YWQxMSJ9fX0="
-        );
+        setItem("9626c019c8b41c7b249ae9bb6760c4e6980051cf0d6895cb3e6846d81245ad11");
 
-        final ClassEquipment equipment = this.getEquipment();
-        equipment.setHelmet(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTYyNmMwMTljOGI0MWM3YjI0OWFlOWJiNjc2MGM0ZTY5ODAwNTFjZjBkNjg5NWNiM2U2ODQ2ZDgxMjQ1YWQxMSJ9fX0="
-        );
+        final ClassEquipment equipment = getEquipment();
         equipment.setChestplate(255, 204, 84);
         equipment.setLeggings(255, 204, 84);
         equipment.setBoots(255, 204, 84);
@@ -91,7 +86,7 @@ public class Troll extends Hero {
                 player.die(true);
 
                 player.playSound(Sound.ENTITY_WITCH_CELEBRATE, 2.0f);
-                player.sendMessage("%s had the last laugh!", killer.getName());
+                player.sendMessage("&a%s had the last laugh!", killer.getName());
 
                 return null;
             }
@@ -102,7 +97,7 @@ public class Troll extends Hero {
                 return null;
             }
 
-            Chat.sendMessage(killer, "You laughed at %s!", entity.getName());
+            Chat.sendMessage(killer, "&aYou laughed at %s!", entity.getName());
             PlayerLib.playSound(killer, Sound.ENTITY_WITCH_CELEBRATE, 2.0f);
         }
 

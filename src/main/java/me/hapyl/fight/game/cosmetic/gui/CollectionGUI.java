@@ -19,7 +19,9 @@ import org.bukkit.entity.Player;
 public class CollectionGUI extends PlayerAnimatedGUI {
 
     public static final SlotPattern PATTERN = new SlotPattern(new byte[][] {
-            { 0, 1, 0, 1, 0, 0, 0, 0, 0 }, { 0, 0, 1, 0, 0, 0, 0, 0, 0 }
+            { 0, 0, 1, 0, 0, 0, 0, 0, 0 },
+            { 0, 1, 0, 1, 0, 0, 0, 0, 0 },
+            { 0, 1, 1, 1, 0, 0, 0, 0, 0 }
     });
 
     public static final int[] ANIMATION_SLOTS = new int[] {
@@ -49,9 +51,6 @@ public class CollectionGUI extends PlayerAnimatedGUI {
 
         setItem(pixelSlot, ItemBuilder.of(Material.LIME_STAINED_GLASS_PANE).asIcon());
     }
-
-    // TODO: 002, Mar 2, 2023 - Style this!!!!
-    // TODO: 003, Mar 3, 2023 - Preview currently selected cosmetic for the type.
 
     public void update() {
         final SmartComponent component = newSmartComponent();

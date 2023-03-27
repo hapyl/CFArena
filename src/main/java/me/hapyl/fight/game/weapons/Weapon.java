@@ -2,6 +2,7 @@ package me.hapyl.fight.game.weapons;
 
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.ChatColor;
@@ -20,7 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class Weapon implements Cloneable {
+public class Weapon implements Cloneable, DisplayFieldProvider {
+
+    // FIXME: 023, Mar 23, 2023 -> Still using old formatter
 
     private ItemStack item;
 
@@ -238,6 +241,6 @@ public class Weapon implements Cloneable {
     }
 
     public boolean isRanged() {
-        return material == Material.BOW || material == Material.CROSSBOW || material == Material.TRIDENT;
+        return (material == Material.BOW || material == Material.CROSSBOW || material == Material.TRIDENT) || this instanceof RangeWeapon;
     }
 }

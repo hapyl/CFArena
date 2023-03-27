@@ -8,7 +8,6 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -23,7 +22,7 @@ import java.util.Locale;
 
 public class Submerge extends Talent {
 
-    private final float[] finOffset = { 0.2f, 1.8f, 0.2f };
+    private final float[] FIN_OFFSET = { 0.2f, 1.8f, 0.2f };
     private final double DAMAGE = 10.0d;
 
     public Submerge() {
@@ -34,17 +33,17 @@ public class Submerge extends Talent {
         );
 
         setDuration(20);
-        setCdSec(10);
+        setCdSec(5);
     }
 
     @Override
     public Response execute(Player player) {
         player.setGameMode(GameMode.SPECTATOR);
 
-        final Location location = LocationHelper.getToTheRight(player.getLocation(), 1.2d);
+        final Location location = player.getLocation();
         location.setPitch(0.0f);
 
-        final ArmorStand marker = Entities.ARMOR_STAND.spawn(location.subtract(finOffset[0], finOffset[1], finOffset[2]), me -> {
+        final ArmorStand marker = Entities.ARMOR_STAND.spawn(location.subtract(FIN_OFFSET[0], FIN_OFFSET[1], FIN_OFFSET[2]), me -> {
             me.setSilent(true);
             me.setMarker(true);
             me.setInvisible(true);
@@ -84,7 +83,7 @@ public class Submerge extends Talent {
             @Override
             public void run() {
                 final Location entityLocation = marker.getLocation();
-                final Location fixedLocation = entityLocation.clone().add(finOffset[0], finOffset[1], finOffset[2]);
+                final Location fixedLocation = entityLocation.clone().add(FIN_OFFSET[0], FIN_OFFSET[1], FIN_OFFSET[2]);
                 final Vector vector = location.getDirection().setY(0.0d).multiply(0.5);
                 final Location nextLocation = entityLocation.add(vector);
 
@@ -94,7 +93,7 @@ public class Submerge extends Talent {
                 // if block is not passable then go back one step and raise
                 if (!isPassable(nextCheckLocation.getBlock())) {
                     raise(entityLocation.subtract(vector));
-                    this.cancel();
+                    cancel();
                     return;
                 }
 

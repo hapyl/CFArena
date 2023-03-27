@@ -45,18 +45,17 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
 
     public DarkMage() {
         super("Dark Mage");
-        this.setRole(Role.MELEE);
-        this.setInfo("A mage that was cursed by &8&lDark &8&lMagic&7&o. But even it couldn't kill him...");
-        this.setItem(Material.CHARCOAL);
+
+        setRole(Role.MELEE);
+        setInfo("A mage that was cursed by &8&lDark &8&lMagic&7&o. But even it couldn't kill him...");
+        setItem("e6ca63569e8728722ecc4d12020e42f086830e34e82db55cf5c8ecd51c8c8c29");
 
         final ClassEquipment equipment = this.getEquipment();
-        equipment.setHelmet(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTZjYTYzNTY5ZTg3Mjg3MjJlY2M0ZDEyMDIwZTQyZjA4NjgzMGUzNGU4MmRiNTVjZjVjOGVjZDUxYzhjOGMyOSJ9fX0=");
         equipment.setChestplate(102, 255, 255);
         equipment.setLeggings(Material.IRON_LEGGINGS);
         equipment.setBoots(153, 51, 51);
 
-        this.setWeapon(new Weapon(Material.WOODEN_HOE).setName("Ancient Wand")
+        setWeapon(new Weapon(Material.WOODEN_HOE).setName("Ancient Wand")
                 .setDamage(7.0d)
                 .setDescription(
                         "A powerful wand, that's capable of casting multiple spells!__&e&lRIGHT CLICK &7to enter casting, then, combine &e&lRIGHT CLICK &7and/or &e&lLEFT CLICK &7to execute the spell!"
@@ -65,14 +64,13 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
                         "Long ago, a powerful wand was crafted from the bones of long-dead wizards and imbued with dark magic, granting immense power to its wielder. The wand was used by a cruel and merciless ruler to subjugate kingdoms."
                 ));
 
-        this.setUltimate(new UltimateTalent(
+        setUltimate(new UltimateTalent(
                 "Wither Rider",
                 "Transform into the wither for {duration}.__" +
                         "While transformed, &e&lRIGHT CLICK &7to shoot wither skulls that deals massive damage on impact.__" +
                         "After wither disappears, you perform plunging attack that deals damage in AoE upon hitting the ground.",
                 70
         ).setItem(Material.WITHER_SKELETON_SKULL).setDuration(240).setCdSec(30).setSound(Sound.ENTITY_WITHER_SPAWN, 2.0f));
-
     }
 
     @Override
@@ -185,8 +183,10 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         final Player player = ev.getPlayer();
         final Action action = ev.getAction();
 
-        if (!validatePlayer(player, Heroes.DARK_MAGE) || ev.getHand() == EquipmentSlot.OFF_HAND ||
-                player.hasCooldown(getWeapon().getMaterial())) {
+        if (!validatePlayer(player, Heroes.DARK_MAGE)
+                || ev.getHand() == EquipmentSlot.OFF_HAND
+                || player.hasCooldown(getWeapon().getMaterial())
+                || ev.getAction() == Action.PHYSICAL) {
             return;
         }
 

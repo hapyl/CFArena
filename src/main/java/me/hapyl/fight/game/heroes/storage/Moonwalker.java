@@ -32,18 +32,17 @@ public class Moonwalker extends Hero implements PlayerElement, UIComponent {
     public Moonwalker() {
         super("Moonwalker");
 
-        this.setMinimumLevel(3);
-        this.setRole(Role.RANGE);
+        setMinimumLevel(3);
+        setRole(Role.RANGE);
 
-        this.setInfo("A traveller from another planet... or, should I say moon? Brings his skills and... planets... with himself!");
-        this.setItem(Material.END_STONE);
-
-        final ClassEquipment equipment = this.getEquipment();
-        equipment.setHelmet(
+        setInfo("A traveller from another planet... or, should I say moon? Brings his skills and... planets... with himself!");
+        setItemTexture(
                 "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWNmOGZiZDc2NTg2OTIwYzUyNzM1MTk5Mjc4NjJmZGMxMTE3MDVhMTg1MWQ0ZDFhYWM0NTBiY2ZkMmIzYSJ9fX0=");
-        equipment.setChestplate(199, 199, 194);
-        equipment.setLeggings(145, 145, 136);
-        equipment.setBoots(53, 53, 49);
+
+        final ClassEquipment equipment = getEquipment();
+        equipment.setChestplate(255, 255, 255);
+        equipment.setLeggings(186, 186, 186);
+        equipment.setBoots(105, 105, 105);
 
         this.setWeapon(new Weapon(Material.BOW) {
             @Override
@@ -65,8 +64,8 @@ public class Moonwalker extends Hero implements PlayerElement, UIComponent {
                 .setName("Stinger")
                 .setDescription(
                         "A unique bow made of unknown materials, seems to have two firing modes.__&e&lLEFT &e&lCLICK &7to fire quick arrow that deals 50% of normal damage.")
-                               .setDamage(4.5d)
-                               .setId("MOON_WEAPON"));
+                .setDamage(4.5d)
+                .setId("MOON_WEAPON"));
 
         // moved to its own class because it was unreadable lol
         setUltimate(new MoonwalkerUltimate());

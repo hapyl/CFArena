@@ -13,8 +13,6 @@ import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.maps.features.BoosterController;
 import me.hapyl.fight.game.parkour.CFParkourManager;
 import me.hapyl.fight.game.task.TaskList;
-import me.hapyl.fight.game.tutorial.ChatTutorial;
-import me.hapyl.fight.game.tutorial.Tutorial;
 import me.hapyl.fight.notifier.Notifier;
 import me.hapyl.fight.protocol.ArcaneMuteProtocol;
 import me.hapyl.spigotutils.EternaAPI;
@@ -24,12 +22,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import test.Test;
 
 public class Main extends JavaPlugin {
 
+    public static final String GAME_NAME = "&e&lCLASSES FIGHT &c&lᴀʀᴇɴᴀ";
     private static Main plugin;
 
-    private ChatTutorial tutorial;
     private Manager manager;
     private TaskList taskList;
     private BoosterController boosters;
@@ -85,7 +84,6 @@ public class Main extends JavaPlugin {
 
         this.manager = new Manager();
         this.taskList = new TaskList();
-        this.tutorial = new ChatTutorial();
         this.boosters = new BoosterController();
         this.experience = new Experience();
         this.notifier = new Notifier(this);
@@ -125,6 +123,9 @@ public class Main extends JavaPlugin {
 
             databaseLegacy = true;
         }
+
+        // Init runtime tests
+        new Test(this);
     }
 
     private void registerEvents() {
@@ -158,10 +159,6 @@ public class Main extends JavaPlugin {
 
     public TaskList getTaskList() {
         return taskList;
-    }
-
-    public Tutorial getTutorial() {
-        return tutorial;
     }
 
     public BoosterController getBoosters() {

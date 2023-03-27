@@ -23,7 +23,7 @@ public class LaserEye extends Talent {
 
 	public LaserEye() {
 		super("Laser Eye");
-        this.setDescription(
+        this.addDescription(
                 "Become immovable and activate laser for &b%ss&7 that rapidly damages enemies.",
                 BukkitUtils.roundTick(duration)
         );

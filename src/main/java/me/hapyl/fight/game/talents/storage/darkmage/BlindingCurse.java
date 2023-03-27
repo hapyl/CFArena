@@ -4,6 +4,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.heroes.HeroHandle;
 import me.hapyl.fight.game.heroes.storage.extra.DarkMageSpell;
 import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
@@ -19,9 +20,11 @@ import javax.annotation.Nonnull;
 
 public class BlindingCurse extends DarkMageTalent {
 
+    @DisplayField private final double maxDistance = 35.0d;
+
     public BlindingCurse() {
         super("Blinding Curse", "Applies blinding curse to target player.", Material.INK_SAC);
-        this.setCd(100);
+        setCd(100);
     }
 
     @Nonnull
@@ -42,7 +45,7 @@ public class BlindingCurse extends DarkMageTalent {
             return Response.error("Unable to use while in ultimate form!");
         }
 
-        final Player target = Utils.getTargetPlayer(player, 35);
+        final Player target = Utils.getTargetPlayer(player, maxDistance);
         final Location location = player.getLocation();
         if (target == null) {
 			return Response.error("No valid target!");

@@ -75,7 +75,7 @@ public enum Talents {
     SHOCK_DARK(new ShockDark()),
     HAWKEYE_ARROW(new PassiveTalent(
             "Hawkeye Arrow",
-            "Fully charged shots while sneaking have 25% chance to fire hawkeye arrow that homes to nearby enemies.",
+            "Fully charged shots while sneaking have &b25%&7 chance to fire hawkeye arrow that homes to nearby enemies.",
             Material.ENDER_EYE
     )),
 
@@ -84,7 +84,7 @@ public enum Talents {
     CAULDRON(new CauldronAbility()),
     INTOXICATION(new PassiveTalent(
             "Intoxication",
-            "Drinking potions will increase &eIntoxication &7level that will decrease constantly. Keeping an eye on &eIntoxication &7level is a good idea, who knows what can happen...",
+            "Drinking potions will increase &eIntoxication &7level that will decrease constantly.__Keeping an eye on &eIntoxication &7level is a good idea, who knows what might happen...",
             Material.DRAGON_BREATH
     )),
 
@@ -114,8 +114,8 @@ public enum Talents {
     // Pytaria
     FLOWER_ESCAPE(new FlowerEscape()),
     FLOWER_BREEZE(new FlowerBreeze()),
-    EXCELLENCY(new PassiveTalent("Excellency",
-            // When Pytaria's health is lower or equal to &c50%&7, her damage is increased by &b50%&7.
+    EXCELLENCY(new PassiveTalent(
+            "Excellency",
             "When Pytaria's &chealth &7is lower or equal to &c50%&7, her damage is increased by &b50%&7.", Material.ROSE_BUSH
     )),
 
@@ -155,12 +155,12 @@ public enum Talents {
     SPARK_FLASH(new SparkFlash()),
     FIRE_GUY(new PassiveTalent("Fire Guy", "You're completely immune to &clava &7and &cfire &7damage.", Material.LAVA_BUCKET)),
 
-    // SA
+    // Shadow Assassin
     SHADOW_PRISM(new ShadowPrism()),
     SHROUDED_STEP(new ShroudedStep()),
     SECRET_SHADOW_WARRIOR_TECHNIQUE(new PassiveTalent(
             "Dark Cover",
-            "As a assassin, you have mastered ability to stay in the shadows. While &e&lSNEAKING&7, you become completely invisible, but cannot deal damage and your footsteps are visible.",
+            "As a assassin, you have mastered ability to stay in the shadows.____While &e&lSNEAKING&7, you become completely invisible, but cannot deal damage and your footsteps are visible.",
             Material.NETHERITE_CHESTPLATE
     )),
 
@@ -172,7 +172,7 @@ public enum Talents {
     IRDEN(new Irden()),
     COMBO_SYSTEM(new PassiveTalent(
             "Combo",
-            "Dealing continuous damage to the same target will increase your combo, greater combo hits deals increased damage.",
+            "Dealing &bcontinuous damage&7 to the &bsame target&7 will increase your combo, greater combo hits deals &cincreased damage&7.",
             Material.SKELETON_SKULL
     )),
 
@@ -239,8 +239,8 @@ public enum Talents {
     SUBMERGE(new Submerge()),
     WHIRLPOOL(new Whirlpool()),
     CLAW_CRITICAL(new PassiveTalent(
-            "Sturdy Claws",
-            "Your hits have &b10% &7chance to &ccrit&7!____Critical hits summons an ancient creature from beneath that deals extra damage!",
+            "Oceanborn/Sturdy Claws",
+            "&b&lOceanborn:__&While in water, your speed and damage is drastically increased.____&b&lSturdy Claws:__&7Your hits have &b10% &7chance to &ccrit&7!__Critical hits summons an ancient creature from beneath that deals extra damage and heals you!",
             Material.MILK_BUCKET
     )),
 

@@ -7,7 +7,7 @@ import me.hapyl.fight.game.heroes.HeroHandle;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Utils;
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.Quality;
 import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
@@ -24,9 +24,9 @@ import java.util.Set;
 
 public class MoonwalkerUltimate extends UltimateTalent {
 
-    private final int CORROSION_TIME = 130;
-    private final double METEORITE_RADIUS = 8.5d;
-    private final double METEORITE_DAMAGE = 50.0d;
+    @DisplayField private final int corrosionTime = 130;
+    @DisplayField private final double meteoriteRadius = 8.5d;
+    @DisplayField private final double meteoriteDamage = 50.0d;
 
     public MoonwalkerUltimate() {
         super(
@@ -75,12 +75,12 @@ public class MoonwalkerUltimate extends UltimateTalent {
                 }
 
                 // Notify players in range that they're in danger
-                Utils
-                        .getPlayersInRange(playerLocation, 8.5d)
-                        .forEach(target -> Chat.sendTitle(target, "&4&l⚠", "&cMeteorite Warning!", 0, 5, 5));
+                Utils.getPlayersInRangeValidateRange(playerLocation, meteoriteRadius).forEach(target -> {
+                    GamePlayer.getPlayer(target).sendWarning("Meteorite Warning!", 5);
+                });
 
-                Geometry.drawCircle(playerLocation, 10, Quality.NORMAL, new WorldParticle(Particle.CRIT));
-                Geometry.drawCircle(playerLocation, 10.25, Quality.VERY_HIGH, new WorldParticle(Particle.SNOW_SHOVEL));
+                Geometry.drawCircle(playerLocation, meteoriteRadius, Quality.NORMAL, new WorldParticle(Particle.CRIT));
+                Geometry.drawCircle(playerLocation, meteoriteRadius + 0.25d, Quality.VERY_HIGH, new WorldParticle(Particle.SNOW_SHOVEL));
 
                 ++tick;
             }
@@ -175,15 +175,16 @@ public class MoonwalkerUltimate extends UltimateTalent {
 
     private void explode(Player executor, Location location) {
         final World world = location.getWorld();
+
         if (world == null) {
             throw new NullPointerException("world is null");
         }
 
-        Utils.getEntitiesInRange(location, METEORITE_RADIUS).forEach(entity -> {
-            GamePlayer.damageEntity(entity, METEORITE_DAMAGE, executor, EnumDamageCause.METEORITE);
+        Utils.getEntitiesInRangeValidateRange(location, meteoriteRadius).forEach(entity -> {
+            GamePlayer.damageEntity(entity, meteoriteDamage, executor, EnumDamageCause.METEORITE);
 
             if (entity instanceof Player player) {
-                GamePlayer.getPlayer(player).addEffect(GameEffectType.CORROSION, CORROSION_TIME, true);
+                GamePlayer.getPlayer(player).addEffect(GameEffectType.CORROSION, corrosionTime, true);
             }
         });
 

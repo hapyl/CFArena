@@ -16,7 +16,7 @@ public abstract class DarkMageTalent extends Talent {
     public DarkMageTalent(String name, String description, Material material) {
         super(name, description, material);
 
-        setDescription(getDescription() + "____" + getUsage());
+        addDescription("__" + getUsage());
         setAutoAdd(false);
         setAltUsage("You must use your wand to cast this spell!");
     }

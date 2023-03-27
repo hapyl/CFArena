@@ -7,6 +7,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.Draw;
 import me.hapyl.spigotutils.module.particle.ParticleBuilder;
@@ -22,9 +23,9 @@ import java.util.Set;
 
 public class ShockDark extends Talent implements Listener {
 
-    private final double shockExplosionRadius = 3.7d;
-    private final double shockExplosionMaxDamage = 15.0d; //9.0
-    private final int shockDartWindup = 18;
+    @DisplayField(suffix = "blocks") private final double explosionRadius = 3.7d;
+    @DisplayField private final double explosionMaxDamage = 15.0d; //9.0
+    @DisplayField private final int explosionWindup = 18;
 
     private final Set<Arrow> arrows;
 
@@ -74,26 +75,26 @@ public class ShockDark extends Talent implements Listener {
             }
         });
 
-        playAndCut(location, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 2f, shockDartWindup);
+        playAndCut(location, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 2f, explosionWindup);
 
         new GameTask() {
             @Override
             public void run() {
-                Geometry.drawSphere(location, 10, shockExplosionRadius, new Draw(Particle.VILLAGER_HAPPY) {
+                Geometry.drawSphere(location, 10, explosionRadius, new Draw(Particle.VILLAGER_HAPPY) {
                     @Override
                     public void draw(Location location) {
                         redColor.display(location);
                     }
                 });
                 PlayerLib.playSound(location, Sound.ENCHANT_THORNS_HIT, 1.2f);
-                Utils.getEntitiesInRange(location, shockExplosionRadius)
+                Utils.getEntitiesInRange(location, explosionRadius)
                         .forEach(target -> {
                             final double distance = target.getLocation().distance(location);
-                            final double damage = distance <= 1 ? shockExplosionMaxDamage : (shockExplosionMaxDamage - (distance * 2));
+                            final double damage = distance <= 1 ? explosionMaxDamage : (explosionMaxDamage - (distance * 2));
                             GamePlayer.damageEntity(target, damage, player, EnumDamageCause.SHOCK_DART);
                         });
             }
-        }.runTaskLater(shockDartWindup);
+        }.runTaskLater(explosionWindup);
 
     }
 

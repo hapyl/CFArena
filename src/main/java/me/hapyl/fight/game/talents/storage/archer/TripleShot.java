@@ -13,9 +13,10 @@ import org.bukkit.util.Vector;
 
 public class TripleShot extends Talent {
     public TripleShot() {
-        super("Triple Shot", "Shoots three arrows in front of you. Two additional arrows deal 50% of normal damage.", Type.COMBAT);
-        this.setCd(75);
-        this.setItem(Material.ARROW);
+        super("Triple Shot", "Shoots three arrows in front of you. Two additional arrows deal &b50%&7 of normal damage.", Type.COMBAT);
+
+        setCd(75);
+        setItem(Material.ARROW);
     }
 
     @Override
@@ -34,12 +35,13 @@ public class TripleShot extends Talent {
 
         final Arrow arrowLeft = location.getWorld()
                 .spawn(player.getLocation()
-                               .add(player.getLocation().getDirection().add(getVectorLeft(player).multiply(1)))
-                               .add(0, 1.5, 0), Arrow.class);
+                        .add(player.getLocation().getDirection().add(getVectorLeft(player).multiply(1)))
+                        .add(0, 1.5, 0), Arrow.class);
+
         final Arrow arrowRight = location.getWorld()
                 .spawn(player.getLocation()
-                               .add(player.getLocation().getDirection().add(getVectorRight(player).multiply(1)))
-                               .add(0, 1.5, 0), Arrow.class);
+                        .add(player.getLocation().getDirection().add(getVectorRight(player).multiply(1)))
+                        .add(0, 1.5, 0), Arrow.class);
 
         arrowLeft.setVelocity(arrowMiddle.getVelocity());
         arrowRight.setVelocity(arrowMiddle.getVelocity());

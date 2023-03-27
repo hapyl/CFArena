@@ -14,7 +14,7 @@ public class CooldownCommand extends SimplePlayerAdminCommand {
 
     @Override
     protected void execute(Player player, String[] args) {
-        final GamePlayer gamePlayer = GamePlayer.getAlivePlayer(player);
+        final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
         if (gamePlayer == null) {
             Chat.sendMessage(player, "&cCannot use this command outside a game!");
             return;

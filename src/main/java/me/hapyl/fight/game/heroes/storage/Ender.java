@@ -49,23 +49,19 @@ public class Ender extends Hero implements Listener {
 
     public Ender() {
         super("Ender");
-        this.setItem(Material.ENDER_PEARL);
-        this.setRole(Role.ASSASSIN);
+        setRole(Role.ASSASSIN);
+        setItem("aacb357709d8cdf1cd9c9dbe313e7bab3276ae84234982e93e13839ab7cc5d16");
 
-        this.setMinimumLevel(5);
+        setMinimumLevel(5);
 
-        // Weird enderman-like looking warrior with teleportation abilities. He hits you with his arm, but it hurts like a brick.
-        this.setInfo("Weird enderman-like looking warrior with teleportation abilities. He hits you with his arm, but it hurts like a brick.");
+        setInfo("Weird enderman-like looking warrior with teleportation abilities. He hits you with his arm, but it hurts like a brick.");
 
-        final ClassEquipment eq = this.getEquipment();
-        eq.setHelmet(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYWFjYjM1NzcwOWQ4Y2RmMWNkOWM5ZGJlMzEzZTdiYWIzMjc2YWU4NDIzNDk4MmU5M2UxMzgzOWFiN2NjNWQxNiJ9fX0="
-        );
-        eq.setChestplate(85, 0, 102);
-        eq.setLeggings(128, 0, 128);
-        eq.setBoots(136, 0, 204);
+        final ClassEquipment equipment = this.getEquipment();
+        equipment.setChestplate(85, 0, 102);
+        equipment.setLeggings(128, 0, 128);
+        equipment.setBoots(136, 0, 204);
 
-        this.setWeapon(new Weapon(Material.ENDERMAN_SPAWN_EGG) {
+        setWeapon(new Weapon(Material.ENDERMAN_SPAWN_EGG) {
 
             private final Map<Player, Location> targetLocation = new HashMap<>();
 
