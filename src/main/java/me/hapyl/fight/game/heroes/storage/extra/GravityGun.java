@@ -5,6 +5,7 @@ import me.hapyl.fight.game.talents.storage.extra.ElementType;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -98,7 +99,10 @@ public class GravityGun extends Weapon {
         player.setCooldown(getType(), 2); // fix instant throw
         element.startTask();
         setElement(player, element);
-        Chat.sendMessage(player, "&aPicked up element of %s!", Chat.capitalize(targetBlock.getType()));
 
+        // This spams chat like a lot, changed to a block pickup sound instead.
+        PlayerLib.playSound(player, targetBlock.getBlockData().getSoundGroup().getPlaceSound(), 1.0f);
+
+        //Chat.sendMessage(player, "&aPicked up element of %s!", Chat.capitalize(targetBlock.getType()));
     }
 }

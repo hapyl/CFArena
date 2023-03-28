@@ -97,7 +97,6 @@ public class Tamer extends Hero implements Listener, DisabledHero {
         return TalentHandle.MINE_O_BALL.getPack(player);
     }
 
-
     @Override
     public void onStart() {
     }

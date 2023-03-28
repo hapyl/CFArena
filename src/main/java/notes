@@ -44,7 +44,7 @@ Bugs:
 - [✔] Black hole works with grimoire
 - [✔] Store class wins
 - [✔] Fix techie trips
-- Stop paintings from breaking
+- [✔] Stop paintings from breaking
 - harbinger riptide not going away?
 - [✔] weakness level matters for client
 - [✔] deathmath when die who dead keeps yes
@@ -53,18 +53,18 @@ Bugs:
 
 - add glowing on death for teammates
 - fix mmu3 . -> / not cancelling msg
-- Kill deathmatch
+- [✔] Kill deathmatch
 - [✔] Blast knight horse
-- wolf howl 201.5 64.0 217.5 rand
-- patch notes type the the
-- Parkour button actual pressing remove this wtf
+- [✔] wolf howl 201.5 64.0 217.5 rand
+- [✔] patch notes type the the
+- [✔] Parkour button actual pressing remove this wtf
 - leaving breaks the game
-- tripwire does not refresh on cauht?
+- [✔] tripwire does not refresh on cauht?
 
 - Cleanup Code
 - Add friends, idk why?
 - Maybe remove re-join ability, it kinda sucks and breaks the game
-- Add /colorItem command or something
+- [✔] Add /colorItem command or something
 
 - Add talents for:
     - [✔] Troll (Passive✔)

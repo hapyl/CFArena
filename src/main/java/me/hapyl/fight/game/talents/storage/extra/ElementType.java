@@ -1,11 +1,13 @@
 package me.hapyl.fight.game.talents.storage.extra;
 
+import me.hapyl.fight.game.talents.InsteadOfNull;
 import me.hapyl.spigotutils.module.util.Action;
 import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.Predicate;
 
@@ -75,6 +77,8 @@ public enum ElementType {
         return false;
     }
 
+    @Nonnull
+    @InsteadOfNull("NULL")
     public static ElementType getElement(Material material) {
         if (!material.isBlock()) {
             throw new IllegalArgumentException("material is not a block!");

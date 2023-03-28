@@ -35,7 +35,6 @@ public class PhysGun extends Weapon {
 
     @Override
     public void onRightClick(Player player, ItemStack item) {
-
         // Throw
         if (capturedEntity.containsKey(player)) {
             final LivingEntity entity = capturedEntity.get(player);

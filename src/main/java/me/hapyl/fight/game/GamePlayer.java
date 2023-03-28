@@ -779,6 +779,12 @@ public class GamePlayer extends AbstractGamePlayer {
 
             @Override
             public void run() {
+                // stop respawning if the game has ended
+                if (Manager.current().getCurrentGame().getGameState() != State.IN_GAME) {
+                    cancel();
+                    return;
+                }
+
                 if (tickBeforeRespawn < 0) {
                     respawn();
                     cancel();

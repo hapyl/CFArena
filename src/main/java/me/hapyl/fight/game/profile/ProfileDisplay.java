@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.profile;
 
+import me.hapyl.fight.Main;
 import me.hapyl.fight.database.entry.CosmeticEntry;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
@@ -47,6 +48,10 @@ public class ProfileDisplay {
             builder.append(prefix).append(" ");
         }
 
+        // Append player level
+        final long playerLevel = Main.getPlugin().getExperience().getLevel(player);
+        builder.append("&b[%s] ".formatted(playerLevel));
+
         builder.append(player.isOp() ? ChatColor.RED : ChatColor.YELLOW);
         builder.append(customName).append("&f: ");
 
@@ -70,10 +75,16 @@ public class ProfileDisplay {
 
         builder.append(isSpectator ? "&7&o" : "&6&l");
         builder.append(hero.getHero().getName()).append(" ");
+
         final String prefix = getPrefix();
         if (!prefix.isEmpty()) {
             builder.append(prefix).append(" ");
         }
+
+        // Append player level
+        final long playerLevel = Main.getPlugin().getExperience().getLevel(player);
+        builder.append("&b[%s]&f ".formatted(playerLevel));
+
         builder.append(player.isOp() ? (isSpectator ? "&7🛡 " : "&c🛡 ") : isSpectator ? "" : "&e");
         builder.append(player.getName());
 
