@@ -19,10 +19,10 @@ public abstract class GameTask implements Runnable {
         this.shutdownAction = ShutdownAction.CANCEL;
     }
 
-    public static void runDuration(Talent talent, BiConsumer<GameTask, Integer> runnable, int delay, int period) {
+    public static GameTask runDuration(Talent talent, BiConsumer<GameTask, Integer> runnable, int delay, int period) {
         final int duration = talent.getDuration();
 
-        new GameTask() {
+        return new GameTask() {
             private int tick = duration;
 
             @Override
