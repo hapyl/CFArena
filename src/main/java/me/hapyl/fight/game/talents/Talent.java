@@ -2,6 +2,8 @@ package me.hapyl.fight.game.talents;
 
 import com.google.common.collect.Lists;
 import me.hapyl.fight.game.*;
+import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.storage.SlowingAuraEffect;
 import me.hapyl.fight.util.Function;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Utils;
@@ -368,16 +370,26 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         return response == null ? Response.ERROR_DEFAULT : response;
     }
 
-    public final void startCd(Player player, int customCd) {
-        player.setCooldown(material, customCd);
-    }
-
-    public final void startCd(Player player) {
-        if (cd <= 0) {
+    public final void startCd(Player player, int cooldown) {
+        if (cooldown <= 0) {
             return;
         }
 
-        player.setCooldown(material, cd);
+        // If player has slowing aura, modify cooldown
+        if (GamePlayer.getPlayer(player).hasEffect(GameEffectType.SLOWING_AURA)) {
+            cooldown *= ((SlowingAuraEffect) GameEffectType.SLOWING_AURA.getGameEffect()).COOLDOWN_MODIFIER;
+        }
+
+        // Don't start CD if in debug
+        if (Manager.current().isDebug()) {
+            return;
+        }
+
+        player.setCooldown(material, cooldown);
+    }
+
+    public final void startCd(Player player) {
+        startCd(player, cd);
     }
 
     public final void stopCd(Player player) {
@@ -430,4 +442,9 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         COMBAT_CHARGED,
         ULTIMATE
     }
+
+    public Talent getHandle() {
+        return this;
+    }
+
 }

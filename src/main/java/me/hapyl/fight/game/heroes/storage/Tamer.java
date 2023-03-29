@@ -9,6 +9,7 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentHandle;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.storage.tamer.MineOBall;
 import me.hapyl.fight.game.talents.storage.tamer.TamerPack;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -154,8 +155,8 @@ public class Tamer extends Hero implements Listener, DisabledHero {
     }
 
     @Override
-    public Talent getFirstTalent() {
-        return Talents.MINE_O_BALL.getTalent();
+    public MineOBall getFirstTalent() {
+        return (MineOBall) Talents.MINE_O_BALL.getTalent();
     }
 
     // Changes to dev

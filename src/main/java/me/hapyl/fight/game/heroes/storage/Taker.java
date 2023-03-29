@@ -128,8 +128,8 @@ public class Taker extends Hero implements UIComponent {
         final double healing = bones.getHealing();
         final double damage = input.getDamage();
 
-        final double d = damage * healing / 100.0d;
-        GamePlayer.getPlayer(player).heal(d);
+        final double healingScaled = damage * healing / 100.0d;
+        GamePlayer.getPlayer(player).heal(healingScaled);
 
         return new DamageOutput(damage + (damage * bones.getDamageMultiplier()));
     }

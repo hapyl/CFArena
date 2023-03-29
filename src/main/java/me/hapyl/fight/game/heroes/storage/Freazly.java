@@ -35,11 +35,9 @@ public class Freazly extends Hero implements DisabledHero {
         setRole(Role.RANGE);
 
         setInfo("");
-        setItem(Material.ICE);
+        setItem("f4e0318ef6ded7f3e60fe1c6d9f0649b7b0f601b74be70b179a78416c09e6c47");
 
         final ClassEquipment equipment = getEquipment();
-        equipment.setTexture("f4e0318ef6ded7f3e60fe1c6d9f0649b7b0f601b74be70b179a78416c09e6c47");
-
         equipment.setChestplate(Color.AQUA);
         equipment.setLeggings(Color.OLIVE);
         equipment.setBoots(Color.AQUA);

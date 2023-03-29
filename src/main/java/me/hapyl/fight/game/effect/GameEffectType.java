@@ -16,7 +16,8 @@ public enum GameEffectType {
     RESPAWN_RESISTANCE(new RespawnResistance()),
     RIPTIDE(new Riptide()),
     LOCK_DOWN(new LockdownEffect()),
-    ARCANE_MUTE(new ArcaneMuteEffect());
+    ARCANE_MUTE(new ArcaneMuteEffect()),
+    SLOWING_AURA(new SlowingAuraEffect());
 
     private final GameEffect gameEffect;
 

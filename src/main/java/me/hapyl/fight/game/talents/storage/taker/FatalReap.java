@@ -77,4 +77,8 @@ public class FatalReap extends Talent {
         return location;
     }
 
+    @Override
+    public FatalReap getHandle() {
+        return (FatalReap) this;
+    }
 }

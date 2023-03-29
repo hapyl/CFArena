@@ -12,6 +12,8 @@ import me.hapyl.fight.game.talents.storage.vortex.VortexStar;
 
 /**
  * This clas just casts the talent, so you can access their method.
+ *
+ * fixme -> This is really not needed, just cast on getTalent() method.
  */
 public class TalentHandle {
 

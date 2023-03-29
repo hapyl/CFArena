@@ -302,6 +302,9 @@ public enum Talents {
     // test (keep last)
     TestChargeTalent(new TestChargeTalent());
 
+    public static class Handle {
+    }
+
     private final Talent talent;
 
     Talents(Talent talent) {
@@ -336,4 +339,5 @@ public enum Talents {
     public Talent getTalent() {
         return talent;
     }
+
 }

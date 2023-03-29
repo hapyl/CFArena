@@ -167,12 +167,9 @@ public class TamerPack {
 
             // Add helmet if possible
             Nulls.runIfNotNull(self.getEquipment(), equipment -> {
-                equipment.setHelmet(
-                        new ItemBuilder(Material.LEATHER_HELMET)
-                                .setUnbreakable()
-                                .setLeatherArmorColor(Color.fromRGB(509659))
-                                .build()
-                );
+                equipment.setHelmet(new ItemBuilder(Material.LEATHER_HELMET).setUnbreakable()
+                        .setLeatherArmorColor(Color.fromRGB(509659))
+                        .build());
             });
 
             // Apply consumer if not null
