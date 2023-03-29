@@ -26,8 +26,9 @@ public class FatalReap extends Talent {
         super("Fatal Reap");
 
         setDescription(
-                "Instantly charge opponents' bones with a powerful scythe swipe and unleash a devastating attack that shatters their bones, dealing %s%% of their current health as damage.",
-                damagePercent
+                "Instantly charge opponents' bones with a powerful scythe swipe and unleash a devastating attack that shatters their bones, dealing %s%% of their current health as damage.____&6Convert &b%s&7 broken bones directly into &eSpiritual Bones&7.",
+                damagePercent,
+                spiritualBoneGeneration
         );
 
         setItem(Material.NETHERITE_HOE);
@@ -39,7 +40,7 @@ public class FatalReap extends Talent {
         for (double d = length; d >= -length; d -= 0.2d) {
             final Location location = calculateLocation(player.getEyeLocation(), d);
 
-            Utils.getEntitiesInRange(location, 0.75d).forEach(victim -> {
+            Utils.getEntitiesInRange(location, 1.0d).forEach(victim -> {
                 if (GameTeam.isSelfOrTeammate(player, victim)) {
                     return;
                 }

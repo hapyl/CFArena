@@ -5,10 +5,10 @@ import org.bukkit.Material;
 
 public class SpiritualBonesPassive extends PassiveTalent {
 
-    public final int MAX_BONES = 4;
-    public final double DAMAGE_AMPLIFIER_PER_BONE = 1.0d;
-    public final double DAMAGE_REDUCE_PER_BONE = 2.0d;
-    public final double HEALING_PER_BONE = 2.0d;
+    public final int MAX_BONES = 5;
+    public final double DAMAGE_AMPLIFIER_PER_BONE = 2.0d;
+    public final double DAMAGE_REDUCE_PER_BONE = 3.0d;
+    public final double HEALING_PER_BONE = 3.0d;
 
     public SpiritualBonesPassive() {
         super("Spiritual Bones", Material.BONE);

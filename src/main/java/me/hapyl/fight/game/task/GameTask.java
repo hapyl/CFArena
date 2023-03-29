@@ -27,12 +27,13 @@ public abstract class GameTask implements Runnable {
 
             @Override
             public void run() {
-                if (tick-- <= 0) {
+                if (tick <= 0) {
                     this.cancel();
                     return;
                 }
 
                 runnable.accept(this, tick);
+                tick -= period;
             }
         }.runTaskTimer(delay, period);
     }
@@ -218,8 +219,14 @@ public abstract class GameTask implements Runnable {
         return this.task.getTaskId();
     }
 
+    // Called when the task is cancelled
+    public void onCancel() {
+    }
+
     public synchronized void cancel() {
         this.validateExists();
+
+        onCancel();
         Bukkit.getScheduler().cancelTask(this.task.getTaskId());
     }
 

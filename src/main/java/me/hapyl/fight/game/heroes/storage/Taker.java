@@ -46,7 +46,7 @@ public class Taker extends Hero implements UIComponent {
                 "Embodiment of Death",
                 "Instantly consume all &eSpiritual Bones&7 and cloak yourself in darkness for {duration}.____While cloaked, become invulnerable, gain moderate speed boost and heal yourself over {duration}. ____Healing is based on the amount of bones consumed.",
                 60
-        ).setDurationSec(2).setSound(Sound.ENTITY_HORSE_DEATH, 0.0f).setItem(Material.WITHER_SKELETON_SKULL).setCdFromDuration(2));
+        ).setDurationSec(3).setSound(Sound.ENTITY_HORSE_DEATH, 0.0f).setItem(Material.WITHER_SKELETON_SKULL).setCdFromDuration(2));
     }
 
     @Override
@@ -91,7 +91,7 @@ public class Taker extends Hero implements UIComponent {
         final UltimateTalent ultimate = getUltimate();
         final int playerBones = bones.getBones();
 
-        final double healing = 2.5 * playerBones;
+        final double healing = 5d * playerBones;
         final double healingPerTick = healing / ultimate.getDuration();
 
         PlayerLib.addEffect(player, PotionEffectType.SPEED, ultimate.getDuration(), 2);
