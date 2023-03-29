@@ -56,6 +56,7 @@ public enum EnumDamageCause {
     DECOY("was bamboozled", "by"),
     MINION("was killed by {player}'s minion"),
     RIP_BONES("was ripped to shreds", "by"),
+    AURA_OF_CIRCUS("was furiously tamed","by"),
 
     // *==* there are vanilla ones, have to use them *==*
 

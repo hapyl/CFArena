@@ -42,4 +42,7 @@ public abstract class Pack {
     public void onUltimate(Player player, TamerPack pack) {
     }
 
+    public void onUltimateEnd(Player player, TamerPack pack){
+    }
+
 }

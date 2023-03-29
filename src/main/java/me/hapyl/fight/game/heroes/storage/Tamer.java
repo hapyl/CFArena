@@ -11,6 +11,7 @@ import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.storage.tamer.MineOBall;
 import me.hapyl.fight.game.talents.storage.tamer.TamerPack;
+import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -19,20 +20,22 @@ import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Creature;
-import org.bukkit.entity.FishHook;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 
-public class Tamer extends Hero implements Listener, DisabledHero {
+import java.util.HashMap;
+import java.util.Map;
+
+public class Tamer extends Hero implements Listener {
 
     private final double WEAPON_DAMAGE = 8.0d; // since it's a fishing rod, we're storing the damage here
     private final int WEAPON_COOLDOWN = 10;
+    private final Map<Player, TamerPack> currentPack = new HashMap<>();
 
     public Tamer() {
         super("Tamer", "A former circus pet trainer, with pets that loyal to him only!", Material.FISHING_ROD);
@@ -71,7 +74,7 @@ public class Tamer extends Hero implements Listener, DisabledHero {
                 .setId("tamer_weapon")
                 .setDamage(2.0d)); // This is melee damage, weapon damage is handled in the event
 
-        setUltimate(new UltimateTalent("NAME", "DESCRIPTION", 100));
+        setUltimate(new UltimateTalent("Mimicry", "DESCRIPTION", 100).setDuration(400));
     }
 
     @Override
@@ -87,11 +90,15 @@ public class Tamer extends Hero implements Listener, DisabledHero {
     @Override
     public void useUltimate(Player player) {
         final TamerPack playerPack = getPlayerPack(player);
+
         if (playerPack == null) {
             return;
         }
-
+        currentPack.put(player, playerPack);
         playerPack.getPack().onUltimate(player, playerPack);
+        GameTask.runLater(() -> {
+            playerPack.getPack().onUltimateEnd(player, playerPack);
+        }, getUltimateDuration());
     }
 
     public TamerPack getPlayerPack(Player player) {
@@ -100,6 +107,15 @@ public class Tamer extends Hero implements Listener, DisabledHero {
 
     @Override
     public void onStart() {
+    }
+
+    @Override
+    public void onDeath(Player player) {
+        TamerPack tamerPack = currentPack.get(player);
+        if (tamerPack == null)
+            return;
+        tamerPack.getPack().onUltimateEnd(player,tamerPack);
+        currentPack.remove(player);
     }
 
     @Override

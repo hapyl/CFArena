@@ -44,7 +44,7 @@ public class TamerPack {
     public TamerPack(Pack pack, Player player) {
         this.player = player;
         this.pack = pack;
-        this.entities = Sets.newHashSet();
+        this.entities = Sets.newConcurrentHashSet();
 
         new GameTask() {
             @Override
