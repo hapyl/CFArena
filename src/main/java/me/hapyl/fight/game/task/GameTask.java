@@ -100,6 +100,52 @@ public abstract class GameTask implements Runnable {
         return task;
     }
 
+    public static void runWhileReversed(double start, double condition, double decrement, BiConsumer<Double, GameTask> task) {
+        if (start <= condition) {
+            runWhile(start, condition, decrement, task);
+            return;
+        }
+
+        new GameTask() {
+            private double d = start;
+
+            @Override
+            public void run() {
+                if (d <= condition) {
+                    this.cancel();
+                    return;
+                }
+
+                task.accept(d, this);
+
+                d -= decrement;
+            }
+        }.runTaskTimer(0, 1);
+    }
+
+    public static void runWhile(double start, double condition, double increment, BiConsumer<Double, GameTask> task) {
+        if (start >= condition) {
+            runWhileReversed(start, condition, increment, task);
+            return;
+        }
+
+        new GameTask() {
+            private double d = start;
+
+            @Override
+            public void run() {
+                if (d >= condition) {
+                    this.cancel();
+                    return;
+                }
+
+                task.accept(d, this);
+
+                d += increment;
+            }
+        }.runTaskTimer(0, 1);
+    }
+
     public void setShutdownAction(ShutdownAction shutdownAction) {
         this.shutdownAction = shutdownAction;
     }

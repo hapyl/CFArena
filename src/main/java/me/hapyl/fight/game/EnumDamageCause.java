@@ -55,6 +55,7 @@ public enum EnumDamageCause {
     BLOCK_SHIELD("was hit by {player}'s circling block"),
     DECOY("was bamboozled", "by"),
     MINION("was killed by {player}'s minion"),
+    RIP_BONES("was ripped to shreds", "by"),
 
     // *==* there are vanilla ones, have to use them *==*
 

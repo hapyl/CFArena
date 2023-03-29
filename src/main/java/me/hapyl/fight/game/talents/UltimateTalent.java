@@ -117,4 +117,8 @@ public class UltimateTalent extends Talent {
         return "invalid class call, use 'Hero#useUltimate' instead";
     }
 
+    public UltimateTalent setCdFromDuration(int divide) {
+        setCd(getDuration() / divide);
+        return this;
+    }
 }

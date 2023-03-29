@@ -52,6 +52,8 @@ import me.hapyl.fight.game.talents.storage.spark.Molotov;
 import me.hapyl.fight.game.talents.storage.spark.SparkFlash;
 import me.hapyl.fight.game.talents.storage.swooper.BlastPack;
 import me.hapyl.fight.game.talents.storage.swooper.Blink;
+import me.hapyl.fight.game.talents.storage.taker.FatalReap;
+import me.hapyl.fight.game.talents.storage.taker.SpiritualBonesPassive;
 import me.hapyl.fight.game.talents.storage.tamer.MineOBall;
 import me.hapyl.fight.game.talents.storage.techie.TrapCage;
 import me.hapyl.fight.game.talents.storage.techie.TrapWire;
@@ -213,9 +215,9 @@ public enum Talents {
     )),
 
     // Taker
-    RESERVED_TAKER(null),
+    FATAL_REAP(new FatalReap()),
     RESERVED_TAKER0(null),
-    RESERVED_TAKER1(null),
+    SPIRITUAL_BONES(new SpiritualBonesPassive()),
 
     // JuJu
     ARROW_SHIELD(new ArrowShield()),

@@ -6,10 +6,19 @@ import org.bukkit.entity.Player;
 
 public class PassiveTalent extends Talent {
 
+    public PassiveTalent(String name, Material material) {
+        this(name, "", material);
+    }
+
     public PassiveTalent(String name, String description, Material item) {
         super(name, description, Type.PASSIVE);
         setItem(item);
         setPoint(0);
+
+        init();
+    }
+
+    public void init() {
     }
 
     @Override

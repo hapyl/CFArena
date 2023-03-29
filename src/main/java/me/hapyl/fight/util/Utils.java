@@ -17,6 +17,7 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
@@ -28,6 +29,9 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/**
+ * Utilities for the plugin
+ */
 public class Utils {
 
     public static String colorString(String str, String defColor) {
@@ -56,6 +60,10 @@ public class Utils {
         return Manager.current()
                 .getCurrentGame()
                 .getAlivePlayers(predicate -> !predicate.isSpectator() && !predicate.compare(player) && !predicate.isTeammate(player));
+    }
+
+    public static void setEquipment(LivingEntity entity, Consumer<EntityEquipment> consumer) {
+        Nulls.runIfNotNull(entity.getEquipment(), consumer::accept);
     }
 
     public static class ProgressBar implements IBuilder<String> {
@@ -417,17 +425,20 @@ public class Utils {
         });
     }
 
-    public static boolean isEntityValid(Entity entity, @Nullable Player player) {
+    public static boolean isEntityValid(@Distinct("player") Entity entity, @Distinct("entity") @Nullable Player player) {
+        // null entities, self or armor stands are not valid
         if (entity == null || (player != null && entity == player) || entity instanceof ArmorStand) {
             return false;
         }
 
+        // dead or invisible entities are not valid
         if (entity instanceof LivingEntity livingEntity) {
             if (livingEntity.isDead() || livingEntity.isInvisible()) {
                 return false;
             }
         }
 
+        // players are only valid if they are alive and not on the same team
         if (entity instanceof Player targetPlayer) {
             if (Manager.current().isGameInProgress() && !GamePlayer.getPlayer(targetPlayer).isAlive()) {
                 return false;
@@ -435,6 +446,7 @@ public class Utils {
             return !GameTeam.isTeammate(player, targetPlayer);
         }
 
+        // other entities are valid
         return true;
     }
 
@@ -468,20 +480,10 @@ public class Utils {
             return entities;
         }
 
-        world.getNearbyEntities(location, range, range, range).stream().filter(entity -> {
-            return isEntityValid(entity, null) && entity instanceof LivingEntity;
-            //if (entity instanceof Player player) {
-            //    if (Manager.current().isGameInProgress()) {
-            //        return GamePlayer.getPlayer(player).isAlive();
-            //    }
-            //}
-            //
-            //if (entity instanceof LivingEntity living) {
-            //    return living.getType() != EntityType.ARMOR_STAND && !living.isInvisible() && !living.isDead();
-            //}
-            //
-            //return false;
-        }).forEach(entity -> entities.add((LivingEntity) entity));
+        world.getNearbyEntities(location, range, range, range)
+                .stream()
+                .filter(entity -> isEntityValid(entity, null) && entity instanceof LivingEntity)
+                .forEach(entity -> entities.add((LivingEntity) entity));
 
         return entities;
     }

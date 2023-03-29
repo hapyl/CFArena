@@ -563,7 +563,7 @@ public class Manager {
             }
 
             Chat.sendMessage(player, "&cYou've selected &lDISABLED&c hero, which is either broken or not finished yet!");
-            Chat.sendMessage(player, "It &lwill&c throw errors and break the game!");
+            Chat.sendMessage(player, "&cIt &lwill&c throw errors and break the game!");
             Chat.sendMessage(player, "&4&lYOU HAVE BEEN WARNED");
         }
 

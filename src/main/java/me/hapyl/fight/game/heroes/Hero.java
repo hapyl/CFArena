@@ -7,6 +7,8 @@ import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.PlayerElement;
+import me.hapyl.fight.game.heroes.storage.Ender;
+import me.hapyl.fight.game.heroes.storage.Moonwalker;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
@@ -166,6 +168,7 @@ public abstract class Hero implements GameElement, PlayerElement {
         }
         else {
             usingUltimate.remove(player);
+            onUltimateEnd(player);
         }
     }
 
@@ -429,12 +432,20 @@ public abstract class Hero implements GameElement, PlayerElement {
     }
 
     /**
+     * Called whenever player's ultimate is over.
+     *
+     * @param player - Player.
+     */
+    public void onUltimateEnd(Player player) {
+    }
+
+    /**
      * Predicate for ultimate. Return true if player is able to use their ultimate, false otherwise.
      *
      * @param player - Player who is trying to use ultimate.
      * @return true if player is able to use their ultimate, false otherwise.
-     * @see me.hapyl.fight.game.heroes.storage.Ender#predicateUltimate(Player)
-     * @see me.hapyl.fight.game.heroes.storage.Moonwalker#predicateUltimate(Player)
+     * @see Ender#predicateUltimate(Player)
+     * @see Moonwalker#predicateUltimate(Player)
      */
     public boolean predicateUltimate(Player player) {
         return true;
