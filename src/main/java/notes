@@ -41,6 +41,7 @@ Bugs:
 - [✔] void doesn't reset ond death
 
 - Maybe genshin slowing aura for freazly
+- Joining the game while it's in progress doesn't add player as spectators
 - [✔] Black hole works with grimoire
 - [✔] Store class wins
 - [✔] Fix techie trips

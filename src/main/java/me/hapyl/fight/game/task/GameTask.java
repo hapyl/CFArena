@@ -19,11 +19,7 @@ public abstract class GameTask implements Runnable {
         this.shutdownAction = ShutdownAction.CANCEL;
     }
 
-    public static void runDuration(Talent talent, Consumer<Integer> runnable, int period) {
-        runDuration(talent, runnable, 0, period);
-    }
-
-    public static void runDuration(Talent talent, Consumer<Integer> runnable, int delay, int period) {
+    public static void runDuration(Talent talent, BiConsumer<GameTask, Integer> runnable, int delay, int period) {
         final int duration = talent.getDuration();
 
         new GameTask() {
@@ -36,9 +32,17 @@ public abstract class GameTask implements Runnable {
                     return;
                 }
 
-                runnable.accept(tick);
+                runnable.accept(this, tick);
             }
         }.runTaskTimer(delay, period);
+    }
+
+    public static void runDuration(Talent talent, Consumer<Integer> runnable, int period) {
+        runDuration(talent, (task, i) -> runnable.accept(i), 0, period);
+    }
+
+    public static void runDuration(Talent talent, Consumer<Integer> runnable, int delay, int period) {
+        runDuration(talent, (task, i) -> runnable.accept(i), delay, period);
     }
 
     public static GameTask runTaskTimerTimes(Consumer<GameTask> runnable, int delay, int period, int maxTimes) {

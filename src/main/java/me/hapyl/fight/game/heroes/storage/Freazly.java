@@ -70,15 +70,13 @@ public class Freazly extends Hero implements DisabledHero {
                 .setDescription("Shoots a beam of freezing energy, damaging and slowing enemies upon hit. Pierce through ice blocks.")
          .setDamage(7.5d));
 
-
         // Get a barrier builder block. Place to build a 5x3 Ice Wall that decay after &b" + WALL_DECAY_TIME + "s&7. The wall blocks vision and grants positive effect if near it. Also, &eSnowball Cannon &7can shoot thought this wall!
-        this.setUltimate(new UltimateTalent(
+        setUltimate(new UltimateTalent(
                 "Ice Barrier",
                 "Summons an &bIce Barrier &7at your target block that decay over {duration}. The barrier blocks enemies line of sight and grants positive effects to you when nearby.",
                 60
         ).setItem(Material.PACKED_ICE).setDuration(getUltimateDuration()));
     }
-
 
     @Override
     public boolean predicateUltimate(Player player) {
