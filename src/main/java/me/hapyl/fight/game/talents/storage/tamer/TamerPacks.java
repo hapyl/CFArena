@@ -54,7 +54,11 @@ public enum TamerPacks {
                             self.addPotionEffect(PotionEffectType.SPEED.createEffect(Integer.MAX_VALUE, 0));
                         });
             }
+        }
 
+        @Override
+        public void onUltimateEnd(Player player, TamerPack pack) {
+            pack.remove();
         }
     }),
 
@@ -89,14 +93,16 @@ public enum TamerPacks {
             inventory.setHeldItemSlot(4);
 
             PlayerLib.addEffect(player, PotionEffectType.SPEED, Heroes.TAMER.getHero().getUltimateDuration(), 1);
-            GameTask.runDuration(Heroes.TAMER.getHero().getUltimate(), in -> {
+            GameTask.runDuration(Heroes.TAMER.getHero().getUltimate(), (task, i) -> {
                 final Location location = player.getLocation();
                 Utils.getPlayersInRange(location, 2).forEach(target -> {
                     if (target != player)
                         GamePlayer.damageEntity(target, 2, player, EnumDamageCause.AURA_OF_CIRCUS);
                 });
                 Geometry.drawCircle(location.add(0d, 1d, 0d), 2d, Quality.NORMAL, new WorldParticle(Particle.CRIT));
-            }, 1);
+                if(!GamePlayer.getPlayer(player).isAlive())
+                    task.cancel();
+            },0, 1);
         }
 
         @Override
@@ -104,6 +110,7 @@ public enum TamerPacks {
             final PlayerInventory inventory = player.getInventory();
             inventory.setItem(4, new ItemStack(Material.AIR));
             inventory.setHeldItemSlot(0);
+            pack.remove();
         }
 
         @Override
@@ -155,6 +162,7 @@ public enum TamerPacks {
             inventory.setItem(4, new ItemStack(Material.AIR));
             inventory.setItem(9, new ItemStack(Material.AIR));
             inventory.setHeldItemSlot(0);
+            pack.remove();
         }
     }),
 
@@ -189,6 +197,7 @@ public enum TamerPacks {
 
         @Override
         public void onUltimateEnd(Player player, TamerPack pack) {
+            pack.remove();
         }
     }),
 

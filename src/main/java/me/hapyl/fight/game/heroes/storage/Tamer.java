@@ -74,7 +74,7 @@ public class Tamer extends Hero implements Listener {
                 .setId("tamer_weapon")
                 .setDamage(2.0d)); // This is melee damage, weapon damage is handled in the event
 
-        setUltimate(new UltimateTalent("Mimicry", "DESCRIPTION", 100).setDuration(400));
+        setUltimate(new UltimateTalent("Mimicry", "DESCRIPTION", 50).setDuration(400));
     }
 
     @Override
@@ -131,7 +131,6 @@ public class Tamer extends Hero implements Listener {
         return null;
     }
 
-    // FIXME: 028, Mar 28, 2023 -> This doesn't work
     // prevent pack members from damaging each other
     @EventHandler()
     public void handleMinionDamage(EntityDamageByEntityEvent ev) {

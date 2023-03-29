@@ -155,6 +155,8 @@ public class MineOBall extends Talent implements Listener {
     @Override
     public Response execute(Player player) {
         final TamerPack oldPack = getPack(player);
+        if (Heroes.TAMER.getHero().isUsingUltimate(player))
+            return Response.error("Can't summon during Ultimate");
         if (oldPack != null) {
             oldPack.recall();
         }
