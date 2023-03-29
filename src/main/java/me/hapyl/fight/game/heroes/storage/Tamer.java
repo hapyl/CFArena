@@ -35,7 +35,6 @@ public class Tamer extends Hero implements Listener {
 
     private final double WEAPON_DAMAGE = 8.0d; // since it's a fishing rod, we're storing the damage here
     private final int WEAPON_COOLDOWN = 10;
-    private final Map<Player, TamerPack> currentPack = new HashMap<>();
 
     public Tamer() {
         super("Tamer", "A former circus pet trainer, with pets that loyal to him only!", Material.FISHING_ROD);
@@ -94,28 +93,37 @@ public class Tamer extends Hero implements Listener {
         if (playerPack == null) {
             return;
         }
-        currentPack.put(player, playerPack);
+
         playerPack.getPack().onUltimate(player, playerPack);
-        GameTask.runLater(() -> {
-            playerPack.getPack().onUltimateEnd(player, playerPack);
-        }, getUltimateDuration());
     }
 
-    public TamerPack getPlayerPack(Player player) {
-        return TalentHandle.MINE_O_BALL.getPack(player);
+    @Override
+    public void onUltimateEnd(Player player) {
+        final TamerPack playerPack = getPlayerPack(player);
+
+        if (playerPack == null) {
+            return;
+        }
+
+        playerPack.getPack().onUltimateEnd(player, playerPack);
+    }
+
+    @Override
+    public void onDeath(Player player) {
+        final TamerPack tamerPack = getPlayerPack(player);
+
+        if (tamerPack == null)
+            return;
+
+        tamerPack.getPack().onUltimateEnd(player, tamerPack);
     }
 
     @Override
     public void onStart() {
     }
 
-    @Override
-    public void onDeath(Player player) {
-        TamerPack tamerPack = currentPack.get(player);
-        if (tamerPack == null)
-            return;
-        tamerPack.getPack().onUltimateEnd(player,tamerPack);
-        currentPack.remove(player);
+    public TamerPack getPlayerPack(Player player) {
+        return TalentHandle.MINE_O_BALL.getPack(player);
     }
 
     @Override
