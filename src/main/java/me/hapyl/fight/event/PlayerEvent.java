@@ -658,6 +658,10 @@ public class PlayerEvent implements Listener {
         final Location from = ev.getFrom();
         final Location to = ev.getTo();
 
+        if (to == null) {
+            return;
+        }
+
         if (Manager.current().isGameInProgress()) {
             final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
 
@@ -678,6 +682,14 @@ public class PlayerEvent implements Listener {
 
             // AFK detection
             gp.markLastMoved();
+        }
+
+        // Handle jumping
+        final PotionEffect effect = player.getPotionEffect(PotionEffectType.SLOW);
+        if (effect != null && to.getY() > from.getY()) {
+            if (effect.getAmplifier() == 250) {
+                ev.setCancelled(true);
+            }
         }
 
     }

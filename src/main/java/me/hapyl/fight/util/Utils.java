@@ -433,7 +433,7 @@ public class Utils {
 
         // dead or invisible entities are not valid
         if (entity instanceof LivingEntity livingEntity) {
-            if (livingEntity.isDead() || livingEntity.isInvisible()) {
+            if (livingEntity.isDead() || livingEntity.isInvisible() || !livingEntity.hasAI()) {
                 return false;
             }
         }

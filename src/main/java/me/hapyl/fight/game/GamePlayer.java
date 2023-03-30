@@ -334,7 +334,7 @@ public class GamePlayer extends AbstractGamePlayer {
 
     @Super
     public void damage(double damage, @Nullable LivingEntity damager, @Nullable EnumDamageCause cause) {
-        if (damager != null) {
+        if (damager != null && damager != player) {
             lastDamager = damager;
         }
         if (cause != null) {
@@ -350,7 +350,7 @@ public class GamePlayer extends AbstractGamePlayer {
      */
     public void decreaseHealth(double damage, @Nullable LivingEntity damager) {
         this.decreaseHealth(damage);
-        if (damager != null) {
+        if (damager != null && damager != player) {
             this.lastDamager = damager;
         }
     }

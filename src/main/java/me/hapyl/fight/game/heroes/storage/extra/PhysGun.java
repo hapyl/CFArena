@@ -124,8 +124,9 @@ public class PhysGun extends Weapon {
             entity.teleport(player);
         }
 
-        player.setAllowFlight(flightMap.remove(player));
+        player.setAllowFlight(flightMap.getOrDefault(player, false));
         capturedEntity.remove(player);
+        flightMap.remove(player);
     }
 
 }
