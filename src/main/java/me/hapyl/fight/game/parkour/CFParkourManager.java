@@ -2,7 +2,6 @@ package me.hapyl.fight.game.parkour;
 
 import me.hapyl.fight.Main;
 import me.hapyl.spigotutils.EternaPlugin;
-import me.hapyl.spigotutils.module.parkour.Parkour;
 import me.hapyl.spigotutils.module.parkour.ParkourManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -29,13 +28,4 @@ public class CFParkourManager implements Listener {
         }
     }
 
-    public void saveAll() {
-        for (Parkour parkour : EternaPlugin.getPlugin().getParkourManager().getRegisteredParkours()) {
-            if (!(parkour instanceof CFParkour cfParkour)) {
-                continue;
-            }
-
-            cfParkour.getDatabase().save();
-        }
-    }
 }

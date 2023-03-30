@@ -3,6 +3,7 @@ package me.hapyl.fight.game.gamemode;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.setting.Setting;
+import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.scoreboard.Scoreboarder;
 import org.bukkit.Bukkit;
@@ -96,7 +97,6 @@ public abstract class CFGameMode {
     }
 
     public void onDeath(@Nonnull GameInstance instance, @Nonnull GamePlayer player) {
-
     }
 
     // Default impl, override if used
@@ -116,6 +116,13 @@ public abstract class CFGameMode {
 
     // Default impl, override if used
     public void onJoin(@Nonnull GameInstance instance, @Nonnull Player player) {
+        final GamePlayer gamePlayer = instance.getOrCreateGamePlayer(player);
+
+        gamePlayer.setSpectator(true);
+
+        GameTask.runLater(() -> {
+            gamePlayer.teleport(instance.getRandomPlayerLocationOrMapLocationIfThereAreNoPlayers());
+        }, 1);
     }
 
     public boolean onStart(@Nonnull GameInstance instance) {

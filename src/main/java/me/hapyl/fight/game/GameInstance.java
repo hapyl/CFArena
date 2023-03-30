@@ -20,7 +20,6 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -203,6 +202,25 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
         return list;
     }
 
+    @Nonnull
+    public GamePlayer getOrCreateGamePlayer(Player player) {
+        GamePlayer gamePlayer = getPlayer(player);
+
+        // If player joined after the game started, create new
+        if (gamePlayer == null) {
+            gamePlayer = new GamePlayer(PlayerProfile.getProfile(player), getHero(player));
+            players.put(player.getUniqueId(), gamePlayer);
+        }
+
+        // If player re-joined, change their handle and update it
+        if (!gamePlayer.compare(player)) {
+            gamePlayer.setHandle(player);
+            gamePlayer.updateScoreboard(false);
+        }
+
+        return gamePlayer;
+    }
+
     private void createGamePlayers() {
         Bukkit.getOnlinePlayers().forEach(player -> {
             final Heroes hero = getHero(player);
@@ -212,7 +230,6 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
             // Spectate Setting
             if (Setting.SPECTATE.isEnabled(player)) {
                 gamePlayer.setSpectator(true);
-                player.setGameMode(GameMode.SPECTATOR);
             }
             else {
                 if (Setting.RANDOM_HERO.isEnabled(player)) {
@@ -365,5 +382,16 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
 
     public void setTimeLeft(long timeLeft) {
         this.timeLimit = timeLeft;
+    }
+
+    @Nonnull
+    public Location getRandomPlayerLocationOrMapLocationIfThereAreNoPlayers() {
+        if (players.size() != 0) {
+            for (GamePlayer value : players.values()) {
+                return value.getPlayer().getLocation();
+            }
+        }
+
+        return currentMap.getMap().getLocation();
     }
 }

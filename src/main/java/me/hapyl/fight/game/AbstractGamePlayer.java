@@ -5,6 +5,7 @@ import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.spigotutils.module.chat.Chat;
+import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -85,7 +86,7 @@ public class AbstractGamePlayer {
     /**
      * Sets players ultimate point regeneration modifier, default is 1.0 which is 1 point per second.
      *
-     * @param d - New modifer.
+     * @param d - New modifier.
      */
     public void setUltimateAccelerationModifier(double d) {
     }
@@ -305,6 +306,18 @@ public class AbstractGamePlayer {
     }
 
     /**
+     * Returns players' min health.
+     *
+     * Visual health cannot be lower than 0.5, since player will actually die if it is.
+     * Technically 🤓, it's 0.1 or something, but system works with 0.5 so imma keep it that way.
+     *
+     * @return players' min health.
+     */
+    public double getMinHealth() {
+        return 0.5d;
+    }
+
+    /**
      * Returns true if player's ultimate is ready, false othewise.
      *
      * @return true if player's ultimate is ready, false othewise.
@@ -459,4 +472,7 @@ public class AbstractGamePlayer {
         return "AbstractGamePlayer{}";
     }
 
+    public void teleport(Location location) {
+        getPlayer().teleport(location);
+    }
 }

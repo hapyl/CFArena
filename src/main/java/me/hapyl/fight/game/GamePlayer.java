@@ -142,7 +142,7 @@ public class GamePlayer extends AbstractGamePlayer {
         setHealth(getMaxHealth());
         player.setLastDamageCause(null);
         player.getInventory().clear();
-        player.setMaxHealth(40.0d);
+        player.setMaxHealth(40.0d); // why deprecate
         player.setHealth(40.0d);
         player.setFireTicks(0);
         player.setWalkSpeed(0.2f);
@@ -151,6 +151,7 @@ public class GamePlayer extends AbstractGamePlayer {
         player.setSaturation(0.0f);
         player.setFoodLevel(20);
         player.setInvulnerable(false);
+        player.setArrowsInBody(0);
         player.getActivePotionEffects().forEach(effect -> player.removePotionEffect(effect.getType()));
         Nulls.runIfNotNull(player.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE), att -> att.setBaseValue(0.0f));
 
@@ -166,7 +167,6 @@ public class GamePlayer extends AbstractGamePlayer {
                 }
             }
         }
-
     }
 
     public int getKillStreak() {
@@ -395,7 +395,8 @@ public class GamePlayer extends AbstractGamePlayer {
     public void updateHealth() {
         // update player visual health
         player.setMaxHealth(40.d);
-        player.setHealth(Math.max(0.5d, 40.0d * health / maxHealth));
+        player.setHealth(Numbers.clamp(40.0d * health / maxHealth, getMinHealth(), getMaxHealth()));
+        //player.setHealth(Math.max(0.5d, 40.0d * health / maxHealth));
     }
 
     public void interrupt() {
@@ -433,9 +434,7 @@ public class GamePlayer extends AbstractGamePlayer {
         PlayerLib.playSound(player, Sound.ENTITY_BLAZE_DEATH, 2.0f);
         Chat.sendTitle(player, "&c&lYOU DIED", "", 5, 25, 10);
 
-        Manager.current().getCurrentGame().getCurrentMap().getMap().onDeath(player);
-        getHero().onDeath(player);
-        executeTalentsOnDeath();
+        triggerOnDeath();
 
         // Award killer coins for kill
         if (lastDamager != null) {
@@ -499,6 +498,12 @@ public class GamePlayer extends AbstractGamePlayer {
         }
 
         Chat.broadcast(deathMessage);
+    }
+
+    public void triggerOnDeath() {
+        Manager.current().getCurrentGame().getCurrentMap().getMap().onDeath(player);
+        getHero().onDeath(player);
+        executeTalentsOnDeath();
     }
 
     public EnumDamageCause.DeathMessage getRandomDeathMessage() {
@@ -654,6 +659,8 @@ public class GamePlayer extends AbstractGamePlayer {
     public void setDead(boolean dead) {
         isDead = dead;
         isSpectator = !dead;
+
+        triggerOnDeath();
     }
 
     public boolean isSpectator() {
@@ -663,24 +670,26 @@ public class GamePlayer extends AbstractGamePlayer {
     public void setSpectator(boolean spectator) {
         isSpectator = spectator;
         isDead = !spectator;
+
+        player.setGameMode(GameMode.SPECTATOR);
     }
 
     public void respawn() {
-        this.isRespawning = false;
-        this.isDead = false;
-        this.isSpectator = false;
-        this.ultPoints = 0;
-        this.hero.setUsingUltimate(player, false);
-        this.setHealth(this.getMaxHealth());
+        resetPlayer(Ignore.DAMAGE_CAUSE, Ignore.DAMAGER, Ignore.GAME_MODE);
 
-        // charged attack fix
-        //        hero.resetTalents(player);
+        isRespawning = false;
+        isDead = false;
+        isSpectator = false;
+        ultPoints = 0;
+        hero.setUsingUltimate(player, false);
+        setHealth(this.getMaxHealth());
 
+        player.getInventory().clear();
         Manager.current().equipPlayer(player, hero);
 
         hero.onRespawn(player);
 
-        this.player.setGameMode(GameMode.SURVIVAL);
+        player.setGameMode(GameMode.SURVIVAL);
 
         // Add spawn protection
         addEffect(GameEffectType.RESPAWN_RESISTANCE, 60);

@@ -211,7 +211,7 @@ public class Utils {
     }
 
     public static void showPlayer(Player player) {
-        Manager.current().getCurrentGame().getAlivePlayers().forEach(gp -> {
+        Manager.current().getCurrentGame().getPlayers().forEach((uuid, gp) -> {
             if (gp.getPlayer() != player) {
                 gp.getPlayer().showPlayer(Main.getPlugin(), player);
             }

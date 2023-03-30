@@ -107,8 +107,10 @@ public class Deathmatch extends CFGameMode {
 
     @Override
     public void onJoin(@Nonnull GameInstance instance, @Nonnull Player player) {
-        final GamePlayer gamePlayer = instance.getPlayer(player);
-        if (gamePlayer == null || gamePlayer.isSpectator()) {
+        final GamePlayer gamePlayer = instance.getOrCreateGamePlayer(player);
+
+        // If player was spectator, don't respawn them
+        if (gamePlayer.isSpectator()) {
             return;
         }
 

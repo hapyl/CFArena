@@ -163,6 +163,11 @@ public class GameMap implements GameElement, PlayerElement {
         return name;
     }
 
+    /**
+     * Returns first or random location.
+     *
+     * @return first or random location.
+     */
     public Location getLocation() {
         return CollectionUtils.randomElement(locations, locations.get(0));
     }

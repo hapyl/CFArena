@@ -179,7 +179,7 @@ public class Main extends JavaPlugin {
     public void onDisable() {
         runSafe(() -> {
             databases.saveAll();
-            parkourManager.saveAll();
+            //parkourManager.saveAll();
         }, "database save");
 
         runSafe(() -> {

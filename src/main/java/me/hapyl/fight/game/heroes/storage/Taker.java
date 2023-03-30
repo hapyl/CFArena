@@ -95,11 +95,11 @@ public class Taker extends Hero implements UIComponent {
         final double healingPerTick = healing / ultimate.getDuration();
 
         PlayerLib.addEffect(player, PotionEffectType.SPEED, ultimate.getDuration(), 2);
+        player.setInvulnerable(true);
+        Utils.hidePlayer(player);
 
         GameTask.runDuration(ultimate, task -> {
             GamePlayer.getPlayer(player).heal(healingPerTick);
-            player.setInvulnerable(true);
-            Utils.hidePlayer(player);
 
             // Fx
             PlayerLib.spawnParticle(player.getLocation(), Particle.SQUID_INK, 5, 0.2d, 0.6d, 0.2d, 0.01f);
