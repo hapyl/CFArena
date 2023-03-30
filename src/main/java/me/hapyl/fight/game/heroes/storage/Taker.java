@@ -7,6 +7,7 @@ import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.NewHero;
 import me.hapyl.fight.game.heroes.storage.extra.SpiritualBones;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -26,8 +27,9 @@ import org.bukkit.potion.PotionEffectType;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
-public class Taker extends Hero implements UIComponent {
+public class Taker extends Hero implements UIComponent, NewHero {
 
     private final Map<Player, SpiritualBones> playerBones = Maps.newHashMap();
 
@@ -169,5 +171,10 @@ public class Taker extends Hero implements UIComponent {
     @Override
     public String getString(Player player) {
         return "&f☠: &l" + getBones(player).getBones();
+    }
+
+    @Override
+    public long until() {
+        return 1680207036792L + (TimeUnit.DAYS.toMillis(10));
     }
 }

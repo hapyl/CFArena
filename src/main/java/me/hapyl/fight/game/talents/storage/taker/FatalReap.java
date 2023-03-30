@@ -55,7 +55,7 @@ public class FatalReap extends Talent {
                 GamePlayer.damageEntity(victim, damage, player, EnumDamageCause.RIP_BONES);
             });
 
-            PlayerLib.spawnParticle(location, Particle.CRIT, 1, 0.0f, 0.0f, 0.0f, 0.0f);
+            PlayerLib.spawnParticle(location, Particle.SWEEP_ATTACK, 1, 0.0f, 0.0f, 0.0f, 0.0f);
         }
 
         Heroes.Handle.TAKER.getBones(player).add(spiritualBoneGeneration, true);

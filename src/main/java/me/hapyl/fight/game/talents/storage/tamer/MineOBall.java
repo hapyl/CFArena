@@ -155,8 +155,10 @@ public class MineOBall extends Talent implements Listener {
     @Override
     public Response execute(Player player) {
         final TamerPack oldPack = getPack(player);
-        if (Heroes.TAMER.getHero().isUsingUltimate(player))
+        if (Heroes.TAMER.getHero().isUsingUltimate(player)) {
             return Response.error("Can't summon during Ultimate");
+        }
+
         if (oldPack != null) {
             oldPack.recall();
         }
@@ -170,5 +172,22 @@ public class MineOBall extends Talent implements Listener {
         Chat.sendMessage(player, "&a☀ You just summoned &e%s&a!", pack.getName());
 
         return Response.OK;
+    }
+
+    public boolean isInSamePackOrOwner(Entity entity, Entity other) {
+        if (!(entity instanceof LivingEntity livingEntity) || !(other instanceof LivingEntity livingEntityOther)) {
+            return false;
+        }
+
+        if (livingEntity instanceof Player player) {
+            final TamerPack pack = getPack(player);
+            if (pack == null) {
+                return false;
+            }
+
+            return pack.isInPack(livingEntityOther);
+        }
+
+        return isInSamePack(livingEntity, livingEntityOther);
     }
 }

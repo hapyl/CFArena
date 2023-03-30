@@ -87,6 +87,9 @@ public class SpiritualBones implements Ticking {
         final float offset = (float) ((Math.PI * 2) / armorStands.size());
         final Location location = player.getLocation();
 
+        // Move a little lower to not disturb the vision
+        location.subtract(0.0d, 0.3d, 0.0d);
+
         location.setYaw(yaw += 3.0f);
         location.setPitch(0.0f);
 

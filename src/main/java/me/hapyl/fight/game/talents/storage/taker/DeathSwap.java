@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.storage.taker;
 
+import com.google.common.collect.Maps;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
@@ -16,14 +17,16 @@ import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
+import java.util.Map;
+
 public class DeathSwap extends Talent {
 
-    @DisplayField protected final double maxDistance = 20.0d;
-    @DisplayField protected final double shift = 0.25d;
+    @DisplayField(suffix = "blocks") protected final double maxDistance = 20.0d;
+    @DisplayField protected final double shift = 0.55d;
     @DisplayField protected final double damagePercent = 10.0d;
     @DisplayField private final short spiritualBoneCost = 1;
 
-    // FIXME: 030, Mar 30, 2023 -> Make this ability SUCK player in
+    private final Map<Player, TakerHook> playerHooks = Maps.newHashMap();
 
     public DeathSwap() {
         super("Hook of Death");
@@ -35,7 +38,7 @@ public class DeathSwap extends Talent {
         );
 
         addDescription(
-                "__&7If opponent is hit, they will be retracted with chains and take &c%s%%&7 of their current health as damage.",
+                "__&7If opponent is hit, they will be retracted with chains, take &c%s%%&7 of their current health as damage will be slowed and withered for short duration.",
                 damagePercent
         );
 
@@ -43,19 +46,38 @@ public class DeathSwap extends Talent {
         setCdSec(20);
     }
 
+    public double getMaxDistanceScaled() {
+        return maxDistance / shift;
+    }
+
     @Override
     public Response execute(Player player) {
         final SpiritualBones bones = Heroes.Handle.TAKER.getBones(player);
+
+        if (!player.isOnGround()) {
+            return Response.error("You must be grounded to use this!");
+        }
 
         if (bones.getBones() < spiritualBoneCost) {
             return Response.error("Not enough &lSpiritual Bones&c!");
         }
 
-        new TakerHook(player);
+        removeHook(player);
+        playerHooks.put(player, new TakerHook(player));
 
         bones.remove(1);
 
         return Response.OK;
+    }
+
+    private void removeHook(Player player) {
+        final TakerHook hook = playerHooks.get(player);
+        if (hook == null) {
+            return;
+        }
+
+        hook.remove();
+        playerHooks.remove(player);
     }
 
     //@Override

@@ -22,10 +22,7 @@ import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Creature;
-import org.bukkit.entity.FishHook;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -113,8 +110,9 @@ public class Tamer extends Hero implements Listener {
     public void onDeath(Player player) {
         final TamerPack tamerPack = getPlayerPack(player);
 
-        if (tamerPack == null)
+        if (tamerPack == null) {
             return;
+        }
 
         tamerPack.getPack().onUltimateEnd(player, tamerPack);
     }
@@ -140,18 +138,25 @@ public class Tamer extends Hero implements Listener {
         return null;
     }
 
-    // prevent pack members from damaging each other
+    // prevent pack members from damaging each other and the owner
     @EventHandler()
     public void handleMinionDamage(EntityDamageByEntityEvent ev) {
-        if (ev.getEntity() instanceof LivingEntity entity && ev.getDamager() instanceof LivingEntity damager) {
-            if (TalentHandle.MINE_O_BALL.isInSamePack(entity, damager)) {
-                ev.setCancelled(true);
-                ev.setDamage(0.0d);
+        final Entity entity = ev.getEntity();
+        Entity damager = ev.getDamager();
 
-                if (damager instanceof Creature creature) {
-                    creature.setTarget(null);
-                }
-            }
+        if (damager instanceof Projectile projectile && projectile.getShooter() instanceof LivingEntity shooter) {
+            damager = shooter;
+        }
+
+        if (!getFirstTalent().isInSamePackOrOwner(entity, damager)) {
+            return;
+        }
+
+        ev.setCancelled(true);
+        ev.setDamage(0.0d);
+
+        if (damager instanceof Creature creature) {
+            creature.setTarget(null);
         }
     }
 

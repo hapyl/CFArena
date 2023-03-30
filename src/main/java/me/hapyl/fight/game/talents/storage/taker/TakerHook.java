@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
@@ -24,12 +25,16 @@ import java.util.LinkedList;
 
 public class TakerHook {
 
+    private final int EXTEND_SPEED = 3;
+    private final int CONTRACT_SPEED = 2;
+
     private final Player player;
     private final LinkedList<ArmorStand> chains;
     private final double HEIGHT = 1.5d;
 
     private LivingEntity hooked;
     private GameTask taskExtend;
+    private GameTask taskContract;
 
     public TakerHook(Player player) {
         this.player = player;
@@ -40,8 +45,8 @@ public class TakerHook {
     }
 
     public void extend() {
-        final Location playerLocation = player.getEyeLocation().subtract(0.0d, 0.5d, 0.0d);
-        final Vector vector = playerLocation.getDirection().normalize();
+        final Location location = player.getEyeLocation().subtract(0.0d, 0.5d, 0.0d);
+        final Vector vector = location.getDirection().normalize();
 
         PlayerLib.addEffect(player, PotionEffectType.SLOW, 10000, 10);
         PlayerLib.addEffect(player, PotionEffectType.JUMP, 10000, 250);
@@ -49,14 +54,12 @@ public class TakerHook {
         taskExtend = new GameTask() {
             private double step = 0.0d;
 
-            @Override
-            public void run() {
-                if (step >= (talent().maxDistance * talent().shift)) {
-                    contract();
-                    return;
-                }
+            private void nextChain() {
+                final double x = vector.getX() * step;
+                final double y = vector.getY() * step;
+                final double z = vector.getZ() * step;
 
-                final Location location = playerLocation.add(vector.clone().multiply(step));
+                location.add(x, y, z);
 
                 if (!location.getBlock().getType().isAir()) {
                     contract();
@@ -78,6 +81,9 @@ public class TakerHook {
                                 player.getName(),
                                 talent().damagePercent
                         );
+
+                        PlayerLib.addEffect(hookedPlayer, PotionEffectType.SLOW, 60, 1);
+                        PlayerLib.addEffect(hookedPlayer, PotionEffectType.WITHER, 60, 1);
                     }
 
                     final double damage = Math.min(health * (talent().damagePercent / 100), 100.0d);
@@ -88,8 +94,22 @@ public class TakerHook {
                 }
 
                 createChain(location);
-
                 step += talent().shift;
+
+                location.subtract(x, y, z);
+            }
+
+            @Override
+            public void run() {
+                if (step >= talent().getMaxDistanceScaled()) {
+                    contract();
+                    return;
+                }
+
+                // Create multiple chains to make extending faster
+                for (int i = 0; i < EXTEND_SPEED; i++) {
+                    nextChain();
+                }
             }
         }.runTaskTimer(0, 1);
     }
@@ -97,7 +117,7 @@ public class TakerHook {
     private void contract() {
         taskExtend.cancel();
 
-        new GameTask() {
+        taskContract = new GameTask() {
 
             @Override
             public void run() {
@@ -109,7 +129,26 @@ public class TakerHook {
                     return;
                 }
 
-                final ArmorStand last = chains.pollLast();
+                // FIXME: 031, Mar 31, 2023 -> Maybe contract 2 chains at once as well, but it seems OK
+                // FIXME: 031, Mar 31, 2023 -> Or maybe if hit then faster, if not keep one
+
+                ArmorStand last = chains.peekLast();
+
+                for (int i = 0; i < CONTRACT_SPEED; i++) {
+                    final ArmorStand poll = chains.pollLast();
+
+                    if (poll == null) {
+                        break;
+                    }
+                    else {
+                        if (last != null) {
+                            last.remove();
+                        }
+
+                        last = poll;
+                    }
+                }
+
                 final Location location = last.getLocation().add(0.0d, HEIGHT, 0.0d);
 
                 if (hooked != null) {
@@ -143,5 +182,15 @@ public class TakerHook {
         }));
 
         PlayerLib.playSound(location, Sound.BLOCK_CHAIN_PLACE, 1.0f);
+    }
+
+    public void remove() {
+        Nulls.runIfNotNull(taskExtend, GameTask::cancel);
+        Nulls.runIfNotNull(taskContract, GameTask::cancel);
+
+        Utils.clearCollection(chains);
+
+        player.removePotionEffect(PotionEffectType.SLOW);
+        player.removePotionEffect(PotionEffectType.JUMP);
     }
 }
