@@ -4,16 +4,17 @@ import com.google.common.collect.Maps;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.storage.extra.SpiritualBones;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.storage.taker.DeathSwap;
+import me.hapyl.fight.game.talents.storage.taker.FatalReap;
 import me.hapyl.fight.game.talents.storage.taker.SpiritualBonesPassive;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -90,13 +91,14 @@ public class Taker extends Hero implements UIComponent {
         final SpiritualBones bones = getBones(player);
         final UltimateTalent ultimate = getUltimate();
         final int playerBones = bones.getBones();
+        final int duration = ultimate.getDuration();
 
         final double healing = 5d * playerBones;
-        final double healingPerTick = healing / ultimate.getDuration();
+        final double healingPerTick = healing / duration;
 
-        PlayerLib.addEffect(player, PotionEffectType.SPEED, ultimate.getDuration(), 2);
+        PlayerLib.addEffect(player, PotionEffectType.SPEED, duration, 2);
+        GamePlayer.getPlayer(player).addEffect(GameEffectType.INVISIBILITY, duration);
         player.setInvulnerable(true);
-        Utils.hidePlayer(player);
 
         GameTask.runDuration(ultimate, task -> {
             GamePlayer.getPlayer(player).heal(healingPerTick);
@@ -112,7 +114,6 @@ public class Taker extends Hero implements UIComponent {
     @Override
     public void onUltimateEnd(Player player) {
         player.setInvulnerable(false);
-        Utils.showPlayer(player);
     }
 
     @Nullable
@@ -146,17 +147,17 @@ public class Taker extends Hero implements UIComponent {
 
         final double damage = input.getDamage();
 
-        return new DamageOutput(damage - bones.getDamageReduction());
+        return new DamageOutput(damage - (1 + bones.getDamageReduction()));
     }
 
     @Override
-    public Talent getFirstTalent() {
-        return Talents.FATAL_REAP.getTalent();
+    public FatalReap getFirstTalent() {
+        return (FatalReap) Talents.FATAL_REAP.getTalent();
     }
 
     @Override
-    public Talent getSecondTalent() {
-        return null;
+    public DeathSwap getSecondTalent() {
+        return (DeathSwap) Talents.DEATH_SWAP.getTalent();
     }
 
     @Override

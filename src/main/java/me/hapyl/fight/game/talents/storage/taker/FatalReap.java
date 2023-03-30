@@ -26,7 +26,7 @@ public class FatalReap extends Talent {
         super("Fatal Reap");
 
         setDescription(
-                "Instantly charge opponents' bones with a powerful scythe swipe and unleash a devastating attack that shatters their bones, dealing %s%% of their current health as damage.____&6Convert &b%s&7 broken bones directly into &eSpiritual Bones&7.",
+                "Instantly charge opponents' bones with a powerful scythe swipe and unleash a devastating attack that shatters their bones, dealing %s%% of their current health as damage.____&6Convert &b%s&6 broken bones directly into &eSpiritual Bones&6.",
                 damagePercent,
                 spiritualBoneGeneration
         );
@@ -71,7 +71,7 @@ public class FatalReap extends Talent {
 
         final Vector vector = location.getDirection().normalize();
 
-        location.add(0.0d, d / 1.5d, 0.0d); // Calculate y offset
+        location.add(0.0d, d / 2.0d, 0.0d); // Calculate y offset
         location.add(new Vector(-vector.getZ(), 0.0d, vector.getX()).multiply(Math.sin(d) * 1.5d)); // calculate x and z offset
         location.add(vector.multiply(length + (d / 2.0d))); // calculate direction
 

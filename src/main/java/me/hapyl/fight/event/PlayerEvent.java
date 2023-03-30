@@ -483,13 +483,14 @@ public class PlayerEvent implements Listener {
             return;
         }
 
+        // Don't allow negative damage
+        if (damage < 0) {
+            damage = 0;
+        }
+
         // Create damage indicator if dealt 1 or more damage
         if (damage >= 1.0d) {
             final DamageIndicator damageIndicator = new DamageIndicator(entity.getLocation(), damage);
-            //if (!extraStrings.isEmpty()) {
-            //    damageIndicator.setExtra(extraStrings);
-            //}
-
             damageIndicator.display(20);
         }
 

@@ -417,6 +417,7 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
 
     public Talent setCdSec(int cd) {
         this.cd = cd * 20;
+        defaultPointGeneration();
         return this;
     }
 
