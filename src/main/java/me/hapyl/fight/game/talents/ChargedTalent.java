@@ -13,6 +13,9 @@ import org.bukkit.inventory.PlayerInventory;
 
 import java.util.Map;
 
+/**
+ * Represents a talent with multiple charges.
+ */
 public class ChargedTalent extends Talent {
 
     private final int maxCharges;

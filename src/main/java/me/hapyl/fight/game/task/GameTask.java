@@ -9,6 +9,9 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+/**
+ * Represents a task that is automatically cancelled when the game ends.
+ */
 public abstract class GameTask implements Runnable {
 
     private ShutdownAction shutdownAction;
@@ -19,6 +22,15 @@ public abstract class GameTask implements Runnable {
         this.shutdownAction = ShutdownAction.CANCEL;
     }
 
+    /**
+     * Runs the task for the duration of the talent.
+     *
+     * @param talent   - Talent.
+     * @param runnable - BiConsumer of task runner and remaining tick.
+     * @param delay    - Delay before starting.
+     * @param period   - Period after each execution.
+     * @return Running task.
+     */
     public static GameTask runDuration(Talent talent, BiConsumer<GameTask, Integer> runnable, int delay, int period) {
         final int duration = talent.getDuration();
 
@@ -38,10 +50,12 @@ public abstract class GameTask implements Runnable {
         }.runTaskTimer(delay, period);
     }
 
+    // see above
     public static void runDuration(Talent talent, Consumer<Integer> runnable, int period) {
         runDuration(talent, (task, i) -> runnable.accept(i), 0, period);
     }
 
+    // see above
     public static void runDuration(Talent talent, Consumer<Integer> runnable, int delay, int period) {
         runDuration(talent, (task, i) -> runnable.accept(i), delay, period);
     }

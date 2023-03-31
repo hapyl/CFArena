@@ -97,24 +97,24 @@ public class Tamer extends Hero implements Listener {
 
     @Override
     public void onUltimateEnd(Player player) {
-        final TamerPack playerPack = getPlayerPack(player);
-
-        if (playerPack == null) {
-            return;
-        }
-
-        playerPack.getPack().onUltimateEnd(player, playerPack);
+        executeTamerPackOnUltimateEnd(player);
     }
 
     @Override
     public void onDeath(Player player) {
-        final TamerPack tamerPack = getPlayerPack(player);
+        executeTamerPackOnUltimateEnd(player);
+    }
 
-        if (tamerPack == null) {
+    // Cleaned up the code a little
+    public void executeTamerPackOnUltimateEnd(Player player) {
+        final TamerPack pack = getPlayerPack(player);
+
+        if (pack == null) {
             return;
         }
 
-        tamerPack.getPack().onUltimateEnd(player, tamerPack);
+        pack.getPack().onUltimate(player, pack);
+        pack.remove();
     }
 
     @Override

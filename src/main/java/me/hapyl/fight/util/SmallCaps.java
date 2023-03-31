@@ -4,6 +4,9 @@ import com.google.common.collect.Maps;
 
 import java.util.Map;
 
+/**
+ * Utility class for formatting strings into small caps.
+ */
 public class SmallCaps {
 
     private static final Map<Character, Character> letters;

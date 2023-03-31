@@ -41,7 +41,7 @@ public enum GameTeam {
     private final ChatColor color;
     private final Material material;
     private final int maxPlayers;
-    private final List<UUID> lobbyPlayers; // represents lobby players
+    private final List<UUID> lobbyPlayers;   // represents lobby players
     private final List<GamePlayer> players;  // represents actual players in game
 
     GameTeam(ChatColor color, Material material) {

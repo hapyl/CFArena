@@ -33,6 +33,9 @@ import javax.annotation.Nonnull;
 import java.net.InetSocketAddress;
 import java.util.*;
 
+/**
+ * Represents a fake bukkit player.
+ */
 public class BukkitPlayer implements Player {
 
     private final String name;

@@ -5,6 +5,13 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
+/**
+ * Represents an ultimate talent.
+ * <div>
+ * Note that this is not actual executor for ultimate,
+ * the hero class is. This is essentially just a data for the ultimate.
+ * </div>
+ */
 public class UltimateTalent extends Talent {
 
     private final int cost;

@@ -14,11 +14,6 @@ public class PassiveTalent extends Talent {
         super(name, description, Type.PASSIVE);
         setItem(item);
         setPoint(0);
-
-        init();
-    }
-
-    public void init() {
     }
 
     @Override

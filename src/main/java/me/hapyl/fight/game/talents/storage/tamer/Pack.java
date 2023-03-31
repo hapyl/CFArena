@@ -9,13 +9,29 @@ import org.bukkit.entity.Player;
 public abstract class Pack {
 
     private final String name;
+    private final String description;
+    private final String mimicryDescription;
 
     public Pack(String name) {
+        this(name, "Provide description.", "Provide mimicry description.");
+    }
+
+    public Pack(String name, String description, String mimicryDescription) {
         this.name = name;
+        this.description = description;
+        this.mimicryDescription = mimicryDescription;
     }
 
     public String getName() {
         return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getMimicryDescription() {
+        return mimicryDescription;
     }
 
     public int spawnAmount() {
@@ -42,7 +58,7 @@ public abstract class Pack {
     public void onUltimate(Player player, TamerPack pack) {
     }
 
-    public void onUltimateEnd(Player player, TamerPack pack){
+    public void onUltimateEnd(Player player, TamerPack pack) {
     }
 
 }

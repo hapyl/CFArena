@@ -12,6 +12,32 @@ import org.bukkit.event.entity.EntityDamageEvent;
  */
 public enum EnumDamageCause {
 
+    /**
+     * System damage causes, <b>do not</b> modify the order.
+     */
+    ENTITY_ATTACK(true, "was killed", "by"), // Have to consider entity_attack as custom damage for display purpose
+    PROJECTILE(false, "was shot", "by"),
+    FALL(false, "fell to their death", "while escaping from"),
+    FIRE(false, "was toasted", "with help from"),
+    FIRE_TICK(false, FIRE.deathMessage),
+    LAVA(false, FIRE.deathMessage),
+    DROWNING(false, "drowned"),
+    BLOCK_EXPLOSION(false, "exploded", "by"),
+    ENTITY_EXPLOSION(false, "exploded", "by"),
+    VOID(false, "fell into the void"),
+    POISON(false, "poisoned to death", "by"),
+    MAGIC(false, "magically died", "with help of"),
+    WITHER(false, "withered to death", "by"),
+    FALLING_BLOCK(false, "should've been wearing a helmet"),
+    DRAGON_BREATH(false, "didn't like the smell of dragon"),
+    CRAMMING(false, "is too fat"),
+
+    NONE,  // this used as default return
+    OTHER, // this used if there is no other damage
+    /**
+     * End of system damage causes, add custom damage causes below.
+     */
+
     CREEPER_EXPLOSION("'sploded by lovely friend", "of"),
     NOVA_EXPLOSION("has been split into atoms", "by"),
     SHOCK_DART("got shocked", "by"),
@@ -56,30 +82,9 @@ public enum EnumDamageCause {
     DECOY("was bamboozled", "by"),
     MINION("was killed by {player}'s minion"),
     RIP_BONES("was ripped to shreds", "by"),
-    AURA_OF_CIRCUS("was furiously tamed","by"),
+    AURA_OF_CIRCUS("was furiously tamed", "by"),
 
-    // *==* there are vanilla ones, have to use them *==*
-
-    // Have to consider entity_attack as custom damage for display purpose
-    ENTITY_ATTACK(true, "was killed", "by"),
-    PROJECTILE(false, "was shot", "by"),
-    FALL(false, "fell to their death", "while escaping from"),
-    FIRE(false, "was toasted", "with help from"),
-    FIRE_TICK(false, FIRE.deathMessage),
-    LAVA(false, FIRE.deathMessage),
-    DROWNING(false, "drowned"),
-    BLOCK_EXPLOSION(false, "exploded", "by"),
-    ENTITY_EXPLOSION(false, "exploded", "by"),
-    VOID(false, "fell into the void"),
-    POISON(false, "poisoned to death", "by"),
-    MAGIC(false, "magically died", "with help of"),
-    WITHER(false, "withered to death", "by"),
-    FALLING_BLOCK(false, "should've been wearing a helmet"),
-    DRAGON_BREATH(false, "didn't like the smell of dragon"),
-    CRAMMING(false, "is too fat"),
-
-    NONE,  // this used as default return
-    OTHER; // this used if there is no other damage
+    ;
 
     private final boolean customDamage;
     private final DeathMessage[] deathMessage;

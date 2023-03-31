@@ -71,6 +71,22 @@ import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
 
+/**
+ * This is a registry for all talents that are
+ * executable, no matter if is used or not.
+ *
+ * <p>
+ * Stores ENUM(Talent) where Talent is a class instance of a talent.
+ * </p>
+ *
+ * <p>
+ * Talents <b>MUST</b> be stored in here, otherwise they will not be registered.
+ * </p>
+ *
+ * To get actual talent class, use {@link Handle} or {@link #getTalent(Class)}.
+ *
+ * @author hapyl
+ */
 public enum Talents {
 
     // Archer
@@ -196,6 +212,7 @@ public enum Talents {
     SLOWING_AURA(new SlowingAura()),
     HEALING_AURA(new HealingAura()),
     SHADOW_CLONE(new ShadowClone()),
+    DARK_MAGE_PASSIVE(new PassiveTalent("unnamed", "", Material.BEDROCK)),
 
     // Blast Knight
     SPEAR(new Spear()),
@@ -339,6 +356,15 @@ public enum Talents {
     @Nonnull
     public Talent getTalent() {
         return talent;
+    }
+
+    @Nonnull
+    public <E extends Talent> E getTalent(Class<E> cast) throws IllegalArgumentException {
+        try {
+            return cast.cast(talent);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("talent is not of type " + cast.getSimpleName());
+        }
     }
 
 }

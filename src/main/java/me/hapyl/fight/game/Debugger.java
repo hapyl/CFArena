@@ -6,6 +6,9 @@ import org.bukkit.entity.Player;
 
 public class Debugger {
 
+    /**
+     * Indicates that this debug logger should not be removed in prod.
+     */
     public static void keepLog(Object any, Object... format) {
         log(any, format);
     }

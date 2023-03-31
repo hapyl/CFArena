@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.talents.storage.swooper;
 
-import me.hapyl.fight.game.ChatGPT;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -17,7 +16,7 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Blink extends ChargedTalent implements ChatGPT {
+public class Blink extends ChargedTalent {
 
     @DisplayField private final int maxDistance = 6;
     @DisplayField private final int minDistance = 1;

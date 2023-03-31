@@ -262,7 +262,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
 
     @Override
     public Talent getPassiveTalent() {
-        return null;
+        return Talents.DARK_MAGE_PASSIVE.getTalent();
     }
 
     @Override

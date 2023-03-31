@@ -1,10 +1,8 @@
 package me.hapyl.fight.game.talents.storage.tamer;
 
 import me.hapyl.fight.game.AbstractGamePlayer;
-import me.hapyl.fight.game.Debugger;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Nulls;
@@ -31,7 +29,8 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public enum TamerPacks {
-    ZOMBIE_HORDE(new Pack("Zombie Horde") {
+
+    ZOMBIE_HORDE(new Pack("Zombie Horde", "This is shown in the tooltip!", "This is shown in the ultimate description!") {
 
         @Override
         public int spawnAmount() {
@@ -40,31 +39,36 @@ public enum TamerPacks {
 
         @Override
         public void spawnEntity(Player player, Location location, TamerPack pack) {
-            pack.createEntity(location, Entities.ZOMBIE);
+            pack.createEntity(location, Entities.ZOMBIE, Ageable::setAdult/*Make sure the zombie is adult*/);
         }
 
         @Override
         public void onUltimate(Player player, TamerPack pack) {
-            Chat.sendMessage(player, "&2Unleash the horde! Your zombies swarm forward, tearing through everything in their path. No one can stop the undead army now!");
+            Chat.sendMessage(
+                    player,
+                    "&2Unleash the horde! Your zombies swarm forward, tearing through everything in their path. No one can stop the undead army now!"
+            );
             pack.remove();
             for (int i = 0; i < 9; i++) {
                 pack.createEntity(pack.addRelativeOffset(player.getLocation(), i),
                         Entities.ZOMBIE, self -> {
                             self.setBaby();
                             self.addPotionEffect(PotionEffectType.SPEED.createEffect(Integer.MAX_VALUE, 0));
-                        });
+                        }
+                );
             }
         }
 
         @Override
         public void onUltimateEnd(Player player, TamerPack pack) {
-            pack.remove();
+            //pack.remove(); impl in Tamer#onUltimateEnd
         }
     }),
 
     SKELETON_GANG(new Pack("Skeleton Gang") {
 
-        private ItemStack boneSword = new ItemBuilder(Material.IRON_SWORD)
+        // FIXME (hapyl): 001, Apr 1, 2023: Use Weapon
+        private final ItemStack boneSword = new ItemBuilder(Material.IRON_SWORD)
                 .addEnchant(Enchantment.FIRE_ASPECT, 1)
                 .setUnbreakable()
                 .build();
@@ -74,19 +78,24 @@ public enum TamerPacks {
             pack.createEntity(
                     location,
                     Entities.WITHER_SKELETON,
-                    self -> Nulls.runIfNotNull(self.getEquipment(), equipment -> {
-                        equipment.setItemInMainHand(new ItemBuilder(Material.BOW)
-                                .addEnchant(Enchantment.ARROW_DAMAGE, 1)
-                                .addEnchant(Enchantment.ARROW_KNOCKBACK, 1)
-                                .setUnbreakable()
-                                .build());
-                    })
+                    self -> {
+                        Nulls.runIfNotNull(self.getEquipment(), equipment -> {
+                            equipment.setItemInMainHand(new ItemBuilder(Material.BOW)
+                                    .addEnchant(Enchantment.ARROW_DAMAGE, 1)
+                                    .addEnchant(Enchantment.ARROW_KNOCKBACK, 1)
+                                    .setUnbreakable()
+                                    .build());
+                        });
+                    }
             );
         }
 
         @Override
         public void onUltimate(Player player, TamerPack pack) {
-            Chat.sendMessage(player, "&7The army of bones is at your command! Your skeletons march forward, raining arrows down on your enemies. No one can escape their deadly aim!");
+            Chat.sendMessage(
+                    player,
+                    "&7The army of bones is at your command! Your skeletons march forward, raining arrows down on your enemies. No one can escape their deadly aim!"
+            );
             final PlayerInventory inventory = player.getInventory();
 
             inventory.setItem(4, boneSword);
@@ -95,14 +104,18 @@ public enum TamerPacks {
             PlayerLib.addEffect(player, PotionEffectType.SPEED, Heroes.TAMER.getHero().getUltimateDuration(), 1);
             GameTask.runDuration(Heroes.TAMER.getHero().getUltimate(), (task, i) -> {
                 final Location location = player.getLocation();
+
                 Utils.getPlayersInRange(location, 2).forEach(target -> {
-                    if (target != player)
+                    if (target != player) {
                         GamePlayer.damageEntity(target, 2, player, EnumDamageCause.AURA_OF_CIRCUS);
+                    }
                 });
                 Geometry.drawCircle(location.add(0d, 1d, 0d), 2d, Quality.NORMAL, new WorldParticle(Particle.CRIT));
-                if(!GamePlayer.getPlayer(player).isAlive())
+
+                if (!GamePlayer.getPlayer(player).isAlive()) {
                     task.cancel();
-            },0, 1);
+                }
+            }, 0, 1);
         }
 
         @Override
@@ -110,7 +123,7 @@ public enum TamerPacks {
             final PlayerInventory inventory = player.getInventory();
             inventory.setItem(4, new ItemStack(Material.AIR));
             inventory.setHeldItemSlot(0);
-            pack.remove();
+            //pack.remove(); impl in Tamer#onUltimateEnd
         }
 
         @Override
@@ -120,6 +133,8 @@ public enum TamerPacks {
     }),
 
     PIGLIN_BROTHERS(new Pack("Pigman") {
+
+        // FIXME: 001, Apr 1, 2023 -> Use Weapon
         private final ItemStack goldenBow = new ItemBuilder(Material.BOW)
                 .addEnchant(Enchantment.ARROW_INFINITE, 1)
                 .setUnbreakable()
@@ -129,8 +144,6 @@ public enum TamerPacks {
         public int spawnAmount() {
             return 1;
         }
-
-        // FIXME: 028, Mar 28, 2023 -> Piglins don't aggro, change to pigman?
 
         @Override
         public void spawnEntity(Player player, Location location, TamerPack pack) {
@@ -162,7 +175,7 @@ public enum TamerPacks {
             inventory.setItem(4, new ItemStack(Material.AIR));
             inventory.setItem(9, new ItemStack(Material.AIR));
             inventory.setHeldItemSlot(0);
-            pack.remove();
+            //pack.remove(); impl in Tamer#onUltimateEnd
         }
     }),
 
@@ -190,22 +203,22 @@ public enum TamerPacks {
             GameTask.runDuration(Heroes.TAMER.getHero().getUltimate(), (task, i) -> {
                 final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
                 gp.heal(2d);
-                if (i == 0 || !gp.isAlive())
+                if (/*i == 0 || redundant tick check */!gp.isAlive()) {
                     task.cancel();
+                }
             }, 0, 20);
         }
 
         @Override
         public void onUltimateEnd(Player player, TamerPack pack) {
-            pack.remove();
+            //pack.remove(); impl in Tamer#onUltimateEnd
         }
     }),
 
     LASER_ZOMBIE(new Pack("Laser Zombie") {
         @Override
         public void spawnEntity(Player player, Location location, TamerPack pack) {
-            final Zombie zombie = pack.createEntity(location, Entities.ZOMBIE, self -> {
-            });
+            final Zombie zombie = pack.createEntity(location, Entities.ZOMBIE, Ageable::setAdult /*Make sure zombie is always adult*/);
 
             final Guardian guardian = pack.createEntity(location, Entities.GUARDIAN, self -> {
                 self.setAI(false);
@@ -216,8 +229,11 @@ public enum TamerPacks {
 
         @Override
         public void onUltimate(Player player, TamerPack pack) {
-            Chat.sendMessage(player, "&bUnleash the power of the ocean! Your guardian laser fires with deadly precision, obliterating anything in its path. Beware the wrath of the deep!");
-            pack.remove();
+            Chat.sendMessage(
+                    player,
+                    "&bUnleash the power of the ocean! Your guardian laser fires with deadly precision, obliterating anything in its path. Beware the wrath of the deep!"
+            );
+            //pack.remove(); impl in Tamer#onUltimateEnd
             final Guardian guardian = pack.createEntity(player.getLocation(), Entities.GUARDIAN, self -> {
                 self.setAI(false);
             });
@@ -226,7 +242,7 @@ public enum TamerPacks {
 
         @Override
         public void onUltimateEnd(Player player, TamerPack pack) {
-            pack.remove();
+            //pack.remove(); impl in Tamer#onUltimateEnd
         }
 
         @Override

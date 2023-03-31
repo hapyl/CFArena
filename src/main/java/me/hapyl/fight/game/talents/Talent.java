@@ -22,6 +22,9 @@ import org.bukkit.inventory.ItemStack;
 import javax.annotation.Nonnull;
 import java.util.List;
 
+/**
+ * Base talent.
+ */
 public abstract class Talent extends NonnullItemStackCreatable implements GameElement, DisplayFieldProvider {
 
     public static final Talent NULL = null;

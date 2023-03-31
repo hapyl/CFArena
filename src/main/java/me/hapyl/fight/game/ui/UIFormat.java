@@ -5,6 +5,9 @@ import me.hapyl.spigotutils.module.util.Validate;
 
 import javax.annotation.Nonnull;
 
+/**
+ * A formatter for player UI.
+ */
 public class UIFormat {
 
     public static final String DIV = " &8⁑&r ";
