@@ -4,6 +4,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.storage.extra.StanceData;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
@@ -18,8 +19,8 @@ import java.util.Map;
 
 public class MeleeStance extends Talent {
 
-	private final Map<Player, StanceData> dataMap = new HashMap<>();
-	private final int maxDuration = 600;
+    private final Map<Player, StanceData> dataMap = new HashMap<>();
+    @DisplayField private final int maxDuration = 600;
 
 	private final Weapon abilityItem = new Weapon(Material.IRON_SWORD).setDamage(8.0d)
             .setName("Raging Blade")
@@ -28,11 +29,12 @@ public class MeleeStance extends Talent {
 	public MeleeStance() {
         super("Melee Stance");
         addDescription(
-                "Enter a Melee Stance for maximum of &b{}s&7 to replace you bow with a sword!__Use again in &e&lMelee Stance&7 to get your bow back.____The longer you're in &e&lMelee Stance&7, the longer the cooldown of this ability.",
+                "Enter a Melee Stance for maximum of &b%ss&7 to replace you bow with a sword!__Use again in &e&lMelee Stance&7 to get your bow back.____The longer you're in &e&lMelee Stance&7, the longer the cooldown of this ability.",
                 BukkitUtils.roundTick(maxDuration)
         );
-        this.setItem(Material.IRON_INGOT);
-        this.setCd(-1);
+
+        setItem(Material.IRON_INGOT);
+        setCd(-1);
     }
 
     @Override
@@ -90,7 +92,6 @@ public class MeleeStance extends Talent {
 		// Fx
 		PlayerLib.playSound(player, Sound.ENTITY_ITEM_BREAK, 1.25f);
 		Chat.sendTitle(player, "&2⚔", "", 5, 15, 5);
-
 	}
 
 	public void switchToRange(Player player) {

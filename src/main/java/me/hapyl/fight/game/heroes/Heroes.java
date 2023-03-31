@@ -62,6 +62,7 @@ public enum Heroes {
     public static class Handle {
         public static final Vampire VAMPIRE = (Vampire) Heroes.VAMPIRE.getHero();
         public static final Taker TAKER = (Taker) Heroes.TAKER.getHero();
+        public static final JuJu JUJU = (JuJu) Heroes.JUJU.getHero();
     }
 
     private final static InvalidHero INVALID_HERO = new InvalidHero();

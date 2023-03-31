@@ -18,8 +18,8 @@ import java.util.Map;
 
 public class VortexStar extends Talent {
 
-	@DisplayField private final int maximumStars = 5;
-	private final Map<Player, AstralStars> stars = new HashMap<>();
+	@DisplayField private final short maximumStars = 5;
+    private final Map<Player, AstralStars> stars = new HashMap<>();
 
 	public VortexStar() {
 		super("Astral Star");

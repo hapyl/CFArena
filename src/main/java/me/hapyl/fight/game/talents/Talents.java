@@ -202,7 +202,7 @@ public enum Talents {
     SLOWNESS_POTION(new SlownessPotion()),
     SHIELDED(new PassiveTalent(
             "Shielded",
-            "Blocking damage using your shield will charge it. Once charged, shield will explode and create Nova Explosion, dealing damage and knocking back opponents.",
+            "Blocking damage using your shield will add a charge to it, up to &b10&7 charges.____Once charged, it will explode and create &bNova Explosion&7, dealing moderate damage and knocking back nearby opponents.",
             Material.SHIELD
     )),
 
@@ -211,7 +211,7 @@ public enum Talents {
     NINJA_SMOKE(new NinjaSmoke()),
     FLEET_FOOT(new PassiveTalent(
             "Fleet Foot",
-            "Ninja's are fast and fragile. You gain &bSpeed &7boost and don't take fall damage.",
+            "Ninjas are fast and fragile.____You gain &bSpeed &7boost and don't take fall damage.",
             Material.ELYTRA
     )),
 
@@ -225,7 +225,7 @@ public enum Talents {
     CLIMB(new Climb()),
     ELUSIVE_BURST(new PassiveTalent(
             "Elusive Burst",
-            "Fully charged shots while sneaking will infuse your arrow. Infused arrows exploded into small clusters dealing big damage upon hit. This ability cannot be used during ultimate.",
+            "Fully charged shots while sneaking will infuse your arrow.____Infused arrows exploded into small clusters dealing big damage upon hit.",
             Material.PEONY
     )),
 
@@ -258,7 +258,7 @@ public enum Talents {
     TIDAL_WAVE(new TidalWave()),
     RIPTIDE(new PassiveTalent(
             "Riptide",
-            "Fully charged shot in &e&lRange Stance&7 applies &bRiptide &7effect to opponents.____Hitting opponents affected by &bRiptide&7 with &nfully charged shots&7 or in &e&lRange &e&lStance &7executes &bRiptide Slash&7, that rapidly deals damage.____&bRiptide Slash&7 can be executed once every &b2.5s&7.",
+            "Fully charged shots in &e&lRange Stance&7 applies &bRiptide &7effect to opponents.____Hitting opponents affected by &bRiptide&7 with &nfully charged shots&7 or in &e&lMelee &e&lStance &7executes &bRiptide Slash&7 that rapidly deals damage.____&bRiptide Slash&7 can be executed once every &b2.5s&7 per opponent.",
             Material.HEART_OF_THE_SEA
     )),
 
@@ -296,7 +296,7 @@ public enum Talents {
     BAT_SWARM(new BatSwarm()),
     BLOOD_THIRST(new PassiveTalent(
             "Blood Thirst",
-            "Your health is constantly drained.____Whenever you hit an opponent you will gain a stack of blood, up to 10 stacks.____Drink the blood to increase your damage and heal yourself.__Healing, damage boost, duration and cooldown is based on the amount of stacks consumed.",
+            "&cYour health is constantly drained.____Whenever you or your bats hit an opponent, you will gain a stack of &bblood&7, up to &b10&7 stacks.____Drink the blood to &cincrease your damage&7 and &cheal yourself&7.____&6Healing, damage boost, duration and cooldown is based on the amount of stacks consumed.",
             Material.REDSTONE
     )),
 

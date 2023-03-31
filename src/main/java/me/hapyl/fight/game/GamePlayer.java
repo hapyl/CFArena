@@ -23,6 +23,7 @@ import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.chat.Gradient;
 import me.hapyl.spigotutils.module.chat.gradient.Interpolators;
 import me.hapyl.spigotutils.module.math.Numbers;
+import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.Reflect;
 import me.hapyl.spigotutils.module.reflect.ReflectPacket;
@@ -211,7 +212,8 @@ public class GamePlayer extends AbstractGamePlayer {
         final String pointsString = "&b&l%s&b/&b&l%s".formatted(getUltPoints(), getUltPointsNeeded());
 
         if (getHero().isUsingUltimate(player)) {
-            return "&b&lIN USE";
+            final long durationLeft = hero.getUltimateDurationLeft(player);
+            return "&b&lIN USE &b(%ss)".formatted(BukkitUtils.roundTick(Tick.fromMillis(durationLeft)));
         }
 
         if (ultimate.hasCd(player)) {

@@ -382,7 +382,8 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
 
         // Don't start CD if in debug
         if (Manager.current().isDebug()) {
-            return;
+            // TODO: 031, Mar 31, 2023 -> Create different debug states: -c for cooldown, -u for ult etc
+            //return;
         }
 
         player.setCooldown(material, cooldown);

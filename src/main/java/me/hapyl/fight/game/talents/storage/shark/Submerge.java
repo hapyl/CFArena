@@ -7,6 +7,7 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
@@ -22,13 +23,14 @@ import java.util.Locale;
 
 public class Submerge extends Talent {
 
+    @DisplayField private final double damage = 10.0d;
+
     private final float[] FIN_OFFSET = { 0.2f, 1.8f, 0.2f };
-    private final double DAMAGE = 10.0d;
 
     public Submerge() {
         super(
                 "Submerge",
-                "Swiftly submerge under ground and dash forward revealing a hidden shark fin that deals damage and knocks back nearby enemies.",
+                "Swiftly submerge underground and dash forward revealing a hidden shark fin that deals damage and knocks back nearby enemies.",
                 Material.PRISMARINE_SHARD
         );
 
@@ -119,7 +121,7 @@ public class Submerge extends Talent {
                         return;
                     }
 
-                    GamePlayer.damageEntity(victim, DAMAGE, player, EnumDamageCause.SUBMERGE);
+                    GamePlayer.damageEntity(victim, damage, player, EnumDamageCause.SUBMERGE);
                     victim.setVelocity(victim.getLocation().getDirection().multiply(-1.0d).setY(0.5d));
                 });
 

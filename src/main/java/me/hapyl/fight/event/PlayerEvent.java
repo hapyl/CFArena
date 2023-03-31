@@ -197,6 +197,11 @@ public class PlayerEvent implements Listener {
                 return;
             }
 
+            if (hero.isUsingUltimate(player)) {
+                sendUltimateFailureMessage(player, "&cAlready using ultimate!");
+                return;
+            }
+
             //ultimate.execute0(player);
             hero.useUltimate(player);
             ultimate.startCd(player);

@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import com.google.common.collect.Maps;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.GameElement;
@@ -26,7 +26,7 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 /**
  * Base class.
@@ -44,7 +44,9 @@ public abstract class Hero implements GameElement, PlayerElement {
     private String about;
     private ItemStack guiTexture;
     private Weapon weapon;
-    private final Set<Player> usingUltimate;
+
+    private final Map<Player, Long> usedUltimateAt;
+    private final Map<Player, GameTask> reverseTasks;
 
     private long minimumLevel;
 
@@ -56,7 +58,8 @@ public abstract class Hero implements GameElement, PlayerElement {
         this.about = "No description provided.";
         this.guiTexture = new ItemStack(Material.RED_BED);
         this.weapon = new Weapon(Material.WOODEN_SWORD);
-        this.usingUltimate = Sets.newHashSet();
+        this.usedUltimateAt = Maps.newHashMap();
+        this.reverseTasks = Maps.newConcurrentMap();
         this.equipment = new ClassEquipment();
         this.role = Role.NONE;
         this.minimumLevel = 0;
@@ -164,30 +167,70 @@ public abstract class Hero implements GameElement, PlayerElement {
      */
     public final void setUsingUltimate(Player player, boolean flag) {
         if (flag) {
-            usingUltimate.add(player);
+            usedUltimateAt.put(player, System.currentTimeMillis());
         }
         else {
-            usingUltimate.remove(player);
+            usedUltimateAt.remove(player);
+            cancelOldReverseTask(player);
             onUltimateEnd(player);
         }
+    }
+
+    /**
+     * Returns ticks when player used their ultimate. Or -1 if they haven't used yet.
+     *
+     * @param player - Player.
+     * @return ticks when player used their ultimate. Or -1 if they haven't used yet.
+     */
+    public long getUsedUltimateAt(Player player) {
+        return usedUltimateAt.getOrDefault(player, -1L);
+    }
+
+    /**
+     * Returns millis left until player can use their ultimate again.
+     *
+     * @param player - Player.
+     * @return millis left until player can use their ultimate again.
+     */
+    public long getUltimateDurationLeft(Player player) {
+        final int duration = getUltimateDuration() * 50;
+
+        if (duration == 0) {
+            return 0;
+        }
+
+        return duration - (System.currentTimeMillis() - getUsedUltimateAt(player));
     }
 
     /**
      * Clears all players who are currently using their ultimate.
      */
     public void clearUsingUltimate() {
-        this.usingUltimate.clear();
+        usedUltimateAt.clear();
     }
 
     /**
      * Sets if player is currently using their ultimate, then removes them after duration.
-     *
-     * @deprecated Use {@link this#setUltimateDuration(int)} instead.
      */
-    @Deprecated
     public final void setUsingUltimate(Player player, boolean flag, int reverseAfter) {
-        this.setUsingUltimate(player, flag);
-        GameTask.runLater(() -> setUsingUltimate(player, !flag), reverseAfter);
+        setUsingUltimate(player, flag);
+
+        cancelOldReverseTask(player);
+
+        reverseTasks.put(
+                player,
+                GameTask.runLater(() -> setUsingUltimate(player, !flag), reverseAfter)
+        );
+    }
+
+    private void cancelOldReverseTask(Player player) {
+        final GameTask oldTask = reverseTasks.get(player);
+
+        if (oldTask != null && !oldTask.isCancelled()) {
+            oldTask.cancel();
+        }
+
+        reverseTasks.remove(player);
     }
 
     /**
@@ -197,7 +240,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      * @return true if player is currently using their ultimate.
      */
     public final boolean isUsingUltimate(Player player) {
-        return usingUltimate.contains(player);
+        return usedUltimateAt.containsKey(player);
     }
 
     /**
