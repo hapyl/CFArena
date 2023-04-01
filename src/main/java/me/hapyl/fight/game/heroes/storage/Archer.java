@@ -35,6 +35,7 @@ public class Archer extends Hero implements Listener {
 
     private final double explosionRadius = 5.0d;
     private final double explosionDamage = 30.0d;
+    private final int boomBowPerShotCd = 10;
 
     public Archer() {
         super("Archer");
@@ -107,6 +108,8 @@ public class Archer extends Hero implements Listener {
                         EnumDamageCause.BOOM_BOW_ULTIMATE,
                         null
                 );
+
+                player.setCooldown(boomBow.getMaterial(), boomBowPerShotCd);
             }
         }
     }

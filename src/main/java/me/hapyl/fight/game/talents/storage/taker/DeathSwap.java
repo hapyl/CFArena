@@ -43,7 +43,7 @@ public class DeathSwap extends Talent {
         );
 
         setItem(Material.CHAIN);
-        setCdSec(20);
+        setCdSec(16);
     }
 
     public double getMaxDistanceScaled() {

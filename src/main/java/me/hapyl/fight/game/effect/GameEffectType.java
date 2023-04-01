@@ -17,7 +17,9 @@ public enum GameEffectType {
     RIPTIDE(new Riptide()),
     LOCK_DOWN(new LockdownEffect()),
     ARCANE_MUTE(new ArcaneMuteEffect()),
-    SLOWING_AURA(new SlowingAuraEffect());
+    SLOWING_AURA(new SlowingAuraEffect()),
+
+    ;
 
     private final GameEffect gameEffect;
 

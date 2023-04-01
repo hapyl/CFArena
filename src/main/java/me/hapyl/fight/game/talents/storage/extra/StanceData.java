@@ -7,36 +7,40 @@ import org.bukkit.inventory.ItemStack;
 
 public class StanceData {
 
-	private final Player player;
-	private final long usedAt;
-	private final ItemStack stack;
-	private final GameTask task;
+    private final Player player;
+    private final long usedAt;
+    private final ItemStack stack;
+    private final GameTask task;
 
-	public StanceData(Player player, ItemStack weapon) {
-		this.player = player;
-		this.stack = weapon;
-		this.usedAt = System.currentTimeMillis();
-		this.task = new GameTask() {
-			@Override
-			public void run() {
-				TalentHandle.MELEE_STANCE.switchToRange(player);
-			}
-		}.runTaskLater(TalentHandle.MELEE_STANCE.getMaxDuration());
-	}
+    public StanceData(Player player, ItemStack weapon) {
+        this.player = player;
+        this.stack = weapon;
+        this.usedAt = System.currentTimeMillis();
+        this.task = new GameTask() {
+            @Override
+            public void run() {
+                TalentHandle.MELEE_STANCE.switchToRange(player);
+            }
+        }.runTaskLater(TalentHandle.MELEE_STANCE.getMaxDuration());
+    }
 
-	public long getDuration() {
-		return System.currentTimeMillis() - usedAt;
-	}
+    public long getDuration() {
+        return System.currentTimeMillis() - usedAt;
+    }
 
-	public ItemStack getOriginalWeapon() {
-		return stack;
-	}
+    public int getDurationTick() {
+        return (int) (getDuration() / 50);
+    }
 
-	public Player getPlayer() {
-		return player;
-	}
+    public ItemStack getOriginalWeapon() {
+        return stack;
+    }
 
-	public void cancelTask() {
-		this.task.cancel();
-	}
+    public Player getPlayer() {
+        return player;
+    }
+
+    public void cancelTask() {
+        this.task.cancel();
+    }
 }

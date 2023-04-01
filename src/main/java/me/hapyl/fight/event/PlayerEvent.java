@@ -676,8 +676,8 @@ public class PlayerEvent implements Listener {
 
             // Amnesia
             if (gp.hasEffect(GameEffectType.AMNESIA)) {
-
                 final double pushSpeed = player.isSneaking() ? 0.05d : 0.1d;
+
                 player.setVelocity(new Vector(
                         new Random().nextBoolean() ? pushSpeed : -pushSpeed,
                         -0.2723,
@@ -689,12 +689,11 @@ public class PlayerEvent implements Listener {
             gp.markLastMoved();
         }
 
-        // Handle jumping
-        final PotionEffect effect = player.getPotionEffect(PotionEffectType.SLOW);
-        if (effect != null && to.getY() > from.getY()) {
-            if (effect.getAmplifier() == 250) {
-                ev.setCancelled(true);
-            }
+        // Handle no jumping
+        final PotionEffect effect = player.getPotionEffect(PotionEffectType.JUMP);
+
+        if (effect != null && effect.getAmplifier() == 250) {
+            ev.setCancelled(true);
         }
 
     }

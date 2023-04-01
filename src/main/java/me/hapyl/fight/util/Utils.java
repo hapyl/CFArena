@@ -435,17 +435,21 @@ public class Utils {
             return false;
         }
 
-        // players are only valid if they are alive and not on the same team
-        if (entity instanceof Player targetPlayer) {
-            if (Manager.current().isGameInProgress() && !GamePlayer.getPlayer(targetPlayer).isAlive()) {
-                return false;
-            }
-            return !GameTeam.isTeammate(player, targetPlayer);
-        }
-
         // dead or invisible entities are not valid
         if (entity instanceof LivingEntity livingEntity) {
-            return !livingEntity.isDead() && !livingEntity.isInvisible() && livingEntity.hasAI();
+            if (livingEntity.isDead() || livingEntity.isInvisible()) {
+                return false;
+            }
+
+            // players are only valid if they are alive and not on the same team
+            if (entity instanceof Player targetPlayer) {
+                if (Manager.current().isGameInProgress() && !GamePlayer.getPlayer(targetPlayer).isAlive()) {
+                    return false;
+                }
+                return !GameTeam.isTeammate(player, targetPlayer);
+            }
+
+            return livingEntity.hasAI();
         }
 
         // other entities are valid

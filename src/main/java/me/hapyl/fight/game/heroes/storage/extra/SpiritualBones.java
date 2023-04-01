@@ -22,8 +22,6 @@ import java.util.LinkedList;
 
 public class SpiritualBones implements Ticking {
 
-    private final int START_BONES = 0;
-
     private final Player player;
     private int bones;
 
@@ -74,7 +72,7 @@ public class SpiritualBones implements Ticking {
     }
 
     public void reset() {
-        bones = START_BONES;
+        bones = 0;
     }
 
     @Override

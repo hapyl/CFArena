@@ -13,12 +13,16 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentHandle;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.storage.extra.StanceData;
+import me.hapyl.fight.game.talents.storage.harbinger.MeleeStance;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
 import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.LivingEntity;
@@ -28,10 +32,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
-public class Harbinger extends Hero implements Listener {
+public class Harbinger extends Hero implements Listener, UIComponent {
 
     private final double ultimateRadius = 4.0d;
     private final Map<Player, RiptideStatus> riptideStatus = Maps.newHashMap();
@@ -223,8 +228,8 @@ public class Harbinger extends Hero implements Listener {
     }
 
     @Override
-    public Talent getFirstTalent() {
-        return Talents.STANCE.getTalent();
+    public MeleeStance getFirstTalent() {
+        return (MeleeStance) Talents.STANCE.getTalent();
     }
 
     @Override
@@ -235,5 +240,20 @@ public class Harbinger extends Hero implements Listener {
     @Override
     public Talent getPassiveTalent() {
         return Talents.RIPTIDE.getTalent();
+    }
+
+    @Nonnull
+    @Override
+    public String getString(Player player) {
+        final StanceData data = getFirstTalent().getData(player);
+
+        if (data == null) {
+            return "";
+        }
+
+        return "&f⚔ &l:%ss&f/&l%ss".formatted(
+                BukkitUtils.roundTick(data.getDurationTick()),
+                BukkitUtils.roundTick(getFirstTalent().getMaxDuration())
+        );
     }
 }
