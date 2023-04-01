@@ -45,6 +45,17 @@ public enum GameMaps {
             asList(asLoc(32, 70, 99), asLoc(-16, 70, 99))
     ),
 
+    MIDJOURNEY(
+            "Mid Journey",
+            "Mid Journey is a fierce and treacherous arena located deep within the Nether. " +
+                    "Its jagged walls and pillars of obsidian provide cover and obstacles for players " +
+                    "to use to their advantage as they battle for supremacy in this dangerous realm.",
+            Material.CRIMSON_NYLIUM,
+            100,
+            Size.MEDIUM,
+            asList(asLoc(306,66.0,-200), asLoc(319,73.0,-200),asLoc(273,5.0,-200))
+    ),
+
     NEW_RAILWAY("Railway", "{}", Material.POWERED_RAIL, 100, Size.LARGE, asList(
             asLoc(10, 72, 217),
             asLoc(10, 72, 184),
