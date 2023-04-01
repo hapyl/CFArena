@@ -13,7 +13,9 @@ import me.hapyl.fight.game.talents.TalentHandle;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.storage.tamer.MineOBall;
+import me.hapyl.fight.game.talents.storage.tamer.Pack;
 import me.hapyl.fight.game.talents.storage.tamer.TamerPack;
+import me.hapyl.fight.game.talents.storage.tamer.TamerPacks;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -71,7 +73,20 @@ public class Tamer extends Hero implements Listener {
                 .setId("tamer_weapon")
                 .setDamage(2.0d)); // This is melee damage, weapon damage is handled in the event
 
-        setUltimate(new UltimateTalent("Mimicry", "DESCRIPTION", 50).setDuration(400));
+        final UltimateTalent ultimate = new UltimateTalent(
+                "Mimicry",
+                "Instantly mimic your current pack to gain it's blessings!____",
+                50
+        ).setDuration(400);
+
+        for (TamerPacks value : TamerPacks.values()) {
+            final Pack pack = value.getPack();
+
+            ultimate.addDescription("&b&l" + pack.getName());
+            ultimate.addDescription(pack.getMimicryDescription());
+        }
+
+        setUltimate(ultimate);
     }
 
     @Override
@@ -113,7 +128,7 @@ public class Tamer extends Hero implements Listener {
             return;
         }
 
-        pack.getPack().onUltimate(player, pack);
+        pack.getPack().onUltimateEnd(player, pack);
         pack.remove();
     }
 

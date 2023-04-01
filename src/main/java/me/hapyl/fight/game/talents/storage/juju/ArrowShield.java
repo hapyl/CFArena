@@ -27,6 +27,7 @@ import java.util.Map;
 
 public class ArrowShield extends Talent implements Listener {
 
+    // should really be linkedlist
     private final Map<Player, List<Arrow>> shieldMap = new HashMap<>();
 
     @DisplayField private final short shieldCharges = 5;
@@ -68,17 +69,13 @@ public class ArrowShield extends Talent implements Listener {
 
         final Arrow arrow = list.remove(sizeMinusOne);
 
-        Utils.createExplosion(
-                arrow.getLocation(),
-                explosionRadius,
-                explosionDamage,
-                entity -> {
-                    if (entity != player) {
-                        GamePlayer.damageEntity(entity, 2.0d, player, EnumDamageCause.ENTITY_EXPLOSION);
-                    }
-                }
-        );
+        Utils.createExplosion(arrow.getLocation(), explosionRadius, 0.0d, player, EnumDamageCause.ENTITY_EXPLOSION, entity -> {
+            if (entity == player || !Utils.isEntityValid(entity)) {
+                return;
+            }
 
+            GamePlayer.damageEntity(entity, explosionDamage, player, EnumDamageCause.ENTITY_EXPLOSION);
+        });
         arrow.remove();
     }
 

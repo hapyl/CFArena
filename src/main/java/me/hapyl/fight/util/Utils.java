@@ -425,17 +425,14 @@ public class Utils {
         });
     }
 
+    public static boolean isEntityValid(Entity entity) {
+        return isEntityValid(entity, null);
+    }
+
     public static boolean isEntityValid(@Distinct("player") Entity entity, @Distinct("entity") @Nullable Player player) {
         // null entities, self or armor stands are not valid
         if (entity == null || (player != null && entity == player) || entity instanceof ArmorStand) {
             return false;
-        }
-
-        // dead or invisible entities are not valid
-        if (entity instanceof LivingEntity livingEntity) {
-            if (livingEntity.isDead() || livingEntity.isInvisible() || !livingEntity.hasAI()) {
-                return false;
-            }
         }
 
         // players are only valid if they are alive and not on the same team
@@ -444,6 +441,11 @@ public class Utils {
                 return false;
             }
             return !GameTeam.isTeammate(player, targetPlayer);
+        }
+
+        // dead or invisible entities are not valid
+        if (entity instanceof LivingEntity livingEntity) {
+            return !livingEntity.isDead() && !livingEntity.isInvisible() && livingEntity.hasAI();
         }
 
         // other entities are valid

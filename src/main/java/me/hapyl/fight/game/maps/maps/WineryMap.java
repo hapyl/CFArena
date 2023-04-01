@@ -11,7 +11,7 @@ import java.util.Random;
 
 public class WineryMap extends GameMap {
 
-    private final int howlPeriod = Tick.fromSecond(60);
+    private final int howlPeriod = Tick.fromMinute(3);
     private final double howlRange = 42.0d;
 
     public WineryMap() {
@@ -39,7 +39,7 @@ public class WineryMap extends GameMap {
                         return;
                     }
 
-                    world.playSound(location, Sound.ENTITY_WOLF_HOWL, SoundCategory.RECORDS, 8.0f, new Random().nextFloat(0.0f, 1.0f));
+                    world.playSound(location, Sound.ENTITY_WOLF_HOWL, SoundCategory.RECORDS, 4.0f, new Random().nextFloat(0.0f, 1.0f));
                 }, howlPeriod, howlPeriod);
             }
 

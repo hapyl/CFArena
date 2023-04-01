@@ -55,6 +55,10 @@ public class TakerHook {
             private double step = 0.0d;
 
             private void nextChain() {
+                if (hooked != null) {
+                    return; // don't create if hooked something
+                }
+
                 final double x = vector.getX() * step;
                 final double y = vector.getY() * step;
                 final double z = vector.getZ() * step;
@@ -66,7 +70,7 @@ public class TakerHook {
                     return;
                 }
 
-                final LivingEntity nearest = Utils.getNearestLivingEntity(location, 2.5d, player);
+                final LivingEntity nearest = Utils.getNearestLivingEntity(location, 1.5d, player);
 
                 if (nearest != null) {
                     hooked = nearest;

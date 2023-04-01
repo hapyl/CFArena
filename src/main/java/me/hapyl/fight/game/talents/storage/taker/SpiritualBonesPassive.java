@@ -19,9 +19,9 @@ public class SpiritualBonesPassive extends PassiveTalent {
         );
 
         addDescription("__");
-        addDescription("&b• &7Deal &c&l%s%%&7 more damage.", DAMAGE_AMPLIFIER_PER_BONE);
-        addDescription("&b• &7Take &b&l%s%%&7 less damage", DAMAGE_REDUCE_PER_BONE);
-        addDescription("&b• &7Heal for &c&l%s%% &c❤&7 of the damage dealt.", HEALING_PER_BONE);
+        addDescription("&b• &7Deal &c&l%s%%&7 more damage &oper bone&7.", DAMAGE_AMPLIFIER_PER_BONE);
+        addDescription("&b• &7Take &b&l%s%%&7 less damage &oper bone&7.", DAMAGE_REDUCE_PER_BONE);
+        addDescription("&b• &7Heal for &c&l%s%% &c❤&7 &oper bone&7 of the damage dealt.", HEALING_PER_BONE);
 
         addDescription("__Some abilities might cost bones to use.");
     }
