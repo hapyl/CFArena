@@ -19,10 +19,28 @@ public class SwordMaster extends Hero implements DisabledHero {
      * - Uppercut pushes up
      *
      * Ability 2:
-     * - Jump up
+     * - Jump up, pushes down enemies
      *
      * Ability 3:
-     * - Splash
+     * - Splash front AoE 3 blocks large knockback
+     *
+     * Weapon Ability:
+     * - Dash
+     *
+     * If used 1->2->3 (all hit):
+     * - Slow, weakness target
+     * - 3 ability reset CD
+     *
+     * General:
+     * - Very slow base speed
+     *
+     * ULTIMATE ():
+     * - Removes armor
+     * - Gains speed
+     * - Strength
+     * - All abilities has 1 tick cooldown
+     * - Takes x2 damage
+     * + Duration 3s
      */
 
     public SwordMaster() {

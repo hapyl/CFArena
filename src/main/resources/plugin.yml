@@ -1,7 +1,9 @@
 name: "ClassesFightArena"
 main: "me.hapyl.fight.Main"
 version: ${version}
-api-version: "1.17"
+api-version: 1.19
 description: ${description}
-depend: [ "EternaAPI" ]
+depend: [ "EternaAPI", "ProtocolLib" ]
 authors: [ "hapyl", "sdimas74", "DirtyEl", "DiDenPro" ]
+website: "hapyl.github.io/classes_fight"
+prefix: "ClassesFightArena"

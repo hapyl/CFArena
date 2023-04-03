@@ -18,6 +18,7 @@ public enum GameEffectType {
     LOCK_DOWN(new LockdownEffect()),
     ARCANE_MUTE(new ArcaneMuteEffect()),
     SLOWING_AURA(new SlowingAuraEffect()),
+    BLEED(new BleedEffect()),
 
     ;
 

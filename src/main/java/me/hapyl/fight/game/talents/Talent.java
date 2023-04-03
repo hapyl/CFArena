@@ -30,6 +30,7 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
     public static final Talent NULL = null;
 
     private ItemStack itemStats;
+    private int startAmount;
     private Material material;
     private String texture;
     private String texture64;
@@ -72,6 +73,7 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
 
         this.type = type;
         this.material = Material.BEDROCK;
+        this.startAmount = 1;
         this.altUsage = "This talent is not given when the game starts, but there is a way to use it.";
         this.autoAdd = true;
         this.point = 1;
@@ -111,16 +113,6 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
 
     public void setPoint(int point) {
         this.point = point;
-    }
-
-    @Deprecated(forRemoval = true)
-    public void addExtraInfo(String info) {
-        addExtraInfo(info, new Object[] {});
-    }
-
-    @Deprecated(forRemoval = true)
-    public void addExtraInfo(String info, Object... objects) {
-        description.add(ChatColor.GREEN + String.format(info, objects));
     }
 
     public void setCastMessage(String castMessage) {
@@ -205,6 +197,8 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
                 .addLore("&8%s %s", Chat.capitalize(type), type == Type.ULTIMATE ? "" : "Talent")
                 .addLore();
 
+        builderItem.setAmount(startAmount);
+
         // Add head texture if item is a player head
         if (material == Material.PLAYER_HEAD) {
             if (texture != null) {
@@ -229,7 +223,8 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
 
             for (int i = 0; i < strings.size(); i++) {
                 final String lore = strings.get(i);
-                final String lastColor = i > 0 ? getLastColor(strings.get(i - 1)) : "";
+                //final String lastColor = i > 0 ? getLastColor(strings.get(i - 1)) : "";
+                final String lastColor = i > 0 ? getLastColor(strings) : "";
                 final String formatted = formatDescription(lore);
 
                 builderItem.addLore(lastColor + formatted);
@@ -306,6 +301,18 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         itemStats = builderAttributes.asIcon();
     }
 
+    private String getLastColor(List<String> list) {
+        for (int i = list.size() - 1; i >= 0; i--) {
+            final String lastColor = getLastColor(list.get(i));
+
+            if (!lastColor.isEmpty()) {
+                return lastColor;
+            }
+        }
+
+        return "";
+    }
+
     private String getLastColor(String input) {
         final int lastCharIndex = input.lastIndexOf(ChatColor.COLOR_CHAR);
 
@@ -327,6 +334,15 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         this.setItem(Material.PLAYER_HEAD);
         this.texture = headTexture;
         return this;
+    }
+
+    public Talent setStartAmount(int startAmount) {
+        this.startAmount = Numbers.clamp(startAmount, 1, 64);
+        return this;
+    }
+
+    public int getStartAmount() {
+        return startAmount;
     }
 
     public Talent setTexture(String texture64) {

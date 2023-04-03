@@ -1,7 +1,10 @@
 package me.hapyl.fight.game;
 
 import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 
 public class Debugger {
@@ -33,5 +36,9 @@ public class Debugger {
         });
 
         Bukkit.getConsoleSender().sendMessage(formattedMessage);
+    }
+
+    public static void particle(Location location, Particle particle) {
+        PlayerLib.spawnParticle(location, particle, 1);
     }
 }

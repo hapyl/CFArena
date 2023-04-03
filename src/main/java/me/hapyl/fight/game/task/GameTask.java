@@ -236,6 +236,15 @@ public abstract class GameTask implements Runnable {
     public void onCancel() {
     }
 
+    public synchronized void cancelIfActive() {
+        if (task == null) {
+            return;
+        }
+
+        onCancel();
+        Bukkit.getScheduler().cancelTask(this.task.getTaskId());
+    }
+
     public synchronized void cancel() {
         this.validateExists();
 

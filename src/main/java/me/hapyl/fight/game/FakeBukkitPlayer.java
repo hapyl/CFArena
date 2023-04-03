@@ -36,12 +36,12 @@ import java.util.*;
 /**
  * Represents a fake bukkit player.
  */
-public class BukkitPlayer implements Player {
+public class FakeBukkitPlayer implements Player {
 
     private final String name;
     private final UUID uuid;
 
-    public BukkitPlayer() {
+    public FakeBukkitPlayer() {
         this.uuid = UUID.randomUUID();
         this.name = "FakePlayer_" + this.uuid;
     }
@@ -1161,6 +1161,16 @@ public class BukkitPlayer implements Player {
     }
 
     @Override
+    public void sendBlockDamage(Location loc, float progress, Entity source) {
+
+    }
+
+    @Override
+    public void sendBlockDamage(Location loc, float progress, int sourceId) {
+
+    }
+
+    @Override
     public void sendEquipmentChange(LivingEntity entity, EquipmentSlot slot, ItemStack item) {
 
     }
@@ -1187,6 +1197,11 @@ public class BukkitPlayer implements Player {
 
     @Override
     public void sendMap(MapView map) {
+
+    }
+
+    @Override
+    public void sendHurtAnimation(float yaw) {
 
     }
 

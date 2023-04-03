@@ -61,6 +61,7 @@ public enum Heroes {
     // 1.5
     //HEALER(new Healer()),
     VAMPIRE(new Vampire()),
+    BOUNTY_HUNTER(new BountyHunter()),
     SWORD_MASTER(new SwordMaster()),
     ZEALOT(new Zealot()),
 

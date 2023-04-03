@@ -6,6 +6,8 @@ import me.hapyl.fight.game.talents.storage.alchemist.CauldronAbility;
 import me.hapyl.fight.game.talents.storage.alchemist.RandomPotion;
 import me.hapyl.fight.game.talents.storage.archer.ShockDark;
 import me.hapyl.fight.game.talents.storage.archer.TripleShot;
+import me.hapyl.fight.game.talents.storage.bountyhunter.GrappleHookTalent;
+import me.hapyl.fight.game.talents.storage.bountyhunter.ShortyShotgun;
 import me.hapyl.fight.game.talents.storage.darkmage.BlindingCurse;
 import me.hapyl.fight.game.talents.storage.darkmage.HealingAura;
 import me.hapyl.fight.game.talents.storage.darkmage.ShadowClone;
@@ -315,6 +317,15 @@ public enum Talents {
             "Blood Thirst",
             "&cYour health is constantly drained.____Whenever you or your bats hit an opponent, you will gain a stack of &bblood&7, up to &b10&7 stacks.____Drink the blood to &cincrease your damage&7 and &cheal yourself&7.____&6Healing, damage boost, duration and cooldown is based on the amount of stacks consumed.",
             Material.REDSTONE
+    )),
+
+    // Bounty Hunter
+    SHORTY(new ShortyShotgun()),
+    GRAPPLE(new GrappleHookTalent()),
+    SMOKE_BOMB(new PassiveTalent(
+            "Smoke Bomb",
+            "Whenever your health falls below &c50%&7, you gain a &eSmoke Bomb&7.____Throw it to create a smoke field that &bblinds&7 everyone inside it and grant you a &bspeed boost&7.",
+            Material.ENDERMAN_SPAWN_EGG
     )),
 
     // test (keep last)

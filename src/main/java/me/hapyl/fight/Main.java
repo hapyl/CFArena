@@ -17,6 +17,8 @@ import me.hapyl.fight.notifier.Notifier;
 import me.hapyl.fight.protocol.ArcaneMuteProtocol;
 import me.hapyl.spigotutils.EternaAPI;
 import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.spigotutils.module.util.Runnables;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -58,6 +60,8 @@ public class Main extends JavaPlugin {
         registerEvents();
         regProtocol();
 
+        setNaggable(false);
+
         // Init api
         new EternaAPI(this);
 
@@ -79,8 +83,12 @@ public class Main extends JavaPlugin {
 
         // Remove recipes and achievements
         Bukkit.clearRecipes();
-        Bukkit.advancementIterator().forEachRemaining(advancement -> {
-        });
+        //Bukkit.advancementIterator().forEachRemaining(advancement -> {
+        //    Bukkit.getUnsafe().removeAdvancement(advancement.getKey());
+        //});
+        //getServer().reloadData();
+        //
+        //System.out.println(Bukkit.advancementIterator());
 
         this.manager = new Manager();
         this.taskList = new TaskList();
@@ -100,6 +108,60 @@ public class Main extends JavaPlugin {
         for (final Player player : Bukkit.getOnlinePlayers()) {
             handlePlayer(player);
         }
+
+        checkReload();
+    }
+
+    private void checkReload() {
+        Runnables.runLater(() -> {
+            try {
+                final Server server = getServer();
+                final int reloadCount = (int) server.getClass().getDeclaredField("reloadCount").get(server);
+
+                if (reloadCount > 0) {
+                    Chat.broadcastOp("");
+                    Chat.broadcastOp("&4&lServer Reload Detected!");
+                    Chat.broadcastOp(
+                            "&cNote that %s does &nnot&c support &e/reload&c and it's &nshould only&c be used in development.",
+                            getDescription().getName()
+                    );
+                    Chat.broadcastOp("&cIf you are not a developer, please restart the server instead.");
+                    Chat.broadcastOp("");
+
+                    Bukkit.getOnlinePlayers().stream().filter(Player::isOp).forEach(player -> {
+                        PlayerLib.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 0.0f);
+                        PlayerLib.playSound(player, Sound.BLOCK_NOTE_BLOCK_PLING, 0.0f);
+                    });
+                }
+            } catch (NoSuchFieldException | IllegalAccessException ignored) {
+            }
+        }, 20L);
+    }
+
+    @Override
+    public void onDisable() {
+        runSafe(() -> {
+            databases.saveAll();
+            //parkourManager.saveAll();
+        }, "database save");
+
+        runSafe(() -> {
+            for (final Player player : Bukkit.getOnlinePlayers()) {
+                Manager.current().getProfile(player).getDatabase().saveToFile();
+            }
+        }, "player database save");
+
+        runSafe(() -> {
+            database.stopConnection();
+        }, "mongodb connection stop");
+
+        runSafe(() -> {
+            if (this.manager.isGameInProgress()) {
+                this.manager.stopCurrentGame();
+            }
+        }, "game instance stop");
+
+        runSafe(this::saveConfig, "config saving");
     }
 
     private void initDatabase() {
@@ -173,32 +235,6 @@ public class Main extends JavaPlugin {
             player.teleport(GameMaps.SPAWN.getMap().getLocation());
             LobbyItems.giveAll(player);
         }
-    }
-
-    @Override
-    public void onDisable() {
-        runSafe(() -> {
-            databases.saveAll();
-            //parkourManager.saveAll();
-        }, "database save");
-
-        runSafe(() -> {
-            for (final Player player : Bukkit.getOnlinePlayers()) {
-                Manager.current().getProfile(player).getDatabase().saveToFile();
-            }
-        }, "player database save");
-
-        runSafe(() -> {
-            database.stopConnection();
-        }, "mongodb connection stop");
-
-        runSafe(() -> {
-            if (this.manager.isGameInProgress()) {
-                this.manager.stopCurrentGame();
-            }
-        }, "game instance stop");
-
-        runSafe(this::saveConfig, "config saving");
     }
 
     private void runSafe(Runnable runnable, String handler) {

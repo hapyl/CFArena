@@ -38,7 +38,7 @@ public class DeathSwap extends Talent {
         );
 
         addDescription(
-                "__&7If opponent is hit, they will be retracted with chains, take &c%s%%&7 of their current health as damage will be slowed and withered for short duration.",
+                "__&7If opponent is hit, they will be retracted with chains, take &c%s%%&7 of their current health as damage will be slowed and withered for short duration.____Additionally, the cooldown is reduced by &b50%%&7.",
                 damagePercent
         );
 
@@ -68,6 +68,10 @@ public class DeathSwap extends Talent {
         bones.remove(1);
 
         return Response.OK;
+    }
+
+    public void reduceCooldown(Player player) {
+        player.setCooldown(getMaterial(), getCdTimeLeft(player) / 2);
     }
 
     private void removeHook(Player player) {

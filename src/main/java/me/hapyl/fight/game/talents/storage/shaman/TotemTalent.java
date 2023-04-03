@@ -5,6 +5,7 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentHandle;
 import me.hapyl.fight.game.talents.storage.extra.ActiveTotem;
 import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.entity.Player;
 
 public class TotemTalent extends Talent {
@@ -19,8 +20,9 @@ public class TotemTalent extends Talent {
         );
         this.type = type;
 
-        addExtraInfo("Aura Range &l%s", type.getRange());
-        addExtraInfo("Aura Interval &l%s", type.getInterval());
+        addAttributeDescription("Aura Range &l%s", type.getRange() + " blocks");
+        addAttributeDescription("Aura Interval &l%s", BukkitUtils.roundTick(type.getInterval()) + "s");
+
         setCdSec(cd);
     }
 

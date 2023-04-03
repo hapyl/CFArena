@@ -64,7 +64,7 @@ Bugs:
 - [✔] leaving breaks the game
 - [✔] tripwire does not refresh on caught?
 
-- Melee stance does not reset properly?
+- [✔] Melee stance does not reset properly?
 - [✔] juju shield breaks all at once
 - [✔] Tamer broken
 

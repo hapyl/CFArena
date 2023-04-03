@@ -117,7 +117,7 @@ public class GamePlayer extends AbstractGamePlayer {
         }
 
         this.enumHero = null;
-        this.player = new BukkitPlayer();
+        this.player = new FakeBukkitPlayer();
         this.profile = null;
         this.stats = null;
         this.skin = null;

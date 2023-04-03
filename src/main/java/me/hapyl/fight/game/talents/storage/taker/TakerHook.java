@@ -93,6 +93,9 @@ public class TakerHook {
                     final double damage = Math.min(health * (talent().damagePercent / 100), 100.0d);
                     GamePlayer.damageEntity(hooked, damage, player);
 
+                    // Reduce cooldown
+                    talent().reduceCooldown(player);
+
                     contract();
                     return;
                 }
@@ -132,9 +135,6 @@ public class TakerHook {
                     cancel();
                     return;
                 }
-
-                // FIXME: 031, Mar 31, 2023 -> Maybe contract 2 chains at once as well, but it seems OK
-                // FIXME: 031, Mar 31, 2023 -> Or maybe if hit then faster, if not keep one
 
                 ArmorStand last = chains.peekLast();
 

@@ -5,6 +5,8 @@ import me.hapyl.spigotutils.module.util.BukkitUtils;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Field;
+import java.util.List;
+import java.util.function.BiConsumer;
 
 public final class DisplayFieldSerializer {
 
@@ -33,6 +35,23 @@ public final class DisplayFieldSerializer {
             if (!extra.isEmpty()) {
                 builder.addSmartLore(extra, " &8&o");
             }
+        }
+
+        // Test for copy
+        if (provider instanceof DisplayFieldDataProvider dataProvider) {
+            final List<DisplayFieldData> displayFieldData = dataProvider.getDisplayFieldData();
+
+            if (displayFieldData.isEmpty()) {
+                return;
+            }
+
+            displayFieldData.forEach(data -> {
+                final String formatData = format(data.displayField, formatter, data.field, data.instance);
+
+                if (!formatData.isEmpty()) {
+                    builder.addLore(formatData);
+                }
+            });
         }
     }
 
@@ -98,4 +117,29 @@ public final class DisplayFieldSerializer {
         }
     }
 
+    public static void forEachDisplayField(DisplayFieldProvider provider, BiConsumer<Field, DisplayField> consumer) {
+        for (Field field : provider.getClass().getDeclaredFields()) {
+            if (!field.isAnnotationPresent(DisplayField.class)) {
+                continue;
+            }
+
+            final DisplayField displayField = field.getAnnotation(DisplayField.class);
+
+            if (displayField == null) {
+                continue;
+            }
+
+            consumer.accept(field, displayField);
+        }
+    }
+
+    public static void copy(DisplayFieldProvider from, DisplayFieldDataProvider to) {
+        if (from == null || to == null) {
+            throw new NullPointerException("Cannot copy from/to null!");
+        }
+
+        forEachDisplayField(from, (f, df) -> {
+            to.getDisplayFieldData().add(new DisplayFieldData(f, df, from));
+        });
+    }
 }

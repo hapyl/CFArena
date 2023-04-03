@@ -1,9 +1,15 @@
 package me.hapyl.fight.game.talents;
 
+import com.google.common.collect.Lists;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.util.displayfield.DisplayFieldData;
+import me.hapyl.fight.util.displayfield.DisplayFieldDataProvider;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+
+import javax.annotation.Nonnull;
+import java.util.List;
 
 /**
  * Represents an ultimate talent.
@@ -12,7 +18,9 @@ import org.bukkit.entity.Player;
  * the hero class is. This is essentially just a data for the ultimate.
  * </div>
  */
-public class UltimateTalent extends Talent {
+public class UltimateTalent extends Talent implements DisplayFieldDataProvider {
+
+    private final List<DisplayFieldData> dataFields;
 
     private final int cost;
     private Sound sound;
@@ -23,6 +31,8 @@ public class UltimateTalent extends Talent {
         cost = pointCost;
         sound = Sound.ENTITY_ENDER_DRAGON_GROWL;
         pitch = 2.0f;
+
+        dataFields = Lists.newArrayList();
 
         setDuration(0);
     }
@@ -124,8 +134,14 @@ public class UltimateTalent extends Talent {
         return "invalid class call, use 'Hero#useUltimate' instead";
     }
 
-    public UltimateTalent setCdFromDuration(int divide) {
-        setCd(getDuration() / divide);
+    public UltimateTalent setCdFromCost(int divide) {
+        setCd(getCost() / divide);
         return this;
+    }
+
+    @Nonnull
+    @Override
+    public List<DisplayFieldData> getDisplayFieldData() {
+        return dataFields;
     }
 }

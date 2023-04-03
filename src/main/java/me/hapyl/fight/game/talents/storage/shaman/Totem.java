@@ -38,9 +38,9 @@ public class Totem extends Talent {
                 Material.OBSIDIAN
         );
 
-        addExtraInfo("Cooldown: &l%ss", BukkitUtils.roundTick(PLACE_CD));
-        addExtraInfo("Destroy Cooldown: &l%ss", BukkitUtils.roundTick(DESTROY_CD));
-        addExtraInfo("Maximum Totems &l%s", MAX_TOTEMS);
+        addAttributeDescription("Cooldown", BukkitUtils.roundTick(PLACE_CD) + "s");
+        addAttributeDescription("Destroy Cooldown: &l%ss", BukkitUtils.roundTick(DESTROY_CD) + "s");
+        addAttributeDescription("Maximum Totems &l%s", MAX_TOTEMS);
     }
 
     @Override

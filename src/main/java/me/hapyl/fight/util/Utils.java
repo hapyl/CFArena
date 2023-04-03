@@ -66,6 +66,10 @@ public class Utils {
         Nulls.runIfNotNull(entity.getEquipment(), consumer::accept);
     }
 
+    public static double scaleParticleOffset(double v) {
+        return v * v / 8.0d;
+    }
+
     public static class ProgressBar implements IBuilder<String> {
 
         private final String indicator;
@@ -449,6 +453,11 @@ public class Utils {
                 return !GameTeam.isTeammate(player, targetPlayer);
             }
 
+            // Dummy check
+            if (livingEntity.getScoreboardTags().contains("dummy")) {
+                return true;
+            }
+
             return livingEntity.hasAI();
         }
 
@@ -476,6 +485,10 @@ public class Utils {
                 .filter(entity -> entity instanceof Player)
                 .map(entity -> (Player) entity)
                 .collect(Collectors.toList());
+    }
+
+    public static List<LivingEntity> getEntitiesInRange(Location location, double range, Predicate<LivingEntity> filter) {
+        return getEntitiesInRange(location, range).stream().filter(filter).collect(Collectors.toList());
     }
 
     public static List<LivingEntity> getEntitiesInRange(Location location, double range) {

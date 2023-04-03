@@ -53,7 +53,7 @@ public enum GameMaps {
             Material.CRIMSON_NYLIUM,
             100,
             Size.MEDIUM,
-            asList(asLoc(306, 66.0, -200), asLoc(319, 73.0, -200), asLoc(273, 5.0, -200))
+            asList(asLoc(306, 66.0, -200), asLoc(319, 73.0, -200), asLoc(273, 75.0, -200))
     ),
 
     NEW_RAILWAY("Railway", "{}", Material.POWERED_RAIL, 100, Size.LARGE, asList(

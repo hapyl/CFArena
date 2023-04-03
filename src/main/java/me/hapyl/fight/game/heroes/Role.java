@@ -7,7 +7,8 @@ public enum Role {
     RANGE("Range", "Rangers are dead-eye shooters that can hold distance to strike."),
     ASSASSIN("Assassin", "Assassins are masters of murder, with fast cuts and getaways."),
     STRATEGIST("Strategist", "Strategists rely on their abilities, rather than their fighting skill to win."),
-    NONE("None", "Role not set yet.");
+
+    NONE("Someone forgor ☠ to set the role", "Someone forgor ☠ to set the role");
 
     private final String name;
     private final String description;
