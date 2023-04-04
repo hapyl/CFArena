@@ -1,42 +1,64 @@
 package me.hapyl.fight.database;
 
+import com.google.common.collect.Maps;
 import com.mongodb.client.MongoCollection;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.entry.*;
+import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.util.Validate;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.util.Map;
+import java.util.UUID;
+
+// TODO (hapyl): 003, Apr 3, 2023: Maybe database should be independent of Profile?
 public sealed class Database permits DatabaseLegacy {
+
+    private static final Map<UUID, Database> UUID_DATABASE_MAP = Maps.newConcurrentMap();
 
     private final DatabaseMongo mongo;
     private final Document filter;
     protected final Player player;
+    private final UUID uuid;
 
     private Document config;
-    private boolean legacy;
 
+    private final boolean legacy;
+
+    @Deprecated
     protected Database(Player player, boolean legacy) {
         this.player = player;
+        this.uuid = player.getUniqueId();
         this.mongo = null;
         this.filter = null;
         this.legacy = true;
     }
 
-    public Database(Player player) {
+    public Database(UUID uuid) {
+        this.uuid = uuid;
         this.mongo = Main.getPlugin().getDatabase();
-        this.player = player;
+        this.player = Bukkit.getPlayer(uuid);
         this.legacy = false;
 
-        this.filter = new Document("uuid", player.getUniqueId().toString());
+        this.filter = new Document("uuid", uuid.toString());
 
         this.loadFile();
         this.loadEntries();
     }
 
+    public Database(Player player) {
+        this(player.getUniqueId());
+    }
+
+    /**
+     * @deprecated legacy database not longer supported
+     */
+    @Deprecated
     public boolean isLegacy() {
         return legacy;
     }
@@ -55,6 +77,10 @@ public sealed class Database permits DatabaseLegacy {
 
     public Player getPlayer() {
         return player;
+    }
+
+    public UUID getUuid() {
+        return uuid;
     }
 
     // entries start
@@ -96,6 +122,16 @@ public sealed class Database permits DatabaseLegacy {
 
     public CosmeticEntry getCosmetics() {
         return cosmeticEntry;
+    }
+
+    public PlayerRank getRank() {
+        final String rankString = config.get("rank", "DEFAULT");
+
+        return Validate.getEnumValue(PlayerRank.class, rankString, PlayerRank.DEFAULT);
+    }
+
+    public void setRank(PlayerRank rank) {
+        config.put("rank", rank.name());
     }
 
     // entries end

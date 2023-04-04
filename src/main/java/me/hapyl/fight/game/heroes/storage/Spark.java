@@ -138,7 +138,7 @@ public class Spark extends Hero implements PlayerElement {
     }
 
     @Override
-    public String predicateMessage() {
+    public String predicateMessage(Player player) {
         return "Location is not safe!";
     }
 

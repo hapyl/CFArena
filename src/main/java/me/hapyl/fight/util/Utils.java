@@ -311,7 +311,7 @@ public class Utils {
     }
 
     @Nullable
-    public static LivingEntity getTargetEntity(Player player, double range, double dot, Predicate<LivingEntity> predicate) {
+    public static LivingEntity getTargetEntity(Player player, double range, double dot, @Nullable Predicate<LivingEntity> predicate) {
         final List<LivingEntity> nearbyEntities = Utils.getEntitiesInRange(player.getLocation(), range);
         Vector casterDirection = player.getLocation().getDirection().normalize();
 

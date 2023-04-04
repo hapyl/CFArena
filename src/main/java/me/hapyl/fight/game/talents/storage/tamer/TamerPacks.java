@@ -48,7 +48,7 @@ public enum TamerPacks {
                     player,
                     "&2Unleash the horde! Your zombies swarm forward, tearing through everything in their path. No one can stop the undead army now!"
             );
-            pack.remove();
+            pack.removeAll();
             for (int i = 0; i < 9; i++) {
                 pack.createEntity(pack.addRelativeOffset(player.getLocation(), i),
                         Entities.ZOMBIE, self -> {

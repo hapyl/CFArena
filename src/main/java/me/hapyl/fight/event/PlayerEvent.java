@@ -193,7 +193,7 @@ public class PlayerEvent implements Listener {
             }
 
             if (!hero.predicateUltimate(player)) {
-                sendUltimateFailureMessage(player, "&cUnable to use ultimate! " + hero.predicateMessage());
+                sendUltimateFailureMessage(player, "&cUnable to use ultimate! " + hero.predicateMessage(player));
                 return;
             }
 

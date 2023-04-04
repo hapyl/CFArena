@@ -497,9 +497,11 @@ public abstract class Hero implements GameElement, PlayerElement {
     /**
      * Return the message that will be displayed if player CANNOT use their ultimate, aka {@link #predicateUltimate(Player)} returns false.
      *
+     * @param player - Player who is trying to use ultimate.
      * @return the message that will be displayed if player CANNOT use their ultimate.
      */
-    public String predicateMessage() {
+
+    public String predicateMessage(Player player) {
         return "Unable to use now.";
     }
 

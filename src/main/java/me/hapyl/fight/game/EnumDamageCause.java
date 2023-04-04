@@ -86,6 +86,7 @@ public enum EnumDamageCause {
     BLEED("bled to death"),
     SHOTGUN("was shot to death", "by"),
     DEATH_RAY("was swallowed by the darkness", "of"),
+    BACKSTAB("was stabbed in the back", "by"),
 
 
     ;

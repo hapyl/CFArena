@@ -83,7 +83,7 @@ public class Moonwalker extends Hero implements PlayerElement, UIComponent {
     }
 
     @Override
-    public String predicateMessage() {
+    public String predicateMessage(Player player) {
         return "Not a valid block!";
     }
 

@@ -91,12 +91,15 @@ public class Tamer extends Hero implements Listener {
 
     @Override
     public boolean predicateUltimate(Player player) {
-        return getPlayerPack(player) != null;
+        final TamerPack pack = getPlayerPack(player);
+        return pack != null && pack.isAlive();
     }
 
     @Override
-    public String predicateMessage() {
-        return "You don't have a pack!";
+    public String predicateMessage(Player player) {
+        final TamerPack pack = getPlayerPack(player);
+
+        return pack == null ? "You don't have a pack!" : "Your pack is dead!";
     }
 
     @Override
@@ -129,7 +132,7 @@ public class Tamer extends Hero implements Listener {
         }
 
         pack.getPack().onUltimateEnd(player, pack);
-        pack.remove();
+        pack.removeAll();
     }
 
     @Override

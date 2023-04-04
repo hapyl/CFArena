@@ -185,7 +185,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener {
     }
 
     @Override
-    public String predicateMessage() {
+    public String predicateMessage(Player player) {
         return "Location is obstructed.";
     }
 

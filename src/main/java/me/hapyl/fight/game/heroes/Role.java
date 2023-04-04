@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes;
 
+// FIXME (hapyl): 004, Apr 4, 2023: Rework roles: standardize or add more or idk remove them or idk or idk idk
 public enum Role {
 
     MELEE("Melee", "Melee heroes are experts of dealing damage up close."),

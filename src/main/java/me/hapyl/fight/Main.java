@@ -14,6 +14,7 @@ import me.hapyl.fight.game.maps.features.BoosterController;
 import me.hapyl.fight.game.parkour.CFParkourManager;
 import me.hapyl.fight.game.task.TaskList;
 import me.hapyl.fight.notifier.Notifier;
+import me.hapyl.fight.npc.HumanManager;
 import me.hapyl.fight.protocol.ArcaneMuteProtocol;
 import me.hapyl.spigotutils.EternaAPI;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -32,6 +33,7 @@ public class Main extends JavaPlugin {
     private static Main plugin;
 
     private Manager manager;
+    private HumanManager humanManager;
     private TaskList taskList;
     private BoosterController boosters;
     private Experience experience;
@@ -108,6 +110,9 @@ public class Main extends JavaPlugin {
         for (final Player player : Bukkit.getOnlinePlayers()) {
             handlePlayer(player);
         }
+
+        // Create NPCs
+        humanManager = new HumanManager(this);
 
         checkReload();
     }
@@ -197,6 +202,10 @@ public class Main extends JavaPlugin {
         pm.registerEvents(new EnderPearlController(), this);
         pm.registerEvents(new BoosterController(), this);
         pm.registerEvents(new CosmeticsListener(), this);
+    }
+
+    public HumanManager getHumanManager() {
+        return humanManager;
     }
 
     public Notifier getNotifier() {

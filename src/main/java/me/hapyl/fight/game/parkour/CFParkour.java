@@ -49,6 +49,7 @@ public class CFParkour extends Parkour implements ParkourHandler {
             }
 
             public void sendParkourFinished(Data data) {
+                // handled in onFinish
             }
 
             public void sendParkourFailed(Data data, FailType type) {

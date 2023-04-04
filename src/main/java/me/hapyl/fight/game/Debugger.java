@@ -28,6 +28,14 @@ public class Debugger {
         send("&4&l" + any, format);
     }
 
+    public static void wrap(Runnable runnable) {
+        try {
+            runnable.run();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private static void send(String string, Object... format) {
         final String formattedMessage = Chat.format("&c&lDEBUG &f" + string, format);
 

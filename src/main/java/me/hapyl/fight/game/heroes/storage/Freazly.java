@@ -84,7 +84,7 @@ public class Freazly extends Hero implements DisabledHero {
     }
 
     @Override
-    public String predicateMessage() {
+    public String predicateMessage(Player player) {
         return "No valid block in sight!";
     }
 

@@ -71,6 +71,7 @@ public class CommandRegistry {
         register(new TestDatabaseCommand("testdatabase"));
         register(new EquipCommand("equip"));
         register(new HeadCommand("head"));
+        register(new RankCommand("rank"));
 
         register(new SimplePlayerAdminCommand("testnpcpose") {
             @Override

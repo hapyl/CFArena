@@ -21,6 +21,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 
@@ -61,6 +62,18 @@ public class MineOBall extends Talent implements Listener {
         }
     }
 
+    @EventHandler()
+    public void handlePackEntityDeath(EntityDeathEvent ev) {
+        final LivingEntity entity = ev.getEntity();
+
+        for (TamerPack value : tamerPackMap.values()) {
+            if (value.isInPack(entity)) {
+                value.remove(entity);
+                break;
+            }
+        }
+    }
+
     @Override
     public void onDeath(Player player) {
         Nulls.runIfNotNull(tamerPackMap.get(player), TamerPack::recall);
@@ -68,7 +81,7 @@ public class MineOBall extends Talent implements Listener {
 
     @Override
     public void onStop() {
-        tamerPackMap.values().forEach(TamerPack::remove);
+        tamerPackMap.values().forEach(TamerPack::removeAll);
         tamerPackMap.clear();
     }
 

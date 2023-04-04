@@ -134,8 +134,12 @@ public class UltimateTalent extends Talent implements DisplayFieldDataProvider {
         return "invalid class call, use 'Hero#useUltimate' instead";
     }
 
+    public UltimateTalent defaultCdFromCost() {
+        return setCdFromCost(2);
+    }
+
     public UltimateTalent setCdFromCost(int divide) {
-        setCd(getCost() / divide);
+        setCd((getCost() / divide) * 20);
         return this;
     }
 

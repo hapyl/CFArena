@@ -16,6 +16,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Consumer;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Set;
 
@@ -24,10 +25,12 @@ import java.util.Set;
  */
 public class TamerPack {
 
+    // Max distance the minion can be from the player, if exceeded, it will be teleported.
     private final double maxDistance = 30;
 
+    // Represents XZ offsets from the player's location.
     private final double[][] relativeOffsets = {
-            { -1.0d, 0.0d },
+            { -1.0d, 0.0d }, //
             { 1.0d, 0.0d },
             { 0.0d, -1.0d },
             { 0.0d, 1.0d },
@@ -132,9 +135,22 @@ public class TamerPack {
     /**
      * Removes entities.
      */
-    public final void remove() {
+    public final void removeAll() {
         entities.forEach(Entity::remove);
         entities.clear();
+    }
+
+    /**
+     * Removes entity from the pack.
+     *
+     * @param entity entity to remove.
+     */
+    public final void remove(LivingEntity entity) {
+        entities.remove(entity);
+
+        if (!entity.isDead()) {
+            entity.remove();
+        }
     }
 
     /**
@@ -177,6 +193,9 @@ public class TamerPack {
                 cons.accept(self);
             });
 
+            // Tag to identify pack entities
+            self.addScoreboardTag("pack_entity");
+
             entities.add(self);
         });
     }
@@ -199,7 +218,7 @@ public class TamerPack {
     }
 
     /**
-     * Get FIRST entity in a pack with a specific type.
+     * Get <b>FIRST</b> entity in a pack with a specific type.
      *
      * @param type - Type.
      * @return the entity or null if none found.
@@ -213,6 +232,25 @@ public class TamerPack {
         }
 
         return null;
+    }
+
+    /**
+     * Gets all entities in a pack with a specific type.
+     *
+     * @param type - Type.
+     * @return the entities or empty set if none found.
+     */
+    @Nonnull
+    public Set<LivingEntity> getEntities(EntityType type) {
+        final Set<LivingEntity> set = Sets.newHashSet();
+
+        for (LivingEntity entity : entities) {
+            if (entity.getType() == type) {
+                set.add(entity);
+            }
+        }
+
+        return set;
     }
 
     public Location getLocation() {

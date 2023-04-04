@@ -189,7 +189,7 @@ public class Ender extends Hero implements Listener {
     }
 
     @Override
-    public String predicateMessage() {
+    public String predicateMessage(Player player) {
         return "Transmission Beacon is not placed!";
     }
 

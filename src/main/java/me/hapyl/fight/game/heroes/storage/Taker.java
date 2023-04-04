@@ -72,7 +72,7 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
     }
 
     @Override
-    public String predicateMessage() {
+    public String predicateMessage(Player player) {
         return "Not enough &l%s&c!".formatted(getPassiveTalent().getName());
     }
 

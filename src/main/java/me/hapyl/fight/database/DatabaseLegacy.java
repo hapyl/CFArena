@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import java.io.File;
 import java.io.IOException;
 
+@Deprecated
 public final class DatabaseLegacy extends Database {
 
     private File file;
