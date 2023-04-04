@@ -20,7 +20,7 @@ public enum StaticHuman {
                 self.addDialogLine("Hello there {player}!");
                 self.addDialogLine("I see you are new to the server.");
                 self.addDialogLine("...As it happens, I am too!");
-                self.addDialogLine("Thus, I cannot help help you for now.");
+                self.addDialogLine("Thus, I cannot help you for now.");
                 self.addDialogLine("But, I will be able to help you in the future.");
             }
     ),

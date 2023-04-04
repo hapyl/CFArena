@@ -27,8 +27,8 @@ public class ShortyShotgun extends Talent {
 
     @DisplayField(suffix = "blocks") private final double bleedThreshold = 1.0d;
     @DisplayField private final int bleedDuration = 100;
-    @DisplayField private final short pellets = 7;
-    @DisplayField private final double maxDamagePerPellet = 5.0d;
+    @DisplayField private final short pellets = 12;
+    @DisplayField private final double maxDamagePerPellet = 7.0d;
     @DisplayField private final double spread = 0.5d;
     @DisplayField(suffix = "blocks") private final double maxDistance = 3.0d;
 
@@ -38,7 +38,7 @@ public class ShortyShotgun extends Talent {
         super("Shorty");
 
         setDescription(
-                "Shoot you double barrel to deal damage that falls off with distance.____If hit enemy is close enough, they will &cbleed&7 and will be &bvulnerable&7 for %s seconds.",
+                "Shoot you double barrel to deal damage that falls off with distance.____If hit enemy is close enough, they will &cbleed&7 and will be &bvulnerable&7 for &b%ss&7.",
                 BukkitUtils.roundTick(bleedDuration)
         );
 
@@ -76,9 +76,14 @@ public class ShortyShotgun extends Talent {
     private void fixAmount(Player player) {
         final PlayerInventory inventory = player.getInventory();
         final int indexOfTalent = inventory.first(getMaterial());
+
+        if (indexOfTalent == -1) {
+            return;
+        }
+
         final ItemStack item = inventory.getItem(indexOfTalent);
 
-        if (indexOfTalent == -1 || item == null) {
+        if (item == null) {
             return;
         }
 
@@ -98,7 +103,7 @@ public class ShortyShotgun extends Talent {
 
         for (double d = 0; d < maxDistance; d += 0.25) {
             final Location location = playerEyeLocation.clone().add(direction.clone().multiply(d));
-            final LivingEntity entity = Utils.getNearestLivingEntity(location, 0.5d, player);
+            final LivingEntity entity = Utils.getNearestLivingEntity(location, 1.0d, player);
 
             // Had to put fx here since breaking
             player.getWorld().spawnParticle(Particle.BLOCK_CRACK, location, 1, Material.COAL_BLOCK.createBlockData());
@@ -107,8 +112,8 @@ public class ShortyShotgun extends Talent {
                 // Check for bleed
                 if (entity.getLocation().distance(player.getLocation()) <= bleedThreshold) {
                     if (entity instanceof Player entityPlayer) {
-                        GamePlayer.getPlayer(entityPlayer).addEffect(GameEffectType.BLEED, bleedDuration);
-                        GamePlayer.getPlayer(entityPlayer).addEffect(GameEffectType.VULNERABLE, bleedDuration);
+                        GamePlayer.getPlayer(entityPlayer).addEffect(GameEffectType.BLEED, bleedDuration, true);
+                        GamePlayer.getPlayer(entityPlayer).addEffect(GameEffectType.VULNERABLE, bleedDuration, true);
                     }
                 }
 

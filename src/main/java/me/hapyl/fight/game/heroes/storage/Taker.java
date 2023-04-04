@@ -39,7 +39,7 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
 
     @DisplayField private final double ultimateProjectileSpeed = 0.5d;
     @DisplayField private final double ultimateProjectileDistance = 10.0d;
-    @DisplayField private final int shotsPerBone = 5;
+    @DisplayField private final int shotsPerBone = 3;
     @DisplayField private double healingPerBone = 5d;
 
     public Taker() {
@@ -108,6 +108,8 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
         final UltimateTalent ultimate = getUltimate();
         final int playerBones = bones.getBones();
         final int duration = ultimate.getDuration();
+
+        // FIXME (hapyl): 004, Apr 4, 2023: 5 bones shoots too fast?
 
         final double healing = healingPerBone * playerBones;
         final double healingPerTick = healing / duration;

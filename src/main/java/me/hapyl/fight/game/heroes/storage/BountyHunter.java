@@ -40,7 +40,7 @@ public class BountyHunter extends Hero {
     private final ItemStack SMOKE_BOMB =
             new ItemBuilder(Material.ENDERMAN_SPAWN_EGG, "harbinger_smoke_bomb")
                     .setName("Smoke Bomb &7(Right Click)")
-                    .addClickEvent(this::useSmokeBomb)
+                    .addClickEvent(player -> useSmokeBomb(player, player.getLocation()))
                     .build();
 
     public BountyHunter() {
@@ -97,6 +97,7 @@ public class BountyHunter extends Hero {
             return; // should never happen
         }
 
+        final Location playerLocation = player.getLocation();
         final Location location = targetOutput.getLocation();
         final LivingEntity target = targetOutput.getEntity();
 
@@ -111,6 +112,8 @@ public class BountyHunter extends Hero {
         PlayerLib.playSound(location, Sound.ENTITY_IRON_GOLEM_REPAIR, 1.25f);
 
         player.swingMainHand();
+
+        useSmokeBomb(player, playerLocation);
     }
 
     @Override
@@ -130,8 +133,7 @@ public class BountyHunter extends Hero {
         return ((ShadowShift) Talents.SHADOW_SHIFT.getTalent()).getLocationAndCheck0(player, 15.0d, 0.9d);
     }
 
-    private void useSmokeBomb(Player player) {
-        final Location location = player.getLocation();
+    private void useSmokeBomb(Player player, Location location) {
         player.getInventory().setItem(4, ItemStacks.AIR);
 
         final double smokeRadius = 3.0d;

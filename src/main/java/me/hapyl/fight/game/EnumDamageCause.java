@@ -83,7 +83,7 @@ public enum EnumDamageCause {
     MINION("was killed by {player}'s minion"),
     RIP_BONES("was ripped to shreds", "by"),
     AURA_OF_CIRCUS("was furiously tamed", "by"),
-    BLEED("bled to death"),
+    BLEED("bled to death from {player}'s touch"),
     SHOTGUN("was shot to death", "by"),
     DEATH_RAY("was swallowed by the darkness", "of"),
     BACKSTAB("was stabbed in the back", "by"),

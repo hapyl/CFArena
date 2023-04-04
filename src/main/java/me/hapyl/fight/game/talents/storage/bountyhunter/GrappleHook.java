@@ -1,5 +1,7 @@
 package me.hapyl.fight.game.talents.storage.bountyhunter;
 
+import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Nulls;
@@ -17,6 +19,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
 public class GrappleHook {
@@ -92,27 +95,10 @@ public class GrappleHook {
         this.extendTask = new GameTask() {
 
             private double distance = 0.0d;
-            private final double speed = 0.1d;
+            private final double speed = 0.075d;
+            private final int checksPerTick = 2;
 
-            @Override
-            public void run() {
-                if (isHookBroken()) {
-                    breakHook();
-                    return;
-                }
-
-                if (hookedBlock != null || hookedEntity != null) {
-                    return;
-                }
-
-                if (distance >= (talent().maxDistance * speed)) {
-                    remove();
-
-                    // Fx
-                    Chat.sendMessage(player, "&6∞ &cYou didn't hook anything!");
-                    return;
-                }
-
+            private void nextLocation() {
                 final double x = vector.getX() * distance;
                 final double y = vector.getY() * distance;
                 final double z = vector.getZ() * distance;
@@ -123,6 +109,12 @@ public class GrappleHook {
                 final Block block = location.getBlock();
 
                 if (!block.getType().isAir()) {
+                    if (!isValidBlock(block)) {
+                        remove();
+                        Chat.sendMessage(player, "&6∞ &cYou can't hook to that!");
+                        return;
+                    }
+
                     hookedBlock = block;
                     retractHook();
                     return;
@@ -144,25 +136,38 @@ public class GrappleHook {
 
                     // Fx
                     Chat.sendMessage(player, "&6∞ &aYou hooked &e%s&a!", hookedEntity.getName());
+                    Chat.sendMessage(hookedEntity, "&6∞ &e%s&a hooked you, damage the knot to remove the hook!", player.getName());
                     return;
                 }
 
                 hook.teleport(location);
                 distance += speed;
             }
+
+            @Override
+            public void run() {
+                if (isHookBroken()) {
+                    cancel();
+                    return;
+                }
+
+                if (distance >= (talent().maxDistance * speed)) {
+                    remove();
+
+                    // Fx
+                    Chat.sendMessage(player, "&6∞ &cYou didn't hook anything!");
+                    return;
+                }
+
+                for (int i = 0; i < checksPerTick; i++) {
+                    if (hookedBlock != null || hookedEntity != null) {
+                        return;
+                    }
+                    nextLocation();
+                }
+
+            }
         }.runTaskTimer(0, 1);
-    }
-
-    public boolean isHookBroken() {
-        return hook.isDead() || !anchor.isLeashed();
-    }
-
-    private void breakHook() {
-        remove();
-
-        // Fx
-        Chat.sendMessage(player, "&6∞ &cYour hook broke!");
-        PlayerLib.playSound(player, Sound.ENTITY_LEASH_KNOT_BREAK, 0.0f);
     }
 
     private void retractHook() {
@@ -175,7 +180,7 @@ public class GrappleHook {
             @Override
             public void run() {
                 if (isHookBroken()) {
-                    breakHook();
+                    cancel();
                     return;
                 }
 
@@ -192,16 +197,52 @@ public class GrappleHook {
                 final Vector vector = location.toVector().subtract(playerLocation.toVector()).normalize().multiply(step);
 
                 playerLocation.add(vector);
-                //player.teleport(playerLocation);
 
-                player.setVelocity(vector);
-
+                // Finishes grappling
                 if (playerLocation.distanceSquared(location) <= 1d) {
                     remove();
+
+                    GamePlayer.getPlayer(player).addEffect(GameEffectType.FALL_DAMAGE_RESISTANCE, 120);
                 }
 
+                if (isVectorFinite(vector)) {
+                    player.setVelocity(vector);
+                }
             }
         }.runTaskTimer(0, 1);
+    }
+
+    public boolean isHookBroken() {
+        return hook.isDead() || !anchor.isLeashed();
+    }
+
+    private boolean isValidBlock(Block block) {
+        final Material type = block.getType();
+
+        if (!block.getType().isAir()) {
+            return true;
+        }
+
+        // Add more checks
+        if (type == Material.BARRIER) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private void breakHook() {
+        remove();
+
+        // Fx
+        Chat.sendMessage(player, "&6∞ &cYour hook broke!");
+        PlayerLib.playSound(player, Sound.ENTITY_LEASH_KNOT_BREAK, 0.0f);
+    }
+
+    private boolean isVectorFinite(Vector vector) {
+        return NumberConversions.isFinite(vector.getX())
+                && NumberConversions.isFinite(vector.getY())
+                && NumberConversions.isFinite(vector.getZ());
     }
 
     public void remove() {
@@ -209,8 +250,8 @@ public class GrappleHook {
         hook.remove();
 
         Nulls.runIfNotNull(extendTask, GameTask::cancelIfActive);
-        Nulls.runIfNotNull(syncTask, GameTask::cancelIfActive);
         Nulls.runIfNotNull(retractTask, GameTask::cancelIfActive);
+        Nulls.runIfNotNull(syncTask, GameTask::cancelIfActive);
     }
 
     private LivingEntity createEntity() {
@@ -218,7 +259,7 @@ public class GrappleHook {
             self.setSize(1);
             self.setGravity(false);
             self.setInvulnerable(true);
-            self.setInvisible(true);
+            //self.setInvisible(true);
             self.setSilent(true);
             self.setAI(false);
 

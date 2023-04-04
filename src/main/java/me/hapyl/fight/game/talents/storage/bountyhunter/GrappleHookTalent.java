@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.storage.bountyhunter;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Material;
@@ -15,22 +15,31 @@ import org.bukkit.event.player.PlayerToggleSneakEvent;
 import javax.annotation.Nullable;
 import java.util.Map;
 
-public class GrappleHookTalent extends Talent implements Listener {
+public class GrappleHookTalent extends ChargedTalent implements Listener {
 
     @DisplayField(suffix = "blocks") protected double maxDistance = 30.0d;
+    @DisplayField private final int cooldown = 200;
 
     private final Map<Player, GrappleHook> playerHooks = Maps.newHashMap();
 
     public GrappleHookTalent() {
-        super("Grappling Hook");
+        super("Grappling Hook", 3);
 
         setDescription(
-                "Launch a grappling hook that travels up to %s blocks.____Whenever it hits a &bblocks&7 or an &bentity&7, it will pull you towards it.____",
+                "Launch a grappling hook that travels up to &b%s&7 blocks.____Whenever it hits a &bblocks&7 or an &bentity&7, it will pull you towards it.",
                 maxDistance
         );
 
+        addDescription("__&6Cooldown starts after all charges are used.");
+
+        setNoChargedMaterial(Material.GOAT_HORN);
         setItem(Material.LEAD);
-        setCdSec(0);
+    }
+
+    @Override
+    public void onLastCharge(Player player) {
+        grantAllCharges(player, cooldown);
+        player.setCooldown(getNoChargedMaterial(), cooldown);
     }
 
     @EventHandler()
@@ -55,7 +64,7 @@ public class GrappleHookTalent extends Talent implements Listener {
     }
 
     @Override
-    public void onDeath(Player player) {
+    public void onDeathCharged(Player player) {
         final GrappleHook hook = getHook(player);
 
         if (hook != null) {
@@ -64,7 +73,7 @@ public class GrappleHookTalent extends Talent implements Listener {
     }
 
     @Override
-    public void onStop() {
+    public void onStopCharged() {
         playerHooks.values().forEach(GrappleHook::remove);
         playerHooks.clear();
     }
