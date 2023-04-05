@@ -1,119 +1,134 @@
 package me.hapyl.fight.game.maps;
 
 import me.hapyl.fight.game.maps.features.CloudFeatures;
+import me.hapyl.fight.game.maps.features.JapanFeature;
 import me.hapyl.fight.game.maps.features.LibraryCat;
 import me.hapyl.fight.game.maps.features.LibraryFeature;
 import me.hapyl.fight.game.maps.maps.DragonsGorge;
-import me.hapyl.fight.game.maps.maps.JapanMap;
 import me.hapyl.fight.game.maps.maps.WineryMap;
 import me.hapyl.spigotutils.module.util.Validate;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public enum GameMaps {
 
     // non-playable map, storing here for easy coordinate grab and consistency
-    SPAWN(new GameMap("Spawn", "You spawn here!", Material.BLUE_BED, 0).addLocation(0, 64, 0), false),
-    TRAINING_GROUNDS(new GameMap("Training Grounds", "Test heroes abilities here!", Material.WITHER_SKELETON_SKULL, 0).addLocation(
-            100,
-            64,
-            100
-    ), false),
+    TRAINING_GROUNDS(new NonPlayableGameMap("Training Grounds", "Test heroes abilities here!", 100, 64, 100)),
+    SPAWN(new NonPlayableGameMap("Spawn", "You spawn here!", 0, 64, 0)),
 
-    ARENA("Arena", "A great arena to fight on!", Material.COARSE_DIRT, 100, Size.MEDIUM, asList(asLoc(100, 64, 0))),
+    // april fools maps (replaces spawn and arena with classic maps)
+    ARENA_APRIL_FOOLS(new NonPlayableGameMap("Classic Arena", "A classic arena from Classes Fight v1.0", -900, 63, 0)),
+    SPAWN_APRIL_FOOLS(new NonPlayableGameMap("Classic Spawn", "A classic spawn from Classes Fight v1.0", -1000, 63, 0)),
 
-    JAPAN(new JapanMap()),
+    // == Playable Maps Separator ==
+
+    ARENA(
+            new GameMap("Arena")
+                    .setDescription("A great arena to fight on!")
+                    .setMaterial(Material.COARSE_DIRT)
+                    .setSize(Size.MEDIUM)
+                    .setTicksBeforeReveal(100)
+                    .addLocation(100, 64, 0)
+    ),
+
+    JAPAN(
+            new GameMap("Japan")
+                    .setDescription("This map based on real-life temple &e平等院 (Byōdō-in)&7!")
+                    .setMaterial(Material.PINK_GLAZED_TERRACOTTA)
+                    .setSize(Size.LARGE)
+                    .setTicksBeforeReveal(160)
+                    .addFeature(new JapanFeature())
+                    .addLocation(300, 64, 0, 180, 0)
+    ),
 
     GREENHOUSE(
-            "Greenhouse",
-            "This greenhouse has a lot of flowers to hide, and bunch of secret passages.__&8&oWho's made them?",
-            Material.OAK_SAPLING,
-            100,
-            Size.SMALL,
-            asSingleLoc(-99, 64, -6)
+            new GameMap("Greenhouse")
+                    .setDescription("This greenhouse has a lot of flowers to hide, and bunch of secret passages.__&8&oWho's made them?")
+                    .setSize(Size.SMALL)
+                    .setMaterial(Material.OAK_SAPLING)
+                    .setTicksBeforeReveal(100)
+                    .addLocation(-99, 64, -6)
     ),
 
     RAILWAY(
-            "Railway Station",
-            "The action happening in the unknown Railway Station. Big area to fight, and to hide.",
-            Material.RAIL,
-            120,
-            Size.LARGE,
-            asList(asLoc(32, 70, 99), asLoc(-16, 70, 99))
+            new GameMap("Railway")
+                    .setDescription("The action happening in the unknown Railway Station. Big area to fight, and to hide.")
+                    .setMaterial(Material.RAIL)
+                    .setSize(Size.LARGE)
+                    .setTicksBeforeReveal(120)
+                    .addLocation(32, 70, 99)
+                    .addLocation(-16, 70, 99)
     ),
 
     MIDJOURNEY(
-            "Mid Journey",
-            "Mid Journey is a fierce and treacherous arena located deep within the Nether.____" +
-                    "Its jagged walls and pillars of obsidian provide cover and obstacles for players " +
-                    "to use to their advantage as they battle for supremacy in this dangerous realm.",
-            Material.CRIMSON_NYLIUM,
-            100,
-            Size.MEDIUM,
-            asList(asLoc(306, 66.0, -200), asLoc(319, 73.0, -200), asLoc(273, 75.0, -200))
+            new GameMap("Mid Journey")
+                    .setDescription("Mid Journey is a fierce and treacherous arena located deep within the Nether.____" +
+                            "Its jagged walls and pillars of obsidian provide cover and obstacles for players " +
+                            "to use to their advantage as they battle for supremacy in this dangerous realm.")
+                    .setMaterial(Material.CRIMSON_NYLIUM)
+                    .setSize(Size.MEDIUM)
+                    .setTicksBeforeReveal(100)
+                    .addLocation(306, 66.0, -200)
+                    .addLocation(319, 73.0, -200)
+                    .addLocation(273, 75.0, -200)
     ),
 
-    NEW_RAILWAY("Railway", "{}", Material.POWERED_RAIL, 100, Size.LARGE, asList(
-            asLoc(10, 72, 217),
-            asLoc(10, 72, 184),
-            asLoc(20, 64, 200),
-            asLoc(-2, 64, 200),
-            asLoc(41, 72, 200),
-            asLoc(-19, 76, 200),
-            asLoc(2, 52, 200)
-    )),
+    RAILWAY_STATION(
+            new GameMap("Railway Station")
+                    .setDescription(
+                            "You arrive at the railway station, greeted by a grand fountain and bustling travelers. The station features a cafe, a library, and a scene for music lovers. Descending the stairs, you find the underground platform, ready to take you on your next adventure."
+                    )
+                    .setMaterial(Material.POWERED_RAIL)
+                    .setSize(Size.LARGE)
+                    .setTicksBeforeReveal(100)
+                    .addLocation(10, 72, 217)
+                    .addLocation(10, 72, 184)
+                    .addLocation(20, 64, 200)
+                    .addLocation(-2, 64, 200)
+                    .addLocation(41, 72, 200)
+                    .addLocation(-19, 76, 200)
+                    .addLocation(2, 52, 200)
+    ),
 
     CLOUDS(
-            "The Clouds",
-            "Ruined city built on the clouds somewhere in the sky.",
-            Material.WHITE_STAINED_GLASS,
-            120,
-            Size.MASSIVE,
-            asList(new CloudFeatures()),
-            asSingleLoc(500, 64, 500)
+            new GameMap("The Clouds")
+                    .setDescription("Ruined city built on the clouds somewhere in the sky.")
+                    .setMaterial(Material.WHITE_STAINED_GLASS)
+                    .setSize(Size.MASSIVE)
+                    .setTicksBeforeReveal(120)
+                    .addFeature(new CloudFeatures())
+                    .addLocation(500, 64, 500)
     ),
 
     LIBRARY(
-            "Infinite Library",
-            "A library that stuck in the void.",
-            Material.BOOKSHELF,
-            100,
-            Size.MEDIUM,
-            asList(new LibraryFeature(), new LibraryCat()),
-            asList(asLoc(0, 64, -90, -180, 0), asLoc(-10, 74, -95, -180, 0), asLoc(9, 74, -95, -180, 0))
+            new GameMap("Infinity Library")
+                    .setDescription("A library that stuck in the void.")
+                    .setMaterial(Material.BOOKSHELF)
+                    .setSize(Size.MEDIUM)
+                    .setTicksBeforeReveal(100)
+                    .addFeature(new LibraryFeature())
+                    .addFeature(new LibraryCat())
+                    .addLocation(0, 64, -90, -180, 0)
+                    .addLocation(-10, 74, -95, -180, 0)
+                    .addLocation(9, 74, -95, -180, 0)
     ),
 
-    DRAGONS_GORGE(new DragonsGorge()),
+    DRAGONS_GORGE(new DragonsGorge()), // complex map, stored in separate file
 
-    WINERY(new WineryMap()),
+    WINERY(new WineryMap()), // complex map, stored in separate file
 
     ;
 
     private final GameMap map;
-    private final boolean isPlayable;
-
-    GameMaps(String name, String info, Material material, int ticks, Size size, List<Location> locations) {
-        this(new GameMap(name, info, material, ticks).setSize(size).addLocation(locations), true);
-    }
-
-    GameMaps(String name, String info, Material material, int ticks, Size size, List<MapFeature> features, List<Location> locations) {
-        this(new GameMap(name, info, material, ticks).setSize(size).addLocation(locations).addFeature(features), true);
-    }
 
     GameMaps(GameMap map) {
-        this(map, true);
-    }
-
-    GameMaps(GameMap map, boolean isPlayable) {
         this.map = map;
-        this.isPlayable = isPlayable;
     }
 
     public boolean isPlayable() {
-        return isPlayable;
+        return map.isPlayable();
     }
 
     public GameMap getMap() {
@@ -122,6 +137,7 @@ public enum GameMaps {
 
     public static List<GameMaps> getPlayableMaps() {
         final List<GameMaps> maps = new ArrayList<>();
+
         for (final GameMaps value : values()) {
             if (value == null || !value.isPlayable()) {
                 continue;
@@ -138,26 +154,6 @@ public enum GameMaps {
     public static GameMaps byName(String str, GameMaps def) {
         final GameMaps gm = Validate.getEnumValue(GameMaps.class, str == null ? ARENA.name() : str);
         return gm == null ? def : gm;
-    }
-
-    private static <E> List<E> asList(E... e) {
-        return Arrays.asList(e);
-    }
-
-    private static <E> Set<E> asSet(E... e) {
-        return new HashSet<>(Arrays.asList(e));
-    }
-
-    private static List<Location> asSingleLoc(double x, double y, double z) {
-        return asList(asLoc(x, y, z));
-    }
-
-    private static Location asLoc(double x, double y, double z) {
-        return new Location(Bukkit.getWorlds().get(0), x, y, z);
-    }
-
-    private static Location asLoc(double x, double y, double z, float f, float b) {
-        return new Location(Bukkit.getWorlds().get(0), x, y, z, f, b);
     }
 
 }

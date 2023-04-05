@@ -22,10 +22,14 @@ import java.util.Map;
 public class DragonsGorge extends GameMap {
 
     public DragonsGorge() {
-        super("Dragon's Gorge", Material.DARK_OAK_BOAT, 100);
-        this.setInfo("...");
-        this.setSize(Size.MEDIUM);
-        this.addFeature(new MapFeature("Sheer Cold", "This water is so cold! Better keep an eye on your cold-o-meter!") {
+        super("Dragon's Gorge");
+
+        setDescription("A gorge with a dragon in it. What could go wrong?");
+        setMaterial(Material.DARK_OAK_BOAT);
+        setSize(Size.MEDIUM);
+        setTicksBeforeReveal(100);
+
+        addFeature(new MapFeature("Sheer Cold", "This water is so cold! Better keep an eye on your cold-o-meter!") {
 
             private final Map<Player, Float> coldMeter = new HashMap<>();
             private final float maxColdValue = 100.0f;

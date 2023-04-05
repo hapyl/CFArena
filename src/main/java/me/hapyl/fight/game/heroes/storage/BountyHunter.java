@@ -5,6 +5,7 @@ import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.AbstractGamePlayer;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Role;
@@ -113,7 +114,12 @@ public class BountyHunter extends Hero {
 
         player.swingMainHand();
 
-        useSmokeBomb(player, playerLocation);
+        spawnPoofParticle(playerLocation);
+        spawnPoofParticle(location);
+    }
+
+    private void spawnPoofParticle(Location location) {
+        PlayerLib.spawnParticle(location, Particle.SQUID_INK, 20, 0.0d, 0.5d, 0.0d, 0.25f);
     }
 
     @Override
@@ -144,8 +150,9 @@ public class BountyHunter extends Hero {
 
         // Fx and blindness
         GameTask.runTaskTimerTimes(task -> {
-            Utils.getPlayersInRange(location, 3.0d).forEach(victim -> {
-                PlayerLib.addEffect(victim, EffectType.BLINDNESS, 25, 1);
+            Utils.getPlayersInRange(location, 3.0d).forEach(inRange -> {
+                PlayerLib.addEffect(inRange, EffectType.BLINDNESS, 25, 1);
+                GamePlayer.getPlayer(inRange).addEffect(GameEffectType.INVISIBILITY, 25, true);
             });
 
             PlayerLib.spawnParticle(location, Particle.SQUID_INK, 20, smokeRadiusScaled, smokeRadiusScaled, smokeRadiusScaled, 0.01f);

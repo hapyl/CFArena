@@ -15,7 +15,11 @@ public class WineryMap extends GameMap {
     private final double howlRange = 42.0d;
 
     public WineryMap() {
-        super("Winery \"Drunk Cat\"", Material.SWEET_BERRIES, 100);
+        super("Winery \"Drunk Cat\"");
+
+        setDescription("");
+        setMaterial(Material.SWEET_BERRIES);
+        setTicksBeforeReveal(100);
 
         addLocation(201.5, 64.0, 199.5);
         addLocation(201.5, 64.0, 235.5, -180f, 0.0f);

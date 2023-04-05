@@ -35,7 +35,7 @@ public class MapSelectGUI extends GUI {
                     .setName("&a" + map.getName())
                     .addLore("&8/map " + value.name().toLowerCase(Locale.ROOT), " &7&o")
                     .addLore("")
-                    .addSmartLore(map.getInfo());
+                    .addSmartLore(map.getDescription());
 
             if (!map.getFeatures().isEmpty()) {
                 builder.addLore().addLore("&aMap Features:").addLore();

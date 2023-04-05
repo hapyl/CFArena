@@ -4,14 +4,13 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.PlayerElement;
+import me.hapyl.fight.game.ServerEvent;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.Final;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -19,35 +18,41 @@ import java.util.Set;
 public class GameMap implements GameElement, PlayerElement {
 
     private final String name;
-    private final Material material;
     private final List<Location> locations;
     private final List<Location> hordeSpawnLocations;
     private final List<MapFeature> features;
     private final Set<Modes> allowedModes;
-    private final int ticksBeforeReveal;
 
-    private final Final<Size> size;
-    private String info;
+    private int ticksBeforeReveal;
+    private int mapTime;
+    private Material material;
+    private Size size;
+    private String description;
+    private WeatherType weatherType;
 
-    private int time;
-    private WeatherType weather;
+    private boolean isPlayable;
 
-    public GameMap(String name, Material material, int ticksBeforeReveal) {
-        this(name, "", material, ticksBeforeReveal);
+    protected GameMap(String name) {
+        this(name, Material.BEDROCK, 0);
     }
 
-    public GameMap(String name, String info, Material material, int ticksBeforeReveal) {
+    private GameMap(String name, Material material, int ticksBeforeReveal) {
+        this(name, "No Description Provided", material, ticksBeforeReveal);
+    }
+
+    private GameMap(String name, String info, Material material, int ticksBeforeReveal) {
         this.name = name;
         this.material = material;
-        this.info = info;
-        this.time = 6000;
-        this.weather = WeatherType.CLEAR;
-        this.locations = new ArrayList<>();
-        this.features = new ArrayList<>();
+        this.description = info;
+        this.mapTime = 6000;
+        this.weatherType = WeatherType.CLEAR;
+        this.locations = Lists.newArrayList();
+        this.features = Lists.newArrayList();
         this.allowedModes = Sets.newHashSet();
         this.hordeSpawnLocations = Lists.newArrayList();
-        this.size = new Final<>();
+        this.size = Size.SMALL;
         this.ticksBeforeReveal = ticksBeforeReveal;
+        this.isPlayable = true;
     }
 
     @Override
@@ -57,28 +62,44 @@ public class GameMap implements GameElement, PlayerElement {
         }
     }
 
-    public int getTime() {
-        return time;
+    public boolean isPlayable() {
+        return isPlayable;
     }
 
-    public void setTime(int time) {
-        this.time = time;
+    public GameMap setMaterial(Material material) {
+        this.material = material;
+        return this;
+    }
+
+    public GameMap setPlayable(boolean playable) {
+        isPlayable = playable;
+        return this;
+    }
+
+    public int getTime() {
+        return mapTime;
+    }
+
+    public GameMap setTime(int time) {
+        this.mapTime = time;
+        return this;
     }
 
     public WeatherType getWeather() {
-        return weather;
+        return weatherType;
     }
 
     public void setWeather(WeatherType weather) {
-        this.weather = weather;
+        this.weatherType = weather;
     }
 
     public Set<Modes> getAllowedModes() {
         return allowedModes;
     }
 
-    public void addAllowedMode(Modes mode) {
+    public GameMap addAllowedMode(Modes mode) {
         this.allowedModes.add(mode);
+        return this;
     }
 
     public boolean isAllowedMode(Modes mode) {
@@ -115,21 +136,22 @@ public class GameMap implements GameElement, PlayerElement {
         return this;
     }
 
-    public String getInfo() {
-        return info;
+    public String getDescription() {
+        return description;
     }
 
-    public GameMap setSize(Size size) {
-        this.size.set(size);
+    public GameMap setDescription(String info) {
+        this.description = info;
         return this;
     }
 
     public Size getSize() {
-        return size.getOr(Size.SMALL);
+        return size;
     }
 
-    public void setInfo(String info) {
-        this.info = info;
+    public GameMap setSize(Size size) {
+        this.size = size;
+        return this;
     }
 
     public GameMap addHordeLocation(double x, double y, double z) {
@@ -163,12 +185,27 @@ public class GameMap implements GameElement, PlayerElement {
         return name;
     }
 
+    public GameMap setTicksBeforeReveal(int tick) {
+        this.ticksBeforeReveal = tick;
+        return this;
+    }
+
     /**
      * Returns first or random location.
      *
      * @return first or random location.
      */
     public Location getLocation() {
+        // FIXME (hapyl): 005, Apr 5, 2023: Hardcoding for now, because don't want to rework the whole system for a joke
+        if (ServerEvent.isAprilFools()) {
+            if (name.equalsIgnoreCase("arena")) {
+                return GameMaps.ARENA_APRIL_FOOLS.getMap().getLocation();
+            }
+            else if (name.equalsIgnoreCase("spawn")) {
+                return GameMaps.SPAWN_APRIL_FOOLS.getMap().getLocation();
+            }
+        }
+
         return CollectionUtils.randomElement(locations, locations.get(0));
     }
 
@@ -178,8 +215,8 @@ public class GameMap implements GameElement, PlayerElement {
         final World world = getLocation().getWorld();
 
         if (world != null) {
-            world.setTime(time);
-            world.setStorm(weather == WeatherType.DOWNFALL);
+            world.setTime(mapTime);
+            world.setStorm(weatherType == WeatherType.DOWNFALL);
         }
 
         if (features.isEmpty()) {

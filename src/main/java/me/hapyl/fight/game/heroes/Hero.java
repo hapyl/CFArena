@@ -40,6 +40,7 @@ public abstract class Hero implements GameElement, PlayerElement {
     private final ClassEquipment equipment;
     private final String name;
 
+    private Origin origin;
     private Role role;
     private String about;
     private ItemStack guiTexture;
@@ -61,6 +62,7 @@ public abstract class Hero implements GameElement, PlayerElement {
         this.usedUltimateAt = Maps.newHashMap();
         this.reverseTasks = Maps.newConcurrentMap();
         this.equipment = new ClassEquipment();
+        this.origin = Origin.NOT_SET;
         this.role = Role.NONE;
         this.minimumLevel = 0;
         this.ultimate = new UltimateTalent("Unknown Ultimate", "This hero's ultimate talent is not yet implemented!", Integer.MAX_VALUE);
