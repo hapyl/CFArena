@@ -340,7 +340,7 @@ public class Utils {
     }
 
     public static Response playerCanUseAbility(Player player) {
-        final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
+        final IGamePlayer gp = GamePlayer.getPlayer(player);
 
         if (gp.hasEffect(GameEffectType.STUN)) {
             return Response.error("Talent is locked!");

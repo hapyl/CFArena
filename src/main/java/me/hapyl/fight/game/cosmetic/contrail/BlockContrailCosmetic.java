@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.cosmetic.contrail;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.game.AbstractGameInstance;
+import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.State;
 import me.hapyl.fight.game.cosmetic.Display;
@@ -61,10 +61,10 @@ public class BlockContrailCosmetic extends ContrailCosmetic {
         }
 
         final Manager manager = Manager.current();
-        final AbstractGameInstance currentGame = manager.getCurrentGame();
+        final IGameInstance currentGame = manager.getCurrentGame();
 
         // Not in game
-        if (currentGame.isAbstract()) {
+        if (!currentGame.isReal()) {
             return true;
         }
 

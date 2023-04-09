@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Base class.
+ * Base Hero class.
  *
  * @see GameElement
  * @see PlayerElement
@@ -328,6 +328,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      *
      * @param longString - String.
      */
+    @Deprecated
     public void setItemTexture(String longString) {
         guiTexture = ItemBuilder.playerHead(longString).asIcon();
         getEquipment().setHelmet(longString);

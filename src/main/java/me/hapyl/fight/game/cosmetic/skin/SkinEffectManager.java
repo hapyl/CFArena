@@ -1,9 +1,9 @@
 package me.hapyl.fight.game.cosmetic.skin;
 
 import me.hapyl.fight.Main;
-import me.hapyl.fight.game.AbstractGameInstance;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.task.GameTask;
 import org.bukkit.event.Listener;
@@ -21,7 +21,7 @@ public class SkinEffectManager implements Listener, GameElement {
 
             @Override
             public void run() {
-                final AbstractGameInstance currentGame = Manager.current().getCurrentGame();
+                final IGameInstance currentGame = Manager.current().getCurrentGame();
 
                 for (GamePlayer player : currentGame.getAlivePlayers()) {
                     final Skins enumSkin = player.getSkin();

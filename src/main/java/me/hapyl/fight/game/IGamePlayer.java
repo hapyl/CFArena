@@ -3,6 +3,8 @@ package me.hapyl.fight.game;
 import me.hapyl.fight.game.cosmetic.skin.Skins;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.talents.InputTalent;
+import me.hapyl.fight.game.talents.TalentQueue;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Location;
@@ -15,11 +17,22 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * Abstraction is used to safely use {@link GamePlayer} without having to check if it's null.
+ * Whenever manager requests a GamePlayer, it will
+ * return either a valid GamePlayer, or {@link #NULL_GAME_PLAYER}.
+ *
+ * Null game player is an empty GamePlayer base.
+ *
+ * In reality, if {@link #NULL_GAME_PLAYER} is returned,
+ * the developer is doing something wrong. But it's better
+ * than catching a null pointer.
  */
-public class AbstractGamePlayer {
+public interface IGamePlayer {
 
-    public static final AbstractGamePlayer NULL_GAME_PLAYER = new AbstractGamePlayer();
+    /**
+     * Default GamePlayer if failed to retrieve player.
+     * Should never happen unless unsafe call was made.
+     */
+    IGamePlayer NULL_GAME_PLAYER = new NullGamePlayer();
 
     /**
      * Returns this player hero that is currently playing.
@@ -27,16 +40,14 @@ public class AbstractGamePlayer {
      * @return this player hero that is currently playing.
      */
     @Nonnull
-    public Hero getHero() {
-        throw new NullPointerException("must override getHero()");
-    }
+    Hero getHero();
 
     /**
      * Returns players status as string, whether they are alive, dead or spectating.
      *
      * @return players status as string, whether they are alive, dead or spectating.
      */
-    public String getStatusString() {
+    default String getStatusString() {
         return isDead() ? "&cDead" : isSpectator() ? "&7Spectator" : isRespawning() ? "&eRespawning" : "&aAlive";
     }
 
@@ -45,8 +56,25 @@ public class AbstractGamePlayer {
      *
      * @return true if player has died during the game and currently spectating or waiting for respawn.
      */
-    public boolean isDead() {
-        return false;
+    boolean isDead();
+
+    /**
+     * Sets if player is dead.
+     *
+     * @param dead - True if dead, false otherwise.
+     */
+    void setDead(boolean dead);
+
+    @Nonnull
+    TalentQueue getTalentQueue();
+
+    @Nullable
+    InputTalent getInputTalent();
+
+    void setInputTalent(@Nullable InputTalent inputTalent);
+
+    default boolean hasInputTalent() {
+        return getInputTalent() != null;
     }
 
     /**
@@ -54,24 +82,19 @@ public class AbstractGamePlayer {
      *
      * @return true if player started the game as spectator.
      */
-    public boolean isSpectator() {
-        return false;
-    }
+    boolean isSpectator();
 
     /**
      * Returns true if player is not dead and not spectator.
      *
      * @return true if player is not dead and not spectator.
      */
-    public boolean isAlive() {
-        return false;
-    }
+    boolean isAlive();
 
     /**
      * Marks that player has moved.
      */
-    public void markLastMoved() {
-    }
+    void markLastMoved();
 
     /**
      * Returns currently equipped skin for {@link #getHero()} or null if none.
@@ -79,35 +102,28 @@ public class AbstractGamePlayer {
      * @return currently equipped skin for {@link #getHero()} or null if none.
      */
     @Nullable
-    public Skins getSkin() {
-        return null;
-    }
-
-    /**
-     * Sets players ultimate point regeneration modifier, default is 1.0 which is 1 point per second.
-     *
-     * @param d - New modifier.
-     */
-    public void setUltimateAccelerationModifier(double d) {
-    }
+    Skins getSkin();
 
     /**
      * Returns a modifier for ultimate points generation.
      *
      * @return a modifier for ultimate points generation.
      */
-    public double getUltimateAccelerationModifier() {
-        return 1.0d;
-    }
+    double getUltimateAccelerationModifier();
+
+    /**
+     * Sets players ultimate point regeneration modifier, default is 1.0 which is 1 point per second.
+     *
+     * @param d - New modifier.
+     */
+    void setUltimateAccelerationModifier(double d);
 
     /**
      * Returns millis of the last time player has moved.
      *
      * @return millis of the last time player has moved.
      */
-    public long getLastMoved() {
-        return -1;
-    }
+    long getLastMoved();
 
     /**
      * Returns true if player has moved in the last period of time.
@@ -115,31 +131,28 @@ public class AbstractGamePlayer {
      * @param millis - Period of time to check.
      * @return true if player has moved in the last period of time.
      */
-    public boolean hasMovedInLast(long millis) {
+    default boolean hasMovedInLast(long millis) {
         return getLastMoved() != 0 && (System.currentTimeMillis() - getLastMoved()) < millis;
     }
 
     /**
      * Interrupts player's current action
      */
-    public void interrupt() {
-    }
+    void interrupt();
 
     /**
      * Heals player for provided amount.
      *
      * @param d - Amount to heal for.
      */
-    public void heal(double d) {
-    }
+    void heal(double d);
 
     /**
      * Damages player for provided amount.
      *
      * @param d - Amount of damage.
      */
-    public void damage(double d) {
-    }
+    void damage(double d);
 
     /**
      * Damages player for provided amount with a damage cause.
@@ -147,8 +160,7 @@ public class AbstractGamePlayer {
      * @param d     - Amount of damage.
      * @param cause - Damage cause.
      */
-    public void damage(double d, EnumDamageCause cause) {
-    }
+    void damage(double d, EnumDamageCause cause);
 
     /**
      * Damages player for provided amount with a damager.
@@ -156,8 +168,7 @@ public class AbstractGamePlayer {
      * @param d       - Amount of damage.
      * @param damager - Damager.
      */
-    public void damage(double d, LivingEntity damager) {
-    }
+    void damage(double d, LivingEntity damager);
 
     /**
      * Damages player for provided amount with a damager and damage cause.
@@ -166,16 +177,14 @@ public class AbstractGamePlayer {
      * @param damager - Damager.
      * @param cause   - Damage cause.
      */
-    public void damage(double d, LivingEntity damager, EnumDamageCause cause) {
-    }
+    void damage(double d, LivingEntity damager, EnumDamageCause cause);
 
     /**
      * Kills player if health is zero.
      *
      * @param force - Ignore health restriction.
      */
-    public void die(boolean force) {
-    }
+    void die(boolean force);
 
     /**
      * Adds Game Effect to a player.
@@ -183,8 +192,7 @@ public class AbstractGamePlayer {
      * @param type  - Effect type.
      * @param ticks - Duration.
      */
-    public void addEffect(GameEffectType type, int ticks) {
-    }
+    void addEffect(GameEffectType type, int ticks);
 
     /**
      * Adds Game Effect to a player.
@@ -193,8 +201,7 @@ public class AbstractGamePlayer {
      * @param ticks    - Duration.
      * @param override - Override duration.
      */
-    public void addEffect(GameEffectType type, int ticks, boolean override) {
-    }
+    void addEffect(GameEffectType type, int ticks, boolean override);
 
     /**
      * Returns true if player has Game Effect.
@@ -202,17 +209,14 @@ public class AbstractGamePlayer {
      * @param type - Effect type.
      * @return true if player has Game Effect.
      */
-    public boolean hasEffect(GameEffectType type) {
-        return false;
-    }
+    boolean hasEffect(GameEffectType type);
 
     /**
      * Removes Game Effect from a player.
      *
      * @param type - Effect type.
      */
-    public void removeEffect(GameEffectType type) {
-    }
+    void removeEffect(GameEffectType type);
 
     /**
      * Adds Potion Effect to a player.
@@ -221,36 +225,31 @@ public class AbstractGamePlayer {
      * @param duration  - Duration in ticks.
      * @param amplifier - Amplifier of the effect.
      */
-    public void addPotionEffect(PotionEffectType type, int duration, int amplifier) {
-    }
+    void addPotionEffect(PotionEffectType type, int duration, int amplifier);
 
     /**
      * Removes players potion effect.
      *
      * @param type - Effect type.
      */
-    public void removePotionEffect(PotionEffectType type) {
-    }
+    void removePotionEffect(PotionEffectType type);
 
     /**
      * Adds ultimate points to player.
      *
      * @param i - Point to add.
      */
-    public void addUltimatePoints(int i) {
-    }
+    void addUltimatePoints(int i);
 
     /**
      * Returns last damage cause or NONE.
      *
      * @return last damage cause or NONE.
      */
-    public EnumDamageCause getLastDamageCause() {
-        return EnumDamageCause.NONE;
-    }
+    @Nonnull
+    EnumDamageCause getLastDamageCause();
 
-    public void setLastDamageCause(EnumDamageCause cause) {
-    }
+    void setLastDamageCause(EnumDamageCause cause);
 
     /**
      * Returns last entity that damaged player or null.
@@ -258,52 +257,42 @@ public class AbstractGamePlayer {
      * @return last entity that damaged player or null.
      */
     @Nullable
-    public LivingEntity getLastDamager() {
-        return null;
-    }
+    LivingEntity getLastDamager();
 
     /**
      * Sets last damager.
      *
      * @param entity - New last damager.
      */
-    public void setLastDamager(LivingEntity entity) {
-    }
-
-    /**
-     * Sets health of a player.
-     *
-     * @param d - Health to set.
-     */
-    public void setHealth(double d) {
-    }
+    void setLastDamager(LivingEntity entity);
 
     /**
      * Returns current players' health.
      *
      * @return current players' health.
      */
-    public double getHealth() {
-        return getMaxHealth();
-    }
+    double getHealth();
+
+    /**
+     * Sets health of a player.
+     *
+     * @param d - Health to set.
+     */
+    void setHealth(double d);
 
     /**
      * Returns current players' health in integer format.
      *
      * @return current players' health in integer format.
      */
-    public String getHealthFormatted() {
-        return "abstract";
-    }
+    String getHealthFormatted();
 
     /**
      * Returns players' max health.
      *
      * @return players' max health.
      */
-    public double getMaxHealth() {
-        return 100.0d;
-    }
+    double getMaxHealth();
 
     /**
      * Returns players' min health.
@@ -313,18 +302,14 @@ public class AbstractGamePlayer {
      *
      * @return players' min health.
      */
-    public double getMinHealth() {
-        return 0.5d;
-    }
+    double getMinHealth();
 
     /**
      * Returns true if player's ultimate is ready, false othewise.
      *
      * @return true if player's ultimate is ready, false othewise.
      */
-    public boolean isUltimateReady() {
-        return false;
-    }
+    boolean isUltimateReady();
 
     /**
      * Sends chat message to a player.
@@ -332,8 +317,7 @@ public class AbstractGamePlayer {
      * @param message - Message.
      * @param objects - Formatter.
      */
-    public void sendMessage(String message, Object... objects) {
-    }
+    void sendMessage(String message, Object... objects);
 
     /**
      * Sends title message to a player.
@@ -344,8 +328,7 @@ public class AbstractGamePlayer {
      * @param stay     - Stay ticks.
      * @param fadeOut  - Fade out ticks.
      */
-    public void sendTitle(String title, String subtitle, int fadeIn, int stay, int fadeOut) {
-    }
+    void sendTitle(String title, String subtitle, int fadeIn, int stay, int fadeOut);
 
     /**
      * Sends actionbar message to a player.
@@ -353,8 +336,7 @@ public class AbstractGamePlayer {
      * @param text    - Message.
      * @param objects - Formatter.
      */
-    public void sendActionbar(String text, Object... objects) {
-    }
+    void sendActionbar(String text, Object... objects);
 
     /**
      * Plays a sound to a player.
@@ -362,8 +344,7 @@ public class AbstractGamePlayer {
      * @param sound - Sound to play.
      * @param pitch - Pitch of the sound.
      */
-    public void playSound(Sound sound, float pitch) {
-    }
+    void playSound(Sound sound, float pitch);
 
     /**
      * Returns player's current stats.
@@ -371,25 +352,21 @@ public class AbstractGamePlayer {
      * @return player's current stats.
      */
     @Nullable
-    public StatContainer getStats() {
-        return null;
-    }
+    StatContainer getStats();
 
     /**
      * Returns true if player is currently respawning, false otherwise.
      *
      * @return true if player is currently respawning, false otherwise.
      */
-    public boolean isRespawning() {
-        return false;
-    }
+    boolean isRespawning();
 
     /**
      * Returns game player. <b>Will throw error if called from AbstractGamePlayer!</b>
      *
      * @return game player.
      */
-    public GamePlayer getGamePlayer() {
+    default GamePlayer getGamePlayer() {
         return (GamePlayer) this;
     }
 
@@ -398,7 +375,7 @@ public class AbstractGamePlayer {
      *
      * @return player current team, not lobby team.
      */
-    public GameTeam getTeam() {
+    default GameTeam getTeam() {
         return GameTeam.getPlayerTeam(getGamePlayer());
     }
 
@@ -407,40 +384,26 @@ public class AbstractGamePlayer {
      *
      * @return player's kill streak.
      */
-    public int getKillStreak() {
-        return 0;
-    }
+    int getKillStreak();
 
     /**
      * Respawns the player.
      */
-    public void respawn() {
-    }
+    void respawn();
 
     /**
      * Respawns the player after provided duration.
      *
      * @param tick - Duration in ticks.
      */
-    public void respawnIn(int tick) {
-    }
-
-    /**
-     * Sets if player is dead.
-     *
-     * @param dead - True if dead, false otherwise.
-     */
-    public void setDead(boolean dead) {
-    }
+    void respawnIn(int tick);
 
     /**
      * Returns actual player of this game player or throws error if called from AbstractGamePlayer.
      *
      * @return actual player of this game player or throws error if called from AbstractGamePlayer.
      */
-    public Player getPlayer() {
-        throw new IllegalStateException("must override getPlayer()");
-    }
+    Player getPlayer();
 
     /**
      * Sends warning message to player's title.
@@ -448,31 +411,24 @@ public class AbstractGamePlayer {
      * @param warning - Warning message.
      * @param stay    - Stay time in ticks.
      */
-    public void sendWarning(String warning, int stay) {
+    default void sendWarning(String warning, int stay) {
         Chat.sendTitle(getPlayer(), "&4&l⚠", warning, 0, stay, 5);
     }
 
     /**
-     * Returns true if this player is abstract (Not real).
-     * If false, this player is real.
+     * Returns true if this is a real GamePlayer instance, false otherwise.
      *
-     * @return True if this game is player (Not real), false otherwise.
+     * @return true if this is a real GamePlayer instance, false otherwise.
      */
-    public boolean isAbstract() {
-        return true;
-    }
+    boolean isReal();
 
     /**
-     * Returns string representation of this object.
+     * Teleports player to the given location.
      *
-     * @return string representation of this object.
+     * @param location - Location to teleport to.
      */
-    @Override
-    public String toString() {
-        return "AbstractGamePlayer{}";
-    }
-
-    public void teleport(Location location) {
+    default void teleport(Location location) {
         getPlayer().teleport(location);
     }
+
 }

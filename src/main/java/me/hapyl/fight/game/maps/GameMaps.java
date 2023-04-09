@@ -19,7 +19,7 @@ public enum GameMaps {
     SPAWN(new NonPlayableGameMap("Spawn", "You spawn here!", 0, 64, 0)),
 
     // april fools maps (replaces spawn and arena with classic maps)
-    ARENA_APRIL_FOOLS(new NonPlayableGameMap("Classic Arena", "A classic arena from Classes Fight v1.0", -900, 63, 0)),
+    ARENA_APRIL_FOOLS(new NonPlayableGameMap("Classic Arena", "A classic arena from Classes Fight v1.0", -900, 63, 0, 180.0f, 0.0f)),
     SPAWN_APRIL_FOOLS(new NonPlayableGameMap("Classic Spawn", "A classic spawn from Classes Fight v1.0", -1000, 63, 0)),
 
     // == Playable Maps Separator ==
@@ -77,9 +77,7 @@ public enum GameMaps {
 
     RAILWAY_STATION(
             new GameMap("Railway Station")
-                    .setDescription(
-                            "You arrive at the railway station, greeted by a grand fountain and bustling travelers. The station features a cafe, a library, and a scene for music lovers. Descending the stairs, you find the underground platform, ready to take you on your next adventure."
-                    )
+                    .setDescription("{}")
                     .setMaterial(Material.POWERED_RAIL)
                     .setSize(Size.LARGE)
                     .setTicksBeforeReveal(100)

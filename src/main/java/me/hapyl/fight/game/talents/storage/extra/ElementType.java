@@ -85,7 +85,9 @@ public enum ElementType {
         }
 
         // don't allow wall blocks except player head
-        if (material.name().contains("WALL") && material != Material.PLAYER_HEAD || material.isAir()) {
+        if ((material.name().contains("WALL") && material != Material.PLAYER_HEAD)
+                || material.isAir()
+                || !material.isSolid()) {
             return NULL;
         }
 
@@ -94,6 +96,25 @@ public enum ElementType {
             if (value.predicate.test(material)) {
                 return value;
             }
+        }
+
+        final float hardness = material.getHardness();
+
+        if (hardness <= 0.0f) {
+            return NULL;
+        }
+
+        else if (hardness <= 1.4f) {
+            return SOFT;
+        }
+
+        else if (hardness <= 2.0f) {
+            return STURDY;
+        }
+
+        // 100 is water and lava
+        else if (hardness < 100.0f) {
+            return HEAVY;
         }
 
         // If not predicated then check blast resistance

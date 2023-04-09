@@ -1,7 +1,7 @@
 package me.hapyl.fight.cmds;
 
-import me.hapyl.fight.game.AbstractGameInstance;
 import me.hapyl.fight.game.GameInstance;
+import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
@@ -17,7 +17,7 @@ public class TriggerWinCommand extends SimplePlayerAdminCommand {
 
     @Override
     protected void execute(Player player, String[] strings) {
-        final AbstractGameInstance gameInstance = Manager.current().getCurrentGame();
+        final IGameInstance gameInstance = Manager.current().getCurrentGame();
 
         if (!(gameInstance instanceof GameInstance)) {
             Chat.sendMessage(player, "&cNo game instance.");

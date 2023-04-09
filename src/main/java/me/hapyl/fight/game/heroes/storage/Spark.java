@@ -2,8 +2,8 @@ package me.hapyl.fight.game.heroes.storage;
 
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
-import me.hapyl.fight.game.AbstractGamePlayer;
 import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
@@ -74,7 +74,7 @@ public class Spark extends Hero implements PlayerElement {
     @Override
     public void useUltimate(Player player) {
         final Location location = getSafeLocation(player.getLocation());
-        final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
+        final IGamePlayer gp = GamePlayer.getPlayer(player);
 
         if (location == null) {
             return;
@@ -168,7 +168,7 @@ public class Spark extends Hero implements PlayerElement {
             return;
         }
 
-        final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
+        final IGamePlayer gp = GamePlayer.getPlayer(player);
         final Location location = player.getLocation(); // location before tp
 
         player.setInvulnerable(true);

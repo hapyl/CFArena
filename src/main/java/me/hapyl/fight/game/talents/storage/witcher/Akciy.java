@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.storage.witcher;
 
-import me.hapyl.fight.game.AbstractGamePlayer;
 import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.Talent;
@@ -32,7 +32,7 @@ public class Akciy extends Talent {
             return Response.error("No valid target!");
         }
 
-        final AbstractGamePlayer targetGamePlayer = GamePlayer.getPlayer(target);
+        final IGamePlayer targetGamePlayer = GamePlayer.getPlayer(target);
 
         targetGamePlayer.addEffect(GameEffectType.STUN, getDuration());
 

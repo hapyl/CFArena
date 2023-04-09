@@ -54,8 +54,7 @@ public class Harbinger extends Hero implements Listener, UIComponent {
 
         setRole(Role.STRATEGIST);
         setMinimumLevel(5);
-        setItemTexture(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjJhMWFjMmE4ZGQ0OGMzNzE0ODI4MDZiMzk2MzU3MTk1Mjk5N2E1NzEyODA2ZTJjODA2MGI4ZTc3Nzc3NTQifX19");
+        setItem("22a1ac2a8dd48c371482806b3963571952997a5712806e2c8060b8e7777754");
 
         final ClassEquipment equipment = getEquipment();
         equipment.setChestplate(82, 82, 76);

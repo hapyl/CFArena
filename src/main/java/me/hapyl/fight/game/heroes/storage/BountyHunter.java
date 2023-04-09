@@ -2,9 +2,9 @@ package me.hapyl.fight.game.heroes.storage;
 
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
-import me.hapyl.fight.game.AbstractGamePlayer;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
@@ -39,7 +39,7 @@ import javax.annotation.Nullable;
 public class BountyHunter extends Hero {
 
     private final ItemStack SMOKE_BOMB =
-            new ItemBuilder(Material.ENDERMAN_SPAWN_EGG, "harbinger_smoke_bomb")
+            new ItemBuilder(Material.ENDERMAN_SPAWN_EGG, "bounty_hunter_smoke_bomb")
                     .setName("Smoke Bomb &7(Right Click)")
                     .addClickEvent(player -> useSmokeBomb(player, player.getLocation()))
                     .build();
@@ -48,10 +48,7 @@ public class BountyHunter extends Hero {
         super("Bounty Hunter", "She is a skilled bounty hunter.____&o\"Jackpot! Everyone here's got a bounty on their head.\"");
 
         setRole(Role.MELEE);
-
-        setItemTexture(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvY2Y0Zjg2NmYxNDMyZjMyNGUzMWIwYTUwMmU2ZTllYmNjZDdhNjZmNDc0ZjFjYTljYjBjZmFiODc5ZWEyMmNlMCJ9fX0="
-        );
+        setItem("cf4f866f1432f324e31b0a502e6e9ebccd7a66f474f1ca9cb0cfab879ea22ce0");
 
         setWeapon(new Weapon(Material.IRON_SWORD).setName("Iron Sword").setDamage(6.0d));
 
@@ -63,7 +60,7 @@ public class BountyHunter extends Hero {
 
         setUltimate(new UltimateTalent(
                 "Backstab",
-                "&cHARDCODED FOR TESTING; &7Instantly teleport behind target entity and backstab them, dealing 30 damage!",
+                "&7Instantly teleport behind target entity and backstab them, dealing 30 damage.",
                 70
         )
                 .setItem(Material.SHEARS)
@@ -77,7 +74,7 @@ public class BountyHunter extends Hero {
         final Player player = input.getPlayer();
         final double damage = input.getDamage();
 
-        final AbstractGamePlayer gamePlayer = GamePlayer.getPlayer(player);
+        final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
         final double health = gamePlayer.getHealth();
 
         if (health > 50 && (health - damage <= (gamePlayer.getMaxHealth() / 2.0d))) {
@@ -118,10 +115,6 @@ public class BountyHunter extends Hero {
         spawnPoofParticle(location);
     }
 
-    private void spawnPoofParticle(Location location) {
-        PlayerLib.spawnParticle(location, Particle.SQUID_INK, 20, 0.0d, 0.5d, 0.0d, 0.25f);
-    }
-
     @Override
     public boolean predicateUltimate(Player player) {
         final ShadowShift.TargetLocation location = getBackstabLocation(player);
@@ -133,6 +126,25 @@ public class BountyHunter extends Hero {
     public String predicateMessage(Player player) {
         final ShadowShift.TargetLocation location = getBackstabLocation(player);
         return location.getError().getErrorMessage();
+    }
+
+    @Override
+    public ShortyShotgun getFirstTalent() {
+        return (ShortyShotgun) Talents.SHORTY.getTalent();
+    }
+
+    @Override
+    public GrappleHookTalent getSecondTalent() {
+        return (GrappleHookTalent) Talents.GRAPPLE.getTalent();
+    }
+
+    @Override
+    public Talent getPassiveTalent() {
+        return Talents.SMOKE_BOMB.getTalent();
+    }
+
+    private void spawnPoofParticle(Location location) {
+        PlayerLib.spawnParticle(location, Particle.SQUID_INK, 20, 0.0d, 0.5d, 0.0d, 0.25f);
     }
 
     private ShadowShift.TargetLocation getBackstabLocation(Player player) {
@@ -157,20 +169,5 @@ public class BountyHunter extends Hero {
 
             PlayerLib.spawnParticle(location, Particle.SQUID_INK, 20, smokeRadiusScaled, smokeRadiusScaled, smokeRadiusScaled, 0.01f);
         }, 0, 1, smokeDuration);
-    }
-
-    @Override
-    public ShortyShotgun getFirstTalent() {
-        return (ShortyShotgun) Talents.SHORTY.getTalent();
-    }
-
-    @Override
-    public GrappleHookTalent getSecondTalent() {
-        return (GrappleHookTalent) Talents.GRAPPLE.getTalent();
-    }
-
-    @Override
-    public Talent getPassiveTalent() {
-        return Talents.SMOKE_BOMB.getTalent();
     }
 }

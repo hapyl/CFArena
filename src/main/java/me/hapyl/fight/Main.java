@@ -3,7 +3,7 @@ package me.hapyl.fight;
 import me.hapyl.fight.database.DatabaseMongo;
 import me.hapyl.fight.database.Databases;
 import me.hapyl.fight.event.EnderPearlController;
-import me.hapyl.fight.event.PlayerEvent;
+import me.hapyl.fight.event.PlayerHandler;
 import me.hapyl.fight.game.ChatController;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.cosmetic.CosmeticsListener;
@@ -197,7 +197,7 @@ public class Main extends JavaPlugin {
 
     private void registerEvents() {
         final PluginManager pm = Bukkit.getServer().getPluginManager();
-        pm.registerEvents(new PlayerEvent(), this);
+        pm.registerEvents(new PlayerHandler(), this);
         pm.registerEvents(new ChatController(), this);
         pm.registerEvents(new EnderPearlController(), this);
         pm.registerEvents(new BoosterController(), this);

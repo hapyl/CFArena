@@ -21,10 +21,7 @@ public class ChatController implements Listener {
     private final String format = "&4&l%s &6%s %s%s: &f%s";
     private final Map<Player, String> lastMessage = new HashMap<>();
 
-    /**
-     * Mojang can't make this actually async...
-     */
-    @EventHandler()
+    @EventHandler(ignoreCancelled = true)
     public void handleChat(AsyncPlayerChatEvent ev) {
         final Player player = ev.getPlayer();
         final String message = ev.getMessage();

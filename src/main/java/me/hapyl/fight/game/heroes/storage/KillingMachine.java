@@ -25,17 +25,12 @@ public class KillingMachine extends Hero implements DisabledHero {
     public KillingMachine() {
         super("War Machine");
 
-        this.setRole(Role.RANGE);
+        setRole(Role.RANGE);
 
-        this.setInfo("A machine of war that was left for scrap, until now...");
-        this.setItem(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZWMyZjNkNWQ2MmZkOWJlNmQ2NTRkMzE0YzEyMzM5MGFiZmEzNjk4ZDNkODdjMTUxNmE0NTNhN2VlNGZjYmYifX19"
-        );
+        setInfo("A machine of war that was left for scrap, until now...");
+        setItem("ec2f3d5d62fd9be6d654d314c123390abfa3698d3d87c1516a453a7ee4fcbf");
 
         final ClassEquipment equipment = this.getEquipment();
-        equipment.setHelmet(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZWMyZjNkNWQ2MmZkOWJlNmQ2NTRkMzE0YzEyMzM5MGFiZmEzNjk4ZDNkODdjMTUxNmE0NTNhN2VlNGZjYmYifX19"
-        );
         equipment.setChestplate(Material.CHAINMAIL_CHESTPLATE);
         equipment.setLeggings(Material.CHAINMAIL_LEGGINGS);
         equipment.setBoots(Material.CHAINMAIL_BOOTS);

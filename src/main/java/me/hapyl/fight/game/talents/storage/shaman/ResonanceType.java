@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.storage.shaman;
 
-import me.hapyl.fight.game.AbstractGamePlayer;
 import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.talents.storage.extra.ActiveTotem;
 import me.hapyl.fight.game.talents.storage.extra.ActiveTotemResonance;
 import me.hapyl.fight.util.Utils;
@@ -76,7 +76,7 @@ public enum ResonanceType {
             10,
             (totem) -> {
                 totem.getPlayerInRange().forEach(player -> {
-                    final AbstractGamePlayer gamePlayer = GamePlayer.getPlayer(player);
+                    final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
                     gamePlayer.addPotionEffect(PotionEffectType.SPEED, 15, 0);
                     gamePlayer.addUltimatePoints(1);
                 });

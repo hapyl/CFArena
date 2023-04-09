@@ -17,24 +17,30 @@ import java.util.function.Predicate;
  * This is used as a base for all game instances.
  * {@link GameInstance} implements this class.
  *
- * To be honest, this class should really be named GameInstance, and
- * implementations should be named something like ActiveGameInstance,
- * but it's too late now.
+ * Whenever manager requests a GameInstance, it will
+ * return either a valid GameInstance, or {@link #NULL_GAME_INSTANCE}.
+ *
+ * Null game instance is an empty GameInstance base.
+ *
+ * In reality, if {@link #NULL_GAME_INSTANCE} is returned,
+ * the developer is doing something wrong. But it's better
+ * than catching a null pointer.
  */
-public abstract class AbstractGameInstance {
+public interface IGameInstance {
 
-    public static final AbstractGameInstance NULL_GAME_INSTANCE = new AbstractGameInstance() {
+    /**
+     * Default GameInstance if failed to retrieve existing one.
+     * Should never happen unless unsafe call was made.
+     */
+    IGameInstance NULL_GAME_INSTANCE = new NullGameInstance();
 
-        /**
-         * This will indicate the invalid instance.
-         */
-        @Override
-        public long getTimeLeft() {
-            return Integer.MIN_VALUE;
-        }
-    };
-
-    public AbstractGameInstance() {
+    /**
+     * Returns the current game state.
+     *
+     * @return Current game state.
+     */
+    default State getGameState() {
+        return State.PRE_GAME;
     }
 
     /**
@@ -42,50 +48,33 @@ public abstract class AbstractGameInstance {
      *
      * @param gameState - New game state.
      */
-    public void setGameState(State gameState) {
-    }
-
-    /**
-     * Returns the current game state.
-     *
-     * @return Current game state.
-     */
-    public State getGameState() {
-        return State.PRE_GAME;
-    }
+    void setGameState(State gameState);
 
     /**
      * Calculate game instance and awards winners.
      */
-    public void calculateEverything() {
-    }
+    void calculateEverything();
 
     /**
      * Returns raw time left in millis.
      *
      * @return Raw time left in millis.
      */
-    public long getTimeLeftRaw() {
-        return 0;
-    }
+    long getTimeLeftRaw();
 
     /**
      * Returns time left in ticks.
      *
      * @return Time left in ticks.
      */
-    public long getTimeLeft() {
-        return 0;
-    }
+    long getTimeLeft();
 
     /**
      * Returns true if time surpasses the limit.
      *
      * @return - True if time is up, false otherwise.
      */
-    public boolean isTimeIsUp() {
-        return false;
-    }
+    boolean isTimeIsUp();
 
     /**
      * Returns GamePlayer instance of a player, or null if player doesn't exist.
@@ -94,9 +83,7 @@ public abstract class AbstractGameInstance {
      * @return GamePlayer instance of a player, or null if player doesn't exist.
      */
     @Nullable
-    public GamePlayer getPlayer(Player player) {
-        return null;
-    }
+    GamePlayer getPlayer(Player player);
 
     /**
      * Returns GamePlayer instance of a player, or null if player doesn't exist.
@@ -105,16 +92,14 @@ public abstract class AbstractGameInstance {
      * @return GamePlayer instance of a player, or null if player doesn't exist.
      */
     @Nullable
-    public GamePlayer getPlayer(UUID uuid) {
-        return null;
-    }
+    GamePlayer getPlayer(UUID uuid);
 
     /**
      * Returns map of players mapped to their UUID.
      *
      * @return Map of players mapped to their UUID.
      */
-    public Map<UUID, GamePlayer> getPlayers() {
+    default Map<UUID, GamePlayer> getPlayers() {
         return new HashMap<>();
     }
 
@@ -125,7 +110,7 @@ public abstract class AbstractGameInstance {
      * @return All alive players with specifier hero selected.
      */
     @Nonnull
-    public List<GamePlayer> getAlivePlayers(Heroes heroes) {
+    default List<GamePlayer> getAlivePlayers(Heroes heroes) {
         return new ArrayList<>();
     }
 
@@ -135,7 +120,7 @@ public abstract class AbstractGameInstance {
      * @return All alive players.
      */
     @Nonnull
-    public List<GamePlayer> getAlivePlayers() {
+    default List<GamePlayer> getAlivePlayers() {
         return new ArrayList<>();
     }
 
@@ -144,7 +129,7 @@ public abstract class AbstractGameInstance {
      *
      * @return All alive players as bukkit player.
      */
-    public List<Player> getAlivePlayersAsPlayers() {
+    default List<Player> getAlivePlayersAsPlayers() {
         return Lists.newArrayList();
     }
 
@@ -154,7 +139,7 @@ public abstract class AbstractGameInstance {
      * @param predicate - Predicate to match.
      * @return All alive players who match the predicate.
      */
-    public List<GamePlayer> getAlivePlayers(Predicate<GamePlayer> predicate) {
+    default List<GamePlayer> getAlivePlayers(Predicate<GamePlayer> predicate) {
         return getAlivePlayers();
     }
 
@@ -164,33 +149,30 @@ public abstract class AbstractGameInstance {
      * @param predicate - Predicate to match.
      * @return All alive players as bukkit player who match the predicate.
      */
-    public List<Player> getAlivePlayersAsPlayers(Predicate<GamePlayer> predicate) {
+    default List<Player> getAlivePlayersAsPlayers(Predicate<GamePlayer> predicate) {
         return Lists.newArrayList();
     }
 
     /**
      * Forced game to check for win condition <b>and</b> stop and game if check passed.
      */
-    public void checkWinCondition() {
-    }
+    void checkWinCondition();
 
     /**
      * Returns this instance game mode.
      *
      * @return This instance game mode.
      */
-    public CFGameMode getMode() {
-        return Modes.FFA.getMode();
-    }
+    @Nonnull
+    CFGameMode getMode();
 
     /**
      * Returns this instance game mode as enum.
      *
      * @return This instance game mode as enum.
      */
-    public Modes getCurrentMode() {
-        return Modes.FFA;
-    }
+    @Nonnull
+    Modes getCurrentMode();
 
     /**
      * Returns true if player is winner.
@@ -198,18 +180,15 @@ public abstract class AbstractGameInstance {
      * @param player - Player to check.
      * @return True if player is winner.
      */
-    public boolean isWinner(Player player) {
-        return false;
-    }
+    boolean isWinner(Player player);
 
     /**
      * Returns this instance map.
      *
      * @return This instance map.
      */
-    public GameMaps getCurrentMap() {
-        return GameMaps.ARENA;
-    }
+    @Nonnull
+    GameMaps getCurrentMap();
 
     /**
      * Returns a task that is running for this game instance.
@@ -217,35 +196,26 @@ public abstract class AbstractGameInstance {
      * @return A task that is running for this game instance.
      */
     @Nullable
-    public GameTask getGameTask() {
-        return null;
-    }
+    GameTask getGameTask();
 
     /**
      * Returns HEX code of this game instance.
      *
      * @return HEX code of this game instance.
      */
-    public String hexCode() {
-        return "null";
-    }
+    @Nonnull
+    String hexCode();
 
     /**
      * Returns all players, no matter if they're alive, dead, online etc.
      *
      * @return All players, no matter if they're alive, dead, online etc.
      */
-    public Collection<GamePlayer> getAllPlayers() {
-        return Lists.newArrayList();
-    }
+    @Nonnull
+    Collection<GamePlayer> getAllPlayers();
 
     /**
-     * Returns true if this game is abstract (Not real).
-     * If false, this game is real.
-     *
-     * @return True if this game is abstract (Not real), false otherwise.
+     * Returns true if this is a real GameInstance, false otherwise.
      */
-    public boolean isAbstract() {
-        return true;
-    }
+    boolean isReal();
 }

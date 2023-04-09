@@ -26,7 +26,7 @@ public class GrappleHookTalent extends ChargedTalent implements Listener {
         super("Grappling Hook", 3);
 
         setDescription(
-                "Launch a grappling hook that travels up to &b%s&7 blocks.____Whenever it hits a &bblocks&7 or an &bentity&7, it will pull you towards it.",
+                "Launch a grappling hook that travels up to &b%s&7 blocks.____Whenever it hits a &bblock&7 or an &bentity&7, it will pull you towards it.",
                 maxDistance
         );
 

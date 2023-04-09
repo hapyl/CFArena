@@ -13,7 +13,9 @@ import me.hapyl.fight.game.heroes.ComplexHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.profile.PlayerProfile;
+import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentQueue;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
@@ -54,25 +56,22 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <b>A single instance should exist per game bases and cleared after the game ends.</b>
  */
-public class GamePlayer extends AbstractGamePlayer {
+public class GamePlayer implements IGamePlayer {
 
     private final double maxHealth = 100.0d;
     private final double maxShield = 50.0d;
-
-    private Player player;
-    private PlayerProfile profile;
     private final Heroes enumHero;
     private final Hero hero; // this represents hero that player locked in game with, cannot be changed
     private final Skins skin;
-
+    private final StatContainer stats;
+    private final Map<GameEffectType, ActiveGameEffect> gameEffects;
+    private final TalentQueue talentQueue;
+    private Player player;
+    private PlayerProfile profile;
     private double health;
     private double shield;
     private LivingEntity lastDamager;
     private EnumDamageCause lastDamageCause = null;
-
-    private final StatContainer stats;
-
-    private final Map<GameEffectType, ActiveGameEffect> gameEffects;
 
     // 		[Kinda Important Note]
     //  These two can never be both true.
@@ -80,18 +79,13 @@ public class GamePlayer extends AbstractGamePlayer {
     //  spectator means if player started as spectator
     private boolean isDead;
     private boolean isSpectator;
-
-    // Had to introduce this flag to
-    // prevent spectator checks.
-    private boolean isRespawning;
-
+    private boolean isRespawning; // Had to introduce this flag to prevent spectator checks.
     private boolean valid = true; // valid means if game player is being used somewhere, should probably rework how this works
     private int ultPoints;
-
     private double ultimateModifier;
-
     private long lastMoved;
     private int killStreak;
+    private InputTalent inputTalent;
 
     public GamePlayer(PlayerProfile profile, Heroes enumHero) {
         this.profile = profile;
@@ -103,6 +97,7 @@ public class GamePlayer extends AbstractGamePlayer {
         this.ultimateModifier = 1.0d;
         this.isSpectator = false;
         this.gameEffects = new ConcurrentHashMap<>();
+        this.talentQueue = new TalentQueue(this);
         this.stats = new StatContainer(player);
         this.lastMoved = System.currentTimeMillis();
         this.skin = Database.getDatabase(player).getHeroEntry().getSkin(enumHero);
@@ -116,13 +111,14 @@ public class GamePlayer extends AbstractGamePlayer {
             throw new IllegalArgumentException("validate fake player");
         }
 
-        this.enumHero = null;
         this.player = new FakeBukkitPlayer();
+        this.hero = Heroes.randomHero().getHero();
+
+        this.enumHero = null;
         this.profile = null;
         this.stats = null;
         this.skin = null;
-        this.hero = Heroes.randomHero().getHero();
-
+        this.talentQueue = null;
         this.gameEffects = null;
         this.isDead = false;
         this.isSpectator = false;
@@ -156,6 +152,8 @@ public class GamePlayer extends AbstractGamePlayer {
         player.getActivePotionEffects().forEach(effect -> player.removePotionEffect(effect.getType()));
         Nulls.runIfNotNull(player.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE), att -> att.setBaseValue(0.0f));
 
+        inputTalent = null;
+
         if (isNotIgnored(ignores, Ignore.GAME_MODE)) {
             player.setGameMode(GameMode.SURVIVAL);
         }
@@ -168,6 +166,11 @@ public class GamePlayer extends AbstractGamePlayer {
                 }
             }
         }
+    }
+
+    @Nonnull
+    public TalentQueue getTalentQueue() {
+        return talentQueue;
     }
 
     public int getKillStreak() {
@@ -184,12 +187,12 @@ public class GamePlayer extends AbstractGamePlayer {
         return shield;
     }
 
-    public boolean hasShield() {
-        return getShield() > 0.0d;
-    }
-
     public void setShield(Shield shield) {
         this.shield = shield.getAmount();
+    }
+
+    public boolean hasShield() {
+        return getShield() > 0.0d;
     }
 
     public void markLastMoved() {
@@ -199,6 +202,10 @@ public class GamePlayer extends AbstractGamePlayer {
     @Override
     public double getUltimateAccelerationModifier() {
         return ultimateModifier;
+    }
+
+    public void setUltimateAccelerationModifier(double ultimateModifier) {
+        this.ultimateModifier = ultimateModifier;
     }
 
     /**
@@ -227,26 +234,13 @@ public class GamePlayer extends AbstractGamePlayer {
         return pointsString;
     }
 
-    public void setUltimateAccelerationModifier(double ultimateModifier) {
-        this.ultimateModifier = ultimateModifier;
-    }
-
     @Override
-    public boolean isAbstract() {
-        return false;
+    public boolean isReal() {
+        return true;
     }
 
     public long getLastMoved() {
         return lastMoved;
-    }
-
-    private boolean isNotIgnored(Ignore[] ignores, Ignore target) {
-        for (final Ignore ignore : ignores) {
-            if (ignore == target) {
-                return false;
-            }
-        }
-        return true;
     }
 
     public void addEffect(GameEffectType type, int ticks) {
@@ -312,12 +306,6 @@ public class GamePlayer extends AbstractGamePlayer {
 
     public boolean isUltimateReady() {
         return this.ultPoints >= this.hero.getUltimate().getCost();
-    }
-
-    @Override
-    public void setHealth(double health) {
-        this.health = health;
-        this.updateHealth();
     }
 
     @Override
@@ -518,45 +506,8 @@ public class GamePlayer extends AbstractGamePlayer {
         return lastDamageCause == null ? EnumDamageCause.ENTITY_ATTACK : lastDamageCause;
     }
 
-    private String concat(String original, EnumDamageCause.DeathMessage message, Entity killer) {
-        String suffix = "";
-        if (killer != null) {
-            final String pronoun = getValidPronoun(killer);
-            if (!message.hasSuffix()) {
-                return original + message.formatMessage(pronoun);
-            }
-            else {
-                suffix = message.getDamagerSuffix() + " " + pronoun;
-            }
-        }
-        return original + message.getMessage() + " " + suffix;
-    }
-
-    private String getValidPronoun(Entity entity) {
-        if (entity instanceof Projectile) {
-            final ProjectileSource shooter = ((Projectile) entity).getShooter();
-            if (shooter instanceof LivingEntity) {
-                return ((LivingEntity) shooter).getName() + "'s " + entity.getName();
-            }
-        }
-        return entity.getName();
-    }
-
-    private void executeTalentsOnDeath() {
-        executeOnDeathIfTalentIsNotNull(hero.getFirstTalent());
-        executeOnDeathIfTalentIsNotNull(hero.getSecondTalent());
-
-        if (hero instanceof ComplexHero complex) {
-            executeOnDeathIfTalentIsNotNull(complex.getThirdTalent());
-            executeOnDeathIfTalentIsNotNull(complex.getFourthTalent());
-            executeOnDeathIfTalentIsNotNull(complex.getFifthTalent());
-        }
-    }
-
-    private void executeOnDeathIfTalentIsNotNull(Talent talent) {
-        if (talent != null) {
-            talent.onDeath(player);
-        }
+    public void setLastDamageCause(EnumDamageCause lastDamageCause) {
+        this.lastDamageCause = lastDamageCause;
     }
 
     @Override
@@ -576,16 +527,6 @@ public class GamePlayer extends AbstractGamePlayer {
 
     public UltimateTalent getUltimate() {
         return this.hero.getUltimate();
-    }
-
-    public void setLastDamageCause(EnumDamageCause lastDamageCause) {
-        this.lastDamageCause = lastDamageCause;
-    }
-
-    public void setLastDamager(LivingEntity lastDamager) {
-        if (lastDamager != null) {
-            this.lastDamager = lastDamager;
-        }
     }
 
     public void addUltimatePoints(int points) {
@@ -609,36 +550,21 @@ public class GamePlayer extends AbstractGamePlayer {
         return lastDamager;
     }
 
+    public void setLastDamager(LivingEntity lastDamager) {
+        if (lastDamager != null) {
+            this.lastDamager = lastDamager;
+        }
+    }
+
     @Override
     public double getHealth() {
         return health;
     }
 
-    /**
-     * Returns a player from existing instance, no matter if they're alive or not.
-     *
-     * @param player - bukkit player.
-     * @return GamePlayer instance if there is a GameInstance, otherwise null.
-     */
-    @Nullable
-    public static GamePlayer getExistingPlayer(Player player) {
-        final GameInstance gameInstance = Manager.current().getGameInstance();
-        if (gameInstance == null) {
-            return null;
-        }
-        return gameInstance.getPlayer(player);
-    }
-
-    /**
-     * Returns either an actual GamePlayer instance if there is a GameInstance, otherwise AbstractGamePlayer.
-     *
-     * @param player bukkit player.
-     * @return either an actual GamePlayer instance if there is a GameInstance, otherwise AbstractGamePlayer.
-     */
-    @Nonnull
-    public static AbstractGamePlayer getPlayer(Player player) {
-        final GamePlayer gamePlayer = getExistingPlayer(player);
-        return gamePlayer == null ? AbstractGamePlayer.NULL_GAME_PLAYER : gamePlayer;
+    @Override
+    public void setHealth(double health) {
+        this.health = health;
+        this.updateHealth();
     }
 
     public Player getPlayer() {
@@ -663,6 +589,20 @@ public class GamePlayer extends AbstractGamePlayer {
         isSpectator = !dead;
 
         triggerOnDeath();
+    }
+
+    @Nullable
+    @Override
+    public InputTalent getInputTalent() {
+        return inputTalent;
+    }
+
+    @Override
+    public void setInputTalent(@Nullable InputTalent inputTalent) {
+        if (inputTalent == null) {
+            player.sendTitle("", "", 0, 0, 10);
+        }
+        this.inputTalent = inputTalent;
     }
 
     public boolean isSpectator() {
@@ -697,7 +637,7 @@ public class GamePlayer extends AbstractGamePlayer {
         addEffect(GameEffectType.RESPAWN_RESISTANCE, 60);
 
         // Respawn location
-        final AbstractGameInstance gameInstance = Manager.current().getCurrentGame();
+        final IGameInstance gameInstance = Manager.current().getCurrentGame();
         final Location location = gameInstance.getCurrentMap().getMap().getLocation();
 
         BukkitUtils.mergePitchYaw(player.getLocation(), location);
@@ -727,52 +667,12 @@ public class GamePlayer extends AbstractGamePlayer {
         return this.getPlayer() == player;
     }
 
-    // static members
-    public static void damageEntity(LivingEntity entity, double damage) {
-        damageEntity(entity, damage, null, EnumDamageCause.ENTITY_ATTACK);
-    }
-
-    public static void damageEntity(LivingEntity entity, double damage, LivingEntity damager) {
-        damageEntity(entity, damage, damager, EnumDamageCause.ENTITY_ATTACK);
-    }
-
-    public static void damageEntityTick(LivingEntity entity, double damage, int tick) {
-        damageEntityTick(entity, damage, null, EnumDamageCause.ENTITY_ATTACK, tick);
-    }
-
-    public static void damageEntityTick(LivingEntity entity, double damage, @Nullable LivingEntity damager, int tick) {
-        damageEntityTick(entity, damage, damager, EnumDamageCause.ENTITY_ATTACK, tick);
-    }
-
-    public static void damageEntityTick(LivingEntity entity, double damage, @Nullable LivingEntity damager, @Nullable EnumDamageCause cause, int tick) {
-        final int maximumNoDamageTicks = entity.getMaximumNoDamageTicks();
-        tick = Numbers.clamp(tick, 0, maximumNoDamageTicks);
-
-        entity.setMaximumNoDamageTicks(tick);
-        damageEntity(entity, damage, damager, cause == null ? EnumDamageCause.ENTITY_ATTACK : cause);
-        entity.setMaximumNoDamageTicks(maximumNoDamageTicks);
-    }
-
-    @Super
-    public static void damageEntity(LivingEntity entity, double damage, LivingEntity damager, EnumDamageCause cause) {
-        if (entity == null) {
-            return;
-        }
-
-        if (entity instanceof Player player) {
-            getPlayer(player).damage(damage, damager, cause);
-        }
-        else {
-            entity.damage(damage, damager);
-        }
+    public boolean isValid() {
+        return valid;
     }
 
     public void setValid(boolean flag) {
         valid = flag;
-    }
-
-    public boolean isValid() {
-        return valid;
     }
 
     public Database getDatabase() {
@@ -829,6 +729,141 @@ public class GamePlayer extends AbstractGamePlayer {
         this.profile = Manager.current().getProfile(player);
     }
 
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("GamePlayer{");
+        sb.append("player=").append(player);
+        sb.append(", hero=").append(hero);
+        sb.append(", health=").append(health);
+        sb.append(", isDead=").append(isDead);
+        sb.append(", isSpectator=").append(isSpectator);
+        sb.append(", ultPoints=").append(ultPoints);
+        sb.append('}');
+        return sb.toString();
+    }
+
+    @Override
+    public double getMinHealth() {
+        return 0.5d;
+    }
+
+    private boolean isNotIgnored(Ignore[] ignores, Ignore target) {
+        for (final Ignore ignore : ignores) {
+            if (ignore == target) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private String concat(String original, EnumDamageCause.DeathMessage message, Entity killer) {
+        String suffix = "";
+        if (killer != null) {
+            final String pronoun = getValidPronoun(killer);
+            if (!message.hasSuffix()) {
+                return original + message.formatMessage(pronoun);
+            }
+            else {
+                suffix = message.getDamagerSuffix() + " " + pronoun;
+            }
+        }
+        return original + message.getMessage() + " " + suffix;
+    }
+
+    private String getValidPronoun(Entity entity) {
+        if (entity instanceof Projectile) {
+            final ProjectileSource shooter = ((Projectile) entity).getShooter();
+            if (shooter instanceof LivingEntity) {
+                return ((LivingEntity) shooter).getName() + "'s " + entity.getName();
+            }
+        }
+        return entity.getName();
+    }
+
+    private void executeTalentsOnDeath() {
+        executeOnDeathIfTalentIsNotNull(hero.getFirstTalent());
+        executeOnDeathIfTalentIsNotNull(hero.getSecondTalent());
+
+        if (hero instanceof ComplexHero complex) {
+            executeOnDeathIfTalentIsNotNull(complex.getThirdTalent());
+            executeOnDeathIfTalentIsNotNull(complex.getFourthTalent());
+            executeOnDeathIfTalentIsNotNull(complex.getFifthTalent());
+        }
+    }
+
+    private void executeOnDeathIfTalentIsNotNull(Talent talent) {
+        if (talent != null) {
+            talent.onDeath(player);
+        }
+    }
+
+    /**
+     * Returns a player from existing instance, no matter if they're alive or not.
+     *
+     * @param player - bukkit player.
+     * @return GamePlayer instance if there is a GameInstance, otherwise null.
+     */
+    @Nullable
+    public static GamePlayer getExistingPlayer(Player player) {
+        final GameInstance gameInstance = Manager.current().getGameInstance();
+        if (gameInstance == null) {
+            return null;
+        }
+        return gameInstance.getPlayer(player);
+    }
+
+    /**
+     * Returns either an actual GamePlayer instance if there is a GameInstance, otherwise AbstractGamePlayer.
+     *
+     * @param player bukkit player.
+     * @return either an actual GamePlayer instance if there is a GameInstance, otherwise AbstractGamePlayer.
+     */
+    @Nonnull
+    public static IGamePlayer getPlayer(Player player) {
+        final GamePlayer gamePlayer = getExistingPlayer(player);
+        return gamePlayer == null ? IGamePlayer.NULL_GAME_PLAYER : gamePlayer;
+    }
+
+    // static members
+    public static void damageEntity(LivingEntity entity, double damage) {
+        damageEntity(entity, damage, null, EnumDamageCause.ENTITY_ATTACK);
+    }
+
+    public static void damageEntity(LivingEntity entity, double damage, LivingEntity damager) {
+        damageEntity(entity, damage, damager, EnumDamageCause.ENTITY_ATTACK);
+    }
+
+    public static void damageEntityTick(LivingEntity entity, double damage, int tick) {
+        damageEntityTick(entity, damage, null, EnumDamageCause.ENTITY_ATTACK, tick);
+    }
+
+    public static void damageEntityTick(LivingEntity entity, double damage, @Nullable LivingEntity damager, int tick) {
+        damageEntityTick(entity, damage, damager, EnumDamageCause.ENTITY_ATTACK, tick);
+    }
+
+    public static void damageEntityTick(LivingEntity entity, double damage, @Nullable LivingEntity damager, @Nullable EnumDamageCause cause, int tick) {
+        final int maximumNoDamageTicks = entity.getMaximumNoDamageTicks();
+        tick = Numbers.clamp(tick, 0, maximumNoDamageTicks);
+
+        entity.setMaximumNoDamageTicks(tick);
+        damageEntity(entity, damage, damager, cause == null ? EnumDamageCause.ENTITY_ATTACK : cause);
+        entity.setMaximumNoDamageTicks(maximumNoDamageTicks);
+    }
+
+    @Super
+    public static void damageEntity(LivingEntity entity, double damage, LivingEntity damager, EnumDamageCause cause) {
+        if (entity == null) {
+            return;
+        }
+
+        if (entity instanceof Player player) {
+            getPlayer(player).damage(damage, damager, cause);
+        }
+        else {
+            entity.damage(damage, damager);
+        }
+    }
+
     public enum Ignore {
         GAME_MODE,
         DAMAGER,
@@ -849,19 +884,6 @@ public class GamePlayer extends AbstractGamePlayer {
         public double getAmount() {
             return amount;
         }
-    }
-
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("GamePlayer{");
-        sb.append("player=").append(player);
-        sb.append(", hero=").append(hero);
-        sb.append(", health=").append(health);
-        sb.append(", isDead=").append(isDead);
-        sb.append(", isSpectator=").append(isSpectator);
-        sb.append(", ultPoints=").append(ultPoints);
-        sb.append('}');
-        return sb.toString();
     }
 
 }

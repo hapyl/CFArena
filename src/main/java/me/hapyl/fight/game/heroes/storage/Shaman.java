@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.heroes.storage;
 
-import me.hapyl.fight.game.AbstractGamePlayer;
+import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.Talent;
@@ -35,7 +35,7 @@ public class Shaman extends Hero implements ComplexHero, DisabledHero {
                         .getCurrentGame()
                         .getAlivePlayers(Heroes.SHAMAN)
                         .stream()
-                        .map(AbstractGamePlayer::getPlayer)
+                        .map(IGamePlayer::getPlayer)
                         .forEach(player -> {
                             final ActiveTotem totem = TalentHandle.TOTEM.getTargetTotem(player);
                             if (totem == null) {
