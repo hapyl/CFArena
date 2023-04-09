@@ -41,9 +41,7 @@ public class Swooper extends Hero implements Listener {
         setRole(Role.RANGE);
 
         setInfo("A sniper with slow firing rifle, but fast ways to move around the battlefield.");
-        setItemTexture(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjE4MWM4MTFhZDM3NDY3NTUwZDdjMDFjYWMyZTUyMjNjNGU5OWZhNzkwNjM0OGY5NDBjOTQ1NmQ4YWEwY2QxYiJ9fX0="
-        );
+        setItem("f181c811ad37467550d7c01cac2e5223c4e99fa7906348f940c9456d8aa0cd1b");
 
         final ClassEquipment equipment = this.getEquipment();
         equipment.setChestplate(25, 53, 82);

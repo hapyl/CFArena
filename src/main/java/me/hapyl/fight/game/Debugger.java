@@ -36,6 +36,16 @@ public class Debugger {
         }
     }
 
+    public static void logIf(boolean condition, String any, Object... format) {
+        if (condition) {
+            log(any, format);
+        }
+    }
+
+    public static void particle(Location location, Particle particle) {
+        PlayerLib.spawnParticle(location, particle, 1);
+    }
+
     private static void send(String string, Object... format) {
         final String formattedMessage = Chat.format("&c&lDEBUG &f" + string, format);
 
@@ -44,9 +54,5 @@ public class Debugger {
         });
 
         Bukkit.getConsoleSender().sendMessage(formattedMessage);
-    }
-
-    public static void particle(Location location, Particle particle) {
-        PlayerLib.spawnParticle(location, particle, 1);
     }
 }

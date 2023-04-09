@@ -30,21 +30,20 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
 
-public class GameInstance extends AbstractGameInstance implements GameElement {
+public class GameInstance implements IGameInstance, GameElement {
 
     private final Cosmetics DEFAULT_WIN_COSMETIC = Cosmetics.FIREWORKS;
 
     private final String hexCode;
 
     private final long startedAt;
-    private long timeLimit;
     private final Map<UUID, GamePlayer> players;
     private final GameMaps currentMap;
     private final GameTask gameTask;
     private final Modes mode;
     private final GameReport gameReport;
     private final GameResult gameResult;
-
+    private long timeLimit;
     private State gameState;
 
     public GameInstance(Modes mode, GameMaps map) {
@@ -69,18 +68,18 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
     }
 
     @Override
-    public void setGameState(State gameState) {
-        this.gameState = gameState;
-    }
-
-    @Override
-    public boolean isAbstract() {
-        return false;
+    public boolean isReal() {
+        return true;
     }
 
     @Override
     public State getGameState() {
         return gameState;
+    }
+
+    @Override
+    public void setGameState(State gameState) {
+        this.gameState = gameState;
     }
 
     public GameReport getGameReport() {
@@ -135,6 +134,10 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
         return getTimeLeftRaw() / 50;
     }
 
+    public void setTimeLeft(long timeLeft) {
+        this.timeLimit = timeLeft;
+    }
+
     @Override
     public boolean isTimeIsUp() {
         return System.currentTimeMillis() >= startedAt + timeLimit;
@@ -157,6 +160,7 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
         return players;
     }
 
+    @Nonnull
     @Override
     public Collection<GamePlayer> getAllPlayers() {
         return players.values();
@@ -221,6 +225,92 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
         return gamePlayer;
     }
 
+    @Override
+    public void checkWinCondition() {
+        if (gameState == State.POST_GAME) {
+            return;
+        }
+
+        if (mode.testWinCondition(this)) {
+            Manager.current().stopCurrentGame();
+        }
+    }
+
+    @Nonnull
+    @Override
+    public CFGameMode getMode() {
+        return mode.getMode();
+    }
+
+    @Nonnull
+    @Override
+    public Modes getCurrentMode() {
+        return mode;
+    }
+
+    @Override
+    public boolean isWinner(Player player) {
+        return gameResult.isWinner(player);
+    }
+
+    @Override
+    public void onStart() {
+        //Chat.broadcast("&7&oStarting game instance #%s...", this.hexCode());
+    }
+
+    @Override
+    public void onStop() {
+        //Chat.broadcast("&7&oStopping game instance #%s...".formatted(this.hexCode()));
+    }
+
+    @Nonnull
+    public String hexCode() {
+        return this.hexCode;
+    }
+
+    @Nonnull
+    @Override
+    public GameMaps getCurrentMap() {
+        return currentMap;
+    }
+
+    @Override
+    public GameTask getGameTask() {
+        return gameTask;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final GameInstance that = (GameInstance) o;
+        return startedAt == that.startedAt && timeLimit == that.timeLimit && Objects.equals(players, that.players);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(startedAt, timeLimit, players);
+    }
+
+    public long getStartedAt() {
+        return startedAt;
+    }
+
+    @Nonnull
+    public Location getRandomPlayerLocationOrMapLocationIfThereAreNoPlayers() {
+        if (players.size() != 0) {
+            for (GamePlayer value : players.values()) {
+                return value.getPlayer().getLocation();
+            }
+        }
+
+        return currentMap.getMap().getLocation();
+    }
+
     private void createGamePlayers() {
         Bukkit.getOnlinePlayers().forEach(player -> {
             final Heroes hero = getHero(player);
@@ -251,46 +341,6 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
 
     private Heroes getHero(Player player) {
         return Setting.RANDOM_HERO.isEnabled(player) ? Heroes.randomHero() : Manager.current().getSelectedHero(player);
-    }
-
-    @Override
-    public void checkWinCondition() {
-        if (gameState == State.POST_GAME) {
-            return;
-        }
-
-        if (mode.testWinCondition(this)) {
-            Manager.current().stopCurrentGame();
-        }
-    }
-
-    @Override
-    public CFGameMode getMode() {
-        return mode.getMode();
-    }
-
-    @Override
-    public Modes getCurrentMode() {
-        return mode;
-    }
-
-    @Override
-    public boolean isWinner(Player player) {
-        return gameResult.isWinner(player);
-    }
-
-    @Override
-    public void onStart() {
-        //Chat.broadcast("&7&oStarting game instance #%s...", this.hexCode());
-    }
-
-    @Override
-    public void onStop() {
-        //Chat.broadcast("&7&oStopping game instance #%s...".formatted(this.hexCode()));
-    }
-
-    public String hexCode() {
-        return this.hexCode;
     }
 
     private String generateHexCode() {
@@ -347,51 +397,5 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
                 --tick;
             }
         }.runTaskTimer(0, 1);
-    }
-
-    @Override
-    public GameMaps getCurrentMap() {
-        return currentMap;
-    }
-
-    @Override
-    public GameTask getGameTask() {
-        return gameTask;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        final GameInstance that = (GameInstance) o;
-        return startedAt == that.startedAt && timeLimit == that.timeLimit && Objects.equals(players, that.players);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(startedAt, timeLimit, players);
-    }
-
-    public long getStartedAt() {
-        return startedAt;
-    }
-
-    public void setTimeLeft(long timeLeft) {
-        this.timeLimit = timeLeft;
-    }
-
-    @Nonnull
-    public Location getRandomPlayerLocationOrMapLocationIfThereAreNoPlayers() {
-        if (players.size() != 0) {
-            for (GamePlayer value : players.values()) {
-                return value.getPlayer().getLocation();
-            }
-        }
-
-        return currentMap.getMap().getLocation();
     }
 }

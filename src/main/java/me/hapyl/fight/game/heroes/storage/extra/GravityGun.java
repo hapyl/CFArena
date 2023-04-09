@@ -35,7 +35,6 @@ public class GravityGun extends Weapon {
         });
     }
 
-    @Nullable
     private Element getElement(Player player) {
         return elements.getOrDefault(player, null);
     }

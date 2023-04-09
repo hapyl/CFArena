@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.maps.features;
 
-import me.hapyl.fight.game.AbstractGamePlayer;
 import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.maps.MapFeature;
 import org.bukkit.Location;
@@ -44,7 +44,7 @@ public class CloudFeatures extends MapFeature implements Listener {
         final Location location = player.getLocation();
 
         if (location.getY() < 0) {
-            final AbstractGamePlayer gamePlayer = GamePlayer.getPlayer(player);
+            final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
             if (gamePlayer.isAlive()) {
                 gamePlayer.die(true);
             }

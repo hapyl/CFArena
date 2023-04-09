@@ -4,6 +4,8 @@ import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.storage.heavy_knight.Uppercut;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
@@ -72,8 +74,8 @@ public class SwordMaster extends Hero implements DisabledHero {
     }
 
     @Override
-    public Talent getFirstTalent() {
-        return null;
+    public Uppercut getFirstTalent() {
+        return (Uppercut) Talents.UPPERCUT.getTalent();
     }
 
     @Override

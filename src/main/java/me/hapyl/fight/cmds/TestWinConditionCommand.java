@@ -1,8 +1,8 @@
 package me.hapyl.fight.cmds;
 
-import me.hapyl.fight.game.AbstractGameInstance;
 import me.hapyl.fight.game.FakeGamePlayer;
 import me.hapyl.fight.game.GameInstance;
+import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -16,7 +16,7 @@ public class TestWinConditionCommand extends SimplePlayerAdminCommand {
 
     @Override
     protected void execute(Player player, String[] args) {
-        final AbstractGameInstance gameInstance = Manager.current().getCurrentGame();
+        final IGameInstance gameInstance = Manager.current().getCurrentGame();
         if (!(gameInstance instanceof GameInstance)) {
             Chat.sendMessage(player, "&cNo game instance.");
             return;

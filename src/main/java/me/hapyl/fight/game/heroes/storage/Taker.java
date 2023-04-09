@@ -109,8 +109,6 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
         final int playerBones = bones.getBones();
         final int duration = ultimate.getDuration();
 
-        // FIXME (hapyl): 004, Apr 4, 2023: 5 bones shoots too fast?
-
         final double healing = healingPerBone * playerBones;
         final double healingPerTick = healing / duration;
         final int firePeriod = getUltimateDuration() / (playerBones * shotsPerBone);

@@ -4,6 +4,9 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 
+/**
+ * Represents a class that can create an ItemStack.
+ */
 public abstract class NonnullItemStackCreatable {
 
     private ItemStack item;

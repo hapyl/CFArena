@@ -78,7 +78,6 @@ public class JuJu extends Hero implements Listener {
          * Changes to ultimate:
          *
          * - Elusive Burst will shoot instantly.
-         * - In addition, Elusive Burst arrows will bounce up to N times.
          * - Can be used up be X times or Y seconds.
          */
 

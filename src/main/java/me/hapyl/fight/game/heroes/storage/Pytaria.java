@@ -2,9 +2,9 @@ package me.hapyl.fight.game.heroes.storage;
 
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
-import me.hapyl.fight.game.AbstractGamePlayer;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -68,7 +68,7 @@ public class Pytaria extends Hero {
 
     @Override
     public void useUltimate(Player player) {
-        final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
+        final IGamePlayer gp = GamePlayer.getPlayer(player);
         final double health = gp.getHealth();
         final double maxHealth = gp.getMaxHealth();
         final double missingHp = (maxHealth - health) * healthRegenPercent / maxHealth;
@@ -186,7 +186,7 @@ public class Pytaria extends Hero {
 
     private void updateChestplateColor(Player player) {
         final PlayerInventory inventory = player.getInventory();
-        final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
+        final IGamePlayer gp = GamePlayer.getPlayer(player);
         final double missingHealth = gp.getMaxHealth() - gp.getHealth();
 
         if (isBetween(missingHealth, 0, 10)) {
@@ -211,7 +211,7 @@ public class Pytaria extends Hero {
     }
 
     public double calculateDamage(Player player, double damage) {
-        final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
+        final IGamePlayer gp = GamePlayer.getPlayer(player);
         final double health = gp.getHealth();
         final double maxHealth = gp.getMaxHealth();
         //final double multiplier = ((maxHealth - health) / 10);

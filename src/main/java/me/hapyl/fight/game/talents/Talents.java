@@ -9,7 +9,6 @@ import me.hapyl.fight.game.talents.storage.archer.TripleShot;
 import me.hapyl.fight.game.talents.storage.bountyhunter.GrappleHookTalent;
 import me.hapyl.fight.game.talents.storage.bountyhunter.ShortyShotgun;
 import me.hapyl.fight.game.talents.storage.darkmage.BlindingCurse;
-import me.hapyl.fight.game.talents.storage.darkmage.HealingAura;
 import me.hapyl.fight.game.talents.storage.darkmage.ShadowClone;
 import me.hapyl.fight.game.talents.storage.darkmage.SlowingAura;
 import me.hapyl.fight.game.talents.storage.doctor.ConfusionPotion;
@@ -19,8 +18,9 @@ import me.hapyl.fight.game.talents.storage.ender.TransmissionBeacon;
 import me.hapyl.fight.game.talents.storage.freazly.IceCone;
 import me.hapyl.fight.game.talents.storage.harbinger.MeleeStance;
 import me.hapyl.fight.game.talents.storage.harbinger.TidalWave;
-import me.hapyl.fight.game.talents.storage.healer.HealingPotion;
+import me.hapyl.fight.game.talents.storage.healer.HealingOrb;
 import me.hapyl.fight.game.talents.storage.healer.ReviveTotem;
+import me.hapyl.fight.game.talents.storage.heavy_knight.Uppercut;
 import me.hapyl.fight.game.talents.storage.hercules.HerculesJump;
 import me.hapyl.fight.game.talents.storage.hercules.HerculesShift;
 import me.hapyl.fight.game.talents.storage.juju.ArrowShield;
@@ -212,7 +212,7 @@ public enum Talents {
     // Dark Mage
     BLINDING_CURSE(new BlindingCurse()),
     SLOWING_AURA(new SlowingAura()),
-    HEALING_AURA(new HealingAura()),
+    HEALING_AURA(new me.hapyl.fight.game.talents.storage.darkmage.HealingAura()),
     SHADOW_CLONE(new ShadowClone()),
     DARK_MAGE_PASSIVE(new PassiveTalent("unnamed", "", Material.BEDROCK)),
 
@@ -302,7 +302,7 @@ public enum Talents {
     TOTEM_ACCELERATION_AURA(new TotemTalent(ResonanceType.ACCELERATING_AURA, 20)),
 
     // Healer
-    HEALING_POTION(new HealingPotion()),
+    HEALING_ORB(new HealingOrb()),
     REVIVE_TOTEM(new ReviveTotem()),
     REVIVE(new PassiveTalent(
             "Revive",
@@ -327,6 +327,9 @@ public enum Talents {
             "Whenever your health falls below &c50%&7, you gain a &eSmoke Bomb&7.____Throw it to create a smoke field that &bblinds&7 everyone inside it and grant you a &bspeed boost&7.",
             Material.ENDERMAN_SPAWN_EGG
     )),
+
+    // Heavy Knight
+    UPPERCUT(new Uppercut()),
 
     // test (keep last)
     TestChargeTalent(new TestChargeTalent());

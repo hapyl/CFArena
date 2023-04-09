@@ -18,7 +18,8 @@ import java.util.Random;
 
 public class BlockShield {
 
-    private static final Block DEFAULT_BLOCK = BukkitUtils.defLocation(0, 48, 0).getBlock();
+    private static final Location DEFAULT_BLOCK_LOCATION = BukkitUtils.defLocation(0, 48, 0);
+
     private final Player player;
 
     private Entity entity;
@@ -122,7 +123,27 @@ public class BlockShield {
         return material;
     }
 
-    private Block randomBlock() {
+    public Block randomBlock() {
+        return randomBlock(0);
+    }
+
+    private final static Material DEFAULT_MATERIAL = Material.MAGMA_BLOCK;
+
+    private Block defaultBlock() {
+        final Block block = DEFAULT_BLOCK_LOCATION.getBlock();
+
+        if (block.getType() != DEFAULT_MATERIAL) {
+            block.setType(DEFAULT_MATERIAL);
+        }
+
+        return block;
+    }
+
+    private Block randomBlock(int count) {
+        if (count > 10) {
+            return defaultBlock();
+        }
+
         final Location location = player.getLocation().add(
                 new Random().nextInt(-3, 3),
                 new Random().nextInt(-3, -1),
@@ -131,12 +152,8 @@ public class BlockShield {
 
         final Block block = location.getBlock();
 
-        try {
-            if (!block.getType().isOccluding()) {
-                return randomBlock();
-            }
-        } catch (StackOverflowError error) {
-            return DEFAULT_BLOCK;
+        if (!block.getType().isOccluding()) {
+            return randomBlock(++count);
         }
 
         return block;

@@ -59,7 +59,7 @@ public enum Heroes {
     SHAMAN(new Shaman()),
 
     // 1.5
-    //HEALER(new Healer()),
+    HEALER(new Healer()),
     VAMPIRE(new Vampire()),
     BOUNTY_HUNTER(new BountyHunter()),
     SWORD_MASTER(new SwordMaster()),

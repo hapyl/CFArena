@@ -2,9 +2,9 @@ package me.hapyl.fight.game.heroes.storage;
 
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
-import me.hapyl.fight.game.AbstractGamePlayer;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
@@ -75,7 +75,7 @@ public class Ninja extends Hero implements Listener, UIComponent {
 
     @Override
     public boolean processInvisibilityDamage(Player player, LivingEntity entity, double damage) {
-        final AbstractGamePlayer gamePlayer = GamePlayer.getPlayer(player);
+        final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
         gamePlayer.removeEffect(GameEffectType.INVISIBILITY);
         gamePlayer.sendMessage("&cYou dealt damage and lost your invisibility!");
 

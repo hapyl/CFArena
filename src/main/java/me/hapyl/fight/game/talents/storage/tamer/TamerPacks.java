@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.talents.storage.tamer;
 
-import me.hapyl.fight.game.AbstractGamePlayer;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Nulls;
@@ -201,7 +201,7 @@ public enum TamerPacks {
             PlayerLib.addEffect(player, EffectType.STRENGTH, Heroes.TAMER.getHero().getUltimateDuration(), 0);
             PlayerLib.addEffect(player, EffectType.SPEED, Heroes.TAMER.getHero().getUltimateDuration(), 2);
             GameTask.runDuration(Heroes.TAMER.getHero().getUltimate(), (task, i) -> {
-                final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
+                final IGamePlayer gp = GamePlayer.getPlayer(player);
                 gp.heal(2d);
                 if (/*i == 0 || redundant tick check */!gp.isAlive()) {
                     task.cancel();

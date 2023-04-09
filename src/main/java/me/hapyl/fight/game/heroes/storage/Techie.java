@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.storage;
 
-import me.hapyl.fight.game.AbstractGameInstance;
 import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.ClassEquipment;
@@ -55,8 +55,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener {
                 "Anonymous hacker, who hacked his way to the fight. Weak by himself, but specifies on traps that makes him stronger."
         );
 
-        setItemTexture(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWU1Yjc4OTg3YzcwZDczZjJhZDkzYTQ1NGY4NWRjYWI0NzZjNWI1Njc5ZjUwZWFhZjU1M2QyNDA0ZWRjOWMifX19");
+        setItem("1e5b78987c70d73f2ad93a454f85dcab476c5b5679f50eaaf553d2404edc9c");
 
         final ClassEquipment equipment = getEquipment();
         equipment.setChestplate(205, 205, 205);
@@ -93,7 +92,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener {
             public void run() {
                 Heroes.TECHIE.getAlivePlayers().forEach(player -> {
                     int amountRevealed = 0;
-                    final AbstractGameInstance game = Manager.current().getCurrentGame();
+                    final IGameInstance game = Manager.current().getCurrentGame();
 
                     for (final GamePlayer alive : game.getAlivePlayers()) {
                         if (alive.compare(player)) {

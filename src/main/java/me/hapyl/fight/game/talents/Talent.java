@@ -379,14 +379,19 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
 
         final Response response = execute(player);
 
+        // If error, don't progress talent
+        if (response == null || response == Response.ERROR) {
+            return response == null ? Response.ERROR_DEFAULT : response;
+        }
+
         // Progress ability usage
         final StatContainer stats = GamePlayer.getPlayer(player).getStats();
 
-        if ((response != null && !response.isError()) && stats != null) {
+        if (stats != null && !Manager.current().isDebug()) {
             stats.addAbilityUsage(Talents.fromTalent(this));
         }
 
-        return response == null ? Response.ERROR_DEFAULT : response;
+        return response;
     }
 
     public final void startCd(Player player, int cooldown) {
@@ -408,7 +413,7 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         player.setCooldown(material, cooldown);
     }
 
-    public final void startCd(Player player) {
+    public void startCd(Player player) {
         startCd(player, cd);
     }
 
@@ -457,10 +462,16 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         return description.get(0);
     }
 
+    @Override
+    public String toString() {
+        return "%s{%s}".formatted(getClass().getName(), name);
+    }
+
     public enum Type {
-        PASSIVE,
         COMBAT,
         COMBAT_CHARGED,
+        COMBAT_INPUT,
+        PASSIVE,
         ULTIMATE
     }
 
