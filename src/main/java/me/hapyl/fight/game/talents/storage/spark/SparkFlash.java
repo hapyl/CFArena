@@ -63,7 +63,7 @@ public class SparkFlash extends Talent {
                         final double dotProduct = vector.dot(playerDirection);
                         final double distance = victimPlayer.getLocation().distance(item.getLocation());
 
-                        if (dotProduct >= 0.4f && distance <= 50) {
+                        if ((dotProduct >= 0.4f && distance <= 50) && victimPlayer.hasLineOfSight(item)) {
                             PlayerLib.addEffect(victimPlayer, PotionEffectType.BLINDNESS, flashDuration, 1);
                             PlayerLib.playSoundAndCut(victimPlayer, Sound.ITEM_ELYTRA_FLYING, 2.0f, flashDuration);
                         }

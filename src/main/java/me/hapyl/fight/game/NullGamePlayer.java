@@ -27,6 +27,16 @@ public class NullGamePlayer implements IGamePlayer {
     }
 
     @Override
+    public boolean canMove() {
+        return false;
+    }
+
+    @Override
+    public void setCanMove(boolean canMove) {
+
+    }
+
+    @Override
     public void setDead(boolean dead) {
 
     }

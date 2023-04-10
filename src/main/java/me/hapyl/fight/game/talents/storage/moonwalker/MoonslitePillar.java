@@ -85,6 +85,12 @@ public class MoonslitePillar extends Talent {
 
             @Override
             public void run() {
+                // was removed
+                if (location.getBlock().getType().isAir()) {
+                    cancel();
+                    return;
+                }
+
                 if ((tick += period) >= getDuration()) {
                     destroyPillar(location);
                     pillars.remove(player);

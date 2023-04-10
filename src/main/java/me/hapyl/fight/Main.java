@@ -17,6 +17,7 @@ import me.hapyl.fight.game.task.TaskList;
 import me.hapyl.fight.notifier.Notifier;
 import me.hapyl.fight.npc.HumanManager;
 import me.hapyl.fight.protocol.ArcaneMuteProtocol;
+import me.hapyl.fight.protocol.DismountProtocol;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.EternaAPI;
 import me.hapyl.spigotutils.module.chat.CenterChat;
@@ -101,8 +102,8 @@ public class Main extends JavaPlugin {
 
         this.manager = new Manager();
         this.taskList = new TaskList();
-        this.boosters = new BoosterController();
         this.experience = new Experience();
+        this.boosters = new BoosterController(this);
         this.notifier = new Notifier(this);
 
         if (isDatabaseLegacy()) {
@@ -295,7 +296,6 @@ public class Main extends JavaPlugin {
         pm.registerEvents(new PlayerHandler(), this);
         pm.registerEvents(new ChatController(), this);
         pm.registerEvents(new EnderPearlController(), this);
-        pm.registerEvents(new BoosterController(), this);
         pm.registerEvents(new CosmeticsListener(), this);
     }
 
@@ -310,6 +310,7 @@ public class Main extends JavaPlugin {
 
     private void regProtocol() {
         new ArcaneMuteProtocol();
+        new DismountProtocol();
         //new ConfusionPotionProtocol(); -> doesn't work as good as I thought :(
     }
 

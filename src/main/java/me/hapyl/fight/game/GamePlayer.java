@@ -81,6 +81,7 @@ public class GamePlayer implements IGamePlayer {
     private boolean isSpectator;
     private boolean isRespawning; // Had to introduce this flag to prevent spectator checks.
     private boolean valid = true; // valid means if game player is being used somewhere, should probably rework how this works
+    private boolean canMove;
     private int ultPoints;
     private double ultimateModifier;
     private long lastMoved;
@@ -101,6 +102,7 @@ public class GamePlayer implements IGamePlayer {
         this.stats = new StatContainer(player);
         this.lastMoved = System.currentTimeMillis();
         this.skin = Database.getDatabase(player).getHeroEntry().getSkin(enumHero);
+        this.canMove = true;
 
         // supply to profile
         profile.setGamePlayer(this);
@@ -418,6 +420,7 @@ public class GamePlayer implements IGamePlayer {
         this.isDead = true;
         this.isSpectator = false;
 
+        // FIXME (hapyl): 010, Apr 10, 2023: Is there a reason to not reset the cause and damager here?
         this.resetPlayer(Ignore.DAMAGE_CAUSE, Ignore.DAMAGER);
         player.setGameMode(GameMode.SPECTATOR);
 
@@ -588,6 +591,16 @@ public class GamePlayer implements IGamePlayer {
 
     public boolean isDead() {
         return isDead;
+    }
+
+    @Override
+    public boolean canMove() {
+        return canMove;
+    }
+
+    @Override
+    public void setCanMove(boolean canMove) {
+        this.canMove = canMove;
     }
 
     public void setDead(boolean dead) {

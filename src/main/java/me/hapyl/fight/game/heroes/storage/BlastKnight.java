@@ -55,9 +55,7 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Lis
 
         setRole(Role.MELEE);
         setInfo("Royal Knight with high-end technology gadgets.");
-        setItemTexture(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTJkZmRlNmMyYzhmMGE3YWRmN2FlNGU5NDlhODA0ZmVkZjk1YzZiOTU2Mjc2N2VhZTZjMjJhNDAxY2QwMmNiZCJ9fX0="
-        );
+        setItem("e2dfde6c2c8f0a7adf7ae4e949a804fedf95c6b9562767eae6c22a401cd02cbd");
 
         final ClassEquipment equipment = getEquipment();
         equipment.setChestplate(Color.BLUE);
@@ -151,7 +149,7 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Lis
             }
 
             ev.setCancelled(true);
-            Chat.sendMessage(player, "&cThis is not yor Horse!");
+            Chat.sendMessage(player, "&cThis is not your Horse!");
             PlayerLib.playSound(player, Sound.ENTITY_HORSE_ANGRY, 1.0f);
         }
     }

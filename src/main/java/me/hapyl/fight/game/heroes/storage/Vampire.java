@@ -116,13 +116,15 @@ public class Vampire extends Hero implements Listener, UIComplexComponent {
             // Hide for everyone but the player
             final Visibility visibility = Visibility.of(self);
 
+            // FIXME (hapyl): 010, Apr 10, 2023: Bat seems invisible to everyone
+
             visibility.setCanSee(player, false);
             visibility.hide();
         });
 
         player.setAllowFlight(true);
         player.setFlying(true);
-        player.setFlySpeed(0.1f);
+        player.setFlySpeed(0.05f);
 
         new GameTask() {
             private final Set<Entity> hitEntities = Sets.newHashSet();

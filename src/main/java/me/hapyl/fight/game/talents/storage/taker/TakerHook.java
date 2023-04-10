@@ -50,7 +50,9 @@ public class TakerHook {
         final Vector vector = location.getDirection().normalize();
 
         PlayerLib.addEffect(player, PotionEffectType.SLOW, 10000, 10);
-        PlayerLib.addEffect(player, PotionEffectType.JUMP, 10000, 250);
+        //PlayerLib.addEffect(player, PotionEffectType.JUMP, 10000, 250);
+
+        GamePlayer.getPlayer(player).setCanMove(false);
 
         taskExtend = new GameTask() {
             private double step = 0.0d;
@@ -131,7 +133,10 @@ public class TakerHook {
             public void run() {
                 if (chains.isEmpty()) {
                     player.removePotionEffect(PotionEffectType.SLOW);
-                    player.removePotionEffect(PotionEffectType.JUMP);
+                    //player.removePotionEffect(PotionEffectType.JUMP);
+
+                    GamePlayer.getPlayer(player).setCanMove(true);
+
                     chains.clear();
                     cancel();
                     return;

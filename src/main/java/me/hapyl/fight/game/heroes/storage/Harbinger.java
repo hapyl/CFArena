@@ -3,7 +3,6 @@ package me.hapyl.fight.game.heroes.storage;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
-import me.hapyl.fight.game.Debugger;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.heroes.ClassEquipment;
@@ -130,7 +129,6 @@ public class Harbinger extends Hero implements Listener, UIComponent {
         for (RiptideStatus value : riptideStatus.values()) {
             if (value.isAffected(player)) {
                 value.stop(player);
-                Debugger.log("removed riptide from %s", player.getName());
             }
         }
     }

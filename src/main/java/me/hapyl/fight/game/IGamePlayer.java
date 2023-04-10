@@ -59,6 +59,18 @@ public interface IGamePlayer {
     boolean isDead();
 
     /**
+     * Returns true if player can move; false otherwise.
+     *
+     * @return true if player can move; false otherwise.
+     */
+    boolean canMove();
+
+    /**
+     * Sets if player can move.
+     */
+    void setCanMove(boolean canMove);
+
+    /**
      * Sets if player is dead.
      *
      * @param dead - True if dead, false otherwise.

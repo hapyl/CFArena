@@ -9,11 +9,14 @@ import org.bukkit.entity.Player;
 
 public class Debugger {
 
+    private static int debugUse = 0;
+
     /**
      * Indicates that this debug logger should not be removed in prod.
      */
     public static void keepLog(Object any, Object... format) {
         log(any, format);
+        debugUse--;
     }
 
     public static void log(Object any, Object... format) {
@@ -31,6 +34,7 @@ public class Debugger {
     public static void wrap(Runnable runnable) {
         try {
             runnable.run();
+            debugUse++;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -54,5 +58,11 @@ public class Debugger {
         });
 
         Bukkit.getConsoleSender().sendMessage(formattedMessage);
+
+        debugUse++;
+    }
+
+    public static int getDebugUse() {
+        return debugUse;
     }
 }

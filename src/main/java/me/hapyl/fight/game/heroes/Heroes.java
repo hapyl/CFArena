@@ -64,6 +64,7 @@ public enum Heroes {
     BOUNTY_HUNTER(new BountyHunter()),
     SWORD_MASTER(new SwordMaster()),
     ZEALOT(new Zealot()),
+    ENGINEER(new Engineer()),
 
     ;
 

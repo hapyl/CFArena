@@ -302,8 +302,8 @@ public class PlayerHandler implements Listener {
                 if (cancel) {
                     ev.setDamage(0.0d);
                     ev.setCancelled(true);
+                    return;
                 }
-                return;
             }
 
             // Reassign damage cause
@@ -618,6 +618,16 @@ public class PlayerHandler implements Listener {
                 return;
             }
 
+            // AFK detection
+            // Mark as moved even if player can't move
+            gp.markLastMoved();
+
+            // Handle no moving
+            if (!gp.canMove()) {
+                ev.setCancelled(true);
+                return;
+            }
+
             // Amnesia
             if (gp.hasEffect(GameEffectType.AMNESIA)) {
                 final double pushSpeed = player.isSneaking() ? 0.05d : 0.1d;
@@ -628,16 +638,6 @@ public class PlayerHandler implements Listener {
                         new Random().nextBoolean() ? pushSpeed : -pushSpeed
                 ));
             }
-
-            // AFK detection
-            gp.markLastMoved();
-        }
-
-        // Handle no jumping
-        final PotionEffect effect = player.getPotionEffect(PotionEffectType.JUMP);
-
-        if (effect != null && effect.getAmplifier() == 250) {
-            ev.setCancelled(true);
         }
     }
 
