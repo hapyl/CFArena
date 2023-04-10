@@ -7,7 +7,6 @@ import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -194,7 +193,7 @@ public class Spark extends Hero implements PlayerElement {
     public DamageOutput processDamageAsVictim(DamageInput input) {
         final Player player = input.getPlayer();
 
-        if (!validatePlayer(player, Heroes.SPARK)) {
+        if (!validatePlayer(player)) {
             return null;
         }
 

@@ -3,7 +3,8 @@ package me.hapyl.fight.game.talents.storage.shadowassassin;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.heroes.HeroHandle;
+import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.storage.ShadowAssassin;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Utils;
@@ -112,7 +113,7 @@ public class ShroudedStep extends Talent {
                 // Travel
                 final Vector vector = entityLocation.getDirection();
                 entity.setVelocity(new Vector(vector.getX(), -1, vector.getZ()).normalize().multiply(0.15f));
-                HeroHandle.SHADOW_ASSASSIN.displayFootprints(entityLocation);
+                Heroes.SHADOW_ASSASSIN.getHero(ShadowAssassin.class).displayFootprints(entityLocation);
 
                 --distance;
             }

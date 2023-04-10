@@ -1,5 +1,6 @@
 package me.hapyl.fight.util;
 
+import com.google.common.collect.Lists;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.effect.GameEffectType;
@@ -13,6 +14,7 @@ import me.hapyl.spigotutils.module.reflect.Reflect;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -406,10 +408,18 @@ public class Utils {
                 entity.remove();
             }
             if (entry instanceof Block block) {
-                block.getState().update(false, false);
+                block.getState().update(true, false);
             }
         }
         collection.clear();
+    }
+
+    public static List<CommandSender> getOnlineOperatorsAndConsole() {
+        final List<CommandSender> list = Lists.newArrayList(Bukkit.getConsoleSender());
+
+        Bukkit.getOnlinePlayers().stream().filter(Player::isOp).forEach(list::add);
+
+        return list;
     }
 
     public static Player getNearestPlayer(Location location, double radius, Player exclude) {

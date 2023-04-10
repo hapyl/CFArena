@@ -63,8 +63,18 @@ public class RiptideStatus implements Ticking {
         }
     }
 
+    private boolean isValidForRiptideSlash(LivingEntity entity) {
+        boolean dead = entity.isDead();
+
+        if (entity instanceof Player player) {
+            dead = GamePlayer.getPlayer(player).isDead();
+        }
+
+        return !dead && isAffected(entity) && !onCooldown(entity);
+    }
+
     public void executeRiptideSlash(LivingEntity entity) {
-        if (entity.isDead() || !isAffected(entity) || onCooldown(entity)) {
+        if (!isValidForRiptideSlash(entity)) {
             return;
         }
 
@@ -96,5 +106,9 @@ public class RiptideStatus implements Ticking {
     public boolean isAffected(LivingEntity entity) {
         final RiptideData data = riptideData.get(entity);
         return data != null && !data.isExpired();
+    }
+
+    public void stop(LivingEntity killer) {
+        final RiptideData data = riptideData.remove(killer);
     }
 }

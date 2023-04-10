@@ -6,10 +6,8 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.TalentHandle;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.storage.tamer.MineOBall;
@@ -140,7 +138,7 @@ public class Tamer extends Hero implements Listener {
     }
 
     public TamerPack getPlayerPack(Player player) {
-        return TalentHandle.MINE_O_BALL.getPack(player);
+        return getFirstTalent().getPack(player);
     }
 
     @Override
@@ -148,7 +146,7 @@ public class Tamer extends Hero implements Listener {
         final Player player = input.getPlayer();
         final LivingEntity entity = input.getEntity();
 
-        if (TalentHandle.MINE_O_BALL.isPackEntity(player, entity)) {
+        if (getFirstTalent().isPackEntity(player, entity)) {
             Chat.sendMessage(player, "&cYou cannot damage your own minion!");
             return DamageOutput.CANCEL;
         }
@@ -184,7 +182,7 @@ public class Tamer extends Hero implements Listener {
             return;
         }
 
-        if (!validatePlayer(player, Heroes.TAMER) || player.hasCooldown(Material.FISHING_ROD)) {
+        if (!validatePlayer(player) || player.hasCooldown(Material.FISHING_ROD)) {
             return;
         }
 

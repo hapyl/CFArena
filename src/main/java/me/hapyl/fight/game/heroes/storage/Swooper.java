@@ -4,7 +4,6 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -163,7 +162,7 @@ public class Swooper extends Hero implements Listener {
     @EventHandler()
     public void handleSniperScope(PlayerToggleSneakEvent ev) {
         final Player player = ev.getPlayer();
-        if (validatePlayer(player, Heroes.SWOOPER) && player.getInventory().getHeldItemSlot() == 0) {
+        if (validatePlayer(player) && player.getInventory().getHeldItemSlot() == 0) {
             if (ev.isSneaking()) {
                 PlayerLib.addEffect(player, PotionEffectType.SLOW, 10000, 4);
             }

@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.PlayerElement;
@@ -24,6 +25,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.inventory.ItemStack;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
@@ -456,11 +458,22 @@ public abstract class Hero implements GameElement, PlayerElement {
     }
 
     /**
-     * Executes upon players death.
+     * Executes upon player death.
+     * <b>This only trigger if player has this hero selected.</b>
      *
      * @param player - Player.
      */
     public void onDeath(Player player) {
+    }
+
+    /**
+     * Executes upon ANY player death.
+     *
+     * @param player - Player.
+     * @param killer - Killer.
+     * @param cause  - Cause.
+     */
+    public void onDeathGlobal(@Nonnull Player player, @Nullable LivingEntity killer, @Nullable EnumDamageCause cause) {
     }
 
     /**
@@ -572,13 +585,12 @@ public abstract class Hero implements GameElement, PlayerElement {
      * Returns true if there is a game in progress and player is in game, and player's selected hero is the same as the one provided.
      *
      * @param player - Player.
-     * @param heroes - Heroes.
      * @return true if there is a game in progress and player is in game, and player's selected hero is the same as the one provided.
      */
     @Utility
-    public final boolean validatePlayer(Player player, Heroes heroes) {
+    public final boolean validatePlayer(Player player) {
         final Manager current = Manager.current();
-        return validatePlayer(player) && current.getSelectedHero(player) == heroes;
+        return validPlayerInGame(player) && current.getSelectedHero(player).getHero() == this;
     }
 
     /**
@@ -587,7 +599,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      * @param player - Player.
      * @return true if there is a game in progress and player is in game.
      */
-    public final boolean validatePlayer(Player player) {
+    private boolean validPlayerInGame(Player player) {
         final Manager current = Manager.current();
         return current.isGameInProgress() && current.isPlayerInGame(player);
     }

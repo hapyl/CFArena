@@ -3,6 +3,7 @@ package me.hapyl.fight.game.heroes.storage;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.game.Debugger;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.heroes.ClassEquipment;
@@ -10,11 +11,11 @@ import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.heroes.storage.extra.RiptideStatus;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.TalentHandle;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.storage.extra.StanceData;
 import me.hapyl.fight.game.talents.storage.harbinger.MeleeStance;
+import me.hapyl.fight.game.talents.storage.harbinger.TidalWaveTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -75,7 +76,7 @@ public class Harbinger extends Hero implements Listener, UIComponent {
         final Player player = input.getPlayer();
         final LivingEntity entity = input.getEntity();
 
-        if (entity == null || !TalentHandle.MELEE_STANCE.isActive(player)) {
+        if (entity == null || !Talents.STANCE.getTalent(MeleeStance.class).isActive(player)) {
             return null;
         }
 
@@ -125,6 +126,16 @@ public class Harbinger extends Hero implements Listener, UIComponent {
     }
 
     @Override
+    public void onDeathGlobal(@Nonnull Player player, @Nullable LivingEntity killer, @Nullable EnumDamageCause cause) {
+        for (RiptideStatus value : riptideStatus.values()) {
+            if (value.isAffected(player)) {
+                value.stop(player);
+                Debugger.log("removed riptide from %s", player.getName());
+            }
+        }
+    }
+
+    @Override
     public void onStart(Player player) {
         player.getInventory().setItem(9, new ItemStack(Material.ARROW));
     }
@@ -146,7 +157,7 @@ public class Harbinger extends Hero implements Listener, UIComponent {
         PlayerLib.playSound(playerLocation, Sound.BLOCK_CONDUIT_AMBIENT, 2.0f);
 
         // Stance Check
-        final boolean isMeleeStance = TalentHandle.MELEE_STANCE.isActive(player);
+        final boolean isMeleeStance = getFirstTalent().isActive(player);
 
         if (isMeleeStance) {
             // Melee Stance
@@ -232,8 +243,8 @@ public class Harbinger extends Hero implements Listener, UIComponent {
     }
 
     @Override
-    public Talent getSecondTalent() {
-        return Talents.TIDAL_WAVE.getTalent();
+    public TidalWaveTalent getSecondTalent() {
+        return (TidalWaveTalent) Talents.TIDAL_WAVE.getTalent();
     }
 
     @Override

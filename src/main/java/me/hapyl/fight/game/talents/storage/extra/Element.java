@@ -4,7 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.heroes.HeroHandle;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.storage.extra.GravityGun;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Utils;
@@ -102,7 +102,7 @@ public class Element {
                     AnimationType.SLAB :
                     name.contains("STAIRS") ? AnimationType.STAIRS : AnimationType.FULL_BLOCK;
 
-            player.setCooldown(HeroHandle.DR_ED.getWeapon().getMaterial(), this.type.getCd());
+            player.setCooldown(Heroes.DR_ED.getHero().getWeapon().getMaterial(), this.type.getCd());
 
             new GameTask() {
                 private int distance = 0;
@@ -171,9 +171,9 @@ public class Element {
                 if (player.getInventory().getHeldItemSlot() != 0) {
                     entityPoof();
                     PlayerLib.playSound(Sound.ITEM_SHIELD_BREAK, 0.75f);
-                    ((GravityGun) HeroHandle.DR_ED.getWeapon()).setElement(player, null);
+                    ((GravityGun) Heroes.DR_ED.getHero().getWeapon()).setElement(player, null);
                     Chat.sendMessage(player, "&aYour current equipped element has shattered!");
-                    this.cancel();
+                    cancel();
                     return;
                 }
 

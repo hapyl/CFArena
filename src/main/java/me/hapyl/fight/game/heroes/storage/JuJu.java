@@ -8,7 +8,6 @@ import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -101,7 +100,7 @@ public class JuJu extends Hero implements Listener {
         final Player player = ev.getPlayer();
         final Action action = ev.getAction();
 
-        if (!validatePlayer(player, Heroes.JUJU)
+        if (!validatePlayer(player)
                 || !isUsingUltimate(player)
                 || ev.getHand() == EquipmentSlot.OFF_HAND
                 || (action == Action.LEFT_CLICK_BLOCK || action == Action.LEFT_CLICK_AIR)) {
@@ -222,7 +221,7 @@ public class JuJu extends Hero implements Listener {
     @EventHandler()
     public void handleProjectileLaunch(ProjectileLaunchEvent ev) {
         if (ev.getEntity() instanceof Arrow arrow && arrow.getShooter() instanceof Player player) {
-            if (!validatePlayer(player, Heroes.JUJU)) {
+            if (!validatePlayer(player)) {
                 return;
             }
 

@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.storage.darkmage;
 
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.heroes.HeroHandle;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.storage.extra.DarkMageSpell;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Utils;
@@ -51,7 +51,7 @@ public class SlowingAura extends DarkMageTalent {
 
     @Override
     public Response execute(Player player) {
-        if (HeroHandle.DARK_MAGE.isUsingUltimate(player)) {
+        if (Heroes.DARK_MAGE.getHero().isUsingUltimate(player)) {
             return Response.error("Unable to use while in ultimate form!");
         }
 

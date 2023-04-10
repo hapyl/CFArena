@@ -3,6 +3,7 @@ package me.hapyl.fight.game.talents.storage.taker;
 import com.google.common.collect.Lists;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.storage.Taker;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Utils;
@@ -171,7 +172,7 @@ public class TakerHook {
     }
 
     private DeathSwap talent() {
-        return Heroes.Handle.TAKER.getSecondTalent();
+        return Heroes.TAKER.getHero(Taker.class).getSecondTalent();
     }
 
     private void createChain(Location location) {

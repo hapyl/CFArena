@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.heroes.storage.extra;
 
-import me.hapyl.fight.game.heroes.HeroHandle;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.storage.darkmage.DarkMageTalent;
@@ -102,7 +101,7 @@ public class DarkMageSpell {
 
     public void markUsed() {
         this.lastUsed = System.currentTimeMillis();
-        player.setCooldown(HeroHandle.DARK_MAGE.getWeapon().getType(), 1);
+        player.setCooldown(Heroes.DARK_MAGE.getHero().getWeapon().getType(), 1);
     }
 
     public enum SpellButton {

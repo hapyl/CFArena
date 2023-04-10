@@ -491,9 +491,15 @@ public class GamePlayer implements IGamePlayer {
     }
 
     public void triggerOnDeath() {
-        Manager.current().getCurrentGame().getCurrentMap().getMap().onDeath(player);
+        final IGameInstance currentGame = Manager.current().getCurrentGame();
+
+        currentGame.getMap().getMap().onDeath(player);
         getHero().onDeath(player);
         executeTalentsOnDeath();
+
+        currentGame.getActiveHeroes().forEach(heroes -> {
+            heroes.getHero().onDeathGlobal(player, lastDamager, lastDamageCause);
+        });
     }
 
     public EnumDamageCause.DeathMessage getRandomDeathMessage() {
@@ -638,7 +644,7 @@ public class GamePlayer implements IGamePlayer {
 
         // Respawn location
         final IGameInstance gameInstance = Manager.current().getCurrentGame();
-        final Location location = gameInstance.getCurrentMap().getMap().getLocation();
+        final Location location = gameInstance.getMap().getMap().getLocation();
 
         BukkitUtils.mergePitchYaw(player.getLocation(), location);
         sendTitle("&aRespawned!", "", 0, 20, 5);

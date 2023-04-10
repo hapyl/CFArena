@@ -10,9 +10,10 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.heroes.storage.extra.Lockdown;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.TalentHandle;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.storage.techie.TrapCage;
+import me.hapyl.fight.game.talents.storage.techie.TrapWire;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComplexComponent;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -40,9 +41,9 @@ public class Techie extends Hero implements UIComplexComponent, Listener {
 
     private final Set<Lockdown> lockdownSet = new HashSet<>();
 
-    public final int lockdownWindupTime = 200;
-    public final int lockdownRadius = 20;
-    public final int lockdownAffectTime = 170;
+    public final int LOCKDOWN_WINDUP_TIME = 200;
+    public final int LOCKDOWN_RADIUS = 20;
+    public final int LOCKDOWN_AFFECT_TIME = 170;
 
     private final int neuralTheftPeriod = 200;
 
@@ -70,9 +71,9 @@ public class Techie extends Hero implements UIComplexComponent, Listener {
                 String.format(
                         "Place a device that charges over &b%ss&7. When charged, explodes and affects all opponents in &b%s &7blocks radius by &6&lLockdown &7for &b%ss&7.____%s____&cThis ability can be destroyed!",
                         GameEffectType.LOCK_DOWN.getGameEffect().getDescription(),
-                        BukkitUtils.roundTick(lockdownWindupTime),
-                        lockdownRadius,
-                        BukkitUtils.roundTick(lockdownAffectTime)
+                        BukkitUtils.roundTick(LOCKDOWN_WINDUP_TIME),
+                        LOCKDOWN_RADIUS,
+                        BukkitUtils.roundTick(LOCKDOWN_AFFECT_TIME)
                 ), 60
         ).setItem(Material.DAYLIGHT_DETECTOR).setSound(Sound.BLOCK_BELL_USE, 0.0f));
 
@@ -194,13 +195,13 @@ public class Techie extends Hero implements UIComplexComponent, Listener {
     }
 
     @Override
-    public Talent getFirstTalent() {
-        return Talents.TRAP_CAGE.getTalent();
+    public TrapCage getFirstTalent() {
+        return (TrapCage) Talents.TRAP_CAGE.getTalent();
     }
 
     @Override
-    public Talent getSecondTalent() {
-        return Talents.TRAP_WIRE.getTalent();
+    public TrapWire getSecondTalent() {
+        return (TrapWire) Talents.TRAP_WIRE.getTalent();
     }
 
     @Override
@@ -210,7 +211,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener {
 
     @Override
     public List<String> getStrings(Player player) {
-        return List.of("&f⁂ &l" + TalentHandle.TRAP_CAGE.getCages(player).size(), "&f⁑ &l" + TalentHandle.TRAP_WIRE.getTraps(player).size());
+        return List.of("&f⁂ &l" + getFirstTalent().getCages(player).size(), "&f⁑ &l" + getSecondTalent().getTraps(player).size());
     }
 
 }

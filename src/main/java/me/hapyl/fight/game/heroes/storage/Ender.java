@@ -6,9 +6,9 @@ import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.TalentHandle;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.storage.ender.TransmissionBeacon;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Utils;
@@ -217,7 +217,9 @@ public class Ender extends Hero implements Listener {
 
             stand.remove();
             beaconLocation.remove(owner);
-            Talents.TRANSMISSION_BEACON.getTalent().startCd(owner, TalentHandle.TRANSMISSION_BEACON.getDestroyCd());
+
+            final TransmissionBeacon talent = Talents.TRANSMISSION_BEACON.getTalent(TransmissionBeacon.class);
+            talent.startCd(owner, talent.getDestroyCd());
 
             // Fx
             PlayerLib.playSound(stand.getLocation(), Sound.BLOCK_GLASS_BREAK, 0.0f);

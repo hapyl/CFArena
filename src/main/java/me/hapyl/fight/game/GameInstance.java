@@ -2,6 +2,7 @@ package me.hapyl.fight.game;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import me.hapyl.fight.Shortcuts;
 import me.hapyl.fight.database.Award;
 import me.hapyl.fight.exception.ClassesFightException;
@@ -45,6 +46,7 @@ public class GameInstance implements IGameInstance, GameElement {
     private final GameResult gameResult;
     private long timeLimit;
     private State gameState;
+    private Set<Heroes> activeHeroes;
 
     public GameInstance(Modes mode, GameMaps map) {
         this.startedAt = System.currentTimeMillis();
@@ -72,6 +74,7 @@ public class GameInstance implements IGameInstance, GameElement {
         return true;
     }
 
+    @Nonnull
     @Override
     public State getGameState() {
         return gameState;
@@ -155,6 +158,7 @@ public class GameInstance implements IGameInstance, GameElement {
         return players.get(uuid);
     }
 
+    @Nonnull
     @Override
     public Map<UUID, GamePlayer> getPlayers() {
         return players;
@@ -178,6 +182,7 @@ public class GameInstance implements IGameInstance, GameElement {
         return getAlivePlayers(gp -> gp.getPlayer().isOnline());
     }
 
+    @Nonnull
     @Override
     public List<GamePlayer> getAlivePlayers(Predicate<GamePlayer> predicate) {
         final List<GamePlayer> players = new ArrayList<>();
@@ -189,6 +194,7 @@ public class GameInstance implements IGameInstance, GameElement {
         return players;
     }
 
+    @Nonnull
     @Override
     public List<Player> getAlivePlayersAsPlayers() {
         final List<Player> list = Lists.newArrayList();
@@ -196,6 +202,7 @@ public class GameInstance implements IGameInstance, GameElement {
         return list;
     }
 
+    @Nonnull
     @Override
     public List<Player> getAlivePlayersAsPlayers(Predicate<GamePlayer> predicate) {
         final List<GamePlayer> players = getAlivePlayers(predicate);
@@ -204,6 +211,20 @@ public class GameInstance implements IGameInstance, GameElement {
             list.add(player.getPlayer());
         }
         return list;
+    }
+
+    @Nonnull
+    @Override
+    public Set<Heroes> getActiveHeroes() {
+        if (activeHeroes == null) {
+            activeHeroes = Sets.newHashSet();
+
+            for (GamePlayer value : getPlayers().values()) {
+                activeHeroes.add(value.getEnumHero());
+            }
+        }
+
+        return activeHeroes;
     }
 
     @Nonnull
@@ -270,7 +291,7 @@ public class GameInstance implements IGameInstance, GameElement {
 
     @Nonnull
     @Override
-    public GameMaps getCurrentMap() {
+    public GameMaps getMap() {
         return currentMap;
     }
 
@@ -309,6 +330,12 @@ public class GameInstance implements IGameInstance, GameElement {
         }
 
         return currentMap.getMap().getLocation();
+    }
+
+    public void populateScoreboard(Player player) {
+        players.values().forEach(gamePlayer -> {
+            gamePlayer.getProfile().getScoreboardTeams().populateInGame(player);
+        });
     }
 
     private void createGamePlayers() {

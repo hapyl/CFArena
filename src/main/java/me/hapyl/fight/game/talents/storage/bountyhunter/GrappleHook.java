@@ -62,7 +62,7 @@ public class GrappleHook {
 
     private boolean isHookToAnchorObstructed() {
         final Location hookLocation = hook.getLocation();
-        final Location anchorLocation = anchor.getLocation();
+        final Location anchorLocation = anchor.getLocation().add(0.0d, player.getEyeHeight(), 0.0d); // ray-cast from player's eyes
         double distance = anchorLocation.distance(hookLocation);
 
         final double step = 0.5d;
@@ -259,7 +259,7 @@ public class GrappleHook {
             self.setSize(1);
             self.setGravity(false);
             self.setInvulnerable(true);
-            //self.setInvisible(true);
+            self.setInvisible(true);
             self.setSilent(true);
             self.setAI(false);
 

@@ -225,7 +225,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent {
 
         if (ev.getHand() == EquipmentSlot.OFF_HAND ||
                 !(ev.getAction() == Action.RIGHT_CLICK_BLOCK || ev.getAction() == Action.RIGHT_CLICK_AIR) ||
-                !validatePlayer(player, Heroes.VAMPIRE) || inventory.getHeldItemSlot() != 7) {
+                !validatePlayer(player) || inventory.getHeldItemSlot() != 7) {
             return;
         }
 

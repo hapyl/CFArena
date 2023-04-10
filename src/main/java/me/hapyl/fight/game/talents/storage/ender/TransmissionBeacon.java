@@ -1,7 +1,8 @@
 package me.hapyl.fight.game.talents.storage.ender;
 
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.heroes.HeroHandle;
+import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.storage.Ender;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -30,7 +31,7 @@ public class TransmissionBeacon extends Talent {
 
     @Override
     public Response execute(Player player) {
-        if (HeroHandle.ENDER.hasBeacon(player)) {
+        if (Heroes.ENDER.getHero(Ender.class).hasBeacon(player)) {
             return Response.error("Beacon is already present!");
         }
 
@@ -41,7 +42,7 @@ public class TransmissionBeacon extends Talent {
         }
 
         final Location location = block.getRelative(BlockFace.UP).getLocation();
-        HeroHandle.ENDER.setBeaconLocation(player, location);
+        Heroes.ENDER.getHero(Ender.class).setBeaconLocation(player, location);
 
         return Response.OK;
     }

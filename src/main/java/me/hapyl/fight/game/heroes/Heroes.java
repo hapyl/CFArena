@@ -67,12 +67,6 @@ public enum Heroes {
 
     ;
 
-    public static class Handle {
-        public static final Vampire VAMPIRE = (Vampire) Heroes.VAMPIRE.getHero();
-        public static final Taker TAKER = (Taker) Heroes.TAKER.getHero();
-        public static final JuJu JUJU = (JuJu) Heroes.JUJU.getHero();
-    }
-
     private final static List<Heroes> PLAYABLE = Lists.newArrayList();
     private final static Map<Role, List<Heroes>> BY_ROLE = Maps.newHashMap();
 
@@ -108,6 +102,14 @@ public enum Heroes {
         return !(hero instanceof DisabledHero);
     }
 
+    /**
+     * Returns a handle of a hero.
+     *
+     * Note that this method only returns a base handle,
+     * for specific hero handles, use {@link #getHero(Class)}.
+     *
+     * @return handle of a hero.
+     */
     public Hero getHero() {
         if (hero == null) {
             throw new NullPointerException("%s doesn't have a handle!".formatted(name()));
@@ -116,13 +118,25 @@ public enum Heroes {
         return hero;
     }
 
+    /**
+     * Returns a handle of a hero.
+     *
+     * This method tries to cast the handle to the specified class.
+     *
+     * @param cast - Cast to.
+     * @return handle of a hero.
+     * @throws IllegalArgumentException if the cast is invalid.
+     */
     @Nonnull
     public <E extends Hero> E getHero(Class<E> cast) throws IllegalArgumentException {
-        try {
+        if (cast.isInstance(hero)) {
             return cast.cast(hero);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("hero is not of type " + cast.getSimpleName());
         }
+
+        throw new IllegalArgumentException("Invalid cast! Expected %s, got %s.".formatted(
+                cast.getSimpleName(),
+                hero.getClass().getSimpleName()
+        ));
     }
 
     /**
@@ -218,8 +232,6 @@ public enum Heroes {
         return hero.getNameSmallCaps();
     }
 
-    // static members
-
     /**
      * Returns all playable heroes.
      *
@@ -232,6 +244,8 @@ public enum Heroes {
     public static List<Heroes> playable() {
         return Lists.newArrayList(PLAYABLE);
     }
+
+    // static members
 
     /**
      * Returns all playable heroes sorted by favourites.
@@ -275,4 +289,5 @@ public enum Heroes {
     public static Heroes randomHero() {
         return CollectionUtils.randomElement(playable());
     }
+
 }

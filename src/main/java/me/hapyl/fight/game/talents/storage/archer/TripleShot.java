@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.storage.archer;
 
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.heroes.HeroHandle;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
@@ -50,7 +50,7 @@ public class TripleShot extends Talent {
         arrowLeft.setCritical(false);
         arrowRight.setCritical(false);
 
-        final double damage = HeroHandle.ARCHER.getWeapon().getDamage();
+        final double damage = Heroes.ARCHER.getHero().getWeapon().getDamage();
         arrowMiddle.setDamage(damage);
         arrowLeft.setDamage(damage / 2);
         arrowRight.setDamage(damage / 2);

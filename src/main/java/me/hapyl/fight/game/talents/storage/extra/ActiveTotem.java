@@ -1,8 +1,9 @@
 package me.hapyl.fight.game.talents.storage.extra;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.game.talents.TalentHandle;
+import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.storage.shaman.ResonanceType;
+import me.hapyl.fight.game.talents.storage.shaman.Totem;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Geometry;
@@ -81,7 +82,7 @@ public class ActiveTotem {
     }
 
     public void setGlowingColor(ChatColor color) {
-        TalentHandle.TOTEM.defaultAllTotems(owner);
+        Talents.TOTEM.getTalent(Totem.class).defaultAllTotems(owner);
         shulkerTeam.setColor(color);
     }
 

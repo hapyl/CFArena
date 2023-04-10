@@ -6,9 +6,9 @@ import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.TalentHandle;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.storage.vortex.VortexStar;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -206,8 +206,8 @@ public class Vortex extends Hero implements UIComponent {
 
 
     @Override
-    public Talent getFirstTalent() {
-        return Talents.VORTEX_STAR.getTalent();
+    public VortexStar getFirstTalent() {
+        return (VortexStar) Talents.VORTEX_STAR.getTalent();
     }
 
     @Override
@@ -222,6 +222,6 @@ public class Vortex extends Hero implements UIComponent {
 
     @Override
     public @Nonnull String getString(Player player) {
-        return "&6⭐ &l" + TalentHandle.VORTEX_STAR.getStarsAmount(player);
+        return "&6⭐ &l" + getFirstTalent().getStarsAmount(player);
     }
 }

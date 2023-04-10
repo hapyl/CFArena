@@ -2,7 +2,8 @@ package me.hapyl.fight.game.talents.storage.extra;
 
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.effect.GameEffectType;
-import me.hapyl.fight.game.talents.TalentHandle;
+import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.storage.techie.TrapCage;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -61,8 +62,10 @@ public class CyberCage {
             Chat.sendTitle(player, "&aCage Triggered!", "&7You caught %s".formatted(victim.getName()), 10, 20, 10);
         }
 
-        GamePlayer.damageEntity(victim, TalentHandle.TRAP_CAGE.cageDamage, player);
-        GamePlayer.getPlayer(victim).addEffect(GameEffectType.VULNERABLE, TalentHandle.TRAP_CAGE.vulnerabilityDuration);
+        final TrapCage talent = Talents.TRAP_CAGE.getTalent(TrapCage.class);
+
+        GamePlayer.damageEntity(victim, talent.cageDamage, player);
+        GamePlayer.getPlayer(victim).addEffect(GameEffectType.VULNERABLE, talent.vulnerabilityDuration);
         victim.setVelocity(marker.getLocation().toVector().subtract(victim.getLocation().toVector()).normalize());
 
         // Glowing
@@ -91,7 +94,7 @@ public class CyberCage {
         GameTask.runLater(() -> {
             windupEntity.remove();
             createEntity(fixedLocation.subtract(0.0d, 0.35d, 0.0d));
-        }, TalentHandle.TRAP_CAGE.windupTime);
+        }, Talents.TRAP_CAGE.getTalent(TrapCage.class).windupTime);
 
         // Fx
         PlayerLib.playSound(player, Sound.BLOCK_IRON_TRAPDOOR_CLOSE, 0.75f);

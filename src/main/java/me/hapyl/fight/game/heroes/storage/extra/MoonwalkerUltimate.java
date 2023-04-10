@@ -3,7 +3,8 @@ package me.hapyl.fight.game.heroes.storage.extra;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.effect.GameEffectType;
-import me.hapyl.fight.game.heroes.HeroHandle;
+import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.storage.Moonwalker;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Utils;
@@ -42,7 +43,7 @@ public class MoonwalkerUltimate extends UltimateTalent {
 
     public void useUltimate(Player player) {
         final int distanceFromLanding = 15;
-        final Block targetBlock = HeroHandle.MOONWALKER.getTargetBlock(player);
+        final Block targetBlock = Heroes.MOONWALKER.getHero(Moonwalker.class).getTargetBlock(player);
         if (targetBlock == null) {
             return;
         }

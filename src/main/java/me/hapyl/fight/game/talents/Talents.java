@@ -17,7 +17,7 @@ import me.hapyl.fight.game.talents.storage.ender.TeleportPearl;
 import me.hapyl.fight.game.talents.storage.ender.TransmissionBeacon;
 import me.hapyl.fight.game.talents.storage.freazly.IceCone;
 import me.hapyl.fight.game.talents.storage.harbinger.MeleeStance;
-import me.hapyl.fight.game.talents.storage.harbinger.TidalWave;
+import me.hapyl.fight.game.talents.storage.harbinger.TidalWaveTalent;
 import me.hapyl.fight.game.talents.storage.healer.HealingOrb;
 import me.hapyl.fight.game.talents.storage.healer.ReviveTotem;
 import me.hapyl.fight.game.talents.storage.heavy_knight.Uppercut;
@@ -274,7 +274,7 @@ public enum Talents {
 
     // Harbinger
     STANCE(new MeleeStance()),
-    TIDAL_WAVE(new TidalWave()),
+    TIDAL_WAVE(new TidalWaveTalent()),
     RIPTIDE(new PassiveTalent(
             "Riptide",
             "Fully charged shots in &e&lRange Stance&7 applies &bRiptide &7effect to opponents.____Hitting opponents affected by &bRiptide&7 with &nfully charged shots&7 or in &e&lMelee &e&lStance &7executes &bRiptide Slash&7 that rapidly deals damage.____&bRiptide Slash&7 can be executed once every &b2.5s&7 per opponent.",
@@ -334,9 +334,6 @@ public enum Talents {
     // test (keep last)
     TestChargeTalent(new TestChargeTalent());
 
-    public static class Handle {
-    }
-
     private final Talent talent;
 
     Talents(Talent talent) {
@@ -349,16 +346,6 @@ public enum Talents {
         }
     }
 
-    public static Talents fromTalent(Talent talent) {
-        for (Talents value : values()) {
-            if (value.getTalent() == talent) {
-                return value;
-            }
-        }
-
-        throw new IllegalArgumentException("non-registered talent");
-    }
-
     public void startCd(Player player) {
         getTalent().startCd(player);
     }
@@ -367,11 +354,28 @@ public enum Talents {
         return getTalent().getName();
     }
 
+    /**
+     * Returns a handle of a talent.
+     *
+     * Note that this method only returns a base handle,
+     * for specific hero handles, use {@link #getTalent(Class)}.
+     *
+     * @return handle of a talent.
+     */
     @Nonnull
     public Talent getTalent() {
         return talent;
     }
 
+    /**
+     * Returns a handle of a talent.
+     *
+     * This method tries to cast the handle to the specified class.
+     *
+     * @param cast - Cast to.
+     * @return handle of a talent.
+     * @throws IllegalArgumentException if the cast is invalid.
+     */
     @Nonnull
     public <E extends Talent> E getTalent(Class<E> cast) throws IllegalArgumentException {
         try {
@@ -379,6 +383,16 @@ public enum Talents {
         } catch (Exception e) {
             throw new IllegalArgumentException("talent is not of type " + cast.getSimpleName());
         }
+    }
+
+    public static Talents fromTalent(Talent talent) {
+        for (Talents value : values()) {
+            if (value.getTalent() == talent) {
+                return value;
+            }
+        }
+
+        throw new IllegalArgumentException("non-registered talent");
     }
 
 }

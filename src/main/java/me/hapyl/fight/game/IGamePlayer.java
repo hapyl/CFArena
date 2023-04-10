@@ -65,14 +65,35 @@ public interface IGamePlayer {
      */
     void setDead(boolean dead);
 
+    /**
+     * Returns player's talent queue.
+     *
+     * @return player's talent queue.
+     * @see TalentQueue
+     */
     @Nonnull
     TalentQueue getTalentQueue();
 
+    /**
+     * Returns player's current input talent, if any; null otherwise.
+     *
+     * @return player's current input talent, if any; null otherwise.
+     */
     @Nullable
     InputTalent getInputTalent();
 
+    /**
+     * Sets player's current input talent; null to remove.
+     *
+     * @param inputTalent - Input talent to set.
+     */
     void setInputTalent(@Nullable InputTalent inputTalent);
 
+    /**
+     * Returns true if player's current input talent is not null.
+     *
+     * @return true if player's current input talent is not null.
+     */
     default boolean hasInputTalent() {
         return getInputTalent() != null;
     }

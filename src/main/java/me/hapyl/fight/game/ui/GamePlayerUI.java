@@ -69,7 +69,6 @@ public class GamePlayerUI {
     }
 
     private void animateScoreboard() {
-
     }
 
     public void sendInGameUI() {

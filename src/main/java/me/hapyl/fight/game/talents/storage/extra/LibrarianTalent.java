@@ -1,7 +1,8 @@
 package me.hapyl.fight.game.talents.storage.extra;
 
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.heroes.HeroHandle;
+import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.storage.Librarian;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Numbers;
@@ -22,14 +23,14 @@ public abstract class LibrarianTalent extends Talent {
 
     @Override
     public final Response execute(Player player) {
-        if (HeroHandle.LIBRARIAN.hasICD(player)) {
+        if (Heroes.LIBRARIAN.getHero(Librarian.class).hasICD(player)) {
             return ERROR; // should never happen
         }
 
         final Response response = executeGrimoire(player);
 
         if (response.isOk()) {
-            HeroHandle.LIBRARIAN.removeSpellItems(player, this);
+            Heroes.LIBRARIAN.getHero(Librarian.class).removeSpellItems(player, this);
             Chat.sendMessage(player, "&aUsed %s!", this.getName());
         }
 
@@ -67,6 +68,6 @@ public abstract class LibrarianTalent extends Talent {
     }
 
     public double getCurrentValue(Player player) {
-        return getCurrentValue(HeroHandle.LIBRARIAN.getGrimoireLevel(player));
+        return getCurrentValue(Heroes.LIBRARIAN.getHero(Librarian.class).getGrimoireLevel(player));
     }
 }

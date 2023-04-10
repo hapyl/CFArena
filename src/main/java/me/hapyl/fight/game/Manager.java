@@ -288,7 +288,7 @@ public class Manager {
             Nulls.runIfNotNull(value.getTalent(), Talent::onStart);
         }
 
-        gameInstance.getCurrentMap().getMap().onStart();
+        gameInstance.getMap().getMap().onStart();
 
         for (final GamePlayer gamePlayer : gameInstance.getPlayers().values()) {
             final Player player = gamePlayer.getPlayer();
@@ -329,7 +329,7 @@ public class Manager {
                 Nulls.runIfNotNull(value.getTalent(), Talent::onPlayersReveal);
             }
 
-            gameInstance.getCurrentMap().getMap().onPlayersReveal();
+            gameInstance.getMap().getMap().onPlayersReveal();
 
             if (debug) {
                 Chat.broadcast("&4Running in debug mode!");

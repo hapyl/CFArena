@@ -151,7 +151,6 @@ public class NullGamePlayer implements IGamePlayer {
 
     @Override
     public void addUltimatePoints(int i) {
-
     }
 
     @Nonnull

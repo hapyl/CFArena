@@ -5,6 +5,7 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.storage.Taker;
 import me.hapyl.fight.game.heroes.storage.extra.SpiritualBones;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.Utils;
@@ -52,7 +53,7 @@ public class DeathSwap extends Talent {
 
     @Override
     public Response execute(Player player) {
-        final SpiritualBones bones = Heroes.Handle.TAKER.getBones(player);
+        final SpiritualBones bones = Heroes.TAKER.getHero(Taker.class).getBones(player);
 
         if (!player.isOnGround()) {
             return Response.error("You must be grounded to use this!");
@@ -86,7 +87,7 @@ public class DeathSwap extends Talent {
 
     //@Override
     public Response executeSwap(Player player) {
-        final SpiritualBones bones = Heroes.Handle.TAKER.getBones(player);
+        final SpiritualBones bones = Heroes.TAKER.getHero(Taker.class).getBones(player);
 
         if (bones.getBones() < spiritualBoneCost) {
             return Response.error("Not enough &lSpiritual Bones&c!");

@@ -107,6 +107,9 @@ public class UltimateTalent extends Talent implements DisplayFieldDataProvider {
         return this;
     }
 
+    /**
+     * @deprecated Hero is the one who executes the ultimate.
+     */
     @Deprecated
     public void useUltimate(Player player) {
     }

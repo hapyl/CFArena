@@ -1,6 +1,5 @@
 package me.hapyl.fight.event;
 
-import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.Shortcuts;
 import me.hapyl.fight.annotate.Entry;
@@ -39,15 +38,12 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Random;
 
 public class PlayerHandler implements Listener {
-
-    private final Map<Player, InputTalent> playerInputTalen;
-
-    public PlayerHandler() {
-        playerInputTalen = Maps.newHashMap();
-    }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handlePlayerJoin(PlayerJoinEvent ev) {
@@ -56,8 +52,10 @@ public class PlayerHandler implements Listener {
         final Manager manager = Manager.current();
 
         if (manager.isGameInProgress()) {
-            final IGameInstance currentGame = manager.getCurrentGame();
-            currentGame.getMode().onJoin((GameInstance) currentGame, player);
+            final GameInstance gameInstance = (GameInstance) manager.getCurrentGame();
+
+            gameInstance.getMode().onJoin(gameInstance, player);
+            gameInstance.populateScoreboard(player);
         }
         else {
             plugin.handlePlayer(player);
@@ -213,8 +211,9 @@ public class PlayerHandler implements Listener {
     /**
      * This event calculates all the custom damage.
      */
-    // FIXME: 014, Mar 14, 2023 -> Clean up this mess
-    @Entry(name = "Damage calculation.")
+    @Entry(
+            name = "Damage calculation."
+    )
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handleDamage(EntityDamageEvent ev) {
         final Entity entity = ev.getEntity();
@@ -466,7 +465,8 @@ public class PlayerHandler implements Listener {
         }
 
         // Create damage indicator if dealt 1 or more damage
-        if (damage >= 1.0d) {
+        // TODO (hapyl): 010, Apr 10, 2023: Create separate indicators.
+        if (damage >= 1.0d && !(entity instanceof ArmorStand)) {
             final DamageIndicator damageIndicator = new DamageIndicator(entity.getLocation(), damage);
             damageIndicator.display(20);
         }
@@ -570,16 +570,6 @@ public class PlayerHandler implements Listener {
         }
     }
 
-    private void cancelInputTalent(Player player) {
-        final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
-        final InputTalent inputTalent = gamePlayer.getInputTalent();
-
-        if (inputTalent != null) {
-            inputTalent.onCancel(player);
-            gamePlayer.setInputTalent(null);
-        }
-    }
-
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handleInteraction(PlayerInteractEvent ev) {
         final Player player = ev.getPlayer();
@@ -678,6 +668,16 @@ public class PlayerHandler implements Listener {
 
         if (damager instanceof Player player) {
             handleInputTalent(player, true);
+        }
+    }
+
+    private void cancelInputTalent(Player player) {
+        final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
+        final InputTalent inputTalent = gamePlayer.getInputTalent();
+
+        if (inputTalent != null) {
+            inputTalent.onCancel(player);
+            gamePlayer.setInputTalent(null);
         }
     }
 

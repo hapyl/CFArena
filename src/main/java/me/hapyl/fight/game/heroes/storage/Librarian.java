@@ -257,7 +257,7 @@ public class Librarian extends Hero implements ComplexHero, Listener {
     @EventHandler()
     public void handlePlayerInteract(PlayerItemHeldEvent ev) {
         final Player player = ev.getPlayer();
-        if (!validatePlayer(player, Heroes.LIBRARIAN) || ev.getNewSlot() != 1) {
+        if (!validatePlayer(player) || ev.getNewSlot() != 1) {
             return;
         }
 

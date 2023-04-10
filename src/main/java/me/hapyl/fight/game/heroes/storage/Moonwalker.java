@@ -7,8 +7,8 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.heroes.storage.extra.MoonwalkerUltimate;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.TalentHandle;
 import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.storage.moonwalker.MoonSliteBomb;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -88,7 +88,7 @@ public class Moonwalker extends Hero implements PlayerElement, UIComponent {
 
     @Override
     public void useUltimate(Player player) {
-        ((MoonwalkerUltimate) getUltimate()).useUltimate(player);
+        getUltimate().useUltimate(player);
     }
 
     @Override
@@ -125,8 +125,8 @@ public class Moonwalker extends Hero implements PlayerElement, UIComponent {
     }
 
     @Override
-    public Talent getSecondTalent() {
-        return Talents.MOONSLITE_BOMB.getTalent();
+    public MoonSliteBomb getSecondTalent() {
+        return (MoonSliteBomb) Talents.MOONSLITE_BOMB.getTalent();
     }
 
     @Override
@@ -136,7 +136,7 @@ public class Moonwalker extends Hero implements PlayerElement, UIComponent {
 
     @Override
     public @Nonnull String getString(Player player) {
-        final int bombs = TalentHandle.MOON_SLITE_BOMB.getBombsSize(player);
+        final int bombs = getSecondTalent().getBombsSize(player);
         return "&e■ &l" + bombs;
     }
 }

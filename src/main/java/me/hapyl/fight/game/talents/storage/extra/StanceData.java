@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.storage.extra;
 
-import me.hapyl.fight.game.talents.TalentHandle;
+import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.storage.harbinger.MeleeStance;
 import me.hapyl.fight.game.task.GameTask;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -19,9 +20,9 @@ public class StanceData {
         this.task = new GameTask() {
             @Override
             public void run() {
-                TalentHandle.MELEE_STANCE.switchToRange(player);
+                Talents.STANCE.getTalent(MeleeStance.class).switchToRange(player);
             }
-        }.runTaskLater(TalentHandle.MELEE_STANCE.getMaxDuration());
+        }.runTaskLater(Talents.STANCE.getTalent(MeleeStance.class).getMaxDuration());
     }
 
     public long getDuration() {

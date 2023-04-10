@@ -18,6 +18,15 @@ public class ScoreboardTeams {
         this.player = player;
     }
 
+    public void populateInGame(Player other) {
+        if (GameTeam.isTeammate(other, player)) {
+            LocalTeam.GAME_ALLY.fetchTeam(player, false).addEntry(other.getName());
+        }
+        else {
+            LocalTeam.GAME_ENEMY.fetchTeam(player, false).addEntry(other.getName());
+        }
+    }
+
     public void populate(boolean lobby) {
         if (lobby) {
             final Team team = LocalTeam.LOBBY.fetchTeam(player);
@@ -30,10 +39,10 @@ public class ScoreboardTeams {
             final Team teamAlly = LocalTeam.GAME_ALLY.fetchTeam(player);
             final Team teamEnemy = LocalTeam.GAME_ENEMY.fetchTeam(player);
 
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                final String name = player.getName();
+            for (Player other : Bukkit.getOnlinePlayers()) {
+                final String name = other.getName();
 
-                if (GameTeam.isTeammate(player, this.player)) {
+                if (GameTeam.isTeammate(other, player)) {
                     teamAlly.addEntry(name);
                 }
                 else {
@@ -81,15 +90,23 @@ public class ScoreboardTeams {
 
         @Nonnull
         public Team fetchTeam(Player player) {
+            return fetchTeam(player, true);
+        }
+
+        @Nonnull
+        public Team fetchTeam(Player player, boolean clearEntries) {
             final Team team = getOrCreateTeam(player, name());
 
-            for (String entry : team.getEntries()) {
-                team.removeEntry(entry);
+            if (clearEntries) {
+                for (String entry : team.getEntries()) {
+                    team.removeEntry(entry);
+                }
             }
 
             action.use(team);
             return team;
         }
+
     }
 
 }

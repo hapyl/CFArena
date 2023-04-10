@@ -4,6 +4,7 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.storage.Taker;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.util.Utils;
@@ -58,7 +59,7 @@ public class FatalReap extends Talent {
             PlayerLib.spawnParticle(location, Particle.SWEEP_ATTACK, 1, 0.0f, 0.0f, 0.0f, 0.0f);
         }
 
-        Heroes.Handle.TAKER.getBones(player).add(spiritualBoneGeneration, true);
+        Heroes.TAKER.getHero(Taker.class).getBones(player).add(spiritualBoneGeneration, true);
 
         // Fx
         PlayerLib.playSound(player.getLocation(), Sound.ENTITY_CAT_HISS, 2.0f);

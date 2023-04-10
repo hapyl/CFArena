@@ -1,6 +1,5 @@
 package me.hapyl.fight.game;
 
-import com.google.common.collect.Lists;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -39,9 +38,8 @@ public interface IGameInstance {
      *
      * @return Current game state.
      */
-    default State getGameState() {
-        return State.PRE_GAME;
-    }
+    @Nonnull
+    State getGameState();
 
     /**
      * Changes current game state.
@@ -99,9 +97,8 @@ public interface IGameInstance {
      *
      * @return Map of players mapped to their UUID.
      */
-    default Map<UUID, GamePlayer> getPlayers() {
-        return new HashMap<>();
-    }
+    @Nonnull
+    Map<UUID, GamePlayer> getPlayers();
 
     /**
      * Returns all alive players with specifier hero selected.
@@ -110,9 +107,7 @@ public interface IGameInstance {
      * @return All alive players with specifier hero selected.
      */
     @Nonnull
-    default List<GamePlayer> getAlivePlayers(Heroes heroes) {
-        return new ArrayList<>();
-    }
+    List<GamePlayer> getAlivePlayers(Heroes heroes);
 
     /**
      * Returns all alive players.
@@ -120,18 +115,15 @@ public interface IGameInstance {
      * @return All alive players.
      */
     @Nonnull
-    default List<GamePlayer> getAlivePlayers() {
-        return new ArrayList<>();
-    }
+    List<GamePlayer> getAlivePlayers();
 
     /**
      * Returns all alive players as bukkit player.
      *
      * @return All alive players as bukkit player.
      */
-    default List<Player> getAlivePlayersAsPlayers() {
-        return Lists.newArrayList();
-    }
+    @Nonnull
+    List<Player> getAlivePlayersAsPlayers();
 
     /**
      * Returns all alive players who match the predicate.
@@ -139,9 +131,8 @@ public interface IGameInstance {
      * @param predicate - Predicate to match.
      * @return All alive players who match the predicate.
      */
-    default List<GamePlayer> getAlivePlayers(Predicate<GamePlayer> predicate) {
-        return getAlivePlayers();
-    }
+    @Nonnull
+    List<GamePlayer> getAlivePlayers(Predicate<GamePlayer> predicate);
 
     /**
      * Returns all alive players as bukkit player who match the predicate.
@@ -149,9 +140,16 @@ public interface IGameInstance {
      * @param predicate - Predicate to match.
      * @return All alive players as bukkit player who match the predicate.
      */
-    default List<Player> getAlivePlayersAsPlayers(Predicate<GamePlayer> predicate) {
-        return Lists.newArrayList();
-    }
+    @Nonnull
+    List<Player> getAlivePlayersAsPlayers(Predicate<GamePlayer> predicate);
+
+    /**
+     * Returns a list of heroes that are used in the game.
+     *
+     * @return A list of heroes that are used in the game.
+     */
+    @Nonnull
+    Set<Heroes> getActiveHeroes();
 
     /**
      * Forced game to check for win condition <b>and</b> stop and game if check passed.
@@ -188,7 +186,7 @@ public interface IGameInstance {
      * @return This instance map.
      */
     @Nonnull
-    GameMaps getCurrentMap();
+    GameMaps getMap();
 
     /**
      * Returns a task that is running for this game instance.

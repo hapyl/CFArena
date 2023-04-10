@@ -4,7 +4,6 @@ import com.google.common.collect.Maps;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.heroes.HeroHandle;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
@@ -52,7 +51,7 @@ public class MineOBall extends Talent implements Listener {
 
         if (entity instanceof LivingEntity living
                 && target instanceof Player player
-                && HeroHandle.TAMER.validatePlayer(player, Heroes.TAMER)) {
+                && Heroes.TAMER.getHero().validatePlayer(player)) {
 
             final TamerPack pack = getPack(player);
             if (pack != null && pack.isInPack(living)) {

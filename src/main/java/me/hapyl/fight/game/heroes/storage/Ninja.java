@@ -8,7 +8,6 @@ import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -126,7 +125,7 @@ public class Ninja extends Hero implements Listener, UIComponent {
     @EventHandler()
     public void handleDoubleJump(PlayerToggleFlightEvent ev) {
         final Player player = ev.getPlayer();
-        if (!validatePlayer(player, Heroes.NINJA) || player.hasCooldown(this.getItem().getType()) || player.isFlying()) {
+        if (!validatePlayer(player) || player.hasCooldown(this.getItem().getType()) || player.isFlying()) {
             return;
         }
 

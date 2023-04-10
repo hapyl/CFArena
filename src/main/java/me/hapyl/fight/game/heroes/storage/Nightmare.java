@@ -4,7 +4,6 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -56,7 +55,7 @@ public class Nightmare extends Hero {
             @Override
             public void run() {
                 Manager.current().getCurrentGame().getPlayers().forEach((uuid, player) -> {
-                    if (validatePlayer(player.getPlayer(), Heroes.NIGHTMARE)) {
+                    if (validatePlayer(player.getPlayer())) {
                         final Location location = player.getPlayer().getLocation();
                         if (location.getBlock().getLightLevel() <= 7) {
                             PlayerLib.spawnParticle(location, Particle.LAVA, 2, 0.15d, 0.15d, 0.15d, 0);
