@@ -348,6 +348,8 @@ public class Manager {
                     world.strikeLightningEffect(player.getLocation().add(0.0d, 2.0d, 0.0d));
                 }
             });
+
+            playAnimation();
         }, isDebug ? 1 : currentMap.getMap().getTimeBeforeReveal());
 
     }
