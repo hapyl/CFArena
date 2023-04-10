@@ -9,6 +9,9 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+/**
+ * Represents a task that is automatically cancelled when the game ends.
+ */
 public abstract class GameTask implements Runnable {
 
     private ShutdownAction shutdownAction;
@@ -19,30 +22,50 @@ public abstract class GameTask implements Runnable {
         this.shutdownAction = ShutdownAction.CANCEL;
     }
 
-    public static void runDuration(Talent talent, Consumer<Integer> runnable, int period) {
-        runDuration(talent, runnable, 0, period);
-    }
-
-    public static void runDuration(Talent talent, Consumer<Integer> runnable, int delay, int period) {
+    /**
+     * Runs the task for the duration of the talent.
+     *
+     * @param talent   - Talent.
+     * @param runnable - BiConsumer of task runner and remaining tick.
+     * @param delay    - Delay before starting.
+     * @param period   - Period after each execution.
+     * @return Running task.
+     */
+    public static GameTask runDuration(Talent talent, BiConsumer<GameTask, Integer> runnable, int delay, int period) {
         final int duration = talent.getDuration();
 
-        new GameTask() {
+        return new GameTask() {
             private int tick = duration;
 
             @Override
             public void run() {
-                if (tick-- <= 0) {
+                if (tick < 0) {
                     this.cancel();
                     return;
                 }
 
-                runnable.accept(tick);
+                runnable.accept(this, tick);
+                tick -= period;
             }
         }.runTaskTimer(delay, period);
     }
 
+    // see above
+    public static void runDuration(Talent talent, Consumer<Integer> runnable, int period) {
+        runDuration(talent, (task, i) -> runnable.accept(i), 0, period);
+    }
+
+    // see above
+    public static void runDuration(Talent talent, Consumer<Integer> runnable, int delay, int period) {
+        runDuration(talent, (task, i) -> runnable.accept(i), delay, period);
+    }
+
     public static GameTask runTaskTimerTimes(Consumer<GameTask> runnable, int delay, int period, int maxTimes) {
         return runTaskTimerTimes((a, b) -> runnable.accept(a), delay, period, maxTimes);
+    }
+
+    public static GameTask runTaskTimer(Consumer<GameTask> runnable, int delay, int period) {
+        return runTaskTimerTimes((a, b) -> runnable.accept(a), delay, period, Integer.MAX_VALUE);
     }
 
     public static GameTask runTaskTimerTimes(Consumer<GameTask> runnable, int period, int maxTimes) {
@@ -70,7 +93,6 @@ public abstract class GameTask implements Runnable {
                 }
 
                 runnable.accept(this, tick);
-
             }
         }.runTaskTimer(delay, period);
     }
@@ -94,6 +116,52 @@ public abstract class GameTask implements Runnable {
             task.runTaskAtCancel();
         }
         return task;
+    }
+
+    public static void runWhileReversed(double start, double condition, double decrement, BiConsumer<Double, GameTask> task) {
+        if (start <= condition) {
+            runWhile(start, condition, decrement, task);
+            return;
+        }
+
+        new GameTask() {
+            private double d = start;
+
+            @Override
+            public void run() {
+                if (d <= condition) {
+                    this.cancel();
+                    return;
+                }
+
+                task.accept(d, this);
+
+                d -= decrement;
+            }
+        }.runTaskTimer(0, 1);
+    }
+
+    public static void runWhile(double start, double condition, double increment, BiConsumer<Double, GameTask> task) {
+        if (start >= condition) {
+            runWhileReversed(start, condition, increment, task);
+            return;
+        }
+
+        new GameTask() {
+            private double d = start;
+
+            @Override
+            public void run() {
+                if (d >= condition) {
+                    this.cancel();
+                    return;
+                }
+
+                task.accept(d, this);
+
+                d += increment;
+            }
+        }.runTaskTimer(0, 1);
     }
 
     public void setShutdownAction(ShutdownAction shutdownAction) {
@@ -164,8 +232,23 @@ public abstract class GameTask implements Runnable {
         return this.task.getTaskId();
     }
 
+    // Called when the task is cancelled
+    public void onCancel() {
+    }
+
+    public synchronized void cancelIfActive() {
+        if (task == null) {
+            return;
+        }
+
+        onCancel();
+        Bukkit.getScheduler().cancelTask(this.task.getTaskId());
+    }
+
     public synchronized void cancel() {
         this.validateExists();
+
+        onCancel();
         Bukkit.getScheduler().cancelTask(this.task.getTaskId());
     }
 

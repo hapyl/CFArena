@@ -1,11 +1,17 @@
 package me.hapyl.fight.game;
 
 import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 
 public class Debugger {
 
+    /**
+     * Indicates that this debug logger should not be removed in prod.
+     */
     public static void keepLog(Object any, Object... format) {
         log(any, format);
     }
@@ -20,6 +26,24 @@ public class Debugger {
 
     public static void svr(Object any, Object... format) {
         send("&4&l" + any, format);
+    }
+
+    public static void wrap(Runnable runnable) {
+        try {
+            runnable.run();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void logIf(boolean condition, String any, Object... format) {
+        if (condition) {
+            log(any, format);
+        }
+    }
+
+    public static void particle(Location location, Particle particle) {
+        PlayerLib.spawnParticle(location, particle, 1);
     }
 
     private static void send(String string, Object... format) {

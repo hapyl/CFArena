@@ -6,7 +6,6 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -93,7 +92,7 @@ public class Shark extends Hero implements Listener {
     @EventHandler()
     public void handlePlayerMove(PlayerMoveEvent ev) {
         final Player player = ev.getPlayer();
-        if (!validatePlayer(player, Heroes.SHARK) || isUsingUltimate(player)) {
+        if (!validatePlayer(player) || isUsingUltimate(player)) {
             return;
         }
 

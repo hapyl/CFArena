@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes;
 
+// FIXME (hapyl): 004, Apr 4, 2023: Rework roles: standardize or add more or idk remove them or idk or idk idk
 public enum Role {
 
     MELEE("Melee", "Melee heroes are experts of dealing damage up close."),
@@ -7,7 +8,8 @@ public enum Role {
     RANGE("Range", "Rangers are dead-eye shooters that can hold distance to strike."),
     ASSASSIN("Assassin", "Assassins are masters of murder, with fast cuts and getaways."),
     STRATEGIST("Strategist", "Strategists rely on their abilities, rather than their fighting skill to win."),
-    NONE("None", "Role not set yet.");
+
+    NONE("Someone forgor ☠ to set the role", "Someone forgor ☠ to set the role");
 
     private final String name;
     private final String description;

@@ -8,43 +8,41 @@ import org.bukkit.Location;
 import java.util.Collection;
 import java.util.Random;
 
+/**
+ * A damage indicator.
+ */
 public class DamageIndicator {
 
-	private final Hologram hologram;
-	private final Location location;
+    private final Hologram hologram;
+    private final Location location;
 
-	public DamageIndicator(Location location, double damage) {
-		this.location = location;
+    public DamageIndicator(Location location, double damage) {
+        this.location = location;
 
-		hologram = new Hologram();
-		hologram.addLine("&a&l" + BukkitUtils.decimalFormat(damage));
+        hologram = new Hologram();
+        hologram.addLine("&a&l" + BukkitUtils.decimalFormat(damage));
+    }
 
-		//		if (points > 0) {
-		//			hologram.addLine("&b+%s &l※".formatted(points));
-		//		}
+    public void setExtra(Collection<String> extra) {
+        for (final String str : extra) {
+            hologram.addLine(str);
+        }
+    }
 
-	}
+    public void display(int duration) {
+        hologram.create(randomizeLocation());
+        hologram.showAll();
 
-	public void setExtra(Collection<String> extra) {
-		for (final String str : extra) {
-			hologram.addLine(str);
-		}
-	}
+        GameTask.runLater(hologram::destroy, duration).runTaskAtCancel();
+    }
 
-	public void display(int duration) {
-		hologram.create(randomizeLocation());
-		hologram.showAll();
+    private Location randomizeLocation() {
+        return location.clone().add(generateRandomDouble(), new Random().nextDouble() * 0.25d, generateRandomDouble());
+    }
 
-		GameTask.runLater(hologram::destroy, duration).runTaskAtCancel();
-	}
-
-	private Location randomizeLocation() {
-		return location.clone().add(generateRandomDouble(), new Random().nextDouble() * 0.25d, generateRandomDouble());
-	}
-
-	private double generateRandomDouble() {
-		final double random = new Random().nextDouble() * 1.5d;
-		return new Random().nextBoolean() ? random : -random;
-	}
+    private double generateRandomDouble() {
+        final double random = new Random().nextDouble() * 1.5d;
+        return new Random().nextBoolean() ? random : -random;
+    }
 
 }

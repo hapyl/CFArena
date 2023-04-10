@@ -1,9 +1,11 @@
 package me.hapyl.fight.game.talents.storage.juju;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Supplier;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Location;
@@ -17,25 +19,34 @@ import java.util.Map;
 
 public class Climb extends Talent {
 
-    private final int cdDeadLine = 80;
-    private final int cooldown = 160;
+    @DisplayField(suffix = "Maximum Bounce Time") private final int cdDeadLine = 80;
+    @DisplayField private final int cooldown = 160;
+    @DisplayField private final double magnitude = 0.6d;
+
     private final Map<Player, GameTask> tasks = new HashMap<>();
 
     public Climb() {
         super("Climb");
-        this.setItem(Material.LEATHER_BOOTS);
+        setItem(Material.LEATHER_BOOTS);
 
-        this.addDescription(
+        addDescription(
                 "Use the wall you're hugging to climb it and perform back-flip, gaining speed boost. Cooldown of this ability stars upon landing or after &b%ss&7.",
                 BukkitUtils.roundTick(cdDeadLine)
         );
-
-        this.addExtraInfo("Cooldown: &l%ss", BukkitUtils.roundTick(cooldown));
     }
 
     @Override
     public void onStop() {
         tasks.clear();
+    }
+
+    public void cancelTask(Player player) {
+        final GameTask task = tasks.get(player);
+
+        if (task != null) {
+            task.cancel();
+            tasks.remove(player);
+        }
     }
 
     @Override
@@ -49,14 +60,18 @@ public class Climb extends Talent {
 
         // Flip
         player.teleport(new Supplier<>(player.getLocation()).supply(loc -> loc.setYaw(loc.getYaw() + 180)));
-        GameTask.runLater(() -> {
-            player.setVelocity(player.getLocation().getDirection().normalize().multiply(0.75d).setY(0.75d));
+
+        GameTask.runLater(() -> { // had to introduce delay because it broke for no reason
+            player.setVelocity(player.getLocation().getDirection().normalize().multiply(magnitude).setY(magnitude));
         }, 1);
 
         PlayerLib.addEffect(player, PotionEffectType.SPEED, 60, 1);
         PlayerLib.playSound(playerLocation, Sound.BLOCK_SLIME_BLOCK_BREAK, 0.75f);
 
-        taskController(player);
+        if (!Heroes.JUJU.getHero().isUsingUltimate(player)) {
+            taskController(player);
+        }
+
         return Response.OK;
     }
 
@@ -65,17 +80,14 @@ public class Climb extends Talent {
         if (oldTask != null) {
             return;
         }
+
         tasks.put(player, GameTask.runTaskTimerTimes((self, tick) -> {
             if (tick == 0 || player.isOnGround()) {
-                startCooldown(player);
-                tasks.remove(player);
+                startCd(player, cooldown);
                 self.cancel();
+                tasks.remove(player);
             }
         }, 1, cdDeadLine));
-    }
-
-    private void startCooldown(Player player) {
-        player.setCooldown(this.getItem().getType(), cooldown);
     }
 
 }

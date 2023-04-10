@@ -33,26 +33,20 @@ public class Weapon implements Cloneable, DisplayFieldProvider {
     private String description;
     private String lore;
     private double damage;
-    private double damageMax;
     private double attackSpeed;
 
     private String id;
 
-    public Weapon(Material material, String name, String about, double damage) {
-        this(material, name, about, damage, damage);
-    }
-
-    public Weapon(Material material) {
+    public Weapon(@Nonnull Material material) {
         this(material, "unnamed weapon", null, 1);
     }
 
-    public Weapon(Material material, String name, String about, double damageMin, double damageMax) {
+    public Weapon(@Nonnull Material material, @Nonnull String name, @Nonnull String about, double damage) {
         this.material = material;
         this.name = name;
         this.description = about;
         this.attackSpeed = 0.0d;
-        this.damage = damageMin;
-        this.damageMax = damageMax;
+        this.damage = damage;
         this.enchants = new ArrayList<>();
     }
 
@@ -107,10 +101,6 @@ public class Weapon implements Cloneable, DisplayFieldProvider {
 
     public double getDamage() {
         return damage;
-    }
-
-    public double getDamageMax() {
-        return damageMax;
     }
 
     @Nullable
@@ -242,5 +232,9 @@ public class Weapon implements Cloneable, DisplayFieldProvider {
 
     public boolean isRanged() {
         return (material == Material.BOW || material == Material.CROSSBOW || material == Material.TRIDENT) || this instanceof RangeWeapon;
+    }
+
+    public void giveWeapon(Player player) {
+        player.getInventory().setItem(0, getItem());
     }
 }

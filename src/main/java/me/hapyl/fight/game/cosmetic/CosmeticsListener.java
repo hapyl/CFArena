@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.cosmetic;
 
 import me.hapyl.fight.database.Database;
-import me.hapyl.fight.game.AbstractGameInstance;
+import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.State;
 import org.bukkit.Location;
@@ -36,9 +36,9 @@ public class CosmeticsListener implements Listener {
         }
 
         // Don't display if game is not started but exists
-        final AbstractGameInstance currentGame = Manager.current().getCurrentGame();
+        final IGameInstance currentGame = Manager.current().getCurrentGame();
 
-        if (!currentGame.isAbstract() && currentGame.getGameState() != State.IN_GAME) {
+        if (currentGame.isReal() && currentGame.getGameState() != State.IN_GAME) {
             return;
         }
 

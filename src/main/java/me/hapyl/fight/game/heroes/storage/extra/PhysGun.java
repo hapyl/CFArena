@@ -35,7 +35,6 @@ public class PhysGun extends Weapon {
 
     @Override
     public void onRightClick(Player player, ItemStack item) {
-
         // Throw
         if (capturedEntity.containsKey(player)) {
             final LivingEntity entity = capturedEntity.get(player);
@@ -125,8 +124,9 @@ public class PhysGun extends Weapon {
             entity.teleport(player);
         }
 
-        player.setAllowFlight(flightMap.remove(player));
+        player.setAllowFlight(flightMap.getOrDefault(player, false));
         capturedEntity.remove(player);
+        flightMap.remove(player);
     }
 
 }

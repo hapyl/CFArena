@@ -66,7 +66,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
                 .add(new Effect("healed half of your missing health", 30) {
                     @Override
                     public void affect(Player player) {
-                        final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
+                        final IGamePlayer gp = GamePlayer.getPlayer(player);
                         double missingHealth = gp.getMaxHealth() - gp.getHealth();
                         gp.heal(missingHealth / 2d);
                     }
@@ -230,9 +230,5 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
         return "&a";
     }
 
-    @Override
-    public Alchemist getHandle() {
-        return this;
-    }
 
 }

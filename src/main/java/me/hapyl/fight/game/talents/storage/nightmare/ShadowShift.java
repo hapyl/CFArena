@@ -10,13 +10,15 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerLeashEntityEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+
+import javax.annotation.Nonnull;
 
 public class ShadowShift extends Talent implements Listener {
 
@@ -35,7 +37,7 @@ public class ShadowShift extends Talent implements Listener {
 
     @Override
     public Response execute(Player player) {
-        final TargetLocation targetLocation = getLocationAndCheck0(player);
+        final TargetLocation targetLocation = getLocationAndCheck0(player, 50.0d, 0.95d);
 
         if (targetLocation.getError() != ErrorCode.OK) {
             PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
@@ -54,11 +56,11 @@ public class ShadowShift extends Talent implements Listener {
         return Response.OK;
     }
 
-    private TargetLocation getLocationAndCheck0(Player player) {
-        final Entity target = Utils.getTargetEntity(player, 50, 0.95, player::hasLineOfSight);
+    public TargetLocation getLocationAndCheck0(Player player, double maxDistance, double dot) {
+        final LivingEntity target = Utils.getTargetEntity(player, maxDistance, dot, player::hasLineOfSight);
 
         if (target == null) {
-            return new TargetLocation(null, ErrorCode.NO_TARGET);
+            return new TargetLocation(null, null, ErrorCode.NO_TARGET);
         }
 
         final Location behind = target.getLocation().add(target.getLocation().getDirection().multiply(-1).setY(0.0d));
@@ -66,10 +68,10 @@ public class ShadowShift extends Talent implements Listener {
         behind.setPitch(behind.getPitch());
 
         if (behind.getBlock().getType().isOccluding()) {
-            return new TargetLocation(null, ErrorCode.OCCLUDING);
+            return new TargetLocation(null, null, ErrorCode.OCCLUDING);
         }
         else {
-            return new TargetLocation(behind, ErrorCode.OK);
+            return new TargetLocation(target, behind, ErrorCode.OK);
         }
     }
 
@@ -82,20 +84,37 @@ public class ShadowShift extends Talent implements Listener {
 
     public static class TargetLocation {
 
+        private final LivingEntity entity;
         private final Location location;
         private final ErrorCode error;
 
-        TargetLocation(Location l, ErrorCode r) {
-            this.location = l;
-            this.error = r;
+        TargetLocation(LivingEntity entity, Location location, ErrorCode error) {
+            this.entity = entity;
+            this.location = location;
+            this.error = error;
         }
 
+        @Nonnull
+        public LivingEntity getEntity() {
+            if (error != ErrorCode.OK) {
+                throw new IllegalStateException("check for error before getting entity!");
+            }
+
+            return entity;
+        }
+
+        @Nonnull
+        public Location getLocation() {
+            if (error != ErrorCode.OK) {
+                throw new IllegalStateException("check for error before getting location!");
+            }
+
+            return location;
+        }
+
+        @Nonnull
         public ErrorCode getError() {
             return error;
-        }
-
-        public Location getLocation() {
-            return location;
         }
     }
 

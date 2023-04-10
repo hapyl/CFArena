@@ -4,11 +4,16 @@ import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.ClassEquipment;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.TalentHandle;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.storage.tamer.MineOBall;
+import me.hapyl.fight.game.talents.storage.tamer.Pack;
+import me.hapyl.fight.game.talents.storage.tamer.TamerPack;
+import me.hapyl.fight.game.talents.storage.tamer.TamerPacks;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -17,17 +22,14 @@ import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Creature;
-import org.bukkit.entity.FishHook;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
-public class Tamer extends Hero implements Listener, DisabledHero {
+public class Tamer extends Hero implements Listener {
 
     private final double WEAPON_DAMAGE = 8.0d; // since it's a fishing rod, we're storing the damage here
     private final int WEAPON_COOLDOWN = 10;
@@ -69,15 +71,74 @@ public class Tamer extends Hero implements Listener, DisabledHero {
                 .setId("tamer_weapon")
                 .setDamage(2.0d)); // This is melee damage, weapon damage is handled in the event
 
-        setUltimate(new UltimateTalent("", "", 100));
+        final UltimateTalent ultimate = new UltimateTalent(
+                "Mimicry",
+                "Instantly mimic your current pack to gain it's blessings!____",
+                50
+        ).setDuration(400);
+
+        for (TamerPacks value : TamerPacks.values()) {
+            final Pack pack = value.getPack();
+
+            ultimate.addDescription("&b&l" + pack.getName());
+            ultimate.addDescription(pack.getMimicryDescription());
+        }
+
+        setUltimate(ultimate);
+    }
+
+    @Override
+    public boolean predicateUltimate(Player player) {
+        final TamerPack pack = getPlayerPack(player);
+        return pack != null && pack.isAlive();
+    }
+
+    @Override
+    public String predicateMessage(Player player) {
+        final TamerPack pack = getPlayerPack(player);
+
+        return pack == null ? "You don't have a pack!" : "Your pack is dead!";
     }
 
     @Override
     public void useUltimate(Player player) {
+        final TamerPack playerPack = getPlayerPack(player);
+
+        if (playerPack == null) {
+            return;
+        }
+
+        playerPack.getPack().onUltimate(player, playerPack);
+    }
+
+    @Override
+    public void onUltimateEnd(Player player) {
+        executeTamerPackOnUltimateEnd(player);
+    }
+
+    @Override
+    public void onDeath(Player player) {
+        executeTamerPackOnUltimateEnd(player);
+    }
+
+    // Cleaned up the code a little
+    public void executeTamerPackOnUltimateEnd(Player player) {
+        final TamerPack pack = getPlayerPack(player);
+
+        if (pack == null) {
+            return;
+        }
+
+        pack.getPack().onUltimateEnd(player, pack);
+        pack.removeAll();
     }
 
     @Override
     public void onStart() {
+    }
+
+    public TamerPack getPlayerPack(Player player) {
+        return getFirstTalent().getPack(player);
     }
 
     @Override
@@ -85,7 +146,7 @@ public class Tamer extends Hero implements Listener, DisabledHero {
         final Player player = input.getPlayer();
         final LivingEntity entity = input.getEntity();
 
-        if (TalentHandle.MINE_O_BALL.isPackEntity(player, entity)) {
+        if (getFirstTalent().isPackEntity(player, entity)) {
             Chat.sendMessage(player, "&cYou cannot damage your own minion!");
             return DamageOutput.CANCEL;
         }
@@ -93,19 +154,25 @@ public class Tamer extends Hero implements Listener, DisabledHero {
         return null;
     }
 
-    // FIXME: 028, Mar 28, 2023 -> This doesn't work
-    // prevent pack members from damaging each other
+    // prevent pack members from damaging each other and the owner
     @EventHandler()
     public void handleMinionDamage(EntityDamageByEntityEvent ev) {
-        if (ev.getEntity() instanceof LivingEntity entity && ev.getDamager() instanceof LivingEntity damager) {
-            if (TalentHandle.MINE_O_BALL.isInSamePack(entity, damager)) {
-                ev.setCancelled(true);
-                ev.setDamage(0.0d);
+        final Entity entity = ev.getEntity();
+        Entity damager = ev.getDamager();
 
-                if (damager instanceof Creature creature) {
-                    creature.setTarget(null);
-                }
-            }
+        if (damager instanceof Projectile projectile && projectile.getShooter() instanceof LivingEntity shooter) {
+            damager = shooter;
+        }
+
+        if (!getFirstTalent().isInSamePackOrOwner(entity, damager)) {
+            return;
+        }
+
+        ev.setCancelled(true);
+        ev.setDamage(0.0d);
+
+        if (damager instanceof Creature creature) {
+            creature.setTarget(null);
         }
     }
 
@@ -115,7 +182,7 @@ public class Tamer extends Hero implements Listener, DisabledHero {
             return;
         }
 
-        if (!validatePlayer(player, Heroes.TAMER) || player.hasCooldown(Material.FISHING_ROD)) {
+        if (!validatePlayer(player) || player.hasCooldown(Material.FISHING_ROD)) {
             return;
         }
 
@@ -133,8 +200,8 @@ public class Tamer extends Hero implements Listener, DisabledHero {
     }
 
     @Override
-    public Talent getFirstTalent() {
-        return Talents.MINE_O_BALL.getTalent();
+    public MineOBall getFirstTalent() {
+        return (MineOBall) Talents.MINE_O_BALL.getTalent();
     }
 
     // Changes to dev

@@ -16,7 +16,6 @@ import me.hapyl.fight.game.talents.storage.witcher.Kven;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.util.Handle;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
@@ -159,8 +158,8 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
     }
 
     @Override
-    public Talent getThirdTalent() {
-        return Talents.KVEN.getTalent();
+    public Kven getThirdTalent() {
+        return (Kven) Talents.KVEN.getTalent();
     }
 
     @Override
@@ -178,11 +177,9 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
         return Talents.COMBO_SYSTEM.getTalent();
     }
 
-    private final Handle<Kven> kvenHandle = () -> (Kven) Talents.KVEN.getTalent();
-
     @Override
     public @Nonnull String getString(Player player) {
-        final int shieldLevel = kvenHandle.getHandle().getShieldCharge(player);
+        final int shieldLevel = getThirdTalent().getShieldCharge(player);
         return shieldLevel > 0 ? "&2🛡 &l" + shieldLevel : "";
     }
 }

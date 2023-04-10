@@ -62,8 +62,8 @@ public class Trial implements MessageSender, GameElement {
 
         // Call onStart
         // not sure if onStart() should be called or no
-        heroes.getHero().onStart();
-        heroes.getHero().onStart(player);
+        //heroes.getHero().onStart();
+        //heroes.getHero().onStart(player);
 
         task = new GameTask() {
             private int tick = 0;

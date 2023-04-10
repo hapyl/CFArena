@@ -2,6 +2,8 @@ package me.hapyl.fight.game.talents;
 
 import com.google.common.collect.Lists;
 import me.hapyl.fight.game.*;
+import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.storage.SlowingAuraEffect;
 import me.hapyl.fight.util.Function;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Utils;
@@ -20,11 +22,15 @@ import org.bukkit.inventory.ItemStack;
 import javax.annotation.Nonnull;
 import java.util.List;
 
+/**
+ * Base talent.
+ */
 public abstract class Talent extends NonnullItemStackCreatable implements GameElement, DisplayFieldProvider {
 
     public static final Talent NULL = null;
 
     private ItemStack itemStats;
+    private int startAmount;
     private Material material;
     private String texture;
     private String texture64;
@@ -67,6 +73,7 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
 
         this.type = type;
         this.material = Material.BEDROCK;
+        this.startAmount = 1;
         this.altUsage = "This talent is not given when the game starts, but there is a way to use it.";
         this.autoAdd = true;
         this.point = 1;
@@ -106,16 +113,6 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
 
     public void setPoint(int point) {
         this.point = point;
-    }
-
-    @Deprecated(forRemoval = true)
-    public void addExtraInfo(String info) {
-        addExtraInfo(info, new Object[] {});
-    }
-
-    @Deprecated(forRemoval = true)
-    public void addExtraInfo(String info, Object... objects) {
-        description.add(ChatColor.GREEN + String.format(info, objects));
     }
 
     public void setCastMessage(String castMessage) {
@@ -200,6 +197,8 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
                 .addLore("&8%s %s", Chat.capitalize(type), type == Type.ULTIMATE ? "" : "Talent")
                 .addLore();
 
+        builderItem.setAmount(startAmount);
+
         // Add head texture if item is a player head
         if (material == Material.PLAYER_HEAD) {
             if (texture != null) {
@@ -224,7 +223,8 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
 
             for (int i = 0; i < strings.size(); i++) {
                 final String lore = strings.get(i);
-                final String lastColor = i > 0 ? getLastColor(strings.get(i - 1)) : "";
+                //final String lastColor = i > 0 ? getLastColor(strings.get(i - 1)) : "";
+                final String lastColor = i > 0 ? getLastColor(strings) : "";
                 final String formatted = formatDescription(lore);
 
                 builderItem.addLore(lastColor + formatted);
@@ -301,6 +301,18 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         itemStats = builderAttributes.asIcon();
     }
 
+    private String getLastColor(List<String> list) {
+        for (int i = list.size() - 1; i >= 0; i--) {
+            final String lastColor = getLastColor(list.get(i));
+
+            if (!lastColor.isEmpty()) {
+                return lastColor;
+            }
+        }
+
+        return "";
+    }
+
     private String getLastColor(String input) {
         final int lastCharIndex = input.lastIndexOf(ChatColor.COLOR_CHAR);
 
@@ -322,6 +334,15 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         this.setItem(Material.PLAYER_HEAD);
         this.texture = headTexture;
         return this;
+    }
+
+    public Talent setStartAmount(int startAmount) {
+        this.startAmount = Numbers.clamp(startAmount, 1, 64);
+        return this;
+    }
+
+    public int getStartAmount() {
+        return startAmount;
     }
 
     public Talent setTexture(String texture64) {
@@ -358,26 +379,42 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
 
         final Response response = execute(player);
 
+        // If error, don't progress talent
+        if (response == null || response == Response.ERROR) {
+            return response == null ? Response.ERROR_DEFAULT : response;
+        }
+
         // Progress ability usage
         final StatContainer stats = GamePlayer.getPlayer(player).getStats();
 
-        if ((response != null && !response.isError()) && stats != null) {
+        if (stats != null && !Manager.current().isDebug()) {
             stats.addAbilityUsage(Talents.fromTalent(this));
         }
 
-        return response == null ? Response.ERROR_DEFAULT : response;
+        return response;
     }
 
-    public final void startCd(Player player, int customCd) {
-        player.setCooldown(material, customCd);
-    }
-
-    public final void startCd(Player player) {
-        if (cd <= 0) {
+    public final void startCd(Player player, int cooldown) {
+        if (cooldown <= 0) {
             return;
         }
 
-        player.setCooldown(material, cd);
+        // If player has slowing aura, modify cooldown
+        if (GamePlayer.getPlayer(player).hasEffect(GameEffectType.SLOWING_AURA)) {
+            cooldown *= ((SlowingAuraEffect) GameEffectType.SLOWING_AURA.getGameEffect()).COOLDOWN_MODIFIER;
+        }
+
+        // Don't start CD if in debug
+        if (Manager.current().isDebug()) {
+            // TODO: 031, Mar 31, 2023 -> Create different debug states: -c for cooldown, -u for ult etc
+            //return;
+        }
+
+        player.setCooldown(material, cooldown);
+    }
+
+    public void startCd(Player player) {
+        startCd(player, cd);
     }
 
     public final void stopCd(Player player) {
@@ -405,6 +442,7 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
 
     public Talent setCdSec(int cd) {
         this.cd = cd * 20;
+        defaultPointGeneration();
         return this;
     }
 
@@ -424,10 +462,21 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         return description.get(0);
     }
 
+    @Override
+    public String toString() {
+        return "%s{%s}".formatted(getClass().getName(), name);
+    }
+
     public enum Type {
-        PASSIVE,
         COMBAT,
         COMBAT_CHARGED,
+        COMBAT_INPUT,
+        PASSIVE,
         ULTIMATE
     }
+
+    public Talent getHandle() {
+        return this;
+    }
+
 }

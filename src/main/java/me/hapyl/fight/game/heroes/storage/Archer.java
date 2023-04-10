@@ -3,7 +3,6 @@ package me.hapyl.fight.game.heroes.storage;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -14,8 +13,13 @@ import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.ThreadRandom;
-import org.bukkit.*;
-import org.bukkit.entity.*;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
@@ -24,10 +28,10 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+// FIXME (hapyl): 010, Apr 10, 2023: This hero uses like pre-historic code, rewrite it.
 public class Archer extends Hero implements Listener {
 
     private final Set<Arrow> boomArrows = new HashSet<>();
@@ -35,6 +39,7 @@ public class Archer extends Hero implements Listener {
 
     private final double explosionRadius = 5.0d;
     private final double explosionDamage = 30.0d;
+    private final int boomBowPerShotCd = 10;
 
     public Archer() {
         super("Archer");
@@ -107,6 +112,8 @@ public class Archer extends Hero implements Listener {
                         EnumDamageCause.BOOM_BOW_ULTIMATE,
                         null
                 );
+
+                player.setCooldown(boomBow.getMaterial(), boomBowPerShotCd);
             }
         }
     }
@@ -123,7 +130,7 @@ public class Archer extends Hero implements Listener {
             }
 
             // Handle hawkeye arrows
-            if (validatePlayer(player, Heroes.ARCHER) && selectedSlot == 0 && arrow.isCritical() && player.isSneaking()) {
+            if (validatePlayer(player) && selectedSlot == 0 && arrow.isCritical() && player.isSneaking()) {
                 if (!ThreadRandom.nextFloatAndCheckBetween(0.75f, 1.0f)) {
                     return;
                 }
@@ -159,40 +166,7 @@ public class Archer extends Hero implements Listener {
     }
 
     private Entity findNearestTarget(Player shooter, Location location) {
-        final World world = location.getWorld();
-        if (world == null) {
-            return null;
-        }
-
-        final Collection<Entity> entities = world.getNearbyEntities(
-                location,
-                3.0d,
-                3.0d,
-                3.0d,
-                entity -> entity instanceof Player player ?
-                        shooter != player && validatePlayer(player) : entity instanceof LivingEntity && validateEntity((LivingEntity) entity)
-        );
-
-        LivingEntity nearestEntity = null;
-        double distance = -1;
-
-        for (final Entity entity : entities) {
-            if (!(entity instanceof LivingEntity livingEntity)) {
-                continue;
-            }
-
-            final double dist = livingEntity.getLocation().distance(location);
-            if (nearestEntity == null || dist <= distance) {
-                nearestEntity = livingEntity;
-                distance = dist;
-            }
-        }
-
-        return nearestEntity;
-    }
-
-    private boolean validateEntity(LivingEntity entity) {
-        return !entity.isInvisible() && !entity.isDead() && !(entity instanceof ArmorStand);
+        return Utils.getNearestLivingEntity(location, 3.0d, shooter);
     }
 
     @Override

@@ -6,6 +6,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
+/**
+ * Indicates that this component can return additional information to be displayed in the player's UI.
+ */
 public interface UIComplexComponent extends UIComponent {
 
     @Nullable

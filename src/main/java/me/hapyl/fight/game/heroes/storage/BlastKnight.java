@@ -275,6 +275,7 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Lis
         if (player.hasCooldown(shieldRechargeCdItem)) {
             return "&7🛡 &l" + BukkitUtils.roundTick(player.getCooldown(shieldRechargeCdItem)) + "s";
         }
+
         return "&f🛡 &l" + getShieldCharge(player);
     }
 }

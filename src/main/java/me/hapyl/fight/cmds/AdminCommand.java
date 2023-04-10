@@ -86,6 +86,13 @@ public class AdminCommand extends SimplePlayerAdminCommand {
                 player.teleport(map.getMap().getLocation());
                 sendMessage(player, "&aTeleported to %s!", map.getName());
             }
+
+            @Override
+            public void createAdditionalArguments() {
+                for (GameMaps value : GameMaps.values()) {
+                    addArgument(2, value.name().toLowerCase(Locale.ROOT));
+                }
+            }
         });
 
         acceptors.put("coins", new Acceptor() {

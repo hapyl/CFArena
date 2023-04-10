@@ -14,7 +14,11 @@ public enum Notification {
     ),
 
     HELP_COMMAND("&aLost? See the help screen:", "&e/help"),
-    TRIAL("&aTry out the new Trial mode!", "&e/trial &c(it's broken wasn't me (real))"),
+    REPORT_BUGS(
+            Notify.string("&aFound a bug? Report it here:"),
+            Notify.link("&e&lCLICK HERE", "https://github.com/hapyl/ClassesFightArena/issues")
+    ),
+    //TRIAL("&aTry out the new Trial mode!", "&e/trial &c(it's broken wasn't me (real))"),
     ;
 
     private final List<Notify> notifies;

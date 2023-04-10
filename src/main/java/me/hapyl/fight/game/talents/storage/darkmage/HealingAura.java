@@ -2,10 +2,11 @@ package me.hapyl.fight.game.talents.storage.darkmage;
 
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.heroes.HeroHandle;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.storage.extra.DarkMageSpell;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -17,9 +18,13 @@ import javax.annotation.Nonnull;
 
 public class HealingAura extends DarkMageTalent {
 
+    @DisplayField(suffix = "blocks") private final double radius = 2.5d;
+
     public HealingAura() {
         super("Healing Aura", "Creates a healing circle at your location that heals all players periodically.", Material.APPLE);
-        this.setCdSec(30);
+
+        setDuration(200);
+        setCdSec(30);
     }
 
     @Nonnull
@@ -36,17 +41,14 @@ public class HealingAura extends DarkMageTalent {
 
     @Override
     public Response execute(Player player) {
-        if (HeroHandle.DARK_MAGE.isUsingUltimate(player)) {
+        if (Heroes.DARK_MAGE.getHero().isUsingUltimate(player)) {
             return Response.error("Unable to use while in ultimate form!");
         }
 
-        final double radius = 2.5d;
         final Location location = player.getLocation();
 
-        final int delay = 1;
-
         new GameTask() {
-            private int tick = 200;
+            private int tick = getDuration();
             private double theta = 0;
 
             @Override
@@ -68,11 +70,11 @@ public class HealingAura extends DarkMageTalent {
                     PlayerLib.spawnParticle(location, Particle.HEART, 5, 1, 0.2, 1, 0.01f);
                 }
 
-                if ((tick -= delay) <= 0) {
-                    this.cancel();
+                if (tick-- <= 0) {
+                    cancel();
                 }
             }
-        }.runTaskTimer(0, delay);
+        }.runTaskTimer(0, 1);
 
         return Response.OK;
     }

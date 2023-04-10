@@ -21,10 +21,7 @@ public class ChatController implements Listener {
     private final String format = "&4&l%s &6%s %s%s: &f%s";
     private final Map<Player, String> lastMessage = new HashMap<>();
 
-    /**
-     * Mojang can't make this actually async...
-     */
-    @EventHandler()
+    @EventHandler(ignoreCancelled = true)
     public void handleChat(AsyncPlayerChatEvent ev) {
         final Player player = ev.getPlayer();
         final String message = ev.getMessage();
@@ -65,13 +62,18 @@ public class ChatController implements Listener {
             PlayerLib.playSound(receiver, Sound.BLOCK_NOTE_BLOCK_PLING, 2.0f);
         }
 
-        message = Chat.format(message);
+        message = colorize(message);
+
         if (!sender.isOp()) {
             message = ChatColor.stripColor(message);
         }
 
         builder.append(message);
-        Chat.sendMessage(receiver, builder.toString());
+        receiver.sendMessage(colorize(builder.toString()));
+    }
+
+    private String colorize(String string) {
+        return ChatColor.translateAlternateColorCodes('&', string);
     }
 
     public boolean isSameMessageAsLast(Player player, String string) {

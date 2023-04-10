@@ -43,7 +43,7 @@ public enum Award {
     }
 
     public void award(@Nonnull GamePlayer player) {
-        if (player.isAbstract() || Manager.current().isDebug()) {
+        if (!player.isReal() || Manager.current().isDebug()) {
             return;
         }
 

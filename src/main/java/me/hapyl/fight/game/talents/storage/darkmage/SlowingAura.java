@@ -1,10 +1,11 @@
 package me.hapyl.fight.game.talents.storage.darkmage;
 
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.heroes.HeroHandle;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.storage.extra.DarkMageSpell;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.Draw;
 import me.hapyl.spigotutils.module.math.geometry.Quality;
@@ -24,8 +25,15 @@ import static org.bukkit.Sound.BLOCK_HONEY_BLOCK_SLIDE;
 
 public class SlowingAura extends DarkMageTalent {
 
+    @DisplayField(suffix = "blocks") private final short maxDistance = 20;
+    @DisplayField private final double radius = 4.0d;
+
+    private final int taskPeriod = 5;
+
     public SlowingAura() {
         super("Slowing Aura", "Creates a slowness pool at your target block that slows anyone in range.", Material.BONE_MEAL);
+
+        setDuration(50);
         setCd(200);
     }
 
@@ -43,11 +51,11 @@ public class SlowingAura extends DarkMageTalent {
 
     @Override
     public Response execute(Player player) {
-        if (HeroHandle.DARK_MAGE.isUsingUltimate(player)) {
+        if (Heroes.DARK_MAGE.getHero().isUsingUltimate(player)) {
             return Response.error("Unable to use while in ultimate form!");
         }
 
-        final Block targetBlock = player.getTargetBlockExact(20);
+        final Block targetBlock = player.getTargetBlockExact(maxDistance);
 
         if (targetBlock == null) {
             return Response.error("No valid block in sight!");
@@ -56,16 +64,17 @@ public class SlowingAura extends DarkMageTalent {
         final Location location = targetBlock.getRelative(BlockFace.UP).getLocation();
 
         new GameTask() {
-            private int tick = 10;
+            private int tick = getDuration();
 
             @Override
             public void run() {
-                if (tick-- <= 0) {
-                    this.cancel();
+                if (tick <= 0) {
+                    cancel();
                     return;
                 }
 
-                double radius = 4.0d;
+                tick -= taskPeriod;
+
                 Geometry.drawCircle(location, radius, Quality.LOW, new Draw(Particle.SPELL) {
                     @Override
                     public void draw(Location location) {
@@ -88,7 +97,7 @@ public class SlowingAura extends DarkMageTalent {
                 });
 
             }
-        }.runTaskTimer(0, 5);
+        }.runTaskTimer(0, taskPeriod);
         return Response.OK;
     }
 }

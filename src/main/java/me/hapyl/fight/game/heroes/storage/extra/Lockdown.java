@@ -3,7 +3,8 @@ package me.hapyl.fight.game.heroes.storage.extra;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.effect.GameEffectType;
-import me.hapyl.fight.game.heroes.HeroHandle;
+import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.storage.Techie;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.util.Nulls;
@@ -63,7 +64,7 @@ public class Lockdown {
         final int delayBetweenDraw = 15;
 
         return new GameTask() {
-            private int tick = HeroHandle.TECHIE.lockdownWindupTime;
+            private int tick = Heroes.TECHIE.getHero(Techie.class).LOCKDOWN_WINDUP_TIME;
 
             @Override
             public void run() {
@@ -87,7 +88,7 @@ public class Lockdown {
 
                 // Fx
                 if (tick % delayBetweenDraw == 0) {
-                    int lockdownRadius = HeroHandle.TECHIE.lockdownRadius;
+                    int lockdownRadius = Heroes.TECHIE.getHero(Techie.class).LOCKDOWN_RADIUS;
 
                     Utils.getPlayersInRange(Lockdown.this.location, lockdownRadius).forEach(target -> {
                         PlayerLib.playSound(target, Sound.BLOCK_BEACON_AMBIENT, 2.0f);
@@ -137,13 +138,13 @@ public class Lockdown {
         entity.remove();
 
         int affectedSize = 0;
-        for (final Player player : Utils.getPlayersInRange(location, HeroHandle.TECHIE.lockdownRadius)) {
+        for (final Player player : Utils.getPlayersInRange(location, Heroes.TECHIE.getHero(Techie.class).LOCKDOWN_RADIUS)) {
             if (player == Lockdown.this.player) {
                 continue;
             }
 
             ++affectedSize;
-            GamePlayer.getPlayer(player).addEffect(GameEffectType.LOCK_DOWN, HeroHandle.TECHIE.lockdownAffectTime);
+            GamePlayer.getPlayer(player).addEffect(GameEffectType.LOCK_DOWN, Heroes.TECHIE.getHero(Techie.class).LOCKDOWN_AFFECT_TIME);
         }
 
         displayLockdownMessage(

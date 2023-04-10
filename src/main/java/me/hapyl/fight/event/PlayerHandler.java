@@ -7,6 +7,7 @@ import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.talents.ChargedTalent;
+import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.team.GameTeam;
@@ -26,6 +27,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
+import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
@@ -41,7 +43,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
-public class PlayerEvent implements Listener {
+public class PlayerHandler implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handlePlayerJoin(PlayerJoinEvent ev) {
@@ -50,8 +52,10 @@ public class PlayerEvent implements Listener {
         final Manager manager = Manager.current();
 
         if (manager.isGameInProgress()) {
-            final AbstractGameInstance currentGame = manager.getCurrentGame();
-            currentGame.getMode().onJoin((GameInstance) currentGame, player);
+            final GameInstance gameInstance = (GameInstance) manager.getCurrentGame();
+
+            gameInstance.getMode().onJoin(gameInstance, player);
+            gameInstance.populateScoreboard(player);
         }
         else {
             plugin.handlePlayer(player);
@@ -64,12 +68,20 @@ public class PlayerEvent implements Listener {
         ev.setJoinMessage(Chat.format("&7[&a+&7] %s%s &ewants to fight!", player.isOp() ? "&c" : "", player.getName()));
     }
 
+    // Prevent painting breaking while the game is in progress
+    @EventHandler()
+    public void handlePaintingBreaking(HangingBreakEvent ev) {
+        if (Manager.current().isGameInProgress()) {
+            ev.setCancelled(true);
+        }
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handlePlayerQuit(PlayerQuitEvent ev) {
         final Player player = ev.getPlayer();
 
         if (Manager.current().isGameInProgress()) {
-            final AbstractGameInstance game = Manager.current().getCurrentGame();
+            final IGameInstance game = Manager.current().getCurrentGame();
             final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
 
             if (gamePlayer == null) {
@@ -134,32 +146,8 @@ public class PlayerEvent implements Listener {
         }
 
         arrow.remove();
-
-        // Assign bow damage to shot arrow
-        //        if ((!(arrow.getShooter() instanceof Player player)) || !Manager.current().isGameInProgress()) {
-        //            return;
-        //        }
-        //
-        //        final AbstractGamePlayer gamePlayer = GamePlayer.getPlayer(player);
-        //        final Hero hero = gamePlayer.getHero();
-        //
-        //        if (!hero.getWeapon().isRanged()) {
-        //            return;
-        //        }
-        //
-        //        arrow.setDamage(hero.getWeapon().getDamage());
     }
 
-    private GamePlayer getAlivePlayer(Player player) {
-        final Manager manager = Manager.current();
-        if (manager.isTrialExistsAndIsOwner(player)) {
-            return manager.getTrial().getGamePlayer();
-        }
-
-        return GamePlayer.getExistingPlayer(player);
-    }
-
-    @SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handlePlayerSwapEvent(PlayerSwapHandItemsEvent ev) {
         ev.setCancelled(true);
@@ -184,7 +172,12 @@ public class PlayerEvent implements Listener {
             }
 
             if (!hero.predicateUltimate(player)) {
-                sendUltimateFailureMessage(player, "&cUnable to use ultimate! " + hero.predicateMessage());
+                sendUltimateFailureMessage(player, "&cUnable to use ultimate! " + hero.predicateMessage(player));
+                return;
+            }
+
+            if (hero.isUsingUltimate(player)) {
+                sendUltimateFailureMessage(player, "&cAlready using ultimate!");
                 return;
             }
 
@@ -215,20 +208,12 @@ public class PlayerEvent implements Listener {
         // ignore if using ultimate
     }
 
-    private void sendUltimateSuccessMessage(Player player, String str, Object... objects) {
-        Chat.sendMessage(player, "&b&l※ &a" + Chat.format(str, objects));
-    }
-
-    private void sendUltimateFailureMessage(Player player, String str, Object... objects) {
-        Chat.sendMessage(player, "&4&l※ &c" + Chat.format(str, objects));
-        PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
-    }
-
     /**
      * This event calculates all the custom damage.
      */
-    // FIXME: 014, Mar 14, 2023 -> Clean up this mess
-    @Entry(name = "Damage calculation.")
+    @Entry(
+            name = "Damage calculation."
+    )
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handleDamage(EntityDamageEvent ev) {
         final Entity entity = ev.getEntity();
@@ -251,7 +236,7 @@ public class PlayerEvent implements Listener {
 
         // Pre events tests, such as GameEffect etc
         if (livingEntity instanceof Player player) {
-            final AbstractGamePlayer gamePlayer = GamePlayer.getPlayer(player);
+            final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
 
             // Fall damage
             if (cause == EntityDamageEvent.DamageCause.FALL) {
@@ -371,7 +356,7 @@ public class PlayerEvent implements Listener {
 
                 // Apply GameEffect for damager
                 if (living instanceof Player player) {
-                    final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
+                    final IGamePlayer gp = GamePlayer.getPlayer(player);
                     if (gp.hasEffect(GameEffectType.STUN)) {
                         damage = 0.0d;
                     }
@@ -401,7 +386,7 @@ public class PlayerEvent implements Listener {
                     }
 
                     // Apply GameEffect for victim */
-                    final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
+                    final IGamePlayer gp = GamePlayer.getPlayer(player);
                     if (gp.hasEffect(GameEffectType.STUN)) {
                         gp.removeEffect(GameEffectType.STUN);
                     }
@@ -474,13 +459,15 @@ public class PlayerEvent implements Listener {
             return;
         }
 
-        // Create damage indicator if dealt 1 or more damage
-        if (damage >= 1.0d) {
-            final DamageIndicator damageIndicator = new DamageIndicator(entity.getLocation(), damage);
-            //if (!extraStrings.isEmpty()) {
-            //    damageIndicator.setExtra(extraStrings);
-            //}
+        // Don't allow negative damage
+        if (damage < 0) {
+            damage = 0;
+        }
 
+        // Create damage indicator if dealt 1 or more damage
+        // TODO (hapyl): 010, Apr 10, 2023: Create separate indicators.
+        if (damage >= 1.0d && !(entity instanceof ArmorStand)) {
+            final DamageIndicator damageIndicator = new DamageIndicator(entity.getLocation(), damage);
             damageIndicator.display(20);
         }
 
@@ -520,30 +507,6 @@ public class PlayerEvent implements Listener {
 
     @EventHandler()
     public void handleProjectileDamage(ProjectileLaunchEvent ev) {
-        //        if (Manager.current().isGameInProgress() && ev.getEntity() instanceof AbstractArrow projectile) {
-        //            if (projectile.getShooter() instanceof Player player) {
-        //                final AbstractGamePlayer gamePlayer = GamePlayer.getPlayer(player);
-        //                if (!gamePlayer.isAbstract()) {
-        //                    return;
-        //                }
-        //
-        //                final Hero hero = gamePlayer.getHero();
-        //                final double damage = hero.getWeapon().getDamage();
-        //                projectile.setDamage(damage);
-        //            }
-        //        }
-    }
-
-
-    private DamageOutput getDamageOutput(Player player, LivingEntity entity, double damage, boolean asDamager) {
-        if (Manager.current().isPlayerInGame(player)) {
-            final AbstractGamePlayer gamePlayer = GamePlayer.getPlayer(player);
-            final Hero hero = gamePlayer.getHero();
-
-            final DamageInput input = new DamageInput(player, entity, gamePlayer.getLastDamageCause(), damage);
-            return asDamager ? hero.processDamageAsDamager(input) : hero.processDamageAsVictim(input);
-        }
-        return null;
     }
 
     // I... I don't know what this is...
@@ -566,9 +529,12 @@ public class PlayerEvent implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handlePlayerClick(PlayerItemHeldEvent ev) {
         final Player player = ev.getPlayer();
+
         if (!Manager.current().isAbleToUse(player)) {
             return;
         }
+
+        cancelInputTalent(player);
 
         // 1-2 -> Simple Abilities, 3-5 -> Complex Abilities (Extra)
         // 0 -> Weapon Slot
@@ -592,14 +558,16 @@ public class PlayerEvent implements Listener {
 
         // Execute talent
         checkAndExecuteTalent(player, talent, newSlot);
+        final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
 
-        ev.setCancelled(true);
-        inventory.setHeldItemSlot(0);
-    }
-
-    private boolean isValidItem(Talent talent, ItemStack stack) {
-        return stack != null && !stack.getType().isAir();
-        //return talent.getMaterial() == stack.getType();
+        if (talent instanceof InputTalent inputTalent) {
+            gamePlayer.setInputTalent(inputTalent);
+        }
+        else {
+            ev.setCancelled(true);
+            inventory.setHeldItemSlot(0);
+            cancelInputTalent(player);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -630,16 +598,7 @@ public class PlayerEvent implements Listener {
                 // I think this should be used instead of cancel to not cancel bows etc.
                 ev.setUseInteractedBlock(Event.Result.DENY);
             }
-
         }
-    }
-
-    private boolean isIntractable(ItemStack stack) {
-        final Material type = stack.getType();
-        return switch (type) {
-            case BOW, CROSSBOW, TRIDENT, FISHING_ROD -> true;
-            default -> type.isInteractable();
-        };
     }
 
     @EventHandler()
@@ -648,8 +607,12 @@ public class PlayerEvent implements Listener {
         final Location from = ev.getFrom();
         final Location to = ev.getTo();
 
+        if (to == null) {
+            return;
+        }
+
         if (Manager.current().isGameInProgress()) {
-            final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
+            final IGamePlayer gp = GamePlayer.getPlayer(player);
 
             if (hasNotMoved(from, to)) {
                 return;
@@ -657,8 +620,8 @@ public class PlayerEvent implements Listener {
 
             // Amnesia
             if (gp.hasEffect(GameEffectType.AMNESIA)) {
-
                 final double pushSpeed = player.isSneaking() ? 0.05d : 0.1d;
+
                 player.setVelocity(new Vector(
                         new Random().nextBoolean() ? pushSpeed : -pushSpeed,
                         -0.2723,
@@ -670,13 +633,12 @@ public class PlayerEvent implements Listener {
             gp.markLastMoved();
         }
 
-    }
+        // Handle no jumping
+        final PotionEffect effect = player.getPotionEffect(PotionEffectType.JUMP);
 
-    private boolean hasNotMoved(Location from, @Nullable Location to) {
-        if (to == null) {
-            return true;
+        if (effect != null && effect.getAmplifier() == 250) {
+            ev.setCancelled(true);
         }
-        return from.getX() == to.getX() && from.getY() == to.getY() && from.getZ() == to.getZ();
     }
 
     @EventHandler()
@@ -688,48 +650,192 @@ public class PlayerEvent implements Listener {
         }
     }
 
-    private void checkAndExecuteTalent(Player player, Talent talent, int slot) {
+    /**
+     * Handles Input Talent.
+     */
+    @EventHandler()
+    public void handleInputTalent(PlayerInteractEvent ev) {
+        final Player player = ev.getPlayer();
+        final Action action = ev.getAction();
+        final boolean isLeftClick = action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK;
+
+        handleInputTalent(player, isLeftClick);
+    }
+
+    @EventHandler()
+    public void handleEntityInteract(EntityDamageByEntityEvent ev) {
+        final Entity damager = ev.getDamager();
+
+        if (damager instanceof Player player) {
+            handleInputTalent(player, true);
+        }
+    }
+
+    private void cancelInputTalent(Player player) {
+        final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
+        final InputTalent inputTalent = gamePlayer.getInputTalent();
+
+        if (inputTalent != null) {
+            inputTalent.onCancel(player);
+            gamePlayer.setInputTalent(null);
+        }
+    }
+
+    private void handleInputTalent(Player player, boolean isLeftClick) {
+        final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
+        final InputTalent talent = gamePlayer.getInputTalent();
+
+        if (talent == null || !checkTalent(player, talent)) {
+            return;
+        }
+
+        final Response response = isLeftClick ? talent.onLeftClick(player) : talent.onRightClick(player);
+        final String usage = talent.getUsage(isLeftClick);
+
+        if (!checkResponse(player, response)) {
+            return;
+        }
+
+        gamePlayer.setInputTalent(null); // keep this above CD and slot changes!
+
+        if (isLeftClick) {
+            talent.startCdLeft(player);
+        }
+        else {
+            talent.startCdRight(player);
+        }
+
+        talent.addPoint(player, isLeftClick);
+        player.getInventory().setHeldItemSlot(0);
+    }
+
+    private GamePlayer getAlivePlayer(Player player) {
+        final Manager manager = Manager.current();
+        if (manager.isTrialExistsAndIsOwner(player)) {
+            return manager.getTrial().getGamePlayer();
+        }
+
+        return GamePlayer.getExistingPlayer(player);
+    }
+
+    private void sendUltimateSuccessMessage(Player player, String str, Object... objects) {
+        Chat.sendMessage(player, "&b&l※ &a" + Chat.format(str, objects));
+    }
+
+    private void sendUltimateFailureMessage(Player player, String str, Object... objects) {
+        Chat.sendMessage(player, "&4&l※ &c" + Chat.format(str, objects));
+        PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
+    }
+
+    private DamageOutput getDamageOutput(Player player, LivingEntity entity, double damage, boolean asDamager) {
+        if (Manager.current().isPlayerInGame(player)) {
+            final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
+            final Hero hero = gamePlayer.getHero();
+
+            final DamageInput input = new DamageInput(player, entity, gamePlayer.getLastDamageCause(), damage);
+            return asDamager ? hero.processDamageAsDamager(input) : hero.processDamageAsVictim(input);
+        }
+        return null;
+    }
+
+    private boolean isValidItem(Talent talent, ItemStack stack) {
+        return stack != null && !stack.getType().isAir();
+        //return talent.getMaterial() == stack.getType();
+    }
+
+    private boolean isIntractable(ItemStack stack) {
+        final Material type = stack.getType();
+        return switch (type) {
+            case BOW, CROSSBOW, TRIDENT, FISHING_ROD -> true;
+            default -> type.isInteractable();
+        };
+    }
+
+    private boolean hasNotMoved(Location from, @Nullable Location to) {
+        if (to == null) {
+            return true;
+        }
+        return from.getX() == to.getX() && from.getY() == to.getY() && from.getZ() == to.getZ();
+    }
+
+    /**
+     * Perform talent checks and return if it's valid to be used.
+     *
+     * @param player - Player.
+     * @param talent - Talent.
+     * @return true if valid, false otherwise.
+     */
+    private boolean checkTalent(Player player, Talent talent) {
         // null check
         if (talent == null) {
             Chat.sendMessage(player, "&cNullPointerException: talent is null");
-            return;
+            return false;
         }
 
         // cooldown check
         if (talent.hasCd(player)) {
             Chat.sendMessage(player, "&cTalent on cooldown for %ss.", BukkitUtils.roundTick(talent.getCdTimeLeft(player)));
-            return;
+            return false;
         }
 
         // charge check
         if (talent instanceof ChargedTalent chargedTalent) {
             if (chargedTalent.getChargedAvailable(player) <= 0) {
                 Chat.sendMessage(player, "&cOut of charges!");
-                return;
+                return false;
             }
+        }
+
+        return true;
+    }
+
+    /**
+     * Perform response checks and return if it's valid to be used.
+     *
+     * @param player   - Player.
+     * @param response - Response.
+     * @return true if valid, false otherwise.
+     */
+    private boolean checkResponse(Player player, Response response) {
+        if (response.isError()) {
+            response.sendError(player);
+            return false;
+        }
+
+        // await stops the code here, basically OK but does not start cooldown nor remove charge if charged talent.
+        if (response.isAwait()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private void checkAndExecuteTalent(Player player, Talent talent, int slot) {
+        if (!checkTalent(player, talent)) {
+            return;
+        }
+
+        // Make sure the talent item is still in the slot
+        final ItemStack itemInSlot = player.getInventory().getItem(slot);
+        if (itemInSlot == null || itemInSlot.getType() != talent.getMaterial()) {
+            return;
         }
 
         // Execute talent and get response
         final Response response = talent.execute0(player);
 
-        if (response.isError()) {
-            response.sendError(player);
-            return;
-        }
-
-        // await stops the code here, basically OK but does not start cooldown nor remove charge if charged talent.
-        if (response.isAwait()) {
+        if (!checkResponse(player, response)) {
             return;
         }
 
         // \/ Talent executed \/
-
         if (talent instanceof ChargedTalent chargedTalent) {
             chargedTalent.setLastKnownSlot(player, slot);
             chargedTalent.removeChargeAndStartCooldown(player);
         }
 
         final int point = talent.getPoint();
+
         if (point > 0) {
             GamePlayer.getPlayer(player).addUltimatePoints(point);
         }

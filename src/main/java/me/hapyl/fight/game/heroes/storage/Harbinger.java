@@ -3,6 +3,7 @@ package me.hapyl.fight.game.heroes.storage;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.game.Debugger;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.heroes.ClassEquipment;
@@ -10,15 +11,19 @@ import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.heroes.storage.extra.RiptideStatus;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.TalentHandle;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.storage.extra.StanceData;
+import me.hapyl.fight.game.talents.storage.harbinger.MeleeStance;
+import me.hapyl.fight.game.talents.storage.harbinger.TidalWaveTalent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
 import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.LivingEntity;
@@ -28,10 +33,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
-public class Harbinger extends Hero implements Listener {
+public class Harbinger extends Hero implements Listener, UIComponent {
 
     private final double ultimateRadius = 4.0d;
     private final Map<Player, RiptideStatus> riptideStatus = Maps.newHashMap();
@@ -49,8 +55,7 @@ public class Harbinger extends Hero implements Listener {
 
         setRole(Role.STRATEGIST);
         setMinimumLevel(5);
-        setItemTexture(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjJhMWFjMmE4ZGQ0OGMzNzE0ODI4MDZiMzk2MzU3MTk1Mjk5N2E1NzEyODA2ZTJjODA2MGI4ZTc3Nzc3NTQifX19");
+        setItem("22a1ac2a8dd48c371482806b3963571952997a5712806e2c8060b8e7777754");
 
         final ClassEquipment equipment = getEquipment();
         equipment.setChestplate(82, 82, 76);
@@ -71,7 +76,7 @@ public class Harbinger extends Hero implements Listener {
         final Player player = input.getPlayer();
         final LivingEntity entity = input.getEntity();
 
-        if (entity == null || !TalentHandle.MELEE_STANCE.isActive(player)) {
+        if (entity == null || !Talents.STANCE.getTalent(MeleeStance.class).isActive(player)) {
             return null;
         }
 
@@ -121,6 +126,16 @@ public class Harbinger extends Hero implements Listener {
     }
 
     @Override
+    public void onDeathGlobal(@Nonnull Player player, @Nullable LivingEntity killer, @Nullable EnumDamageCause cause) {
+        for (RiptideStatus value : riptideStatus.values()) {
+            if (value.isAffected(player)) {
+                value.stop(player);
+                Debugger.log("removed riptide from %s", player.getName());
+            }
+        }
+    }
+
+    @Override
     public void onStart(Player player) {
         player.getInventory().setItem(9, new ItemStack(Material.ARROW));
     }
@@ -142,7 +157,7 @@ public class Harbinger extends Hero implements Listener {
         PlayerLib.playSound(playerLocation, Sound.BLOCK_CONDUIT_AMBIENT, 2.0f);
 
         // Stance Check
-        final boolean isMeleeStance = TalentHandle.MELEE_STANCE.isActive(player);
+        final boolean isMeleeStance = getFirstTalent().isActive(player);
 
         if (isMeleeStance) {
             // Melee Stance
@@ -223,17 +238,32 @@ public class Harbinger extends Hero implements Listener {
     }
 
     @Override
-    public Talent getFirstTalent() {
-        return Talents.STANCE.getTalent();
+    public MeleeStance getFirstTalent() {
+        return (MeleeStance) Talents.STANCE.getTalent();
     }
 
     @Override
-    public Talent getSecondTalent() {
-        return Talents.TIDAL_WAVE.getTalent();
+    public TidalWaveTalent getSecondTalent() {
+        return (TidalWaveTalent) Talents.TIDAL_WAVE.getTalent();
     }
 
     @Override
     public Talent getPassiveTalent() {
         return Talents.RIPTIDE.getTalent();
+    }
+
+    @Nonnull
+    @Override
+    public String getString(Player player) {
+        final StanceData data = getFirstTalent().getData(player);
+
+        if (data == null) {
+            return "";
+        }
+
+        return "&f⚔ &l:%ss&f/&l%ss".formatted(
+                BukkitUtils.roundTick(data.getDurationTick()),
+                BukkitUtils.roundTick(getFirstTalent().getMaxDuration())
+        );
     }
 }

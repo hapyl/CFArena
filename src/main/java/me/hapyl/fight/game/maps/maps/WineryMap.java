@@ -11,11 +11,15 @@ import java.util.Random;
 
 public class WineryMap extends GameMap {
 
-    private final int howlPeriod = Tick.fromSecond(60);
+    private final int howlPeriod = Tick.fromMinute(3);
     private final double howlRange = 42.0d;
 
     public WineryMap() {
-        super("Winery \"Drunk Cat\"", Material.SWEET_BERRIES, 100);
+        super("Winery \"Drunk Cat\"");
+
+        setDescription("");
+        setMaterial(Material.SWEET_BERRIES);
+        setTicksBeforeReveal(100);
 
         addLocation(201.5, 64.0, 199.5);
         addLocation(201.5, 64.0, 235.5, -180f, 0.0f);
@@ -28,7 +32,7 @@ public class WineryMap extends GameMap {
 
             @Override
             public void onStart() {
-                GameTask.runTaskTimerTimes(task -> {
+                GameTask.runTaskTimer(task -> {
                     // Howl
                     final Location location = BukkitUtils.defLocation(201.5, 64.0, 217.5);
                     final World world = location.getWorld();
@@ -39,7 +43,7 @@ public class WineryMap extends GameMap {
                         return;
                     }
 
-                    world.playSound(location, Sound.ENTITY_WOLF_HOWL, SoundCategory.RECORDS, 8.0f, new Random().nextFloat(0.0f, 1.0f));
+                    world.playSound(location, Sound.ENTITY_WOLF_HOWL, SoundCategory.RECORDS, 4.0f, new Random().nextFloat(0.0f, 1.0f));
                 }, howlPeriod, howlPeriod);
             }
 

@@ -6,8 +6,9 @@ import me.hapyl.fight.game.talents.storage.alchemist.CauldronAbility;
 import me.hapyl.fight.game.talents.storage.alchemist.RandomPotion;
 import me.hapyl.fight.game.talents.storage.archer.ShockDark;
 import me.hapyl.fight.game.talents.storage.archer.TripleShot;
+import me.hapyl.fight.game.talents.storage.bountyhunter.GrappleHookTalent;
+import me.hapyl.fight.game.talents.storage.bountyhunter.ShortyShotgun;
 import me.hapyl.fight.game.talents.storage.darkmage.BlindingCurse;
-import me.hapyl.fight.game.talents.storage.darkmage.HealingAura;
 import me.hapyl.fight.game.talents.storage.darkmage.ShadowClone;
 import me.hapyl.fight.game.talents.storage.darkmage.SlowingAura;
 import me.hapyl.fight.game.talents.storage.doctor.ConfusionPotion;
@@ -16,9 +17,10 @@ import me.hapyl.fight.game.talents.storage.ender.TeleportPearl;
 import me.hapyl.fight.game.talents.storage.ender.TransmissionBeacon;
 import me.hapyl.fight.game.talents.storage.freazly.IceCone;
 import me.hapyl.fight.game.talents.storage.harbinger.MeleeStance;
-import me.hapyl.fight.game.talents.storage.harbinger.TidalWave;
-import me.hapyl.fight.game.talents.storage.healer.HealingPotion;
+import me.hapyl.fight.game.talents.storage.harbinger.TidalWaveTalent;
+import me.hapyl.fight.game.talents.storage.healer.HealingOrb;
 import me.hapyl.fight.game.talents.storage.healer.ReviveTotem;
+import me.hapyl.fight.game.talents.storage.heavy_knight.Uppercut;
 import me.hapyl.fight.game.talents.storage.hercules.HerculesJump;
 import me.hapyl.fight.game.talents.storage.hercules.HerculesShift;
 import me.hapyl.fight.game.talents.storage.juju.ArrowShield;
@@ -52,6 +54,9 @@ import me.hapyl.fight.game.talents.storage.spark.Molotov;
 import me.hapyl.fight.game.talents.storage.spark.SparkFlash;
 import me.hapyl.fight.game.talents.storage.swooper.BlastPack;
 import me.hapyl.fight.game.talents.storage.swooper.Blink;
+import me.hapyl.fight.game.talents.storage.taker.DeathSwap;
+import me.hapyl.fight.game.talents.storage.taker.FatalReap;
+import me.hapyl.fight.game.talents.storage.taker.SpiritualBonesPassive;
 import me.hapyl.fight.game.talents.storage.tamer.MineOBall;
 import me.hapyl.fight.game.talents.storage.techie.TrapCage;
 import me.hapyl.fight.game.talents.storage.techie.TrapWire;
@@ -68,6 +73,22 @@ import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
 
+/**
+ * This is a registry for all talents that are
+ * executable, no matter if is used or not.
+ *
+ * <p>
+ * Stores ENUM(Talent) where Talent is a class instance of a talent.
+ * </p>
+ *
+ * <p>
+ * Talents <b>MUST</b> be stored in here, otherwise they will not be registered.
+ * </p>
+ *
+ * To get actual talent class, use {@link Handle} or {@link #getTalent(Class)}.
+ *
+ * @author hapyl
+ */
 public enum Talents {
 
     // Archer
@@ -191,15 +212,16 @@ public enum Talents {
     // Dark Mage
     BLINDING_CURSE(new BlindingCurse()),
     SLOWING_AURA(new SlowingAura()),
-    HEALING_AURA(new HealingAura()),
+    HEALING_AURA(new me.hapyl.fight.game.talents.storage.darkmage.HealingAura()),
     SHADOW_CLONE(new ShadowClone()),
+    DARK_MAGE_PASSIVE(new PassiveTalent("unnamed", "", Material.BEDROCK)),
 
     // Blast Knight
     SPEAR(new Spear()),
     SLOWNESS_POTION(new SlownessPotion()),
     SHIELDED(new PassiveTalent(
             "Shielded",
-            "Blocking damage using your shield will charge it. Once charged, shield will explode and create Nova Explosion, dealing damage and knocking back opponents.",
+            "Blocking damage using your shield will add a charge to it, up to &b10&7 charges.____Once charged, it will explode and create &bNova Explosion&7, dealing moderate damage and knocking back nearby opponents.",
             Material.SHIELD
     )),
 
@@ -208,21 +230,21 @@ public enum Talents {
     NINJA_SMOKE(new NinjaSmoke()),
     FLEET_FOOT(new PassiveTalent(
             "Fleet Foot",
-            "Ninja's are fast and fragile. You gain &bSpeed &7boost and don't take fall damage.",
+            "Ninjas are fast and fragile.____You gain &bSpeed &7boost and don't take fall damage.",
             Material.ELYTRA
     )),
 
     // Taker
-    RESERVED_TAKER(null),
-    RESERVED_TAKER0(null),
-    RESERVED_TAKER1(null),
+    FATAL_REAP(new FatalReap()),
+    DEATH_SWAP(new DeathSwap()),
+    SPIRITUAL_BONES(new SpiritualBonesPassive()),
 
     // JuJu
     ARROW_SHIELD(new ArrowShield()),
     CLIMB(new Climb()),
     ELUSIVE_BURST(new PassiveTalent(
             "Elusive Burst",
-            "Fully charged shots while sneaking will infuse your arrow. Infused arrows exploded into small clusters dealing big damage upon hit. This ability cannot be used during ultimate.",
+            "Fully charged shots while sneaking will infuse your arrow.____Infused arrows exploded into small clusters dealing big damage upon hit.",
             Material.PEONY
     )),
 
@@ -252,10 +274,10 @@ public enum Talents {
 
     // Harbinger
     STANCE(new MeleeStance()),
-    TIDAL_WAVE(new TidalWave()),
+    TIDAL_WAVE(new TidalWaveTalent()),
     RIPTIDE(new PassiveTalent(
             "Riptide",
-            "Fully charged shot in &e&lRange Stance&7 applies &bRiptide &7effect to opponents.____Hitting opponents affected by &bRiptide&7 with &nfully charged shots&7 or in &e&lRange &e&lStance &7executes &bRiptide Slash&7, that rapidly deals damage.____&bRiptide Slash&7 can be executed once every &b2.5s&7.",
+            "Fully charged shots in &e&lRange Stance&7 applies &bRiptide &7effect to opponents.____Hitting opponents affected by &bRiptide&7 with &nfully charged shots&7 or in &e&lMelee &e&lStance &7executes &bRiptide Slash&7 that rapidly deals damage.____&bRiptide Slash&7 can be executed once every &b2.5s&7 per opponent.",
             Material.HEART_OF_THE_SEA
     )),
 
@@ -280,7 +302,7 @@ public enum Talents {
     TOTEM_ACCELERATION_AURA(new TotemTalent(ResonanceType.ACCELERATING_AURA, 20)),
 
     // Healer
-    HEALING_POTION(new HealingPotion()),
+    HEALING_ORB(new HealingOrb()),
     REVIVE_TOTEM(new ReviveTotem()),
     REVIVE(new PassiveTalent(
             "Revive",
@@ -293,9 +315,21 @@ public enum Talents {
     BAT_SWARM(new BatSwarm()),
     BLOOD_THIRST(new PassiveTalent(
             "Blood Thirst",
-            "Your health is constantly drained.____Whenever you hit an opponent you will gain a stack of blood, up to 10 stacks.____Drink the blood to increase your damage and heal yourself.__Healing, damage boost, duration and cooldown is based on the amount of stacks consumed.",
+            "&cYour health is constantly drained.____Whenever you or your bats hit an opponent, you will gain a stack of &bblood&7, up to &b10&7 stacks.____Drink the blood to &cincrease your damage&7 and &cheal yourself&7.____&6Healing, damage boost, duration and cooldown is based on the amount of stacks consumed.",
             Material.REDSTONE
     )),
+
+    // Bounty Hunter
+    SHORTY(new ShortyShotgun()),
+    GRAPPLE(new GrappleHookTalent()),
+    SMOKE_BOMB(new PassiveTalent(
+            "Smoke Bomb",
+            "Whenever your health falls below &c50%&7, you gain a &eSmoke Bomb&7.____Throw it to create a smoke field that &bblinds&7 everyone inside it and grant you a &bspeed boost&7.",
+            Material.ENDERMAN_SPAWN_EGG
+    )),
+
+    // Heavy Knight
+    UPPERCUT(new Uppercut()),
 
     // test (keep last)
     TestChargeTalent(new TestChargeTalent());
@@ -312,6 +346,45 @@ public enum Talents {
         }
     }
 
+    public void startCd(Player player) {
+        getTalent().startCd(player);
+    }
+
+    public String getName() {
+        return getTalent().getName();
+    }
+
+    /**
+     * Returns a handle of a talent.
+     *
+     * Note that this method only returns a base handle,
+     * for specific hero handles, use {@link #getTalent(Class)}.
+     *
+     * @return handle of a talent.
+     */
+    @Nonnull
+    public Talent getTalent() {
+        return talent;
+    }
+
+    /**
+     * Returns a handle of a talent.
+     *
+     * This method tries to cast the handle to the specified class.
+     *
+     * @param cast - Cast to.
+     * @return handle of a talent.
+     * @throws IllegalArgumentException if the cast is invalid.
+     */
+    @Nonnull
+    public <E extends Talent> E getTalent(Class<E> cast) throws IllegalArgumentException {
+        try {
+            return cast.cast(talent);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("talent is not of type " + cast.getSimpleName());
+        }
+    }
+
     public static Talents fromTalent(Talent talent) {
         for (Talents value : values()) {
             if (value.getTalent() == talent) {
@@ -322,16 +395,4 @@ public enum Talents {
         throw new IllegalArgumentException("non-registered talent");
     }
 
-    public void startCd(Player player) {
-        getTalent().startCd(player);
-    }
-
-    public String getName() {
-        return getTalent().getName();
-    }
-
-    @Nonnull
-    public Talent getTalent() {
-        return talent;
-    }
 }

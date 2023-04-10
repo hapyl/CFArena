@@ -25,7 +25,7 @@ public class DatabaseMongo {
 
         // Suppress logging
 
-        loadClasses();
+        //loadClasses();
     }
 
     public void stopConnection() {

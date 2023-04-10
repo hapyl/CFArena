@@ -35,42 +35,50 @@ Bugs:
 - [✔] DA can phys action staff
 - [✔] ED can pickup blocks during shh
 - [✔] Troll last laugh not formatted
-- [FUCK KM] Glowing for KM broken (blinks)
+- [Fucking KM (Definitely not my+mojang shitty code)] Glowing for KM broken (blinks)
 - [✔] Ninja invisibility don't go at dmg
 - [✖] Ninja takes fall dmg
 - [✔] void doesn't reset ond death
+- [✔] Parkour record breaks
+- [✔] Wrong amount of bones flying
 
 - Maybe genshin slowing aura for freazly
-- Black hole works with grimoire
+- [✔] Joining the game while it's in progress doesn't add player as spectators
+- [✔] Black hole works with grimoire
 - [✔] Store class wins
 - [✔] Fix techie trips
-- Stop paintings from breaking
-- harbinger riptide not going away?
-- weakness level matters for client
+- [✔] Stop paintings from breaking
+- [It's not, it's 5s and updatable] harbinger riptide not going away?
+- [✔] weakness level matters for client
 - [✔] deathmath when die who dead keeps yes
-- [?] me.hapyl.fight.game.heroes.storage.extra.BlockShield.randomBlock(BlockShield.java:132) ~[ClassesFightArena.jar:?]
+- [✔] me.hapyl.fight.game.heroes.storage.extra.BlockShield.randomBlock(BlockShield.java:132) ~[ClassesFightArena.jar:?]
 - [✔] spark does not take dmg?
 
 - add glowing on death for teammates
 - fix mmu3 . -> / not cancelling msg
-- Kill deathmatch
+- [✔] Kill DM
 - [✔] Blast knight horse
-- wolf howl 201.5 64.0 217.5 rand
-- patch notes type the the
-- Parkour button actual pressing remove this wtf
-- leaving breaks the game
-- tripwire does not refresh on cauht?
+- [✔] wolf howl 201.5 64.0 217.5 rand
+- [✔] patch notes type the the
+- [✔] Parkour button actual pressing remove this wtf
+- [✔] leaving breaks the game
+- [✔] tripwire does not refresh on caught?
 
+- [✔] Melee stance does not reset properly?
+- [✔] juju shield breaks all at once
+- [✔] Tamer broken
+
+- Repackage talent/hero handles?
 - Cleanup Code
 - Add friends, idk why?
-- Maybe remove re-join ability, it kinda sucks and breaks the game
-- Add /colorItem command or something
+- [It's not, I do 🐥] Maybe remove re-join ability, it kinda sucks and breaks the game
+- [✔] Add /colorItem command or something
 
 - Add talents for:
     - [✔] Troll (Passive✔)
-    - Dr. Ed (Second✔, Passive)
+    - [✔] Dr. Ed (Second✔, Passive)
     - Freazly (Second, Passive)
-    - Dark Mage (Passive)
+    - [✔] Dark Mage (Passive)
     - Swooper (Second✔)
     - Tamer (First, Second, Passive)
     - Shark (Second)

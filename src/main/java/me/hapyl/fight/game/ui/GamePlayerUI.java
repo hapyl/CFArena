@@ -22,7 +22,9 @@ import org.bukkit.entity.Player;
 
 import java.text.SimpleDateFormat;
 
-// this controls all UI based elements such as scoreboard, tab-list and actionbar (while in game)
+/**
+ * This controls all UI based elements such as scoreboard, tab-list and actionbar (while in game).
+ */
 public class GamePlayerUI {
 
     private final PlayerProfile profile;
@@ -67,7 +69,6 @@ public class GamePlayerUI {
     }
 
     private void animateScoreboard() {
-
     }
 
     public void sendInGameUI() {
@@ -91,8 +92,8 @@ public class GamePlayerUI {
         //        this.builder.addLines("", "Welcome %s to the".formatted(this.player.getName()), "&lClasses Fight &fArena!", "");
 
         if (current.isGameInProgress()) {
-            final AbstractGameInstance game = current.getCurrentGame();
-            final AbstractGamePlayer gamePlayer = GamePlayer.getPlayer(this.player);
+            final IGameInstance game = current.getCurrentGame();
+            final IGamePlayer gamePlayer = GamePlayer.getPlayer(this.player);
 
             // Have to reduce this so everything fits
             if (!gamePlayer.isAlive() && !gamePlayer.isRespawning()) {
@@ -148,7 +149,7 @@ public class GamePlayerUI {
         this.builder.addPlayer(player);
     }
 
-    private String getTimeLeftString(AbstractGameInstance game) {
+    private String getTimeLeftString(IGameInstance game) {
         return new SimpleDateFormat("mm:ss").format(game.getTimeLeftRaw());
     }
 

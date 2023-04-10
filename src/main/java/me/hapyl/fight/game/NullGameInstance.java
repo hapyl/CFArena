@@ -1,6 +1,8 @@
 package me.hapyl.fight.game;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -13,114 +15,140 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
 
-public abstract class AbstractGameInstance {
-
-    public static final AbstractGameInstance NULL_GAME_INSTANCE = new AbstractGameInstance() {
-
-        /**
-         * This will indicate the invalid instance.
-         */
-        @Override
-        public long getTimeLeft() {
-            return Integer.MIN_VALUE;
-        }
-    };
-
-    public AbstractGameInstance() {
+public class NullGameInstance implements IGameInstance {
+    @Nonnull
+    @Override
+    public State getGameState() {
+        return State.POST_GAME;
     }
 
+    @Override
     public void setGameState(State gameState) {
 
     }
 
-    public State getGameState() {
-        return State.PRE_GAME;
-    }
-
+    @Override
     public void calculateEverything() {
 
     }
 
+    @Override
     public long getTimeLeftRaw() {
         return 0;
     }
 
+    @Override
     public long getTimeLeft() {
         return 0;
     }
 
+    @Override
     public boolean isTimeIsUp() {
         return false;
     }
 
     @Nullable
+    @Override
     public GamePlayer getPlayer(Player player) {
         return null;
     }
 
     @Nullable
+    @Override
     public GamePlayer getPlayer(UUID uuid) {
         return null;
     }
 
+    @Nonnull
+    @Override
     public Map<UUID, GamePlayer> getPlayers() {
-        return new HashMap<>();
-    }
-
-    public List<GamePlayer> getAlivePlayers(Heroes heroes) {
-        return new ArrayList<>();
+        return Maps.newHashMap();
     }
 
     @Nonnull
-    public List<GamePlayer> getAlivePlayers() {
-        return new ArrayList<>();
+    @Override
+    public List<GamePlayer> getAlivePlayers(Heroes heroes) {
+        return Lists.newArrayList();
     }
 
+    @Nonnull
+    @Override
+    public List<GamePlayer> getAlivePlayers() {
+        return Lists.newArrayList();
+    }
+
+    @Nonnull
+    @Override
     public List<Player> getAlivePlayersAsPlayers() {
         return Lists.newArrayList();
     }
 
+    @Nonnull
+    @Override
     public List<GamePlayer> getAlivePlayers(Predicate<GamePlayer> predicate) {
-        return getAlivePlayers();
+        return Lists.newArrayList();
     }
 
+    @Nonnull
+    @Override
     public List<Player> getAlivePlayersAsPlayers(Predicate<GamePlayer> predicate) {
         return Lists.newArrayList();
     }
 
-    public void checkWinCondition() {
+    @Nonnull
+    @Override
+    public Set<Heroes> getActiveHeroes() {
+        return Sets.newHashSet();
     }
 
+    @Override
+    public void checkWinCondition() {
+
+    }
+
+    @Nonnull
+    @Override
     public CFGameMode getMode() {
         return Modes.FFA.getMode();
     }
 
+    @Nonnull
+    @Override
     public Modes getCurrentMode() {
         return Modes.FFA;
     }
 
+    @Override
     public boolean isWinner(Player player) {
         return false;
     }
 
-    public GameMaps getCurrentMap() {
+    @Nonnull
+    @Override
+    public GameMaps getMap() {
         return GameMaps.ARENA;
     }
 
     @Nullable
+    @Override
     public GameTask getGameTask() {
         return null;
     }
 
+    @Nonnull
+    @Override
     public String hexCode() {
-        return "null";
+        return "fake_instance";
     }
 
+    @Nonnull
+    @Override
     public Collection<GamePlayer> getAllPlayers() {
-        return Lists.newArrayList();
+        return new HashSet<>();
     }
 
-    public boolean isAbstract() {
-        return true;
+    @Override
+    public boolean isReal() {
+        return false; // make sure this is false
     }
 }

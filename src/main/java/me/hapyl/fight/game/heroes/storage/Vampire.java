@@ -11,6 +11,7 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.heroes.storage.extra.VampireData;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -78,6 +79,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent {
 
         vampireData = Maps.newHashMap();
 
+        setRole(Role.MELEE);
         setItem("8d44756e0b4ece8d746296a3d5e297e1415f4ba17647ffe228385383d161a9");
 
         final ClassEquipment equipment = getEquipment();
@@ -89,7 +91,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent {
 
         setUltimate(new UltimateTalent(
                 "Sanguineous Morphology",
-                "Transform into a bat and fly freely for {duration}.____After duration ends, transform back into vampire and gain the opposite amount of blood you had upon casting (Eg: 10 -> 0, 7 -> 3, 2 -> 8) and summon Dracula Jr.____You cannot deal damage nor gain blood during the duration!",
+                "Transform into a bat and fly freely for {duration}.____After duration ends, transform back into vampire and gain the opposite amount of blood you had upon casting and summon &eDracula Jr&7.__&8Eg: 10 -> 0, 7 -> 3, 2 -> 8 etc.____You cannot deal damage nor gain blood during the duration!",
                 60
         ).setDurationSec(6).setCdSec(20).setTexture("473af69ed9bf67e2f5403dd7d28bbe32034749bbfb635ac1789a412053cdcbf0"));
     }
@@ -223,7 +225,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent {
 
         if (ev.getHand() == EquipmentSlot.OFF_HAND ||
                 !(ev.getAction() == Action.RIGHT_CLICK_BLOCK || ev.getAction() == Action.RIGHT_CLICK_AIR) ||
-                !validatePlayer(player, Heroes.VAMPIRE) || inventory.getHeldItemSlot() != 7) {
+                !validatePlayer(player) || inventory.getHeldItemSlot() != 7) {
             return;
         }
 

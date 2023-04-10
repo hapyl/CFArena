@@ -97,14 +97,19 @@ public class GameResult {
                 Chat.sendTitle(player, "&6&lVICTORY", "&eYou're the winner!", 10, 60, 5);
             }
             else {
-                Chat.sendTitle(
-                        player,
-                        "&c&lDEFEAT",
-                        "&e%s %s the winner!".formatted(formatWinners(), isSingleWinner() ? "is" : "are"),
-                        10,
-                        60,
-                        5
-                );
+                if (!isWinners()) {
+                    Chat.sendTitle(player, "&6&lGAME OVER", "&eThere are no winners!", 10, 60, 5);
+                }
+                else {
+                    Chat.sendTitle(
+                            player,
+                            "&c&lDEFEAT",
+                            "&e%s %s the winner!".formatted(formatWinners(), isSingleWinner() ? "is" : "are"),
+                            10,
+                            60,
+                            5
+                    );
+                }
             }
         });
 

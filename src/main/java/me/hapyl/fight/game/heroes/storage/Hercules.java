@@ -7,7 +7,6 @@ import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.cosmetic.CosmeticsHandle;
 import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -163,7 +162,7 @@ public class Hercules extends Hero implements Listener, PlayerElement {
     public void handleUltimate(PlayerToggleSneakEvent ev) {
         final Player player = ev.getPlayer();
 
-        if (validatePlayer(player, Heroes.HERCULES) && player.isSneaking() && canPlunge(player) && !isPlunging(player)) {
+        if (validatePlayer(player) && player.isSneaking() && canPlunge(player) && !isPlunging(player)) {
             performPlunge(player, getPlungeDistance(player));
         }
     }

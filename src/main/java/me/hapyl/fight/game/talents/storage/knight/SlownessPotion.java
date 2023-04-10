@@ -20,17 +20,18 @@ public class SlownessPotion extends Talent {
 	public SlownessPotion() {
         super(
                 "Slowness Potion",
-                "A little bottle that can cause a lot of troubles. Throw a slowing potion if front of that slows enemies in small AoE."
+                "A little bottle that can cause a lot of troubles.____Throw a slowing potion if front of that slows enemies in small AoE."
         );
-        this.setItem(Material.SPLASH_POTION, builder -> builder.setPotionColor(Color.GRAY));
-        this.setCdSec(12);
-	}
+
+        setItem(Material.SPLASH_POTION, builder -> builder.setPotionColor(Color.GRAY));
+        setCdSec(12);
+    }
 
 	@Override
 	public Response execute(Player player) {
-
 		final ThrownPotion potion = player.launchProjectile(ThrownPotion.class);
-		potion.setItem(potionItem);
+
+        potion.setItem(potionItem);
 		potion.setShooter(player);
 
 		return Response.OK;

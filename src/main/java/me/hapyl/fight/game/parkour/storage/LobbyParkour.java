@@ -2,6 +2,8 @@ package me.hapyl.fight.game.parkour.storage;
 
 import me.hapyl.fight.game.parkour.CFParkour;
 import me.hapyl.fight.game.parkour.ParkourLeaderboard;
+import me.hapyl.spigotutils.module.util.BukkitUtils;
+import org.bukkit.Location;
 
 public class LobbyParkour extends CFParkour {
     public LobbyParkour() {
@@ -19,5 +21,11 @@ public class LobbyParkour extends CFParkour {
         addCheckpoint(18, 68, 18, -153.0f, 27.0f);
 
         setLeaderboard(new ParkourLeaderboard(this, 25.5d, 62.5d, 11.5d));
+
+        final Location quitLocation = BukkitUtils.defLocation(4.5d, 62.0d, 0.5d);
+        quitLocation.setYaw(-180.0f);
+
+        setQuitLocation(quitLocation);
     }
+
 }

@@ -6,9 +6,9 @@ import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.TalentHandle;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.storage.vortex.VortexStar;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -38,9 +38,7 @@ public class Vortex extends Hero implements UIComponent {
         setRole(Role.STRATEGIST);
 
         setInfo("A young boy with power of speaking to starts...");
-        setItemTexture(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMmFkYzQ1OGRmYWJjMjBiOGQ1ODdiMDQ3NjI4MGRhMmZiMzI1ZmM2MTZhNTIxMjc4NDQ2NmE3OGI4NWZiN2U0ZCJ9fX0="
-        );
+        setItem("2adc458dfabc20b8d587b0476280da2fb325fc616a5212784466a78b85fb7e4d");
 
         final ClassEquipment equipment = this.getEquipment();
         equipment.setChestplate(102, 51, 0);
@@ -208,8 +206,8 @@ public class Vortex extends Hero implements UIComponent {
 
 
     @Override
-    public Talent getFirstTalent() {
-        return Talents.VORTEX_STAR.getTalent();
+    public VortexStar getFirstTalent() {
+        return (VortexStar) Talents.VORTEX_STAR.getTalent();
     }
 
     @Override
@@ -224,6 +222,6 @@ public class Vortex extends Hero implements UIComponent {
 
     @Override
     public @Nonnull String getString(Player player) {
-        return "&6⭐ &l" + TalentHandle.VORTEX_STAR.getStarsAmount(player);
+        return "&6⭐ &l" + getFirstTalent().getStarsAmount(player);
     }
 }

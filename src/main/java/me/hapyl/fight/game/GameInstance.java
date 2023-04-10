@@ -2,6 +2,7 @@ package me.hapyl.fight.game;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import me.hapyl.fight.Shortcuts;
 import me.hapyl.fight.database.Award;
 import me.hapyl.fight.exception.ClassesFightException;
@@ -20,7 +21,6 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -31,22 +31,22 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
 
-public class GameInstance extends AbstractGameInstance implements GameElement {
+public class GameInstance implements IGameInstance, GameElement {
 
     private final Cosmetics DEFAULT_WIN_COSMETIC = Cosmetics.FIREWORKS;
 
     private final String hexCode;
 
     private final long startedAt;
-    private long timeLimit;
     private final Map<UUID, GamePlayer> players;
     private final GameMaps currentMap;
     private final GameTask gameTask;
     private final Modes mode;
     private final GameReport gameReport;
     private final GameResult gameResult;
-
+    private long timeLimit;
     private State gameState;
+    private Set<Heroes> activeHeroes;
 
     public GameInstance(Modes mode, GameMaps map) {
         this.startedAt = System.currentTimeMillis();
@@ -70,18 +70,19 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
     }
 
     @Override
-    public void setGameState(State gameState) {
-        this.gameState = gameState;
+    public boolean isReal() {
+        return true;
     }
 
-    @Override
-    public boolean isAbstract() {
-        return false;
-    }
-
+    @Nonnull
     @Override
     public State getGameState() {
         return gameState;
+    }
+
+    @Override
+    public void setGameState(State gameState) {
+        this.gameState = gameState;
     }
 
     public GameReport getGameReport() {
@@ -136,6 +137,10 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
         return getTimeLeftRaw() / 50;
     }
 
+    public void setTimeLeft(long timeLeft) {
+        this.timeLimit = timeLeft;
+    }
+
     @Override
     public boolean isTimeIsUp() {
         return System.currentTimeMillis() >= startedAt + timeLimit;
@@ -153,16 +158,19 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
         return players.get(uuid);
     }
 
+    @Nonnull
     @Override
     public Map<UUID, GamePlayer> getPlayers() {
         return players;
     }
 
+    @Nonnull
     @Override
     public Collection<GamePlayer> getAllPlayers() {
         return players.values();
     }
 
+    @Nonnull
     @Override
     public List<GamePlayer> getAlivePlayers(Heroes heroes) {
         return getAlivePlayers(gp -> gp.getHero() == heroes.getHero());
@@ -174,6 +182,7 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
         return getAlivePlayers(gp -> gp.getPlayer().isOnline());
     }
 
+    @Nonnull
     @Override
     public List<GamePlayer> getAlivePlayers(Predicate<GamePlayer> predicate) {
         final List<GamePlayer> players = new ArrayList<>();
@@ -185,6 +194,7 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
         return players;
     }
 
+    @Nonnull
     @Override
     public List<Player> getAlivePlayersAsPlayers() {
         final List<Player> list = Lists.newArrayList();
@@ -192,6 +202,7 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
         return list;
     }
 
+    @Nonnull
     @Override
     public List<Player> getAlivePlayersAsPlayers(Predicate<GamePlayer> predicate) {
         final List<GamePlayer> players = getAlivePlayers(predicate);
@@ -202,38 +213,37 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
         return list;
     }
 
-    private void createGamePlayers() {
-        Bukkit.getOnlinePlayers().forEach(player -> {
-            final Heroes hero = getHero(player);
-            final PlayerProfile profile = Shortcuts.getProfile(player);
-            final GamePlayer gamePlayer = new GamePlayer(profile, hero);
+    @Nonnull
+    @Override
+    public Set<Heroes> getActiveHeroes() {
+        if (activeHeroes == null) {
+            activeHeroes = Sets.newHashSet();
 
-            // Spectate Setting
-            if (Setting.SPECTATE.isEnabled(player)) {
-                gamePlayer.setSpectator(true);
-                player.setGameMode(GameMode.SPECTATOR);
+            for (GamePlayer value : getPlayers().values()) {
+                activeHeroes.add(value.getEnumHero());
             }
-            else {
-                if (Setting.RANDOM_HERO.isEnabled(player)) {
-                    gamePlayer.sendMessage("");
-                    gamePlayer.sendMessage(
-                            "&a&l%s &awas randomly selected as your hero!",
-                            gamePlayer.getHero().getName()
-                    );
-                    gamePlayer.sendMessage("&e/setting &ato turn off this feature.");
-                    gamePlayer.sendMessage("");
-                }
-                gamePlayer.resetPlayer();
-            }
+        }
 
-            gamePlayer.updateScoreboard(false);
-            players.put(player.getUniqueId(), gamePlayer);
-        });
+        return activeHeroes;
     }
 
+    @Nonnull
+    public GamePlayer getOrCreateGamePlayer(Player player) {
+        GamePlayer gamePlayer = getPlayer(player);
 
-    private Heroes getHero(Player player) {
-        return Setting.RANDOM_HERO.isEnabled(player) ? Heroes.randomHero() : Manager.current().getSelectedHero(player);
+        // If player joined after the game started, create new
+        if (gamePlayer == null) {
+            gamePlayer = new GamePlayer(PlayerProfile.getProfile(player), getHero(player));
+            players.put(player.getUniqueId(), gamePlayer);
+        }
+
+        // If player re-joined, change their handle and update it
+        if (!gamePlayer.compare(player)) {
+            gamePlayer.setHandle(player);
+            gamePlayer.updateScoreboard(false);
+        }
+
+        return gamePlayer;
     }
 
     @Override
@@ -247,11 +257,13 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
         }
     }
 
+    @Nonnull
     @Override
     public CFGameMode getMode() {
         return mode.getMode();
     }
 
+    @Nonnull
     @Override
     public Modes getCurrentMode() {
         return mode;
@@ -272,8 +284,90 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
         //Chat.broadcast("&7&oStopping game instance #%s...".formatted(this.hexCode()));
     }
 
+    @Nonnull
     public String hexCode() {
         return this.hexCode;
+    }
+
+    @Nonnull
+    @Override
+    public GameMaps getMap() {
+        return currentMap;
+    }
+
+    @Override
+    public GameTask getGameTask() {
+        return gameTask;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final GameInstance that = (GameInstance) o;
+        return startedAt == that.startedAt && timeLimit == that.timeLimit && Objects.equals(players, that.players);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(startedAt, timeLimit, players);
+    }
+
+    public long getStartedAt() {
+        return startedAt;
+    }
+
+    @Nonnull
+    public Location getRandomPlayerLocationOrMapLocationIfThereAreNoPlayers() {
+        if (players.size() != 0) {
+            for (GamePlayer value : players.values()) {
+                return value.getPlayer().getLocation();
+            }
+        }
+
+        return currentMap.getMap().getLocation();
+    }
+
+    public void populateScoreboard(Player player) {
+        players.values().forEach(gamePlayer -> {
+            gamePlayer.getProfile().getScoreboardTeams().populateInGame(player);
+        });
+    }
+
+    private void createGamePlayers() {
+        Bukkit.getOnlinePlayers().forEach(player -> {
+            final Heroes hero = getHero(player);
+            final PlayerProfile profile = Shortcuts.getProfile(player);
+            final GamePlayer gamePlayer = new GamePlayer(profile, hero);
+
+            // Spectate Setting
+            if (Setting.SPECTATE.isEnabled(player)) {
+                gamePlayer.setSpectator(true);
+            }
+            else {
+                if (Setting.RANDOM_HERO.isEnabled(player)) {
+                    gamePlayer.sendMessage("");
+                    gamePlayer.sendMessage(
+                            "&a&l%s &awas randomly selected as your hero!",
+                            gamePlayer.getHero().getName()
+                    );
+                    gamePlayer.sendMessage("&e/setting &ato turn off this feature.");
+                    gamePlayer.sendMessage("");
+                }
+                gamePlayer.resetPlayer();
+            }
+
+            gamePlayer.updateScoreboard(false);
+            players.put(player.getUniqueId(), gamePlayer);
+        });
+    }
+
+    private Heroes getHero(Player player) {
+        return Setting.RANDOM_HERO.isEnabled(player) ? Heroes.randomHero() : Manager.current().getSelectedHero(player);
     }
 
     private String generateHexCode() {
@@ -330,40 +424,5 @@ public class GameInstance extends AbstractGameInstance implements GameElement {
                 --tick;
             }
         }.runTaskTimer(0, 1);
-    }
-
-    @Override
-    public GameMaps getCurrentMap() {
-        return currentMap;
-    }
-
-    @Override
-    public GameTask getGameTask() {
-        return gameTask;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        final GameInstance that = (GameInstance) o;
-        return startedAt == that.startedAt && timeLimit == that.timeLimit && Objects.equals(players, that.players);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(startedAt, timeLimit, players);
-    }
-
-    public long getStartedAt() {
-        return startedAt;
-    }
-
-    public void setTimeLeft(long timeLeft) {
-        this.timeLimit = timeLeft;
     }
 }

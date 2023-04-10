@@ -1,6 +1,8 @@
 package me.hapyl.fight.game.talents.storage.freazly;
 
+import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Utils;
@@ -25,6 +27,7 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 
 public class IceCone extends Talent implements Listener {
@@ -37,8 +40,8 @@ public class IceCone extends Talent implements Listener {
 				"Ice Cone",
 				"Launches a snowball in front of you.____Upon hitting an opponent, cages them into an ice cone.__Upon hitting a block, creates a slowing aura for short duration."
 		);
-		this.setItem(Material.SNOWBALL);
-		this.setCd(400);
+		setItem(Material.SNOWBALL);
+		setCd(400);
 	}
 
 	@EventHandler()
@@ -77,11 +80,15 @@ public class IceCone extends Talent implements Listener {
 
 						Utils.getEntitiesInRange(location, 4.0d).forEach(entity -> {
 							entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 10, 3));
+
+							if (entity instanceof Player player) {
+								GamePlayer.getPlayer(player).addEffect(GameEffectType.SLOWING_AURA, 20);
+							}
 						});
 
 						Geometry.drawCircle(location, 4.0d, Quality.HIGH, new WorldParticle(Particle.BLOCK_CRACK) {
 							@Override
-							public void draw(Location location) {
+							public void draw(@Nonnull Location location) {
 								Objects.requireNonNull(location.getWorld()).spawnParticle(
 										this.getParticle(),
 										location,
@@ -101,14 +108,13 @@ public class IceCone extends Talent implements Listener {
 			}
 
 			Chat.sendMessage(player, "&aYour snowball hit a block and created slowing aura!");
-
 		}
 	}
 
 	private void createBlob(Player player) {
 		final BlockData data = Material.ICE.createBlockData();
-
 		final Location location = player.getLocation();
+
 		player.sendBlockChange(cloneAndSaveLoc(location, 1, 0, 0), data);
 		player.sendBlockChange(cloneAndSaveLoc(location, -1, 0, 0), data);
 		player.sendBlockChange(cloneAndSaveLoc(location, 1, 1, 0), data);
@@ -123,7 +129,6 @@ public class IceCone extends Talent implements Listener {
 
 		// fix player position
 		player.teleport(location.clone().add(0.5d, 0.0d, 0.5d));
-
 	}
 
 	@Override
@@ -143,8 +148,8 @@ public class IceCone extends Talent implements Listener {
 
 	@Override
 	public Response execute(Player player) {
-
 		final Snowball snowball = player.launchProjectile(Snowball.class);
+
 		snowball.setShooter(player);
 		snowballMap.put(player, snowball);
 

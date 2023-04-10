@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.talents.storage.mage;
 
-import me.hapyl.fight.game.ChatGPT;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
@@ -11,7 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
-public class ArcaneMute extends Talent implements ChatGPT {
+public class ArcaneMute extends Talent {
     public ArcaneMute() {
         super(
                 "Arcane Mute",

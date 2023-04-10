@@ -28,8 +28,9 @@ import java.util.Map;
 
 public class BlastPack extends ChargedTalent {
 
-    private final Map<Player, Entity> blastPackMap = new HashMap<>();
     @DisplayField(suffix = "blocks") private final double explosionRadius = 4.0d;
+
+    private final Map<Player, Entity> blastPackMap = new HashMap<>();
 
     public BlastPack() {
         super("Blast Pack", "&b1) &7Throw the blast pack!__&b2) &7Click again to explode!__&b3) &7???__&b4) &7Fly!", 2);

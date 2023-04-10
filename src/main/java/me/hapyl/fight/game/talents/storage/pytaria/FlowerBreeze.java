@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.storage.pytaria;
 
-import me.hapyl.fight.game.AbstractGamePlayer;
 import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -52,7 +52,7 @@ public class FlowerBreeze extends Talent {
         PlayerLib.addEffect(player, PotionEffectType.SLOW, 10, 2);
 
         final World world = location.getWorld();
-        final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
+        final IGamePlayer gp = GamePlayer.getPlayer(player);
 
         // can't go lower than 1 heart
         gp.setHealth(Math.max(2, gp.getHealth() - healthSacrifice));

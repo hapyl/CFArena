@@ -60,9 +60,7 @@ public class Librarian extends Hero implements ComplexHero, Listener {
         talentMap.put(4, (LibrarianTalent) Talents.WEAPON_DARKNESS.getTalent());
 
         setRole(Role.STRATEGIST);
-        setItemTexture(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTg4YjFjZDk1NzQ2NzJlOGUzMjYyZjIxMGMwZGRkYmMwODJlYTc1NjllOGU3MGYwYzA3YjRiZWU3NWUzMmY2MiJ9fX0="
-        );
+        setItem("a88b1cd9574672e8e3262f210c0dddbc082ea7569e8e70f0c07b4bee75e32f62");
 
         final ClassEquipment equipment = getEquipment();
         equipment.setChestplate(47, 32, 40);
@@ -259,7 +257,7 @@ public class Librarian extends Hero implements ComplexHero, Listener {
     @EventHandler()
     public void handlePlayerInteract(PlayerItemHeldEvent ev) {
         final Player player = ev.getPlayer();
-        if (!validatePlayer(player, Heroes.LIBRARIAN) || ev.getNewSlot() != 1) {
+        if (!validatePlayer(player) || ev.getNewSlot() != 1) {
             return;
         }
 

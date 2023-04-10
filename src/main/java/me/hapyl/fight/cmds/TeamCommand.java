@@ -3,11 +3,11 @@ package me.hapyl.fight.cmds;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.gui.TeamSelectGUI;
 import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
+import me.hapyl.spigotutils.module.command.SimplePlayerCommand;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.entity.Player;
 
-public class TeamCommand extends SimplePlayerAdminCommand {
+public class TeamCommand extends SimplePlayerCommand {
     public TeamCommand(String name) {
         super(name);
         addCompleterValues(1, "toggle", "join", "leave");

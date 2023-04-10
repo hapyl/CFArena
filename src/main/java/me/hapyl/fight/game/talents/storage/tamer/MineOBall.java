@@ -4,7 +4,6 @@ import com.google.common.collect.Maps;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.heroes.HeroHandle;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
@@ -21,9 +20,11 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 
 public class MineOBall extends Talent implements Listener {
@@ -50,12 +51,24 @@ public class MineOBall extends Talent implements Listener {
 
         if (entity instanceof LivingEntity living
                 && target instanceof Player player
-                && HeroHandle.TAMER.validatePlayer(player, Heroes.TAMER)) {
+                && Heroes.TAMER.getHero().validatePlayer(player)) {
 
             final TamerPack pack = getPack(player);
             if (pack != null && pack.isInPack(living)) {
                 ev.setTarget(null);
                 ev.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler()
+    public void handlePackEntityDeath(EntityDeathEvent ev) {
+        final LivingEntity entity = ev.getEntity();
+
+        for (TamerPack value : tamerPackMap.values()) {
+            if (value.isInPack(entity)) {
+                value.remove(entity);
+                break;
             }
         }
     }
@@ -67,7 +80,7 @@ public class MineOBall extends Talent implements Listener {
 
     @Override
     public void onStop() {
-        tamerPackMap.values().forEach(TamerPack::remove);
+        tamerPackMap.values().forEach(TamerPack::removeAll);
         tamerPackMap.clear();
     }
 
@@ -86,6 +99,7 @@ public class MineOBall extends Talent implements Listener {
         return entity != null && pack != null && pack.isInPack(entity);
     }
 
+    @Nullable
     public TamerPack getPack(Player player) {
         return tamerPackMap.get(player);
     }
@@ -153,6 +167,10 @@ public class MineOBall extends Talent implements Listener {
     @Override
     public Response execute(Player player) {
         final TamerPack oldPack = getPack(player);
+        if (Heroes.TAMER.getHero().isUsingUltimate(player)) {
+            return Response.error("Can't summon during Ultimate");
+        }
+
         if (oldPack != null) {
             oldPack.recall();
         }
@@ -166,5 +184,22 @@ public class MineOBall extends Talent implements Listener {
         Chat.sendMessage(player, "&a☀ You just summoned &e%s&a!", pack.getName());
 
         return Response.OK;
+    }
+
+    public boolean isInSamePackOrOwner(Entity entity, Entity other) {
+        if (!(entity instanceof LivingEntity livingEntity) || !(other instanceof LivingEntity livingEntityOther)) {
+            return false;
+        }
+
+        if (livingEntity instanceof Player player) {
+            final TamerPack pack = getPack(player);
+            if (pack == null) {
+                return false;
+            }
+
+            return pack.isInPack(livingEntityOther);
+        }
+
+        return isInSamePack(livingEntity, livingEntityOther);
     }
 }

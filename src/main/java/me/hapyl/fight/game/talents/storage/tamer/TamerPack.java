@@ -16,15 +16,21 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Consumer;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Set;
 
+/**
+ * Represents a pack of entities that are tamed by a player.
+ */
 public class TamerPack {
 
+    // Max distance the minion can be from the player, if exceeded, it will be teleported.
     private final double maxDistance = 30;
 
+    // Represents XZ offsets from the player's location.
     private final double[][] relativeOffsets = {
-            { -1.0d, 0.0d },
+            { -1.0d, 0.0d }, //
             { 1.0d, 0.0d },
             { 0.0d, -1.0d },
             { 0.0d, 1.0d },
@@ -41,7 +47,7 @@ public class TamerPack {
     public TamerPack(Pack pack, Player player) {
         this.player = player;
         this.pack = pack;
-        this.entities = Sets.newHashSet();
+        this.entities = Sets.newConcurrentHashSet();
 
         new GameTask() {
             @Override
@@ -56,27 +62,50 @@ public class TamerPack {
         }.runTaskTimer(0, 1);
     }
 
+    /**
+     * Returns true if the pack exists.
+     *
+     * @return true if the pack exists.
+     */
     public boolean exists() {
         return !entities.isEmpty();
     }
 
+    /**
+     * Returns true any of the entities are alive.
+     *
+     * @return true if any of the entities are alive.
+     */
+    public boolean isAlive() {
+        for (LivingEntity entity : entities) {
+            if (!entity.isDead()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns all entities in the pack, no matter if they are dead or not.
+     *
+     * @return all entities in the pack.
+     */
     public Set<LivingEntity> getEntities() {
         return entities;
     }
 
+    /**
+     * Returns the name of the pack.
+     *
+     * @return the name of the pack.
+     */
     public String getName() {
         return pack.getName();
     }
 
     public boolean isInPack(LivingEntity entity) {
         return entities.contains(entity);
-        //
-        //for (final LivingEntity living : entities) {
-        //    if (living == entity) {
-        //        return true;
-        //    }
-        //}
-        //return false;
     }
 
     public final void updateEntitiesNames(Player player) {
@@ -106,9 +135,22 @@ public class TamerPack {
     /**
      * Removes entities.
      */
-    public final void remove() {
+    public final void removeAll() {
         entities.forEach(Entity::remove);
         entities.clear();
+    }
+
+    /**
+     * Removes entity from the pack.
+     *
+     * @param entity entity to remove.
+     */
+    public final void remove(LivingEntity entity) {
+        entities.remove(entity);
+
+        if (!entity.isDead()) {
+            entity.remove();
+        }
     }
 
     /**
@@ -141,12 +183,9 @@ public class TamerPack {
 
             // Add helmet if possible
             Nulls.runIfNotNull(self.getEquipment(), equipment -> {
-                equipment.setHelmet(
-                        new ItemBuilder(Material.LEATHER_HELMET)
-                                .setUnbreakable()
-                                .setLeatherArmorColor(Color.fromRGB(509659))
-                                .build()
-                );
+                equipment.setHelmet(new ItemBuilder(Material.LEATHER_HELMET).setUnbreakable()
+                        .setLeatherArmorColor(Color.fromRGB(509659))
+                        .build());
             });
 
             // Apply consumer if not null
@@ -154,11 +193,18 @@ public class TamerPack {
                 cons.accept(self);
             });
 
+            // Tag to identify pack entities
+            self.addScoreboardTag("pack_entity");
+
             entities.add(self);
         });
     }
 
-
+    /**
+     * Returns the nearest target for this pack.
+     *
+     * @return the nearest target or null if none found.
+     */
     @Nullable
     public LivingEntity findNearestTarget() {
         LivingEntity nearest = Utils.getNearestPlayer(getLocation(), maxDistance, player);
@@ -171,15 +217,40 @@ public class TamerPack {
         return nearest;
     }
 
+    /**
+     * Get <b>FIRST</b> entity in a pack with a specific type.
+     *
+     * @param type - Type.
+     * @return the entity or null if none found.
+     */
     @Nullable
-    public LivingEntity getEntity(EntityType guardian) {
+    public LivingEntity getEntity(EntityType type) {
         for (LivingEntity entity : entities) {
-            if (entity.getType() == guardian) {
+            if (entity.getType() == type) {
                 return entity;
             }
         }
 
         return null;
+    }
+
+    /**
+     * Gets all entities in a pack with a specific type.
+     *
+     * @param type - Type.
+     * @return the entities or empty set if none found.
+     */
+    @Nonnull
+    public Set<LivingEntity> getEntities(EntityType type) {
+        final Set<LivingEntity> set = Sets.newHashSet();
+
+        for (LivingEntity entity : entities) {
+            if (entity.getType() == type) {
+                set.add(entity);
+            }
+        }
+
+        return set;
     }
 
     public Location getLocation() {
@@ -190,5 +261,8 @@ public class TamerPack {
         return BukkitUtils.defLocation(0.0d, 0.0d, 0.0d);
     }
 
+    public Pack getPack() {
+        return pack;
+    }
 }
 

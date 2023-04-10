@@ -35,11 +35,9 @@ public class Freazly extends Hero implements DisabledHero {
         setRole(Role.RANGE);
 
         setInfo("");
-        setItem(Material.ICE);
+        setItem("f4e0318ef6ded7f3e60fe1c6d9f0649b7b0f601b74be70b179a78416c09e6c47");
 
         final ClassEquipment equipment = getEquipment();
-        equipment.setTexture("f4e0318ef6ded7f3e60fe1c6d9f0649b7b0f601b74be70b179a78416c09e6c47");
-
         equipment.setChestplate(Color.AQUA);
         equipment.setLeggings(Color.OLIVE);
         equipment.setBoots(Color.AQUA);
@@ -72,15 +70,13 @@ public class Freazly extends Hero implements DisabledHero {
                 .setDescription("Shoots a beam of freezing energy, damaging and slowing enemies upon hit. Pierce through ice blocks.")
          .setDamage(7.5d));
 
-
         // Get a barrier builder block. Place to build a 5x3 Ice Wall that decay after &b" + WALL_DECAY_TIME + "s&7. The wall blocks vision and grants positive effect if near it. Also, &eSnowball Cannon &7can shoot thought this wall!
-        this.setUltimate(new UltimateTalent(
+        setUltimate(new UltimateTalent(
                 "Ice Barrier",
                 "Summons an &bIce Barrier &7at your target block that decay over {duration}. The barrier blocks enemies line of sight and grants positive effects to you when nearby.",
                 60
         ).setItem(Material.PACKED_ICE).setDuration(getUltimateDuration()));
     }
-
 
     @Override
     public boolean predicateUltimate(Player player) {
@@ -88,7 +84,7 @@ public class Freazly extends Hero implements DisabledHero {
     }
 
     @Override
-    public String predicateMessage() {
+    public String predicateMessage(Player player) {
         return "No valid block in sight!";
     }
 

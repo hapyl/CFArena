@@ -17,6 +17,7 @@ public class DummyCommand extends SimplePlayerAdminCommand {
             self.setHealth(self.getMaxHealth());
             self.setCustomName(Chat.format("&aDummy"));
             self.setCustomNameVisible(true);
+            self.getScoreboardTags().add("dummy");
             self.setAI(false);
         }, false);
 

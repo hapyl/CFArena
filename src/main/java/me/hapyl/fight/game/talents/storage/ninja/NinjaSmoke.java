@@ -15,27 +15,28 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
 public class NinjaSmoke extends Talent {
-	public NinjaSmoke() {
-		super(
-				"Smoke Bomb",
-				"Instantly throw a smoke bomb at your current location and become invisible. Players inside the smoke will have their vision disturbed."
-		);
+    public NinjaSmoke() {
+        super(
+                "Smoke Bomb",
+                "Instantly throw a smoke bomb at your current location and become invisible. Players inside the smoke will have their vision disturbed."
+        );
 
-		setItem(Material.INK_SAC);
-		setCdSec(20);
-	}
+        setItem(Material.INK_SAC);
+        setDuration(120);
+        setCdSec(20);
+    }
 
-	@Override
-	public Response execute(Player player) {
-		final Location location = player.getLocation();
-		GamePlayer.getPlayer(player).addEffect(GameEffectType.INVISIBILITY, 120);
+    @Override
+    public Response execute(Player player) {
+        final Location location = player.getLocation();
+        GamePlayer.getPlayer(player).addEffect(GameEffectType.INVISIBILITY, getDuration());
 
-		GameTask.runTaskTimerTimes((task, time) -> {
-			PlayerLib.spawnParticle(location, Particle.EXPLOSION_NORMAL, 20, 1, 0, 1, 0.0f);
-			Utils.getPlayersInRange(location, 2).forEach(range -> PlayerLib.addEffect(range, PotionEffectType.BLINDNESS, 20, 1));
-		}, 20, 5);
+        GameTask.runDuration(this, i -> {
+            PlayerLib.spawnParticle(location, Particle.EXPLOSION_NORMAL, 20, 1, 0, 1, 0.0f);
+            Utils.getPlayersInRange(location, 2).forEach(range -> PlayerLib.addEffect(range, PotionEffectType.BLINDNESS, 30, 1));
+        }, 20);
 
-		PlayerLib.playSound(player, Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.0f);
-		return Response.OK;
-	}
+        PlayerLib.playSound(player, Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.0f);
+        return Response.OK;
+    }
 }

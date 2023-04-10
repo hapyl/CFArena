@@ -7,8 +7,8 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.heroes.storage.extra.MoonwalkerUltimate;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.TalentHandle;
 import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.storage.moonwalker.MoonSliteBomb;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -36,8 +36,7 @@ public class Moonwalker extends Hero implements PlayerElement, UIComponent {
         setRole(Role.RANGE);
 
         setInfo("A traveller from another planet... or, should I say moon? Brings his skills and... planets... with himself!");
-        setItemTexture(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWNmOGZiZDc2NTg2OTIwYzUyNzM1MTk5Mjc4NjJmZGMxMTE3MDVhMTg1MWQ0ZDFhYWM0NTBiY2ZkMmIzYSJ9fX0=");
+        setItem("1cf8fbd76586920c5273519927862fdc111705a1851d4d1aac450bcfd2b3a");
 
         final ClassEquipment equipment = getEquipment();
         equipment.setChestplate(255, 255, 255);
@@ -83,13 +82,13 @@ public class Moonwalker extends Hero implements PlayerElement, UIComponent {
     }
 
     @Override
-    public String predicateMessage() {
+    public String predicateMessage(Player player) {
         return "Not a valid block!";
     }
 
     @Override
     public void useUltimate(Player player) {
-        ((MoonwalkerUltimate) getUltimate()).useUltimate(player);
+        getUltimate().useUltimate(player);
     }
 
     @Override
@@ -126,8 +125,8 @@ public class Moonwalker extends Hero implements PlayerElement, UIComponent {
     }
 
     @Override
-    public Talent getSecondTalent() {
-        return Talents.MOONSLITE_BOMB.getTalent();
+    public MoonSliteBomb getSecondTalent() {
+        return (MoonSliteBomb) Talents.MOONSLITE_BOMB.getTalent();
     }
 
     @Override
@@ -137,7 +136,7 @@ public class Moonwalker extends Hero implements PlayerElement, UIComponent {
 
     @Override
     public @Nonnull String getString(Player player) {
-        final int bombs = TalentHandle.MOON_SLITE_BOMB.getBombsSize(player);
+        final int bombs = getSecondTalent().getBombsSize(player);
         return "&e■ &l" + bombs;
     }
 }

@@ -72,6 +72,10 @@ public class ChargedTalentData {
         createTask();
     }
 
+    public void maxCharge() {
+        chargedAvailable = talent.getMaxCharges();
+    }
+
     private void createTask() {
         currentTask = new GameTask() {
             @Override

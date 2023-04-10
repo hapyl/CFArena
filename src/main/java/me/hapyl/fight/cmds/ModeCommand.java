@@ -3,7 +3,7 @@ package me.hapyl.fight.cmds;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.gui.ModeSelectGUI;
-import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
+import me.hapyl.spigotutils.module.command.SimplePlayerCommand;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -11,17 +11,17 @@ import org.bukkit.entity.Player;
 import java.util.Arrays;
 import java.util.List;
 
-public class ModeCommand extends SimplePlayerAdminCommand {
+public class ModeCommand extends SimplePlayerCommand {
 
-	public ModeCommand(String str) {
-		super(str);
-		this.setUsage("mode " + Arrays.toString(Modes.values()));
-	}
+    public ModeCommand(String str) {
+        super(str);
+        this.setUsage("mode " + Arrays.toString(Modes.values()));
+    }
 
-	@Override
-	protected void execute(Player player, String[] args) {
-		if (args.length == 0) {
-			new ModeSelectGUI(player);
+    @Override
+    protected void execute(Player player, String[] args) {
+        if (args.length == 0) {
+            new ModeSelectGUI(player);
 			return;
 		}
 

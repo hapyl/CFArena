@@ -2,12 +2,11 @@ package me.hapyl.fight.game.heroes.storage;
 
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
-import me.hapyl.fight.game.AbstractGamePlayer;
 import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -74,7 +73,7 @@ public class Spark extends Hero implements PlayerElement {
     @Override
     public void useUltimate(Player player) {
         final Location location = getSafeLocation(player.getLocation());
-        final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
+        final IGamePlayer gp = GamePlayer.getPlayer(player);
 
         if (location == null) {
             return;
@@ -138,7 +137,7 @@ public class Spark extends Hero implements PlayerElement {
     }
 
     @Override
-    public String predicateMessage() {
+    public String predicateMessage(Player player) {
         return "Location is not safe!";
     }
 
@@ -168,7 +167,7 @@ public class Spark extends Hero implements PlayerElement {
             return;
         }
 
-        final AbstractGamePlayer gp = GamePlayer.getPlayer(player);
+        final IGamePlayer gp = GamePlayer.getPlayer(player);
         final Location location = player.getLocation(); // location before tp
 
         player.setInvulnerable(true);
@@ -194,7 +193,7 @@ public class Spark extends Hero implements PlayerElement {
     public DamageOutput processDamageAsVictim(DamageInput input) {
         final Player player = input.getPlayer();
 
-        if (!validatePlayer(player, Heroes.SPARK)) {
+        if (!validatePlayer(player)) {
             return null;
         }
 

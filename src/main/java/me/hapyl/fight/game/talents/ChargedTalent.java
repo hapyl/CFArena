@@ -13,6 +13,9 @@ import org.bukkit.inventory.PlayerInventory;
 
 import java.util.Map;
 
+/**
+ * Represents a talent with multiple charges.
+ */
 public class ChargedTalent extends Talent {
 
     private final int maxCharges;
@@ -74,6 +77,9 @@ public class ChargedTalent extends Talent {
         data.clear();
 
         onStopCharged();
+    }
+
+    public void onLastCharge(Player player) {
     }
 
     public void setRechargeTime(int i) {
@@ -138,6 +144,8 @@ public class ChargedTalent extends Talent {
             if (getRechargeTime() >= 0) {
                 player.setCooldown(noChargedMaterial, getRechargeTime());
             }
+
+            onLastCharge(player);
         }
         else {
             item.setAmount(amount - 1);
@@ -149,6 +157,36 @@ public class ChargedTalent extends Talent {
         }
 
         getData(player).workTask();
+    }
+
+    public void grantAllCharges(Player player, int delay) {
+        GameTask.runLater(() -> grantAllCharges(player), delay);
+    }
+
+    public void grantAllCharges(Player player) {
+        final PlayerInventory inventory = player.getInventory();
+        final int slot = getLastKnownSlot(player);
+
+        if (slot == -1) {
+            return;
+        }
+
+        final ItemStack item = inventory.getItem(slot);
+        if (item == null) {
+            return;
+        }
+
+        inventory.setItem(slot, this.getItem());
+        final ItemStack newItem = inventory.getItem(slot);
+
+        if (newItem != null) {
+            newItem.setAmount(maxCharges);
+        }
+
+        getData(player).maxCharge();
+
+        // Fx
+        PlayerLib.playSound(player, Sound.ENTITY_CHICKEN_EGG, 1.0f);
     }
 
     public void grantCharge(Player player, int delay) {

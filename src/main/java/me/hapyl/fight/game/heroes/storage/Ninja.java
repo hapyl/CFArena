@@ -2,13 +2,12 @@ package me.hapyl.fight.game.heroes.storage;
 
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
-import me.hapyl.fight.game.AbstractGamePlayer;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -75,7 +74,7 @@ public class Ninja extends Hero implements Listener, UIComponent {
 
     @Override
     public boolean processInvisibilityDamage(Player player, LivingEntity entity, double damage) {
-        final AbstractGamePlayer gamePlayer = GamePlayer.getPlayer(player);
+        final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
         gamePlayer.removeEffect(GameEffectType.INVISIBILITY);
         gamePlayer.sendMessage("&cYou dealt damage and lost your invisibility!");
 
@@ -126,7 +125,7 @@ public class Ninja extends Hero implements Listener, UIComponent {
     @EventHandler()
     public void handleDoubleJump(PlayerToggleFlightEvent ev) {
         final Player player = ev.getPlayer();
-        if (!validatePlayer(player, Heroes.NINJA) || player.hasCooldown(this.getItem().getType()) || player.isFlying()) {
+        if (!validatePlayer(player) || player.hasCooldown(this.getItem().getType()) || player.isFlying()) {
             return;
         }
 

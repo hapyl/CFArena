@@ -5,6 +5,9 @@ import me.hapyl.spigotutils.module.util.Validate;
 
 import javax.annotation.Nonnull;
 
+/**
+ * A formatter for player UI.
+ */
 public class UIFormat {
 
     public static final String DIV = " &8⁑&r ";
@@ -24,8 +27,8 @@ public class UIFormat {
 
     @Nonnull
     public String format(@Nonnull GamePlayer player) {
-        if (player.isAbstract()) {
-            return "cannot format abstract player";
+        if (!player.isReal()) {
+            return "cannot format fake player";
         }
 
         String toFormat = format;

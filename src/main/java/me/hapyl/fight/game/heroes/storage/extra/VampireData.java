@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.storage.extra;
 
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.storage.Vampire;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.entity.Player;
@@ -33,7 +34,7 @@ public class VampireData {
     }
 
     public void setBlood(int blood) {
-        this.blood = Numbers.clamp(blood, 0, Heroes.Handle.VAMPIRE.MAX_BLOOD_STACKS);
+        this.blood = Numbers.clamp(blood, 0, Heroes.VAMPIRE.getHero(Vampire.class).MAX_BLOOD_STACKS);
     }
 
     public void addBlood(int i) {

@@ -1,11 +1,13 @@
 package me.hapyl.fight.game.talents.storage.extra;
 
+import me.hapyl.fight.game.talents.InsteadOfNull;
 import me.hapyl.spigotutils.module.util.Action;
 import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.Predicate;
 
@@ -75,13 +77,17 @@ public enum ElementType {
         return false;
     }
 
+    @Nonnull
+    @InsteadOfNull("NULL")
     public static ElementType getElement(Material material) {
         if (!material.isBlock()) {
             throw new IllegalArgumentException("material is not a block!");
         }
 
         // don't allow wall blocks except player head
-        if (material.name().contains("WALL") && material != Material.PLAYER_HEAD || material.isAir()) {
+        if ((material.name().contains("WALL") && material != Material.PLAYER_HEAD)
+                || material.isAir()
+                || !material.isSolid()) {
             return NULL;
         }
 
@@ -90,6 +96,25 @@ public enum ElementType {
             if (value.predicate.test(material)) {
                 return value;
             }
+        }
+
+        final float hardness = material.getHardness();
+
+        if (hardness <= 0.0f) {
+            return NULL;
+        }
+
+        else if (hardness <= 1.4f) {
+            return SOFT;
+        }
+
+        else if (hardness <= 2.0f) {
+            return STURDY;
+        }
+
+        // 100 is water and lava
+        else if (hardness < 100.0f) {
+            return HEAVY;
         }
 
         // If not predicated then check blast resistance

@@ -2,9 +2,9 @@ package me.hapyl.fight.game.heroes.storage;
 
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
-import me.hapyl.fight.game.AbstractGamePlayer;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Role;
@@ -79,7 +79,7 @@ public class Troll extends Hero {
             final Player killer = input.getPlayer();
 
             if (entity instanceof Player target) {
-                final AbstractGamePlayer player = GamePlayer.getPlayer(target);
+                final IGamePlayer player = GamePlayer.getPlayer(target);
 
                 player.setLastDamager(killer);
                 player.setLastDamageCause(EnumDamageCause.TROLL_LAUGH);

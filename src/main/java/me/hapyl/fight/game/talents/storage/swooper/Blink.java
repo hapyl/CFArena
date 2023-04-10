@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.talents.storage.swooper;
 
-import me.hapyl.fight.game.ChatGPT;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.ChargedTalent;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -16,10 +16,10 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Blink extends ChargedTalent implements ChatGPT {
+public class Blink extends ChargedTalent {
 
-    private final int MAX_DISTANCE = 6;
-    private final int MIN_DISTANCE = 1;
+    @DisplayField private final int maxDistance = 6;
+    @DisplayField private final int minDistance = 1;
 
     public Blink() {
         super(
@@ -39,9 +39,9 @@ public class Blink extends ChargedTalent implements ChatGPT {
         final Location start = player.getEyeLocation();
         final Vector direction = start.getDirection().normalize();
         final List<Block> blocks = new ArrayList<>();
-        final BlockIterator iterator = new BlockIterator(player.getWorld(), start.toVector(), direction, 0, (int) Math.ceil(MAX_DISTANCE));
+        final BlockIterator iterator = new BlockIterator(player.getWorld(), start.toVector(), direction, 0, (int) Math.ceil(maxDistance));
 
-        double maxDistance = MAX_DISTANCE;
+        double maxDistance = this.maxDistance;
 
         while (iterator.hasNext()) {
             final Block block = iterator.next();
@@ -55,7 +55,7 @@ public class Blink extends ChargedTalent implements ChatGPT {
             if (block.getType() != Material.AIR) {
                 final double distance = start.distance(block.getLocation());
                 if (distance < maxDistance) {
-                    maxDistance = distance - MIN_DISTANCE;
+                    maxDistance = distance - minDistance;
                     if (maxDistance < 0) {
                         maxDistance = 0;
                     }

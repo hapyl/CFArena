@@ -73,9 +73,10 @@ public class ClassEquipment {
 
 	}
 
-	public ClassEquipment setHelmet(String headTexture) {
-		return this.setHelmet(ItemBuilder.playerHead(headTexture).cleanToItemSack());
-	}
+    @Deprecated
+    public ClassEquipment setHelmet(String headTexture) {
+        return this.setHelmet(ItemBuilder.playerHead(headTexture).cleanToItemSack());
+    }
 
 	public ClassEquipment setTexture(String texture64) {
 		return this.setHelmet(ItemBuilder.playerHeadUrl(texture64).cleanToItemSack());

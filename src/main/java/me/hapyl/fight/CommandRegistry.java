@@ -1,6 +1,10 @@
 package me.hapyl.fight;
 
+import com.google.common.collect.Maps;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import me.hapyl.fight.cmds.*;
+import me.hapyl.fight.game.TitleAnimation;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.chat.Gradient;
@@ -27,10 +31,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.awt.*;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.io.File;
+import java.io.FileWriter;
 import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class CommandRegistry {
 
@@ -71,6 +76,8 @@ public class CommandRegistry {
         register(new TestDatabaseCommand("testdatabase"));
         register(new EquipCommand("equip"));
         register(new HeadCommand("head"));
+        register(new RankCommand("rank"));
+
 
         register(new SimplePlayerAdminCommand("testnpcpose") {
             @Override
@@ -167,6 +174,49 @@ public class CommandRegistry {
                     Glowing.stopGlowing(spawn);
                     Chat.sendMessage(player, "Stop glowing");
                 }, 60);
+            }
+        });
+
+        register(new SimplePlayerAdminCommand("testtitleanimation") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                new TitleAnimation();
+            }
+        });
+
+        register(new SimplePlayerAdminCommand("dumpBlockHardness") {
+            @Override
+            protected void execute(Player player, String[] strings) {
+                Runnables.runAsync(() -> {
+                    final Map<String, Float> hardness = Maps.newHashMap();
+
+                    for (Material material : Material.values()) {
+                        if (material.isBlock()) {
+                            hardness.put(material.name(), material.getHardness());
+                        }
+                    }
+
+                    final LinkedHashMap<String, Float> sorted = hardness.entrySet().stream()
+                            .sorted(Map.Entry.comparingByValue())
+                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+
+                    final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                    final String json = gson.toJson(sorted);
+                    final File path = new File(Main.getPlugin().getDataFolder(), "hardness.json");
+
+                    hardness.clear();
+                    sorted.clear();
+
+                    try (FileWriter writer = new FileWriter(path)) {
+                        writer.write(json);
+
+                        Runnables.runSync(() -> {
+                            Chat.sendMessage(player, "&aDumped into &e%s&a!", path.getAbsolutePath());
+                        });
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
             }
         });
 

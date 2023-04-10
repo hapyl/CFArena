@@ -36,4 +36,12 @@ public class DamageOutput {
     public double getDamage() {
         return damage;
     }
+
+    @Override
+    public String toString() {
+        return "DamageOutput{" +
+                "cancelDamage=" + cancelDamage +
+                ", damage=" + damage +
+                '}';
+    }
 }

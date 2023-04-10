@@ -46,10 +46,8 @@ public class ParkourDatabase {
         }
 
         player.put("stats", stats);
-        players.put(uuid, player);
-        document.put("players", players);
 
-        save();
+        mongo.getParkour().updateOne(filter, new Document("$set", new Document("players." + uuid, player)));
 
         // Update leaderboard
         parkour.updateLeaderboardIfExists();
@@ -83,12 +81,6 @@ public class ParkourDatabase {
 
     public Document getPlayer(UUID uuid) {
         return getPlayers().get(uuid.toString(), new Document());
-    }
-
-    public void save() {
-        //Runnables.runAsync(() -> {
-        this.mongo.getParkour().replaceOne(filter, document);
-        //});
     }
 
 

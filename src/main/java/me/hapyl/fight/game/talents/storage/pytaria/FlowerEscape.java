@@ -3,7 +3,8 @@ package me.hapyl.fight.game.talents.storage.pytaria;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.heroes.HeroHandle;
+import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.storage.Pytaria;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Nulls;
@@ -54,7 +55,7 @@ public class FlowerEscape extends Talent {
             Nulls.runIfNotNull(me.getEquipment(), equipment -> equipment.setHelmet(new ItemStack(getMaterial())));
         });
 
-        final double finalDamage = HeroHandle.PYTARIA.calculateDamage(player, flowerDamage);
+        final double finalDamage = Heroes.PYTARIA.getHero(Pytaria.class).calculateDamage(player, flowerDamage);
 
         new GameTask() {
             private int tick = getDuration();

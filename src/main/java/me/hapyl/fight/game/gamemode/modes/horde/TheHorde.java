@@ -1,4 +1,4 @@
-package me.hapyl.fight.game.gamemode.modes;
+package me.hapyl.fight.game.gamemode.modes.horde;
 
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.gamemode.CFGameMode;

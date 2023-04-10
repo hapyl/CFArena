@@ -3,8 +3,9 @@ package me.hapyl.fight;
 import me.hapyl.fight.database.DatabaseMongo;
 import me.hapyl.fight.database.Databases;
 import me.hapyl.fight.event.EnderPearlController;
-import me.hapyl.fight.event.PlayerEvent;
+import me.hapyl.fight.event.PlayerHandler;
 import me.hapyl.fight.game.ChatController;
+import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.cosmetic.CosmeticsListener;
 import me.hapyl.fight.game.experience.Experience;
@@ -14,9 +15,15 @@ import me.hapyl.fight.game.maps.features.BoosterController;
 import me.hapyl.fight.game.parkour.CFParkourManager;
 import me.hapyl.fight.game.task.TaskList;
 import me.hapyl.fight.notifier.Notifier;
+import me.hapyl.fight.npc.HumanManager;
 import me.hapyl.fight.protocol.ArcaneMuteProtocol;
+import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.EternaAPI;
+import me.hapyl.spigotutils.module.chat.CenterChat;
 import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.spigotutils.module.util.Runnables;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -24,12 +31,16 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import test.Test;
 
+import javax.annotation.Nullable;
+import java.util.List;
+
 public class Main extends JavaPlugin {
 
     public static final String GAME_NAME = "&e&lCLASSES FIGHT &c&lᴀʀᴇɴᴀ";
     private static Main plugin;
 
     private Manager manager;
+    private HumanManager humanManager;
     private TaskList taskList;
     private BoosterController boosters;
     private Experience experience;
@@ -58,6 +69,8 @@ public class Main extends JavaPlugin {
         registerEvents();
         regProtocol();
 
+        setNaggable(false);
+
         // Init api
         new EternaAPI(this);
 
@@ -79,8 +92,12 @@ public class Main extends JavaPlugin {
 
         // Remove recipes and achievements
         Bukkit.clearRecipes();
-        Bukkit.advancementIterator().forEachRemaining(advancement -> {
-        });
+        //Bukkit.advancementIterator().forEachRemaining(advancement -> {
+        //    Bukkit.getUnsafe().removeAdvancement(advancement.getKey());
+        //});
+        //getServer().reloadData();
+        //
+        //System.out.println(Bukkit.advancementIterator());
 
         this.manager = new Manager();
         this.taskList = new TaskList();
@@ -100,41 +117,41 @@ public class Main extends JavaPlugin {
         for (final Player player : Bukkit.getOnlinePlayers()) {
             handlePlayer(player);
         }
+
+        // Create NPCs
+        humanManager = new HumanManager(this);
+
+        checkReload();
     }
 
-    private void initDatabase() {
-        this.database = new DatabaseMongo();
+    @Override
+    public void onDisable() {
+        runSafe(() -> {
+            databases.saveAll();
+            //parkourManager.saveAll();
+        }, "database save");
 
-        final boolean useMongoDb = getConfig().getBoolean("database.use_mongodb");
-        boolean connection = false;
+        runSafe(() -> {
+            for (final Player player : Bukkit.getOnlinePlayers()) {
+                Manager.current().getProfile(player).getDatabase().saveToFile();
+            }
+        }, "player database save");
 
-        if (useMongoDb) {
-            // Don't try to connect if disabled
-            connection = this.database.createConnection();
-        }
+        runSafe(() -> {
+            database.stopConnection();
+        }, "mongodb connection stop");
 
-        if (!useMongoDb || !connection) {
-            final String message = useMongoDb ?
-                    (ChatColor.RED + "Failed to connect to MongoDB, initializing legacy database...") :
-                    (ChatColor.YELLOW + "Using legacy database because MongoDB is disabled in config.yml!");
+        runSafe(() -> {
+            if (this.manager.isGameInProgress()) {
+                this.manager.stopCurrentGame();
+            }
+        }, "game instance stop");
 
-            Bukkit.getLogger().severe(message);
-            Bukkit.getScheduler().runTaskLater(this, () -> Chat.broadcast("&6&lWarning! " + message), 20L);
-
-            databaseLegacy = true;
-        }
-
-        // Init runtime tests
-        new Test(this);
+        runSafe(this::saveConfig, "config saving");
     }
 
-    private void registerEvents() {
-        final PluginManager pm = Bukkit.getServer().getPluginManager();
-        pm.registerEvents(new PlayerEvent(), this);
-        pm.registerEvents(new ChatController(), this);
-        pm.registerEvents(new EnderPearlController(), this);
-        pm.registerEvents(new BoosterController(), this);
-        pm.registerEvents(new CosmeticsListener(), this);
+    public HumanManager getHumanManager() {
+        return humanManager;
     }
 
     public Notifier getNotifier() {
@@ -168,37 +185,118 @@ public class Main extends JavaPlugin {
     public void handlePlayer(Player player) {
         this.manager.createProfile(player);
 
-        // teleport to spawn unless in creative
-        if (player.getGameMode() != GameMode.CREATIVE) {
+        // teleport either to spawn or the map is there is a game in progress
+        final IGameInstance game = this.manager.getCurrentGame();
+        if (!game.isReal()) {
+            final GameMode gameMode = player.getGameMode();
+            if (gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR) {
+                return;
+            }
+
             player.teleport(GameMaps.SPAWN.getMap().getLocation());
             LobbyItems.giveAll(player);
+            return;
+        }
+
+        player.teleport(game.getMap().getMap().getLocation());
+    }
+
+    public void addEvent(Listener listener) {
+        getServer().getPluginManager().registerEvents(listener, this);
+    }
+
+    public boolean isDatabaseLegacy() {
+        return databaseLegacy;
+    }
+
+    private void checkReload() {
+        Runnables.runLater(() -> {
+            try {
+                final Server server = getServer();
+                final int reloadCount = (int) server.getClass().getDeclaredField("reloadCount").get(server);
+
+                if (reloadCount > 0) {
+                    sendCenterMessageToOperatorsAndConsole("");
+                    sendCenterMessageToOperatorsAndConsole("&4&lWARNING");
+                    sendCenterMessageToOperatorsAndConsole("&cSever Reload Detected!");
+                    sendCenterMessageToOperatorsAndConsole("");
+
+                    sendCenterMessageToOperatorsAndConsole(
+                            "&cNote that %s does &nnot&c support &e/reload&c and it's &nshould only&c be used in development.",
+                            getDescription().getName()
+                    );
+
+                    sendCenterMessageToOperatorsAndConsole("");
+
+                    sendCenterMessageToOperatorsAndConsole("&cIf you are not a developer, please &lrestart&c the server instead.");
+                    sendCenterMessageToOperatorsAndConsole("");
+
+                    // sfx
+                    Bukkit.getOnlinePlayers()
+                            .stream()
+                            .filter(Player::isOp)
+                            .forEach(player -> {
+                                PlayerLib.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 0.0f);
+                                PlayerLib.playSound(player, Sound.BLOCK_NOTE_BLOCK_PLING, 0.0f);
+                            });
+                }
+            } catch (NoSuchFieldException | IllegalAccessException ignored) {
+            }
+        }, 20L);
+    }
+
+    private void sendCenterMessageToOperatorsAndConsole(String message, @Nullable Object... format) {
+        if (message.isEmpty() || message.isBlank()) {
+            Utils.getOnlineOperatorsAndConsole().forEach(sender -> {
+                Chat.sendMessage(sender, "", format);
+            });
+            return;
+        }
+
+        final List<String> strings = ItemBuilder.splitString("&c", Chat.format(message, format), 50);
+
+        for (String string : strings) {
+            final String centerString = CenterChat.makeString(string);
+
+            Utils.getOnlineOperatorsAndConsole().forEach(sender -> {
+                Chat.sendMessage(sender, centerString, format);
+            });
         }
     }
 
-    @Override
-    public void onDisable() {
-        runSafe(() -> {
-            databases.saveAll();
-            parkourManager.saveAll();
-        }, "database save");
+    private void initDatabase() {
+        this.database = new DatabaseMongo();
 
-        runSafe(() -> {
-            for (final Player player : Bukkit.getOnlinePlayers()) {
-                Manager.current().getProfile(player).getDatabase().saveToFile();
-            }
-        }, "player database save");
+        final boolean useMongoDb = getConfig().getBoolean("database.use_mongodb");
+        boolean connection = false;
 
-        runSafe(() -> {
-            database.stopConnection();
-        }, "mongodb connection stop");
+        if (useMongoDb) {
+            // Don't try to connect if disabled
+            connection = this.database.createConnection();
+        }
 
-        runSafe(() -> {
-            if (this.manager.isGameInProgress()) {
-                this.manager.stopCurrentGame();
-            }
-        }, "game instance stop");
+        if (!useMongoDb || !connection) {
+            final String message = useMongoDb ?
+                    (ChatColor.RED + "Failed to connect to MongoDB, initializing legacy database...") :
+                    (ChatColor.YELLOW + "Using legacy database because MongoDB is disabled in config.yml!");
 
-        runSafe(this::saveConfig, "config saving");
+            Bukkit.getLogger().severe(message);
+            Bukkit.getScheduler().runTaskLater(this, () -> Chat.broadcast("&6&lWarning! " + message), 20L);
+
+            databaseLegacy = true;
+        }
+
+        // Init runtime tests
+        new Test(this);
+    }
+
+    private void registerEvents() {
+        final PluginManager pm = Bukkit.getServer().getPluginManager();
+        pm.registerEvents(new PlayerHandler(), this);
+        pm.registerEvents(new ChatController(), this);
+        pm.registerEvents(new EnderPearlController(), this);
+        pm.registerEvents(new BoosterController(), this);
+        pm.registerEvents(new CosmeticsListener(), this);
     }
 
     private void runSafe(Runnable runnable, String handler) {
@@ -215,15 +313,7 @@ public class Main extends JavaPlugin {
         //new ConfusionPotionProtocol(); -> doesn't work as good as I thought :(
     }
 
-    public void addEvent(Listener listener) {
-        getServer().getPluginManager().registerEvents(listener, this);
-    }
-
     public static Main getPlugin() {
         return plugin;
-    }
-
-    public boolean isDatabaseLegacy() {
-        return databaseLegacy;
     }
 }

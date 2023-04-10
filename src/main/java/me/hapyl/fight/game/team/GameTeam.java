@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -40,7 +41,7 @@ public enum GameTeam {
     private final ChatColor color;
     private final Material material;
     private final int maxPlayers;
-    private final List<UUID> lobbyPlayers; // represents lobby players
+    private final List<UUID> lobbyPlayers;   // represents lobby players
     private final List<GamePlayer> players;  // represents actual players in game
 
     GameTeam(ChatColor color, Material material) {
@@ -106,12 +107,12 @@ public enum GameTeam {
         return isTeammate(player, otherPlayer);
     }
 
-    public static boolean isSelfOrTeammate(Player player, Player other) {
+    public static boolean isSelfOrTeammate(Player player, LivingEntity other) {
         if (player == other) {
             return true;
         }
 
-        return isTeammate(player, other);
+        return other instanceof Player otherPlayer && isTeammate(player, otherPlayer);
     }
 
     public static boolean isTeammate(Player player, Player other) {

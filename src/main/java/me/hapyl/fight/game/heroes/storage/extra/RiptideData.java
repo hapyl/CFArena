@@ -1,6 +1,8 @@
 package me.hapyl.fight.game.heroes.storage.extra;
 
+import me.hapyl.fight.game.GamePlayer;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 
 public class RiptideData {
 
@@ -23,7 +25,16 @@ public class RiptideData {
     }
 
     public void tick() {
-        if (this.affectTick > 0) {
+        boolean isDead = entity.isDead();
+
+        if (entity instanceof Player player) {
+            isDead = GamePlayer.getPlayer(player).isDead();
+        }
+
+        if (isDead) {
+            this.affectTick = 0;
+        }
+        else if (this.affectTick > 0) {
             this.affectTick--;
         }
     }

@@ -1,11 +1,12 @@
 package me.hapyl.fight.game.heroes.storage;
 
+import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.TalentHandle;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.storage.extra.ActiveTotem;
+import me.hapyl.fight.game.talents.storage.shaman.Totem;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import org.bukkit.Material;
@@ -34,11 +35,13 @@ public class Shaman extends Hero implements ComplexHero, DisabledHero {
                         .getCurrentGame()
                         .getAlivePlayers(Heroes.SHAMAN)
                         .stream()
-                        .map(player -> player.getPlayer())
+                        .map(IGamePlayer::getPlayer)
                         .forEach(player -> {
-                            final ActiveTotem totem = TalentHandle.TOTEM.getTargetTotem(player);
+                            final Totem totemTalent = getFirstTalent();
+                            final ActiveTotem totem = totemTalent.getTargetTotem(player);
+
                             if (totem == null) {
-                                TalentHandle.TOTEM.defaultAllTotems(player);
+                                totemTalent.defaultAllTotems(player);
                                 return;
                             }
 
@@ -50,12 +53,11 @@ public class Shaman extends Hero implements ComplexHero, DisabledHero {
 
     @Override
     public void useUltimate(Player player) {
-
     }
 
     @Override
-    public Talent getFirstTalent() {
-        return Talents.TOTEM.getTalent();
+    public Totem getFirstTalent() {
+        return (Totem) Talents.TOTEM.getTalent();
     }
 
     @Override

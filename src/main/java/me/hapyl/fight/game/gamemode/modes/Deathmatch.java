@@ -64,7 +64,7 @@ public class Deathmatch extends CFGameMode {
         }
     }
 
-    public final LinkedHashMap<GamePlayer, Long> getTopKills(@Nonnull AbstractGameInstance instance, int limit) {
+    public final LinkedHashMap<GamePlayer, Long> getTopKills(@Nonnull IGameInstance instance, int limit) {
         final Map<GamePlayer, Long> map = getAllKills(instance);
         return map.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
@@ -72,7 +72,7 @@ public class Deathmatch extends CFGameMode {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     }
 
-    public final Map<GamePlayer, Long> getAllKills(@Nonnull AbstractGameInstance instance) {
+    public final Map<GamePlayer, Long> getAllKills(@Nonnull IGameInstance instance) {
         final Map<GamePlayer, Long> topKills = Maps.newHashMap();
 
         instance.getPlayers().values().forEach(player -> {
@@ -107,8 +107,10 @@ public class Deathmatch extends CFGameMode {
 
     @Override
     public void onJoin(@Nonnull GameInstance instance, @Nonnull Player player) {
-        final GamePlayer gamePlayer = instance.getPlayer(player);
-        if (gamePlayer == null || gamePlayer.isSpectator()) {
+        final GamePlayer gamePlayer = instance.getOrCreateGamePlayer(player);
+
+        // If player was spectator, don't respawn them
+        if (gamePlayer.isSpectator()) {
             return;
         }
 

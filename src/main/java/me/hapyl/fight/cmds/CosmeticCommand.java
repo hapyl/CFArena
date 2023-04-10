@@ -7,7 +7,7 @@ import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.cosmetic.gui.CollectionGUI;
 import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
+import me.hapyl.spigotutils.module.command.SimplePlayerCommand;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -16,7 +16,7 @@ import org.bukkit.entity.Player;
 import java.util.Arrays;
 import java.util.List;
 
-public class CosmeticCommand extends SimplePlayerAdminCommand {
+public class CosmeticCommand extends SimplePlayerCommand {
     public CosmeticCommand(String name) {
         super(name);
 
@@ -37,6 +37,11 @@ public class CosmeticCommand extends SimplePlayerAdminCommand {
     protected void execute(Player player, String[] args) {
         if (args.length == 0) {
             new CollectionGUI(player);
+            return;
+        }
+
+        if (!player.isOp()) {
+            Chat.sendMessage(player, "&cYou do not have permission to use this command!");
             return;
         }
 

@@ -44,24 +44,22 @@ import java.util.stream.Collectors;
 
 public class Manager {
 
-    private boolean isDebug = true;
-
-    private GameInstance gameInstance;
-
-    private final Map<Player, PlayerProfile> profiles;
-
     protected final NonNullableElementHolder<GameMaps> currentMap = new NonNullableElementHolder<>(GameMaps.ARENA);
     protected final NonNullableElementHolder<Modes> currentMode = new NonNullableElementHolder<>(Modes.FFA);
+    private final Map<Player, PlayerProfile> profiles;
 
+    // I really don't know why this is needed, but would I risk to removing it? Hell nah. -h
     private final Map<Integer, ParamFunction<Talent, Hero>> slotPerTalent = new HashMap<>();
     private final Map<Integer, ParamFunction<Talent, ComplexHero>> slotPerComplexTalent = new HashMap<>();
 
     private final SkinEffectManager skinEffectManager;
+    private boolean isDebug = true;
+    private GameInstance gameInstance; // @implNote: For now, only one game instance can be active at a time.
     private Trial trial;
+    private int debugNullGameInstance = 0;
 
     public Manager() {
         profiles = Maps.newHashMap();
-
 
         slotPerTalent.put(1, Hero::getFirstTalent);
         slotPerTalent.put(2, Hero::getSecondTalent);
@@ -116,8 +114,10 @@ public class Manager {
     }
 
     /**
-     * @return game instance is present.
-     * @deprecated please use {@link #getCurrentGame()} instead.
+     * Returns the current GameInstance.
+     *
+     * @return GameInstance
+     * @deprecated Use {@link #getCurrentGame()} to safely retrieve GameInstace.
      */
     @Nullable
     @Deprecated
@@ -129,8 +129,8 @@ public class Manager {
      * @return game instance is present, else abstract version.
      */
     @Nonnull
-    public AbstractGameInstance getCurrentGame() {
-        return gameInstance == null ? AbstractGameInstance.NULL_GAME_INSTANCE : gameInstance;
+    public IGameInstance getCurrentGame() {
+        return gameInstance == null ? IGameInstance.NULL_GAME_INSTANCE : gameInstance;
     }
 
     public GameMaps getCurrentMap() {
@@ -212,10 +212,6 @@ public class Manager {
         }
     }
 
-    private void displayError(String message, Object... objects) {
-        Chat.broadcast("&c&lUnable to start the game! &c" + message.formatted(objects));
-    }
-
     public void createNewGameInstance() {
         createNewGameInstance(false);
     }
@@ -226,7 +222,8 @@ public class Manager {
     public void createNewGameInstance(boolean debug) {
         // Pre game start checks
         final GameMaps currentMap = this.currentMap.getElement();
-        if (!currentMap.isPlayable() || !currentMap.getMap().hasLocation()) {
+
+        if ((!currentMap.isPlayable() || !currentMap.getMap().hasLocation()) && !debug) {
             displayError("Invalid map!");
             return;
         }
@@ -291,7 +288,7 @@ public class Manager {
             Nulls.runIfNotNull(value.getTalent(), Talent::onStart);
         }
 
-        gameInstance.getCurrentMap().getMap().onStart();
+        gameInstance.getMap().getMap().onStart();
 
         for (final GamePlayer gamePlayer : gameInstance.getPlayers().values()) {
             final Player player = gamePlayer.getPlayer();
@@ -332,7 +329,7 @@ public class Manager {
                 Nulls.runIfNotNull(value.getTalent(), Talent::onPlayersReveal);
             }
 
-            gameInstance.getCurrentMap().getMap().onPlayersReveal();
+            gameInstance.getMap().getMap().onPlayersReveal();
 
             if (debug) {
                 Chat.broadcast("&4Running in debug mode!");
@@ -351,13 +348,10 @@ public class Manager {
                     world.strikeLightningEffect(player.getLocation().add(0.0d, 2.0d, 0.0d));
                 }
             });
+
+            playAnimation();
         }, isDebug ? 1 : currentMap.getMap().getTimeBeforeReveal());
 
-    }
-
-    private Collection<Player> getNonSpectatorPlayers() {
-        return Bukkit.getOnlinePlayers().stream().filter(player -> !Setting.SPECTATE.isEnabled(player))
-                .collect(Collectors.toSet());
     }
 
     @Entry(
@@ -481,19 +475,6 @@ public class Manager {
         equipPlayer(player, getSelectedHero(player).getHero());
     }
 
-    private void giveTalentItem(Player player, Hero hero, int slot) {
-        final PlayerInventory inventory = player.getInventory();
-        final Talent talent = getTalent(hero, slot);
-        final ItemStack talentItem = talent == null || talent.getItem() == null ? new ItemStack(Material.AIR) : talent.getItem();
-
-        if (talent != null && !talent.isAutoAdd()) {
-            return;
-        }
-
-        inventory.setItem(slot, talentItem);
-        fixTalentItemAmount(player, slot, talent);
-    }
-
     public Talent getTalent(Hero hero, int slot) {
         if (slot >= 1 && slot < 3) {
             final ParamFunction<Talent, Hero> function = slotPerTalent.get(slot);
@@ -506,22 +487,6 @@ public class Manager {
         }
         return null;
     }
-
-    private void fixTalentItemAmount(Player player, int slot, Talent talent) {
-        if (!(talent instanceof ChargedTalent chargedTalent)) {
-            return;
-        }
-
-        final PlayerInventory inventory = player.getInventory();
-        final ItemStack item = inventory.getItem(slot);
-
-        if (item == null) {
-            return;
-        }
-
-        item.setAmount(chargedTalent.getMaxCharges());
-    }
-    // FIXME: 002. 10/02/2021 - multi
 
     public void onStop() {
         // reset game state
@@ -564,7 +529,7 @@ public class Manager {
             }
 
             Chat.sendMessage(player, "&cYou've selected &lDISABLED&c hero, which is either broken or not finished yet!");
-            Chat.sendMessage(player, "It &lwill&c throw errors and break the game!");
+            Chat.sendMessage(player, "&cIt &lwill&c throw errors and break the game!");
             Chat.sendMessage(player, "&4&lYOU HAVE BEEN WARNED");
         }
 
@@ -589,6 +554,7 @@ public class Manager {
         // save to database
         getProfile(player).getDatabase().getHeroEntry().setSelectedHero(heroes);
     }
+    // FIXME: 002. 10/02/2021 - multi
 
     /**
      * @return actual hero player is using right now, trial, lobby or game.
@@ -615,15 +581,56 @@ public class Manager {
         return gameInstance != null && gameInstance.getPlayer(player) != null && GamePlayer.getPlayer(player).isAlive();
     }
 
-    public static Manager current() {
-        return Main.getPlugin().getManager();
-    }
-
     public void removeProfile(Player player) {
         profiles.remove(player);
     }
 
     public void createProfile(Player player) {
         getProfile(player);
+    }
+
+    private void playAnimation() {
+        new TitleAnimation();
+    }
+
+    private void displayError(String message, Object... objects) {
+        Chat.broadcast("&c&lUnable to start the game! &c" + message.formatted(objects));
+    }
+
+    private Collection<Player> getNonSpectatorPlayers() {
+        return Bukkit.getOnlinePlayers().stream().filter(player -> !Setting.SPECTATE.isEnabled(player))
+                .collect(Collectors.toSet());
+    }
+
+    private void giveTalentItem(Player player, Hero hero, int slot) {
+        final PlayerInventory inventory = player.getInventory();
+        final Talent talent = getTalent(hero, slot);
+        final ItemStack talentItem = talent == null || talent.getItem() == null ? new ItemStack(Material.AIR) : talent.getItem();
+
+        if (talent != null && !talent.isAutoAdd()) {
+            return;
+        }
+
+        inventory.setItem(slot, talentItem);
+        fixTalentItemAmount(player, slot, talent);
+    }
+
+    private void fixTalentItemAmount(Player player, int slot, Talent talent) {
+        if (!(talent instanceof ChargedTalent chargedTalent)) {
+            return;
+        }
+
+        final PlayerInventory inventory = player.getInventory();
+        final ItemStack item = inventory.getItem(slot);
+
+        if (item == null) {
+            return;
+        }
+
+        item.setAmount(chargedTalent.getMaxCharges());
+    }
+
+    public static Manager current() {
+        return Main.getPlugin().getManager();
     }
 }
