@@ -70,7 +70,7 @@ public class ProfileDisplay {
     public String getDisplayNameTab() {
         final Player player = profile.getPlayer();
         final StringBuilder builder = new StringBuilder();
-        final Heroes hero = Manager.current().getSelectedHero(player);
+        final Heroes hero = Manager.current().getCurrentEnumHero(player);
         final boolean isSpectator = Setting.SPECTATE.isEnabled(player);
 
         builder.append(isSpectator ? "&7&o" : "&6&l");

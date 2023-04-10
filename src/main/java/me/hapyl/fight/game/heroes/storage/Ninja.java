@@ -147,7 +147,7 @@ public class Ninja extends Hero implements Listener, UIComponent {
 
     @Override
     public @Nonnull String getString(Player player) {
-        return player.hasCooldown(this.getItem().getType()) ? "&f🌊 &l%ss".formatted(BukkitUtils.roundTick(player.getCooldown(this.getItem()
+        return player.hasCooldown(getItem().getType()) ? "&f🌊 &l%ss".formatted(BukkitUtils.roundTick(player.getCooldown(this.getItem()
                 .getType()))) : "";
     }
 

@@ -180,7 +180,7 @@ public enum Heroes {
      * @return true if player's current hero is this hero.
      */
     public boolean isSelected(Player player) {
-        return Manager.current().getSelectedHero(player) == this;
+        return Manager.current().getCurrentEnumHero(player) == this;
     }
 
     /**

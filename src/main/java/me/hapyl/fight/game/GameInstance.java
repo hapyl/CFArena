@@ -367,7 +367,7 @@ public class GameInstance implements IGameInstance, GameElement {
     }
 
     private Heroes getHero(Player player) {
-        return Setting.RANDOM_HERO.isEnabled(player) ? Heroes.randomHero() : Manager.current().getSelectedHero(player);
+        return Setting.RANDOM_HERO.isEnabled(player) ? Heroes.randomHero() : Manager.current().getSelectedLobbyHero(player);
     }
 
     private String generateHexCode() {

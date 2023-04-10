@@ -472,7 +472,7 @@ public class Manager {
     }
 
     public void equipPlayer(Player player) {
-        equipPlayer(player, getSelectedHero(player).getHero());
+        equipPlayer(player, getCurrentHero(player));
     }
 
     public Talent getTalent(Hero hero, int slot) {
@@ -533,7 +533,7 @@ public class Manager {
             Chat.sendMessage(player, "&4&lYOU HAVE BEEN WARNED");
         }
 
-        if (getSelectedHero(player) == heroes) {
+        if (getSelectedLobbyHero(player) == heroes) {
             Chat.sendMessage(player, "&cAlready selected!");
             PlayerLib.villagerNo(player);
             return;
@@ -559,21 +559,33 @@ public class Manager {
     /**
      * @return actual hero player is using right now, trial, lobby or game.
      */
+    @Nonnull
     public Hero getCurrentHero(Player player) {
+        return getCurrentEnumHero(player).getHero();
+    }
+
+    @Nonnull
+    public Heroes getCurrentEnumHero(Player player) {
         if (isTrialExistsAndIsOwner(player)) {
-            return getTrial().getHeroes().getHero();
+            return getTrial().getHeroes();
         }
+
         else if (isPlayerInGame(player)) {
             final GamePlayer gamePlayer = getCurrentGame().getPlayer(player);
             if (gamePlayer == null) {
-                return Heroes.ARCHER.getHero();
+                return Heroes.ARCHER;
             }
-            return gamePlayer.getHero();
+            return gamePlayer.getEnumHero();
         }
-        return getSelectedHero(player).getHero();
+
+        return getSelectedLobbyHero(player);
     }
 
-    public Heroes getSelectedHero(Player player) {
+    /**
+     * @deprecated Use {@link #getCurrentHero(Player)} to get player current hero. This will always return lobby hero.
+     */
+    @Deprecated
+    public Heroes getSelectedLobbyHero(Player player) {
         return getProfile(player).getSelectedHero();
     }
 

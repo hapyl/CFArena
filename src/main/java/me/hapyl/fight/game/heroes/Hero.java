@@ -590,7 +590,7 @@ public abstract class Hero implements GameElement, PlayerElement {
     @Utility
     public final boolean validatePlayer(Player player) {
         final Manager current = Manager.current();
-        return validPlayerInGame(player) && current.getSelectedHero(player).getHero() == this;
+        return validPlayerInGame(player) && current.getCurrentHero(player) == this;
     }
 
     /**
