@@ -3,7 +3,6 @@ package me.hapyl.fight.database;
 import com.google.common.collect.Lists;
 import me.hapyl.fight.util.ParamFunction;
 import org.bson.Document;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
@@ -24,14 +23,6 @@ public class DatabaseEntry {
 
     public Document getConfig() {
         return database.getConfig();
-    }
-
-    public YamlConfiguration getConfigLegacy() {
-        if (this.database instanceof DatabaseLegacy databaseLegacy) {
-            return databaseLegacy.getYaml();
-        }
-
-        throw new IllegalStateException("Cannot get legacy config from non-legacy database!");
     }
 
     public Player getPlayer() {

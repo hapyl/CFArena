@@ -2,7 +2,6 @@ package me.hapyl.fight.game;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
-import me.hapyl.fight.annotate.Entry;
 import me.hapyl.fight.database.collection.HeroStatsCollection;
 import me.hapyl.fight.game.cosmetic.skin.SkinEffectManager;
 import me.hapyl.fight.game.gamemode.Modes;
@@ -27,6 +26,7 @@ import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
+import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.parkour.ParkourManager;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.glow.Glowing;
@@ -40,6 +40,7 @@ import org.bukkit.inventory.PlayerInventory;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class Manager {
@@ -56,7 +57,8 @@ public class Manager {
     private boolean isDebug = true;
     private GameInstance gameInstance; // @implNote: For now, only one game instance can be active at a time.
     private Trial trial;
-    private int debugNullGameInstance = 0;
+
+    private final AutoSync autoSave;
 
     public Manager() {
         profiles = Maps.newHashMap();
@@ -76,6 +78,9 @@ public class Manager {
 
         // init skin effect manager
         skinEffectManager = new SkinEffectManager(Main.getPlugin());
+
+        // start auto save timer
+        this.autoSave = new AutoSync(Tick.fromMinute(10));
     }
 
     /**
@@ -94,6 +99,10 @@ public class Manager {
             Main.getPlugin().getExperience().triggerUpdate(player);
         }
         return profile;
+    }
+
+    public void allProfiles(Consumer<PlayerProfile> consumer) {
+        profiles.values().forEach(consumer);
     }
 
     public boolean hasProfile(Player player) {
@@ -216,9 +225,11 @@ public class Manager {
         createNewGameInstance(false);
     }
 
-    @Entry(
-            name = "Creating new Game Instance."
-    )
+    /**
+     * Creates a new game instance.
+     *
+     * Only one game instance can be active at a time. (for now?)
+     */
     public void createNewGameInstance(boolean debug) {
         // Pre game start checks
         final GameMaps currentMap = this.currentMap.getElement();
@@ -354,9 +365,9 @@ public class Manager {
 
     }
 
-    @Entry(
-            name = "Stopping current Game Instance."
-    )
+    /**
+     * Stops the current game instance.
+     */
     public void stopCurrentGame() {
         if (this.gameInstance == null || this.gameInstance.getGameState() == State.POST_GAME) {
             return;
@@ -488,12 +499,15 @@ public class Manager {
         return null;
     }
 
+    /**
+     * Called after the game stopped.
+     */
     public void onStop() {
         // reset game state
         gameInstance.setGameState(State.FINISHED);
         gameInstance = null;
 
-        // teleport player
+        // teleport players to spawn
         for (final Player player : Bukkit.getOnlinePlayers()) {
             player.setInvulnerable(false);
             player.setHealth(player.getMaxHealth());
@@ -501,6 +515,10 @@ public class Manager {
             player.teleport(GameMaps.SPAWN.getMap().getLocation());
 
             LobbyItems.giveAll(player);
+        }
+
+        if (autoSave.scheduleSave) {
+            autoSave.save();
         }
     }
 

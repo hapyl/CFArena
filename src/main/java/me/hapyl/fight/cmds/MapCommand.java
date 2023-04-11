@@ -16,7 +16,7 @@ public class MapCommand extends SimplePlayerCommand {
 
 	public MapCommand(String str) {
 		super(str);
-		this.setUsage("map [Map]");
+		setUsage("map [Map]");
 	}
 
 	@Override

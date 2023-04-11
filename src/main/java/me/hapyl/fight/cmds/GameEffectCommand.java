@@ -12,54 +12,55 @@ import org.bukkit.entity.Player;
 import java.util.List;
 
 public class GameEffectCommand extends SimplePlayerAdminCommand {
-	public GameEffectCommand(String name) {
-		super(name);
-		this.setUsage("ge (Effect) (stop/int)");
-		this.setAliases("ge");
-	}
+    public GameEffectCommand(String name) {
+        super(name);
 
-	@Override
-	protected void execute(Player player, String[] args) {
-		// ge (Effect) (stop/ticks)
-		if (args.length == 2) {
+        setUsage("ge (Effect) (stop/int)");
+        setAliases("ge");
+    }
 
-			if (!Manager.current().isGameInProgress()) {
-				Chat.sendMessage(player, "&cThis command is only available during the game!");
-				return;
-			}
+    @Override
+    protected void execute(Player player, String[] args) {
+        // ge (Effect) (stop/ticks)
+        if (args.length == 2) {
 
-			final GameEffectType type = Validate.getEnumValue(GameEffectType.class, args[0]);
-			final int ticks = args[1].equalsIgnoreCase("stop") ? -1 : Validate.getInt(args[1]);
+            if (!Manager.current().isGameInProgress()) {
+                Chat.sendMessage(player, "&cThis command is only available during the game!");
+                return;
+            }
 
-			final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
-			if (type == null || gamePlayer == null) {
-				Chat.sendMessage(player, "&cInvalid effect type.");
-				return;
-			}
+            final GameEffectType type = Validate.getEnumValue(GameEffectType.class, args[0]);
+            final int ticks = args[1].equalsIgnoreCase("stop") ? -1 : Validate.getInt(args[1]);
 
-			if (ticks <= -1) {
-				if (gamePlayer.hasEffect(type)) {
-					Chat.sendMessage(player, "&cYou don't have %s effect applied!", type.getGameEffect().getName());
-					return;
-				}
-				gamePlayer.removeEffect(type);
-				Chat.sendMessage(player, "&aStopped %s effect!", type.getGameEffect().getName());
-				return;
-			}
+            final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
+            if (type == null || gamePlayer == null) {
+                Chat.sendMessage(player, "&cInvalid effect type.");
+                return;
+            }
 
-			gamePlayer.addEffect(type, ticks);
-			Chat.sendMessage(player, "&aApplied %s effect for %st!", type.getGameEffect().getName(), ticks);
+            if (ticks <= -1) {
+                if (gamePlayer.hasEffect(type)) {
+                    Chat.sendMessage(player, "&cYou don't have %s effect applied!", type.getGameEffect().getName());
+                    return;
+                }
+                gamePlayer.removeEffect(type);
+                Chat.sendMessage(player, "&aStopped %s effect!", type.getGameEffect().getName());
+                return;
+            }
 
-			return;
-		}
-		sendInvalidUsageMessage(player);
-	}
+            gamePlayer.addEffect(type, ticks);
+            Chat.sendMessage(player, "&aApplied %s effect for %st!", type.getGameEffect().getName(), ticks);
 
-	@Override
-	protected List<String> tabComplete(CommandSender sender, String[] args) {
-		if (args.length == 1) {
-			return completerSort(arrayToList(GameEffectType.values()), args);
-		}
-		return null;
-	}
+            return;
+        }
+        sendInvalidUsageMessage(player);
+    }
+
+    @Override
+    protected List<String> tabComplete(CommandSender sender, String[] args) {
+        if (args.length == 1) {
+            return completerSort(arrayToList(GameEffectType.values()), args);
+        }
+        return null;
+    }
 }

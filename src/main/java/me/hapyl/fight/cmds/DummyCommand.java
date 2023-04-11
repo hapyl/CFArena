@@ -23,4 +23,5 @@ public class DummyCommand extends SimplePlayerAdminCommand {
 
         Chat.sendMessage(player, "&aSpawned dummy.");
     }
+
 }

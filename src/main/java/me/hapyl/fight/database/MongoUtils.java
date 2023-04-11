@@ -1,8 +1,33 @@
 package me.hapyl.fight.database;
 
+import com.mongodb.client.MongoCollection;
+import me.hapyl.fight.Main;
 import org.bson.Document;
+import org.bukkit.scheduler.BukkitRunnable;
+
+import javax.annotation.Nonnull;
 
 public final class MongoUtils {
+
+    public static void async(@Nonnull MongoCollection<Document> collection, @Nonnull MongoCallback<Document> async) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                try {
+                    async.async(collection);
+
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            async.then(collection);
+                        }
+                    }.runTask(Main.getPlugin());
+                } catch (RuntimeException error) {
+                    async.error(collection, error);
+                }
+            }
+        }.runTaskAsynchronously(Main.getPlugin());
+    }
 
     public static <T> T get(final Document root, String path, T def) {
         final String[] paths = path.split("\\.");

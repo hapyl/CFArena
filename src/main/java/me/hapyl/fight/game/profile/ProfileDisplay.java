@@ -76,6 +76,10 @@ public class ProfileDisplay {
         final Heroes hero = Manager.current().getCurrentEnumHero(player);
         final boolean isSpectator = Setting.SPECTATE.isEnabled(player);
 
+        // Append player level
+        final long playerLevel = Main.getPlugin().getExperience().getLevel(player);
+        builder.append("&b[%s]&f ".formatted(playerLevel));
+
         builder.append(isSpectator ? "&7&o" : "&6&l");
         builder.append(hero.getHero().getName()).append(" ");
 
@@ -83,10 +87,6 @@ public class ProfileDisplay {
         if (!prefix.isEmpty()) {
             builder.append(prefix).append(" ");
         }
-
-        // Append player level
-        final long playerLevel = Main.getPlugin().getExperience().getLevel(player);
-        builder.append("&b[%s]&f ".formatted(playerLevel));
 
         builder.append(player.isOp() ? (isSpectator ? "&7🛡 " : "&c🛡 ") : isSpectator ? "" : "&e");
         builder.append(player.getName());
@@ -109,6 +109,14 @@ public class ProfileDisplay {
         return Chat.format(builder.toString());
     }
 
+    public String getCustomName() {
+        return customName;
+    }
+
+    public void setCustomName(String customName) {
+        this.customName = customName;
+    }
+
     private String formatPing() {
         final int ping = profile.getPlayer().getPing();
 
@@ -124,14 +132,6 @@ public class ProfileDisplay {
         else {
             return "&4" + ping + "ms";
         }
-    }
-
-    public String getCustomName() {
-        return customName;
-    }
-
-    public void setCustomName(String customName) {
-        this.customName = customName;
     }
 
 }

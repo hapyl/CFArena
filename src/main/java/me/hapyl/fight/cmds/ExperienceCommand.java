@@ -2,7 +2,6 @@ package me.hapyl.fight.cmds;
 
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.entry.ExperienceEntry;
-import me.hapyl.fight.game.Debugger;
 import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
@@ -25,7 +24,7 @@ public class ExperienceCommand extends SimplePlayerAdminCommand {
 
         if (args.length == 0) {
             for (int i = 1; i < experience.MAX_LEVEL; i++) {
-                Debugger.keepLog(i + "=" + experience.getExpRequired(i));
+                Chat.sendMessage(player, "&a%s &7<- &f%s", i, experience.getExpRequired(i));
             }
             return;
         }
@@ -107,9 +106,7 @@ public class ExperienceCommand extends SimplePlayerAdminCommand {
                 Chat.sendMessage(player, "&aRemoved %s experience %s for %s.", type.getName(), value, target.getName());
             }
 
-            default -> {
-                Chat.sendMessage(player, "&cInvalid operation.");
-            }
+            default -> Chat.sendMessage(player, "&cInvalid operation.");
         }
     }
 

@@ -3,6 +3,7 @@ package me.hapyl.fight.game.heroes.storage;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import me.hapyl.fight.Main;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
@@ -24,7 +25,6 @@ import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.GUI;
 import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.reflect.visibility.Visibility;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -113,13 +113,8 @@ public class Vampire extends Hero implements Listener, UIComplexComponent {
             self.setAwake(true);
             self.setAI(false);
 
-            // Hide for everyone but the player
-            final Visibility visibility = Visibility.of(self);
-
-            // FIXME (hapyl): 010, Apr 10, 2023: Bat seems invisible to everyone
-
-            visibility.setCanSee(player, false);
-            visibility.hide();
+            // Hide for player
+            player.hideEntity(Main.getPlugin(), self);
         });
 
         player.setAllowFlight(true);

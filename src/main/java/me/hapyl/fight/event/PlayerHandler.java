@@ -2,7 +2,6 @@ package me.hapyl.fight.event;
 
 import me.hapyl.fight.Main;
 import me.hapyl.fight.Shortcuts;
-import me.hapyl.fight.annotate.Entry;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Hero;
@@ -92,7 +91,7 @@ public class PlayerHandler implements Listener {
         }
 
         // save database
-        Shortcuts.getDatabase(player).saveToFile();
+        Shortcuts.getDatabase(player).save();
         final GameTeam playerTeam = GameTeam.getPlayerTeam(player);
         if (playerTeam != null) {
             playerTeam.removeFromTeam(player);
@@ -209,11 +208,8 @@ public class PlayerHandler implements Listener {
     }
 
     /**
-     * This event calculates all the custom damage.
+     * Handler for damage calculations.
      */
-    @Entry(
-            name = "Damage calculation."
-    )
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handleDamage(EntityDamageEvent ev) {
         final Entity entity = ev.getEntity();
@@ -524,7 +520,9 @@ public class PlayerHandler implements Listener {
         }
     }
 
-    @Entry(name = "Talent usage")
+    /**
+     * Handler for talent usage.
+     */
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handlePlayerClick(PlayerItemHeldEvent ev) {
         final Player player = ev.getPlayer();

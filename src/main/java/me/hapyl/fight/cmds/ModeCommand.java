@@ -15,29 +15,29 @@ public class ModeCommand extends SimplePlayerCommand {
 
     public ModeCommand(String str) {
         super(str);
-        this.setUsage("mode " + Arrays.toString(Modes.values()));
+        setUsage("mode " + Arrays.toString(Modes.values()));
     }
 
     @Override
     protected void execute(Player player, String[] args) {
         if (args.length == 0) {
             new ModeSelectGUI(player);
-			return;
-		}
+            return;
+        }
 
-		final Modes mode = Validate.getEnumValue(Modes.class, args[0]);
-		if (mode == null) {
-			this.sendInvalidUsageMessage(player);
-			return;
-		}
+        final Modes mode = Validate.getEnumValue(Modes.class, args[0]);
 
-		Manager.current().setCurrentMode(mode);
+        if (mode == null) {
+            sendInvalidUsageMessage(player);
+            return;
+        }
 
-	}
+        Manager.current().setCurrentMode(mode);
+    }
 
-	@Override
-	public List<String> tabComplete(CommandSender sender, String[] args) {
-		return completerSort(arrayToList(Modes.values()), args);
-	}
+    @Override
+    public List<String> tabComplete(CommandSender sender, String[] args) {
+        return completerSort(arrayToList(Modes.values()), args);
+    }
 
 }

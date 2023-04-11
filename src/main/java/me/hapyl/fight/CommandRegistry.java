@@ -67,7 +67,6 @@ public class CommandRegistry {
         register(new CooldownCommand("cooldown"));
         register(new ExperienceCommand("experience"));
         register(new CosmeticCommand("cosmetic"));
-        register(new DatabaseCommand("database"));
         register(new SyncDatabaseCommand("syncDatabase"));
         register(new CastSpellCommand("cast"));
         register(new ThrowExceptionCommand("throwClassesFightException"));

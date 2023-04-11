@@ -2,13 +2,13 @@ package me.hapyl.fight.game.profile;
 
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.Database;
-import me.hapyl.fight.database.DatabaseLegacy;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.ScoreboardTeams;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.GamePlayerUI;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -36,8 +36,11 @@ public class PlayerProfile {
         this.player = player;
 
         // Init database
-        if (Main.getPlugin().isDatabaseLegacy()) {
-            this.database = new DatabaseLegacy(player);
+        final Main main = Main.getPlugin();
+        if (main.isDatabaseLegacy()) {
+            main.getLogger().severe("Legacy database is not supported anymore!");
+            Bukkit.getPluginManager().disablePlugin(main);
+            throw new RuntimeException("Legacy database is not supported anymore!");
         }
         else {
             this.database = new Database(player);

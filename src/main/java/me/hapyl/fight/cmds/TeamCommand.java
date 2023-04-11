@@ -10,7 +10,8 @@ import org.bukkit.entity.Player;
 public class TeamCommand extends SimplePlayerCommand {
     public TeamCommand(String name) {
         super(name);
-        addCompleterValues(1, "toggle", "join", "leave");
+
+        addCompleterValues(1, "join", "leave");
         addCompleterValues(2, GameTeam.valuesStrings());
     }
 
@@ -27,11 +28,6 @@ public class TeamCommand extends SimplePlayerCommand {
         }
 
         final String arg0 = args[0].toLowerCase();
-
-        if (args.length == 1 && arg0.equalsIgnoreCase("toggle")) {
-            Chat.sendMessage(player, "&cNot necessary, team mode is permanent.");
-            return;
-        }
 
         final GameTeam team = Validate.getEnumValue(GameTeam.class, args[1]);
         if (team == null) {

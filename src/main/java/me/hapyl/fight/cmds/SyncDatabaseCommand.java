@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 public class SyncDatabaseCommand extends SimplePlayerAdminCommand {
     public SyncDatabaseCommand(String name) {
         super(name);
-        setDescription("Syncs the database with the server.");
+        setDescription("Syncs the server database with remote.");
     }
 
     @Override

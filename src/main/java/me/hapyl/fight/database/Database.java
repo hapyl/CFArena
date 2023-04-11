@@ -6,38 +6,33 @@ import me.hapyl.fight.Main;
 import me.hapyl.fight.database.entry.*;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.UUID;
 
 // TODO (hapyl): 003, Apr 3, 2023: Maybe database should be independent of Profile?
-public sealed class Database permits DatabaseLegacy {
+public class Database {
 
     private static final Map<UUID, Database> UUID_DATABASE_MAP = Maps.newConcurrentMap();
-
+    protected final Player player;
     private final DatabaseMongo mongo;
     private final Document filter;
-    protected final Player player;
     private final UUID uuid;
-
-    private Document config;
-
     private final boolean legacy;
-
-    @Deprecated
-    protected Database(Player player, boolean legacy) {
-        this.player = player;
-        this.uuid = player.getUniqueId();
-        this.mongo = null;
-        this.filter = null;
-        this.legacy = true;
-    }
+    // entries start
+    protected HeroEntry heroEntry;
+    protected CurrencyEntry currencyEntry;
+    protected StatisticEntry statisticEntry;
+    protected SettingEntry settingEntry;
+    protected ExperienceEntry experienceEntry;
+    protected CosmeticEntry cosmeticEntry;
+    private Document config;
 
     public Database(UUID uuid) {
         this.uuid = uuid;
@@ -47,8 +42,8 @@ public sealed class Database permits DatabaseLegacy {
 
         this.filter = new Document("uuid", uuid.toString());
 
-        this.loadFile();
-        this.loadEntries();
+        this.load();
+        //this.loadEntries(); -> Async in loadFile
     }
 
     public Database(Player player) {
@@ -63,10 +58,6 @@ public sealed class Database permits DatabaseLegacy {
         return legacy;
     }
 
-    public static Database getDatabase(Player player) {
-        return PlayerProfile.getProfile(player).getDatabase();
-    }
-
     public DatabaseMongo getMongo() {
         return mongo;
     }
@@ -79,25 +70,13 @@ public sealed class Database permits DatabaseLegacy {
         return player;
     }
 
-    public UUID getUuid() {
-        return uuid;
+    @Nonnull
+    public String getPlayerName() {
+        return player == null ? uuid.toString() : player.getName();
     }
 
-    // entries start
-    protected HeroEntry heroEntry;
-    protected CurrencyEntry currencyEntry;
-    protected StatisticEntry statisticEntry;
-    protected SettingEntry settingEntry;
-    protected ExperienceEntry experienceEntry;
-    protected CosmeticEntry cosmeticEntry;
-
-    private void loadEntries() {
-        this.heroEntry = new HeroEntry(this);
-        this.currencyEntry = new CurrencyEntry(this);
-        this.statisticEntry = new StatisticEntry(this);
-        this.settingEntry = new SettingEntry(this);
-        this.experienceEntry = new ExperienceEntry(this);
-        this.cosmeticEntry = new CosmeticEntry(this);
+    public UUID getUuid() {
+        return uuid;
     }
 
     public ExperienceEntry getExperienceEntry() {
@@ -147,41 +126,62 @@ public sealed class Database permits DatabaseLegacy {
     }
 
     public final void sync() {
-        saveToFile();
-        loadFile();
+        save();
+        load();
     }
 
-    public void saveToFile() {
+    public void save() {
+        final String playerName = player == null ? uuid.toString() : player.getName();
+
         try {
             //Bukkit.getScheduler().runTaskAsynchronously(Main.getPlugin(), () -> {
             this.mongo.getPlayers().replaceOne(this.filter, this.config);
             //});
 
-            Bukkit.getLogger().info("Successfully saved database for %s.".formatted(player.getName()));
+            Bukkit.getLogger().info("Successfully saved database for %s.".formatted(playerName));
         } catch (Exception e) {
             e.printStackTrace();
-            Bukkit.getLogger().severe("An error occurred whilst trying to save database for %s.".formatted(player.getName()));
+            Bukkit.getLogger().severe("An error occurred whilst trying to save database for %s.".formatted(playerName));
         }
-    }
-
-    private void loadFile() {
-        this.config = this.mongo.getPlayers().find(this.filter).first();
-
-        if (config == null) {
-            final MongoCollection<Document> players = this.mongo.getPlayers();
-            final Document document = new Document("uuid", player.getUniqueId().toString()).append("player_name", player.getName());
-            this.config = document;
-            players.insertOne(document);
-        }
-    }
-
-    private void sendInfo(String info, Object... toReplace) {
-        final String format = Chat.format("&e&lDEBUG: &f" + info, toReplace);
-        System.out.println(format);
-        //Bukkit.getOnlinePlayers().stream().filter(Player::isOp).forEach(player -> player.sendMessage(format));
     }
 
     public void update(Bson set) {
         this.mongo.getPlayers().updateOne(this.filter, set);
+    }
+
+    private void loadEntries() {
+        this.heroEntry = new HeroEntry(this);
+        this.currencyEntry = new CurrencyEntry(this);
+        this.statisticEntry = new StatisticEntry(this);
+        this.settingEntry = new SettingEntry(this);
+        this.experienceEntry = new ExperienceEntry(this);
+        this.cosmeticEntry = new CosmeticEntry(this);
+    }
+
+    private void load() {
+        final String playerName = getPlayerName();
+
+        try {
+            config = mongo.getPlayers().find(filter).first();
+
+            if (config == null) {
+                final MongoCollection<Document> players = mongo.getPlayers();
+                final Document document = new Document("uuid", uuid).append("player_name", playerName);
+
+                config = document;
+                players.insertOne(document);
+            }
+
+            loadEntries();
+
+            Bukkit.getLogger().info("Successfully loaded database for %s.".formatted(playerName));
+        } catch (Exception error) {
+            error.printStackTrace();
+            Bukkit.getLogger().severe("An error occurred whilst trying to load database for %s.".formatted(playerName));
+        }
+    }
+
+    public static Database getDatabase(Player player) {
+        return PlayerProfile.getProfile(player).getDatabase();
     }
 }

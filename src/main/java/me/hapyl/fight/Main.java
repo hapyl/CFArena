@@ -134,7 +134,7 @@ public class Main extends JavaPlugin {
 
         runSafe(() -> {
             for (final Player player : Bukkit.getOnlinePlayers()) {
-                Manager.current().getProfile(player).getDatabase().saveToFile();
+                Manager.current().getProfile(player).getDatabase().save();
             }
         }, "player database save");
 
