@@ -1,6 +1,5 @@
-# ClassesFight ARENA
-A complete rework of a mini game plugin that is based on 
-a map me and friend build 2~3 years ago.
+# ClassesFight ᴀʀᴇɴᴀ
+A mini game plugin. ~~Probably~~ does not work since database is required.
 
-# Depends on EternaAPI!
+# Depends on EternaAPI
 Link: https://github.com/hapyl/EternaAPI
