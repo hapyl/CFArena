@@ -71,13 +71,13 @@ public class DragonsGorge extends GameMap {
                         player.setFreezeTicks((int) Math.min(player.getMaxFreezeTicks(), newValue));
 
                         if (isBetween(newValue, 25, 50)) { // Low hitting ticks
-                            GamePlayer.damageEntity(player, 4.0d, null, EnumDamageCause.FREEZE);
+                            GamePlayer.damageEntity(player, 4.0d, null, EnumDamageCause.COLD);
                         }
                         else if (isBetween(newValue, 50, 100)) { // High hitting ticks and warning
-                            GamePlayer.damageEntity(player, 6.0d, null, EnumDamageCause.FREEZE);
+                            GamePlayer.damageEntity(player, 6.0d, null, EnumDamageCause.COLD);
                         }
                         else if (newValue >= maxColdValue) { // Instant Death
-                            GamePlayer.damageEntity(player, 1000.0d, null, EnumDamageCause.FREEZE);
+                            GamePlayer.damageEntity(player, 1000.0d, null, EnumDamageCause.COLD);
                         }
 
                         // Fx

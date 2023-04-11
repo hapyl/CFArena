@@ -65,6 +65,7 @@ public class GameInstance implements IGameInstance, GameElement {
         this.gameTask = startTask();
     }
 
+    @Nonnull
     public GameResult getGameResult() {
         return gameResult;
     }
@@ -384,6 +385,7 @@ public class GameInstance implements IGameInstance, GameElement {
                     getAlivePlayers().forEach(player -> {
                         player.setUltPoints(player.getUltPointsNeeded());
                     });
+
                     return;
                 }
 

@@ -160,20 +160,36 @@ public class Tamer extends Hero implements Listener {
         final Entity entity = ev.getEntity();
         Entity damager = ev.getDamager();
 
+        // root to shooter
         if (damager instanceof Projectile projectile && projectile.getShooter() instanceof LivingEntity shooter) {
             damager = shooter;
         }
 
-        if (!getFirstTalent().isInSamePackOrOwner(entity, damager)) {
+        // Only allow living<->living damage
+        if (!(entity instanceof LivingEntity livingEntity) || !(damager instanceof LivingEntity livingDamager)) {
             return;
         }
+
+        final MineOBall mineOBall = getFirstTalent();
+        if (!mineOBall.isPackEntity(livingDamager)) {
+            return;
+        }
+
+        // Cancel event, set damage using GamePlayer
+        final double finalDamage = ev.getFinalDamage();
 
         ev.setCancelled(true);
         ev.setDamage(0.0d);
 
-        if (damager instanceof Creature creature) {
-            creature.setTarget(null);
+        // cancel if friendly
+        if (mineOBall.isInSamePackOrOwner(entity, damager)) {
+            if (damager instanceof Creature creature) {
+                creature.setTarget(null);
+            }
+            return;
         }
+
+        GamePlayer.damageEntity(livingEntity, finalDamage, mineOBall.getOwner(livingDamager), EnumDamageCause.MINION);
     }
 
     @EventHandler()

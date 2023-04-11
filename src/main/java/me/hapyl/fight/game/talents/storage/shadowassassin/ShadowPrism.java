@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.storage.shadowassassin;
 
+import me.hapyl.fight.Main;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
@@ -7,7 +8,6 @@ import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.reflect.visibility.Visibility;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -35,9 +35,11 @@ public class ShadowPrism extends Talent {
     public ShadowPrism() {
         super("Shadow Prism");
 
-        addDescription(
-                "Deploy a teleportation orb that travels in straight line.____&e&lLOOK AT BLOCK &7to place it at fixed block and prevent it from travelling.____Use again to teleport to the orb after a short windup.____&bThis ability is invisible to your opponents!"
-        );
+        addDescription("Deploy a teleportation orb that travels in straight line.");
+        addNlDescription("&e&lLOOK AT BLOCK &7to place it at fixed block and prevent it from travelling.");
+        addNlDescription("Use again to teleport to the orb after a short windup.");
+        addNlDescription("&bThis ability is invisible to your opponents!");
+
         setItem(
                 "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODNlZDRjZTIzOTMzZTY2ZTA0ZGYxNjA3MDY0NGY3NTk5ZWViNTUzMDdmN2VhZmU4ZDkyZjQwZmIzNTIwODYzYyJ9fX0="
         );
@@ -81,23 +83,26 @@ public class ShadowPrism extends Talent {
                 return Response.error("Invalid block.");
             }
 
-            final ArmorStand entity = Entities.ARMOR_STAND.spawn(spawnLocation, me -> {
-                me.setVisible(false);
-                me.setSilent(true);
-                me.setInvulnerable(true);
-                me.setSmall(true);
-                me.getLocation().setYaw(playerLocation.getYaw());
+            final ArmorStand entity = Entities.ARMOR_STAND.spawn(spawnLocation, self -> {
+                self.setVisible(false);
+                self.setSilent(true);
+                self.setInvulnerable(true);
+                self.setSmall(true);
+                self.getLocation().setYaw(playerLocation.getYaw());
 
-                if (me.getEquipment() != null) {
-                    me.getEquipment().setHelmet(this.getItem());
+                if (self.getEquipment() != null) {
+                    self.getEquipment().setHelmet(this.getItem());
                 }
+
+                self.setVisibleByDefault(false);
             });
 
             playerPrism.put(player, entity);
             startCd(player, deployCd); // fix instant use
 
             // Hide prism for everyone but player
-            Visibility.of(entity, player);
+            //Visibility.of(entity, player);
+            player.showEntity(Main.getPlugin(), entity);
 
             // Add glowing
             handleGlowing(entity, player);

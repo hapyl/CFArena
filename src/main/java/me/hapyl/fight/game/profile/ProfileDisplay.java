@@ -41,17 +41,20 @@ public class ProfileDisplay {
             }
         }
 
+        // Append level
+        final long playerLevel = Main.getPlugin().getExperience().getLevel(player);
+        builder.append("&b[%s] ".formatted(playerLevel));
+
+        // Append hero
         builder.append(ChatColor.GOLD).append(profile.getSelectedHero().getHero().getName()).append(" ");
 
+        // Append prefix if present
         final String prefix = getPrefix();
         if (!prefix.isEmpty()) {
             builder.append(prefix).append(" ");
         }
 
-        // Append player level
-        final long playerLevel = Main.getPlugin().getExperience().getLevel(player);
-        builder.append("&b[%s] ".formatted(playerLevel));
-
+        // Change color to red if operator and append name
         builder.append(player.isOp() ? ChatColor.RED : ChatColor.YELLOW);
         builder.append(customName).append("&f: ");
 

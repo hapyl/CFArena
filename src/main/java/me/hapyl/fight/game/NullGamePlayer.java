@@ -41,6 +41,20 @@ public class NullGamePlayer implements IGamePlayer {
 
     }
 
+    @Override
+    public long getCombatTag() {
+        return 0;
+    }
+
+    @Override
+    public void markCombatTag() {
+    }
+
+    @Override
+    public boolean isCombatTagged() {
+        return false;
+    }
+
     @Nonnull
     @Override
     public TalentQueue getTalentQueue() {

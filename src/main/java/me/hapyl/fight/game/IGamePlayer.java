@@ -78,6 +78,25 @@ public interface IGamePlayer {
     void setDead(boolean dead);
 
     /**
+     * Returns player's combat tag duration, or 0 if not in combat.
+     *
+     * @return player's combat tag duration or 0 if not in combat.
+     */
+    long getCombatTag();
+
+    /**
+     * Mark player as combat tagged.
+     */
+    void markCombatTag();
+
+    /**
+     * Returns true if player is in combat; false otherwise.
+     *
+     * @return true if player is in combat; false otherwise.
+     */
+    boolean isCombatTagged();
+
+    /**
      * Returns player's talent queue.
      *
      * @return player's talent queue.

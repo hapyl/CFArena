@@ -77,7 +77,7 @@ public class CommandRegistry {
         register(new EquipCommand("equip"));
         register(new HeadCommand("head"));
         register(new RankCommand("rank"));
-
+        register(new DebugPlayerCommand("debugPlayer"));
 
         register(new SimplePlayerAdminCommand("testnpcpose") {
             @Override

@@ -239,12 +239,17 @@ public class PlayerHandler implements Listener {
             final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
 
             // Fall damage
-            if (cause == EntityDamageEvent.DamageCause.FALL) {
-                if (gamePlayer.hasEffect(GameEffectType.NINJA_PASSIVE) || gamePlayer.hasEffect(GameEffectType.FALL_DAMAGE_RESISTANCE)) {
-                    ev.setCancelled(true);
-                    gamePlayer.removeEffect(GameEffectType.FALL_DAMAGE_RESISTANCE);
-                    return;
-                }
+            if (cause == EntityDamageEvent.DamageCause.FALL && gamePlayer.hasEffect(GameEffectType.FALL_DAMAGE_RESISTANCE)) {
+                ev.setCancelled(true);
+                gamePlayer.removeEffect(GameEffectType.FALL_DAMAGE_RESISTANCE);
+                return;
+            }
+        }
+
+        // Reassign damage cause
+        if (livingEntity instanceof Player playerVictim) {
+            if ((GamePlayer.getPlayer(playerVictim) instanceof GamePlayer player) && player.isNativeDamage()) {
+                player.setLastDamageCause(EnumDamageCause.getFromCause(cause));
             }
         }
 
@@ -306,16 +311,6 @@ public class PlayerHandler implements Listener {
                 }
             }
 
-            // Reassign damage cause
-            if (livingEntity instanceof Player playerVictim) {
-                final EntityDamageEvent lastDamageCause = playerVictim.getLastDamageCause();
-
-                if (lastDamageCause == null || lastDamageCause.getCause() != EntityDamageEvent.DamageCause.CUSTOM) {
-                    GamePlayer.getPlayer(playerVictim).setLastDamageCause(EnumDamageCause.getFromCause(cause));
-                    playerVictim.setLastDamageCause(null);
-                }
-            }
-
             // Player to Player tests
             if (damagerFinal instanceof Player playerDamager && entity instanceof Player playerVictim) {
                 boolean cancelDamage = false;
@@ -340,9 +335,9 @@ public class PlayerHandler implements Listener {
             }
 
             // Apply modifiers for damager
-            if (damager instanceof LivingEntity living) {
-                final PotionEffect effectStrength = living.getPotionEffect(PotionEffectType.INCREASE_DAMAGE);
-                final PotionEffect effectWeakness = living.getPotionEffect(PotionEffectType.WEAKNESS);
+            if (damagerFinal != null) {
+                final PotionEffect effectStrength = damagerFinal.getPotionEffect(PotionEffectType.INCREASE_DAMAGE);
+                final PotionEffect effectWeakness = damagerFinal.getPotionEffect(PotionEffectType.WEAKNESS);
 
                 // Add 20% of damage per strength level
                 if (effectStrength != null) {
@@ -355,7 +350,7 @@ public class PlayerHandler implements Listener {
                 }
 
                 // Apply GameEffect for damager
-                if (living instanceof Player player) {
+                if (damagerFinal instanceof Player player) {
                     final IGamePlayer gp = GamePlayer.getPlayer(player);
                     if (gp.hasEffect(GameEffectType.STUN)) {
                         damage = 0.0d;
@@ -398,8 +393,12 @@ public class PlayerHandler implements Listener {
             }
         }
 
-        if (livingEntity instanceof Player player && damagerFinal != null) {
-            GamePlayer.getPlayer(player).setLastDamager(damagerFinal);
+        // Set damager if not custom hit
+        if (livingEntity instanceof Player player) {
+            final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
+            if (gamePlayer instanceof GamePlayer gp && gp.isNativeDamage()) {
+                gamePlayer.setLastDamager(damagerFinal);
+            }
         }
 
         // Process damager and victims hero damage processors
@@ -614,13 +613,13 @@ public class PlayerHandler implements Listener {
         if (Manager.current().isGameInProgress()) {
             final IGamePlayer gp = GamePlayer.getPlayer(player);
 
+            // AFK detection
+            // Mark as moved even if player can't move and only moved the mouse
+            gp.markLastMoved();
+
             if (hasNotMoved(from, to)) {
                 return;
             }
-
-            // AFK detection
-            // Mark as moved even if player can't move
-            gp.markLastMoved();
 
             // Handle no moving
             if (!gp.canMove()) {

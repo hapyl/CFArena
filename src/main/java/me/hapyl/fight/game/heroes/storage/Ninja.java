@@ -2,6 +2,7 @@ package me.hapyl.fight.game.heroes.storage;
 
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.game.Debugger;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.IGamePlayer;
@@ -119,7 +120,6 @@ public class Ninja extends Hero implements Listener, UIComponent {
         player.setAllowFlight(true);
 
         PlayerLib.addEffect(player, PotionEffectType.SPEED, 999999, 0);
-        GamePlayer.getPlayer(player).addEffect(GameEffectType.NINJA_PASSIVE, Integer.MAX_VALUE);
     }
 
     @EventHandler()
@@ -187,6 +187,7 @@ public class Ninja extends Hero implements Listener, UIComponent {
     @Override
     public DamageOutput processDamageAsVictim(DamageInput input) {
         if (input.getDamageCause() == EnumDamageCause.FALL) {
+            Debugger.log("cancelled fall damage");
             return DamageOutput.CANCEL;
         }
         return null;

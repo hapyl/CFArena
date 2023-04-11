@@ -14,12 +14,6 @@ public enum Setting {
 
     SEE_OTHERS_CONTRAIL(14, Material.FIREWORK_ROCKET, "See Others Contrail", "Whenever you will see other players contrails.", true),
     SEE_NOTIFICATIONS(15, Material.PAPER, "See Notifications", "Whenever you will see notifications.", true),
-    USE_LEGACY_HERO_ICONS(
-            16,
-            Material.STONE,
-            "Legacy Hero Icons",
-            "Whenever hero selection GUI will use legacy hero icons instead of player heads. (Some legacy icons are player heads)"
-    ),
 
     SHOW_YOURSELF_AS_TEAMMATE(
             28,

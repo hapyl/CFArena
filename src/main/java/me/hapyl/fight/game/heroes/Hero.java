@@ -558,7 +558,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      * @param damage   - Damage.
      */
     public void setWeapon(Material material, String name, double damage) {
-        setWeapon(new Weapon(material, name, null, damage));
+        setWeapon(new Weapon(material, name, "", damage));
     }
 
     /**
@@ -587,7 +587,6 @@ public abstract class Hero implements GameElement, PlayerElement {
      * @param player - Player.
      * @return true if there is a game in progress and player is in game, and player's selected hero is the same as the one provided.
      */
-    @Utility
     public final boolean validatePlayer(Player player) {
         final Manager current = Manager.current();
         return validPlayerInGame(player) && current.getCurrentHero(player) == this;

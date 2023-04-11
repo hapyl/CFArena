@@ -68,6 +68,8 @@ Bugs:
 - [✔] juju shield breaks all at once
 - [✔] Tamer broken
 
+- Rework techie a big, add delay to traps.
+
 - Repackage talent/hero handles?
 - Cleanup Code
 - Add friends, idk why?

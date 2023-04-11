@@ -15,16 +15,14 @@ import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
@@ -72,61 +70,15 @@ public class Utils {
         return v * v / 8.0d;
     }
 
-    public static class ProgressBar implements IBuilder<String> {
-
-        private final String indicator;
-        private final ChatColor[] colors;
-        private int max;
-
-        public ProgressBar(String indicator, ChatColor color, int max) {
-            this.indicator = indicator;
-            this.colors = new ChatColor[] { ChatColor.GRAY, color };
-            this.max = max;
+    @Nonnull
+    public static World getWorld(Location location) {
+        final World world = location.getWorld();
+        if (world == null) {
+            throw new NullPointerException("world is unloaded");
         }
 
-        public void setPrimaryColor(ChatColor color) {
-            colors[0] = color;
-        }
-
-        public void setSecondaryColor(ChatColor color) {
-            colors[1] = color;
-        }
-
-        public ProgressBar(String indicator, ChatColor color) {
-            this(indicator, color, 20);
-        }
-
-        public ProgressBar(String indicator) {
-            this(indicator, ChatColor.GREEN);
-        }
-
-        public void setMax(int max) {
-            this.max = max;
-        }
-
-        public int getMax() {
-            return max;
-        }
-
-        public String build(int value) {
-            final StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < max; i++) {
-                builder.append(value <= i ? getColor(true) : getColor(false));
-                builder.append(indicator);
-            }
-            return builder.toString();
-        }
-
-        private ChatColor getColor(boolean primary) {
-            return colors[primary ? 0 : 1];
-        }
-
-        @Override
-        public String build() {
-            return build(0);
-        }
+        return world;
     }
-
 
     public static <E> List<String> collectionToStringList(Collection<E> e, java.util.function.Function<E, String> fn) {
         final List<String> list = new ArrayList<>();
@@ -300,6 +252,25 @@ public class Utils {
         }
     }
 
+    /**
+     * Roots to the actual damager from projectile, owner etc.
+     *
+     * @param entity the entity to root
+     * @return the root damager
+     */
+    @Nonnull
+    public static LivingEntity rootDamager(@Nonnull LivingEntity entity) {
+        if (entity instanceof Projectile projectile && projectile.getShooter() instanceof LivingEntity livingEntity) {
+            return livingEntity;
+        }
+
+        else if (entity instanceof Tameable tameable && tameable.getOwner() instanceof LivingEntity livingEntity) {
+            return livingEntity;
+        }
+
+        return entity;
+    }
+
     public static Location lerp(Location start, Location end, double percent) {
         return BukkitUtils.newLocation(start).add(end.toVector().subtract(start.toVector()).multiply(percent));
     }
@@ -335,7 +306,6 @@ public class Utils {
 
         return null;
     }
-
 
     public static void rayTraceLine(Player shooter, double maxDistance, double shift, double damage, @Nullable Consumer<Location> onMove, @Nullable Consumer<LivingEntity> onHit) {
         rayTraceLine(shooter, maxDistance, shift, damage, null, onMove, onHit);
@@ -443,7 +413,7 @@ public class Utils {
         return isEntityValid(entity, null);
     }
 
-    public static boolean isEntityValid(@Distinct("player") Entity entity, @Distinct("entity") @Nullable Player player) {
+    public static boolean isEntityValid(Entity entity, @Nullable Player player) {
         // null entities, self or armor stands are not valid
         if (entity == null || (player != null && entity == player) || entity instanceof ArmorStand) {
             return false;
@@ -626,6 +596,61 @@ public class Utils {
             for (final ArmorStand.LockType lockType : ArmorStand.LockType.values()) {
                 stand.removeEquipmentLock(value, lockType);
             }
+        }
+    }
+
+    public static class ProgressBar implements IBuilder<String> {
+
+        private final String indicator;
+        private final ChatColor[] colors;
+        private int max;
+
+        public ProgressBar(String indicator, ChatColor color, int max) {
+            this.indicator = indicator;
+            this.colors = new ChatColor[] { ChatColor.GRAY, color };
+            this.max = max;
+        }
+
+        public ProgressBar(String indicator, ChatColor color) {
+            this(indicator, color, 20);
+        }
+
+        public ProgressBar(String indicator) {
+            this(indicator, ChatColor.GREEN);
+        }
+
+        public void setPrimaryColor(ChatColor color) {
+            colors[0] = color;
+        }
+
+        public void setSecondaryColor(ChatColor color) {
+            colors[1] = color;
+        }
+
+        public int getMax() {
+            return max;
+        }
+
+        public void setMax(int max) {
+            this.max = max;
+        }
+
+        public String build(int value) {
+            final StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < max; i++) {
+                builder.append(value <= i ? getColor(true) : getColor(false));
+                builder.append(indicator);
+            }
+            return builder.toString();
+        }
+
+        @Override
+        public String build() {
+            return build(0);
+        }
+
+        private ChatColor getColor(boolean primary) {
+            return colors[primary ? 0 : 1];
         }
     }
 

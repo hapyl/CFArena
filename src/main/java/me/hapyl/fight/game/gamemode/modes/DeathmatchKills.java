@@ -15,7 +15,6 @@ import javax.annotation.Nonnull;
 public class DeathmatchKills extends CFGameMode {
 
     private final int killsGoal = 10;
-    private GamePlayer winner;
 
     public DeathmatchKills() {
         super("Kills Deathmatch", 1800);
@@ -33,7 +32,9 @@ public class DeathmatchKills extends CFGameMode {
     public boolean testWinCondition(@Nonnull GameInstance instance) {
         for (GamePlayer player : instance.getPlayers().values()) {
             if (player.getStats().getValue(StatContainer.Type.KILLS) >= killsGoal) {
-                winner = player;
+                final GameResult result = instance.getGameResult();
+                result.getWinners().add(player);
+                result.getWinningTeams().add(player.getTeam());
                 return true;
             }
         }
@@ -48,14 +49,6 @@ public class DeathmatchKills extends CFGameMode {
 
     @Override
     public boolean onStop(@Nonnull GameInstance instance) {
-        if (winner == null) {
-            return false;
-        }
-
-        final GameResult gameResult = instance.getGameResult();
-
-        gameResult.getWinners().add(winner);
-        gameResult.getWinningTeams().add(winner.getTeam());
         return true;
     }
 

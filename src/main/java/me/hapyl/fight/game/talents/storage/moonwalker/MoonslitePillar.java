@@ -85,13 +85,7 @@ public class MoonslitePillar extends Talent {
 
             @Override
             public void run() {
-                // was removed
-                if (location.getBlock().getType().isAir()) {
-                    cancel();
-                    return;
-                }
-
-                if ((tick += period) >= getDuration()) {
+                if (location.getBlock().getType().isAir() || ((tick += period) >= getDuration())) {
                     destroyPillar(location);
                     pillars.remove(player);
                     cancel();
@@ -133,12 +127,7 @@ public class MoonslitePillar extends Talent {
 
         //fx
         PlayerLib.playSound(location, Sound.ENTITY_IRON_GOLEM_DAMAGE, 0.75f);
-
-        if (location.getWorld() == null) {
-            return;
-        }
-
-        location.getWorld().spawnParticle(Particle.SPIT, location.clone().add(0, 2, 0), 15, 0, 1, 0, 0.05);
+        Utils.getWorld(location).spawnParticle(Particle.SPIT, location.clone().add(0, 2, 0), 15, 0, 1, 0, 0.05);
     }
 
     private void pulsePillar(Location location, Player owner) {
@@ -176,8 +165,8 @@ public class MoonslitePillar extends Talent {
 
     private boolean canFit(Location location) {
         final Block block = location.getBlock();
-        return block.getType().isAir() && block.getRelative(BlockFace.UP).getType().isAir() && block.getRelative(
-                BlockFace.UP).getRelative(BlockFace.UP).getType().isAir();
+        return block.getType().isAir() && block.getRelative(BlockFace.UP).getType().isAir() &&
+                block.getRelative(BlockFace.UP).getRelative(BlockFace.UP).getType().isAir();
     }
 
     private Block getTargetBlock(Player player) {

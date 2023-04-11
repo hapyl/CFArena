@@ -22,6 +22,10 @@ public class ParkourDatabase {
         this.parkour = parkour;
         this.filter = new Document("parkour", parkour.parkourPath());
 
+        load();
+    }
+
+    private void load() {
         document = this.mongo.getParkour().find(filter).first();
 
         if (document == null) {
@@ -36,6 +40,7 @@ public class ParkourDatabase {
         final Document player = players.get(uuid, new Document());
         final Document stats = player.get("stats", new Document());
 
+        player.put("name", data.get().getName());
         player.put("time", data.getCompletionTime());
         player.put("completed", true);
 
@@ -48,6 +53,7 @@ public class ParkourDatabase {
         player.put("stats", stats);
 
         mongo.getParkour().updateOne(filter, new Document("$set", new Document("players." + uuid, player)));
+        load(); // reload
 
         // Update leaderboard
         parkour.updateLeaderboardIfExists();

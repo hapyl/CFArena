@@ -135,6 +135,11 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         this.description.add(description);
     }
 
+    public void addNlDescription(String description) {
+        addDescription();
+        addDescription(description);
+    }
+
     public void addDescription(String description, Object... format) {
         this.description.add(description.formatted(format));
     }
