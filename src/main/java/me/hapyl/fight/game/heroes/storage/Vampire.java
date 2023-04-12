@@ -9,8 +9,8 @@ import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.heroes.storage.extra.VampireData;
@@ -82,7 +82,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent {
         setRole(Role.MELEE);
         setItem("8d44756e0b4ece8d746296a3d5e297e1415f4ba17647ffe228385383d161a9");
 
-        final ClassEquipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestplate(Color.BLACK);
         equipment.setLeggings(Color.BLACK);
         equipment.setBoots(Color.BLACK);

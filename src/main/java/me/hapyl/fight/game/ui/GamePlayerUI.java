@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.ui;
 
 import me.hapyl.fight.Main;
-import me.hapyl.fight.database.Database;
+import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.effect.GameEffect;
 import me.hapyl.fight.game.profile.PlayerProfile;
@@ -84,7 +84,7 @@ public class GamePlayerUI {
     }
 
     public void updateScoreboard() {
-        final Database database = profile.getDatabase();
+        final PlayerDatabase playerDatabase = profile.getDatabase();
         final Manager current = Manager.current();
 
         this.builder.getLines().clear();
@@ -136,7 +136,7 @@ public class GamePlayerUI {
                     "&6&lLobby:",
                     " &e&lMap: &f%s".formatted(current.getCurrentMap().getMap().getName()),
                     " &e&lMode: &f%s".formatted(current.getCurrentMode().getMode().getName()),
-                    " &e&lCoins: &f%s".formatted(database.getCurrency().getCoinsString()),
+                    " &e&lCoins: &f%s".formatted(playerDatabase.getCurrency().getCoinsString()),
                     String.format(
                             " &e&lHero: &f%s",
                             Setting.RANDOM_HERO.isEnabled(player) ? "Random" : profile.getSelectedHero().getName()

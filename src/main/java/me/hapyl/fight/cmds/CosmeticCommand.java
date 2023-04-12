@@ -1,6 +1,6 @@
 package me.hapyl.fight.cmds;
 
-import me.hapyl.fight.database.Database;
+import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CosmeticEntry;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;
@@ -72,8 +72,8 @@ public class CosmeticCommand extends SimplePlayerCommand {
                 return;
             }
 
-            final Database database = Database.getDatabase(target);
-            final CosmeticEntry cosmetics = database.getCosmetics();
+            final PlayerDatabase playerDatabase = PlayerDatabase.getDatabase(target);
+            final CosmeticEntry cosmetics = playerDatabase.getCosmetics();
             final Type cosmeticType = cosmetic.getType();
 
             switch (action) {

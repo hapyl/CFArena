@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.cosmetic.skin.storage;
 
 import me.hapyl.fight.game.cosmetic.skin.Skin;
+import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Heroes;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
@@ -9,6 +10,9 @@ import org.bukkit.entity.Player;
 public class SkinMegalodon extends Skin {
     public SkinMegalodon() {
         super(Heroes.SHARK, "Megalodon");
+
+        final HeroEquipment equipment = getEquipment();
+        equipment.setTexture("b86df01f51556ba8c8e781b0bb0f8d69496bf40a8845a9a3d456638d9b242ee6");
     }
 
     @Override

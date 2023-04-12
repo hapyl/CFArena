@@ -1,14 +1,12 @@
 package me.hapyl.fight.game.profile;
 
-import me.hapyl.fight.Main;
-import me.hapyl.fight.database.Database;
+import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.ScoreboardTeams;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.GamePlayerUI;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -21,7 +19,7 @@ import javax.annotation.Nullable;
 public class PlayerProfile {
 
     private final Player player;
-    private final Database database;
+    private final PlayerDatabase playerDatabase;
     private final ScoreboardTeams scoreboardTeams;
     private final ProfileDisplay display;
 
@@ -35,24 +33,11 @@ public class PlayerProfile {
     public PlayerProfile(Player player) {
         this.player = player;
 
-        // Init database
-        final Main main = Main.getPlugin();
-        if (main.isDatabaseLegacy()) {
-            main.getLogger().severe("Legacy database is not supported anymore!");
-            Bukkit.getPluginManager().disablePlugin(main);
-            throw new RuntimeException("Legacy database is not supported anymore!");
-        }
-        else {
-            this.database = new Database(player);
-        }
+        // Init player database
+        this.playerDatabase = new PlayerDatabase(player);
         this.scoreboardTeams = new ScoreboardTeams(player);
         this.display = new ProfileDisplay(this);
         this.loaded = false;
-    }
-
-    @Nonnull
-    public static PlayerProfile getProfile(Player player) {
-        return Manager.current().getProfile(player);
     }
 
     public ProfileDisplay getDisplay() {
@@ -70,7 +55,7 @@ public class PlayerProfile {
         loaded = true;
 
         // load some data after init method
-        selectedHero = database.getHeroEntry().getSelectedHero();
+        selectedHero = playerDatabase.getHeroEntry().getSelectedHero();
         GameTeam.getSmallestTeam().addToTeam(player);
         playerUI = new GamePlayerUI(this);
     }
@@ -79,8 +64,8 @@ public class PlayerProfile {
         return player;
     }
 
-    public Database getDatabase() {
-        return database;
+    public PlayerDatabase getDatabase() {
+        return playerDatabase;
     }
 
     @Nullable
@@ -112,8 +97,9 @@ public class PlayerProfile {
         this.playerUI = playerUI;
     }
 
-    public void delete() {
-        Manager.current().removeProfile(player);
+    @Nonnull
+    public static PlayerProfile getProfile(Player player) {
+        return Manager.current().getProfile(player);
     }
 
 }

@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.parkour;
 
 import me.hapyl.fight.Main;
-import me.hapyl.fight.database.DatabaseMongo;
+import me.hapyl.fight.database.Database;
 import me.hapyl.spigotutils.module.parkour.Data;
 import me.hapyl.spigotutils.module.parkour.Stats;
 import org.bson.Document;
@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public class ParkourDatabase {
 
-    private final DatabaseMongo mongo;
+    private final Database mongo;
     private final CFParkour parkour;
     private final Document filter;
     private Document document;

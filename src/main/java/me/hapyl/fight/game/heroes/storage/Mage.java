@@ -3,8 +3,8 @@ package me.hapyl.fight.game.heroes.storage;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -70,7 +70,7 @@ public class Mage extends Hero implements UIComponent {
 
         setItem("f41e6e4bcd2667bb284fb0dde361894840ea782efbfb717f6244e06b951c2b3f");
 
-        final ClassEquipment equipment = this.getEquipment();
+        final HeroEquipment equipment = this.getEquipment();
         equipment.setChestplate(82, 12, 135);
         equipment.setLeggings(163, 52, 247);
         equipment.setBoots(82, 12, 135);

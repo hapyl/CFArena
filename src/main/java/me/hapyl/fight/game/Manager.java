@@ -31,6 +31,7 @@ import me.hapyl.spigotutils.module.parkour.ParkourManager;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.glow.Glowing;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
+import me.hapyl.spigotutils.module.util.DependencyInjector;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -43,7 +44,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class Manager {
+public class Manager extends DependencyInjector<Main> {
 
     protected final NonNullableElementHolder<GameMaps> currentMap = new NonNullableElementHolder<>(GameMaps.ARENA);
     protected final NonNullableElementHolder<Modes> currentMode = new NonNullableElementHolder<>(Modes.FFA);
@@ -60,8 +61,9 @@ public class Manager {
 
     private final AutoSync autoSave;
 
-    public Manager() {
-        profiles = Maps.newHashMap();
+    public Manager(Main main) {
+        super(main);
+        profiles = Maps.newConcurrentMap();
 
         slotPerTalent.put(1, Hero::getFirstTalent);
         slotPerTalent.put(2, Hero::getSecondTalent);
@@ -77,7 +79,7 @@ public class Manager {
         currentMode.set(Modes.byName(config.getString("current-mode"), Modes.FFA));
 
         // init skin effect manager
-        skinEffectManager = new SkinEffectManager(Main.getPlugin());
+        skinEffectManager = new SkinEffectManager(getPlugin());
 
         // start auto save timer
         this.autoSave = new AutoSync(Tick.fromMinute(10));
@@ -572,7 +574,6 @@ public class Manager {
         // save to database
         getProfile(player).getDatabase().getHeroEntry().setSelectedHero(heroes);
     }
-    // FIXME: 002. 10/02/2021 - multi
 
     /**
      * @return actual hero player is using right now, trial, lobby or game.
@@ -617,6 +618,10 @@ public class Manager {
 
     public void createProfile(Player player) {
         getProfile(player);
+    }
+
+    public boolean anyProfiles() {
+        return profiles.size() > 0;
     }
 
     private void playAnimation() {

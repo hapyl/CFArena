@@ -71,8 +71,8 @@ public class BlockContrailCosmetic extends ContrailCosmetic {
         return !player.hasPotionEffect(PotionEffectType.INVISIBILITY) && currentGame.getGameState() == State.IN_GAME;
     }
 
-    public boolean isValid(Player player, Block block) {
-        return canUseContrail(player) && isValidBlock(block);
+    public boolean isNotValid(Player player, Block block) {
+        return !canUseContrail(player) || !isValidBlock(block);
     }
 
     @Override
@@ -81,7 +81,7 @@ public class BlockContrailCosmetic extends ContrailCosmetic {
         final Block block = location.getBlock();
         final Player player = display.getPlayer();
 
-        if (!isValid(player, block)) {
+        if (isNotValid(player, block)) {
             return;
         }
 

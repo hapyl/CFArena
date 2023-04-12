@@ -6,12 +6,13 @@ import me.hapyl.fight.database.collection.HeroStatsCollection;
 /**
  * Player Database is handled differently from the rest of the database.
  */
-public class Databases {
+// FIXME (hapyl): 012, Apr 12, 2023: Why?
+public class DatabaseRest {
 
     public final HeroStatsCollection heroStats;
 
-    public Databases(Main main) {
-        final DatabaseMongo database = main.getDatabase();
+    public DatabaseRest(Main main) {
+        final Database database = main.getDatabase();
 
         heroStats = new HeroStatsCollection(database.getStats());
     }

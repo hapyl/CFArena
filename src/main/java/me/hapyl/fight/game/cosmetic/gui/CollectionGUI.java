@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.cosmetic.gui;
 
-import me.hapyl.fight.database.Database;
+import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CosmeticEntry;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Type;
@@ -54,7 +54,7 @@ public class CollectionGUI extends PlayerAnimatedGUI {
 
     public void update() {
         final SmartComponent component = newSmartComponent();
-        final CosmeticEntry cosmetics = Database.getDatabase(getPlayer()).getCosmetics();
+        final CosmeticEntry cosmetics = PlayerDatabase.getDatabase(getPlayer()).getCosmetics();
 
         fillLine(0, ItemStacks.BLACK_BAR);
         fillLine(4, ItemStacks.BLACK_BAR);

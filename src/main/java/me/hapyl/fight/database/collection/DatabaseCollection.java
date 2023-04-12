@@ -4,6 +4,7 @@ import com.mongodb.client.MongoCollection;
 import me.hapyl.spigotutils.module.util.Runnables;
 import org.bson.Document;
 
+// FIXME (hapyl): 012, Apr 12, 2023: Why?
 public class DatabaseCollection {
 
     private final MongoCollection<Document> collection;

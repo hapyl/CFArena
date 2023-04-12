@@ -1,6 +1,6 @@
 package me.hapyl.fight.cmds;
 
-import me.hapyl.fight.database.Database;
+import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
@@ -15,9 +15,9 @@ public class SyncDatabaseCommand extends SimplePlayerAdminCommand {
     @Override
     protected void execute(Player player, String[] args) {
         final PlayerProfile profile = PlayerProfile.getProfile(player);
-        final Database database = profile.getDatabase();
+        final PlayerDatabase playerDatabase = profile.getDatabase();
 
-        database.sync();
+        playerDatabase.sync();
         Chat.sendMessage(player, "&aSynced database!");
     }
 }

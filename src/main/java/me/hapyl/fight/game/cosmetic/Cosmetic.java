@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.cosmetic;
 
 import me.hapyl.fight.Main;
-import me.hapyl.fight.database.Database;
+import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CosmeticEntry;
 import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.game.cosmetic.contrail.BlockContrailCosmetic;
@@ -50,8 +50,8 @@ public abstract class Cosmetic extends ShopItem {
     }
 
     public ItemActionPair createItem(Player player, Cosmetics cosmetic, CosmeticGUI previous) {
-        final CosmeticEntry entry = Database.getDatabase(player).getCosmetics();
-        final CurrencyEntry currency = Database.getDatabase(player).getCurrency();
+        final CosmeticEntry entry = PlayerDatabase.getDatabase(player).getCosmetics();
+        final CurrencyEntry currency = PlayerDatabase.getDatabase(player).getCurrency();
 
         final Type type = this.getType();
         final ItemBuilder builder = this.createItem(player);

@@ -9,24 +9,24 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class DatabaseEntry {
+public class PlayerDatabaseEntry {
 
-    private final Database database;
+    private final PlayerDatabase playerDatabase;
 
-    public DatabaseEntry(Database database) {
-        this.database = database;
+    public PlayerDatabaseEntry(PlayerDatabase playerDatabase) {
+        this.playerDatabase = playerDatabase;
     }
 
-    public Database getDatabase() {
-        return database;
+    public PlayerDatabase getDatabase() {
+        return playerDatabase;
     }
 
     public Document getConfig() {
-        return database.getConfig();
+        return playerDatabase.getConfig();
     }
 
     public Player getPlayer() {
-        return this.database.getPlayer();
+        return this.playerDatabase.getPlayer();
     }
 
     protected final <T> T getValue(String paths, T def) {

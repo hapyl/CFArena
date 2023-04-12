@@ -48,7 +48,7 @@ public class FlowerPathContrail extends BlockContrailCosmetic {
         final Block block = location.getBlock();
         final Block blockDown = location.getBlock().getRelative(BlockFace.DOWN);
 
-        if (!isValid(player, blockDown) || !block.getType().isAir()) {
+        if (isNotValid(player, blockDown) || !block.getType().isAir()) {
             return;
         }
 

@@ -6,6 +6,8 @@ import org.bson.Document;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.meta.When;
 
 public final class MongoUtils {
 
@@ -29,100 +31,70 @@ public final class MongoUtils {
         }.runTaskAsynchronously(Main.getPlugin());
     }
 
-    public static <T> T get(final Document root, String path, T def) {
-        final String[] paths = path.split("\\.");
-        Document current = root;
+    /**
+     * Retrieves a value from a document using a path.
+     *
+     * String may or may not have segments separated by a dot.
+     *
+     * @param root - Root document
+     * @param path - Path to value
+     * @param def  - Default value if not found.
+     * @param <T>  - Type of value
+     * @return Value or default value if not found.
+     */
+    @Nonnull(when = When.MAYBE)
+    public static <T> T get(@Nonnull final Document root, @Nonnull final String path, @Nullable final T def) {
+        final String[] pathSegments = path.split("\\.");
+        Document currentNode = root;
 
-        for (int i = 0; i < paths.length; i++) {
-            final String key = paths[i];
-            if (i == paths.length - 1) {
-                return current.get(key, def);
+        for (int i = 0; i < pathSegments.length - 1; i++) {
+            String segment = pathSegments[i];
+            Document nextNode = (Document) currentNode.get(segment);
+
+            if (nextNode == null) {
+                return def;
             }
 
-            current = current.get(key, new Document());
+            currentNode = nextNode;
         }
-        return def;
+
+        return currentNode.get(pathSegments[pathSegments.length - 1], def);
     }
 
-    public static <T> void set(final Document root, String path, T value) {
-        final String[] paths = path.split("\\.");
+    /**
+     * Sets a value in a document using a path.
+     *
+     * String may or may not have segments separated by a dot.
+     *
+     * @param root  - Root document
+     * @param path  - Path to value
+     * @param value - Value to set
+     * @param <T>   - Type of value
+     */
+    public static <T> void set(@Nonnull final Document root, @Nonnull final String path, @Nullable T value) {
+        final String[] pathSegments = path.split("\\.");
+        Document currentNode = root;
 
-        switch (paths.length) {
-            case 1 -> root.put(paths[0], value);
+        for (int i = 0; i < pathSegments.length - 1; i++) {
+            String segment = pathSegments[i];
+            Document nextNode = (Document) currentNode.get(segment);
 
-            case 2 -> {
-                final Document child = root.get(paths[0], new Document());
-
-                child.put(paths[1], value);
-                root.put(paths[0], child);
+            if (nextNode == null) {
+                nextNode = new Document();
+                currentNode.put(segment, nextNode);
             }
 
-            case 3 -> {
-                final Document child = root.get(paths[0], new Document());
-                final Document grandChild = child.get(paths[1], new Document());
-
-                grandChild.put(paths[2], value);
-                child.put(paths[1], grandChild);
-                root.put(paths[0], child);
-            }
-
-            case 4 -> {
-                final Document child = root.get(paths[0], new Document());
-                final Document grandChild = child.get(paths[1], new Document());
-                final Document greatGrandChild = grandChild.get(paths[2], new Document());
-
-                greatGrandChild.put(paths[3], value);
-                grandChild.put(paths[2], greatGrandChild);
-                child.put(paths[1], grandChild);
-                root.put(paths[0], child);
-            }
-
-            case 5 -> {
-                final Document child = root.get(paths[0], new Document());
-                final Document grandChild = child.get(paths[1], new Document());
-                final Document greatGrandChild = grandChild.get(paths[2], new Document());
-                final Document greatGreatGrandChild = greatGrandChild.get(paths[3], new Document());
-
-                greatGreatGrandChild.put(paths[4], value);
-                greatGrandChild.put(paths[3], greatGreatGrandChild);
-                grandChild.put(paths[2], greatGrandChild);
-                child.put(paths[1], grandChild);
-                root.put(paths[0], child);
-            }
-
-            case 6 -> {
-                final Document child = root.get(paths[0], new Document());
-                final Document grandChild = child.get(paths[1], new Document());
-                final Document greatGrandChild = grandChild.get(paths[2], new Document());
-                final Document greatGreatGrandChild = greatGrandChild.get(paths[3], new Document());
-                final Document greatGreatGreatGrandChild = greatGreatGrandChild.get(paths[4], new Document());
-
-                greatGreatGreatGrandChild.put(paths[5], value);
-                greatGreatGrandChild.put(paths[4], greatGreatGreatGrandChild);
-                greatGrandChild.put(paths[3], greatGreatGrandChild);
-                grandChild.put(paths[2], greatGrandChild);
-                child.put(paths[1], grandChild);
-                root.put(paths[0], child);
-            }
-
-            case 7 -> {
-                final Document child = root.get(paths[0], new Document());
-                final Document grandChild = child.get(paths[1], new Document());
-                final Document greatGrandChild = grandChild.get(paths[2], new Document());
-                final Document greatGreatGrandChild = greatGrandChild.get(paths[3], new Document());
-                final Document greatGreatGreatGrandChild = greatGreatGrandChild.get(paths[4], new Document());
-                final Document greatGreatGreatGreatGrandChild = greatGreatGreatGrandChild.get(paths[5], new Document());
-
-                greatGreatGreatGreatGrandChild.put(paths[6], value);
-                greatGreatGreatGrandChild.put(paths[5], greatGreatGreatGreatGrandChild);
-                greatGreatGrandChild.put(paths[4], greatGreatGreatGrandChild);
-                greatGrandChild.put(paths[3], greatGreatGrandChild);
-                grandChild.put(paths[2], greatGrandChild);
-                child.put(paths[1], grandChild);
-                root.put(paths[0], child);
-            }
+            currentNode = nextNode;
         }
 
+        final String segment = pathSegments[pathSegments.length - 1];
+
+        if (value == null) { // remove if null
+            currentNode.remove(segment);
+        }
+        else {
+            currentNode.put(segment, value);
+        }
     }
 
 }

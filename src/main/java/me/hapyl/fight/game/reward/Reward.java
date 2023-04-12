@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.reward;
 
-import me.hapyl.fight.database.Database;
+import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.Manager;
 import org.bukkit.entity.Player;
 
@@ -34,7 +34,7 @@ public abstract class Reward {
         };
     }
 
-    public Database getDatabase(Player player) {
+    public PlayerDatabase getDatabase(Player player) {
         return Manager.current().getProfile(player).getDatabase();
     }
 

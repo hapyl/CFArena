@@ -6,8 +6,8 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.effect.GameEffectType;
-import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -52,7 +52,7 @@ public class BountyHunter extends Hero {
 
         setWeapon(new Weapon(Material.IRON_SWORD).setName("Iron Sword").setDamage(6.0d));
 
-        final ClassEquipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
 
         equipment.setChestplate(50, 54, 57);
         equipment.setLeggings(80, 97, 68);

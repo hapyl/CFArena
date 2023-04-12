@@ -1,14 +1,14 @@
 package me.hapyl.fight.database.entry;
 
-import me.hapyl.fight.database.Database;
-import me.hapyl.fight.database.DatabaseEntry;
+import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.database.PlayerDatabaseEntry;
 import me.hapyl.fight.database.StatisticType;
 import me.hapyl.fight.game.StatContainer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.Talents;
 import org.bson.Document;
 
-public class StatisticEntry extends DatabaseEntry {
+public class StatisticEntry extends PlayerDatabaseEntry {
 
     /**
      * {
@@ -35,8 +35,8 @@ public class StatisticEntry extends DatabaseEntry {
     private static final String PATH_HERO_STATS = "hero_stats";
     private static final String PATH_ABILITY_USAGE = "ability_usage";
 
-    public StatisticEntry(Database database) {
-        super(database);
+    public StatisticEntry(PlayerDatabase playerDatabase) {
+        super(playerDatabase);
     }
 
     // FIXME: 020, Mar 20, 2023 -> Automation is for losers

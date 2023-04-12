@@ -42,6 +42,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
+/**
+ * Handles all player related events.
+ */
 public class PlayerHandler implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -92,12 +95,16 @@ public class PlayerHandler implements Listener {
 
         // save database
         Shortcuts.getDatabase(player).save();
+
         final GameTeam playerTeam = GameTeam.getPlayerTeam(player);
         if (playerTeam != null) {
             playerTeam.removeFromTeam(player);
         }
 
         ev.setQuitMessage(Chat.format("&7[&c-&7] %s%s &ehas fallen!", player.isOp() ? "&c" : "", player.getName()));
+
+        // Delete profile
+        Manager.current().removeProfile(player);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

@@ -4,8 +4,8 @@ import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -40,7 +40,7 @@ public class Tamer extends Hero implements Listener {
 
         setRole(Role.STRATEGIST);
 
-        final ClassEquipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
 
         equipment.setChestplate(
                 ItemBuilder.leatherTunic(Color.fromRGB(14557974))

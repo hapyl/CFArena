@@ -2,8 +2,8 @@ package me.hapyl.fight.game.heroes.storage;
 
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -40,7 +40,7 @@ public class Vortex extends Hero implements UIComponent {
         setInfo("A young boy with power of speaking to starts...");
         setItem("2adc458dfabc20b8d587b0476280da2fb325fc616a5212784466a78b85fb7e4d");
 
-        final ClassEquipment equipment = this.getEquipment();
+        final HeroEquipment equipment = this.getEquipment();
         equipment.setChestplate(102, 51, 0);
         equipment.setLeggings(179, 89, 0);
         equipment.setBoots(255, 140, 26);

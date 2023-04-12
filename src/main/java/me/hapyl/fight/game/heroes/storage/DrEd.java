@@ -3,8 +3,8 @@ package me.hapyl.fight.game.heroes.storage;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.heroes.storage.extra.BlockShield;
 import me.hapyl.fight.game.heroes.storage.extra.GravityGun;
@@ -41,7 +41,7 @@ public class DrEd extends Hero implements UIComponent {
         setInfo("Simply named scientist with not so simple inventions...");
         setItem("3b51e96bddd177992d68278c9d5f1e685b60fbb94aaa709259e9f2781c76f8");
 
-        final ClassEquipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestplate(179, 204, 204);
         equipment.setLeggings(148, 184, 184);
         equipment.setBoots(71, 107, 107);

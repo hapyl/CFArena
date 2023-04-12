@@ -2,8 +2,8 @@ package me.hapyl.fight.game.heroes.storage;
 
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.effect.GameEffectType;
-import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -32,7 +32,7 @@ public class Nightmare extends Hero {
                 .setDescription("A sword that is capable of splitting dreams in half.")
                 .setDamage(7.0d));
 
-        final ClassEquipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestplate(50, 0, 153);
         equipment.setLeggings(40, 0, 153);
         equipment.setBoots(30, 0, 153);

@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.heroes.storage;
 
-import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.heroes.storage.extra.BarrierWall;
 import me.hapyl.fight.game.talents.Talent;
@@ -37,7 +37,7 @@ public class Freazly extends Hero implements DisabledHero {
         setInfo("");
         setItem("f4e0318ef6ded7f3e60fe1c6d9f0649b7b0f601b74be70b179a78416c09e6c47");
 
-        final ClassEquipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestplate(Color.AQUA);
         equipment.setLeggings(Color.OLIVE);
         equipment.setBoots(Color.AQUA);

@@ -1,4 +1,2 @@
 database:
-  use_mongodb: false
-  login: login
-  password: password
+  connection_link: "null"

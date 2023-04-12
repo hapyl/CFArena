@@ -2,7 +2,7 @@ package me.hapyl.fight.game.cosmetic;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import me.hapyl.fight.database.Database;
+import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.cosmetic.storage.*;
 import me.hapyl.fight.game.shop.Rarity;
 import me.hapyl.fight.game.shop.ShopItem;
@@ -193,11 +193,11 @@ public enum Cosmetics {
     }
 
     public boolean isUnlocked(Player player) {
-        return Database.getDatabase(player).getCosmetics().hasCosmetic(this);
+        return PlayerDatabase.getDatabase(player).getCosmetics().hasCosmetic(this);
     }
 
     public boolean isSelected(Player player) {
-        return Database.getDatabase(player).getCosmetics().getSelected(getType()) == this;
+        return PlayerDatabase.getDatabase(player).getCosmetics().getSelected(getType()) == this;
     }
 
     // static members
@@ -207,6 +207,6 @@ public enum Cosmetics {
 
     @Nullable
     public static Cosmetics getSelected(Player player, Type type) {
-        return Database.getDatabase(player).getCosmetics().getSelected(type);
+        return PlayerDatabase.getDatabase(player).getCosmetics().getSelected(type);
     }
 }

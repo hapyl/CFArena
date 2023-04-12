@@ -14,9 +14,10 @@ import javax.annotation.Nonnull;
 
 public enum Award {
 
-    PLAYER_ELIMINATION("Opponent Eliminated.", 100, 5),
-    GAME_WON("Winner", 1000, 50),
-    MINUTE_PLAYED("Minute Played", 10, 1),
+    PLAYER_ELIMINATION("Opponent Eliminated.", 10, 5),
+    PLAYER_ASSISTED("Assisted Elimination", 5, 2),
+    GAME_WON("Winner", 100, 50),
+    MINUTE_PLAYED("Minute Played", 1, 1),
 
     ;
 
@@ -47,9 +48,9 @@ public enum Award {
             return;
         }
 
-        final Database database = player.getDatabase();
-        final CurrencyEntry currency = database.getCurrency();
-        final ExperienceEntry experience = database.getExperienceEntry();
+        final PlayerDatabase playerDatabase = player.getDatabase();
+        final CurrencyEntry currency = playerDatabase.getCurrency();
+        final ExperienceEntry experience = playerDatabase.getExperienceEntry();
 
         currency.addCoins(coins);
         experience.add(ExperienceEntry.Type.EXP, exp);

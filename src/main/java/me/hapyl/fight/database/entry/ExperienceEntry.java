@@ -1,16 +1,16 @@
 package me.hapyl.fight.database.entry;
 
 import me.hapyl.fight.Main;
-import me.hapyl.fight.database.Database;
-import me.hapyl.fight.database.DatabaseEntry;
+import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.database.PlayerDatabaseEntry;
 import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Numbers;
 import org.bson.Document;
 
-public class ExperienceEntry extends DatabaseEntry {
-    public ExperienceEntry(Database database) {
-        super(database);
+public class ExperienceEntry extends PlayerDatabaseEntry {
+    public ExperienceEntry(PlayerDatabase playerDatabase) {
+        super(playerDatabase);
     }
 
     public enum Type {

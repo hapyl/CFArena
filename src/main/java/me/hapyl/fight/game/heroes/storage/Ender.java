@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.heroes.storage;
 
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
@@ -56,7 +56,7 @@ public class Ender extends Hero implements Listener {
 
         setInfo("Weird enderman-like looking warrior with teleportation abilities. He hits you with his arm, but it hurts like a brick.");
 
-        final ClassEquipment equipment = this.getEquipment();
+        final HeroEquipment equipment = this.getEquipment();
         equipment.setChestplate(85, 0, 102);
         equipment.setLeggings(128, 0, 128);
         equipment.setBoots(136, 0, 204);

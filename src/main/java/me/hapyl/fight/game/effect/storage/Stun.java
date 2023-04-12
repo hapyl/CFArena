@@ -15,11 +15,11 @@ public class Stun extends GameEffect {
 	private final Map<Player, Float> oldSpeed = new HashMap<>();
 
 	public Stun() {
-		super("Stun");
-        this.setDescription("Stunned players cannot move or use their abilities. Effect will be cleared upon taking damage.");
-        this.setPositive(false);
-		this.setEffectParticle(new EffectParticle(Particle.VILLAGER_ANGRY, 1));
-	}
+        super("Stun");
+        setDescription("Stunned players cannot move or use their abilities. Effect will be cleared upon taking damage.");
+        setPositive(false);
+        setEffectParticle(new EffectParticle(Particle.VILLAGER_ANGRY, 1));
+    }
 
 	@Override
 	public void onTick(Player player, int tick) {

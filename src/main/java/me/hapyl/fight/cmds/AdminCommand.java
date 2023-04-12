@@ -2,7 +2,7 @@ package me.hapyl.fight.cmds;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.cmds.extra.Acceptor;
-import me.hapyl.fight.database.Database;
+import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.StatContainer;
@@ -177,7 +177,7 @@ public class AdminCommand extends SimplePlayerAdminCommand {
                         return;
                     }
 
-                    final CurrencyEntry currency = Database.getDatabase(target).getCurrency();
+                    final CurrencyEntry currency = PlayerDatabase.getDatabase(target).getCurrency();
 
                     if (action.equalsIgnoreCase("get")) {
                         sendMessage(player, "&a%s has &l%s&a coins.", target.getName(), currency.getCoins());

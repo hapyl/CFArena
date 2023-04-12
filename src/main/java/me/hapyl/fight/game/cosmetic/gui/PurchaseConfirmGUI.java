@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.cosmetic.gui;
 
-import me.hapyl.fight.database.Database;
+import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.game.shop.ShopItem;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -24,7 +24,7 @@ public abstract class PurchaseConfirmGUI extends PlayerGUI {
 
     private void updateInventory() {
         try {
-            final CurrencyEntry currency = Database.getDatabase(getPlayer()).getCurrency();
+            final CurrencyEntry currency = PlayerDatabase.getDatabase(getPlayer()).getCurrency();
 
             setItem(13, item.createItem(getPlayer()).asIcon());
 

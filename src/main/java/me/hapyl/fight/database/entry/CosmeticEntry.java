@@ -1,8 +1,8 @@
 package me.hapyl.fight.database.entry;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.database.Database;
-import me.hapyl.fight.database.DatabaseEntry;
+import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.database.PlayerDatabaseEntry;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.spigotutils.module.util.Validate;
@@ -12,10 +12,10 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CosmeticEntry extends DatabaseEntry {
+public class CosmeticEntry extends PlayerDatabaseEntry {
 
-    public CosmeticEntry(Database database) {
-        super(database);
+    public CosmeticEntry(PlayerDatabase playerDatabase) {
+        super(playerDatabase);
     }
 
     @Nullable

@@ -33,6 +33,11 @@ public class AutoSync {
         scheduleSave = false;
 
         try {
+            if (!Manager.current().anyProfiles()) {
+                Chat.broadcast("&7&oNo one is online, skipping database sync.");
+                return;
+            }
+
             Chat.broadcast("&7&oSyncing database, might lag a little.");
 
             Manager.current().allProfiles(profile -> {

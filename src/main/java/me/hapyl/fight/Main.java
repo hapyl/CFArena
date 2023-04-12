@@ -1,8 +1,8 @@
 package me.hapyl.fight;
 
-import me.hapyl.fight.database.DatabaseMongo;
-import me.hapyl.fight.database.Databases;
-import me.hapyl.fight.event.EnderPearlController;
+import me.hapyl.fight.database.Database;
+import me.hapyl.fight.database.DatabaseRest;
+import me.hapyl.fight.event.EnderPearlHandler;
 import me.hapyl.fight.event.PlayerHandler;
 import me.hapyl.fight.game.ChatController;
 import me.hapyl.fight.game.IGameInstance;
@@ -45,17 +45,14 @@ public class Main extends JavaPlugin {
     private TaskList taskList;
     private BoosterController boosters;
     private Experience experience;
-    private DatabaseMongo database;
+    private Database database;
     private Notifier notifier;
-    private Databases databases;
+    private DatabaseRest databaseCollection;
     private CFParkourManager parkourManager;
-
-    private boolean databaseLegacy;
 
     @Override
     public void onEnable() {
         plugin = this;
-        databaseLegacy = false;
 
         // Init config
         getConfig().options().copyDefaults(true);
@@ -100,19 +97,14 @@ public class Main extends JavaPlugin {
         //
         //System.out.println(Bukkit.advancementIterator());
 
-        this.manager = new Manager();
+        this.manager = new Manager(this);
         this.taskList = new TaskList();
         this.experience = new Experience();
         this.boosters = new BoosterController(this);
         this.notifier = new Notifier(this);
 
-        if (isDatabaseLegacy()) {
-            Bukkit.getLogger().severe("Databases are not supported in legacy mode!");
-        }
-        else {
-            this.parkourManager = new CFParkourManager(this);
-            this.databases = new Databases(this);
-        }
+        this.parkourManager = new CFParkourManager(this);
+        this.databaseCollection = new DatabaseRest(this);
 
         // update database
         for (final Player player : Bukkit.getOnlinePlayers()) {
@@ -123,12 +115,15 @@ public class Main extends JavaPlugin {
         humanManager = new HumanManager(this);
 
         checkReload();
+
+        // Init runtime tests
+        new Test(this);
     }
 
     @Override
     public void onDisable() {
         runSafe(() -> {
-            databases.saveAll();
+            databaseCollection.saveAll();
             //parkourManager.saveAll();
         }, "database save");
 
@@ -159,11 +154,11 @@ public class Main extends JavaPlugin {
         return notifier;
     }
 
-    public Databases getDatabases() {
-        return databases;
+    public DatabaseRest getDatabases() {
+        return databaseCollection;
     }
 
-    public DatabaseMongo getDatabase() {
+    public Database getDatabase() {
         return database;
     }
 
@@ -204,10 +199,6 @@ public class Main extends JavaPlugin {
 
     public void addEvent(Listener listener) {
         getServer().getPluginManager().registerEvents(listener, this);
-    }
-
-    public boolean isDatabaseLegacy() {
-        return databaseLegacy;
     }
 
     private void checkReload() {
@@ -266,36 +257,15 @@ public class Main extends JavaPlugin {
     }
 
     private void initDatabase() {
-        this.database = new DatabaseMongo();
-
-        final boolean useMongoDb = getConfig().getBoolean("database.use_mongodb");
-        boolean connection = false;
-
-        if (useMongoDb) {
-            // Don't try to connect if disabled
-            connection = this.database.createConnection();
-        }
-
-        if (!useMongoDb || !connection) {
-            final String message = useMongoDb ?
-                    (ChatColor.RED + "Failed to connect to MongoDB, initializing legacy database...") :
-                    (ChatColor.YELLOW + "Using legacy database because MongoDB is disabled in config.yml!");
-
-            Bukkit.getLogger().severe(message);
-            Bukkit.getScheduler().runTaskLater(this, () -> Chat.broadcast("&6&lWarning! " + message), 20L);
-
-            databaseLegacy = true;
-        }
-
-        // Init runtime tests
-        new Test(this);
+        this.database = new Database(this);
+        this.database.createConnection();
     }
 
     private void registerEvents() {
         final PluginManager pm = Bukkit.getServer().getPluginManager();
         pm.registerEvents(new PlayerHandler(), this);
         pm.registerEvents(new ChatController(), this);
-        pm.registerEvents(new EnderPearlController(), this);
+        pm.registerEvents(new EnderPearlHandler(), this);
         pm.registerEvents(new CosmeticsListener(), this);
     }
 

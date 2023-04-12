@@ -49,7 +49,6 @@ public class CommandRegistry {
         register(new HeroCommand("hero"));
         register(new GameCommand("cf"));
         register(new ReportCommandCommand("report"));
-        register(new UltimateCommand("ultimate"));
         register(new ParticleCommand("part"));
         register(new GameEffectCommand("gameEffect"));
         register(new MapCommand("map"));
@@ -59,7 +58,6 @@ public class CommandRegistry {
         register(new TrialCommand("trial"));
         register(new SettingCommand("setting"));
         register(new TutorialCommand("tutorial"));
-        //register(new GamemodeShortcut("gamemode"));
         register(new TeamCommand("team"));
         register(new TestWinConditionCommand("testWinCondition"));
         register(new TriggerWinCommand("triggerWin"));
@@ -69,7 +67,6 @@ public class CommandRegistry {
         register(new CosmeticCommand("cosmetic"));
         register(new SyncDatabaseCommand("syncDatabase"));
         register(new CastSpellCommand("cast"));
-        register(new ThrowExceptionCommand("throwClassesFightException"));
         register(new UpdateParkourLeaderboardCommand("updateParkourLeaderboard"));
         register(new InterruptCommand("interrupt"));
         register(new TestDatabaseCommand("testdatabase"));

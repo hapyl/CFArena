@@ -1,7 +1,7 @@
 package me.hapyl.fight.game;
 
 import me.hapyl.fight.database.Award;
-import me.hapyl.fight.database.Database;
+import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
@@ -104,7 +104,7 @@ public class GamePlayer implements IGamePlayer {
         this.stats = new StatContainer(player);
         this.lastMoved = System.currentTimeMillis();
         this.combatTag = 0L;
-        this.skin = Database.getDatabase(player).getHeroEntry().getSkin(enumHero);
+        this.skin = PlayerDatabase.getDatabase(player).getHeroEntry().getSkin(enumHero);
         this.canMove = true;
         this.wasHit = false;
 
@@ -727,7 +727,7 @@ public class GamePlayer implements IGamePlayer {
         valid = flag;
     }
 
-    public Database getDatabase() {
+    public PlayerDatabase getDatabase() {
         return Manager.current().getProfile(player).getDatabase();
     }
 

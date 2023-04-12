@@ -1,7 +1,7 @@
 package me.hapyl.fight.cmds;
 
-import me.hapyl.fight.database.Database;
 import me.hapyl.fight.database.MongoUtils;
+import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
 import org.bukkit.entity.Player;
@@ -20,18 +20,28 @@ public class TestDatabaseCommand extends SimplePlayerAdminCommand {
             return;
         }
 
-        final Database database = Database.getDatabase(player);
+        final PlayerDatabase playerDatabase = PlayerDatabase.getDatabase(player);
+        final String path = args[0];
 
         if (args.length == 1) {
-            final String str = MongoUtils.get(database.getConfig(), args[0], "");
+            final String str = MongoUtils.get(playerDatabase.getConfig(), path, "");
 
             Chat.sendMessage(player, "&aValue: &e%s", str);
         }
         else {
-            MongoUtils.set(database.getConfig(), args[0], args[1]);
+            final String value = args[1];
 
-            Chat.sendMessage(player, "&aSet value to &e%s&a!", args[1]);
-            database.sync();
+            if (value.equalsIgnoreCase("null")) {
+                MongoUtils.set(playerDatabase.getConfig(), path, null);
+                Chat.sendMessage(player, "&aRemoved value!", value);
+            }
+            else {
+                MongoUtils.set(playerDatabase.getConfig(), path, value);
+                Chat.sendMessage(player, "&aSet value to &e%s&a!", value);
+            }
+
+
+            playerDatabase.sync();
         }
 
     }

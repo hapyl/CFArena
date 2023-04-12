@@ -1,8 +1,8 @@
 package me.hapyl.fight.database.entry;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.database.Database;
-import me.hapyl.fight.database.DatabaseEntry;
+import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.database.PlayerDatabaseEntry;
 import me.hapyl.fight.game.cosmetic.skin.Skins;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.spigotutils.module.util.Validate;
@@ -10,10 +10,10 @@ import org.bson.Document;
 
 import java.util.List;
 
-public class HeroEntry extends DatabaseEntry {
+public class HeroEntry extends PlayerDatabaseEntry {
 
-    public HeroEntry(Database database) {
-        super(database);
+    public HeroEntry(PlayerDatabase playerDatabase) {
+        super(playerDatabase);
     }
 
     public Heroes getSelectedHero() {

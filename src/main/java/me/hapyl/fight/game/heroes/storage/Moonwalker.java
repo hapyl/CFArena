@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.heroes.storage;
 
 import me.hapyl.fight.game.PlayerElement;
-import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.heroes.storage.extra.MoonwalkerUltimate;
@@ -39,7 +39,7 @@ public class Moonwalker extends Hero implements PlayerElement, UIComponent {
         setInfo("A traveller from another planet... or, should I say moon? Brings his skills and... planets... with himself!");
         setItem("1cf8fbd76586920c5273519927862fdc111705a1851d4d1aac450bcfd2b3a");
 
-        final ClassEquipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestplate(255, 255, 255);
         equipment.setLeggings(186, 186, 186);
         equipment.setBoots(105, 105, 105);

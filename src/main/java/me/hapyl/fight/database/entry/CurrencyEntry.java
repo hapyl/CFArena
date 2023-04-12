@@ -1,13 +1,13 @@
 package me.hapyl.fight.database.entry;
 
-import me.hapyl.fight.database.Database;
-import me.hapyl.fight.database.DatabaseEntry;
+import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.database.PlayerDatabaseEntry;
 import org.bson.Document;
 
-public class CurrencyEntry extends DatabaseEntry {
+public class CurrencyEntry extends PlayerDatabaseEntry {
 
-    public CurrencyEntry(Database database) {
-        super(database);
+    public CurrencyEntry(PlayerDatabase playerDatabase) {
+        super(playerDatabase);
     }
 
     public long getCoins() {

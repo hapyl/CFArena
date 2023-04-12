@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.Shortcuts;
 import me.hapyl.fight.database.Award;
-import me.hapyl.fight.exception.ClassesFightException;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
@@ -115,7 +114,7 @@ public class GameInstance implements IGameInstance, GameElement {
 
         if (!(cosmetic.getCosmetic() instanceof WinCosmetic winCosmetic)) {
             Manager.current().onStop();
-            throw new ClassesFightException("Cosmetic is not a WinCosmetic!");
+            throw new IllegalArgumentException("Cosmetic is not a WinCosmetic!");
         }
 
         final int delay = winCosmetic.getDelay();
