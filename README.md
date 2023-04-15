@@ -1,5 +1,5 @@
 # ClassesFight ᴀʀᴇɴᴀ
-A mini game plugin. ~~Probably~~ does not work since database is required.
+A mini game plugin. Requires MongoDB
 
 # Depends on EternaAPI
 Link: https://github.com/hapyl/EternaAPI
