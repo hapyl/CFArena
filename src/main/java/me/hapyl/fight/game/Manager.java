@@ -397,7 +397,6 @@ public class Manager extends DependencyInjector<Main> {
 
             Utils.showPlayer(player.getPlayer());
 
-
             // Keep winner in survival, so it's clear for them that they have won
             final boolean isWinner = this.gameInstance.isWinner(player.getPlayer());
             if (!isWinner) {

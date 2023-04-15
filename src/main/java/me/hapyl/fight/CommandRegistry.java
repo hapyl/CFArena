@@ -167,7 +167,7 @@ public class CommandRegistry {
                 Glowing.glowInfinitly(spawn, ChatColor.GOLD, player);
 
                 Runnables.runLater(() -> {
-                    Glowing.stopGlowing(spawn);
+                    Glowing.stopGlowing(player, spawn);
                     Chat.sendMessage(player, "Stop glowing");
                 }, 60);
             }

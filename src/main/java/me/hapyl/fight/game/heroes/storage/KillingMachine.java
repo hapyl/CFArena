@@ -1,7 +1,5 @@
 package me.hapyl.fight.game.heroes.storage;
 
-import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
@@ -11,12 +9,12 @@ import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.weapons.PackedParticle;
 import me.hapyl.fight.game.weapons.RangeWeapon;
-import me.hapyl.spigotutils.module.reflect.glow.Glowing;
-import org.bukkit.*;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-
-import java.util.List;
 
 public class KillingMachine extends Hero implements DisabledHero {
 
@@ -68,28 +66,27 @@ public class KillingMachine extends Hero implements DisabledHero {
     @Override
     public void useUltimate(Player player) {
         // Glow Self
-        final Glowing glowing = new Glowing(player, ChatColor.RED, getUltimateDuration());
-        final List<GamePlayer> alivePlayers = Manager.current().getCurrentGame().getAlivePlayers();
-
-        alivePlayers.forEach(gamePlayer -> {
-            final Player alivePlayer = gamePlayer.getPlayer();
-
-            // Add player to see our glowing
-            glowing.addPlayer(alivePlayer);
-
-            if (alivePlayer == player) {
-                return;
-            }
-
-            // FIXME: 020, Mar 20, 2023 -> This blinks for some reason
-
-            // Highlight other players unless self
-            final Glowing glowingOther = new Glowing(alivePlayer, ChatColor.AQUA, getUltimateDuration());
-            glowingOther.addPlayer(player);
-            glowingOther.glow();
-        });
-
-        glowing.glow();
+        //final Glowing glowing = new Glowing(player, ChatColor.RED, getUltimateDuration());
+        //final List<GamePlayer> alivePlayers = Manager.current().getCurrentGame().getAlivePlayers();
+        //
+        //alivePlayers.forEach(gamePlayer -> {
+        //    final Player alivePlayer = gamePlayer.getPlayer();
+        //
+        //    // Add player to see our glowing
+        //
+        //    if (alivePlayer == player) {
+        //        return;
+        //    }
+        //
+        //    // FIXME: 020, Mar 20, 2023 -> This blinks for some reason
+        //
+        //    // Highlight other players unless self
+        //    final Glowing glowingOther = new Glowing(alivePlayer, ChatColor.AQUA, getUltimateDuration());
+        //    glowingOther.addPlayer(player);
+        //    glowingOther.glow();
+        //});
+        //
+        //glowing.glow();
     }
 
     @Override

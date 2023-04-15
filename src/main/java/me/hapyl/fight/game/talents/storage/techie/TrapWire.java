@@ -31,13 +31,14 @@ public class TrapWire extends ChargedTalent implements Listener {
     @DisplayField(extra = "Recharges upon activation") private final int rechargeCd = 80;
     @DisplayField private final int destroyedCd = 160;
     @DisplayField(suffix = "blocks") private final short tripwireMaxLength = 10;
+    @DisplayField private final int windupTime = 20;
 
     public TrapWire() {
         super("Tripwire", 3);
 
-        addDescription(
-                "Place a tripwire between two points. Activates upon opponents touch and applies &bCYber Hack&7.____&e&lPUNCH &7the wire to pick it up.____&cThis ability can be destroyed!"
-        );
+        addDescription("Place a tripwire between two blocks. Activates upon contact with an opponent and applies &b&lCYber &b&lHack&7.");
+        addNlDescription("&e&lPUNCH &7the wire to pick it up.");
+        addNlDescription("&cThis ability can be destroyed!");
 
         setItem(Material.STRING);
         setCdSec(3);
@@ -80,7 +81,7 @@ public class TrapWire extends ChargedTalent implements Listener {
         }
 
         final Tripwire trap = new Tripwire(player, blocks);
-        trap.setBlocks();
+        trap.setBlocks(windupTime);
         traps.add(trap);
 
         return Response.OK;

@@ -69,7 +69,7 @@ public class CyberCage {
         victim.setVelocity(marker.getLocation().toVector().subtract(victim.getLocation().toVector()).normalize());
 
         // Glowing
-        Glowing.glow(victim, ChatColor.AQUA, 40, player);
+        Glowing.glow(victim, ChatColor.RED, 40, player);
 
         // Zoom Fx
         PlayerLib.addEffect(victim, PotionEffectType.SLOW, 20, 300);

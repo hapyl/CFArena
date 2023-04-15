@@ -47,6 +47,13 @@ public class Techie extends Hero implements UIComplexComponent, Listener {
 
     private final int neuralTheftPeriod = 200;
 
+    /**
+     * Ultimate rework idea:
+     *
+     * - Sombra hack or something that increases CD or steals ult points,
+     * lockdown is useless
+     */
+
     public Techie() {
         super("Techie");
 
@@ -133,10 +140,6 @@ public class Techie extends Hero implements UIComplexComponent, Listener {
         //Glowing.stopGlowing(revealed); fixme -> This is not needed?
 
         Glowing.glow(revealed, ChatColor.AQUA, 20, player);
-
-        //final Glowing glowing = new Glowing(revealed, ChatColor.AQUA, 20);
-        //glowing.addPlayer(player);
-        //glowing.glow();
 
         // If revealed not player don't show health.
         if (!(revealed instanceof Player revealedPlayer)) {

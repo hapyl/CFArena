@@ -6,7 +6,7 @@
 
     <groupId>me.hapyl</groupId>
     <artifactId>ClassesFightArena</artifactId>
-    <description>A minigame plugin based on an old map.</description>
+    <description>A PvP mini-game plugin.</description>
     <version>1.5.1-SNAPSHOT</version>
 
     <properties>
@@ -154,7 +154,7 @@
         <dependency>
             <groupId>com.github.hapyl</groupId>
             <artifactId>EternaAPI</artifactId>
-            <version>2.9.8-SNAPSHOT</version>
+            <version>2.9.9-SNAPSHOT</version>
         </dependency>
 
         <dependency>
