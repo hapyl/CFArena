@@ -18,6 +18,11 @@ public class AutoSync {
                     return;
                 }
 
+                if (!Manager.current().anyProfiles()) {
+                    Chat.broadcast("&7&oNo one is online, skipping database sync.");
+                    return;
+                }
+
                 if (Manager.current().isGameInProgress()) {
                     scheduleSave = true;
                     Chat.broadcast("&7&oScheduled to sync database after this game.");
@@ -33,11 +38,6 @@ public class AutoSync {
         scheduleSave = false;
 
         try {
-            if (!Manager.current().anyProfiles()) {
-                Chat.broadcast("&7&oNo one is online, skipping database sync.");
-                return;
-            }
-
             Chat.broadcast("&7&oSyncing database, might lag a little.");
 
             Manager.current().allProfiles(profile -> {

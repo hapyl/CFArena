@@ -12,6 +12,7 @@ import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.maps.features.BoosterController;
+import me.hapyl.fight.game.maps.healthpack.HealthPackListener;
 import me.hapyl.fight.game.parkour.CFParkourManager;
 import me.hapyl.fight.game.task.TaskList;
 import me.hapyl.fight.notifier.Notifier;
@@ -267,6 +268,7 @@ public class Main extends JavaPlugin {
         pm.registerEvents(new ChatController(), this);
         pm.registerEvents(new EnderPearlHandler(), this);
         pm.registerEvents(new CosmeticsListener(), this);
+        pm.registerEvents(new HealthPackListener(), this);
     }
 
     private void runSafe(Runnable runnable, String handler) {

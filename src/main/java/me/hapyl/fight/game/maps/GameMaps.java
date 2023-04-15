@@ -4,6 +4,7 @@ import me.hapyl.fight.game.maps.features.CloudFeatures;
 import me.hapyl.fight.game.maps.features.JapanFeature;
 import me.hapyl.fight.game.maps.features.LibraryCat;
 import me.hapyl.fight.game.maps.features.LibraryFeature;
+import me.hapyl.fight.game.maps.healthpack.PackType;
 import me.hapyl.fight.game.maps.maps.DragonsGorge;
 import me.hapyl.fight.game.maps.maps.WineryMap;
 import me.hapyl.spigotutils.module.util.Validate;
@@ -31,6 +32,9 @@ public enum GameMaps {
                     .setSize(Size.MEDIUM)
                     .setTicksBeforeReveal(100)
                     .addLocation(100, 64, 0)
+                    .addPackLocation(PackType.HEALTH, 91.5, 65.0, -10.5)
+                    .addPackLocation(PackType.HEALTH, 99.5, 65.0, -13.5)
+                    .addPackLocation(PackType.CHARGE, 94.5, 65.0, -15.5)
     ),
 
     JAPAN(

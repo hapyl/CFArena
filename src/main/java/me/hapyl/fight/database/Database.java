@@ -52,7 +52,7 @@ public class Database extends DependencyInjector<Main> {
             final String connectionLink = config.getString("database.connection_link");
 
             if (connectionLink == null || connectionLink.equals("null")) {
-                breakConnectionAndDisablePlugin("Connection link is null!");
+                breakConnectionAndDisablePlugin("Provide a valid connection link in config.yml!");
                 return;
             }
 

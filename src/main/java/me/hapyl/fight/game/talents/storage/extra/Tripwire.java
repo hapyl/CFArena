@@ -2,7 +2,8 @@ package me.hapyl.fight.game.talents.storage.extra;
 
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.effect.GameEffectType;
-import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.storage.techie.TrapWire;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.glow.Glowing;
@@ -21,11 +22,18 @@ public class Tripwire {
 
     private final Player player;
     private final Set<Block> blocks;
+    private final long createdAt;
 
     public Tripwire(Player player, Set<Block> blocks) {
         this.player = player;
         this.blocks = blocks;
+        this.createdAt = System.currentTimeMillis();
+
         PlayerLib.playSound(player, Sound.ENTITY_SPIDER_AMBIENT, 0.75f);
+    }
+
+    public boolean isActive() {
+        return (System.currentTimeMillis() - createdAt) >= (Talents.TRAP_WIRE.getTalent(TrapWire.class).getWindupTimeAsMillis());
     }
 
     public Player getPlayer() {
@@ -51,9 +59,8 @@ public class Tripwire {
         }
     }
 
-    public void setBlocks(int delay) {
-        this.blocks.forEach(block -> block.setType(Material.REDSTONE_WIRE, false));
-        GameTask.runLater(() -> this.blocks.forEach(block -> block.setType(Material.TRIPWIRE, false)), delay);
+    public void setBlocks() {
+        this.blocks.forEach(block -> block.setType(Material.TRIPWIRE, false));
     }
 
     public void clearBlocks() {
