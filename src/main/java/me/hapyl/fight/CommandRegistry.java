@@ -4,7 +4,6 @@ import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import me.hapyl.fight.cmds.*;
-import me.hapyl.fight.database.collection.DatabaseCollection;
 import me.hapyl.fight.game.TitleAnimation;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -20,7 +19,6 @@ import me.hapyl.spigotutils.module.reflect.npc.NPCPose;
 import me.hapyl.spigotutils.module.util.Action;
 import me.hapyl.spigotutils.module.util.Runnables;
 import net.minecraft.world.entity.Entity;
-import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -76,23 +74,6 @@ public class CommandRegistry {
         register(new HeadCommand("head"));
         register(new RankCommand("rank"));
         register(new DebugPlayerCommand("debugPlayer"));
-
-        register(new SimplePlayerAdminCommand("migrateHeroStats") {
-            @Override
-            protected void execute(Player player, String[] strings) {
-                final DatabaseCollection collection = new DatabaseCollection(
-                        Main.getPlugin().getDatabase().getStats(),
-                        new Document("type", "hero_stats")
-                );
-
-            }
-        });
-
-        register(new SimplePlayerAdminCommand("testnpcpose") {
-            @Override
-            protected void execute(Player player, String[] strings) {
-            }
-        });
 
         register(new SimplePlayerAdminCommand("riptide") {
 

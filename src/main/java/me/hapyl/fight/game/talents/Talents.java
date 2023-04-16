@@ -72,6 +72,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * This is a registry for all talents that are
@@ -385,14 +386,19 @@ public enum Talents {
         }
     }
 
+    @Nullable
     public static Talents fromTalent(Talent talent) {
+        if (talent == null) {
+            return null;
+        }
+
         for (Talents value : values()) {
             if (value.getTalent() == talent) {
                 return value;
             }
         }
 
-        throw new IllegalArgumentException("non-registered talent");
+        return null;
     }
 
 }

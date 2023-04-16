@@ -56,11 +56,12 @@ public class HeroStatisticGUI extends PlayerGUI {
 
         // Ability Stats
         for (Talent talent : heroes.getHero().getTalents()) {
-            if (talent instanceof PassiveTalent || talent == null) {
+            final Talents enumTalent = Talents.fromTalent(talent);
+            if (talent instanceof PassiveTalent || talent == null || enumTalent == null) {
                 continue;
             }
 
-            final long abilityUsage = stats.getAbilityUsage(Talents.fromTalent(talent));
+            final long abilityUsage = stats.getAbilityUsage(enumTalent);
 
             abilityComponent.add(new ItemBuilder(talent.getItem())
                     .setName(talent.getName())

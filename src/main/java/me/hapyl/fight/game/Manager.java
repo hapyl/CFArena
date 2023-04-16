@@ -10,7 +10,7 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.game.reward.setting.Setting;
+import me.hapyl.fight.game.setting.Setting;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.Talent;
