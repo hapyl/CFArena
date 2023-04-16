@@ -64,6 +64,10 @@ public class GameInstance implements IGameInstance, GameElement {
         this.gameTask = startTask();
     }
 
+    public void increaseTimeLimit(long limit) {
+        this.timeLimit += limit;
+    }
+
     @Nonnull
     public GameResult getGameResult() {
         return gameResult;

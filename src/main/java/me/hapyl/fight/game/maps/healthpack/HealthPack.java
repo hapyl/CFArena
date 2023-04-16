@@ -12,16 +12,20 @@ import org.bukkit.entity.Player;
 
 public class HealthPack extends GamePack {
 
+    private final double HEALTH_POINTS = 20;
+
     public HealthPack() {
-        super(Tick.fromSecond(5), "466a5f7bcd3c1c225a9366eee6dfab1cc66a6bf7363fed087512e6ef47a1d");
+        super(Tick.fromMinute(3), "466a5f7bcd3c1c225a9366eee6dfab1cc66a6bf7363fed087512e6ef47a1d");
     }
 
     @Override
     public void onPickup(Player player) {
         final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
 
-        gamePlayer.heal(20);
-        gamePlayer.playSound(Sound.ENTITY_CHICKEN_EGG, 1.0f);
+        gamePlayer.heal(HEALTH_POINTS);
+        gamePlayer.sendMessage("&4&lHEALTH PACK &7⁑ &c&l+20 &c❤", HEALTH_POINTS);
+
+        PlayerLib.playSound(player.getLocation(), Sound.ENTITY_CHICKEN_EGG, 1.0f);
     }
 
     @Override

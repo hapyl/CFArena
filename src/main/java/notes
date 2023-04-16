@@ -68,6 +68,7 @@ Bugs:
 - [✔] juju shield breaks all at once
 - [✔] Tamer broken
 
+- Add distance on shots
 - Rework techie a bit, add delay to traps and ult is useless :|
 
 - Repackage talent/hero handles?
