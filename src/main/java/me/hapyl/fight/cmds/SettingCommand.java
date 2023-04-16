@@ -1,6 +1,6 @@
 package me.hapyl.fight.cmds;
 
-import me.hapyl.fight.game.setting.Setting;
+import me.hapyl.fight.game.reward.setting.Setting;
 import me.hapyl.fight.gui.SettingsGUI;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.command.SimplePlayerCommand;

@@ -10,7 +10,7 @@ public class DatabaseCollection {
     private final MongoCollection<Document> collection;
     private final Document filter;
 
-    public Document document;
+    protected Document document;
 
     public DatabaseCollection(MongoCollection<Document> collection, Document filter) {
         this.collection = collection;

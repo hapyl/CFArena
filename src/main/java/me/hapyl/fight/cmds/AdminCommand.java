@@ -5,8 +5,9 @@ import me.hapyl.fight.cmds.extra.Acceptor;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.StatContainer;
 import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.stats.StatContainer;
+import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
 import me.hapyl.spigotutils.module.util.Validate;
@@ -133,7 +134,7 @@ public class AdminCommand extends SimplePlayerAdminCommand {
                     return;
                 }
 
-                stats.setValue(StatContainer.Type.KILLS, newKills);
+                stats.setValue(StatType.KILLS, newKills);
                 sendMessage(player, "&aSet your kills to &l%s&a.", newKills);
             }
         });

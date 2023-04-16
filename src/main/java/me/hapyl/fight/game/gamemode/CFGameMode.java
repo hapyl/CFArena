@@ -2,7 +2,7 @@ package me.hapyl.fight.game.gamemode;
 
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.setting.Setting;
+import me.hapyl.fight.game.reward.setting.Setting;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.scoreboard.Scoreboarder;

@@ -3,6 +3,7 @@ package me.hapyl.fight.game;
 import me.hapyl.fight.game.cosmetic.skin.Skins;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.talents.TalentQueue;
 import me.hapyl.fight.game.team.GameTeam;
@@ -59,6 +60,13 @@ public interface IGamePlayer {
     boolean isDead();
 
     /**
+     * Sets if player is dead.
+     *
+     * @param dead - True if dead, false otherwise.
+     */
+    void setDead(boolean dead);
+
+    /**
      * Returns true if player can move; false otherwise.
      *
      * @return true if player can move; false otherwise.
@@ -69,13 +77,6 @@ public interface IGamePlayer {
      * Sets if player can move.
      */
     void setCanMove(boolean canMove);
-
-    /**
-     * Sets if player is dead.
-     *
-     * @param dead - True if dead, false otherwise.
-     */
-    void setDead(boolean dead);
 
     /**
      * Returns player's combat tag duration, or 0 if not in combat.

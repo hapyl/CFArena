@@ -9,6 +9,7 @@ import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.GamePlayerUI;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -30,7 +31,7 @@ public class PlayerProfile {
 
     private boolean loaded;
 
-    public PlayerProfile(Player player) {
+    public PlayerProfile(@Nonnegative Player player) {
         this.player = player;
 
         // Init player database

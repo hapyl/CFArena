@@ -1,7 +1,7 @@
 package me.hapyl.fight.game;
 
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.game.setting.Setting;
+import me.hapyl.fight.game.reward.setting.Setting;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Bukkit;

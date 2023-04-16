@@ -1,9 +1,8 @@
 package me.hapyl.fight.gui;
 
-import me.hapyl.fight.Main;
-import me.hapyl.fight.database.StatisticType;
-import me.hapyl.fight.database.collection.HeroStatsCollection;
+import me.hapyl.fight.database.collection.HeroStats;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.PassiveTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -34,18 +33,18 @@ public class HeroStatisticGUI extends PlayerGUI {
     }
 
     private void update() {
-        final HeroStatsCollection stats = Main.getPlugin().getDatabases().getHeroStats();
+        final HeroStats stats = heroes.getStats();
         final String name = heroes.getName();
         final SmartComponent component = newSmartComponent();
         final SmartComponent abilityComponent = newSmartComponent();
 
-        final int played = (int) stats.getStat(heroes, StatisticType.PLAYED);
-        final double wins = (int) stats.getStat(heroes, StatisticType.WINS);
-        final int kills = (int) stats.getStat(heroes, StatisticType.KILLS);
-        final int deaths = (int) stats.getStat(heroes, StatisticType.DEATHS);
-        final int ultimate = (int) stats.getStat(heroes, StatisticType.ULTIMATE_USED);
-        final double damageDealt = stats.getStat(heroes, StatisticType.DAMAGE_DEALT);
-        final double damageTaken = stats.getStat(heroes, StatisticType.DAMAGE_TAKEN);
+        final int played = (int) stats.getStat(StatType.PLAYED);
+        final double wins = (int) stats.getStat(StatType.WINS);
+        final int kills = (int) stats.getStat(StatType.KILLS);
+        final int deaths = (int) stats.getStat(StatType.DEATHS);
+        final int ultimate = (int) stats.getStat(StatType.ULTIMATE_USED);
+        final double damageDealt = stats.getStat(StatType.DAMAGE_DEALT);
+        final double damageTaken = stats.getStat(StatType.DAMAGE_TAKEN);
 
         component.add(create(Material.PLAYER_HEAD, "Total Play Time", name, "has been played", "times", played));
         component.add(create(Material.DIAMOND_BLOCK, "Total Wins", name, "has won", "games", wins));
@@ -61,16 +60,17 @@ public class HeroStatisticGUI extends PlayerGUI {
                 continue;
             }
 
-            final long abilityUsage = stats.getAbilityUsage(heroes, Talents.fromTalent(talent));
+            final long abilityUsage = stats.getAbilityUsage(Talents.fromTalent(talent));
 
-            abilityComponent.add(ItemBuilder.of(
-                    talent.getMaterial(),
-                    talent.getName(),
-                    "&b%s&7 has been used &b&l%s&7 times.".formatted(
+            abilityComponent.add(new ItemBuilder(talent.getItem())
+                    .setName(talent.getName())
+                    .setLore("&b%s&7 has been used &b&l%s&7 times.".formatted(
                             talent.getName(),
                             abilityUsage
-                    )
-            ).setAmount((int) abilityUsage).asIcon());
+                    ))
+                    .setAmount((int) abilityUsage)
+                    .asIcon()
+            );
         }
 
         component.apply(this, GENERAL_SLOTS, 1);

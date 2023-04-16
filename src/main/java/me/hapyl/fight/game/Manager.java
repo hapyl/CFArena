@@ -2,7 +2,6 @@ package me.hapyl.fight.game;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
-import me.hapyl.fight.database.collection.HeroStatsCollection;
 import me.hapyl.fight.game.cosmetic.skin.SkinEffectManager;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.heroes.ComplexHero;
@@ -11,7 +10,8 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.game.setting.Setting;
+import me.hapyl.fight.game.reward.setting.Setting;
+import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -382,7 +382,6 @@ public class Manager extends DependencyInjector<Main> {
             gameInstance.getGameResult().supplyDefaultWinners();
         }
 
-        final HeroStatsCollection heroStats = Main.getPlugin().getDatabases().getHeroStats();
         gameInstance.calculateEverything();
 
         // Reset player before clearing the instance
@@ -411,14 +410,14 @@ public class Manager extends DependencyInjector<Main> {
 
             // Save stats
             player.getDatabase().getStatistics().fromPlayerStatistic(hero, stats);
-            heroStats.fromPlayerStatistic(hero, stats);
+            hero.getStats().fromPlayerStatistic(stats);
         });
 
         this.gameInstance.onStop();
         this.gameInstance.setGameState(State.POST_GAME);
 
         // Save stats
-        heroStats.saveAsync();
+        this.gameInstance.getActiveHeroes().forEach(hero -> hero.getStats().saveAsync());
 
         // Clear teams
         GameTeam.clearAllPlayers();

@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.cosmetic;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.game.setting.Setting;
+import me.hapyl.fight.game.reward.setting.Setting;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;

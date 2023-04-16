@@ -4,6 +4,7 @@ import me.hapyl.fight.game.cosmetic.skin.Skins;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.talents.TalentQueue;
 import org.bukkit.Sound;

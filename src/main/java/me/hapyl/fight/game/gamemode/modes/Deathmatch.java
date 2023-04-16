@@ -1,8 +1,12 @@
 package me.hapyl.fight.game.gamemode.modes;
 
 import com.google.common.collect.Maps;
-import me.hapyl.fight.game.*;
+import me.hapyl.fight.game.GameInstance;
+import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.GameResult;
+import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.gamemode.CFGameMode;
+import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.nn.IntInt;
 import me.hapyl.spigotutils.module.scoreboard.Scoreboarder;
@@ -46,7 +50,7 @@ public class Deathmatch extends CFGameMode {
         builder.addLines(
                 "",
                 "&6&lDeathmatch: &f(&b🗡 &l%s&f)".formatted(gamePlayer.getStats()
-                        .getValue(StatContainer.Type.KILLS))
+                        .getValue(StatType.KILLS))
         );
 
         final IntInt i = new IntInt(1);
@@ -76,7 +80,7 @@ public class Deathmatch extends CFGameMode {
         final Map<GamePlayer, Long> topKills = Maps.newHashMap();
 
         instance.getPlayers().values().forEach(player -> {
-            topKills.put(player, (long) player.getStats().getValue(StatContainer.Type.KILLS));
+            topKills.put(player, (long) player.getStats().getValue(StatType.KILLS));
         });
 
         return topKills;

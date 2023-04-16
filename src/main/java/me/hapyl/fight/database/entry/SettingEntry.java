@@ -2,7 +2,7 @@ package me.hapyl.fight.database.entry;
 
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.PlayerDatabaseEntry;
-import me.hapyl.fight.game.setting.Setting;
+import me.hapyl.fight.game.reward.setting.Setting;
 
 public class SettingEntry extends PlayerDatabaseEntry {
     public SettingEntry(PlayerDatabase playerDatabase) {

@@ -1,5 +1,6 @@
 package me.hapyl.fight.game;
 
+import com.google.common.collect.Maps;
 import me.hapyl.fight.database.Award;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
@@ -13,6 +14,8 @@ import me.hapyl.fight.game.heroes.ComplexHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.profile.PlayerProfile;
+import me.hapyl.fight.game.stats.StatContainer;
+import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentQueue;
@@ -67,7 +70,7 @@ public class GamePlayer implements IGamePlayer {
     private final StatContainer stats;
     private final Map<GameEffectType, ActiveGameEffect> gameEffects;
     private final TalentQueue talentQueue;
-    private boolean wasHit;
+    private boolean wasHit; // Used to check if player was hit by custom damage
     private Player player;
     private PlayerProfile profile;
     private double health;
@@ -89,8 +92,10 @@ public class GamePlayer implements IGamePlayer {
     private long combatTag;
     private int killStreak;
     private InputTalent inputTalent;
+    private final Map<Player, Double> damageTaken;
 
-    public GamePlayer(PlayerProfile profile, Heroes enumHero) {
+    @SuppressWarnings("all")
+    public GamePlayer(@Nonnull PlayerProfile profile, @Nonnull Heroes enumHero) {
         this.profile = profile;
         this.player = profile.getPlayer();
         this.enumHero = enumHero;
@@ -99,6 +104,7 @@ public class GamePlayer implements IGamePlayer {
         this.isDead = false;
         this.ultimateModifier = 1.0d;
         this.isSpectator = false;
+        this.damageTaken = Maps.newHashMap();
         this.gameEffects = new ConcurrentHashMap<>();
         this.talentQueue = new TalentQueue(this);
         this.stats = new StatContainer(player);
@@ -112,24 +118,18 @@ public class GamePlayer implements IGamePlayer {
         profile.setGamePlayer(this);
     }
 
-    protected GamePlayer(boolean fake) {
-        if (!fake) {
-            throw new IllegalArgumentException("validate fake player");
-        }
+    /**
+     * @deprecated Use for testing only!
+     */
+    @SuppressWarnings("all")
+    @Deprecated(forRemoval = true/*NOT FOR REMOVAL, MARKED TO HAVE SCARY RED LINE*/)
+    public static GamePlayer createFakeGamePlayer() throws IllegalStateException {
+        final GamePlayer gamePlayer = new GamePlayer(null, Heroes.randomHero());
 
-        this.player = new FakeBukkitPlayer();
-        this.hero = Heroes.randomHero().getHero();
-
-        this.enumHero = null;
-        this.profile = null;
-        this.stats = null;
-        this.skin = null;
-        this.talentQueue = null;
-        this.gameEffects = null;
-        this.isDead = false;
-        this.isSpectator = false;
+        gamePlayer.player = new FakeBukkitPlayer();
 
         Debugger.warn("Created fake game player instance, expect errors!");
+        return gamePlayer;
     }
 
     public void resetPlayer(Ignore... ignores) {
@@ -161,6 +161,7 @@ public class GamePlayer implements IGamePlayer {
         player.getActivePotionEffects().forEach(effect -> player.removePotionEffect(effect.getType()));
         Nulls.runIfNotNull(player.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE), att -> att.setBaseValue(0.0f));
 
+        damageTaken.clear();
         wasHit = false;
         inputTalent = null;
 
@@ -336,6 +337,9 @@ public class GamePlayer implements IGamePlayer {
     public void damage(double damage, @Nullable LivingEntity damager, @Nullable EnumDamageCause cause) {
         if (damager != null && damager != player) {
             lastDamager = damager;
+            if (damager instanceof Player playerDamager) {
+                damageTaken.put(playerDamager, damageTaken.getOrDefault(playerDamager, 0.0d) + damage);
+            }
         }
         if (cause != null) {
             lastDamageCause = cause;
@@ -455,7 +459,7 @@ public class GamePlayer implements IGamePlayer {
                 if (gameKiller != null && player != killer) { // should never be the case
                     final StatContainer killerStats = gameKiller.getStats();
 
-                    killerStats.addValue(StatContainer.Type.KILLS, 1);
+                    killerStats.addValue(StatType.KILLS, 1);
 
                     // Add kill streak for killer
                     gameKiller.killStreak++;
@@ -472,7 +476,24 @@ public class GamePlayer implements IGamePlayer {
             }
         }
 
-        stats.addValue(StatContainer.Type.DEATHS, 1);
+        // Award assists
+        damageTaken.forEach((damager, damage) -> {
+            if (damager == lastDamager || damager == player/*should not happen*/) {
+                return;
+            }
+
+            final double percentDamageDealt = damage / getMaxHealth();
+            final StatContainer damagerStats = GamePlayer.getPlayer(damager).getStats();
+
+            if (damagerStats == null || percentDamageDealt < 0.5d) {
+                return;
+            }
+
+            Award.PLAYER_ASSISTED.award(damager);
+            damagerStats.addValue(StatType.ASSISTS, 1);
+        });
+
+        stats.addValue(StatType.DEATHS, 1);
 
         // broadcast death
         final String deathMessage = new Gradient(concat("☠ %s ".formatted(player.getName()), getRandomDeathMessage(), lastDamager))
@@ -502,6 +523,7 @@ public class GamePlayer implements IGamePlayer {
             deathCosmetic.getCosmetic().onDisplay(player);
         }
 
+        // KEEP LAST
         resetPlayer(Ignore.GAME_MODE);
         Chat.broadcast(deathMessage);
     }

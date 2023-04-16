@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.Shortcuts;
+import me.hapyl.fight.database.collection.HeroStats;
 import me.hapyl.fight.database.entry.HeroEntry;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.GamePlayer;
@@ -90,13 +91,19 @@ public enum Heroes {
     }
 
     private final Hero hero;
+    private final HeroStats stats; // can't store in hero object because requires enum
 
     Heroes(Hero hero) {
         this.hero = hero;
+        this.stats = new HeroStats(this);
 
         if (hero instanceof Listener listener) {
             Main.getPlugin().addEvent(listener);
         }
+    }
+
+    public HeroStats getStats() {
+        return stats;
     }
 
     public boolean isValidHero() {
@@ -291,4 +298,9 @@ public enum Heroes {
         return CollectionUtils.randomElement(playable());
     }
 
+    public static void saveStatsAsync() {
+        for (Heroes hero : values()) {
+            hero.getStats().saveAsync();
+        }
+    }
 }

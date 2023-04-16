@@ -1,7 +1,6 @@
 package me.hapyl.fight;
 
 import me.hapyl.fight.database.Database;
-import me.hapyl.fight.database.DatabaseRest;
 import me.hapyl.fight.event.EnderPearlHandler;
 import me.hapyl.fight.event.PlayerHandler;
 import me.hapyl.fight.game.ChatController;
@@ -48,7 +47,6 @@ public class Main extends JavaPlugin {
     private Experience experience;
     private Database database;
     private Notifier notifier;
-    private DatabaseRest databaseCollection;
     private CFParkourManager parkourManager;
 
     @Override
@@ -105,7 +103,6 @@ public class Main extends JavaPlugin {
         this.notifier = new Notifier(this);
 
         this.parkourManager = new CFParkourManager(this);
-        this.databaseCollection = new DatabaseRest(this);
 
         // update database
         for (final Player player : Bukkit.getOnlinePlayers()) {
@@ -123,11 +120,6 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        runSafe(() -> {
-            databaseCollection.saveAll();
-            //parkourManager.saveAll();
-        }, "database save");
-
         runSafe(() -> {
             for (final Player player : Bukkit.getOnlinePlayers()) {
                 Manager.current().getProfile(player).getDatabase().save();
@@ -153,10 +145,6 @@ public class Main extends JavaPlugin {
 
     public Notifier getNotifier() {
         return notifier;
-    }
-
-    public DatabaseRest getDatabases() {
-        return databaseCollection;
     }
 
     public Database getDatabase() {

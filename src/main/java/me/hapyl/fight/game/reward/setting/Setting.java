@@ -1,4 +1,4 @@
-package me.hapyl.fight.game.setting;
+package me.hapyl.fight.game.reward.setting;
 
 import me.hapyl.fight.Shortcuts;
 import me.hapyl.fight.game.Manager;

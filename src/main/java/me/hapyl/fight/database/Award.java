@@ -4,7 +4,8 @@ import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.database.entry.ExperienceEntry;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.StatContainer;
+import me.hapyl.fight.game.stats.StatContainer;
+import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Sound;
@@ -57,8 +58,8 @@ public enum Award {
 
         // Progress Stats
         final StatContainer stats = player.getStats();
-        stats.addValue(StatContainer.Type.COINS, coins);
-        stats.addValue(StatContainer.Type.EXP, exp);
+        stats.addValue(StatType.COINS, coins);
+        stats.addValue(StatType.EXP, exp);
 
         Chat.sendMessage(player.getPlayer(), "&a+ &6&l%s Coins &7& &b&l%s Exp &7(%s)", getCoins(), getExp(), getReason());
         PlayerLib.playSound(player.getPlayer(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.25f);

@@ -1,7 +1,7 @@
 package me.hapyl.fight.cmds;
 
-import me.hapyl.fight.game.FakeGamePlayer;
 import me.hapyl.fight.game.GameInstance;
+import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.team.GameTeam;
@@ -28,7 +28,7 @@ public class TestWinConditionCommand extends SimplePlayerAdminCommand {
         }
         else {
             final GameTeam smallestTeam = GameTeam.getSmallestTeam();
-            smallestTeam.addPlayer(new FakeGamePlayer());
+            smallestTeam.addPlayer(GamePlayer.createFakeGamePlayer());
             Chat.sendMessage(player, "&aAdded fake player to %s.", smallestTeam.getName());
         }
     }
