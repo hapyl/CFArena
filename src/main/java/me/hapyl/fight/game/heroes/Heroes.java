@@ -3,12 +3,13 @@ package me.hapyl.fight.game.heroes;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
-import me.hapyl.fight.Shortcuts;
+import me.hapyl.fight.database.collection.HeroStats;
 import me.hapyl.fight.database.entry.HeroEntry;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.heroes.storage.*;
+import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.util.SmallCaps;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
 import org.bukkit.entity.Player;
@@ -90,13 +91,19 @@ public enum Heroes {
     }
 
     private final Hero hero;
+    private final HeroStats stats; // can't store in hero object because requires enum
 
     Heroes(Hero hero) {
         this.hero = hero;
+        this.stats = new HeroStats(this);
 
         if (hero instanceof Listener listener) {
             Main.getPlugin().addEvent(listener);
         }
+    }
+
+    public HeroStats getStats() {
+        return stats;
     }
 
     public boolean isValidHero() {
@@ -191,7 +198,7 @@ public enum Heroes {
      * @return true if player has this hero favourite.
      */
     public boolean isFavourite(Player player) {
-        return Shortcuts.getDatabase(player).getHeroEntry().isFavourite(this);
+        return PlayerProfile.getOrCreateProfile(player).getDatabase().getHeroEntry().isFavourite(this);
     }
 
     /**
@@ -201,7 +208,7 @@ public enum Heroes {
      * @param flag   - True if favourite, false if not.
      */
     public void setFavourite(Player player, boolean flag) {
-        Shortcuts.getDatabase(player).getHeroEntry().setFavourite(this, flag);
+        PlayerProfile.getOrCreateProfile(player).getDatabase().getHeroEntry().setFavourite(this, flag);
     }
 
     /**
@@ -257,7 +264,7 @@ public enum Heroes {
     public static List<Heroes> playableRespectFavourites(Player player) {
         final List<Heroes> playable = playable();
         playable.sort((a, b) -> {
-            final HeroEntry heroEntry = Shortcuts.getDatabase(player).getHeroEntry();
+            final HeroEntry heroEntry = PlayerProfile.getOrCreateProfile(player).getDatabase().getHeroEntry();
             return (heroEntry.isFavourite(b) ? 1 : 0) - (heroEntry.isFavourite(a) ? 1 : 0);
         });
         return playable;
@@ -291,4 +298,9 @@ public enum Heroes {
         return CollectionUtils.randomElement(playable());
     }
 
+    public static void saveStatsAsync() {
+        for (Heroes hero : values()) {
+            hero.getStats().saveAsync();
+        }
+    }
 }

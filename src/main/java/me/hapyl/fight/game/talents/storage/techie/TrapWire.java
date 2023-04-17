@@ -31,7 +31,7 @@ public class TrapWire extends ChargedTalent implements Listener {
     @DisplayField(extra = "Recharges upon activation") private final int rechargeCd = 80;
     @DisplayField private final int destroyedCd = 160;
     @DisplayField(suffix = "blocks") private final short tripwireMaxLength = 10;
-    @DisplayField private final int windupTime = 20;
+    @DisplayField private final int windupTime = 40;
 
     public TrapWire() {
         super("Tripwire", 3);
@@ -42,6 +42,10 @@ public class TrapWire extends ChargedTalent implements Listener {
 
         setItem(Material.STRING);
         setCdSec(3);
+    }
+
+    public long getWindupTimeAsMillis() {
+        return windupTime * 50L;
     }
 
     @Override
@@ -64,9 +68,13 @@ public class TrapWire extends ChargedTalent implements Listener {
         new GameTask() {
             @Override
             public void run() {
-                trapMap.values().forEach(set -> {
-                    set.forEach(Tripwire::drawLine);
-                });
+                trapMap.values().forEach(set -> set.forEach(tripwire -> {
+                    if (!tripwire.isActive()) {
+                        return;
+                    }
+
+                    tripwire.drawLine();
+                }));
             }
         }.runTaskTimer(10, 10);
     }
@@ -81,7 +89,7 @@ public class TrapWire extends ChargedTalent implements Listener {
         }
 
         final Tripwire trap = new Tripwire(player, blocks);
-        trap.setBlocks(windupTime);
+        trap.setBlocks();
         traps.add(trap);
 
         return Response.OK;
@@ -107,19 +115,29 @@ public class TrapWire extends ChargedTalent implements Listener {
             return;
         }
 
-        byte bit = 0;
-        for (Block block = location.getBlock(); bit <= 1; block = block.getRelative(BlockFace.UP), ++bit) {
-            if (block.getType() == Material.TRIPWIRE) {
-                final Tripwire trap = byBlock(block);
-
-                if (trap != null && trap.getPlayer() != player) {
-                    trap.affectPlayer(player);
-                    removeTrap(trap);
-                    grantCharge(player, rechargeCd);
-                    return;
-                }
-            }
+        if (!checkBlock(player, location.getBlock())) {
+            checkBlock(player, location.getBlock().getRelative(BlockFace.UP));
         }
+    }
+
+    private boolean checkBlock(Player player, Block block) {
+        if (block.getType() != Material.TRIPWIRE) {
+            return false;
+        }
+
+        final Tripwire tripwire = byBlock(block);
+
+        if (tripwire == null || !tripwire.isActive() || tripwire.getPlayer() == player) {
+            return false;
+        }
+
+        tripwire.affectPlayer(player);
+
+        // remove trap and grant charge
+        removeTrap(tripwire);
+        grantCharge(tripwire.getPlayer(), rechargeCd);
+
+        return true;
     }
 
     @EventHandler()
@@ -137,7 +155,7 @@ public class TrapWire extends ChargedTalent implements Listener {
         ev.setCancelled(true);
         final Tripwire tripwire = byBlock(block);
 
-        if (tripwire == null) {
+        if (tripwire == null || !tripwire.isActive()) {
             return;
         }
 

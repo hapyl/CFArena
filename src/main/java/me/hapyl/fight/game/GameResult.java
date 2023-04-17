@@ -2,6 +2,8 @@ package me.hapyl.fight.game;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.database.Award;
+import me.hapyl.fight.game.stats.StatContainer;
+import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.game.team.GameTeam;
@@ -123,10 +125,10 @@ public class GameResult {
 
                 // TODO: 028, Feb 28, 2023 -> Either automate report or actually add it every time.
                 Chat.sendMessage(player, "&a&lGame Report:");
-                Chat.sendMessage(player, stat.getString(StatContainer.Type.COINS));
-                Chat.sendMessage(player, stat.getString(StatContainer.Type.EXP));
-                Chat.sendMessage(player, stat.getString(StatContainer.Type.KILLS));
-                Chat.sendMessage(player, stat.getString(StatContainer.Type.DEATHS));
+                Chat.sendMessage(player, stat.getString(StatType.COINS));
+                Chat.sendMessage(player, stat.getString(StatType.EXP));
+                Chat.sendMessage(player, stat.getString(StatType.KILLS));
+                Chat.sendMessage(player, stat.getString(StatType.DEATHS));
             }
         }, 20).setShutdownAction(ShutdownAction.IGNORE);
     }
@@ -179,8 +181,8 @@ public class GameResult {
                 winner.getHero().getNameSmallCaps(),
                 winner.getName(),
                 winner.getHealthFormatted(),
-                stats.getValue(StatContainer.Type.KILLS),
-                stats.getValue(StatContainer.Type.DEATHS)
+                stats.getValue(StatType.KILLS),
+                stats.getValue(StatType.DEATHS)
         );
     }
 

@@ -2,7 +2,6 @@ package me.hapyl.fight.game.heroes.storage;
 
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
-import me.hapyl.fight.game.Debugger;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.IGamePlayer;
@@ -187,15 +186,9 @@ public class Ninja extends Hero implements Listener, UIComponent {
     @Override
     public DamageOutput processDamageAsVictim(DamageInput input) {
         if (input.getDamageCause() == EnumDamageCause.FALL) {
-            Debugger.log("cancelled fall damage");
             return DamageOutput.CANCEL;
         }
         return null;
-    }
-
-    @Override
-    public void onStart() {
-
     }
 
     @Override

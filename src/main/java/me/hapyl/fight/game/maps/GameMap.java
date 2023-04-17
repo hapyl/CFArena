@@ -1,18 +1,25 @@
 package me.hapyl.fight.game.maps;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.ServerEvent;
 import me.hapyl.fight.game.gamemode.Modes;
+import me.hapyl.fight.game.maps.healthpack.ChangePack;
+import me.hapyl.fight.game.maps.healthpack.GamePack;
+import me.hapyl.fight.game.maps.healthpack.HealthPack;
+import me.hapyl.fight.game.maps.healthpack.PackType;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.spigotutils.module.util.BukkitUtils;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class GameMap implements GameElement, PlayerElement {
@@ -20,6 +27,7 @@ public class GameMap implements GameElement, PlayerElement {
     private final String name;
     private final List<Location> locations;
     private final List<Location> hordeSpawnLocations;
+    private final Map<PackType, GamePack> gamePacks;
     private final List<MapFeature> features;
     private final Set<Modes> allowedModes;
 
@@ -53,6 +61,11 @@ public class GameMap implements GameElement, PlayerElement {
         this.size = Size.SMALL;
         this.ticksBeforeReveal = ticksBeforeReveal;
         this.isPlayable = true;
+
+        // init game packs
+        this.gamePacks = Maps.newHashMap();
+        this.gamePacks.put(PackType.HEALTH, new HealthPack());
+        this.gamePacks.put(PackType.CHARGE, new ChangePack());
     }
 
     @Override
@@ -64,11 +77,6 @@ public class GameMap implements GameElement, PlayerElement {
 
     public boolean isPlayable() {
         return isPlayable;
-    }
-
-    public GameMap setMaterial(Material material) {
-        this.material = material;
-        return this;
     }
 
     public GameMap setPlayable(boolean playable) {
@@ -116,6 +124,11 @@ public class GameMap implements GameElement, PlayerElement {
 
     public Material getMaterial() {
         return material;
+    }
+
+    public GameMap setMaterial(Material material) {
+        this.material = material;
+        return this;
     }
 
     public List<Location> getLocations() {
@@ -219,6 +232,9 @@ public class GameMap implements GameElement, PlayerElement {
             world.setStorm(weatherType == WeatherType.DOWNFALL);
         }
 
+        gamePacks.values().forEach(GamePack::onStart);
+
+        // Feature \/
         if (features.isEmpty()) {
             return;
         }
@@ -240,11 +256,26 @@ public class GameMap implements GameElement, PlayerElement {
 
     @Override
     public final void onStop() {
+        gamePacks.values().forEach(GamePack::onStop);
         features.forEach(MapFeature::onStop);
     }
 
     @Override
     public final void onPlayersReveal() {
+        gamePacks.values().forEach(GamePack::onPlayersReveal);
         features.forEach(MapFeature::onPlayersReveal);
+    }
+
+    public GameMap addPackLocation(PackType type, double x, double y, double z) {
+        if (!gamePacks.containsKey(type)) {
+            throw new IllegalStateException("game pack %s no initiated?".formatted(type.name()));
+        }
+
+        gamePacks.get(type).addLocation(BukkitUtils.defLocation(x, y, z));
+        return this;
+    }
+
+    public Collection<GamePack> getGamePacks() {
+        return gamePacks.values();
     }
 }

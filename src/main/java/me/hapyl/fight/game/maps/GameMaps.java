@@ -4,6 +4,7 @@ import me.hapyl.fight.game.maps.features.CloudFeatures;
 import me.hapyl.fight.game.maps.features.JapanFeature;
 import me.hapyl.fight.game.maps.features.LibraryCat;
 import me.hapyl.fight.game.maps.features.LibraryFeature;
+import me.hapyl.fight.game.maps.healthpack.PackType;
 import me.hapyl.fight.game.maps.maps.DragonsGorge;
 import me.hapyl.fight.game.maps.maps.WineryMap;
 import me.hapyl.spigotutils.module.util.Validate;
@@ -31,6 +32,11 @@ public enum GameMaps {
                     .setSize(Size.MEDIUM)
                     .setTicksBeforeReveal(100)
                     .addLocation(100, 64, 0)
+                    .addPackLocation(PackType.HEALTH, 79.5, 77.0, 22.5)
+                    .addPackLocation(PackType.HEALTH, 100.5, 63.0, 13.5)
+                    .addPackLocation(PackType.CHARGE, 116.5, 63.0, 8.5)
+                    .addPackLocation(PackType.CHARGE, 87.5, 65.0, -4.5)
+                    .addPackLocation(PackType.CHARGE, 112.5, 72.0, -29.5)
     ),
 
     JAPAN(
@@ -88,6 +94,12 @@ public enum GameMaps {
                     .addLocation(41, 72, 200)
                     .addLocation(-19, 76, 200)
                     .addLocation(2, 52, 200)
+                    .addPackLocation(PackType.HEALTH, -20.5, 76.0, 199.5)
+                    .addPackLocation(PackType.HEALTH, 10.5, 71.0, 200.5)
+                    .addPackLocation(PackType.HEALTH, 10.5, 72.0, 222.5)
+                    .addPackLocation(PackType.HEALTH, 45.5, 64.0, 203.5)
+                    .addPackLocation(PackType.CHARGE, 10.5, 72.0, 169.5)
+                    .addPackLocation(PackType.CHARGE, 45.5, 64.0, 211.5)
     ),
 
     CLOUDS(
@@ -111,6 +123,13 @@ public enum GameMaps {
                     .addLocation(0, 64, -90, -180, 0)
                     .addLocation(-10, 74, -95, -180, 0)
                     .addLocation(9, 74, -95, -180, 0)
+                    .addPackLocation(PackType.HEALTH, -9.5, 74.0, -113.5)
+                    .addPackLocation(PackType.HEALTH, -10.5, 65.0, -113.5)
+                    .addPackLocation(PackType.HEALTH, 15.5, 67.0, -104.5)
+                    .addPackLocation(PackType.HEALTH, 0.5, 72.0, -123.5)
+                    .addPackLocation(PackType.CHARGE, -8.5, 74.0, -93.5)
+                    .addPackLocation(PackType.CHARGE, 13.5, 66.0, -113.5)
+                    .addPackLocation(PackType.CHARGE, 18.5, 74.0, -115.5)
     ),
 
     DRAGONS_GORGE(new DragonsGorge()), // complex map, stored in separate file

@@ -1,7 +1,6 @@
 package me.hapyl.fight;
 
 import me.hapyl.fight.database.Database;
-import me.hapyl.fight.database.DatabaseRest;
 import me.hapyl.fight.event.EnderPearlHandler;
 import me.hapyl.fight.event.PlayerHandler;
 import me.hapyl.fight.game.ChatController;
@@ -12,6 +11,7 @@ import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.maps.features.BoosterController;
+import me.hapyl.fight.game.maps.healthpack.HealthPackListener;
 import me.hapyl.fight.game.parkour.CFParkourManager;
 import me.hapyl.fight.game.task.TaskList;
 import me.hapyl.fight.notifier.Notifier;
@@ -47,7 +47,6 @@ public class Main extends JavaPlugin {
     private Experience experience;
     private Database database;
     private Notifier notifier;
-    private DatabaseRest databaseCollection;
     private CFParkourManager parkourManager;
 
     @Override
@@ -104,7 +103,6 @@ public class Main extends JavaPlugin {
         this.notifier = new Notifier(this);
 
         this.parkourManager = new CFParkourManager(this);
-        this.databaseCollection = new DatabaseRest(this);
 
         // update database
         for (final Player player : Bukkit.getOnlinePlayers()) {
@@ -123,13 +121,8 @@ public class Main extends JavaPlugin {
     @Override
     public void onDisable() {
         runSafe(() -> {
-            databaseCollection.saveAll();
-            //parkourManager.saveAll();
-        }, "database save");
-
-        runSafe(() -> {
             for (final Player player : Bukkit.getOnlinePlayers()) {
-                Manager.current().getProfile(player).getDatabase().save();
+                Manager.current().getOrCreateProfile(player).getDatabase().save();
             }
         }, "player database save");
 
@@ -152,10 +145,6 @@ public class Main extends JavaPlugin {
 
     public Notifier getNotifier() {
         return notifier;
-    }
-
-    public DatabaseRest getDatabases() {
-        return databaseCollection;
     }
 
     public Database getDatabase() {
@@ -267,6 +256,7 @@ public class Main extends JavaPlugin {
         pm.registerEvents(new ChatController(), this);
         pm.registerEvents(new EnderPearlHandler(), this);
         pm.registerEvents(new CosmeticsListener(), this);
+        pm.registerEvents(new HealthPackListener(), this);
     }
 
     private void runSafe(Runnable runnable, String handler) {

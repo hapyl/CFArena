@@ -64,10 +64,19 @@ Bugs:
 - [✔] leaving breaks the game
 - [✔] tripwire does not refresh on caught?
 
+- [✔?] At me.hapyl.fight.game.heroes.storage.Techie$1.run(Techie.java:101) ~[ClassesFightArena.jar:?]
+- [✔] Traps don't regen
+- [✔] Database save called twice in rejoin
+- GameTeam uses gameplayer and does not reset after rejoin
+- Remove effects at death
+- Player profile is not removed on leave?
+- Fix talent descriptions, use addDescription() not '__'
+
 - [✔] Melee stance does not reset properly?
 - [✔] juju shield breaks all at once
 - [✔] Tamer broken
 
+- Add distance on shots
 - Rework techie a bit, add delay to traps and ult is useless :|
 
 - Repackage talent/hero handles?

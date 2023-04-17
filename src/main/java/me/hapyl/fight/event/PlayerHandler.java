@@ -1,10 +1,10 @@
 package me.hapyl.fight.event;
 
 import me.hapyl.fight.Main;
-import me.hapyl.fight.Shortcuts;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.talents.Talent;
@@ -53,6 +53,8 @@ public class PlayerHandler implements Listener {
         final Main plugin = Main.getPlugin();
         final Manager manager = Manager.current();
 
+        plugin.handlePlayer(player);
+
         if (manager.isGameInProgress()) {
             final GameInstance gameInstance = (GameInstance) manager.getCurrentGame();
 
@@ -60,8 +62,6 @@ public class PlayerHandler implements Listener {
             gameInstance.populateScoreboard(player);
         }
         else {
-            plugin.handlePlayer(player);
-
             if (!player.hasPlayedBefore()) {
                 new Tutorial(player);
             }
@@ -86,22 +86,15 @@ public class PlayerHandler implements Listener {
             final IGameInstance game = Manager.current().getCurrentGame();
             final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
 
-            if (gamePlayer == null) {
-                return;
+            if (gamePlayer != null) {
+                game.getMode().onLeave((GameInstance) game, player);
             }
-
-            game.getMode().onLeave((GameInstance) game, player);
-        }
-
-        // save database
-        Shortcuts.getDatabase(player).save();
-
-        final GameTeam playerTeam = GameTeam.getPlayerTeam(player);
-        if (playerTeam != null) {
-            playerTeam.removeFromTeam(player);
         }
 
         ev.setQuitMessage(Chat.format("&7[&c-&7] %s%s &ehas fallen!", player.isOp() ? "&c" : "", player.getName()));
+
+        // save database
+        Manager.current().getOrCreateProfile(player).getDatabase().save();
 
         // Delete profile
         Manager.current().removeProfile(player);
@@ -193,7 +186,7 @@ public class PlayerHandler implements Listener {
             gamePlayer.setUltPoints(0);
 
             // Stats
-            gamePlayer.getStats().addValue(StatContainer.Type.ULTIMATE_USED, 1);
+            gamePlayer.getStats().addValue(StatType.ULTIMATE_USED, 1);
 
             if (hero.getUltimateDuration() > 0) {
                 hero.setUsingUltimate(player, true, hero.getUltimateDuration());
@@ -477,7 +470,7 @@ public class PlayerHandler implements Listener {
             final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
 
             if (gamePlayer != null) {
-                gamePlayer.getStats().addValue(StatContainer.Type.DAMAGE_DEALT, damage);
+                gamePlayer.getStats().addValue(StatType.DAMAGE_DEALT, damage);
             }
         }
 
@@ -491,7 +484,7 @@ public class PlayerHandler implements Listener {
                 gamePlayer.decreaseHealth(damage, damagerFinal);
 
                 // Stats
-                gamePlayer.getStats().addValue(StatContainer.Type.DAMAGE_TAKEN, damage);
+                gamePlayer.getStats().addValue(StatType.DAMAGE_TAKEN, damage);
 
                 // Cancel even if player died so there is no real death
                 if (damage >= health) {

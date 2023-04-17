@@ -75,12 +75,6 @@ public class CommandRegistry {
         register(new RankCommand("rank"));
         register(new DebugPlayerCommand("debugPlayer"));
 
-        register(new SimplePlayerAdminCommand("testnpcpose") {
-            @Override
-            protected void execute(Player player, String[] strings) {
-            }
-        });
-
         register(new SimplePlayerAdminCommand("riptide") {
 
             private final Set<Player> riptideActive = new HashSet<>();

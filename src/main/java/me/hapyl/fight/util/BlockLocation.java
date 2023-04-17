@@ -28,6 +28,10 @@ public class BlockLocation {
         this.pitch = pitch;
     }
 
+    public static BlockLocation of(int x, int y, int z) {
+        return new BlockLocation(x, y, z);
+    }
+
     public int getX() {
         return x;
     }
@@ -95,4 +99,8 @@ public class BlockLocation {
         return this.x == x && this.y == y && this.z == z;
     }
 
+    @Override
+    public String toString() {
+        return "%s %s %s".formatted(this.x, this.y, this.z);
+    }
 }

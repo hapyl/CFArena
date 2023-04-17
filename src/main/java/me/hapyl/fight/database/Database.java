@@ -29,7 +29,8 @@ public class Database extends DependencyInjector<Main> {
     private MongoDatabase database;
     private MongoCollection<Document> players;
     private MongoCollection<Document> parkour;
-    private MongoCollection<Document> stats;
+    @Deprecated private MongoCollection<Document> stats;
+    private MongoCollection<Document> heroStats;
 
     public Database(Main main) {
         super(main);
@@ -52,7 +53,7 @@ public class Database extends DependencyInjector<Main> {
             final String connectionLink = config.getString("database.connection_link");
 
             if (connectionLink == null || connectionLink.equals("null")) {
-                breakConnectionAndDisablePlugin("Connection link is null!");
+                breakConnectionAndDisablePlugin("Provide a valid connection link in config.yml!");
                 return;
             }
 
@@ -71,6 +72,7 @@ public class Database extends DependencyInjector<Main> {
             players = database.getCollection("players");
             parkour = database.getCollection("parkour");
             stats = database.getCollection("stats");
+            heroStats = database.getCollection("hero_stats");
         } catch (Exception e) {
             breakConnectionAndDisablePlugin("Failed to retrieve database collection!");
         }
@@ -88,8 +90,13 @@ public class Database extends DependencyInjector<Main> {
         return parkour;
     }
 
+    @Deprecated
     public MongoCollection<Document> getStats() {
         return stats;
+    }
+
+    public MongoCollection<Document> getHeroStats() {
+        return heroStats;
     }
 
     private void breakConnectionAndDisablePlugin(String message) throws RuntimeException {

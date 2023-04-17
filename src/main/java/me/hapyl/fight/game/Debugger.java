@@ -7,16 +7,16 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 
-public class Debugger {
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
-    private static int debugUse = 0;
+public class Debugger {
 
     /**
      * Indicates that this debug logger should not be removed in prod.
      */
     public static void keepLog(Object any, Object... format) {
         log(any, format);
-        debugUse--;
     }
 
     public static void log(Object any, Object... format) {
@@ -34,7 +34,6 @@ public class Debugger {
     public static void wrap(Runnable runnable) {
         try {
             runnable.run();
-            debugUse++;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -50,19 +49,17 @@ public class Debugger {
         PlayerLib.spawnParticle(location, particle, 1);
     }
 
+    private static String now() {
+        return DateTimeFormatter.ofPattern("mm:ss").format(LocalTime.now());
+    }
+
     private static void send(String string, Object... format) {
-        final String formattedMessage = Chat.format("&c&lDEBUG &f" + string, format);
+        final String formattedMessage = Chat.format("&c&lDEBUG &8" + now() + " &f" + string, format);
 
         Bukkit.getOnlinePlayers().stream().filter(Player::isOp).forEach(player -> {
             Chat.sendMessage(player, formattedMessage);
         });
 
         Bukkit.getConsoleSender().sendMessage(formattedMessage);
-
-        debugUse++;
-    }
-
-    public static int getDebugUse() {
-        return debugUse;
     }
 }

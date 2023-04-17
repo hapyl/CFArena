@@ -26,7 +26,6 @@ public class PlayerDatabase {
     private final Database mongo;
     private final Document filter;
     private final UUID uuid;
-    private final boolean legacy;
     // entries start
     protected HeroEntry heroEntry;
     protected CurrencyEntry currencyEntry;
@@ -41,7 +40,6 @@ public class PlayerDatabase {
         this.uuid = uuid;
         this.mongo = Main.getPlugin().getDatabase();
         this.player = Bukkit.getPlayer(uuid);
-        this.legacy = false;
 
         this.filter = new Document("uuid", uuid.toString());
 
@@ -51,14 +49,6 @@ public class PlayerDatabase {
 
     public PlayerDatabase(Player player) {
         this(player.getUniqueId());
-    }
-
-    /**
-     * @deprecated legacy database not longer supported
-     */
-    @Deprecated
-    public boolean isLegacy() {
-        return legacy;
     }
 
     public Database getMongo() {
@@ -152,19 +142,6 @@ public class PlayerDatabase {
         this.mongo.getPlayers().updateOne(this.filter, set);
     }
 
-    private void loadEntries() {
-        this.heroEntry = new HeroEntry(this);
-        this.currencyEntry = new CurrencyEntry(this);
-        this.statisticEntry = new StatisticEntry(this);
-        this.settingEntry = new SettingEntry(this);
-        this.experienceEntry = new ExperienceEntry(this);
-        this.cosmeticEntry = new CosmeticEntry(this);
-    }
-
-    private Logger getLogger() {
-        return Main.getPlugin().getLogger();
-    }
-
     public void load() {
         final String playerName = getPlayerName();
 
@@ -192,7 +169,20 @@ public class PlayerDatabase {
         }
     }
 
+    private void loadEntries() {
+        this.heroEntry = new HeroEntry(this);
+        this.currencyEntry = new CurrencyEntry(this);
+        this.statisticEntry = new StatisticEntry(this);
+        this.settingEntry = new SettingEntry(this);
+        this.experienceEntry = new ExperienceEntry(this);
+        this.cosmeticEntry = new CosmeticEntry(this);
+    }
+
+    private Logger getLogger() {
+        return Main.getPlugin().getLogger();
+    }
+
     public static PlayerDatabase getDatabase(Player player) {
-        return PlayerProfile.getProfile(player).getDatabase();
+        return PlayerProfile.getOrCreateProfile(player).getDatabase();
     }
 }

@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.maps.features;
 
 import me.hapyl.fight.Main;
-import me.hapyl.fight.game.Debugger;
 import me.hapyl.fight.util.BlockLocation;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -64,8 +63,6 @@ public class BoosterController implements Listener {
 
 		final Entity entity = booster.launchAndRide(player, false);
 		boosterMap.put(player, entity);
-
-		Debugger.log("init = " + player.getUniqueId());
 	}
 
 	public boolean isOnBooster(Player player) {

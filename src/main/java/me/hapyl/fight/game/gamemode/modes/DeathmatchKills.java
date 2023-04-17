@@ -3,9 +3,9 @@ package me.hapyl.fight.game.gamemode.modes;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.GameResult;
-import me.hapyl.fight.game.StatContainer;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.gamemode.Modes;
+import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.spigotutils.module.scoreboard.Scoreboarder;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -31,7 +31,7 @@ public class DeathmatchKills extends CFGameMode {
     @Override
     public boolean testWinCondition(@Nonnull GameInstance instance) {
         for (GamePlayer player : instance.getPlayers().values()) {
-            if (player.getStats().getValue(StatContainer.Type.KILLS) >= killsGoal) {
+            if (player.getStats().getValue(StatType.KILLS) >= killsGoal) {
                 final GameResult result = instance.getGameResult();
                 result.getWinners().add(player);
                 result.getWinningTeams().add(player.getTeam());

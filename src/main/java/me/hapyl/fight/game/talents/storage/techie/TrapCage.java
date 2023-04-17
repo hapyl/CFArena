@@ -79,8 +79,10 @@ public class TrapCage extends ChargedTalent implements Listener {
                     }
 
                     cage.activate(player);
+
+                    // Remove cage and grant charge
                     removeCage(cage);
-                    grantCharge(player, rechargeCd);
+                    grantCharge(cage.getPlayer(), rechargeCd);
                 });
     }
 

@@ -2,7 +2,6 @@ package me.hapyl.fight.game;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
-import me.hapyl.fight.database.collection.HeroStatsCollection;
 import me.hapyl.fight.game.cosmetic.skin.SkinEffectManager;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.heroes.ComplexHero;
@@ -12,6 +11,7 @@ import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.setting.Setting;
+import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -48,18 +48,17 @@ public class Manager extends DependencyInjector<Main> {
 
     protected final NonNullableElementHolder<GameMaps> currentMap = new NonNullableElementHolder<>(GameMaps.ARENA);
     protected final NonNullableElementHolder<Modes> currentMode = new NonNullableElementHolder<>(Modes.FFA);
-    private final Map<Player, PlayerProfile> profiles;
+    private final Map<UUID, PlayerProfile> profiles;
 
-    // I really don't know why this is needed, but would I risk to removing it? Hell nah. -h
+    // I really don't know why this is needed, but would I risk removing it? Hell nah. -h
     private final Map<Integer, ParamFunction<Talent, Hero>> slotPerTalent = new HashMap<>();
     private final Map<Integer, ParamFunction<Talent, ComplexHero>> slotPerComplexTalent = new HashMap<>();
 
     private final SkinEffectManager skinEffectManager;
+    private final AutoSync autoSave;
     private boolean isDebug = true;
     private GameInstance gameInstance; // @implNote: For now, only one game instance can be active at a time.
     private Trial trial;
-
-    private final AutoSync autoSave;
 
     public Manager(Main main) {
         super(main);
@@ -89,17 +88,35 @@ public class Manager extends DependencyInjector<Main> {
      * Gets player's current profile or creates new if it doesn't exist yet.
      *
      * @param player - Player.
+     * @throws IllegalArgumentException if player is null or offline.
      */
     @Nonnull
-    public PlayerProfile getProfile(Player player) {
-        PlayerProfile profile = profiles.get(player);
-        if (profile == null) {
-            profile = new PlayerProfile(player);
-            profiles.put(player, profile);
-            profile.loadData();
-
-            Main.getPlugin().getExperience().triggerUpdate(player);
+    public PlayerProfile getOrCreateProfile(Player player) {
+        if (player == null || !player.isOnline()) {
+            throw new IllegalArgumentException("player must be online");
         }
+
+        PlayerProfile profile = profiles.get(player.getUniqueId());
+
+        if (profile == null) {
+            profile = createProfile(player);
+        }
+
+        return profile;
+    }
+
+    @Nullable
+    public PlayerProfile getProfile(Player player) {
+        return profiles.get(player.getUniqueId());
+    }
+
+    @Nonnull
+    public PlayerProfile createProfile(Player player) {
+        final PlayerProfile profile = new PlayerProfile(player);
+        profiles.put(player.getUniqueId(), profile);
+
+        profile.loadData();
+        getPlugin().getExperience().triggerUpdate(player);
         return profile;
     }
 
@@ -108,12 +125,12 @@ public class Manager extends DependencyInjector<Main> {
     }
 
     public boolean hasProfile(Player player) {
-        return profiles.containsKey(player);
+        return profiles.containsKey(player.getUniqueId());
     }
 
     @Nullable
     public GamePlayerUI getPlayerUI(Player player) {
-        return getProfile(player).getPlayerUI();
+        return getOrCreateProfile(player).getPlayerUI();
     }
 
     public boolean isAbleToUse(Player player) {
@@ -175,7 +192,7 @@ public class Manager extends DependencyInjector<Main> {
             return;
         }
 
-        trial = new Trial(getProfile(player), heroes);
+        trial = new Trial(getOrCreateProfile(player), heroes);
         trial.onStart();
         trial.onPlayersReveal();
         trial.broadcastMessage("&a%s started a trial of %s.", player.getName(), heroes.getHero().getName());
@@ -229,7 +246,7 @@ public class Manager extends DependencyInjector<Main> {
 
     /**
      * Creates a new game instance.
-     *
+     * <p>
      * Only one game instance can be active at a time. (for now?)
      */
     public void createNewGameInstance(boolean debug) {
@@ -271,8 +288,6 @@ public class Manager extends DependencyInjector<Main> {
 
             if (size != teamPlayers) {
                 Chat.broadcast("&6&lUnbalanced Team! &e%s has more players than other teams.", populatedTeam.getName());
-                //                displayError("Teams are not balanced! &l(%s)", populatedTeam.getName());
-                //                return;
             }
         }
 
@@ -286,12 +301,7 @@ public class Manager extends DependencyInjector<Main> {
         this.gameInstance = new GameInstance(getCurrentMode(), getCurrentMap());
         this.gameInstance.onStart();
 
-        final boolean customSetup = this.gameInstance.getMode().onStart(this.gameInstance);
-
-        if (!customSetup) {
-            // Populate teams
-            GameTeam.getPopulatedTeams().forEach(GameTeam::clearAndPopulateTeams);
-        }
+        this.gameInstance.getMode().onStart(this.gameInstance);
 
         for (final Heroes value : Heroes.values()) {
             Nulls.runIfNotNull(value.getHero(), Hero::onStart);
@@ -382,7 +392,6 @@ public class Manager extends DependencyInjector<Main> {
             gameInstance.getGameResult().supplyDefaultWinners();
         }
 
-        final HeroStatsCollection heroStats = Main.getPlugin().getDatabases().getHeroStats();
         gameInstance.calculateEverything();
 
         // Reset player before clearing the instance
@@ -411,17 +420,14 @@ public class Manager extends DependencyInjector<Main> {
 
             // Save stats
             player.getDatabase().getStatistics().fromPlayerStatistic(hero, stats);
-            heroStats.fromPlayerStatistic(hero, stats);
+            hero.getStats().fromPlayerStatistic(stats);
         });
 
         this.gameInstance.onStop();
         this.gameInstance.setGameState(State.POST_GAME);
 
         // Save stats
-        heroStats.saveAsync();
-
-        // Clear teams
-        GameTeam.clearAllPlayers();
+        this.gameInstance.getActiveHeroes().forEach(hero -> hero.getStats().saveAsync());
 
         // reset all cooldowns
         for (final Material value : Material.values()) {
@@ -558,7 +564,7 @@ public class Manager extends DependencyInjector<Main> {
             return;
         }
 
-        getProfile(player).setSelectedHero(heroes);
+        getOrCreateProfile(player).setSelectedHero(heroes);
         player.closeInventory();
         PlayerLib.villagerYes(player);
         Chat.sendMessage(player, "&aSelected %s!", heroes.getHero().getName());
@@ -571,7 +577,7 @@ public class Manager extends DependencyInjector<Main> {
         }
 
         // save to database
-        getProfile(player).getDatabase().getHeroEntry().setSelectedHero(heroes);
+        getOrCreateProfile(player).getDatabase().getHeroEntry().setSelectedHero(heroes);
     }
 
     /**
@@ -599,28 +605,25 @@ public class Manager extends DependencyInjector<Main> {
         return getSelectedLobbyHero(player);
     }
 
-    /**
-     * @deprecated Use {@link #getCurrentHero(Player)} to get player current hero. This will always return lobby hero.
-     */
-    @Deprecated
-    public Heroes getSelectedLobbyHero(Player player) {
-        return getProfile(player).getSelectedHero();
-    }
-
     public boolean isPlayerInGame(Player player) {
         return gameInstance != null && gameInstance.getPlayer(player) != null && GamePlayer.getPlayer(player).isAlive();
     }
 
     public void removeProfile(Player player) {
-        profiles.remove(player);
-    }
-
-    public void createProfile(Player player) {
-        getProfile(player);
+        profiles.remove(player.getUniqueId());
     }
 
     public boolean anyProfiles() {
         return profiles.size() > 0;
+    }
+
+    private Heroes getSelectedLobbyHero(Player player) {
+        final PlayerProfile profile = getProfile(player);
+        if (profile == null) {
+            return Heroes.ARCHER;
+        }
+
+        return profile.getSelectedHero();
     }
 
     private void playAnimation() {
@@ -639,7 +642,7 @@ public class Manager extends DependencyInjector<Main> {
     private void giveTalentItem(Player player, Hero hero, int slot) {
         final PlayerInventory inventory = player.getInventory();
         final Talent talent = getTalent(hero, slot);
-        final ItemStack talentItem = talent == null || talent.getItem() == null ? new ItemStack(Material.AIR) : talent.getItem();
+        final ItemStack talentItem = talent == null ? new ItemStack(Material.AIR) : talent.getItem();
 
         if (talent != null && !talent.isAutoAdd()) {
             return;
@@ -664,6 +667,12 @@ public class Manager extends DependencyInjector<Main> {
         item.setAmount(chargedTalent.getMaxCharges());
     }
 
+    /**
+     * Returns current and only manager.
+     *
+     * @return the manager.
+     */
+    @Nonnull
     public static Manager current() {
         return Main.getPlugin().getManager();
     }
