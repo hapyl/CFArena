@@ -3,7 +3,6 @@ package me.hapyl.fight.game;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import me.hapyl.fight.Shortcuts;
 import me.hapyl.fight.database.Award;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;
@@ -237,7 +236,7 @@ public class GameInstance implements IGameInstance, GameElement {
 
         // If player joined after the game started, create new
         if (gamePlayer == null) {
-            gamePlayer = new GamePlayer(PlayerProfile.getProfile(player), getHero(player));
+            gamePlayer = new GamePlayer(PlayerProfile.getOrCreateProfile(player), getHero(player));
             players.put(player.getUniqueId(), gamePlayer);
         }
 
@@ -345,7 +344,7 @@ public class GameInstance implements IGameInstance, GameElement {
     private void createGamePlayers() {
         Bukkit.getOnlinePlayers().forEach(player -> {
             final Heroes hero = getHero(player);
-            final PlayerProfile profile = Shortcuts.getProfile(player);
+            final PlayerProfile profile = PlayerProfile.getOrCreateProfile(player);
             final GamePlayer gamePlayer = new GamePlayer(profile, hero);
 
             // Spectate Setting
@@ -371,7 +370,7 @@ public class GameInstance implements IGameInstance, GameElement {
     }
 
     private Heroes getHero(Player player) {
-        return Setting.RANDOM_HERO.isEnabled(player) ? Heroes.randomHero() : Manager.current().getSelectedLobbyHero(player);
+        return Setting.RANDOM_HERO.isEnabled(player) ? Heroes.randomHero() : Manager.current().getCurrentEnumHero(player);
     }
 
     private String generateHexCode() {

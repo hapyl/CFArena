@@ -70,6 +70,7 @@ public class GamePlayer implements IGamePlayer {
     private final StatContainer stats;
     private final Map<GameEffectType, ActiveGameEffect> gameEffects;
     private final TalentQueue talentQueue;
+    private final Map<Player, Double> damageTaken;
     private boolean wasHit; // Used to check if player was hit by custom damage
     private Player player;
     private PlayerProfile profile;
@@ -92,7 +93,6 @@ public class GamePlayer implements IGamePlayer {
     private long combatTag;
     private int killStreak;
     private InputTalent inputTalent;
-    private final Map<Player, Double> damageTaken;
 
     @SuppressWarnings("all")
     public GamePlayer(@Nonnull PlayerProfile profile, @Nonnull Heroes enumHero) {
@@ -116,20 +116,6 @@ public class GamePlayer implements IGamePlayer {
 
         // supply to profile
         profile.setGamePlayer(this);
-    }
-
-    /**
-     * @deprecated Use for testing only!
-     */
-    @SuppressWarnings("all")
-    @Deprecated(forRemoval = true/*NOT FOR REMOVAL, MARKED TO HAVE SCARY RED LINE*/)
-    public static GamePlayer createFakeGamePlayer() throws IllegalStateException {
-        final GamePlayer gamePlayer = new GamePlayer(null, Heroes.randomHero());
-
-        gamePlayer.player = new FakeBukkitPlayer();
-
-        Debugger.warn("Created fake game player instance, expect errors!");
-        return gamePlayer;
     }
 
     public void resetPlayer(Ignore... ignores) {
@@ -160,6 +146,8 @@ public class GamePlayer implements IGamePlayer {
         player.setMaximumNoDamageTicks(20);
         player.getActivePotionEffects().forEach(effect -> player.removePotionEffect(effect.getType()));
         Nulls.runIfNotNull(player.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE), att -> att.setBaseValue(0.0f));
+
+        gameEffects.values().forEach(ActiveGameEffect::forceStop);
 
         damageTaken.clear();
         wasHit = false;
@@ -750,7 +738,7 @@ public class GamePlayer implements IGamePlayer {
     }
 
     public PlayerDatabase getDatabase() {
-        return Manager.current().getProfile(player).getDatabase();
+        return profile.getDatabase();
     }
 
     public PlayerProfile getProfile() {
@@ -800,7 +788,7 @@ public class GamePlayer implements IGamePlayer {
 
     public void setHandle(Player player) {
         this.player = player;
-        this.profile = Manager.current().getProfile(player);
+        this.profile = Manager.current().getOrCreateProfile(player);
     }
 
     @Override
@@ -872,9 +860,11 @@ public class GamePlayer implements IGamePlayer {
     @Nullable
     public static GamePlayer getExistingPlayer(Player player) {
         final GameInstance gameInstance = Manager.current().getGameInstance();
+
         if (gameInstance == null) {
             return null;
         }
+
         return gameInstance.getPlayer(player);
     }
 

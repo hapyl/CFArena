@@ -16,13 +16,14 @@ import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.UUID;
 
 /**
  * Whenever manager requests a GamePlayer, it will
  * return either a valid GamePlayer, or {@link #NULL_GAME_PLAYER}.
- *
+ * <p>
  * Null game player is an empty GamePlayer base.
- *
+ * <p>
  * In reality, if {@link #NULL_GAME_PLAYER} is returned,
  * the developer is doing something wrong. But it's better
  * than catching a null pointer.
@@ -349,7 +350,7 @@ public interface IGamePlayer {
 
     /**
      * Returns players' min health.
-     *
+     * <p>
      * Visual health cannot be lower than 0.5, since player will actually die if it is.
      * Technically 🤓, it's 0.1 or something, but system works with 0.5 so imma keep it that way.
      *
@@ -484,4 +485,18 @@ public interface IGamePlayer {
         getPlayer().teleport(location);
     }
 
+    /**
+     * Returns UUID of current player handle.
+     *
+     * @return UUID of current player handle.
+     */
+    @Nonnull
+    default UUID getUUID() {
+        final Player player = getPlayer();
+        if (player == null) {
+            return new UUID(0, 0);
+        }
+
+        return player.getUniqueId();
+    }
 }

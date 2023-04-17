@@ -132,8 +132,10 @@ public class TrapWire extends ChargedTalent implements Listener {
         }
 
         tripwire.affectPlayer(player);
+
+        // remove trap and grant charge
         removeTrap(tripwire);
-        grantCharge(player, rechargeCd);
+        grantCharge(tripwire.getPlayer(), rechargeCd);
 
         return true;
     }

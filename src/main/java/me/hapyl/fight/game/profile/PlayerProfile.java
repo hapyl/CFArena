@@ -9,7 +9,6 @@ import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.GamePlayerUI;
 import org.bukkit.entity.Player;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -31,7 +30,7 @@ public class PlayerProfile {
 
     private boolean loaded;
 
-    public PlayerProfile(@Nonnegative Player player) {
+    public PlayerProfile(@Nonnull Player player) {
         this.player = player;
 
         // Init player database
@@ -57,7 +56,7 @@ public class PlayerProfile {
 
         // load some data after init method
         selectedHero = playerDatabase.getHeroEntry().getSelectedHero();
-        GameTeam.getSmallestTeam().addToTeam(player);
+        GameTeam.addMemberIfNotInTeam(player);
         playerUI = new GamePlayerUI(this);
     }
 
@@ -99,6 +98,11 @@ public class PlayerProfile {
     }
 
     @Nonnull
+    public static PlayerProfile getOrCreateProfile(Player player) {
+        return Manager.current().getOrCreateProfile(player);
+    }
+
+    @Nullable
     public static PlayerProfile getProfile(Player player) {
         return Manager.current().getProfile(player);
     }

@@ -1,7 +1,6 @@
 package me.hapyl.fight.event;
 
 import me.hapyl.fight.Main;
-import me.hapyl.fight.Shortcuts;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Hero;
@@ -54,6 +53,8 @@ public class PlayerHandler implements Listener {
         final Main plugin = Main.getPlugin();
         final Manager manager = Manager.current();
 
+        plugin.handlePlayer(player);
+
         if (manager.isGameInProgress()) {
             final GameInstance gameInstance = (GameInstance) manager.getCurrentGame();
 
@@ -61,8 +62,6 @@ public class PlayerHandler implements Listener {
             gameInstance.populateScoreboard(player);
         }
         else {
-            plugin.handlePlayer(player);
-
             if (!player.hasPlayedBefore()) {
                 new Tutorial(player);
             }
@@ -87,22 +86,15 @@ public class PlayerHandler implements Listener {
             final IGameInstance game = Manager.current().getCurrentGame();
             final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
 
-            if (gamePlayer == null) {
-                return;
+            if (gamePlayer != null) {
+                game.getMode().onLeave((GameInstance) game, player);
             }
-
-            game.getMode().onLeave((GameInstance) game, player);
-        }
-
-        // save database
-        Shortcuts.getDatabase(player).save();
-
-        final GameTeam playerTeam = GameTeam.getPlayerTeam(player);
-        if (playerTeam != null) {
-            playerTeam.removeFromTeam(player);
         }
 
         ev.setQuitMessage(Chat.format("&7[&c-&7] %s%s &ehas fallen!", player.isOp() ? "&c" : "", player.getName()));
+
+        // save database
+        Manager.current().getOrCreateProfile(player).getDatabase().save();
 
         // Delete profile
         Manager.current().removeProfile(player);

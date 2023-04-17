@@ -170,7 +170,7 @@ public class Experience {
     }
 
     public ExperienceEntry getDatabaseEntry(Player player) {
-        return Manager.current().getProfile(player).getDatabase().getExperienceEntry();
+        return Manager.current().getOrCreateProfile(player).getDatabase().getExperienceEntry();
     }
 
     public Map<Long, ExperienceLevel> getLevels() {

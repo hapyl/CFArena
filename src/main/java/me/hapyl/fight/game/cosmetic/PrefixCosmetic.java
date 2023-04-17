@@ -20,7 +20,7 @@ public class PrefixCosmetic extends Cosmetic {
     }
 
     public String getPrefixPreview(Player player) {
-        return PlayerProfile.getProfile(player).getDisplay().getPrefixPreview(this);
+        return PlayerProfile.getOrCreateProfile(player).getDisplay().getPrefixPreview(this);
     }
 
     @Override

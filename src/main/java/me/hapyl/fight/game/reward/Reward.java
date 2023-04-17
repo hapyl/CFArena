@@ -35,7 +35,7 @@ public abstract class Reward {
     }
 
     public PlayerDatabase getDatabase(Player player) {
-        return Manager.current().getProfile(player).getDatabase();
+        return Manager.current().getOrCreateProfile(player).getDatabase();
     }
 
     public String getName() {

@@ -53,7 +53,7 @@ public class ChatController implements Listener {
 
     private void formatAndSendMessage(Player sender, String message, Player receiver) {
         // [Dead/Spec] [Class] [Color](Name): Message
-        final StringBuilder builder = new StringBuilder(PlayerProfile.getProfile(sender).getDisplay().getDisplayName());
+        final StringBuilder builder = new StringBuilder(PlayerProfile.getOrCreateProfile(sender).getDisplay().getDisplayName());
 
         // Tag receiver
         final String atReceiverName = "@" + receiver.getName();

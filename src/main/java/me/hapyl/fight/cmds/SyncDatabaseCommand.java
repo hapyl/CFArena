@@ -14,7 +14,7 @@ public class SyncDatabaseCommand extends SimplePlayerAdminCommand {
 
     @Override
     protected void execute(Player player, String[] args) {
-        final PlayerProfile profile = PlayerProfile.getProfile(player);
+        final PlayerProfile profile = PlayerProfile.getOrCreateProfile(player);
         final PlayerDatabase playerDatabase = profile.getDatabase();
 
         playerDatabase.sync();

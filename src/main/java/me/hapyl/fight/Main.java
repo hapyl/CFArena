@@ -122,7 +122,7 @@ public class Main extends JavaPlugin {
     public void onDisable() {
         runSafe(() -> {
             for (final Player player : Bukkit.getOnlinePlayers()) {
-                Manager.current().getProfile(player).getDatabase().save();
+                Manager.current().getOrCreateProfile(player).getDatabase().save();
             }
         }, "player database save");
 

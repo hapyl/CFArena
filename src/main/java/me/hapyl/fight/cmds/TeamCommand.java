@@ -1,5 +1,6 @@
 package me.hapyl.fight.cmds;
 
+import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.gui.TeamSelectGUI;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -22,6 +23,11 @@ public class TeamCommand extends SimplePlayerCommand {
         // team join (team) - join certain team
         // team leave (team) - leave certain team
 
+        if (Manager.current().isGameInProgress()) {
+            Chat.sendMessage(player, "&cCannot modify team during a game!");
+            return;
+        }
+
         if (args.length == 0) {
             new TeamSelectGUI(player);
             return;
@@ -36,7 +42,7 @@ public class TeamCommand extends SimplePlayerCommand {
         }
 
         if (arg0.equalsIgnoreCase("join")) {
-            if (team.addToTeam(player)) {
+            if (team.addMember(player)) {
                 Chat.sendMessage(player, "&aJoined %s team.", team.getName());
             }
             else {

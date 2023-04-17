@@ -35,7 +35,7 @@ public class TeamSelectGUI extends PlayerGUI {
 
             builder.addLore();
 
-            if (team.isLobbyPlayer(owner)) {
+            if (team.isMember(owner)) {
                 builder.addLore("&eClick to leave");
             }
             else if (team.isFull()) {
@@ -45,13 +45,13 @@ public class TeamSelectGUI extends PlayerGUI {
                 builder.addLore("&eClick to join");
             }
 
-            smartComponent.add(builder.predicate(team.isLobbyPlayer(owner), ItemBuilder::glow).build(), player -> {
-                if (team.isLobbyPlayer(owner)) { // is in team
-                    team.removeFromTeam(owner);
+            smartComponent.add(builder.predicate(team.isMember(owner), ItemBuilder::glow).build(), player -> {
+                if (team.isMember(owner)) { // is in team
+                    team.removeMember(owner);
                     Chat.sendMessage(player, "&aLeft %s team.", team.getName());
                 }
                 else {
-                    if (team.addToTeam(player)) {
+                    if (team.addMember(player)) {
                         Chat.sendMessage(player, "&aJoined %s team.", team.getName());
                     }
                     else {
