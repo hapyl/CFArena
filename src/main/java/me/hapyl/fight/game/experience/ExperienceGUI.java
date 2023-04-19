@@ -1,11 +1,8 @@
 package me.hapyl.fight.game.experience;
 
-import com.google.common.collect.Lists;
 import me.hapyl.fight.Main;
-import me.hapyl.fight.game.cosmetic.gui.CollectionGUI;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.reward.HeroUnlockReward;
 import me.hapyl.fight.game.reward.Reward;
+import me.hapyl.fight.gui.PlayerProfileGUI;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.PlayerGUI;
 import org.bukkit.Material;
@@ -13,7 +10,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ExperienceGUI extends PlayerGUI {
 
@@ -50,7 +46,8 @@ public class ExperienceGUI extends PlayerGUI {
         }
 
         // Set back button at slot 18
-        setItem(18, ItemBuilder.of(Material.ARROW, "Go Back").asIcon(), CollectionGUI::new);
+        setArrowBack(18, new PlayerProfileGUI(getPlayer()));
+        //setItem(18, ItemBuilder.of(Material.ARROW, "Go Back").asIcon(), CollectionGUI::new);
 
         // put emerald icon in the middle
         // add a lore to the icon
@@ -104,32 +101,18 @@ public class ExperienceGUI extends PlayerGUI {
             builder.addLore("&7Rewards: " + (levelReached ? "&a✔" : ""));
 
             final List<Reward> rewards = level.getRewards();
-            final List<Heroes> heroesUnlock = Lists.newArrayList();
 
             for (Reward reward : rewards) {
-                if (reward instanceof HeroUnlockReward heroUnlockReward) {
-                    heroesUnlock.add(heroUnlockReward.getHero());
-                }
-                else {
-                    builder.addLore("&7  - " + reward.getDisplay());
-                }
+                reward.display(player, builder);
             }
 
-            // Iterate over heroesUnlock and concat their names into a string with commas replacing last hero with "and".
-            // Then add either "hero" or "heroes" depending on the size of heroesUnlock.
-            // Then add Reward.getDisplay() to the end of the string and add it to the lore.
-            // Use .stream().map(Heroes::getName).collect(Collectors.joining(", ")) to get the string.
-            // Replace last comma with "and" using .replaceFirst(",([^,]*)$", " and$1")
-            // Use addSmartLore to add the string to the lore.
-            // Color each name green and everything else gray.
-            if (!heroesUnlock.isEmpty()) {
-                builder.addSmartLore("&7- &6" + heroesUnlock.stream()
-                        .map(Heroes::getName)
-                        .collect(Collectors.joining("&7, &6"))
-                        .replaceFirst(",([^,]*)$", " &7and$1") + " &7" + (heroesUnlock.size() == 1 ? "hero" : "heroes") + " &7" +
-                        rewards.get(rewards.size() - 1).getDisplay(), "  ");
-            }
-
+            //if (!heroesUnlock.isEmpty()) {
+            //    builder.addSmartLore("&7- &6" + heroesUnlock.stream()
+            //            .map(Heroes::getName)
+            //            .collect(Collectors.joining("&7, &6"))
+            //            .replaceFirst(",([^,]*)$", " &7and$1") + " &7" + (heroesUnlock.size() == 1 ? "hero" : "heroes") + " &7" +
+            //            rewards.get(rewards.size() - 1).display(), "  ");
+            //}
 
         }
         else {

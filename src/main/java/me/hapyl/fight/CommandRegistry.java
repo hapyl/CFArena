@@ -76,6 +76,7 @@ public class CommandRegistry {
         register(new HeadCommand("head"));
         register(new RankCommand("rank"));
         register(new DebugPlayerCommand("debugPlayer"));
+        register(new DebugAchievementCommand("debugAchievement"));
 
         register(new SimpleAdminCommand("listProfiles") {
             @Override

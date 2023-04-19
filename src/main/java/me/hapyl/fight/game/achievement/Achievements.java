@@ -1,10 +1,16 @@
 package me.hapyl.fight.game.achievement;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.AchievementEntry;
+import me.hapyl.fight.game.reward.CurrencyReward;
+import me.hapyl.fight.game.reward.Reward;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 public enum Achievements {
 
@@ -17,8 +23,32 @@ public enum Achievements {
     //    achievements that can be completed multiple times, HiddenAchievement for, well, hidden achievements.
     //
 
-    PLAY_FIRST_GAME(new Achievement("So That's How It Is", "Play your first game.")),
+    PLAY_FIRST_GAME(new Achievement("So That's How It Is", "Play your first game.").setReward(new CurrencyReward("")
+            .withCoins(500)
+            .withRubies(1))),
+
+    TEST_PROGRESS_ACHIEVEMENT(new ProgressAchievement("Test Progress Achievement", "")
+            .setReward(1, Reward.EMPTY)
+            .setReward(5, Reward.EMPTY)
+            .setReward(10, Reward.EMPTY)),
     ;
+
+    private static final Map<Category, List<Achievement>> BY_CATEGORY;
+
+    static {
+        BY_CATEGORY = Maps.newHashMap();
+
+        for (Achievements value : values()) {
+            BY_CATEGORY.compute(value.getAchievement().getCategory(), (category, list) -> {
+                if (list == null) {
+                    list = Lists.newArrayList();
+                }
+
+                list.add(value.getAchievement());
+                return list;
+            });
+        }
+    }
 
     private final Achievement achievement;
 
@@ -40,21 +70,27 @@ public enum Achievements {
         final PlayerDatabase database = PlayerDatabase.getDatabase(player);
         final AchievementEntry entry = database.getAchievementEntry();
         final int completeCount = entry.getCompleteCount(this);
+        final int nextComplete = completeCount + 1;
 
         // If already completed, check if progress achievement
-        if (completeCount > 0) {
-            if (achievement instanceof ProgressAchievement progressAchievement) {
-                if (completeCount >= progressAchievement.getMaxCompleteCount()) {
-                    return false;
-                }
-
-                complete0(player);
-                return true;
-            }
+        if (completeCount > 0 && completeCount >= achievement.getMaxCompleteCount()) {
             return false;
         }
 
-        complete0(player);
+        entry.addCompleteCount(this);
+
+        final Reward nextReward = achievement.getReward(nextComplete);
+
+        if (nextReward == null) {
+            return true;
+        }
+
+        entry.setCompletedAt(this, System.currentTimeMillis());
+
+        achievement.onComplete(player);
+        achievement.displayComplete(player);
+        nextReward.grantReward(player);
+
         return true;
     }
 
@@ -67,24 +103,4 @@ public enum Achievements {
         players.forEach(this::complete);
     }
 
-    private void complete0(Player player) {
-        final PlayerDatabase database = PlayerDatabase.getDatabase(player);
-        final AchievementEntry entry = database.getAchievementEntry();
-        final int completeCount = entry.getCompleteCount(this);
-        final int nextComplete = completeCount + 1;
-
-        entry.addCompleteCount(this);
-
-        if (achievement instanceof ProgressAchievement progressAchievement) {
-            final ProgressTier nextTier = progressAchievement.getTier(nextComplete);
-            if (nextTier == null) {
-                return;
-            }
-
-            nextTier.reward().grantReward(player);
-        }
-
-        achievement.onComplete(player);
-        achievement.displayComplete(player);
-    }
 }

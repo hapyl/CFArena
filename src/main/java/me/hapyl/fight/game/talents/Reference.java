@@ -3,6 +3,9 @@ package me.hapyl.fight.game.talents;
 import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 
+/**
+ * Allows to pass an object as a reference.
+ */
 public class Reference<T> {
 
     private final T t;
@@ -11,10 +14,21 @@ public class Reference<T> {
         this.t = t;
     }
 
+    /**
+     * Returns the object.
+     *
+     * @return the object.
+     */
     public T get() {
         return t;
     }
 
+    /**
+     * Applies a consumer to the object and returns it.
+     *
+     * @param butBefore - the consumer to apply.
+     * @return the object.
+     */
     public T get(@Nonnull Consumer<T> butBefore) {
         butBefore.accept(t);
         return t;

@@ -1,10 +1,13 @@
 package me.hapyl.fight.game.reward;
 
+import com.google.common.collect.Lists;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.entity.Player;
 
-import javax.annotation.Nullable;
+import java.util.List;
 
+// FIXME (hapyl): 020, Apr 20, 2023: pluralize
 public class HeroUnlockReward extends Reward {
 
     private final Heroes hero;
@@ -19,10 +22,10 @@ public class HeroUnlockReward extends Reward {
         return hero;
     }
 
-    @Nullable
     @Override
-    public String getDisplay() {
-        return "unlocked!";
+    public void display(Player player, ItemBuilder builder) {
+        final List<Heroes> heroesUnlock = Lists.newArrayList();
+
     }
 
     @Override

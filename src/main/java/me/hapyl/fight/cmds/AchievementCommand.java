@@ -15,7 +15,7 @@ public class AchievementCommand extends SimplePlayerAdminCommand {
         setUsage("achievement (player) (give|revoke|get) (achievement)");
         setAliases("ach");
 
-        addCompleterValues(2, "give", "revoke", "get");
+        addCompleterValues(2, "give", "revoke", "reset", "get");
         addCompleterValues(3, Achievements.values());
     }
 
@@ -53,7 +53,7 @@ public class AchievementCommand extends SimplePlayerAdminCommand {
             case "revoke" -> {
                 final int completeCount = database.getCompleteCount(achievement);
                 if (completeCount <= 0) {
-                    Chat.sendMessage(player, "&c%s hasn't completed this achievement yet!", player.getName());
+                    Chat.sendMessage(player, "&c%s hasn't completed this achievement yet!", target.getName());
                     return;
                 }
 
@@ -61,10 +61,15 @@ public class AchievementCommand extends SimplePlayerAdminCommand {
                 Chat.sendMessage(player, "&aSuccessfully revoked achievement from %s!", target.getName());
             }
 
+            case "reset" -> {
+                database.reset(achievement);
+                Chat.sendMessage(player, "&aSuccessfully reset achievement for %s!", target.getName());
+            }
+
             case "get" -> {
                 final int completeCount = database.getCompleteCount(achievement);
                 if (completeCount <= 0) {
-                    Chat.sendMessage(player, "&c%s hasn't completed this achievement yet!");
+                    Chat.sendMessage(player, "&c%s hasn't completed this achievement yet!", target.getName());
                     return;
                 }
 

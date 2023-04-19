@@ -14,11 +14,19 @@ public class PlayerProfileGUI extends PlayerGUI {
     }
 
     private void updateInventory() {
+
+        setItem(
+                4,
+                new ItemBuilder(Material.PLAYER_HEAD)
+                        .setSkullOwner(getPlayer().getName())
+                        .setName("&aProfile")
+                        .setSmartLore("&8Oh hey, it's you!")
+                        .asIcon()
+        );
+
         setItem(19, ItemBuilder.of(Material.CHEST, "Cosmetics", "Browse your cosmetics!").asIcon(), CollectionGUI::new);
         setItem(21, ItemBuilder.of(Material.EMERALD, "Experience", "Browse your experience progress!").asIcon(), ExperienceGUI::new);
-        setItem(23, ItemBuilder.of(Material.DIAMOND, "Achievements", "Browse your achievements!").asIcon(), player -> {
-            player.sendMessage("coming soon");
-        });
+        setItem(23, ItemBuilder.of(Material.DIAMOND, "Achievements", "Browse your achievements!").asIcon(), AchievementGUI::new);
 
         setItem(25, ItemBuilder.of(Material.CREEPER_BANNER_PATTERN, "Chat Settings", "Change you chat settings").asIcon(), player -> {
             player.sendMessage("coming soon");

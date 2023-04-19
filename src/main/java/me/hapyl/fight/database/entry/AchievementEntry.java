@@ -48,6 +48,14 @@ public class AchievementEntry extends PlayerDatabaseEntry {
         return getCompleteCount(achievement) > 0;
     }
 
+    public void reset(Achievements achievement) {
+        setCompleteCount(achievement, 0);
+    }
+
+    public void setCompletedAt(Achievements achievements, long time) {
+        setValue("achievement.%s.completed_at".formatted(achievements.name()), time);
+    }
+
     private void setCompleteCount(Achievements achievements, int count) {
         if (count <= 0) {
             setValue("achievement.%s".formatted(achievements.name()), null);
@@ -55,7 +63,6 @@ public class AchievementEntry extends PlayerDatabaseEntry {
         }
 
         setValue("achievement.%s.complete_count".formatted(achievements.name()), count);
-        setValue("achievement.%s.completed_at".formatted(achievements.name()), System.currentTimeMillis());
     }
 
 }

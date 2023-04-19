@@ -2,11 +2,26 @@ package me.hapyl.fight.game.reward;
 
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.Manager;
+import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.entity.Player;
 
-import javax.annotation.Nullable;
-
 public abstract class Reward {
+
+    public static final Reward EMPTY = new Reward("Empty Reward") {
+        @Override
+        public void display(Player player, ItemBuilder builder) {
+        }
+
+        @Override
+        public void grantReward(Player player) {
+            player.sendMessage("Granting empty reward!");
+        }
+
+        @Override
+        public void revokeReward(Player player) {
+            player.sendMessage("Revoking empty reward!");
+        }
+    };
 
     private final String name;
 
@@ -26,10 +41,8 @@ public abstract class Reward {
 
             }
 
-            @Nullable
             @Override
-            public String getDisplay() {
-                return null;
+            public void display(Player player, ItemBuilder builder) {
             }
         };
     }
@@ -42,8 +55,7 @@ public abstract class Reward {
         return name;
     }
 
-    @Nullable
-    public abstract String getDisplay();
+    public abstract void display(Player player, ItemBuilder builder);
 
     public abstract void grantReward(Player player);
 
