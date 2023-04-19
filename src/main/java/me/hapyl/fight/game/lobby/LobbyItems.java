@@ -1,45 +1,65 @@
 package me.hapyl.fight.game.lobby;
 
-import me.hapyl.fight.game.cosmetic.gui.CollectionGUI;
+import me.hapyl.fight.game.Debugger;
 import me.hapyl.fight.gui.HeroSelectGUI;
 import me.hapyl.fight.gui.MapSelectGUI;
+import me.hapyl.fight.gui.PlayerProfileGUI;
 import me.hapyl.fight.gui.SettingsGUI;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.util.Action;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 public enum LobbyItems {
 
-    CLASS_SELECTOR(Material.TOTEM_OF_UNDYING, 1, "Hero Selector", "Click to open hero selection GUI.", HeroSelectGUI::new),
-    MAP_SELECTOR(Material.FILLED_MAP, 2, "Map Selector", "Click to open map selection GUI.", MapSelectGUI::openGUI),
-    COLLECTION(Material.CHEST, 4, "Collection", "Click to browse your cosmetic collection.", CollectionGUI::new),
-    MODE_SELECTOR(Material.COMPARATOR, 6, "Settings", "Click to settings GUI.", SettingsGUI::new),
-    START_GAME(Material.CLOCK, 7, "Start Game", "Click to start the game", player -> player.performCommand("cf start")),
+    HERO_SELECT(new LobbyItem(Material.TOTEM_OF_UNDYING, 1, "Hero Selector", "Click to browse and select a hero!") {
+        @Override
+        public void onClick(Player player) {
+            new HeroSelectGUI(player);
+        }
+    }),
+
+    MAP_SELECT(new LobbyItem(Material.MAP, 2, "Map Selector", "Click to browse and select a map!") {
+        @Override
+        public void onClick(Player player) {
+            new MapSelectGUI(player);
+        }
+    }),
+
+    PLAYER_PROFILE(new LobbyItem(Material.PLAYER_HEAD, 4, "Profile", "Click to browse your profile!") {
+        @Override
+        public void onClick(Player player) {
+            new PlayerProfileGUI(player);
+        }
+
+        @Override
+        public void modifyItem(Player player, ItemBuilder builder) {
+            builder.setSkullOwner(player.getName());
+        }
+    }),
+
+    SETTING(new LobbyItem(Material.COMPARATOR, 6, "Settings", "Click to browse and change your settings!") {
+        @Override
+        public void onClick(Player player) {
+            new SettingsGUI(player);
+        }
+    }),
+
+    START_GAME(new LobbyItem(Material.CLOCK, 7, "Start Vote", "Click to start a vote to start the game!") {
+        @Override
+        public void onClick(Player player) {
+            if (player.isOp()) {
+            }
+            Debugger.log("Ignoring start vote");
+            player.performCommand("cf start");
+        }
+    }),
 
     ;
 
-    private final Material material;
-    private final int slot;
-    private final String name;
-    private final String description;
+    private final LobbyItem lobbyItem;
 
-    private final ItemStack itemStack;
-
-    LobbyItems(Material material, int slot, String name, String description, Action<Player> click) {
-        this.material = material;
-        this.slot = slot;
-        this.name = name;
-        this.description = description;
-
-        // allow click event from inventory
-        this.itemStack = new ItemBuilder(material, "cf_" + name()).setName(name)
-                .addSmartLore(description)
-                .addClickEvent(click::use)
-                //.setAllowInventoryClick(true)
-                .asIcon();
-
+    LobbyItems(LobbyItem lobbyItem) {
+        this.lobbyItem = lobbyItem;
     }
 
     public static void giveAll(Player player) {
@@ -49,7 +69,8 @@ public enum LobbyItems {
     }
 
     public void give(Player player) {
-        player.getInventory().setItem(slot, itemStack);
+        lobbyItem.give(player);
     }
+
 
 }

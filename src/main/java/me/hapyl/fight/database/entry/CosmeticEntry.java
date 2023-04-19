@@ -20,30 +20,30 @@ public class CosmeticEntry extends PlayerDatabaseEntry {
 
     @Nullable
     public Cosmetics getSelected(Type type) {
-        final Document cosmetics = getConfig().get("cosmetics", new Document());
+        final Document cosmetics = getDocument().get("cosmetics", new Document());
         final Document selected = cosmetics.get("selected", new Document());
 
         return Validate.getEnumValue(Cosmetics.class, selected.get(type.name(), ""));
     }
 
     public void unsetSelected(Type type) {
-        final Document cosmetics = getConfig().get("cosmetics", new Document());
+        final Document cosmetics = getDocument().get("cosmetics", new Document());
         final Document selected = cosmetics.get("selected", new Document());
 
         selected.remove(type.name());
         cosmetics.put("selected", selected);
 
-        getConfig().put("cosmetics", cosmetics);
+        getDocument().put("cosmetics", cosmetics);
     }
 
     public void setSelected(Type type, Cosmetics cosmetic) {
-        final Document cosmetics = getConfig().get("cosmetics", new Document());
+        final Document cosmetics = getDocument().get("cosmetics", new Document());
         final Document selected = cosmetics.get("selected", new Document());
 
         selected.put(type.name(), cosmetic.name());
         cosmetics.put("selected", selected);
 
-        getConfig().put("cosmetics", cosmetics);
+        getDocument().put("cosmetics", cosmetics);
     }
 
     public boolean hasCosmetic(Cosmetics cosmetic) {
@@ -55,25 +55,25 @@ public class CosmeticEntry extends PlayerDatabaseEntry {
             return;
         }
 
-        final Document cosmetics = getConfig().get("cosmetics", new Document());
+        final Document cosmetics = getDocument().get("cosmetics", new Document());
         final ArrayList<Object> owned = cosmetics.get("owned", Lists.newArrayList());
         owned.add(cosmetic.name());
 
         cosmetics.put("owned", owned);
-        getConfig().put("cosmetics", cosmetics);
+        getDocument().put("cosmetics", cosmetics);
     }
 
     public void removeOwned(Cosmetics cosmetic) {
-        final Document cosmetics = getConfig().get("cosmetics", new Document());
+        final Document cosmetics = getDocument().get("cosmetics", new Document());
         final ArrayList<Object> owned = cosmetics.get("owned", Lists.newArrayList());
         owned.remove(cosmetic.name());
 
         cosmetics.put("owned", owned);
-        getConfig().put("cosmetics", cosmetics);
+        getDocument().put("cosmetics", cosmetics);
     }
 
     private List<String> getOwnedCosmetics() {
-        return getConfig().get("cosmetics", new Document()).get("owned", Lists.newArrayList());
+        return getDocument().get("cosmetics", new Document()).get("owned", Lists.newArrayList());
     }
 
     public List<Cosmetics> getOwnedCosmeticsAsCosmetic() {

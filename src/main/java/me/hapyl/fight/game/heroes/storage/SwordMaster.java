@@ -5,6 +5,7 @@ import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.storage.heavy_knight.Updraft;
 import me.hapyl.fight.game.talents.storage.heavy_knight.Uppercut;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -79,8 +80,8 @@ public class SwordMaster extends Hero implements DisabledHero {
     }
 
     @Override
-    public Talent getSecondTalent() {
-        return null;
+    public Updraft getSecondTalent() {
+        return (Updraft) Talents.UPDRAFT.getTalent();
     }
 
     @Override

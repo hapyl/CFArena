@@ -33,8 +33,10 @@ public class PlayerDatabase {
     protected SettingEntry settingEntry;
     protected ExperienceEntry experienceEntry;
     protected CosmeticEntry cosmeticEntry;
+    protected AchievementEntry achievementEntry;
+    protected FriendsEntry friendsEntry;
     // entries end
-    private Document config;
+    private Document document;
 
     public PlayerDatabase(UUID uuid) {
         this.uuid = uuid;
@@ -55,8 +57,8 @@ public class PlayerDatabase {
         return mongo;
     }
 
-    public Document getConfig() {
-        return config;
+    public Document getDocument() {
+        return document;
     }
 
     public Player getPlayer() {
@@ -71,6 +73,8 @@ public class PlayerDatabase {
     public UUID getUuid() {
         return uuid;
     }
+
+    // entries start
 
     public ExperienceEntry getExperienceEntry() {
         return experienceEntry;
@@ -96,19 +100,25 @@ public class PlayerDatabase {
         return cosmeticEntry;
     }
 
+    public AchievementEntry getAchievementEntry() {
+        return achievementEntry;
+    }
+
+    // entries end
+
     public PlayerRank getRank() {
-        final String rankString = config.get("rank", "DEFAULT");
+        final String rankString = document.get("rank", "DEFAULT");
 
         return Validate.getEnumValue(PlayerRank.class, rankString, PlayerRank.DEFAULT);
     }
 
     public void setRank(PlayerRank rank) {
-        config.put("rank", rank.name());
+        document.put("rank", rank.name());
     }
 
     // entries end
     public Object getValue(String path) {
-        return config.get(path);
+        return document.get(path);
     }
 
     public <E> E getValue(String path, Type<E> type) {
@@ -128,7 +138,7 @@ public class PlayerDatabase {
 
         try {
             //Bukkit.getScheduler().runTaskAsynchronously(Main.getPlugin(), () -> {
-            this.mongo.getPlayers().replaceOne(this.filter, this.config);
+            this.mongo.getPlayers().replaceOne(this.filter, this.document);
             //});
 
             getLogger().info("Successfully saved database for %s.".formatted(playerName));
@@ -146,17 +156,17 @@ public class PlayerDatabase {
         final String playerName = getPlayerName();
 
         try {
-            config = mongo.getPlayers().find(filter).first();
+            document = mongo.getPlayers().find(filter).first();
 
-            if (config == null) {
+            if (document == null) {
                 final MongoCollection<Document> players = mongo.getPlayers();
-                final Document document = new Document("uuid", uuid).append("player_name", playerName);
+                final Document document = new Document("uuid", uuid.toString()).append("player_name", playerName);
 
                 if (!Bukkit.getServer().getOnlineMode()) {
                     document.append("offline", true);
                 }
 
-                config = document;
+                this.document = document;
                 players.insertOne(document);
             }
 
@@ -176,6 +186,8 @@ public class PlayerDatabase {
         this.settingEntry = new SettingEntry(this);
         this.experienceEntry = new ExperienceEntry(this);
         this.cosmeticEntry = new CosmeticEntry(this);
+        this.achievementEntry = new AchievementEntry(this);
+        this.friendsEntry = new FriendsEntry(this);
     }
 
     private Logger getLogger() {

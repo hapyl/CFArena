@@ -67,7 +67,7 @@ public class Ninja extends Hero implements Listener, UIComponent {
 
         setUltimate(new UltimateTalent(
                 "Throwing Stars",
-                "Equip 5 dead-accurate throwing stars that deals &c%s &7damage upon hitting an enemy.".formatted(ultimateDamage),
+                "Equip &c&l5&7 dead-accurate throwing stars that deals &c&l%.1f&7 damage upon hitting an enemy.".formatted(ultimateDamage),
                 70
         ).setItem(Material.NETHER_STAR).setSound(Sound.ITEM_TRIDENT_RIPTIDE_1, 0.75f));
     }

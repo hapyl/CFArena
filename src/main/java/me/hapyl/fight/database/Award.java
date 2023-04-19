@@ -1,5 +1,6 @@
 package me.hapyl.fight.database;
 
+import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.database.entry.ExperienceEntry;
 import me.hapyl.fight.game.GamePlayer;
@@ -53,7 +54,7 @@ public enum Award {
         final CurrencyEntry currency = playerDatabase.getCurrency();
         final ExperienceEntry experience = playerDatabase.getExperienceEntry();
 
-        currency.addCoins(coins);
+        currency.add(Currency.COINS, coins);
         experience.add(ExperienceEntry.Type.EXP, exp);
 
         // Progress Stats

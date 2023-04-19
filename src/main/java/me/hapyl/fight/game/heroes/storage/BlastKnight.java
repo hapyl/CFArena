@@ -12,6 +12,7 @@ import me.hapyl.fight.game.heroes.storage.extra.Shield;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.storage.knight.Spear;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.ItemStacks;
@@ -254,8 +255,8 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Lis
     }
 
     @Override
-    public Talent getFirstTalent() {
-        return Talents.SPEAR.getTalent();
+    public Spear getFirstTalent() {
+        return (Spear) Talents.SPEAR.getTalent();
     }
 
     @Override

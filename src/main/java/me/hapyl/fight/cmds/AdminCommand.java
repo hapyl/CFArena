@@ -3,6 +3,7 @@ package me.hapyl.fight.cmds;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.cmds.extra.Acceptor;
 import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.maps.GameMaps;
@@ -181,7 +182,7 @@ public class AdminCommand extends SimplePlayerAdminCommand {
                     final CurrencyEntry currency = PlayerDatabase.getDatabase(target).getCurrency();
 
                     if (action.equalsIgnoreCase("get")) {
-                        sendMessage(player, "&a%s has &l%s&a coins.", target.getName(), currency.getCoins());
+                        sendMessage(player, "&a%s has &l%s&a coins.", target.getName(), currency.get(Currency.COINS));
                         return;
                     }
 
@@ -195,20 +196,22 @@ public class AdminCommand extends SimplePlayerAdminCommand {
 
                         switch (action) {
                             case "set" -> {
-                                currency.setCoins(value);
+                                currency.set(Currency.COINS, value);
                                 sendMessage(player, "&aSet %s's coins to &l%s&a.", target.getName(), value);
                             }
 
                             case "add" -> {
-                                currency.addCoins(value);
+                                currency.set(Currency.COINS, 1);
+                                currency.add(Currency.COINS, value);
                                 sendMessage(player, "&aAdded &l%s&a coins to %s.", value, target.getName());
                             }
 
                             case "remove" -> {
-                                currency.removeCoins(value);
+                                currency.subtract(Currency.COINS, value);
                                 sendMessage(player, "&aRemoved &l%s&a coins from %s.", value, target.getName());
                             }
 
+                            // FIXME (hapyl): 019, Apr 19, 2023: add rubies
                             default -> sendError(player, "&cInvalid action!");
                         }
                     }

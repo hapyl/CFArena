@@ -3,6 +3,7 @@ package me.hapyl.fight.game.cosmetic;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CosmeticEntry;
+import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.game.cosmetic.contrail.BlockContrailCosmetic;
 import me.hapyl.fight.game.cosmetic.contrail.ContrailCosmetic;
@@ -97,7 +98,7 @@ public abstract class Cosmetic extends ShopItem {
                 builder.addLore();
 
                 // Check if player can afford it
-                if (currency.getCoins() >= getCost()) {
+                if (currency.get(Currency.COINS) >= getCost()) {
                     builder.addLore("&eClick to purchase this cosmetic.");
 
                     action = pl -> new PurchaseConfirmGUI(player, this) {

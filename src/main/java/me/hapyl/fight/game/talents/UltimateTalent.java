@@ -26,6 +26,10 @@ public class UltimateTalent extends Talent implements DisplayFieldDataProvider {
     private Sound sound;
     private float pitch;
 
+    public UltimateTalent(String name, int pointCost) {
+        this(name, "", pointCost);
+    }
+
     public UltimateTalent(String name, String info, int pointCost) {
         super(name, info, Type.ULTIMATE);
         cost = pointCost;

@@ -60,7 +60,7 @@ public class ExperienceEntry extends PlayerDatabaseEntry {
     }
 
     public Document getExperience() {
-        return getConfig().get("experience", new Document());
+        return getDocument().get("experience", new Document());
     }
 
     public long get(Type type) {
@@ -72,7 +72,7 @@ public class ExperienceEntry extends PlayerDatabaseEntry {
         final Document experience = getExperience();
         experience.put(type.name(), Numbers.clamp(value, type.getMinValue(), type.getMaxValue()));
 
-        getConfig().put("experience", experience);
+        getDocument().put("experience", experience);
 
         // Update experience
         updateExperience();

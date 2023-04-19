@@ -10,7 +10,7 @@ public class SettingEntry extends PlayerDatabaseEntry {
     }
 
     public boolean getValue(Setting setting) {
-        return getDocument("setting").getBoolean(setting.getPath(), setting.getDefaultValue());
+        return getInDocument("setting").getBoolean(setting.getPath(), setting.getDefaultValue());
     }
 
     public void setValue(Setting setting, boolean value) {

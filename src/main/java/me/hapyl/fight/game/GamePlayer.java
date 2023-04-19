@@ -483,13 +483,18 @@ public class GamePlayer implements IGamePlayer {
 
         stats.addValue(StatType.DEATHS, 1);
 
-        // broadcast death
-        final String deathMessage = new Gradient(concat("☠ %s ".formatted(player.getName()), getRandomDeathMessage(), lastDamager))
-                .rgb(
-                        new Color(160, 0, 0),
-                        new Color(255, 51, 51),
-                        Interpolators.LINEAR
-                );
+        // broadcast death message
+
+        final double distanceToDamager = lastDamager.getLocation().distance(player.getLocation());
+        final String distancePrefix = (distanceToDamager >= 20.0d ? " (from %.2f meters away!)".formatted(distanceToDamager) : "");
+
+        final String deathMessage =
+                new Gradient(concat("☠ %s ".formatted(player.getName()), getRandomDeathMessage(), lastDamager) + distancePrefix)
+                        .rgb(
+                                new Color(160, 0, 0),
+                                new Color(255, 51, 51),
+                                Interpolators.LINEAR
+                        );
 
         // send death info to manager
         final GameInstance gameInstance = Manager.current().getGameInstance();

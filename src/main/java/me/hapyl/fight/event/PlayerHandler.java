@@ -642,7 +642,7 @@ public class PlayerHandler implements Listener {
     public void handleSlotClick(InventoryClickEvent ev) {
         if (ev.getClick() == ClickType.DROP && ev.getWhoClicked() instanceof Player player && player.getGameMode() == GameMode.CREATIVE) {
             ev.setCancelled(true);
-            Chat.sendMessage(player, "&aClicked %s slot.", ev.getRawSlot());
+            Chat.sendMessage(player, "&aClicked %s slot.", String.valueOf(ev.getRawSlot()));
             PlayerLib.playSound(player, Sound.BLOCK_LEVER_CLICK, 2.0f);
         }
     }
@@ -831,13 +831,15 @@ public class PlayerHandler implements Listener {
             chargedTalent.removeChargeAndStartCooldown(player);
         }
 
+        final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
         final int point = talent.getPoint();
 
         if (point > 0) {
-            GamePlayer.getPlayer(player).addUltimatePoints(point);
+            gamePlayer.addUltimatePoints(point);
         }
 
         talent.startCd(player);
+        gamePlayer.getTalentQueue().add(talent);
     }
 
 }

@@ -94,11 +94,15 @@ public class Vortex extends Hero implements UIComponent {
         )).setDamage(6.5d));
 
 
-        setUltimate(new UltimateTalent(
-                "All the Stars",
-                "Instantly create &b10 &7Astral Stars around you.__Then, rapidly slash between them, dealing the normal star damage.__After, perform the final blow with &b360° &7attack that slows opponents.____&6This will not affect already placed Astral Stars.",
-                70
-        ).setItem(Material.QUARTZ).setCdSec(30));
+        final UltimateTalent ultimate = new UltimateTalent("All the Stars", "Instantly create &b10 &7Astral Stars around you.", 70)
+                .setItem(Material.QUARTZ)
+                .setCdSec(30);
+
+        ultimate.addNlDescription("Then, rapidly slash between them, dealing the normal star damage.");
+        ultimate.addDescription("After, perform the final blow with &b360° &7attack that slows opponents.");
+        ultimate.addNlDescription("&6This will not affect already placed Astral Stars");
+
+        setUltimate(ultimate);
     }
 
     @Override
@@ -191,7 +195,7 @@ public class Vortex extends Hero implements UIComponent {
     }
 
     public void performStarSlash(Location start, Location finish, Player player) {
-        // ray-trace path
+        // ray-trace string
         Utils.rayTracePath(start, finish, 1.0d, 2.0d, living -> {
             if (living == player) {
                 return;

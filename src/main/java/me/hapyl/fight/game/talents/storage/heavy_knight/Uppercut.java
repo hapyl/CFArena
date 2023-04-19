@@ -17,7 +17,7 @@ public class Uppercut extends Talent {
     @DisplayField private final double height = 3.0d;
 
     public Uppercut() {
-        super("Uppercut");
+        super("Uppercut", "Knock you enemies up in the air.");
 
         setItem(Material.IRON_BLOCK);
     }

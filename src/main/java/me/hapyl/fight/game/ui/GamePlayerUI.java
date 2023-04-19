@@ -2,6 +2,8 @@ package me.hapyl.fight.game.ui;
 
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.database.entry.Currency;
+import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.effect.GameEffect;
 import me.hapyl.fight.game.profile.PlayerProfile;
@@ -132,11 +134,13 @@ public class GamePlayerUI {
             );
         }
         else {
+            final CurrencyEntry currency = playerDatabase.getCurrency();
             this.builder.addLines(
                     "&6&lLobby:",
                     " &e&lMap: &f%s".formatted(current.getCurrentMap().getMap().getName()),
                     " &e&lMode: &f%s".formatted(current.getCurrentMode().getMode().getName()),
-                    " &e&lCoins: &f%s".formatted(playerDatabase.getCurrency().getCoinsString()),
+                    " &e&lCoins: &f%s".formatted(currency.getFormatted(Currency.COINS)),
+                    " &e&lRubies: &f%s".formatted(currency.getFormatted(Currency.RUBIES)),
                     String.format(
                             " &e&lHero: &f%s",
                             Setting.RANDOM_HERO.isEnabled(player) ? "Random" : profile.getSelectedHero().getName()

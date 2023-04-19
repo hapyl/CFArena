@@ -68,8 +68,8 @@ Bugs:
 - [✔] Traps don't regen
 - [✔] Database save called twice in rejoin
 - GameTeam uses gameplayer and does not reset after rejoin
-- Remove effects at death
-- Player profile is not removed on leave?
+- [✔]Remove effects at death
+- [Need a lot of testing but I think it's fine?] Player profile is not removed on leave?
 - Fix talent descriptions, use addDescription() not '__'
 
 - [✔] Melee stance does not reset properly?

@@ -35,7 +35,7 @@ public class StatisticEntry extends PlayerDatabaseEntry {
     }
 
     public long getAbilityUsage(Heroes hero, Talents talent) {
-        return getDocument(PATH_ROOT)
+        return getInDocument(PATH_ROOT)
                 .get(PATH_HERO_STATS, new Document())
                 .get(hero.name(), new Document())
                 .get(PATH_ABILITY_USAGE, new Document())
@@ -51,14 +51,14 @@ public class StatisticEntry extends PlayerDatabaseEntry {
     }
 
     public double getHeroStat(Heroes hero, StatType type) {
-        return getDocument(PATH_ROOT)
+        return getInDocument(PATH_ROOT)
                 .get(PATH_HERO_STATS, new Document())
                 .get(hero.name(), new Document())
                 .get(type.name(), 0.0d);
     }
 
     public void setHeroStat(Heroes heroes, StatType type, double value) {
-        final Document statistic = getDocument(PATH_ROOT);
+        final Document statistic = getInDocument(PATH_ROOT);
         final Document heroStats = statistic.get(PATH_HERO_STATS, new Document());
         final Document document = heroStats.get(heroes.name(), new Document());
 
@@ -72,7 +72,7 @@ public class StatisticEntry extends PlayerDatabaseEntry {
     }
 
     public double getStat(StatType statisticType) {
-        return getDocument(PATH_ROOT).get(statisticType.name(), 0.0d);
+        return getInDocument(PATH_ROOT).get(statisticType.name(), 0.0d);
     }
 
     public void setStat(StatType statisticType, double value) {

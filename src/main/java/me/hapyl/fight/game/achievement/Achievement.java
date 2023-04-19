@@ -1,5 +1,8 @@
 package me.hapyl.fight.game.achievement;
 
+import me.hapyl.spigotutils.module.chat.Chat;
+import org.bukkit.entity.Player;
+
 /**
  * Base achievement class.
  */
@@ -30,5 +33,15 @@ public class Achievement {
 
     public String getDescription() {
         return description;
+    }
+
+    public void displayComplete(Player player) {
+        Chat.sendMessage(player, "");
+        Chat.sendCenterMessage(player, "&6&lACHIEVEMENT COMPLETE");
+        Chat.sendCenterMessage(player, "&a" + getName());
+        Chat.sendMessage(player, "");
+    }
+
+    public void onComplete(Player player) {
     }
 }

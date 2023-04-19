@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import me.hapyl.fight.cmds.*;
+import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.TitleAnimation;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -64,6 +65,7 @@ public class CommandRegistry {
         register(new DummyCommand("dummy"));
         register(new CooldownCommand("cooldown"));
         register(new ExperienceCommand("experience"));
+        register(new AchievementCommand("achievement"));
         register(new CosmeticCommand("cosmetic"));
         register(new SyncDatabaseCommand("syncDatabase"));
         register(new CastSpellCommand("cast"));
@@ -74,6 +76,13 @@ public class CommandRegistry {
         register(new HeadCommand("head"));
         register(new RankCommand("rank"));
         register(new DebugPlayerCommand("debugPlayer"));
+
+        register(new SimpleAdminCommand("listProfiles") {
+            @Override
+            protected void execute(CommandSender commandSender, String[] strings) {
+                Manager.current().listProfiles();
+            }
+        });
 
         register(new SimplePlayerAdminCommand("riptide") {
 

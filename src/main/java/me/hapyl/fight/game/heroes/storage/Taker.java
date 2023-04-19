@@ -55,6 +55,7 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
 
         setWeapon(Material.IRON_HOE, "Scythe", 6.66d);
 
+        // TODO (hapyl): 019, Apr 19, 2023: Still don't like the ultimate
         final UltimateTalent ultimate = new UltimateTalent(
                 "Embodiment of Death",
                 "Instantly consume all &eSpiritual Bones&7 and cloak yourself in darkness for {duration}.____While cloaked, gain resistance and heal rapidly but suffer speed reduction.__Additionally, shoot death projectiles periodically.____&cHealing&7 and amount of &cdeath projectiles&7 is based on the amount of bones consumed.",

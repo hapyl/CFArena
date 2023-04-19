@@ -32,8 +32,8 @@ public final class MongoUtils {
     }
 
     /**
-     * Retrieves a value from a document using a path.
-     *
+     * Retrieves a value from a document using a string.
+     * <p>
      * String may or may not have segments separated by a dot.
      *
      * @param root - Root document
@@ -62,7 +62,7 @@ public final class MongoUtils {
     }
 
     /**
-     * Sets a value in a document using a path.
+     * Sets a value in a document using a string.
      *
      * String may or may not have segments separated by a dot.
      *

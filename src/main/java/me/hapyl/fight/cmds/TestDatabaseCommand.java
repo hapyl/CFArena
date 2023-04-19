@@ -10,7 +10,7 @@ public class TestDatabaseCommand extends SimplePlayerAdminCommand {
     public TestDatabaseCommand(String name) {
         super(name);
 
-        setUsage("/testdatabase <path.path.path> [value]");
+        setUsage("/testdatabase <string.string.string> [value]");
     }
 
     @Override
@@ -24,7 +24,7 @@ public class TestDatabaseCommand extends SimplePlayerAdminCommand {
         final String path = args[0];
 
         if (args.length == 1) {
-            final String str = MongoUtils.get(playerDatabase.getConfig(), path, "");
+            final String str = MongoUtils.get(playerDatabase.getDocument(), path, "");
 
             Chat.sendMessage(player, "&aValue: &e%s", str);
         }
@@ -32,11 +32,11 @@ public class TestDatabaseCommand extends SimplePlayerAdminCommand {
             final String value = args[1];
 
             if (value.equalsIgnoreCase("null")) {
-                MongoUtils.set(playerDatabase.getConfig(), path, null);
+                MongoUtils.set(playerDatabase.getDocument(), path, null);
                 Chat.sendMessage(player, "&aRemoved value!", value);
             }
             else {
-                MongoUtils.set(playerDatabase.getConfig(), path, value);
+                MongoUtils.set(playerDatabase.getDocument(), path, value);
                 Chat.sendMessage(player, "&aSet value to &e%s&a!", value);
             }
 

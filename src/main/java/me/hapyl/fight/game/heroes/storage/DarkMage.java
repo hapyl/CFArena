@@ -61,15 +61,16 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         setWeapon(new Weapon(Material.WOODEN_HOE).setName("Ancient Wand")
                 .setDamage(7.0d)
                 .setDescription(
-                        "A powerful wand, that's capable of casting multiple spells!__&e&lRIGHT CLICK &7to enter casting, then, combine &e&lRIGHT CLICK &7and/or &e&lLEFT CLICK &7to execute the spell!"
+                        "A powerful wand, that's capable of casting multiple spells!____&e&lRIGHT CLICK &7to enter casting, then, combine &e&lRIGHT CLICK &7and/or &e&lLEFT CLICK &7to execute the spell!"
                 )
                 .setWeaponLore(
                         "Long ago, a powerful wand was crafted from the bones of long-dead wizards and imbued with dark magic, granting immense power to its wielder. The wand was used by a cruel and merciless ruler to subjugate kingdoms."
                 ));
 
+        // TODO (hapyl): 019, Apr 19, 2023: Make DM actually ride the wither?
         setUltimate(new UltimateTalent(
                 "Wither Rider",
-                "Transform into the wither for {duration}.__" +
+                "Transform into the wither for {duration}.____" +
                         "While transformed, &e&lRIGHT CLICK &7to shoot wither skulls that deals massive damage on impact.__" +
                         "After wither disappears, you perform plunging attack that deals damage in AoE upon hitting the ground.",
                 70

@@ -42,6 +42,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class Manager extends DependencyInjector<Main> {
@@ -145,7 +146,7 @@ public class Manager extends DependencyInjector<Main> {
      * Returns the current GameInstance.
      *
      * @return GameInstance
-     * @deprecated Use {@link #getCurrentGame()} to safely retrieve GameInstace.
+     * @deprecated Use {@link #getCurrentGame()} to safely retrieve GameInstance.
      */
     @Nullable
     @Deprecated
@@ -615,6 +616,13 @@ public class Manager extends DependencyInjector<Main> {
 
     public boolean anyProfiles() {
         return profiles.size() > 0;
+    }
+
+    public void listProfiles() {
+        final Logger logger = getPlugin().getLogger();
+
+        logger.info("Listing all profiles:");
+        logger.info(profiles.values().stream().map(PlayerProfile::toString).collect(Collectors.joining("\n")));
     }
 
     private Heroes getSelectedLobbyHero(Player player) {

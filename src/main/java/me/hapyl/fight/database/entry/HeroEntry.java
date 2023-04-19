@@ -17,7 +17,7 @@ public class HeroEntry extends PlayerDatabaseEntry {
     }
 
     public Heroes getSelectedHero() {
-        return Validate.getEnumValue(Heroes.class, getDocument("heroes").get("selected", Heroes.ARCHER.name()), Heroes.ARCHER);
+        return Validate.getEnumValue(Heroes.class, getInDocument("heroes").get("selected", Heroes.ARCHER.name()), Heroes.ARCHER);
     }
 
     public void setSelectedHero(Heroes hero) {
@@ -25,7 +25,7 @@ public class HeroEntry extends PlayerDatabaseEntry {
     }
 
     public Skins getSkin(Heroes heroes) {
-        final Document document = getDocument("heroes");
+        final Document document = getInDocument("heroes");
         final Document skins = document.get("skin", new Document());
         final String selectedSkin = skins.get(heroes.name(), "");
 
@@ -61,7 +61,7 @@ public class HeroEntry extends PlayerDatabaseEntry {
     }
 
     public List<String> getFavouriteHeroesStrings() {
-        return getDocument("heroes").get("favourite", Lists.newArrayList());
+        return getInDocument("heroes").get("favourite", Lists.newArrayList());
     }
 
     public boolean isFavourite(Heroes heroes) {

@@ -10,18 +10,23 @@ import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 
+import java.util.logging.Logger;
+
 /**
  * I really don't know how database work or should work,
  * it's my first time working with mongodb.
- *
+ * <p>
  * Just using my knowledge of yml files, that's said
  * I'm not sure if this is the best way to do it.
- *
+ * <p>
  * But to document:
  * {@link Database} is the main class that handles the connection to the database.
  * {@link PlayerDatabaseEntry} is an instance of database value, that handles specific fields.
  */
 public class Database extends DependencyInjector<Main> {
+
+    private final boolean useTestDatabase = true;
+    private final String DATABASE_NAME = "classes_fight";
 
     private final FileConfiguration config;
 
@@ -29,7 +34,6 @@ public class Database extends DependencyInjector<Main> {
     private MongoDatabase database;
     private MongoCollection<Document> players;
     private MongoCollection<Document> parkour;
-    @Deprecated private MongoCollection<Document> stats;
     private MongoCollection<Document> heroStats;
 
     public Database(Main main) {
@@ -66,12 +70,20 @@ public class Database extends DependencyInjector<Main> {
             }
 
             // load database
-            database = client.getDatabase("classes_fight");
+            database = client.getDatabase(DATABASE_NAME + (useTestDatabase ? "_TEST" : ""));
+
+            if (useTestDatabase) {
+                final Logger logger = getPlugin().getLogger();
+                logger.severe("");
+                for (int i = 0; i < 9; i++) {
+                    getPlugin().getLogger().severe("USING TEST DATABASE!");
+                }
+                logger.severe("");
+            }
 
             // load collections
             players = database.getCollection("players");
             parkour = database.getCollection("parkour");
-            stats = database.getCollection("stats");
             heroStats = database.getCollection("hero_stats");
         } catch (Exception e) {
             breakConnectionAndDisablePlugin("Failed to retrieve database collection!");
@@ -88,11 +100,6 @@ public class Database extends DependencyInjector<Main> {
 
     public MongoCollection<Document> getParkour() {
         return parkour;
-    }
-
-    @Deprecated
-    public MongoCollection<Document> getStats() {
-        return stats;
     }
 
     public MongoCollection<Document> getHeroStats() {

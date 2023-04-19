@@ -2,34 +2,32 @@ package me.hapyl.fight.database.entry;
 
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.PlayerDatabaseEntry;
-import org.bson.Document;
 
 public class CurrencyEntry extends PlayerDatabaseEntry {
 
     public CurrencyEntry(PlayerDatabase playerDatabase) {
         super(playerDatabase);
+        this.setPath("currency");
     }
 
-    public long getCoins() {
-        final Document currency = getConfig().get("currency", new Document());
-
-        return currency.get("coins", 0L);
+    public long get(Currency currency) {
+        return fetchFromDocument(document -> document.get(currency.name(), 0L));
     }
 
-    public String getCoinsString() {
-        return String.format("%,d", getCoins());
+    public void set(Currency currency, long value) {
+        fetchDocument(document -> document.put(currency.name(), value));
     }
 
-    public void addCoins(long amount) {
-        this.setCoins(this.getCoins() + amount);
+    public void add(Currency currency, long value) {
+        set(currency, get(currency) - value);
     }
 
-    public void removeCoins(long amount) {
-        this.setCoins(this.getCoins() - amount);
+    public void subtract(Currency currency, long value) {
+        set(currency, get(currency) - value);
     }
 
-    public void setCoins(long amount) {
-        getConfig().put("currency", new Document("coins", amount));
+    public String getFormatted(Currency currency) {
+        return String.format("%,d", get(currency));
     }
 
 }
