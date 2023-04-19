@@ -184,6 +184,15 @@ public class Main extends JavaPlugin {
         }
 
         player.teleport(game.getMap().getMap().getLocation());
+
+        // notify about test database
+        if (player.isOp() && database.isUseTestDatabase()) {
+            for (int i = 0; i < 3; i++) {
+                Chat.sendMessage(player, "&cThis build uses &n&ltest&c database!");
+            }
+
+            Chat.sendMessage(player, "&cIf this isn't a test server, recompile the plugin with &eDatabase#useTestDatabase&c set to &efalse&c.");
+        }
     }
 
     public void addEvent(Listener listener) {

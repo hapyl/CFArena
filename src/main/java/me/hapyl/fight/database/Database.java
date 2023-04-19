@@ -43,6 +43,10 @@ public class Database extends DependencyInjector<Main> {
         // Suppress logging
     }
 
+    public boolean isUseTestDatabase() {
+        return useTestDatabase;
+    }
+
     public void stopConnection() {
         if (client != null) {
             try {
