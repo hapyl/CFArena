@@ -27,7 +27,7 @@ public class FinalMessageCosmetic extends Cosmetic {
     };
 
     public FinalMessageCosmetic() {
-        super("Final Message", "Let them know your final words.", 1000, Type.DEATH, Rarity.EPIC, Material.PAPER);
+        super("Final Message", "Let them know your final words.", Type.DEATH, Rarity.EPIC, Material.PAPER);
 
         final StringBuilder builder = new StringBuilder("&7Available Messages:__");
         for (String message : AVAILABLE_MESSAGES) {

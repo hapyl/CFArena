@@ -42,6 +42,10 @@ public abstract class Cosmetic extends ShopItem {
         }
     }
 
+    public Cosmetic(String name, String description, Type type, Rarity rarity, Material material) {
+        this(name, description, rarity.getDefaultPrice(), type, rarity, material);
+    }
+
     public Cosmetic(String name, String description, long cost, Type type, Rarity rarity) {
         this(name, description, cost, type, rarity, Material.BARRIER);
     }

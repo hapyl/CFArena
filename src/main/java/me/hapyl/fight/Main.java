@@ -49,6 +49,10 @@ public class Main extends JavaPlugin {
     private Notifier notifier;
     private CFParkourManager parkourManager;
 
+    public static Main getPlugin() {
+        return plugin;
+    }
+
     @Override
     public void onEnable() {
         plugin = this;
@@ -188,7 +192,7 @@ public class Main extends JavaPlugin {
         // notify about test database
         if (player.isOp() && database.isUseTestDatabase()) {
             for (int i = 0; i < 3; i++) {
-                Chat.sendMessage(player, "&cThis build uses &n&ltest&c database!");
+                Chat.sendMessage(player, "&cThis build uses &4&ltest&c database!");
             }
 
             Chat.sendMessage(player, "&cIf this isn't a test server, recompile the plugin with &eDatabase#useTestDatabase&c set to &efalse&c.");
@@ -281,9 +285,5 @@ public class Main extends JavaPlugin {
         new ArcaneMuteProtocol();
         new DismountProtocol();
         //new ConfusionPotionProtocol(); -> doesn't work as good as I thought :(
-    }
-
-    public static Main getPlugin() {
-        return plugin;
     }
 }

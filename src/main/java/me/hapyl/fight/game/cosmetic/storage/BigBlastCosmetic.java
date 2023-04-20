@@ -19,7 +19,7 @@ public class BigBlastCosmetic extends Cosmetic implements Listener {
     };
 
     public BigBlastCosmetic() {
-        super("Big Blast", "A big explosion with a random color.", 500, Type.DEATH, Rarity.RARE, Material.FIREWORK_ROCKET);
+        super("Big Blast", "A big explosion with a random color.", Type.DEATH, Rarity.RARE, Material.FIREWORK_ROCKET);
     }
 
     @Override

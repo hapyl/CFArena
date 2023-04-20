@@ -9,6 +9,7 @@ import me.hapyl.fight.game.reward.Reward;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -23,17 +24,18 @@ public enum Achievements {
     //    achievements that can be completed multiple times, HiddenAchievement for, well, hidden achievements.
     //
 
-    PLAY_FIRST_GAME(new Achievement("So That's How It Is", "Play your first game.").setReward(new CurrencyReward("")
-            .withCoins(500)
-            .withRubies(1))),
+    PLAY_FIRST_GAME(new Achievement("So That's How It Is", "Play your first game.")
+            .setReward(new CurrencyReward("").withCoins(500).withRubies(1))),
 
     TEST_PROGRESS_ACHIEVEMENT(new ProgressAchievement("Test Progress Achievement", "")
             .setReward(1, Reward.EMPTY)
             .setReward(5, Reward.EMPTY)
             .setReward(10, Reward.EMPTY)),
+
+    TEST_HIDDEN_ACHIEVEMENT(new HiddenAchievement("WHAT", "HOW")),
     ;
 
-    private static final Map<Category, List<Achievement>> BY_CATEGORY;
+    private static final Map<Category, List<Achievements>> BY_CATEGORY;
 
     static {
         BY_CATEGORY = Maps.newHashMap();
@@ -44,7 +46,7 @@ public enum Achievements {
                     list = Lists.newArrayList();
                 }
 
-                list.add(value.getAchievement());
+                list.add(value);
                 return list;
             });
         }
@@ -103,4 +105,25 @@ public enum Achievements {
         players.forEach(this::complete);
     }
 
+    public boolean isCompleted(Player player) {
+        return PlayerDatabase.getDatabase(player).getAchievementEntry().isCompleted(this);
+    }
+
+    public int getCompleteCount(Player player) {
+        return PlayerDatabase.getDatabase(player).getAchievementEntry().getCompleteCount(this);
+    }
+
+    public boolean isHidden() {
+        return achievement instanceof HiddenAchievement;
+    }
+
+    /**
+     * Returns copy of all achievements in a category.
+     *
+     * @param category - Category to get achievements from.
+     * @return List of achievements in category.
+     */
+    public static LinkedList<Achievements> byCategory(Category category) {
+        return Lists.newLinkedList(BY_CATEGORY.getOrDefault(category, Lists.newArrayList()));
+    }
 }

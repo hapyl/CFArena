@@ -21,7 +21,7 @@ import java.util.Map;
 
 public enum Cosmetics {
 
-    BLOOD(new Cosmetic("Blood", "A classic redstone particles mimicking blood.", 200, Type.KILL, Rarity.COMMON, Material.REDSTONE) {
+    BLOOD(new Cosmetic("Blood", "A classic redstone particles mimicking blood.", Type.KILL, Rarity.COMMON, Material.REDSTONE) {
         @Override
         public void onDisplay(Display display) {
             display.particle(Particle.BLOCK_CRACK, 20, 0.4d, 0.4d, 0.4d, 0.0f, Bukkit.createBlockData(Material.REDSTONE_BLOCK));
@@ -29,7 +29,7 @@ public enum Cosmetics {
         }
     }),
 
-    COOKIE_MADNESS(new Cosmetic("Cookie Madness", "More cookies! Mo-o-ore!", 400, Type.KILL, Rarity.UNCOMMON, Material.COOKIE) {
+    COOKIE_MADNESS(new Cosmetic("Cookie Madness", "More cookies! Mo-o-ore!", Type.KILL, Rarity.UNCOMMON, Material.COOKIE) {
         @Override
         public void onDisplay(Display display) {
             display.repeat(10, 2, (r, tick) -> {
@@ -42,7 +42,7 @@ public enum Cosmetics {
     SQUID_LAUNCH(new SquidLaunchCosmetic()),
     GROUND_PUNCH(new GroundPunchCosmetic()),
     GIANT_SWORD(new GiantSwordCosmetic()),
-    LIGHTNING(new Cosmetic("Light Strike", "Strikes a lightning effect.", 100, Type.KILL, Rarity.COMMON, Material.LIGHTNING_ROD) {
+    LIGHTNING(new Cosmetic("Light Strike", "Strikes a lightning effect.", Type.KILL, Rarity.COMMON, Material.LIGHTNING_ROD) {
         @Override
         public void onDisplay(Display display) {
             final World world = display.getLocation().getWorld();
@@ -56,7 +56,7 @@ public enum Cosmetics {
     COUTURE_KILL(new CoutureCosmetic(Type.KILL)),
 
     // Death Cosmetics
-    SCARY_DOOKIE(new Cosmetic("Scary Dookie", "The ultimate scare.", 1000, Type.DEATH, Rarity.RARE, Material.COCOA_BEANS) {
+    SCARY_DOOKIE(new Cosmetic("Scary Dookie", "The ultimate scare.", Type.DEATH, Rarity.RARE, Material.COCOA_BEANS) {
         @Override
         public void onDisplay(Display display) {
             final Item item = display.item(Material.COCOA_BEANS, 6000);
