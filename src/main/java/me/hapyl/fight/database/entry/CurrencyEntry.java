@@ -11,15 +11,15 @@ public class CurrencyEntry extends PlayerDatabaseEntry {
     }
 
     public long get(Currency currency) {
-        return fetchFromDocument(document -> document.get(currency.name(), 0L));
+        return fetchFromDocument(document -> document.get(currency.getPath(), 0L));
     }
 
     public void set(Currency currency, long value) {
-        fetchDocument(document -> document.put(currency.name(), value));
+        fetchDocument(document -> document.put(currency.getPath(), value));
     }
 
     public void add(Currency currency, long value) {
-        set(currency, get(currency) - value);
+        set(currency, get(currency) + value);
     }
 
     public void subtract(Currency currency, long value) {

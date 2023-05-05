@@ -3,6 +3,7 @@ package me.hapyl.fight;
 import me.hapyl.fight.database.Database;
 import me.hapyl.fight.event.EnderPearlHandler;
 import me.hapyl.fight.event.PlayerHandler;
+import me.hapyl.fight.event.SnowFormHandler;
 import me.hapyl.fight.game.ChatController;
 import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
@@ -75,7 +76,7 @@ public class Main extends JavaPlugin {
         // Init api
         new EternaAPI(this);
 
-        // Preset gamerules
+        // Preset game rules
         for (final World world : Bukkit.getWorlds()) {
             world.setGameRule(GameRule.NATURAL_REGENERATION, false);
             world.setGameRule(GameRule.DO_FIRE_TICK, false);
@@ -195,7 +196,10 @@ public class Main extends JavaPlugin {
                 Chat.sendMessage(player, "&cThis build uses &4&ltest&c database!");
             }
 
-            Chat.sendMessage(player, "&cIf this isn't a test server, recompile the plugin with &eDatabase#useTestDatabase&c set to &efalse&c.");
+            Chat.sendMessage(
+                    player,
+                    "&cIf this isn't a test server, recompile the plugin with &eDatabase#useTestDatabase&c set to &efalse&c."
+            );
         }
     }
 
@@ -264,12 +268,14 @@ public class Main extends JavaPlugin {
     }
 
     private void registerEvents() {
-        final PluginManager pm = Bukkit.getServer().getPluginManager();
-        pm.registerEvents(new PlayerHandler(), this);
-        pm.registerEvents(new ChatController(), this);
-        pm.registerEvents(new EnderPearlHandler(), this);
-        pm.registerEvents(new CosmeticsListener(), this);
-        pm.registerEvents(new HealthPackListener(), this);
+        final PluginManager pluginManager = Bukkit.getServer().getPluginManager();
+
+        pluginManager.registerEvents(new PlayerHandler(), this);
+        pluginManager.registerEvents(new ChatController(), this);
+        pluginManager.registerEvents(new EnderPearlHandler(), this);
+        pluginManager.registerEvents(new CosmeticsListener(), this);
+        pluginManager.registerEvents(new HealthPackListener(), this);
+        pluginManager.registerEvents(new SnowFormHandler(), this);
     }
 
     private void runSafe(Runnable runnable, String handler) {

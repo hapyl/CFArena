@@ -5,6 +5,7 @@ import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.GUI;
 import me.hapyl.spigotutils.module.inventory.gui.PlayerGUI;
+import me.hapyl.spigotutils.module.inventory.gui.SlotPattern;
 import me.hapyl.spigotutils.module.inventory.gui.SmartComponent;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.entity.Player;
@@ -46,7 +47,7 @@ public class ModeSelectGUI extends PlayerGUI {
 			);
 		}
 
-		component.fillItems(this);
+		component.apply(this, SlotPattern.DEFAULT, 1);
 		this.openInventory();
 	}
 

@@ -599,6 +599,14 @@ public class Utils {
         }
     }
 
+    public static <E> E fetchFirstFromLinkedMap(LinkedHashMap<?, E> map, E def) {
+        for (E value : map.values()) {
+            return value;
+        }
+
+        return def;
+    }
+
     public static class ProgressBar implements IBuilder<String> {
 
         private final String indicator;

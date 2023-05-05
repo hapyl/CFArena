@@ -44,7 +44,7 @@ public abstract class Hero implements GameElement, PlayerElement {
 
     private Origin origin;
     private Role role;
-    private String about;
+    private String description;
     private ItemStack guiTexture;
     private Weapon weapon;
 
@@ -58,7 +58,7 @@ public abstract class Hero implements GameElement, PlayerElement {
     @Super
     public Hero(String name) {
         this.name = name;
-        this.about = "No description provided.";
+        this.description = "No description provided.";
         this.guiTexture = new ItemStack(Material.RED_BED);
         this.weapon = new Weapon(Material.WOODEN_SWORD);
         this.usedUltimateAt = Maps.newHashMap();
@@ -261,8 +261,8 @@ public abstract class Hero implements GameElement, PlayerElement {
      *
      * @return description of this hero.
      */
-    public String getAbout() {
-        return about;
+    public String getDescription() {
+        return description;
     }
 
     /**
@@ -271,7 +271,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      * @param about - New description.
      */
     public void setInfo(String about) {
-        this.about = about;
+        this.description = about;
     }
 
     /**

@@ -1,7 +1,9 @@
 package me.hapyl.fight.game.stats;
 
 import com.google.common.collect.Maps;
+import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.util.NonNullableElementHolder;
 import org.bukkit.entity.Player;
 
@@ -10,14 +12,14 @@ import java.util.Map;
 /**
  * Keep in mind this only tracks the numbers, does not actually add them.
  */
-public class StatContainer extends NonNullableElementHolder<Player> {
+public class StatContainer extends NonNullableElementHolder<GamePlayer> {
 
     private final Map<Talents, Long> abilityUsage;
     private final Map<StatType, Double> valueMap;
 
     private boolean winner;
 
-    public StatContainer(Player player) {
+    public StatContainer(GamePlayer player) {
         super(player);
 
         abilityUsage = Maps.newHashMap();
@@ -33,12 +35,22 @@ public class StatContainer extends NonNullableElementHolder<Player> {
         return valueMap.getOrDefault(type, 0d);
     }
 
-    public void addValue(StatType type, double l) {
-        valueMap.compute(type, (a, b) -> b == null ? l : b + l);
+    public void addValue(StatType type, double newValue) {
+        valueMap.compute(type, (a, b) -> b == null ? newValue : b + newValue);
+
+        final GameTeam team = GameTeam.getPlayerTeam(getPlayer());
+        if (team != null) {
+            team.kills += newValue;
+        }
     }
 
     public void setValue(StatType type, double newValue) {
         valueMap.put(type, newValue);
+
+        final GameTeam team = getElement().getTeam();
+        if (team != null) {
+            team.kills = (int) newValue;
+        }
     }
 
     public String getString(StatType type) {
@@ -47,7 +59,7 @@ public class StatContainer extends NonNullableElementHolder<Player> {
     }
 
     public Player getPlayer() {
-        return this.getElement();
+        return this.getElement().getPlayer();
     }
 
     public Map<Talents, Long> getUsedAbilities() {

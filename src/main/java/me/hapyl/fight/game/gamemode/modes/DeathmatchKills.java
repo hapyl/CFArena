@@ -5,7 +5,7 @@ import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.GameResult;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.gamemode.Modes;
-import me.hapyl.fight.game.stats.StatType;
+import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.spigotutils.module.scoreboard.Scoreboarder;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -30,11 +30,15 @@ public class DeathmatchKills extends CFGameMode {
 
     @Override
     public boolean testWinCondition(@Nonnull GameInstance instance) {
-        for (GamePlayer player : instance.getPlayers().values()) {
-            if (player.getStats().getValue(StatType.KILLS) >= killsGoal) {
-                final GameResult result = instance.getGameResult();
-                result.getWinners().add(player);
-                result.getWinningTeams().add(player.getTeam());
+        for (GameTeam team : GameTeam.getPopulatedTeams()) {
+            if (team.kills >= killsGoal) {
+                final GameResult gameResult = instance.getGameResult();
+
+                for (GamePlayer player : team.getPlayers()) {
+                    gameResult.getWinners().add(player);
+                }
+
+                gameResult.getWinningTeams().add(team);
                 return true;
             }
         }

@@ -1,13 +1,18 @@
 package me.hapyl.fight.game.parkour;
 
+import com.google.common.collect.Sets;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.Database;
+import me.hapyl.fight.game.Debugger;
 import me.hapyl.spigotutils.module.parkour.Data;
 import me.hapyl.spigotutils.module.parkour.Stats;
 import org.bson.Document;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class ParkourDatabase {
@@ -26,12 +31,37 @@ public class ParkourDatabase {
     }
 
     private void load() {
-        document = this.mongo.getParkour().find(filter).first();
+        document = mongo.getParkour().find(filter).first();
 
         if (document == null) {
-            this.mongo.getParkour().insertOne(new Document(filter));
             document = new Document(filter);
+            mongo.getParkour().insertOne(document);
         }
+
+        // Remove invalid entries
+        final Document players = getPlayers();
+        final Set<String> invalidKeys = Sets.newHashSet();
+
+        for (String key : players.keySet()) {
+            try {
+                final UUID uuid = UUID.fromString(key);
+                final OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
+
+                // If document has a valid uuid, but has player never played
+                // it means that it was created in offline mode, delete it.
+                if (!offlinePlayer.hasPlayedBefore()) {
+                    Debugger.warn("Removing invalid entry: %s", key);
+                    invalidKeys.add(key);
+                }
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+
+        if (!invalidKeys.isEmpty()) {
+            invalidKeys.forEach(players::remove);
+        }
+
+        saveTo("players", players);
     }
 
     public void syncData(Data data) {
@@ -52,11 +82,15 @@ public class ParkourDatabase {
 
         player.put("stats", stats);
 
-        mongo.getParkour().updateOne(filter, new Document("$set", new Document("players." + uuid, player)));
+        saveTo("players." + uuid, player);
         load(); // reload
 
         // Update leaderboard
         parkour.updateLeaderboardIfExists();
+    }
+
+    public void saveTo(String path, Document document) {
+        mongo.getParkour().updateOne(filter, new Document("$set", new Document(path, document)));
     }
 
     public long getBestTime(UUID uuid) {

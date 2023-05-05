@@ -13,4 +13,8 @@ public enum Currency {
     public String getName() {
         return name;
     }
+
+    public String getPath() {
+        return name().toLowerCase();
+    }
 }

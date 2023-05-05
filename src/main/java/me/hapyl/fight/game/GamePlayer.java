@@ -107,7 +107,7 @@ public class GamePlayer implements IGamePlayer {
         this.damageTaken = Maps.newHashMap();
         this.gameEffects = new ConcurrentHashMap<>();
         this.talentQueue = new TalentQueue(this);
-        this.stats = new StatContainer(player);
+        this.stats = new StatContainer(this);
         this.lastMoved = System.currentTimeMillis();
         this.combatTag = 0L;
         this.skin = PlayerDatabase.getDatabase(player).getHeroEntry().getSkin(enumHero);
@@ -445,9 +445,11 @@ public class GamePlayer implements IGamePlayer {
             if (killer != null) {
                 final GamePlayer gameKiller = GamePlayer.getExistingPlayer(killer);
                 if (gameKiller != null && player != killer) { // should never be the case
+                    final IGameInstance gameInstance = Manager.current().getCurrentGame();
                     final StatContainer killerStats = gameKiller.getStats();
 
                     killerStats.addValue(StatType.KILLS, 1);
+                    gameKiller.getTeam().kills++;
 
                     // Add kill streak for killer
                     gameKiller.killStreak++;
@@ -559,7 +561,7 @@ public class GamePlayer implements IGamePlayer {
 
     @Override
     public String getHealthFormatted() {
-        return "" + Math.ceil(health);
+        return String.valueOf(Math.ceil(health));
     }
 
     public UltimateTalent getUltimate() {

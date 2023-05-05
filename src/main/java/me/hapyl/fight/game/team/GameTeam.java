@@ -43,6 +43,9 @@ public enum GameTeam {
     private final int maxPlayers;
     private final List<UUID> members;   // represents lobby players
 
+    public int kills;
+    public int deaths;
+
     GameTeam(ChatColor color, Material material) {
         this.color = color;
         this.material = material;
@@ -132,6 +135,11 @@ public enum GameTeam {
 
     public ChatColor getColor() {
         return color;
+    }
+
+    public void onStop() {
+        kills = 0;
+        deaths = 0;
     }
 
     public void glowTeammates() {

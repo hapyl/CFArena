@@ -15,12 +15,12 @@ import java.util.function.Predicate;
 /**
  * This is used as a base for all game instances.
  * {@link GameInstance} implements this class.
- *
+ * <p>
  * Whenever manager requests a GameInstance, it will
  * return either a valid GameInstance, or {@link #NULL_GAME_INSTANCE}.
- *
+ * <p>
  * Null game instance is an empty GameInstance base.
- *
+ * <p>
  * In reality, if {@link #NULL_GAME_INSTANCE} is returned,
  * the developer is doing something wrong. But it's better
  * than catching a null pointer.

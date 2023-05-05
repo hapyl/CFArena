@@ -27,7 +27,7 @@ public class CollectionGUI extends PlayerGUI {
     //};
 
     public CollectionGUI(Player player) {
-        super(player, "Collection", 4);
+        super(player, "Collection", 3);
         setOpenEvent(e -> {
             PlayerLib.playSound(player, Sound.BLOCK_CHEST_OPEN, 1.0f);
         });
@@ -82,6 +82,6 @@ public class CollectionGUI extends PlayerGUI {
         //        ExperienceGUI::new
         //);
 
-        component.apply(this, SlotPattern.CHUNKY, 2);
+        component.apply(this, SlotPattern.CHUNKY, 1);
     }
 }

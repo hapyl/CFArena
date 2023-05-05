@@ -1271,6 +1271,16 @@ public class FakeBukkitPlayer implements Player {
     }
 
     @Override
+    public int getExpCooldown() {
+        return 0;
+    }
+
+    @Override
+    public void setExpCooldown(int i) {
+
+    }
+
+    @Override
     public void giveExp(int amount) {
 
     }

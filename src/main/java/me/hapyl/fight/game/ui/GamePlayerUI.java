@@ -234,7 +234,7 @@ public class GamePlayerUI {
 
             for (int i = 0; i < 30; i++) {
                 builder.append(i < frame ? ChatColor.DARK_AQUA : ChatColor.DARK_GRAY);
-                builder.append(UIFormat.DIV);
+                builder.append(UIFormat.DIV_RAW);
             }
 
             footer.append("\n\n&e&lSong Player:\n");

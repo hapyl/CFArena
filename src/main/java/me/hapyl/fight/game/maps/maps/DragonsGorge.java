@@ -6,7 +6,6 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.maps.GameMap;
 import me.hapyl.fight.game.maps.MapFeature;
 import me.hapyl.fight.game.maps.Size;
-import me.hapyl.fight.game.maps.features.Booster;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -107,8 +106,8 @@ public class DragonsGorge extends GameMap {
 
         });
 
-        new Booster(-153, 64, 102, -1.8, 0.75, 1.8);
-        new Booster(-169, 64, 118, 1.8, 0.75, -1.8);
+        //new Booster(-153, 64, 102, -1.9, 0.75, 1.9);
+        //new Booster(-169, 64, 118, 1.9, 0.75, -1.9);
 
         this.addLocation(-143, 64, 86);
         this.addLocation(-150, 64, 100);

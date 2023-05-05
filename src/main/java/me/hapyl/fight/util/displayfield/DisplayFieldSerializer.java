@@ -91,7 +91,7 @@ public final class DisplayFieldSerializer {
 
             if (value instanceof Double decimal) {
                 if (decimal % 1 == 0) {
-                    stringValue = "" + decimal.intValue();
+                    stringValue = String.valueOf(decimal.intValue());
                 }
                 else {
                     stringValue = BukkitUtils.decimalFormat(decimal);
