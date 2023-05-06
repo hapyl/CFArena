@@ -25,7 +25,7 @@ import java.util.logging.Logger;
  */
 public class Database extends DependencyInjector<Main> {
 
-    private final boolean useTestDatabase = true;
+    private final boolean useTestDatabase = false;
     private final String DATABASE_NAME = "classes_fight";
 
     private final FileConfiguration config;
