@@ -78,4 +78,9 @@ public class Relic {
         Chat.sendMessage(player, "&d&l%s RELIC &aYou have found a relic!", getType().name().toUpperCase());
         PlayerLib.playSound(player, Sound.AMBIENT_CAVE, 2.0f);
     }
+
+    @Override
+    public String toString() {
+        return "{Id=%s, Zone=%s, Loc=%s}".formatted(id, zone.name(), location);
+    }
 }

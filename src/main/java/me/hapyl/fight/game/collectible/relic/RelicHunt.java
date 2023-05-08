@@ -3,6 +3,7 @@ package me.hapyl.fight.game.collectible.relic;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
+import me.hapyl.fight.annotate.Unique;
 import me.hapyl.fight.game.Debugger;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.spigotutils.module.nbt.NBT;
@@ -63,78 +64,6 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
 
     }
 
-    private void initRelics() {
-        //
-        //        Important Note!
-        //
-        // DO NOT CHANGE THE ORDER OF THE
-        // REGISTERED RELICS IN A ZONE, IT
-        // WILL BREAK THE SYSTEM!
-        //
-        // A SINGLE ZONE MAY HAVE UP TO 100 RELICS
-
-        // Lobby
-        registerRelic(new Relic(Type.AMETHYST, 27, 66, 8));
-        registerRelic(new Relic(Type.AMETHYST, 32, 66, 0));
-        registerRelic(new Relic(Type.EMERALD, -20, 72, 21).setBlockFace(BlockFace.SOUTH_WEST));
-        registerRelic(new Relic(Type.AMETHYST, 11, 67, -27));
-        registerRelic(new Relic(Type.AMETHYST, 7, 66, 23));
-
-        // Arena
-        registerRelic(new Relic(Type.SAPPHIRE, 70, 70, 18).setZone(GameMaps.ARENA));
-        registerRelic(new Relic(Type.EMERALD, 66, 78, -5).setZone(GameMaps.ARENA));
-        registerRelic(new Relic(Type.EMERALD, 62, 80, 14).setZone(GameMaps.ARENA));
-        registerRelic(new Relic(Type.EMERALD, 112, 68, -30).setZone(GameMaps.ARENA));
-
-        // Japan
-        // Skipping for now, since rebuilding -h
-
-        // Greenhouse
-        registerRelic(new Relic(Type.EMERALD, -98, 62, -21).setZone(GameMaps.GREENHOUSE));
-        registerRelic(new Relic(Type.EMERALD, -99, 71, -1).setZone(GameMaps.GREENHOUSE));
-
-        // Railway (Old)
-        registerRelic(new Relic(Type.SAPPHIRE, 38, 63, 101).setZone(GameMaps.RAILWAY));
-        registerRelic(new Relic(Type.SAPPHIRE, 36, 65, 77).setZone(GameMaps.RAILWAY));
-        registerRelic(new Relic(Type.EMERALD, -9, 66, 117).setZone(GameMaps.RAILWAY));
-
-        createRelics();
-
-        // temp
-        byId.forEach((i, r) -> {
-            Debugger.log("#%s = %s", i, r);
-        });
-    }
-
-    private void createRelics() {
-        for (Relic relic : byId.values()) {
-            final Location location = relic.getLocation().toLocation();
-            final Block block = location.getBlock();
-
-            block.setType(Material.PLAYER_HEAD, false);
-
-            if (block.getBlockData() instanceof Rotatable rotatable) {
-                rotatable.setRotation(relic.getBlockFace());
-                block.setBlockData(rotatable, false);
-            }
-
-            if (block.getState() instanceof Skull skull) {
-                try {
-                    NBT.setInt(skull, "RelicId", relic.getId());
-
-                    final PlayerProfile playerProfile = Bukkit.createPlayerProfile(UUID.randomUUID());
-                    playerProfile.getTextures().setSkin(new URL("http://textures.minecraft.net/texture/%s".formatted(relic.getType().getTexture())));
-
-                    skull.setOwnerProfile(playerProfile);
-                    skull.update(true, false);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-        }
-    }
-
     /**
      * Gets relics in the given zone.
      * Prefer {@link #countIn(GameMaps)} if you just need the count.
@@ -167,6 +96,10 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
         return count;
     }
 
+    public boolean anyIn(GameMaps map) {
+        return countIn(map) > 0;
+    }
+
     @Nullable
     public Relic byId(int id) {
         return byId.get(id);
@@ -182,19 +115,92 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
         return byId(id);
     }
 
-    private void registerRelic(Relic relic) {
-        if (relic.getId() != -1) {
-            return; // already registered
-        }
+    public List<Relic> getFoundList(Player player) {
+        return byId.values().stream().filter(relic -> relic.hasFound(player)).toList();
+    }
 
-        final GameMaps zone = relic.getZone();
-        final int id = (100 * (zone.ordinal() + 1)) + countIn(zone);
-
-        relic.setId(id);
-        byId.put(id, relic);
+    public List<Relic> getFoundListIn(Player player, GameMaps zone) {
+        return getFoundList(player).stream().filter(relic -> relic.getZone() == zone).toList();
     }
 
     public void forEach(@Nonnull BiConsumer<Integer, Relic> consumer) {
         byId.forEach(consumer);
+    }
+
+    private void initRelics() {
+        // Lobby
+        registerRelic(100, new Relic(Type.AMETHYST, 27, 66, 8));
+        registerRelic(101, new Relic(Type.AMETHYST, 32, 66, 0));
+        registerRelic(102, new Relic(Type.EMERALD, -20, 72, 21).setBlockFace(BlockFace.SOUTH_WEST));
+        registerRelic(103, new Relic(Type.AMETHYST, 11, 67, -27));
+        registerRelic(104, new Relic(Type.AMETHYST, 7, 66, 23));
+
+        // Arena
+        registerRelic(200, new Relic(Type.SAPPHIRE, 70, 70, 18).setZone(GameMaps.ARENA));
+        registerRelic(201, new Relic(Type.EMERALD, 66, 78, -5).setZone(GameMaps.ARENA));
+        registerRelic(202, new Relic(Type.EMERALD, 62, 80, 14).setZone(GameMaps.ARENA));
+        registerRelic(203, new Relic(Type.EMERALD, 112, 68, -30).setZone(GameMaps.ARENA));
+
+        // Japan - Reversed Ids in 300-399 range
+        // Skipping for now, since rebuilding -h
+
+        // Greenhouse
+        registerRelic(400, new Relic(Type.EMERALD, -98, 62, -21).setZone(GameMaps.GREENHOUSE));
+        registerRelic(401, new Relic(Type.EMERALD, -99, 71, -1).setZone(GameMaps.GREENHOUSE));
+
+        // Railway (Old)
+        registerRelic(500, new Relic(Type.SAPPHIRE, 38, 63, 101).setZone(GameMaps.RAILWAY));
+        registerRelic(501, new Relic(Type.SAPPHIRE, 36, 65, 77).setZone(GameMaps.RAILWAY));
+        registerRelic(502, new Relic(Type.EMERALD, -9, 66, 117).setZone(GameMaps.RAILWAY));
+
+        createRelics();
+
+        // temp
+        byId.forEach((i, r) -> {
+            Debugger.log(r);
+        });
+    }
+
+    private void createRelics() {
+        for (Relic relic : byId.values()) {
+            final Location location = relic.getLocation().toLocation();
+            final Block block = location.getBlock();
+
+            block.setType(Material.PLAYER_HEAD, false);
+
+            if (block.getBlockData() instanceof Rotatable rotatable) {
+                rotatable.setRotation(relic.getBlockFace());
+                block.setBlockData(rotatable, false);
+            }
+
+            if (block.getState() instanceof Skull skull) {
+                try {
+                    NBT.setInt(skull, "RelicId", relic.getId());
+
+                    final PlayerProfile playerProfile = Bukkit.createPlayerProfile(UUID.randomUUID());
+                    playerProfile.getTextures()
+                            .setSkin(new URL("http://textures.minecraft.net/texture/%s".formatted(relic.getType().getTexture())));
+
+                    skull.setOwnerProfile(playerProfile);
+                    skull.update(true, false);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
+    }
+
+    private void registerRelic(@Unique final int id, final Relic relic) {
+        if (byId.containsKey(id)) {
+            throw new IllegalArgumentException("Id %s is already taken by %s!".formatted(id, byId.get(id)));
+        }
+
+        if (relic.getId() != -1) {
+            throw new IllegalArgumentException("%s is already registered with Id %s".formatted(relic, relic.getId()));
+        }
+
+        relic.setId(id);
+        byId.put(id, relic);
     }
 }

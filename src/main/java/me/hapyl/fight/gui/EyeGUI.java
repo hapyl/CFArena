@@ -1,6 +1,7 @@
 package me.hapyl.fight.gui;
 
 import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.game.collectible.relic.Type;
 import me.hapyl.fight.game.reward.DailyReward;
 import me.hapyl.fight.game.reward.Reward;
 import me.hapyl.fight.game.reward.Rewards;
@@ -26,8 +27,15 @@ public class EyeGUI extends PlayerDynamicGUI {
     @Override
     public void setupInventory(@Nonnull Arguments arguments) {
         final PlayerDatabase database = PlayerDatabase.getDatabase(getPlayer());
-        final boolean canClaimDaily = database.dailyRewardEntry.canClaim();
 
+        // Relic Hunt
+        setItem(11, ItemBuilder.of(Material.PLAYER_HEAD, "Relic Hunt")
+                .addSmartLore("There are relics scattered all around the world. Try to find them all to get unique rewards!")
+                .setHeadTextureUrl(Type.AMETHYST.getTexture())
+                .asIcon(), RelicGUI::new);
+
+        // Daily Reward
+        final boolean canClaimDaily = database.dailyRewardEntry.canClaim();
         final Reward dailyReward = Rewards.DAILY.getReward();
         final ItemBuilder builder = ItemBuilder.of(canClaimDaily ? Material.CHEST_MINECART : Material.MINECART, "&aDaily Reward");
 
@@ -40,7 +48,8 @@ public class EyeGUI extends PlayerDynamicGUI {
                 dailyReward.grantReward(player);
                 update();
             });
-        } else {
+        }
+        else {
             setClick(31, player -> {
                 Chat.sendMessage(player, "&cCome again in %s to claim!", DailyReward.formatDaily(player));
                 PlayerLib.playSound(player, Sound.BLOCK_ANVIL_LAND, 1.0f);

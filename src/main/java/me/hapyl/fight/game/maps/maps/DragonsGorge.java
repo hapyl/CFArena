@@ -6,7 +6,7 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.maps.GameMap;
 import me.hapyl.fight.game.maps.MapFeature;
 import me.hapyl.fight.game.maps.Size;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.ProgressBarBuilder;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.ChatColor;
@@ -62,8 +62,7 @@ public class DragonsGorge extends GameMap {
                     if (tick == 0) {
                         // Display cold meter
                         if (newValue > 0) {
-                            final Utils.ProgressBar builder = new Utils.ProgressBar("❄", ChatColor.AQUA, 15);
-                            gp.sendTitle("", builder.build((int) (newValue * builder.getMax() / maxColdValue)), 0, 25, 5);
+                            gp.sendTitle("", ProgressBarBuilder.of("❄", ChatColor.AQUA, newValue, maxColdValue), 0, 25, 5);
                         }
 
                         // For FX
@@ -81,11 +80,7 @@ public class DragonsGorge extends GameMap {
 
                         // Fx
                         if (newValue >= 60) {
-                            PlayerLib.playSound(
-                                    player,
-                                    Sound.BLOCK_GLASS_BREAK,
-                                    Numbers.clamp(1.0f - newValue / maxColdValue, 0.0f, 2.0f)
-                            );
+                            PlayerLib.playSound(player, Sound.BLOCK_GLASS_BREAK, Numbers.clamp(1.0f - newValue / maxColdValue, 0.0f, 2.0f));
                         }
                     }
                 });

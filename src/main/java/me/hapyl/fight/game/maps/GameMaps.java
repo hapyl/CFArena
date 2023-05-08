@@ -17,7 +17,7 @@ public enum GameMaps {
 
     // non-playable map, storing here for easy coordinate grab and consistency
     TRAINING_GROUNDS(new NonPlayableGameMap("Training Grounds", "Test heroes abilities here!", 100, 64, 100)),
-    SPAWN(new NonPlayableGameMap("Spawn", "You spawn here!", 0, 64, 0)),
+    SPAWN(new NonPlayableGameMap("Spawn", "You spawn here!", 0, 64, 0).setMaterial(Material.NETHER_STAR)),
 
     // april fools maps (replaces spawn and arena with classic maps)
     ARENA_APRIL_FOOLS(new NonPlayableGameMap("Classic Arena", "A classic arena from Classes Fight v1.0", -900, 63, 0, 180.0f, 0.0f)),
@@ -41,7 +41,7 @@ public enum GameMaps {
 
     JAPAN(
             new GameMap("Japan")
-                    .setDescription("This map based on real-life temple &e平等院 (Byōdō-in)&7!")
+                    .setDescription("This map is based on real-life temple &e平等院 (Byōdō-in)&7!")
                     .setMaterial(Material.PINK_GLAZED_TERRACOTTA)
                     .setSize(Size.LARGE)
                     .setTicksBeforeReveal(160)
@@ -172,5 +172,6 @@ public enum GameMaps {
         final GameMaps gm = Validate.getEnumValue(GameMaps.class, str == null ? ARENA.name() : str);
         return gm == null ? def : gm;
     }
+
 
 }
