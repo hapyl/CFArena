@@ -1,9 +1,12 @@
 package me.hapyl.fight.game;
 
+/**
+ * Represents a game state.
+ */
 public enum State {
 
     /**
-     * Pre game, the game has started but players are not revealed yet.
+     * Pre-game, the game has started, but players are not revealed yet.
      */
     PRE_GAME,
     /**
@@ -11,7 +14,7 @@ public enum State {
      */
     IN_GAME,
     /**
-     * Post game, the game has ended and winner is announced.
+     * Post game, the game has ended and the winner is announced.
      */
     POST_GAME,
     /**

@@ -3,7 +3,7 @@ package me.hapyl.fight.game;
 import java.time.LocalDate;
 import java.time.Month;
 
-// TODO (hapyl): 005, Apr 5, 2023:
+// Represents a utility for server events, such as April Fools and Anniversary etc
 public class ServerEvent {
 
     public static boolean isAprilFools() {

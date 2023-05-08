@@ -6,6 +6,7 @@ import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.AchievementEntry;
 import me.hapyl.fight.game.reward.CurrencyReward;
 import me.hapyl.fight.game.reward.Reward;
+import me.hapyl.fight.game.reward.Rewards;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
@@ -28,9 +29,9 @@ public enum Achievements {
             .setReward(new CurrencyReward("").withCoins(500).withRubies(1))),
 
     TEST_PROGRESS_ACHIEVEMENT(new ProgressAchievement("Test Progress Achievement", "")
-            .setReward(1, Reward.EMPTY)
-            .setReward(5, Reward.EMPTY)
-            .setReward(10, Reward.EMPTY)),
+            .setReward(1, Rewards.EMPTY.getReward())
+            .setReward(5, Rewards.EMPTY.getReward())
+            .setReward(10, Rewards.EMPTY.getReward())),
 
     TEST_HIDDEN_ACHIEVEMENT(new HiddenAchievement("WHAT", "HOW")),
     ;

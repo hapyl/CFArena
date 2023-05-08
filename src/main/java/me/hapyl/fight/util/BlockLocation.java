@@ -3,7 +3,10 @@ package me.hapyl.fight.util;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
+
+import javax.annotation.Nonnull;
 
 /**
  * Represents an int location with float yaw-pitch.
@@ -69,7 +72,7 @@ public class BlockLocation {
     }
 
     public Location toLocation(boolean includeRotation) {
-        final Location location = new Location(Bukkit.getWorlds().get(0), this.x + 0.5d, this.y, this.z + 0.5d);
+        final Location location = new Location(getWorld(), this.x + 0.5d, this.y, this.z + 0.5d);
         if (includeRotation) {
             location.setYaw(this.getYaw());
             location.setPitch(this.getPitch());
@@ -78,8 +81,8 @@ public class BlockLocation {
     }
 
     public Location centralize() {
-        // center the location, so it doesn't spawn at the corner of a block
-        return new Location(Bukkit.getWorlds().get(0), this.x + .5, this.y + .5, this.z + .5);
+        // center the location, so it doesn't spawn in the corner of a block
+        return new Location(getWorld(), this.x + .5, this.y + .5, this.z + .5);
     }
 
     public boolean compare(BlockLocation item) {
@@ -89,8 +92,7 @@ public class BlockLocation {
     public boolean compare(int[] array) {
         if (array.length != 3) {
             throw new ArrayIndexOutOfBoundsException("Array length must be 3, not " + array.length);
-        }
-        else {
+        } else {
             return compare(array[0], array[1], array[2]);
         }
     }
@@ -102,5 +104,10 @@ public class BlockLocation {
     @Override
     public String toString() {
         return "%s %s %s".formatted(this.x, this.y, this.z);
+    }
+
+    @Nonnull
+    public World getWorld() {
+        return Bukkit.getWorlds().get(0);
     }
 }

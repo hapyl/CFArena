@@ -88,7 +88,7 @@ public class PlayerDatabaseEntry {
     }
 
     /**
-     * Returns first document in this (root) document.
+     * Returns a first document in this (root) document.
      * <p>
      * <code>getInDocument("string);</code> will return the following:
      * </p>

@@ -26,16 +26,24 @@ public class PlayerDatabase {
     private final Database mongo;
     private final Document filter;
     private final UUID uuid;
-    // entries start
-    protected HeroEntry heroEntry;
-    protected CurrencyEntry currencyEntry;
-    protected StatisticEntry statisticEntry;
-    protected SettingEntry settingEntry;
-    protected ExperienceEntry experienceEntry;
-    protected CosmeticEntry cosmeticEntry;
-    protected AchievementEntry achievementEntry;
-    protected FriendsEntry friendsEntry;
-    // entries end
+
+    ///////////////////
+    // ENTRIES START //
+    ///////////////////
+    public final HeroEntry heroEntry;
+    public final CurrencyEntry currencyEntry;
+    public final StatisticEntry statisticEntry;
+    public final SettingEntry settingEntry;
+    public final ExperienceEntry experienceEntry;
+    public final CosmeticEntry cosmeticEntry;
+    public final AchievementEntry achievementEntry;
+    public final FriendsEntry friendsEntry;
+    public final CollectibleEntry collectibleEntry;
+    public final DailyRewardEntry dailyRewardEntry;
+    /////////////////
+    // ENTRIES END //
+    /////////////////
+
     private Document document;
 
     public PlayerDatabase(UUID uuid) {
@@ -46,7 +54,18 @@ public class PlayerDatabase {
         this.filter = new Document("uuid", uuid.toString());
 
         this.load();
-        //this.loadEntries(); -> Async in loadFile
+
+        // Load entries
+        this.currencyEntry = new CurrencyEntry(this);
+        this.statisticEntry = new StatisticEntry(this);
+        this.settingEntry = new SettingEntry(this);
+        this.experienceEntry = new ExperienceEntry(this);
+        this.cosmeticEntry = new CosmeticEntry(this);
+        this.achievementEntry = new AchievementEntry(this);
+        this.friendsEntry = new FriendsEntry(this);
+        this.collectibleEntry = new CollectibleEntry(this);
+        this.heroEntry = new HeroEntry(this);
+        this.dailyRewardEntry = new DailyRewardEntry(this);
     }
 
     public PlayerDatabase(Player player) {
@@ -104,6 +123,10 @@ public class PlayerDatabase {
         return achievementEntry;
     }
 
+    public CollectibleEntry getCollectibleEntry() {
+        return collectibleEntry;
+    }
+
     // entries end
 
     public PlayerRank getRank() {
@@ -116,16 +139,12 @@ public class PlayerDatabase {
         document.put("rank", rank.name());
     }
 
-    // entries end
-    public Object getValue(String path) {
-        return document.get(path);
-    }
-
-    public <E> E getValue(String path, Type<E> type) {
-        return type.fromObject(getValue(path));
+    public <T> T getValue(String path, T def) {
+        return MongoUtils.get(document, path, def);
     }
 
     public void setValue(String path, Object object) {
+        MongoUtils.set(document, path, object);
     }
 
     public final void sync() {
@@ -160,7 +179,7 @@ public class PlayerDatabase {
 
             if (document == null) {
                 final MongoCollection<Document> players = mongo.getPlayers();
-                final Document document = new Document("uuid", uuid.toString()).append("player_name", playerName);
+                final Document document = new Document("uuid", uuid.toString());
 
                 if (!Bukkit.getServer().getOnlineMode()) {
                     document.append("offline", true);
@@ -170,24 +189,14 @@ public class PlayerDatabase {
                 players.insertOne(document);
             }
 
-            loadEntries();
+            // Already update player name
+            document.put("player_name", playerName);
 
             getLogger().info("Successfully loaded database for %s.".formatted(playerName));
         } catch (Exception error) {
             error.printStackTrace();
             getLogger().severe("An error occurred whilst trying to load database for %s.".formatted(playerName));
         }
-    }
-
-    private void loadEntries() {
-        this.heroEntry = new HeroEntry(this);
-        this.currencyEntry = new CurrencyEntry(this);
-        this.statisticEntry = new StatisticEntry(this);
-        this.settingEntry = new SettingEntry(this);
-        this.experienceEntry = new ExperienceEntry(this);
-        this.cosmeticEntry = new CosmeticEntry(this);
-        this.achievementEntry = new AchievementEntry(this);
-        this.friendsEntry = new FriendsEntry(this);
     }
 
     private Logger getLogger() {

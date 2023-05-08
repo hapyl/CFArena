@@ -3,9 +3,13 @@ package me.hapyl.fight;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.mongodb.client.MongoDatabase;
 import me.hapyl.fight.cmds.*;
+import me.hapyl.fight.database.Database;
+import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.TitleAnimation;
+import me.hapyl.fight.game.reward.DailyReward;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.chat.Gradient;
@@ -20,6 +24,7 @@ import me.hapyl.spigotutils.module.reflect.npc.NPCPose;
 import me.hapyl.spigotutils.module.util.Action;
 import me.hapyl.spigotutils.module.util.Runnables;
 import net.minecraft.world.entity.Entity;
+import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -218,6 +223,41 @@ public class CommandRegistry {
                         e.printStackTrace();
                     }
                 });
+            }
+        });
+
+        register(new SimplePlayerAdminCommand("resetDaily") {
+            @Override
+            protected void execute(Player player, String[] strings) {
+                final PlayerDatabase database = PlayerDatabase.getDatabase(player);
+                database.dailyRewardEntry.setLastDaily(System.currentTimeMillis() - DailyReward.MILLIS_WHOLE_DAY);
+
+                Chat.sendMessage(player, "&aReset daily!");
+            }
+        });
+
+        register(new SimplePlayerAdminCommand("dropDatabase") {
+            @Override
+            protected void execute(Player player, String[] strings) {
+                final Database database = Main.getPlugin().getDatabase();
+
+                if (!database.isUseTestDatabase()) {
+                    Chat.sendMessage(player, "&cCannot drop PROD database!");
+                    return;
+                }
+
+                final MongoDatabase mongoDatabase = database.getDatabase();
+
+                for (String string : mongoDatabase.listCollectionNames()) {
+                    mongoDatabase.getCollection(string).deleteMany(new Document());
+                }
+
+                Chat.sendMessage(player, "&aDropped database!");
+
+                // Reload player database
+                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                    PlayerDatabase.getDatabase(onlinePlayer).load();
+                }
             }
         });
 

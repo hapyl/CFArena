@@ -7,6 +7,7 @@ import me.hapyl.fight.event.SnowFormHandler;
 import me.hapyl.fight.game.ChatController;
 import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.collectible.Collectibles;
 import me.hapyl.fight.game.cosmetic.CosmeticsListener;
 import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.lobby.LobbyItems;
@@ -49,6 +50,7 @@ public class Main extends JavaPlugin {
     private Database database;
     private Notifier notifier;
     private CFParkourManager parkourManager;
+    private Collectibles collectibles;
 
     public static Main getPlugin() {
         return plugin;
@@ -108,6 +110,7 @@ public class Main extends JavaPlugin {
         this.notifier = new Notifier(this);
 
         this.parkourManager = new CFParkourManager(this);
+        this.collectibles = new Collectibles(this);
 
         // update database
         for (final Player player : Bukkit.getOnlinePlayers()) {
@@ -172,23 +175,25 @@ public class Main extends JavaPlugin {
         return boosters;
     }
 
+    public Collectibles getCollectibles() {
+        return collectibles;
+    }
+
     public void handlePlayer(Player player) {
         this.manager.createProfile(player);
 
-        // teleport either to spawn or the map is there is a game in progress
+        // teleport either to spawn or the map if there is a game in progress
         final IGameInstance game = this.manager.getCurrentGame();
         if (!game.isReal()) {
             final GameMode gameMode = player.getGameMode();
-            if (gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR) {
-                return;
+
+            if (gameMode != GameMode.CREATIVE && gameMode != GameMode.SPECTATOR) {
+                player.teleport(GameMaps.SPAWN.getMap().getLocation());
+                LobbyItems.giveAll(player);
             }
-
-            player.teleport(GameMaps.SPAWN.getMap().getLocation());
-            LobbyItems.giveAll(player);
-            return;
+        } else {
+            player.teleport(game.getMap().getMap().getLocation());
         }
-
-        player.teleport(game.getMap().getMap().getLocation());
 
         // notify about test database
         if (player.isOp() && database.isUseTestDatabase()) {
@@ -198,7 +203,7 @@ public class Main extends JavaPlugin {
 
             Chat.sendMessage(
                     player,
-                    "&cIf this isn't a test server, recompile the plugin with &eDatabase#useTestDatabase&c set to &efalse&c."
+                    "&cIf this isn't a test server, recompile the plugin with &eDatabase#DATABASE_NAME&c set to &eNamedDatabase.PRODUCTION&c."
             );
         }
     }

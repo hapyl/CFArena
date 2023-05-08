@@ -63,8 +63,8 @@ public final class MongoUtils {
 
     /**
      * Sets a value in a document using a string.
-     *
-     * String may or may not have segments separated by a dot.
+     * <p>
+     * String may or may doesn't have segments separated by a dot.
      *
      * @param root  - Root document
      * @param path  - Path to value

@@ -13,10 +13,10 @@ import org.bukkit.configuration.file.FileConfiguration;
 import java.util.logging.Logger;
 
 /**
- * I really don't know how database work or should work,
+ * I really don't know how a database works or should work;
  * it's my first time working with mongodb.
  * <p>
- * Just using my knowledge of yml files, that's said
+ * Just using my knowledge of yml files, that's said,
  * I'm not sure if this is the best way to do it.
  * <p>
  * But to document:
@@ -25,8 +25,7 @@ import java.util.logging.Logger;
  */
 public class Database extends DependencyInjector<Main> {
 
-    private final boolean useTestDatabase = false;
-    private final String DATABASE_NAME = "classes_fight";
+    private final String DATABASE_NAME = NamedDatabase.TESTING;
 
     private final FileConfiguration config;
 
@@ -44,7 +43,7 @@ public class Database extends DependencyInjector<Main> {
     }
 
     public boolean isUseTestDatabase() {
-        return useTestDatabase;
+        return DATABASE_NAME.equals(NamedDatabase.TESTING);
     }
 
     public void stopConnection() {
@@ -74,9 +73,9 @@ public class Database extends DependencyInjector<Main> {
             }
 
             // load database
-            database = client.getDatabase(DATABASE_NAME + (useTestDatabase ? "_TEST" : ""));
+            database = client.getDatabase(DATABASE_NAME);
 
-            if (useTestDatabase) {
+            if (isUseTestDatabase()) {
                 final Logger logger = getPlugin().getLogger();
                 logger.severe("");
                 for (int i = 0; i < 9; i++) {
