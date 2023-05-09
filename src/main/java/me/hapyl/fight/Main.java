@@ -191,20 +191,14 @@ public class Main extends JavaPlugin {
                 player.teleport(GameMaps.SPAWN.getMap().getLocation());
                 LobbyItems.giveAll(player);
             }
-        } else {
+        }
+        else {
             player.teleport(game.getMap().getMap().getLocation());
         }
 
-        // notify about test database
-        if (player.isOp() && database.isUseTestDatabase()) {
-            for (int i = 0; i < 3; i++) {
-                Chat.sendMessage(player, "&cThis build uses &4&ltest&c database!");
-            }
-
-            Chat.sendMessage(
-                    player,
-                    "&cIf this isn't a test server, recompile the plugin with &eDatabase#DATABASE_NAME&c set to &eNamedDatabase.PRODUCTION&c."
-            );
+        // Notify operators
+        if (player.isOp()) {
+            Chat.sendMessage(player, database.getDatabaseString());
         }
     }
 

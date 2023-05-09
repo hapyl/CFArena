@@ -3,20 +3,22 @@ package me.hapyl.fight.game.reward;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
+
 public enum Rewards {
 
     EMPTY(new Reward("Empty Reward") {
         @Override
-        public void display(Player player, ItemBuilder builder) {
+        public void display(@Nonnull Player player, @Nonnull ItemBuilder builder) {
         }
 
         @Override
-        public void grantReward(Player player) {
+        public void grantReward(@Nonnull Player player) {
             player.sendMessage("Granting empty reward!");
         }
 
         @Override
-        public void revokeReward(Player player) {
+        public void revokeReward(@Nonnull Player player) {
             player.sendMessage("Revoking empty reward!");
         }
     }),

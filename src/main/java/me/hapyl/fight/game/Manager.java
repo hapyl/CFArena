@@ -456,7 +456,7 @@ public class Manager extends DependencyInjector<Main> {
         // stop all game tasks
         Main.getPlugin().getTaskList().onStop();
 
-        // clean up teams
+        // clean-up teams
         for (GameTeam value : GameTeam.values()) {
             value.onStop();
         }

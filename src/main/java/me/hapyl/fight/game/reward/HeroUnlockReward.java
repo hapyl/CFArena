@@ -5,6 +5,7 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 // FIXME (hapyl): 020, Apr 20, 2023: pluralize
@@ -23,18 +24,18 @@ public class HeroUnlockReward extends Reward {
     }
 
     @Override
-    public void display(Player player, ItemBuilder builder) {
+    public void display(@Nonnull Player player, @Nonnull ItemBuilder builder) {
         final List<Heroes> heroesUnlock = Lists.newArrayList();
 
     }
 
     @Override
-    public void grantReward(Player player) {
+    public void grantReward(@Nonnull Player player) {
 
     }
 
     @Override
-    public void revokeReward(Player player) {
+    public void revokeReward(@Nonnull Player player) {
 
     }
 }

@@ -10,8 +10,6 @@ import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import java.util.logging.Logger;
-
 /**
  * I really don't know how a database works or should work;
  * it's my first time working with mongodb.
@@ -25,9 +23,8 @@ import java.util.logging.Logger;
  */
 public class Database extends DependencyInjector<Main> {
 
-    private final String DATABASE_NAME = NamedDatabase.TESTING;
-
     private final FileConfiguration config;
+    private final NamedDatabase namedDatabase;
 
     private MongoClient client;
     private MongoDatabase database;
@@ -38,12 +35,17 @@ public class Database extends DependencyInjector<Main> {
     public Database(Main main) {
         super(main);
         this.config = main.getConfig();
+        this.namedDatabase = NamedDatabase.byName(config.getString("database.type"));
 
         // Suppress logging
     }
 
-    public boolean isUseTestDatabase() {
-        return DATABASE_NAME.equals(NamedDatabase.TESTING);
+    public NamedDatabase getNamedDatabase() {
+        return namedDatabase;
+    }
+
+    public boolean isDevelopment() {
+        return namedDatabase.isDevelopment();
     }
 
     public void stopConnection() {
@@ -73,16 +75,9 @@ public class Database extends DependencyInjector<Main> {
             }
 
             // load database
-            database = client.getDatabase(DATABASE_NAME);
+            database = client.getDatabase(namedDatabase.getName());
 
-            if (isUseTestDatabase()) {
-                final Logger logger = getPlugin().getLogger();
-                logger.severe("");
-                for (int i = 0; i < 9; i++) {
-                    getPlugin().getLogger().severe("USING TEST DATABASE!");
-                }
-                logger.severe("");
-            }
+            getPlugin().getLogger().info(getDatabaseString());
 
             // load collections
             players = database.getCollection("players");
@@ -91,6 +86,10 @@ public class Database extends DependencyInjector<Main> {
         } catch (Exception e) {
             breakConnectionAndDisablePlugin("Failed to retrieve database collection!");
         }
+    }
+
+    public String getDatabaseString() {
+        return "&a&lMONGO &fConnected Database: &6&l" + namedDatabase.name();
     }
 
     public MongoDatabase getDatabase() {

@@ -16,10 +16,10 @@ public class Debugger {
      * Indicates that this debug logger should not be removed in prod.
      */
     public static void keepLog(Object any, Object... format) {
-        log(any, format);
+        info(any, format);
     }
 
-    public static void log(Object any, Object... format) {
+    public static void info(Object any, Object... format) {
         send("&7" + any, format);
     }
 
@@ -41,7 +41,7 @@ public class Debugger {
 
     public static void logIf(boolean condition, String any, Object... format) {
         if (condition) {
-            log(any, format);
+            info(any, format);
         }
     }
 

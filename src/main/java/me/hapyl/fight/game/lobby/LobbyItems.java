@@ -49,7 +49,7 @@ public enum LobbyItems {
         public void onClick(Player player) {
             if (player.isOp()) {
             }
-            Debugger.log("Ignoring start vote");
+            Debugger.info("Ignoring start vote");
             player.performCommand("cf start");
         }
     }),

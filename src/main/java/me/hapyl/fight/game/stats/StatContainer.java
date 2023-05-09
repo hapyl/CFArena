@@ -3,7 +3,6 @@ package me.hapyl.fight.game.stats;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.util.NonNullableElementHolder;
 import org.bukkit.entity.Player;
 
@@ -37,20 +36,10 @@ public class StatContainer extends NonNullableElementHolder<GamePlayer> {
 
     public void addValue(StatType type, double newValue) {
         valueMap.compute(type, (a, b) -> b == null ? newValue : b + newValue);
-
-        final GameTeam team = GameTeam.getPlayerTeam(getPlayer());
-        if (team != null) {
-            team.kills += newValue;
-        }
     }
 
     public void setValue(StatType type, double newValue) {
         valueMap.put(type, newValue);
-
-        final GameTeam team = getElement().getTeam();
-        if (team != null) {
-            team.kills = (int) newValue;
-        }
     }
 
     public String getString(StatType type) {

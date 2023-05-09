@@ -241,7 +241,7 @@ public class CommandRegistry {
             protected void execute(Player player, String[] strings) {
                 final Database database = Main.getPlugin().getDatabase();
 
-                if (!database.isUseTestDatabase()) {
+                if (!database.isDevelopment()) {
                     Chat.sendMessage(player, "&cCannot drop PROD database!");
                     return;
                 }

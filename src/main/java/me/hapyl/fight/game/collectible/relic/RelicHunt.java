@@ -4,8 +4,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.annotate.Unique;
-import me.hapyl.fight.game.Debugger;
 import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.reward.Reward;
+import me.hapyl.fight.util.Range;
 import me.hapyl.spigotutils.module.nbt.NBT;
 import me.hapyl.spigotutils.module.util.DependencyInjector;
 import org.bukkit.Bukkit;
@@ -33,15 +34,34 @@ import java.util.function.BiConsumer;
 public class RelicHunt extends DependencyInjector<Main> implements Listener {
 
     private final Map<Integer, Relic> byId;
+    private final Map<Integer, Reward> collectorRewards;
+    private final Map<Integer, Reward> exchangeReward;
 
     public RelicHunt(Main plugin) {
         super(plugin);
-        this.byId = Maps.newHashMap();
+        byId = Maps.newHashMap();
+        collectorRewards = Maps.newHashMap();
+        exchangeReward = Maps.newHashMap();
+
+        collectorRewards.put(1, new RelicCollectorReward(1).withCoins(500).withExp(5));
+        collectorRewards.put(2, new RelicCollectorReward(2).withCoins(1000).withExp(10));
+        collectorRewards.put(3, new RelicCollectorReward(3).withCoins(2000).withExp(20).withRubies(1));
+
+        exchangeReward.put(1, new ExchangeReward(1).withCoins(500).withExp(5));
+        exchangeReward.put(2, new ExchangeReward(2).withCoins(1000).withExp(10));
+        exchangeReward.put(3, new ExchangeReward(3).withCoins(1500).withExp(15));
+        exchangeReward.put(4, new ExchangeReward(4).withCoins(2000).withExp(20));
+        exchangeReward.put(5, new ExchangeReward(5).withCoins(3000).withExp(30).withRubies(1));
 
         Bukkit.getPluginManager().registerEvents(this, plugin);
         Bukkit.getScheduler().runTaskTimer(plugin, new RelicRunnable(this), 0L, 20L);
 
         initRelics();
+    }
+
+    @Nullable
+    public Reward getCollectorReward(@Range(min = 1) int tier) {
+        return collectorRewards.get(tier);
     }
 
     @EventHandler()
@@ -123,8 +143,39 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
         return getFoundList(player).stream().filter(relic -> relic.getZone() == zone).toList();
     }
 
+    public List<Relic> getFoundListByType(Player player, Type value) {
+        return getFoundList(player).stream().filter(relic -> relic.getType() == value).toList();
+    }
+
     public void forEach(@Nonnull BiConsumer<Integer, Relic> consumer) {
         byId.forEach(consumer);
+    }
+
+    public List<Relic> byType(Type value) {
+        final List<Relic> relics = Lists.newArrayList();
+
+        for (Relic relic : byId.values()) {
+            if (relic.getType() == value) {
+                relics.add(relic);
+            }
+        }
+
+        return relics;
+    }
+
+    @Nonnull
+    public Reward getExchangeReward(@Range(min = 1) int tier) {
+        Reward reward = exchangeReward.get(tier);
+
+        if (reward == null) {
+            reward = exchangeReward.get(exchangeReward.size() - 1);
+        }
+
+        if (reward == null) {
+            throw new IllegalStateException("There must be at least one exchange reward!");
+        }
+
+        return reward;
     }
 
     private void initRelics() {
@@ -153,12 +204,11 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
         registerRelic(501, new Relic(Type.SAPPHIRE, 36, 65, 77).setZone(GameMaps.RAILWAY));
         registerRelic(502, new Relic(Type.EMERALD, -9, 66, 117).setZone(GameMaps.RAILWAY));
 
-        createRelics();
+        // Winery
+        registerRelic(600, new Relic(Type.SAPPHIRE, 231, 62, 216).setZone(GameMaps.WINERY));
+        registerRelic(601, new Relic(Type.DIAMOND, 223, 62, 190).setZone(GameMaps.WINERY).setBlockFace(BlockFace.SOUTH_WEST));
 
-        // temp
-        byId.forEach((i, r) -> {
-            Debugger.log(r);
-        });
+        createRelics();
     }
 
     private void createRelics() {

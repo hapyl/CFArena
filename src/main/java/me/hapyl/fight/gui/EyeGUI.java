@@ -32,7 +32,9 @@ public class EyeGUI extends PlayerDynamicGUI {
         setItem(11, ItemBuilder.of(Material.PLAYER_HEAD, "Relic Hunt")
                 .addSmartLore("There are relics scattered all around the world. Try to find them all to get unique rewards!")
                 .setHeadTextureUrl(Type.AMETHYST.getTexture())
-                .asIcon(), RelicGUI::new);
+                .addLore()
+                .addLore("&eClick to browse")
+                .asIcon(), RelicHuntGUI::new);
 
         // Daily Reward
         final boolean canClaimDaily = database.dailyRewardEntry.canClaim();

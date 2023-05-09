@@ -11,40 +11,42 @@ import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
-public class DailyReward extends Reward {
+import javax.annotation.Nonnull;
+
+public class DailyReward extends CurrencyReward {
 
     public static final long MILLIS_WHOLE_DAY = 86_400_000L;
 
-    private final long coins;
-    private final long exp;
-    private final long ruby;
+    private final long bonusRubies;
 
     public DailyReward() {
         super("Daily Reward");
 
-        this.coins = 1000;
-        this.exp = 10;
-        this.ruby = 1;
+        withCoins(1000);
+        withExp(10);
+
+        this.bonusRubies = 1;
     }
 
     @Override
-    public void display(Player player, ItemBuilder builder) {
+    public void display(@Nonnull Player player, @Nonnull ItemBuilder builder) {
         final PlayerDatabase database = PlayerDatabase.getDatabase(player);
         final DailyRewardEntry entry = database.dailyRewardEntry;
         final boolean canClaim = entry.canClaim();
 
         if (canClaim) {
             builder.addLore("Today's Rewards:");
-        } else {
+        }
+        else {
             builder.addLore("Tomorrow's Rewards:");
         }
 
         builder.addLore();
-        builder.addLore("&a+ &6%s Coins", coins);
-        builder.addLore("&a+ &9%s Experience", exp);
+        builder.addLore("&a+ &6%s Coins", getCoins());
+        builder.addLore("&a+ &9%s Experience", getExp());
 
         if (entry.isBonusReward()) {
-            builder.addLore("&a+ &c%s Ruby &a&lBONUS!", ruby);
+            builder.addLore("&a+ &c%s Ruby &a&lBONUS!", bonusRubies);
         }
 
         builder.addLore();
@@ -53,26 +55,27 @@ public class DailyReward extends Reward {
 
         if (canClaim) {
             builder.addLore("&eClick to claim!");
-        } else {
+        }
+        else {
             builder.addLore("&eAlready claimed today!");
             builder.addLore("&eCome again in %s to claim.", formatDaily(player));
         }
     }
 
     @Override
-    public void grantReward(Player player) {
+    public void grantReward(@Nonnull Player player) {
         final PlayerDatabase database = PlayerDatabase.getDatabase(player);
         final DailyRewardEntry entry = database.dailyRewardEntry;
         final int streak = entry.getStreak();
 
         final CurrencyEntry currency = database.getCurrency();
-        currency.add(Currency.COINS, coins);
+        currency.add(Currency.COINS, getCoins());
 
         final ExperienceEntry experience = database.getExperienceEntry();
-        experience.add(ExperienceEntry.Type.EXP, exp);
+        experience.add(ExperienceEntry.Type.EXP, getExp());
 
         if (entry.isBonusReward()) {
-            currency.add(Currency.RUBIES, ruby);
+            currency.add(Currency.RUBIES, bonusRubies);
         }
 
         entry.markLastDailyReward();
@@ -86,7 +89,7 @@ public class DailyReward extends Reward {
     }
 
     @Override
-    public void revokeReward(Player player) {
+    public void revokeReward(@Nonnull Player player) {
     }
 
     public static String formatDaily(Player player) {

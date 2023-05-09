@@ -61,7 +61,7 @@ public enum GameTeam {
      * Adds player to the team if it's not empty.
      *
      * @param player - Player to add.
-     * @return true if team is not full and player has been added, false otherwise
+     * @return true if the team is not full and player has been added, false otherwise
      */
     public boolean addMember(Player player) {
         if (isFull()) {
