@@ -15,7 +15,6 @@ public abstract class Acceptor {
 
     public Acceptor() {
         additionalArguments = Maps.newHashMap();
-        this.createAdditionalArguments();
     }
 
     public abstract void execute(Player player, String[] args);
@@ -32,7 +31,11 @@ public abstract class Acceptor {
     }
 
     public final Map<Integer, List<String>> additionalArguments() {
-        return this.additionalArguments;
+        if (additionalArguments.isEmpty()) {
+            createAdditionalArguments();
+        }
+
+        return additionalArguments;
     }
 
     protected final boolean checkLength(String[] array, int length) {

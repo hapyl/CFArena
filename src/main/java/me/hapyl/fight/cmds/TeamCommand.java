@@ -1,5 +1,6 @@
 package me.hapyl.fight.cmds;
 
+import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.gui.TeamSelectGUI;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -10,7 +11,8 @@ import org.bukkit.entity.Player;
 public class TeamCommand extends SimplePlayerCommand {
     public TeamCommand(String name) {
         super(name);
-        addCompleterValues(1, "toggle", "join", "leave");
+
+        addCompleterValues(1, "join", "leave");
         addCompleterValues(2, GameTeam.valuesStrings());
     }
 
@@ -21,17 +23,17 @@ public class TeamCommand extends SimplePlayerCommand {
         // team join (team) - join certain team
         // team leave (team) - leave certain team
 
+        if (Manager.current().isGameInProgress()) {
+            Chat.sendMessage(player, "&cCannot modify team during a game!");
+            return;
+        }
+
         if (args.length == 0) {
             new TeamSelectGUI(player);
             return;
         }
 
         final String arg0 = args[0].toLowerCase();
-
-        if (args.length == 1 && arg0.equalsIgnoreCase("toggle")) {
-            Chat.sendMessage(player, "&cNot necessary, team mode is permanent.");
-            return;
-        }
 
         final GameTeam team = Validate.getEnumValue(GameTeam.class, args[1]);
         if (team == null) {
@@ -40,7 +42,7 @@ public class TeamCommand extends SimplePlayerCommand {
         }
 
         if (arg0.equalsIgnoreCase("join")) {
-            if (team.addToTeam(player)) {
+            if (team.addMember(player)) {
                 Chat.sendMessage(player, "&aJoined %s team.", team.getName());
             }
             else {

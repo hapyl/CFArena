@@ -4,6 +4,7 @@ import me.hapyl.fight.game.cosmetic.skin.Skins;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.talents.TalentQueue;
 import org.bukkit.Sound;
@@ -27,8 +28,32 @@ public class NullGamePlayer implements IGamePlayer {
     }
 
     @Override
+    public boolean canMove() {
+        return false;
+    }
+
+    @Override
+    public void setCanMove(boolean canMove) {
+
+    }
+
+    @Override
     public void setDead(boolean dead) {
 
+    }
+
+    @Override
+    public long getCombatTag() {
+        return 0;
+    }
+
+    @Override
+    public void markCombatTag() {
+    }
+
+    @Override
+    public boolean isCombatTagged() {
+        return false;
     }
 
     @Nonnull

@@ -54,8 +54,6 @@ Bugs:
 - [✔] me.hapyl.fight.game.heroes.storage.extra.BlockShield.randomBlock(BlockShield.java:132) ~[ClassesFightArena.jar:?]
 - [✔] spark does not take dmg?
 
-- add glowing on death for teammates
-- fix mmu3 . -> / not cancelling msg
 - [✔] Kill DM
 - [✔] Blast knight horse
 - [✔] wolf howl 201.5 64.0 217.5 rand
@@ -64,9 +62,29 @@ Bugs:
 - [✔] leaving breaks the game
 - [✔] tripwire does not refresh on caught?
 
+- [✔?] At me.hapyl.fight.game.heroes.storage.Techie$1.run(Techie.java:101) ~[ClassesFightArena.jar:?]
+- [✔] Traps don't regen
+- [✔] Database save called twice in rejoin
+- GameTeam uses gameplayer and does not reset after rejoin
+- [✔]Remove effects at death
+- [Need a lot of testing but I think it's fine?] Player profile is not removed on leave?
+- Fix talent descriptions, use addDescription() not '__'
+
+- Improve harbinger wave
+- : wrong in harbinger melee mark
+- Maybe add glowing for self traps
+- rework TECHIE and TAKER ult
+- add glowing on death for teammates
+- Fix minion AI targetting invis
+- Maybe add buff when JUJU uses climb
+- make juju shot work when hit enemies
+
 - [✔] Melee stance does not reset properly?
 - [✔] juju shield breaks all at once
 - [✔] Tamer broken
+
+- [✔] Add distance on shots
+- Rework techie a bit, add delay to traps and ult is useless :|
 
 - Repackage talent/hero handles?
 - Cleanup Code

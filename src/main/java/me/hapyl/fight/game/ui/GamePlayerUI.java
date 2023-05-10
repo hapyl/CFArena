@@ -1,7 +1,9 @@
 package me.hapyl.fight.game.ui;
 
 import me.hapyl.fight.Main;
-import me.hapyl.fight.database.Database;
+import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.database.entry.Currency;
+import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.effect.GameEffect;
 import me.hapyl.fight.game.profile.PlayerProfile;
@@ -46,7 +48,7 @@ public class GamePlayerUI {
                     return;
                 }
 
-                // update player list and scoreboard
+                // update a player list and scoreboard
                 final String[] headerFooter = formatHeaderFooter();
                 player.setPlayerListHeaderFooter(Chat.format(headerFooter[0]), Chat.format(headerFooter[1]));
                 player.setPlayerListName(profile.getDisplay().getDisplayNameTab());
@@ -84,7 +86,7 @@ public class GamePlayerUI {
     }
 
     public void updateScoreboard() {
-        final Database database = profile.getDatabase();
+        final PlayerDatabase playerDatabase = profile.getDatabase();
         final Manager current = Manager.current();
 
         this.builder.getLines().clear();
@@ -132,11 +134,13 @@ public class GamePlayerUI {
             );
         }
         else {
+            final CurrencyEntry currency = playerDatabase.getCurrency();
             this.builder.addLines(
                     "&6&lLobby:",
                     " &e&lMap: &f%s".formatted(current.getCurrentMap().getMap().getName()),
                     " &e&lMode: &f%s".formatted(current.getCurrentMode().getMode().getName()),
-                    " &e&lCoins: &f%s".formatted(database.getCurrency().getCoinsString()),
+                    " &e&lCoins: &f%s".formatted(currency.getFormatted(Currency.COINS)),
+                    " &e&lRubies: &f%s".formatted(currency.getFormatted(Currency.RUBIES)),
                     String.format(
                             " &e&lHero: &f%s",
                             Setting.RANDOM_HERO.isEnabled(player) ? "Random" : profile.getSelectedHero().getName()
@@ -230,7 +234,7 @@ public class GamePlayerUI {
 
             for (int i = 0; i < 30; i++) {
                 builder.append(i < frame ? ChatColor.DARK_AQUA : ChatColor.DARK_GRAY);
-                builder.append(UIFormat.DIV);
+                builder.append(UIFormat.DIV_RAW);
             }
 
             footer.append("\n\n&e&lSong Player:\n");

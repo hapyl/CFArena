@@ -6,8 +6,8 @@ import me.hapyl.fight.Main;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -63,7 +63,7 @@ public class JuJu extends Hero implements Listener {
         setInfo("A bandit from the depths of the jungle. Highly skilled in range combat.");
         setItem("9dcff46588f394987979b7dd770adea94d8ee1fb1f7b8704e1baf91227f6a4d");
 
-        final ClassEquipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestplate(62, 51, 40);
         equipment.setLeggings(62, 51, 40);
         equipment.setBoots(16, 13, 10);

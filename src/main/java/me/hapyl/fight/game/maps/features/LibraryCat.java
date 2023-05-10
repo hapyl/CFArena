@@ -61,7 +61,7 @@ public class LibraryCat extends MapFeature implements Listener {
             me.setGravity(false);
             me.setSitting(true);
             me.setOwner(null);
-            me.setCatType(Cat.Type.BLACK);
+            me.setCatType(Cat.Type.ALL_BLACK);
             me.setAdult();
 
             Nulls.runIfNotNull(me.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE), attr -> attr.setBaseValue(1.0f));

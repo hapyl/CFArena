@@ -39,12 +39,12 @@ import java.util.Map;
  */
 public abstract class Hero implements GameElement, PlayerElement {
 
-    private final ClassEquipment equipment;
+    private final HeroEquipment equipment;
     private final String name;
 
     private Origin origin;
     private Role role;
-    private String about;
+    private String description;
     private ItemStack guiTexture;
     private Weapon weapon;
 
@@ -58,12 +58,12 @@ public abstract class Hero implements GameElement, PlayerElement {
     @Super
     public Hero(String name) {
         this.name = name;
-        this.about = "No description provided.";
+        this.description = "No description provided.";
         this.guiTexture = new ItemStack(Material.RED_BED);
         this.weapon = new Weapon(Material.WOODEN_SWORD);
         this.usedUltimateAt = Maps.newHashMap();
         this.reverseTasks = Maps.newConcurrentMap();
-        this.equipment = new ClassEquipment();
+        this.equipment = new HeroEquipment();
         this.origin = Origin.NOT_SET;
         this.role = Role.NONE;
         this.minimumLevel = 0;
@@ -122,7 +122,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      *
      * @return this hero's weapon.
      */
-    public ClassEquipment getEquipment() {
+    public HeroEquipment getEquipment() {
         return equipment;
     }
 
@@ -261,8 +261,8 @@ public abstract class Hero implements GameElement, PlayerElement {
      *
      * @return description of this hero.
      */
-    public String getAbout() {
-        return about;
+    public String getDescription() {
+        return description;
     }
 
     /**
@@ -271,7 +271,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      * @param about - New description.
      */
     public void setInfo(String about) {
-        this.about = about;
+        this.description = about;
     }
 
     /**
@@ -317,23 +317,6 @@ public abstract class Hero implements GameElement, PlayerElement {
     public void setItem(String texture64) {
         guiTexture = ItemBuilder.playerHeadUrl(texture64).asIcon();
         getEquipment().setTexture(texture64);
-    }
-
-    /**
-     * Sets this hero's GUI item from a texture link.
-     *
-     * <b>
-     * This link must be 'Value' from <a href="https://minecraft-heads.com/custom-heads">here</a>.
-     * <br>
-     * Should be a 'long' value, like this: 'eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWJlOWRlNzg1MmRjNGM2NmJhMzM3YWUzN2Y5MmI5OTA0ZTQzMWE0OTA4ZDAxMzg5YzdiMjFlYTQ2NDRjZTg0NSJ9fX0='
-     * </b>
-     *
-     * @param longString - String.
-     */
-    @Deprecated
-    public void setItemTexture(String longString) {
-        guiTexture = ItemBuilder.playerHead(longString).asIcon();
-        getEquipment().setHelmet(longString);
     }
 
     /**
@@ -558,7 +541,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      * @param damage   - Damage.
      */
     public void setWeapon(Material material, String name, double damage) {
-        setWeapon(new Weapon(material, name, null, damage));
+        setWeapon(new Weapon(material, name, "", damage));
     }
 
     /**
@@ -587,10 +570,9 @@ public abstract class Hero implements GameElement, PlayerElement {
      * @param player - Player.
      * @return true if there is a game in progress and player is in game, and player's selected hero is the same as the one provided.
      */
-    @Utility
     public final boolean validatePlayer(Player player) {
         final Manager current = Manager.current();
-        return validPlayerInGame(player) && current.getSelectedHero(player).getHero() == this;
+        return validPlayerInGame(player) && current.getCurrentHero(player) == this;
     }
 
     /**

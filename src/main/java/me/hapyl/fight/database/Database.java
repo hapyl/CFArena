@@ -1,187 +1,117 @@
 package me.hapyl.fight.database;
 
-import com.google.common.collect.Maps;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import me.hapyl.fight.Main;
-import me.hapyl.fight.database.entry.*;
-import me.hapyl.fight.database.rank.PlayerRank;
-import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.util.Validate;
+import me.hapyl.spigotutils.module.util.DependencyInjector;
 import org.bson.Document;
-import org.bson.conversions.Bson;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import org.bukkit.configuration.file.FileConfiguration;
 
-import java.util.Map;
-import java.util.UUID;
+/**
+ * I really don't know how a database works or should work;
+ * it's my first time working with mongodb.
+ * <p>
+ * Just using my knowledge of yml files, that's said,
+ * I'm not sure if this is the best way to do it.
+ * <p>
+ * But to document:
+ * {@link Database} is the main class that handles the connection to the database.
+ * {@link PlayerDatabaseEntry} is an instance of database value, that handles specific fields.
+ */
+public class Database extends DependencyInjector<Main> {
 
-// TODO (hapyl): 003, Apr 3, 2023: Maybe database should be independent of Profile?
-public sealed class Database permits DatabaseLegacy {
+    private final FileConfiguration config;
+    private final NamedDatabase namedDatabase;
 
-    private static final Map<UUID, Database> UUID_DATABASE_MAP = Maps.newConcurrentMap();
+    private MongoClient client;
+    private MongoDatabase database;
+    private MongoCollection<Document> players;
+    private MongoCollection<Document> parkour;
+    private MongoCollection<Document> heroStats;
 
-    private final DatabaseMongo mongo;
-    private final Document filter;
-    protected final Player player;
-    private final UUID uuid;
+    public Database(Main main) {
+        super(main);
+        this.config = main.getConfig();
+        this.namedDatabase = NamedDatabase.byName(config.getString("database.type"));
 
-    private Document config;
-
-    private final boolean legacy;
-
-    @Deprecated
-    protected Database(Player player, boolean legacy) {
-        this.player = player;
-        this.uuid = player.getUniqueId();
-        this.mongo = null;
-        this.filter = null;
-        this.legacy = true;
+        // Suppress logging
     }
 
-    public Database(UUID uuid) {
-        this.uuid = uuid;
-        this.mongo = Main.getPlugin().getDatabase();
-        this.player = Bukkit.getPlayer(uuid);
-        this.legacy = false;
-
-        this.filter = new Document("uuid", uuid.toString());
-
-        this.loadFile();
-        this.loadEntries();
+    public NamedDatabase getNamedDatabase() {
+        return namedDatabase;
     }
 
-    public Database(Player player) {
-        this(player.getUniqueId());
+    public boolean isDevelopment() {
+        return namedDatabase.isDevelopment();
     }
 
-    /**
-     * @deprecated legacy database not longer supported
-     */
-    @Deprecated
-    public boolean isLegacy() {
-        return legacy;
+    public void stopConnection() {
+        if (client != null) {
+            try {
+                client.close();
+            } catch (Exception ignored) {
+            }
+        }
     }
 
-    public static Database getDatabase(Player player) {
-        return PlayerProfile.getProfile(player).getDatabase();
-    }
-
-    public DatabaseMongo getMongo() {
-        return mongo;
-    }
-
-    public Document getConfig() {
-        return config;
-    }
-
-    public Player getPlayer() {
-        return player;
-    }
-
-    public UUID getUuid() {
-        return uuid;
-    }
-
-    // entries start
-    protected HeroEntry heroEntry;
-    protected CurrencyEntry currencyEntry;
-    protected StatisticEntry statisticEntry;
-    protected SettingEntry settingEntry;
-    protected ExperienceEntry experienceEntry;
-    protected CosmeticEntry cosmeticEntry;
-
-    private void loadEntries() {
-        this.heroEntry = new HeroEntry(this);
-        this.currencyEntry = new CurrencyEntry(this);
-        this.statisticEntry = new StatisticEntry(this);
-        this.settingEntry = new SettingEntry(this);
-        this.experienceEntry = new ExperienceEntry(this);
-        this.cosmeticEntry = new CosmeticEntry(this);
-    }
-
-    public ExperienceEntry getExperienceEntry() {
-        return experienceEntry;
-    }
-
-    public SettingEntry getSettings() {
-        return settingEntry;
-    }
-
-    public StatisticEntry getStatistics() {
-        return statisticEntry;
-    }
-
-    public CurrencyEntry getCurrency() {
-        return currencyEntry;
-    }
-
-    public HeroEntry getHeroEntry() {
-        return heroEntry;
-    }
-
-    public CosmeticEntry getCosmetics() {
-        return cosmeticEntry;
-    }
-
-    public PlayerRank getRank() {
-        final String rankString = config.get("rank", "DEFAULT");
-
-        return Validate.getEnumValue(PlayerRank.class, rankString, PlayerRank.DEFAULT);
-    }
-
-    public void setRank(PlayerRank rank) {
-        config.put("rank", rank.name());
-    }
-
-    // entries end
-    public Object getValue(String path) {
-        return config.get(path);
-    }
-
-    public <E> E getValue(String path, Type<E> type) {
-        return type.fromObject(getValue(path));
-    }
-
-    public void setValue(String path, Object object) {
-    }
-
-    public final void sync() {
-        saveToFile();
-        loadFile();
-    }
-
-    public void saveToFile() {
+    public void createConnection() {
         try {
-            //Bukkit.getScheduler().runTaskAsynchronously(Main.getPlugin(), () -> {
-            this.mongo.getPlayers().replaceOne(this.filter, this.config);
-            //});
+            final String connectionLink = config.getString("database.connection_link");
 
-            Bukkit.getLogger().info("Successfully saved database for %s.".formatted(player.getName()));
+            if (connectionLink == null || connectionLink.equals("null")) {
+                breakConnectionAndDisablePlugin("Provide a valid connection link in config.yml!");
+                return;
+            }
+
+            try {
+                client = MongoClients.create(connectionLink);
+            } catch (Exception e) {
+                getPlugin().getLogger().warning(connectionLink);
+                breakConnectionAndDisablePlugin("Failed to connect to MongoDB! Invalid connection link?");
+                return;
+            }
+
+            // load database
+            database = client.getDatabase(namedDatabase.getName());
+
+            getPlugin().getLogger().info(getDatabaseString());
+
+            // load collections
+            players = database.getCollection("players");
+            parkour = database.getCollection("parkour");
+            heroStats = database.getCollection("hero_stats");
         } catch (Exception e) {
-            e.printStackTrace();
-            Bukkit.getLogger().severe("An error occurred whilst trying to save database for %s.".formatted(player.getName()));
+            breakConnectionAndDisablePlugin("Failed to retrieve database collection!");
         }
     }
 
-    private void loadFile() {
-        this.config = this.mongo.getPlayers().find(this.filter).first();
-
-        if (config == null) {
-            final MongoCollection<Document> players = this.mongo.getPlayers();
-            final Document document = new Document("uuid", player.getUniqueId().toString()).append("player_name", player.getName());
-            this.config = document;
-            players.insertOne(document);
-        }
+    public String getDatabaseString() {
+        return "&a&lMONGO &fConnected Database: &6&l" + namedDatabase.name();
     }
 
-    private void sendInfo(String info, Object... toReplace) {
-        final String format = Chat.format("&e&lDEBUG: &f" + info, toReplace);
-        System.out.println(format);
-        //Bukkit.getOnlinePlayers().stream().filter(Player::isOp).forEach(player -> player.sendMessage(format));
+    public MongoDatabase getDatabase() {
+        return database;
     }
 
-    public void update(Bson set) {
-        this.mongo.getPlayers().updateOne(this.filter, set);
+    public MongoCollection<Document> getPlayers() {
+        return players;
+    }
+
+    public MongoCollection<Document> getParkour() {
+        return parkour;
+    }
+
+    public MongoCollection<Document> getHeroStats() {
+        return heroStats;
+    }
+
+    private void breakConnectionAndDisablePlugin(String message) throws RuntimeException {
+        getPlugin().getLogger().severe(message);
+        Bukkit.getPluginManager().disablePlugin(getPlugin());
+
+        throw new RuntimeException(message);
     }
 }

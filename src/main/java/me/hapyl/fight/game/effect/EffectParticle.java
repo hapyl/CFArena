@@ -33,6 +33,7 @@ public class EffectParticle {
             if (ignored != null && player == ignored) {
                 return;
             }
+
             PlayerLib.spawnParticle(player, location, particle, amount, oX, oY, oZ, speed);
         });
     }

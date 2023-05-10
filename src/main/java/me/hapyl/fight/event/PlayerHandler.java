@@ -1,11 +1,10 @@
 package me.hapyl.fight.event;
 
 import me.hapyl.fight.Main;
-import me.hapyl.fight.Shortcuts;
-import me.hapyl.fight.annotate.Entry;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.talents.Talent;
@@ -43,6 +42,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
+/**
+ * Handles all player related events.
+ */
 public class PlayerHandler implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -51,6 +53,8 @@ public class PlayerHandler implements Listener {
         final Main plugin = Main.getPlugin();
         final Manager manager = Manager.current();
 
+        plugin.handlePlayer(player);
+
         if (manager.isGameInProgress()) {
             final GameInstance gameInstance = (GameInstance) manager.getCurrentGame();
 
@@ -58,8 +62,6 @@ public class PlayerHandler implements Listener {
             gameInstance.populateScoreboard(player);
         }
         else {
-            plugin.handlePlayer(player);
-
             if (!player.hasPlayedBefore()) {
                 new Tutorial(player);
             }
@@ -84,21 +86,18 @@ public class PlayerHandler implements Listener {
             final IGameInstance game = Manager.current().getCurrentGame();
             final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
 
-            if (gamePlayer == null) {
-                return;
+            if (gamePlayer != null) {
+                game.getMode().onLeave((GameInstance) game, player);
             }
-
-            game.getMode().onLeave((GameInstance) game, player);
-        }
-
-        // save database
-        Shortcuts.getDatabase(player).saveToFile();
-        final GameTeam playerTeam = GameTeam.getPlayerTeam(player);
-        if (playerTeam != null) {
-            playerTeam.removeFromTeam(player);
         }
 
         ev.setQuitMessage(Chat.format("&7[&c-&7] %s%s &ehas fallen!", player.isOp() ? "&c" : "", player.getName()));
+
+        // save database
+        Manager.current().getOrCreateProfile(player).getDatabase().save();
+
+        // Delete profile
+        Manager.current().removeProfile(player);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -187,7 +186,7 @@ public class PlayerHandler implements Listener {
             gamePlayer.setUltPoints(0);
 
             // Stats
-            gamePlayer.getStats().addValue(StatContainer.Type.ULTIMATE_USED, 1);
+            gamePlayer.getStats().addValue(StatType.ULTIMATE_USED, 1);
 
             if (hero.getUltimateDuration() > 0) {
                 hero.setUsingUltimate(player, true, hero.getUltimateDuration());
@@ -209,11 +208,8 @@ public class PlayerHandler implements Listener {
     }
 
     /**
-     * This event calculates all the custom damage.
+     * Handler for damage calculations.
      */
-    @Entry(
-            name = "Damage calculation."
-    )
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handleDamage(EntityDamageEvent ev) {
         final Entity entity = ev.getEntity();
@@ -239,12 +235,17 @@ public class PlayerHandler implements Listener {
             final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
 
             // Fall damage
-            if (cause == EntityDamageEvent.DamageCause.FALL) {
-                if (gamePlayer.hasEffect(GameEffectType.NINJA_PASSIVE) || gamePlayer.hasEffect(GameEffectType.FALL_DAMAGE_RESISTANCE)) {
-                    ev.setCancelled(true);
-                    gamePlayer.removeEffect(GameEffectType.FALL_DAMAGE_RESISTANCE);
-                    return;
-                }
+            if (cause == EntityDamageEvent.DamageCause.FALL && gamePlayer.hasEffect(GameEffectType.FALL_DAMAGE_RESISTANCE)) {
+                ev.setCancelled(true);
+                gamePlayer.removeEffect(GameEffectType.FALL_DAMAGE_RESISTANCE);
+                return;
+            }
+        }
+
+        // Reassign damage cause
+        if (livingEntity instanceof Player playerVictim) {
+            if ((GamePlayer.getPlayer(playerVictim) instanceof GamePlayer player) && player.isNativeDamage()) {
+                player.setLastDamageCause(EnumDamageCause.getFromCause(cause));
             }
         }
 
@@ -302,17 +303,7 @@ public class PlayerHandler implements Listener {
                 if (cancel) {
                     ev.setDamage(0.0d);
                     ev.setCancelled(true);
-                }
-                return;
-            }
-
-            // Reassign damage cause
-            if (livingEntity instanceof Player playerVictim) {
-                final EntityDamageEvent lastDamageCause = playerVictim.getLastDamageCause();
-
-                if (lastDamageCause == null || lastDamageCause.getCause() != EntityDamageEvent.DamageCause.CUSTOM) {
-                    GamePlayer.getPlayer(playerVictim).setLastDamageCause(EnumDamageCause.getFromCause(cause));
-                    playerVictim.setLastDamageCause(null);
+                    return;
                 }
             }
 
@@ -340,9 +331,9 @@ public class PlayerHandler implements Listener {
             }
 
             // Apply modifiers for damager
-            if (damager instanceof LivingEntity living) {
-                final PotionEffect effectStrength = living.getPotionEffect(PotionEffectType.INCREASE_DAMAGE);
-                final PotionEffect effectWeakness = living.getPotionEffect(PotionEffectType.WEAKNESS);
+            if (damagerFinal != null) {
+                final PotionEffect effectStrength = damagerFinal.getPotionEffect(PotionEffectType.INCREASE_DAMAGE);
+                final PotionEffect effectWeakness = damagerFinal.getPotionEffect(PotionEffectType.WEAKNESS);
 
                 // Add 20% of damage per strength level
                 if (effectStrength != null) {
@@ -355,7 +346,7 @@ public class PlayerHandler implements Listener {
                 }
 
                 // Apply GameEffect for damager
-                if (living instanceof Player player) {
+                if (damagerFinal instanceof Player player) {
                     final IGamePlayer gp = GamePlayer.getPlayer(player);
                     if (gp.hasEffect(GameEffectType.STUN)) {
                         damage = 0.0d;
@@ -398,8 +389,12 @@ public class PlayerHandler implements Listener {
             }
         }
 
-        if (livingEntity instanceof Player player && damagerFinal != null) {
-            GamePlayer.getPlayer(player).setLastDamager(damagerFinal);
+        // Set damager if not custom hit
+        if (livingEntity instanceof Player player) {
+            final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
+            if (gamePlayer instanceof GamePlayer gp && gp.isNativeDamage()) {
+                gamePlayer.setLastDamager(damagerFinal);
+            }
         }
 
         // Process damager and victims hero damage processors
@@ -475,7 +470,7 @@ public class PlayerHandler implements Listener {
             final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
 
             if (gamePlayer != null) {
-                gamePlayer.getStats().addValue(StatContainer.Type.DAMAGE_DEALT, damage);
+                gamePlayer.getStats().addValue(StatType.DAMAGE_DEALT, damage);
             }
         }
 
@@ -489,7 +484,7 @@ public class PlayerHandler implements Listener {
                 gamePlayer.decreaseHealth(damage, damagerFinal);
 
                 // Stats
-                gamePlayer.getStats().addValue(StatContainer.Type.DAMAGE_TAKEN, damage);
+                gamePlayer.getStats().addValue(StatType.DAMAGE_TAKEN, damage);
 
                 // Cancel even if player died so there is no real death
                 if (damage >= health) {
@@ -525,7 +520,9 @@ public class PlayerHandler implements Listener {
         }
     }
 
-    @Entry(name = "Talent usage")
+    /**
+     * Handler for talent usage.
+     */
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handlePlayerClick(PlayerItemHeldEvent ev) {
         final Player player = ev.getPlayer();
@@ -614,7 +611,17 @@ public class PlayerHandler implements Listener {
         if (Manager.current().isGameInProgress()) {
             final IGamePlayer gp = GamePlayer.getPlayer(player);
 
+            // AFK detection
+            // Mark as moved even if player can't move and only moved the mouse
+            gp.markLastMoved();
+
             if (hasNotMoved(from, to)) {
+                return;
+            }
+
+            // Handle no moving
+            if (!gp.canMove()) {
+                ev.setCancelled(true);
                 return;
             }
 
@@ -628,16 +635,6 @@ public class PlayerHandler implements Listener {
                         new Random().nextBoolean() ? pushSpeed : -pushSpeed
                 ));
             }
-
-            // AFK detection
-            gp.markLastMoved();
-        }
-
-        // Handle no jumping
-        final PotionEffect effect = player.getPotionEffect(PotionEffectType.JUMP);
-
-        if (effect != null && effect.getAmplifier() == 250) {
-            ev.setCancelled(true);
         }
     }
 
@@ -645,7 +642,7 @@ public class PlayerHandler implements Listener {
     public void handleSlotClick(InventoryClickEvent ev) {
         if (ev.getClick() == ClickType.DROP && ev.getWhoClicked() instanceof Player player && player.getGameMode() == GameMode.CREATIVE) {
             ev.setCancelled(true);
-            Chat.sendMessage(player, "&aClicked %s slot.", ev.getRawSlot());
+            Chat.sendMessage(player, "&aClicked %s slot.", String.valueOf(ev.getRawSlot()));
             PlayerLib.playSound(player, Sound.BLOCK_LEVER_CLICK, 2.0f);
         }
     }
@@ -834,13 +831,15 @@ public class PlayerHandler implements Listener {
             chargedTalent.removeChargeAndStartCooldown(player);
         }
 
+        final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
         final int point = talent.getPoint();
 
         if (point > 0) {
-            GamePlayer.getPlayer(player).addUltimatePoints(point);
+            gamePlayer.addUltimatePoints(point);
         }
 
         talent.startCd(player);
+        gamePlayer.getTalentQueue().add(talent);
     }
 
 }

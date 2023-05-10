@@ -1,12 +1,12 @@
 package me.hapyl.fight.game.talents.storage.extra;
 
 import com.google.common.collect.Sets;
+import me.hapyl.fight.Main;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.PlayerParticle;
 import me.hapyl.spigotutils.module.math.geometry.Quality;
 import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.reflect.visibility.Visibility;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -37,18 +37,21 @@ public class AstralStars {
     }
 
     public void summonStar(Location location) {
-        final Bat bat = Entities.BAT.spawn(location, me -> {
-            me.setSilent(true);
-            me.setInvulnerable(true);
-            me.setInvisible(true);
-            me.setAI(false);
-            me.setAwake(false);
-            addToGlowingTeam(me);
-            me.setGlowing(true);
+        final Bat bat = Entities.BAT.spawn(location, self -> {
+            self.setSilent(true);
+            self.setInvulnerable(true);
+            self.setInvisible(true);
+            self.setAI(false);
+            self.setAwake(false);
+            addToGlowingTeam(self);
+            self.setGlowing(true);
+            self.setVisibleByDefault(false);
         });
 
+        // Show bat to player
+        player.showEntity(Main.getPlugin(), bat);
+
         bats.add(bat);
-        Visibility.of(bat, player);
     }
 
     public double getPickupDistance() {

@@ -38,7 +38,7 @@ public class Weapon implements Cloneable, DisplayFieldProvider {
     private String id;
 
     public Weapon(@Nonnull Material material) {
-        this(material, "unnamed weapon", null, 1);
+        this(material, "unnamed weapon", "", 1);
     }
 
     public Weapon(@Nonnull Material material, @Nonnull String name, @Nonnull String about, double damage) {
@@ -76,8 +76,9 @@ public class Weapon implements Cloneable, DisplayFieldProvider {
 
     public Weapon setDamage(double damage) {
         if (damage < 0) {
-            throw new IllegalArgumentException("damage cannot be negative.");
+            damage = 1.0d;
         }
+
         this.damage = damage;
         return this;
     }
@@ -159,6 +160,7 @@ public class Weapon implements Cloneable, DisplayFieldProvider {
                 }
                 onRightClick(player, player.getInventory().getItemInMainHand());
             }, Action.RIGHT_CLICK_BLOCK, Action.RIGHT_CLICK_AIR);
+
             builder.addClickEvent(player -> {
                 final Response response = Utils.playerCanUseAbility(player);
                 if (response.isError()) {
@@ -192,14 +194,18 @@ public class Weapon implements Cloneable, DisplayFieldProvider {
         }
 
         builder.setUnbreakable(true);
-        builder.setCancelClicks(false);
 
-        if (this.material == Material.BOW || this.material == Material.CROSSBOW) {
+        if (material == Material.BOW || material == Material.CROSSBOW) {
             builder.addEnchant(Enchantment.ARROW_INFINITE, 1);
         }
 
-        if (this.material == Material.TRIDENT) {
+        if (material == Material.TRIDENT) {
             builder.addEnchant(Enchantment.LOYALTY, 3);
+        }
+
+        // don't cancel clicks for these items
+        switch (material) {
+            case BOW, CROSSBOW, TRIDENT, FISHING_ROD, SHIELD -> builder.setCancelClicks(false);
         }
 
         builder.hideFlags();

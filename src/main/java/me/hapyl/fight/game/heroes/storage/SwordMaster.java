@@ -1,10 +1,11 @@
 package me.hapyl.fight.game.heroes.storage;
 
-import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.storage.heavy_knight.Updraft;
 import me.hapyl.fight.game.talents.storage.heavy_knight.Uppercut;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -50,7 +51,7 @@ public class SwordMaster extends Hero implements DisabledHero {
 
         setItem("4b2a75f05437ba2e28fb2a7d0eb6697a6e091ce91072b5c4ff1945295b092");
 
-        final ClassEquipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestplate(Material.NETHERITE_CHESTPLATE);
         equipment.setLeggings(Material.IRON_LEGGINGS);
         equipment.setBoots(Material.NETHERITE_BOOTS);
@@ -79,8 +80,8 @@ public class SwordMaster extends Hero implements DisabledHero {
     }
 
     @Override
-    public Talent getSecondTalent() {
-        return null;
+    public Updraft getSecondTalent() {
+        return (Updraft) Talents.UPDRAFT.getTalent();
     }
 
     @Override

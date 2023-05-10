@@ -70,7 +70,7 @@ public class HeroPreviewGUI extends PlayerGUI {
                         .addLore("&7Role: &b%s", hero.getRole().getName())
                         .addSmartLore(hero.getRole().getDescription(), "&8&o")
                         .addLore()
-                        .addSmartLore(hero.getAbout(), " &7&o")
+                        .addSmartLore(hero.getDescription(), " &7&o")
                         .toItemStack()
         );
 

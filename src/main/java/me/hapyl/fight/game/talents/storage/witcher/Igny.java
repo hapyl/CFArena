@@ -25,10 +25,10 @@ public class Igny extends Talent {
     @DisplayField private final int fireTicksFurther = 20;
 
     public Igny() {
-        super(
-                "Igni",
-                "Fires blazing spirits in front of you that deal damage and sets enemies on fire.__Damage and burning duration falls off with distance."
-        );
+        super("Igni");
+
+        addDescription("Fires blazing spirits in front of you that deal damage and sets enemies on fire.");
+        addDescription("Damage and burning duration falls off with distance.");
 
         setItem(Material.BLAZE_POWDER);
         setCdSec(10);

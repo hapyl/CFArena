@@ -46,7 +46,7 @@ public enum TamerPacks {
         public void onUltimate(Player player, TamerPack pack) {
             Chat.sendMessage(
                     player,
-                    "&2Unleash the horde! Your zombies swarm forward, tearing through everything in their path. No one can stop the undead army now!"
+                    "&2Unleash the horde! Your zombies swarm forward, tearing through everything in their string. No one can stop the undead army now!"
             );
             pack.removeAll();
             for (int i = 0; i < 9; i++) {
@@ -231,7 +231,7 @@ public enum TamerPacks {
         public void onUltimate(Player player, TamerPack pack) {
             Chat.sendMessage(
                     player,
-                    "&bUnleash the power of the ocean! Your guardian laser fires with deadly precision, obliterating anything in its path. Beware the wrath of the deep!"
+                    "&bUnleash the power of the ocean! Your guardian laser fires with deadly precision, obliterating anything in its string. Beware the wrath of the deep!"
             );
             //pack.remove(); impl in Tamer#onUltimateEnd
             final Guardian guardian = pack.createEntity(player.getLocation(), Entities.GUARDIAN, self -> {

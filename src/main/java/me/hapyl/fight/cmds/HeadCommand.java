@@ -20,9 +20,7 @@ public class HeadCommand extends SimplePlayerAdminCommand {
             return;
         }
 
-        final ItemStack itemStack = ItemBuilder.playerHeadUrl(args[0])
-                .setName("3781c252df29412dd4693848e3856ba5ddf116198e5c8748b28b46a85e983")
-                .asIcon();
+        final ItemStack itemStack = ItemBuilder.playerHeadUrl(args[0]).setName(args[0]).asIcon();
 
         player.getInventory().addItem(itemStack);
         Chat.sendMessage(player, "&aAdded head to your inventory!");

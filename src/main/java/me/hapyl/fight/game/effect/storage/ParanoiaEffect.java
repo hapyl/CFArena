@@ -22,19 +22,19 @@ public class ParanoiaEffect extends GameEffect {
             Sound.ENTITY_PLAYER_ATTACK_STRONG,
             Sound.ENTITY_PLAYER_ATTACK_WEAK,
             Sound.AMBIENT_CAVE,
-            };
+    };
 
     public ParanoiaEffect() {
         super("Paranoia");
-        this.setDescription("Blinds players and plays decoy sounds around them.");
-        this.setPositive(false);
-        this.setEffectParticle(new EffectParticle(Particle.SQUID_INK, 5, 0.175d, 0.175d, 0.175d, 0.02f));
+        setDescription("Blinds players and plays decoy sounds around them.");
+        setPositive(false);
+        setEffectParticle(new EffectParticle(Particle.SQUID_INK, 5, 0.175d, 0.175d, 0.175d, 0.02f));
     }
 
     @Override
     public void onTick(Player player, int tick) {
-        // Player a sound every 20 ticks or with 10% chance
-        if (tick == 0 || ThreadRandom.nextFloatAndCheckBetween(0.9f, 1.0f)) {
+        // Plays a sound every 20 ticks or with 10% chance
+        if (tick == 0 || Math.random() >= 0.9d) {
             // Display paranoia for all players but the viewer
             final Location spawnLocation = player.getLocation().clone().add(0, 1.7d, 0);
             this.displayParticles(spawnLocation, player);

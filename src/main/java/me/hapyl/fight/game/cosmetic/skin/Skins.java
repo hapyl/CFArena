@@ -6,7 +6,7 @@ import me.hapyl.fight.game.heroes.Heroes;
 // Skins are separated from the rest of the cosmetics because they are handled differently.
 public enum Skins {
 
-    // Namespace is HERO:SKINNAME
+    // Namespace is HERO_SKIN
 
     ARCHER_HUNTER(new SkinNoEffect(Heroes.ARCHER, "Hunter")),
 

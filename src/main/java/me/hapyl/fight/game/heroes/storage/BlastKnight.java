@@ -5,13 +5,14 @@ import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.PlayerElement;
-import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.heroes.storage.extra.Shield;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.storage.knight.Spear;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.ItemStacks;
@@ -55,11 +56,9 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Lis
 
         setRole(Role.MELEE);
         setInfo("Royal Knight with high-end technology gadgets.");
-        setItemTexture(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTJkZmRlNmMyYzhmMGE3YWRmN2FlNGU5NDlhODA0ZmVkZjk1YzZiOTU2Mjc2N2VhZTZjMjJhNDAxY2QwMmNiZCJ9fX0="
-        );
+        setItem("e2dfde6c2c8f0a7adf7ae4e949a804fedf95c6b9562767eae6c22a401cd02cbd");
 
-        final ClassEquipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestplate(Color.BLUE);
         equipment.setLeggings(Material.CHAINMAIL_LEGGINGS);
         equipment.setBoots(Material.IRON_BOOTS);
@@ -151,7 +150,7 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Lis
             }
 
             ev.setCancelled(true);
-            Chat.sendMessage(player, "&cThis is not yor Horse!");
+            Chat.sendMessage(player, "&cThis is not your Horse!");
             PlayerLib.playSound(player, Sound.ENTITY_HORSE_ANGRY, 1.0f);
         }
     }
@@ -256,8 +255,8 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Lis
     }
 
     @Override
-    public Talent getFirstTalent() {
-        return Talents.SPEAR.getTalent();
+    public Spear getFirstTalent() {
+        return (Spear) Talents.SPEAR.getTalent();
     }
 
     @Override

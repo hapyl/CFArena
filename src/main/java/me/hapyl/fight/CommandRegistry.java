@@ -3,8 +3,13 @@ package me.hapyl.fight;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.mongodb.client.MongoDatabase;
 import me.hapyl.fight.cmds.*;
+import me.hapyl.fight.database.Database;
+import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.TitleAnimation;
+import me.hapyl.fight.game.reward.DailyReward;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.chat.Gradient;
@@ -19,10 +24,14 @@ import me.hapyl.spigotutils.module.reflect.npc.NPCPose;
 import me.hapyl.spigotutils.module.util.Action;
 import me.hapyl.spigotutils.module.util.Runnables;
 import net.minecraft.world.entity.Entity;
+import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Skull;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Piglin;
@@ -49,7 +58,6 @@ public class CommandRegistry {
         register(new HeroCommand("hero"));
         register(new GameCommand("cf"));
         register(new ReportCommandCommand("report"));
-        register(new UltimateCommand("ultimate"));
         register(new ParticleCommand("part"));
         register(new GameEffectCommand("gameEffect"));
         register(new MapCommand("map"));
@@ -59,29 +67,30 @@ public class CommandRegistry {
         register(new TrialCommand("trial"));
         register(new SettingCommand("setting"));
         register(new TutorialCommand("tutorial"));
-        //register(new GamemodeShortcut("gamemode"));
         register(new TeamCommand("team"));
         register(new TestWinConditionCommand("testWinCondition"));
         register(new TriggerWinCommand("triggerWin"));
         register(new DummyCommand("dummy"));
         register(new CooldownCommand("cooldown"));
         register(new ExperienceCommand("experience"));
+        register(new AchievementCommand("achievement"));
         register(new CosmeticCommand("cosmetic"));
-        register(new DatabaseCommand("database"));
         register(new SyncDatabaseCommand("syncDatabase"));
         register(new CastSpellCommand("cast"));
-        register(new ThrowExceptionCommand("throwClassesFightException"));
         register(new UpdateParkourLeaderboardCommand("updateParkourLeaderboard"));
         register(new InterruptCommand("interrupt"));
         register(new TestDatabaseCommand("testdatabase"));
         register(new EquipCommand("equip"));
         register(new HeadCommand("head"));
         register(new RankCommand("rank"));
+        register(new DebugPlayerCommand("debugPlayer"));
+        register(new DebugAchievementCommand("debugAchievement"));
+        register(new ProfileCommand("profile"));
 
-
-        register(new SimplePlayerAdminCommand("testnpcpose") {
+        register(new SimpleAdminCommand("listProfiles") {
             @Override
-            protected void execute(Player player, String[] strings) {
+            protected void execute(CommandSender commandSender, String[] strings) {
+                Manager.current().listProfiles();
             }
         });
 
@@ -171,7 +180,7 @@ public class CommandRegistry {
                 Glowing.glowInfinitly(spawn, ChatColor.GOLD, player);
 
                 Runnables.runLater(() -> {
-                    Glowing.stopGlowing(spawn);
+                    Glowing.stopGlowing(player, spawn);
                     Chat.sendMessage(player, "Stop glowing");
                 }, 60);
             }
@@ -217,6 +226,61 @@ public class CommandRegistry {
                         e.printStackTrace();
                     }
                 });
+            }
+        });
+
+        register(new SimplePlayerAdminCommand("resetDaily") {
+            @Override
+            protected void execute(Player player, String[] strings) {
+                final PlayerDatabase database = PlayerDatabase.getDatabase(player);
+                database.dailyRewardEntry.setLastDaily(System.currentTimeMillis() - DailyReward.MILLIS_WHOLE_DAY);
+
+                Chat.sendMessage(player, "&aReset daily!");
+            }
+        });
+
+        register(new SimplePlayerAdminCommand("skullBlockFace") {
+            @Override
+            protected void execute(Player player, String[] strings) {
+                final Block block = player.getTargetBlockExact(100);
+
+                if (block == null) {
+                    Chat.sendMessage(player, "&cNo block in sight.");
+                    return;
+                }
+
+                final BlockState state = block.getState();
+                if (!(state instanceof Skull skull)) {
+                    Chat.sendMessage(player, "&cTarget block is not a skull.");
+                    return;
+                }
+
+                Chat.sendMessage(player, "&aBlock Face: &l" + skull.getRotation().name());
+            }
+        });
+
+        register(new SimplePlayerAdminCommand("dropDatabase") {
+            @Override
+            protected void execute(Player player, String[] strings) {
+                final Database database = Main.getPlugin().getDatabase();
+
+                if (!database.isDevelopment()) {
+                    Chat.sendMessage(player, "&cCannot drop PROD database!");
+                    return;
+                }
+
+                final MongoDatabase mongoDatabase = database.getDatabase();
+
+                for (String string : mongoDatabase.listCollectionNames()) {
+                    mongoDatabase.getCollection(string).deleteMany(new Document());
+                }
+
+                Chat.sendMessage(player, "&aDropped database!");
+
+                // Reload player database
+                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                    PlayerDatabase.getDatabase(onlinePlayer).load();
+                }
             }
         });
 

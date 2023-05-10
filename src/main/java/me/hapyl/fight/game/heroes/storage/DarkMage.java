@@ -6,9 +6,9 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.cosmetic.CosmeticsHandle;
 import me.hapyl.fight.game.effect.GameEffectType;
-import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.ComplexHero;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.heroes.storage.extra.DarkMageSpell;
 import me.hapyl.fight.game.talents.Talent;
@@ -53,7 +53,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         setInfo("A mage that was cursed by &8&lDark &8&lMagic&7&o. But even it couldn't kill him...");
         setItem("e6ca63569e8728722ecc4d12020e42f086830e34e82db55cf5c8ecd51c8c8c29");
 
-        final ClassEquipment equipment = this.getEquipment();
+        final HeroEquipment equipment = this.getEquipment();
         equipment.setChestplate(102, 255, 255);
         equipment.setLeggings(Material.IRON_LEGGINGS);
         equipment.setBoots(153, 51, 51);
@@ -61,15 +61,16 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         setWeapon(new Weapon(Material.WOODEN_HOE).setName("Ancient Wand")
                 .setDamage(7.0d)
                 .setDescription(
-                        "A powerful wand, that's capable of casting multiple spells!__&e&lRIGHT CLICK &7to enter casting, then, combine &e&lRIGHT CLICK &7and/or &e&lLEFT CLICK &7to execute the spell!"
+                        "A powerful wand, that's capable of casting multiple spells!____&e&lRIGHT CLICK &7to enter casting, then, combine &e&lRIGHT CLICK &7and/or &e&lLEFT CLICK &7to execute the spell!"
                 )
                 .setWeaponLore(
                         "Long ago, a powerful wand was crafted from the bones of long-dead wizards and imbued with dark magic, granting immense power to its wielder. The wand was used by a cruel and merciless ruler to subjugate kingdoms."
                 ));
 
+        // TODO (hapyl): 019, Apr 19, 2023: Make DM actually ride the wither?
         setUltimate(new UltimateTalent(
                 "Wither Rider",
-                "Transform into the wither for {duration}.__" +
+                "Transform into the wither for {duration}.____" +
                         "While transformed, &e&lRIGHT CLICK &7to shoot wither skulls that deals massive damage on impact.__" +
                         "After wither disappears, you perform plunging attack that deals damage in AoE upon hitting the ground.",
                 70

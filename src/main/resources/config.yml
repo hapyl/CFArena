@@ -1,4 +1,3 @@
 database:
-  use_mongodb: false
-  login: login
-  password: password
+  type: "PRODUCTION"
+  connection_link: "null"

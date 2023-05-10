@@ -5,8 +5,8 @@ import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.NewHero;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.heroes.storage.extra.SpiritualBones;
@@ -48,13 +48,14 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
         setRole(Role.MELEE);
         setItem("ff1e554161bd4b2ce4cad18349fd756994f74cabf1fd1dacdf91b6d05dffaf");
 
-        final ClassEquipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestplate(Color.BLACK);
         equipment.setLeggings(Color.BLACK);
         equipment.setBoots(Color.BLACK);
 
         setWeapon(Material.IRON_HOE, "Scythe", 6.66d);
 
+        // TODO (hapyl): 019, Apr 19, 2023: Still don't like the ultimate
         final UltimateTalent ultimate = new UltimateTalent(
                 "Embodiment of Death",
                 "Instantly consume all &eSpiritual Bones&7 and cloak yourself in darkness for {duration}.____While cloaked, gain resistance and heal rapidly but suffer speed reduction.__Additionally, shoot death projectiles periodically.____&cHealing&7 and amount of &cdeath projectiles&7 is based on the amount of bones consumed.",

@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.effect.storage.SlowingAuraEffect;
+import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.util.Function;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Utils;
@@ -28,35 +29,34 @@ import java.util.List;
 public abstract class Talent extends NonnullItemStackCreatable implements GameElement, DisplayFieldProvider {
 
     public static final Talent NULL = null;
-
+    public static int DYNAMIC = -1;
+    private final String name;
+    private final Type type;
+    private final List<String> description;
+    private final List<String> attributeDescription;
     private ItemStack itemStats;
     private int startAmount;
     private Material material;
     private String texture;
     private String texture64;
-
-    private final String name;
-    private final Type type;
-    private final List<String> description;
-    private final List<String> attributeDescription;
-
     private String castMessage;
     private String altUsage;
     private Function<ItemBuilder> itemFunction;
     private int point;
     private int cd;
     private int duration;
-
     private boolean autoAdd;
 
     public Talent(@Nonnull String name) {
         this(name, "", Type.COMBAT);
     }
 
+    @Deprecated
     public Talent(@Nonnull String name, @Nonnull String description) {
         this(name, description, Type.COMBAT);
     }
 
+    @Deprecated
     public Talent(@Nonnull String name, @Nonnull String description, @Nonnull Material material) {
         this(name, description);
         setItem(material);
@@ -115,12 +115,12 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         this.point = point;
     }
 
-    public void setCastMessage(String castMessage) {
-        this.castMessage = castMessage;
-    }
-
     public String getCastMessage() {
         return castMessage;
+    }
+
+    public void setCastMessage(String castMessage) {
+        this.castMessage = castMessage;
     }
 
     public void addDescription() {
@@ -135,6 +135,11 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         this.description.add(description);
     }
 
+    public void addNlDescription(String description, Object... format) {
+        addDescription();
+        addDescription(description, format);
+    }
+
     public void addDescription(String description, Object... format) {
         this.description.add(description.formatted(format));
     }
@@ -145,12 +150,12 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         this.description.add(description.formatted(format));
     }
 
-    public void setAutoAdd(boolean autoAdd) {
-        this.autoAdd = autoAdd;
-    }
-
     public boolean isAutoAdd() {
         return autoAdd;
+    }
+
+    public void setAutoAdd(boolean autoAdd) {
+        this.autoAdd = autoAdd;
     }
 
     public Material getMaterial() {
@@ -301,48 +306,19 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         itemStats = builderAttributes.asIcon();
     }
 
-    private String getLastColor(List<String> list) {
-        for (int i = list.size() - 1; i >= 0; i--) {
-            final String lastColor = getLastColor(list.get(i));
-
-            if (!lastColor.isEmpty()) {
-                return lastColor;
-            }
-        }
-
-        return "";
-    }
-
-    private String getLastColor(String input) {
-        final int lastCharIndex = input.lastIndexOf(ChatColor.COLOR_CHAR);
-
-        if (lastCharIndex == -1 || (lastCharIndex + 1 > input.length())) {
-            return "";
-        }
-
-        final char colorChar = input.charAt(lastCharIndex + 1);
-        return "&" + colorChar;
-    }
-
-    private String formatDescription(String description) {
-        return description
-                .replace("{name}", "&a" + getName() + "&7")
-                .replace("{duration}", "&b" + BukkitUtils.roundTick(duration) + "s&7");
-    }
-
     public Talent setItem(String headTexture) {
         this.setItem(Material.PLAYER_HEAD);
         this.texture = headTexture;
         return this;
     }
 
+    public int getStartAmount() {
+        return startAmount;
+    }
+
     public Talent setStartAmount(int startAmount) {
         this.startAmount = Numbers.clamp(startAmount, 1, 64);
         return this;
-    }
-
-    public int getStartAmount() {
-        return startAmount;
     }
 
     public Talent setTexture(String texture64) {
@@ -433,8 +409,6 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         return cd;
     }
 
-    public static int DYNAMIC = -1;
-
     public Talent setCd(int cd) {
         this.cd = cd;
         return this;
@@ -467,16 +441,45 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         return "%s{%s}".formatted(getClass().getName(), name);
     }
 
+    public Talent getHandle() {
+        return this;
+    }
+
+    private String getLastColor(List<String> list) {
+        for (int i = list.size() - 1; i >= 0; i--) {
+            final String lastColor = getLastColor(list.get(i));
+
+            if (!lastColor.isEmpty()) {
+                return lastColor;
+            }
+        }
+
+        return "";
+    }
+
+    private String getLastColor(String input) {
+        final int lastCharIndex = input.lastIndexOf(ChatColor.COLOR_CHAR);
+
+        if (lastCharIndex == -1 || (lastCharIndex + 1 > input.length())) {
+            return "";
+        }
+
+        final char colorChar = input.charAt(lastCharIndex + 1);
+        return "&" + colorChar;
+    }
+
+    private String formatDescription(String description) {
+        return description
+                .replace("{name}", "&a" + getName() + "&7")
+                .replace("{duration}", "&b" + BukkitUtils.roundTick(duration) + "s&7");
+    }
+
     public enum Type {
         COMBAT,
         COMBAT_CHARGED,
         COMBAT_INPUT,
         PASSIVE,
         ULTIMATE
-    }
-
-    public Talent getHandle() {
-        return this;
     }
 
 }

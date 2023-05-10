@@ -1,8 +1,6 @@
 package me.hapyl.fight.game.profile;
 
-import me.hapyl.fight.Main;
-import me.hapyl.fight.database.Database;
-import me.hapyl.fight.database.DatabaseLegacy;
+import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.ScoreboardTeams;
@@ -21,7 +19,7 @@ import javax.annotation.Nullable;
 public class PlayerProfile {
 
     private final Player player;
-    private final Database database;
+    private final PlayerDatabase playerDatabase;
     private final ScoreboardTeams scoreboardTeams;
     private final ProfileDisplay display;
 
@@ -32,24 +30,14 @@ public class PlayerProfile {
 
     private boolean loaded;
 
-    public PlayerProfile(Player player) {
+    public PlayerProfile(@Nonnull Player player) {
         this.player = player;
 
-        // Init database
-        if (Main.getPlugin().isDatabaseLegacy()) {
-            this.database = new DatabaseLegacy(player);
-        }
-        else {
-            this.database = new Database(player);
-        }
+        // Init player database
+        this.playerDatabase = new PlayerDatabase(player);
         this.scoreboardTeams = new ScoreboardTeams(player);
         this.display = new ProfileDisplay(this);
         this.loaded = false;
-    }
-
-    @Nonnull
-    public static PlayerProfile getProfile(Player player) {
-        return Manager.current().getProfile(player);
     }
 
     public ProfileDisplay getDisplay() {
@@ -67,8 +55,8 @@ public class PlayerProfile {
         loaded = true;
 
         // load some data after init method
-        selectedHero = database.getHeroEntry().getSelectedHero();
-        GameTeam.getSmallestTeam().addToTeam(player);
+        selectedHero = playerDatabase.getHeroEntry().getSelectedHero();
+        GameTeam.addMemberIfNotInTeam(player);
         playerUI = new GamePlayerUI(this);
     }
 
@@ -76,8 +64,8 @@ public class PlayerProfile {
         return player;
     }
 
-    public Database getDatabase() {
-        return database;
+    public PlayerDatabase getDatabase() {
+        return playerDatabase;
     }
 
     @Nullable
@@ -109,8 +97,14 @@ public class PlayerProfile {
         this.playerUI = playerUI;
     }
 
-    public void delete() {
-        Manager.current().removeProfile(player);
+    @Nonnull
+    public static PlayerProfile getOrCreateProfile(Player player) {
+        return Manager.current().getOrCreateProfile(player);
+    }
+
+    @Nullable
+    public static PlayerProfile getProfile(Player player) {
+        return Manager.current().getProfile(player);
     }
 
 }

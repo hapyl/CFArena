@@ -26,7 +26,7 @@ import java.util.function.Consumer;
 public class ElectrocuteCosmetic extends Cosmetic {
 
     public ElectrocuteCosmetic() {
-        super("Electrocute", "Bzz~t.", 1000, Type.DEATH, Rarity.EPIC, Material.LIGHT_BLUE_STAINED_GLASS);
+        super("Electrocute", "Bzz~t.", Type.DEATH, Rarity.EPIC, Material.LIGHT_BLUE_STAINED_GLASS);
     }
 
     @Override

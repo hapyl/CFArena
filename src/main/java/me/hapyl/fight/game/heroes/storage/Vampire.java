@@ -3,13 +3,14 @@ package me.hapyl.fight.game.heroes.storage;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import me.hapyl.fight.Main;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.heroes.storage.extra.VampireData;
@@ -24,7 +25,6 @@ import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.GUI;
 import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.reflect.visibility.Visibility;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -45,6 +45,7 @@ import java.util.Set;
 
 public class Vampire extends Hero implements Listener, UIComplexComponent {
 
+    public final int MAX_BLOOD_STACKS = 10;
     /**
      * [SUMMARY]
      * 1 -- Summon a bat that will periodically attack opponents. Grant's stacks.
@@ -61,8 +62,6 @@ public class Vampire extends Hero implements Listener, UIComplexComponent {
      */
 
     private final Map<Player, VampireData> vampireData;
-
-    public final int MAX_BLOOD_STACKS = 10;
     private final int BLOOD_POOL_COOLDOWN = 30;
     private final double HEALTH_PENALTY = 0.5d;
 
@@ -82,18 +81,26 @@ public class Vampire extends Hero implements Listener, UIComplexComponent {
         setRole(Role.MELEE);
         setItem("8d44756e0b4ece8d746296a3d5e297e1415f4ba17647ffe228385383d161a9");
 
-        final ClassEquipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestplate(Color.BLACK);
         equipment.setLeggings(Color.BLACK);
         equipment.setBoots(Color.BLACK);
 
         setWeapon(Material.GHAST_TEAR, "Fang", 5.0d);
 
-        setUltimate(new UltimateTalent(
-                "Sanguineous Morphology",
-                "Transform into a bat and fly freely for {duration}.____After duration ends, transform back into vampire and gain the opposite amount of blood you had upon casting and summon &eDracula Jr&7.__&8Eg: 10 -> 0, 7 -> 3, 2 -> 8 etc.____You cannot deal damage nor gain blood during the duration!",
-                60
-        ).setDurationSec(6).setCdSec(20).setTexture("473af69ed9bf67e2f5403dd7d28bbe32034749bbfb635ac1789a412053cdcbf0"));
+        final UltimateTalent ultimate = new UltimateTalent("Sanguineous Morphology", 60)
+                .setDurationSec(6)
+                .setCdSec(20)
+                .setTexture("473af69ed9bf67e2f5403dd7d28bbe32034749bbfb635ac1789a412053cdcbf0");
+
+        ultimate.addDescription("Transform into a bat and fly freely for {duration}.");
+        ultimate.addNlDescription(
+                "After duration ends, transform back into vampire and gain the opposite amount of blood you had upon casting and summon &eDracula Jr&7."
+        );
+        ultimate.addDescription("&8Eg: 10 -> 0, 7 -> 3, 2 -> 8 etc.");
+        ultimate.addNlDescription("&6You cannot deal damage nor gain blood during the duration!");
+
+        setUltimate(ultimate);
     }
 
     @Override
@@ -113,16 +120,13 @@ public class Vampire extends Hero implements Listener, UIComplexComponent {
             self.setAwake(true);
             self.setAI(false);
 
-            // Hide for everyone but the player
-            final Visibility visibility = Visibility.of(self);
-
-            visibility.setCanSee(player, false);
-            visibility.hide();
+            // Hide for player
+            player.hideEntity(Main.getPlugin(), self);
         });
 
         player.setAllowFlight(true);
         player.setFlying(true);
-        player.setFlySpeed(0.1f);
+        player.setFlySpeed(0.05f);
 
         new GameTask() {
             private final Set<Entity> hitEntities = Sets.newHashSet();
@@ -287,6 +291,25 @@ public class Vampire extends Hero implements Listener, UIComplexComponent {
         return vampireData.computeIfAbsent(player, key -> new VampireData(player));
     }
 
+    @Override
+    public List<String> getStrings(Player player) {
+        final int bloodCd = player.getCooldown(BLOOD_MATERIAL);
+        final VampireData data = getData(player);
+        final List<String> strings = Lists.newArrayList();
+
+        final double damageMultiplier = data.getDamageMultiplier();
+
+        if (bloodCd > 0) {
+            strings.add("&4&l❧ &4" + BukkitUtils.roundTick(bloodCd));
+        }
+
+        if (!data.isExpired()) {
+            strings.add("&c&c\uD83D\uDDE1 &l%s &7(%s)".formatted(damageMultiplier, data.getTimeLeftFormatter()));
+        }
+
+        return strings;
+    }
+
     private void updateBloodPool(Player player) {
         final PlayerInventory inventory = player.getInventory();
         final int bloodStacks = getData(player).getBlood();
@@ -305,25 +328,6 @@ public class Vampire extends Hero implements Listener, UIComplexComponent {
                             .build()
             );
         }
-    }
-
-    @Override
-    public List<String> getStrings(Player player) {
-        final int bloodCd = player.getCooldown(BLOOD_MATERIAL);
-        final VampireData data = getData(player);
-        final List<String> strings = Lists.newArrayList();
-
-        final double damageMultiplier = data.getDamageMultiplier();
-
-        if (bloodCd > 0) {
-            strings.add("&4&l❧ &4" + BukkitUtils.roundTick(bloodCd));
-        }
-
-        if (!data.isExpired()) {
-            strings.add("&c&c\uD83D\uDDE1 &l%s &7(%s)".formatted(damageMultiplier, data.getTimeLeftFormatter()));
-        }
-
-        return strings;
     }
 
 }

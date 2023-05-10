@@ -1,6 +1,6 @@
 package me.hapyl.fight.database.rank;
 
-import me.hapyl.fight.database.Database;
+import me.hapyl.fight.database.PlayerDatabase;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
@@ -51,7 +51,7 @@ public enum PlayerRank {
     }
 
     public static PlayerRank getRank(Player player) {
-        return Database.getDatabase(player).getRank();
+        return PlayerDatabase.getDatabase(player).getRank();
     }
 
     public static boolean hasRank(Player player, PlayerRank rank) {

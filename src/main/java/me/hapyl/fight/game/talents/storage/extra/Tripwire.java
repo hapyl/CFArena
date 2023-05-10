@@ -2,6 +2,8 @@ package me.hapyl.fight.game.talents.storage.extra;
 
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.storage.techie.TrapWire;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.glow.Glowing;
@@ -20,11 +22,18 @@ public class Tripwire {
 
     private final Player player;
     private final Set<Block> blocks;
+    private final long createdAt;
 
     public Tripwire(Player player, Set<Block> blocks) {
         this.player = player;
         this.blocks = blocks;
+        this.createdAt = System.currentTimeMillis();
+
         PlayerLib.playSound(player, Sound.ENTITY_SPIDER_AMBIENT, 0.75f);
+    }
+
+    public boolean isActive() {
+        return (System.currentTimeMillis() - createdAt) >= (Talents.TRAP_WIRE.getTalent(TrapWire.class).getWindupTimeAsMillis());
     }
 
     public Player getPlayer() {
@@ -63,7 +72,7 @@ public class Tripwire {
         GamePlayer.getPlayer(player).addEffect(GameEffectType.VULNERABLE, 80);
 
         // Fx
-        Glowing.glow(player, ChatColor.AQUA, 80, getPlayer());
+        Glowing.glow(player, ChatColor.RED, 80, getPlayer());
         PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_SCREAM, 1.25f);
         Chat.sendTitle(this.getPlayer(), "&aTripwire Triggered!", "&7You caught " + player.getName(), 10, 20, 10);
     }

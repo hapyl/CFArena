@@ -139,7 +139,7 @@ public class Totem extends Talent {
                 }
 
                 for (ActiveTotem totem : totems) {
-                    if (totem.isShulker(shulker) && totem.getOwner() == player) {
+                    if (totem.isShulker(shulker) && totem.getPlayer() == player) {
                         return totem;
                     }
                 }

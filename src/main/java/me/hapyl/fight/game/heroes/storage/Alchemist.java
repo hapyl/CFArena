@@ -4,8 +4,8 @@ import io.netty.util.internal.ThreadLocalRandom;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.*;
-import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.heroes.storage.extra.CauldronEffect;
@@ -56,7 +56,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
                 .setDamage(5.0d)
                 .setDescription("Turns out that a stick used in brewing can also be used in battle."));
 
-        final ClassEquipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestplate(31, 5, 3);
 
         positiveEffects.add(new Effect("made you &lFASTER", PotionEffectType.SPEED, 30, 2))

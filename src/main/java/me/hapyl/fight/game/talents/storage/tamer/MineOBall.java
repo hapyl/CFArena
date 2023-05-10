@@ -99,6 +99,16 @@ public class MineOBall extends Talent implements Listener {
         return entity != null && pack != null && pack.isInPack(entity);
     }
 
+    public boolean isPackEntity(LivingEntity entity) {
+        for (TamerPack pack : tamerPackMap.values()) {
+            if (pack.isInPack(entity)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     @Nullable
     public TamerPack getPack(Player player) {
         return tamerPackMap.get(player);
@@ -201,5 +211,16 @@ public class MineOBall extends Talent implements Listener {
         }
 
         return isInSamePack(livingEntity, livingEntityOther);
+    }
+
+    @Nullable
+    public Player getOwner(LivingEntity entity) {
+        for (Map.Entry<Player, TamerPack> entry : tamerPackMap.entrySet()) {
+            if (entry.getValue().isInPack(entity)) {
+                return entry.getKey();
+            }
+        }
+
+        return null;
     }
 }

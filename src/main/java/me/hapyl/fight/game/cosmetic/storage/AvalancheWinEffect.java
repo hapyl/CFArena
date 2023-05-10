@@ -17,14 +17,6 @@ import java.util.Set;
 
 public class AvalancheWinEffect extends WinCosmetic {
 
-    //private final BlockData[] data = new BlockData[] {
-    //        Material.ICE.createBlockData(),
-    //        Material.PACKED_ICE.createBlockData(),
-    //        Material.BLUE_ICE.createBlockData(),
-    //        Material.FROSTED_ICE.createBlockData(),
-    //        Material.SNOW_BLOCK.createBlockData()
-    //};
-
     private final Set<Block> blocks;
     private final BlockData blockData;
 
@@ -68,7 +60,6 @@ public class AvalancheWinEffect extends WinCosmetic {
                 PlayerLib.spawnParticle(fxLocation, Particle.SNOWBALL, 1, 0.15d, 0.25d, 0.15d, 0.05f);
                 PlayerLib.spawnParticle(fxLocation, Particle.SNOWFLAKE, 2, 0.1d, 0.25d, 0.11d, 0.01f);
 
-                // FIXME -> this might be a bit too loud, ok for me, but needs testing
                 PlayerLib.playSound(
                         fxLocation,
                         Sound.BLOCK_SNOW_BREAK,
@@ -99,14 +90,14 @@ public class AvalancheWinEffect extends WinCosmetic {
                     // Get highest or lowest block
                     while (block.getType().isSolid()) {
                         block = world.getBlockAt(x, ++y, z);
-                        if (y > 255) {
+                        if (y >= world.getMaxHeight()) {
                             break;
                         }
                     }
 
                     while (block.getType().isAir()) {
                         block = world.getBlockAt(x, --y, z);
-                        if (y < 0) {
+                        if (y <= world.getMinHeight()) {
                             break;
                         }
                     }

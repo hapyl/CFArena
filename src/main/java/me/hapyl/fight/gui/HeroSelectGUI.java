@@ -64,7 +64,7 @@ public class HeroSelectGUI extends PlayerGUI {
                     .addLore()
                     .addLore("&7Role: &b%s", hero.getHero().getRole().getName())
                     .addLore()
-                    .addSmartLore(heroClass.getAbout(), "&7&o", 35);
+                    .addSmartLore(heroClass.getDescription(), "&7&o", 35);
 
             if (heroClass instanceof ComplexHero) {
                 builder.addLore();

@@ -3,9 +3,9 @@ package me.hapyl.fight.game.gamemode.modes;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.GameResult;
-import me.hapyl.fight.game.StatContainer;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.gamemode.Modes;
+import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.spigotutils.module.scoreboard.Scoreboarder;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -15,7 +15,6 @@ import javax.annotation.Nonnull;
 public class DeathmatchKills extends CFGameMode {
 
     private final int killsGoal = 10;
-    private GamePlayer winner;
 
     public DeathmatchKills() {
         super("Kills Deathmatch", 1800);
@@ -31,9 +30,15 @@ public class DeathmatchKills extends CFGameMode {
 
     @Override
     public boolean testWinCondition(@Nonnull GameInstance instance) {
-        for (GamePlayer player : instance.getPlayers().values()) {
-            if (player.getStats().getValue(StatContainer.Type.KILLS) >= killsGoal) {
-                winner = player;
+        for (GameTeam team : GameTeam.getPopulatedTeams()) {
+            if (team.kills >= killsGoal) {
+                final GameResult gameResult = instance.getGameResult();
+
+                for (GamePlayer player : team.getPlayers()) {
+                    gameResult.getWinners().add(player);
+                }
+
+                gameResult.getWinningTeams().add(team);
                 return true;
             }
         }
@@ -48,14 +53,6 @@ public class DeathmatchKills extends CFGameMode {
 
     @Override
     public boolean onStop(@Nonnull GameInstance instance) {
-        if (winner == null) {
-            return false;
-        }
-
-        final GameResult gameResult = instance.getGameResult();
-
-        gameResult.getWinners().add(winner);
-        gameResult.getWinningTeams().add(winner.getTeam());
         return true;
     }
 

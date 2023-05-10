@@ -10,7 +10,7 @@ public enum Notification {
 
     READ_PATCH_NOTES(
             Notify.string("&aRead the latest patch notes here:"),
-            Notify.link("&e&lCLICK HERE", "https://hapyl.github.io/patch_notes/classes_fight")
+            Notify.link("&e&lCLICK HERE", "https://hapyl.github.io/classes_fight/patch_notes")
     ),
 
     HELP_COMMAND("&aLost? See the help screen:", "&e/help"),

@@ -39,13 +39,11 @@ public class ParkourLeaderboard {
         this.hologram.addLine("&6&l%s Leaderboard:".formatted(parkour.getName())).addLine("");
 
         // Append players
-        final LinkedHashMap<UUID, Long> topPlayers = getTop(5);
+        final LinkedHashMap<String, Long> topPlayers = getTop(5);
         final IntInt i = new IntInt();
 
-        topPlayers.forEach((uuid, record) -> {
-            final OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
-
-            this.hologram.addLine("&b#%d - &a%s &7%ss".formatted(i.incrementAndGet(), player.getName(), formatTime(record)));
+        topPlayers.forEach((name, record) -> {
+            this.hologram.addLine("&b#%d - &a%s &7%ss".formatted(i.incrementAndGet(), name, formatTime(record)));
         });
 
         for (int j = i.get(); j < 5; j++) {
@@ -65,16 +63,30 @@ public class ParkourLeaderboard {
         }
     }
 
-    public LinkedHashMap<UUID, Long> getTop(int limit) {
+    public long getWorldRecord() {
+        final LinkedHashMap<String, Long> top = getTop(1);
+        for (Long value : top.values()) {
+            return value;
+        }
+
+        return 0L;
+    }
+
+    public LinkedHashMap<String, Long> getTop(int limit) {
         final Document players = parkour.getDatabase().getPlayers();
-        final Map<UUID, Long> mapped = Maps.newHashMap();
+        final Map<String, Long> mapped = Maps.newHashMap();
 
         for (String key : players.keySet()) {
             final Document record = players.get(key, new Document());
             final long time = record.get("time", 0L);
+            final OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(UUID.fromString(key));
 
             if (time > 0) {
-                mapped.put(UUID.fromString(key), time);
+                final String playerName = offlinePlayer.hasPlayedBefore() ? offlinePlayer.getName() : record.get("name", "Unknown");
+                final boolean offline = record.get("offline", false);
+
+                // strikethrough offline players
+                mapped.put((offline ? "&m" : "") + playerName, time);
             }
         }
 

@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.setting;
 
-import me.hapyl.fight.Shortcuts;
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -14,12 +14,6 @@ public enum Setting {
 
     SEE_OTHERS_CONTRAIL(14, Material.FIREWORK_ROCKET, "See Others Contrail", "Whenever you will see other players contrails.", true),
     SEE_NOTIFICATIONS(15, Material.PAPER, "See Notifications", "Whenever you will see notifications.", true),
-    USE_LEGACY_HERO_ICONS(
-            16,
-            Material.STONE,
-            "Legacy Hero Icons",
-            "Whenever hero selection GUI will use legacy hero icons instead of player heads. (Some legacy icons are player heads)"
-    ),
 
     SHOW_YOURSELF_AS_TEAMMATE(
             28,
@@ -73,7 +67,7 @@ public enum Setting {
     }
 
     public boolean isEnabled(Player player) {
-        return Shortcuts.getDatabase(player).getSettings().getValue(this);
+        return PlayerProfile.getOrCreateProfile(player).getDatabase().getSettings().getValue(this);
     }
 
     public void setEnabled(Player player, boolean flag) {
@@ -82,7 +76,7 @@ public enum Setting {
             return;
         }
 
-        Manager.current().getProfile(player).getDatabase().getSettings().setValue(this, flag);
+        Manager.current().getOrCreateProfile(player).getDatabase().getSettings().setValue(this, flag);
         Chat.sendMessage(player, "%s%s is now %s.", flag ? "&a" : "&c", this.getName(), flag ? "enabled" : "disabled");
     }
 

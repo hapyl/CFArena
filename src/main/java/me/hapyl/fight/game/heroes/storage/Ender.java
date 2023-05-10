@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.heroes.storage;
 
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
@@ -56,7 +56,7 @@ public class Ender extends Hero implements Listener {
 
         setInfo("Weird enderman-like looking warrior with teleportation abilities. He hits you with his arm, but it hurts like a brick.");
 
-        final ClassEquipment equipment = this.getEquipment();
+        final HeroEquipment equipment = this.getEquipment();
         equipment.setChestplate(85, 0, 102);
         equipment.setLeggings(128, 0, 128);
         equipment.setBoots(136, 0, 204);
@@ -167,7 +167,7 @@ public class Ender extends Hero implements Listener {
         }.setName("Fist")
                 .setId("ender_weapon")
                 .setDescription(
-                        "Just a normal sized fist.__&e&lRIGHT CLICK &7to initiate teleport to the target block. &e&lRIGHT CLICK &7again to cancel.____&aCooldown: &l%ss",
+                        "Just a normal sized fist.____&e&lRIGHT CLICK &7to initiate teleport to the target block. &e&lRIGHT CLICK &7again to cancel.____&aCooldown: &l%ss",
                         BukkitUtils.roundTick(portKeyCooldown)
                 )
                 .setDamage(7.0));
@@ -177,7 +177,7 @@ public class Ender extends Hero implements Listener {
 
         this.setUltimate(new UltimateTalent(
                 "Transmission!",
-                "Instantly teleport to your &bTransmission Beacon &7and collect it for further use.",
+                "Instantly teleport to your &b&lTransmission &b&lBeacon &7and collect it for further use.",
                 50
         ).setItem(Material.SHULKER_SHELL).setCdSec(20).setSound(Sound.ENTITY_GUARDIAN_HURT_LAND, 0.75f));
 

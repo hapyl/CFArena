@@ -5,8 +5,8 @@ import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.PlayerElement;
-import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -37,7 +37,7 @@ public class Spark extends Hero implements PlayerElement {
         setInfo("Strikes as fire with his fire abilities.");
         setItem("ade095332720215ca9b85e7eacd1d092b1697fad34d696add94d3b70976702c");
 
-        final ClassEquipment equipment = this.getEquipment();
+        final HeroEquipment equipment = this.getEquipment();
         equipment.setChestplate(Color.ORANGE);
         equipment.setLeggings(Color.RED);
         equipment.setBoots(Color.ORANGE);
@@ -64,7 +64,7 @@ public class Spark extends Hero implements PlayerElement {
 
         setUltimate(new UltimateTalent(
                 "Run it Back",
-                "Instantly place a marker at your current location for {duration}.____Upon death or after duration ends, safely teleports to the marked location with health you had upon activating the ability.",
+                "Instantly place a marker at your current location for {duration}.____Upon death or after duration ends, safely teleport to the marked location with health you had upon activating the ability.",
                 80
         ).setDuration(200).setItem(Material.TOTEM_OF_UNDYING).setCdSec(40));
 

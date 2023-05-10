@@ -18,9 +18,9 @@ public class TransmissionBeacon extends Talent {
     public TransmissionBeacon() {
         super("Transmission Beacon");
 
-        addDescription(
-                "Place the beacon somewhere hidden from your opponents. Use your &bultimate &7to instantly teleport to it's location and collect it.__&c&lThe beacon can be destroyed!"
-        );
+        addDescription("Place the beacon somewhere hidden from your opponents.");
+        addDescription("Use your &bultimate &7to instantly teleport to it's location and collect it.");
+        addNlDescription("&c&lThe beacon can be destroyed!");
 
         setItem(Material.BEACON);
     }

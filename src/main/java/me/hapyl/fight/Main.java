@@ -1,22 +1,25 @@
 package me.hapyl.fight;
 
-import me.hapyl.fight.database.DatabaseMongo;
-import me.hapyl.fight.database.Databases;
-import me.hapyl.fight.event.EnderPearlController;
+import me.hapyl.fight.database.Database;
+import me.hapyl.fight.event.EnderPearlHandler;
 import me.hapyl.fight.event.PlayerHandler;
+import me.hapyl.fight.event.SnowFormHandler;
 import me.hapyl.fight.game.ChatController;
 import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.collectible.Collectibles;
 import me.hapyl.fight.game.cosmetic.CosmeticsListener;
 import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.maps.features.BoosterController;
+import me.hapyl.fight.game.maps.healthpack.HealthPackListener;
 import me.hapyl.fight.game.parkour.CFParkourManager;
 import me.hapyl.fight.game.task.TaskList;
 import me.hapyl.fight.notifier.Notifier;
 import me.hapyl.fight.npc.HumanManager;
 import me.hapyl.fight.protocol.ArcaneMuteProtocol;
+import me.hapyl.fight.protocol.DismountProtocol;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.EternaAPI;
 import me.hapyl.spigotutils.module.chat.CenterChat;
@@ -44,17 +47,18 @@ public class Main extends JavaPlugin {
     private TaskList taskList;
     private BoosterController boosters;
     private Experience experience;
-    private DatabaseMongo database;
+    private Database database;
     private Notifier notifier;
-    private Databases databases;
     private CFParkourManager parkourManager;
+    private Collectibles collectibles;
 
-    private boolean databaseLegacy;
+    public static Main getPlugin() {
+        return plugin;
+    }
 
     @Override
     public void onEnable() {
         plugin = this;
-        databaseLegacy = false;
 
         // Init config
         getConfig().options().copyDefaults(true);
@@ -74,7 +78,7 @@ public class Main extends JavaPlugin {
         // Init api
         new EternaAPI(this);
 
-        // Preset gamerules
+        // Preset game rules
         for (final World world : Bukkit.getWorlds()) {
             world.setGameRule(GameRule.NATURAL_REGENERATION, false);
             world.setGameRule(GameRule.DO_FIRE_TICK, false);
@@ -99,19 +103,14 @@ public class Main extends JavaPlugin {
         //
         //System.out.println(Bukkit.advancementIterator());
 
-        this.manager = new Manager();
+        this.manager = new Manager(this);
         this.taskList = new TaskList();
-        this.boosters = new BoosterController();
         this.experience = new Experience();
+        this.boosters = new BoosterController(this);
         this.notifier = new Notifier(this);
 
-        if (isDatabaseLegacy()) {
-            Bukkit.getLogger().severe("Databases are not supported in legacy mode!");
-        }
-        else {
-            this.parkourManager = new CFParkourManager(this);
-            this.databases = new Databases(this);
-        }
+        this.parkourManager = new CFParkourManager(this);
+        this.collectibles = new Collectibles(this);
 
         // update database
         for (final Player player : Bukkit.getOnlinePlayers()) {
@@ -122,18 +121,16 @@ public class Main extends JavaPlugin {
         humanManager = new HumanManager(this);
 
         checkReload();
+
+        // Init runtime tests
+        new Test(this);
     }
 
     @Override
     public void onDisable() {
         runSafe(() -> {
-            databases.saveAll();
-            //parkourManager.saveAll();
-        }, "database save");
-
-        runSafe(() -> {
             for (final Player player : Bukkit.getOnlinePlayers()) {
-                Manager.current().getProfile(player).getDatabase().saveToFile();
+                Manager.current().getOrCreateProfile(player).getDatabase().save();
             }
         }, "player database save");
 
@@ -158,11 +155,7 @@ public class Main extends JavaPlugin {
         return notifier;
     }
 
-    public Databases getDatabases() {
-        return databases;
-    }
-
-    public DatabaseMongo getDatabase() {
+    public Database getDatabase() {
         return database;
     }
 
@@ -182,31 +175,35 @@ public class Main extends JavaPlugin {
         return boosters;
     }
 
+    public Collectibles getCollectibles() {
+        return collectibles;
+    }
+
     public void handlePlayer(Player player) {
         this.manager.createProfile(player);
 
-        // teleport either to spawn or the map is there is a game in progress
+        // teleport either to spawn or the map if there is a game in progress
         final IGameInstance game = this.manager.getCurrentGame();
         if (!game.isReal()) {
             final GameMode gameMode = player.getGameMode();
-            if (gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR) {
-                return;
-            }
 
-            player.teleport(GameMaps.SPAWN.getMap().getLocation());
-            LobbyItems.giveAll(player);
-            return;
+            if (gameMode != GameMode.CREATIVE && gameMode != GameMode.SPECTATOR) {
+                player.teleport(GameMaps.SPAWN.getMap().getLocation());
+                LobbyItems.giveAll(player);
+            }
+        }
+        else {
+            player.teleport(game.getMap().getMap().getLocation());
         }
 
-        player.teleport(game.getMap().getMap().getLocation());
+        // Notify operators
+        if (player.isOp()) {
+            Chat.sendMessage(player, database.getDatabaseString());
+        }
     }
 
     public void addEvent(Listener listener) {
         getServer().getPluginManager().registerEvents(listener, this);
-    }
-
-    public boolean isDatabaseLegacy() {
-        return databaseLegacy;
     }
 
     private void checkReload() {
@@ -265,38 +262,19 @@ public class Main extends JavaPlugin {
     }
 
     private void initDatabase() {
-        this.database = new DatabaseMongo();
-
-        final boolean useMongoDb = getConfig().getBoolean("database.use_mongodb");
-        boolean connection = false;
-
-        if (useMongoDb) {
-            // Don't try to connect if disabled
-            connection = this.database.createConnection();
-        }
-
-        if (!useMongoDb || !connection) {
-            final String message = useMongoDb ?
-                    (ChatColor.RED + "Failed to connect to MongoDB, initializing legacy database...") :
-                    (ChatColor.YELLOW + "Using legacy database because MongoDB is disabled in config.yml!");
-
-            Bukkit.getLogger().severe(message);
-            Bukkit.getScheduler().runTaskLater(this, () -> Chat.broadcast("&6&lWarning! " + message), 20L);
-
-            databaseLegacy = true;
-        }
-
-        // Init runtime tests
-        new Test(this);
+        this.database = new Database(this);
+        this.database.createConnection();
     }
 
     private void registerEvents() {
-        final PluginManager pm = Bukkit.getServer().getPluginManager();
-        pm.registerEvents(new PlayerHandler(), this);
-        pm.registerEvents(new ChatController(), this);
-        pm.registerEvents(new EnderPearlController(), this);
-        pm.registerEvents(new BoosterController(), this);
-        pm.registerEvents(new CosmeticsListener(), this);
+        final PluginManager pluginManager = Bukkit.getServer().getPluginManager();
+
+        pluginManager.registerEvents(new PlayerHandler(), this);
+        pluginManager.registerEvents(new ChatController(), this);
+        pluginManager.registerEvents(new EnderPearlHandler(), this);
+        pluginManager.registerEvents(new CosmeticsListener(), this);
+        pluginManager.registerEvents(new HealthPackListener(), this);
+        pluginManager.registerEvents(new SnowFormHandler(), this);
     }
 
     private void runSafe(Runnable runnable, String handler) {
@@ -310,10 +288,7 @@ public class Main extends JavaPlugin {
 
     private void regProtocol() {
         new ArcaneMuteProtocol();
+        new DismountProtocol();
         //new ConfusionPotionProtocol(); -> doesn't work as good as I thought :(
-    }
-
-    public static Main getPlugin() {
-        return plugin;
     }
 }

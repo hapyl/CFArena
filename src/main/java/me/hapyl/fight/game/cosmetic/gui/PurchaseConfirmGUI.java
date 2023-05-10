@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.cosmetic.gui;
 
-import me.hapyl.fight.database.Database;
+import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.game.shop.ShopItem;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -24,7 +25,7 @@ public abstract class PurchaseConfirmGUI extends PlayerGUI {
 
     private void updateInventory() {
         try {
-            final CurrencyEntry currency = Database.getDatabase(getPlayer()).getCurrency();
+            final CurrencyEntry currency = PlayerDatabase.getDatabase(getPlayer()).getCurrency();
 
             setItem(13, item.createItem(getPlayer()).asIcon());
 
@@ -43,8 +44,8 @@ public abstract class PurchaseConfirmGUI extends PlayerGUI {
             for (int i = 0; i < 3; i++) {
                 fillItem((i * 9), 2 + (i * 9), confirmPurchaseItem, player -> {
                     // Double check if player has enough coins
-                    if (currency.getCoins() >= item.getCost()) {
-                        currency.removeCoins(item.getCost());
+                    if (currency.get(Currency.COINS) >= item.getCost()) {
+                        currency.subtract(Currency.COINS, item.getCost());
                         this.onPurchase(player, item, PurchaseResult.OK);
                     }
                     else {

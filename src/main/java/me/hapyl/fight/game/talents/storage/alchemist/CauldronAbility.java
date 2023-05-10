@@ -28,11 +28,12 @@ public class CauldronAbility extends Talent implements Listener {
     private final Map<Player, AlchemicalCauldron> cauldrons = new HashMap<>();
 
     public CauldronAbility() {
-        super(
-                "Brewing Pot",
-                "Place a Brewing Cauldron to brew a Magic Potion.__Put your Brewing Stick in it and wait! Once ready, claim you potion and enhance yourself with following effects:____&a- &7Drinking a potion will grant double effects. &8(5 charges)____&a- &7Hitting an enemy will apply random effect. &8(10 charges)",
-                Type.COMBAT
-        );
+        super("Brewing Pot");
+
+        addDescription("Place a Brewing Cauldron to brew a Magic Potion. Put your Brewing Stick in it and wait!");
+        addNlDescription("Once ready, claim you potion and enhance yourself with following effects:");
+        addNlDescription("&a- &7Drinking a potion will grant double effects. &8(5 charges)");
+        addNlDescription("&a- &7Hitting an enemy will apply random effect. &8(10 charges)");
 
         setItem(Material.CAULDRON);
         setCdSec(120);
@@ -47,10 +48,8 @@ public class CauldronAbility extends Talent implements Listener {
         final Player player = ev.getPlayer();
         final Block clickedBlock = ev.getClickedBlock();
 
-        if (ev.getHand() == EquipmentSlot.OFF_HAND
-                || ev.getAction() != Action.RIGHT_CLICK_BLOCK
-                || clickedBlock == null
-                || clickedBlock.getType() != Material.WATER_CAULDRON) {
+        if (ev.getHand() == EquipmentSlot.OFF_HAND || ev.getAction() != Action.RIGHT_CLICK_BLOCK || clickedBlock == null ||
+                clickedBlock.getType() != Material.WATER_CAULDRON) {
             return;
         }
 
@@ -102,9 +101,13 @@ public class CauldronAbility extends Talent implements Listener {
             else {
                 final Material missingStickItem = Material.CLAY_BALL;
 
-                inventory.setItem(0, new ItemBuilder(missingStickItem).setName("&aStick is Missing")
-                        .setSmartLore("Your stick is currently brewing a potion! Click the cauldron to get it back.")
-                        .toItemStack());
+                inventory.setItem(
+                        0,
+                        new ItemBuilder(missingStickItem)
+                                .setName("&aStick is Missing")
+                                .setSmartLore("Your stick is currently brewing a potion! Click the cauldron to get it back.")
+                                .toItemStack()
+                );
                 player.setCooldown(missingStickItem, 10);
             }
         }, 1);

@@ -4,30 +4,23 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.maps.GameMap;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.maps.MapFeature;
-import me.hapyl.fight.util.Nulls;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.GUI;
-import me.hapyl.spigotutils.module.inventory.gui.SlotPattern;
-import me.hapyl.spigotutils.module.inventory.gui.SmartComponent;
+import me.hapyl.spigotutils.module.inventory.gui.PlayerAutoGUI;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Locale;
 
-// TODO: 001, Mar 1, 2023 - Why is this static, make PlayerGUI instead
-public class MapSelectGUI extends GUI {
+public class MapSelectGUI extends PlayerAutoGUI {
 
-    private static final MapSelectGUI staticGUI = new MapSelectGUI();
-
-    private MapSelectGUI() {
-        super("Map Selection", Math.min(GUI.getSmartMenuSize(GameMaps.getPlayableMaps()) + 2, 6));
+    public MapSelectGUI(Player player) {
+        super(player, "Map Selection", Math.min(GUI.getSmartMenuSize(GameMaps.getPlayableMaps()) + 2, 6));
         this.createItems();
     }
 
     private void createItems() {
-        final SmartComponent component = newSmartComponent();
-
         for (final GameMaps value : GameMaps.getPlayableMaps()) {
             final GameMap map = value.getMap();
 
@@ -46,7 +39,7 @@ public class MapSelectGUI extends GUI {
             }
 
             final ItemStack item = builder.addLore("").addLore("&eClick to select").build();
-            component.add(item, player -> {
+            addItem(item, player -> {
                 final GameMaps currentMap = Manager.current().getCurrentMap();
                 if (currentMap == value) {
                     Chat.sendMessage(player, "&cAlready selected!");
@@ -57,11 +50,7 @@ public class MapSelectGUI extends GUI {
             });
         }
 
-        component.fillItems(this, SlotPattern.FANCY);
-    }
-
-    public static void openGUI(Player player) {
-        Nulls.runIfNotNull(staticGUI, mapSelectGUI -> mapSelectGUI.openInventory(player));
+        openInventory();
     }
 
 }

@@ -52,7 +52,7 @@ public class GrappleHook {
 
                 if (hookedEntity != null) {
                     hook.teleport(hookedEntity.getLocation());
-                    hook.getWorld().spawnParticle(Particle.ITEM_CRACK, hook.getLocation(), 2, new ItemStack(Material.LEAD));
+                    hook.getWorld().spawnParticle(Particle.ITEM_CRACK, hook.getLocation(), 2, 0, 0, 0, 0.1f, new ItemStack(Material.LEAD));
                 }
             }
         }.runTaskTimer(0, 1);

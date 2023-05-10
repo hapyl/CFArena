@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.heroes.storage;
 
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -50,7 +50,7 @@ public class Archer extends Hero implements Listener {
 
         setWeapon(Material.BOW, "Bow of Destiny", "A custom-made bow with some unique abilities!", 5.0d);
 
-        final ClassEquipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestplate(86, 86, 87);
         equipment.setLeggings(75, 75, 87);
         equipment.setBoots(51, 51, 51);

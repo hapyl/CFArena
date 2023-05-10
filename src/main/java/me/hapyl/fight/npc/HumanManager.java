@@ -3,6 +3,7 @@ package me.hapyl.fight.npc;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
 import me.hapyl.spigotutils.module.reflect.npc.Human;
+import me.hapyl.spigotutils.module.reflect.npc.entry.RandomStringEntry;
 import me.hapyl.spigotutils.module.util.Runnables;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -35,6 +36,14 @@ public final class HumanManager implements Listener {
 
     private void createPlayerNpc(Player player) {
         final Human human = Human.create(getLocation(-14.0, 63, 0.5, -90.0f, 0.0f), "&aYourself?", player.getName());
+
+        // Dialog
+        human.addEntry(new RandomStringEntry(20,
+                "You look at the person in front of you, they look exactly like you... Is it your long lost sibling?",
+                "Wait a minute... is that me? No, that can't be me. I'm standing right here. But then again, I'm seeing double right now. Maybe I should lay off the health potions.",
+                "Whoa, I feel like I'm looking in a mirror. This is so trippy. Do you think we have the same stats too? Maybe we should have a duel and find out.",
+                "Is it just me, or does that NPC look better than me? I mean, they have the same gear and everything, but somehow they pull it off better. Maybe I need to spend more time at the vanity mirror and work on my fashion sense."
+        ));
 
         human.setLookAtCloseDist(10);
         human.show(player);

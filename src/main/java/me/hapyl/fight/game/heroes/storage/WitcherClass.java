@@ -3,9 +3,9 @@ package me.hapyl.fight.game.heroes.storage;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.PlayerElement;
-import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.ComplexHero;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.heroes.storage.extra.Combo;
 import me.hapyl.fight.game.talents.Talent;
@@ -38,10 +38,9 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
         setRole(Role.MELEE);
 
         setInfo("Some say, that he's the most trained Witcher ever; Well versed in any kind of magic...");
-        setItemTexture(
-                "e3RleHR1cmVzOntTS0lOOnt1cmw6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTEwOTA1YmU0ZjY3ZTJmY2FkMjkxY2RmOGFlYjJlOWZmNTVmZTkzZjI3YjhjMWYwOTU5MDI0YTNjYjRhNzA1MiJ9fX0=");
+        setItem("910905be4f67e2fcad291cdf8aeb2e9ff55fe93f27b8c1f0959024a3cb4a7052");
 
-        final ClassEquipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestplate(44, 48, 101);
         equipment.setLeggings(60, 66, 69);
         equipment.setBoots(29, 29, 33);
@@ -52,7 +51,7 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
                 new UltimateTalent(
                         "All the Trainings",
                         String.format(
-                                "Remember all your trainings and unleash them at once. Creating infinite %1$s shield and %2$s aura that follows you for {duration}. Both %1$s and %2$s starts their cooldowns.",
+                                "Remember all your trainings and unleash them at once. Creating infinite %1$s shield and %2$s aura that follows you for {duration}.____Both %1$s and %2$s starts their cooldowns.",
                                 Talents.KVEN.getName(),
                                 Talents.IRDEN.getName()
                         ), 80

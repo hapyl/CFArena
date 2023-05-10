@@ -1,16 +1,16 @@
 package me.hapyl.fight.database.entry;
 
-import me.hapyl.fight.database.Database;
-import me.hapyl.fight.database.DatabaseEntry;
+import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.database.PlayerDatabaseEntry;
 import me.hapyl.fight.game.setting.Setting;
 
-public class SettingEntry extends DatabaseEntry {
-    public SettingEntry(Database database) {
-        super(database);
+public class SettingEntry extends PlayerDatabaseEntry {
+    public SettingEntry(PlayerDatabase playerDatabase) {
+        super(playerDatabase);
     }
 
     public boolean getValue(Setting setting) {
-        return getDocument("setting").getBoolean(setting.getPath(), setting.getDefaultValue());
+        return getInDocument("setting").getBoolean(setting.getPath(), setting.getDefaultValue());
     }
 
     public void setValue(Setting setting, boolean value) {

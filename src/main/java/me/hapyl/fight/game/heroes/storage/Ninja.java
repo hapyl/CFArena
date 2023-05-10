@@ -6,8 +6,8 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.effect.GameEffectType;
-import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -55,7 +55,7 @@ public class Ninja extends Hero implements Listener, UIComponent {
         setRole(Role.ASSASSIN);
         setItem("1413159cfab50aba283e68c1659d74412392fbcb1f7d663d1bd2a2a6430c2743");
 
-        final ClassEquipment equipment = this.getEquipment();
+        final HeroEquipment equipment = this.getEquipment();
         equipment.setChestplate(Color.WHITE);
         equipment.setLeggings(Material.CHAINMAIL_LEGGINGS);
         equipment.setBoots(Material.CHAINMAIL_BOOTS);
@@ -67,7 +67,7 @@ public class Ninja extends Hero implements Listener, UIComponent {
 
         setUltimate(new UltimateTalent(
                 "Throwing Stars",
-                "Equip 5 dead-accurate throwing stars that deals &c%s &7damage upon hitting an enemy.".formatted(ultimateDamage),
+                "Equip &c&l5&7 dead-accurate throwing stars that deals &c&l%.1f&7 damage upon hitting an enemy.".formatted(ultimateDamage),
                 70
         ).setItem(Material.NETHER_STAR).setSound(Sound.ITEM_TRIDENT_RIPTIDE_1, 0.75f));
     }
@@ -119,7 +119,6 @@ public class Ninja extends Hero implements Listener, UIComponent {
         player.setAllowFlight(true);
 
         PlayerLib.addEffect(player, PotionEffectType.SPEED, 999999, 0);
-        GamePlayer.getPlayer(player).addEffect(GameEffectType.NINJA_PASSIVE, Integer.MAX_VALUE);
     }
 
     @EventHandler()
@@ -147,7 +146,7 @@ public class Ninja extends Hero implements Listener, UIComponent {
 
     @Override
     public @Nonnull String getString(Player player) {
-        return player.hasCooldown(this.getItem().getType()) ? "&f🌊 &l%ss".formatted(BukkitUtils.roundTick(player.getCooldown(this.getItem()
+        return player.hasCooldown(getItem().getType()) ? "&f🌊 &l%ss".formatted(BukkitUtils.roundTick(player.getCooldown(this.getItem()
                 .getType()))) : "";
     }
 
@@ -190,11 +189,6 @@ public class Ninja extends Hero implements Listener, UIComponent {
             return DamageOutput.CANCEL;
         }
         return null;
-    }
-
-    @Override
-    public void onStart() {
-
     }
 
     @Override

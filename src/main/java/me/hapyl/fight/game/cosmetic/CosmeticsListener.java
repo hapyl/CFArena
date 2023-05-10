@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.cosmetic;
 
-import me.hapyl.fight.database.Database;
+import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.State;
@@ -25,7 +25,7 @@ public class CosmeticsListener implements Listener {
         }
 
         // Check if player has a contrail
-        final Cosmetics selectedContrail = Database.getDatabase(player).getCosmetics().getSelected(Type.CONTRAIL);
+        final Cosmetics selectedContrail = PlayerDatabase.getDatabase(player).getCosmetics().getSelected(Type.CONTRAIL);
         if (selectedContrail == null) {
             return;
         }

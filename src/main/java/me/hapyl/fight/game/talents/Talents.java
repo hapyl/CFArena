@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents;
 
+import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.talents.storage.TestChargeTalent;
 import me.hapyl.fight.game.talents.storage.alchemist.CauldronAbility;
@@ -20,6 +21,7 @@ import me.hapyl.fight.game.talents.storage.harbinger.MeleeStance;
 import me.hapyl.fight.game.talents.storage.harbinger.TidalWaveTalent;
 import me.hapyl.fight.game.talents.storage.healer.HealingOrb;
 import me.hapyl.fight.game.talents.storage.healer.ReviveTotem;
+import me.hapyl.fight.game.talents.storage.heavy_knight.Updraft;
 import me.hapyl.fight.game.talents.storage.heavy_knight.Uppercut;
 import me.hapyl.fight.game.talents.storage.hercules.HerculesJump;
 import me.hapyl.fight.game.talents.storage.hercules.HerculesShift;
@@ -72,6 +74,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Map;
 
 /**
  * This is a registry for all talents that are
@@ -84,8 +88,8 @@ import javax.annotation.Nonnull;
  * <p>
  * Talents <b>MUST</b> be stored in here, otherwise they will not be registered.
  * </p>
- *
- * To get actual talent class, use {@link Handle} or {@link #getTalent(Class)}.
+ * <p>
+ * To get actual talent class, use {@link #getTalent(Class)}.
  *
  * @author hapyl
  */
@@ -105,7 +109,7 @@ public enum Talents {
     CAULDRON(new CauldronAbility()),
     INTOXICATION(new PassiveTalent(
             "Intoxication",
-            "Drinking potions will increase &eIntoxication &7level that will decrease constantly.__Keeping an eye on &eIntoxication &7level is a good idea, who knows what might happen...",
+            "Drinking potions will increase &eIntoxication &7level that will decrease constantly.____Keeping an eye on &eIntoxication &7level is a good idea, who knows what might happen...",
             Material.DRAGON_BREATH
     )),
 
@@ -193,7 +197,7 @@ public enum Talents {
     IRDEN(new Irden()),
     COMBO_SYSTEM(new PassiveTalent(
             "Combo",
-            "Dealing &bcontinuous damage&7 to the &bsame target&7 will increase your combo, greater combo hits deals &cincreased damage&7.",
+            "Dealing &bcontinuous damage&7 to the &bsame target&7 will increase your combo.____Greater combo hits deal &cincreased damage&7.",
             Material.SKELETON_SKULL
     )),
 
@@ -262,7 +266,7 @@ public enum Talents {
     WHIRLPOOL(new Whirlpool()),
     CLAW_CRITICAL(new PassiveTalent(
             "Oceanborn/Sturdy Claws",
-            "&b&lOceanborn:__&While in water, your speed and damage is drastically increased.____&b&lSturdy Claws:__&7Your hits have &b10% &7chance to &ccrit&7!__Critical hits summons an ancient creature from beneath that deals extra damage and heals you!",
+            "&b&lOceanborn:__While in water, your speed and damage is drastically increased.____&b&lSturdy Claws:__&7Your hits have &b10% &7chance to &ccrit&7!__Critical hits summons an ancient creature from beneath that deals extra damage and heals you!",
             Material.MILK_BUCKET
     )),
 
@@ -286,7 +290,7 @@ public enum Talents {
     TRAP_WIRE(new TrapWire()),
     NEURAL_THEFT(new PassiveTalent(
             "Neural Theft/CYber Hack",
-            "Every &b10s&7, hacks into opponents revealing their location and health.____&b&lCYber Hack:__&7A small virus that reveals opponent's location, slows them and applies &6&lVulnerability&7 for short duration.",
+            "&b&lNeural Theft__Every &b10s&7, hacks into opponents revealing their location and health.____&b&lCYber Hack:__&7A small virus that reveals opponent's location, slows them and applies &6&lVulnerability&7 for short duration.",
             Material.CHAINMAIL_HELMET
     )),
 
@@ -313,11 +317,15 @@ public enum Talents {
     // Vampire
     VAMPIRE_PET(new VampirePet()),
     BAT_SWARM(new BatSwarm()),
-    BLOOD_THIRST(new PassiveTalent(
+    BLOOD_THIRST(new Reference<>(new PassiveTalent(
             "Blood Thirst",
-            "&cYour health is constantly drained.____Whenever you or your bats hit an opponent, you will gain a stack of &bblood&7, up to &b10&7 stacks.____Drink the blood to &cincrease your damage&7 and &cheal yourself&7.____&6Healing, damage boost, duration and cooldown is based on the amount of stacks consumed.",
             Material.REDSTONE
-    )),
+    )).get(talent -> {
+        talent.addDescription("&cYour health is constantly drained.");
+        talent.addNlDescription("&7Whenever you or your bats hit an opponent, you will gain a stack of &bblood&7, up to &b10&7 stacks.");
+        talent.addNlDescription("&7Drink the blood to &cincrease your damage&7 and &cheal yourself&7.");
+        talent.addNlDescription("&6Healing, damage boost, duration and cooldown is based on the amount of stacks consumed.");
+    })),
 
     // Bounty Hunter
     SHORTY(new ShortyShotgun()),
@@ -330,9 +338,20 @@ public enum Talents {
 
     // Heavy Knight
     UPPERCUT(new Uppercut()),
+    UPDRAFT(new Updraft()),
 
     // test (keep last)
     TestChargeTalent(new TestChargeTalent());
+
+    private final static Map<Talent, Talents> HANDLE_TO_ENUM;
+
+    static {
+        HANDLE_TO_ENUM = Maps.newHashMap();
+
+        for (Talents value : values()) {
+            HANDLE_TO_ENUM.put(value.getTalent(), value);
+        }
+    }
 
     private final Talent talent;
 
@@ -356,7 +375,7 @@ public enum Talents {
 
     /**
      * Returns a handle of a talent.
-     *
+     * <p>
      * Note that this method only returns a base handle,
      * for specific hero handles, use {@link #getTalent(Class)}.
      *
@@ -369,7 +388,7 @@ public enum Talents {
 
     /**
      * Returns a handle of a talent.
-     *
+     * <p>
      * This method tries to cast the handle to the specified class.
      *
      * @param cast - Cast to.
@@ -385,14 +404,13 @@ public enum Talents {
         }
     }
 
+    @Nullable
     public static Talents fromTalent(Talent talent) {
-        for (Talents value : values()) {
-            if (value.getTalent() == talent) {
-                return value;
-            }
+        if (talent == null) {
+            return null;
         }
 
-        throw new IllegalArgumentException("non-registered talent");
+        return HANDLE_TO_ENUM.get(talent);
     }
 
 }

@@ -2,8 +2,6 @@ package me.hapyl.fight.game;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
-import me.hapyl.fight.annotate.Entry;
-import me.hapyl.fight.database.collection.HeroStatsCollection;
 import me.hapyl.fight.game.cosmetic.skin.SkinEffectManager;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.heroes.ComplexHero;
@@ -13,6 +11,7 @@ import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.setting.Setting;
+import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -27,10 +26,12 @@ import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
+import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.parkour.ParkourManager;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.glow.Glowing;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
+import me.hapyl.spigotutils.module.util.DependencyInjector;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -40,26 +41,29 @@ import org.bukkit.inventory.PlayerInventory;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class Manager {
+public class Manager extends DependencyInjector<Main> {
 
     protected final NonNullableElementHolder<GameMaps> currentMap = new NonNullableElementHolder<>(GameMaps.ARENA);
     protected final NonNullableElementHolder<Modes> currentMode = new NonNullableElementHolder<>(Modes.FFA);
-    private final Map<Player, PlayerProfile> profiles;
+    private final Map<UUID, PlayerProfile> profiles;
 
-    // I really don't know why this is needed, but would I risk to removing it? Hell nah. -h
+    // I really don't know why this is needed, but would I risk removing it? Hell nah. -h
     private final Map<Integer, ParamFunction<Talent, Hero>> slotPerTalent = new HashMap<>();
     private final Map<Integer, ParamFunction<Talent, ComplexHero>> slotPerComplexTalent = new HashMap<>();
 
     private final SkinEffectManager skinEffectManager;
+    private final AutoSync autoSave;
     private boolean isDebug = true;
     private GameInstance gameInstance; // @implNote: For now, only one game instance can be active at a time.
     private Trial trial;
-    private int debugNullGameInstance = 0;
 
-    public Manager() {
-        profiles = Maps.newHashMap();
+    public Manager(Main main) {
+        super(main);
+        profiles = Maps.newConcurrentMap();
 
         slotPerTalent.put(1, Hero::getFirstTalent);
         slotPerTalent.put(2, Hero::getSecondTalent);
@@ -75,34 +79,59 @@ public class Manager {
         currentMode.set(Modes.byName(config.getString("current-mode"), Modes.FFA));
 
         // init skin effect manager
-        skinEffectManager = new SkinEffectManager(Main.getPlugin());
+        skinEffectManager = new SkinEffectManager(getPlugin());
+
+        // start auto save timer
+        this.autoSave = new AutoSync(Tick.fromMinute(10));
     }
 
     /**
      * Gets player's current profile or creates new if it doesn't exist yet.
      *
      * @param player - Player.
+     * @throws IllegalArgumentException if player is null or offline.
      */
     @Nonnull
-    public PlayerProfile getProfile(Player player) {
-        PlayerProfile profile = profiles.get(player);
-        if (profile == null) {
-            profile = new PlayerProfile(player);
-            profiles.put(player, profile);
-            profile.loadData();
-
-            Main.getPlugin().getExperience().triggerUpdate(player);
+    public PlayerProfile getOrCreateProfile(Player player) {
+        if (player == null || !player.isOnline()) {
+            throw new IllegalArgumentException("player must be online");
         }
+
+        PlayerProfile profile = profiles.get(player.getUniqueId());
+
+        if (profile == null) {
+            profile = createProfile(player);
+        }
+
         return profile;
     }
 
+    @Nullable
+    public PlayerProfile getProfile(Player player) {
+        return profiles.get(player.getUniqueId());
+    }
+
+    @Nonnull
+    public PlayerProfile createProfile(Player player) {
+        final PlayerProfile profile = new PlayerProfile(player);
+        profiles.put(player.getUniqueId(), profile);
+
+        profile.loadData();
+        getPlugin().getExperience().triggerUpdate(player);
+        return profile;
+    }
+
+    public void allProfiles(Consumer<PlayerProfile> consumer) {
+        profiles.values().forEach(consumer);
+    }
+
     public boolean hasProfile(Player player) {
-        return profiles.containsKey(player);
+        return profiles.containsKey(player.getUniqueId());
     }
 
     @Nullable
     public GamePlayerUI getPlayerUI(Player player) {
-        return getProfile(player).getPlayerUI();
+        return getOrCreateProfile(player).getPlayerUI();
     }
 
     public boolean isAbleToUse(Player player) {
@@ -117,7 +146,7 @@ public class Manager {
      * Returns the current GameInstance.
      *
      * @return GameInstance
-     * @deprecated Use {@link #getCurrentGame()} to safely retrieve GameInstace.
+     * @deprecated Use {@link #getCurrentGame()} to safely retrieve GameInstance.
      */
     @Nullable
     @Deprecated
@@ -164,7 +193,7 @@ public class Manager {
             return;
         }
 
-        trial = new Trial(getProfile(player), heroes);
+        trial = new Trial(getOrCreateProfile(player), heroes);
         trial.onStart();
         trial.onPlayersReveal();
         trial.broadcastMessage("&a%s started a trial of %s.", player.getName(), heroes.getHero().getName());
@@ -216,9 +245,11 @@ public class Manager {
         createNewGameInstance(false);
     }
 
-    @Entry(
-            name = "Creating new Game Instance."
-    )
+    /**
+     * Creates a new game instance.
+     * <p>
+     * Only one game instance can be active at a time. (for now?)
+     */
     public void createNewGameInstance(boolean debug) {
         // Pre game start checks
         final GameMaps currentMap = this.currentMap.getElement();
@@ -258,8 +289,6 @@ public class Manager {
 
             if (size != teamPlayers) {
                 Chat.broadcast("&6&lUnbalanced Team! &e%s has more players than other teams.", populatedTeam.getName());
-                //                displayError("Teams are not balanced! &l(%s)", populatedTeam.getName());
-                //                return;
             }
         }
 
@@ -273,12 +302,7 @@ public class Manager {
         this.gameInstance = new GameInstance(getCurrentMode(), getCurrentMap());
         this.gameInstance.onStart();
 
-        final boolean customSetup = this.gameInstance.getMode().onStart(this.gameInstance);
-
-        if (!customSetup) {
-            // Populate teams
-            GameTeam.getPopulatedTeams().forEach(GameTeam::clearAndPopulateTeams);
-        }
+        this.gameInstance.getMode().onStart(this.gameInstance);
 
         for (final Heroes value : Heroes.values()) {
             Nulls.runIfNotNull(value.getHero(), Hero::onStart);
@@ -354,9 +378,9 @@ public class Manager {
 
     }
 
-    @Entry(
-            name = "Stopping current Game Instance."
-    )
+    /**
+     * Stops the current game instance.
+     */
     public void stopCurrentGame() {
         if (this.gameInstance == null || this.gameInstance.getGameState() == State.POST_GAME) {
             return;
@@ -369,7 +393,6 @@ public class Manager {
             gameInstance.getGameResult().supplyDefaultWinners();
         }
 
-        final HeroStatsCollection heroStats = Main.getPlugin().getDatabases().getHeroStats();
         gameInstance.calculateEverything();
 
         // Reset player before clearing the instance
@@ -383,7 +406,6 @@ public class Manager {
             player.setValid(false);
 
             Utils.showPlayer(player.getPlayer());
-
 
             // Keep winner in survival, so it's clear for them that they have won
             final boolean isWinner = this.gameInstance.isWinner(player.getPlayer());
@@ -399,17 +421,14 @@ public class Manager {
 
             // Save stats
             player.getDatabase().getStatistics().fromPlayerStatistic(hero, stats);
-            heroStats.fromPlayerStatistic(hero, stats);
+            hero.getStats().fromPlayerStatistic(stats);
         });
 
         this.gameInstance.onStop();
         this.gameInstance.setGameState(State.POST_GAME);
 
         // Save stats
-        heroStats.saveAsync();
-
-        // Clear teams
-        GameTeam.clearAllPlayers();
+        this.gameInstance.getActiveHeroes().forEach(hero -> hero.getStats().saveAsync());
 
         // reset all cooldowns
         for (final Material value : Material.values()) {
@@ -436,6 +455,11 @@ public class Manager {
 
         // stop all game tasks
         Main.getPlugin().getTaskList().onStop();
+
+        // clean-up teams
+        for (GameTeam value : GameTeam.values()) {
+            value.onStop();
+        }
 
         // remove temp entities
         Entities.killSpawned();
@@ -472,7 +496,7 @@ public class Manager {
     }
 
     public void equipPlayer(Player player) {
-        equipPlayer(player, getSelectedHero(player).getHero());
+        equipPlayer(player, getCurrentHero(player));
     }
 
     public Talent getTalent(Hero hero, int slot) {
@@ -488,12 +512,15 @@ public class Manager {
         return null;
     }
 
+    /**
+     * Called after the game stopped.
+     */
     public void onStop() {
         // reset game state
         gameInstance.setGameState(State.FINISHED);
         gameInstance = null;
 
-        // teleport player
+        // teleport players to spawn
         for (final Player player : Bukkit.getOnlinePlayers()) {
             player.setInvulnerable(false);
             player.setHealth(player.getMaxHealth());
@@ -501,6 +528,10 @@ public class Manager {
             player.teleport(GameMaps.SPAWN.getMap().getLocation());
 
             LobbyItems.giveAll(player);
+        }
+
+        if (autoSave.scheduleSave) {
+            autoSave.save();
         }
     }
 
@@ -533,13 +564,13 @@ public class Manager {
             Chat.sendMessage(player, "&4&lYOU HAVE BEEN WARNED");
         }
 
-        if (getSelectedHero(player) == heroes) {
+        if (getSelectedLobbyHero(player) == heroes) {
             Chat.sendMessage(player, "&cAlready selected!");
             PlayerLib.villagerNo(player);
             return;
         }
 
-        getProfile(player).setSelectedHero(heroes);
+        getOrCreateProfile(player).setSelectedHero(heroes);
         player.closeInventory();
         PlayerLib.villagerYes(player);
         Chat.sendMessage(player, "&aSelected %s!", heroes.getHero().getName());
@@ -552,29 +583,32 @@ public class Manager {
         }
 
         // save to database
-        getProfile(player).getDatabase().getHeroEntry().setSelectedHero(heroes);
+        getOrCreateProfile(player).getDatabase().getHeroEntry().setSelectedHero(heroes);
     }
-    // FIXME: 002. 10/02/2021 - multi
 
     /**
      * @return actual hero player is using right now, trial, lobby or game.
      */
+    @Nonnull
     public Hero getCurrentHero(Player player) {
+        return getCurrentEnumHero(player).getHero();
+    }
+
+    @Nonnull
+    public Heroes getCurrentEnumHero(Player player) {
         if (isTrialExistsAndIsOwner(player)) {
-            return getTrial().getHeroes().getHero();
+            return getTrial().getHeroes();
         }
+
         else if (isPlayerInGame(player)) {
             final GamePlayer gamePlayer = getCurrentGame().getPlayer(player);
             if (gamePlayer == null) {
-                return Heroes.ARCHER.getHero();
+                return Heroes.ARCHER;
             }
-            return gamePlayer.getHero();
+            return gamePlayer.getEnumHero();
         }
-        return getSelectedHero(player).getHero();
-    }
 
-    public Heroes getSelectedHero(Player player) {
-        return getProfile(player).getSelectedHero();
+        return getSelectedLobbyHero(player);
     }
 
     public boolean isPlayerInGame(Player player) {
@@ -582,11 +616,27 @@ public class Manager {
     }
 
     public void removeProfile(Player player) {
-        profiles.remove(player);
+        profiles.remove(player.getUniqueId());
     }
 
-    public void createProfile(Player player) {
-        getProfile(player);
+    public boolean anyProfiles() {
+        return profiles.size() > 0;
+    }
+
+    public void listProfiles() {
+        final Logger logger = getPlugin().getLogger();
+
+        logger.info("Listing all profiles:");
+        logger.info(profiles.values().stream().map(PlayerProfile::toString).collect(Collectors.joining("\n")));
+    }
+
+    private Heroes getSelectedLobbyHero(Player player) {
+        final PlayerProfile profile = getProfile(player);
+        if (profile == null) {
+            return Heroes.ARCHER;
+        }
+
+        return profile.getSelectedHero();
     }
 
     private void playAnimation() {
@@ -605,7 +655,7 @@ public class Manager {
     private void giveTalentItem(Player player, Hero hero, int slot) {
         final PlayerInventory inventory = player.getInventory();
         final Talent talent = getTalent(hero, slot);
-        final ItemStack talentItem = talent == null || talent.getItem() == null ? new ItemStack(Material.AIR) : talent.getItem();
+        final ItemStack talentItem = talent == null ? new ItemStack(Material.AIR) : talent.getItem();
 
         if (talent != null && !talent.isAutoAdd()) {
             return;
@@ -630,6 +680,12 @@ public class Manager {
         item.setAmount(chargedTalent.getMaxCharges());
     }
 
+    /**
+     * Returns current and only manager.
+     *
+     * @return the manager.
+     */
+    @Nonnull
     public static Manager current() {
         return Main.getPlugin().getManager();
     }

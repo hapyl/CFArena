@@ -5,8 +5,8 @@ import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.cosmetic.CosmeticsHandle;
-import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -45,7 +45,7 @@ public class Hercules extends Hero implements Listener, PlayerElement {
         );
         setItem("f210c961b9d787327c0d1646e65ae40c6d834514877824335d4b9b62b2365a24");
 
-        final ClassEquipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestplate(Color.WHITE);
         equipment.setBoots(Material.LEATHER_BOOTS);
 

@@ -1,14 +1,15 @@
 package me.hapyl.fight.game.heroes.storage;
 
 import me.hapyl.fight.game.PlayerElement;
-import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.heroes.storage.extra.MoonwalkerUltimate;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.storage.moonwalker.MoonSliteBomb;
+import me.hapyl.fight.game.talents.storage.moonwalker.MoonslitePillar;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -38,7 +39,7 @@ public class Moonwalker extends Hero implements PlayerElement, UIComponent {
         setInfo("A traveller from another planet... or, should I say moon? Brings his skills and... planets... with himself!");
         setItem("1cf8fbd76586920c5273519927862fdc111705a1851d4d1aac450bcfd2b3a");
 
-        final ClassEquipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestplate(255, 255, 255);
         equipment.setLeggings(186, 186, 186);
         equipment.setBoots(105, 105, 105);
@@ -62,13 +63,13 @@ public class Moonwalker extends Hero implements PlayerElement, UIComponent {
         }
                 .setName("Stinger")
                 .setDescription(
-                        "A unique bow made of unknown materials, seems to have two firing modes.__&e&lLEFT &e&lCLICK &7to fire quick arrow that deals 50% of normal damage.")
+                        "A unique bow made of unknown materials, seems to have two firing modes.__&e&lLEFT &e&lCLICK &7to fire quick arrow that deals 50% of normal damage."
+                )
                 .setDamage(4.5d)
                 .setId("MOON_WEAPON"));
 
         // moved to its own class because it was unreadable lol
         setUltimate(new MoonwalkerUltimate());
-
     }
 
     @Nullable
@@ -120,8 +121,8 @@ public class Moonwalker extends Hero implements PlayerElement, UIComponent {
     }
 
     @Override
-    public Talent getFirstTalent() {
-        return Talents.MOONSLITE_PILLAR.getTalent();
+    public MoonslitePillar getFirstTalent() {
+        return (MoonslitePillar) Talents.MOONSLITE_PILLAR.getTalent();
     }
 
     @Override

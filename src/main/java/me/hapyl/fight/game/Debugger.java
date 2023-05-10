@@ -7,16 +7,19 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+
 public class Debugger {
 
     /**
      * Indicates that this debug logger should not be removed in prod.
      */
     public static void keepLog(Object any, Object... format) {
-        log(any, format);
+        info(any, format);
     }
 
-    public static void log(Object any, Object... format) {
+    public static void info(Object any, Object... format) {
         send("&7" + any, format);
     }
 
@@ -38,7 +41,7 @@ public class Debugger {
 
     public static void logIf(boolean condition, String any, Object... format) {
         if (condition) {
-            log(any, format);
+            info(any, format);
         }
     }
 
@@ -46,8 +49,12 @@ public class Debugger {
         PlayerLib.spawnParticle(location, particle, 1);
     }
 
+    private static String now() {
+        return DateTimeFormatter.ofPattern("mm:ss").format(LocalTime.now());
+    }
+
     private static void send(String string, Object... format) {
-        final String formattedMessage = Chat.format("&c&lDEBUG &f" + string, format);
+        final String formattedMessage = Chat.format("&c&lDEBUG &8" + now() + " &f" + string, format);
 
         Bukkit.getOnlinePlayers().stream().filter(Player::isOp).forEach(player -> {
             Chat.sendMessage(player, formattedMessage);

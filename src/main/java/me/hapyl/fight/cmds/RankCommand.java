@@ -1,6 +1,6 @@
 package me.hapyl.fight.cmds;
 
-import me.hapyl.fight.database.Database;
+import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.command.SimpleAdminCommand;
@@ -42,10 +42,10 @@ public class RankCommand extends SimpleAdminCommand {
             return;
         }
 
-        final Database database = Database.getDatabase(target);
+        final PlayerDatabase playerDatabase = PlayerDatabase.getDatabase(target);
 
         if (rankToSet == null) {
-            final PlayerRank playerRank = database.getRank();
+            final PlayerRank playerRank = playerDatabase.getRank();
 
             Chat.sendMessage(sender, "&a%s's rank is %s.", target.getName(), playerRank);
             return;
@@ -56,7 +56,7 @@ public class RankCommand extends SimpleAdminCommand {
             return;
         }
 
-        database.setRank(rankToSet);
+        playerDatabase.setRank(rankToSet);
 
         Chat.sendMessage(sender, "&aSet %s's rank to %s.", target.getName(), rankToSet);
         Chat.sendMessage(target, "&aYou are now %s.", rankToSet);

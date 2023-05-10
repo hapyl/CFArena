@@ -21,63 +21,33 @@ import java.util.Map;
 
 public class Experience {
 
-    public final long MAX_LEVEL = 50;
+    public final byte MAX_LEVEL = 50;
 
     private final Map<Long, ExperienceLevel> experienceLevelMap;
+    private final Color GRADIENT_COLOR_1 = new Color(253, 29, 29);
+    private final Color GRADIENT_COLOR_2 = new Color(252, 210, 69);
+    private final String LEVEL_UP_GRADIENT = new Gradient("LEVEL UP!").makeBold()
+            .rgb(
+                    GRADIENT_COLOR_1,
+                    GRADIENT_COLOR_2,
+                    Interpolators.LINEAR
+            );
 
+    /**
+     * Instantiate Experience manager.
+     */
     public Experience() {
         this.experienceLevelMap = Maps.newLinkedHashMap();
         this.setupMap();
         this.setupRewards();
     }
 
-    private void setupMap() {
-        long currentExp = 0;
-        for (long i = 1; i <= MAX_LEVEL; i++) {
-            if (i > 1) {
-                currentExp = (long) (currentExp * 1.2 + 100);
-                if (currentExp % 10 < 5) {
-                    currentExp += 5 - currentExp % 10;
-                }
-                else {
-                    currentExp += 10 - currentExp % 10;
-                }
-            }
-
-            final long points = (i > 1 && i % 5 == 0) ? 4 : 2;
-
-            experienceLevelMap.put(i, new ExperienceLevel(i, currentExp));
-        }
-    }
-
-    private void setupRewards() {
-        final IntInt i = new IntInt(1);
-        for (ExperienceLevel value : experienceLevelMap.values()) {
-        }
-
-        setReward(7, Reward.create("Random Test Reward"));
-
-        // Iterate through Heroes and assign their minimum level to the reward using Heroes.values()
-        for (Heroes value : Heroes.values()) {
-            final long minLevel = value.getHero().getMinimumLevel();
-            if (minLevel > 0) {
-                final ExperienceLevel level = experienceLevelMap.get(minLevel);
-                if (level != null) {
-                    level.addReward(new HeroUnlockReward(value));
-                }
-            }
-        }
-
-
-    }
-
-    private void setReward(int level, Reward reward) {
-        final ExperienceLevel exp = experienceLevelMap.get((long) level);
-        if (exp != null) {
-            exp.addReward(reward);
-        }
-    }
-
+    /**
+     * Returns total experience required to reach lvl, or {@link Long#MAX_VALUE} is level is maxed.
+     *
+     * @param lvl - level to get exp required for.
+     * @return exp required to reach level.
+     */
     public long getExpRequired(long lvl) {
         if (experienceLevelMap.containsKey(lvl)) {
             return experienceLevelMap.get(lvl).getExpRequired();
@@ -136,16 +106,6 @@ public class Experience {
         displayRewardMessage(player, nextLevel);
         return true;
     }
-
-    private final Color GRADIENT_COLOR_1 = new Color(253, 29, 29);
-    private final Color GRADIENT_COLOR_2 = new Color(252, 210, 69);
-
-    private final String LEVEL_UP_GRADIENT = new Gradient("LEVEL UP!").makeBold()
-            .rgb(
-                    GRADIENT_COLOR_1,
-                    GRADIENT_COLOR_2,
-                    Interpolators.LINEAR
-            );
 
     public void displayRewardMessage(Player player, long level) {
         Chat.sendMessage(player, "");
@@ -209,14 +169,8 @@ public class Experience {
         return nextLvlExp - previousLvlExp;
     }
 
-    private void updateProgressBar(Player player) {
-        final float progress = getProgress(player);
-        player.setLevel((int) getLevel(player));
-        player.setExp(progress);
-    }
-
     public ExperienceEntry getDatabaseEntry(Player player) {
-        return Manager.current().getProfile(player).getDatabase().getExperienceEntry();
+        return Manager.current().getOrCreateProfile(player).getDatabase().getExperienceEntry();
     }
 
     public Map<Long, ExperienceLevel> getLevels() {
@@ -245,5 +199,58 @@ public class Experience {
         final String emptyBar = "&c" + Strings.repeat("|", empty);
 
         return bar + emptyBar;
+    }
+
+    private void setupMap() {
+        long currentExp = 0;
+        for (long i = 1; i <= MAX_LEVEL; i++) {
+            if (i > 1) {
+                currentExp = (long) (currentExp * 1.2 + 100);
+                if (currentExp % 10 < 5) {
+                    currentExp += 5 - currentExp % 10;
+                }
+                else {
+                    currentExp += 10 - currentExp % 10;
+                }
+            }
+
+            final long points = (i > 1 && i % 5 == 0) ? 4 : 2;
+
+            experienceLevelMap.put(i, new ExperienceLevel(i, currentExp));
+        }
+    }
+
+    private void setupRewards() {
+        final IntInt i = new IntInt(1);
+        for (ExperienceLevel value : experienceLevelMap.values()) {
+        }
+
+        setReward(7, Reward.create("Random Test Reward"));
+
+        // Iterate through Heroes and assign their minimum level to the reward using Heroes.values()
+        for (Heroes value : Heroes.values()) {
+            final long minLevel = value.getHero().getMinimumLevel();
+            if (minLevel > 0) {
+                final ExperienceLevel level = experienceLevelMap.get(minLevel);
+                if (level != null) {
+                    level.addReward(new HeroUnlockReward(value));
+                }
+            }
+        }
+
+
+    }
+
+    private void setReward(int level, Reward reward) {
+        final ExperienceLevel exp = experienceLevelMap.get((long) level);
+        if (exp != null) {
+            exp.addReward(reward);
+        }
+    }
+
+    private void updateProgressBar(Player player) {
+        final float progress = getProgress(player);
+        player.setLevel((int) getLevel(player));
+        player.setExp(progress);
     }
 }

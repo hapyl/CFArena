@@ -68,7 +68,7 @@ public class BlastPack extends ChargedTalent {
         }
 
         // Throw blast pack
-        final Item item = player.getWorld().dropItem(player.getEyeLocation(), new ItemStack(this.getItem().getType()));
+        final Item item = player.getWorld().dropItem(player.getEyeLocation(), new ItemStack(getMaterial()));
         final Vector vector = player.getEyeLocation().getDirection().normalize();
         blastPackMap.put(player, item);
 

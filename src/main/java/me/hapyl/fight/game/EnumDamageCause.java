@@ -31,8 +31,22 @@ public enum EnumDamageCause {
     FALLING_BLOCK(false, "should've been wearing a helmet"),
     DRAGON_BREATH(false, "didn't like the smell of dragon"),
     CRAMMING(false, "is too fat"),
+    CONTACT(false, "likes to hug, but {damager} doesn't"),
+    ENTITY_SWEEP_ATTACK(false, ENTITY_ATTACK.deathMessage),
+    SUFFOCATION(false, "couldn't hold their breath"),
+    MELTING(false, "is now a puddle of water"),
+    LIGHTNING(false, "was struck by lightning", "by"),
+    SUICIDE(false, "died"),
+    STARVATION(false, "starved to death"),
+    THORNS(false, "was pricked", "by"),
+    FLY_INTO_WALL(false, "hit the wall at 69,420 mph", "while running from"),
+    HOT_FLOOR(false, "didn't know that floor was lava"),
+    DRYOUT(false, "though it was water, it wasn't"),
+    FREEZE(false, "frooze to death"),
+    SONIC_BOOM(false, "BOOM BOOM BAKUDAN", "and {damager} is the one to blame"),
 
-    NONE,  // this used as default return
+    NONE(false, "mysteriously died"),  // this used as default return,
+    CUSTOM, // should not be used
     OTHER, // this used if there is no other damage
     /**
      * End of system damage causes, add custom damage causes below.
@@ -42,52 +56,50 @@ public enum EnumDamageCause {
     NOVA_EXPLOSION("has been split into atoms", "by"),
     SHOCK_DART("got shocked", "by"),
     BOOM_BOW_ULTIMATE("went out with a BIG BANG", "of"),
-    FIRE_MOLOTOV("couldn't find a way out of {player}'s fire"),
+    FIRE_MOLOTOV("couldn't find a way out of {damager}'s fire"),
     FIRE_SPRAY("got sprayed to death", "by"),
     FROZEN_WEAPON("has been frozen to death", "by"),
     LEASHED("leashed to death", "by"),
-    SOUL_WHISPER("has entered {player}'s souls collection"),
+    SOUL_WHISPER("has entered {damager}'s souls collection"),
     TOXIN("drunk too many potions"),
     METEORITE("felt the wrath of the rock", "of"),
     MOON_PILLAR("couldn't handle the beat", "of"),
     WITHER_SKULLED("was scared to death", "by"),
-    GRAVITY_GUN("clearly couldn't see {player}'s block of size of their head flying in their direction.."),
+    GRAVITY_GUN("clearly couldn't see {damager}'s block of size of their head flying in their direction.."),
     PLUNGE("was stepped on", "by"),
     BLACK_HOLE("was sucked into the black hole created", "by"),
     DARKNESS("was blinded to death", "by"),
-    THROWING_STARS("felt the absolute pain {player}'s dagger"),
-    STARFALL("doesn't know how danger looks like, yes {player}?"),
+    THROWING_STARS("felt the absolute pain {damager}'s dagger"),
+    STARFALL("doesn't know how danger looks like, yes {damager}?"),
     GOLDEN_PATH("couldn't fight against their willpower", "created by shine of"),
     FLOWER("was pruned to death", "by"),
-    FELL_THE_BREEZE("felt {player}'s breeze..."),
-    NEVERMISS("couldn't dodge {player}'s attack, what a noob.."),
+    FELL_THE_BREEZE("felt {damager}'s breeze..."),
+    NEVERMISS("couldn't dodge {damager}'s attack, what a noob.."),
     FEET_ATTACK("probably lost their toe"),
     SUBMERGE("didn't know that Sharks bite"),
     SOTS("couldn't hide from the stars", "of"),
     STAR_SLASH("was slashed in half", "by"),
-    RAINFIRE("though it's raining, but in reality it were {player}'s arrows.."),
+    RAINFIRE("though it's raining, but in reality it were {damager}'s arrows.."),
     SWEEP("was swept to death", "by"),
     RIFLE("had their brain exploded in cool slow-mo", "by"),
     SATCHEL("had their last flights", "with"),
     TORNADO("couldn't find the wind", "of"),
     LIBRARY_VOID("was consumed by &0the void"),
     RIPTIDE("was splashed", "by"),
-    FREEZE("froze to death", "with help of"),
+    COLD("froze to death", "with help of"),
     LASER("was lasered to death", "by"),
     WATER("really liked the water"),
-    SWARM("was swarmed to death by {player}'s bats"),
-    LIGHTNING("was struck by lightning", "by"),
+    SWARM("was swarmed to death by {damager}'s bats"),
     TROLL_LAUGH("was trolled to death", "by"),
-    BLOCK_SHIELD("was hit by {player}'s circling block"),
+    BLOCK_SHIELD("was hit by {damager}'s circling block"),
     DECOY("was bamboozled", "by"),
-    MINION("was killed by {player}'s minion"),
+    MINION("was killed by {damager}'s minion"),
     RIP_BONES("was ripped to shreds", "by"),
     AURA_OF_CIRCUS("was furiously tamed", "by"),
-    BLEED("bled to death from {player}'s touch"),
+    BLEED("bled to death from {damager}'s touch"),
     SHOTGUN("was shot to death", "by"),
     DEATH_RAY("was swallowed by the darkness", "of"),
     BACKSTAB("was stabbed in the back", "by"),
-
 
     ;
 
@@ -142,27 +154,37 @@ public enum EnumDamageCause {
 
     public record DeathMessage(String message, String damagerSuffix) {
 
-        private static final String PLAYER_PLACEHOLDER = "{player}";
+        // Include this in either message or damagerSuffix, and it will be replaced with the damager name
+        private static final String DAMAGER_PLACEHOLDER = "{damager}";
 
         public DeathMessage(String message, String damagerSuffix) {
             this.message = message;
-            this.damagerSuffix = message.contains(PLAYER_PLACEHOLDER) ? "" : damagerSuffix;
+
+            // If message has placeholder, then damagerSuffix is not needed
+            if (message.contains(DAMAGER_PLACEHOLDER)) {
+                this.damagerSuffix = "";
+            }
+            else {
+                // If suffix has placeholder, then don't append it
+                if (damagerSuffix.contains(DAMAGER_PLACEHOLDER)) {
+                    this.damagerSuffix = damagerSuffix;
+                }
+                else {
+                    this.damagerSuffix = damagerSuffix + " " + DAMAGER_PLACEHOLDER;
+                }
+            }
         }
 
-        public String getMessage() {
-            return message;
+        public String formatMessage(String damager) {
+            return message.replace(DAMAGER_PLACEHOLDER, damager);
         }
 
-        public String formatMessage(String player) {
-            return getMessage().replace(PLAYER_PLACEHOLDER, player);
-        }
+        public String formatSuffix(String damager) {
+            if (damagerSuffix.isBlank()) {
+                return "";
+            }
 
-        public boolean hasSuffix() {
-            return !this.damagerSuffix.isBlank();
-        }
-
-        public String getDamagerSuffix() {
-            return damagerSuffix;
+            return damagerSuffix.replace(DAMAGER_PLACEHOLDER, damager);
         }
 
         public static DeathMessage of(String message, String suffix) {

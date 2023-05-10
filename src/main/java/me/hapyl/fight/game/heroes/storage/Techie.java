@@ -4,8 +4,8 @@ import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.effect.GameEffectType;
-import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.heroes.storage.extra.Lockdown;
@@ -47,6 +47,13 @@ public class Techie extends Hero implements UIComplexComponent, Listener {
 
     private final int neuralTheftPeriod = 200;
 
+    /**
+     * Ultimate rework idea:
+     *
+     * - Sombra hack or something that increases CD or steals ult points,
+     * lockdown is useless
+     */
+
     public Techie() {
         super("Techie");
 
@@ -58,7 +65,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener {
 
         setItem("1e5b78987c70d73f2ad93a454f85dcab476c5b5679f50eaaf553d2404edc9c");
 
-        final ClassEquipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestplate(205, 205, 205);
         equipment.setLeggings(217, 217, 217);
         equipment.setBoots(255, 230, 204);
@@ -133,10 +140,6 @@ public class Techie extends Hero implements UIComplexComponent, Listener {
         //Glowing.stopGlowing(revealed); fixme -> This is not needed?
 
         Glowing.glow(revealed, ChatColor.AQUA, 20, player);
-
-        //final Glowing glowing = new Glowing(revealed, ChatColor.AQUA, 20);
-        //glowing.addPlayer(player);
-        //glowing.glow();
 
         // If revealed not player don't show health.
         if (!(revealed instanceof Player revealedPlayer)) {

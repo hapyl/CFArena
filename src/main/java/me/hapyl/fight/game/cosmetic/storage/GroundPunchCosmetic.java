@@ -21,7 +21,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class GroundPunchCosmetic extends Cosmetic implements Listener {
     public GroundPunchCosmetic() {
-        super("Ground Punch", "Me smash ground!", 1000, Type.KILL, Rarity.RARE, Material.COARSE_DIRT);
+        super("Ground Punch", "Me smash ground!", Type.KILL, Rarity.RARE, Material.COARSE_DIRT);
     }
 
     @Override

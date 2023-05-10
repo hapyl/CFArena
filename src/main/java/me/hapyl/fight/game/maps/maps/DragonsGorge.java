@@ -6,8 +6,7 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.maps.GameMap;
 import me.hapyl.fight.game.maps.MapFeature;
 import me.hapyl.fight.game.maps.Size;
-import me.hapyl.fight.game.maps.features.Booster;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.ProgressBarBuilder;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.ChatColor;
@@ -63,30 +62,25 @@ public class DragonsGorge extends GameMap {
                     if (tick == 0) {
                         // Display cold meter
                         if (newValue > 0) {
-                            final Utils.ProgressBar builder = new Utils.ProgressBar("❄", ChatColor.AQUA, 15);
-                            gp.sendTitle("", builder.build((int) (newValue * builder.getMax() / maxColdValue)), 0, 25, 5);
+                            gp.sendTitle("", ProgressBarBuilder.of("❄", ChatColor.AQUA, newValue, maxColdValue), 0, 25, 5);
                         }
 
                         // For FX
                         player.setFreezeTicks((int) Math.min(player.getMaxFreezeTicks(), newValue));
 
                         if (isBetween(newValue, 25, 50)) { // Low hitting ticks
-                            GamePlayer.damageEntity(player, 4.0d, null, EnumDamageCause.FREEZE);
+                            GamePlayer.damageEntity(player, 4.0d, null, EnumDamageCause.COLD);
                         }
                         else if (isBetween(newValue, 50, 100)) { // High hitting ticks and warning
-                            GamePlayer.damageEntity(player, 6.0d, null, EnumDamageCause.FREEZE);
+                            GamePlayer.damageEntity(player, 6.0d, null, EnumDamageCause.COLD);
                         }
                         else if (newValue >= maxColdValue) { // Instant Death
-                            GamePlayer.damageEntity(player, 1000.0d, null, EnumDamageCause.FREEZE);
+                            GamePlayer.damageEntity(player, 1000.0d, null, EnumDamageCause.COLD);
                         }
 
                         // Fx
                         if (newValue >= 60) {
-                            PlayerLib.playSound(
-                                    player,
-                                    Sound.BLOCK_GLASS_BREAK,
-                                    Numbers.clamp(1.0f - newValue / maxColdValue, 0.0f, 2.0f)
-                            );
+                            PlayerLib.playSound(player, Sound.BLOCK_GLASS_BREAK, Numbers.clamp(1.0f - newValue / maxColdValue, 0.0f, 2.0f));
                         }
                     }
                 });
@@ -107,8 +101,8 @@ public class DragonsGorge extends GameMap {
 
         });
 
-        new Booster(-153, 64, 102, -1.8, 0.75, 1.8);
-        new Booster(-169, 64, 118, 1.8, 0.75, -1.8);
+        //new Booster(-153, 64, 102, -1.9, 0.75, 1.9);
+        //new Booster(-169, 64, 118, 1.9, 0.75, -1.9);
 
         this.addLocation(-143, 64, 86);
         this.addLocation(-150, 64, 100);

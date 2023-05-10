@@ -131,6 +131,13 @@ public class CFParkour extends Parkour implements ParkourHandler {
     @Nullable
     @Override
     public Response onStart(Player player, Data data) {
+        if (!Bukkit.getOnlineMode()) {
+            Chat.sendMessage(player, "&cParkour is unavailable in offline mode!");
+            Chat.sendMessage(player, "&cSet &e'online-mode'&c to &etrue&c in your &eserver.properties&c!");
+            player.teleport(getQuitLocation());
+            return Response.CANCEL;
+        }
+
         return null;
     }
 
@@ -150,11 +157,20 @@ public class CFParkour extends Parkour implements ParkourHandler {
         }
         else if (completionTime < bestTime) {
             database.syncData(data);
-            Chat.sendMessage(
-                    player,
-                    "&b&lNEW RECORD! &aYou best time is now %s.",
-                    completionTimeFormatted
-            );
+            Chat.sendMessage(player, "&b&lNEW RECORD! &aYou best time is now %s.", completionTimeFormatted);
+        }
+
+        if (leaderboard != null) {
+            final long worldRecord = leaderboard.getWorldRecord();
+
+            if (completionTime < worldRecord) {
+                Chat.broadcast(
+                        "&b&lNEW WORLD RECORD! &a%s set a new world record of %s for %s!",
+                        player.getName(),
+                        completionTimeFormatted,
+                        getName()
+                );
+            }
         }
 
         // TODO: 012, Mar 12, 2023 -> Test for world record

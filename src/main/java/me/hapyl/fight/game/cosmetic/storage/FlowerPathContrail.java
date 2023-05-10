@@ -35,7 +35,7 @@ public class FlowerPathContrail extends BlockContrailCosmetic {
     };
 
     public FlowerPathContrail() {
-        super("Flower Path", "Leaves a path of flowers behind you. So pretty! &d(✿◡‿◡)", 5000, Rarity.LEGENDARY);
+        super("Flower Path", "Leaves a string of flowers behind you. So pretty! &d(✿◡‿◡)", 5000, Rarity.LEGENDARY);
 
         setIcon(Material.ROSE_BUSH);
         setStay(10);
@@ -48,7 +48,7 @@ public class FlowerPathContrail extends BlockContrailCosmetic {
         final Block block = location.getBlock();
         final Block blockDown = location.getBlock().getRelative(BlockFace.DOWN);
 
-        if (!isValid(player, blockDown) || !block.getType().isAir()) {
+        if (isNotValid(player, blockDown) || !block.getType().isAir()) {
             return;
         }
 

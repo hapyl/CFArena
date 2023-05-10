@@ -3,11 +3,10 @@ package me.hapyl.fight.game.heroes.storage;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
-import me.hapyl.fight.game.Debugger;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.heroes.ClassEquipment;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.heroes.storage.extra.RiptideStatus;
 import me.hapyl.fight.game.talents.Talent;
@@ -57,7 +56,7 @@ public class Harbinger extends Hero implements Listener, UIComponent {
         setMinimumLevel(5);
         setItem("22a1ac2a8dd48c371482806b3963571952997a5712806e2c8060b8e7777754");
 
-        final ClassEquipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestplate(82, 82, 76);
         equipment.setLeggings(54, 48, 48);
         equipment.setBoots(183, 183, 180);
@@ -130,7 +129,6 @@ public class Harbinger extends Hero implements Listener, UIComponent {
         for (RiptideStatus value : riptideStatus.values()) {
             if (value.isAffected(player)) {
                 value.stop(player);
-                Debugger.log("removed riptide from %s", player.getName());
             }
         }
     }
