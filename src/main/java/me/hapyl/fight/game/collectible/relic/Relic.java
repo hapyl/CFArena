@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.collectible.relic;
 
 import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.game.collectible.BlockFaceInt;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.util.BlockLocation;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -44,6 +45,14 @@ public class Relic {
     public Relic setZone(GameMaps zone) {
         this.zone = zone;
         return this;
+    }
+
+    /**
+     * @deprecated Prefer {@link #setBlockFace(BlockFace)}
+     */
+    @Deprecated
+    public Relic setBlockFace(int rotation) {
+        return setBlockFace(BlockFaceInt.get(rotation));
     }
 
     public Relic setBlockFace(BlockFace blockFace) {

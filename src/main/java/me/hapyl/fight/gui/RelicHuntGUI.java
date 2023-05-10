@@ -39,7 +39,7 @@ public class RelicHuntGUI extends PlayerDynamicGUI {
                 continue;
             }
 
-            final List<Relic> relics = relicHunt.getIn(zone);
+            final List<Relic> relics = relicHunt.byZone(zone);
             final List<Relic> found = relicHunt.getFoundListIn(getPlayer(), zone);
             final int foundSize = found.size();
             final int percent = foundSize * 100 / relics.size();

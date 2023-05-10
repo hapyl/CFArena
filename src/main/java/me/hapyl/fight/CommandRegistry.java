@@ -29,6 +29,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Skull;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Piglin;
@@ -233,6 +236,26 @@ public class CommandRegistry {
                 database.dailyRewardEntry.setLastDaily(System.currentTimeMillis() - DailyReward.MILLIS_WHOLE_DAY);
 
                 Chat.sendMessage(player, "&aReset daily!");
+            }
+        });
+
+        register(new SimplePlayerAdminCommand("skullBlockFace") {
+            @Override
+            protected void execute(Player player, String[] strings) {
+                final Block block = player.getTargetBlockExact(100);
+
+                if (block == null) {
+                    Chat.sendMessage(player, "&cNo block in sight.");
+                    return;
+                }
+
+                final BlockState state = block.getState();
+                if (!(state instanceof Skull skull)) {
+                    Chat.sendMessage(player, "&cTarget block is not a skull.");
+                    return;
+                }
+
+                Chat.sendMessage(player, "&aBlock Face: &l" + skull.getRotation().name());
             }
         });
 

@@ -48,7 +48,7 @@ public class GamePlayerUI {
                     return;
                 }
 
-                // update player list and scoreboard
+                // update a player list and scoreboard
                 final String[] headerFooter = formatHeaderFooter();
                 player.setPlayerListHeaderFooter(Chat.format(headerFooter[0]), Chat.format(headerFooter[1]));
                 player.setPlayerListName(profile.getDisplay().getDisplayNameTab());

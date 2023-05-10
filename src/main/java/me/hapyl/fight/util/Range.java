@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Indicates that the parameter should length should be between min and max.
+ * Indicates that the parameter, or it's length should be between min and max.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.PARAMETER })
@@ -24,6 +24,6 @@ public @interface Range {
      *
      * @return maximum length.
      */
-    int max() default Byte.MAX_VALUE;
+    int max() default Integer.MAX_VALUE;
 
 }

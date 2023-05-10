@@ -5,6 +5,7 @@ import me.hapyl.fight.game.collectible.relic.Type;
 import me.hapyl.fight.game.reward.DailyReward;
 import me.hapyl.fight.game.reward.Reward;
 import me.hapyl.fight.game.reward.Rewards;
+import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.Arguments;
@@ -59,6 +60,10 @@ public class EyeGUI extends PlayerDynamicGUI {
                 update();
             });
         }
+
+        // Reserved
+        setItem(13, ItemStacks.OAK_QUESTION);
+        setItem(15, ItemStacks.OAK_QUESTION);
     }
 
 }

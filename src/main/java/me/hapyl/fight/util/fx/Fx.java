@@ -1,20 +1,27 @@
 package me.hapyl.fight.util.fx;
 
-import com.google.common.collect.Lists;
 import org.bukkit.Particle;
+import org.bukkit.entity.Player;
 
-import java.util.List;
+import javax.annotation.Nullable;
 
-public abstract class Fx {
+public class Fx {
 
-    private List<ParticleFx> particles;
+    @Nullable private String message;
 
     private Fx() {
-        this.particles = Lists.newArrayList();
+    }
+
+    public Fx withMessage(String message) {
+        this.message = message;
+        return this;
     }
 
     public Fx particle(Particle particle) {
         return this;
+    }
+
+    public final void display(Player player) {
     }
 
 }

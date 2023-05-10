@@ -30,16 +30,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class RelicHunt extends DependencyInjector<Main> implements Listener {
 
     private final Map<Integer, Relic> byId;
+    private final Map<Type, List<Relic>> byType;
+    private final Map<GameMaps, List<Relic>> byZone;
+
     private final Map<Integer, Reward> collectorRewards;
     private final Map<Integer, Reward> exchangeReward;
 
     public RelicHunt(Main plugin) {
         super(plugin);
         byId = Maps.newHashMap();
+        byType = Maps.newHashMap();
+        byZone = Maps.newHashMap();
+
         collectorRewards = Maps.newHashMap();
         exchangeReward = Maps.newHashMap();
 
@@ -56,12 +63,36 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
         Bukkit.getPluginManager().registerEvents(this, plugin);
         Bukkit.getScheduler().runTaskTimer(plugin, new RelicRunnable(this), 0L, 20L);
 
-        initRelics();
+        // Register relics
+        registerRelics();
+
+        // Compute types and zones
+        byId.forEach((id, relic) -> {
+            computeMapList(byZone, relic.getZone(), list -> list.add(relic));
+            computeMapList(byType, relic.getType(), list -> list.add(relic));
+        });
+
+        createRelics();
     }
 
     @Nullable
     public Reward getCollectorReward(@Range(min = 1) int tier) {
         return collectorRewards.get(tier);
+    }
+
+    @Nonnull
+    public Reward getExchangeReward(@Range(min = 1) int tier) {
+        Reward reward = exchangeReward.get(tier);
+
+        if (reward == null) { // default to the last reward
+            reward = exchangeReward.get(exchangeReward.size() - 1);
+        }
+
+        if (reward == null) {
+            throw new IllegalStateException("There must be at least one exchange reward!");
+        }
+
+        return reward;
     }
 
     @EventHandler()
@@ -81,7 +112,14 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
         if (!relic.hasFound(player)) {
             relic.give(player);
         }
+    }
 
+    public int countIn(GameMaps map) {
+        return byZone.getOrDefault(map, Lists.newArrayList()).size();
+    }
+
+    public boolean anyIn(GameMaps map) {
+        return countIn(map) > 0;
     }
 
     /**
@@ -92,32 +130,8 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
      * @return list of relics in the given zone.
      */
     @Nonnull
-    public List<Relic> getIn(GameMaps map) {
-        final List<Relic> relics = Lists.newArrayList();
-
-        for (Relic value : byId.values()) {
-            if (value.getZone() == map) {
-                relics.add(value);
-            }
-        }
-
-        return relics;
-    }
-
-    public int countIn(GameMaps map) {
-        int count = 0;
-
-        for (Relic value : byId.values()) {
-            if (value.getZone() == map) {
-                count++;
-            }
-        }
-
-        return count;
-    }
-
-    public boolean anyIn(GameMaps map) {
-        return countIn(map) > 0;
+    public List<Relic> byZone(GameMaps map) {
+        return Lists.newArrayList(byZone.getOrDefault(map, Lists.newArrayList()));
     }
 
     @Nullable
@@ -151,34 +165,12 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
         byId.forEach(consumer);
     }
 
-    public List<Relic> byType(Type value) {
-        final List<Relic> relics = Lists.newArrayList();
-
-        for (Relic relic : byId.values()) {
-            if (relic.getType() == value) {
-                relics.add(relic);
-            }
-        }
-
-        return relics;
-    }
-
     @Nonnull
-    public Reward getExchangeReward(@Range(min = 1) int tier) {
-        Reward reward = exchangeReward.get(tier);
-
-        if (reward == null) {
-            reward = exchangeReward.get(exchangeReward.size() - 1);
-        }
-
-        if (reward == null) {
-            throw new IllegalStateException("There must be at least one exchange reward!");
-        }
-
-        return reward;
+    public List<Relic> byType(Type value) {
+        return Lists.newArrayList(byType.getOrDefault(value, Lists.newArrayList()));
     }
 
-    private void initRelics() {
+    private void registerRelics() {
         // Lobby
         registerRelic(100, new Relic(Type.AMETHYST, 27, 66, 8));
         registerRelic(101, new Relic(Type.AMETHYST, 32, 66, 0));
@@ -206,9 +198,18 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
 
         // Winery
         registerRelic(600, new Relic(Type.SAPPHIRE, 231, 62, 216).setZone(GameMaps.WINERY));
-        registerRelic(601, new Relic(Type.DIAMOND, 223, 62, 190).setZone(GameMaps.WINERY).setBlockFace(BlockFace.SOUTH_WEST));
+        registerRelic(601, new Relic(Type.DIAMOND, 223, 62, 190).setZone(GameMaps.WINERY).setBlockFace(13));
+    }
 
-        createRelics();
+    private <K, V> void computeMapList(final Map<K, List<V>> map, K key, final Consumer<List<V>> consumer) {
+        map.compute(key, (ref, list) -> {
+            if (list == null) {
+                list = Lists.newArrayList();
+            }
+
+            consumer.accept(list);
+            return list;
+        });
     }
 
     private void createRelics() {
@@ -241,7 +242,7 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
         }
     }
 
-    private void registerRelic(@Unique final int id, final Relic relic) {
+    private void registerRelic(@Unique final int id, final Relic relic) throws IllegalArgumentException {
         if (byId.containsKey(id)) {
             throw new IllegalArgumentException("Id %s is already taken by %s!".formatted(id, byId.get(id)));
         }

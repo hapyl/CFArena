@@ -11,6 +11,7 @@ import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.nn.IntInt;
 import me.hapyl.spigotutils.module.scoreboard.Scoreboarder;
+import me.hapyl.spigotutils.module.util.Placeholder;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -52,7 +53,7 @@ public class Deathmatch extends CFGameMode {
 
         final IntInt i = new IntInt(1);
         topKills.forEach((team, kills) -> {
-            builder.addLines(" %s&e#&l%s &f%s &b🗡 &l%s".formatted(team == playerTeam ? "&a→ " : "", i.get(), formatTeamName(team), kills));
+            builder.addLines(Placeholder.format(" &e#&l{Position} &f{Name} &b🗡 &l{Kills}", i.get(), formatTeamName(team), kills));
             i.increment();
         });
 
@@ -86,31 +87,6 @@ public class Deathmatch extends CFGameMode {
         }
 
         return sortByValue(map, limit);
-    }
-
-    @Deprecated
-    public final LinkedHashMap<GamePlayer, Integer> getTopKills(@Nonnull IGameInstance instance, int limit) {
-        final Map<GamePlayer, Integer> map = getAllKills(instance);
-        return sortByValue(map, limit);
-    }
-
-    @Deprecated
-    public final Map<GamePlayer, Integer> getAllKills(@Nonnull IGameInstance instance) {
-        final Map<GamePlayer, Integer> topKills = Maps.newHashMap();
-
-        instance.getPlayers().values().forEach(player -> {
-            topKills.put(player, (int) player.getStats().getValue(StatType.KILLS));
-        });
-
-        return topKills;
-    }
-
-    /**
-     * @deprecated Respawn is now handles in GamePlayer
-     */
-    @Override
-    @Deprecated
-    public void onDeath(@Nonnull GameInstance instance, @Nonnull GamePlayer player) {
     }
 
     @Override
