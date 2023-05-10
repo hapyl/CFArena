@@ -65,17 +65,17 @@ Bugs:
 - [✔?] At me.hapyl.fight.game.heroes.storage.Techie$1.run(Techie.java:101) ~[ClassesFightArena.jar:?]
 - [✔] Traps don't regen
 - [✔] Database save called twice in rejoin
-- GameTeam uses gameplayer and does not reset after rejoin
+- [✔] GameTeam uses gameplayer and does not reset after rejoin
 - [✔]Remove effects at death
-- [Need a lot of testing but I think it's fine?] Player profile is not removed on leave?
-- Fix talent descriptions, use addDescription() not '__'
+- [✔] Player profile is not removed on leave?
+- [✔] Fix talent descriptions, use addDescription() not '__'
 
 - Improve harbinger wave
-- : wrong in harbinger melee mark
+- [✔] ':' wrong in harbinger melee mark
 - Maybe add glowing for self traps
 - rework TECHIE and TAKER ult
 - add glowing on death for teammates
-- Fix minion AI targetting invis
+- [✔] Fix minion AI targeting invisible players
 - Maybe add buff when JUJU uses climb
 - make juju shot work when hit enemies
 

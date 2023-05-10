@@ -34,7 +34,6 @@ public class RelicRewardGUI extends PlayerDynamicGUI {
 
     @Override
     public void setupInventory(@Nonnull Arguments arguments) {
-        final Player player = getPlayer();
         final CollectibleEntry entry = PlayerDatabase.getDatabase(player).collectibleEntry;
         setArrowBack("Relic Hunt", ref -> new RelicHuntGUI(player));
 

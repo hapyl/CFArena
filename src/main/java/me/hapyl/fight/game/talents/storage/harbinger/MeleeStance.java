@@ -50,6 +50,11 @@ public class MeleeStance extends Talent {
 
     @Override
     public void onDeath(Player player) {
+        final StanceData data = dataMap.get(player);
+        if (data != null) {
+            data.cancelTask();
+        }
+
         dataMap.remove(player);
     }
 

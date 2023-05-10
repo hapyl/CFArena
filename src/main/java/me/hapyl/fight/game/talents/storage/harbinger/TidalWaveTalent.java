@@ -12,6 +12,7 @@ public class TidalWaveTalent extends Talent {
     @DisplayField protected final double horizontalOffset = 1.0d;
     @DisplayField protected final double maxDistance = 10.0d;
     @DisplayField protected final int riptideDuration = 100;
+    @DisplayField(suffix = "blocks") protected final short width = 2;
 
     public TidalWaveTalent() {
         super("Tidal Wave", "Summon a giant wave that pushes enemies away from you and applies Riptide to them.");

@@ -46,13 +46,13 @@ public class Harbinger extends Hero implements Listener, UIComponent {
      * Changes to riptide:
      * - Is now a status effect that lasts for certain duration regardless.
      * - Riptide Slash can now be executed every 2.5 seconds.
-     * - Riptide can more be executed with a fully charged bow as well as melee.
+     * - Riptide can be executed with a fully charged bow as well as melee.
      */
 
     public Harbinger() {
         super("Harbinger", "She is a harbinger of unknown organization. Nothing else is known.", Material.ANVIL);
 
-        setRole(Role.STRATEGIST);
+        setRole(Role.MELEE_RANGE);
         setMinimumLevel(5);
         setItem("22a1ac2a8dd48c371482806b3963571952997a5712806e2c8060b8e7777754");
 
@@ -259,7 +259,7 @@ public class Harbinger extends Hero implements Listener, UIComponent {
             return "";
         }
 
-        return "&f⚔ &l:%ss&f/&l%ss".formatted(
+        return "&f⚔: &l%ss&f/&l%ss".formatted(
                 BukkitUtils.roundTick(data.getDurationTick()),
                 BukkitUtils.roundTick(getFirstTalent().getMaxDuration())
         );

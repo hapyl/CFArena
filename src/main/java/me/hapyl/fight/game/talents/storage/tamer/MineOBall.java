@@ -1,13 +1,13 @@
 package me.hapyl.fight.game.talents.storage.tamer;
 
 import com.google.common.collect.Maps;
-import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Nulls;
+import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Bukkit;
@@ -43,7 +43,7 @@ public class MineOBall extends Talent implements Listener {
         setTexture("5fe47640843744cd5796979d1196fb938317ec42b09fccb2c545ee4c925ac2bd");
     }
 
-    // Don't allow to target owner. (Happens on spawn since we're the closest.)
+    // Don't allow targeting an owner. (Happens on spawn since we're the closest.)
     @EventHandler()
     public void handleEntityTargetLivingEntityEvent(EntityTargetLivingEntityEvent ev) {
         final Entity entity = ev.getEntity();
@@ -132,7 +132,7 @@ public class MineOBall extends Talent implements Listener {
                     pack.getEntities().forEach(entity -> {
                         final Location location = entity.getLocation();
 
-                        // Teleport to owner if too far away
+                        // Teleport to the owner if too far away
                         if (location.distance(player.getLocation()) >= 50.0d) {
                             entity.teleport(player);
                         }
@@ -143,10 +143,8 @@ public class MineOBall extends Talent implements Listener {
 
                         final LivingEntity target = creature.getTarget();
 
-                        // if target is null or has died then change it
-                        if (target == null
-                                || (target instanceof Player playerTarget && !GamePlayer.getPlayer(playerTarget).isAlive())) {
-
+                        // if the target is null or invalid, then change it
+                        if (target == null || (target instanceof Player playerTarget && !Utils.isEntityValid(playerTarget))) {
                             final LivingEntity newTarget = pack.findNearestTarget();
 
                             if (newTarget == null) {

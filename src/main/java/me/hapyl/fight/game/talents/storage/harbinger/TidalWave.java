@@ -61,12 +61,13 @@ public class TidalWave {
                     return;
                 }
 
-                final Location right = LocationHelper.getToTheRight(location, talent.horizontalOffset);
-                final Location left = LocationHelper.getToTheLeft(location, talent.horizontalOffset);
-
                 createBlocks(location);
-                createBlocks(right);
-                createBlocks(left);
+
+                // Wider now
+                for (int i = 0; i < talent.width; i++) {
+                    createBlocks(LocationHelper.getToTheRight(location, talent.horizontalOffset + i));
+                    createBlocks(LocationHelper.getToTheLeft(location, talent.horizontalOffset + i));
+                }
 
                 location.add(vector);
                 tick += period;

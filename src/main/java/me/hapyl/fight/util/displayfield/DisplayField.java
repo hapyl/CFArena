@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 public @interface DisplayField {
 
     /**
-     * Name of the field. If not present field name will be formatted and used.
+     * Name of the field. If not, present, field name will be formatted and used.
      */
     @Nonnull
     String name() default "";

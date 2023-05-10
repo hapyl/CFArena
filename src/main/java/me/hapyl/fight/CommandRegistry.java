@@ -16,6 +16,7 @@ import me.hapyl.spigotutils.module.chat.Gradient;
 import me.hapyl.spigotutils.module.chat.gradient.Interpolators;
 import me.hapyl.spigotutils.module.command.*;
 import me.hapyl.spigotutils.module.entity.Entities;
+import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.reflect.DataWatcherType;
 import me.hapyl.spigotutils.module.reflect.Reflect;
 import me.hapyl.spigotutils.module.reflect.glow.Glowing;
@@ -256,6 +257,23 @@ public class CommandRegistry {
                 }
 
                 Chat.sendMessage(player, "&aBlock Face: &l" + skull.getRotation().name());
+            }
+        });
+
+        register(new SimplePlayerAdminCommand("getTextBlockTestItem") {
+            @Override
+            protected void execute(Player player, String[] strings) {
+                player.getInventory().addItem(
+                        ItemBuilder.of(Material.FEATHER).addTextBlockLore("""
+                                This is a text block lore test, and this should be the first paragraph.
+                                                                
+                                &a;;Where this is the second one, and it's also all green!
+                                                                
+                                Two paragraphs, wow!
+                                                                
+                                &c;;And I know your name, %s!
+                                """, player.getName()).asIcon()
+                );
             }
         });
 
