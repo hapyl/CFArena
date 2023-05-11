@@ -1,6 +1,7 @@
 package me.hapyl.fight.event;
 
 import me.hapyl.fight.Main;
+import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Hero;
@@ -96,6 +97,10 @@ public class PlayerHandler implements Listener {
         // save database
         Manager.current().getOrCreateProfile(player).getDatabase().save();
 
+        // delete database instance
+        PlayerDatabase.removeDatabase(player.getUniqueId());
+        PlayerDatabase.dumpDatabaseInstanceInConsoleToConfirmThatThereIsNoMoreInstancesAfterRemoveIsCalledButThisIsTemporaryShouldRemoveOnProd();
+
         // Delete profile
         Manager.current().removeProfile(player);
     }
@@ -112,7 +117,6 @@ public class PlayerHandler implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handleFoodLevel(FoodLevelChangeEvent ev) {
-        // Auto-Generated
         ev.setCancelled(true);
         ev.setFoodLevel(20);
     }

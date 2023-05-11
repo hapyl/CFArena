@@ -7,22 +7,26 @@ import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.Talents;
 import org.bson.Document;
 
-public class HeroStats extends DatabaseCollection {
+public class HeroStatsCollection extends AsynchronousDatabase {
 
     private final Heroes heroes;
 
-    public HeroStats(Heroes heroes) {
+    public HeroStatsCollection(Heroes heroes) {
         super(Main.getPlugin().getDatabase().getHeroStats(), new Document("hero", heroes.name()));
 
         this.heroes = heroes;
     }
 
+    public Heroes getHeroes() {
+        return heroes;
+    }
+
     public double getStat(StatType statisticType) {
-        return document.get(statisticType.name(), 0d);
+        return read(statisticType.name(), 0d);
     }
 
     public void setStat(StatType statisticType, double value) {
-        document.put(statisticType.name(), value);
+        write(statisticType.name(), value);
     }
 
     public void addStat(StatType statisticType, double value) {
@@ -30,9 +34,10 @@ public class HeroStats extends DatabaseCollection {
     }
 
     public long getAbilityUsage(Talents talent) {
-        final Document abilityUsed = document.get("ability_used", new Document());
-
-        return abilityUsed.get(talent.name(), 0L);
+        return read("ability_used." + talent.name(), 0L);
+        //        final Document abilityUsed = document.get("ability_used", new Document());
+        //
+        //        return abilityUsed.get(talent.name(), 0L);
     }
 
     public void addAbilityUsage(Talents talents, long value) {
@@ -40,10 +45,11 @@ public class HeroStats extends DatabaseCollection {
     }
 
     public void setAbilityUsage(Talents talent, long value) {
-        final Document abilityUsed = document.get("ability_used", new Document());
-
-        abilityUsed.put(talent.name(), value);
-        document.put("ability_used", abilityUsed);
+        write("ability_used." + talent.name(), value);
+        //        final Document abilityUsed = document.get("ability_used", new Document());
+        //
+        //        abilityUsed.put(talent.name(), value);
+        //        document.put("ability_used", abilityUsed);
     }
 
     public void fromPlayerStatistic(StatContainer stat) {

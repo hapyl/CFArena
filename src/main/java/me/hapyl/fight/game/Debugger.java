@@ -50,7 +50,7 @@ public class Debugger {
     }
 
     private static String now() {
-        return DateTimeFormatter.ofPattern("mm:ss").format(LocalTime.now());
+        return DateTimeFormatter.ofPattern("hh:mm:ss").format(LocalTime.now());
     }
 
     private static void send(String string, Object... format) {

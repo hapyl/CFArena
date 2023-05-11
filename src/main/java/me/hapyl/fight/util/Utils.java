@@ -263,7 +263,6 @@ public class Utils {
         if (entity instanceof Projectile projectile && projectile.getShooter() instanceof LivingEntity livingEntity) {
             return livingEntity;
         }
-
         else if (entity instanceof Tameable tameable && tameable.getOwner() instanceof LivingEntity livingEntity) {
             return livingEntity;
         }
@@ -382,6 +381,17 @@ public class Utils {
             }
         }
         collection.clear();
+    }
+
+    @Nonnull
+    public static <K, V> V getElementOrThrowErrorIfNull(Map<K, V> map, K key, String errorMessage) {
+        final V v = map.get(key);
+
+        if (v != null) {
+            return v;
+        }
+
+        throw new IllegalArgumentException(errorMessage);
     }
 
     public static List<CommandSender> getOnlineOperatorsAndConsole() {

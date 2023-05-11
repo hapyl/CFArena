@@ -60,7 +60,10 @@ public class RelicHuntGUI extends PlayerDynamicGUI {
             }
 
             builder.addLore();
-            builder.addLore("&aProgress               %s%%", percent);
+            builder.addLore("&7Progress%s&a%s%%".formatted(
+                    percent >= 100 ? " ".repeat(12) : percent >= 10 ? " ".repeat(13) : " ".repeat(15),
+                    percent
+            ));
             builder.addLore(ProgressBarBuilder.of("■", foundSize, relics.size()));
             component.add(builder.asIcon());
         }

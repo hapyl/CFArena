@@ -3,10 +3,13 @@ package me.hapyl.fight;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Updates;
 import me.hapyl.fight.cmds.*;
 import me.hapyl.fight.database.Database;
 import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.game.Debugger;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.TitleAnimation;
 import me.hapyl.fight.game.reward.DailyReward;
@@ -269,11 +272,71 @@ public class CommandRegistry {
                                                                 
                                 &a;;Where this is the second one, and it's also all green!
                                                                 
+                                         
                                 Two paragraphs, wow!
                                                                 
                                 &c;;And I know your name, %s!
                                 """, player.getName()).asIcon()
                 );
+            }
+        });
+
+        register(new SimplePlayerAdminCommand("asyncDbTest") {
+
+            private final Document FILTER = new Document("_dev", "hapyl");
+            Document document;
+
+            @Override
+            protected void execute(Player player, String[] args) {
+                final MongoCollection<Document> collection = plugin.getDatabase().getPlayers();
+                document = collection.find(FILTER).first();
+
+                if (document == null) {
+                    document = new Document(FILTER);
+                    collection.insertOne(document);
+                }
+
+                if (args.length >= 1) {
+                    final String arg0 = args[0];
+
+                    if (arg0.equalsIgnoreCase("dump")) {
+                        document.forEach((k, v) -> {
+                            Debugger.info("%s = %s", k, v);
+                        });
+                        return;
+                    }
+
+                    if (args.length >= 2) {
+                        final String arg1 = args[1];
+
+                        if (arg0.equalsIgnoreCase("get")) {
+                            final String get = document.get(arg1, "null");
+
+                            Chat.sendMessage(player, "&e%s = &6%s", arg1, get);
+                        }
+                        else if (arg0.equalsIgnoreCase("set")) {
+                            if (args.length < 3) {
+                                Chat.sendMessage(player, "Forgot the value, stupid.");
+                                return;
+                            }
+
+                            final String toSet = args[2];
+
+                            Runnables.runAsync(() -> {
+                                document = collection.findOneAndUpdate(document, Updates.set(arg1, toSet));
+                                Chat.sendMessage(player, "&aSet and update %s.", toSet);
+                            });
+                        }
+                    }
+
+                    return;
+                }
+
+                Chat.sendMessage(player, "&cInvalid usage, idiot.");
+
+                // bullshit dump
+                // bullshit get (a.b.c.d)
+                // bullshit set (a.b.c.d) (value)
             }
         });
 

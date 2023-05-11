@@ -428,7 +428,7 @@ public class Manager extends DependencyInjector<Main> {
         this.gameInstance.setGameState(State.POST_GAME);
 
         // Save stats
-        this.gameInstance.getActiveHeroes().forEach(hero -> hero.getStats().saveAsync());
+        // this.gameInstance.getActiveHeroes().forEach(hero -> hero.getStats().saveAsync());
 
         // reset all cooldowns
         for (final Material value : Material.values()) {
@@ -504,7 +504,6 @@ public class Manager extends DependencyInjector<Main> {
             final ParamFunction<Talent, Hero> function = slotPerTalent.get(slot);
             return function == null ? null : function.execute(hero);
         }
-
         else if (hero instanceof ComplexHero complexHero) {
             final ParamFunction<Talent, ComplexHero> function = slotPerComplexTalent.get(slot);
             return function == null ? null : function.execute(complexHero);
@@ -599,7 +598,6 @@ public class Manager extends DependencyInjector<Main> {
         if (isTrialExistsAndIsOwner(player)) {
             return getTrial().getHeroes();
         }
-
         else if (isPlayerInGame(player)) {
             final GamePlayer gamePlayer = getCurrentGame().getPlayer(player);
             if (gamePlayer == null) {

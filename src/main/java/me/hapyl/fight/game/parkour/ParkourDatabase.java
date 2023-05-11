@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+// This is handled async so whatever not putting using DatabaseCollection.
 public class ParkourDatabase {
 
     private final Database mongo;
@@ -47,7 +48,7 @@ public class ParkourDatabase {
                 final UUID uuid = UUID.fromString(key);
                 final OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
 
-                // If document has a valid uuid, but has player never played
+                // If a document has a valid uuid, but has player never played,
                 // it means that it was created in offline mode, delete it.
                 if (!offlinePlayer.hasPlayedBefore()) {
                     Debugger.warn("Removing invalid entry: %s", key);

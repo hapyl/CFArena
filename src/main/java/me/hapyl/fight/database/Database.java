@@ -28,16 +28,15 @@ public class Database extends DependencyInjector<Main> {
 
     private MongoClient client;
     private MongoDatabase database;
-    private MongoCollection<Document> players;
-    private MongoCollection<Document> parkour;
-    private MongoCollection<Document> heroStats;
+    protected MongoCollection<Document> players;
+    protected MongoCollection<Document> parkour;
+    protected MongoCollection<Document> heroStats;
+    public MongoCollection<Document> friends;
 
     public Database(Main main) {
         super(main);
         this.config = main.getConfig();
         this.namedDatabase = NamedDatabase.byName(config.getString("database.type"));
-
-        // Suppress logging
     }
 
     public NamedDatabase getNamedDatabase() {
@@ -83,6 +82,7 @@ public class Database extends DependencyInjector<Main> {
             players = database.getCollection("players");
             parkour = database.getCollection("parkour");
             heroStats = database.getCollection("hero_stats");
+            friends = database.getCollection("friends");
         } catch (Exception e) {
             breakConnectionAndDisablePlugin("Failed to retrieve database collection!");
         }
