@@ -12,6 +12,7 @@ import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.Reflect;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
+import net.minecraft.world.entity.boss.wither.EntityWither;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
@@ -184,7 +185,7 @@ public class Utils {
         Reflect.showEntity(entity, player);
     }
 
-    public static void rayTracePath(Location start, Location end, double shift, double searchRange, Function<LivingEntity> funcLiving, Function<Location> funcLoc) {
+    public static void rayTracePath(@Nonnull Location start, @Nonnull Location end, double shift, double searchRange, @Nullable Function<LivingEntity> funcLiving, @Nullable Function<Location> funcLoc) {
         final double maxDistance = start.distance(end);
         final Vector vector = end.toVector().subtract(start.toVector()).normalize().multiply(shift);
 
@@ -204,7 +205,6 @@ public class Utils {
                 Nulls.runIfNotNull(funcLoc, f -> f.execute(start));
 
                 tick -= shift;
-
             }
         }.runTaskTimer(0, 1);
 
@@ -392,6 +392,17 @@ public class Utils {
         }
 
         throw new IllegalArgumentException(errorMessage);
+    }
+
+    public static void setWitherInvul(Wither wither, int invul) {
+        //Reflect.setDataWatcherValue(
+        //        Objects.requireNonNull(Reflect.getMinecraftEntity(wither)),
+        //        DataWatcherType.INT,
+        //        19,
+        //        invul,
+        //        Bukkit.getOnlinePlayers().toArray(new Player[] {})
+        //);
+        ((EntityWither) Objects.requireNonNull(Reflect.getMinecraftEntity(wither))).r(invul);
     }
 
     public static List<CommandSender> getOnlineOperatorsAndConsole() {

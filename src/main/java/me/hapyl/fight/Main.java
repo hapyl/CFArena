@@ -5,6 +5,7 @@ import me.hapyl.fight.event.EnderPearlHandler;
 import me.hapyl.fight.event.PlayerHandler;
 import me.hapyl.fight.event.SnowFormHandler;
 import me.hapyl.fight.game.ChatController;
+import me.hapyl.fight.game.Debugger;
 import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.collectible.Collectibles;
@@ -35,11 +36,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 import test.Test;
 
 import javax.annotation.Nullable;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class Main extends JavaPlugin {
 
     public static final String GAME_NAME = "&e&lCLASSES FIGHT &c&lᴀʀᴇɴᴀ";
+    private static long start;
     private static Main plugin;
 
     private Manager manager;
@@ -52,13 +56,10 @@ public class Main extends JavaPlugin {
     private CFParkourManager parkourManager;
     private Collectibles collectibles;
 
-    public static Main getPlugin() {
-        return plugin;
-    }
-
     @Override
     public void onEnable() {
         plugin = this;
+        start = System.currentTimeMillis();
 
         // Init config
         getConfig().options().copyDefaults(true);
@@ -239,6 +240,8 @@ public class Main extends JavaPlugin {
                 }
             } catch (NoSuchFieldException | IllegalAccessException ignored) {
             }
+
+            Debugger.info("&ePlugin started at &6" + new SimpleDateFormat("HH'h' mm'm' ss's'").format(new Date(start)));
         }, 20L);
     }
 
@@ -290,5 +293,13 @@ public class Main extends JavaPlugin {
         new ArcaneMuteProtocol();
         new DismountProtocol();
         //new ConfusionPotionProtocol(); -> doesn't work as good as I thought :(
+    }
+
+    public static Main getPlugin() {
+        return plugin;
+    }
+
+    public static long getStartupTime() {
+        return start;
     }
 }

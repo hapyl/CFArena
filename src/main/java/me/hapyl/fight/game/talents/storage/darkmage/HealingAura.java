@@ -2,8 +2,8 @@ package me.hapyl.fight.game.talents.storage.darkmage;
 
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.storage.extra.DarkMageSpell;
+import me.hapyl.fight.game.heroes.storage.extra.WitherData;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -19,12 +19,20 @@ import javax.annotation.Nonnull;
 public class HealingAura extends DarkMageTalent {
 
     @DisplayField(suffix = "blocks") private final double radius = 2.5d;
+    @DisplayField private final double assistHealing = 10.0d;
 
     public HealingAura() {
         super("Healing Aura", "Creates a healing circle at your location that heals all players periodically.", Material.APPLE);
 
+        setAssistDescription("Instantly heals for &c%s ❤&7.".formatted(assistHealing));
+
         setDuration(200);
         setCdSec(30);
+    }
+
+    @Override
+    public void assist(WitherData data) {
+        GamePlayer.getPlayer(data.player).heal(assistHealing);
     }
 
     @Nonnull
@@ -41,10 +49,6 @@ public class HealingAura extends DarkMageTalent {
 
     @Override
     public Response execute(Player player) {
-        if (Heroes.DARK_MAGE.getHero().isUsingUltimate(player)) {
-            return Response.error("Unable to use while in ultimate form!");
-        }
-
         final Location location = player.getLocation();
 
         new GameTask() {

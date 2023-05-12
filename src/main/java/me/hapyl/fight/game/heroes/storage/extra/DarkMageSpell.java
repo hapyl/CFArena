@@ -70,19 +70,31 @@ public class DarkMageSpell {
         return second;
     }
 
-    public void cast() {
-        // Cast spell
+    public void cast(@Nullable WitherData data) {
+        final DarkMageTalent talent = getTalent();
+
+        if (talent == null) {
+            return;
+        }
+
+        if (talent.executeDarkMage(player).isOk() && data != null) {
+            talent.assist(data);
+        }
+
+        clear();
+    }
+
+    @Nullable
+    public DarkMageTalent getTalent() {
         for (Talent talent : Heroes.DARK_MAGE.getHero().getTalents()) {
             if (talent instanceof DarkMageTalent darkMageTalent) {
                 if (darkMageTalent.test(this)) {
-                    darkMageTalent.executeDarkMage(player);
-                    break;
+                    return darkMageTalent;
                 }
             }
         }
 
-        // Reset buttons
-        clear();
+        return null;
     }
 
     public boolean isFull() {

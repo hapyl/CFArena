@@ -218,7 +218,7 @@ public enum Talents {
     SLOWING_AURA(new SlowingAura()),
     HEALING_AURA(new me.hapyl.fight.game.talents.storage.darkmage.HealingAura()),
     SHADOW_CLONE(new ShadowClone()),
-    DARK_MAGE_PASSIVE(new PassiveTalent("unnamed", "", Material.BEDROCK)),
+    DARK_MAGE_PASSIVE(new PassiveTalent("Wither Blood", "", Material.WITHER_ROSE)),
 
     // Blast Knight
     SPEAR(new Spear()),

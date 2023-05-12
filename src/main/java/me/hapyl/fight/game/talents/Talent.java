@@ -34,6 +34,9 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
     private final Type type;
     private final List<String> description;
     private final List<String> attributeDescription;
+
+    private String _description; // TODO (hapyl): 012, May 12, 2023: *frowns*
+
     private ItemStack itemStats;
     private int startAmount;
     private Material material;
@@ -204,7 +207,7 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
 
         builderItem.setAmount(startAmount);
 
-        // Add head texture if item is a player head
+        // Add head texture if an item is a player head
         if (material == Material.PLAYER_HEAD) {
             if (texture != null) {
                 builderItem.setHeadTexture(texture);
@@ -236,7 +239,7 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
             }
         }
 
-        // Is ability has alternative usage, tell how to use it
+        // Is ability having alternative usage, tell how to use it
         if (!autoAdd) {
             builderItem.addLore("");
             builderItem.addSmartLore(altUsage, "&8&o", 35);

@@ -30,6 +30,10 @@ public class CooldownCommand extends SimplePlayerAdminCommand {
         }
 
         for (Talent talent : gamePlayer.getHero().getTalents()) {
+            if (talent == null) {
+                continue;
+            }
+
             if (talent instanceof PassiveTalent) {
                 continue;
             }

@@ -12,6 +12,7 @@ import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.Debugger;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.TitleAnimation;
+import me.hapyl.fight.game.heroes.storage.extra.AnimatedWither;
 import me.hapyl.fight.game.reward.DailyReward;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -20,6 +21,7 @@ import me.hapyl.spigotutils.module.chat.gradient.Interpolators;
 import me.hapyl.spigotutils.module.command.*;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import me.hapyl.spigotutils.module.reflect.DataWatcherType;
 import me.hapyl.spigotutils.module.reflect.Reflect;
 import me.hapyl.spigotutils.module.reflect.glow.Glowing;
@@ -27,6 +29,7 @@ import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
 import me.hapyl.spigotutils.module.reflect.npc.NPCPose;
 import me.hapyl.spigotutils.module.util.Action;
 import me.hapyl.spigotutils.module.util.Runnables;
+import me.hapyl.spigotutils.module.util.Validate;
 import net.minecraft.world.entity.Entity;
 import org.bson.Document;
 import org.bukkit.Bukkit;
@@ -40,9 +43,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Piglin;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Wither;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import javax.annotation.Nonnull;
 import java.awt.*;
 import java.io.File;
 import java.io.FileWriter;
@@ -209,7 +214,8 @@ public class CommandRegistry {
                         }
                     }
 
-                    final LinkedHashMap<String, Float> sorted = hardness.entrySet().stream()
+                    final LinkedHashMap<String, Float> sorted = hardness.entrySet()
+                            .stream()
                             .sorted(Map.Entry.comparingByValue())
                             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
@@ -266,19 +272,57 @@ public class CommandRegistry {
         register(new SimplePlayerAdminCommand("getTextBlockTestItem") {
             @Override
             protected void execute(Player player, String[] strings) {
-                player.getInventory().addItem(
-                        ItemBuilder.of(Material.FEATHER).addTextBlockLore("""
-                                This is a text block lore test, and this should be the first paragraph.
-                                                                
-                                &a;;Where this is the second one, and it's also all green!
-                                                                
-                                         
-                                Two paragraphs, wow!
-                                                                
-                                &c;;And I know your name, %s!
-                                """, player.getName()).asIcon()
-                );
+                player.getInventory().addItem(ItemBuilder.of(Material.FEATHER).addTextBlockLore("""
+                        This is a text block lore test, and this should be the first paragraph.
+                                                        
+                        &a;;Where this is the second one, and it's also all green!
+                                                        
+                                 
+                        Two paragraphs, wow!
+                                                        
+                        &c;;And I know your name, %s!
+                        """, player.getName()).asIcon());
             }
+        });
+
+        register(new SimplePlayerAdminCommand("spawnWither") {
+
+            @Override
+            protected void execute(Player player, String[] args) {
+                if (args.length != 3) {
+                    Chat.sendMessage(player, "&cForgot (from:Int), (to:Int) and (speed:Long).");
+                    return;
+                }
+
+                final int from = Validate.getInt(args[0]);
+                final int to = Validate.getInt(args[1]);
+                final long speed = Validate.getLong(args[2]);
+
+                new AnimatedWither(LocationHelper.getInFront(player.getLocation(), 6)) {
+
+                    @Override
+                    public void onInit(@Nonnull Wither wither) {
+                        wither.setSilent(true);
+                    }
+
+                    @Override
+                    public void onStart() {
+                        Chat.sendMessage(player, "&aStarted %s->%s with speed %s", from, to, speed);
+                    }
+
+                    @Override
+                    public void onStop() {
+                        Chat.sendMessage(player, "&aStopped");
+                        doLater(wither::remove, 60);
+                    }
+
+                    @Override
+                    public void onTick(int tick) {
+                        Chat.sendMessage(player, "&a>>" + getInvul());
+                    }
+                }.startAnimation(from, to, speed);
+            }
+
         });
 
         register(new SimplePlayerAdminCommand("asyncDbTest") {

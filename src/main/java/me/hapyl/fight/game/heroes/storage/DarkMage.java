@@ -2,7 +2,8 @@ package me.hapyl.fight.game.heroes.storage;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.annotate.KeepNull;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.event.DamageInput;
+import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.cosmetic.CosmeticsHandle;
 import me.hapyl.fight.game.effect.GameEffectType;
@@ -11,6 +12,7 @@ import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.heroes.storage.extra.DarkMageSpell;
+import me.hapyl.fight.game.heroes.storage.extra.WitherData;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -27,11 +29,10 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Wither;
-import org.bukkit.entity.WitherSkull;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.util.Vector;
@@ -40,11 +41,11 @@ import javax.annotation.Nullable;
 import java.util.Map;
 
 import static org.bukkit.Sound.ENTITY_WITHER_DEATH;
-import static org.bukkit.Sound.ENTITY_WITHER_SHOOT;
 
 public class DarkMage extends Hero implements ComplexHero, Listener {
 
     private final Map<Player, DarkMageSpell> spellMap = Maps.newHashMap();
+    private final Map<Player, WitherData> withers = Maps.newHashMap();
 
     public DarkMage() {
         super("Dark Mage");
@@ -62,23 +63,54 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
                 .setDamage(7.0d)
                 .setDescription(
                         "A powerful wand, that's capable of casting multiple spells!____&e&lRIGHT CLICK &7to enter casting, then, combine &e&lRIGHT CLICK &7and/or &e&lLEFT CLICK &7to execute the spell!"
-                )
-                .setWeaponLore(
-                        "Long ago, a powerful wand was crafted from the bones of long-dead wizards and imbued with dark magic, granting immense power to its wielder. The wand was used by a cruel and merciless ruler to subjugate kingdoms."
                 ));
+        //.setWeaponLore(
+        //        "Long ago, a powerful wand was crafted from the bones of long-dead wizards and imbued with dark magic, granting immense power to its wielder. The wand was used by a cruel and merciless ruler to subjugate kingdoms."
+        //));
 
-        // TODO (hapyl): 019, Apr 19, 2023: Make DM actually ride the wither?
-        setUltimate(new UltimateTalent(
-                "Wither Rider",
-                "Transform into the wither for {duration}.____" +
-                        "While transformed, &e&lRIGHT CLICK &7to shoot wither skulls that deals massive damage on impact.__" +
-                        "After wither disappears, you perform plunging attack that deals damage in AoE upon hitting the ground.",
-                70
-        ).setItem(Material.WITHER_SKELETON_SKULL).setDuration(240).setCdSec(30).setSound(Sound.ENTITY_WITHER_SPAWN, 2.0f));
+        /**
+         * "Transform into the wither for {duration}.____" +
+         *                         "While transformed, &e&lRIGHT CLICK &7to shoot wither skulls that deals massive damage on impact.__" +
+         *                         "After wither disappears, you perform plunging attack that deals damage in AoE upon hitting the ground.",
+         */
+
+        // fixme -> Migrating to text-block when? KEKW
+        final UltimateTalent ultimate = new UltimateTalent("Witherborn", 70)
+                .setItem(Material.WITHER_SKELETON_SKULL)
+                .setDuration(240)
+                .setCdSec(30)
+                .setSound(Sound.ENTITY_WITHER_SPAWN, 2.0f);
+
+        ultimate.addDescription("Summon a baby wither that will assist you in battle for {duration}.");
+        ultimate.addNlDescription("While attacking or casting a spell, the wither will unleash a coordinated attack.");
+        ultimate.addNlDescription("The withers power will gradually deplete.");
+
+        setUltimate(ultimate);
+    }
+
+    @Override
+    public void onDeath(Player player) {
+        killWither(player);
+    }
+
+    @Override
+    public void onStop() {
+        withers.values().forEach(WitherData::remove);
+        withers.clear();
     }
 
     @Override
     public void useUltimate(Player player) {
+        killWither(player);
+        withers.put(player, new WitherData(player));
+    }
+
+    @Override
+    public void onUltimateEnd(Player player) {
+        killWither(player);
+    }
+
+    public void useUltimateOld(Player player) {
         player.setAllowFlight(true);
         player.setFlying(true);
 
@@ -162,24 +194,33 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         }.runTaskTimer(0, 1);
     }
 
-    private void updateWitherName(Player player, Wither wither) {
-        wither.setCustomName(Chat.format(
-                "&4&l☠ &c%s %s &a&l%s ❤",
-                player.getName(),
-                UIFormat.DIV,
-                BukkitUtils.decimalFormat(wither.getHealth())
-        ));
+    @Nullable
+    @Override
+    public DamageOutput processDamageAsDamager(DamageInput input) {
+        final Player player = input.getPlayer();
+        processSpellClick(player, true);
+
+        if (input.getEntity() != null) {
+            final WitherData data = getWither(player);
+            if (data == null) {
+                return null;
+            }
+
+            data.assistAttack();
+        }
+
+        return null;
     }
 
     @EventHandler()
-    public void handleProjectileHit(ProjectileHitEvent ev) {
-        if (!(ev.getEntity() instanceof WitherSkull skull) || !(skull.getShooter() instanceof Player player)) {
+    public void handleInteraction(PlayerInteractAtEntityEvent ev) {
+        final Player player = ev.getPlayer();
+
+        if (!validatePlayer(player) || ev.getHand() == EquipmentSlot.OFF_HAND) {
             return;
         }
 
-        Utils.getPlayersInRange(skull.getLocation(), 3.0d).forEach(victim -> {
-            GamePlayer.damageEntity(victim, 10.0d, player, EnumDamageCause.WITHER_SKULLED);
-        });
+        processSpellClick(player, false);
     }
 
     @EventHandler()
@@ -195,53 +236,22 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         }
 
         final boolean isLeftClick = action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK;
-        final boolean isRightClick = !isLeftClick;
 
-        // Handle wand
-        if (!isUsingUltimate(player)) {
-            final DarkMageSpell spell = spellMap.computeIfAbsent(player, a -> new DarkMageSpell(player));
+        processSpellClick(player, isLeftClick);
+        ev.setCancelled(true);
 
-            // When empty:
-            // - Right-clicking ONCE will enter the mode.
+        //final WitherSkull skull = player.launchProjectile(WitherSkull.class, player.getLocation().getDirection().multiply(3.0d));
+        //skull.setCharged(true);
+        //skull.setYield(0.0f);
+        //skull.setShooter(player);
+        //
+        //player.setCooldown(this.getWeapon().getMaterial(), 20);
+        //PlayerLib.playSound(player, ENTITY_WITHER_SHOOT, 1.0f);
+    }
 
-            // When not empty:
-            // Either left-clicking or right-clicking will add the button.
-            // If after adding the button, the spell is full, it will be casted.
-
-            // Check for timeout
-            if (spell.isTimeout()) {
-                spell.clear();
-            }
-
-            if (isRightClick) {
-                if (spell.isEmpty()) {
-                    spell.markUsed();
-                    spell.display();
-                    return;
-                }
-
-                spell.addButton(DarkMageSpell.SpellButton.RIGHT);
-            }
-            else if (!spell.isEmpty()) {
-                spell.addButton(DarkMageSpell.SpellButton.LEFT);
-            }
-
-            if (spell.isFull()) {
-                spell.cast();
-            }
-
-            ev.setCancelled(true);
-            return;
-        }
-
-        // Handle ultimate
-        final WitherSkull skull = player.launchProjectile(WitherSkull.class, player.getLocation().getDirection().multiply(3.0d));
-        skull.setCharged(true);
-        skull.setYield(0.0f);
-        skull.setShooter(player);
-
-        player.setCooldown(this.getWeapon().getMaterial(), 20);
-        PlayerLib.playSound(player, ENTITY_WITHER_SHOOT, 1.0f);
+    @Nullable
+    public WitherData getWither(Player player) {
+        return withers.get(player);
     }
 
     @Override
@@ -259,6 +269,17 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         return Talents.HEALING_AURA.getTalent();
     }
 
+    //@EventHandler()
+    //public void handleProjectileHit(ProjectileHitEvent ev) {
+    //    if (!(ev.getEntity() instanceof WitherSkull skull) || !(skull.getShooter() instanceof Player player)) {
+    //        return;
+    //    }
+    //
+    //    Utils.getPlayersInRange(skull.getLocation(), 3.0d).forEach(victim -> {
+    //        GamePlayer.damageEntity(victim, 10.0d, player, EnumDamageCause.WITHER_SKULLED);
+    //    });
+    //}
+
     @Override
     public Talent getFourthTalent() {
         return Talents.SHADOW_CLONE.getTalent();
@@ -273,6 +294,70 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
     @KeepNull
     public Talent getFifthTalent() {
         return null;
+    }
+
+    // [hapyl's rant about interaction detection]
+    //
+    // This is the stupidest thing in the fucking world,
+    // why is it if I'm clicking on entity, it doesn't fire interact event,
+    // I'm still fucking interacting aren't I?
+    // And also the fucking left-clicking entity does not fire the event either, like why?
+    // I'm clearly fucking interacting???
+    // But of course, the event handles with 2 hands, even if I have nothing in my second hand, makes sense.
+    private void processSpellClick(Player player, boolean isLeftClick) {
+        // Handle wand
+        final DarkMageSpell spell = spellMap.computeIfAbsent(player, DarkMageSpell::new);
+
+        // When empty:
+        // - Right-clicking ONCE will enter the mode.
+
+        // When not empty:
+        // Either left-clicking or right-clicking will add the button.
+        // If after adding the button, the spell is full, it will be cast.
+
+        // Check for timeout
+        if (spell.isTimeout()) {
+            spell.clear();
+        }
+
+        final WitherData data = getWither(player);
+
+        if (!isLeftClick) {
+            if (spell.isEmpty()) {
+                spell.markUsed();
+                spell.display();
+                return;
+            }
+
+            spell.addButton(DarkMageSpell.SpellButton.RIGHT);
+        }
+        else if (!spell.isEmpty()) {
+            spell.addButton(DarkMageSpell.SpellButton.LEFT);
+        }
+
+        final boolean usingUltimate = isUsingUltimate(player);
+        if (spell.isFull()) {
+            spell.cast(data);
+        }
+    }
+
+    private void killWither(Player player) {
+        final WitherData data = withers.get(player);
+
+        if (data != null) {
+            data.remove();
+        }
+
+        withers.remove(player);
+    }
+
+    private void updateWitherName(Player player, Wither wither) {
+        wither.setCustomName(Chat.format(
+                "&4&l☠ &c%s %s &a&l%s ❤",
+                player.getName(),
+                UIFormat.DIV,
+                BukkitUtils.decimalFormat(wither.getHealth())
+        ));
     }
 
 }

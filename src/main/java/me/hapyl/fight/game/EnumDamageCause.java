@@ -1,5 +1,6 @@
 package me.hapyl.fight.game;
 
+import me.hapyl.spigotutils.module.annotate.Super;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -19,8 +20,8 @@ public enum EnumDamageCause {
     PROJECTILE(false, "was shot", "by"),
     FALL(false, "fell to their death", "while escaping from"),
     FIRE(false, "was toasted", "with help from"),
-    FIRE_TICK(false, FIRE.deathMessage),
-    LAVA(false, FIRE.deathMessage),
+    FIRE_TICK(false, null, FIRE.deathMessage),
+    LAVA(false, null, FIRE.deathMessage),
     DROWNING(false, "drowned"),
     BLOCK_EXPLOSION(false, "exploded", "by"),
     ENTITY_EXPLOSION(false, "exploded", "by"),
@@ -32,7 +33,7 @@ public enum EnumDamageCause {
     DRAGON_BREATH(false, "didn't like the smell of dragon"),
     CRAMMING(false, "is too fat"),
     CONTACT(false, "likes to hug, but {damager} doesn't"),
-    ENTITY_SWEEP_ATTACK(false, ENTITY_ATTACK.deathMessage),
+    ENTITY_SWEEP_ATTACK(false, null, ENTITY_ATTACK.deathMessage),
     SUFFOCATION(false, "couldn't hold their breath"),
     MELTING(false, "is now a puddle of water"),
     LIGHTNING(false, "was struck by lightning", "by"),
@@ -100,11 +101,20 @@ public enum EnumDamageCause {
     SHOTGUN("was shot to death", "by"),
     DEATH_RAY("was swallowed by the darkness", "of"),
     BACKSTAB("was stabbed in the back", "by"),
+    WITHERBORN("was withered to death by {damager}'s Witherborn"),
 
     ;
 
     private final boolean customDamage;
     private final DeathMessage[] deathMessage;
+    private final DamageFormat format;
+
+    @Super
+    EnumDamageCause(boolean custom, DamageFormat format, DeathMessage... messages) {
+        this.deathMessage = messages;
+        this.customDamage = custom;
+        this.format = format;
+    }
 
     EnumDamageCause(String message, String suffix) {
         this(true, message, suffix);
@@ -115,13 +125,7 @@ public enum EnumDamageCause {
     }
 
     EnumDamageCause(boolean custom, String message, String suffix) {
-        this.deathMessage = new DeathMessage[] { new DeathMessage(message, suffix) };
-        this.customDamage = custom;
-    }
-
-    EnumDamageCause(boolean custom, DeathMessage... messages) {
-        this.deathMessage = messages;
-        this.customDamage = custom;
+        this(custom, null, new DeathMessage(message, suffix));
     }
 
     EnumDamageCause(boolean custom, String message) {
@@ -134,6 +138,10 @@ public enum EnumDamageCause {
 
     EnumDamageCause() {
         this(false);
+    }
+
+    public DamageFormat getFormat() {
+        return format;
     }
 
     public DeathMessage getRandomIfMultiple() {

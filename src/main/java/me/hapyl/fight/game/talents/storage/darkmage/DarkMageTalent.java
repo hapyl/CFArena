@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.storage.darkmage;
 
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.heroes.storage.extra.DarkMageSpell;
+import me.hapyl.fight.game.heroes.storage.extra.WitherData;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.gui.GUI;
@@ -17,8 +18,16 @@ public abstract class DarkMageTalent extends Talent {
         super(name, description, material);
 
         addDescription("__" + getUsage());
+
         setAutoAdd(false);
         setAltUsage("You must use your wand to cast this spell!");
+    }
+
+    public void setAssistDescription(@Nonnull String... strings) {
+        addNlDescription("&f&lWitherborn Assist");
+        for (String string : strings) {
+            addDescription(string);
+        }
     }
 
     @Nonnull
@@ -27,10 +36,14 @@ public abstract class DarkMageTalent extends Talent {
     @Nonnull
     public abstract DarkMageSpell.SpellButton second();
 
-    public final void executeDarkMage(Player player) {
+    public void assist(WitherData data) {
+        data.player.sendMessage("assisting talent " + getName());
+    }
+
+    public final Response executeDarkMage(Player player) {
         if (hasCd(player)) {
             Chat.sendTitle(player, "", "&cSpell on cooldown for %ss!".formatted(BukkitUtils.roundTick(getCdTimeLeft(player))), 0, 20, 5);
-            return;
+            return Response.ERROR;
         }
 
         final Response response = execute0(player);
@@ -38,10 +51,11 @@ public abstract class DarkMageTalent extends Talent {
         if (response.isOk()) {
             startCd(player);
             Chat.sendTitle(player, "", "&aCasted: &l%s&a!".formatted(getName()), 0, 20, 5);
-            return;
+            return response;
         }
 
         Chat.sendTitle(player, "", "&c" + response.getReason(), 0, 20, 5);
+        return response;
     }
 
     public final boolean test(DarkMageSpell darkMageSpell) {

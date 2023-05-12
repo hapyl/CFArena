@@ -13,10 +13,12 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class BlindingCurse extends DarkMageTalent {
 
@@ -24,6 +26,9 @@ public class BlindingCurse extends DarkMageTalent {
 
     public BlindingCurse() {
         super("Blinding Curse", "Applies blinding curse to target player.", Material.INK_SAC);
+
+        setAssistDescription("The curse bounces to two additional targets.");
+
         setCd(100);
     }
 
@@ -41,31 +46,76 @@ public class BlindingCurse extends DarkMageTalent {
 
     @Override
     public Response execute(Player player) {
-        if (Heroes.DARK_MAGE.getHero().isUsingUltimate(player)) {
-            return Response.error("Unable to use while in ultimate form!");
+        final LivingEntity target = Utils.getTargetEntity(
+                player,
+                maxDistance,
+                0.9d,
+                living -> living != player && player.hasLineOfSight(living)
+        );
+
+        if (target == null) {
+            return Response.error("No valid target!");
         }
 
-        final Player target = Utils.getTargetPlayer(player, maxDistance);
-        final Location location = player.getLocation();
-        if (target == null) {
-			return Response.error("No valid target!");
-		}
+        execute0(player, player, target);
 
-		Geometry.drawLine(
-				location.add(0, 1, 0),
-				target.getLocation().add(0, 1, 0),
-				0.5, new WorldParticle(Particle.SQUID_INK)
-		);
+        // Have to use assist here since it's based on ability casting
+        if (!Heroes.DARK_MAGE.getHero().isUsingUltimate(player)) {
+            return Response.OK;
+        }
 
-		PlayerLib.playSound(location, Sound.ENTITY_GLOW_SQUID_SQUIRT, 1.8f);
-		PlayerLib.spawnParticle(location, Particle.SQUID_INK, 1, 0.3d, 0.3d, 0.3, 3f);
+        // Bounce
+        final LivingEntity bounce = bounce(player, target);
+        bounce(player, bounce, target);
 
-		PlayerLib.addEffect(target, PotionEffectType.BLINDNESS, 60, 10);
-		PlayerLib.addEffect(target, PotionEffectType.BLINDNESS, 40, 1);
+        return Response.OK;
+    }
 
-		Chat.sendMessage(target, "&c%s has cursed you with the Dark Magic!", player.getName());
-		Chat.sendMessage(player, "&aYou have cursed %s with Dark Magic!", target.getName());
+    @Nullable
+    private LivingEntity bounce(@Nonnull Player player, LivingEntity... bounced) {
+        if (bounced == null || bounced.length == 0) {
+            return null;
+        }
 
-		return Response.OK;
-	}
+        final LivingEntity bounce = Utils.getNearestLivingEntity(
+                bounced[0].getLocation(),
+                10.0d,
+                living -> {
+                    for (LivingEntity livingEntity : bounced) {
+                        if (livingEntity == living) {
+                            return false;
+                        }
+                    }
+
+                    return living != player;
+                }
+        );
+
+        if (bounce != null) {
+            execute0(player, bounced[0], bounce);
+            return bounce;
+        }
+
+        return null;
+    }
+
+    private void execute0(@Nonnull Player player, @Nonnull LivingEntity from, @Nonnull LivingEntity to) {
+        final Location location = from.getLocation();
+
+        Geometry.drawLine(
+                location.add(0, 1, 0),
+                to.getLocation().add(0, 1, 0),
+                0.5, new WorldParticle(Particle.SQUID_INK)
+        );
+
+        PlayerLib.playSound(location, Sound.ENTITY_GLOW_SQUID_SQUIRT, 1.8f);
+        PlayerLib.spawnParticle(location, Particle.SQUID_INK, 1, 0.3d, 0.3d, 0.3, 3f);
+
+        to.addPotionEffect(PotionEffectType.BLINDNESS.createEffect(60, 10));
+        to.addPotionEffect(PotionEffectType.SLOW.createEffect(40, 1));
+
+        Chat.sendMessage(to, "&c%s has cursed you with the Dark Magic!", player.getName());
+        Chat.sendMessage(player, "&aYou have cursed %s with Dark Magic!", to.getName());
+    }
+
 }

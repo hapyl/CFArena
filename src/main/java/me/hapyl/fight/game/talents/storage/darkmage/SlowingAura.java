@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.talents.storage.darkmage;
 
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.storage.extra.DarkMageSpell;
+import me.hapyl.fight.game.heroes.storage.extra.WitherData;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -33,6 +33,8 @@ public class SlowingAura extends DarkMageTalent {
     public SlowingAura() {
         super("Slowing Aura", "Creates a slowness pool at your target block that slows anyone in range.", Material.BONE_MEAL);
 
+        setAssistDescription("");
+
         setDuration(50);
         setCd(200);
     }
@@ -50,11 +52,11 @@ public class SlowingAura extends DarkMageTalent {
     }
 
     @Override
-    public Response execute(Player player) {
-        if (Heroes.DARK_MAGE.getHero().isUsingUltimate(player)) {
-            return Response.error("Unable to use while in ultimate form!");
-        }
+    public void assist(WitherData data) {
+    }
 
+    @Override
+    public Response execute(Player player) {
         final Block targetBlock = player.getTargetBlockExact(maxDistance);
 
         if (targetBlock == null) {
@@ -98,6 +100,8 @@ public class SlowingAura extends DarkMageTalent {
 
             }
         }.runTaskTimer(0, taskPeriod);
+
+
         return Response.OK;
     }
 }

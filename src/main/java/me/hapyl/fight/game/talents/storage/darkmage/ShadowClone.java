@@ -34,6 +34,8 @@ public class ShadowClone extends DarkMageTalent {
                 Material.NETHERITE_SCRAP
         );
 
+        setAssistDescription("idk yey 🤷‍♀️");
+
         setDuration(60);
         setCd(300);
     }
@@ -83,10 +85,6 @@ public class ShadowClone extends DarkMageTalent {
 
     @Override
     public Response execute(Player player) {
-        if (Heroes.DARK_MAGE.getHero().isUsingUltimate(player)) {
-            return Response.error("Unable to use while in ultimate form!");
-        }
-
         final HumanNPC shadowClone = new HumanNPC(player.getLocation(), "", player.getName()) {
             @Override
             public void onClick(Player clicker, HumanNPC npc, ClickType clickType) {

@@ -53,7 +53,7 @@ public class RelicHuntGUI extends PlayerDynamicGUI {
                 builder.addSmartLore("You haven't found any relics in this area!", "&c");
             }
             else if (foundSize == relics.size()) {
-                builder.addSmartLore("You have found all the relics in this are!", "&a");
+                builder.addSmartLore("You have found all the relics in this area!", "&a");
             }
             else {
                 builder.addSmartLore("You found &b%s&a relics in this area.".formatted(foundSize), "&a");
