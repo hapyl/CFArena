@@ -48,12 +48,13 @@ public class DrEd extends Hero implements UIComponent {
 
         setWeapon(new GravityGun());
 
-        // Grants Dr. Ed an upgraded version of his \"" + Abilities.GRAVITY_GUN.getName() + "\" &7for &b" + (this.ultimateTime / 20) + "s&7. This device is capable of capturing entities' flesh and energy, allowing to manipulate them.
-        // Grants Dr. Ed an upgraded version of {} &7for &b{}s &7that is capable of capturing entities' flesh and energy, allowing to manipulate them.
-        setUltimate(new UltimateTalent("Upgrades People, Upgrades!", String.format(
-                "Grants Dr. Ed an upgraded version of &a%s &7for {duration} that is capable of capturing entities' flesh and energy, allowing to manipulate them.",
-                getWeapon().getName()
-        ), 70).setDuration(200).setItem(Material.GOLDEN_HORSE_ARMOR));
+        setUltimate(new UltimateTalent("Upgrades People, Upgrades!", 70)
+                .appendDescription("""
+                        Grants Dr. Ed an upgraded version of &a{weaponName} &7for <duration> that is capable of capturing entities' flesh and energy, allowing to manipulate them.
+                        """, getWeapon().getName())
+                .setDuration(200)
+                .setItem(Material.GOLDEN_HORSE_ARMOR));
+
 
         playerShield = Maps.newHashMap();
     }

@@ -88,17 +88,17 @@ public class Vampire extends Hero implements Listener, UIComplexComponent {
 
         setWeapon(Material.GHAST_TEAR, "Fang", 5.0d);
 
-        final UltimateTalent ultimate = new UltimateTalent("Sanguineous Morphology", 60)
+        final UltimateTalent ultimate = new UltimateTalent("Sanguineous Morphology", """
+                Transform into a bat and fly freely for <duration>.
+                                
+                After duration ends, transform back into vampire and gain the opposite amount of blood you had upon casting and summon &eDracula Jr&7.
+                &8;;Eg: 10 -> 0, 7 -> 3, 2 -> 8 etc.
+                                
+                &6;;You cannot deal damage nor gain blood during the duration!
+                """, 60)
                 .setDurationSec(6)
                 .setCdSec(20)
                 .setTexture("473af69ed9bf67e2f5403dd7d28bbe32034749bbfb635ac1789a412053cdcbf0");
-
-        ultimate.addDescription("Transform into a bat and fly freely for {duration}.");
-        ultimate.addNlDescription(
-                "After duration ends, transform back into vampire and gain the opposite amount of blood you had upon casting and summon &eDracula Jr&7."
-        );
-        ultimate.addDescription("&8Eg: 10 -> 0, 7 -> 3, 2 -> 8 etc.");
-        ultimate.addNlDescription("&6You cannot deal damage nor gain blood during the duration!");
 
         setUltimate(ultimate);
     }

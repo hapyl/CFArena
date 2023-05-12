@@ -21,11 +21,11 @@ public class FlowerBreeze extends Talent {
     @DisplayField private final double healthSacrifice = 15.0d;
 
     public FlowerBreeze() {
-        super(
-                "Flower Breeze",
-                "Feel the breeze of the flowers that damages your but grants &cStrength &7and &bResistance &7for a {duration}.____This ability cannot kill.",
-                Type.COMBAT
-        );
+        super("Flower Breeze", """
+                Feel the breeze of the flowers that damages your but grants &cStrength &7and &bResistance &7for a <duration>.
+                                
+                &8;;This ability cannot kill.
+                """, Type.COMBAT);
 
         setDuration(80);
         setItem(Material.RED_DYE);

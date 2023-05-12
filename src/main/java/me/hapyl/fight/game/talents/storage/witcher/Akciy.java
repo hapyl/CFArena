@@ -13,10 +13,11 @@ import org.bukkit.entity.Player;
 public class Akciy extends Talent {
 
     public Akciy() {
-        super("Axii");
-
-        addDescription("Stuns your target opponent for {duration} or until they get hit.");
-        addDescription("Stunned opponent is immovable and cannot use their abilities.");
+        super("Axii", """
+                Stuns your target opponent for <duration> or until they get hit.
+                                
+                Stunned opponent is immovable and cannot use their abilities.
+                """);
 
         setDuration(100);
         setCdSec(40);
@@ -35,7 +36,7 @@ public class Akciy extends Talent {
 
         targetGamePlayer.addEffect(GameEffectType.STUN, getDuration());
 
-        targetGamePlayer.sendMessage("%s stunned you!", player.getName());
+        targetGamePlayer.sendMessage("&c%s stunned you!", player.getName());
         Chat.sendMessage(player, "&aStunned %s!", target.getName());
 
         return Response.OK;

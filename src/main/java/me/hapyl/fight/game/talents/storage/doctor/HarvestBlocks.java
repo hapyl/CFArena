@@ -44,10 +44,11 @@ public class HarvestBlocks extends Talent {
     public HarvestBlocks() {
         super("Block Harvest");
 
-        setDescription(
-                "Quickly gather resources from up to %s nearby blocks, then combine them in one big pile before throwing it at your enemies.____{name}'s damage is based on the amount of blocks gathered.",
-                maximumBlocks
-        );
+        setDescription("""
+                Quickly gather resources from up to {maximumBlocks} nearby blocks, then combine them in one big pile before throwing it at your enemies.
+                                        
+                <name>'s damage is based on the amount of blocks gathered.
+                """, maximumBlocks);
 
         setCdSec(30);
         setPoint(5);
@@ -63,8 +64,10 @@ public class HarvestBlocks extends Talent {
         // Get blocks around the players
         final Cuboid cuboid = new Cuboid(start, end);
         final Map<Block, ElementType> blockMap = Maps.newHashMap();
-        final List<Block> blocks = cuboid.getBlocks().stream()
-                .filter(b -> ElementType.getElement(b.getType()) != ElementType.NULL).collect(Collectors.toList());
+        final List<Block> blocks = cuboid.getBlocks()
+                .stream()
+                .filter(b -> ElementType.getElement(b.getType()) != ElementType.NULL)
+                .collect(Collectors.toList());
 
         Collections.shuffle(blocks);
 

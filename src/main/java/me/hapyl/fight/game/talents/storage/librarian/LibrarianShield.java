@@ -11,7 +11,7 @@ public class LibrarianShield extends LibrarianTalent {
     public LibrarianShield() {
         super("Voidless Shield");
 
-        addDescription("Creates a shield with voidless capacity of absorbing damage for &b{}&7 seconds.");
+        addDescription("Creates a shield with voidless capacity of absorbing damage for &b<scaled>&7 seconds.");
         setItem(Material.SHIELD);
     }
 

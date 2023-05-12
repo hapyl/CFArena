@@ -69,23 +69,22 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         //));
 
         /**
-         * "Transform into the wither for {duration}.____" +
+         * "Transform into the wither for <duration>.____" +
          *                         "While transformed, &e&lRIGHT CLICK &7to shoot wither skulls that deals massive damage on impact.__" +
          *                         "After wither disappears, you perform plunging attack that deals damage in AoE upon hitting the ground.",
          */
 
-        // fixme -> Migrating to text-block when? KEKW
-        final UltimateTalent ultimate = new UltimateTalent("Witherborn", 70)
+        setUltimate(new UltimateTalent("Witherborn", """
+                Summon a baby wither that will assist you in battle for <duration>.
+                                
+                While attacking, the wither will unleash a coordinated attack.
+                                
+                While casting a spell, the wither will improve the spell.
+                """, 70)
                 .setItem(Material.WITHER_SKELETON_SKULL)
                 .setDuration(240)
                 .setCdSec(30)
-                .setSound(Sound.ENTITY_WITHER_SPAWN, 2.0f);
-
-        ultimate.addDescription("Summon a baby wither that will assist you in battle for {duration}.");
-        ultimate.addNlDescription("While attacking or casting a spell, the wither will unleash a coordinated attack.");
-        ultimate.addNlDescription("The withers power will gradually deplete.");
-
-        setUltimate(ultimate);
+                .setSound(Sound.ENTITY_WITHER_SPAWN, 2.0f));
     }
 
     @Override

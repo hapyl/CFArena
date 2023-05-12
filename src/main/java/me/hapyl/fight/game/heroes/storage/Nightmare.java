@@ -39,7 +39,7 @@ public class Nightmare extends Hero {
 
         setUltimate(new UltimateTalent(
                 "Your Worst Nightmare",
-                "Applies the &e&lParanoia &7effect to all alive opponents for {duration}.",
+                "Applies the &e&lParanoia &7effect to all alive opponents for <duration>.",
                 55
         ).setDuration(240)
                 .setCdSec(30)

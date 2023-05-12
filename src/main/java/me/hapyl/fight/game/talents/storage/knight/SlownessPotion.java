@@ -12,28 +12,28 @@ import org.bukkit.potion.PotionEffectType;
 
 public class SlownessPotion extends Talent {
 
-	private final ItemStack potionItem = new ItemBuilder(Material.SPLASH_POTION)
-			.setPotionColor(Color.BLACK)
-			.setPotionMeta(PotionEffectType.SLOW, 5, 80, Color.GRAY)
-			.build();
+    private final ItemStack potionItem = new ItemBuilder(Material.SPLASH_POTION).setPotionColor(Color.BLACK)
+            .setPotionMeta(PotionEffectType.SLOW, 5, 80, Color.GRAY)
+            .build();
 
-	public SlownessPotion() {
-        super(
-                "Slowness Potion",
-                "A little bottle that can cause a lot of troubles.____Throw a slowing potion if front of that slows enemies in small AoE."
-        );
+    public SlownessPotion() {
+        super("Slowness Potion", """
+                A little bottle that can cause a lot of troubles.
+                                              
+                Throw a slowing potion if front of that slows enemies in small AoE.
+                """);
 
         setItem(Material.SPLASH_POTION, builder -> builder.setPotionColor(Color.GRAY));
         setCdSec(12);
     }
 
-	@Override
-	public Response execute(Player player) {
-		final ThrownPotion potion = player.launchProjectile(ThrownPotion.class);
+    @Override
+    public Response execute(Player player) {
+        final ThrownPotion potion = player.launchProjectile(ThrownPotion.class);
 
         potion.setItem(potionItem);
-		potion.setShooter(player);
+        potion.setShooter(player);
 
-		return Response.OK;
-	}
+        return Response.OK;
+    }
 }

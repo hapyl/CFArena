@@ -71,7 +71,7 @@ public class Librarian extends Hero implements ComplexHero, Listener {
 
         setUltimate(new UltimateTalent(
                 "Void of Blindness",
-                "Create massive void of blindness field for {duration}. Everyone who dares steps inside, will be affected by paranoia and glow. Librarian also gets a &c&ldamage &7and &b&lspeed &7boost.",
+                "Create massive void of blindness field for <duration>. Everyone who dares steps inside, will be affected by paranoia and glow. Librarian also gets a &c&ldamage &7and &b&lspeed &7boost.",
                 70
         ).setItem(Material.SQUID_SPAWN_EGG).setDuration(240));
     }

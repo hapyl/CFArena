@@ -58,7 +58,7 @@ public class Hercules extends Hero implements Listener, PlayerElement {
 
         setUltimate(new UltimateTalent(
                 "Crush the Ground",
-                "Call upon divine power to increase your &ejump height &7and &cplunging damage&7 for {duration}.",
+                "Call upon divine power to increase your &ejump height &7and &cplunging damage&7 for <duration>.",
                 50
         ).setDuration(240).setItem(Material.NETHERITE_HELMET).setCdSec(30));
     }

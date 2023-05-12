@@ -42,9 +42,8 @@ public abstract class LibrarianTalent extends Talent {
         this.addDescription(Chat.format(description, format));
     }
 
-    @Override
     public void addDescription(String description) {
-        super.addDescription(description.replace("{}", formatValues("")));
+        super.addDescription(description.replace("<scaled>", formatValues("")));
     }
 
     public abstract double[] getValues();

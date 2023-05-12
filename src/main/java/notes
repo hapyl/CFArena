@@ -79,6 +79,7 @@ Bugs:
 - Maybe add buff when JUJU uses climb
 - make juju shot work when hit enemies
 - Rework achievement GUI to use top as category and contents as, well, fucking contents
+- Pretty sure witcher combo and zone ability dont work
 
 - [✔] Melee stance does not reset properly?
 - [✔] juju shield breaks all at once

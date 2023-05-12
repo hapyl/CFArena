@@ -13,16 +13,18 @@ public class SpiritualBonesPassive extends PassiveTalent {
     public SpiritualBonesPassive() {
         super("Spiritual Bones", Material.BONE);
 
-        setDescription(
-                "You may posses up to &b%s&7 &eSpiritual Bones&7 that orbit around you.__&l&oEach &7bone provides the following effects:",
-                MAX_BONES
-        );
+        setDescription("""
+                You may posses up to &b{MAX_BONES}&7 &eSpiritual Bones&7 that orbit around you.
+                                
+                &l&oEach &7bone provides the following effects:
+                                
+                """, MAX_BONES);
 
-        addDescription();
-        addDescription("&b• &7Deal &c&l%s%%&7 more damage &oper bone&7.", DAMAGE_AMPLIFIER_PER_BONE);
-        addDescription("&b• &7Take &b&l%s%%&7 less damage &oper bone&7.", DAMAGE_REDUCE_PER_BONE);
-        addDescription("&b• &7Heal for &c&l%s%% &c❤&7 &oper bone&7 of the damage dealt.", HEALING_PER_BONE);
-
-        addNlDescription("Some abilities might cost bones to use.");
+        addDescription("""
+                &b• &7Deal &c&l{}%%&7 more damage &oper bone&7.
+                &b• &7Take &b&l{}%%&7 less damage &oper bone&7.
+                &b• &7Heal for &c&l{}%% &c❤&7 &oper bone&7 of the damage dealt.
+                """, DAMAGE_AMPLIFIER_PER_BONE, DAMAGE_REDUCE_PER_BONE, HEALING_PER_BONE);
     }
+
 }

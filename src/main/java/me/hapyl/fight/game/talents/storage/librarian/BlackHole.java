@@ -24,7 +24,7 @@ public class BlackHole extends LibrarianTalent {
         super("Black Hole");
 
         addDescription(
-                "Creates a black hole at your target block. Pulling enemies in and dealing {} damage per second based on &cGrimoire &7level."
+                "Creates a black hole at your target block. Pulling enemies in and dealing <scaled> damage per second based on &cGrimoire &7level."
         );
 
         setItem(Material.BLACK_CANDLE);

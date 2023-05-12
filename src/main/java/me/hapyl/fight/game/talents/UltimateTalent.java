@@ -41,6 +41,11 @@ public class UltimateTalent extends Talent implements DisplayFieldDataProvider {
         setDuration(0);
     }
 
+    public UltimateTalent appendDescription(String description, Object... format) {
+        addDescription(description, format);
+        return this;
+    }
+
     public UltimateTalent setDuration(int duration) {
         super.setDuration(duration);
         return this;
@@ -88,6 +93,7 @@ public class UltimateTalent extends Talent implements DisplayFieldDataProvider {
     }
 
     @Override
+    @Deprecated
     public UltimateTalent setItem(String headTexture) {
         super.setItem(headTexture);
         return this;

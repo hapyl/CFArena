@@ -16,11 +16,12 @@ public class TransmissionBeacon extends Talent {
     @DisplayField private final int cooldownIfDestroyed = 600;
 
     public TransmissionBeacon() {
-        super("Transmission Beacon");
-
-        addDescription("Place the beacon somewhere hidden from your opponents.");
-        addDescription("Use your &bultimate &7to instantly teleport to it's location and collect it.");
-        addNlDescription("&c&lThe beacon can be destroyed!");
+        super("Transmission Beacon", """
+                Place the beacon somewhere hidden from your opponents.
+                Use your &bultimate &7to instantly teleport to it's location and collect it.
+                                
+                &c&l;;The beacon can be destroyed!
+                """);
 
         setItem(Material.BEACON);
     }

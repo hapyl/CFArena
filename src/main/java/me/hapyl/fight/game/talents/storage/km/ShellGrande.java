@@ -22,11 +22,14 @@ public class ShellGrande extends Talent {
 
     public ShellGrande() {
         super("Grenade");
-        this.addDescription(
-                "Throw a grenade that bounce off walls. Explodes after &b%ss &7in medium AoE dealing significant damage.____&e&lSNEAK &7while throwing to toss closer.".formatted(
-                        BukkitUtils.roundTick(explosionDelay)));
-        this.setItem(Material.FIREWORK_STAR);
-        this.setCdSec(11);
+        setDescription("""
+                Throw a grenade that bounce off walls. Explodes after &b{explosionDelay}s &7ane deals AoE damage to nearby opponents.
+                                        
+                &e&lSNEAK &7while throwing to toss closer.
+                """, BukkitUtils.roundTick(explosionDelay));
+
+        setItem(Material.FIREWORK_STAR);
+        setCdSec(11);
 
         fireworkStarRed = new ItemStack(Material.FIREWORK_STAR);
         Nulls.runIfNotNull((FireworkEffectMeta) fireworkStarRed.getItemMeta(), meta -> {
@@ -46,9 +49,9 @@ public class ShellGrande extends Talent {
 
         final Item item = player.getWorld().dropItem(location, fireworkStarDef);
         item.setVelocity(player.getEyeLocation()
-                               .getDirection()
-                               .multiply(!player.isSneaking() ? 1.0f : 0.2f)
-                               .setY(0.5f));
+                .getDirection()
+                .multiply(!player.isSneaking() ? 1.0f : 0.2f)
+                .setY(0.5f));
         item.setPickupDelay(5000);
 
         GameTask.runTaskTimerTimes((task, tick) -> {

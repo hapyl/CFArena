@@ -25,10 +25,11 @@ public class TeleportPearl extends Talent implements Listener {
     public TeleportPearl() {
         super("Rideable Pearl");
 
-        setDescription(
-                "Throw an ender pearl and mount to ride it all the way! &e&lSNEAK &7to throw normally.____&7Heals &c%s ❤ &7upon teleport.",
-                teleportationHealing
-        );
+        setDescription("""
+                Throw an ender pearl and mount to ride it all the way! &e&lSNEAK &7to throw normally.
+                                
+                &7Heals &c{teleportationHealing} ❤ &7upon teleport.
+                """, teleportationHealing);
 
         setCd(160);
         setItem(Material.ENDER_PEARL);

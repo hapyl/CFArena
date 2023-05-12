@@ -33,16 +33,17 @@ public class ShadowPrism extends Talent {
     private final Map<Player, ArmorStand> playerPrism = new HashMap<>();
 
     public ShadowPrism() {
-        super("Shadow Prism");
+        super("Shadow Prism", """
+                Deploy a teleportation orb that travels in straight line.
+                                
+                &e&lLOOK AT BLOCK &7to place it at fixed block and prevent it from travelling.
+                                
+                Use again to teleport to the orb after a short windup.
+                                
+                &b;;This ability is invisible to your opponents!
+                """);
 
-        addDescription("Deploy a teleportation orb that travels in straight line.");
-        addNlDescription("&e&lLOOK AT BLOCK &7to place it at fixed block and prevent it from travelling.");
-        addNlDescription("Use again to teleport to the orb after a short windup.");
-        addNlDescription("&bThis ability is invisible to your opponents!");
-
-        setItem(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODNlZDRjZTIzOTMzZTY2ZTA0ZGYxNjA3MDY0NGY3NTk5ZWViNTUzMDdmN2VhZmU4ZDkyZjQwZmIzNTIwODYzYyJ9fX0="
-        );
+        setTexture("83ed4ce23933e66e04df16070644f7599eeb55307f7eafe8d92f40fb3520863c");
     }
 
     @Override

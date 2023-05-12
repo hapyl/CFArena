@@ -24,7 +24,11 @@ public class Blink extends ChargedTalent {
     public Blink() {
         super(
                 "Blink",
-                "Teleport forward a short distance, passing through any non-solid blocks in the way. Cannot teleport through walls.",
+                """
+                        Teleport forward a short distance, passing through any non-solid blocks in the way.
+                                                
+                        Cannot teleport through walls.
+                        """,
                 2
         );
 

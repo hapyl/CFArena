@@ -31,11 +31,13 @@ public class FlowerEscape extends Talent {
     @DisplayField private final int pulsePeriod = 20;
 
     public FlowerEscape() {
-        super(
-                "Flower Escape",
-                "Throw a deadly flower at your current location and dash backwards.____The flower will continuously pulse and deal damage to nearby players.____After duration is over, it will explode dealing double the damage.",
-                Type.COMBAT
-        );
+        super("Flower Escape", """
+                Throw a deadly flower at your current location and dash backwards.
+                                
+                The flower will continuously pulse and deal damage to nearby players.
+                                        
+                After the duration is over, it will explode dealing double the damage.
+                """, Type.COMBAT);
 
         setItem(Material.RED_TULIP);
         setDuration(120);

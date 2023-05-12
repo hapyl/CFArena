@@ -10,6 +10,7 @@ import me.hapyl.fight.game.talents.storage.archer.TripleShot;
 import me.hapyl.fight.game.talents.storage.bountyhunter.GrappleHookTalent;
 import me.hapyl.fight.game.talents.storage.bountyhunter.ShortyShotgun;
 import me.hapyl.fight.game.talents.storage.darkmage.BlindingCurse;
+import me.hapyl.fight.game.talents.storage.darkmage.HealingAura;
 import me.hapyl.fight.game.talents.storage.darkmage.ShadowClone;
 import me.hapyl.fight.game.talents.storage.darkmage.SlowingAura;
 import me.hapyl.fight.game.talents.storage.doctor.ConfusionPotion;
@@ -100,7 +101,7 @@ public enum Talents {
     SHOCK_DARK(new ShockDark()),
     HAWKEYE_ARROW(new PassiveTalent(
             "Hawkeye Arrow",
-            "Fully charged shots while sneaking have &b25%&7 chance to fire hawkeye arrow that homes to nearby enemies.",
+            "Fully charged shots while sneaking have &b25%%&7 chance to fire hawkeye arrow that homes to nearby enemies.",
             Material.ENDER_EYE
     )),
 
@@ -141,13 +142,13 @@ public enum Talents {
     FLOWER_BREEZE(new FlowerBreeze()),
     EXCELLENCY(new PassiveTalent(
             "Excellency",
-            "When Pytaria's &chealth &7is lower or equal to &c50%&7, her damage is increased by &b50%&7.", Material.ROSE_BUSH
+            "When Pytaria's &chealth&7 is lower or equal to &c50%%&7, her damage is increased by &b50%%&7.", Material.ROSE_BUSH
     )),
 
     // Troll
     TROLL_SPIN(new TrollSpin()),
     REPULSOR(new Repulsor()),
-    TROLL_PASSIVE(new PassiveTalent("Last Laugh", "Your hits have &b0.1% &7chance to instantly kill enemy.", Material.BLAZE_POWDER)),
+    TROLL_PASSIVE(new PassiveTalent("Last Laugh", "Your hits have &b0.1%% &7chance to instantly kill enemy.", Material.BLAZE_POWDER)),
 
     // Tamer
     MINE_O_BALL(new MineOBall()),
@@ -216,7 +217,7 @@ public enum Talents {
     // Dark Mage
     BLINDING_CURSE(new BlindingCurse()),
     SLOWING_AURA(new SlowingAura()),
-    HEALING_AURA(new me.hapyl.fight.game.talents.storage.darkmage.HealingAura()),
+    HEALING_AURA(new HealingAura()),
     SHADOW_CLONE(new ShadowClone()),
     DARK_MAGE_PASSIVE(new PassiveTalent("Wither Blood", "", Material.WITHER_ROSE)),
 
@@ -266,7 +267,7 @@ public enum Talents {
     WHIRLPOOL(new Whirlpool()),
     CLAW_CRITICAL(new PassiveTalent(
             "Oceanborn/Sturdy Claws",
-            "&b&lOceanborn:__While in water, your speed and damage is drastically increased.____&b&lSturdy Claws:__&7Your hits have &b10% &7chance to &ccrit&7!__Critical hits summons an ancient creature from beneath that deals extra damage and heals you!",
+            "&b&lOceanborn:__While in water, your speed and damage is drastically increased.____&b&lSturdy Claws:__&7Your hits have &b10%% &7chance to &ccrit&7!__Critical hits summons an ancient creature from beneath that deals extra damage and heals you!",
             Material.MILK_BUCKET
     )),
 
@@ -317,22 +318,25 @@ public enum Talents {
     // Vampire
     VAMPIRE_PET(new VampirePet()),
     BAT_SWARM(new BatSwarm()),
-    BLOOD_THIRST(new Reference<>(new PassiveTalent(
-            "Blood Thirst",
+    BLOOD_THIRST(new PassiveTalent(
+            "Blood Thirst", """
+            &c;;Your health is constantly drained.
+                        
+            Whenever you or your bats hit an opponent, you will gain a stack of &bblood&7, up to &b10&7 stacks.
+                        
+            Drink the blood to &cincrease your damage&7 and &cheal yourself&7.
+                        
+            &6;;Healing, damage boost, duration and cooldown is based on the amount of stacks consumed.
+            """,
             Material.REDSTONE
-    )).get(talent -> {
-        talent.addDescription("&cYour health is constantly drained.");
-        talent.addNlDescription("&7Whenever you or your bats hit an opponent, you will gain a stack of &bblood&7, up to &b10&7 stacks.");
-        talent.addNlDescription("&7Drink the blood to &cincrease your damage&7 and &cheal yourself&7.");
-        talent.addNlDescription("&6Healing, damage boost, duration and cooldown is based on the amount of stacks consumed.");
-    })),
+    )),
 
     // Bounty Hunter
     SHORTY(new ShortyShotgun()),
     GRAPPLE(new GrappleHookTalent()),
     SMOKE_BOMB(new PassiveTalent(
             "Smoke Bomb",
-            "Whenever your health falls below &c50%&7, you gain a &eSmoke Bomb&7.____Throw it to create a smoke field that &bblinds&7 everyone inside it and grant you a &bspeed boost&7.",
+            "Whenever your health falls below &c50%%&7, you gain a &eSmoke Bomb&7.____Throw it to create a smoke field that &bblinds&7 everyone inside it and grant you a &bspeed boost&7.",
             Material.ENDERMAN_SPAWN_EGG
     )),
 

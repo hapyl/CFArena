@@ -16,10 +16,10 @@ import org.bukkit.potion.PotionEffectType;
 
 public class NinjaSmoke extends Talent {
     public NinjaSmoke() {
-        super(
-                "Smoke Bomb",
-                "Instantly throw a smoke bomb at your current location and become invisible. Players inside the smoke will have their vision disturbed."
-        );
+        super("Smoke Bomb", """
+                Instantly throw a smoke bomb at your current location and become invisible.
+                Players inside the smoke will have their vision disturbed.
+                """);
 
         setItem(Material.INK_SAC);
         setDuration(120);

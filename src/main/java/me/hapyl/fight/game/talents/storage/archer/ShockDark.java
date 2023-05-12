@@ -35,10 +35,10 @@ public class ShockDark extends Talent implements Listener {
                 "Shoots an arrow infused with &oshocking &7power. Upon hit, charges and explodes dealing damage based on distance.",
                 Type.COMBAT
         );
-        this.setItem(Material.LIGHT_BLUE_DYE);
-        this.setCd(120);
+        setItem(Material.LIGHT_BLUE_DYE);
+        setCd(120);
 
-        this.arrows = Sets.newHashSet();
+        arrows = Sets.newHashSet();
     }
 
     @Override

@@ -82,7 +82,7 @@ public class JuJu extends Hero implements Listener {
 
         setUltimate(new UltimateTalent(
                 "Tricks of the Jungle",
-                "Remember all the tricks you learned in the jungle for {duration}.____During this time, you can shoot your bow instantly for up to &b%s&7 times, and arrows you shoot will be considered as &e%s&7 arrows.____&e%s&7 can also be used without restrictions.".formatted(
+                "Remember all the tricks you learned in the jungle for <duration>.____During this time, you can shoot your bow instantly for up to &b%s&7 times, and arrows you shoot will be considered as &e%s&7 arrows.____&e%s&7 can also be used without restrictions.".formatted(
                         maxUltimateArrows,
                         getPassiveTalent().getName(),
                         getSecondTalent().getName()

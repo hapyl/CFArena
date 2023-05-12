@@ -51,7 +51,7 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
                 new UltimateTalent(
                         "All the Trainings",
                         String.format(
-                                "Remember all your trainings and unleash them at once. Creating infinite %1$s shield and %2$s aura that follows you for {duration}.____Both %1$s and %2$s starts their cooldowns.",
+                                "Remember all your trainings and unleash them at once. Creating infinite %1$s shield and %2$s aura that follows you for <duration>.____Both %1$s and %2$s starts their cooldowns.",
                                 Talents.KVEN.getName(),
                                 Talents.IRDEN.getName()
                         ), 80

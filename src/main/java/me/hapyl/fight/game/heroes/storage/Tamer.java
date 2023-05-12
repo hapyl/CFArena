@@ -80,8 +80,8 @@ public class Tamer extends Hero implements Listener {
         for (TamerPacks value : TamerPacks.values()) {
             final Pack pack = value.getPack();
 
-            ultimate.addDescription("&b&l" + pack.getName());
-            ultimate.addDescription(pack.getMimicryDescription());
+            ultimate.addNlDescription("&b&l" + pack.getName());
+            ultimate.addNlDescription(pack.getMimicryDescription());
         }
 
         setUltimate(ultimate);

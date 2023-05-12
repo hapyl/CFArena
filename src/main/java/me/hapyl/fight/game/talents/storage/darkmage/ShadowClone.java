@@ -28,11 +28,11 @@ public class ShadowClone extends DarkMageTalent {
     @DisplayField private final double damage = 3.0d;
 
     public ShadowClone() {
-        super(
-                "Shadow Clone",
-                "Creates a shadow clone of you at your current location and completely hides you.____After a brief delay or whenever enemy hits the clone, it explodes, stunning, blinding and dealing damage to nearby players.",
-                Material.NETHERITE_SCRAP
-        );
+        super("Shadow Clone", """
+                Creates a shadow clone of you at your current location and completely hides you.
+                                        
+                After a brief delay or whenever enemy hits the clone, it explodes, stunning, blinding and dealing damage to nearby players.
+                """, Material.NETHERITE_SCRAP);
 
         setAssistDescription("idk yey 🤷‍♀️");
 

@@ -25,11 +25,11 @@ public class ShadowShift extends Talent implements Listener {
     @DisplayField private final int immobilizationDuration = 20;
 
     public ShadowShift() {
-        super(
-                "Shadow Shift",
-                "Instantly teleport behind player you're looking at to strike from behind. You will lose ability to move for a short duration.",
-                Type.COMBAT
-        );
+        super("Shadow Shift", """
+                Instantly teleport behind player you're looking at to strike from behind. 
+                                        
+                You will lose ability to move for a short duration.
+                """, Type.COMBAT);
 
         setItem(Material.LEAD);
         setCd(200);

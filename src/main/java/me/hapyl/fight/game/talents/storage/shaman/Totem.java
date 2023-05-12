@@ -34,7 +34,11 @@ public class Totem extends Talent {
     public Totem() {
         super(
                 "Totem",
-                "Place a totem on your target location. Target it and use other abilities to activate it.____Using this ability while targeting placed totem will destroy it.",
+                """
+                        Place a totem on your target location. Target it and use other abilities to activate it.
+                                                
+                        Using this ability while targeting placed totem will destroy it.
+                        """,
                 Material.OBSIDIAN
         );
 

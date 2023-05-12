@@ -64,7 +64,7 @@ public class Spark extends Hero implements PlayerElement {
 
         setUltimate(new UltimateTalent(
                 "Run it Back",
-                "Instantly place a marker at your current location for {duration}.____Upon death or after duration ends, safely teleport to the marked location with health you had upon activating the ability.",
+                "Instantly place a marker at your current location for <duration>.____Upon death or after duration ends, safely teleport to the marked location with health you had upon activating the ability.",
                 80
         ).setDuration(200).setItem(Material.TOTEM_OF_UNDYING).setCdSec(40));
 

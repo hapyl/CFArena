@@ -17,17 +17,19 @@ public abstract class DarkMageTalent extends Talent {
     public DarkMageTalent(String name, String description, Material material) {
         super(name, description, material);
 
-        addDescription("__" + getUsage());
+        addDescription("____" + getUsage());
 
         setAutoAdd(false);
-        setAltUsage("You must use your wand to cast this spell!");
+        setAltUsage("You must use your wand to cast this spell! Please read wand's description.");
     }
 
-    public void setAssistDescription(@Nonnull String... strings) {
-        addNlDescription("&f&lWitherborn Assist");
-        for (String string : strings) {
-            addDescription(string);
-        }
+    public void setAssistDescription(@Nonnull String string) {
+        addDescription("""
+                                
+                &f&lWitherborn Assist
+                """);
+
+        addDescription(string);
     }
 
     @Nonnull

@@ -19,10 +19,9 @@ import org.bukkit.entity.Player;
 public class Paranoia extends Talent {
 
     public Paranoia() {
-        super("Paranoia");
-
-        addDescription(
-                "Launch a cloud of darkness in front of you that travels forward, applying &e&lParanoia &7effect to whoever it touches for {duration}&7."
+        super(
+                "Paranoia",
+                "Launch a cloud of darkness in front of you that travels forward, applying &e&lParanoia &7effect to whoever it touches for <duration>&7."
         );
 
         setDuration(100);

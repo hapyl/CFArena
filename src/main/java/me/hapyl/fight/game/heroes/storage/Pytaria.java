@@ -38,31 +38,27 @@ public class Pytaria extends Hero {
 
         setRole(Role.ASSASSIN);
 
-        setInfo(
-                "Beautiful, but deadly opponent with addiction to flowers. She suffered all her youth, which at the end, made her only stronger."
-        );
+        setInfo("Beautiful, but deadly opponent with addiction to flowers. She suffered all her youth, which at the end, made her only stronger.");
         setItem("7bb0752f9fa87a693c2d0d9f29549375feb6f76952da90d68820e7900083f801");
 
-        setWeapon(new Weapon(Material.ALLIUM).setName("Annihilallium")
-                .setDamage(8.0)
-                .setDescription("A beautiful flower, nothing more."));
+        setWeapon(new Weapon(Material.ALLIUM).setName("Annihilallium").setDamage(8.0).setDescription("A beautiful flower, nothing more."));
 
         final HeroEquipment equipment = getEquipment();
         equipment.setChestplate(222, 75, 85);
         equipment.setLeggings(54, 158, 110);
         equipment.setBoots(179, 204, 204);
 
-        setUltimate(new UltimateTalent(
-                "Feel the Breeze",
-                "Summon a blooming Bee in front of Pytaria.____The Bee will lock on a closest enemy and charge.____Once charged, unleashes damage in small AoE and regenerates %s%% &7of Pytaria's missing health.".formatted(
-                        healthRegenPercent),
-                60
-        ).setCdSec(50)
+        setUltimate(new UltimateTalent("Feel the Breeze", 60).setCdSec(50)
                 .setDuration(60)
+                .appendDescription("""
+                        Summon a blooming Bee in front of Pytaria.
+                                        
+                        The Bee will lock on a closest enemy and charge.
+                                        
+                        Once charged, unleashes damage in small AoE and regenerates {healthRegenPercent}%% &7of Pytaria's missing health.
+                        """, healthRegenPercent)
                 .setSound(Sound.ENTITY_BEE_DEATH, 0.0f)
-                .setItem(
-                        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDQ1NzlmMWVhMzg2NDI2OWMyMTQ4ZDgyN2MwODg3YjBjNWVkNDNhOTc1YjEwMmEwMWFmYjY0NGVmYjg1Y2NmZCJ9fX0="
-                ));
+                .setTexture("d4579f1ea3864269c2148d827c0887b0c5ed43a975b102a01afb644efb85ccfd"));
 
     }
 
@@ -149,11 +145,10 @@ public class Pytaria extends Hero {
                         return;
                     }
                     final Player player = gp.getPlayer();
-                    final Item item = player.getWorld()
-                            .dropItemNaturally(
-                                    player.getLocation(),
-                                    new ItemStack(CollectionUtils.randomElement(Tag.SMALL_FLOWERS.getValues(), Material.POPPY))
-                            );
+                    final Item item = player.getWorld().dropItemNaturally(
+                            player.getLocation(),
+                            new ItemStack(CollectionUtils.randomElement(Tag.SMALL_FLOWERS.getValues(), Material.POPPY))
+                    );
                     item.setPickupDelay(10000);
                     item.setTicksLived(5980);
                 });

@@ -57,7 +57,7 @@ public class KillingMachine extends Hero implements DisabledHero {
 
         this.setUltimate(new UltimateTalent(
                 "Overload",
-                "Overload yourself for {duration}. While overloaded, your fire-rate is increased by &b100% &7and all opponents are highlighted.",
+                "Overload yourself for <duration>. While overloaded, your fire-rate is increased by &b100% &7and all opponents are highlighted.",
                 60
         ).setDurationSec(12).setItem(Material.LIGHTNING_ROD).setSound(Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 0.0f));
 

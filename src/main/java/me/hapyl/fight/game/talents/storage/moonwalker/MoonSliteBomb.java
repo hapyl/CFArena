@@ -39,12 +39,11 @@ public class MoonSliteBomb extends Talent implements Listener {
     public MoonSliteBomb() {
         super("Moonslite Bomb");
 
-        setDescription(
-                "Drop a proximity grenade at your current location that explodes on contact with enemy or after a set period, dealing damage and applying &6&lCorrosion &7for a short time."
-        );
-
-        addDescription();
-        addDescription("&6You can only have %s bombs at the time.", bombLimit);
+        setDescription("""
+                Drop a proximity grenade at your current location that explodes on contact with enemy or after a set period, dealing damage and applying &6&lCorrosion &7for a short time.
+                                
+                &6;;You can only have {bombLimit} bombs at the time.
+                """, bombLimit);
 
         setItem(Material.END_STONE_BRICK_SLAB);
         setCdSec(10);

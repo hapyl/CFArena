@@ -32,16 +32,15 @@ public class DeathSwap extends Talent {
     public DeathSwap() {
         super("Hook of Death");
 
-        setDescription(
-                "Instantly consume %s &eSpiritual Bone&7 to launch a chain that travels in straight line up to &b%s&7 blocks or until opponent is hit.____After, retracts back to you.",
-                spiritualBoneCost,
-                maxDistance
-        );
-
-        addDescription(
-                "__&7If opponent is hit, they will be retracted with chains, take &c%s%%&7 of their current health as damage will be slowed and withered for short duration.____Additionally, the cooldown is reduced by &b50%%&7.",
-                damagePercent
-        );
+        setDescription("""
+                Instantly consume {spiritualBoneCost} &eSpiritual Bone&7 to launch a chain that travels in straight line up to &b{maxDistance}&7 blocks or until opponent is hit.
+                                
+                After, retracts back to you.
+                                
+                If opponent is hit, they will be retracted with chains, take &c{damagePercent}%%&7 of their current health as damage will be slowed and withered for short duration.
+                                
+                Additionally, the cooldown is reduced by &b50%%&7.
+                """, spiritualBoneCost, maxDistance, damagePercent);
 
         setItem(Material.CHAIN);
         setCdSec(16);

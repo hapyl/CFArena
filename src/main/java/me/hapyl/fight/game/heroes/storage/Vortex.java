@@ -94,15 +94,16 @@ public class Vortex extends Hero implements UIComponent {
         )).setDamage(6.5d));
 
 
-        final UltimateTalent ultimate = new UltimateTalent("All the Stars", "Instantly create &b10 &7Astral Stars around you.", 70)
+        setUltimate(new UltimateTalent("All the Stars", """
+                Instantly create &b10 &7Astral Stars around you.
+                                
+                Then, rapidly slash between them, dealing the normal star damage.
+                After, perform the final blow with &b360° &7attack that slows opponents.
+                                
+                &6;;This will not affect already placed Astral Stars
+                """, 70)
                 .setItem(Material.QUARTZ)
-                .setCdSec(30);
-
-        ultimate.addNlDescription("Then, rapidly slash between them, dealing the normal star damage.");
-        ultimate.addDescription("After, perform the final blow with &b360° &7attack that slows opponents.");
-        ultimate.addNlDescription("&6This will not affect already placed Astral Stars");
-
-        setUltimate(ultimate);
+                .setCdSec(30));
     }
 
     @Override

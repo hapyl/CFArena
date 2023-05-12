@@ -28,12 +28,15 @@ public class CauldronAbility extends Talent implements Listener {
     private final Map<Player, AlchemicalCauldron> cauldrons = new HashMap<>();
 
     public CauldronAbility() {
-        super("Brewing Pot");
-
-        addDescription("Place a Brewing Cauldron to brew a Magic Potion. Put your Brewing Stick in it and wait!");
-        addNlDescription("Once ready, claim you potion and enhance yourself with following effects:");
-        addNlDescription("&a- &7Drinking a potion will grant double effects. &8(5 charges)");
-        addNlDescription("&a- &7Hitting an enemy will apply random effect. &8(10 charges)");
+        super("Brewing Pot", """
+                Place a Brewing Cauldron to brew a Magic Potion. Put your Brewing Stick in it and wait!
+                                
+                Once ready, claim you potion and enhance yourself with following effects:
+                                
+                &a- &7Drinking a potion will grant double effects. &8(5 charges)
+                                
+                &a- &7Hitting an enemy will apply random effect. &8(10 charges)
+                """);
 
         setItem(Material.CAULDRON);
         setCdSec(120);

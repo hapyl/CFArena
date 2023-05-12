@@ -25,19 +25,20 @@ public class MeleeStance extends Talent {
 
     private final Map<Player, StanceData> dataMap = new HashMap<>();
 
-    private final Weapon abilityItem = new Weapon(Material.IRON_SWORD)
-            .setDamage(8.0d)
+    private final Weapon abilityItem = new Weapon(Material.IRON_SWORD).setDamage(8.0d)
             .setName("Raging Blade")
             .setDescription("A blade, forged from pure water.");
 
     public MeleeStance() {
         super("Melee Stance");
 
-        addDescription(
-                "Enter a Melee Stance for maximum of &b%ss&7 to replace you bow with &e%s&7!____Use again in &e&lMelee Stance&7 to get your bow back.____The longer you're in &e&lMelee Stance&7, the longer the cooldown of this ability.",
-                BukkitUtils.roundTick(maxDuration),
-                abilityItem.getName()
-        );
+        addDescription("""
+                    Enter a Melee Stance for maximum of &b{maxDuration}s&7 to replace you bow with &e{abilityName}&7!
+                    
+                    Use again in &e&lMelee Stance&7 to get your bow back.
+                    
+                    The longer you're in &e&lMelee Stance&7, the longer the cooldown of this ability.
+                """, BukkitUtils.roundTick(maxDuration), abilityItem.getName());
 
         setItem(Material.IRON_INGOT);
         setCd(-1);

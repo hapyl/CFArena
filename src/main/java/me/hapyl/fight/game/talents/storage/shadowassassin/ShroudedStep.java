@@ -30,11 +30,11 @@ public class ShroudedStep extends Talent {
     @DisplayField private final double decoyExplosionDamage = 10.0d;
 
     public ShroudedStep() {
-        super("Shrouded Step");
+        super("Shrouded Step", """
+                While in Dark Cover, deploy a decoy footprints that travel in a straight line.
 
-        addDescription(
-                "While in Dark Cover, deploy a decoy footprints that travel in a straight line.____Leave Dark Cover to create a decoy that explodes after being hit or after short duration damaging nearby enemies."
-        );
+                Leave Dark Cover to create a decoy that explodes after being hit or after short duration damaging nearby enemies.
+                """);
 
         setCd(600);
         setItem(Material.NETHERITE_BOOTS);

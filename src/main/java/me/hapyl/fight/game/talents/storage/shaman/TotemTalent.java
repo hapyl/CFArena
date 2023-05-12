@@ -15,9 +15,17 @@ public class TotemTalent extends Talent {
     public TotemTalent(ResonanceType type, int cd) {
         super(
                 type.getName(),
-                "Target placed totem and use to switch it to %s.____%s".formatted(type.getName(), type.getAbout()),
+                "",
                 type.getMaterial()
         );
+
+        setDescription("""
+                Target placed totem and use to switch it to {name}.
+                                
+                """, type.getName());
+
+        addDescription(type.getAbout());
+
         this.type = type;
 
         addAttributeDescription("Aura Range &l%s", type.getRange() + " blocks");

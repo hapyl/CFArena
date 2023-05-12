@@ -25,12 +25,13 @@ public class GrappleHookTalent extends ChargedTalent implements Listener {
     public GrappleHookTalent() {
         super("Grappling Hook", 3);
 
-        setDescription(
-                "Launch a grappling hook that travels up to &b%s&7 blocks.____Whenever it hits a &bblock&7 or an &bentity&7, it will pull you towards it.",
-                maxDistance
-        );
-
-        addDescription("__&6Cooldown starts after all charges are used.");
+        setDescription("""
+                Launch a grappling hook that travels up to &b{maxDistance}&7 blocks.
+                                
+                Whenever it hits a &bblock&7 or an &bentity&7, it will pull you towards it.
+                                
+                &6;;Cooldown starts after all charges are used.
+                """, maxDistance);
 
         setNoChargedMaterial(Material.GOAT_HORN);
         setItem(Material.LEAD);

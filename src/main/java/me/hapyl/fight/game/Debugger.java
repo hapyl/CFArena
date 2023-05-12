@@ -39,6 +39,17 @@ public class Debugger {
         }
     }
 
+    public static <T> void tryCatch(Runnable runnable, Runnable success, Runnable error) {
+        try {
+            runnable.run();
+        } catch (Exception e) {
+            error.run();
+            e.printStackTrace();
+        } finally {
+            success.run();
+        }
+    }
+
     public static void logIf(boolean condition, String any, Object... format) {
         if (condition) {
             info(any, format);

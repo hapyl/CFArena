@@ -24,12 +24,9 @@ public class BatSwarm extends Talent {
     @DisplayField private final short batCount = 15; // each hit removes 1 bat
 
     public BatSwarm() {
-        super("Swarm");
+        super("Swarm", "Launch a swarm of bats at your enemies, rapidly dealing damage and blinding them for a short duration.");
 
         setItem(Material.FLINT);
-        addDescription(
-                "Launch a swarm of bats at your enemies, rapidly dealing damage and blinding them for a short duration."
-        );
         setDurationSec(5);
         setCdSec(batCount);
     }

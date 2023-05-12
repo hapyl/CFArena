@@ -33,7 +33,12 @@ public class BlastPack extends ChargedTalent {
     private final Map<Player, Entity> blastPackMap = new HashMap<>();
 
     public BlastPack() {
-        super("Blast Pack", "&b1) &7Throw the blast pack!__&b2) &7Click again to explode!__&b3) &7???__&b4) &7Fly!", 2);
+        super("Blast Pack", """
+                &b1) &7Throw the blast pack!
+                &b2) &7Click again to explode!
+                &b3) &7???
+                &b4) &7Fly!
+                """, 2);
 
         setItem(Material.DETECTOR_RAIL);
         setCd(3);
@@ -118,12 +123,7 @@ public class BlastPack extends ChargedTalent {
 
         // FX
         PlayerLib.playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 1.75f);
-        Geometry.drawSphere(
-                location,
-                (explosionRadius * 2) + 1,
-                explosionRadius,
-                new WorldParticle(Particle.FIREWORKS_SPARK)
-        );
+        Geometry.drawSphere(location, (explosionRadius * 2) + 1, explosionRadius, new WorldParticle(Particle.FIREWORKS_SPARK));
 
     }
 

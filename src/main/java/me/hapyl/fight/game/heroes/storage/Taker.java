@@ -58,7 +58,14 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
         // TODO (hapyl): 019, Apr 19, 2023: Still don't like the ultimate
         final UltimateTalent ultimate = new UltimateTalent(
                 "Embodiment of Death",
-                "Instantly consume all &eSpiritual Bones&7 and cloak yourself in darkness for {duration}.____While cloaked, gain resistance and heal rapidly but suffer speed reduction.__Additionally, shoot death projectiles periodically.____&cHealing&7 and amount of &cdeath projectiles&7 is based on the amount of bones consumed.",
+                """
+                        Instantly consume all &eSpiritual Bones&7 and cloak yourself in darkness for <duration>.
+                                                
+                        While cloaked, gain resistance and heal rapidly but suffer speed reduction.
+                        Additionally, shoot death projectiles periodically.
+                                                
+                        &cHealing&7 and amount of &cdeath projectiles&7 is based on the amount of bones consumed.
+                        """,
                 60
         ).setDurationSec(3).setSound(Sound.ENTITY_HORSE_DEATH, 0.0f).setItem(Material.WITHER_SKELETON_SKULL).setCdFromCost(2);
 

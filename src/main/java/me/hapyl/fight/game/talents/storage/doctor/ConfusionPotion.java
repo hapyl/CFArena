@@ -27,7 +27,13 @@ public class ConfusionPotion extends Talent {
     public ConfusionPotion() {
         super(
                 "Dr. Ed's Amnesia Extract Serum",
-                "Swiftly throw a potion in the air that explodes and creates an aura for &b{duration}&7.____Opponents within range will be affected by Amnesia; This effect will persist for additional &b1s &7after player leaves the aura.____Dr. Ed is immune to his own amnesia.",
+                """
+                        Swiftly throw a potion in the air that explodes and creates an aura for &b<duration>&7.
+                                                
+                        Opponents within range will be affected by Amnesia; This effect will persist for additional &b1s &7after player leaves the aura.
+                                                
+                        Dr. Ed is immune to his own amnesia
+                        """,
                 Type.COMBAT
         );
 

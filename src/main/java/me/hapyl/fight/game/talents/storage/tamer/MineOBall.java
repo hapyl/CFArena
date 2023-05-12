@@ -32,11 +32,14 @@ public class MineOBall extends Talent implements Listener {
     private final Map<Player, TamerPack> tamerPackMap = Maps.newConcurrentMap();
 
     public MineOBall() {
-        super("Mine 'o Ball", "Summon a pack of beasts that will attack nearby opponents.");
+        super("Mine 'o Ball", """
+                Summon a pack of beasts that will attack nearby opponents.
+                                
+                &b&lBeasts:
+                """);
 
-        addDescription("____&b&lBeasts:");
         for (TamerPacks value : TamerPacks.values()) {
-            addDescription("&7- &f%s", value.getPack().getName());
+            addDescription("&7- &f{}\n", value.getPack().getName());
         }
 
         setCdSec(10);

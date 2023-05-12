@@ -9,7 +9,6 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -37,12 +36,13 @@ public class ShortyShotgun extends Talent {
     public ShortyShotgun() {
         super("Shorty");
 
-        setDescription(
-                "Shoot you double barrel to deal damage that falls off with distance.____If hit enemy is close enough, they will &cbleed&7 and will be &bvulnerable&7 for &b%ss&7.",
-                BukkitUtils.roundTick(bleedDuration)
-        );
-
-        addDescription("__&6This ability can be shot twice consecutively before reloading.");
+        setDescription("""
+                Shoot you double barrel to deal damage that falls off with distance.
+                                
+                If hit enemy is close enough, they will &cbleed&7 and will be &bvulnerable&7 for &b{bleedDuration}s&7.
+                                
+                &6;;This ability can be shot twice consecutively before reloading.
+                """, bleedDuration);
 
         setItem(Material.CROSSBOW);
         setStartAmount(2);
