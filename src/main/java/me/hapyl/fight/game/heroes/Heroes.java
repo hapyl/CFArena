@@ -12,6 +12,7 @@ import me.hapyl.fight.game.heroes.storage.*;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.util.SmallCaps;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
@@ -98,7 +99,7 @@ public enum Heroes {
         this.stats = new HeroStatsCollection(this);
 
         if (hero instanceof Listener listener) {
-            Main.getPlugin().addEvent(listener);
+            Bukkit.getPluginManager().registerEvents(listener, Main.getPlugin());
         }
     }
 

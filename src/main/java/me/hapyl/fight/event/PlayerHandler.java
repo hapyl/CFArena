@@ -54,7 +54,7 @@ public class PlayerHandler implements Listener {
         final Main plugin = Main.getPlugin();
         final Manager manager = Manager.current();
 
-        plugin.handlePlayer(player);
+        manager.handlePlayer(player);
 
         if (manager.isGameInProgress()) {
             final GameInstance gameInstance = (GameInstance) manager.getCurrentGame();

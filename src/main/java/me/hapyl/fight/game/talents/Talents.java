@@ -70,6 +70,7 @@ import me.hapyl.fight.game.talents.storage.vampire.VampirePet;
 import me.hapyl.fight.game.talents.storage.vortex.StarAligner;
 import me.hapyl.fight.game.talents.storage.vortex.VortexStar;
 import me.hapyl.fight.game.talents.storage.witcher.*;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -365,7 +366,7 @@ public enum Talents {
         }
         this.talent = talent;
         if (talent instanceof Listener listener) {
-            Main.getPlugin().addEvent(listener);
+            Bukkit.getPluginManager().registerEvents(listener, Main.getPlugin());
         }
     }
 

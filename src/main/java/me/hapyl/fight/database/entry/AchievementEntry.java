@@ -2,7 +2,7 @@ package me.hapyl.fight.database.entry;
 
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.PlayerDatabaseEntry;
-import me.hapyl.fight.game.achievement.Achievements;
+import me.hapyl.fight.game.achievement.Achievement;
 
 public class AchievementEntry extends PlayerDatabaseEntry {
 
@@ -14,10 +14,10 @@ public class AchievementEntry extends PlayerDatabaseEntry {
      * Returns the amount of times the player has completed this achievement.
      *
      * @param achievement - Achievement to check.
-     * @return amount of times completed
+     * @return number of times completed
      */
-    public int getCompleteCount(Achievements achievement) {
-        return getValue("achievement.%s.complete_count".formatted(achievement.name()), 0);
+    public int getCompleteCount(Achievement achievement) {
+        return getValue("achievement.%s.complete_count".formatted(achievement.getId()), 0);
     }
 
     /**
@@ -25,7 +25,7 @@ public class AchievementEntry extends PlayerDatabaseEntry {
      *
      * @param achievements - Achievement to add complete count to.
      */
-    public void addCompleteCount(Achievements achievements) {
+    public void addCompleteCount(Achievement achievements) {
         setCompleteCount(achievements, getCompleteCount(achievements) + 1);
     }
 
@@ -34,7 +34,7 @@ public class AchievementEntry extends PlayerDatabaseEntry {
      *
      * @param achievements - Achievement to remove complete count from.
      */
-    public void subtractCompleteCount(Achievements achievements) {
+    public void subtractCompleteCount(Achievement achievements) {
         setCompleteCount(achievements, getCompleteCount(achievements) - 1);
     }
 
@@ -44,25 +44,25 @@ public class AchievementEntry extends PlayerDatabaseEntry {
      * @param achievement - Achievement to check.
      * @return true if completed at least once
      */
-    public boolean isCompleted(Achievements achievement) {
+    public boolean isCompleted(Achievement achievement) {
         return getCompleteCount(achievement) > 0;
     }
 
-    public void reset(Achievements achievement) {
+    public void reset(Achievement achievement) {
         setCompleteCount(achievement, 0);
     }
 
-    public void setCompletedAt(Achievements achievements, long time) {
-        setValue("achievement.%s.completed_at".formatted(achievements.name()), time);
+    public void setCompletedAt(Achievement achievements, long time) {
+        setValue("achievement.%s.completed_at".formatted(achievements.getId()), time);
     }
 
-    private void setCompleteCount(Achievements achievements, int count) {
+    private void setCompleteCount(Achievement achievements, int count) {
         if (count <= 0) {
-            setValue("achievement.%s".formatted(achievements.name()), null);
+            setValue("achievement.%s".formatted(achievements.getId()), null);
             return;
         }
 
-        setValue("achievement.%s.complete_count".formatted(achievements.name()), count);
+        setValue("achievement.%s.complete_count".formatted(achievements.getId()), count);
     }
 
 }

@@ -28,6 +28,7 @@ import me.hapyl.spigotutils.module.reflect.glow.Glowing;
 import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
 import me.hapyl.spigotutils.module.reflect.npc.NPCPose;
 import me.hapyl.spigotutils.module.util.Action;
+import me.hapyl.spigotutils.module.util.DependencyInjector;
 import me.hapyl.spigotutils.module.util.Runnables;
 import me.hapyl.spigotutils.module.util.Validate;
 import net.minecraft.world.entity.Entity;
@@ -55,13 +56,12 @@ import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class CommandRegistry {
+public class CommandRegistry extends DependencyInjector<Main> {
 
-    private final Main plugin;
     private final CommandProcessor processor;
 
     public CommandRegistry(Main main) {
-        this.plugin = main;
+        super(main);
         this.processor = new CommandProcessor(main);
 
         register(new HeroCommand("hero"));
@@ -332,7 +332,7 @@ public class CommandRegistry {
 
             @Override
             protected void execute(Player player, String[] args) {
-                final MongoCollection<Document> collection = plugin.getDatabase().getPlayers();
+                final MongoCollection<Document> collection = getPlugin().database.getPlayers();
                 document = collection.find(FILTER).first();
 
                 if (document == null) {
@@ -377,10 +377,6 @@ public class CommandRegistry {
                 }
 
                 Chat.sendMessage(player, "&cInvalid usage, idiot.");
-
-                // bullshit dump
-                // bullshit get (a.b.c.d)
-                // bullshit set (a.b.c.d) (value)
             }
         });
 

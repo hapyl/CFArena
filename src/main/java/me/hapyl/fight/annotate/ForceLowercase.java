@@ -1,11 +1,14 @@
-package me.hapyl.fight.game.talents;
+package me.hapyl.fight.annotate;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Annotates that the char sequence parameter is forced to lower case.
+ */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
-public @interface SafeCast {
+@Target(ElementType.PARAMETER)
+public @interface ForceLowercase {
 }

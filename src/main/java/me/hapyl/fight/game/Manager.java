@@ -142,6 +142,29 @@ public class Manager extends DependencyInjector<Main> {
         return gameInstance != null && !gameInstance.isTimeIsUp();
     }
 
+    public void handlePlayer(Player player) {
+        createProfile(player);
+
+        // teleport either to spawn or the map if there is a game in progress
+        final IGameInstance game = getCurrentGame();
+        if (!game.isReal()) {
+            final GameMode gameMode = player.getGameMode();
+
+            if (gameMode != GameMode.CREATIVE && gameMode != GameMode.SPECTATOR) {
+                player.teleport(GameMaps.SPAWN.getMap().getLocation());
+                LobbyItems.giveAll(player);
+            }
+        }
+        else {
+            player.teleport(game.getMap().getMap().getLocation());
+        }
+
+        // Notify operators
+        if (player.isOp()) {
+            Chat.sendMessage(player, getPlugin().database.getDatabaseString());
+        }
+    }
+
     /**
      * Returns the current GameInstance.
      *
@@ -155,7 +178,7 @@ public class Manager extends DependencyInjector<Main> {
     }
 
     /**
-     * @return game instance is present, else abstract version.
+     * @return game instance is present, else an abstract version.
      */
     @Nonnull
     public IGameInstance getCurrentGame() {

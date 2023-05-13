@@ -3,6 +3,7 @@ package me.hapyl.fight.game.experience;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import me.hapyl.fight.Main;
 import me.hapyl.fight.database.entry.ExperienceEntry;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -12,6 +13,7 @@ import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.chat.Gradient;
 import me.hapyl.spigotutils.module.chat.gradient.Interpolators;
 import me.hapyl.spigotutils.module.math.nn.IntInt;
+import me.hapyl.spigotutils.module.util.DependencyInjector;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
@@ -19,7 +21,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.Map;
 
-public class Experience {
+public class Experience extends DependencyInjector<Main> {
 
     public final byte MAX_LEVEL = 50;
 
@@ -36,7 +38,8 @@ public class Experience {
     /**
      * Instantiate Experience manager.
      */
-    public Experience() {
+    public Experience(Main main) {
+        super(main);
         this.experienceLevelMap = Maps.newLinkedHashMap();
         this.setupMap();
         this.setupRewards();

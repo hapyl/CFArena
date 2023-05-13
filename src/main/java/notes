@@ -48,7 +48,7 @@ Bugs:
 - [✔] Store class wins
 - [✔] Fix techie trips
 - [✔] Stop paintings from breaking
-- [It's not, it's 5s and updatable] harbinger riptide not going away?
+- [It's not] harbinger riptide not going away?
 - [✔] weakness level matters for client
 - [✔] deathmath when die who dead keeps yes
 - [✔] me.hapyl.fight.game.heroes.storage.extra.BlockShield.randomBlock(BlockShield.java:132) ~[ClassesFightArena.jar:?]
@@ -62,11 +62,11 @@ Bugs:
 - [✔] leaving breaks the game
 - [✔] tripwire does not refresh on caught?
 
-- [✔?] At me.hapyl.fight.game.heroes.storage.Techie$1.run(Techie.java:101) ~[ClassesFightArena.jar:?]
+- [✔] At me.hapyl.fight.game.heroes.storage.Techie$1.run(Techie.java:101) ~[ClassesFightArena.jar:?]
 - [✔] Traps don't regen
 - [✔] Database save called twice in rejoin
 - [✔] GameTeam uses gameplayer and does not reset after rejoin
-- [✔]Remove effects at death
+- [✔] Remove effects at death
 - [✔] Player profile is not removed on leave?
 - [✔] Fix talent descriptions, use addDescription() not '__'
 
@@ -79,7 +79,7 @@ Bugs:
 - Maybe add buff when JUJU uses climb
 - make juju shot work when hit enemies
 - Rework achievement GUI to use top as category and contents as, well, fucking contents
-- Pretty sure witcher combo and zone ability dont work
+- Pretty sure witcher combo and zone ability don't work
 
 - [✔] Melee stance does not reset properly?
 - [✔] juju shield breaks all at once

@@ -4,6 +4,7 @@ import me.hapyl.fight.Main;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.PlayerElement;
+import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 
 public abstract class MapFeature implements GameElement, PlayerElement {
@@ -16,7 +17,7 @@ public abstract class MapFeature implements GameElement, PlayerElement {
         this.info = info;
 
         if (this instanceof Listener listener) {
-            Main.getPlugin().addEvent(listener);
+            Bukkit.getPluginManager().registerEvents(listener, Main.getPlugin());
         }
     }
 

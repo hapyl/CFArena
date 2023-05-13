@@ -1,7 +1,8 @@
 package me.hapyl.fight.gui;
 
+import me.hapyl.fight.Main;
 import me.hapyl.fight.game.achievement.Achievement;
-import me.hapyl.fight.game.achievement.Achievements;
+import me.hapyl.fight.game.achievement.AchievementRegistry;
 import me.hapyl.fight.game.achievement.Category;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.PlayerPageGUI;
@@ -12,16 +13,18 @@ import org.bukkit.inventory.ItemStack;
 import javax.annotation.Nonnull;
 import java.util.LinkedList;
 
-public class AchievementCategoryGUI extends PlayerPageGUI<Achievements> {
+public class AchievementCategoryGUI extends PlayerPageGUI<Achievement> {
 
     private final Category category;
+    private final AchievementRegistry registry;
 
     public AchievementCategoryGUI(Player player, Category category) {
         super(player, "Achievements", 6);
 
         this.category = category;
+        this.registry = Main.getPlugin().getAchievementRegistry();
 
-        final LinkedList<Achievements> achievements = Achievements.byCategory(category);
+        final LinkedList<Achievement> achievements = registry.byCategory(category);
 
         // remove hidden non-complete achievement
         achievements.removeIf(achievement -> {
@@ -44,13 +47,12 @@ public class AchievementCategoryGUI extends PlayerPageGUI<Achievements> {
 
     @Nonnull
     @Override
-    public ItemStack asItem(Player player, Achievements enumAchievement, int index, int page) {
-        final int completeCount = enumAchievement.getCompleteCount(player);
-        final boolean completed = enumAchievement.isCompleted(player);
+    public ItemStack asItem(Player player, Achievement achievement, int index, int page) {
+        final int completeCount = achievement.getCompleteCount(player);
+        final boolean completed = achievement.isCompleted(player);
 
         final ItemBuilder builder = new ItemBuilder(completed ? Material.DIAMOND : Material.COAL);
 
-        final Achievement achievement = enumAchievement.getAchievement();
         builder.setName(achievement.getName());
         builder.addLore();
         builder.addSmartLore(achievement.getDescription());
@@ -62,7 +64,7 @@ public class AchievementCategoryGUI extends PlayerPageGUI<Achievements> {
 
         // TODO (hapyl): 020, Apr 20, 2023: Add progress for ProgressAchievements
 
-        if (enumAchievement.isHidden() && !completed) {
+        if (achievement.isHidden() && !completed) {
             builder.setName("&7???");
             builder.setLore("&8???");
         }
@@ -71,7 +73,7 @@ public class AchievementCategoryGUI extends PlayerPageGUI<Achievements> {
     }
 
     @Override
-    public void onClick(Player player, Achievements achievements, int index, int page) {
+    public void onClick(Player player, Achievement achievements, int index, int page) {
 
     }
 
