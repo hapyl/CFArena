@@ -234,7 +234,7 @@ public class GameMap implements GameElement, PlayerElement {
 
         gamePacks.values().forEach(GamePack::onStart);
 
-        // Feature \/
+        // Features \/
         if (features.isEmpty()) {
             return;
         }

@@ -30,6 +30,15 @@ public class Final<E> {
         return false;
     }
 
+    public void setUnsafe(E element) throws IllegalStateException {
+        if (isNull()) {
+            set(element);
+            return;
+        }
+
+        throw new IllegalStateException("Element is already set for " + getClass().getSimpleName());
+    }
+
     public E get() {
         return element;
     }

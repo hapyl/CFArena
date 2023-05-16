@@ -6,6 +6,7 @@ import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.GameResult;
 import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.gamemode.CFGameMode;
+import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -110,6 +111,12 @@ public class Deathmatch extends CFGameMode {
 
         // If player was spectator, don't respawn them
         if (!gamePlayer.isSpectator()) {
+            // supply to profile
+            final PlayerProfile profile = PlayerProfile.getProfile(player);
+            if (profile != null) {
+                profile.setGamePlayer(gamePlayer);
+            }
+
             gamePlayer.setHandle(player);
             gamePlayer.respawnIn(60);
         }

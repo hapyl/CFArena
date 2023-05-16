@@ -6,6 +6,7 @@ import me.hapyl.fight.game.maps.features.LibraryCat;
 import me.hapyl.fight.game.maps.features.LibraryFeature;
 import me.hapyl.fight.game.maps.healthpack.PackType;
 import me.hapyl.fight.game.maps.maps.DragonsGorge;
+import me.hapyl.fight.game.maps.maps.MoonBase;
 import me.hapyl.fight.game.maps.maps.WineryMap;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.Material;
@@ -135,6 +136,8 @@ public enum GameMaps {
     DRAGONS_GORGE(new DragonsGorge()), // complex map, stored in separate file
 
     WINERY(new WineryMap()), // complex map, stored in separate file
+
+    MOON_BASE(new MoonBase()), // complex map, stored in separate file
 
     ;
 

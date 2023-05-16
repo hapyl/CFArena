@@ -67,7 +67,6 @@ public class GamePlayerUI {
                 }
             }
         }.runTaskTimer(0, 5).setShutdownAction(ShutdownAction.IGNORE);
-
     }
 
     private void animateScoreboard() {
@@ -82,7 +81,9 @@ public class GamePlayerUI {
         // Send UI information
         if (gamePlayer.isAlive() && !gamePlayer.isSpectator()) {
             Chat.sendActionbar(player, format.format(gamePlayer));
+            return;
         }
+
     }
 
     public void updateScoreboard() {

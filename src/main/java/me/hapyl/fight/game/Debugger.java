@@ -15,7 +15,7 @@ public class Debugger {
     /**
      * Indicates that this debug logger should not be removed in prod.
      */
-    public static void keepLog(Object any, Object... format) {
+    public static void keepInfo(Object any, Object... format) {
         info(any, format);
     }
 

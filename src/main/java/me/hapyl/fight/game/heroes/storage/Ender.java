@@ -11,6 +11,7 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.storage.ender.TransmissionBeacon;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.util.Blocks;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
@@ -83,18 +84,25 @@ public class Ender extends Hero implements Listener {
                     return;
                 }
 
-                // Initiate
-                final Block block = player.getTargetBlockExact(25);
-                if (block == null || block.getType() == Material.BARRIER) {
+                // Check for los block
+                final Block targetBlock = player.getTargetBlockExact(25);
+
+                if (!Blocks.isValid(targetBlock)) {
                     Chat.sendMessage(player, "&cNo valid block in sight!");
-                    PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
                     return;
                 }
 
+                // Initiate
                 final List<Block> lastTwoTargetBlocks = player.getLastTwoTargetBlocks(null, 25);
 
                 final Block preLastBlock = lastTwoTargetBlocks.get(0);
                 final Block lastBlock = lastTwoTargetBlocks.get(1);
+
+                if (preLastBlock == null || lastBlock == null) {
+                    Chat.sendMessage(player, "&cNo valid block in sight!");
+                    PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
+                    return;
+                }
 
                 if (preLastBlock.getType().isAir()) {
                     final Block downBlock = lastBlock.getRelative(BlockFace.DOWN);
@@ -104,7 +112,8 @@ public class Ender extends Hero implements Listener {
                     }
                 }
 
-                final Location location = block.getRelative(BlockFace.UP).getLocation().add(0.5d, 0.0d, 0.5d);
+                final Location location = lastBlock.getRelative(BlockFace.UP).getLocation().add(0.5d, 0.0d, 0.5d);
+
                 if (!location.getBlock().getType().isAir() || !location.getBlock().getRelative(BlockFace.UP).getType().isAir()) {
                     Chat.sendMessage(player, "&cTarget location is not safe!");
                     PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);

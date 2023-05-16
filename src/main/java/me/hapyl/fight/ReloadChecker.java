@@ -59,7 +59,7 @@ public final class ReloadChecker extends DependencyInjector<Main> {
             } catch (NoSuchFieldException | IllegalAccessException ignored) {
             }
 
-            Debugger.info("&ePlugin started at &6" + new SimpleDateFormat("HH'h' mm'm' ss's'").format(new Date(Main.getStartupTime())));
+            Debugger.keepInfo("&ePlugin started at &6" + new SimpleDateFormat("HH'h' mm'm' ss's'").format(new Date(Main.getStartupTime())));
         }, delay);
     }
 

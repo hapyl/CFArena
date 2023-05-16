@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
 
 /**
  * This class stores all player data while the player is online,
- * and deletes once player leaves.
+ * and deletes once the player leaves.
  */
 public class PlayerProfile {
 

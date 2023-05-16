@@ -5,6 +5,7 @@ import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.IGamePlayer;
+import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
@@ -88,6 +89,7 @@ public class Troll extends Hero {
                 player.playSound(Sound.ENTITY_WITCH_CELEBRATE, 2.0f);
                 player.sendMessage("&a%s had the last laugh!", killer.getName());
 
+                Achievements.LAUGHING_OUT_LOUD_VICTIM.complete(player.getPlayer());
                 return null;
             }
             else if (entity != null) {
@@ -99,6 +101,8 @@ public class Troll extends Hero {
 
             Chat.sendMessage(killer, "&aYou laughed at %s!", entity.getName());
             PlayerLib.playSound(killer, Sound.ENTITY_WITCH_CELEBRATE, 2.0f);
+
+            Achievements.LAUGHING_OUT_LOUD.complete(killer);
         }
 
         return null;

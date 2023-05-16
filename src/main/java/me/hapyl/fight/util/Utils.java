@@ -185,7 +185,7 @@ public class Utils {
         Reflect.showEntity(entity, player);
     }
 
-    public static void rayTracePath(@Nonnull Location start, @Nonnull Location end, double shift, double searchRange, @Nullable Function<LivingEntity> funcLiving, @Nullable Function<Location> funcLoc) {
+    public static void rayTracePath(@Nonnull Location start, @Nonnull Location end, double shift, double searchRange, @Nullable Consumer<LivingEntity> funcLiving, @Nullable Consumer<Location> funcLoc) {
         final double maxDistance = start.distance(end);
         final Vector vector = end.toVector().subtract(start.toVector()).normalize().multiply(shift);
 
@@ -201,8 +201,8 @@ public class Utils {
 
                 start.add(vector);
 
-                Nulls.runIfNotNull(funcLiving, f -> Utils.getEntitiesInRange(start, searchRange).forEach(f::execute));
-                Nulls.runIfNotNull(funcLoc, f -> f.execute(start));
+                Nulls.runIfNotNull(funcLiving, f -> Utils.getEntitiesInRange(start, searchRange).forEach(f));
+                Nulls.runIfNotNull(funcLoc, f -> f.accept(start));
 
                 tick -= shift;
             }

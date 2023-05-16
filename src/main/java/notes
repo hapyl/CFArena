@@ -80,6 +80,13 @@ Bugs:
 - make juju shot work when hit enemies
 - Rework achievement GUI to use top as category and contents as, well, fucking contents
 - Pretty sure witcher combo and zone ability don't work
+- Possible stackoverflow when calculating wave
+- Players aren't removed from teams upon leave
+- [✔] at me.hapyl.fight.game.GamePlayer.die(GamePlayer.java:490)
+- Missing health pack on arena
+- "Flying is not enabled on this server"
+- UI still does NOT update while rejoin
+- DM can use spell with a FIST
 
 - [✔] Melee stance does not reset properly?
 - [✔] juju shield breaks all at once

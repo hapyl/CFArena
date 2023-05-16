@@ -3,6 +3,7 @@ package me.hapyl.fight.game;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.database.Award;
 import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
@@ -451,6 +452,11 @@ public class GamePlayer implements IGamePlayer {
                     killerStats.addValue(StatType.KILLS, 1);
                     gameKiller.getTeam().kills++;
 
+                    // Check for first blood
+                    if (gameInstance.getTotalKills() == 1) {
+                        Achievements.FIRST_BLOOD.complete(gameKiller.getTeam());
+                    }
+
                     // Add kill streak for killer
                     gameKiller.killStreak++;
 
@@ -485,20 +491,24 @@ public class GamePlayer implements IGamePlayer {
 
         stats.addValue(StatType.DEATHS, 1);
 
-        // broadcast death message
+        // Broadcast the death message
+        final double distanceToDamager = Nulls.getIfNotNull(
+                lastDamager,
+                f -> lastDamager.getLocation().distance(player.getLocation()),
+                0.0d
+        );
 
-        final double distanceToDamager = lastDamager.getLocation().distance(player.getLocation());
-        final String distancePrefix = (distanceToDamager >= 20.0d ? " (from %.2f meters away!)".formatted(distanceToDamager) : "");
+        final String distanceSuffix = distanceToDamager >= 20.0d ? " (from %.2f meters away!)".formatted(distanceToDamager) : "";
 
         final String deathMessage =
-                new Gradient(concat("☠ %s ".formatted(player.getName()), getRandomDeathMessage(), lastDamager) + distancePrefix)
+                new Gradient(concat("☠ %s ".formatted(player.getName()), getRandomDeathMessage(), lastDamager) + distanceSuffix)
                         .rgb(
                                 new Color(160, 0, 0),
                                 new Color(255, 51, 51),
                                 Interpolators.LINEAR
                         );
 
-        // send death info to manager
+        // Send death info to manager
         final GameInstance gameInstance = Manager.current().getGameInstance();
         if (gameInstance != null) {
             final CFGameMode mode = gameInstance.getMode();

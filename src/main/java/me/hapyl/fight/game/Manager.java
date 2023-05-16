@@ -2,6 +2,7 @@ package me.hapyl.fight.game;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
+import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.cosmetic.skin.SkinEffectManager;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.heroes.ComplexHero;
@@ -82,7 +83,7 @@ public class Manager extends DependencyInjector<Main> {
         skinEffectManager = new SkinEffectManager(getPlugin());
 
         // start auto save timer
-        this.autoSave = new AutoSync(Tick.fromMinute(10));
+        autoSave = new AutoSync(Tick.fromMinute(10));
     }
 
     /**
@@ -548,6 +549,9 @@ public class Manager extends DependencyInjector<Main> {
             player.setHealth(player.getMaxHealth());
             player.setGameMode(GameMode.SURVIVAL);
             player.teleport(GameMaps.SPAWN.getMap().getLocation());
+
+            // Progress achievement
+            Achievements.PLAY_FIRST_GAME.complete(player);
 
             LobbyItems.giveAll(player);
         }

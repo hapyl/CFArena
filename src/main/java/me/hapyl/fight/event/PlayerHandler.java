@@ -3,6 +3,7 @@ package me.hapyl.fight.event;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.*;
+import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.stats.StatType;
@@ -195,6 +196,9 @@ public class PlayerHandler implements Listener {
             if (hero.getUltimateDuration() > 0) {
                 hero.setUsingUltimate(player, true, hero.getUltimateDuration());
             }
+
+            // Achievement
+            Achievements.USE_ULTIMATES.complete(player);
 
             for (final Player online : Bukkit.getOnlinePlayers()) {
                 Chat.sendMessage(

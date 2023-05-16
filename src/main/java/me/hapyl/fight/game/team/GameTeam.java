@@ -194,6 +194,10 @@ public enum GameTeam {
         return color + "&l" + getName().toUpperCase(Locale.ROOT).charAt(0);
     }
 
+    public boolean isEmpty() {
+        return members.isEmpty();
+    }
+
     /**
      * Returns team with the least amount of players.
      *
@@ -222,9 +226,12 @@ public enum GameTeam {
     public static List<GameTeam> getPopulatedTeams() {
         final List<GameTeam> populatedTeams = Lists.newArrayList();
 
-        for (GameTeam value : values()) {
-            if (value.getPlayersAsPlayers().size() > 0) {
-                populatedTeams.add(value);
+        for (GameTeam team : values()) {
+            // clear offline members before calculating anything
+            team.members.removeIf(uuid -> Bukkit.getPlayer(uuid) == null);
+
+            if (team.getPlayersAsPlayers().size() > 0) {
+                populatedTeams.add(team);
             }
         }
 

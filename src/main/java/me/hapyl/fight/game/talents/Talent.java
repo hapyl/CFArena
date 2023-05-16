@@ -3,10 +3,10 @@ package me.hapyl.fight.game.talents;
 import com.google.common.collect.Lists;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.*;
+import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.effect.storage.SlowingAuraEffect;
 import me.hapyl.fight.game.stats.StatContainer;
-import me.hapyl.fight.util.Function;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
@@ -23,6 +23,7 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Base talent.
@@ -47,7 +48,7 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
     private String texture64;
     private String castMessage;
     private String altUsage;
-    private Function<ItemBuilder> itemFunction;
+    private Consumer<ItemBuilder> itemFunction;
     private int point;
     private int cd;
     private int duration;
@@ -208,7 +209,7 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         }
 
         // Execute functions is present
-        Nulls.runIfNotNull(itemFunction, function -> function.execute(builderItem));
+        Nulls.runIfNotNull(itemFunction, function -> function.accept(builderItem));
 
         // Now using text block lore
         try {
@@ -314,7 +315,7 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         return this;
     }
 
-    public Talent setItem(Material material, Function<ItemBuilder> function) {
+    public Talent setItem(Material material, Consumer<ItemBuilder> function) {
         setItem(material);
         itemFunction = function;
 
@@ -344,10 +345,14 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
 
         // Progress ability usage
         final StatContainer stats = GamePlayer.getPlayer(player).getStats();
+        final Talents enumTalent = Talents.fromTalent(this);
 
         if (stats != null && !Manager.current().isDebug()) {
-            stats.addAbilityUsage(Talents.fromTalent(this));
+            stats.addAbilityUsage(enumTalent);
         }
+
+        // Progress achievement
+        Achievements.USE_TALENTS.complete(player);
 
         return response;
     }

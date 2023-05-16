@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.achievement;
 
 import me.hapyl.fight.annotate.ForceLowercase;
+import me.hapyl.fight.util.Final;
 import me.hapyl.spigotutils.module.util.Validate;
 
 import javax.annotation.Nonnull;
@@ -10,18 +11,32 @@ import java.util.regex.Pattern;
 public class PatternId {
 
     private final Pattern pattern;
-    private final String id;
+    @Nonnull
+    private final Final<String> id;
 
-    public PatternId(@Nonnull Pattern pattern, @ForceLowercase String id) throws IllegalArgumentException {
+    public PatternId(@Nonnull Pattern pattern) {
         this.pattern = pattern;
-        this.id = id.toLowerCase();
+        this.id = new Final<>();
+    }
 
-        checkPattern();
+    public PatternId(@Nonnull Pattern pattern, @Nonnull String string) {
+        this(pattern);
+
+        setId(string);
     }
 
     @Nonnull
-    public String getId() {
-        return id;
+    public String getId() throws IllegalStateException {
+        if (id.isNull()) {
+            throw new IllegalStateException("Id is not set for " + getClass().getSimpleName());
+
+        }
+        return id.get();
+    }
+
+    public void setId(@ForceLowercase @Nonnull String id) {
+        this.id.set(id.toLowerCase());
+        checkPattern();
     }
 
     public boolean matches(@Nullable String id) {
@@ -32,11 +47,11 @@ public class PatternId {
         return pattern.matcher(id).matches();
     }
 
-    private void checkPattern() {
+    private void checkPattern() throws NullPointerException, IllegalArgumentException {
         Validate.notNull(pattern, "Pattern cannot be null");
-        Validate.notNull(id, "Id cannot be null");
+        Validate.notNull(id.get(), "Id cannot be null");
         Validate.isTrue(
-                pattern.matcher(id).matches(),
+                pattern.matcher(id.get()).matches(),
                 "Id %s in %s does not match the pattern: %s".formatted(id, getClass().getSimpleName(), pattern)
         );
     }

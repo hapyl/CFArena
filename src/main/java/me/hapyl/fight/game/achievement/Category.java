@@ -8,6 +8,9 @@ import org.bukkit.Material;
 public enum Category {
 
     GAMEPLAY(Material.IRON_SWORD, "Gameplay", ""),
+    HERO_PLAYER(Material.PLAYER_HEAD, "Hero Player", ""),
+    HERO_WINNER(Material.DIAMOND, "Hero Winner", ""),
+
     ;
 
     private final Material material;

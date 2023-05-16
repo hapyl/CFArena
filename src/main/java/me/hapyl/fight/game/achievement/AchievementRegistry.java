@@ -13,6 +13,7 @@ import javax.annotation.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class AchievementRegistry extends DependencyInjector<Main> {
 
@@ -25,31 +26,17 @@ public class AchievementRegistry extends DependencyInjector<Main> {
         byId = Maps.newLinkedHashMap();
         byCategory = Maps.newHashMap();
 
-        register();
-        registerStatic();
+        // Register
+        for (Achievements value : Achievements.values()) {
+            register(value.achievement);
+        }
+
+        registerAll();
     }
 
     @Nonnull
     public List<String> listIds() {
         return Lists.newLinkedList(byId.keySet());
-    }
-
-    private void register() {
-    }
-
-    private void registerStatic() {
-        // Play hero achievements
-        for (Heroes hero : Heroes.playable()) {
-            final ProgressAchievement achievement = new ProgressAchievement("play_hero_" + hero.name(), hero.getName() + " Enjoyer", "Play");
-            final long baseCoins = 100;
-            final int[] requirements = { 1, 5, 10, 50, 100 };
-
-            for (int requirement : requirements) {
-                achievement.setReward(requirement, CurrencyReward.create().withCoins(baseCoins * requirement));
-            }
-
-            register(achievement);
-        }
     }
 
     @Nullable
@@ -95,11 +82,48 @@ public class AchievementRegistry extends DependencyInjector<Main> {
             throw new IllegalArgumentException("Achievement with Id %s is already registered!".formatted(id));
         }
 
-        byId.put(id, achievement);
+        register0(achievement);
+    }
+
+    public <T extends Achievement> void register(@Nonnull T t, @Nonnull Consumer<T> consumer) {
+        consumer.accept(t);
+        register(t);
     }
 
     public void unregister(@Nonnull Achievement achievement) {
-        byId.remove(achievement.getId());
+        unregister0(achievement);
+    }
+
+    private void registerAll() {
+        // Hero progress achievement
+        for (Heroes hero : Heroes.playable()) {
+            // Play hero
+            final String heroName = hero.getName();
+
+            register(new ProgressAchievement(
+                    "play_hero_" + hero.name(),
+                    heroName + " Enjoyer",
+                    "Play as %s {} times.".formatted(heroName),
+                    1, 5, 10, 50, 100
+            ), achievement -> {
+                achievement.setCategory(Category.HERO_PLAYER);
+                achievement.forEachRequirement(i -> achievement.setReward(i, CurrencyReward.create().withCoins(10L * i)));
+            });
+
+            // Win hero
+            register(
+                    new ProgressAchievement(
+                            "win_hero_" + hero.name(),
+                            heroName + " Winner",
+                            "Win as %s {} times.".formatted(heroName),
+                            1, 5, 10, 50, 100
+                    ),
+                    achievement -> {
+                        achievement.setCategory(Category.HERO_WINNER);
+                        achievement.forEachRequirement((ref, i) -> achievement.setReward(i, CurrencyReward.create().withCoins(200L * i)));
+                    }
+            );
+        }
     }
 
     private void register0(Achievement achievement) {
@@ -112,4 +136,7 @@ public class AchievementRegistry extends DependencyInjector<Main> {
         byCategory.getOrDefault(achievement.getCategory(), Lists.newArrayList()).remove(achievement);
     }
 
+    public static AchievementRegistry current() {
+        return Main.getPlugin().achievementRegistry;
+    }
 }

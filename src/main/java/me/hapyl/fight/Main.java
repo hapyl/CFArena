@@ -21,6 +21,7 @@ import me.hapyl.fight.protocol.DismountProtocol;
 import me.hapyl.spigotutils.EternaAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
+import org.bukkit.Registry;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
@@ -95,6 +96,8 @@ public class Main extends JavaPlugin {
 
         // Remove recipes and achievements
         Bukkit.clearRecipes();
+        Registry.ADVANCEMENT.iterator().forEachRemaining(advancement -> {
+        });
 
         // Register Commands
         new CommandRegistry(this);

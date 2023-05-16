@@ -5,6 +5,7 @@ import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.team.GameTeam;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -28,7 +29,7 @@ import java.util.function.Predicate;
 public interface IGameInstance {
 
     /**
-     * Default GameInstance if failed to retrieve existing one.
+     * Default GameInstance if failed to retrieve the existing one.
      * Should never happen unless unsafe call was made.
      */
     IGameInstance NULL_GAME_INSTANCE = new NullGameInstance();
@@ -216,4 +217,35 @@ public interface IGameInstance {
      * Returns true if this is a real GameInstance, false otherwise.
      */
     boolean isReal();
+
+    /**
+     * Returns total number of kills in this instance as of now.
+     *
+     * @return total number of kills in this instance as of now.
+     */
+    default int getTotalKills() {
+        int kills = 0;
+
+        for (GameTeam team : GameTeam.values()) {
+            kills += team.kills;
+        }
+
+        return kills;
+    }
+
+    /**
+     * Returns total number of deaths in this instance as of now.
+     *
+     * @return total number of deaths in this instance as of now.
+     */
+    default int getTotalDeaths() {
+        int deaths = 0;
+
+        for (GameTeam team : GameTeam.values()) {
+            deaths += team.deaths;
+        }
+
+        return deaths;
+    }
+
 }

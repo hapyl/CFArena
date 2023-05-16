@@ -40,7 +40,7 @@ import java.util.Map;
  * This hero is pain in the ass...
  * Slots are hardcoded, make sure not to change them.
  */
-public class Librarian extends Hero implements ComplexHero, Listener {
+public class Librarian extends Hero implements ComplexHero, Listener, DisabledHero {
 
     private final Map<Integer, LibrarianTalent> talentMap = new HashMap<>();
     private final Map<Player, Grimoire> grimoireMap = new HashMap<>();

@@ -7,7 +7,7 @@ import javax.annotation.Nonnull;
  * For the most part, a normal achievement but not shown in GUI until unlocked.
  */
 public class HiddenAchievement extends Achievement {
-    public HiddenAchievement(@Nonnull String id, @Nonnull String name, @Nonnull String description) {
-        super(id, name, description);
+    public HiddenAchievement(@Nonnull String name, @Nonnull String description) {
+        super(name, description);
     }
 }
