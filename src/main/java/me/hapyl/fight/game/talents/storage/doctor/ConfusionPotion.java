@@ -28,7 +28,7 @@ public class ConfusionPotion extends Talent {
         super(
                 "Dr. Ed's Amnesia Extract Serum",
                 """
-                        Swiftly throw a potion in the air that explodes and creates an aura for &b<duration>&7.
+                        Swiftly throw a potion in the air that explodes and creates an aura for &b{duration}&7.
                                                 
                         Opponents within range will be affected by Amnesia; This effect will persist for additional &b1s &7after player leaves the aura.
                                                 

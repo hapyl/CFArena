@@ -66,7 +66,7 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Lis
         setWeapon(Material.IRON_SWORD, "Sword", "", 10.0d);
         setUltimate(new UltimateTalent(
                 "Royal Horse",
-                "Call upon the Royal Horse for <duration>. The horse is fast, strong and comfortable. So comfortable in fact that it doubles you damage while riding.",
+                "Call upon the Royal Horse for {duration}. The horse is fast, strong and comfortable. So comfortable in fact that it doubles you damage while riding.",
                 60
         ).setCdSec(60).setDuration(1200).setItem(Material.SADDLE));
 

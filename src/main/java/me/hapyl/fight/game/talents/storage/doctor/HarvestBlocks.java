@@ -47,8 +47,8 @@ public class HarvestBlocks extends Talent {
         setDescription("""
                 Quickly gather resources from up to {maximumBlocks} nearby blocks, then combine them in one big pile before throwing it at your enemies.
                                         
-                <name>'s damage is based on the amount of blocks gathered.
-                """, maximumBlocks);
+                &a;;{name}'s damage is based on the amount of blocks gathered.
+                """);
 
         setCdSec(30);
         setPoint(5);

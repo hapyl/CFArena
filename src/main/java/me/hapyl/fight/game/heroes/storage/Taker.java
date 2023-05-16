@@ -21,7 +21,10 @@ import me.hapyl.fight.util.Utils;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.fight.util.displayfield.DisplayFieldSerializer;
+import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
@@ -55,19 +58,20 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
 
         setWeapon(Material.IRON_HOE, "Scythe", 6.66d);
 
-        // TODO (hapyl): 019, Apr 19, 2023: Still don't like the ultimate
         final UltimateTalent ultimate = new UltimateTalent(
-                "Embodiment of Death",
-                """
-                        Instantly consume all &eSpiritual Bones&7 and cloak yourself in darkness for <duration>.
-                                                
-                        While cloaked, gain resistance and heal rapidly but suffer speed reduction.
-                        Additionally, shoot death projectiles periodically.
-                                                
-                        &cHealing&7 and amount of &cdeath projectiles&7 is based on the amount of bones consumed.
-                        """,
-                60
-        ).setDurationSec(3).setSound(Sound.ENTITY_HORSE_DEATH, 0.0f).setItem(Material.WITHER_SKELETON_SKULL).setCdFromCost(2);
+                "Embodiment of Death", """
+                Instantly consume all &eSpiritual Bones&7 and cloak yourself in darkness for {duration}.
+                                        
+                While cloaked, become invulnerable.
+                                        
+                The darkness force will constantly rush forward, dealing damage and blinding anyone who dare to stay in the way.
+                Also recover health every time enemy is hit.
+                                        
+                Hold &e&lSNEAK&7 to rush slower.
+                                
+                &6;;The damage and healing is scaled with &eSpiritual Bones&6 consumed.
+                """, 70
+        ).setDurationSec(4).setSound(Sound.ENTITY_HORSE_DEATH, 0.0f).setItem(Material.WITHER_SKELETON_SKULL).setCdFromCost(2);
 
         DisplayFieldSerializer.copy(this, ultimate);
 
@@ -84,6 +88,7 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
         return "Not enough &l%s&c!".formatted(getPassiveTalent().getName());
     }
 
+    @Nonnull
     public SpiritualBones getBones(Player player) {
         return playerBones.computeIfAbsent(player, SpiritualBones::new);
     }
@@ -111,7 +116,67 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
     }
 
     @Override
+    public void onUltimateEnd(Player player) {
+        player.setInvulnerable(false);
+    }
+
+    @Override
     public void useUltimate(Player player) {
+        player.setInvulnerable(true);
+
+        final SpiritualBones bones = getBones(player);
+        final int bonesAmount = bones.getBones();
+        final double speed = 0.45d;
+        final int hitDelay = 10;
+
+        final double damage = 5.0d + bonesAmount;
+        final double healing = 1.0d + bonesAmount;
+
+        bones.reset();
+        bones.clearArmorStands();
+
+        GameTask.runDuration(getUltimate(), (task, i) -> {
+            final boolean sneaking = player.isSneaking();
+
+            player.setVelocity(player.getLocation()
+                    .getDirection()
+                    .normalize()
+                    .multiply(sneaking ? speed / 2 : speed)
+                    .add(new Vector(0.0d, BukkitUtils.GRAVITY, 0.0d)));
+
+            // Damage
+            if (i % hitDelay == 0) {
+                final Location hitLocation = LocationHelper.getInFront(player.getEyeLocation(), 1.5d);
+
+                Utils.getEntitiesInRange(
+                        hitLocation,
+                        2.0d,
+                        living -> Utils.isEntityValid(living, player)
+                ).forEach(entity -> {
+                    GamePlayer.damageEntityTick(entity, damage, player, EnumDamageCause.EMBODIMENT_OF_DEATH, hitDelay);
+                    GamePlayer.getPlayer(player).heal(healing);
+                });
+
+                // Hit Fx
+                PlayerLib.spawnParticle(hitLocation, Particle.SWEEP_ATTACK, 20, 1, 1, 1, 0.0f);
+                PlayerLib.spawnParticle(hitLocation, Particle.ASH, 20, 1, 1, 1, 0.0f);
+                PlayerLib.spawnParticle(hitLocation, Particle.SPELL_MOB, 20, 1, 1, 1, 0.0f);
+
+                PlayerLib.playSound(hitLocation, Sound.ITEM_TRIDENT_THROW, 0.0f);
+                PlayerLib.playSound(hitLocation, Sound.ENTITY_WITHER_HURT, 0.75f);
+            }
+
+            // Instant Fx
+            PlayerLib.spawnParticle(player.getEyeLocation(), Particle.SQUID_INK, 5, 0.03125d, 0.6d, 0.03125d, 0.01f);
+            PlayerLib.spawnParticle(player.getEyeLocation(), Particle.LAVA, 2, 0.03125d, 0.6d, 0.03125d, 0.01f);
+
+        }, 0, 1);
+
+        // Outer Fx
+        Chat.sendMessage(player, "&0☠ &7The darkness will aid you with %s damage and %s healing per enemy hit.", damage, healing);
+    }
+
+    public void useUltimateOld(Player player) {
         final SpiritualBones bones = getBones(player);
         final UltimateTalent ultimate = getUltimate();
         final int playerBones = bones.getBones();
@@ -131,10 +196,10 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
                 launchUltimateProjectile(player);
             }
 
-            // Fx
             final double particleOffset = Utils.scaleParticleOffset(0.5d);
 
             PlayerLib.spawnParticle(player.getLocation(), Particle.SQUID_INK, 5, particleOffset, 0.6d, particleOffset, 0.01f);
+            // Fx
             PlayerLib.spawnParticle(player.getLocation(), Particle.LAVA, 2, particleOffset, 0.6d, particleOffset, 0.01f);
         }, 0, 1);
 

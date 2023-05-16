@@ -39,10 +39,10 @@ public class ShortyShotgun extends Talent {
         setDescription("""
                 Shoot you double barrel to deal damage that falls off with distance.
                                 
-                If hit enemy is close enough, they will &cbleed&7 and will be &bvulnerable&7 for &b{bleedDuration}s&7.
+                If hit enemy is close enough, they will &cbleed&7 and will be &bvulnerable&7 for &b{bleedDuration}&7.
                                 
                 &6;;This ability can be shot twice consecutively before reloading.
-                """, bleedDuration);
+                """);
 
         setItem(Material.CROSSBOW);
         setStartAmount(2);

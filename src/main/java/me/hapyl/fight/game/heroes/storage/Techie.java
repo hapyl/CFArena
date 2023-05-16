@@ -74,6 +74,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener {
                 .setDamage(7.0d)
                 .addEnchant(Enchantment.KNOCKBACK, 1));
 
+        // FIXME (hapyl): 0016, May 16, 2023: ---
         setUltimate(new UltimateTalent("Lockdown",
                 String.format(
                         "Place a device that charges over &b%ss&7. When charged, explodes and affects all opponents in &b%s &7blocks radius by &6&lLockdown &7for &b%ss&7.____%s____&cThis ability can be destroyed!",

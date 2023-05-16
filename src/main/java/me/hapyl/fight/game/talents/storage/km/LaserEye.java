@@ -18,12 +18,10 @@ import org.bukkit.potion.PotionEffectType;
 
 public class LaserEye extends Talent {
 
-    private final int duration = 60;
-
     public LaserEye() {
         super("Laser Eye");
 
-        setDescription("Become immovable and activate laser for <duration> that rapidly damages enemies.");
+        setDescription("Become immovable and activate laser for {duration} that rapidly damages enemies.");
 
         setDuration(60);
         setItem(Material.ENDER_EYE);
@@ -32,6 +30,8 @@ public class LaserEye extends Talent {
 
     @Override
     public Response execute(Player player) {
+        final int duration = getDuration();
+
         GamePlayer.getPlayer(player).addEffect(GameEffectType.IMMOVABLE, duration, true);
         PlayerLib.addEffect(player, PotionEffectType.JUMP, duration, 250);
         PlayerLib.addEffect(player, PotionEffectType.SLOW, duration, 255);

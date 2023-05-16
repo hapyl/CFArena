@@ -29,7 +29,7 @@ public class TeleportPearl extends Talent implements Listener {
                 Throw an ender pearl and mount to ride it all the way! &e&lSNEAK &7to throw normally.
                                 
                 &7Heals &c{teleportationHealing} ❤ &7upon teleport.
-                """, teleportationHealing);
+                """);
 
         setCd(160);
         setItem(Material.ENDER_PEARL);

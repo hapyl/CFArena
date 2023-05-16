@@ -22,6 +22,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
 import java.text.SimpleDateFormat;
 
 /**
@@ -41,6 +42,8 @@ public class GamePlayerUI {
         this.updateScoreboard();
 
         new GameTask() {
+            private int tick;
+
             @Override
             public void run() {
                 if (player == null || !player.isOnline()) {
@@ -63,8 +66,10 @@ public class GamePlayerUI {
                 final GamePlayer gamePlayer = profile.getGamePlayer();
 
                 if (gamePlayer != null) {
-                    sendInGameUI();
+                    sendInGameUI(tick <= 20 ? ChatColor.AQUA : ChatColor.DARK_AQUA);
                 }
+
+                tick = (tick >= 40) ? 0 : tick + 5;
             }
         }.runTaskTimer(0, 5).setShutdownAction(ShutdownAction.IGNORE);
     }
@@ -72,7 +77,7 @@ public class GamePlayerUI {
     private void animateScoreboard() {
     }
 
-    public void sendInGameUI() {
+    public void sendInGameUI(@Nonnull ChatColor ultimateColor) {
         final GamePlayer gamePlayer = profile.getGamePlayer();
         if (gamePlayer == null) {
             return;
@@ -80,8 +85,7 @@ public class GamePlayerUI {
 
         // Send UI information
         if (gamePlayer.isAlive() && !gamePlayer.isSpectator()) {
-            Chat.sendActionbar(player, format.format(gamePlayer));
-            return;
+            Chat.sendActionbar(player, format.format(gamePlayer, ultimateColor));
         }
 
     }

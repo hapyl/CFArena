@@ -33,12 +33,12 @@ public class MeleeStance extends Talent {
         super("Melee Stance");
 
         addDescription("""
-                    Enter a Melee Stance for maximum of &b{maxDuration}s&7 to replace you bow with &e{abilityName}&7!
+                    Enter a Melee Stance for maximum of &b{maxDuration}&7 to replace you bow with &e%s&7!
                     
                     Use again in &e&lMelee Stance&7 to get your bow back.
                     
                     The longer you're in &e&lMelee Stance&7, the longer the cooldown of this ability.
-                """, BukkitUtils.roundTick(maxDuration), abilityItem.getName());
+                """, abilityItem.getName());
 
         setItem(Material.IRON_INGOT);
         setCd(-1);

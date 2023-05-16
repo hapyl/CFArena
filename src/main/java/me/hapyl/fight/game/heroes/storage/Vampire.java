@@ -89,7 +89,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent {
         setWeapon(Material.GHAST_TEAR, "Fang", 5.0d);
 
         final UltimateTalent ultimate = new UltimateTalent("Sanguineous Morphology", """
-                Transform into a bat and fly freely for <duration>.
+                Transform into a bat and fly freely for {duration}.
                                 
                 After duration ends, transform back into vampire and gain the opposite amount of blood you had upon casting and summon &eDracula Jr&7.
                 &8;;Eg: 10 -> 0, 7 -> 3, 2 -> 8 etc.

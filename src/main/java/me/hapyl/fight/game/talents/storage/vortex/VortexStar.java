@@ -27,7 +27,7 @@ public class VortexStar extends Talent {
                 Summons an Astral Star at you current location. If used nearby placed Astral Star, the star will be picked up.
                       
                 You may have maximum of &b{maximumStars} &7stars at the same time.
-                """, maximumStars);
+                """);
 
         setItem(Material.NETHER_STAR);
         setCd(DYNAMIC);

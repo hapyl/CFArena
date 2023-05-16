@@ -22,7 +22,7 @@ public class FlowerBreeze extends Talent {
 
     public FlowerBreeze() {
         super("Flower Breeze", """
-                Feel the breeze of the flowers that damages your but grants &cStrength &7and &bResistance &7for a <duration>.
+                Feel the breeze of the flowers that damages your but grants &cStrength &7and &bResistance &7for a {duration}.
                                 
                 &8;;This ability cannot kill.
                 """, Type.COMBAT);

@@ -50,11 +50,10 @@ public class DrEd extends Hero implements UIComponent {
 
         setUltimate(new UltimateTalent("Upgrades People, Upgrades!", 70)
                 .appendDescription("""
-                        Grants Dr. Ed an upgraded version of &a{weaponName} &7for <duration> that is capable of capturing entities' flesh and energy, allowing to manipulate them.
+                        Grants Dr. Ed an upgraded version of &a%s&7 for {duration} that is capable of capturing entities' flesh and energy, allowing to manipulate them.
                         """, getWeapon().getName())
                 .setDuration(200)
                 .setItem(Material.GOLDEN_HORSE_ARMOR));
-
 
         playerShield = Maps.newHashMap();
     }

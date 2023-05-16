@@ -56,7 +56,7 @@ public class Shark extends Hero implements Listener {
 
         setUltimate(new UltimateTalent(
                 "Ocean Madness",
-                "Creates a &bShark Aura &7that follow you for <duration> and imitates water.",
+                "Creates a &bShark Aura &7that follow you for {duration} and imitates water.",
                 70
         ).setItem(Material.WATER_BUCKET).setDuration(120).setSound(Sound.AMBIENT_UNDERWATER_ENTER, 0.0f).setCdSec(60));
     }

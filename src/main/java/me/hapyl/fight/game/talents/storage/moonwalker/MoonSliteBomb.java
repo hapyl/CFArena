@@ -28,9 +28,9 @@ import java.util.*;
 
 public class MoonSliteBomb extends Talent implements Listener {
 
-    private final int bombLimit = 3;
     private final Map<UUID, Set<Item>> bombs = new HashMap<>();
 
+    @DisplayField private final short bombLimit = 3;
     @DisplayField private final double explosionRadius = 2.5d;
     @DisplayField private final double explosionDamage = 5.0d;
     @DisplayField private final int explosionDuration = 600;
@@ -43,7 +43,7 @@ public class MoonSliteBomb extends Talent implements Listener {
                 Drop a proximity grenade at your current location that explodes on contact with enemy or after a set period, dealing damage and applying &6&lCorrosion &7for a short time.
                                 
                 &6;;You can only have {bombLimit} bombs at the time.
-                """, bombLimit);
+                """);
 
         setItem(Material.END_STONE_BRICK_SLAB);
         setCdSec(10);

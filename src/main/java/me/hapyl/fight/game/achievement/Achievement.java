@@ -30,6 +30,7 @@ public class Achievement extends PatternId {
     private final String description;
     protected int maxCompleteCount;
     private Category category;
+    private AchievementTrigger trigger;
 
     public Achievement(@Nullable @ForceLowercase String id, @Nonnull String name, @Nonnull String description) {
         super(Pattern.compile("^[a-z0-9_]+$"));

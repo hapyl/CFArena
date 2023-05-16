@@ -69,13 +69,13 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         //));
 
         /**
-         * "Transform into the wither for <duration>.____" +
+         * "Transform into the wither for {duration}.____" +
          *                         "While transformed, &e&lRIGHT CLICK &7to shoot wither skulls that deals massive damage on impact.__" +
          *                         "After wither disappears, you perform plunging attack that deals damage in AoE upon hitting the ground.",
          */
 
         setUltimate(new UltimateTalent("Witherborn", """
-                Summon a baby wither that will assist you in battle for <duration>.
+                Summon a baby wither that will assist you in battle for {duration}.
                                 
                 While attacking, the wither will unleash a coordinated attack.
                                 

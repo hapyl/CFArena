@@ -427,7 +427,7 @@ public class CommandRegistry extends DependencyInjector<Main> {
 
                 npc = new HumanNPC(player.getLocation(), player.getName(), player.getName());
                 npc.setLookAtCloseDist(5);
-                npc.addDialogLine("Hello {player}, my name is <name> and I'm here as a test!", 40);
+                npc.addDialogLine("Hello {player}, my name is {name} and I'm here as a test!", 40);
                 npc.addDialogLine("I'm located at {location}", 20);
                 npc.addDialogLine("That's it then, bye &c❤");
                 npc.setInteractionDelay(60);

@@ -21,7 +21,7 @@ public class Paranoia extends Talent {
     public Paranoia() {
         super(
                 "Paranoia",
-                "Launch a cloud of darkness in front of you that travels forward, applying &e&lParanoia &7effect to whoever it touches for <duration>&7."
+                "Launch a cloud of darkness in front of you that travels forward, applying &e&lParanoia &7effect to whoever it touches for {duration}&7."
         );
 
         setDuration(100);

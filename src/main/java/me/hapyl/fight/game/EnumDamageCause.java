@@ -55,7 +55,7 @@ public enum EnumDamageCause {
 
     CREEPER_EXPLOSION("'sploded by lovely friend", "of"),
     NOVA_EXPLOSION("has been split into atoms", "by"),
-    SHOCK_DART("got shocked", "by"),
+    SHOCK_DART("was shocked", "by"),
     BOOM_BOW_ULTIMATE("went out with a BIG BANG", "of"),
     FIRE_MOLOTOV("couldn't find a way out of {damager}'s fire"),
     FIRE_SPRAY("got sprayed to death", "by"),
@@ -102,6 +102,7 @@ public enum EnumDamageCause {
     DEATH_RAY("was swallowed by the darkness", "of"),
     BACKSTAB("was stabbed in the back", "by"),
     WITHERBORN("was withered to death by {damager}'s Witherborn"),
+    EMBODIMENT_OF_DEATH("was bodied to death", "by"),
 
     ;
 

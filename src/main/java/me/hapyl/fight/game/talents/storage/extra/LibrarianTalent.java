@@ -8,6 +8,8 @@ import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Numbers;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
+
 public abstract class LibrarianTalent extends Talent {
 
     protected Response ERROR = new Response(null, Response.Type.ERROR);
@@ -38,7 +40,7 @@ public abstract class LibrarianTalent extends Talent {
     }
 
     @Override
-    public void addDescription(String description, Object... format) {
+    public void addDescription(@Nonnull String description, Object... format) {
         this.addDescription(Chat.format(description, format));
     }
 

@@ -59,29 +59,7 @@ public final class DisplayFieldSerializer {
         serialize(builder, provider, DEFAULT_FORMATTER);
     }
 
-    private static String format(DisplayField display, DisplayFieldFormatter formatter, Field field, Object instance) {
-        final String fieldName = field.getName();
-        final StringBuilder builder = new StringBuilder();
-
-        if (!display.name().isEmpty()) {
-            builder.append(display.name());
-        }
-        // Format field name
-        else {
-            final char[] chars = fieldName.toCharArray();
-            for (int i = 0; i < chars.length; i++) {
-                char c = chars[i];
-
-                if (i == 0 || Character.isUpperCase(c)) {
-                    builder.append(" ");
-                    builder.append(Character.toUpperCase(c));
-                    continue;
-                }
-
-                builder.append(Character.toLowerCase(c));
-            }
-        }
-
+    public static String formatField(Field field, Object instance) {
         try {
             field.setAccessible(true);
 
@@ -108,13 +86,39 @@ public final class DisplayFieldSerializer {
                 stringValue = string;
             }
 
-            final String suffix = display.suffix();
-
-            return formatter.format(builder.toString().trim(), stringValue) + ((suffix.isEmpty() || suffix.isBlank()) ? "" : " " + suffix);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-            return "&4DisplayFieldSerializer Error!";
+            return stringValue;
+        } catch (Exception e) {
+            return "null";
         }
+    }
+
+    private static String format(DisplayField display, DisplayFieldFormatter formatter, Field field, Object instance) {
+        final String fieldName = field.getName();
+        final StringBuilder builder = new StringBuilder();
+
+        if (!display.name().isEmpty()) {
+            builder.append(display.name());
+        }
+        // Format field name
+        else {
+            final char[] chars = fieldName.toCharArray();
+            for (int i = 0; i < chars.length; i++) {
+                char c = chars[i];
+
+                if (i == 0 || Character.isUpperCase(c)) {
+                    builder.append(" ");
+                    builder.append(Character.toUpperCase(c));
+                    continue;
+                }
+
+                builder.append(Character.toLowerCase(c));
+            }
+        }
+
+        final String stringValue = formatField(field, instance);
+        final String suffix = display.suffix();
+
+        return formatter.format(builder.toString().trim(), stringValue) + ((suffix.isEmpty() || suffix.isBlank()) ? "" : " " + suffix);
     }
 
     public static void forEachDisplayField(DisplayFieldProvider provider, BiConsumer<Field, DisplayField> consumer) {

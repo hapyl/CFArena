@@ -7,7 +7,6 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -23,10 +22,10 @@ public class ShellGrande extends Talent {
     public ShellGrande() {
         super("Grenade");
         setDescription("""
-                Throw a grenade that bounce off walls. Explodes after &b{explosionDelay}s &7ane deals AoE damage to nearby opponents.
+                Throw a grenade that bounce off walls. Explodes after &b{explosionDelay} &7ane deals AoE damage to nearby opponents.
                                         
                 &e&lSNEAK &7while throwing to toss closer.
-                """, BukkitUtils.roundTick(explosionDelay));
+                """);
 
         setItem(Material.FIREWORK_STAR);
         setCdSec(11);

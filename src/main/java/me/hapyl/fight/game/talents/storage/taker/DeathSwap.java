@@ -40,7 +40,7 @@ public class DeathSwap extends Talent {
                 If opponent is hit, they will be retracted with chains, take &c{damagePercent}%%&7 of their current health as damage will be slowed and withered for short duration.
                                 
                 Additionally, the cooldown is reduced by &b50%%&7.
-                """, spiritualBoneCost, maxDistance, damagePercent);
+                """);
 
         setItem(Material.CHAIN);
         setCdSec(16);

@@ -22,7 +22,7 @@ public class TotemTalent extends Talent {
         setDescription("""
                 Target placed totem and use to switch it to {name}.
                                 
-                """, type.getName());
+                """);
 
         addDescription(type.getAbout());
 

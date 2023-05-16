@@ -14,7 +14,7 @@ public class ArcaneMute extends Talent {
     public ArcaneMute() {
         super(
                 "Arcane Mute",
-                "Use on a targeted player to silence them, preventing them from using talents for <duration>.",
+                "Use on a targeted player to silence them, preventing them from using talents for {duration}.",
                 Material.FEATHER
         );
 

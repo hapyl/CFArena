@@ -37,7 +37,7 @@ public class ArrowShield extends Talent implements Listener {
     public ArrowShield() {
         super(
                 "Arrow Shield",
-                "Create a shield of arrows for <duration> that blocks any damage, exploding in process dealing AoE damage.",
+                "Create a shield of arrows for {duration} that blocks any damage, exploding in process dealing AoE damage.",
                 Material.STRING
         );
 

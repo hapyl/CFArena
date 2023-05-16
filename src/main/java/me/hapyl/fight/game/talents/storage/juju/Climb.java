@@ -7,7 +7,6 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Supplier;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -30,8 +29,7 @@ public class Climb extends Talent {
         setItem(Material.LEATHER_BOOTS);
 
         addDescription(
-                "Use the wall you're hugging to climb it and perform back-flip, gaining speed boost. Cooldown of this ability stars upon landing or after &b{cdDeadline}s&7.",
-                BukkitUtils.roundTick(cdDeadLine)
+                "Use the wall you're hugging to climb it and perform back-flip, gaining speed boost. Cooldown of this ability stars upon landing or after &b{cdDeadline}&7."
         );
     }
 

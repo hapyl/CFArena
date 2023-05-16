@@ -72,14 +72,17 @@ public class Swooper extends Hero implements Listener {
         }.setId("swooper_weapon").setName("Sniper Rifle").setDescription("Slow firing, but high damage rifle."));
 
         setUltimate(new UltimateTalent(
-                "Showstopper",
-                "Equip a rocket launcher for <duration>. &6&lCLICK &7to launch explosive in front of you that explodes on impact dealing massive damage.",
+                "Showstopper", """
+                Equip a rocket launcher for {duration}.
+                &6&lCLICK &7to launch explosive in front of you that explodes on impact dealing massive damage.
+                """,
                 80
         ).setDuration(200).setItem(Material.GOLDEN_HORSE_ARMOR));
     }
 
     @Override
     public void useUltimate(Player player) {
+        // TODO (hapyl): 0016, May 16, 2023: - Add delay, too OP
         setUsingUltimate(player, true);
 
         final PlayerInventory inventory = player.getInventory();

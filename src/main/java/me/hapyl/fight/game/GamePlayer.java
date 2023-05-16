@@ -35,10 +35,7 @@ import me.hapyl.spigotutils.module.reflect.Reflect;
 import me.hapyl.spigotutils.module.reflect.ReflectPacket;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import net.minecraft.network.protocol.game.PacketPlayOutAnimation;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -50,7 +47,7 @@ import org.bukkit.projectiles.ProjectileSource;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.awt.*;
+import java.awt.Color;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -214,6 +211,10 @@ public class GamePlayer implements IGamePlayer {
      * @return formatted string of ultimate status.
      */
     public String getUltimateString() {
+        return getUltimateString(ChatColor.AQUA);
+    }
+
+    public String getUltimateString(ChatColor readyColor) {
         final Player player = getPlayer();
         final UltimateTalent ultimate = getUltimate();
         final String pointsString = "&b&l%s&b/&b&l%s".formatted(getUltPoints(), getUltPointsNeeded());
@@ -228,10 +229,14 @@ public class GamePlayer implements IGamePlayer {
         }
 
         else if (isUltimateReady()) {
-            return "&b&lREADY";
+            return readyColor + "&lREADY";
         }
 
         return pointsString;
+    }
+
+    private String replaceColor(String string, ChatColor color) {
+        return string.replace("$", color.toString());
     }
 
     @Override

@@ -26,6 +26,7 @@ public abstract class DarkMageTalent extends Talent {
     public void setAssistDescription(@Nonnull String string) {
         addDescription("""
                                 
+                                
                 &f&lWitherborn Assist
                 """);
 

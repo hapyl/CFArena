@@ -14,7 +14,7 @@ public class Akciy extends Talent {
 
     public Akciy() {
         super("Axii", """
-                Stuns your target opponent for <duration> or until they get hit.
+                Stuns your target opponent for {duration} or until they get hit.
                                 
                 Stunned opponent is immovable and cannot use their abilities.
                 """);

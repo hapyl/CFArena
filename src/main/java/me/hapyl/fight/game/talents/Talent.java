@@ -9,6 +9,7 @@ import me.hapyl.fight.game.effect.storage.SlowingAuraEffect;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.fight.util.displayfield.DisplayFieldSerializer;
 import me.hapyl.spigotutils.module.annotate.Super;
@@ -16,14 +17,16 @@ import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
-import me.hapyl.spigotutils.module.util.Placeholder;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Base talent.
@@ -123,25 +126,54 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         this.castMessage = castMessage;
     }
 
-    public void addDescription() {
-        addDescription("");
-    }
-
     public void addAttributeDescription(String key, Object value) {
         this.attributeDescription.add(DisplayFieldSerializer.DEFAULT_FORMATTER.format(key, String.valueOf(value)));
     }
 
-    public void addDescription(String description, Object... format) {
-        this.description += Placeholder.format(description, format);
+    /**
+     * Adds an empty description.
+     */
+    public void addDescription() {
+        addDescription("");
     }
 
-    public void addNlDescription(String description, Object... format) {
+    /**
+     * Adds description to existing one.
+     *
+     * @param description - Description.
+     * @param format      - Formatters if needed.
+     */
+    public void addDescription(@Nonnull String description, @Nullable Object... format) {
+        this.description += description.formatted(format);
+    }
+
+    private String formatIfPossible(@Nonnull String toFormat, @Nullable Object... format) {
+        if (format == null || format.length == 0) {
+            return toFormat;
+        }
+
+        return toFormat.formatted(format);
+    }
+
+    /**
+     * Adds description to existing one, then, appends a new line.
+     *
+     * @param description - Description.
+     * @param format      - Formatters if needed.
+     */
+    public void addNlDescription(@Nonnull String description, @Nullable Object... format) {
         addDescription(description, format);
         this.description += "\n";
     }
 
-    public void setDescription(String description, Object... format) {
-        this.description = Placeholder.format(description, format);
+    /**
+     * Replaces the existing description with provided.
+     *
+     * @param description - New description.
+     * @param format      - Formatters if needed.
+     */
+    public void setDescription(@Nonnull String description, Object... format) {
+        this.description = description.formatted(format);
     }
 
     public boolean isAutoAdd() {
@@ -213,9 +245,15 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
 
         // Now using text block lore
         try {
-            builderItem.addTextBlockLore(formatDescription(description));
+            // fix % I fucking hate that java uses % as formatter fucking why
+            description = description.replace("%", "%%");
+
+            formatDescription();
+            builderItem.addTextBlockLore(description);
         } catch (Exception e) {
+            builderItem.addLore("&4&lERROR FORMATTING, REPORT THIS");
             Main.getPlugin().getLogger().severe("@" + getName());
+            Main.getPlugin().getLogger().severe(description);
             e.printStackTrace();
         }
 
@@ -425,9 +463,40 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         return "%s{%s}".formatted(getClass().getName(), name);
     }
 
-    private String formatDescription(String description) {
-        return description.replace("<name>", "&a" + getName() + "&7")
-                .replace("<duration>", "&b" + BukkitUtils.roundTick(duration) + "s&7");
+    private void formatDescription() {
+        // Format static
+        for (StaticFormat format : StaticFormat.values()) {
+            description = format.format(this);
+        }
+
+        // Format display fields
+        for (Field field : getClass().getDeclaredFields()) {
+            final DisplayField annotation = field.getAnnotation(DisplayField.class);
+
+            if (annotation == null) {
+                continue;
+            }
+
+            description = description.replace("{" + field.getName() + "}", DisplayFieldSerializer.formatField(field, this));
+        }
+    }
+
+    private enum StaticFormat {
+        NAME("{name}", t -> "&a" + t.getName()),
+        DURATION("{duration}", t -> "&b" + BukkitUtils.roundTick(t.duration) + "s"),
+        ;
+
+        private final String target;
+        private final Function<Talent, String> function;
+
+        StaticFormat(String target, Function<Talent, String> function) {
+            this.target = target;
+            this.function = function;
+        }
+
+        public String format(Talent talent) {
+            return talent.description.replace(target, function.apply(talent) + "&7");
+        }
     }
 
     public enum Type {

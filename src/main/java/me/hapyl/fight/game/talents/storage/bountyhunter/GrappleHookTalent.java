@@ -31,7 +31,7 @@ public class GrappleHookTalent extends ChargedTalent implements Listener {
                 Whenever it hits a &bblock&7 or an &bentity&7, it will pull you towards it.
                                 
                 &6;;Cooldown starts after all charges are used.
-                """, maxDistance);
+                """);
 
         setNoChargedMaterial(Material.GOAT_HORN);
         setItem(Material.LEAD);
