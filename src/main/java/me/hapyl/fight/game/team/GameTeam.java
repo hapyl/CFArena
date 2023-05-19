@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.team;
 
 import com.google.common.collect.Lists;
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
@@ -198,10 +199,22 @@ public enum GameTeam {
         return members.isEmpty();
     }
 
+    public List<String> listMembers() {
+        final List<String> list = Lists.newArrayList();
+
+        for (UUID member : members) {
+            list.add(member.toString());
+        }
+
+        return list;
+    }
+
+    // static members
+
     /**
-     * Returns team with the least amount of players.
+     * Returns team with the least number of players.
      *
-     * @return team with the least amount of players.
+     * @return team with the least number of players.
      * @throws IllegalArgumentException if all teams are full
      */
     @Nonnull
@@ -228,7 +241,15 @@ public enum GameTeam {
 
         for (GameTeam team : values()) {
             // clear offline members before calculating anything
-            team.members.removeIf(uuid -> Bukkit.getPlayer(uuid) == null);
+            team.members.removeIf(uuid -> {
+                final boolean tempRemove = Bukkit.getPlayer(uuid) == null;
+
+                if (tempRemove) {
+                    Debug.info("removed %s from a team because they are no longer online", uuid);
+                }
+
+                return tempRemove;
+            });
 
             if (team.getPlayersAsPlayers().size() > 0) {
                 populatedTeams.add(team);
@@ -259,7 +280,7 @@ public enum GameTeam {
     }
 
     public static boolean isTeammate(Player player, Player other) {
-        // Must consider self check as NOT teammate.
+        // Must consider self-check as NOT teammate.
         if ((player == null || other == null) || (player == other)) {
             return false;
         }
@@ -270,7 +291,6 @@ public enum GameTeam {
         return (teamA != null && teamB != null) && (teamA == teamB);
     }
 
-    // static members
     @Nullable
     public static GameTeam getPlayerTeam(@Nullable GamePlayer player) {
         if (player == null) {
@@ -309,12 +329,6 @@ public enum GameTeam {
             }
         }
         return null;
-    }
-
-    public static void clearAll() {
-        for (GameTeam value : values()) {
-            value.members.clear();
-        }
     }
 
     public static String[] valuesStrings() {

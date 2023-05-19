@@ -9,12 +9,13 @@ import com.mongodb.client.model.Updates;
 import me.hapyl.fight.cmds.*;
 import me.hapyl.fight.database.Database;
 import me.hapyl.fight.database.PlayerDatabase;
-import me.hapyl.fight.game.Debugger;
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.TitleAnimation;
 import me.hapyl.fight.game.heroes.storage.extra.AnimatedWither;
 import me.hapyl.fight.game.reward.DailyReward;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.chat.Gradient;
 import me.hapyl.spigotutils.module.chat.gradient.Interpolators;
@@ -95,6 +96,7 @@ public class CommandRegistry extends DependencyInjector<Main> {
         register(new DebugPlayerCommand("debugPlayer"));
         register(new DebugAchievementCommand("debugAchievement"));
         register(new ProfileCommand("profile"));
+        register(new GVarCommand("gvar"));
 
         register(new SimpleAdminCommand("listProfiles") {
             @Override
@@ -195,10 +197,19 @@ public class CommandRegistry extends DependencyInjector<Main> {
             }
         });
 
-        register(new SimplePlayerAdminCommand("testtitleanimation") {
+        register(new SimplePlayerAdminCommand("testTitleAnimation") {
             @Override
             protected void execute(Player player, String[] args) {
                 new TitleAnimation();
+            }
+        });
+
+        register(new SimpleAdminCommand("debugTeams") {
+            @Override
+            protected void execute(CommandSender sender, String[] args) {
+                for (GameTeam team : GameTeam.values()) {
+                    Debug.info("%s = %s", team.getName(), team.listMembers());
+                }
             }
         });
 
@@ -345,7 +356,7 @@ public class CommandRegistry extends DependencyInjector<Main> {
 
                     if (arg0.equalsIgnoreCase("dump")) {
                         document.forEach((k, v) -> {
-                            Debugger.info("%s = %s", k, v);
+                            Debug.info("%s = %s", k, v);
                         });
                         return;
                     }

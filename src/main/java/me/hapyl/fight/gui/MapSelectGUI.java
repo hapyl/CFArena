@@ -38,10 +38,16 @@ public class MapSelectGUI extends PlayerAutoGUI {
                 }
             }
 
-            final ItemStack item = builder.addLore("").addLore("&eClick to select").build();
+            final GameMaps currentMap = Manager.current().getCurrentMap();
+            final boolean isCurrentMapSelected = currentMap == value;
+
+            final ItemStack item = builder.addLore("")
+                    .addLoreIf("&eClick to select", !isCurrentMapSelected)
+                    .addLoreIf("&aCurrently selected!", isCurrentMapSelected)
+                    .build();
+
             addItem(item, player -> {
-                final GameMaps currentMap = Manager.current().getCurrentMap();
-                if (currentMap == value) {
+                if (isCurrentMapSelected) {
                     Chat.sendMessage(player, "&cAlready selected!");
                     return;
                 }

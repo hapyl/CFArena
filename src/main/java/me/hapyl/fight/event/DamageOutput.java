@@ -37,9 +37,9 @@ public class DamageOutput {
     }
 
     /**
-     * Returns if damage will be cancelled.
+     * Returns if damage will be canceled.
      *
-     * @return if damage will be cancelled.
+     * @return if damage is canceled.
      */
     public boolean isCancelDamage() {
         return cancelDamage;

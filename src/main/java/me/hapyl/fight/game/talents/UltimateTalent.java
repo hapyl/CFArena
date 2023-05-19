@@ -93,13 +93,6 @@ public class UltimateTalent extends Talent implements DisplayFieldDataProvider {
     }
 
     @Override
-    @Deprecated
-    public UltimateTalent setItem(String headTexture) {
-        super.setItem(headTexture);
-        return this;
-    }
-
-    @Override
     public UltimateTalent setTexture(String texture64) {
         super.setTexture(texture64);
         return this;
@@ -131,7 +124,7 @@ public class UltimateTalent extends Talent implements DisplayFieldDataProvider {
     }
 
     /**
-     * Must return true in order for talent to execute. If returns false shows a message.
+     * Must return true in order for talent to execute. If returns false show a message.
      *
      * @param player - player to test.
      * @see UltimateTalent#predicateMessage()

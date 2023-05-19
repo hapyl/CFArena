@@ -44,10 +44,6 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
     private ItemStack itemStats;
     private int startAmount;
     private Material material;
-    /**
-     * @deprecated use texture64
-     */
-    @Deprecated() private String texture;
     private String texture64;
     private String castMessage;
     private String altUsage;
@@ -147,14 +143,6 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         this.description += description.formatted(format);
     }
 
-    private String formatIfPossible(@Nonnull String toFormat, @Nullable Object... format) {
-        if (format == null || format.length == 0) {
-            return toFormat;
-        }
-
-        return toFormat.formatted(format);
-    }
-
     /**
      * Adds description to existing one, then, appends a new line.
      *
@@ -232,10 +220,7 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
 
         // Add head texture if an item is a player head
         if (material == Material.PLAYER_HEAD) {
-            if (texture != null) {
-                builderItem.setHeadTexture(texture);
-            }
-            else if (texture64 != null) {
+            if (texture64 != null) {
                 builderItem.setHeadTextureUrl(texture64);
             }
         }
@@ -325,12 +310,6 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         }
 
         itemStats = builderAttributes.asIcon();
-    }
-
-    public Talent setItem(String headTexture) {
-        this.setItem(Material.PLAYER_HEAD);
-        this.texture = headTexture;
-        return this;
     }
 
     public int getStartAmount() {
@@ -461,6 +440,14 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
     @Override
     public String toString() {
         return "%s{%s}".formatted(getClass().getName(), name);
+    }
+
+    private String formatIfPossible(@Nonnull String toFormat, @Nullable Object... format) {
+        if (format == null || format.length == 0) {
+            return toFormat;
+        }
+
+        return toFormat.formatted(format);
     }
 
     private void formatDescription() {

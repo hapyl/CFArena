@@ -75,7 +75,10 @@ public class DragonsGorge extends GameMap {
                             GamePlayer.damageEntity(player, 6.0d, null, EnumDamageCause.COLD);
                         }
                         else if (newValue >= maxColdValue) { // Instant Death
-                            GamePlayer.damageEntity(player, 1000.0d, null, EnumDamageCause.COLD);
+                            //GamePlayer.damageEntity(player, 1000.0d, null, EnumDamageCause.COLD);
+                            // Replace 1000 damage to prevent achievement abuse
+                            GamePlayer.getPlayer(player).setLastDamageCause(EnumDamageCause.COLD);
+                            GamePlayer.getPlayer(player).die(true);
                         }
 
                         // Fx

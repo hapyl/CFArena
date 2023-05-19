@@ -28,7 +28,8 @@ public class Experience extends DependencyInjector<Main> {
     private final Map<Long, ExperienceLevel> experienceLevelMap;
     private final Color GRADIENT_COLOR_1 = new Color(253, 29, 29);
     private final Color GRADIENT_COLOR_2 = new Color(252, 210, 69);
-    private final String LEVEL_UP_GRADIENT = new Gradient("LEVEL UP!").makeBold()
+    private final String LEVEL_UP_GRADIENT = new Gradient("LEVEL UP!")
+            .makeBold()
             .rgb(
                     GRADIENT_COLOR_1,
                     GRADIENT_COLOR_2,
@@ -67,9 +68,9 @@ public class Experience extends DependencyInjector<Main> {
     }
 
     /**
-     * This iterates through all rewards and grants
-     * or revokes them depending on players level.
-     *
+     * This iterating through all rewards and grants
+     * or revokes them depending on player level.
+     * <p>
      * Needed in case of new reward to grant, or admin
      * manipulations.
      */
@@ -230,7 +231,6 @@ public class Experience extends DependencyInjector<Main> {
 
         setReward(7, Reward.create("Random Test Reward"));
 
-        // Iterate through Heroes and assign their minimum level to the reward using Heroes.values()
         for (Heroes value : Heroes.values()) {
             final long minLevel = value.getHero().getMinimumLevel();
             if (minLevel > 0) {
@@ -240,8 +240,6 @@ public class Experience extends DependencyInjector<Main> {
                 }
             }
         }
-
-
     }
 
     private void setReward(int level, Reward reward) {

@@ -35,6 +35,7 @@ public enum GameMaps {
                     .addLocation(100, 64, 0)
                     .addPackLocation(PackType.HEALTH, 79.5, 77.0, 22.5)
                     .addPackLocation(PackType.HEALTH, 100.5, 63.0, 13.5)
+                    .addPackLocation(PackType.HEALTH, 89.5, 66.0, -24.5)
                     .addPackLocation(PackType.CHARGE, 116.5, 63.0, 8.5)
                     .addPackLocation(PackType.CHARGE, 87.5, 65.0, -4.5)
                     .addPackLocation(PackType.CHARGE, 112.5, 72.0, -29.5)

@@ -1,6 +1,6 @@
 package me.hapyl.fight;
 
-import me.hapyl.fight.game.Debugger;
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.CenterChat;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -59,7 +59,7 @@ public final class ReloadChecker extends DependencyInjector<Main> {
             } catch (NoSuchFieldException | IllegalAccessException ignored) {
             }
 
-            Debugger.keepInfo("&ePlugin started at &6" + new SimpleDateFormat("HH'h' mm'm' ss's'").format(new Date(Main.getStartupTime())));
+            Debug.keepInfo("&ePlugin started at &6" + new SimpleDateFormat("HH'h' mm'm' ss's'").format(new Date(Main.getStartupTime())));
         }, delay);
     }
 

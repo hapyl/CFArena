@@ -43,7 +43,7 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
     @DisplayField private final double ultimateProjectileSpeed = 0.5d;
     @DisplayField private final double ultimateProjectileDistance = 10.0d;
     @DisplayField private final int shotsPerBone = 3;
-    @DisplayField private double healingPerBone = 5d;
+    @DisplayField private final double healingPerBone = 5d;
 
     public Taker() {
         super("Taker", "Will take your life away!");

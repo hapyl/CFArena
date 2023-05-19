@@ -27,6 +27,8 @@ public class AchievementGUI extends PlayerPageGUI<Achievement> {
         this(player, Category.GAMEPLAY);
     }
 
+    // FIXME (hapyl): 019, May 19, 2023: Make this look pretty
+    // FIXME (hapyl): 019, May 19, 2023: Put progress achievements in toggle or different category
     public AchievementGUI(Player player, Category category) {
         super(player, "Achievements", 6);
 

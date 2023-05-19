@@ -68,7 +68,7 @@ public class GamePlayer implements IGamePlayer {
     private final StatContainer stats;
     private final Map<GameEffectType, ActiveGameEffect> gameEffects;
     private final TalentQueue talentQueue;
-    private final Map<Player, Double> damageTaken;
+    private final Map<Player, Double> damageTaken; // Used to store how much damage is taken from players to calc assists
     private boolean wasHit; // Used to check if player was hit by custom damage
     private Player player;
     private PlayerProfile profile;
@@ -83,7 +83,7 @@ public class GamePlayer implements IGamePlayer {
     private boolean isDead;
     private boolean isSpectator;
     private boolean isRespawning; // Had to introduce this flag to prevent spectator checks.
-    private boolean valid = true; // valid means if game player is being used somewhere, should probably rework how this works
+    private boolean valid = true; // valid means if a game player is being used somewhere, should probably rework how this works
     private boolean canMove;
     private int ultPoints;
     private double ultimateModifier;

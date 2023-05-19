@@ -173,8 +173,6 @@ public class CFParkour extends Parkour implements ParkourHandler {
             }
         }
 
-        // TODO: 012, Mar 12, 2023 -> Test for world record
-
         return null;
     }
 

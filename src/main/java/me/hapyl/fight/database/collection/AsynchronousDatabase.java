@@ -21,7 +21,7 @@ import java.util.function.Consumer;
  * {@link #read(String, Object)} and {@link #write(String, Object)}
  * </pre>
  * <p>
- * Both read and write provides nested support by using a '.' (dot) as path separator.
+ * Both read and write provides nested support by using a <code>'.'</code> as path separator.
  * As example:
  *
  * <pre>

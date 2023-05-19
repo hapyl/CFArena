@@ -26,7 +26,7 @@ public class ShadowShift extends Talent implements Listener {
 
     public ShadowShift() {
         super("Shadow Shift", """
-                Instantly teleport behind player you're looking at to strike from behind. 
+                Instantly teleport behind player you're looking at to strike from behind.
                                         
                 You will lose ability to move for a short duration.
                 """, Type.COMBAT);

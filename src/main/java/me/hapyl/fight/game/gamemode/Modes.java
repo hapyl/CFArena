@@ -15,7 +15,7 @@ public enum Modes {
     FFA(new FreeForAll()),
     DEATH_MATCH(new Deathmatch()),
     DEATH_MATCH_KILLS(new DeathmatchKills()),
-	//RUSH(new Rush()),
+	//RUSH(new Rush()), todo
 	//TTT(new AmongUs()), todo
     ;
 

@@ -54,7 +54,7 @@ public class CollectionGUI extends PlayerGUI {
         final SmartComponent component = newSmartComponent();
         final CosmeticEntry cosmetics = PlayerDatabase.getDatabase(getPlayer()).getCosmetics();
 
-        setArrowBack(18, new PlayerProfileGUI(getPlayer()));
+        setArrowBack(9, "Profile", t -> new PlayerProfileGUI(getPlayer()));
 
         //fillLine(0, ItemStacks.BLACK_BAR);
         //fillLine(4, ItemStacks.BLACK_BAR);

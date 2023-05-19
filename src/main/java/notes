@@ -28,7 +28,6 @@ Bugs:
 - [✔, Holy Hologram did NOT work properly.] Parkour leader board not loading for all players (return instead of break)
 - [✔] SA tp in wall
 - [✔] Shaman totems visible sometimes
-
 - [✔] Parkour leader board not working?
 - [✔] Fix suicide giving score
 - [✔] Phoenix don't work
@@ -41,8 +40,6 @@ Bugs:
 - [✔] void doesn't reset ond death
 - [✔] Parkour record breaks
 - [✔] Wrong amount of bones flying
-
-- Maybe genshin slowing aura for freazly
 - [✔] Joining the game while it's in progress doesn't add player as spectators
 - [✔] Black hole works with grimoire
 - [✔] Store class wins
@@ -53,7 +50,6 @@ Bugs:
 - [✔] deathmath when die who dead keeps yes
 - [✔] me.hapyl.fight.game.heroes.storage.extra.BlockShield.randomBlock(BlockShield.java:132) ~[ClassesFightArena.jar:?]
 - [✔] spark does not take dmg?
-
 - [✔] Kill DM
 - [✔] Blast knight horse
 - [✔] wolf howl 201.5 64.0 217.5 rand
@@ -61,7 +57,6 @@ Bugs:
 - [✔] Parkour button actual pressing remove this wtf
 - [✔] leaving breaks the game
 - [✔] tripwire does not refresh on caught?
-
 - [✔] At me.hapyl.fight.game.heroes.storage.Techie$1.run(Techie.java:101) ~[ClassesFightArena.jar:?]
 - [✔] Traps don't regen
 - [✔] Database save called twice in rejoin
@@ -69,23 +64,23 @@ Bugs:
 - [✔] Remove effects at death
 - [✔] Player profile is not removed on leave?
 - [✔] Fix talent descriptions, use addDescription() not '__'
-
 - [✔] Improve harbinger wave
 - [✔] ':' wrong in harbinger melee mark
+- [✔] Fix minion AI targeting invisible players
+- [✔] at me.hapyl.fight.game.GamePlayer.die(GamePlayer.java:490)
+- [✔] UI still does NOT update while rejoin
+
+- Maybe genshin slowing aura for freazly
 - Maybe add glowing for self traps
 - rework TECHIE and TAKER ult
 - add glowing on death for teammates
-- [✔] Fix minion AI targeting invisible players
 - Maybe add buff when JUJU uses climb
 - make juju shot work when hit enemies
 - Rework achievement GUI to use top as category and contents as, well, fucking contents
 - Pretty sure witcher combo and zone ability don't work
 - Possible stackoverflow when calculating wave
-- Players aren't removed from teams upon leave
-- [✔] at me.hapyl.fight.game.GamePlayer.die(GamePlayer.java:490)
 - Missing health pack on arena
 - "Flying is not enabled on this server"
-- UI still does NOT update while rejoin
 - DM can use spell with a FIST
 
 - [✔] Melee stance does not reset properly?

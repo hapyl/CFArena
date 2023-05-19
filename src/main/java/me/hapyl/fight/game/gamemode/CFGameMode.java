@@ -93,13 +93,12 @@ public abstract class CFGameMode {
     public abstract boolean testWinCondition(@Nonnull GameInstance instance);
 
     public void formatScoreboard(Scoreboarder builder, GameInstance instance, GamePlayer player) {
-
     }
 
     public void onDeath(@Nonnull GameInstance instance, @Nonnull GamePlayer player) {
     }
 
-    // Default impl, override if used
+    // Default impl, override if needed
     public void onLeave(@Nonnull GameInstance instance, @Nonnull Player player) {
         final GamePlayer gamePlayer = instance.getPlayer(player);
         if (gamePlayer == null) {
@@ -133,7 +132,7 @@ public abstract class CFGameMode {
      * Use this to calculate winners if not default.
      *
      * @param instance - game instance.
-     * @return false to mark all alive players as winners.
+     * @return false to mark all living players as winners.
      */
     public boolean onStop(@Nonnull GameInstance instance) {
         return false;

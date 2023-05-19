@@ -448,6 +448,11 @@ public class Utils {
 
             // players are only valid if they are alive and not on the same team
             if (entity instanceof Player targetPlayer) {
+                // creative players should not be valid!
+                if (targetPlayer.getGameMode() == GameMode.CREATIVE) {
+                    return false;
+                }
+
                 if (Manager.current().isGameInProgress() && !GamePlayer.getPlayer(targetPlayer).isAlive()) {
                     return false;
                 }

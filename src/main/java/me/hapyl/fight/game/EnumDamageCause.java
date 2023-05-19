@@ -103,6 +103,7 @@ public enum EnumDamageCause {
     BACKSTAB("was stabbed in the back", "by"),
     WITHERBORN("was withered to death by {damager}'s Witherborn"),
     EMBODIMENT_OF_DEATH("was bodied to death", "by"),
+    SHREDS_AND_PIECES("was tear to shreds and pieces :o"),
 
     ;
 

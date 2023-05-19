@@ -3,7 +3,7 @@ package me.hapyl.fight.game.parkour;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.Database;
-import me.hapyl.fight.game.Debugger;
+import me.hapyl.fight.game.Debug;
 import me.hapyl.spigotutils.module.parkour.Data;
 import me.hapyl.spigotutils.module.parkour.Stats;
 import org.bson.Document;
@@ -51,7 +51,7 @@ public class ParkourDatabase {
                 // If a document has a valid uuid, but has player never played,
                 // it means that it was created in offline mode, delete it.
                 if (!offlinePlayer.hasPlayedBefore()) {
-                    Debugger.warn("Removing invalid entry: %s", key);
+                    Debug.warn("Removing invalid entry: %s", key);
                     invalidKeys.add(key);
                 }
             } catch (IllegalArgumentException ignored) {

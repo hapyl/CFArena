@@ -83,6 +83,7 @@ public class Swooper extends Hero implements Listener {
     @Override
     public void useUltimate(Player player) {
         // TODO (hapyl): 0016, May 16, 2023: - Add delay, too OP
+        // TODO (hapyl): 019, May 19, 2023: Or like make something cooler, copying raze is cool but I mean idk
         setUsingUltimate(player, true);
 
         final PlayerInventory inventory = player.getInventory();

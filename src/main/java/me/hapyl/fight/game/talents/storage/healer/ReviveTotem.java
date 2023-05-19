@@ -23,7 +23,7 @@ public class ReviveTotem extends Talent {
         this.playerCatalysts = Maps.newHashMap();
     }
 
-    // Death is when healer is actually dead and cannot revive.
+    // Death is when a healer is actually dead and cannot revive.
     @Override
     public void onDeath(Player player) {
         final ArmorStand catalyst = getCatalyst(player);

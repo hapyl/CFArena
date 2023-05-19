@@ -17,7 +17,7 @@ import java.util.Map;
 
 public class GrappleHookTalent extends ChargedTalent implements Listener {
 
-    @DisplayField(suffix = "blocks") protected double maxDistance = 30.0d;
+    @DisplayField(suffix = "blocks") protected final double maxDistance = 30.0d;
     @DisplayField private final int cooldown = 200;
 
     private final Map<Player, GrappleHook> playerHooks = Maps.newHashMap();

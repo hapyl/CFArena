@@ -64,15 +64,6 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
                 .setDescription(
                         "A powerful wand, that's capable of casting multiple spells!____&e&lRIGHT CLICK &7to enter casting, then, combine &e&lRIGHT CLICK &7and/or &e&lLEFT CLICK &7to execute the spell!"
                 ));
-        //.setWeaponLore(
-        //        "Long ago, a powerful wand was crafted from the bones of long-dead wizards and imbued with dark magic, granting immense power to its wielder. The wand was used by a cruel and merciless ruler to subjugate kingdoms."
-        //));
-
-        /**
-         * "Transform into the wither for {duration}.____" +
-         *                         "While transformed, &e&lRIGHT CLICK &7to shoot wither skulls that deals massive damage on impact.__" +
-         *                         "After wither disappears, you perform plunging attack that deals damage in AoE upon hitting the ground.",
-         */
 
         setUltimate(new UltimateTalent("Witherborn", """
                 Summon a baby wither that will assist you in battle for {duration}.
@@ -304,6 +295,11 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
     // I'm clearly fucking interacting???
     // But of course, the event handles with 2 hands, even if I have nothing in my second hand, makes sense.
     private void processSpellClick(Player player, boolean isLeftClick) {
+        // Check for actual wand maybe?
+        if (player.getInventory().getItemInMainHand().getType() != getWeapon().getMaterial()) {
+            return;
+        }
+
         // Handle wand
         final DarkMageSpell spell = spellMap.computeIfAbsent(player, DarkMageSpell::new);
 

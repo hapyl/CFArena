@@ -118,6 +118,24 @@ public abstract class Hero implements GameElement, PlayerElement {
     }
 
     /**
+     * Returns the origin of this hero.
+     *
+     * @return the origin of this hero.
+     */
+    public Origin getOrigin() {
+        return origin;
+    }
+
+    /**
+     * Sets the origin for this hero.
+     *
+     * @param origin - New origin.
+     */
+    public void setOrigin(Origin origin) {
+        this.origin = origin;
+    }
+
+    /**
      * Returns this hero's weapon.
      *
      * @return this hero's weapon.

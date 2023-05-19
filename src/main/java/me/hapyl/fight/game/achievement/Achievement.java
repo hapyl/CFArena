@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import me.hapyl.fight.annotate.ForceLowercase;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.AchievementEntry;
+import me.hapyl.fight.game.achievement.trigger.AchievementTrigger;
 import me.hapyl.fight.game.reward.Reward;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.util.ProgressBarBuilder;
@@ -366,12 +367,16 @@ public class Achievement extends PatternId {
 
     /**
      * Returns true if this achievement is hidden.
-     *
-     * @deprecated just use instanceof
      */
-    @Deprecated
     public boolean isHidden() {
         return this instanceof HiddenAchievement;
+    }
+
+    /**
+     * Returns true if this achievement can be completed multiple times.
+     */
+    public boolean isProgressive() {
+        return this instanceof ProgressAchievement;
     }
 
     /**

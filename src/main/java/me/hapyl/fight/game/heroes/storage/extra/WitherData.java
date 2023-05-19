@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.heroes.storage.extra;
 
-import me.hapyl.fight.game.Debugger;
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -99,7 +99,7 @@ public class WitherData {
         final LivingEntity target = wither.getTarget();
 
         if (target == null) {
-            Debugger.info("Target is null.");
+            Debug.info("Target is null.");
             return;
         }
 

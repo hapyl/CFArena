@@ -5,6 +5,7 @@ import me.hapyl.fight.cmds.extra.Acceptor;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.database.entry.CurrencyEntry;
+import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.stats.StatContainer;
@@ -16,18 +17,21 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Function;
 
 public class AdminCommand extends SimplePlayerAdminCommand {
 
-    private final static String PREFIX = "&c&lADMIN &7⁑ &e";
+    private final static String PREFIX = "&c&lADMIN &e";
     private final Map<String, Acceptor> acceptors;
 
     public AdminCommand(String str) {
         super(str);
-        setUsage("/admin [damage, setkills, map] (Value)");
+        setUsage("/admin <operation> (Value...)");
         setDescription("Admin management command.");
 
         acceptors = Maps.newHashMap();
@@ -36,17 +40,22 @@ public class AdminCommand extends SimplePlayerAdminCommand {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String[] args) {
+        if (!PlayerRank.getRank(sender).isAdministrator()) {
+            return List.of("§cYou are not administrator!");
+        }
+
         if (args.length == 1) {
             return super.completerSort(acceptors.keySet().stream().toList(), args);
         }
         else {
             for (String leader : acceptors.keySet()) {
                 if (!leader.equalsIgnoreCase(args[0])) {
-                    return null;
+                    continue;
                 }
 
                 final Acceptor acceptor = acceptors.get(leader);
                 final Map<Integer, List<String>> map = acceptor.additionalArguments();
+
                 if (map.isEmpty()) {
                     return null;
                 }
@@ -59,20 +68,19 @@ public class AdminCommand extends SimplePlayerAdminCommand {
 
     @Override
     protected void execute(Player player, String[] args) {
-        if (args.length == 0) {
-            Chat.sendMessage(player, "Admin GUI not yet implemented!");
-            sendInvalidUsageMessage(player);
+        if (!PlayerRank.getRank(player).isAdministrator()) {
+            sendError(player, "You are not administrator!");
             return;
         }
 
         final Acceptor acceptor = acceptors.get(args[0].toLowerCase(Locale.ROOT));
+
         if (acceptor != null) {
             final String[] strings = new String[args.length - 1];
 
             System.arraycopy(args, 1, strings, 0, args.length - 1);
             acceptor.execute(player, strings);
         }
-
     }
 
     private void initAcceptors() {
@@ -221,10 +229,19 @@ public class AdminCommand extends SimplePlayerAdminCommand {
 
             @Override
             public void createAdditionalArguments() {
-                addArgument(1, "add", "set", "remove");
+                addArgument(2, "add", "set", "remove");
             }
         });
 
+    }
+
+    @Nullable
+    private <T> T fromArgsRaw(@Nonnull String[] args, int index, @Nonnull Function<String, T> functions, @Nullable T def) {
+        if (index >= args.length) {
+            return def;
+        }
+
+        return functions.apply(args[index]);
     }
 
     private void sendError(Player player, String message, Object... format) {

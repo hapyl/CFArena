@@ -11,6 +11,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
+// FIXME (hapyl): 019, May 19, 2023: Could use PlayerPageGUI here
 public class ExperienceGUI extends PlayerGUI {
 
     private final int[] slots;
@@ -105,14 +106,6 @@ public class ExperienceGUI extends PlayerGUI {
             for (Reward reward : rewards) {
                 reward.display(player, builder);
             }
-
-            //if (!heroesUnlock.isEmpty()) {
-            //    builder.addSmartLore("&7- &6" + heroesUnlock.stream()
-            //            .map(Heroes::getName)
-            //            .collect(Collectors.joining("&7, &6"))
-            //            .replaceFirst(",([^,]*)$", " &7and$1") + " &7" + (heroesUnlock.size() == 1 ? "hero" : "heroes") + " &7" +
-            //            rewards.get(rewards.size() - 1).display(), "  ");
-            //}
 
         }
         else {

@@ -10,7 +10,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
- * Represents a task that is automatically cancelled when the game ends.
+ * Represents a task that is automatically canceled when the game ends.
  */
 public abstract class GameTask implements Runnable {
 
@@ -232,7 +232,7 @@ public abstract class GameTask implements Runnable {
         return this.task.getTaskId();
     }
 
-    // Called when the task is cancelled
+    // Called when the task is canceled
     public void onCancel() {
     }
 

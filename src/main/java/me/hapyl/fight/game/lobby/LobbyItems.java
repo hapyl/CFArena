@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.lobby;
 
-import me.hapyl.fight.game.Debugger;
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.gui.HeroSelectGUI;
 import me.hapyl.fight.gui.MapSelectGUI;
 import me.hapyl.fight.gui.PlayerProfileGUI;
@@ -49,7 +49,7 @@ public enum LobbyItems {
         public void onClick(Player player) {
             if (player.isOp()) {
             }
-            Debugger.info("Ignoring start vote");
+            Debug.info("Ignoring start vote");
             player.performCommand("cf start");
         }
     }),
