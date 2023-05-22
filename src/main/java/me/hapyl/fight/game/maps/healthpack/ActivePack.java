@@ -55,6 +55,8 @@ public class ActivePack implements Ticking {
 
     public final void pickup0(Player player) {
         pack.onPickup(player);
+
+        remove();
         next();
     }
 
@@ -67,11 +69,15 @@ public class ActivePack implements Ticking {
         }.runTaskLater(start ? pack.getSpawnPeriod() / 2 : pack.getSpawnPeriod());
     }
 
-    public void createEntity() {
+    private void remove() {
         if (entity != null) {
             entity.remove();
             entity = null;
         }
+    }
+
+    public void createEntity() {
+        remove();
 
         entity = Entities.ARMOR_STAND_MARKER.spawn(location, self -> {
             self.setSmall(true);

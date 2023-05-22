@@ -13,10 +13,12 @@ import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.TitleAnimation;
+import me.hapyl.fight.game.damage.DamageHandler;
 import me.hapyl.fight.game.heroes.storage.extra.AnimatedWither;
 import me.hapyl.fight.game.reward.DailyReward;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.chat.Gradient;
 import me.hapyl.spigotutils.module.chat.gradient.Interpolators;
@@ -44,10 +46,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Skull;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Pig;
-import org.bukkit.entity.Piglin;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Wither;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -100,6 +99,20 @@ public class CommandRegistry extends DependencyInjector<Main> {
         register(new ProfileCommand("profile"));
         register(new GVarCommand("gvar"));
         register(new PlayerAttributeCommand("playerAttribute"));
+
+        register(new SimplePlayerAdminCommand("debugDamageData") {
+            @Override
+            protected void execute(Player player, String[] strings) {
+                final LivingEntity targetEntity = Utils.getTargetEntity(player, 20.0d, 0.9d, e -> e != player);
+
+                if (targetEntity == null) {
+                    Chat.sendMessage(player, DamageHandler.getDamageData(player));
+                    return;
+                }
+
+                Chat.sendMessage(player, DamageHandler.getDamageData(targetEntity));
+            }
+        });
 
         register(new SimpleAdminCommand("listProfiles") {
             @Override

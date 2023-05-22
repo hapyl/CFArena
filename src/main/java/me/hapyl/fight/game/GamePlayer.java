@@ -10,6 +10,8 @@ import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.cosmetic.skin.Skins;
+import me.hapyl.fight.game.damage.DamageData;
+import me.hapyl.fight.game.damage.DamageHandler;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.gamemode.CFGameMode;
@@ -69,13 +71,12 @@ public class GamePlayer implements IGamePlayer {
     private final Map<GameEffectType, ActiveGameEffect> gameEffects;
     private final TalentQueue talentQueue;
     private final Map<Player, Double> damageTaken; // Used to store how much damage is taken from players to calc assists
+    private final PlayerAttributes attributes;
     private boolean wasHit; // Used to check if player was hit by custom damage
     private Player player;
     private PlayerProfile profile;
     private double health;
     private double shield;
-    private LivingEntity lastDamager;
-    private EnumDamageCause lastDamageCause = null;
     // 		[Kinda Important Note]
     //  These two can never be both true.
     //  dead means if player has died in game when
@@ -91,7 +92,6 @@ public class GamePlayer implements IGamePlayer {
     private long combatTag;
     private int killStreak;
     private InputTalent inputTalent;
-    private final PlayerAttributes attributes;
 
     @SuppressWarnings("all")
     public GamePlayer(@Nonnull PlayerProfile profile, @Nonnull Heroes enumHero) {
@@ -124,10 +124,10 @@ public class GamePlayer implements IGamePlayer {
 
     public void resetPlayer(Ignore... ignores) {
         if (isNotIgnored(ignores, Ignore.DAMAGER)) {
-            lastDamager = null;
+            DamageHandler.getDamageData(player).lastDamager = null;
         }
         if (isNotIgnored(ignores, Ignore.DAMAGE_CAUSE)) {
-            lastDamageCause = null;
+            DamageHandler.getDamageData(player).lastDamageCause = null;
         }
 
         killStreak = 0;
@@ -140,7 +140,6 @@ public class GamePlayer implements IGamePlayer {
         player.setMaxHealth(40.0d); // why deprecate
         player.setHealth(40.0d);
         player.setFireTicks(0);
-        player.setWalkSpeed(0.2f);
         player.setVisualFire(false);
         player.setFlying(false);
         player.setSaturation(0.0f);
@@ -244,10 +243,6 @@ public class GamePlayer implements IGamePlayer {
         return pointsString;
     }
 
-    private String replaceColor(String string, ChatColor color) {
-        return string.replace("$", color.toString());
-    }
-
     @Override
     public boolean isReal() {
         return true;
@@ -338,20 +333,7 @@ public class GamePlayer implements IGamePlayer {
 
     @Super
     public void damage(double damage, @Nullable LivingEntity damager, @Nullable EnumDamageCause cause) {
-        if (damager != null && damager != player) {
-            lastDamager = damager;
-            if (damager instanceof Player playerDamager) {
-                damageTaken.put(playerDamager, damageTaken.getOrDefault(playerDamager, 0.0d) + damage);
-            }
-        }
-        if (cause != null) {
-            lastDamageCause = cause;
-        }
-
-        //this.player.setLastDamageCause(null); // mark as custom damage
-        wasHit = true;
-        player.damage(damage, damager);
-        wasHit = false;
+        DamageHandler.damage(player, damage, damager, cause);
     }
 
     /**
@@ -360,9 +342,10 @@ public class GamePlayer implements IGamePlayer {
     public void decreaseHealth(double damage, @Nullable LivingEntity damager) {
         decreaseHealth(damage);
 
-        if (damager != null && damager != player) {
-            lastDamager = damager;
-        }
+        // FIXME (hapyl): 022, May 22, 2023: Don't think this is needed anymore
+        //if (damager != null && damager != player) {
+        //    lastDamager = damager;
+        //}
 
         markCombatTag();
     }
@@ -447,15 +430,11 @@ public class GamePlayer implements IGamePlayer {
 
         triggerOnDeath();
 
+        final DamageData data = DamageHandler.getDamageData(player);
+
         // Award killer coins for kill
-        if (lastDamager != null) {
-            Player killer = null;
-            if (lastDamager instanceof Player) {
-                killer = (Player) lastDamager;
-            }
-            else if (lastDamager instanceof Projectile projectile && projectile.getShooter() instanceof Player target) {
-                killer = target;
-            }
+        if (data.lastDamager != null) {
+            final Player killer = data.getLastDamager(Player.class);
 
             if (killer != null) {
                 final GamePlayer gameKiller = GamePlayer.getExistingPlayer(killer);
@@ -485,6 +464,8 @@ public class GamePlayer implements IGamePlayer {
                 }
             }
         }
+
+        final LivingEntity lastDamager = data.getLastDamager();
 
         // Award assists
         damageTaken.forEach((damager, damage) -> {
@@ -555,22 +536,26 @@ public class GamePlayer implements IGamePlayer {
         executeTalentsOnDeath();
 
         currentGame.getActiveHeroes().forEach(heroes -> {
-            heroes.getHero().onDeathGlobal(player, lastDamager, lastDamageCause);
+            final DamageData data = DamageHandler.getDamageData(player);
+
+            heroes.getHero().onDeathGlobal(player, data.lastDamager, data.lastDamageCause);
         });
     }
 
-    public EnumDamageCause.DeathMessage getRandomDeathMessage() {
+    public DeathMessage getRandomDeathMessage() {
         return getLastDamageCause().getRandomIfMultiple();
     }
 
     @Override
     @Nonnull
     public EnumDamageCause getLastDamageCause() {
+        final EnumDamageCause lastDamageCause = DamageHandler.getDamageData(player).lastDamageCause;
+
         return lastDamageCause == null ? EnumDamageCause.ENTITY_ATTACK : lastDamageCause;
     }
 
     public void setLastDamageCause(EnumDamageCause lastDamageCause) {
-        this.lastDamageCause = lastDamageCause;
+        DamageHandler.getDamageData(player).lastDamageCause = lastDamageCause;
     }
 
     @Override
@@ -610,12 +595,12 @@ public class GamePlayer implements IGamePlayer {
 
     @Nullable
     public LivingEntity getLastDamager() {
-        return lastDamager;
+        return DamageHandler.getDamageData(player).lastDamager;
     }
 
     public void setLastDamager(LivingEntity lastDamager) {
         if (lastDamager != null) {
-            this.lastDamager = lastDamager;
+            DamageHandler.getDamageData(player).lastDamager = lastDamager;
         }
     }
 
@@ -834,6 +819,10 @@ public class GamePlayer implements IGamePlayer {
         return 0.5d;
     }
 
+    private String replaceColor(String string, ChatColor color) {
+        return string.replace("$", color.toString());
+    }
+
     private boolean isNotIgnored(Ignore[] ignores, Ignore target) {
         for (final Ignore ignore : ignores) {
             if (ignore == target) {
@@ -843,7 +832,7 @@ public class GamePlayer implements IGamePlayer {
         return true;
     }
 
-    private String concat(String original, EnumDamageCause.DeathMessage message, Entity killer) {
+    private String concat(String original, DeathMessage message, Entity killer) {
         if (killer == null) {
             return original + message.message();
         }
@@ -931,26 +920,12 @@ public class GamePlayer implements IGamePlayer {
     }
 
     public static void damageEntityTick(LivingEntity entity, double damage, @Nullable LivingEntity damager, @Nullable EnumDamageCause cause, int tick) {
-        final int maximumNoDamageTicks = entity.getMaximumNoDamageTicks();
-        tick = Numbers.clamp(tick, 0, maximumNoDamageTicks);
-
-        entity.setMaximumNoDamageTicks(tick);
-        damageEntity(entity, damage, damager, cause == null ? EnumDamageCause.ENTITY_ATTACK : cause);
-        entity.setMaximumNoDamageTicks(maximumNoDamageTicks);
+        DamageHandler.damageTick(entity, damage, damager, cause, tick);
     }
 
     @Super
     public static void damageEntity(LivingEntity entity, double damage, LivingEntity damager, EnumDamageCause cause) {
-        if (entity == null) {
-            return;
-        }
-
-        if (entity instanceof Player player) {
-            getPlayer(player).damage(damage, damager, cause);
-        }
-        else {
-            entity.damage(damage, damager);
-        }
+        DamageHandler.damage(entity, damage, damager, cause);
     }
 
     public enum Ignore {

@@ -6,6 +6,8 @@ import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.attribute.CriticalResponse;
 import me.hapyl.fight.game.attribute.PlayerAttributes;
+import me.hapyl.fight.game.damage.DamageData;
+import me.hapyl.fight.game.damage.DamageHandler;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.stats.StatType;
@@ -41,8 +43,6 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
@@ -217,273 +217,264 @@ public class PlayerHandler implements Listener {
         // ignore if using ultimate
     }
 
-    /**
-     * Handler for damage calculations.
-     */
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void handleDamage(EntityDamageEvent ev) {
+    public void handleDamage0(EntityDamageEvent ev) {
         final Entity entity = ev.getEntity();
+        final EntityDamageEvent.DamageCause cause = ev.getCause();
 
-        Projectile projectile = null;
-        LivingEntity damagerFinal = null;
         double damage = ev.getDamage();
 
-        // Ignore non living entity and void damage
-        final EntityDamageEvent.DamageCause cause = ev.getCause();
+        Projectile finalProjectile = null;
+
+        // Ignore non living entities and/or void damage
         if (!(entity instanceof LivingEntity livingEntity) || cause == EntityDamageEvent.DamageCause.VOID) {
             return;
         }
 
-        // Ignore trial or non instanced damage
-        if (entity instanceof Player player && !Manager.current().isAbleToUse(player)) {
-            ev.setCancelled(true);
+        // Ignore lobby damage
+        if (!Manager.current().isGameInProgress()) {
             return;
         }
 
-        // Pre-events tests, such as GameEffect etc
+        // This is what actually stores all the custom data
+        // needed to handle custom damage/causes.
+        final DamageData data = DamageHandler.getDamageData(livingEntity);
+
+        // REASSIGNMENT STATE
+        // If an entity wasn't hit by using DamageHandler, we
+        // need to store the data from this event into DamageData,
+        // since it is now the 'real' data.
+
+        // Reassign cause
+        data.setLastDamageCauseIfNative(cause);
+
+        // Pre-events tests, such as GameEffect, etc.
         if (livingEntity instanceof Player player) {
             final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
 
-            // Fall damage
-            if (cause == EntityDamageEvent.DamageCause.FALL && gamePlayer.hasEffect(GameEffectType.FALL_DAMAGE_RESISTANCE)) {
+            // Test for fall damage resistance
+            if (data.lastDamageCause == EnumDamageCause.FALL && gamePlayer.hasEffect(GameEffectType.FALL_DAMAGE_RESISTANCE)) {
+                Debug.info("fall damage custom");
                 ev.setCancelled(true);
                 gamePlayer.removeEffect(GameEffectType.FALL_DAMAGE_RESISTANCE);
                 return;
             }
         }
 
-        // Reassign damage cause
-        if (livingEntity instanceof Player playerVictim) {
-            if ((GamePlayer.getPlayer(playerVictim) instanceof GamePlayer player) && player.isNativeDamage()) {
-                player.setLastDamageCause(EnumDamageCause.getFromCause(cause));
-            }
-        }
+        // Calculate base damage and find final damager
+        if (ev instanceof EntityDamageByEntityEvent ev2) {
+            final Entity damager = ev2.getDamager();
 
-        // Calculate base damage
-        if (ev instanceof EntityDamageByEntityEvent event) {
-            final Entity damager = event.getDamager();
-
-            // Ignore all this if self damage (fall damage, explosion etc.)
+            // Ignore self-damage for the following
             if (damager != entity) {
-                if (damager instanceof Player playerDamager) {
-                    // Remove critical hit
-                    if (playerDamager.getFallDistance() > 0.0F && !playerDamager.isOnGround() &&
-                            !playerDamager.hasPotionEffect(PotionEffectType.BLINDNESS) && playerDamager.getVehicle() == null) {
+                // Check for player damager
+                if (damager instanceof Player player) {
+                    // Remove vanilla critical hit
+                    if (player.getFallDistance() > 0.0F
+                            && !player.isOnGround()
+                            && !player.hasPotionEffect(PotionEffectType.BLINDNESS)
+                            && player.getVehicle() == null) {
                         damage /= 1.5F;
                     }
 
-                    final Material type = playerDamager.getInventory().getItemInMainHand().getType();
-                    // Decrease damage if hitting with a bow
-                    //                    if (cause == EntityDamageEvent.DamageCause.ENTITY_ATTACK && type == Material.BOW || type == Material.CROSSBOW) {
-                    //                        Debugger.log("reduced damage");
-                    //                        damage *= 0.4d;
-                    //                    }
-
-                    // Assign the damager
-                    damagerFinal = playerDamager;
+                    data.setLastDamagerIfNative(player);
                 }
-                else if (damager instanceof Projectile proj && proj.getShooter() instanceof Player playerDamager) {
-                    // Increase damage if fully charged shot
-                    if (proj instanceof AbstractArrow arrow) {
-                        final double weaponDamage = GamePlayer.getPlayer(playerDamager).getHero().getWeapon().getDamage();
-                        final double scale = 1 + (damage / 8.933d);
+                // Check for projectile damage
+                else if (damager instanceof Projectile projectile) {
+                    // Scale it down according to a super cool formula for players
+                    if (projectile.getShooter() instanceof Player player && projectile instanceof AbstractArrow arrow) {
+                        final double weaponDamage = GamePlayer.getPlayer(player).getHero().getWeapon().getDamage();
+                        final double scaleFactor = 1 + (damage / 8.933d);
 
-                        damage = weaponDamage * scale;
+                        damage = weaponDamage * scaleFactor;
 
                         if (arrow.isCritical()) {
                             damage *= 1.5d;
                         }
                     }
 
-                    // Assign the damager
-                    projectile = proj;
-                    damagerFinal = playerDamager;
+                    // Reassign damager to shooter
+                    if (projectile.getShooter() instanceof LivingEntity living) {
+                        data.setLastDamagerIfNative(living);
+                    }
+
+                    // Store projectile for further use
+                    finalProjectile = projectile;
                 }
+                // Default to damager if they're living
                 else if (damager instanceof LivingEntity living) {
-                    damagerFinal = living;
+                    data.setLastDamagerIfNative(living);
                 }
             }
 
-            // Invisibility Check
-            if (damagerFinal instanceof Player playerDamager && playerDamager.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
-                final boolean cancel = GamePlayer.getPlayer(playerDamager)
+            // Process invisibility
+            final LivingEntity lastDamager = data.lastDamager;
+
+            if (lastDamager instanceof Player player && player.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
+                final boolean cancelDamage = GamePlayer.getPlayer(player)
                         .getHero()
-                        .processInvisibilityDamage(playerDamager, livingEntity, damage);
-
-                if (cancel) {
-                    ev.setDamage(0.0d);
-                    ev.setCancelled(true);
-                    return;
-                }
-            }
-
-            // Player to Player tests
-            if (damagerFinal instanceof Player playerDamager && entity instanceof Player playerVictim) {
-                boolean cancelDamage = false;
-
-                // Teammate check
-                if ((GameTeam.isTeammate(playerDamager, playerVictim))) {
-                    Chat.sendMessage(playerDamager, "&cCannot damage teammates!");
-                    cancelDamage = true;
-                }
-
-                // Invisibility
-                //if (!playerVictim.canSee(playerDamager)) {
-                //    Chat.sendMessage(playerDamager, "&cCannot damage while invisible!");
-                //    cancelDamage = true;
-                //}
+                        .processInvisibilityDamage(player, lastDamager, damage);
 
                 if (cancelDamage) {
-                    ev.setCancelled(true);
                     ev.setDamage(0.0d);
+                    ev.setCancelled(true);
                     return;
                 }
             }
 
-            // Apply modifiers for damager
-            if (damagerFinal != null) {
-                final PotionEffect effectStrength = damagerFinal.getPotionEffect(PotionEffectType.INCREASE_DAMAGE);
-                final PotionEffect effectWeakness = damagerFinal.getPotionEffect(PotionEffectType.WEAKNESS);
+            // Process player to player checks
+            if (entity instanceof Player player && lastDamager instanceof Player playerDamager) {
 
-                // Add 50% of damage per strength level
+                // Check for teammate
+                if (GameTeam.isTeammate(player, playerDamager)) {
+                    Chat.sendMessage(playerDamager, "&cCannot damage teammates!");
+
+                    ev.setDamage(0.0d);
+                    ev.setCancelled(true);
+                    return;
+                }
+            }
+
+            // Apply effects and modifiers for the damager
+            if (lastDamager != null) {
+                final PotionEffect effectStrength = lastDamager.getPotionEffect(PotionEffectType.INCREASE_DAMAGE);
+                final PotionEffect effectWeakness = lastDamager.getPotionEffect(PotionEffectType.WEAKNESS);
+
+                // Strength
+                // The current formula is +50% damage per strength lvl
                 if (effectStrength != null) {
-                    final int strengthLevel = effectStrength.getAmplifier() + 1;
+                    final int amplifier = effectStrength.getAmplifier() + 1;
 
-                    damage -= (3.0d * strengthLevel); // Remove vanilla strength
-                    damage += ((damage * 0.5d) * (strengthLevel));
+                    damage -= (3.0d * amplifier); // Remove vanilla strength
+                    damage += (damage * 0.5d * amplifier);
                 }
 
-                // Reduce damage by half is has weakness effect
+                // Weakness
+                // The current formula reduces damage by half
                 if (effectWeakness != null) {
-                    damage /= 2;
+                    damage -= (4.0d * effectWeakness.getAmplifier() + 1);
+                    damage /= 2.0d;
                 }
 
-                // Apply GameEffect for damager
-                if (damagerFinal instanceof Player player) {
-                    final IGamePlayer gp = GamePlayer.getPlayer(player);
-                    if (gp.hasEffect(GameEffectType.STUN)) {
+                // Check for GameEffect is it is player
+                if (lastDamager instanceof Player player) {
+                    final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
+
+                    // Check for stun and nullity the damage
+                    if (gamePlayer.hasEffect(GameEffectType.STUN)) {
                         damage = 0.0d;
                     }
 
-                    // lockdown
-                    if (gp.hasEffect(GameEffectType.LOCK_DOWN)) {
+                    // Check for lockdown and cancel the event
+                    if (gamePlayer.hasEffect(GameEffectType.LOCK_DOWN)) {
                         ev.setCancelled(true);
-                        gp.sendTitle("&c&lLOCKDOWN", "&cUnable to deal damage.", 0, 20, 0);
+                        gamePlayer.sendTitle("&c&lLOCKDOWN", "&cCannot deal damage.", 0, 20, 0);
                         return;
                     }
                 }
-
             }
 
-            // Apply modifiers for victim
-            {
-                final PotionEffect effectResistance = livingEntity.getPotionEffect(PotionEffectType.DAMAGE_RESISTANCE);
-                // reduce damage by 85% if we have resistance
-                if (effectResistance != null) {
-                    damage *= 0.15d;
+            // Apply modifiers for a victim
+            final PotionEffect effectResistance = livingEntity.getPotionEffect(PotionEffectType.DAMAGE_RESISTANCE);
+
+            // Reduce damage by 85%
+            if (effectResistance != null) {
+                damage *= 0.15d;
+            }
+
+            // Player victim checks
+            if (livingEntity instanceof Player player) {
+                // Negate damage if blocking
+                if (player.isBlocking()) {
+                    damage = 0.0;
                 }
 
-                // negate all damage is blocking
-                if (livingEntity instanceof Player player) {
-                    if (player.isBlocking()) {
-                        damage = 0.0d;
-                    }
+                // Check for GameEffects
+                final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
 
-                    // Apply GameEffect for victim */
-                    final IGamePlayer gp = GamePlayer.getPlayer(player);
-                    if (gp.hasEffect(GameEffectType.STUN)) {
-                        gp.removeEffect(GameEffectType.STUN);
-                    }
+                // Remove stun once damaged
+                if (gamePlayer.hasEffect(GameEffectType.STUN)) {
+                    gamePlayer.removeEffect(GameEffectType.STUN);
+                }
 
-                    if (gp.hasEffect(GameEffectType.VULNERABLE)) {
-                        damage *= 2.0d;
-                    }
+                // Increase damage taken by 2 if vulnerable
+                if (gamePlayer.hasEffect(GameEffectType.VULNERABLE)) {
+                    damage *= 2.0d;
                 }
             }
         }
 
-        // Set damager if not custom hit
+        // PROCESS HERO EVENTS
+
+        boolean cancelDamage = false;
+
+        // As victim
         if (livingEntity instanceof Player player) {
-            final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
-            if (gamePlayer instanceof GamePlayer gp && gp.isNativeDamage()) {
-                gamePlayer.setLastDamager(damagerFinal);
-            }
-        }
+            final DamageOutput output = getDamageOutput(player, data.lastDamager, damage, false);
 
-        // Process damager and victims hero damage processors
-        final List<String> extraStrings = new ArrayList<>();
-
-        // Victim
-        boolean cancelEvent = false;
-
-        if (livingEntity instanceof Player player) {
-            final DamageOutput output = getDamageOutput(player, damagerFinal, damage, false);
             if (output != null) {
                 damage = output.getDamage();
-                cancelEvent = output.isCancelDamage();
-                //if (output.hasExtraDisplayStrings()) {
-                //    extraStrings.addAll(Arrays.stream(output.getExtraDisplayStrings()).toList());
-                //}
+                cancelDamage = output.isCancelDamage();
             }
         }
 
-        // Damager
-        if (damagerFinal instanceof Player player) {
+        // As damager
+        if (data.lastDamager instanceof Player player) {
             final DamageOutput output = getDamageOutput(player, livingEntity, damage, true);
+
             if (output != null) {
                 damage = output.getDamage();
-                if (!cancelEvent) {
-                    cancelEvent = output.isCancelDamage();
-                    //if (output.hasExtraDisplayStrings()) {
-                    //    extraStrings.addAll(Arrays.stream(output.getExtraDisplayStrings()).toList());
-                    //}
+
+                // Don't 'uncancel' the event
+                if (!cancelDamage) {
+                    cancelDamage = output.isCancelDamage();
                 }
             }
         }
 
-        // Damager Projectile
-        if (damagerFinal instanceof Player player && projectile != null && Manager.current().isGameInProgress()) {
+        // As projectile
+        if (data.lastDamager instanceof Player player && finalProjectile != null && Manager.current().isGameInProgress()) {
             final DamageOutput output = GamePlayer.getPlayer(player)
                     .getHero()
-                    .processDamageAsDamagerProjectile(new DamageInput(player, livingEntity, damage), projectile);
+                    .processDamageAsDamagerProjectile(new DamageInput(player, livingEntity, damage), finalProjectile);
 
             if (output != null) {
                 damage = output.getDamage();
-                if (!cancelEvent) {
-                    cancelEvent = output.isCancelDamage();
-                    //if (output.hasExtraDisplayStrings()) {
-                    //    extraStrings.addAll(Arrays.stream(output.getExtraDisplayStrings()).toList());
-                    //}
+
+                // Don't 'uncancel' the event
+                if (!cancelDamage) {
+                    cancelDamage = output.isCancelDamage();
                 }
             }
         }
 
-        // Only damage entities other that the player
+        // Don't damage players
         ev.setDamage(livingEntity instanceof Player ? 0.0d : damage);
 
-        // Cancel even if necessary
-        if (cancelEvent) {
+        if (cancelDamage) {
             ev.setCancelled(true);
             return;
         }
 
-        boolean crit = false;
+        boolean isCrit = false;
 
-        // Calculate OUTGOING damage based on attributes
-        if (damagerFinal instanceof Player player) {
+        // CALCULATE DAMAGE USING ATTRIBUTES
+
+        // Outgoing damage
+        if (data.lastDamager instanceof Player player) {
             final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
 
             if (gamePlayer != null) {
                 final PlayerAttributes attributes = gamePlayer.getAttributes();
-                final CriticalResponse criticalResponse = attributes.calculateOutgoingDamage(damage);
+                final CriticalResponse criticalResponse = attributes.calculateOutgoingDamage(damage, data.lastDamageCause);
 
                 damage = criticalResponse.damage();
-                crit = criticalResponse.isCrit();
+                isCrit = criticalResponse.isCrit();
             }
         }
 
-        // Calculate INCOMING damage based on attributes
-        if (entity instanceof Player player) {
+        // Incoming damage
+        if (livingEntity instanceof Player player) {
             final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
 
             if (gamePlayer != null) {
@@ -492,17 +483,19 @@ public class PlayerHandler implements Listener {
         }
 
         // Don't allow negative damage
-        if (damage < 0) {
-            damage = 0;
+        if (damage < 0.0d) {
+            damage = 0.0d;
         }
 
-        // Create damage indicator if dealt 1 or more damage
+        // Show damage indicator if dealt more
+        // than 1 damage to remove clutter
         if (damage >= 1.0d && !(entity instanceof ArmorStand)) {
-            final DamageIndicator damageIndicator = new DamageIndicator(entity.getLocation(), damage, crit);
-            damageIndicator.display(crit ? 30 : 20);
+            final DamageIndicator damageIndicator = new DamageIndicator(entity.getLocation(), damage, isCrit);
+            damageIndicator.display(isCrit ? 30 : 20);
         }
 
-        if (damagerFinal instanceof Player player) {
+        // Progress stats for damager
+        if (data.lastDamager instanceof Player player) {
             final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
 
             if (gamePlayer != null) {
@@ -510,29 +503,30 @@ public class PlayerHandler implements Listener {
             }
         }
 
-        // Make sure not to kill player but instead put them in spectator
-        if (entity instanceof Player player) {
+        // Make sure not to kill players but instead
+        // put them in spectator mode
+        if (livingEntity instanceof Player player) {
             final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
 
-            // If gamePlayer is null means the game is not in progress
             if (gamePlayer != null) {
                 final double health = gamePlayer.getHealth();
 
-                // Calculate damage based on attributes
+                // Decrease health
+                gamePlayer.decreaseHealth(damage, data.lastDamager);
 
-                gamePlayer.decreaseHealth(damage, damagerFinal);
-
-                // Stats
+                // Progress stats for a victim
                 gamePlayer.getStats().addValue(StatType.DAMAGE_TAKEN, damage);
 
-                // Cancel even if player died so there is no real death
+                // Cancel the event if finishing blow
                 if (damage >= health) {
                     ev.setCancelled(true);
                     return;
                 }
             }
 
-            // fail-safe for actual health
+            // Fail-safe just to be sure player does
+            // not die. If the player actually died in the game,
+            // then the exception was thrown
             if (player.getHealth() <= 0.0d) {
                 ev.setCancelled(true);
             }

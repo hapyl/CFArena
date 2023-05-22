@@ -63,7 +63,6 @@ public class Archer extends Hero implements Listener {
 
         getUltimate().addAttributeDescription("Explosion Radius", explosionRadius + " blocks");
         getUltimate().addAttributeDescription("Explosion Damage", explosionDamage);
-
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.cosmetic.skin.SkinEffectManager;
+import me.hapyl.fight.game.damage.DamageHandler;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.heroes.ComplexHero;
 import me.hapyl.fight.game.heroes.Hero;
@@ -61,9 +62,12 @@ public class Manager extends DependencyInjector<Main> {
     private boolean isDebug = true;
     private GameInstance gameInstance; // @implNote: For now, only one game instance can be active at a time.
     private Trial trial;
+    private final DamageHandler damageHandler;
 
     public Manager(Main main) {
         super(main);
+
+        damageHandler = new DamageHandler();
         profiles = Maps.newConcurrentMap();
 
         slotPerTalent.put(1, Hero::getFirstTalent);
@@ -84,6 +88,10 @@ public class Manager extends DependencyInjector<Main> {
 
         // start auto save timer
         autoSave = new AutoSync(Tick.fromMinute(10));
+    }
+
+    public DamageHandler getDamage() {
+        return damageHandler;
     }
 
     /**
@@ -450,6 +458,8 @@ public class Manager extends DependencyInjector<Main> {
 
         this.gameInstance.onStop();
         this.gameInstance.setGameState(State.POST_GAME);
+
+        DamageHandler.clearAll(); // clear damage handler
 
         // Save stats
         // this.gameInstance.getActiveHeroes().forEach(hero -> hero.getStats().saveAsync());

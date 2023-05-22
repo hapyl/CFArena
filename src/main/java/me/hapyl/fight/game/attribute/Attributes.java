@@ -1,7 +1,9 @@
 package me.hapyl.fight.game.attribute;
 
 import com.google.common.collect.Maps;
+import me.hapyl.fight.game.EnumDamageCause;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Random;
 import java.util.function.BiConsumer;
@@ -22,7 +24,15 @@ public class Attributes {
     }
 
     public CriticalResponse calculateOutgoingDamage(double damage) {
+        return calculateOutgoingDamage(damage, null);
+    }
+
+    public CriticalResponse calculateOutgoingDamage(double damage, @Nullable EnumDamageCause cause) {
         final double scaled = damage * AttributeType.ATTACK.get(this);
+
+        if (cause != null && !cause.isCanCrit()) {
+            return new CriticalResponse(scaled, false);
+        }
 
         final boolean isCritical = isCritical();
         final double scaledCritical = scaleCritical(scaled, isCritical);
@@ -35,7 +45,8 @@ public class Attributes {
     }
 
     public boolean isCritical() {
-        return new Random().nextDouble(0.0d, 1.0d) < AttributeType.CRIT_CHANCE.get(this);
+        final double chance = AttributeType.CRIT_CHANCE.get(this);
+        return chance >= 1.0d || new Random().nextDouble(0.0d, 1.0d) < chance;
     }
 
     /**

@@ -36,8 +36,16 @@ public class PlayerAttributeCommand extends SimplePlayerAdminCommand {
             return;
         }
 
-        // 0.0d means display the value
         final PlayerAttributes attributes = gamePlayer.getAttributes();
+
+        if (args.length > 1 && args[1].equalsIgnoreCase("reset")) {
+            attributes.reset();
+
+            Chat.sendMessage(player, "&aReset all attributes to base.");
+            return;
+        }
+
+        // 0.0d means display the value
         if (newValue == 0.0d) {
             final double value = attributes.get(type);
 
