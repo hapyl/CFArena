@@ -4,6 +4,8 @@ import com.google.common.collect.Maps;
 import me.hapyl.fight.database.Award;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.achievement.Achievements;
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.PlayerAttributes;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
@@ -60,8 +62,6 @@ public class GamePlayer implements IGamePlayer {
 
     public static final long COMBAT_TAG_DURATION = 5000L;
 
-    private final double maxHealth = 100.0d;
-    private final double maxShield = 50.0d;
     private final Heroes enumHero;
     private final Hero hero; // this represents hero that player locked in game with, cannot be changed
     private final Skins skin;
@@ -91,14 +91,16 @@ public class GamePlayer implements IGamePlayer {
     private long combatTag;
     private int killStreak;
     private InputTalent inputTalent;
+    private final PlayerAttributes attributes;
 
     @SuppressWarnings("all")
     public GamePlayer(@Nonnull PlayerProfile profile, @Nonnull Heroes enumHero) {
+        this.attributes = new PlayerAttributes(this, enumHero.getHero().getAttributes());
         this.profile = profile;
         this.player = profile.getPlayer();
         this.enumHero = enumHero;
         this.hero = enumHero.getHero();
-        this.health = maxHealth;
+        this.health = attributes.get(AttributeType.HEALTH);
         this.isDead = false;
         this.ultimateModifier = 1.0d;
         this.isSpectator = false;
@@ -114,6 +116,10 @@ public class GamePlayer implements IGamePlayer {
 
         // supply to profile
         profile.setGamePlayer(this);
+    }
+
+    public PlayerAttributes getAttributes() {
+        return attributes;
     }
 
     public void resetPlayer(Ignore... ignores) {
@@ -141,11 +147,15 @@ public class GamePlayer implements IGamePlayer {
         player.setFoodLevel(20);
         player.setInvulnerable(false);
         player.setArrowsInBody(0);
+        player.setWalkSpeed((float) attributes.get(AttributeType.SPEED));
         player.setMaximumNoDamageTicks(20);
         player.getActivePotionEffects().forEach(effect -> player.removePotionEffect(effect.getType()));
         Nulls.runIfNotNull(player.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE), att -> att.setBaseValue(0.0f));
 
         gameEffects.values().forEach(ActiveGameEffect::forceStop);
+
+        // Reset attributes
+        attributes.reset();
 
         damageTaken.clear();
         wasHit = false;
@@ -397,7 +407,7 @@ public class GamePlayer implements IGamePlayer {
     public void updateHealth() {
         // update player visual health
         player.setMaxHealth(40.d);
-        player.setHealth(Numbers.clamp(40.0d * health / maxHealth, getMinHealth(), getMaxHealth()));
+        player.setHealth(Numbers.clamp(40.0d * health / getMaxHealth(), getMinHealth(), getMaxHealth()));
         //player.setHealth(Math.max(0.5d, 40.0d * health / maxHealth));
     }
 
@@ -413,7 +423,7 @@ public class GamePlayer implements IGamePlayer {
     }
 
     public void heal(double amount) {
-        this.health = Numbers.clamp(health + amount, 0.5d, maxHealth);
+        this.health = Numbers.clamp(health + amount, 0.5d, getMaxHealth());
         this.updateHealth();
     }
 
@@ -565,7 +575,7 @@ public class GamePlayer implements IGamePlayer {
 
     @Override
     public double getMaxHealth() {
-        return maxHealth;
+        return attributes.get(AttributeType.HEALTH);
     }
 
     @Override

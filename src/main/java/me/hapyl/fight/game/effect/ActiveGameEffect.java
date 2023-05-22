@@ -8,12 +8,15 @@ public class ActiveGameEffect {
 
     private final Player player;
     private final GameEffectType type;
+    private int level;
     private int remainingTicks;
 
     public ActiveGameEffect(Player owner, GameEffectType type, int initTicks) {
         this.player = owner;
         this.type = type;
         this.remainingTicks = initTicks;
+        this.level = 0;
+
         startTicking();
     }
 
@@ -23,6 +26,14 @@ public class ActiveGameEffect {
 
     public GameEffectType getType() {
         return type;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
     }
 
     public void triggerUpdate() {

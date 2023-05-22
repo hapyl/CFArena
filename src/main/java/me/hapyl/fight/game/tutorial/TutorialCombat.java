@@ -47,7 +47,7 @@ public class TutorialCombat extends TutorialGUI {
                         "Speaking of strength, it uses different formula to calculate damage to not make it OP as it is in vanilla.",
                         " &7"
                 )
-                .addLore("The current formula: &c+20% damage per Strength level")
+                .addLore("The current formula: &c+50% damage per Strength level")
 
                 .addLore("")
                 .addLore("&b- Weakness Changes")

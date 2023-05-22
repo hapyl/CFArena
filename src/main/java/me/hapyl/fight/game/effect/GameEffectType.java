@@ -18,6 +18,7 @@ public enum GameEffectType {
     ARCANE_MUTE(new ArcaneMuteEffect()),
     SLOWING_AURA(new SlowingAuraEffect()),
     BLEED(new BleedEffect()),
+    STRENGTH(new Strength()),
 
     ;
 

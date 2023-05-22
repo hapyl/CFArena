@@ -4,6 +4,8 @@ import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.achievement.Achievements;
+import me.hapyl.fight.game.attribute.CriticalResponse;
+import me.hapyl.fight.game.attribute.PlayerAttributes;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.stats.StatType;
@@ -238,7 +240,7 @@ public class PlayerHandler implements Listener {
             return;
         }
 
-        // Pre events tests, such as GameEffect etc
+        // Pre-events tests, such as GameEffect etc
         if (livingEntity instanceof Player player) {
             final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
 
@@ -343,9 +345,12 @@ public class PlayerHandler implements Listener {
                 final PotionEffect effectStrength = damagerFinal.getPotionEffect(PotionEffectType.INCREASE_DAMAGE);
                 final PotionEffect effectWeakness = damagerFinal.getPotionEffect(PotionEffectType.WEAKNESS);
 
-                // Add 20% of damage per strength level
+                // Add 50% of damage per strength level
                 if (effectStrength != null) {
-                    damage += ((damage * 0.2d) * (effectStrength.getAmplifier() + 1));
+                    final int strengthLevel = effectStrength.getAmplifier() + 1;
+
+                    damage -= (3.0d * strengthLevel); // Remove vanilla strength
+                    damage += ((damage * 0.5d) * (strengthLevel));
                 }
 
                 // Reduce damage by half is has weakness effect
@@ -462,16 +467,39 @@ public class PlayerHandler implements Listener {
             return;
         }
 
+        boolean crit = false;
+
+        // Calculate OUTGOING damage based on attributes
+        if (damagerFinal instanceof Player player) {
+            final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
+
+            if (gamePlayer != null) {
+                final PlayerAttributes attributes = gamePlayer.getAttributes();
+                final CriticalResponse criticalResponse = attributes.calculateOutgoingDamage(damage);
+
+                damage = criticalResponse.damage();
+                crit = criticalResponse.isCrit();
+            }
+        }
+
+        // Calculate INCOMING damage based on attributes
+        if (entity instanceof Player player) {
+            final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
+
+            if (gamePlayer != null) {
+                damage = gamePlayer.getAttributes().calculateIncomingDamage(damage);
+            }
+        }
+
         // Don't allow negative damage
         if (damage < 0) {
             damage = 0;
         }
 
         // Create damage indicator if dealt 1 or more damage
-        // TODO (hapyl): 010, Apr 10, 2023: Create separate indicators.
         if (damage >= 1.0d && !(entity instanceof ArmorStand)) {
-            final DamageIndicator damageIndicator = new DamageIndicator(entity.getLocation(), damage);
-            damageIndicator.display(20);
+            final DamageIndicator damageIndicator = new DamageIndicator(entity.getLocation(), damage, crit);
+            damageIndicator.display(crit ? 30 : 20);
         }
 
         if (damagerFinal instanceof Player player) {
@@ -486,9 +514,12 @@ public class PlayerHandler implements Listener {
         if (entity instanceof Player player) {
             final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
 
-            // If game player is null means the game is not in progress
+            // If gamePlayer is null means the game is not in progress
             if (gamePlayer != null) {
                 final double health = gamePlayer.getHealth();
+
+                // Calculate damage based on attributes
+
                 gamePlayer.decreaseHealth(damage, damagerFinal);
 
                 // Stats

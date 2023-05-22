@@ -5,6 +5,7 @@ import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.IGamePlayer;
+import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -47,6 +48,9 @@ public class Pytaria extends Hero {
         equipment.setChestplate(222, 75, 85);
         equipment.setLeggings(54, 158, 110);
         equipment.setBoots(179, 204, 204);
+
+        // Attributes
+        getAttributes().setValue(AttributeType.HEALTH, 125.0d);
 
         setUltimate(new UltimateTalent("Feel the Breeze", 60).setCdSec(50)
                 .setDuration(60)

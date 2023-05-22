@@ -9,4 +9,12 @@ public class HeroAttributes extends Attributes {
     public HeroAttributes(Hero hero) {
         this.hero = hero;
     }
+
+    public Hero getHero() {
+        return hero;
+    }
+
+    public void setValue(AttributeType type, double value) {
+        mapped.put(type, value);
+    }
 }

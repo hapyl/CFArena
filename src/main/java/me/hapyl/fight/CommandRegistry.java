@@ -99,6 +99,7 @@ public class CommandRegistry extends DependencyInjector<Main> {
         register(new DebugAchievementCommand("debugAchievement"));
         register(new ProfileCommand("profile"));
         register(new GVarCommand("gvar"));
+        register(new PlayerAttributeCommand("playerAttribute"));
 
         register(new SimpleAdminCommand("listProfiles") {
             @Override
