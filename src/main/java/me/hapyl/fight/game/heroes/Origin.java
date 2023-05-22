@@ -5,17 +5,23 @@ package me.hapyl.fight.game.heroes;
  */
 public enum Origin {
 
-    NOT_SET("Not set."),
-    UNKNOWN("Unknown"),
+    NOT_SET("Not set.", "Not set."),
+    UNKNOWN("Unknown", "Unknown"),
     ;
 
     private final String name;
+    private final String description;
 
-    Origin(String name) {
+    Origin(String name, String description) {
         this.name = name;
+        this.description = description;
     }
 
     public String getName() {
         return name;
+    }
+
+    public String getDescription() {
+        return description;
     }
 }

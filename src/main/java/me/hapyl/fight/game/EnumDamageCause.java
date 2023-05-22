@@ -91,7 +91,7 @@ public enum EnumDamageCause {
     RIFLE(DamageCause.of("had their brain exploded in cool slow-mo", "by")),
     SATCHEL(DamageCause.of("had their last flights", "with")),
     TORNADO(DamageCause.of("couldn't find the wind", "of")),
-    LIBRARY_VOID(DamageCause.of("was consumed by &0the void")),
+    LIBRARY_VOID(DamageCause.of("was consumed by §0the void§7")), // fixme -> colors don't work
     RIPTIDE(DamageCause.of("was splashed", "by")),
     COLD(DamageCause.of("froze to death", "with help of")),
     LASER(DamageCause.of("was lasered to death", "by")),
@@ -109,7 +109,7 @@ public enum EnumDamageCause {
     BACKSTAB(DamageCause.of("was stabbed in the back", "by").setCanCrit(false)),
     WITHERBORN(DamageCause.of("was withered to death by {damager}'s Witherborn").setCanCrit(false)),
     EMBODIMENT_OF_DEATH(DamageCause.of("was bodied to death", "by")),
-    SHREDS_AND_PIECES(DamageCause.of("was tear to shreds and pieces :o").setCanCrit(false)),
+    SHREDS_AND_PIECES(DamageCause.of("was tear to shreds and pieces :o", "with help from").setCanCrit(false)),
 
     ;
 

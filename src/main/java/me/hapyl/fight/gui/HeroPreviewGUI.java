@@ -1,8 +1,10 @@
 package me.hapyl.fight.gui;
 
 import com.google.common.collect.Sets;
+import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.Origin;
 import me.hapyl.fight.game.talents.PassiveTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -63,17 +65,7 @@ public class HeroPreviewGUI extends PlayerGUI {
                 player -> new HeroSelectGUI(player, index)
         );
 
-        setItem(
-                11,
-                new ItemBuilder(hero.getItem()).setName("&a%s", hero.getName())
-                        .addLore()
-                        .addLore("&7Role: &b%s", hero.getRole().getName())
-                        .addSmartLore(hero.getRole().getDescription(), "&8&o")
-                        .addLore()
-                        .addSmartLore(hero.getDescription(), " &7&o")
-                        .toItemStack()
-        );
-
+        setItem(11, buildHeroPreview(hero));
         setItem(29, hero.getWeapon().getItem());
 
         final UltimateTalent ultimate = hero.getUltimate();
@@ -162,6 +154,37 @@ public class HeroPreviewGUI extends PlayerGUI {
         formatDebug();
         fixAbilityItemsCount();
         openInventory();
+    }
+
+    @Nonnull
+    private ItemStack buildHeroPreview(Hero hero) {
+        final ItemBuilder builder = new ItemBuilder(hero.getItem());
+
+        builder.setName("&a%s", hero.getName())
+                .addLore()
+                // Role
+                .addLore("&7Role: &b%s", hero.getRole().getName())
+                .addSmartLore(hero.getRole().getDescription(), "&8&o");
+
+        // Fraction
+        if (hero.getOrigin() != Origin.NOT_SET) {
+            builder.addLore();
+            builder.addLore("&7Origin: &b%s", hero.getOrigin().getName());
+            builder.addSmartLore(hero.getOrigin().getDescription(), "&8&0");
+        }
+
+        // Attributes
+        builder.addLore().addLore("&6Attributes:");
+        final HeroAttributes attributes = hero.getAttributes();
+
+        attributes.forEach((type, value) -> {
+            builder.addLore(" &7%s: &b%s", type.getName(), type.getFormatted(attributes));
+        });
+
+        builder.addLore();
+        builder.addSmartLore(hero.getDescription(), "&8&o");
+
+        return builder.toItemStack();
     }
 
     @Nonnull

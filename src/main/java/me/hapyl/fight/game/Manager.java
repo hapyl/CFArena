@@ -436,6 +436,7 @@ public class Manager extends DependencyInjector<Main> {
             player.updateScoreboard(true);
             player.resetPlayer();
             player.setValid(false);
+            player.getPlayer().setWalkSpeed(0.2f);
 
             Utils.showPlayer(player.getPlayer());
 

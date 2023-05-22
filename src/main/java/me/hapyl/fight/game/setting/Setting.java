@@ -14,6 +14,12 @@ public enum Setting {
 
     SEE_OTHERS_CONTRAIL(14, Material.FIREWORK_ROCKET, "See Others Contrail", "Whenever you will see other players contrails.", true),
     SEE_NOTIFICATIONS(15, Material.PAPER, "See Notifications", "Whenever you will see notifications.", true),
+    SHOW_DAMAGE_IN_CHAT(
+            16,
+            Material.SWEET_BERRIES,
+            "Show Damage in Chat",
+            ""
+    ),
 
     SHOW_YOURSELF_AS_TEAMMATE(
             28,
@@ -21,6 +27,7 @@ public enum Setting {
             "Show Yourself as Teammate",
             "Whenever you will see yourself as a teammate in tab list."
     ),
+
 
     ;
 

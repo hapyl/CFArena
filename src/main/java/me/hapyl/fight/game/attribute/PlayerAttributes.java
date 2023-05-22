@@ -37,6 +37,10 @@ public class PlayerAttributes extends Attributes {
         return mapped.compute(type, (t, v) -> (v == null ? 0 : v) + value);
     }
 
+    public void set(AttributeType type, double value) {
+        mapped.put(type, value + getBase(type));
+    }
+
     public double subtract(AttributeType type, double value) {
         return add(type, -value);
     }

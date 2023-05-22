@@ -8,6 +8,7 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.PlayerElement;
+import me.hapyl.fight.game.attribute.Attributes;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.heroes.storage.Ender;
 import me.hapyl.fight.game.heroes.storage.Moonwalker;
@@ -143,6 +144,10 @@ public abstract class Hero implements GameElement, PlayerElement {
     @Nonnull
     public HeroAttributes getAttributes() {
         return attributes;
+    }
+
+    public void setAttributes(Attributes attributes) {
+        attributes.forEach(this.attributes::set);
     }
 
     /**

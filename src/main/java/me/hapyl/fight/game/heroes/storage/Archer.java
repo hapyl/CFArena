@@ -1,6 +1,8 @@
 package me.hapyl.fight.game.heroes.storage;
 
 import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
@@ -31,7 +33,6 @@ import org.bukkit.util.Vector;
 import java.util.HashSet;
 import java.util.Set;
 
-// FIXME (hapyl): 010, Apr 10, 2023: This hero uses like pre-historic code, rewrite it.
 public class Archer extends Hero implements Listener {
 
     private final Set<Arrow> boomArrows = new HashSet<>();
@@ -45,10 +46,15 @@ public class Archer extends Hero implements Listener {
         super("Archer");
 
         setRole(Role.RANGE);
-        setInfo("One of the best archers joins the fight! Not alone though but with his &bcustom-made &7&obow.");
+        setInfo("One of the best archers joins the fight! Not alone though but with his &bcustom-made &8&obow.");
         setItem("106c16817c73ff64a4a49b590d2cdb25bcfa52c630fe7281a177eabacdaa857b");
 
         setWeapon(Material.BOW, "Bow of Destiny", "A custom-made bow with some unique abilities!", 5.0d);
+
+        final HeroAttributes attributes = getAttributes();
+        attributes.setValue(AttributeType.HEALTH, 125.0d);
+        attributes.setValue(AttributeType.SPEED, 0.225d);
+        attributes.setValue(AttributeType.DEFENSE, 0.8d);
 
         final HeroEquipment equipment = getEquipment();
         equipment.setChestplate(86, 86, 87);
@@ -111,8 +117,6 @@ public class Archer extends Hero implements Listener {
                         EnumDamageCause.BOOM_BOW_ULTIMATE,
                         null
                 );
-
-                player.setCooldown(boomBow.getMaterial(), boomBowPerShotCd);
             }
         }
     }
@@ -125,6 +129,7 @@ public class Archer extends Hero implements Listener {
             // Handle ultimate arrows
             if (isUsingUltimate(player) && selectedSlot == 4) {
                 boomArrows.add(arrow);
+                player.setCooldown(boomBow.getMaterial(), boomBowPerShotCd);
                 return;
             }
 

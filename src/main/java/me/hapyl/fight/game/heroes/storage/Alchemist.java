@@ -4,6 +4,8 @@ import io.netty.util.internal.ThreadLocalRandom;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.*;
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -55,6 +57,10 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
                 .setName("Stick")
                 .setDamage(5.0d)
                 .setDescription("Turns out that a stick used in brewing can also be used in battle."));
+
+        final HeroAttributes attributes = getAttributes();
+        attributes.setValue(AttributeType.HEALTH, 100);
+        attributes.setValue(AttributeType.DEFENSE, 0.);
 
         final HeroEquipment equipment = getEquipment();
         equipment.setChestplate(31, 5, 3);

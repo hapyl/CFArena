@@ -6,6 +6,7 @@ import com.google.gson.GsonBuilder;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Updates;
+import me.hapyl.fight.build.NamedSignReader;
 import me.hapyl.fight.cmds.*;
 import me.hapyl.fight.database.Database;
 import me.hapyl.fight.database.PlayerDatabase;
@@ -21,6 +22,7 @@ import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.chat.Gradient;
+import me.hapyl.spigotutils.module.chat.LazyEvent;
 import me.hapyl.spigotutils.module.chat.gradient.Interpolators;
 import me.hapyl.spigotutils.module.command.*;
 import me.hapyl.spigotutils.module.entity.Entities;
@@ -32,10 +34,7 @@ import me.hapyl.spigotutils.module.reflect.Reflect;
 import me.hapyl.spigotutils.module.reflect.glow.Glowing;
 import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
 import me.hapyl.spigotutils.module.reflect.npc.NPCPose;
-import me.hapyl.spigotutils.module.util.Action;
-import me.hapyl.spigotutils.module.util.DependencyInjector;
-import me.hapyl.spigotutils.module.util.Runnables;
-import me.hapyl.spigotutils.module.util.Validate;
+import me.hapyl.spigotutils.module.util.*;
 import net.minecraft.world.entity.Entity;
 import org.bson.Document;
 import org.bukkit.Bukkit;
@@ -44,6 +43,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.Sign;
 import org.bukkit.block.Skull;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;
@@ -111,6 +111,31 @@ public class CommandRegistry extends DependencyInjector<Main> {
                 }
 
                 Chat.sendMessage(player, DamageHandler.getDamageData(targetEntity));
+            }
+        });
+
+        register(new SimplePlayerAdminCommand("readSigns") {
+            @Override
+            protected void execute(Player player, String[] strings) {
+                final NamedSignReader reader = new NamedSignReader(player.getWorld());
+                final List<Sign> signs = reader.read();
+
+                if (signs.isEmpty()) {
+                    Chat.sendMessage(player, "&aNo signs found in loaded chunks.");
+                    return;
+                }
+
+                for (Sign sign : signs) {
+                    final String line = sign.getLine(0).replace("[", "").replace("]", "").toUpperCase();
+                    final String location = BukkitUtils.locationToString(BukkitUtils.centerLocation(sign.getLocation()));
+
+                    Chat.sendClickableHoverableMessage(
+                            player,
+                            LazyEvent.copyToClipboard(location),
+                            LazyEvent.showText("&eClick to copy!"),
+                            "&2%s &7- &a%s", line, location
+                    );
+                }
             }
         });
 

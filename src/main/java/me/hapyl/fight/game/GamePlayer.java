@@ -341,12 +341,6 @@ public class GamePlayer implements IGamePlayer {
      */
     public void decreaseHealth(double damage, @Nullable LivingEntity damager) {
         decreaseHealth(damage);
-
-        // FIXME (hapyl): 022, May 22, 2023: Don't think this is needed anymore
-        //if (damager != null && damager != player) {
-        //    lastDamager = damager;
-        //}
-
         markCombatTag();
     }
 

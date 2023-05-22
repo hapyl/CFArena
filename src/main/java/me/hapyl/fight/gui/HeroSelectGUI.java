@@ -1,9 +1,12 @@
 package me.hapyl.fight.gui;
 
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.heroes.ComplexHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.Origin;
 import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.PlayerGUI;
@@ -50,23 +53,34 @@ public class HeroSelectGUI extends PlayerGUI {
 
             // if (hero == null) { slot -= slot % 9 == 7 ? 3 : 1; continue; }
 
-            final Heroes hero = list.get(i);
-            final Hero heroClass = hero.getHero();
-            final boolean isFavourite = hero.isFavourite(player);
+            final Heroes enumHero = list.get(i);
+            final Hero hero = enumHero.getHero();
+            final boolean isFavourite = enumHero.isFavourite(player);
 
-            if (hero.isLocked(player)) {
+            if (enumHero.isLocked(player)) {
                 // TODO: 023, Mar 23, 2023 -> impl locked heroes
             }
 
-            final ItemBuilder builder = new ItemBuilder(heroClass.getItem())
-                    .setName("&a" + hero.getHero().getName())
-                    .addLore("&8/hero " + hero.name().toLowerCase(Locale.ROOT))
+            final ItemBuilder builder = new ItemBuilder(hero.getItem())
+                    .setName("&a" + hero.getName())
+                    .addLore("&8/hero " + enumHero.name().toLowerCase(Locale.ROOT))
                     .addLore()
-                    .addLore("&7Role: &b%s", hero.getHero().getRole().getName())
-                    .addLore()
-                    .addSmartLore(heroClass.getDescription(), "&7&o", 35);
+                    .addLore("&7Role: &b%s", hero.getRole().getName())
+                    .addLoreIf("&7Origin: &b%s".formatted(hero.getOrigin().getName()), hero.getOrigin() != Origin.NOT_SET)
+                    .addLore();
 
-            if (heroClass instanceof ComplexHero) {
+            final HeroAttributes attributes = hero.getAttributes();
+            builder.addLore("&6Attributes: ");
+            builder.addLore(attributes.getLore(AttributeType.HEALTH));
+            builder.addLore(attributes.getLore(AttributeType.ATTACK));
+            builder.addLore(attributes.getLore(AttributeType.DEFENSE));
+            builder.addLore(attributes.getLore(AttributeType.SPEED));
+            builder.addLore("&eSee details for more!");
+
+            builder.addLore();
+            builder.addSmartLore(hero.getDescription(), "&8&o");
+
+            if (hero instanceof ComplexHero) {
                 builder.addLore();
                 builder.addLore("&6&lComplex Hero!");
                 builder.addSmartLore(
@@ -81,11 +95,11 @@ public class HeroSelectGUI extends PlayerGUI {
             setItem(slot, builder.predicate(isFavourite, ItemBuilder::glow).toItemStack());
             setClick(
                     slot,
-                    pl -> Manager.current().setSelectedHero(player, hero),
+                    pl -> Manager.current().setSelectedHero(player, enumHero),
                     ClickType.LEFT,
                     ClickType.SHIFT_LEFT
             );
-            setClick(slot, pl -> new HeroPreviewGUI(player, hero, start), ClickType.RIGHT, ClickType.SHIFT_RIGHT);
+            setClick(slot, pl -> new HeroPreviewGUI(player, enumHero, start), ClickType.RIGHT, ClickType.SHIFT_RIGHT);
         }
 
         openInventory();

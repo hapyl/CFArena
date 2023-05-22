@@ -10,7 +10,7 @@ import javax.annotation.Nonnull;
 public enum Achievements {
 
     PLAY_FIRST_GAME("So That's How It Is", "Play your very first game."),
-    FIRST_BLOOD("First Blood", "Cause first blood in a game. &8(You or team)"),
+    FIRST_BLOOD("First Blood", "Cause first blood in a game.__&8(You or your team)"),
 
     ///////////////////////////
     // PROGRESS ACHIEVEMENTS //

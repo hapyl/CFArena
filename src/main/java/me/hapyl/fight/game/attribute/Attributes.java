@@ -2,7 +2,9 @@ package me.hapyl.fight.game.attribute;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.game.EnumDamageCause;
+import org.bukkit.ChatColor;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Random;
@@ -20,7 +22,14 @@ public class Attributes {
     }
 
     public double calculateIncomingDamage(double damage) {
-        return damage / get(AttributeType.DEFENSE);
+        double defense = get(AttributeType.DEFENSE);
+
+        // should never happen but just in case defense is 0
+        if (defense <= 0.0d) {
+            defense = 0.1d;
+        }
+
+        return damage / defense;
     }
 
     public CriticalResponse calculateOutgoingDamage(double damage) {
@@ -76,8 +85,40 @@ public class Attributes {
     }
 
     public void forEach(BiConsumer<AttributeType, Double> consumer) {
-        for (AttributeType type : mapped.keySet()) {
+        for (AttributeType type : AttributeType.values()) { // use values to keep sorted
             consumer.accept(type, get(type));
         }
+    }
+
+    @Nonnull
+    public String getLore(AttributeType type) {
+        return " &7" + type.getName() + ": " + getStar(type);
+    }
+
+    @Nonnull
+    public String getStar(AttributeType type) {
+        final double defaultValue = type.getDefaultValue();
+        final double value = get(type);
+
+        int scale = 1;
+        final double d = value / defaultValue;
+
+        if (d >= 0.75d && d < 1.0d) {
+            scale = 2;
+        }
+        else if (d == 1.0d) {
+            scale = 3;
+        }
+        else if (d > 1.0 && d <= 1.25d) {
+            scale = 4;
+        }
+        else if (d > 1.25d && d <= 1.5d) {
+            scale = 5;
+        }
+
+        final String character = type.attribute.getCharacter();
+        final ChatColor color = type.attribute.getColor();
+
+        return (color + character.repeat(scale)) + (ChatColor.DARK_GRAY + character.repeat(5 - scale));
     }
 }

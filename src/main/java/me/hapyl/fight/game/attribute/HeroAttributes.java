@@ -17,4 +17,5 @@ public class HeroAttributes extends Attributes {
     public void setValue(AttributeType type, double value) {
         mapped.put(type, value);
     }
+
 }
