@@ -59,21 +59,25 @@ public class ActivePack implements Ticking {
     }
 
     private void next(boolean start) {
+        new GameTask() {
+            @Override
+            public void run() {
+                createEntity();
+            }
+        }.runTaskLater(start ? pack.getSpawnPeriod() / 2 : pack.getSpawnPeriod());
+    }
+
+    public void createEntity() {
         if (entity != null) {
             entity.remove();
             entity = null;
         }
 
-        new GameTask() {
-            @Override
-            public void run() {
-                entity = Entities.ARMOR_STAND_MARKER.spawn(location, self -> {
-                    self.setSmall(true);
-                    self.setVisible(false);
-                    Utils.setEquipment(self, equipment -> equipment.setHelmet(pack.getTexture()));
-                });
-            }
-        }.runTaskLater(start ? pack.getSpawnPeriod() / 2 : pack.getSpawnPeriod());
+        entity = Entities.ARMOR_STAND_MARKER.spawn(location, self -> {
+            self.setSmall(true);
+            self.setVisible(false);
+            Utils.setEquipment(self, equipment -> equipment.setHelmet(pack.getTexture()));
+        });
     }
 
 }

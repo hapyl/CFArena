@@ -23,7 +23,8 @@ public class HealthPack extends GamePack {
         final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
 
         gamePlayer.heal(HEALTH_POINTS);
-        gamePlayer.sendMessage("&4&lHEALTH PACK &7⁑ &c&l+20 &c❤", HEALTH_POINTS);
+        //gamePlayer.sendMessage("&4&lHEALTH PACK &7⁑ &c&l+20 &c❤", HEALTH_POINTS);
+        gamePlayer.sendTitle("&c♥&4❤&c♥", "&a+&l%s".formatted(HEALTH_POINTS), 0, 15, 5);
 
         PlayerLib.playSound(player.getLocation(), Sound.ENTITY_CHICKEN_EGG, 1.0f);
     }

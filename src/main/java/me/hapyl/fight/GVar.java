@@ -38,7 +38,7 @@ public final class GVar {
         try {
             return (T) value;
         } catch (Exception e) {
-            return null;
+            return def;
         }
     }
 

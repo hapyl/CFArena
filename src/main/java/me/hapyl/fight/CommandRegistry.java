@@ -10,6 +10,7 @@ import me.hapyl.fight.cmds.*;
 import me.hapyl.fight.database.Database;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.Debug;
+import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.TitleAnimation;
 import me.hapyl.fight.game.heroes.storage.extra.AnimatedWither;
@@ -23,6 +24,7 @@ import me.hapyl.spigotutils.module.command.*;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.locaiton.LocationHelper;
+import me.hapyl.spigotutils.module.math.nn.IntInt;
 import me.hapyl.spigotutils.module.reflect.DataWatcherType;
 import me.hapyl.spigotutils.module.reflect.Reflect;
 import me.hapyl.spigotutils.module.reflect.glow.Glowing;
@@ -102,6 +104,29 @@ public class CommandRegistry extends DependencyInjector<Main> {
             @Override
             protected void execute(CommandSender commandSender, String[] strings) {
                 Manager.current().listProfiles();
+            }
+        });
+
+        register(new SimplePlayerAdminCommand("respawnGamePacks") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                final IGameInstance instance = Manager.current().getGameInstance();
+
+                if (instance == null) {
+                    Chat.sendMessage(player, "&cNo game instance.");
+                    return;
+                }
+
+                final IntInt i = new IntInt();
+
+                instance.getMap().getMap().getGamePacks().forEach(pack -> {
+                    pack.getActivePacks().forEach(activePack -> {
+                        i.increment();
+                        activePack.createEntity();
+                    });
+                });
+
+                Chat.sendMessage(player, "&aRespawned %s packs.", i);
             }
         });
 

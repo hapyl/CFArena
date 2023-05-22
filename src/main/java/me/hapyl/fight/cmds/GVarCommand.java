@@ -15,14 +15,14 @@ public class GVarCommand extends SimpleAdminCommand {
         super(name);
 
         addCompleterHandler(2, (player, arg, args) -> {
-            if (arg == null) {
-                return "&eEnter a value!";
+            if (arg.isBlank() || arg.isEmpty()) {
+                return "&c&nEnter a value!";
             }
-            return "&aUsing &l" + arg;
+            return "&a&nUsing &l" + arg;
         });
 
         addCompleterHandler(3, (player, arg, args) -> {
-            return "&aType: &l" + switch (arg.toLowerCase()) {
+            return "&aType: &l&n" + switch (arg.toLowerCase()) {
                 case "int" -> "Integer";
                 case "long" -> "Long";
                 case "double" -> "Double";

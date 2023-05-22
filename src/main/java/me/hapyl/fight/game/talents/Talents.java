@@ -22,6 +22,7 @@ import me.hapyl.fight.game.talents.storage.harbinger.MeleeStance;
 import me.hapyl.fight.game.talents.storage.harbinger.TidalWaveTalent;
 import me.hapyl.fight.game.talents.storage.healer.HealingOrb;
 import me.hapyl.fight.game.talents.storage.healer.ReviveTotem;
+import me.hapyl.fight.game.talents.storage.heavy_knight.Slash;
 import me.hapyl.fight.game.talents.storage.heavy_knight.Updraft;
 import me.hapyl.fight.game.talents.storage.heavy_knight.Uppercut;
 import me.hapyl.fight.game.talents.storage.hercules.HerculesJump;
@@ -344,6 +345,7 @@ public enum Talents {
     // Heavy Knight
     UPPERCUT(new Uppercut()),
     UPDRAFT(new Updraft()),
+    SLASH(new Slash()),
 
     // test (keep last)
     TestChargeTalent(new TestChargeTalent());

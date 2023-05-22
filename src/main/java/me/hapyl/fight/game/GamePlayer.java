@@ -227,7 +227,6 @@ public class GamePlayer implements IGamePlayer {
         if (ultimate.hasCd(player)) {
             return "&7%s &b(%ss)".formatted(pointsString, BukkitUtils.roundTick(ultimate.getCdTimeLeft(player)));
         }
-
         else if (isUltimateReady()) {
             return readyColor + "&lREADY";
         }
@@ -514,7 +513,7 @@ public class GamePlayer implements IGamePlayer {
                         );
 
         // Send death info to manager
-        final GameInstance gameInstance = Manager.current().getGameInstance();
+        final GameInstance gameInstance = Manager.current().getGameInstance(); /*ignore deprecation*/
         if (gameInstance != null) {
             final CFGameMode mode = gameInstance.getMode();
 
@@ -755,8 +754,10 @@ public class GamePlayer implements IGamePlayer {
         return valid;
     }
 
+    // Use this as 'onStop()'
     public void setValid(boolean flag) {
         valid = flag;
+        talentQueue.clear();
     }
 
     public PlayerDatabase getDatabase() {

@@ -98,6 +98,10 @@ public abstract class GamePack implements GameElement, Listener {
         activePacks.clear();
     }
 
+    public Set<ActivePack> getActivePacks() {
+        return activePacks;
+    }
+
     public List<Location> getLocations() {
         return locations;
     }

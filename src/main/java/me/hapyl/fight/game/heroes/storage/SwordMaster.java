@@ -1,10 +1,13 @@
 package me.hapyl.fight.game.heroes.storage;
 
+import me.hapyl.fight.annotate.KeepNull;
+import me.hapyl.fight.game.heroes.ComplexHero;
 import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.storage.heavy_knight.Slash;
 import me.hapyl.fight.game.talents.storage.heavy_knight.Updraft;
 import me.hapyl.fight.game.talents.storage.heavy_knight.Uppercut;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -13,30 +16,30 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
-public class SwordMaster extends Hero implements DisabledHero {
+public class SwordMaster extends Hero implements ComplexHero, DisabledHero {
 
     /**
      * BIG ASS SWORD
-     *
+     * <p>
      * Ability 1:
      * - Uppercut pushes up
-     *
+     * <p>
      * Ability 2:
      * - Jump up, pushes down enemies
-     *
+     * <p>
      * Ability 3:
      * - Splash front AoE 3 blocks large knockback
-     *
+     * <p>
      * Weapon Ability:
      * - Dash
-     *
+     * <p>
      * If used 1->2->3 (all hit):
      * - Slow, weakness target
      * - 3 ability reset CD
-     *
+     * <p>
      * General:
      * - Very slow base speed
-     *
+     * <p>
      * ULTIMATE ():
      * - Removes armor
      * - Gains speed
@@ -71,7 +74,6 @@ public class SwordMaster extends Hero implements DisabledHero {
 
     @Override
     public void useUltimate(Player player) {
-
     }
 
     @Override
@@ -82,6 +84,23 @@ public class SwordMaster extends Hero implements DisabledHero {
     @Override
     public Updraft getSecondTalent() {
         return (Updraft) Talents.UPDRAFT.getTalent();
+    }
+
+    @Override
+    public Slash getThirdTalent() {
+        return (Slash) Talents.SLASH.getTalent();
+    }
+
+    @Override
+    @KeepNull
+    public Talent getFourthTalent() {
+        return Talent.NULL;
+    }
+
+    @Override
+    @KeepNull
+    public Talent getFifthTalent() {
+        return Talent.NULL;
     }
 
     @Override

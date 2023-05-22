@@ -20,11 +20,14 @@ public class AchievementRegistry extends DependencyInjector<Main> {
     private final Map<String, Achievement> byId;
     private final Map<Category, List<Achievement>> byCategory;
 
+    private boolean progressive;
+
     public AchievementRegistry(Main plugin) {
         super(plugin);
 
         byId = Maps.newLinkedHashMap();
         byCategory = Maps.newHashMap();
+        progressive = false;
 
         // Register
         for (Achievements value : Achievements.values()) {
@@ -68,7 +71,17 @@ public class AchievementRegistry extends DependencyInjector<Main> {
      * @return List of achievements in category.
      */
     public LinkedList<Achievement> byCategory(Category category) {
-        return Lists.newLinkedList(byCategory.getOrDefault(category, Lists.newArrayList()));
+        final LinkedList<Achievement> achievements = Lists.newLinkedList(byCategory.getOrDefault(category, Lists.newArrayList()));
+
+        // remove non-progressive
+        if (progressive) {
+            achievements.removeIf(achievement -> !achievement.isProgressive());
+        }
+        else {
+            achievements.removeIf(Achievement::isProgressive);
+        }
+
+        return achievements;
     }
 
     public boolean isRegistered(@Nonnull Achievement achievement) {

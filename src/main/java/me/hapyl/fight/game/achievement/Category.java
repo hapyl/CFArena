@@ -7,9 +7,9 @@ import org.bukkit.Material;
  */
 public enum Category {
 
-    GAMEPLAY(Material.IRON_SWORD, "Gameplay", ""),
-    HERO_PLAYER(Material.PLAYER_HEAD, "Hero Player", ""),
-    HERO_WINNER(Material.DIAMOND, "Hero Winner", ""),
+    GAMEPLAY(Material.IRON_SWORD, "Gameplay", "Main gameplay achievements."),
+    HERO_PLAYER(Material.PLAYER_HEAD, "Hero Player", "Play heroes specific amount of times."),
+    HERO_WINNER(Material.DIAMOND, "Hero Winner", "Win as a hero specific amount of times."),
 
     ;
 

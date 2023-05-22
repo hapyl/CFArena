@@ -45,7 +45,7 @@ public class ProgressAchievement extends Achievement {
         this.rewards.put(requirement, reward);
         this.maxCompleteCount = Numbers.clamp(requirement, maxCompleteCount, MAX_COMPLETE);
 
-        if (requirement > MAX_COMPLETE) {
+        if (getRequirementCount() > MAX_COMPLETE) {
             Debug.warn("%s tried to set reward for requirement that exceeds the max!", getName());
         }
 
@@ -70,6 +70,10 @@ public class ProgressAchievement extends Achievement {
         }
 
         return this;
+    }
+
+    public int getRequirementCount() {
+        return rewards.size();
     }
 
     @Nonnull

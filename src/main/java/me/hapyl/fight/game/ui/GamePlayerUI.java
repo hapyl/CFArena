@@ -26,7 +26,7 @@ import javax.annotation.Nonnull;
 import java.text.SimpleDateFormat;
 
 /**
- * This controls all UI based elements such as scoreboard, tab-list and actionbar (while in game).
+ * This controls all UI based elements such as scoreboard, tab-list, and actionbar (while in game).
  */
 public class GamePlayerUI {
 

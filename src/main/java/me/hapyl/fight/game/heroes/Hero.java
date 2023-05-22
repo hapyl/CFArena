@@ -8,6 +8,7 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.PlayerElement;
+import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.heroes.storage.Ender;
 import me.hapyl.fight.game.heroes.storage.Moonwalker;
 import me.hapyl.fight.game.talents.Talent;
@@ -39,18 +40,16 @@ import java.util.Map;
  */
 public abstract class Hero implements GameElement, PlayerElement {
 
+    private final HeroAttributes attributes;
     private final HeroEquipment equipment;
     private final String name;
-
+    private final Map<Player, Long> usedUltimateAt;
+    private final Map<Player, GameTask> reverseTasks;
     private Origin origin;
     private Role role;
     private String description;
     private ItemStack guiTexture;
     private Weapon weapon;
-
-    private final Map<Player, Long> usedUltimateAt;
-    private final Map<Player, GameTask> reverseTasks;
-
     private long minimumLevel;
 
     private UltimateTalent ultimate;
@@ -64,6 +63,7 @@ public abstract class Hero implements GameElement, PlayerElement {
         this.usedUltimateAt = Maps.newHashMap();
         this.reverseTasks = Maps.newConcurrentMap();
         this.equipment = new HeroEquipment();
+        this.attributes = new HeroAttributes(this);
         this.origin = Origin.NOT_SET;
         this.role = Role.NONE;
         this.minimumLevel = 0;
@@ -100,21 +100,21 @@ public abstract class Hero implements GameElement, PlayerElement {
     }
 
     /**
-     * Sets this hero role.
-     *
-     * @param role - New role.
-     */
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-    /**
      * Returns this hero's role.
      *
      * @return this hero's role.
      */
     public Role getRole() {
         return role;
+    }
+
+    /**
+     * Sets this hero role.
+     *
+     * @param role - New role.
+     */
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     /**
@@ -136,21 +136,22 @@ public abstract class Hero implements GameElement, PlayerElement {
     }
 
     /**
+     * Gets hero's attributes.
+     *
+     * @return hero attributes.
+     */
+    @Nonnull
+    public HeroAttributes getAttributes() {
+        return attributes;
+    }
+
+    /**
      * Returns this hero's weapon.
      *
      * @return this hero's weapon.
      */
     public HeroEquipment getEquipment() {
         return equipment;
-    }
-
-    /**
-     * Sets this hero's ultimate duration.
-     *
-     * @param duration - New duration.
-     */
-    public void setUltimateDuration(int duration) {
-        this.ultimate.setDuration(duration);
     }
 
     /**
@@ -163,21 +164,21 @@ public abstract class Hero implements GameElement, PlayerElement {
     }
 
     /**
+     * Sets this hero's ultimate duration.
+     *
+     * @param duration - New duration.
+     */
+    public void setUltimateDuration(int duration) {
+        this.ultimate.setDuration(duration);
+    }
+
+    /**
      * Returns this hero's ultimate duration formatted to string.
      *
      * @return this hero's ultimate duration formatted to string.
      */
     public String getUltimateDurationString() {
         return BukkitUtils.roundTick(getUltimateDuration());
-    }
-
-    /**
-     * Sets this hero's weapon.
-     *
-     * @param ultimate - New weapon.
-     */
-    protected void setUltimate(UltimateTalent ultimate) {
-        this.ultimate = ultimate;
     }
 
     /**
@@ -243,16 +244,6 @@ public abstract class Hero implements GameElement, PlayerElement {
                 player,
                 GameTask.runLater(() -> setUsingUltimate(player, !flag), reverseAfter)
         );
-    }
-
-    private void cancelOldReverseTask(Player player) {
-        final GameTask oldTask = reverseTasks.get(player);
-
-        if (oldTask != null && !oldTask.isCancelled()) {
-            oldTask.cancel();
-        }
-
-        reverseTasks.remove(player);
     }
 
     /**
@@ -540,6 +531,15 @@ public abstract class Hero implements GameElement, PlayerElement {
     }
 
     /**
+     * Sets this hero's weapon.
+     *
+     * @param ultimate - New weapon.
+     */
+    protected void setUltimate(UltimateTalent ultimate) {
+        this.ultimate = ultimate;
+    }
+
+    /**
      * Sets this hero weapon.
      *
      * @param material - Material.
@@ -563,15 +563,6 @@ public abstract class Hero implements GameElement, PlayerElement {
     }
 
     /**
-     * Sets this hero weapon.
-     *
-     * @param weapon - Weapon.
-     */
-    public void setWeapon(Weapon weapon) {
-        this.weapon = weapon;
-    }
-
-    /**
      * Returns this hero weapon.
      *
      * @return this hero weapon.
@@ -580,7 +571,14 @@ public abstract class Hero implements GameElement, PlayerElement {
         return weapon;
     }
 
-    // Utilities for checks etc.
+    /**
+     * Sets this hero weapon.
+     *
+     * @param weapon - Weapon.
+     */
+    public void setWeapon(Weapon weapon) {
+        this.weapon = weapon;
+    }
 
     /**
      * Returns true if there is a game in progress and player is in game, and player's selected hero is the same as the one provided.
@@ -593,16 +591,7 @@ public abstract class Hero implements GameElement, PlayerElement {
         return validPlayerInGame(player) && current.getCurrentHero(player) == this;
     }
 
-    /**
-     * Returns true if there is a game in progress and player is in game.
-     *
-     * @param player - Player.
-     * @return true if there is a game in progress and player is in game.
-     */
-    private boolean validPlayerInGame(Player player) {
-        final Manager current = Manager.current();
-        return current.isGameInProgress() && current.isPlayerInGame(player);
-    }
+    // Utilities for checks etc.
 
     /**
      * Returns all talents of this hero, including nullable.
@@ -662,6 +651,27 @@ public abstract class Hero implements GameElement, PlayerElement {
      */
     public String getNameSmallCaps() {
         return SmallCaps.format(getName());
+    }
+
+    private void cancelOldReverseTask(Player player) {
+        final GameTask oldTask = reverseTasks.get(player);
+
+        if (oldTask != null && !oldTask.isCancelled()) {
+            oldTask.cancel();
+        }
+
+        reverseTasks.remove(player);
+    }
+
+    /**
+     * Returns true if there is a game in progress and player is in game.
+     *
+     * @param player - Player.
+     * @return true if there is a game in progress and player is in game.
+     */
+    private boolean validPlayerInGame(Player player) {
+        final Manager current = Manager.current();
+        return current.isGameInProgress() && current.isPlayerInGame(player);
     }
 
 }

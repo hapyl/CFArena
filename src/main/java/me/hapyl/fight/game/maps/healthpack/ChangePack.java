@@ -24,7 +24,9 @@ public class ChangePack extends GamePack {
         final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
 
         gamePlayer.addUltimatePoints(CHARGE_POINTS);
-        gamePlayer.sendMessage("&3&lCHARGE PACK &7⁑ &b&l+%s &b※ Ultimate Points", CHARGE_POINTS);
+        //gamePlayer.sendMessage("&3&lCHARGE PACK &7⁑ &b&l+%s &b※ Ultimate Points", CHARGE_POINTS);
+        gamePlayer.sendTitle("&b※&9&l※&b※", "&a+&l%s".formatted(CHARGE_POINTS), 0, 15, 5);
+
         PlayerLib.playSound(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.5f);
     }
 

@@ -828,6 +828,14 @@ public class PlayerHandler implements Listener {
 
         // Execute talent and get response
         final Response response = talent.execute0(player);
+        final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
+
+        // If not error, add to the queue
+        // Yeah I know two of the 'same' checks, but I'll
+        // make it look good later maybe or not or I don't care
+        if (!response.isError()) {
+            gamePlayer.getTalentQueue().add(talent);
+        }
 
         if (!checkResponse(player, response)) {
             return;
@@ -839,7 +847,6 @@ public class PlayerHandler implements Listener {
             chargedTalent.removeChargeAndStartCooldown(player);
         }
 
-        final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
         final int point = talent.getPoint();
 
         if (point > 0) {
@@ -847,7 +854,6 @@ public class PlayerHandler implements Listener {
         }
 
         talent.startCd(player);
-        gamePlayer.getTalentQueue().add(talent);
     }
 
 }
