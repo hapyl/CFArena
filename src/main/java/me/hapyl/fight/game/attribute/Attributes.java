@@ -84,6 +84,10 @@ public class Attributes {
         mapped.clear();
     }
 
+    public void reset(AttributeType type) {
+        mapped.remove(type);
+    }
+
     public void forEach(BiConsumer<AttributeType, Double> consumer) {
         for (AttributeType type : AttributeType.values()) { // use values to keep sorted
             consumer.accept(type, get(type));

@@ -5,6 +5,8 @@ import me.hapyl.fight.annotate.KeepNull;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.cosmetic.CosmeticsHandle;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.ComplexHero;
@@ -16,6 +18,8 @@ import me.hapyl.fight.game.heroes.storage.extra.WitherData;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.storage.darkmage.ShadowClone;
+import me.hapyl.fight.game.talents.storage.darkmage.ShadowCloneNPC;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIFormat;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -27,6 +31,7 @@ import me.hapyl.spigotutils.module.reflect.Reflect;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Wither;
 import org.bukkit.event.EventHandler;
@@ -35,12 +40,14 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
 import java.util.Map;
+import java.util.Random;
 
-import static org.bukkit.Sound.ENTITY_WITHER_DEATH;
+import static org.bukkit.Sound.*;
 
 public class DarkMage extends Hero implements ComplexHero, Listener {
 
@@ -53,6 +60,9 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         setRole(Role.MELEE);
         setInfo("A mage that was cursed by &8&lDark &8&lMagic&7&o. But even it couldn't kill him...");
         setItem("e6ca63569e8728722ecc4d12020e42f086830e34e82db55cf5c8ecd51c8c8c29");
+
+        final HeroAttributes attributes = getAttributes();
+        attributes.setValue(AttributeType.CRIT_CHANCE, 0.15d);
 
         final HeroEquipment equipment = this.getEquipment();
         equipment.setChestplate(102, 255, 255);
@@ -184,11 +194,54 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         }.runTaskTimer(0, 1);
     }
 
+    private final double PASSIVE_CHANCE = 0.12d;
+
+    @Nullable
+    @Override
+    public DamageOutput processDamageAsVictim(DamageInput input) {
+        final ShadowClone talent = getFourthTalent();
+        final Player player = input.getPlayer();
+        final LivingEntity entity = input.getEntity();
+
+        final ShadowCloneNPC clone = talent.getClone(player);
+
+        // Handle passive
+        if (entity != null && new Random().nextDouble() < PASSIVE_CHANCE) {
+            entity.addPotionEffect(PotionEffectType.BLINDNESS.createEffect(60, 1));
+            entity.addPotionEffect(PotionEffectType.WITHER.createEffect(60, 1));
+
+            if (entity instanceof Player playerEntity) {
+                Chat.sendMessage(playerEntity, "&8☠ &c%s poisoned your blood!", player.getName());
+            }
+
+            Chat.sendMessage(player, "&8☠ &aYou poisoned %s's blood!", entity.getName());
+        }
+
+        // Handle clone
+        if (clone != null && clone.ultimate) {
+            player.teleport(clone.getLocation());
+            talent.removeNpc(player, 0);
+
+            // Fx
+            Chat.sendMessage(player, "&aInstead of taking damage, you possessed your %s!", talent.getName());
+
+            PlayerLib.addEffect(player, PotionEffectType.BLINDNESS, 10, 1);
+
+            PlayerLib.playSound(player, ENTITY_ENDERMAN_TELEPORT, 1.0f);
+            PlayerLib.playSound(player, ENTITY_PLAYER_BREATH, 1.0f);
+            PlayerLib.playSound(player, ENTITY_GHAST_SCREAM, 0.75f);
+
+            return DamageOutput.CANCEL;
+        }
+
+        return null;
+    }
+
     @Nullable
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
         final Player player = input.getPlayer();
-        processSpellClick(player, true);
+        // processSpellClick(player, true);
 
         if (input.getEntity() != null) {
             final WitherData data = getWither(player);
@@ -271,8 +324,8 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
     //}
 
     @Override
-    public Talent getFourthTalent() {
-        return Talents.SHADOW_CLONE.getTalent();
+    public ShadowClone getFourthTalent() {
+        return (ShadowClone) Talents.SHADOW_CLONE.getTalent();
     }
 
     @Override

@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
+import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.talents.storage.TestChargeTalent;
 import me.hapyl.fight.game.talents.storage.alchemist.CauldronAbility;
 import me.hapyl.fight.game.talents.storage.alchemist.RandomPotion;
@@ -41,6 +42,7 @@ import me.hapyl.fight.game.talents.storage.mage.ArcaneMute;
 import me.hapyl.fight.game.talents.storage.mage.MageTransmission;
 import me.hapyl.fight.game.talents.storage.moonwalker.MoonSliteBomb;
 import me.hapyl.fight.game.talents.storage.moonwalker.MoonslitePillar;
+import me.hapyl.fight.game.talents.storage.moonwalker.MoonsliteZone;
 import me.hapyl.fight.game.talents.storage.nightmare.Paranoia;
 import me.hapyl.fight.game.talents.storage.nightmare.ShadowShift;
 import me.hapyl.fight.game.talents.storage.ninja.NinjaDash;
@@ -103,7 +105,7 @@ public enum Talents {
     SHOCK_DARK(new ShockDark()),
     HAWKEYE_ARROW(new PassiveTalent(
             "Hawkeye Arrow",
-            "Fully charged shots while sneaking have &b25%%&7 chance to fire hawkeye arrow that homes to nearby enemies.",
+            "Fully charged shots while sneaking have &b25%&7 chance to fire hawkeye arrow that homes to nearby enemies.",
             Material.ENDER_EYE
     )),
 
@@ -118,7 +120,9 @@ public enum Talents {
 
     // Moonwalker
     MOONSLITE_PILLAR(new MoonslitePillar()),
+    @Deprecated
     MOONSLITE_BOMB(new MoonSliteBomb()),
+    MOONSLITE_ZONE(new MoonsliteZone()),
     TARGET(new PassiveTalent("Space Suit", "You suit grants you slow falling ability.", Material.FEATHER)),
 
     // Hercules
@@ -144,13 +148,17 @@ public enum Talents {
     FLOWER_BREEZE(new FlowerBreeze()),
     EXCELLENCY(new PassiveTalent(
             "Excellency",
-            "When Pytaria's &chealth&7 is lower or equal to &c50%%&7, her damage is increased by &b50%%&7.", Material.ROSE_BUSH
+            "The less &chealth&7 Pytaria has, the more her %s and %s increases. But her %s significantly decreases.".formatted(
+                    AttributeType.ATTACK,
+                    AttributeType.CRIT_CHANCE,
+                    AttributeType.DEFENSE
+            ), Material.ROSE_BUSH
     )),
 
     // Troll
     TROLL_SPIN(new TrollSpin()),
     REPULSOR(new Repulsor()),
-    TROLL_PASSIVE(new PassiveTalent("Last Laugh", "Your hits have &b0.1%% &7chance to instantly kill enemy.", Material.BLAZE_POWDER)),
+    TROLL_PASSIVE(new PassiveTalent("Last Laugh", "Your hits have &b0.1% &7chance to instantly kill enemy.", Material.BLAZE_POWDER)),
 
     // Tamer
     MINE_O_BALL(new MineOBall()),
@@ -221,7 +229,9 @@ public enum Talents {
     SLOWING_AURA(new SlowingAura()),
     HEALING_AURA(new HealingAura()),
     SHADOW_CLONE(new ShadowClone()),
-    DARK_MAGE_PASSIVE(new PassiveTalent("Wither Blood", "", Material.WITHER_ROSE)),
+    DARK_MAGE_PASSIVE(new PassiveTalent("Wither Blood", """
+            Whenever you take damage, there is small chance to poison attackers blood, blinding and withering them.
+            """, Material.WITHER_ROSE)),
 
     // Blast Knight
     SPEAR(new Spear()),
@@ -269,7 +279,7 @@ public enum Talents {
     WHIRLPOOL(new Whirlpool()),
     CLAW_CRITICAL(new PassiveTalent(
             "Oceanborn/Sturdy Claws",
-            "&b&lOceanborn:__While in water, your speed and damage is drastically increased.____&b&lSturdy Claws:__&7Your hits have &b10%% &7chance to &ccrit&7!__Critical hits summons an ancient creature from beneath that deals extra damage and heals you!",
+            "&b&lOceanborn:__While in water, your speed and damage is drastically increased.____&b&lSturdy Claws:__&7Your hits have &b10% &7chance to &ccrit&7!__Critical hits summons an ancient creature from beneath that deals extra damage and heals you!",
             Material.MILK_BUCKET
     )),
 
@@ -338,7 +348,7 @@ public enum Talents {
     GRAPPLE(new GrappleHookTalent()),
     SMOKE_BOMB(new PassiveTalent(
             "Smoke Bomb",
-            "Whenever your health falls below &c50%%&7, you gain a &eSmoke Bomb&7.____Throw it to create a smoke field that &bblinds&7 everyone inside it and grant you a &bspeed boost&7.",
+            "Whenever your health falls below &c50%&7, you gain a &eSmoke Bomb&7.____Throw it to create a smoke field that &bblinds&7 everyone inside it and grant you a &bspeed boost&7.",
             Material.ENDERMAN_SPAWN_EGG
     )),
 

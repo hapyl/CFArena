@@ -2,7 +2,7 @@ package me.hapyl.fight.game.maps.maps;
 
 import me.hapyl.fight.game.maps.GameMap;
 import me.hapyl.fight.game.maps.MapFeature;
-import me.hapyl.fight.game.maps.healthpack.PackType;
+import me.hapyl.fight.game.maps.gamepack.PackType;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.util.BukkitUtils;

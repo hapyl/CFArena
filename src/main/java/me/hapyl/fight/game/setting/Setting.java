@@ -18,7 +18,7 @@ public enum Setting {
             16,
             Material.SWEET_BERRIES,
             "Show Damage in Chat",
-            ""
+            "Whenever to show the damage dealt and taken in chat.____&9Nerds special!"
     ),
 
     SHOW_YOURSELF_AS_TEAMMATE(

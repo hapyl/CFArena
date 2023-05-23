@@ -12,6 +12,7 @@ import me.hapyl.fight.game.reward.Reward;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.chat.Gradient;
 import me.hapyl.spigotutils.module.chat.gradient.Interpolators;
+import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.math.nn.IntInt;
 import me.hapyl.spigotutils.module.util.DependencyInjector;
 import org.bukkit.entity.Player;
@@ -250,7 +251,8 @@ public class Experience extends DependencyInjector<Main> {
     }
 
     private void updateProgressBar(Player player) {
-        final float progress = getProgress(player);
+        final float progress = Numbers.clamp(getProgress(player), 0.0f, 1.0f);
+
         player.setLevel((int) getLevel(player));
         player.setExp(progress);
     }

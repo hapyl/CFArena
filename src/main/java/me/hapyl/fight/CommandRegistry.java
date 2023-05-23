@@ -55,6 +55,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.List;
+import java.util.Queue;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -115,28 +116,64 @@ public class CommandRegistry extends DependencyInjector<Main> {
         });
 
         register(new SimplePlayerAdminCommand("readSigns") {
+
+            private Queue<Sign> queue;
+
             @Override
             protected void execute(Player player, String[] strings) {
                 final NamedSignReader reader = new NamedSignReader(player.getWorld());
-                final List<Sign> signs = reader.read();
 
-                if (signs.isEmpty()) {
-                    Chat.sendMessage(player, "&aNo signs found in loaded chunks.");
+                if (queue == null) {
+                    queue = reader.readAsQueue();
+                    Chat.sendMessage(player, "&aFound %s signs. Use the command again to teleport to the next one.", queue.size());
                     return;
                 }
 
-                for (Sign sign : signs) {
-                    final String line = sign.getLine(0).replace("[", "").replace("]", "").toUpperCase();
-                    final String location = BukkitUtils.locationToString(BukkitUtils.centerLocation(sign.getLocation()));
-
-                    Chat.sendClickableHoverableMessage(
-                            player,
-                            LazyEvent.copyToClipboard(location),
-                            LazyEvent.showText("&eClick to copy!"),
-                            "&2%s &7- &a%s", line, location
-                    );
+                if (queue.peek() == null) {
+                    Chat.sendMessage(player, "&cNo more signs!");
+                    queue = null;
+                    return;
                 }
+
+                final Sign sign = queue.poll();
+                final String line = sign.getLine(0).replace("[", "").replace("]", "").toUpperCase();
+                final Location location = sign.getLocation().add(0.5d, 0.0d, 0.5d); // center it
+                final String locationString = BukkitUtils.locationToString(location);
+
+                Chat.sendMessage(player, "");
+                Chat.sendMessage(player, "&aNext: &l" + line.toUpperCase());
+
+                Chat.sendClickableHoverableMessage(
+                        player,
+                        LazyEvent.runCommand("tp %s %s %s", location.getX(), location.getY(), location.getZ()),
+                        LazyEvent.showText("&eClick to teleport!"),
+                        "&6&lCLICK TO TELEPORT"
+                );
+
+                Chat.sendClickableHoverableMessage(
+                        player,
+                        LazyEvent.copyToClipboard("%s %s %s".formatted(location.getX(), location.getY(), location.getZ())),
+                        LazyEvent.showText("&eClick to copy coordinates!"),
+                        "&6&lCLICK TO COPY COORDINATES"
+                );
+
+                Chat.sendClickableHoverableMessage(
+                        player,
+                        LazyEvent.copyToClipboard(line.equalsIgnoreCase("spawn")
+                                ? "addLocation(%s, 0, 0)".formatted(locationString)
+                                : "addPackLocation(PackType.%s, %s)".formatted(line, locationString)),
+                        LazyEvent.showText("&eClick to copy code!"),
+                        "&6&lCLICK TO COPY CODE"
+                );
+
+                Chat.sendClickableHoverableMessage(
+                        player,
+                        LazyEvent.runCommand(getName()),
+                        LazyEvent.showText("&aClick to show next sign!"),
+                        "&a&lNEXT"
+                );
             }
+
         });
 
         register(new SimpleAdminCommand("listProfiles") {

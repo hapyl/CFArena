@@ -118,6 +118,8 @@ public class GamePlayer implements IGamePlayer {
         profile.setGamePlayer(this);
     }
 
+    @Nonnull
+    @Override
     public PlayerAttributes getAttributes() {
         return attributes;
     }
@@ -397,6 +399,10 @@ public class GamePlayer implements IGamePlayer {
         GameTask.runLater(() -> {
             inventory.setHeldItemSlot(0);
         }, 1);
+
+        // Fx
+        playSound(Sound.ENTITY_ELDER_GUARDIAN_CURSE, 2.0f);
+        playSound(Sound.ENCHANT_THORNS_HIT, 0.0f);
     }
 
     public void heal(double amount) {
@@ -527,6 +533,7 @@ public class GamePlayer implements IGamePlayer {
 
         currentGame.getMap().getMap().onDeath(player);
         getHero().onDeath(player);
+        attributes.onDeath(player);
         executeTalentsOnDeath();
 
         currentGame.getActiveHeroes().forEach(heroes -> {

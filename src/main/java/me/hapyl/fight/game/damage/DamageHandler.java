@@ -3,8 +3,10 @@ package me.hapyl.fight.game.damage;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.spigotutils.module.annotate.Super;
+import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Numbers;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -27,7 +29,10 @@ public final class DamageHandler {
     public static void damage(@Nonnull LivingEntity entity, double damage, @Nullable LivingEntity damager, @Nullable EnumDamageCause cause) {
         final DamageData data = getDamageData(entity);
 
-        if (damager != null) {
+        // Don't reassign the damage if self damage!
+        // That's the whole point of the system to
+        // award the last damager even if player killed themselves.
+        if (damager != null && entity != damager) {
             data.lastDamager = damager;
         }
 
@@ -72,6 +77,41 @@ public final class DamageHandler {
     @Nonnull
     public static DamageData getDamageData(@Nonnull LivingEntity entity) {
         return DAMAGE_DATA.computeIfAbsent(entity, DamageData::new);
+    }
+
+    public static void notifyChatIncoming(Player player, DamageData data) {
+        final double damage = data.lastDamage;
+
+        final String prefix = "&7[&c⚔&7] &f";
+        String message = "&l%.2f &ffrom &l%s".formatted(damage, Chat.capitalize(data.getLastDamageCauseNonNull()));
+
+        final LivingEntity lastDamager = data.rootLastDamager();
+
+        if (lastDamager != null) {
+            message += " &fby &l" + lastDamager.getName();
+        }
+
+        if (data.isCrit) {
+            message += " &b&lCRITICAL";
+        }
+
+        Chat.sendMessage(player, prefix + message);
+    }
+
+    public static void notifyChatOutgoing(Player player, DamageData data) {
+        final double damage = data.lastDamage;
+
+        final String prefix = "&7[&a⚔&7] &f";
+
+        Chat.sendMessage(
+                player,
+                prefix + "&l%.2f &fusing &l%s &fto &l%s%s".formatted(
+                        damage,
+                        Chat.capitalize(data.getLastDamageCauseNonNull()),
+                        data.getEntity().getName(),
+                        data.isCrit ? " &b&lCRITICAL" : ""
+                )
+        );
     }
 
 }

@@ -3,13 +3,16 @@ package me.hapyl.fight.game.maps.maps;
 import me.hapyl.fight.GVar;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.maps.GameMap;
 import me.hapyl.fight.game.maps.MapFeature;
 import me.hapyl.fight.game.maps.Size;
+import me.hapyl.fight.game.maps.gamepack.PackType;
 import me.hapyl.fight.util.BoundingBoxCollector;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
@@ -17,7 +20,7 @@ import javax.annotation.Nonnull;
 public class MoonBase extends GameMap {
 
     public MoonBase() {
-        super("Moon Station \"Lypah\"");
+        super("Moon Station");
 
         setDescription("");
         setMaterial(Material.END_STONE_BRICKS);
@@ -25,7 +28,22 @@ public class MoonBase extends GameMap {
         setTime(9500);
         setTicksBeforeReveal(160);
 
-        addLocation(1908.5d, 73.0d, 1881.5d);
+        addLocation(1905.5, 82.0, 1921.5);
+        addLocation(1905.5, 82, 1921.5, -180, 0);
+        addLocation(1922.5, 73, 1860.5);
+        addLocation(1895.5, 76.5, 1927.5, -90, 0);
+        addLocation(1936.5, 75, 1897.5, 90, 0);
+        addLocation(1890.5, 73, 1905.5, -90, 0);
+        addLocation(1929.5, 73.0, 1937.5, -180, 0);
+        addLocation(1908.5, 73.5, 1882.5);
+
+        addPackLocation(PackType.HEALTH, 1936.5, 74.0, 1919.5);
+        addPackLocation(PackType.HEALTH, 1936.5, 75.0, 1932.5);
+        addPackLocation(PackType.HEALTH, 1902.5, 73.0, 1860.5);
+
+        addPackLocation(PackType.CHARGE, 1924.5, 74.0, 1870.5);
+        addPackLocation(PackType.CHARGE, 1936.5, 74.0, 1875.5);
+        addPackLocation(PackType.CHARGE, 1937.5, 85.0, 1936.5);
 
         // Wind
         addFeature(new MapFeature("Sucking", "Will suck you") {
@@ -44,6 +62,11 @@ public class MoonBase extends GameMap {
                 boundingBoxDeath.collectValid(world).forEach(entity -> {
                     Cosmetics.BLOOD.getCosmetic().onDisplay(entity.getLocation());
                     GamePlayer.damageEntity(entity, 100, null, EnumDamageCause.SHREDS_AND_PIECES);
+
+                    // Trigger achievement
+                    if (entity instanceof Player player) {
+                        Achievements.SHREDDING_TIME.complete(player);
+                    }
                 });
 
                 // Fx

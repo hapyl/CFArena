@@ -10,6 +10,7 @@ import me.hapyl.fight.game.damage.DamageData;
 import me.hapyl.fight.game.damage.DamageHandler;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.setting.Setting;
 import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.InputTalent;
@@ -223,7 +224,6 @@ public class PlayerHandler implements Listener {
         final EntityDamageEvent.DamageCause cause = ev.getCause();
 
         double damage = ev.getDamage();
-
         Projectile finalProjectile = null;
 
         // Ignore non living entities and/or void damage
@@ -233,6 +233,7 @@ public class PlayerHandler implements Listener {
 
         // Ignore lobby damage
         if (!Manager.current().isGameInProgress()) {
+            ev.setCancelled(true);
             return;
         }
 
@@ -254,7 +255,6 @@ public class PlayerHandler implements Listener {
 
             // Test for fall damage resistance
             if (data.lastDamageCause == EnumDamageCause.FALL && gamePlayer.hasEffect(GameEffectType.FALL_DAMAGE_RESISTANCE)) {
-                Debug.info("fall damage custom");
                 ev.setCancelled(true);
                 gamePlayer.removeEffect(GameEffectType.FALL_DAMAGE_RESISTANCE);
                 return;
@@ -352,8 +352,12 @@ public class PlayerHandler implements Listener {
                 // Weakness
                 // The current formula reduces damage by half
                 if (effectWeakness != null) {
+                    double __d = damage;
                     damage -= (4.0d * effectWeakness.getAmplifier() + 1);
                     damage /= 2.0d;
+
+                    Debug.info("damage before " + __d);
+                    Debug.info("damage after " + damage);
                 }
 
                 // Check for GameEffect is it is player
@@ -487,6 +491,10 @@ public class PlayerHandler implements Listener {
             damage = 0.0d;
         }
 
+        // Store data in DamageData
+        data.lastDamage = damage;
+        data.isCrit = isCrit;
+
         // Show damage indicator if dealt more
         // than 1 damage to remove clutter
         if (damage >= 1.0d && !(entity instanceof ArmorStand)) {
@@ -500,6 +508,10 @@ public class PlayerHandler implements Listener {
 
             if (gamePlayer != null) {
                 gamePlayer.getStats().addValue(StatType.DAMAGE_DEALT, damage);
+            }
+
+            if (Setting.SHOW_DAMAGE_IN_CHAT.isEnabled(player)) {
+                DamageHandler.notifyChatOutgoing(player, data);
             }
         }
 
@@ -522,6 +534,10 @@ public class PlayerHandler implements Listener {
                     ev.setCancelled(true);
                     return;
                 }
+            }
+
+            if (Setting.SHOW_DAMAGE_IN_CHAT.isEnabled(player)) {
+                DamageHandler.notifyChatIncoming(player, data);
             }
 
             // Fail-safe just to be sure player does

@@ -3,7 +3,9 @@ package me.hapyl.fight.game.heroes;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
+import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.collection.HeroStatsCollection;
+import me.hapyl.fight.database.entry.ExperienceEntry;
 import me.hapyl.fight.database.entry.HeroEntry;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.GamePlayer;
@@ -18,6 +20,7 @@ import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -219,7 +222,12 @@ public enum Heroes {
      * @return true if this hero is locked for player.
      */
     public boolean isLocked(Player player) {
-        return false;
+        final PlayerDatabase database = PlayerDatabase.getDatabase(player);
+
+        final boolean purchased = database.getHeroEntry().isPurchased(this);
+        final boolean hasLevel = database.getExperienceEntry().get(ExperienceEntry.Type.LEVEL) >= hero.getMinimumLevel();
+
+        return !purchased && !hasLevel;
     }
 
     /**
@@ -232,7 +240,7 @@ public enum Heroes {
     }
 
     /**
-     * Returns name of the hero in small caps.
+     * Returns the name of the hero in small caps.
      *
      * @return name of the hero in small caps.
      * @see SmallCaps
@@ -269,6 +277,13 @@ public enum Heroes {
             return (heroEntry.isFavourite(b) ? 1 : 0) - (heroEntry.isFavourite(a) ? 1 : 0);
         });
         return playable;
+    }
+
+    public static List<Heroes> playableRespectLockedFavourites(Player player) {
+        final List<Heroes> heroes = playableRespectFavourites(player);
+        heroes.sort(Comparator.comparingInt(a -> (a.isLocked(player) ? 1 : 0)));
+
+        return heroes;
     }
 
     /**

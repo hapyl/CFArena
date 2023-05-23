@@ -79,11 +79,16 @@ Bugs:
 - Rework achievement GUI to use top as category and contents as, well, fucking contents
 - Pretty sure witcher combo and zone ability don't work
 - Possible stackoverflow when calculating wave
-- Missing health pack on arena
+- [✔] Missing health pack on arena
 - "Flying is not enabled on this server"
-- DM can use spell with a FIST
+- [✔] DM can use spell with a FIST
 - Maybe don't remove player from team on leave?
 - Fix description from GRAY to DARK_GRAY
+- DM should damage with blinding curse; rename to darkness spell or something
+- DM slowing aura should interrupt and block using talents
+- [✔] Spectators can pickup game packs
+- [✔] fall damage custom
+- add /ram
 
 - [✔] Melee stance does not reset properly?
 - [✔] juju shield breaks all at once

@@ -48,19 +48,21 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
     public Alchemist() {
         super("Alchemist");
         setRole(Role.STRATEGIST);
+        // FIXME (hapyl): 023, May 23, 2023: typos
         setInfo(
-                "An alchemist who was deceived by creation of the abyss. In return of help received an Abyssal Bottle that creates potions from the &0&lvoid &7itself."
+                "An alchemist who was deceived by creation of the abyss. In return of help received an Abyssal Bottle that creates potions from the &0&lvoid &8itself."
         );
         setItem("661691fb01825b9d9ec1b8f04199443146aa7d5627aa745962c0704b6a236027");
 
         setWeapon(new Weapon(Material.STICK).addEnchant(Enchantment.KNOCKBACK, 1)
                 .setName("Stick")
-                .setDamage(5.0d)
+                .setDamage(8.0d)
                 .setDescription("Turns out that a stick used in brewing can also be used in battle."));
 
         final HeroAttributes attributes = getAttributes();
-        attributes.setValue(AttributeType.HEALTH, 100);
-        attributes.setValue(AttributeType.DEFENSE, 0.);
+        attributes.setValue(AttributeType.HEALTH, 125);
+        attributes.setValue(AttributeType.DEFENSE, 0.5d);
+        attributes.setValue(AttributeType.SPEED, 0.22d);
 
         final HeroEquipment equipment = getEquipment();
         equipment.setChestplate(31, 5, 3);

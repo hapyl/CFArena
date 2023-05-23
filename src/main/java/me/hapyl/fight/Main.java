@@ -11,7 +11,7 @@ import me.hapyl.fight.game.collectible.Collectibles;
 import me.hapyl.fight.game.cosmetic.CosmeticsListener;
 import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.maps.features.BoosterController;
-import me.hapyl.fight.game.maps.healthpack.HealthPackListener;
+import me.hapyl.fight.game.maps.gamepack.HealthPackListener;
 import me.hapyl.fight.game.parkour.CFParkourManager;
 import me.hapyl.fight.game.task.TaskList;
 import me.hapyl.fight.notifier.Notifier;

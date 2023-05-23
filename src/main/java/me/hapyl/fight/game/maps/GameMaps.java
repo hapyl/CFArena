@@ -4,7 +4,7 @@ import me.hapyl.fight.game.maps.features.CloudFeatures;
 import me.hapyl.fight.game.maps.features.JapanFeature;
 import me.hapyl.fight.game.maps.features.LibraryCat;
 import me.hapyl.fight.game.maps.features.LibraryFeature;
-import me.hapyl.fight.game.maps.healthpack.PackType;
+import me.hapyl.fight.game.maps.gamepack.PackType;
 import me.hapyl.fight.game.maps.maps.DragonsGorge;
 import me.hapyl.fight.game.maps.maps.MoonBase;
 import me.hapyl.fight.game.maps.maps.WineryMap;

@@ -46,8 +46,8 @@ public class UltimateTalent extends Talent implements DisplayFieldDataProvider {
         return this;
     }
 
-    public UltimateTalent setDuration(int duration) {
-        super.setDuration(duration);
+    public UltimateTalent appendAttributeDescription(String key, Object value) {
+        addAttributeDescription(key, value);
         return this;
     }
 
@@ -59,8 +59,8 @@ public class UltimateTalent extends Talent implements DisplayFieldDataProvider {
         return super.getDuration();
     }
 
-    public UltimateTalent setSound(Sound sound) {
-        this.sound = sound;
+    public UltimateTalent setDuration(int duration) {
+        super.setDuration(duration);
         return this;
     }
 
@@ -70,17 +70,22 @@ public class UltimateTalent extends Talent implements DisplayFieldDataProvider {
         return this;
     }
 
+    public float getPitch() {
+        return pitch;
+    }
+
     public UltimateTalent setPitch(float pitch) {
         this.pitch = pitch;
         return this;
     }
 
-    public float getPitch() {
-        return pitch;
-    }
-
     public Sound getSound() {
         return sound;
+    }
+
+    public UltimateTalent setSound(Sound sound) {
+        this.sound = sound;
+        return this;
     }
 
     public int getCost() {

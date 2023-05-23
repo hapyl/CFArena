@@ -10,6 +10,7 @@ import me.hapyl.fight.game.heroes.Origin;
 import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.PlayerGUI;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 
@@ -32,7 +33,7 @@ public class HeroSelectGUI extends PlayerGUI {
     private void update(int start) {
         clearEverything();
         final Player player = getPlayer();
-        final List<Heroes> list = Heroes.playableRespectFavourites(player);
+        final List<Heroes> list = Heroes.playableRespectLockedFavourites(player);
 
         // add previous page button
         if (start >= guiFitSize) {
@@ -55,51 +56,56 @@ public class HeroSelectGUI extends PlayerGUI {
 
             final Heroes enumHero = list.get(i);
             final Hero hero = enumHero.getHero();
-            final boolean isFavourite = enumHero.isFavourite(player);
 
             if (enumHero.isLocked(player)) {
-                // TODO: 023, Mar 23, 2023 -> impl locked heroes
-            }
-
-            final ItemBuilder builder = new ItemBuilder(hero.getItem())
-                    .setName("&a" + hero.getName())
-                    .addLore("&8/hero " + enumHero.name().toLowerCase(Locale.ROOT))
-                    .addLore()
-                    .addLore("&7Role: &b%s", hero.getRole().getName())
-                    .addLoreIf("&7Origin: &b%s".formatted(hero.getOrigin().getName()), hero.getOrigin() != Origin.NOT_SET)
-                    .addLore();
-
-            final HeroAttributes attributes = hero.getAttributes();
-            builder.addLore("&6Attributes: ");
-            builder.addLore(attributes.getLore(AttributeType.HEALTH));
-            builder.addLore(attributes.getLore(AttributeType.ATTACK));
-            builder.addLore(attributes.getLore(AttributeType.DEFENSE));
-            builder.addLore(attributes.getLore(AttributeType.SPEED));
-            builder.addLore("&eSee details for more!");
-
-            builder.addLore();
-            builder.addSmartLore(hero.getDescription(), "&8&o");
-
-            if (hero instanceof ComplexHero) {
-                builder.addLore();
-                builder.addLore("&6&lComplex Hero!");
-                builder.addSmartLore(
-                        "This hero is more difficult to play than others. Thus is &nnot&e&o recommended for newer players.",
-                        "&e&o"
+                setItem(slot, ItemBuilder.of(Material.COAL, "&c???", "&8Locked!")
+                                .addLore()
+                                .addLore("&7Reach level &b%s &7to unlock!", hero.getMinimumLevel())
+                                .asIcon(),
+                        click -> {
+                        }
                 );
             }
+            else {
+                final ItemBuilder builder = new ItemBuilder(hero.getItem())
+                        .setName("&a" + hero.getName())
+                        .addLore("&8/hero " + enumHero.name().toLowerCase(Locale.ROOT))
+                        .addLore()
+                        .addLore("&7Role: &b%s", hero.getRole().getName())
+                        .addLoreIf("&7Origin: &b%s".formatted(hero.getOrigin().getName()), hero.getOrigin() != Origin.NOT_SET)
+                        .addLore();
 
-            // usage lore
-            builder.addLore().addLore("&e&lLEFT CLICK &7to select").addLore("&e&lRIGHT CLICK &7for details");
+                final HeroAttributes attributes = hero.getAttributes();
+                builder.addLore("&6Attributes: ");
+                builder.addLore(attributes.getLore(AttributeType.HEALTH));
+                builder.addLore(attributes.getLore(AttributeType.ATTACK));
+                builder.addLore(attributes.getLore(AttributeType.DEFENSE));
+                builder.addLore(attributes.getLore(AttributeType.SPEED));
+                builder.addLore("&eSee details for more!");
 
-            setItem(slot, builder.predicate(isFavourite, ItemBuilder::glow).toItemStack());
-            setClick(
-                    slot,
-                    pl -> Manager.current().setSelectedHero(player, enumHero),
-                    ClickType.LEFT,
-                    ClickType.SHIFT_LEFT
-            );
-            setClick(slot, pl -> new HeroPreviewGUI(player, enumHero, start), ClickType.RIGHT, ClickType.SHIFT_RIGHT);
+                builder.addLore();
+                builder.addSmartLore(hero.getDescription(), "&8&o");
+
+                if (hero instanceof ComplexHero) {
+                    builder.addLore();
+                    builder.addTextBlockLore("""
+                            &6&lComplex Hero!
+                            This hero is more difficult to play than others. Thus is &nnot&7 recommended for newer players.
+                            """);
+                }
+
+                // Usage
+                builder.addLore().addLore("&eLeft Click to select").addLore("&6Right Click for details");
+
+                setItem(slot, builder.asIcon());
+                setClick(
+                        slot,
+                        pl -> Manager.current().setSelectedHero(player, enumHero),
+                        ClickType.LEFT,
+                        ClickType.SHIFT_LEFT
+                );
+                setClick(slot, pl -> new HeroPreviewGUI(player, enumHero, start), ClickType.RIGHT, ClickType.SHIFT_RIGHT);
+            }
         }
 
         openInventory();

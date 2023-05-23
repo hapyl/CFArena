@@ -1,4 +1,4 @@
-package me.hapyl.fight.game.maps.healthpack;
+package me.hapyl.fight.game.maps.gamepack;
 
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Utils;

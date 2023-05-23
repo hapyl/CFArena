@@ -1,5 +1,6 @@
 package me.hapyl.fight.game;
 
+import me.hapyl.fight.game.attribute.PlayerAttributes;
 import me.hapyl.fight.game.cosmetic.skin.Skins;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Hero;
@@ -94,9 +95,17 @@ public interface IGamePlayer {
     /**
      * Returns true if player is in combat; false otherwise.
      *
-     * @return true if player is in combat; false otherwise.
+     * @return true if a player is in combat; false otherwise.
      */
     boolean isCombatTagged();
+
+    /**
+     * Gets the player attributes.
+     *
+     * @return player attributes.
+     */
+    @Nonnull
+    PlayerAttributes getAttributes();
 
     /**
      * Returns player's talent queue.

@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.storage;
 
 import me.hapyl.fight.game.PlayerElement;
+import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -8,7 +9,6 @@ import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.heroes.storage.extra.MoonwalkerUltimate;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.talents.storage.moonwalker.MoonSliteBomb;
 import me.hapyl.fight.game.talents.storage.moonwalker.MoonslitePillar;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
@@ -38,6 +38,8 @@ public class Moonwalker extends Hero implements PlayerElement, UIComponent {
 
         setInfo("A traveller from another planet... or, should I say moon? Brings his skills and... planets... with himself!");
         setItem("1cf8fbd76586920c5273519927862fdc111705a1851d4d1aac450bcfd2b3a");
+
+        final HeroAttributes attributes = getAttributes();
 
         final HeroEquipment equipment = getEquipment();
         equipment.setChestplate(255, 255, 255);
@@ -126,8 +128,8 @@ public class Moonwalker extends Hero implements PlayerElement, UIComponent {
     }
 
     @Override
-    public MoonSliteBomb getSecondTalent() {
-        return (MoonSliteBomb) Talents.MOONSLITE_BOMB.getTalent();
+    public Talent getSecondTalent() {
+        return Talents.MOONSLITE_ZONE.getTalent();
     }
 
     @Override
@@ -137,7 +139,6 @@ public class Moonwalker extends Hero implements PlayerElement, UIComponent {
 
     @Override
     public @Nonnull String getString(Player player) {
-        final int bombs = getSecondTalent().getBombsSize(player);
-        return "&e■ &l" + bombs;
+        return "";
     }
 }

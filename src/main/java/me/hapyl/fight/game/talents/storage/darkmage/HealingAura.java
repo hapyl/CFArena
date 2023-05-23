@@ -19,15 +19,21 @@ import javax.annotation.Nonnull;
 public class HealingAura extends DarkMageTalent {
 
     @DisplayField(suffix = "blocks") private final double radius = 2.5d;
-    @DisplayField private final double assistHealing = 10.0d;
+    @DisplayField private final double assistHealing = 25.0d;
 
     public HealingAura() {
-        super("Healing Aura", "Creates a healing circle at your location that heals all players periodically.", Material.APPLE);
-
-        setAssistDescription("Instantly heals for &c%s ❤&7.".formatted(assistHealing));
+        super("Healing Aura", """
+                Creates a healing circle at your location that heals all players periodically.
+                """, Material.APPLE);
 
         setDuration(200);
         setCdSec(30);
+    }
+
+    @Nonnull
+    @Override
+    public String getAssistDescription() {
+        return "Instantly heals for &c%s ❤&7.".formatted(assistHealing);
     }
 
     @Override
@@ -48,7 +54,7 @@ public class HealingAura extends DarkMageTalent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response executeSpell(Player player) {
         final Location location = player.getLocation();
 
         new GameTask() {

@@ -48,6 +48,15 @@ public enum Achievements {
                     .setReward(Reward.currency().withCoins(1000))
     ),
 
+    ////////////////////////
+    // OTHER ACHIEVEMENTS //
+    ////////////////////////
+
+    SHREDDING_TIME(
+            new HiddenAchievement("Shredding Time!", "Get tear to shreds by a certain turbine.")
+                    .setReward(Reward.currency().withCoins(1500))
+    ),
+
     ;
 
     public final Achievement achievement;

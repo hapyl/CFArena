@@ -1,5 +1,6 @@
 package me.hapyl.fight.game;
 
+import me.hapyl.fight.game.attribute.PlayerAttributes;
 import me.hapyl.fight.game.cosmetic.skin.Skins;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Hero;
@@ -54,6 +55,12 @@ public class NullGamePlayer implements IGamePlayer {
     @Override
     public boolean isCombatTagged() {
         return false;
+    }
+
+    @Nonnull
+    @Override
+    public PlayerAttributes getAttributes() {
+        throw new IllegalStateException("welp, someone should've checked isReal() ¯\\_(ツ)_/¯");
     }
 
     @Nonnull

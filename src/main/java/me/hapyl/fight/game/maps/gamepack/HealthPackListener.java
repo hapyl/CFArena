@@ -1,5 +1,6 @@
-package me.hapyl.fight.game.maps.healthpack;
+package me.hapyl.fight.game.maps.gamepack;
 
+import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.State;
@@ -21,6 +22,10 @@ public class HealthPackListener implements Listener {
 
         final GameMap currentMap = gameInstance.getMap().getMap();
         final Player player = ev.getPlayer();
+
+        if (!GamePlayer.getPlayer(player).isAlive()) {
+            return;
+        }
 
         for (GamePack pack : currentMap.getGamePacks()) {
             final ActivePack collisionPack = pack.getCollisionPack(player);

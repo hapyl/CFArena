@@ -413,6 +413,20 @@ public class Utils {
         return list;
     }
 
+    /**
+     * Forces entity to look at provided location.
+     *
+     * @param entity - Entity.
+     * @param at     - Look at.
+     */
+    public static void lookAt(@Nonnull LivingEntity entity, @Nonnull Location at) {
+        final Vector dirBetweenLocations = at.toVector().subtract(entity.getLocation().toVector());
+        final Location location = entity.getLocation();
+
+        location.setDirection(dirBetweenLocations);
+        entity.teleport(location);
+    }
+
     public static Player getNearestPlayer(Location location, double radius, Player exclude) {
         return (Player) getNearestEntity(location, radius, entity -> {
             return entity instanceof Player && entity != exclude && Manager.current().isPlayerInGame((Player) entity) &&

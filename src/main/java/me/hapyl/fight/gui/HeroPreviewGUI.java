@@ -151,7 +151,6 @@ public class HeroPreviewGUI extends PlayerGUI {
                 player -> new HeroStatisticGUI(player, heroes, index)
         );
 
-        formatDebug();
         fixAbilityItemsCount();
         openInventory();
     }

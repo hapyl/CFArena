@@ -63,6 +63,14 @@ public class DamageCause {
         return clone;
     }
 
+    public static DamageCause nonCrit(String message, String suffix) {
+        return of(message, suffix).setCanCrit(false);
+    }
+
+    public static DamageCause nonCrit(String message) {
+        return nonCrit(message, "");
+    }
+
     public static DamageCause of(String message, String suffix) {
         return new DamageCause(message, suffix);
     }
@@ -72,7 +80,7 @@ public class DamageCause {
     }
 
     public static DamageCause minecraft(String message, String suffix) {
-        return new DamageCause(message, suffix).setCustom(false);
+        return new DamageCause(message, suffix).setCustom(false).setCanCrit(false);
     }
 
     public static DamageCause minecraft(String message) {

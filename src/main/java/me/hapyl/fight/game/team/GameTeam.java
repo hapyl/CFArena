@@ -236,11 +236,8 @@ public enum GameTeam {
         return smallestTeam;
     }
 
-    public static List<GameTeam> getPopulatedTeams() {
-        final List<GameTeam> populatedTeams = Lists.newArrayList();
-
+    public static void removeOfflinePlayers() {
         for (GameTeam team : values()) {
-            // clear offline members before calculating anything
             team.members.removeIf(uuid -> {
                 final boolean tempRemove = Bukkit.getPlayer(uuid) == null;
 
@@ -250,7 +247,18 @@ public enum GameTeam {
 
                 return tempRemove;
             });
+        }
+    }
 
+    /**
+     * Gets a list of teams where there is at least one player.
+     *
+     * @return list of populated teams.
+     */
+    public static List<GameTeam> getPopulatedTeams() {
+        final List<GameTeam> populatedTeams = Lists.newArrayList();
+
+        for (GameTeam team : values()) {
             if (team.getPlayersAsPlayers().size() > 0) {
                 populatedTeams.add(team);
             }

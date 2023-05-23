@@ -8,7 +8,6 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.PlayerElement;
-import me.hapyl.fight.game.attribute.Attributes;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.heroes.storage.Ender;
 import me.hapyl.fight.game.heroes.storage.Moonwalker;
@@ -144,10 +143,6 @@ public abstract class Hero implements GameElement, PlayerElement {
     @Nonnull
     public HeroAttributes getAttributes() {
         return attributes;
-    }
-
-    public void setAttributes(Attributes attributes) {
-        attributes.forEach(this.attributes::set);
     }
 
     /**
@@ -444,7 +439,7 @@ public abstract class Hero implements GameElement, PlayerElement {
     /**
      * Called whenever invisible player dealt damage.
      *
-     * @param player - Player who dealt damage. Always invisible.
+     * @param player - Player, who dealt damage. Always invisible.
      * @param entity - Entity that took damage.
      * @param damage - Damage dealt.
      * @return true to cancel damage, false to allow.
@@ -496,10 +491,10 @@ public abstract class Hero implements GameElement, PlayerElement {
     }
 
     /**
-     * Predicate for ultimate. Return true if player is able to use their ultimate, false otherwise.
+     * Predicate for ultimate. Return true if a player is able to use their ultimate, false otherwise.
      *
-     * @param player - Player who is trying to use ultimate.
-     * @return true if player is able to use their ultimate, false otherwise.
+     * @param player - Player, who is trying to use ultimate.
+     * @return true if a player is able to use their ultimate, false otherwise.
      * @see Ender#predicateUltimate(Player)
      * @see Moonwalker#predicateUltimate(Player)
      */
@@ -589,14 +584,14 @@ public abstract class Hero implements GameElement, PlayerElement {
      * Returns true if there is a game in progress and player is in game, and player's selected hero is the same as the one provided.
      *
      * @param player - Player.
-     * @return true if there is a game in progress and player is in game, and player's selected hero is the same as the one provided.
+     * @return true, if there is a game in progress and player is in game, and player's selected hero is the same as the one provided.
      */
     public final boolean validatePlayer(Player player) {
         final Manager current = Manager.current();
         return validPlayerInGame(player) && current.getCurrentHero(player) == this;
     }
 
-    // Utilities for checks etc.
+    // Utilities for checks, etc.
 
     /**
      * Returns all talents of this hero, including nullable.
@@ -672,7 +667,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      * Returns true if there is a game in progress and player is in game.
      *
      * @param player - Player.
-     * @return true if there is a game in progress and player is in game.
+     * @return true, if there is a game in progress and player is in game.
      */
     private boolean validPlayerInGame(Player player) {
         final Manager current = Manager.current();

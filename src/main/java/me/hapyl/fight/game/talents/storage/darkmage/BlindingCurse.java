@@ -1,5 +1,7 @@
 package me.hapyl.fight.game.talents.storage.darkmage;
 
+import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.storage.extra.DarkMageSpell;
@@ -23,13 +25,22 @@ import javax.annotation.Nullable;
 public class BlindingCurse extends DarkMageTalent {
 
     @DisplayField private final double maxDistance = 35.0d;
+    @DisplayField private final double damage = 5.0d;
+    @DisplayField private final int blindingDuration = 60;
+    @DisplayField private final int slowingDuration = 40;
 
     public BlindingCurse() {
-        super("Blinding Curse", "Applies blinding curse to target player.", Material.INK_SAC);
-
-        setAssistDescription("The curse bounces to two additional targets.");
+        super("Darkness Curse", """
+                Damages, slows and applies blinding curse to the target player.
+                """, Material.INK_SAC);
 
         setCd(100);
+    }
+
+    @Nonnull
+    @Override
+    public String getAssistDescription() {
+        return "The curse bounces to two additional targets.";
     }
 
     @Nonnull
@@ -45,7 +56,7 @@ public class BlindingCurse extends DarkMageTalent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response executeSpell(Player player) {
         final LivingEntity target = Utils.getTargetEntity(
                 player,
                 maxDistance,
@@ -111,8 +122,14 @@ public class BlindingCurse extends DarkMageTalent {
         PlayerLib.playSound(location, Sound.ENTITY_GLOW_SQUID_SQUIRT, 1.8f);
         PlayerLib.spawnParticle(location, Particle.SQUID_INK, 1, 0.3d, 0.3d, 0.3, 3f);
 
-        to.addPotionEffect(PotionEffectType.BLINDNESS.createEffect(60, 10));
-        to.addPotionEffect(PotionEffectType.SLOW.createEffect(40, 1));
+        if (to instanceof Player toPlayer) {
+            Chat.sendTitle(toPlayer, "&0&l☠", "&0&l☠", 0, blindingDuration - 10, 10);
+        }
+
+        to.addPotionEffect(PotionEffectType.BLINDNESS.createEffect(blindingDuration, 10));
+        to.addPotionEffect(PotionEffectType.SLOW.createEffect(slowingDuration, 1));
+
+        GamePlayer.damageEntity(to, damage, player, EnumDamageCause.DARKNESS_CURSE);
 
         Chat.sendMessage(to, "&c%s has cursed you with the Dark Magic!", player.getName());
         Chat.sendMessage(player, "&aYou have cursed %s with Dark Magic!", to.getName());

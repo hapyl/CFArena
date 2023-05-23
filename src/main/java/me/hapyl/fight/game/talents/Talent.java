@@ -39,7 +39,8 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
     private final Type type;
     private final List<String> attributeDescription;
 
-    @Nonnull private String description;
+    @Nonnull
+    private String description;
 
     private ItemStack itemStats;
     private int startAmount;
@@ -130,7 +131,7 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
      * Adds an empty description.
      */
     public void addDescription() {
-        addDescription("");
+        addDescription("\n");
     }
 
     /**
@@ -267,7 +268,6 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
                     BukkitUtils.roundTick(this.cd)
             ));
         }
-
         else if (cd <= -1) {
             builderAttributes.addLore("Cooldown: &f&lDynamic");
         }
@@ -302,7 +302,6 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
                 builderAttributes.addLore("Recharge Time: &f&l%ss", BukkitUtils.roundTick(rechargeTime));
             }
         }
-
         else if (this instanceof UltimateTalent ult) {
             builderAttributes.addLore("Ultimate Cost: &f&l%s ※", ult.getCost());
             builderAttributes.glow();
@@ -344,6 +343,10 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
     @Super
     @Nonnull
     public final Response execute0(Player player) {
+        return precondition(player, execute(player));
+    }
+
+    public final Response precondition(Player player, Response response) {
         final Response canUseRes = Utils.playerCanUseAbility(player);
         if (canUseRes.isError()) {
             return canUseRes;
@@ -352,8 +355,6 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         if (castMessage != null) {
             Chat.sendMessage(player, castMessage);
         }
-
-        final Response response = execute(player);
 
         // If error, don't progress talent
         if (response == null || response == Response.ERROR) {

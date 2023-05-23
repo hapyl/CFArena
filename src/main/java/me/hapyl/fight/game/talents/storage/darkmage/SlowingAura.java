@@ -1,6 +1,10 @@
 package me.hapyl.fight.game.talents.storage.darkmage;
 
+import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.storage.extra.DarkMageSpell;
 import me.hapyl.fight.game.heroes.storage.extra.WitherData;
 import me.hapyl.fight.game.task.GameTask;
@@ -31,12 +35,18 @@ public class SlowingAura extends DarkMageTalent {
     private final int taskPeriod = 5;
 
     public SlowingAura() {
-        super("Slowing Aura", "Creates a slowness pool at your target block that slows anyone in range.", Material.BONE_MEAL);
+        super("Slowing Aura", """
+                Creates a slowness pool at your target block that slows anyone in range.
+                """, Material.BONE_MEAL);
 
-        setAssistDescription("");
-
-        setDuration(50);
+        setDurationSec(4);
         setCd(200);
+    }
+
+    @Nonnull
+    @Override
+    public String getAssistDescription() {
+        return "The aura will also increase talent cooldowns and periodically interrupt actions.";
     }
 
     @Nonnull
@@ -56,7 +66,7 @@ public class SlowingAura extends DarkMageTalent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response executeSpell(Player player) {
         final Block targetBlock = player.getTargetBlockExact(maxDistance);
 
         if (targetBlock == null) {
@@ -77,7 +87,7 @@ public class SlowingAura extends DarkMageTalent {
 
                 tick -= taskPeriod;
 
-                Geometry.drawCircle(location, radius, Quality.LOW, new Draw(Particle.SPELL) {
+                Geometry.drawCircle(location, radius, Quality.HIGH, new Draw(Particle.SPELL) {
                     @Override
                     public void draw(Location location) {
                         final World world = location.getWorld();
@@ -96,6 +106,20 @@ public class SlowingAura extends DarkMageTalent {
                 PlayerLib.playSound(location, BLOCK_HONEY_BLOCK_SLIDE, 0.0f);
                 Utils.getPlayersInRange(location, radius).forEach(entity -> {
                     PlayerLib.addEffect(entity, PotionEffectType.SLOW, 10, 3);
+
+                    // Witherborn assist
+                    if (!Heroes.DARK_MAGE.getHero().isUsingUltimate(player)) {
+                        return;
+                    }
+
+                    // Add stun effect
+                    final IGamePlayer gamePlayer = GamePlayer.getPlayer(entity);
+                    gamePlayer.addEffect(GameEffectType.SLOWING_AURA, 40, true);
+
+                    // Interrupt
+                    if (tick % 20 == 0) {
+                        gamePlayer.interrupt();
+                    }
                 });
 
             }

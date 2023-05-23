@@ -310,7 +310,9 @@ public class Manager extends DependencyInjector<Main> {
 
         // Check for team balance
         // todo -> Maybe add config support for unbalanced teams
+        GameTeam.removeOfflinePlayers(); // Make sure to remove offline players
         final List<GameTeam> populatedTeams = GameTeam.getPopulatedTeams();
+
         int teamPlayers = 0;
         for (GameTeam populatedTeam : populatedTeams) {
             final int size = populatedTeam.getPlayers().size();
@@ -580,6 +582,11 @@ public class Manager extends DependencyInjector<Main> {
         if (Manager.current().isGameInProgress()) {
             Chat.sendMessage(player, "&cUnable to change hero during the game!");
             PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
+            return;
+        }
+
+        if (heroes.isLocked(player) && !force) {
+            Chat.sendMessage(player, "&cThis hero is locked!");
             return;
         }
 

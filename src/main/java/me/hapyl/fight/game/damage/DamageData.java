@@ -1,10 +1,12 @@
 package me.hapyl.fight.game.damage;
 
+import me.hapyl.fight.annotate.Important;
 import me.hapyl.fight.game.EnumDamageCause;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.EntityDamageEvent;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class DamageData {
@@ -17,6 +19,9 @@ public class DamageData {
     public EnumDamageCause lastDamageCause;
 
     public double lastDamage;
+    public boolean isCrit;
+
+    @Important("Notifies the event that the damage is custom, not vanilla.")
     protected boolean wasHit;
 
     public DamageData(LivingEntity entity) {
@@ -38,6 +43,11 @@ public class DamageData {
     @Nullable
     public EnumDamageCause getLastDamageCause() {
         return lastDamageCause;
+    }
+
+    @Nonnull
+    public EnumDamageCause getLastDamageCauseNonNull() {
+        return lastDamageCause == null ? EnumDamageCause.ENTITY_ATTACK : lastDamageCause;
     }
 
     @Nullable

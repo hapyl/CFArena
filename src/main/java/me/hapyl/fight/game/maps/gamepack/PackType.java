@@ -1,4 +1,4 @@
-package me.hapyl.fight.game.maps.healthpack;
+package me.hapyl.fight.game.maps.gamepack;
 
 public enum PackType {
 

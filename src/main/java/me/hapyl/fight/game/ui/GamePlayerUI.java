@@ -5,6 +5,8 @@ import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.game.*;
+import me.hapyl.fight.game.attribute.HeroAttributes;
+import me.hapyl.fight.game.attribute.PlayerAttributes;
 import me.hapyl.fight.game.effect.GameEffect;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.setting.Setting;
@@ -14,19 +16,21 @@ import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.trial.Trial;
 import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.math.nn.IntInt;
 import me.hapyl.spigotutils.module.player.song.Song;
 import me.hapyl.spigotutils.module.player.song.SongPlayer;
 import me.hapyl.spigotutils.module.scoreboard.Scoreboarder;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import java.text.SimpleDateFormat;
 
 /**
- * This controls all UI based elements such as scoreboard, tab-list, and actionbar (while in game).
+ * This controls all UI-based elements such as scoreboard, tab-list, and actionbar (while in game).
  */
 public class GamePlayerUI {
 
@@ -59,6 +63,11 @@ public class GamePlayerUI {
                 animateScoreboard();
                 updateScoreboard();
 
+                // Yes, I know it's not really a UI thing,
+                // but I ain't making another ticker just for
+                // debugging items.
+                updateDebug();
+
                 if (Setting.SPECTATE.isEnabled(player)) {
                     Chat.sendActionbar(player, "&aYou will spectate when the game starts.");
                 }
@@ -75,6 +84,26 @@ public class GamePlayerUI {
     }
 
     private void animateScoreboard() {
+    }
+
+    public void updateDebug() {
+        final GamePlayer gamePlayer = profile.getGamePlayer();
+
+        if (gamePlayer == null) {
+            return;
+        }
+
+        final PlayerAttributes attributes = gamePlayer.getAttributes();
+        final HeroAttributes baseAttributes = attributes.getBaseAttributes();
+
+        final ItemBuilder baseBuilder = ItemBuilder.of(Material.COARSE_DIRT, "Base Attributes", "&8Debug").addLore();
+        baseAttributes.forEach((type, value) -> baseBuilder.addLore(type.getFormatted(baseAttributes)));
+
+        final ItemBuilder playerBuilder = ItemBuilder.of(Material.DIRT, "Player Attributes", "&8Debug").addLore();
+        attributes.forEach((type, value) -> playerBuilder.addLore(type.getFormatted(attributes)));
+
+        player.getInventory().setItem(21, baseBuilder.toItemStack());
+        player.getInventory().setItem(23, playerBuilder.toItemStack());
     }
 
     public void sendInGameUI(@Nonnull ChatColor ultimateColor) {

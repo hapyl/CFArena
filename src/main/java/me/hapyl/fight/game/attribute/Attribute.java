@@ -20,7 +20,7 @@ public class Attribute {
         this.description = description;
         this.character = "|";
         this.color = ChatColor.GREEN;
-        this.toString = d -> String.valueOf(d * 100.0d);
+        this.toString = d -> "%.2f".formatted(d * 100.0d);
     }
 
     public String getName() {

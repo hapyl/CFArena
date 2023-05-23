@@ -1,31 +1,29 @@
 package me.hapyl.fight.game.talents.storage.darkmage;
 
-import me.hapyl.fight.game.GamePlayer;
+import com.google.common.collect.Maps;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.storage.DarkMage;
 import me.hapyl.fight.game.heroes.storage.extra.DarkMageSpell;
+import me.hapyl.fight.game.heroes.storage.extra.WitherData;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.reflect.npc.ClickType;
+import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
-import me.hapyl.spigotutils.module.reflect.npc.NPCPose;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
-
-import static org.bukkit.Sound.ENTITY_SQUID_SQUIRT;
+import javax.annotation.Nullable;
+import java.util.Map;
 
 public class ShadowClone extends DarkMageTalent {
 
-    @DisplayField(suffix = "blocks") private final double damageRadius = 3.0d;
-    @DisplayField private final double damage = 3.0d;
+    @DisplayField(suffix = "blocks") protected final double damageRadius = 3.0d;
+    @DisplayField protected final double damage = 3.0d;
+
+    private final Map<Player, ShadowCloneNPC> clones;
 
     public ShadowClone() {
         super("Shadow Clone", """
@@ -34,10 +32,16 @@ public class ShadowClone extends DarkMageTalent {
                 After a brief delay or whenever enemy hits the clone, it explodes, stunning, blinding and dealing damage to nearby players.
                 """, Material.NETHERITE_SCRAP);
 
-        setAssistDescription("idk yey 🤷‍♀️");
+        clones = Maps.newHashMap();
 
         setDuration(60);
         setCd(300);
+    }
+
+    @Nonnull
+    @Override
+    public String getAssistDescription() {
+        return "The clone will not disappear. Instead, if will persist until you take damage. When taking damage, nullify it and teleport to the clone.";
     }
 
     @Nonnull
@@ -52,71 +56,42 @@ public class ShadowClone extends DarkMageTalent {
         return DarkMageSpell.SpellButton.RIGHT;
     }
 
-    public void explode(HumanNPC npc, Player clicker) {
-        if (!npc.isAlive()) {
-            return;
+    public void removeNpc(Player player, int delay) {
+        final ShadowCloneNPC clone = clones.remove(player);
+
+        if (clone != null) {
+            clone.remove(delay);
         }
+    }
 
-        final Location location = npc.getLocation();
-
-        // Turn towards target
-        if (clicker != null) {
-            npc.lookAt(clicker.getLocation());
-
-            PlayerLib.addEffect(clicker, PotionEffectType.SLOW, 60, 4);
-            PlayerLib.addEffect(clicker, PotionEffectType.DARKNESS, 60, 4);
-
-            // Add a little delay before removing hit NPC, so it doesn't look weird
-            GameTask.runLater(npc::remove, 20);
-        }
-        else {
-            npc.remove();
-        }
-
-        PlayerLib.spawnParticle(location.add(0.0d, 0.5d, 0.0d), Particle.SQUID_INK, 30, 0.1, 0.5, 0.1, 0.05f);
-        PlayerLib.playSound(location, ENTITY_SQUID_SQUIRT, 0.25f);
-
-        Utils.getPlayersInRange(location, damageRadius).forEach(target -> {
-            GamePlayer.damageEntity(target, damage, target);
-            PlayerLib.addEffect(target, PotionEffectType.SLOW, 60, 2);
-            PlayerLib.addEffect(target, PotionEffectType.BLINDNESS, 60, 2);
-        });
+    @Nullable
+    public ShadowCloneNPC getClone(Player player) {
+        return clones.get(player);
     }
 
     @Override
-    public Response execute(Player player) {
-        final HumanNPC shadowClone = new HumanNPC(player.getLocation(), "", player.getName()) {
-            @Override
-            public void onClick(Player clicker, HumanNPC npc, ClickType clickType) {
-                if (clicker == player) {
-                    return;
-                }
+    public Response executeSpell(Player player) {
+        final WitherData witherData = Heroes.DARK_MAGE.getHero(DarkMage.class).getWither(player);
+        final HumanNPC previousClone = getClone(player);
 
-                explode(npc, clicker);
-            }
-        };
-
-        GamePlayer.getPlayer(player).addEffect(GameEffectType.INVISIBILITY, getDuration());
-        shadowClone.showAll();
-        shadowClone.setEquipment(player.getEquipment());
-
-        if (player.isSwimming()) {
-            shadowClone.setPose(NPCPose.SWIMMING);
-        }
-        else if (player.isSneaking()) {
-            shadowClone.setPose(NPCPose.CROUCHING);
+        if (previousClone != null) {
+            previousClone.remove();
+            Chat.sendMessage(player, "&aYour previous clone was removed!");
         }
 
-        new GameTask() {
-            @Override
-            public void run() {
-                if (!Heroes.DARK_MAGE.getHero().isUsingUltimate(player)) {
-                    Utils.showPlayer(player);
-                }
+        final ShadowCloneNPC shadowClone = new ShadowCloneNPC(player);
+        shadowClone.ultimate = witherData != null;
 
-                explode(shadowClone, null);
-            }
-        }.runTaskLater(getDuration());
+        // Show player
+        GameTask.runLater(() -> Utils.showPlayer(player), getDuration());
+
+        // Only explode if not using ultimate
+        if (witherData == null) {
+            shadowClone.explode(null, getDuration());
+            removeNpc(player, getDuration());
+        }
+
+        clones.put(player, shadowClone);
 
         return Response.OK;
     }

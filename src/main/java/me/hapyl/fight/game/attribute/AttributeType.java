@@ -14,13 +14,13 @@ public enum AttributeType {
             100.0d
     ),
     ATTACK(
-            new Attribute("Attack", "The more attack you have, the more damage you will deal.")
+            new Attribute("Attack", "The more attack you have, the more damage you deal.")
                     .setChar("🗡")
                     .setColor(ChatColor.DARK_RED),
             1.0d
     ),
     DEFENSE(
-            new Attribute("Defense", "The more defense you have, the less damage you will take.")
+            new Attribute("Defense", "The more defense you have, the less damage you take.")
                     .setChar("🛡")
                     .setColor(ChatColor.DARK_GREEN),
             1.0d
@@ -29,21 +29,21 @@ public enum AttributeType {
             new Attribute("Speed", "Movement speed of the hero.")
                     .setChar("🌊")
                     .setColor(ChatColor.AQUA)
-                    .setToString(d -> "+" + (80 + d * 100)),
+                    .setToString(d -> 100 + (((d - 0.2d) / 0.2d) * 100) + "%"),
             0.2d
     ),
     CRIT_CHANCE(
             new Attribute("Critical Chance", "Chance for attack to deal critical hit.")
                     .setChar("☣")
                     .setColor(ChatColor.BLUE)
-                    .setToString(d -> (d * 100.0d) + "%"),
+                    .setToString(d -> "%.2f%%".formatted(d * 100.0d)),
             0.1d
     ),
     CRIT_DAMAGE(
             new Attribute("Critical Damage", "The damage increase modifier for critical hit.")
                     .setChar("☠")
                     .setColor(ChatColor.BLUE)
-                    .setToString(d -> (d * 100.0d) + "%"),
+                    .setToString(d -> "%.2f%%".formatted(d * 100.0d)),
             0.5d
     );
 
@@ -69,6 +69,11 @@ public enum AttributeType {
 
     public double get(Attributes attributes) {
         return attributes.get(this);
+    }
+
+    @Override
+    public String toString() {
+        return attribute.getColor() + getName() + "&7";
     }
 
     @Nonnull

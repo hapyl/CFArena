@@ -15,7 +15,6 @@ import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Wither;
-import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 
@@ -65,11 +64,7 @@ public class WitherData {
                     return;
                 }
 
-                final Vector dirBetweenLocations = target.getLocation().toVector().subtract(wither.getLocation().toVector());
-                final Location location = wither.getLocation();
-                location.setDirection(dirBetweenLocations);
-
-                wither.teleport(location);
+                Utils.lookAt(wither, target.getLocation());
 
                 wither.setTarget(target);
                 wither.setTarget(Wither.Head.LEFT, target);

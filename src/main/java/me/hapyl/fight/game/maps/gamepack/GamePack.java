@@ -1,4 +1,4 @@
-package me.hapyl.fight.game.maps.healthpack;
+package me.hapyl.fight.game.maps.gamepack;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -28,7 +28,7 @@ public abstract class GamePack implements GameElement, Listener {
     private int spawnPeriod;
     private ItemStack texture;
 
-    public GamePack(int period, String texture) {
+    public GamePack(int period, @Nonnull String texture) {
         this.locations = Lists.newArrayList();
         this.activePacks = Sets.newHashSet();
         this.spawnPeriod = period;
@@ -36,12 +36,12 @@ public abstract class GamePack implements GameElement, Listener {
         setTexture(texture);
     }
 
-    public void setParticle(Particle particle) {
-        this.particle = particle;
-    }
-
     public Particle getParticle() {
         return particle;
+    }
+
+    public void setParticle(Particle particle) {
+        this.particle = particle;
     }
 
     @Nonnull
