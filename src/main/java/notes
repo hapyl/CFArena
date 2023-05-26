@@ -82,13 +82,13 @@ Bugs:
 - [✔] Missing health pack on arena
 - "Flying is not enabled on this server"
 - [✔] DM can use spell with a FIST
-- Maybe don't remove player from team on leave?
+- [TESTME] Maybe don't remove player from team on leave?
 - Fix description from GRAY to DARK_GRAY
-- DM should damage with blinding curse; rename to darkness spell or something
-- DM slowing aura should interrupt and block using talents
+- [✔] DM should damage with blinding curse; rename to darkness spell or something
+- [✔] DM slowing aura should interrupt and block using talents
 - [✔] Spectators can pickup game packs
 - [✔] fall damage custom
-- add /ram
+- [✔] add /ram
 
 - [✔] Melee stance does not reset properly?
 - [✔] juju shield breaks all at once

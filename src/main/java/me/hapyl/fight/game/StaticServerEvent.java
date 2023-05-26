@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.time.Month;
 
 // Represents a utility for server events, such as April Fools and Anniversary etc
-public class ServerEvent {
+public class StaticServerEvent {
 
     public static boolean isAprilFools() {
         final LocalDate date = LocalDate.now();

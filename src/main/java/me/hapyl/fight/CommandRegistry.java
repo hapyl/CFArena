@@ -19,7 +19,10 @@ import me.hapyl.fight.game.heroes.storage.extra.AnimatedWither;
 import me.hapyl.fight.game.reward.DailyReward;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.game.ui.display.DamageDisplay;
 import me.hapyl.fight.util.Utils;
+import me.hapyl.spigotutils.module.block.display.BlockDisplayData;
+import me.hapyl.spigotutils.module.block.display.BlockStudioParser;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.chat.Gradient;
 import me.hapyl.spigotutils.module.chat.LazyEvent;
@@ -28,6 +31,7 @@ import me.hapyl.spigotutils.module.command.*;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.locaiton.LocationHelper;
+import me.hapyl.spigotutils.module.math.Cuboid;
 import me.hapyl.spigotutils.module.math.nn.IntInt;
 import me.hapyl.spigotutils.module.reflect.DataWatcherType;
 import me.hapyl.spigotutils.module.reflect.Reflect;
@@ -37,10 +41,7 @@ import me.hapyl.spigotutils.module.reflect.npc.NPCPose;
 import me.hapyl.spigotutils.module.util.*;
 import net.minecraft.world.entity.Entity;
 import org.bson.Document;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
@@ -51,7 +52,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
-import java.awt.*;
+import java.awt.Color;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.List;
@@ -100,6 +101,110 @@ public class CommandRegistry extends DependencyInjector<Main> {
         register(new ProfileCommand("profile"));
         register(new GVarCommand("gvar"));
         register(new PlayerAttributeCommand("playerAttribute"));
+
+        register(new SimpleAdminCommand("colorMeThis") {
+            @Override
+            protected void execute(CommandSender sender, String[] args) {
+                if (args.length == 0) {
+                    Chat.sendMessage(sender, "&cColor you what?");
+                    return;
+                }
+
+                Chat.sendMessage(sender, "&aThere you go!");
+                Chat.sendMessage(sender, Chat.arrayToString(args, 0));
+            }
+        });
+
+        register(new SimplePlayerAdminCommand("displayDamage") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                // displayDamage (damage) (style) (crit)
+                final double damage = getArgument(args, 0).toDouble(10.0d);
+
+                new DamageDisplay(LocationHelper.getInFront(player.getLocation(), 1.0d), damage, false);
+            }
+        });
+
+        register(new SimplePlayerAdminCommand("testEternaClone") {
+            @Override
+            protected void execute(Player player, String[] strings) {
+                new Cuboid(
+                        BukkitUtils.defLocation(-9, 64, -271),
+                        BukkitUtils.defLocation(-5, 66, -269)
+                ).cloneBlocksTo(BukkitUtils.defLocation(
+                        -2,
+                        64,
+                        -270
+                ), true);
+
+                Chat.sendMessage(player, "<color=#359751>Done!</>");
+            }
+        });
+
+        register(new SimplePlayerAdminCommand("drawCircleAlong") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                final String string = getArgument(args, 0).toString();
+
+                if (!string.equalsIgnoreCase("x") && !string.equalsIgnoreCase("z")) {
+                    Chat.sendMessage(player, "&cShould be either along X or Z, not " + string);
+                    return;
+                }
+
+                final double radius = 3.0d;
+                final boolean isX = string.equalsIgnoreCase("x");
+                final Location location = player.getLocation();
+
+                for (double d = 0.0d; d < Math.PI * 2; d += Math.PI / 16) {
+                    final double x = isX ? Math.sin(d) * radius : 0.0d;
+                    final double y = Math.cos(d) * radius;
+                    final double z = !isX ? Math.sin(d) * radius : 0.0d;
+
+                    location.add(x, y, z);
+
+                    // Do something
+                    player.getWorld().spawnParticle(Particle.VILLAGER_HAPPY, location, 1);
+
+                    location.subtract(x, y, z);
+                }
+            }
+        });
+
+        register(new SimplePlayerAdminCommand("parseBlockStudio") {
+
+            private BlockDisplayData data;
+
+            @Override
+            protected void execute(Player player, String[] args) {
+                // parse
+                if (data == null) {
+                    data = new BlockStudioParser(
+                            "/summon block_display ~-0.5 ~-0.5 ~-0.5 {Passengers:[{id:\"minecraft:block_display\",block_state:{Name:\"acacia_trapdoor\",Properties:{facing:\"north\",half:\"top\",open:\"true\"}},transformation:[1f,0f,0f,0f,0f,1f,0f,0f,0f,0f,1f,0f,0f,0f,0f,1f]},{id:\"minecraft:block_display\",block_state:{Name:\"acacia_stairs\",Properties:{facing:\"south\",half:\"bottom\",shape:\"outer_left\"}},transformation:[1f,0f,0f,0f,0f,1f,0f,0f,0f,0f,1f,-1f,0f,0f,0f,1f]},{id:\"minecraft:block_display\",block_state:{Name:\"end_stone_brick_slab\",Properties:{type:\"bottom\"}},transformation:[7.0164487118496375f,0.7738133613786835f,0f,-3.5625f,6.027598814949745f,-0.9007603076023183f,0f,0f,0f,0f,-4.125f,2.75f,0f,0f,0f,1f]}]}"
+                    ).parse();
+                    Chat.sendMessage(player, "&aParsed!");
+                    return;
+                }
+
+                data.spawn(player.getLocation());
+                Chat.sendMessage(player, "&aSpawned!");
+            }
+        });
+
+        register(new SimpleAdminCommand("ram") {
+
+            private final long GIGABYTE = 1_048_576L;
+
+            @Override
+            protected void execute(CommandSender sender, String[] args) {
+                Chat.sendMessage(
+                        sender,
+                        "&6Current Memory Usage: &a%s/%s mb (Max: %s mb)",
+                        (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / GIGABYTE,
+                        Runtime.getRuntime().totalMemory() / GIGABYTE,
+                        Runtime.getRuntime().maxMemory() / GIGABYTE
+                );
+            }
+        });
 
         register(new SimplePlayerAdminCommand("debugDamageData") {
             @Override

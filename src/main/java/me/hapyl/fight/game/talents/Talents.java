@@ -40,9 +40,9 @@ import me.hapyl.fight.game.talents.storage.librarian.LibrarianShield;
 import me.hapyl.fight.game.talents.storage.librarian.WeaponDarkness;
 import me.hapyl.fight.game.talents.storage.mage.ArcaneMute;
 import me.hapyl.fight.game.talents.storage.mage.MageTransmission;
+import me.hapyl.fight.game.talents.storage.moonwalker.GravityZone;
 import me.hapyl.fight.game.talents.storage.moonwalker.MoonSliteBomb;
 import me.hapyl.fight.game.talents.storage.moonwalker.MoonslitePillar;
-import me.hapyl.fight.game.talents.storage.moonwalker.MoonsliteZone;
 import me.hapyl.fight.game.talents.storage.nightmare.Paranoia;
 import me.hapyl.fight.game.talents.storage.nightmare.ShadowShift;
 import me.hapyl.fight.game.talents.storage.ninja.NinjaDash;
@@ -122,8 +122,8 @@ public enum Talents {
     MOONSLITE_PILLAR(new MoonslitePillar()),
     @Deprecated
     MOONSLITE_BOMB(new MoonSliteBomb()),
-    MOONSLITE_ZONE(new MoonsliteZone()),
-    TARGET(new PassiveTalent("Space Suit", "You suit grants you slow falling ability.", Material.FEATHER)),
+    MOON_GRAVITY(new GravityZone()),
+    TARGET(new PassiveTalent("Space Suit", "Your suit grants you slow falling ability.", Material.FEATHER)),
 
     // Hercules
     HERCULES_DASH(new HerculesShift()),

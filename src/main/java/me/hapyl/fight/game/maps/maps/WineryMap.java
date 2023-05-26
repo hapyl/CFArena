@@ -22,12 +22,12 @@ public class WineryMap extends GameMap {
         setMaterial(Material.SWEET_BERRIES);
         setTicksBeforeReveal(100);
 
-        addLocation(201.5, 64.0, 199.5);
-        addLocation(201.5, 64.0, 235.5, -180f, 0.0f);
-        addLocation(184.5, 66.0, 224.5, -90f, 0.0f);
-        addLocation(185.5, 60.0, 213.5, 90.0f, 0.0f);
-        addLocation(219.5, 74.0, 217.5, 90.0f, 0.0f);
-        addLocation(228.5, 64.0, 235.5, 90.0f, 0.0f);
+        addLocation(201, 64, 199);
+        addLocation(201, 64, 235, -180f, 0.0f);
+        addLocation(184, 66, 224, -90f, 0.0f);
+        addLocation(185, 60, 213, 90.0f, 0.0f);
+        addLocation(219, 74, 217, 90.0f, 0.0f);
+        addLocation(228, 64, 235, 90.0f, 0.0f);
 
         addPackLocation(PackType.HEALTH, 171.5, 64.0, 214.5);
         addPackLocation(PackType.HEALTH, 227.5, 74.0, 218.5);

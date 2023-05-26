@@ -18,6 +18,25 @@ import java.util.function.Predicate;
  */
 public class BoundingBoxCollector extends BoundingBox {
 
+    // represents an empty bounding box to remove nullability
+    public static final BoundingBoxCollector EMPTY = new BoundingBoxCollector(0, 0, 0, 0, 0, 0) {
+
+        @Override
+        public Collection<Entity> collect(@Nonnull World world, @Nullable Predicate<Entity> filter) {
+            return Sets.newHashSet();
+        }
+
+        @Override
+        public Collection<LivingEntity> collectValid(@Nonnull World world) {
+            return Sets.newHashSet();
+        }
+
+        @Override
+        public Collection<Player> collectPlayers(@Nonnull World world) {
+            return Sets.newHashSet();
+        }
+    };
+
     public BoundingBoxCollector(double x1, double y1, double z1, double x2, double y2, double z2) {
         super(x1, y1, z1, x2, y2, z2);
     }

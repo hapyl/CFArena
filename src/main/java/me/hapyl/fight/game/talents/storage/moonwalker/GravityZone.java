@@ -21,13 +21,20 @@ import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.List;
 
-public class MoonsliteZone extends Talent {
+public class GravityZone extends Talent {
 
     @DisplayField private final double radius = 3.0d;
     @DisplayField private final double radiusY = 7.0d;
 
-    public MoonsliteZone() {
-        super("yes", "no", Material.PURPLE_DYE);
+    public GravityZone() {
+        super("Gravity Pull", """
+                Create a gravity zone at your &etarget&7 location that will charge over time.
+                While charging, pull all enemies in range up and slow them.
+                                
+                When charged, slam all enemies down, dealing damage.
+                                
+                &b;;Moonwalker is immune to his own {name}.
+                """, Material.PURPLE_DYE);
 
         setDuration(100);
     }

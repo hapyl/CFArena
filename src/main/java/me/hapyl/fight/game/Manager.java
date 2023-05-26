@@ -62,12 +62,10 @@ public class Manager extends DependencyInjector<Main> {
     private boolean isDebug = true;
     private GameInstance gameInstance; // @implNote: For now, only one game instance can be active at a time.
     private Trial trial;
-    private final DamageHandler damageHandler;
 
     public Manager(Main main) {
         super(main);
 
-        damageHandler = new DamageHandler();
         profiles = Maps.newConcurrentMap();
 
         slotPerTalent.put(1, Hero::getFirstTalent);
@@ -88,10 +86,6 @@ public class Manager extends DependencyInjector<Main> {
 
         // start auto save timer
         autoSave = new AutoSync(Tick.fromMinute(10));
-    }
-
-    public DamageHandler getDamage() {
-        return damageHandler;
     }
 
     /**
@@ -200,8 +194,9 @@ public class Manager extends DependencyInjector<Main> {
 
     public void setCurrentMap(GameMaps maps) {
         currentMap.set(maps);
+
         // save to config
-        Main.getPlugin().getConfig().set("current-map", maps.name().toLowerCase(Locale.ROOT));
+        Main.getPlugin().setConfigValue("current-map", maps.name().toLowerCase(Locale.ROOT));
     }
 
     public boolean isDebug() {
@@ -249,11 +244,12 @@ public class Manager extends DependencyInjector<Main> {
         if (mode == getCurrentMode()) {
             return;
         }
+
         currentMode.set(mode);
         Chat.broadcast("&aChanged current game mode to %s.", mode.getMode().getName());
 
         // save to config
-        Main.getPlugin().getConfig().set("current-mode", mode.name().toLowerCase(Locale.ROOT));
+        Main.getPlugin().setConfigValue("current-mode", mode.name().toLowerCase(Locale.ROOT));
     }
 
     public void setCurrentMap(GameMaps maps, @Nullable Player player) {

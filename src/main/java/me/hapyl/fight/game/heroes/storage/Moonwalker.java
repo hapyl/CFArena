@@ -129,7 +129,7 @@ public class Moonwalker extends Hero implements PlayerElement, UIComponent {
 
     @Override
     public Talent getSecondTalent() {
-        return Talents.MOONSLITE_ZONE.getTalent();
+        return Talents.MOON_GRAVITY.getTalent();
     }
 
     @Override

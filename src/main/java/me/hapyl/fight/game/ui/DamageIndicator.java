@@ -11,6 +11,7 @@ import java.util.Random;
 /**
  * A damage indicator.
  */
+@Deprecated
 public class DamageIndicator {
 
     private final Hologram hologram;

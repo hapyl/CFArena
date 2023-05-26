@@ -28,6 +28,9 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import test.Test;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 public class Main extends JavaPlugin {
 
     public static final String GAME_NAME = "&e&lCLASSES FIGHT &c&lᴀʀᴇɴᴀ";
@@ -185,6 +188,12 @@ public class Main extends JavaPlugin {
         new ArcaneMuteProtocol();
         new DismountProtocol();
         //new ConfusionPotionProtocol(); -> doesn't work as good as I thought :(
+    }
+
+
+    public void setConfigValue(@Nonnull String path, @Nullable Object value) {
+        getConfig().set(path, value);
+        saveConfig();
     }
 
     public static Main getPlugin() {

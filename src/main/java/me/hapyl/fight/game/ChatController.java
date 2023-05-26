@@ -62,18 +62,14 @@ public class ChatController implements Listener {
             PlayerLib.playSound(receiver, Sound.BLOCK_NOTE_BLOCK_PLING, 2.0f);
         }
 
-        message = colorize(message);
+        message = Chat.format(message);
 
         if (!sender.isOp()) {
             message = ChatColor.stripColor(message);
         }
 
         builder.append(message);
-        receiver.sendMessage(colorize(builder.toString()));
-    }
-
-    private String colorize(String string) {
-        return ChatColor.translateAlternateColorCodes('&', string);
+        receiver.sendMessage(Chat.format(builder.toString()));
     }
 
     public boolean isSameMessageAsLast(Player player, String string) {

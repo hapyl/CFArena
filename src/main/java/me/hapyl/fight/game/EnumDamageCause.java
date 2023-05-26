@@ -108,7 +108,7 @@ public enum EnumDamageCause {
     DEATH_RAY(DamageCause.of("was swallowed by the darkness", "of")),
     BACKSTAB(DamageCause.nonCrit("was stabbed in the back", "by")),
     WITHERBORN(DamageCause.nonCrit("was withered to death by {damager}'s Witherborn")),
-    EMBODIMENT_OF_DEATH(DamageCause.of("was bodied to death", "by")),
+    EMBODIMENT_OF_DEATH(DamageCause.nonCrit("was bodied to death", "by")),
     SHREDS_AND_PIECES(DamageCause.nonCrit("was tear to shreds and pieces :o", "with help from")),
     DARKNESS_CURSE(DamageCause.of("was swallowed by {damager}'s darkness")),
     CORROSION(DamageCause.nonCrit("corroded to death", "with help from")),

@@ -78,9 +78,9 @@ public enum GameMaps {
                     .setMaterial(Material.CRIMSON_NYLIUM)
                     .setSize(Size.MEDIUM)
                     .setTicksBeforeReveal(100)
-                    .addLocation(306, 66.0, -200)
-                    .addLocation(319, 73.0, -200)
-                    .addLocation(273, 75.0, -200)
+                    .addLocation(306, 66, -200)
+                    .addLocation(319, 73, -200)
+                    .addLocation(273, 75, -200)
     ),
 
     RAILWAY_STATION(

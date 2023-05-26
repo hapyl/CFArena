@@ -18,7 +18,7 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.tutorial.Tutorial;
-import me.hapyl.fight.game.ui.DamageIndicator;
+import me.hapyl.fight.game.ui.display.DamageDisplay;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
@@ -498,8 +498,10 @@ public class PlayerHandler implements Listener {
         // Show damage indicator if dealt more
         // than 1 damage to remove clutter
         if (damage >= 1.0d && !(entity instanceof ArmorStand)) {
-            final DamageIndicator damageIndicator = new DamageIndicator(entity.getLocation(), damage, isCrit);
-            damageIndicator.display(isCrit ? 30 : 20);
+            //            final DamageIndicator damageIndicator = new DamageIndicator(entity.getLocation(), damage, isCrit);
+            //            damageIndicator.display(isCrit ? 30 : 20);
+
+            new DamageDisplay(entity.getLocation(), damage, isCrit, 20);
         }
 
         // Progress stats for damager
