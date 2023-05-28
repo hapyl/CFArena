@@ -1,5 +1,7 @@
 package me.hapyl.fight.game.preset;
 
+import javax.annotation.Nonnull;
+
 public class HotbarPreset {
 
     public static final HotbarPreset DEFAULT = new HotbarPreset(
@@ -18,12 +20,13 @@ public class HotbarPreset {
 
     HotbarPreset(HotbarItem... items) {
         if (items == null || items.length != 9) {
-            throw new IllegalArgumentException("HotbarPreset must have 9 items!");
+            throw new IllegalArgumentException("preset must contain 9 items and cannot be null");
         }
 
         this.items = items;
     }
 
+    @Nonnull
     public HotbarItem[] getItems() {
         return items;
     }

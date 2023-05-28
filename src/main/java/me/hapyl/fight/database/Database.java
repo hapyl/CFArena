@@ -12,7 +12,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 /**
  * I really don't know how a database works or should work;
- * it's my first time working with mongodb.
+ * it's my a time working with mongodb.
  * <p>
  * Just using my knowledge of yml files, that's said,
  * I'm not sure if this is the best way to do it.

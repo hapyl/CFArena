@@ -124,7 +124,7 @@ public class HeroPreviewGUI extends PlayerGUI {
                 17,
                 new ItemBuilder(favourite ? Material.LIME_DYE : Material.GRAY_DYE).setName("&aFavourite")
                         .addLore()
-                        .addSmartLore("Favourite heroes appear first in hero selection screen.")
+                        .addSmartLore("Favourite heroes appear a in hero selection screen.")
                         .addLore()
                         .addLore("&eClick to %s your favourite list.", (favourite ? "remove from" : "add to"))
                         .predicate(favourite, ItemBuilder::glow)
@@ -173,7 +173,7 @@ public class HeroPreviewGUI extends PlayerGUI {
         }
 
         // Attributes
-        builder.addLore().addLore("&6Attributes:");
+        builder.addLore().addLore("&e&lAttributes:");
         final HeroAttributes attributes = hero.getAttributes();
 
         attributes.forEach((type, value) -> {

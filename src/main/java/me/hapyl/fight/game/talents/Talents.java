@@ -120,8 +120,7 @@ public enum Talents {
 
     // Moonwalker
     MOONSLITE_PILLAR(new MoonslitePillar()),
-    @Deprecated
-    MOONSLITE_BOMB(new MoonSliteBomb()),
+    @Deprecated MOONSLITE_BOMB(new MoonSliteBomb()),
     MOON_GRAVITY(new GravityZone()),
     TARGET(new PassiveTalent("Space Suit", "Your suit grants you slow falling ability.", Material.FEATHER)),
 
@@ -196,7 +195,7 @@ public enum Talents {
     SHROUDED_STEP(new ShroudedStep()),
     SECRET_SHADOW_WARRIOR_TECHNIQUE(new PassiveTalent(
             "Dark Cover",
-            "As a assassin, you have mastered ability to stay in the shadows.____While &e&lSNEAKING&7, you become completely invisible, but cannot deal damage and your footsteps are visible.",
+            "As an assassin, you have mastered the ability to stay in the shadows.____While &e&lSNEAKING&7, you become completely invisible, but cannot deal damage and your footsteps are visible.",
             Material.NETHERITE_CHESTPLATE
     )),
 
@@ -260,18 +259,20 @@ public enum Talents {
     ARROW_SHIELD(new ArrowShield()),
     CLIMB(new Climb()),
     ELUSIVE_BURST(new PassiveTalent(
-            "Elusive Burst",
-            "Fully charged shots while sneaking will infuse your arrow.____Infused arrows exploded into small clusters dealing big damage upon hit.",
-            Material.PEONY
+            "Elusive Burst", """
+            Fully &ncharged&7 shots while &nsneaking&7 will infuse your arrow.
+
+            Infused arrows exploded into small clusters dealing big damage upon hit.
+            """, Material.PEONY
     )),
 
     // Swooper
     BLAST_PACK(new BlastPack()),
     BLINK(new Blink()),
     SNIPER_SCOPE(new PassiveTalent(
-            "Sniper Scope",
-            "&e&lSNEAK &7to activate sniper scope and increase your rifle's damage and distance.",
-            Material.SPYGLASS
+            "Path Writer",
+            "Your last &b5&7 seconds of life are stored in the path writer.",
+            Material.STRING
     )),
 
     // Shark

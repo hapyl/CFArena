@@ -19,7 +19,7 @@ public class CosmeticsListener implements Listener {
         final Location from = ev.getFrom();
         final Location to = ev.getTo();
 
-        // Check if player move a full block
+        // Check if player moves a full block
         if (to == null || (from.getBlockX() == to.getBlockX() && from.getBlockY() == to.getBlockY() && from.getBlockZ() == to.getBlockZ())) {
             return;
         }

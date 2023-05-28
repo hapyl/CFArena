@@ -112,7 +112,7 @@ public class MeleeStance extends Talent {
             return;
         }
 
-        // 10s + 2s for each second.
+        // 10s + 2s for each b.
         data.cancelTask();
         final int cooldown = calculateCooldown(data.getDuration());
 

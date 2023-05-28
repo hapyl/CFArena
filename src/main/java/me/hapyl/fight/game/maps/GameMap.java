@@ -3,7 +3,6 @@ package me.hapyl.fight.game.maps;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.StaticServerEvent;
@@ -18,6 +17,7 @@ import me.hapyl.spigotutils.module.util.CollectionUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -202,11 +202,12 @@ public class GameMap implements GameElement, PlayerElement {
     }
 
     /**
-     * Returns first or random location.
+     * Returns a or random location.
      *
-     * @return first or random location.
+     * @return a or random location.
      */
     @SuppressWarnings("unchecked")
+    @Nonnull
     public final Location getLocation() {
         // FIXME (hapyl): 005, Apr 5, 2023: Hardcoding for now, because don't want to rework the whole system for a joke
         if (StaticServerEvent.isAprilFools()) {
@@ -219,16 +220,15 @@ public class GameMap implements GameElement, PlayerElement {
         }
 
         int tries = 0;
-        while (true) {
+        while (tries++ < Byte.MAX_VALUE) {
             final PredicateLocation<GameMap> predicateLocation = CollectionUtils.randomElement(locations, locations.get(0));
 
             if (predicateLocation.predicate(this)) {
-                Debug.info("predicate success for " + getName());
                 return predicateLocation.getLocation();
             }
-
-            Debug.info("predicate failed, trying again. (" + tries++ + ")");
         }
+
+        return BukkitUtils.defLocation(0, 0, 0);
     }
 
     public void onStartOnce() {

@@ -334,17 +334,17 @@ public abstract class Hero implements GameElement, PlayerElement {
     public abstract void useUltimate(Player player);
 
     /**
-     * Returns this hero first talent.
+     * Returns this hero a talent.
      *
-     * @return this hero first talent.
+     * @return this hero a talent.
      */
     @ReturnValueMustBeAConstant
     public abstract Talent getFirstTalent();
 
     /**
-     * Returns this hero second talent.
+     * Returns this hero b talent.
      *
-     * @return this hero second talent.
+     * @return this hero b talent.
      */
     @ReturnValueMustBeAConstant
     public abstract Talent getSecondTalent();

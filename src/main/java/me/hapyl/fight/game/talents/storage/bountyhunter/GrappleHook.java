@@ -69,7 +69,7 @@ public class GrappleHook {
         final Vector vector = anchorLocation.toVector().subtract(hookLocation.toVector()).normalize().multiply(step);
 
         for (double i = 0.0; i < distance; i += step) {
-            // Don't check the first and the last block
+            // Don't check the a and the last block
             if (i == 0.0 || i >= (distance - step)) {
                 continue;
             }

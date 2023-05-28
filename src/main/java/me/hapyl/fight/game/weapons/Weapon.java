@@ -1,5 +1,7 @@
 package me.hapyl.fight.game.weapons;
 
+import com.google.common.collect.Lists;
+import me.hapyl.fight.game.NonnullItemStackCreatable;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
@@ -17,15 +19,11 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Function;
 
-public class Weapon implements Cloneable, DisplayFieldProvider {
-
-    // FIXME: 023, Mar 23, 2023 -> Still using old formatter
-
-    private ItemStack item;
+public class Weapon extends NonnullItemStackCreatable implements Cloneable, DisplayFieldProvider {
 
     private final List<Enchant> enchants;
     private final Material material;
@@ -47,7 +45,7 @@ public class Weapon implements Cloneable, DisplayFieldProvider {
         this.description = about;
         this.attackSpeed = 0.0d;
         this.damage = damage;
-        this.enchants = new ArrayList<>();
+        this.enchants = Lists.newArrayList();
     }
 
     public Weapon setAttackSpeed(double attackSpeed) {
@@ -60,18 +58,48 @@ public class Weapon implements Cloneable, DisplayFieldProvider {
         return this;
     }
 
+    public Weapon setDescription(String info, Object... replacements) {
+        return setDescription(info.formatted(replacements));
+    }
+
+    public String getName() {
+        return name;
+    }
+
     public Weapon setName(String name) {
         this.name = name;
         return this;
     }
 
-    public Weapon setDescription(String info, Object... replacements) {
-        return setDescription(info.formatted(replacements));
+    @Nullable
+    public String getId() {
+        return id;
+    }
+
+    /**
+     * ID is required to use functions.
+     */
+    public Weapon setId(String id) {
+        this.id = id.toUpperCase(Locale.ROOT);
+        return this;
+    }
+
+    @Nonnull
+    public Material getMaterial() {
+        return material;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public Weapon setDescription(String lore) {
         this.description = lore;
         return this;
+    }
+
+    public double getDamage() {
+        return damage;
     }
 
     public Weapon setDamage(double damage) {
@@ -83,60 +111,55 @@ public class Weapon implements Cloneable, DisplayFieldProvider {
         return this;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    @Nullable
-    public String getId() {
-        return id;
-    }
-
-    public Material getMaterial() {
-        return material;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public double getDamage() {
-        return damage;
-    }
-
-    @Nullable
-    public ItemStack getItem() {
-        if (this.item == null) {
-            this.createItem();
-        }
-        return this.item;
-    }
-
     public void onLeftClick(Player player, ItemStack item) {
     }
 
     public void onRightClick(Player player, ItemStack item) {
     }
 
-    /**
-     * ID is required to use functions.
-     */
-    public Weapon setId(String id) {
-        this.id = id.toUpperCase(Locale.ROOT);
+    @Override
+    public Weapon clone() {
+        try {
+            super.clone();
+            return new Weapon(this.material).setName(this.name).setDescription(this.description).setDamage(this.damage)
+                    .setId(this.id);
+        } catch (Exception ignored) {
+        }
+        return new Weapon(Material.BEDROCK);
+    }
+
+    @Nonnull
+    public Material getType() {
+        return item == null ? Material.AIR : item.getType();
+    }
+
+    public Weapon setWeaponLore(String lore) {
+        this.lore = lore;
         return this;
     }
 
-    private void createItem() {
+    public boolean isRanged() {
+        return this instanceof RangeWeapon || (material == Material.BOW || material == Material.CROSSBOW || material == Material.TRIDENT);
+    }
+
+    public void giveWeapon(Player player) {
+        player.getInventory().setItem(0, getItem());
+    }
+
+    public void createItem() {
         final ItemBuilder builder = this.id == null ? new ItemBuilder(this.material) : new ItemBuilder(
                 this.material,
                 this.id
         );
 
         builder.setName(ChatColor.GREEN + notNullStr(this.name, "Standard Weapon"));
-        builder.addLore("&8Weapon");
+        builder.addLore(this instanceof RangeWeapon ? "&8Ranged Weapon" : "&8Weapon");
 
         if (this.description != null) {
-            builder.addLore().addSmartLore(description, 35);
+            // I SWEAR TO GOD IF I GET ONE MORE
+            // MISSING, FUCKING, FORMATTER ERROR
+            description = description.replace("%", "%%");
+            builder.addLore().addTextBlockLore(description);
         }
 
         if (this.lore != null && false/*don't add lor for now*/) {
@@ -144,13 +167,19 @@ public class Weapon implements Cloneable, DisplayFieldProvider {
         }
 
         if (this instanceof RangeWeapon rangeWeapon) {
-            if (rangeWeapon.getCooldown() > 0) {
-                builder.addLore();
-                builder.addLore("&aReload Time: &l%ss", BukkitUtils.roundTick(rangeWeapon.getCooldown()));
-            }
+            final int reloadTime = rangeWeapon.getWeaponCooldown();
+            final double maxDistance = rangeWeapon.getMaxDistance();
+            final double weaponDamage = rangeWeapon.getDamage();
+
+            builder.addLore();
+            builder.addLore("&e&lAttributes:");
+
+            addDynamicLore(builder, " Reload Time: &f&l%s", reloadTime, t -> BukkitUtils.roundTick(t.intValue()) + "s");
+            addDynamicLore(builder, " Max Distance: &f&l%s", maxDistance, t -> t + "s");
+            addDynamicLore(builder, " Damage: &f&l%s", weaponDamage, Object::toString);
         }
 
-        // add id
+        // Add click events
         if (id != null) {
             builder.addClickEvent(player -> {
                 final Response response = Utils.playerCanUseAbility(player);
@@ -175,6 +204,8 @@ public class Weapon implements Cloneable, DisplayFieldProvider {
             enchants.forEach(enchant -> builder.addEnchant(enchant.getEnchantment(), enchant.getLevel()));
         }
 
+        // I really don't think this is needed with
+        // the new system.
         if (!isRanged()) {
             builder.addAttribute(
                     Attribute.GENERIC_ATTACK_DAMAGE,
@@ -212,35 +243,18 @@ public class Weapon implements Cloneable, DisplayFieldProvider {
         this.item = builder.build();
     }
 
+    private void addDynamicLore(@Nonnull ItemBuilder builder, @Nonnull String string, @Nonnull Number number, Function<Number, String> function) {
+        final int value = number.intValue();
+
+        // Since damage cannot be negative, have to handle both -1 and 1.
+        // But that also means that if there is a real value of 1, it will be
+        // considered as 'Dynamic' in lore.
+        // Realistically, though, neither of the values should be 1.
+        // (Cooldown is in ticks, hence 20 is 1 b)
+        builder.addLore(string.formatted((value == -1 || value == 1) ? "Dynamic" : function.apply(number)));
+    }
+
     private String notNullStr(String str, String def) {
         return str == null ? def : str;
-    }
-
-    public Weapon clone() {
-        try {
-            super.clone();
-            return new Weapon(this.material).setName(this.name).setDescription(this.description).setDamage(this.damage)
-                    .setId(this.id);
-        } catch (Exception ignored) {
-        }
-        return new Weapon(Material.BEDROCK);
-    }
-
-    @Nonnull
-    public Material getType() {
-        return item == null ? Material.AIR : item.getType();
-    }
-
-    public Weapon setWeaponLore(String lore) {
-        this.lore = lore;
-        return this;
-    }
-
-    public boolean isRanged() {
-        return (material == Material.BOW || material == Material.CROSSBOW || material == Material.TRIDENT) || this instanceof RangeWeapon;
-    }
-
-    public void giveWeapon(Player player) {
-        player.getInventory().setItem(0, getItem());
     }
 }

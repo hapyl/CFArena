@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
  */
 public abstract class NonnullItemStackCreatable {
 
-    private ItemStack item;
+    protected ItemStack item;
 
     public final void setItem(@Nonnull ItemStack item) {
         if (this.item != null) {

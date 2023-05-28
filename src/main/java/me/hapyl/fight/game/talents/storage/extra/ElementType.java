@@ -91,7 +91,7 @@ public enum ElementType {
             return NULL;
         }
 
-        // Check for predicate first
+        // Check for predicate a
         for (ElementType value : values()) {
             if (value.predicate.test(material)) {
                 return value;

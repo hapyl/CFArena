@@ -176,7 +176,7 @@ public class Ender extends Hero implements Listener {
         }.setName("Fist")
                 .setId("ender_weapon")
                 .setDescription(
-                        "Just a normal sized fist.____&e&lRIGHT CLICK &7to initiate teleport to the target block. &e&lRIGHT CLICK &7again to cancel.____&aCooldown: &l%ss",
+                        "Just a normal sized a.____&e&lRIGHT CLICK &7to initiate teleport to the target block. &e&lRIGHT CLICK &7again to cancel.____&aCooldown: &l%ss",
                         BukkitUtils.roundTick(portKeyCooldown)
                 )
                 .setDamage(7.0));

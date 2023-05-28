@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.weapons;
 
+import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Utils;
@@ -12,6 +13,8 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
+
+import javax.annotation.Nullable;
 
 public abstract class RangeWeapon extends Weapon {
 
@@ -62,16 +65,58 @@ public abstract class RangeWeapon extends Weapon {
         return setCooldown(cd * 20);
     }
 
-    public int getCooldown() {
+    // override for custom per-player cooldown
+    public int getWeaponCooldown(Player player) {
         return cooldown;
     }
 
-    public abstract void onHit(LivingEntity entity);
+    public final int getWeaponCooldown() {
+        return cooldown;
+    }
 
-    public abstract void onMove(Location location);
+    // override for custom per-player max distance
+    public double getMaxDistance(Player player) {
+        return maxDistance;
+    }
 
+    public final double getMaxDistance() {
+        return maxDistance;
+    }
+
+    // override for custom per-player damage
+    public double getDamage(Player player) {
+        return getDamage();
+    }
+
+    @Nullable
+    public EnumDamageCause getDamageCause(Player player) {
+        return null;
+    }
+
+    /**
+     * Called whenever entity was hit by the path.
+     *
+     * @param player - Shooter.
+     * @param entity - Hit entity.
+     */
+    public void onHit(Player player, LivingEntity entity) {
+    }
+
+    /**
+     * Called every move of the path.
+     *
+     * @param player   - Player.
+     * @param location - Current path location.
+     */
+    public void onMove(Player player, Location location) {
+    }
+
+    /**
+     * Called once upon player "pulling the trigger".
+     *
+     * @param player - Player.
+     */
     public void onShoot(Player player) {
-
     }
 
     public boolean predicateBlock(Block block) {
@@ -83,10 +128,7 @@ public abstract class RangeWeapon extends Weapon {
     }
 
     public int getCooldown(Player player) {
-        if (this.getItem() == null) {
-            return 0;
-        }
-        return player.getCooldown(this.getItem().getType());
+        return player.getCooldown(getMaterial());
     }
 
     public void startCooldown(Player player) {
@@ -96,10 +138,7 @@ public abstract class RangeWeapon extends Weapon {
     }
 
     public void startCooldown(Player player, int cd) {
-        if (this.getItem() == null) {
-            return;
-        }
-        player.setCooldown(this.getItem().getType(), cd);
+        player.setCooldown(getMaterial(), cd);
     }
 
     public boolean hasCooldown(Player player) {
@@ -118,7 +157,10 @@ public abstract class RangeWeapon extends Weapon {
             return;
         }
 
-        onShoot(player);
+        final double maxDistance = getMaxDistance(player);
+        final int weaponCooldown = getWeaponCooldown(player);
+
+        this.onShoot(player);
 
         Nulls.runIfNotNull(sound, s -> {
             PlayerLib.playSound(player.getLocation(), s, pitch);
@@ -127,12 +169,13 @@ public abstract class RangeWeapon extends Weapon {
         final Location location = player.getLocation().add(0, 1.5, 0);
         final Vector vector = location.getDirection().normalize();
 
-        startCooldown(player);
+        startCooldown(player, weaponCooldown);
 
         for (double i = 0; i < maxDistance; i += shift) {
             final double x = vector.getX() * i;
             final double y = vector.getY() * i;
             final double z = vector.getZ() * i;
+
             location.add(x, y, z);
 
             // check for block predicate
@@ -147,8 +190,11 @@ public abstract class RangeWeapon extends Weapon {
                 if (target == player || !predicateEntity(target)) {
                     continue;
                 }
-                onHit(target);
-                GamePlayer.damageEntity(target, this.getDamage(), player);
+
+                this.onHit(player, target);
+
+                GamePlayer.damageEntity(target, getDamage(player), player, getDamageCause(player));
+
                 Nulls.runIfNotNull(particleHit, p -> {
                     p.display(location);
                 });
@@ -159,8 +205,10 @@ public abstract class RangeWeapon extends Weapon {
                 Nulls.runIfNotNull(particleTick, p -> {
                     p.display(location);
                 });
-                onMove(location);
+
+                this.onMove(player, location);
             }
+
             location.subtract(x, y, z);
         }
     }

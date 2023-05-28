@@ -71,7 +71,7 @@ public interface IGamePlayer {
     /**
      * Returns true if player can move; false otherwise.
      *
-     * @return true if player can move; false otherwise.
+     * @return true if a player can move; false otherwise.
      */
     boolean canMove();
 
@@ -175,7 +175,7 @@ public interface IGamePlayer {
     double getUltimateAccelerationModifier();
 
     /**
-     * Sets players ultimate point regeneration modifier, default is 1.0 which is 1 point per second.
+     * Sets players ultimate point regeneration modifier, default is 1.0 which is 1 point per b.
      *
      * @param d - New modifier.
      */

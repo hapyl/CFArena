@@ -81,7 +81,7 @@ public class Slash extends Talent {
         final TalentQueue talentQueue = GamePlayer.getPlayer(player).getTalentQueue();
 
         // have to check for 2 talents, since talent is added AFTER it's executed
-        // but since last 2 talents are first and second, this is the third one
+        // but since last 2 talents are a and b, this is the third one
         return talentQueue.checkTalents(hero.getFirstTalent(), hero.getSecondTalent());
     }
 }

@@ -1,6 +1,7 @@
 package me.hapyl.fight;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mongodb.client.MongoCollection;
@@ -10,10 +11,10 @@ import me.hapyl.fight.build.NamedSignReader;
 import me.hapyl.fight.cmds.*;
 import me.hapyl.fight.database.Database;
 import me.hapyl.fight.database.PlayerDatabase;
-import me.hapyl.fight.game.Debug;
-import me.hapyl.fight.game.IGameInstance;
-import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.TitleAnimation;
+import me.hapyl.fight.game.*;
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.PlayerAttributes;
+import me.hapyl.fight.game.attribute.Temper;
 import me.hapyl.fight.game.damage.DamageHandler;
 import me.hapyl.fight.game.heroes.storage.extra.AnimatedWither;
 import me.hapyl.fight.game.reward.DailyReward;
@@ -52,6 +53,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.awt.Color;
 import java.io.File;
 import java.io.FileWriter;
@@ -118,10 +120,107 @@ public class CommandRegistry extends DependencyInjector<Main> {
         register(new SimplePlayerAdminCommand("displayDamage") {
             @Override
             protected void execute(Player player, String[] args) {
-                // displayDamage (damage) (style) (crit)
+                // displayDamage (damage) (crit)
                 final double damage = getArgument(args, 0).toDouble(10.0d);
+                final boolean isCrit = getArgument(args, 1).toString().equalsIgnoreCase("true");
 
-                new DamageDisplay(LocationHelper.getInFront(player.getLocation(), 1.0d), damage, false);
+                new DamageDisplay(damage, isCrit).display(LocationHelper.getInFront(player.getLocation(), 1.0d));
+            }
+        });
+
+        register(new SimplePlayerAdminCommand("debugTextDisplayOpaque") {
+
+            private final Set<TextDisplay> set = Sets.newHashSet();
+
+            @Override
+            protected void execute(Player player, String[] args) {
+                set.forEach(TextDisplay::remove);
+                set.clear();
+
+                final Location location = player.getLocation();
+
+                for (var ref = new Object() {
+                    byte i = Byte.MIN_VALUE;
+                }; ref.i < Byte.MAX_VALUE; ref.i++) {
+                    Entities.TEXT_DISPLAY.spawn(location, self -> {
+                        self.setBillboard(Display.Billboard.CENTER);
+                        self.setSeeThrough(true);
+                        self.setTextOpacity(ref.i);
+                        self.setText("&a" + ref.i);
+                    });
+
+                    location.add(0.0d, 0.25d, 0.0d);
+                }
+
+                Chat.sendMessage(player, "&aDone!");
+            }
+        });
+
+        register(new SimplePlayerAdminCommand("temperStat") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                // $ <stat> <amount> <duration>
+                final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
+
+                if (gamePlayer == null) {
+                    Chat.sendMessage(player, "&cCannot use outside a game.");
+                    return;
+                }
+
+                final AttributeType attribute = Enums.byName(AttributeType.class, getArgument(args, 0).toString());
+                final double value = getArgument(args, 1).toDouble();
+                final int duration = getArgument(args, 2).toInt();
+
+                if (attribute == null) {
+                    Chat.sendMessage(player, "&cInvalid attribute.");
+                    return;
+                }
+
+                if (value == 0) {
+                    Chat.sendMessage(player, "&cValue cannot be zero.");
+                    return;
+                }
+
+                if (duration == 0) {
+                    Chat.sendMessage(player, "&cDuration cannot be zero.");
+                    return;
+                }
+
+                final PlayerAttributes attributes = gamePlayer.getAttributes();
+
+                if (value > 0) {
+                    attributes.increaseTemporary(Temper.COMMAND, attribute, value, duration);
+                }
+                else {
+                    attributes.decreaseTemporary(Temper.COMMAND, attribute, value, duration);
+                }
+
+                Chat.sendMessage(player, "&aDone!");
+            }
+
+            @Nullable
+            @Override
+            protected List<String> tabComplete(CommandSender sender, String[] args) {
+                if (args.length == 1) {
+                    return completerSort(AttributeType.names(), args);
+                }
+
+                return null;
+            }
+        });
+
+        register(new SimplePlayerAdminCommand("simulateSelfDeath") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
+
+                if (gamePlayer == null) {
+                    Chat.sendMessage(player, "&cMust be in game to use this.");
+                    return;
+                }
+
+                gamePlayer.setLastDamager(player);
+                gamePlayer.die(true);
             }
         });
 

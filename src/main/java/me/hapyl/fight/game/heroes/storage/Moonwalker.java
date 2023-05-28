@@ -64,9 +64,13 @@ public class Moonwalker extends Hero implements PlayerElement, UIComponent {
             }
         }
                 .setName("Stinger")
-                .setDescription(
-                        "A unique bow made of unknown materials, seems to have two firing modes.__&e&lLEFT &e&lCLICK &7to fire quick arrow that deals 50% of normal damage."
-                )
+                // There are no words to describe how much I hate java's
+                // string formatter being %.
+                // Honestly, it's just easier to rewrite everything using {} -h
+                .setDescription("""
+                        A unique bow made of unknown materials, seems to have two firing modes.
+                        &e&lLEFT &e&lCLICK &7to fire quick arrow that deals 50% of normal damage.
+                        """)
                 .setDamage(4.5d)
                 .setId("MOON_WEAPON"));
 

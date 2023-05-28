@@ -175,7 +175,7 @@ public enum Heroes {
     }
 
     /**
-     * Returns list of alive payers that have this hero selected.
+     * Returns list of living payers that have this hero selected.
      *
      * @return list of alive players that have this hero selected.
      */

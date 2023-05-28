@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.task;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.game.Debug;
 
 import java.util.Set;
 import java.util.function.Consumer;
@@ -32,7 +31,6 @@ public final class CachedDelayedGameTaskList {
     public void cancelAll() {
         for (GameTask task : tasks) {
             task.cancelIfActive();
-            Debug.info("cancelled " + task);
         }
 
         tasks.clear();

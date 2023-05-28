@@ -53,7 +53,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.awt.Color;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class controls all in-game player data.
@@ -105,7 +104,7 @@ public class GamePlayer implements IGamePlayer {
         this.ultimateModifier = 1.0d;
         this.isSpectator = false;
         this.damageTaken = Maps.newHashMap();
-        this.gameEffects = new ConcurrentHashMap<>();
+        this.gameEffects = Maps.newConcurrentMap();
         this.talentQueue = new TalentQueue(this);
         this.stats = new StatContainer(this);
         this.lastMoved = System.currentTimeMillis();
@@ -134,9 +133,10 @@ public class GamePlayer implements IGamePlayer {
 
         killStreak = 0;
         combatTag = 0;
-        markLastMoved();
 
+        markLastMoved();
         setHealth(getMaxHealth());
+
         player.setLastDamageCause(null);
         player.getInventory().clear();
         player.setMaxHealth(40.0d); // why deprecate
@@ -438,14 +438,14 @@ public class GamePlayer implements IGamePlayer {
 
             if (killer != null) {
                 final GamePlayer gameKiller = GamePlayer.getExistingPlayer(killer);
-                if (gameKiller != null && player != killer) { // should never be the case
+                if (gameKiller != null && player != killer) {
                     final IGameInstance gameInstance = Manager.current().getCurrentGame();
                     final StatContainer killerStats = gameKiller.getStats();
 
                     killerStats.addValue(StatType.KILLS, 1);
                     gameKiller.getTeam().kills++;
 
-                    // Check for first blood
+                    // Check for a blood
                     if (gameInstance.getTotalKills() == 1) {
                         Achievements.FIRST_BLOOD.complete(gameKiller.getTeam());
                     }

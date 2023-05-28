@@ -1,15 +1,24 @@
 package me.hapyl.fight.game.heroes.storage;
 
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.Role;
+import me.hapyl.fight.game.heroes.storage.extra.SwooperData;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.game.ui.UIComponent;
+import me.hapyl.fight.game.weapons.PackedParticle;
+import me.hapyl.fight.game.weapons.RangeWeapon;
+import me.hapyl.fight.util.Buffer;
+import me.hapyl.fight.util.BufferMap;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -25,14 +34,19 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-public class Swooper extends Hero implements Listener {
+import javax.annotation.Nonnull;
 
-    private final int rifleCooldown = 45;
+public class Swooper extends Hero implements Listener, UIComponent {
+
+    private final int bufferSize = 5 * 20;
+    private final int ultimateSpeed = 2;
 
     private final ItemStack rocketLauncher = new ItemBuilder(Material.GOLDEN_HORSE_ARMOR, "swooper_ultimate")
             .setName("&aRocket Launcher")
             .addClickEvent(this::launchProjectile)
             .build();
+
+    private final BufferMap<Player, SwooperData> dataMap = new BufferMap<>();
 
     public Swooper() {
         super("Swooper");
@@ -42,46 +56,149 @@ public class Swooper extends Hero implements Listener {
         setInfo("A sniper with slow firing rifle, but fast ways to move around the battlefield.");
         setItem("f181c811ad37467550d7c01cac2e5223c4e99fa7906348f940c9456d8aa0cd1b");
 
+        final HeroAttributes attributes = getAttributes();
+        attributes.setValue(AttributeType.SPEED, 0.23d);
+
         final HeroEquipment equipment = this.getEquipment();
         equipment.setChestplate(25, 53, 82);
         equipment.setLeggings(25, 53, 92);
         equipment.setBoots(25, 53, 102);
 
-        setWeapon(new Weapon(Material.WOODEN_HOE) {
+        setWeapon(new RangeWeapon(Material.WOODEN_HOE, "swooper_weapon") {
 
             @Override
-            public void onRightClick(Player player, ItemStack item) {
-                if (player.hasCooldown(item.getType())) {
-                    return;
-                }
-
-                player.setCooldown(item.getType(), rifleCooldown);
-                PlayerLib.playSound(player.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 2.0f);
-                Utils.rayTraceLine(
-                        player,
-                        player.isSneaking() ? 50 : 25,
-                        0.5f,
-                        player.isSneaking() ? 10.0d : 5.0d,
-                        EnumDamageCause.RIFLE,
-                        move -> {
-                            PlayerLib.spawnParticle(move, Particle.FIREWORKS_SPARK, 1, 0.0d, 0.0d, 0.0d, 0.0f);
-                        }, null
-                );
+            public double getDamage(Player player) {
+                return player.isSneaking() ? 10.0d : 5.0d;
             }
 
-        }.setId("swooper_weapon").setName("Sniper Rifle").setDescription("Slow firing, but high damage rifle."));
+            @Override
+            public double getMaxDistance(Player player) {
+                return player.isSneaking() ? 50 : 25;
+            }
+
+            @Override
+            public EnumDamageCause getDamageCause(Player player) {
+                return EnumDamageCause.RIFLE;
+            }
+
+            @Override
+            public void onShoot(Player player) {
+                PlayerLib.playSound(player.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 2.0f);
+            }
+
+        }.setCooldown(45)
+                .setParticleTick(new PackedParticle(Particle.FIREWORKS_SPARK))
+                .setMaxDistance(-1)
+                .setDamage(-1)
+                .setName("Sniper Rifle")
+                .setDescription("""
+                        Slow firing, but high-damage rifle.
+                                        
+                        &6&lSNEAK&7 to activate sniper scope, increasing your rifle's damage and max distance.
+                        """));
 
         setUltimate(new UltimateTalent(
-                "Showstopper", """
-                Equip a rocket launcher for {duration}.
-                &6&lCLICK &7to launch explosive in front of you that explodes on impact dealing massive damage.
+                "Swooping Time", """
+                Instantly reweave the written path to go back in time with health stored in the writer.
                 """,
-                80
-        ).setDuration(200).setItem(Material.GOLDEN_HORSE_ARMOR));
+                50
+        ).setDuration(bufferSize / ultimateSpeed).setItem(Material.ELYTRA).setSound(Sound.BLOCK_BEACON_POWER_SELECT, 2.0f));
+    }
+
+    @Override
+    public void onStart() {
+        new GameTask() {
+            private int tick = 0;
+
+            @Override
+            public void run() {
+                for (GamePlayer gamePlayer : Heroes.SWOOPER.getAlivePlayers()) {
+                    final Player player = gamePlayer.getPlayer();
+
+                    if (gamePlayer.isDead() || isUsingUltimate(player)) {
+                        return;
+                    }
+
+                    final Buffer<SwooperData> buffer = dataMap.computeIfAbsent(player, bufferSize);
+                    buffer.add(new SwooperData(gamePlayer));
+
+                    // Draw lines every 5 ticks
+                    if (tick % 5 == 0) {
+                        buffer.forEach(data -> {
+                            PlayerLib.spawnParticle(player, data.getLocation().add(0.0d, 0.15d, 0.0d), Particle.CRIT_MAGIC, 1);
+                        });
+                    }
+                }
+
+                tick++;
+            }
+        }.runTaskTimer(0, 1);
+    }
+
+    @Override
+    public void onStop() {
+        dataMap.removeBuffers();
+    }
+
+    @Override
+    public void onDeath(Player player) {
+        dataMap.removeBuffer(player);
     }
 
     @Override
     public void useUltimate(Player player) {
+        final Buffer<SwooperData> buffer = dataMap.remove(player);
+
+        if (buffer == null) {
+            Chat.sendMessage(player, "&cNo buffer, somehow.");
+            return;
+        }
+
+        player.setGameMode(GameMode.SPECTATOR);
+        player.addPotionEffect(PotionEffectType.SPEED.createEffect(10000, 3));
+
+        new GameTask() {
+
+            private SwooperData previous = null;
+
+            private boolean next() {
+                for (int i = 0; i < ultimateSpeed; i++) {
+                    final SwooperData data = buffer.pollLast();
+
+                    if (data != null) {
+                        previous = data;
+                        player.teleport(data.location());
+                    }
+                    else {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            @Override
+            public void run() {
+                if (next()) {
+                    return;
+                }
+
+                this.cancel();
+                player.setGameMode(GameMode.SURVIVAL);
+                player.removePotionEffect(PotionEffectType.SPEED);
+
+                if (previous == null) {
+                    Debug.warn("previous swooper data somehow null for " + player.getName());
+                    return; // should not happen but just in case
+                }
+
+                // Give health
+                previous.player().setHealth(previous.health());
+            }
+        }.runTaskTimer(0, 1);
+    }
+
+    public void useUltimateRocket(Player player) {
         // TODO (hapyl): 0016, May 16, 2023: - Add delay, too OP
         // TODO (hapyl): 019, May 19, 2023: Or like make something cooler, copying raze is cool but I mean idk
         setUsingUltimate(player, true);
@@ -115,6 +232,19 @@ public class Swooper extends Hero implements Listener {
 
             }
         }.runTaskTimer(0, 1);
+    }
+
+    @Nonnull
+    @Override
+    public String getString(Player player) {
+        final Buffer<SwooperData> buffer = dataMap.get(player);
+
+        if (buffer == null) {
+            return "";
+        }
+
+        final SwooperData first = buffer.peekFirst();
+        return first == null ? "" : "&e⇄ %.1f ❤".formatted(first.health());
     }
 
     private void launchProjectile(Player player) {
@@ -190,4 +320,5 @@ public class Swooper extends Hero implements Listener {
     public Talent getPassiveTalent() {
         return Talents.SNIPER_SCOPE.getTalent();
     }
+
 }

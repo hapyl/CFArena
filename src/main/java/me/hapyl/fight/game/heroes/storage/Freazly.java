@@ -44,12 +44,12 @@ public class Freazly extends Hero implements DisabledHero {
 
         setWeapon(new RangeWeapon(Material.IRON_SHOVEL, "snow_weapon") {
             @Override
-            public void onHit(LivingEntity entity) {
+            public void onHit(Player player, LivingEntity entity) {
                 entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 10, 1));
             }
 
             @Override
-            public void onMove(Location location) {
+            public void onMove(Player player, Location location) {
 
             }
 

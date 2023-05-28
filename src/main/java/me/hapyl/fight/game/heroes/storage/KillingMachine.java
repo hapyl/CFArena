@@ -35,12 +35,12 @@ public class KillingMachine extends Hero implements DisabledHero {
 
         this.setWeapon(new RangeWeapon(Material.IRON_HORSE_ARMOR, "km_weapon") {
             @Override
-            public void onHit(LivingEntity entity) {
+            public void onHit(Player player, LivingEntity entity) {
 
             }
 
             @Override
-            public void onMove(Location location) {
+            public void onMove(Player player, Location location) {
 
             }
 

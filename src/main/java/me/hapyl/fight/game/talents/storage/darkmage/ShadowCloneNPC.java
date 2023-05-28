@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.talents.storage.darkmage;
 
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.Talents;
@@ -44,6 +43,7 @@ public class ShadowCloneNPC extends HumanNPC {
             this.setPose(NPCPose.CROUCHING);
         }
 
+        valid = true;
     }
 
     @Nonnull
@@ -54,8 +54,7 @@ public class ShadowCloneNPC extends HumanNPC {
     @Override
     public void onClick(Player clicker, HumanNPC npc, ClickType clickType) {
         if (clicker == player) {
-            //return;
-            Debug.info("not checking for player click");
+            return;
         }
 
         if (ultimate) {

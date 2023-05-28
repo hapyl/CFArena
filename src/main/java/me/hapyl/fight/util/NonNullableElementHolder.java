@@ -18,7 +18,7 @@ public class NonNullableElementHolder<E> {
     }
 
     public void set(E element) {
-        Validate.notNull(element, "NonNullableElementHolder is prohibited of null values");
+        Validate.notNull(element, "NonNullableElementHolder is prohibited from null values");
         this.element = element;
     }
 

@@ -19,6 +19,7 @@ import me.hapyl.fight.npc.HumanManager;
 import me.hapyl.fight.protocol.ArcaneMuteProtocol;
 import me.hapyl.fight.protocol.DismountProtocol;
 import me.hapyl.spigotutils.EternaAPI;
+import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.Registry;
@@ -164,6 +165,22 @@ public class Main extends JavaPlugin {
         return achievementRegistry;
     }
 
+    public void setConfigValue(@Nonnull String path, @Nullable Object value) {
+        getConfig().set(path, value);
+        saveConfig();
+    }
+
+    public <T extends Enum<T>> T getConfigEnumValue(String path, Class<T> clazz, T def) {
+        final String string = getConfig().getString(path, "");
+        final T enumValue = Validate.getEnumValue(clazz, string);
+
+        if (enumValue == null) {
+            return def;
+        }
+
+        return enumValue;
+    }
+
     private void registerEvents() {
         final PluginManager pluginManager = Bukkit.getServer().getPluginManager();
 
@@ -190,11 +207,6 @@ public class Main extends JavaPlugin {
         //new ConfusionPotionProtocol(); -> doesn't work as good as I thought :(
     }
 
-
-    public void setConfigValue(@Nonnull String path, @Nullable Object value) {
-        getConfig().set(path, value);
-        saveConfig();
-    }
 
     public static Main getPlugin() {
         return plugin;

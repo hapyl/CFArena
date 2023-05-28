@@ -237,8 +237,12 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
             formatDescription();
             builderItem.addTextBlockLore(description);
         } catch (Exception e) {
-            builderItem.addLore("&4&lERROR FORMATTING, REPORT THIS");
-            Main.getPlugin().getLogger().severe("@" + getName());
+            final StackTraceElement[] stackTrace = e.getStackTrace();
+
+            builderItem.addLore("&4&lERROR FORMATTING, REPORT THIS WITH A CODE BELOW");
+            builderItem.addLore("&e@" + getName());
+            builderItem.addLore("&e" + stackTrace[0].toString());
+
             Main.getPlugin().getLogger().severe(description);
             e.printStackTrace();
         }
@@ -261,7 +265,7 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         builderAttributes.removeLore();
         builderAttributes.setName(name).addLore("&8Attributes").addLore();
 
-        // Cooldown first
+        // Cooldown a
         if (cd > 0) {
             builderAttributes.addLore("Cooldown%s: &f&l%ss".formatted(
                     this instanceof ChargedTalent ? " between charges" : "",

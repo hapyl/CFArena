@@ -26,7 +26,7 @@ public class GameCommand extends SimpleCommand {
             switch (args[0].toLowerCase(Locale.ROOT)) {
                 case "start" -> {
                     if (manager.isGameInProgress()) {
-                        Chat.sendMessage(sender, "&cA game is already in progress, stop it first!");
+                        Chat.sendMessage(sender, "&cA game is already in progress, stop it a!");
                         return;
                     }
 

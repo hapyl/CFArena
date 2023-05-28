@@ -3,6 +3,9 @@ package me.hapyl.fight.game.talents.storage.pytaria;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.PlayerAttributes;
+import me.hapyl.fight.game.attribute.Temper;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -19,13 +22,15 @@ import org.bukkit.potion.PotionEffectType;
 public class FlowerBreeze extends Talent {
 
     @DisplayField private final double healthSacrifice = 15.0d;
+    @DisplayField(scaleFactor = 100.0d) private final double attackIncrease = 0.9d;
+    @DisplayField(scaleFactor = 100.0d) private final double defenseIncrease = 2.0d;
 
     public FlowerBreeze() {
         super("Flower Breeze", """
-                Feel the breeze of the flowers that damages your but grants &cStrength &7and &bResistance &7for a {duration}.
+                Feel the breeze of the flowers that damages your but grants &c%s &7and &b%s &7boost for {duration}.
                                 
                 &8;;This ability cannot kill.
-                """, Type.COMBAT);
+                """.formatted(AttributeType.ATTACK, AttributeType.DEFENSE), Type.COMBAT);
 
         setDuration(80);
         setItem(Material.RED_DYE);
@@ -65,8 +70,12 @@ public class FlowerBreeze extends Talent {
             }
         }
 
-        PlayerLib.addEffect(player, PotionEffectType.DAMAGE_RESISTANCE, getDuration(), 1);
-        PlayerLib.addEffect(player, PotionEffectType.INCREASE_DAMAGE, getDuration(), 1);
+        //PlayerLib.addEffect(player, PotionEffectType.DAMAGE_RESISTANCE, getDuration(), 1);
+        //PlayerLib.addEffect(player, PotionEffectType.INCREASE_DAMAGE, getDuration(), 1);
+
+        final PlayerAttributes attributes = GamePlayer.getPlayer(player).getAttributes();
+        attributes.increaseTemporary(Temper.FLOWER_BREEZE, AttributeType.ATTACK, attackIncrease, getDuration());
+        attributes.increaseTemporary(Temper.FLOWER_BREEZE, AttributeType.DEFENSE, defenseIncrease, getDuration());
 
         return Response.OK;
     }

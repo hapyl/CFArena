@@ -6,7 +6,6 @@ import me.hapyl.fight.game.heroes.storage.extra.WitherData;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.SmallCaps;
 import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.inventory.gui.GUI;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -43,7 +42,6 @@ public abstract class DarkMageTalent extends Talent {
     public abstract Response executeSpell(Player player);
 
     public void assist(WitherData data) {
-        data.player.sendMessage("assisting talent " + getName());
     }
 
     @Override
@@ -75,11 +73,11 @@ public abstract class DarkMageTalent extends Talent {
     }
 
     private String getUsageRaw() {
-        return "&a&l%s &2%s &a&l%s".formatted(first().name(), GUI.ARROW_FORWARD, second().name());
+        return "&e&l%s &f➠ &6&l%s".formatted(first().name(), second().name());
     }
 
     private String getUsage() {
-        return String.format("&b&lUsage: " + getUsageRaw());
+        return String.format("&f&lUsage: " + getUsageRaw());
     }
 }
 

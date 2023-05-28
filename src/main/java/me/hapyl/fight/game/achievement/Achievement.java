@@ -198,7 +198,7 @@ public class Achievement extends PatternId {
             }
         }
 
-        return integers.length > 0 ? integers[0] : 1; // default to a first element or 1
+        return integers.length > 0 ? integers[0] : 1; // default to a a element or 1
     }
 
     /**

@@ -30,7 +30,7 @@ public class NullGamePlayer implements IGamePlayer {
 
     @Override
     public boolean canMove() {
-        return false;
+        return true;
     }
 
     @Override

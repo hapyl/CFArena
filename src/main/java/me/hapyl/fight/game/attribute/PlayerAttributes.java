@@ -2,7 +2,9 @@ package me.hapyl.fight.game.attribute;
 
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.PlayerElement;
-import me.hapyl.fight.game.task.CachedDelayedGameTaskList;
+import me.hapyl.fight.game.ui.display.AttributeDisplay;
+import me.hapyl.fight.util.ImmutableTuple;
+import me.hapyl.spigotutils.module.annotate.Super;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -20,19 +22,19 @@ public class PlayerAttributes extends Attributes implements PlayerElement {
     private final GamePlayer gamePlayer;
     private final HeroAttributes heroAttributes;
 
-    private final CachedDelayedGameTaskList tasks;
+    private final AttributeTemperTable tempers;
 
     public PlayerAttributes(GamePlayer gamePlayer, HeroAttributes heroAttributes) {
         this.gamePlayer = gamePlayer;
         this.heroAttributes = heroAttributes;
-        this.tasks = new CachedDelayedGameTaskList();
+        this.tempers = new AttributeTemperTable();
 
         mapped.clear(); // default to 0
     }
 
     @Override
     public void onDeath(Player player) {
-        tasks.cancelAll();
+        tempers.cancelAll();
     }
 
     /**
@@ -43,38 +45,34 @@ public class PlayerAttributes extends Attributes implements PlayerElement {
      */
     @Override
     public double get(AttributeType type) {
-        return getBase(type) + super.get(type);
+        return getBase(type) + super.get(type) + tempers.get(type);
     }
 
     /**
      * Increases an attribute <b>temporary</b>.
      *
+     * @param temper   - Temper of the increase.
      * @param type     - Type to attribute to increase.
+     *                 If temper already affects attributes, the new temper will
+     *                 override the old temper.
      * @param value    - Increase amount.
      * @param duration - Duration of increase.
-     * @return the new value.
      */
-    public double increase(AttributeType type, double value, int duration) {
-        final double added = add(type, value);
-
-        if (duration < 0) {
-            return added;
-        }
-
-        tasks.schedule(task -> subtract(type, value), duration);
-        return added;
+    public void increaseTemporary(@Nonnull Temper temper, @Nonnull AttributeType type, double value, int duration) {
+        tempers.add(temper, type, value, duration);
+        display(type, value > -value);
     }
 
     /**
      * Decreases an attribute <b>temporary</b>.
      *
+     * @param temper   - Temper of the decrease.
      * @param type     - Type of attribute to decrease.
      * @param value    - Decrease amount.
      * @param duration - Duration of decrease.
-     * @return the new value.
      */
-    public double decrease(AttributeType type, double value, int duration) {
-        return increase(type, -value, duration);
+    public void decreaseTemporary(@Nonnull Temper temper, @Nonnull AttributeType type, double value, int duration) {
+        increaseTemporary(temper, type, -value, duration);
     }
 
     /**
@@ -84,8 +82,30 @@ public class PlayerAttributes extends Attributes implements PlayerElement {
      * @param value - Add amount.
      * @return the new value.
      */
-    public double add(AttributeType type, double value) {
-        return mapped.compute(type, (t, v) -> (v == null ? 0 : v) + value);
+    public double add(@Nonnull AttributeType type, double value) {
+        final ImmutableTuple<Double, Double> tuple = addSilent(type, value);
+        final double oldValue = tuple.getA();
+        final double newValue = tuple.getB();
+
+        display(type, newValue > oldValue);
+        return oldValue;
+    }
+
+    /**
+     * Computes an addition to an attribute without displaying the change.
+     *
+     * @param type  - Type of attribute.
+     * @param value - Add amount.
+     * @return the new value.
+     */
+    @Super
+    public ImmutableTuple<Double, Double> addSilent(@Nonnull AttributeType type, double value) {
+        final double original = super.get(type);
+        final double newValue = original + value;
+
+        mapped.put(type, newValue);
+
+        return ImmutableTuple.of(original, newValue);
     }
 
     /**
@@ -100,13 +120,24 @@ public class PlayerAttributes extends Attributes implements PlayerElement {
     }
 
     /**
+     * Computes a subtraction to an attribute without displaying the change.
+     *
+     * @param type  - Type of attribute.
+     * @param value - Subtract value.
+     * @return the new value.
+     */
+    public double subtractSilent(AttributeType type, double value) {
+        return addSilent(type, -value).b();
+    }
+
+    /**
      * Sets a new value to an attribute.
      *
      * @param type  - Attribute type.
      * @param value - New value.
      */
     public void set(AttributeType type, double value) {
-        mapped.put(type, value + getBase(type));
+        mapped.put(type, value);
     }
 
     /**
@@ -134,8 +165,13 @@ public class PlayerAttributes extends Attributes implements PlayerElement {
      *
      * @return the base attributes.
      */
+    @Nonnull
     public HeroAttributes getBaseAttributes() {
         return heroAttributes;
+    }
+
+    private void display(AttributeType type, boolean isBuff) {
+        new AttributeDisplay(type, isBuff).display(gamePlayer.getPlayer().getLocation().add(0.0d, 0.5d, 0.0d));
     }
 
 }

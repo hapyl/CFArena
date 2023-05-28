@@ -76,12 +76,11 @@ public class HeroSelectGUI extends PlayerGUI {
                         .addLore();
 
                 final HeroAttributes attributes = hero.getAttributes();
-                builder.addLore("&6Attributes: ");
+                builder.addLore("&e&lAttributes: ");
                 builder.addLore(attributes.getLore(AttributeType.HEALTH));
                 builder.addLore(attributes.getLore(AttributeType.ATTACK));
                 builder.addLore(attributes.getLore(AttributeType.DEFENSE));
                 builder.addLore(attributes.getLore(AttributeType.SPEED));
-                builder.addLore("&eSee details for more!");
 
                 builder.addLore();
                 builder.addSmartLore(hero.getDescription(), "&8&o");

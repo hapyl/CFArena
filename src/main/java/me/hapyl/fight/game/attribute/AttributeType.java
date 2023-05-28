@@ -1,8 +1,10 @@
 package me.hapyl.fight.game.attribute;
 
+import com.google.common.collect.Lists;
 import org.bukkit.ChatColor;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 public enum AttributeType {
 
@@ -33,19 +35,29 @@ public enum AttributeType {
             0.2d
     ),
     CRIT_CHANCE(
-            new Attribute("Critical Chance", "Chance for attack to deal critical hit.")
+            new Attribute("CRIT Chance", "Chance for attack to deal critical hit.")
                     .setChar("☣")
                     .setColor(ChatColor.BLUE)
                     .setToString(d -> "%.2f%%".formatted(d * 100.0d)),
             0.1d
     ),
     CRIT_DAMAGE(
-            new Attribute("Critical Damage", "The damage increase modifier for critical hit.")
+            new Attribute("CRIT Damage", "The damage increase modifier for critical hit.")
                     .setChar("☠")
                     .setColor(ChatColor.BLUE)
                     .setToString(d -> "%.2f%%".formatted(d * 100.0d)),
             0.5d
     );
+
+    private static final List<String> NAMES;
+
+    static {
+        NAMES = Lists.newArrayList();
+
+        for (AttributeType value : values()) {
+            NAMES.add(value.name());
+        }
+    }
 
     public final Attribute attribute;
     private final double defaultValue;
@@ -73,7 +85,7 @@ public enum AttributeType {
 
     @Override
     public String toString() {
-        return attribute.getColor() + getName() + "&7";
+        return attribute.getColor() + attribute.getCharacter() + " " + getName() + "&7";
     }
 
     @Nonnull
@@ -81,6 +93,10 @@ public enum AttributeType {
         final double value = get(attributes);
 
         return "%s%s %s".formatted(attribute.getColor(), attribute.getCharacter(), attribute.toString(value));
+    }
+
+    public static List<String> names() {
+        return Lists.newArrayList(NAMES);
     }
 }
 

@@ -231,7 +231,7 @@ public enum GameTeam {
         }
 
         if (smallestTeam == null) {
-            throw new IllegalArgumentException("Couldn't find smallest team.");
+            throw new IllegalArgumentException("Couldn't find the smallest team.");
         }
         return smallestTeam;
     }

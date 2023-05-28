@@ -94,7 +94,7 @@ public class WitherData {
         final LivingEntity target = wither.getTarget();
 
         if (target == null) {
-            Debug.info("Target is null.");
+            Debug.warn("Target is null.");
             return;
         }
 

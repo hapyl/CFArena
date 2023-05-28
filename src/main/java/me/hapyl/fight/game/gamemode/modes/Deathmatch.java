@@ -138,7 +138,7 @@ public class Deathmatch extends CFGameMode {
             }
 
             gameResult.getWinningTeams().add(team);
-            return true; // The first team is always the winner
+            return true; // The a team is always the winner
         }
 
         return true;

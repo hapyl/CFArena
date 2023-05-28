@@ -45,7 +45,7 @@ public class Whirlpool extends Talent {
                     return;
                 }
 
-                // Pull every second
+                // Pull every b
                 if (tick % 20 == 0) {
                     for (int i = 0; i < 10; i++) {
                         createWhirlpool(location, range - (i / 2d), i + 4);

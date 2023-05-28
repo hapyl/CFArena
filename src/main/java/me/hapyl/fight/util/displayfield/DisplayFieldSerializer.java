@@ -60,6 +60,10 @@ public final class DisplayFieldSerializer {
     }
 
     public static String formatField(Field field, Object instance) {
+        return formatField(field, instance, 1.0d);
+    }
+
+    public static String formatField(Field field, Object instance, double scale) {
         try {
             field.setAccessible(true);
 
@@ -69,18 +73,19 @@ public final class DisplayFieldSerializer {
 
             if (value instanceof Double decimal) {
                 if (decimal % 1 == 0) {
-                    stringValue = String.valueOf(decimal.intValue());
+                    stringValue = String.valueOf(decimal.intValue() * scale);
                 }
                 else {
-                    stringValue = BukkitUtils.decimalFormat(decimal);
+                    stringValue = BukkitUtils.decimalFormat(decimal * scale);
                 }
             }
             // Integers are always considered as ticks, use short or long for other values
+            // Integers are NOT scaled with the scale!
             else if (value instanceof Integer tick) {
                 stringValue = BukkitUtils.roundTick(tick) + "s";
             }
             else if (value instanceof Number number) {
-                stringValue = number.toString();
+                stringValue = String.valueOf(number.intValue() * scale);
             }
             else if (value instanceof String string) {
                 stringValue = string;
@@ -90,35 +95,6 @@ public final class DisplayFieldSerializer {
         } catch (Exception e) {
             return "null";
         }
-    }
-
-    private static String format(DisplayField display, DisplayFieldFormatter formatter, Field field, Object instance) {
-        final String fieldName = field.getName();
-        final StringBuilder builder = new StringBuilder();
-
-        if (!display.name().isEmpty()) {
-            builder.append(display.name());
-        }
-        // Format field name
-        else {
-            final char[] chars = fieldName.toCharArray();
-            for (int i = 0; i < chars.length; i++) {
-                char c = chars[i];
-
-                if (i == 0 || Character.isUpperCase(c)) {
-                    builder.append(" ");
-                    builder.append(Character.toUpperCase(c));
-                    continue;
-                }
-
-                builder.append(Character.toLowerCase(c));
-            }
-        }
-
-        final String stringValue = formatField(field, instance);
-        final String suffix = display.suffix();
-
-        return formatter.format(builder.toString().trim(), stringValue) + ((suffix.isEmpty() || suffix.isBlank()) ? "" : " " + suffix);
     }
 
     public static void forEachDisplayField(DisplayFieldProvider provider, BiConsumer<Field, DisplayField> consumer) {
@@ -145,5 +121,34 @@ public final class DisplayFieldSerializer {
         forEachDisplayField(from, (f, df) -> {
             to.getDisplayFieldData().add(new DisplayFieldData(f, df, from));
         });
+    }
+
+    private static String format(DisplayField display, DisplayFieldFormatter formatter, Field field, Object instance) {
+        final String fieldName = field.getName();
+        final StringBuilder builder = new StringBuilder();
+
+        if (!display.name().isEmpty()) {
+            builder.append(display.name());
+        }
+        // Format field name
+        else {
+            final char[] chars = fieldName.toCharArray();
+            for (int i = 0; i < chars.length; i++) {
+                char c = chars[i];
+
+                if (i == 0 || Character.isUpperCase(c)) {
+                    builder.append(" ");
+                    builder.append(Character.toUpperCase(c));
+                    continue;
+                }
+
+                builder.append(Character.toLowerCase(c));
+            }
+        }
+
+        final String stringValue = formatField(field, instance, display.scaleFactor());
+        final String suffix = display.suffix();
+
+        return formatter.format(builder.toString().trim(), stringValue) + ((suffix.isEmpty() || suffix.isBlank()) ? "" : " " + suffix);
     }
 }

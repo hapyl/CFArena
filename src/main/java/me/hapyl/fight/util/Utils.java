@@ -444,6 +444,20 @@ public class Utils {
         });
     }
 
+    public static LivingEntity getNearestLivingEntityPrioritizePlayers(Location location, double radius, Predicate<LivingEntity> predicate) {
+        final LivingEntity nearestPlayer = getNearestLivingEntity(
+                location,
+                radius,
+                check -> check instanceof Player && predicate.test(check)
+        );
+
+        if (nearestPlayer != null) {
+            return nearestPlayer;
+        }
+
+        return getNearestLivingEntity(location, radius, predicate);
+    }
+
     public static boolean isEntityValid(Entity entity) {
         return isEntityValid(entity, null);
     }

@@ -26,6 +26,11 @@ public @interface DisplayField {
     String suffix() default "";
 
     /**
+     * Multiplier by which the numeral value will be scaled.
+     */
+    double scaleFactor() default 1.0d;
+
+    /**
      * Extra line to add as a description. If not present, no extra line will be used.
      */
     @Nonnull

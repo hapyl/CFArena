@@ -9,8 +9,8 @@ import javax.annotation.Nonnull;
 
 public enum Achievements {
 
-    PLAY_FIRST_GAME("So That's How It Is", "Play your very first game."),
-    FIRST_BLOOD("First Blood", "Cause first blood in a game.__&8(You or your team)"),
+    PLAY_FIRST_GAME("So That's How It Is", "Play your very a game."),
+    FIRST_BLOOD("First Blood", "Cause a blood in a game.__&8(You or your team)"),
 
     ///////////////////////////
     // PROGRESS ACHIEVEMENTS //
@@ -53,7 +53,7 @@ public enum Achievements {
     ////////////////////////
 
     SHREDDING_TIME(
-            new HiddenAchievement("Shredding Time!", "Get tear to shreds by a certain turbine.")
+            new HiddenAchievement("Shredding Time!", "Get tear to shred by a certain turbine.")
                     .setReward(Reward.currency().withCoins(1500))
     ),
 

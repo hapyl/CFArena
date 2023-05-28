@@ -21,9 +21,7 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.trial.Trial;
 import me.hapyl.fight.game.ui.GamePlayerUI;
-import me.hapyl.fight.util.NonNullableElementHolder;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.fight.util.ParamFunction;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -35,7 +33,6 @@ import me.hapyl.spigotutils.module.reflect.glow.Glowing;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import me.hapyl.spigotutils.module.util.DependencyInjector;
 import org.bukkit.*;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -47,15 +44,12 @@ import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class Manager extends DependencyInjector<Main> {
+public final class Manager extends DependencyInjector<Main> {
 
-    protected final NonNullableElementHolder<GameMaps> currentMap = new NonNullableElementHolder<>(GameMaps.ARENA);
-    protected final NonNullableElementHolder<Modes> currentMode = new NonNullableElementHolder<>(Modes.FFA);
+    @Nonnull private GameMaps currentMap;
+    @Nonnull private Modes currentMode;
+
     private final Map<UUID, PlayerProfile> profiles;
-
-    // I really don't know why this is needed, but would I risk removing it? Hell nah. -h
-    private final Map<Integer, ParamFunction<Talent, Hero>> slotPerTalent = new HashMap<>();
-    private final Map<Integer, ParamFunction<Talent, ComplexHero>> slotPerComplexTalent = new HashMap<>();
 
     private final SkinEffectManager skinEffectManager;
     private final AutoSync autoSave;
@@ -68,18 +62,9 @@ public class Manager extends DependencyInjector<Main> {
 
         profiles = Maps.newConcurrentMap();
 
-        slotPerTalent.put(1, Hero::getFirstTalent);
-        slotPerTalent.put(2, Hero::getSecondTalent);
-        slotPerComplexTalent.put(3, ComplexHero::getThirdTalent);
-        slotPerComplexTalent.put(4, ComplexHero::getFourthTalent);
-        slotPerComplexTalent.put(5, ComplexHero::getFifthTalent);
-
-        // load map
-        final FileConfiguration config = Main.getPlugin().getConfig();
-        currentMap.set(GameMaps.byName(config.getString("current-map"), GameMaps.ARENA));
-
-        // load mode
-        currentMode.set(Modes.byName(config.getString("current-mode"), Modes.FFA));
+        // load config data
+        currentMap = Main.getPlugin().getConfigEnumValue("current-map", GameMaps.class, GameMaps.ARENA);
+        currentMode = Main.getPlugin().getConfigEnumValue("current-mode", Modes.class, Modes.FFA);
 
         // init skin effect manager
         skinEffectManager = new SkinEffectManager(getPlugin());
@@ -181,7 +166,7 @@ public class Manager extends DependencyInjector<Main> {
     }
 
     /**
-     * @return game instance is present, else an abstract version.
+     * @return game instance if present, else an abstract version.
      */
     @Nonnull
     public IGameInstance getCurrentGame() {
@@ -189,11 +174,11 @@ public class Manager extends DependencyInjector<Main> {
     }
 
     public GameMaps getCurrentMap() {
-        return currentMap.getElement();
+        return currentMap;
     }
 
-    public void setCurrentMap(GameMaps maps) {
-        currentMap.set(maps);
+    public void setCurrentMap(@Nonnull GameMaps maps) {
+        currentMap = maps;
 
         // save to config
         Main.getPlugin().setConfigValue("current-map", maps.name().toLowerCase(Locale.ROOT));
@@ -231,28 +216,28 @@ public class Manager extends DependencyInjector<Main> {
             return;
         }
 
-        trial.broadcastMessage("&a%s has stopped trial challenge.", trial.getPlayer().getName());
+        trial.broadcastMessage("&a%s has stopped a trial challenge.", trial.getPlayer().getName());
         trial.onStop();
         trial = null;
     }
 
     public Modes getCurrentMode() {
-        return currentMode.getElement();
+        return currentMode;
     }
 
-    public void setCurrentMode(Modes mode) {
+    public void setCurrentMode(@Nonnull Modes mode) {
         if (mode == getCurrentMode()) {
             return;
         }
 
-        currentMode.set(mode);
+        currentMode = mode;
         Chat.broadcast("&aChanged current game mode to %s.", mode.getMode().getName());
 
         // save to config
         Main.getPlugin().setConfigValue("current-mode", mode.name().toLowerCase(Locale.ROOT));
     }
 
-    public void setCurrentMap(GameMaps maps, @Nullable Player player) {
+    public void setCurrentMap(@Nonnull GameMaps maps, @Nullable Player player) {
         if (getCurrentMap() == maps && player != null) {
             PlayerLib.villagerNo(player, "&cAlready selected!");
             return;
@@ -279,9 +264,7 @@ public class Manager extends DependencyInjector<Main> {
      * Only one game instance can be active at a time. (for now?)
      */
     public void createNewGameInstance(boolean debug) {
-        // Pre game start checks
-        final GameMaps currentMap = this.currentMap.getElement();
-
+        // Pre-game start checks
         if ((!currentMap.isPlayable() || !currentMap.getMap().hasLocation()) && !debug) {
             displayError("Invalid map!");
             return;
@@ -419,7 +402,7 @@ public class Manager extends DependencyInjector<Main> {
         // Call mode onStop to clear player and assign winners
         final boolean response = gameInstance.getMode().onStop(this.gameInstance);
 
-        if (!response) { // if returns false means mode will add their own winners
+        if (!response) { // if returns false means mode adds their own winners
             gameInstance.getGameResult().supplyDefaultWinners();
         }
 
@@ -484,7 +467,7 @@ public class Manager extends DependencyInjector<Main> {
         }
 
         // call maps onStop
-        currentMap.getElement().getMap().onStop();
+        currentMap.getMap().onStop();
 
         // stop all game tasks
         Main.getPlugin().getTaskList().onStop();
@@ -532,15 +515,16 @@ public class Manager extends DependencyInjector<Main> {
         equipPlayer(player, getCurrentHero(player));
     }
 
+    @Nullable
     public Talent getTalent(Hero hero, int slot) {
-        if (slot >= 1 && slot < 3) {
-            final ParamFunction<Talent, Hero> function = slotPerTalent.get(slot);
-            return function == null ? null : function.execute(hero);
+        if (slot < 3) {
+            return slot == 1 ? hero.getFirstTalent() : slot == 2 ? hero.getSecondTalent() : null;
         }
         else if (hero instanceof ComplexHero complexHero) {
-            final ParamFunction<Talent, ComplexHero> function = slotPerComplexTalent.get(slot);
-            return function == null ? null : function.execute(complexHero);
+            return slot == 3 ? complexHero.getThirdTalent() :
+                    slot == 4 ? complexHero.getFourthTalent() : slot == 5 ? complexHero.getFifthTalent() : null;
         }
+
         return null;
     }
 
@@ -576,7 +560,7 @@ public class Manager extends DependencyInjector<Main> {
 
     public void setSelectedHero(Player player, Heroes heroes, boolean force) {
         if (Manager.current().isGameInProgress()) {
-            Chat.sendMessage(player, "&cUnable to change hero during the game!");
+            Chat.sendMessage(player, "&cUnable to change a hero during the game!");
             PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
             return;
         }
@@ -594,7 +578,7 @@ public class Manager extends DependencyInjector<Main> {
             }
 
             if (!force) {
-                Chat.sendMessage(player, "&cNot selecting disabled hero without &e-IKnowItsDisabledHeroAndWillBreakTheGame&c argument!");
+                Chat.sendMessage(player, "&cNot selecting a disabled hero without &e-IKnowItsDisabledHeroAndWillBreakTheGame&c argument!");
                 PlayerLib.villagerNo(player);
                 return;
             }
@@ -622,7 +606,7 @@ public class Manager extends DependencyInjector<Main> {
             Chat.sendMessage(player, "");
         }
 
-        // save to database
+        // save to the database
         getOrCreateProfile(player).getDatabase().getHeroEntry().setSelectedHero(heroes);
     }
 

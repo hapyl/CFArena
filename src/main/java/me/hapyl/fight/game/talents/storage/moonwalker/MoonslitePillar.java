@@ -34,9 +34,9 @@ public class MoonslitePillar extends Talent {
 
     public MoonslitePillar() {
         super("Moonslite Pillar", """
-                Raises a pillar at &etarget &7location for {duration} &7that pulses in set intervals, damaging enemies and healing yourself.
+                Raise a pillar at &etarget &7location for {duration} &7that pulses in set intervals, damaging enemies and healing yourself.
                                         
-                &6;;You can only have 1 pillar at the time.
+                &6;;You can only have 1 pillar at a time.
                 """, Type.COMBAT
         );
 

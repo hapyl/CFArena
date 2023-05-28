@@ -8,8 +8,7 @@ import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.maps.GameMaps;
-import me.hapyl.fight.game.stats.StatContainer;
-import me.hapyl.fight.game.stats.StatType;
+import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
 import me.hapyl.spigotutils.module.util.Validate;
@@ -131,20 +130,22 @@ public class AdminCommand extends SimplePlayerAdminCommand {
                     return;
                 }
 
-                final long newKills = longValue(args, 0);
+                final int newKills = intValue(args, 0);
+
                 if (newKills < 0) {
                     sendError(player, "Expected a positive value, got negative.");
                     return;
                 }
 
-                final StatContainer stats = GamePlayer.getPlayer(player).getStats();
-                if (stats == null) {
+                final GameTeam team = GameTeam.getPlayerTeam(player);
+
+                if (team == null) {
                     sendError(player, "Nowhere to set kills! No game instance?");
                     return;
                 }
 
-                stats.setValue(StatType.KILLS, newKills);
-                sendMessage(player, "&aSet your kills to &l%s&a.", newKills);
+                team.kills = newKills;
+                sendMessage(player, "&aSet your team kills to &l%s&a.", newKills);
             }
         });
 

@@ -58,7 +58,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         super("Dark Mage");
 
         setRole(Role.MELEE);
-        setInfo("A mage that was cursed by &8&lDark &8&lMagic&7&o. But even it couldn't kill him...");
+        setInfo("A mage that was cursed by &8&lDark &8&lMagic&8&o. But even it couldn't kill him...");
         setItem("e6ca63569e8728722ecc4d12020e42f086830e34e82db55cf5c8ecd51c8c8c29");
 
         final HeroAttributes attributes = getAttributes();
@@ -69,11 +69,20 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         equipment.setLeggings(Material.IRON_LEGGINGS);
         equipment.setBoots(153, 51, 51);
 
-        setWeapon(new Weapon(Material.WOODEN_HOE).setName("Ancient Wand")
+        setWeapon(new Weapon(Material.WOODEN_HOE)
+                .setName("Ancient Wand")
                 .setDamage(7.0d)
-                .setDescription(
-                        "A powerful wand, that's capable of casting multiple spells!____&e&lRIGHT CLICK &7to enter casting, then, combine &e&lRIGHT CLICK &7and/or &e&lLEFT CLICK &7to execute the spell!"
-                ));
+                .setDescription("""
+                        An ancient item capable of casting the darkest of spells...
+                                                
+                        &e&lSpell Mode:
+                        &6&lRIGHT&7 click to enter spell mode.
+                                                
+                        Add buttons with &nright&7 or &nleft&7 clicks (R or L). Two buttons activate the corresponding spells.
+                                                
+                        &b;;Hover over the talents to see their usage.
+                        """));
+        //"A powerful wand, that's capable of casting multiple spells!____&e&lRIGHT CLICK &7to enter casting, then, combine &e&lRIGHT CLICK &7and/or &e&lLEFT CLICK &7to execute the spell!"
 
         setUltimate(new UltimateTalent("Witherborn", """
                 Summon a baby wither that will assist you in battle for {duration}.
@@ -220,10 +229,10 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         // Handle clone
         if (clone != null && clone.ultimate) {
             player.teleport(clone.getLocation());
-            talent.removeNpc(player, 0);
+            talent.removeClone(clone);
 
             // Fx
-            Chat.sendMessage(player, "&aInstead of taking damage, you possessed your %s!", talent.getName());
+            Chat.sendMessage(player, "&aYour %s nullified the damage!", talent.getName());
 
             PlayerLib.addEffect(player, PotionEffectType.BLINDNESS, 10, 1);
 
@@ -346,7 +355,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
     // I'm still fucking interacting aren't I?
     // And also the fucking left-clicking entity does not fire the event either, like why?
     // I'm clearly fucking interacting???
-    // But of course, the event handles with 2 hands, even if I have nothing in my second hand, makes sense.
+    // But of course, the event handles with 2 hands, even if I have nothing in my b hand, makes sense.
     private void processSpellClick(Player player, boolean isLeftClick) {
         // Check for actual wand maybe?
         if (player.getInventory().getItemInMainHand().getType() != getWeapon().getMaterial()) {

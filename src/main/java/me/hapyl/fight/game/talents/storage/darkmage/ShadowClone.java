@@ -27,9 +27,9 @@ public class ShadowClone extends DarkMageTalent {
 
     public ShadowClone() {
         super("Shadow Clone", """
-                Creates a shadow clone of you at your current location and completely hides you.
+                Create a shadow clone of you at your current location and completely hides you.
                                         
-                After a brief delay or whenever enemy hits the clone, it explodes, stunning, blinding and dealing damage to nearby players.
+                After a brief delay or whenever an enemy hits the clone, it explodes, stunning, blinding and dealing damage to nearby players.
                 """, Material.NETHERITE_SCRAP);
 
         clones = Maps.newHashMap();
@@ -41,7 +41,7 @@ public class ShadowClone extends DarkMageTalent {
     @Nonnull
     @Override
     public String getAssistDescription() {
-        return "The clone will not disappear. Instead, if will persist until you take damage. When taking damage, nullify it and teleport to the clone.";
+        return "The clone persists until you take damage, at which point the damage is nullified, and you teleport to the clone.";
     }
 
     @Nonnull
@@ -54,14 +54,6 @@ public class ShadowClone extends DarkMageTalent {
     @Override
     public DarkMageSpell.SpellButton second() {
         return DarkMageSpell.SpellButton.RIGHT;
-    }
-
-    public void removeNpc(Player player, int delay) {
-        final ShadowCloneNPC clone = clones.remove(player);
-
-        if (clone != null) {
-            clone.remove(delay);
-        }
     }
 
     @Nullable
@@ -87,8 +79,10 @@ public class ShadowClone extends DarkMageTalent {
 
         // Only explode if not using ultimate
         if (witherData == null) {
-            shadowClone.explode(null, getDuration());
-            removeNpc(player, getDuration());
+            GameTask.runLater(() -> {
+                shadowClone.explode(null);
+                clones.remove(player);
+            }, getDuration());
         }
 
         clones.put(player, shadowClone);
@@ -96,4 +90,8 @@ public class ShadowClone extends DarkMageTalent {
         return Response.OK;
     }
 
+    public void removeClone(@Nonnull ShadowCloneNPC clone) {
+        clone.remove(0);
+        clones.remove(clone.player);
+    }
 }

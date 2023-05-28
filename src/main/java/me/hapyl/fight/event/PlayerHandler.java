@@ -352,12 +352,9 @@ public class PlayerHandler implements Listener {
                 // Weakness
                 // The current formula reduces damage by half
                 if (effectWeakness != null) {
-                    double __d = damage;
                     damage -= (4.0d * effectWeakness.getAmplifier() + 1);
                     damage /= 2.0d;
-
-                    Debug.info("damage before " + __d);
-                    Debug.info("damage after " + damage);
+                    // FIXME (hapyl): 027, May 27, 2023: Player's cannot damage with weakness, convert to GameEffect or use something like UNLUCK
                 }
 
                 // Check for GameEffect is it is player
@@ -501,7 +498,7 @@ public class PlayerHandler implements Listener {
             //            final DamageIndicator damageIndicator = new DamageIndicator(entity.getLocation(), damage, isCrit);
             //            damageIndicator.display(isCrit ? 30 : 20);
 
-            new DamageDisplay(entity.getLocation(), damage, isCrit, 20);
+            new DamageDisplay(damage, isCrit).display(livingEntity.getEyeLocation());
         }
 
         // Progress stats for damager

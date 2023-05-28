@@ -15,6 +15,7 @@ import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.storage.pytaria.FlowerBreeze;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Utils;
@@ -25,6 +26,7 @@ import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Bee;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -104,7 +106,7 @@ public class Pytaria extends Hero {
             me.setAI(false);
         });
 
-        final Player nearestPlayer = Utils.getNearestPlayer(location, 50, player);
+        final LivingEntity nearestEntity = Utils.getNearestLivingEntityPrioritizePlayers(location, 50, check -> check != player);
         PlayerLib.playSound(location, Sound.ENTITY_BEE_LOOP_AGGRESSIVE, 1.0f);
 
         new GameTask() {
@@ -112,7 +114,7 @@ public class Pytaria extends Hero {
 
             @Override
             public void run() {
-                final Location lockLocation = nearestPlayer == null ? location.clone().subtract(0, 9, 0) : nearestPlayer.getEyeLocation();
+                final Location lockLocation = nearestEntity == null ? location.clone().subtract(0, 9, 0) : nearestEntity.getEyeLocation();
                 final Location touchLocation = drawLine(location.clone(), lockLocation.clone());
 
                 // BOOM
@@ -203,9 +205,9 @@ public class Pytaria extends Hero {
         attributes.reset(AttributeType.ATTACK);
         attributes.reset(AttributeType.DEFENSE);
 
-        attributes.add(AttributeType.CRIT_CHANCE, critIncrease);
-        attributes.add(AttributeType.ATTACK, attackIncrease);
-        attributes.subtract(AttributeType.DEFENSE, critIncrease);
+        attributes.addSilent(AttributeType.CRIT_CHANCE, critIncrease);
+        attributes.addSilent(AttributeType.ATTACK, attackIncrease);
+        attributes.subtractSilent(AttributeType.DEFENSE, critIncrease);
     }
 
     private ItemStack createChestplate(int red, int green, int blue) {
@@ -257,8 +259,8 @@ public class Pytaria extends Hero {
     }
 
     @Override
-    public Talent getSecondTalent() {
-        return Talents.FLOWER_BREEZE.getTalent();
+    public FlowerBreeze getSecondTalent() {
+        return (FlowerBreeze) Talents.FLOWER_BREEZE.getTalent();
     }
 
     @Override

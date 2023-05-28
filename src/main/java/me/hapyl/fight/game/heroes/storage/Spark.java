@@ -44,12 +44,12 @@ public class Spark extends Hero implements PlayerElement {
 
         setWeapon(new RangeWeapon(Material.STICK, "fire_weapon") {
             @Override
-            public void onHit(LivingEntity entity) {
+            public void onHit(Player player, LivingEntity entity) {
                 entity.setFireTicks(10);
             }
 
             @Override
-            public void onMove(Location location) {
+            public void onMove(Player player, Location location) {
 
             }
         }.setCooldown(30)

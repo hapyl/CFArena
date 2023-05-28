@@ -81,7 +81,7 @@ public class CFParkour extends Parkour implements ParkourHandler {
             }
 
             public void sendErrorParkourNotStarted(Player player, Parkour parkour) {
-                Chat.sendMessage(player, "&cYou must first start this parkour!");
+                Chat.sendMessage(player, "&cYou must a start this parkour!");
                 PlayerLib.Sounds.ENDERMAN_TELEPORT.play(player, 0.0F);
             }
 
