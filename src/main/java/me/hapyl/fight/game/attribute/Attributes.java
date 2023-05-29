@@ -12,9 +12,11 @@ import java.util.function.BiConsumer;
 
 public class Attributes {
 
-    protected final Map<AttributeType, Double> mapped = Maps.newHashMap();
+    public final Map<AttributeType, Double> mapped;
 
     public Attributes() {
+        mapped = Maps.newHashMap();
+
         // write defaults
         for (AttributeType value : AttributeType.values()) {
             mapped.put(value, value.getDefaultValue());
@@ -61,23 +63,18 @@ public class Attributes {
         return mapped.computeIfAbsent(type, t -> 0.0d);
     }
 
+    public final void reset() {
+        mapped.clear();
+    }
+
     /**
      * Removes the value.
      * <p>
      * If {@link #get(AttributeType)} is called, it will compute the value to 0, NOT default.
      *
      * @param type - Type.
-     * @return the old value.
      */
-    public double remove(AttributeType type) {
-        return mapped.remove(type);
-    }
-
-    public void reset() {
-        mapped.clear();
-    }
-
-    public void reset(AttributeType type) {
+    public final void reset(AttributeType type) {
         mapped.remove(type);
     }
 

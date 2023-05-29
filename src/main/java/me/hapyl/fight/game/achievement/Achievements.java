@@ -60,7 +60,7 @@ public enum Achievements {
     ),
 
     DEFENSELESS(
-            new HiddenAchievement("Defenseless", "")
+            new HiddenAchievement("Defenseless", "Get 0 and less defense.")
                     .setReward(Reward.currency().withCoins(5000))
                     .setTrigger(Triggers.ATTRIBUTE_CHANGE, trigger -> {
                         return trigger.type == AttributeType.DEFENSE && trigger.newValue <= 0.0d;

@@ -151,7 +151,11 @@ public class GamePlayer implements IGamePlayer {
         player.setWalkSpeed((float) attributes.get(AttributeType.SPEED));
         player.setMaximumNoDamageTicks(20);
         player.getActivePotionEffects().forEach(effect -> player.removePotionEffect(effect.getType()));
-        Nulls.runIfNotNull(player.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE), att -> att.setBaseValue(0.0f));
+
+        // Reset attributes
+        resetAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE, 0.0d);
+        resetAttribute(Attribute.GENERIC_ATTACK_SPEED, 4.0d);
+        resetAttribute(Attribute.GENERIC_ATTACK_DAMAGE, 1.0d);
 
         gameEffects.values().forEach(ActiveGameEffect::forceStop);
 
@@ -174,6 +178,10 @@ public class GamePlayer implements IGamePlayer {
                 }
             }
         }
+    }
+
+    private void resetAttribute(Attribute attribute, double value) {
+        Nulls.runIfNotNull(player.getAttribute(attribute), t -> t.setBaseValue(value));
     }
 
     @Nonnull

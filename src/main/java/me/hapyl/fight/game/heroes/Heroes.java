@@ -11,6 +11,7 @@ import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.heroes.storage.*;
+import me.hapyl.fight.game.heroes.storage.orc.Orc;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.util.SmallCaps;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
@@ -70,6 +71,10 @@ public enum Heroes {
     SWORD_MASTER(new SwordMaster()),
     ZEALOT(new Zealot()),
     ENGINEER(new Engineer()),
+
+    // 1.6
+    ORC(new Orc()),
+
 
     ;
 

@@ -16,11 +16,8 @@ public class HealingOrb extends InputTalent {
 
         setItem(Material.NETHER_WART);
 
-        setLeftClick("heal teammate");
-        setRightClick("heal yourself");
-
-        setCdLeftSec(10);
-        setCdRightSec(15);
+        leftData.setAction("heal teammate").setCooldownSec(10);
+        rightData.setAction("heal yourself").setCooldownSec(15);
     }
 
     @Nonnull

@@ -102,12 +102,18 @@ public class PlayerAttributes extends Attributes implements PlayerElement {
      */
     @Super
     public ImmutableTuple<Double, Double> addSilent(@Nonnull AttributeType type, double value) {
-        final double base = get(type);
+        final double oldBaseValue = get(type);
         final double original = super.get(type);
         final double newValue = original + value;
 
         mapped.put(type, newValue);
-        Triggers.call(new AttributeChangeTrigger(gamePlayer.getPlayer(), type, base, get(type)));
+
+        // Call trigger
+        final double newBaseValue = get(type);
+        Triggers.call(new AttributeChangeTrigger(gamePlayer.getPlayer(), type, oldBaseValue, newBaseValue));
+
+        // Call update
+        type.attribute.onChange(gamePlayer.getPlayer(), newBaseValue);
 
         return ImmutableTuple.of(original, newValue);
     }

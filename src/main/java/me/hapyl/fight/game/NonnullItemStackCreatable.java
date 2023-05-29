@@ -1,5 +1,7 @@
 package me.hapyl.fight.game;
 
+import me.hapyl.fight.game.talents.LoreAppender;
+import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -7,7 +9,7 @@ import javax.annotation.Nonnull;
 /**
  * Represents a class that can create an ItemStack.
  */
-public abstract class NonnullItemStackCreatable {
+public abstract class NonnullItemStackCreatable implements LoreAppender {
 
     protected ItemStack item;
 
@@ -17,6 +19,10 @@ public abstract class NonnullItemStackCreatable {
         }
 
         this.item = item;
+    }
+
+    @Override
+    public void appendLore(@Nonnull ItemBuilder builder) {
     }
 
     public final ItemStack getItemUnsafe() throws IllegalStateException {

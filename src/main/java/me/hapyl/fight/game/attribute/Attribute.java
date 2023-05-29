@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.attribute;
 
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import java.util.function.Function;
@@ -52,6 +53,10 @@ public class Attribute {
     public Attribute setChar(String character) {
         this.character = character;
         return this;
+    }
+
+    // If attribute changed and something needs to be updated, use this.
+    public void onChange(Player player, double value) {
     }
 
     public String toString(double value) {

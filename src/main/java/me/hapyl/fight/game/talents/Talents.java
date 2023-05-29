@@ -47,6 +47,8 @@ import me.hapyl.fight.game.talents.storage.nightmare.Paranoia;
 import me.hapyl.fight.game.talents.storage.nightmare.ShadowShift;
 import me.hapyl.fight.game.talents.storage.ninja.NinjaDash;
 import me.hapyl.fight.game.talents.storage.ninja.NinjaSmoke;
+import me.hapyl.fight.game.talents.storage.orc.OrcAxe;
+import me.hapyl.fight.game.talents.storage.orc.OrcGrowl;
 import me.hapyl.fight.game.talents.storage.pytaria.FlowerBreeze;
 import me.hapyl.fight.game.talents.storage.pytaria.FlowerEscape;
 import me.hapyl.fight.game.talents.storage.shadowassassin.ShadowPrism;
@@ -357,6 +359,10 @@ public enum Talents {
     UPPERCUT(new Uppercut()),
     UPDRAFT(new Updraft()),
     SLASH(new Slash()),
+
+    // Orc
+    ORC_GROWN(new OrcGrowl()),
+    ORC_AXE(new OrcAxe()),
 
     // test (keep last)
     TestChargeTalent(new TestChargeTalent());

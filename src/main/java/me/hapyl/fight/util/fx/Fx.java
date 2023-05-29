@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
 
+// TODO (hapyl): 030, May 30: better sooner than later
 public class Fx {
 
     @Nullable private String message;

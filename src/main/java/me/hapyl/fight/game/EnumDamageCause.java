@@ -112,7 +112,7 @@ public enum EnumDamageCause {
     SHREDS_AND_PIECES(DamageCause.nonCrit("was tear to shreds and pieces :o", "with help from")),
     DARKNESS_CURSE(DamageCause.of("was swallowed by {damager}'s darkness")),
     CORROSION(DamageCause.nonCrit("corroded to death", "with help from")),
-
+    ORC_DASH(DamageCause.of("hit too hard", "by")),
     ;
 
     private final DamageCause damageCause;

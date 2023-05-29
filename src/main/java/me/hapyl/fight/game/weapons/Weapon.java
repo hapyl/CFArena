@@ -215,7 +215,7 @@ public class Weapon extends NonnullItemStackCreatable implements Cloneable, Disp
             );
         }
 
-        if (attackSpeed != 0) {
+        if (attackSpeed != 0.0d) {
             builder.addAttribute(
                     Attribute.GENERIC_ATTACK_SPEED,
                     attackSpeed,

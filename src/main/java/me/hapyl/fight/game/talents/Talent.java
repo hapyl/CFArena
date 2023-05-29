@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents;
 
 import com.google.common.collect.Lists;
 import me.hapyl.fight.Main;
+import me.hapyl.fight.annotate.ExecuteOrder;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.effect.GameEffectType;
@@ -82,12 +83,7 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
 
     // defaults to 1 point per 10 seconds of cooldown
     public void defaultPointGeneration() {
-        if (cd <= 0) {
-            point = 1;
-            return;
-        }
-
-        point = Numbers.clamp(cd / 200, 1, 100);
+        point = calcPointGeneration(cd);
     }
 
     public void setAltUsage(String altUsage) {
@@ -111,6 +107,7 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         return point;
     }
 
+    @ExecuteOrder(after = { "setCd(int)", "setCdSec(int)" })
     public void setPoint(int point) {
         this.point = point;
     }
@@ -229,22 +226,29 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         // Execute functions is present
         Nulls.runIfNotNull(itemFunction, function -> function.accept(builderItem));
 
-        // Now using text block lore
-        try {
-            // fix % I fucking hate that java uses % as formatter fucking why
-            description = description.replace("%", "%%");
+        if (this instanceof InputTalent input) {
+        }
+        else {
 
-            formatDescription();
-            builderItem.addTextBlockLore(description);
-        } catch (Exception e) {
-            final StackTraceElement[] stackTrace = e.getStackTrace();
+            // Now using text block lore
+            try {
+                // FIXME (hapyl): 030, May 30: Maybe, just maybe the actual class should add description, but that's JUST maybe
 
-            builderItem.addLore("&4&lERROR FORMATTING, REPORT THIS WITH A CODE BELOW");
-            builderItem.addLore("&e@" + getName());
-            builderItem.addLore("&e" + stackTrace[0].toString());
+                // fix % I fucking hate that java uses % as formatter fucking why
+                description = description.replace("%", "%%");
+                description = StaticFormat.format(description, this);
 
-            Main.getPlugin().getLogger().severe(description);
-            e.printStackTrace();
+                builderItem.addTextBlockLore(description);
+            } catch (Exception e) {
+                final StackTraceElement[] stackTrace = e.getStackTrace();
+
+                builderItem.addLore("&4&lERROR FORMATTING, REPORT THIS WITH A CODE BELOW");
+                builderItem.addLore("&e@" + getName());
+                builderItem.addLore("&e" + stackTrace[0].toString());
+
+                Main.getPlugin().getLogger().severe(description);
+                e.printStackTrace();
+            }
         }
 
         // Is ability having alternative usage, tell how to use it
@@ -402,7 +406,7 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         startCd(player, cd);
     }
 
-    public final void stopCd(Player player) {
+    public final void stopCd(@Nonnull Player player) {
         player.setCooldown(getItem().getType(), 0);
     }
 
@@ -418,15 +422,16 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         return cd;
     }
 
+    @ExecuteOrder(before = { "setPoint(int)" })
     public Talent setCd(int cd) {
         this.cd = cd;
+        defaultPointGeneration();
         return this;
     }
 
+    @ExecuteOrder(before = { "setPoint(int)" })
     public Talent setCdSec(int cd) {
-        this.cd = cd * 20;
-        defaultPointGeneration();
-        return this;
+        return setCd(cd * 20);
     }
 
     public String getName() {
@@ -455,22 +460,12 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         return toFormat.formatted(format);
     }
 
-    private void formatDescription() {
-        // Format static
-        for (StaticFormat format : StaticFormat.values()) {
-            description = format.format(this);
+    public static int calcPointGeneration(int cd) {
+        if (cd <= 0) {
+            return 1;
         }
 
-        // Format display fields
-        for (Field field : getClass().getDeclaredFields()) {
-            final DisplayField annotation = field.getAnnotation(DisplayField.class);
-
-            if (annotation == null) {
-                continue;
-            }
-
-            description = description.replace("{" + field.getName() + "}", DisplayFieldSerializer.formatField(field, this));
-        }
+        return Numbers.clamp(cd / 200, 1, 100);
     }
 
     private enum StaticFormat {
@@ -486,16 +481,50 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
             this.function = function;
         }
 
-        public String format(Talent talent) {
-            return talent.description.replace(target, function.apply(talent) + "&7");
+        @Nonnull
+        public static String format(@Nonnull String string, @Nonnull Talent talent) {
+            for (StaticFormat value : values()) {
+                string = string.replace(value.target, value.function.apply(talent) + "&7");
+            }
+
+            // Format display fields
+            for (Field field : talent.getClass().getDeclaredFields()) {
+                final DisplayField annotation = field.getAnnotation(DisplayField.class);
+
+                if (annotation == null) {
+                    continue;
+                }
+
+                string = string.replace("{" + field.getName() + "}", DisplayFieldSerializer.formatField(field, talent));
+            }
+
+            return string;
         }
+
     }
 
     public enum Type {
+        /**
+         * Normal talent.
+         * Most heroes use this.
+         */
         COMBAT,
+        /**
+         * Talent with multiple charges.
+         */
         COMBAT_CHARGED,
+        /**
+         * Talent that requires input to execute.
+         */
         COMBAT_INPUT,
+        /**
+         * Passive talent.
+         */
         PASSIVE,
+        /**
+         * Ultimate.
+         * Yes, ultimates are considered talents.
+         */
         ULTIMATE
     }
 

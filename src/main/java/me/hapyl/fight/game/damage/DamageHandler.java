@@ -2,15 +2,19 @@ package me.hapyl.fight.game.damage;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.annotate.Super;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Numbers;
+import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 /**
  * A very workaround of a bukkit system, but won't work any other way.
@@ -74,6 +78,18 @@ public final class DamageHandler {
         damageTick(entity, damage, null, null, tick);
     }
 
+    public static List<LivingEntity> damageAoE(@Nonnull Location location, double radius, double damage, @Nullable LivingEntity damager, @Nullable EnumDamageCause cause, @Nonnull Predicate<LivingEntity> predicate) {
+        final List<LivingEntity> entities = Utils.getEntitiesInRangeValidateRange(location, radius);
+        entities.removeIf(predicate);
+
+        for (LivingEntity entity : entities) {
+            damage(entity, damage, damager, cause);
+        }
+
+        return entities;
+    }
+
+    // helpers
     @Nonnull
     public static DamageData getDamageData(@Nonnull LivingEntity entity) {
         return DAMAGE_DATA.computeIfAbsent(entity, DamageData::new);
@@ -113,5 +129,4 @@ public final class DamageHandler {
                 )
         );
     }
-
 }

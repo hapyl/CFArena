@@ -2,6 +2,7 @@ package me.hapyl.fight.game.attribute;
 
 import com.google.common.collect.Lists;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -28,10 +29,13 @@ public enum AttributeType {
             1.0d
     ),
     SPEED(
-            new Attribute("Speed", "Movement speed of the hero.")
-                    .setChar("🌊")
-                    .setColor(ChatColor.AQUA)
-                    .setToString(d -> 100 + (((d - 0.2d) / 0.2d) * 100) + "%"),
+            new Attribute("Speed", "Movement speed of the hero.") {
+                @Override
+                public void onChange(Player player, double value) {
+                    player.sendMessage("updated speed");
+                    player.setWalkSpeed((float) value);
+                }
+            }.setChar("🌊").setColor(ChatColor.AQUA).setToString(d -> 100 + (((d - 0.2d) / 0.2d) * 100) + "%"),
             0.2d
     ),
     CRIT_CHANCE(
