@@ -8,6 +8,20 @@ import javax.annotation.Nonnull;
 
 public abstract class Reward {
 
+    public static Reward EMPTY = new Reward("Empty") {
+        @Override
+        public void display(@Nonnull Player player, @Nonnull ItemBuilder builder) {
+        }
+
+        @Override
+        public void grantReward(@Nonnull Player player) {
+        }
+
+        @Override
+        public void revokeReward(@Nonnull Player player) {
+        }
+    };
+
     private final String name;
 
     public Reward(String name) {

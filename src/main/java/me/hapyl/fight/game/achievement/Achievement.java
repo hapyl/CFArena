@@ -4,9 +4,10 @@ import com.google.common.collect.Maps;
 import me.hapyl.fight.annotate.ForceLowercase;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.AchievementEntry;
-import me.hapyl.fight.game.achievement.trigger.AchievementTrigger;
 import me.hapyl.fight.game.reward.Reward;
 import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.trigger.PlayerTrigger;
+import me.hapyl.fight.trigger.Subscribe;
 import me.hapyl.fight.util.ProgressBarBuilder;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -31,7 +32,6 @@ public class Achievement extends PatternId {
     private final String description;
     protected int maxCompleteCount;
     private Category category;
-    private AchievementTrigger trigger;
 
     public Achievement(@Nullable @ForceLowercase String id, @Nonnull String name, @Nonnull String description) {
         super(Pattern.compile("^[a-z0-9_]+$"));
@@ -40,6 +40,8 @@ public class Achievement extends PatternId {
         this.rewards = Maps.newLinkedHashMap();
         this.category = Category.GAMEPLAY;
         this.maxCompleteCount = 1;
+
+        this.rewards.put(1, Reward.EMPTY);
 
         if (id != null) {
             setId(id);
@@ -72,14 +74,12 @@ public class Achievement extends PatternId {
         builder.addLore();
         if (rewards.isEmpty()) {
             builder.addLore("&7No rewards :(");
-        }
-        else {
+        } else {
             // If a single reward, just display the reward
             if (rewards.size() == 1) {
                 builder.addLore("&7Reward:" + checkmark(isCompleted));
                 getRewardNonnull().display(player, builder);
-            }
-            else {
+            } else {
                 builder.addLore("&7Rewards:" + checkmark(isCompleted));
                 int tier = 1;
                 for (Map.Entry<Integer, Reward> entry : rewards.entrySet()) {
@@ -190,7 +190,7 @@ public class Achievement extends PatternId {
             return requirement;
         }
 
-        final Integer[] integers = rewards.keySet().toArray(new Integer[] {});
+        final Integer[] integers = rewards.keySet().toArray(new Integer[]{});
 
         for (int i = integers.length - 1; i >= 0; i--) {
             if (requirement >= integers[i] && (i + 1 < integers.length)) {
@@ -208,7 +208,7 @@ public class Achievement extends PatternId {
      * @return the tier for requirement.
      */
     public int getTier(int requirement) {
-        final Integer[] integers = rewards.keySet().toArray(new Integer[] {});
+        final Integer[] integers = rewards.keySet().toArray(new Integer[]{});
 
         for (int i = integers.length - 1; i >= 0; i--) {
             if (requirement >= integers[i]) {
@@ -399,6 +399,22 @@ public class Achievement extends PatternId {
     @Nonnull
     private String checkmark(boolean condition) {
         return condition ? " &a✔" : "";
+    }
+
+    public <T extends PlayerTrigger> Achievement setTrigger(Subscribe<T> sub, AchievementTrigger<T> trigger) {
+        sub.subscribe(t -> {
+            final Player player = t.player;
+
+            if (isComplete(player)) { // don't check if already complete
+                return;
+            }
+
+            if (trigger.test(t)) {
+                complete(player);
+            }
+        });
+
+        return this;
     }
 
 }

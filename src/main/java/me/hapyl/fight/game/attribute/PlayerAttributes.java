@@ -3,6 +3,8 @@ package me.hapyl.fight.game.attribute;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.ui.display.AttributeDisplay;
+import me.hapyl.fight.trigger.Triggers;
+import me.hapyl.fight.trigger.subscribe.AttributeChangeTrigger;
 import me.hapyl.fight.util.ImmutableTuple;
 import me.hapyl.spigotutils.module.annotate.Super;
 import org.bukkit.entity.Player;
@@ -100,10 +102,12 @@ public class PlayerAttributes extends Attributes implements PlayerElement {
      */
     @Super
     public ImmutableTuple<Double, Double> addSilent(@Nonnull AttributeType type, double value) {
+        final double base = get(type);
         final double original = super.get(type);
         final double newValue = original + value;
 
         mapped.put(type, newValue);
+        Triggers.call(new AttributeChangeTrigger(gamePlayer.getPlayer(), type, base, get(type)));
 
         return ImmutableTuple.of(original, newValue);
     }

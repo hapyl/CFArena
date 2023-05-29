@@ -21,22 +21,15 @@ public class Attributes {
         }
     }
 
-    public double calculateIncomingDamage(double damage) {
-        double defense = get(AttributeType.DEFENSE);
-
-        // should never happen but just in case defense is 0
-        if (defense <= 0.0d) {
-            defense = 0.1d;
-        }
-
-        return damage / defense;
+    public final double calculateIncomingDamage(double damage) {
+        return damage * (2.0d - get(AttributeType.DEFENSE));
     }
 
-    public CriticalResponse calculateOutgoingDamage(double damage) {
+    public final CriticalResponse calculateOutgoingDamage(double damage) {
         return calculateOutgoingDamage(damage, null);
     }
 
-    public CriticalResponse calculateOutgoingDamage(double damage, @Nullable EnumDamageCause cause) {
+    public final CriticalResponse calculateOutgoingDamage(double damage, @Nullable EnumDamageCause cause) {
         final double scaled = damage * AttributeType.ATTACK.get(this);
 
         if (cause != null && !cause.isCanCrit()) {
@@ -49,11 +42,11 @@ public class Attributes {
         return new CriticalResponse(scaledCritical, isCritical);
     }
 
-    public double scaleCritical(double damage, boolean isCritical) {
+    public final double scaleCritical(double damage, boolean isCritical) {
         return isCritical ? damage + (damage * AttributeType.CRIT_DAMAGE.get(this)) : damage;
     }
 
-    public boolean isCritical() {
+    public final boolean isCritical() {
         final double chance = AttributeType.CRIT_CHANCE.get(this);
         return chance >= 1.0d || new Random().nextDouble(0.0d, 1.0d) < chance;
     }
@@ -109,14 +102,11 @@ public class Attributes {
 
         if (d >= 0.75d && d < 1.0d) {
             scale = 2;
-        }
-        else if (d == 1.0d) {
+        } else if (d == 1.0d) {
             scale = 3;
-        }
-        else if (d > 1.0 && d <= 1.25d) {
+        } else if (d > 1.0 && d <= 1.25d) {
             scale = 4;
-        }
-        else if (d > 1.25d && d <= 1.5d) {
+        } else if (d > 1.25d && d <= 1.5d) {
             scale = 5;
         }
 

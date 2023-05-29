@@ -1,16 +1,18 @@
 package me.hapyl.fight.game.achievement;
 
+import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.reward.CurrencyReward;
 import me.hapyl.fight.game.reward.Reward;
 import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.trigger.Triggers;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 
 public enum Achievements {
 
-    PLAY_FIRST_GAME("So That's How It Is", "Play your very a game."),
-    FIRST_BLOOD("First Blood", "Cause a blood in a game.__&8(You or your team)"),
+    PLAY_FIRST_GAME("So That's How It Is", "Play your very first game."),
+    FIRST_BLOOD("First Blood", "Cause first blood in a game.__&8You or your team"),
 
     ///////////////////////////
     // PROGRESS ACHIEVEMENTS //
@@ -57,11 +59,23 @@ public enum Achievements {
                     .setReward(Reward.currency().withCoins(1500))
     ),
 
+    DEFENSELESS(
+            new HiddenAchievement("Defenseless", "")
+                    .setReward(Reward.currency().withCoins(5000))
+                    .setTrigger(Triggers.ATTRIBUTE_CHANGE, trigger -> {
+                        return trigger.type == AttributeType.DEFENSE && trigger.newValue <= 0.0d;
+                    })
+    ),
+
+    //////////////////////////
+    // TESTING ACHIEVEMENTS //
+    //////////////////////////
+
     ;
 
     public final Achievement achievement;
 
-    Achievements(Achievement achievement) {
+    Achievements(@Nonnull Achievement achievement) {
         this.achievement = achievement;
         this.achievement.setId(name());
     }
