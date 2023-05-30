@@ -28,7 +28,7 @@ public class ShellGrande extends Talent {
                 """);
 
         setItem(Material.FIREWORK_STAR);
-        setCdSec(11);
+        setCooldownSec(11);
 
         fireworkStarRed = new ItemStack(Material.FIREWORK_STAR);
         Nulls.runIfNotNull((FireworkEffectMeta) fireworkStarRed.getItemMeta(), meta -> {

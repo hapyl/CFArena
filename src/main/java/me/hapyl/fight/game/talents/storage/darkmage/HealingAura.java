@@ -27,7 +27,7 @@ public class HealingAura extends DarkMageTalent {
                 """, Material.APPLE);
 
         setDuration(200);
-        setCdSec(30);
+        setCooldownSec(30);
     }
 
     @Nonnull

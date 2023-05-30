@@ -104,14 +104,14 @@ public class UltimateTalent extends Talent implements DisplayFieldDataProvider {
     }
 
     @Override
-    public UltimateTalent setCd(int cd) {
-        super.setCd(cd);
+    public UltimateTalent setCooldown(int cd) {
+        super.setCooldown(cd);
         return this;
     }
 
     @Override
-    public UltimateTalent setCdSec(int cd) {
-        super.setCdSec(cd);
+    public UltimateTalent setCooldownSec(int cd) {
+        super.setCooldownSec(cd);
         return this;
     }
 
@@ -150,7 +150,7 @@ public class UltimateTalent extends Talent implements DisplayFieldDataProvider {
     }
 
     public UltimateTalent setCdFromCost(int divide) {
-        setCd((getCost() / divide) * 20);
+        setCooldown((getCost() / divide) * 20);
         return this;
     }
 

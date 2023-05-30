@@ -10,7 +10,6 @@ import me.hapyl.fight.game.effect.storage.SlowingAuraEffect;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Utils;
-import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.fight.util.displayfield.DisplayFieldSerializer;
 import me.hapyl.spigotutils.module.annotate.Super;
@@ -24,19 +23,18 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  * Base talent.
  */
-public abstract class Talent extends NonnullItemStackCreatable implements GameElement, DisplayFieldProvider {
+public abstract class Talent extends NonNullItemCreator
+        implements GameElement, DisplayFieldProvider, Nameable, Timed, Cooldown {
 
     public static final Talent NULL = null;
     public static int DYNAMIC = -1;
-    private final String name;
+    private String name;
     private final Type type;
     private final List<String> attributeDescription;
 
@@ -90,15 +88,23 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         this.altUsage = altUsage;
     }
 
+    @Override
     public int getDuration() {
         return duration;
     }
 
+    @Override
+    public void setName(@Nonnull String name) {
+        this.name = name;
+    }
+
+    @Override
     public Talent setDuration(int duration) {
         this.duration = duration;
         return this;
     }
 
+    @Override
     public Talent setDurationSec(int duration) {
         return setDuration(duration * 20);
     }
@@ -107,7 +113,7 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         return point;
     }
 
-    @ExecuteOrder(after = { "setCd(int)", "setCdSec(int)" })
+    @ExecuteOrder(after = { "setCooldown(int)", "setCooldownSec(int)" })
     public void setPoint(int point) {
         this.point = point;
     }
@@ -208,6 +214,10 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         // TODO: 010, Mar 10, 2023 -> this
     }
 
+    @Override
+    public void appendLore(@Nonnull ItemBuilder builder) {
+    }
+
     public void createItem() {
         final ItemBuilder builderItem = ItemBuilder.of(material)
                 .setName(name)
@@ -226,30 +236,26 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         // Execute functions is present
         Nulls.runIfNotNull(itemFunction, function -> function.accept(builderItem));
 
-        if (this instanceof InputTalent input) {
+        // Append lore
+        // Now using text block lore
+        try { // fixme: try-catch for debugging, remove on prod
+            // fix % I fucking hate that java uses % as formatter fucking why
+            description = description.replace("%", "%%");
+            description = TalentFormat.formatTalent(description, this);
+
+            builderItem.addTextBlockLore(description);
+        } catch (Exception e) {
+            final StackTraceElement[] stackTrace = e.getStackTrace();
+
+            builderItem.addLore("&4&lERROR FORMATTING, REPORT THIS WITH A CODE BELOW");
+            builderItem.addLore("&e@" + getName());
+            builderItem.addLore("&e" + stackTrace[0].toString());
+
+            Main.getPlugin().getLogger().severe(description);
+            e.printStackTrace();
         }
-        else {
 
-            // Now using text block lore
-            try {
-                // FIXME (hapyl): 030, May 30: Maybe, just maybe the actual class should add description, but that's JUST maybe
-
-                // fix % I fucking hate that java uses % as formatter fucking why
-                description = description.replace("%", "%%");
-                description = StaticFormat.format(description, this);
-
-                builderItem.addTextBlockLore(description);
-            } catch (Exception e) {
-                final StackTraceElement[] stackTrace = e.getStackTrace();
-
-                builderItem.addLore("&4&lERROR FORMATTING, REPORT THIS WITH A CODE BELOW");
-                builderItem.addLore("&e@" + getName());
-                builderItem.addLore("&e" + stackTrace[0].toString());
-
-                Main.getPlugin().getLogger().severe(description);
-                e.printStackTrace();
-            }
-        }
+        appendLore(builderItem);
 
         // Is ability having alternative usage, tell how to use it
         if (!autoAdd) {
@@ -418,22 +424,27 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         return player.getCooldown(this.material);
     }
 
-    public int getCd() {
+    @Override
+    public int getCooldown() {
         return cd;
     }
 
+    @Override
     @ExecuteOrder(before = { "setPoint(int)" })
-    public Talent setCd(int cd) {
+    public Talent setCooldown(int cd) {
         this.cd = cd;
         defaultPointGeneration();
         return this;
     }
 
+    @Override
     @ExecuteOrder(before = { "setPoint(int)" })
-    public Talent setCdSec(int cd) {
-        return setCd(cd * 20);
+    public Talent setCooldownSec(int cd) {
+        return setCooldown(cd * 20);
     }
 
+    @Override
+    @Nonnull
     public String getName() {
         return name;
     }
@@ -466,41 +477,6 @@ public abstract class Talent extends NonnullItemStackCreatable implements GameEl
         }
 
         return Numbers.clamp(cd / 200, 1, 100);
-    }
-
-    private enum StaticFormat {
-        NAME("{name}", t -> "&a" + t.getName()),
-        DURATION("{duration}", t -> "&b" + BukkitUtils.roundTick(t.duration) + "s"),
-        ;
-
-        private final String target;
-        private final Function<Talent, String> function;
-
-        StaticFormat(String target, Function<Talent, String> function) {
-            this.target = target;
-            this.function = function;
-        }
-
-        @Nonnull
-        public static String format(@Nonnull String string, @Nonnull Talent talent) {
-            for (StaticFormat value : values()) {
-                string = string.replace(value.target, value.function.apply(talent) + "&7");
-            }
-
-            // Format display fields
-            for (Field field : talent.getClass().getDeclaredFields()) {
-                final DisplayField annotation = field.getAnnotation(DisplayField.class);
-
-                if (annotation == null) {
-                    continue;
-                }
-
-                string = string.replace("{" + field.getName() + "}", DisplayFieldSerializer.formatField(field, talent));
-            }
-
-            return string;
-        }
-
     }
 
     public enum Type {

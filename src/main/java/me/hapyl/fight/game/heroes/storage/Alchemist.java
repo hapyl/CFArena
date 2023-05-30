@@ -91,7 +91,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
                 "Alchemical Madness",
                 "Call upon the darkest spells to cast random &c&lNegative &7effect on your foes for &b15s &7and random &a&lPositive &7effect on yourself for &b30s&7.",
                 50
-        ).setCdSec(30).setItem(Material.FERMENTED_SPIDER_EYE).setSound(ENTITY_WITCH_AMBIENT, 0.5f));
+        ).setCooldownSec(30).setItem(Material.FERMENTED_SPIDER_EYE).setSound(ENTITY_WITCH_AMBIENT, 0.5f));
     }
 
     @Override

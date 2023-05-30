@@ -24,7 +24,7 @@ public class OrcGrowl extends Talent {
 
         setItem(Material.GOAT_HORN);
         setDurationSec(5);
-        setCdSec(20);
+        setCooldownSec(20);
     }
 
     @Override

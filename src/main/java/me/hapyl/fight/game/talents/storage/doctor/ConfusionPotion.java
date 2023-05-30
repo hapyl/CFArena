@@ -39,7 +39,7 @@ public class ConfusionPotion extends Talent {
 
         setDuration(200);
         setItem(Material.POTION);
-        setCdSec(30);
+        setCooldownSec(30);
     }
 
     @Override

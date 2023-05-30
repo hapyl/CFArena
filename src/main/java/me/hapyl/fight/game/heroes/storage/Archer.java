@@ -65,7 +65,7 @@ public class Archer extends Hero implements Listener {
                 "Boom Bow",
                 "Equip a &6&lBOOM BOW &7for {duration} that fires explosive arrows that explodes on impact dealing massive damage.",
                 50
-        ).setItem(Material.BLAZE_POWDER).setDuration(120).setCdSec(20).setSound(Sound.ITEM_CROSSBOW_SHOOT, 0.25f));
+        ).setItem(Material.BLAZE_POWDER).setDuration(120).setCooldownSec(20).setSound(Sound.ITEM_CROSSBOW_SHOOT, 0.25f));
 
         getUltimate().addAttributeDescription("Explosion Radius", explosionRadius + " blocks");
         getUltimate().addAttributeDescription("Explosion Damage", explosionDamage);

@@ -1,11 +1,13 @@
 package me.hapyl.fight.game;
 
+import me.hapyl.fight.game.damage.EntityData;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -41,6 +43,15 @@ public interface IGameInstance {
      */
     @Nonnull
     State getGameState();
+
+    /**
+     * Gets or creates entity data.
+     *
+     * @param entity - Entity.
+     * @return entity's data.
+     */
+    @Nonnull
+    EntityData getEntityData(@Nonnull LivingEntity entity);
 
     /**
      * Changes current game state.

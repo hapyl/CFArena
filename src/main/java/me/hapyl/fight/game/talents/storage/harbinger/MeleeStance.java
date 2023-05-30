@@ -41,7 +41,7 @@ public class MeleeStance extends Talent {
                 """, abilityItem.getName());
 
         setItem(Material.IRON_INGOT);
-        setCd(-1);
+        setCooldown(-1);
     }
 
     @Override

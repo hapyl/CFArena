@@ -9,8 +9,8 @@ public class TestChargeTalent extends ChargedTalent {
 	public TestChargeTalent() {
 		super("Test Ability", "this is a test ability", 3);
 		setRechargeTime(60);
-		setCd(20);
-		setItem(Material.COBWEB);
+        setCooldown(20);
+        setItem(Material.COBWEB);
 	}
 
 	@Override

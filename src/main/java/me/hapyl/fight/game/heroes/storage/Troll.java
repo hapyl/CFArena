@@ -57,7 +57,7 @@ public class Troll extends Hero {
                 40
         ).setSound(Sound.ENTITY_SPIDER_AMBIENT, 1.0f)
                 .setItem(Material.COBWEB)
-                .setCdSec(20));
+                .setCooldownSec(20));
 
     }
 

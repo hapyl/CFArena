@@ -12,7 +12,7 @@ public class HerculesShift extends ChargedTalent {
         super("Shift", "Instantly propel yourself forward.", 3);
 
         setItem(Material.FEATHER);
-        setCdSec(1);
+        setCooldownSec(1);
         setRechargeTimeSec(6);
     }
 

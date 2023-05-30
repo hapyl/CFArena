@@ -52,8 +52,6 @@ public class Orc extends Hero {
         attributes.setValue(AttributeType.SPEED, 0.22d);
         attributes.setValue(AttributeType.CRIT_CHANCE, 0.15d);
 
-        setItem("null");
-
         setWeapon(new OrcWeapon());
     }
 

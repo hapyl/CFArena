@@ -10,6 +10,7 @@ import org.bukkit.scoreboard.Team;
 
 import javax.annotation.Nonnull;
 
+// FIXME (hapyl): 031, May 31: lobby has collision for some reason
 public class ScoreboardTeams {
 
     private final Player player;

@@ -1,8 +1,7 @@
 package me.hapyl.fight.game.effect.storage;
 
 import me.hapyl.fight.game.effect.GameEffect;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffectType;
 
 public class SlowingAuraEffect extends GameEffect {
@@ -11,22 +10,21 @@ public class SlowingAuraEffect extends GameEffect {
 
     public SlowingAuraEffect() {
         super("Slowing Aura");
-        setDescription("Slows player and increases talent cooldowns.");
+        setDescription("Slows players and increases talent cooldowns.");
         setPositive(false);
     }
 
     @Override
-    public void onStart(Player player) {
-        PlayerLib.addEffect(player, PotionEffectType.SLOW, 10000, 1);
+    public void onStart(LivingEntity entity) {
+        entity.addPotionEffect(PotionEffectType.SLOW.createEffect(10000, 1));
     }
 
     @Override
-    public void onStop(Player player) {
-        PlayerLib.removeEffect(player, PotionEffectType.SLOW);
+    public void onStop(LivingEntity entity) {
+        entity.removePotionEffect(PotionEffectType.SLOW);
     }
 
     @Override
-    public void onTick(Player player, int tick) {
-
+    public void onTick(LivingEntity entity, int tick) {
     }
 }

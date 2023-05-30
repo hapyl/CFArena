@@ -25,7 +25,7 @@ public class LaserEye extends Talent {
 
         setDuration(60);
         setItem(Material.ENDER_EYE);
-        setCdSec(15);
+        setCooldownSec(15);
     }
 
     @Override

@@ -31,7 +31,7 @@ public class TeleportPearl extends Talent implements Listener {
                 &7Heals &c{teleportationHealing} ❤ &7upon teleport.
                 """);
 
-        setCd(160);
+        setCooldown(160);
         setItem(Material.ENDER_PEARL);
     }
 

@@ -18,7 +18,7 @@ public class TidalWaveTalent extends Talent {
         super("Tidal Wave", "Summon a giant wave that pushes enemies away from you and applies Riptide to them.");
 
         setItem(Material.PRISMARINE_CRYSTALS);
-        setCdSec(12);
+        setCooldownSec(12);
         setDuration(60);
     }
 

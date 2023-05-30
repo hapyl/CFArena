@@ -46,7 +46,7 @@ public class MoonSliteBomb extends Talent implements Listener {
                 """);
 
         setItem(Material.END_STONE_BRICK_SLAB);
-        setCdSec(10);
+        setCooldownSec(10);
     }
 
     @Override

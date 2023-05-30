@@ -15,7 +15,7 @@ import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.PlayerAttributes;
 import me.hapyl.fight.game.attribute.Temper;
-import me.hapyl.fight.game.damage.DamageHandler;
+import me.hapyl.fight.game.damage.EntityData;
 import me.hapyl.fight.game.heroes.storage.extra.AnimatedWither;
 import me.hapyl.fight.game.reward.DailyReward;
 import me.hapyl.fight.game.task.GameTask;
@@ -311,11 +311,11 @@ public class CommandRegistry extends DependencyInjector<Main> {
                 final LivingEntity targetEntity = Utils.getTargetEntity(player, 20.0d, 0.9d, e -> e != player);
 
                 if (targetEntity == null) {
-                    Chat.sendMessage(player, DamageHandler.getDamageData(player));
+                    Chat.sendMessage(player, EntityData.getEntityData(player));
                     return;
                 }
 
-                Chat.sendMessage(player, DamageHandler.getDamageData(targetEntity));
+                Chat.sendMessage(player, EntityData.getEntityData(targetEntity));
             }
         });
 

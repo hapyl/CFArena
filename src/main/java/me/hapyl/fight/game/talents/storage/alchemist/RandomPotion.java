@@ -30,7 +30,7 @@ public class RandomPotion extends Talent {
                 """);
 
         setItem(Material.POTION);
-        setCd(50);
+        setCooldown(50);
 
         effects.add(new Effect("&b\uD83C\uDF0A", "Speed Boost", SPEED, 60, 1))
                 .add(new Effect("☕", "Jump Boost", JUMP, 100, 1))

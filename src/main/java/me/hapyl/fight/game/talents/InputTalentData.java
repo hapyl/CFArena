@@ -8,7 +8,7 @@ import javax.annotation.Nonnull;
  * This class is structured like a builder, with
  * methods that return itself for easier modification.
  */
-public class InputTalentData {
+public class InputTalentData implements Timed, Cooldown {
 
     @Nonnull protected String action;
     @Nonnull protected String description;

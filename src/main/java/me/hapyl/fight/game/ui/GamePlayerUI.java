@@ -83,9 +83,6 @@ public class GamePlayerUI {
         }.runTaskTimer(0, 5).setShutdownAction(ShutdownAction.IGNORE);
     }
 
-    private void animateScoreboard() {
-    }
-
     public void updateDebug() {
         final GamePlayer gamePlayer = profile.getGamePlayer();
 
@@ -187,6 +184,13 @@ public class GamePlayerUI {
         this.builder.addPlayer(player);
     }
 
+    public Player getPlayer() {
+        return player;
+    }
+
+    private void animateScoreboard() {
+    }
+
     private String getTimeLeftString(IGameInstance game) {
         return new SimpleDateFormat("mm:ss").format(game.getTimeLeftRaw());
     }
@@ -284,9 +288,5 @@ public class GamePlayerUI {
         return new String[] {
                 "\n&e&lCLASSES FIGHT\n&c&lᴀʀᴇɴᴀ\n\n&fTotal Players: &l" + Bukkit.getOnlinePlayers().size(), footer.toString()
         };
-    }
-
-    public Player getPlayer() {
-        return player;
     }
 }

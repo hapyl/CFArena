@@ -35,7 +35,7 @@ public class Submerge extends Talent {
         );
 
         setDuration(20);
-        setCdSec(5);
+        setCooldownSec(5);
     }
 
     @Override

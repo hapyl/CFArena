@@ -24,7 +24,7 @@ public class StarAligner extends Talent {
         super("Star Aligner", "Align two nearby starts to teleport and launch an Astral Slash between them.");
 
         setItem(Material.BEETROOT_SEEDS);
-        setCd(20);
+        setCooldown(20);
     }
 
     @Override

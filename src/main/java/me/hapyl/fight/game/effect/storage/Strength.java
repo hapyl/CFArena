@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.effect.storage;
 
 import me.hapyl.fight.game.effect.GameEffect;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.LivingEntity;
 
 public class Strength extends GameEffect {
 
@@ -10,17 +10,17 @@ public class Strength extends GameEffect {
     }
 
     @Override
-    public void onStart(Player player) {
+    public void onStart(LivingEntity entity) {
 
     }
 
     @Override
-    public void onStop(Player player) {
+    public void onStop(LivingEntity entity) {
 
     }
 
     @Override
-    public void onTick(Player player, int tick) {
+    public void onTick(LivingEntity entity, int tick) {
 
     }
 }

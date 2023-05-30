@@ -39,7 +39,7 @@ public class CauldronAbility extends Talent implements Listener {
                 """);
 
         setItem(Material.CAULDRON);
-        setCdSec(120);
+        setCooldownSec(120);
     }
 
     @EventHandler()

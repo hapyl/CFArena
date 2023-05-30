@@ -36,7 +36,7 @@ public class ShockDark extends Talent implements Listener {
                 Type.COMBAT
         );
         setItem(Material.LIGHT_BLUE_DYE);
-        setCd(120);
+        setCooldown(120);
 
         arrows = Sets.newHashSet();
     }

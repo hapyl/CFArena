@@ -5,7 +5,7 @@ import me.hapyl.fight.game.effect.GameEffect;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffectType;
 
 public class Riptide extends GameEffect {
@@ -20,26 +20,26 @@ public class Riptide extends GameEffect {
     }
 
     @Override
-    public void onStart(Player player) {
-        PlayerLib.addEffect(player, PotionEffectType.SLOW, 999999, 0);
-        PlayerLib.addEffect(player, PotionEffectType.SPEED, 999999, 0);
+    public void onStart(LivingEntity entity) {
+        entity.addPotionEffect(PotionEffectType.SLOW.createEffect(999999, 0));
+        entity.addPotionEffect(PotionEffectType.SPEED.createEffect(999999, 0));
 
         PlayerLib.playSound(Sound.AMBIENT_UNDERWATER_ENTER, 1.25f);
     }
 
     @Override
-    public void onStop(Player player) {
-        PlayerLib.removeEffect(player, PotionEffectType.SLOW);
-        PlayerLib.removeEffect(player, PotionEffectType.SPEED);
+    public void onStop(LivingEntity entity) {
+        entity.removePotionEffect(PotionEffectType.SLOW);
+        entity.removePotionEffect(PotionEffectType.SPEED);
 
         PlayerLib.playSound(Sound.AMBIENT_UNDERWATER_ENTER, 1.75f);
     }
 
     @Override
-    public void onTick(Player player, int tick) {
+    public void onTick(LivingEntity entity, int tick) {
         if (tick == 10) {
             for (final EffectParticle particle : particles) {
-                displayParticles(player.getEyeLocation().add(0.0d, 0.5d, 0.0d), player, particle);
+                displayParticles(entity.getEyeLocation().add(0.0d, 0.5d, 0.0d), entity, particle);
             }
         }
     }

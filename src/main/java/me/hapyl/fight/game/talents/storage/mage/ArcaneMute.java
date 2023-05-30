@@ -19,7 +19,7 @@ public class ArcaneMute extends Talent {
         );
 
         setDurationSec(4);
-        setCdSec(35);
+        setCooldownSec(35);
     }
 
     @Override

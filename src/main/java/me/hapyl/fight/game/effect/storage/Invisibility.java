@@ -2,7 +2,7 @@ package me.hapyl.fight.game.effect.storage;
 
 import me.hapyl.fight.game.effect.GameEffect;
 import me.hapyl.fight.util.Utils;
-import me.hapyl.spigotutils.module.player.PlayerLib;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
@@ -13,20 +13,26 @@ public class Invisibility extends GameEffect {
 		setDescription("Makes player invisible.");
 	}
 
-	@Override
-	public void onStart(Player player) {
-		Utils.hidePlayer(player);
-		PlayerLib.addEffect(player, PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1);
-	}
+    @Override
+    public void onStart(LivingEntity entity) {
+        if (entity instanceof Player player) {
+            Utils.hidePlayer(player);
+        }
 
-	@Override
-	public void onStop(Player player) {
-		Utils.showPlayer(player);
-		player.removePotionEffect(PotionEffectType.INVISIBILITY);
-	}
+        entity.addPotionEffect(PotionEffectType.INVISIBILITY.createEffect(Integer.MAX_VALUE, 1));
+    }
 
-	@Override
-	public void onTick(Player player, int tick) {
+    @Override
+    public void onStop(LivingEntity entity) {
+        if (entity instanceof Player player) {
+            Utils.showPlayer(player);
+        }
 
-	}
+        entity.removePotionEffect(PotionEffectType.INVISIBILITY);
+    }
+
+    @Override
+    public void onTick(LivingEntity entity, int tick) {
+
+    }
 }

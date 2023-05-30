@@ -28,7 +28,7 @@ public class BatSwarm extends Talent {
 
         setItem(Material.FLINT);
         setDurationSec(5);
-        setCdSec(batCount);
+        setCooldownSec(batCount);
     }
 
     @Override

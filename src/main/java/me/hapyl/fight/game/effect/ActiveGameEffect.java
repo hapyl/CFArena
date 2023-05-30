@@ -1,18 +1,18 @@
 package me.hapyl.fight.game.effect;
 
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.damage.EntityData;
 import me.hapyl.fight.game.task.GameTask;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.LivingEntity;
 
 public class ActiveGameEffect {
 
-    private final Player player;
+    private final LivingEntity entity;
     private final GameEffectType type;
     private int level;
     private int remainingTicks;
 
-    public ActiveGameEffect(Player owner, GameEffectType type, int initTicks) {
-        this.player = owner;
+    public ActiveGameEffect(LivingEntity entity, GameEffectType type, int initTicks) {
+        this.entity = entity;
         this.type = type;
         this.remainingTicks = initTicks;
         this.level = 0;
@@ -20,8 +20,8 @@ public class ActiveGameEffect {
         startTicking();
     }
 
-    public Player getPlayer() {
-        return player;
+    public LivingEntity getEntity() {
+        return entity;
     }
 
     public GameEffectType getType() {
@@ -37,7 +37,7 @@ public class ActiveGameEffect {
     }
 
     public void triggerUpdate() {
-        this.type.getGameEffect().onUpdate(player);
+        this.type.getGameEffect().onUpdate(entity);
     }
 
     public void setRemainingTicks(int ticks) {
@@ -58,16 +58,14 @@ public class ActiveGameEffect {
 
     public void forceStop() {
         remainingTicks = 0;
-        type.getGameEffect().onStop(player);
+        type.getGameEffect().onStop(entity);
 
-        final GamePlayer gp = GamePlayer.getExistingPlayer(player);
-        if (gp != null) {
-            gp.clearEffect(type);
-        }
+        final EntityData data = EntityData.getEntityData(entity);
+        data.clearEffect(type);
     }
 
     private void startTicking() {
-        type.getGameEffect().onStart(player);
+        type.getGameEffect().onStart(entity);
         new GameTask() {
             @Override
             public void run() {
@@ -79,7 +77,7 @@ public class ActiveGameEffect {
                     return;
                 }
 
-                type.getGameEffect().onTick(player, remainingTicks % 20);
+                type.getGameEffect().onTick(entity, remainingTicks % 20);
 
                 // actually tick down
                 --remainingTicks;

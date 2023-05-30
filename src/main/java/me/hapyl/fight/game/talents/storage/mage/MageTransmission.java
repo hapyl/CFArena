@@ -21,7 +21,7 @@ public class MageTransmission extends Talent {
 		super("Transmission", "Instantly teleport to your target block, but lose ability to move for a short duration.", Type.COMBAT);
 
 		setItem(Material.ENDER_PEARL);
-		setCdSec(30);
+        setCooldownSec(30);
 	}
 
 	@Override

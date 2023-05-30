@@ -14,7 +14,7 @@ public class TrollSpin extends Talent {
 		super("Spin", "Rotates all enemies heads 180 degrees.", Type.COMBAT);
 
 		setItem(Material.NAUTILUS_SHELL);
-		setCd(300);
+        setCooldown(300);
 	}
 
 	@Override

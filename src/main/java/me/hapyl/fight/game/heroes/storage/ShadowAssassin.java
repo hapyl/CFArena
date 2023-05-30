@@ -63,7 +63,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
                 "Extreme Focus",
                 "Enter &bExtreme Focus &7for {duration}. While active, you will not miss your hits if target is close enough and has no cover.",
                 80
-        ).setDuration(200).setCdSec(40).setItem(Material.GOLDEN_CARROT));
+        ).setDuration(200).setCooldownSec(40).setItem(Material.GOLDEN_CARROT));
 
         getUltimate().addAttributeDescription("Cooldown Per Hit", NEVERMISS_CD);
     }

@@ -20,7 +20,7 @@ public class Akciy extends Talent {
                 """);
 
         setDuration(100);
-        setCdSec(40);
+        setCooldownSec(40);
         setItem(Material.SLIME_BALL);
     }
 

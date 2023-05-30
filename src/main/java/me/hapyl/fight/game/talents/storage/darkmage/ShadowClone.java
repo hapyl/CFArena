@@ -35,7 +35,7 @@ public class ShadowClone extends DarkMageTalent {
         clones = Maps.newHashMap();
 
         setDuration(60);
-        setCd(300);
+        setCooldown(300);
     }
 
     @Nonnull

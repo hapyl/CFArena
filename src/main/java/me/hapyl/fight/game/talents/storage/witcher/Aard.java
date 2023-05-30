@@ -17,7 +17,7 @@ public class Aard extends Talent {
         super("Aard", "Creates a small explosion in front of you that pushes enemies away.");
 
         setItem(Material.HEART_OF_THE_SEA);
-        setCdSec(5);
+        setCooldownSec(5);
     }
 
     @Override

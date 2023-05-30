@@ -33,7 +33,7 @@ public class FatalReap extends Talent {
                 """);
 
         setItem(Material.NETHERITE_HOE);
-        setCdSec(12);
+        setCooldownSec(12);
     }
 
     @Override

@@ -41,7 +41,7 @@ public class FlowerEscape extends Talent {
 
         setItem(Material.RED_TULIP);
         setDuration(120);
-        setCd(getDuration() * 2);
+        setCooldown(getDuration() * 2);
     }
 
     @Override

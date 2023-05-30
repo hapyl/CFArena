@@ -32,7 +32,7 @@ public class Slash extends Talent {
         super("Slash");
 
         setItem(Material.QUARTZ);
-        setCdSec(8);
+        setCooldownSec(8);
 
         setDescription("""
                 Perform a slash in front of you damaging all enemies in small AoE.

@@ -28,7 +28,7 @@ public class Irden extends Talent {
         );
 
         setDuration(200);
-        setCdSec(25);
+        setCooldownSec(25);
         setItem(Material.POPPED_CHORUS_FRUIT);
     }
 

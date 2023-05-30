@@ -43,7 +43,7 @@ public class TrapCage extends ChargedTalent implements Listener {
                 """, 3);
 
         setItem(Material.IRON_TRAPDOOR);
-        setCdSec(2);
+        setCooldownSec(2);
     }
 
     @Override

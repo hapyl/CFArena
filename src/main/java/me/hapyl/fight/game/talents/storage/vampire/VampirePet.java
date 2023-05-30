@@ -25,7 +25,7 @@ public class VampirePet extends Talent {
 
         setItem(Material.BAT_SPAWN_EGG);
         setDurationSec(10);
-        setCd(getDuration() + (8 * 20));
+        setCooldown(getDuration() + (8 * 20));
 
         pets = LinkedKeyValMap.of();
     }

@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
 /**
  * Represents a class that can create an ItemStack.
  */
-public abstract class NonnullItemStackCreatable implements LoreAppender {
+public abstract class NonNullItemCreator implements LoreAppender {
 
     protected ItemStack item;
 

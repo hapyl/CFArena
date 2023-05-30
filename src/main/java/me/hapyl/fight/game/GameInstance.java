@@ -8,6 +8,7 @@ import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.cosmetic.WinCosmetic;
+import me.hapyl.fight.game.damage.EntityData;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -21,6 +22,7 @@ import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
@@ -34,9 +36,9 @@ public class GameInstance implements IGameInstance, GameElement {
     private final Cosmetics DEFAULT_WIN_COSMETIC = Cosmetics.FIREWORKS;
 
     private final String hexCode;
-
     private final long startedAt;
     private final Map<UUID, GamePlayer> players;
+    private final Map<LivingEntity, EntityData> entityData;
     private final GameMaps currentMap;
     private final GameTask gameTask;
     private final Modes mode;
@@ -50,6 +52,7 @@ public class GameInstance implements IGameInstance, GameElement {
         this.startedAt = System.currentTimeMillis();
         this.mode = mode;
         this.timeLimit = mode.getMode().getTimeLimit() * 1000L;
+        this.entityData = Maps.newHashMap();
         this.players = Maps.newHashMap();
         this.createGamePlayers();
 
@@ -65,6 +68,16 @@ public class GameInstance implements IGameInstance, GameElement {
 
     public void increaseTimeLimit(long limit) {
         this.timeLimit += limit;
+    }
+
+    @Nonnull
+    @Override
+    public EntityData getEntityData(@Nonnull LivingEntity entity) {
+        return entityData.computeIfAbsent(entity, EntityData::new);
+    }
+
+    public Map<LivingEntity, EntityData> getEntityData() {
+        return entityData;
     }
 
     @Nonnull

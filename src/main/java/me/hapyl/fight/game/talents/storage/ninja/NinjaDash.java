@@ -17,7 +17,7 @@ public class NinjaDash extends Talent {
         super("Dashing Wind", "Instantly propel yourself into direction you looking.");
 
         setItem(Material.FEATHER);
-        setCd(100);
+        setCooldown(100);
     }
 
     @Override

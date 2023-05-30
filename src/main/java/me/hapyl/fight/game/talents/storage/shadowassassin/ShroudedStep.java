@@ -36,7 +36,7 @@ public class ShroudedStep extends Talent {
                 Leave Dark Cover to create a decoy that explodes after being hit or after short duration damaging nearby enemies.
                 """);
 
-        setCd(600);
+        setCooldown(600);
         setItem(Material.NETHERITE_BOOTS);
     }
 

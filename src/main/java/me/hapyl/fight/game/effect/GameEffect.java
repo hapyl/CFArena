@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.effect;
 
 import org.bukkit.Location;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 public abstract class GameEffect {
@@ -10,6 +11,8 @@ public abstract class GameEffect {
     private String description;
     private EffectParticle effectParticle;
     private boolean isPositive;
+
+    // TODO (hapyl): 030, May 30: Display
 
     public GameEffect(String name) {
         this.name = name;
@@ -45,29 +48,29 @@ public abstract class GameEffect {
         return isPositive;
     }
 
-    public abstract void onStart(Player player);
+    public abstract void onStart(LivingEntity entity);
 
-    public abstract void onStop(Player player);
+    public abstract void onStop(LivingEntity entity);
 
-    public abstract void onTick(Player player, int tick);
+    public abstract void onTick(LivingEntity entity, int tick);
 
-    public void onUpdate(Player player) {
-
+    public void onUpdate(LivingEntity entity) {
     }
 
     public String getExtra() {
         return "";
     }
 
-    public void displayParticles(Location location, Player ignore) {
+    public void displayParticles(Location location, LivingEntity ignore) {
         displayParticles(location, ignore, this.effectParticle);
     }
 
-    public void displayParticles(Location location, Player ignore, EffectParticle particle) {
-        if (particle == null) {
+    public void displayParticles(Location location, LivingEntity ignore, EffectParticle particle) {
+        if (particle == null || !(ignore instanceof Player player)) {
             return;
         }
-        particle.display(location, ignore);
+
+        particle.display(location, player);
     }
 
 }

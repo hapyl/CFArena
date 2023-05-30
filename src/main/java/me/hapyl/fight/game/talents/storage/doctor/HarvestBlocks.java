@@ -50,7 +50,7 @@ public class HarvestBlocks extends Talent {
                 &a;;{name}'s damage is based on the number of blocks gathered.
                 """);
 
-        setCdSec(30);
+        setCooldownSec(30);
         setPoint(5);
 
         setItem(Material.IRON_PICKAXE);

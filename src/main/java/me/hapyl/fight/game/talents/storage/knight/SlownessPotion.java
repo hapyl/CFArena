@@ -24,7 +24,7 @@ public class SlownessPotion extends Talent {
                 """);
 
         setItem(Material.SPLASH_POTION, builder -> builder.setPotionColor(Color.GRAY));
-        setCdSec(12);
+        setCooldownSec(12);
     }
 
     @Override

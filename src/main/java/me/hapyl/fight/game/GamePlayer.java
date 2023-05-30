@@ -1,6 +1,5 @@
 package me.hapyl.fight.game;
 
-import com.google.common.collect.Maps;
 import me.hapyl.fight.database.Award;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.achievement.Achievements;
@@ -10,8 +9,7 @@ import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.cosmetic.skin.Skins;
-import me.hapyl.fight.game.damage.DamageData;
-import me.hapyl.fight.game.damage.DamageHandler;
+import me.hapyl.fight.game.damage.EntityData;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.gamemode.CFGameMode;
@@ -67,22 +65,17 @@ public class GamePlayer implements IGamePlayer {
     private final Hero hero; // this represents hero that player locked in game with, cannot be changed
     private final Skins skin;
     private final StatContainer stats;
-    private final Map<GameEffectType, ActiveGameEffect> gameEffects;
     private final TalentQueue talentQueue;
-    private final Map<Player, Double> damageTaken; // Used to store how much damage is taken from players to calc assists
     private final PlayerAttributes attributes;
     private boolean wasHit; // Used to check if player was hit by custom damage
+    @Nonnull
     private Player player;
+    @Nonnull
     private PlayerProfile profile;
     private double health;
     private double shield;
-    // 		[Kinda Important Note]
-    //  These two can never be both true.
-    //  dead means if player has died in game when
-    //  spectator means if player started as spectator
-    private boolean isDead;
-    private boolean isSpectator;
-    private boolean isRespawning; // Had to introduce this flag to prevent spectator checks.
+    @Nonnull
+    private PlayerState state;
     private boolean valid = true; // valid means if a game player is being used somewhere, should probably rework how this works
     private boolean canMove;
     private int ultPoints;
@@ -100,11 +93,8 @@ public class GamePlayer implements IGamePlayer {
         this.enumHero = enumHero;
         this.hero = enumHero.getHero();
         this.health = attributes.get(AttributeType.HEALTH);
-        this.isDead = false;
+        this.state = PlayerState.ALIVE;
         this.ultimateModifier = 1.0d;
-        this.isSpectator = false;
-        this.damageTaken = Maps.newHashMap();
-        this.gameEffects = Maps.newConcurrentMap();
         this.talentQueue = new TalentQueue(this);
         this.stats = new StatContainer(this);
         this.lastMoved = System.currentTimeMillis();
@@ -124,11 +114,12 @@ public class GamePlayer implements IGamePlayer {
     }
 
     public void resetPlayer(Ignore... ignores) {
+        final EntityData playerData = EntityData.getEntityData(player);
         if (isNotIgnored(ignores, Ignore.DAMAGER)) {
-            DamageHandler.getDamageData(player).lastDamager = null;
+            playerData.setLastDamager(null);
         }
         if (isNotIgnored(ignores, Ignore.DAMAGE_CAUSE)) {
-            DamageHandler.getDamageData(player).lastDamageCause = null;
+            playerData.setLastDamageCause(null);
         }
 
         killStreak = 0;
@@ -157,12 +148,12 @@ public class GamePlayer implements IGamePlayer {
         resetAttribute(Attribute.GENERIC_ATTACK_SPEED, 4.0d);
         resetAttribute(Attribute.GENERIC_ATTACK_DAMAGE, 1.0d);
 
-        gameEffects.values().forEach(ActiveGameEffect::forceStop);
+        playerData.getGameEffects().values().forEach(ActiveGameEffect::forceStop);
 
         // Reset attributes
         attributes.reset();
 
-        damageTaken.clear();
+        playerData.getDamageTaken().clear();
         wasHit = false;
         inputTalent = null;
 
@@ -275,28 +266,21 @@ public class GamePlayer implements IGamePlayer {
         PlayerLib.removeEffect(player, type);
     }
 
+    @Nonnull
+    public EntityData getData() {
+        return EntityData.getEntityData(player);
+    }
+
     public void addEffect(GameEffectType type, int ticks, boolean override) {
-        final ActiveGameEffect effect = gameEffects.get(type);
-        if (effect != null) {
-            effect.triggerUpdate();
-            if (override) {
-                effect.setRemainingTicks(ticks);
-            }
-            else {
-                effect.addRemainingTicks(ticks);
-            }
-        }
-        else {
-            gameEffects.put(type, new ActiveGameEffect(player, type, ticks));
-        }
+        getData().addEffect(type, ticks, override);
     }
 
     public Map<GameEffectType, ActiveGameEffect> getActiveEffects() {
-        return gameEffects;
+        return getData().getGameEffects();
     }
 
     public boolean hasEffect(GameEffectType type) {
-        return gameEffects.containsKey(type);
+        return getData().hasEffect(type);
     }
 
     @Nonnull
@@ -305,22 +289,19 @@ public class GamePlayer implements IGamePlayer {
     }
 
     public void clearEffects() {
-        this.gameEffects.clear();
+        getData().clearEffects();
     }
 
     public void removeEffect(GameEffectType type) {
-        final ActiveGameEffect gameEffect = gameEffects.get(type);
-        if (gameEffect != null) {
-            gameEffect.forceStop();
-        }
+        getData().removeEffect(type);
     }
 
     public void clearEffect(GameEffectType type) {
-        gameEffects.remove(type);
+        getData().clearEffect(type);
     }
 
     public boolean isAlive() {
-        return !isDead && !isSpectator;
+        return state == PlayerState.ALIVE;
     }
 
     public boolean isUltimateReady() {
@@ -343,7 +324,7 @@ public class GamePlayer implements IGamePlayer {
 
     @Super
     public void damage(double damage, @Nullable LivingEntity damager, @Nullable EnumDamageCause cause) {
-        DamageHandler.damage(player, damage, damager, cause);
+        EntityData.damage(player, damage, damager, cause);
     }
 
     /**
@@ -428,9 +409,7 @@ public class GamePlayer implements IGamePlayer {
             return;
         }
 
-        this.isDead = true;
-        this.isSpectator = false;
-
+        state = PlayerState.DEAD;
         player.setGameMode(GameMode.SPECTATOR);
 
         PlayerLib.playSound(player, Sound.ENTITY_BLAZE_DEATH, 2.0f);
@@ -438,10 +417,10 @@ public class GamePlayer implements IGamePlayer {
 
         triggerOnDeath();
 
-        final DamageData data = DamageHandler.getDamageData(player);
+        final EntityData data = EntityData.getEntityData(player);
 
         // Award killer coins for kill
-        if (data.lastDamager != null) {
+        if (data.getLastDamager() != null) {
             final Player killer = data.getLastDamager(Player.class);
 
             if (killer != null) {
@@ -453,7 +432,7 @@ public class GamePlayer implements IGamePlayer {
                     killerStats.addValue(StatType.KILLS, 1);
                     gameKiller.getTeam().kills++;
 
-                    // Check for a blood
+                    // Check for first blood
                     if (gameInstance.getTotalKills() == 1) {
                         Achievements.FIRST_BLOOD.complete(gameKiller.getTeam());
                     }
@@ -476,7 +455,7 @@ public class GamePlayer implements IGamePlayer {
         final LivingEntity lastDamager = data.getLastDamager();
 
         // Award assists
-        damageTaken.forEach((damager, damage) -> {
+        data.getDamageTaken().forEach((damager, damage) -> {
             if (damager == lastDamager || damager == player/*should not happen*/) {
                 return;
             }
@@ -545,9 +524,9 @@ public class GamePlayer implements IGamePlayer {
         executeTalentsOnDeath();
 
         currentGame.getActiveHeroes().forEach(heroes -> {
-            final DamageData data = DamageHandler.getDamageData(player);
+            final EntityData data = getData();
 
-            heroes.getHero().onDeathGlobal(player, data.lastDamager, data.lastDamageCause);
+            heroes.getHero().onDeathGlobal(player, data.getLastDamager(), data.getLastDamageCause());
         });
     }
 
@@ -558,13 +537,12 @@ public class GamePlayer implements IGamePlayer {
     @Override
     @Nonnull
     public EnumDamageCause getLastDamageCause() {
-        final EnumDamageCause lastDamageCause = DamageHandler.getDamageData(player).lastDamageCause;
-
-        return lastDamageCause == null ? EnumDamageCause.ENTITY_ATTACK : lastDamageCause;
+        return getData().getLastDamageCauseNonNull();
     }
 
     public void setLastDamageCause(EnumDamageCause lastDamageCause) {
-        DamageHandler.getDamageData(player).lastDamageCause = lastDamageCause;
+        getData().setLastDamageCause(lastDamageCause);
+        ;
     }
 
     @Override
@@ -574,7 +552,7 @@ public class GamePlayer implements IGamePlayer {
 
     @Override
     public boolean isRespawning() {
-        return isRespawning;
+        return state == PlayerState.RESPAWNING;
     }
 
     @Override
@@ -604,12 +582,12 @@ public class GamePlayer implements IGamePlayer {
 
     @Nullable
     public LivingEntity getLastDamager() {
-        return DamageHandler.getDamageData(player).lastDamager;
+        return getData().getLastDamager();
     }
 
     public void setLastDamager(LivingEntity lastDamager) {
         if (lastDamager != null) {
-            DamageHandler.getDamageData(player).lastDamager = lastDamager;
+            getData().setLastDamager(lastDamager);
         }
     }
 
@@ -624,6 +602,7 @@ public class GamePlayer implements IGamePlayer {
         this.updateHealth();
     }
 
+    @Nonnull
     public Player getPlayer() {
         return player;
     }
@@ -638,12 +617,11 @@ public class GamePlayer implements IGamePlayer {
     }
 
     public boolean isDead() {
-        return isDead;
+        return state == PlayerState.DEAD;
     }
 
     public void setDead(boolean dead) {
-        isDead = dead;
-        isSpectator = !dead;
+        state = PlayerState.DEAD;
 
         triggerOnDeath();
     }
@@ -693,22 +671,18 @@ public class GamePlayer implements IGamePlayer {
     }
 
     public boolean isSpectator() {
-        return isSpectator;
+        return state == PlayerState.SPECTATOR;
     }
 
     public void setSpectator(boolean spectator) {
-        isSpectator = spectator;
-        isDead = !spectator;
-
+        state = PlayerState.SPECTATOR;
         player.setGameMode(GameMode.SPECTATOR);
     }
 
     public void respawn() {
         resetPlayer(Ignore.DAMAGE_CAUSE, Ignore.DAMAGER, Ignore.GAME_MODE);
 
-        isRespawning = false;
-        isDead = false;
-        isSpectator = false;
+        state = PlayerState.ALIVE;
         ultPoints = 0;
         hero.setUsingUltimate(player, false);
         setHealth(this.getMaxHealth());
@@ -773,7 +747,8 @@ public class GamePlayer implements IGamePlayer {
     }
 
     public void respawnIn(int tick) {
-        isRespawning = true;
+        state = PlayerState.RESPAWNING;
+
         new GameTask() {
             private int tickBeforeRespawn = tick;
 
@@ -901,6 +876,19 @@ public class GamePlayer implements IGamePlayer {
 
     /**
      * Returns either an actual GamePlayer instance if there is a GameInstance, otherwise AbstractGamePlayer.
+     * <p>
+     * fixme -> Add nullability or use Optional, this system sucks COCK (RISE PENIS)
+     * Adding nullability will remove need for interfaces and updating NULL instance every FUCKING TIME
+     * something is added.
+     * Well, a base interface should probably still be used, but this NULL GAME PLAYER
+     * is annoying thing to deal why did I implement it this way, just check for the fucking null, or, well,
+     * use OPTIONAL.
+     * Now the question is, if GameEntity is the base class, how should it be stored, still in game instance?
+     * Should GamePlayer and GameEntity stored in the same map and use casting and checking to retrieve them?
+     * -- (Considering GamePlayer extends GameEntity)
+     * GamePlayer's are created upon game instance, what about GameEntity?
+     * <p>
+     * Or maybe separate shit into GameData or EntityData or something !!
      *
      * @param player bukkit player.
      * @return either an actual GamePlayer instance if there is a GameInstance, otherwise AbstractGamePlayer.
@@ -929,12 +917,12 @@ public class GamePlayer implements IGamePlayer {
     }
 
     public static void damageEntityTick(LivingEntity entity, double damage, @Nullable LivingEntity damager, @Nullable EnumDamageCause cause, int tick) {
-        DamageHandler.damageTick(entity, damage, damager, cause, tick);
+        EntityData.getEntityData(entity).damageTick(entity, damage, damager, cause, tick);
     }
 
     @Super
     public static void damageEntity(LivingEntity entity, double damage, LivingEntity damager, EnumDamageCause cause) {
-        DamageHandler.damage(entity, damage, damager, cause);
+        EntityData.getEntityData(entity).damage(entity, damage, damager, cause);
     }
 
     public enum Ignore {

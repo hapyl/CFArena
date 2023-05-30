@@ -29,7 +29,7 @@ public class SparkFlash extends Talent {
         );
 
         setItem(Material.WHITE_DYE);
-        setCd(600);
+        setCooldown(600);
     }
 
     @Override

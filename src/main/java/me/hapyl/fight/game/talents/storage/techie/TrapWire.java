@@ -43,7 +43,7 @@ public class TrapWire extends ChargedTalent implements Listener {
                 """, 3);
 
         setItem(Material.STRING);
-        setCdSec(3);
+        setCooldownSec(3);
     }
 
     public long getWindupTimeAsMillis() {

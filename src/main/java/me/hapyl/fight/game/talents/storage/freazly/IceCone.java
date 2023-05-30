@@ -43,7 +43,7 @@ public class IceCone extends Talent implements Listener {
                 Upon hitting a block, creates a slowing aura for short duration.
                 """);
         setItem(Material.SNOWBALL);
-        setCd(400);
+        setCooldown(400);
     }
 
     @EventHandler()

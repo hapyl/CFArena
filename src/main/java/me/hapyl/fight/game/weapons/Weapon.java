@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.weapons;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.game.NonnullItemStackCreatable;
+import me.hapyl.fight.game.NonNullItemCreator;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
 
-public class Weapon extends NonnullItemStackCreatable implements Cloneable, DisplayFieldProvider {
+public class Weapon extends NonNullItemCreator implements Cloneable, DisplayFieldProvider {
 
     private final List<Enchant> enchants;
     private final Material material;

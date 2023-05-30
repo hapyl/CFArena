@@ -26,7 +26,7 @@ public class Spear extends Talent {
 
         setItem(Material.TIPPED_ARROW, builder -> builder.setPotionColor(Color.GRAY));
         setDuration(15);
-        setCd(100);
+        setCooldown(100);
     }
 
 	@Override

@@ -32,7 +32,7 @@ public class ShadowShift extends Talent implements Listener {
                 """, Type.COMBAT);
 
         setItem(Material.LEAD);
-        setCd(200);
+        setCooldown(200);
     }
 
     @Override

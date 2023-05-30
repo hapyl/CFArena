@@ -40,7 +40,7 @@ public class SlowingAura extends DarkMageTalent {
                 """, Material.BONE_MEAL);
 
         setDurationSec(4);
-        setCd(200);
+        setCooldown(200);
     }
 
     @Nonnull

@@ -42,7 +42,7 @@ public class Nightmare extends Hero {
                 "Applies the &e&lParanoia &7effect to all alive opponents for {duration}.",
                 55
         ).setDuration(240)
-                .setCdSec(30)
+                .setCooldownSec(30)
                 .setItem(Material.BLACK_DYE)
                 .setSound(Sound.ENTITY_WITCH_CELEBRATE, 0.0f));
 

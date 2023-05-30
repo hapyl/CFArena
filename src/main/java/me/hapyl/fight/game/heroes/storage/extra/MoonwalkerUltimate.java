@@ -37,7 +37,7 @@ public class MoonwalkerUltimate extends UltimateTalent {
                 80
         );
 
-        setCdSec(45);
+        setCooldownSec(45);
         setItem(Material.END_STONE_BRICKS);
     }
 

@@ -22,7 +22,7 @@ public class Kven extends Talent {
         super("Quen", "Applies two charges of Quen shield that blocks damage.");
 
         setItem(Material.FLOWER_POT);
-        setCdSec(30);
+        setCooldownSec(30);
     }
 
     @Override

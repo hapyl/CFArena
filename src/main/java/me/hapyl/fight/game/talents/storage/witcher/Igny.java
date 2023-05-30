@@ -32,7 +32,7 @@ public class Igny extends Talent {
                 """);
 
         setItem(Material.BLAZE_POWDER);
-        setCdSec(10);
+        setCooldownSec(10);
     }
 
     @Override

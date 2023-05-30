@@ -3,7 +3,7 @@ package me.hapyl.fight.game.effect.storage;
 import me.hapyl.fight.game.effect.EffectParticle;
 import me.hapyl.fight.game.effect.GameEffect;
 import org.bukkit.Particle;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.LivingEntity;
 
 public class RespawnResistance extends GameEffect {
 
@@ -13,19 +13,19 @@ public class RespawnResistance extends GameEffect {
     }
 
     @Override
-    public void onStart(Player player) {
-        player.setInvulnerable(true);
+    public void onStart(LivingEntity entity) {
+        entity.setInvulnerable(true);
     }
 
     @Override
-    public void onStop(Player player) {
-        player.setInvulnerable(false);
+    public void onStop(LivingEntity entity) {
+        entity.setInvulnerable(false);
     }
 
     @Override
-    public void onTick(Player player, int tick) {
+    public void onTick(LivingEntity entity, int tick) {
         if (tick == 5) {
-            displayParticles(player.getLocation(), player);
+            displayParticles(entity.getLocation(), entity);
         }
     }
 }

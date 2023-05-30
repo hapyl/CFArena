@@ -42,7 +42,7 @@ public class MineOBall extends Talent implements Listener {
             addDescription("&7- &f{}\n", value.getPack().getName());
         }
 
-        setCdSec(10);
+        setCooldownSec(10);
         setTexture("5fe47640843744cd5796979d1196fb938317ec42b09fccb2c545ee4c925ac2bd");
     }
 

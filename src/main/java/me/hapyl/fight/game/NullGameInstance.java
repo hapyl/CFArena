@@ -3,11 +3,13 @@ package me.hapyl.fight.game;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import me.hapyl.fight.game.damage.EntityData;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.task.GameTask;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -22,14 +24,18 @@ public class NullGameInstance implements IGameInstance {
         return State.POST_GAME;
     }
 
+    @Nonnull
+    @Override
+    public EntityData getEntityData(@Nonnull LivingEntity entity) {
+        return EntityData.EMPTY;
+    }
+
     @Override
     public void setGameState(State gameState) {
-
     }
 
     @Override
     public void calculateEverything() {
-
     }
 
     @Override

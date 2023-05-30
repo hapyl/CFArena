@@ -122,7 +122,7 @@ public class Mage extends Hero implements UIComponent {
                         BukkitUtils.roundTick(dragonSkinLength)
                 ),
                 40
-        ).setItem(Material.WRITABLE_BOOK).setCdSec(-1));
+        ).setItem(Material.WRITABLE_BOOK).setCooldownSec(-1));
     }
 
     @Override

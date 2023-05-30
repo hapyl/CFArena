@@ -97,7 +97,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent {
                 &6;;You cannot deal damage nor gain blood during the duration!
                 """, 60)
                 .setDurationSec(6)
-                .setCdSec(20)
+                .setCooldownSec(20)
                 .setTexture("473af69ed9bf67e2f5403dd7d28bbe32034749bbfb635ac1789a412053cdcbf0");
 
         setUltimate(ultimate);

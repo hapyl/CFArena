@@ -103,7 +103,7 @@ public class Vortex extends Hero implements UIComponent {
                 &6;;This will not affect already placed Astral Stars
                 """, 70)
                 .setItem(Material.QUARTZ)
-                .setCdSec(30));
+                .setCooldownSec(30));
     }
 
     @Override

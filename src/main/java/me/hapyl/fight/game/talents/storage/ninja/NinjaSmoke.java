@@ -23,7 +23,7 @@ public class NinjaSmoke extends Talent {
 
         setItem(Material.INK_SAC);
         setDuration(120);
-        setCdSec(20);
+        setCooldownSec(20);
     }
 
     @Override

@@ -30,7 +30,7 @@ public class VortexStar extends Talent {
                 """);
 
         setItem(Material.NETHER_STAR);
-        setCd(DYNAMIC);
+        setCooldown(DYNAMIC);
     }
 
     @Override

@@ -94,6 +94,8 @@ Bugs:
 - [✔] juju shield breaks all at once
 - [✔] Tamer broken
 
+- Repackage heroes, storage -> archive
+
 - [✔] Add distance on shots
 - Rework techie a bit, add delay to traps and ult is useless :|
 

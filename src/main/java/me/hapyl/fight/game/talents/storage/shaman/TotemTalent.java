@@ -31,7 +31,7 @@ public class TotemTalent extends Talent {
         addAttributeDescription("Aura Range &l%s", type.getRange() + " blocks");
         addAttributeDescription("Aura Interval &l%s", BukkitUtils.roundTick(type.getInterval()) + "s");
 
-        setCdSec(cd);
+        setCooldownSec(cd);
     }
 
     @Override

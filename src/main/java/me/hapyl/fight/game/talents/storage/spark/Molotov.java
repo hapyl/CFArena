@@ -38,7 +38,7 @@ public class Molotov extends Talent implements Listener {
         );
 
         setItem(Material.FIRE_CHARGE);
-        setCd(700);
+        setCooldown(700);
     }
 
     @Override

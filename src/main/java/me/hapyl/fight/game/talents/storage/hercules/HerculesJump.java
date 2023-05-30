@@ -12,7 +12,7 @@ public class HerculesJump extends Talent {
 	public HerculesJump() {
         super("Updraft", "Instantly propel yourself high up to perform plunging attack.", Type.COMBAT);
 
-        setCdSec(10);
+        setCooldownSec(10);
         setItem(Material.SLIME_BALL);
     }
 

@@ -26,7 +26,7 @@ public class Paranoia extends Talent {
 
         setDuration(100);
         setItem(Material.CHARCOAL);
-        setCd(360);
+        setCooldown(360);
     }
 
     @Override

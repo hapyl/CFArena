@@ -28,7 +28,7 @@ public class Whirlpool extends Talent {
         setItem(Material.HEART_OF_THE_SEA);
 
         setDurationSec(4);
-        setCdSec(16);
+        setCooldownSec(16);
     }
 
     @Override

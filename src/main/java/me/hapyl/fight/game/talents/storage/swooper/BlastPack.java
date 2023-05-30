@@ -41,7 +41,7 @@ public class BlastPack extends ChargedTalent {
                 """, 2);
 
         setItem(Material.DETECTOR_RAIL);
-        setCd(3);
+        setCooldown(3);
         setRechargeTimeSec(12);
     }
 

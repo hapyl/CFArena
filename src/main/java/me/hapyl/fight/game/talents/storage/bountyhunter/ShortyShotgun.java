@@ -47,7 +47,7 @@ public class ShortyShotgun extends Talent {
         setItem(Material.CROSSBOW);
         setStartAmount(2);
 
-        setCd(50);
+        setCooldown(50);
     }
 
     @Override

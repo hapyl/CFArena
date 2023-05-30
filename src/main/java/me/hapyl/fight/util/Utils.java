@@ -181,8 +181,20 @@ public class Utils {
         Reflect.hideEntity(entity, player);
     }
 
+    public static void hideEntity(Entity entity) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            hideEntity(entity, player);
+        }
+    }
+
     public static void showEntity(Entity entity, Player player) {
         Reflect.showEntity(entity, player);
+    }
+
+    public static void showEntity(Entity entity) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            showEntity(entity, player);
+        }
     }
 
     public static void rayTracePath(@Nonnull Location start, @Nonnull Location end, double shift, double searchRange, @Nullable Consumer<LivingEntity> funcLiving, @Nullable Consumer<Location> funcLoc) {

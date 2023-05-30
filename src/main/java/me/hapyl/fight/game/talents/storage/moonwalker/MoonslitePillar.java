@@ -42,7 +42,7 @@ public class MoonslitePillar extends Talent {
 
         setDurationSec(10);
         setItem(Material.BONE);
-        setCdSec(30);
+        setCooldownSec(30);
     }
 
     @Override

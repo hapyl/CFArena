@@ -93,7 +93,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
                 """, 70)
                 .setItem(Material.WITHER_SKELETON_SKULL)
                 .setDuration(240)
-                .setCdSec(30)
+                .setCooldownSec(30)
                 .setSound(Sound.ENTITY_WITHER_SPAWN, 2.0f));
     }
 

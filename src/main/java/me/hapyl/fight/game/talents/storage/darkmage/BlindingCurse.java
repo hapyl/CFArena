@@ -34,7 +34,7 @@ public class BlindingCurse extends DarkMageTalent {
                 Damages, slows and applies blinding curse to the target player.
                 """, Material.INK_SAC);
 
-        setCd(100);
+        setCooldown(100);
     }
 
     @Nonnull

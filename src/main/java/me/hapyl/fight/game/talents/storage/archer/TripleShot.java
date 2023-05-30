@@ -15,7 +15,7 @@ public class TripleShot extends Talent {
     public TripleShot() {
         super("Triple Shot", "Shoots three arrows in front of you. Two additional arrows deal &b50%%&7 of normal damage.", Type.COMBAT);
 
-        setCd(75);
+        setCooldown(75);
         setItem(Material.ARROW);
     }
 

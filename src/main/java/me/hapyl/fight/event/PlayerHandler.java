@@ -6,8 +6,7 @@ import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.attribute.CriticalResponse;
 import me.hapyl.fight.game.attribute.PlayerAttributes;
-import me.hapyl.fight.game.damage.DamageData;
-import me.hapyl.fight.game.damage.DamageHandler;
+import me.hapyl.fight.game.damage.EntityData;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.setting.Setting;
@@ -24,6 +23,7 @@ import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -233,13 +233,19 @@ public class PlayerHandler implements Listener {
 
         // Ignore lobby damage
         if (!Manager.current().isGameInProgress()) {
+            // Don't cancel when falling on slime block for a slime glitch
+            if (entity.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() == Material.SLIME_BLOCK) {
+                ev.setDamage(0.0d);
+                return;
+            }
+
             ev.setCancelled(true);
             return;
         }
 
         // This is what actually stores all the custom data
         // needed to handle custom damage/causes.
-        final DamageData data = DamageHandler.getDamageData(livingEntity);
+        final EntityData data = EntityData.getEntityData(livingEntity);
 
         // REASSIGNMENT STATE
         // If an entity wasn't hit by using DamageHandler, we
@@ -254,7 +260,7 @@ public class PlayerHandler implements Listener {
             final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
 
             // Test for fall damage resistance
-            if (data.lastDamageCause == EnumDamageCause.FALL && gamePlayer.hasEffect(GameEffectType.FALL_DAMAGE_RESISTANCE)) {
+            if (data.getLastDamageCauseNonNull() == EnumDamageCause.FALL && gamePlayer.hasEffect(GameEffectType.FALL_DAMAGE_RESISTANCE)) {
                 ev.setCancelled(true);
                 gamePlayer.removeEffect(GameEffectType.FALL_DAMAGE_RESISTANCE);
                 return;
@@ -308,7 +314,7 @@ public class PlayerHandler implements Listener {
             }
 
             // Process invisibility
-            final LivingEntity lastDamager = data.lastDamager;
+            final LivingEntity lastDamager = data.getLastDamager();
 
             if (lastDamager instanceof Player player && player.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
                 final boolean cancelDamage = GamePlayer.getPlayer(player)
@@ -411,7 +417,7 @@ public class PlayerHandler implements Listener {
 
         // As victim
         if (livingEntity instanceof Player player) {
-            final DamageOutput output = getDamageOutput(player, data.lastDamager, damage, false);
+            final DamageOutput output = getDamageOutput(player, data.getLastDamager(), damage, false);
 
             if (output != null) {
                 damage = output.getDamage();
@@ -420,7 +426,7 @@ public class PlayerHandler implements Listener {
         }
 
         // As damager
-        if (data.lastDamager instanceof Player player) {
+        if (data.getLastDamager() instanceof Player player) {
             final DamageOutput output = getDamageOutput(player, livingEntity, damage, true);
 
             if (output != null) {
@@ -434,7 +440,7 @@ public class PlayerHandler implements Listener {
         }
 
         // As projectile
-        if (data.lastDamager instanceof Player player && finalProjectile != null && Manager.current().isGameInProgress()) {
+        if (data.getLastDamager() instanceof Player player && finalProjectile != null && Manager.current().isGameInProgress()) {
             final DamageOutput output = GamePlayer.getPlayer(player)
                     .getHero()
                     .processDamageAsDamagerProjectile(new DamageInput(player, livingEntity, damage), finalProjectile);
@@ -462,12 +468,12 @@ public class PlayerHandler implements Listener {
         // CALCULATE DAMAGE USING ATTRIBUTES
 
         // Outgoing damage
-        if (data.lastDamager instanceof Player player) {
+        if (data.getLastDamager() instanceof Player player) {
             final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
 
             if (gamePlayer != null) {
                 final PlayerAttributes attributes = gamePlayer.getAttributes();
-                final CriticalResponse criticalResponse = attributes.calculateOutgoingDamage(damage, data.lastDamageCause);
+                final CriticalResponse criticalResponse = attributes.calculateOutgoingDamage(damage, data.getLastDamageCause());
 
                 damage = criticalResponse.damage();
                 isCrit = criticalResponse.isCrit();
@@ -489,8 +495,8 @@ public class PlayerHandler implements Listener {
         }
 
         // Store data in DamageData
-        data.lastDamage = damage;
-        data.isCrit = isCrit;
+        data.setLastDamage(damage);
+        data.setCrit(isCrit);
 
         // Show damage indicator if dealt more
         // than 1 damage to remove clutter
@@ -502,7 +508,7 @@ public class PlayerHandler implements Listener {
         }
 
         // Progress stats for damager
-        if (data.lastDamager instanceof Player player) {
+        if (data.getLastDamager() instanceof Player player) {
             final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
 
             if (gamePlayer != null) {
@@ -510,7 +516,7 @@ public class PlayerHandler implements Listener {
             }
 
             if (Setting.SHOW_DAMAGE_IN_CHAT.isEnabled(player)) {
-                DamageHandler.notifyChatOutgoing(player, data);
+                data.notifyChatOutgoing(player);
             }
         }
 
@@ -523,7 +529,7 @@ public class PlayerHandler implements Listener {
                 final double health = gamePlayer.getHealth();
 
                 // Decrease health
-                gamePlayer.decreaseHealth(damage, data.lastDamager);
+                gamePlayer.decreaseHealth(damage, data.getLastDamager());
 
                 // Progress stats for a victim
                 gamePlayer.getStats().addValue(StatType.DAMAGE_TAKEN, damage);
@@ -536,7 +542,7 @@ public class PlayerHandler implements Listener {
             }
 
             if (Setting.SHOW_DAMAGE_IN_CHAT.isEnabled(player)) {
-                DamageHandler.notifyChatIncoming(player, data);
+                data.notifyChatIncoming(player);
             }
 
             // Fail-safe just to be sure player does
@@ -627,7 +633,7 @@ public class PlayerHandler implements Listener {
             }
 
             if (item != null) {
-                // allow to interact with intractable items
+                // allow interacting with intractable items
                 if (isIntractable(item)) {
                     //return;
                 }

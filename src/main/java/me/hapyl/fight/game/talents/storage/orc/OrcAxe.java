@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.storage.orc;
 
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.DamageHandler;
+import me.hapyl.fight.game.damage.EntityData;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Utils;
@@ -19,12 +19,15 @@ import javax.annotation.Nonnull;
 
 public class OrcAxe extends InputTalent {
     public OrcAxe() {
-        super("axe");
+        super("Axe");
+
+        setDescription("Equip and prepare your axe for action.");
 
         leftData.setAction("Spin")
                 .setDescription("""
                         Spin constantly for {duration}.
                         """)
+                .setDurationSec(3)
                 .setCooldownSec(10);
 
         rightData.setAction("Dash")
@@ -76,7 +79,7 @@ public class OrcAxe extends InputTalent {
             }
 
             private void executeHit(@Nonnull Location location) {
-                DamageHandler.damageAoE(location, 1.0d, 10.0d, player, EnumDamageCause.ORC_DASH, living -> living != player);
+                EntityData.damageAoE(location, 1.0d, 10.0d, player, EnumDamageCause.ORC_DASH, living -> living != player);
 
                 // Fx
                 PlayerLib.spawnParticle(location, Particle.SWEEP_ATTACK, 1, 0.1d, 0.1d, 0.1d, 10);

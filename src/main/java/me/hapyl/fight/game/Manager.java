@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.cosmetic.skin.SkinEffectManager;
-import me.hapyl.fight.game.damage.DamageHandler;
+import me.hapyl.fight.game.damage.EntityData;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.heroes.ComplexHero;
 import me.hapyl.fight.game.heroes.Hero;
@@ -441,7 +441,7 @@ public final class Manager extends DependencyInjector<Main> {
         this.gameInstance.onStop();
         this.gameInstance.setGameState(State.POST_GAME);
 
-        DamageHandler.clearAll(); // clear damage handler
+        EntityData.resetDamageData(); // clear damage handler
 
         // Save stats
         // this.gameInstance.getActiveHeroes().forEach(hero -> hero.getStats().saveAsync());

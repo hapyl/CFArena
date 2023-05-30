@@ -188,7 +188,7 @@ public class Ender extends Hero implements Listener {
                 "Transmission!",
                 "Instantly teleport to your &b&lTransmission &b&lBeacon &7and collect it for further use.",
                 50
-        ).setItem(Material.SHULKER_SHELL).setCdSec(20).setSound(Sound.ENTITY_GUARDIAN_HURT_LAND, 0.75f));
+        ).setItem(Material.SHULKER_SHELL).setCooldownSec(20).setSound(Sound.ENTITY_GUARDIAN_HURT_LAND, 0.75f));
 
     }
 

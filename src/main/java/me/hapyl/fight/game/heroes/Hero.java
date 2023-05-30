@@ -68,6 +68,8 @@ public abstract class Hero implements GameElement, PlayerElement {
         this.role = Role.NONE;
         this.minimumLevel = 0;
         this.ultimate = new UltimateTalent("Unknown Ultimate", "This hero's ultimate talent is not yet implemented!", Integer.MAX_VALUE);
+
+        setItem("null"); // default to null because I don't like exceptions
     }
 
     public Hero(String name, String lore) {

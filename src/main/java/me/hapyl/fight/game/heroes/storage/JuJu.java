@@ -88,7 +88,7 @@ public class JuJu extends Hero implements Listener {
                         getSecondTalent().getName()
                 ),
                 65
-        ).setDurationSec(10).setCdSec(30).setItem(Material.OAK_SAPLING));
+        ).setDurationSec(10).setCooldownSec(30).setItem(Material.OAK_SAPLING));
 
         final UltimateTalent ultimate = getUltimate();
         ultimate.addAttributeDescription("Maximum Arrows", maxUltimateArrows);

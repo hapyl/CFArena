@@ -71,7 +71,7 @@ public class Pytaria extends Hero {
         equipment.setBoots(179, 204, 204);
 
         setUltimate(new UltimateTalent("Feel the Breeze", 60)
-                .setCdSec(50)
+                .setCooldownSec(50)
                 .setDuration(60)
                 .appendDescription("""
                         Summon a blooming Bee in front of Pytaria.

@@ -20,7 +20,7 @@ public class Repulsor extends Talent {
         super("Repulsor", "Propels all nearby opponents high up into the sky!", Type.COMBAT);
 
         setItem(Material.IRON_BOOTS);
-        setCd(200);
+        setCooldown(200);
     }
 
     @Override

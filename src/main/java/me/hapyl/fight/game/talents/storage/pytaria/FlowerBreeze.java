@@ -34,7 +34,7 @@ public class FlowerBreeze extends Talent {
 
         setDuration(80);
         setItem(Material.RED_DYE);
-        setCd(getDuration() * 4);
+        setCooldown(getDuration() * 4);
     }
 
     private final Material[] flowers = {

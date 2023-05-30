@@ -31,6 +31,16 @@ public abstract class InputTalent extends Talent {
 
     @Override
     public void appendLore(@Nonnull ItemBuilder builder) {
+        builder.addTextBlockLore("""
+                                                
+                        &e&lLEFT CLICK&e to %s
+                        %s
+                        &6&lRIGHT CLICK&6 to %s
+                        %s
+                        """,
+                leftData.getAction(), format(leftData.getDescription(), leftData),
+                rightData.getAction(), format(rightData.getDescription(), rightData)
+        );
     }
 
     @Nonnull
@@ -77,15 +87,15 @@ public abstract class InputTalent extends Talent {
 
     @Deprecated
     @Override
-    public final InputTalent setCd(int cd) {
+    public final InputTalent setCooldown(int cd) {
         leftData.setCooldown(cd);
         return this;
     }
 
     @Deprecated
     @Override
-    public final Talent setCdSec(int cd) {
-        return setCd(cd * 20);
+    public final Talent setCooldownSec(int cd) {
+        return setCooldown(cd * 20);
     }
 
     @Deprecated
@@ -119,9 +129,7 @@ public abstract class InputTalent extends Talent {
                 player,
                 "&6&lL&e&lCLICK     &6&lR&e&lCLICK",
                 ("&ato " + trim(leftData.action) + "         &ato " + trim(rightData.action)),
-                5,
-                10000,
-                5
+                1, 10000, 1
         );
 
         return response;
@@ -149,5 +157,13 @@ public abstract class InputTalent extends Talent {
         if (point > 0) {
             GamePlayer.getPlayer(player).addUltimatePoints(point);
         }
+    }
+
+    private String format(@Nonnull String string, @Nonnull InputTalentData data) {
+        string = TalentFormat.NAME.format(string, this);
+        string = TalentFormat.DURATION.format(string, data);
+        string = TalentFormat.COOLDOWN.format(string, data);
+
+        return string;
     }
 }

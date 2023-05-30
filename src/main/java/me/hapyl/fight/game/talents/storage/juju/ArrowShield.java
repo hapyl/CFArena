@@ -42,7 +42,7 @@ public class ArrowShield extends Talent implements Listener {
         );
 
         setDurationSec(15);
-        setCdSec(40);
+        setCooldownSec(40);
     }
 
     @EventHandler()
