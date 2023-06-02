@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.effect;
 
+import me.hapyl.fight.game.ui.display.StringDisplay;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -12,12 +13,20 @@ public abstract class GameEffect {
     private EffectParticle effectParticle;
     private boolean isPositive;
 
-    // TODO (hapyl): 030, May 30: Display
+    private StringDisplay display;
 
     public GameEffect(String name) {
         this.name = name;
         this.description = "";
         this.isPositive = true;
+    }
+
+    public StringDisplay getDisplay() {
+        return display;
+    }
+
+    public void setDisplay(StringDisplay display) {
+        this.display = display;
     }
 
     public void setEffectParticle(EffectParticle effectParticle) {
@@ -28,24 +37,24 @@ public abstract class GameEffect {
         return name;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public void setDescription(String about, Object... objects) {
         this.setDescription(about.formatted(objects));
-    }
-
-    public void setPositive(boolean positive) {
-        isPositive = positive;
     }
 
     public String getDescription() {
         return description;
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public boolean isPositive() {
         return isPositive;
+    }
+
+    public void setPositive(boolean positive) {
+        isPositive = positive;
     }
 
     public abstract void onStart(LivingEntity entity);

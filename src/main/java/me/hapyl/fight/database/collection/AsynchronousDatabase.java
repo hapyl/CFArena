@@ -6,6 +6,7 @@ import me.hapyl.fight.Main;
 import me.hapyl.fight.database.MongoUtils;
 import me.hapyl.fight.database.PlayerDatabase;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
@@ -93,10 +94,10 @@ import java.util.function.Consumer;
  */
 public class AsynchronousDatabase {
 
-    private final MongoCollection<Document> collection;
-    private final Document filter;
+    protected final MongoCollection<Document> collection;
+    protected final Document filter;
 
-    private Document document;
+    protected Document document;
 
     public AsynchronousDatabase(MongoCollection<Document> collection, Document filter) {
         this.collection = collection;
@@ -135,27 +136,45 @@ public class AsynchronousDatabase {
     /**
      * Writes a value to a given path.
      * Path may or may not be nested by using '.' (dot) as a separator.
-     *
      * <b>
      * Writing is done asynchronously.
      * </b>
      *
      * @param path    - Path to write to.
      * @param value   - Value to write.
-     * @param andThen - Updated instance of this.
+     * @param andThen - Synchronized updated instance of this.
      */
     public final <E> void write(@Nonnull String path, @Nullable E value, @Nullable Consumer<AsynchronousDatabase> andThen) {
+        write(Updates.set(path, value), andThen);
+    }
+
+    /**
+     * Writes an update.
+     *
+     * @param update - Update to write.
+     */
+    public final void write(@Nonnull Bson update) {
+        write(update, null);
+    }
+
+    /**
+     * Writes an ASYNC update.
+     *
+     * @param update  - Update.
+     * @param andThen - Synced callback.
+     */
+    public final void write(@Nonnull Bson update, @Nullable Consumer<AsynchronousDatabase> andThen) {
         try {
             async(() -> {
-                document = collection.findOneAndUpdate(filter, Updates.set(path, value));
+                collection.updateOne(filter, update);
 
-                if (document == null) {
-                    Main.getPlugin().getLogger().warning("document is null");
+                synchronized (collection) {
+                    document = collection.find(filter).first();
+                    if (andThen != null) {
+                        andThen.accept(this);
+                    }
                 }
 
-                if (andThen != null) {
-                    andThen.accept(this);
-                }
             });
         } catch (Exception e) {
             e.printStackTrace();

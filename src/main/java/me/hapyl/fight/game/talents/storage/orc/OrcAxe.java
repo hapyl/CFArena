@@ -1,23 +1,33 @@
 package me.hapyl.fight.game.talents.storage.orc;
 
 import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EntityData;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.InputTalent;
+import me.hapyl.fight.game.task.GeometryTask;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.fight.util.Utils;
+import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 
 public class OrcAxe extends InputTalent {
+
     public OrcAxe() {
         super("Axe");
 
@@ -25,7 +35,7 @@ public class OrcAxe extends InputTalent {
 
         leftData.setAction("Spin")
                 .setDescription("""
-                        Spin constantly for {duration}.
+                        Summon the axe that spins around you for {duration}.
                         """)
                 .setDurationSec(3)
                 .setCooldownSec(10);
@@ -42,6 +52,53 @@ public class OrcAxe extends InputTalent {
     @Nonnull
     @Override
     public Response onLeftClick(Player player) {
+        // Don't allow spin if no axe
+        final PlayerInventory inventory = player.getInventory();
+        final ItemStack item = inventory.getItem(0);
+
+        if (item == null || item.getType() != Material.IRON_AXE) {
+            return Response.error("The Axe is missing!");
+        }
+
+        final ArmorStand axe = Entities.ARMOR_STAND_MARKER.spawn(player.getLocation(), self -> {
+            Utils.setEquipment(self, equipment -> {
+                self.setVisible(false);
+                self.setRightArmPose(new EulerAngle(Math.toRadians(90), 0.0d, Math.toRadians(90)));
+
+                equipment.setItemInMainHand(new ItemStack(Material.IRON_AXE));
+            });
+
+            inventory.setItem(0, ItemStacks.AIR);
+        });
+
+        new GeometryTask() {
+            @Override
+            public void run(double theta) {
+                final Location playerLocation = player.getLocation();
+
+                offsetXZ(playerLocation, 2.0d, location -> {
+                    // Damage
+                    Utils.getEntitiesInRange(location, 1.0d, living -> living != player)
+                            .forEach(entity -> {
+                                GamePlayer.damageEntity(entity, 5.0d, player, EnumDamageCause.CYCLING_AXE);
+                            });
+
+                    axe.teleport(location);
+                });
+            }
+
+            @Override
+            public void onStop() {
+                axe.remove();
+                Heroes.ORC.getHero().getWeapon().giveWeapon(player);
+            }
+        }.properties()
+                .max(leftData)
+                .step(Math.PI / 12)
+                .cancelIfDead(player)
+                .task()
+                .runTaskTimer(0, 1);
+
         return Response.OK;
     }
 

@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.task;
 
 import me.hapyl.fight.Main;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.Timed;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -23,16 +23,16 @@ public abstract class GameTask implements Runnable {
     }
 
     /**
-     * Runs the task for the duration of the talent.
+     * Runs the task for the duration of the timed.
      *
-     * @param talent   - Talent.
+     * @param timed    - Timed.
      * @param runnable - BiConsumer of task runner and remaining tick.
      * @param delay    - Delay before starting.
      * @param period   - Period after each execution.
      * @return Running task.
      */
-    public static GameTask runDuration(Talent talent, BiConsumer<GameTask, Integer> runnable, int delay, int period) {
-        final int duration = talent.getDuration();
+    public static GameTask runDuration(Timed timed, BiConsumer<GameTask, Integer> runnable, int delay, int period) {
+        final int duration = timed.getDuration();
 
         return new GameTask() {
             private int tick = duration;
@@ -51,12 +51,12 @@ public abstract class GameTask implements Runnable {
     }
 
     // see above
-    public static void runDuration(Talent talent, Consumer<Integer> runnable, int period) {
+    public static void runDuration(Timed talent, Consumer<Integer> runnable, int period) {
         runDuration(talent, (task, i) -> runnable.accept(i), 0, period);
     }
 
     // see above
-    public static void runDuration(Talent talent, Consumer<Integer> runnable, int delay, int period) {
+    public static void runDuration(Timed talent, Consumer<Integer> runnable, int delay, int period) {
         runDuration(talent, (task, i) -> runnable.accept(i), delay, period);
     }
 

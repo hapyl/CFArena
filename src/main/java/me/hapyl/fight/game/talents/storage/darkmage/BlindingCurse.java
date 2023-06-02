@@ -25,8 +25,8 @@ import javax.annotation.Nullable;
 public class BlindingCurse extends DarkMageTalent {
 
     @DisplayField private final double maxDistance = 35.0d;
-    @DisplayField private final double damage = 5.0d;
-    @DisplayField private final int blindingDuration = 60;
+    @DisplayField private final double damage = 7.5d;
+    @DisplayField private final int blindingDuration = 40;
     @DisplayField private final int slowingDuration = 40;
 
     public BlindingCurse() {
@@ -34,7 +34,7 @@ public class BlindingCurse extends DarkMageTalent {
                 Damages, slows and applies blinding curse to the target player.
                 """, Material.INK_SAC);
 
-        setCooldown(100);
+        setCooldownSec(10);
     }
 
     @Nonnull
@@ -84,7 +84,7 @@ public class BlindingCurse extends DarkMageTalent {
 
     @Nullable
     private LivingEntity bounce(@Nonnull Player player, LivingEntity... bounced) {
-        if (bounced == null || bounced.length == 0) {
+        if (bounced == null || bounced.length == 0 || bounced[0] == null) {
             return null;
         }
 

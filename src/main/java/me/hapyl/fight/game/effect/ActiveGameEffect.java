@@ -2,6 +2,7 @@ package me.hapyl.fight.game.effect;
 
 import me.hapyl.fight.game.damage.EntityData;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.ui.display.StringDisplay;
 import org.bukkit.entity.LivingEntity;
 
 public class ActiveGameEffect {
@@ -65,7 +66,15 @@ public class ActiveGameEffect {
     }
 
     private void startTicking() {
-        type.getGameEffect().onStart(entity);
+        final GameEffect effect = type.getGameEffect();
+        final StringDisplay display = effect.getDisplay();
+
+        effect.onStart(entity);
+
+        if (display != null) {
+            display.display(entity.getEyeLocation());
+        }
+
         new GameTask() {
             @Override
             public void run() {
@@ -77,7 +86,7 @@ public class ActiveGameEffect {
                     return;
                 }
 
-                type.getGameEffect().onTick(entity, remainingTicks % 20);
+                effect.onTick(entity, remainingTicks % 20);
 
                 // actually tick down
                 --remainingTicks;

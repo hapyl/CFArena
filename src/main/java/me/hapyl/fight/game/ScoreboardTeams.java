@@ -53,6 +53,11 @@ public class ScoreboardTeams {
         }
     }
 
+    // Updates scoreboard to all
+    public static void updateAll() {
+        // TODO (hapyl): 002, Jun 2:
+    }
+
     private static Team getOrCreateTeam(Player player, String name) {
         final Scoreboard scoreboard = player.getScoreboard();
         Team team = scoreboard.getTeam("%" + name);

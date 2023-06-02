@@ -9,10 +9,7 @@ import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.HeroEquipment;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.Role;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.storage.extra.VampireData;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -43,7 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class Vampire extends Hero implements Listener, UIComplexComponent {
+public class Vampire extends Hero implements Listener, UIComplexComponent, DisabledHero {
 
     public final int MAX_BLOOD_STACKS = 10;
     /**

@@ -2,7 +2,7 @@ package me.hapyl.fight.game.parkour;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.Main;
-import me.hapyl.fight.database.Database;
+import me.hapyl.fight.database.collection.AsynchronousDatabase;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.spigotutils.module.parkour.Data;
 import me.hapyl.spigotutils.module.parkour.Stats;
@@ -16,28 +16,13 @@ import java.util.Set;
 import java.util.UUID;
 
 // This is handled async so whatever not putting using DatabaseCollection.
-public class ParkourDatabase {
+public class ParkourDatabase extends AsynchronousDatabase {
 
-    private final Database mongo;
     private final CFParkour parkour;
-    private final Document filter;
-    private Document document;
 
     public ParkourDatabase(CFParkour parkour) {
-        this.mongo = Main.getPlugin().getDatabase();
+        super(Main.getPlugin().getDatabase().getParkour(), new Document("parkour", parkour.parkourPath()));
         this.parkour = parkour;
-        this.filter = new Document("parkour", parkour.parkourPath());
-
-        load();
-    }
-
-    private void load() {
-        document = mongo.getParkour().find(filter).first();
-
-        if (document == null) {
-            document = new Document(filter);
-            mongo.getParkour().insertOne(document);
-        }
 
         // Remove invalid entries
         final Document players = getPlayers();
@@ -62,7 +47,7 @@ public class ParkourDatabase {
             invalidKeys.forEach(players::remove);
         }
 
-        saveTo("players", players);
+        write("players", players);
     }
 
     public void syncData(Data data) {
@@ -82,16 +67,10 @@ public class ParkourDatabase {
         }
 
         player.put("stats", stats);
-
-        saveTo("players." + uuid, player);
-        load(); // reload
-
-        // Update leaderboard
-        parkour.updateLeaderboardIfExists();
-    }
-
-    public void saveTo(String path, Document document) {
-        mongo.getParkour().updateOne(filter, new Document("$set", new Document(path, document)));
+        write("players." + uuid, player, then -> {
+            // Update leaderboard
+            parkour.updateLeaderboardIfExists();
+        });
     }
 
     public long getBestTime(UUID uuid) {
@@ -114,6 +93,10 @@ public class ParkourDatabase {
         }
 
         return map;
+    }
+
+    public Document getDocument() {
+        return document;
     }
 
     public Document getPlayers() {

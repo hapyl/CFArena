@@ -19,6 +19,8 @@ public enum GameEffectType {
     SLOWING_AURA(new SlowingAuraEffect()),
     BLEED(new BleedEffect()),
 
+    ORC_GROWL(new OrcGrowlEffect()),
+
     ;
 
     private final GameEffect gameEffect;

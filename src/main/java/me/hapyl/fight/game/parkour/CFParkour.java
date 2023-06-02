@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageEvent;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
@@ -14,7 +15,7 @@ import java.util.UUID;
 public class CFParkour extends Parkour implements ParkourHandler {
 
     private ParkourLeaderboard leaderboard;
-    private final ParkourDatabase database;
+    protected final ParkourDatabase database;
 
     public CFParkour(String name, int startX, int startY, int startZ, float yaw, float pitch, int finishX, int finishY, int finishZ) {
         super(
@@ -101,6 +102,9 @@ public class CFParkour extends Parkour implements ParkourHandler {
         if (leaderboard != null) {
             leaderboard.update();
         }
+    }
+
+    public void onDamage(Player player, EntityDamageEvent.DamageCause cause) {
     }
 
     @Nullable

@@ -336,6 +336,10 @@ public final class EntityData {
     public void notifyChatIncoming(Player player) {
         final double damage = this.lastDamage;
 
+        if (damage < 1) {
+            return;
+        }
+
         final String prefix = "&7[&c⚔&7] &f";
         String message = "&l%.2f &ffrom &l%s".formatted(damage, Chat.capitalize(this.getLastDamageCauseNonNull()));
 
@@ -359,6 +363,10 @@ public final class EntityData {
      */
     public void notifyChatOutgoing(Player player) {
         final double damage = this.lastDamage;
+
+        if (damage < 1) {
+            return;
+        }
 
         final String prefix = "&7[&a⚔&7] &f";
 

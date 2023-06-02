@@ -181,7 +181,7 @@ public class PlayerAttributes extends Attributes implements PlayerElement {
     }
 
     private void display(AttributeType type, boolean isBuff) {
-        new AttributeDisplay(type, isBuff).display(gamePlayer.getPlayer().getLocation().add(0.0d, 0.5d, 0.0d));
+        new AttributeDisplay(type, isBuff, gamePlayer.getPlayer().getLocation().add(0.0d, 0.5d, 0.0d));
     }
 
 }

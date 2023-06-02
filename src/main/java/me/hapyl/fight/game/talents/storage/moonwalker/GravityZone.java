@@ -7,10 +7,7 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.player.PlayerLib;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -36,7 +33,8 @@ public class GravityZone extends Talent {
                 &b;;Moonwalker is immune to his own {name}.
                 """, Material.PURPLE_DYE);
 
-        setDuration(100);
+        setCooldownSec(20);
+        setDuration(80);
     }
 
     @Override
@@ -92,8 +90,12 @@ public class GravityZone extends Talent {
 
                 // Fx backwards
                 modifyLocationAnd(location, Math.cos(theta) * radius, y, Math.sin(theta) * radius, loc -> {
-                    PlayerLib.spawnParticle(location, Particle.CRIT, 5);
+                    PlayerLib.spawnParticle(location, Particle.SPELL_WITCH, 5);
                 });
+
+                // Fx
+                PlayerLib.playSound(location, Sound.ENTITY_ENDERMAN_TELEPORT, 2.0f - (float) tick / getDuration());
+                PlayerLib.playSound(location, Sound.ENTITY_ENDER_DRAGON_FLAP, 2.0f - (float) tick / getDuration());
 
                 // Progress y and theta
                 y += radiusY / getDuration();

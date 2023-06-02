@@ -6,6 +6,6 @@ public enum Temper {
 
     FLOWER_BREEZE,
 
-    ;
+    BERSERK_MODE;
 
 }

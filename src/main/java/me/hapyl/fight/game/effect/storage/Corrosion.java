@@ -25,7 +25,7 @@ public class Corrosion extends GameEffect {
 
     @Override
     public void onStart(LivingEntity entity) {
-        entity.addPotionEffect(PotionEffectType.SLOW_FALLING.createEffect(999999, 4));
+        entity.addPotionEffect(PotionEffectType.SLOW.createEffect(999999, 4));
         entity.addPotionEffect(PotionEffectType.BLINDNESS.createEffect(999999, 4));
     }
 

@@ -43,6 +43,8 @@ import me.hapyl.spigotutils.module.util.*;
 import net.minecraft.world.entity.Entity;
 import org.bson.Document;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
@@ -50,6 +52,7 @@ import org.bukkit.block.Skull;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
@@ -57,6 +60,8 @@ import javax.annotation.Nullable;
 import java.awt.Color;
 import java.io.File;
 import java.io.FileWriter;
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
 import java.util.List;
 import java.util.Queue;
 import java.util.*;
@@ -301,6 +306,92 @@ public class CommandRegistry extends DependencyInjector<Main> {
                         (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / GIGABYTE,
                         Runtime.getRuntime().totalMemory() / GIGABYTE,
                         Runtime.getRuntime().maxMemory() / GIGABYTE
+                );
+
+                final OperatingSystemMXBean mx = ManagementFactory.getOperatingSystemMXBean();
+
+                if (mx instanceof com.sun.management.OperatingSystemMXBean sunOsBean) {
+                    double cpuLoad = sunOsBean.getCpuLoad();
+                    Chat.sendMessage(sender, "&6CPU Load: &a%s%%", cpuLoad);
+                }
+            }
+        });
+
+        register(new SimplePlayerAdminCommand("gradient") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                // gradient #FROM #TO BOLD<bool> ...Text
+
+                final Color from = Color.decode(getArgument(args, 0).toString());
+                final Color to = Color.decode(getArgument(args, 1).toString());
+                final boolean isBold = getArgument(args, 2).toString().equalsIgnoreCase("true");
+
+                final String string = Chat.arrayToString(args, 3);
+                final Gradient gradient = new Gradient(string);
+
+                if (isBold) {
+                    gradient.makeBold();
+                }
+
+                Chat.sendMessage(player, "&a&lOutput:");
+
+                Chat.sendMessage(player, "&aLinear:");
+                Chat.sendMessage(player, "");
+                Chat.sendMessage(player, gradient.rgb(from, to, Interpolators.LINEAR));
+                Chat.sendMessage(player, "");
+                copyCommand(
+                        player,
+                        "new Gradient(%s).rgb(%s, %s, Interpolators.LINEAR)",
+                        isBold,
+                        string,
+                        colorToString(from),
+                        colorToString(to)
+                );
+
+                Chat.sendMessage(player, "&aQuadratic Fast -> Slow:");
+                Chat.sendMessage(player, "");
+                Chat.sendMessage(player, gradient.rgb(from, to, Interpolators.QUADRATIC_FAST_TO_SLOW));
+                Chat.sendMessage(player, "");
+                copyCommand(
+                        player,
+                        "new Gradient(%s).rgb(%s, %s, Interpolators.QUADRATIC_FAST_TO_SLOW)",
+                        isBold,
+                        string,
+                        colorToString(from),
+                        colorToString(to)
+                );
+
+                Chat.sendMessage(player, "&aQuadratic Slow -> Fast:");
+                Chat.sendMessage(player, "");
+                Chat.sendMessage(player, gradient.rgb(from, to, Interpolators.QUADRATIC_SLOW_TO_FAST));
+                Chat.sendMessage(player, "");
+                copyCommand(
+                        player,
+                        "new Gradient(%s).rgb(%s, %s, Interpolators.QUADRATIC_SLOW_TO_FAST)",
+                        isBold,
+                        string,
+                        colorToString(from),
+                        colorToString(to)
+                );
+
+            }
+
+            private String colorToString(Color color) {
+                return "%s, %s, %s".formatted(color.getRed(), color.getGreen(), color.getBlue());
+            }
+
+            private void copyCommand(Player player, String command, boolean bold, Object... format) {
+                if (bold) {
+                    command = command.replaceFirst("\\.", ".makeBold().");
+                }
+
+                command = command.formatted(format);
+
+                Chat.sendClickableHoverableMessage(
+                        player,
+                        LazyEvent.copyToClipboard(command),
+                        LazyEvent.showText("&eClick to copy code"),
+                        "&e&lCLICK TO COPY"
                 );
             }
         });
@@ -562,6 +653,36 @@ public class CommandRegistry extends DependencyInjector<Main> {
                 database.dailyRewardEntry.setLastDaily(System.currentTimeMillis() - DailyReward.MILLIS_WHOLE_DAY);
 
                 Chat.sendMessage(player, "&aReset daily!");
+            }
+        });
+
+        register(new SimplePlayerAdminCommand("setAttackSpeed") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                final double value = getArgument(args, 0).toDouble();
+
+                if (value == 0.0d) {
+                    Chat.sendMessage(player, "&cInvalid value.");
+                    return;
+                }
+
+                final ItemStack item = player.getInventory().getItemInMainHand();
+                final ItemMeta meta = item.getItemMeta();
+
+                if (meta == null) {
+                    Chat.sendMessage(player, "&cItem has no meta.");
+                    return;
+                }
+
+                meta.removeAttributeModifier(Attribute.GENERIC_ATTACK_SPEED);
+                meta.addAttributeModifier(
+                        Attribute.GENERIC_ATTACK_SPEED,
+                        new AttributeModifier("SPEED", value, AttributeModifier.Operation.ADD_NUMBER)
+                );
+
+                item.setItemMeta(meta);
+
+                Chat.sendMessage(player, "&aSuccess! Set attack speed to " + value);
             }
         });
 

@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.ui.display;
 
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.util.Range;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
@@ -123,7 +124,7 @@ public class StringDisplay {
                 cancel();
                 text.remove();
             }
-        }.runTaskTimer(0, 1);
+        }.runTaskTimer(0, 1).setShutdownAction(ShutdownAction.IGNORE);
     }
 
     @Nonnull

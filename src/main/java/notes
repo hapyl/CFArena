@@ -94,7 +94,34 @@ Bugs:
 - [✔] juju shield breaks all at once
 - [✔] Tamer broken
 
+--------------------------------------------------------------------
+
 - Repackage heroes, storage -> archive
+- Add npc to parkour that counts fails (check for specific fall NOT on slime)
+- !!! Can push in lobby (joined player not updated?)
+- Lamp game
+- Use game task delay for delay, its built-in
+- [✔] Moonwalker does not have cd on new ability
+- !!! wither assist wrong?
+- make wither disapper whe ulting
+- 'Target is null' WARN
+- slow aura shoudl NOT shlo
+- vampire swarm not remove
+- slow falling when in zone
+
+- Add parkour GUI to see jumps etc
+
+-- ORC TEST
+- [✔] Does not use custom cause?
+- [✔] Axe does not reset on death
+- [✔] Offset throwing axe to the left
+- [✔] Circle does not remover on death
+- [✔] Don't show dummy (< 1 damage) in display
+- [✔] eula nether -> iron remove from hand faster eula don't start eula if no axe
+- BUFF GRAV ZONE
+- [✔] Display stays
+
+--------------------------------------------------------------------
 
 - [✔] Add distance on shots
 - Rework techie a bit, add delay to traps and ult is useless :|

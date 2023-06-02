@@ -9,6 +9,7 @@ import me.hapyl.fight.game.attribute.PlayerAttributes;
 import me.hapyl.fight.game.damage.EntityData;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.parkour.CFParkour;
 import me.hapyl.fight.game.setting.Setting;
 import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.ChargedTalent;
@@ -18,7 +19,10 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.tutorial.Tutorial;
 import me.hapyl.fight.game.ui.display.DamageDisplay;
+import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.parkour.Data;
+import me.hapyl.spigotutils.module.parkour.ParkourManager;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
@@ -43,6 +47,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Locale;
 import java.util.Random;
@@ -59,6 +64,7 @@ public class PlayerHandler implements Listener {
         final Manager manager = Manager.current();
 
         manager.handlePlayer(player);
+        ScoreboardTeams.updateAll();
 
         if (manager.isGameInProgress()) {
             final GameInstance gameInstance = (GameInstance) manager.getCurrentGame();
@@ -239,6 +245,7 @@ public class PlayerHandler implements Listener {
                 return;
             }
 
+            processLobbyDamage(entity, cause);
             ev.setCancelled(true);
             return;
         }
@@ -554,6 +561,25 @@ public class PlayerHandler implements Listener {
         }
     }
 
+    private void processLobbyDamage(@Nonnull Entity entity, @Nonnull EntityDamageEvent.DamageCause cause) {
+        if (!(entity instanceof Player player)) {
+            return;
+        }
+
+        final ParkourManager parkourManager = EternaPlugin.getPlugin().getParkourManager();
+        final Data data = parkourManager.getData(player);
+
+        if (data == null) {
+            return;
+        }
+
+        if (!(data.getParkour() instanceof CFParkour parkour)) {
+            return;
+        }
+
+        parkour.onDamage(player, cause);
+    }
+
     @EventHandler()
     public void handleProjectileDamage(ProjectileLaunchEvent ev) {
     }
@@ -666,7 +692,7 @@ public class PlayerHandler implements Listener {
             final IGamePlayer gp = GamePlayer.getPlayer(player);
 
             // AFK detection
-            // Mark as moved even if player can't move and only moved the mouse
+            // Mark as moved even if the player can't move and only moved the mouse
             gp.markLastMoved();
 
             if (hasNotMoved(from, to)) {
@@ -747,6 +773,7 @@ public class PlayerHandler implements Listener {
             return;
         }
 
+        // \/ Talent executed \/
         gamePlayer.setInputTalent(null); // keep this above CD and slot changes!
 
         if (isLeftClick) {
@@ -757,7 +784,19 @@ public class PlayerHandler implements Listener {
         }
 
         talent.addPoint(player, isLeftClick);
-        player.getInventory().setHeldItemSlot(0);
+
+        // Add 1 tick cooldown to a weapon to prevent accidental use
+        final PlayerInventory inventory = player.getInventory();
+        final ItemStack item = inventory.getItem(0);
+
+        if (item != null) {
+            final Material type = item.getType();
+            if (!player.hasCooldown(type)) {
+                player.setCooldown(type, 1);
+            }
+        }
+
+        inventory.setHeldItemSlot(0);
     }
 
     private GamePlayer getAlivePlayer(Player player) {
@@ -826,6 +865,7 @@ public class PlayerHandler implements Listener {
         // cooldown check
         if (talent.hasCd(player)) {
             Chat.sendMessage(player, "&cTalent on cooldown for %ss.", BukkitUtils.roundTick(talent.getCdTimeLeft(player)));
+            player.getInventory().setHeldItemSlot(0); // work-around for InputTalent
             return false;
         }
 
