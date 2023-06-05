@@ -4,10 +4,12 @@ import com.google.common.collect.Maps;
 import me.hapyl.fight.annotate.KeepNull;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.cosmetic.CosmeticsHandle;
+import me.hapyl.fight.game.damage.EntityData;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.ComplexHero;
 import me.hapyl.fight.game.heroes.Hero;
@@ -53,6 +55,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
 
     private final Map<Player, DarkMageSpell> spellMap = Maps.newHashMap();
     private final Map<Player, WitherData> withers = Maps.newHashMap();
+    private final double PASSIVE_CHANCE = 0.12d;
 
     public DarkMage() {
         super("Dark Mage");
@@ -203,21 +206,17 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         }.runTaskTimer(0, 1);
     }
 
-    private final double PASSIVE_CHANCE = 0.12d;
-
     @Nullable
     @Override
     public DamageOutput processDamageAsVictim(DamageInput input) {
         final ShadowClone talent = getFourthTalent();
         final Player player = input.getPlayer();
         final LivingEntity entity = input.getEntity();
-
         final ShadowCloneNPC clone = talent.getClone(player);
 
         // Handle passive
         if (entity != null && new Random().nextDouble() < PASSIVE_CHANCE) {
-            entity.addPotionEffect(PotionEffectType.BLINDNESS.createEffect(60, 1));
-            entity.addPotionEffect(PotionEffectType.WITHER.createEffect(60, 1));
+            EntityData.getEntityData(entity).addEffect(GameEffectType.WITHER_BLOOD, 60, true);
 
             if (entity instanceof Player playerEntity) {
                 Chat.sendMessage(playerEntity, "&8☠ &c%s poisoned your blood!", player.getName());
@@ -250,15 +249,17 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
         final Player player = input.getPlayer();
-        // processSpellClick(player, true);
+        final LivingEntity entity = input.getEntity();
 
-        if (input.getEntity() != null) {
-            final WitherData data = getWither(player);
-            if (data == null) {
-                return null;
-            }
+        // Skip witherboard damage
+        if (entity == null || input.getDamageCause() == EnumDamageCause.WITHERBORN) {
+            return null;
+        }
 
-            data.assistAttack();
+        final WitherData data = getWither(player);
+
+        if (data != null) {
+            data.assistAttack(entity);
         }
 
         return null;
@@ -387,8 +388,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
             }
 
             spell.addButton(DarkMageSpell.SpellButton.RIGHT);
-        }
-        else if (!spell.isEmpty()) {
+        } else if (!spell.isEmpty()) {
             spell.addButton(DarkMageSpell.SpellButton.LEFT);
         }
 

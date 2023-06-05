@@ -14,6 +14,7 @@ import me.hapyl.fight.game.maps.features.BoosterController;
 import me.hapyl.fight.game.maps.gamepack.HealthPackListener;
 import me.hapyl.fight.game.parkour.CFParkourManager;
 import me.hapyl.fight.game.task.TaskList;
+import me.hapyl.fight.mini.lampgame.LampGame;
 import me.hapyl.fight.notifier.Notifier;
 import me.hapyl.fight.npc.HumanManager;
 import me.hapyl.fight.protocol.ArcaneMuteProtocol;
@@ -77,6 +78,8 @@ public class Main extends JavaPlugin {
         humanManager = new HumanManager(this);
         collectibles = new Collectibles(this);
         achievementRegistry = new AchievementRegistry(this);
+
+        new LampGame(this);
 
         // Register events and protocol listeners
         registerEvents();

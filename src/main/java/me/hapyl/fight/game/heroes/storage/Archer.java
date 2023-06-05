@@ -63,9 +63,12 @@ public class Archer extends Hero implements Listener {
 
         setUltimate(new UltimateTalent(
                 "Boom Bow",
-                "Equip a &6&lBOOM BOW &7for {duration} that fires explosive arrows that explodes on impact dealing massive damage.",
+                "Equip a &6&lBOOM BOW &7for {duration} that fires explosive arrows that explode on impact dealing with massive damage.",
                 50
-        ).setItem(Material.BLAZE_POWDER).setDuration(120).setCooldownSec(20).setSound(Sound.ITEM_CROSSBOW_SHOOT, 0.25f));
+        ).setItem(Material.BLAZE_POWDER)
+                .setDuration(120)
+                .setCooldownSec(20)
+                .setSound(Sound.ITEM_CROSSBOW_SHOOT, 0.25f));
 
         getUltimate().addAttributeDescription("Explosion Radius", explosionRadius + " blocks");
         getUltimate().addAttributeDescription("Explosion Damage", explosionDamage);
@@ -76,6 +79,8 @@ public class Archer extends Hero implements Listener {
         final PlayerInventory inventory = player.getInventory();
         inventory.setItem(4, boomBow.getItem());
         inventory.setHeldItemSlot(4);
+
+        player.setCooldown(boomBow.getMaterial(), boomBowPerShotCd);
 
         GameTask.runLater(() -> {
             inventory.setItem(4, ItemStacks.AIR);

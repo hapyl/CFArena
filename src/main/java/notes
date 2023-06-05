@@ -69,6 +69,32 @@ Bugs:
 - [✔] Fix minion AI targeting invisible players
 - [✔] at me.hapyl.fight.game.GamePlayer.die(GamePlayer.java:490)
 - [✔] UI still does NOT update while rejoin
+- [✔] Moonwalker does not have cd on new ability
+- [✔] Make wither disappear whe cloning
+- [✔] 'Target is null' WARN
+- [✔] slow aura should NOT slow DARK MAGE
+- [✔] Slow falling when in zone
+- [✔] wither assist wrong?
+- [✔] Add parkour GUI to see jumps etc
+- [✔] Missing health pack on arena
+- [✔] DM can use spell with a FIST
+- [✔] Maybe don't remove player from team on leave?
+- [✔] DM should damage with blinding curse; rename to darkness spell or something
+- [✔] DM slowing aura should interrupt and block using talents
+- [✔] Spectators can pickup game packs
+- [✔] fall damage custom
+- [✔] add /ram
+- [✔] Melee stance does not reset properly?
+- [✔] juju shield breaks all at once
+- [✔] Tamer broken
+- [✔] Does not use custom cause?
+- [✔] Axe does not reset on death
+- [✔] Offset throwing axe to the left
+- [✔] Circle does not remover on death
+- [✔] Don't show dummy (< 1 damage) in display
+- [✔] eula nether -> iron remove from hand faster eula don't start eula if no axe
+- [✔] Display stays
+- [✔] Add distance on shots
 
 - Maybe genshin slowing aura for freazly
 - Maybe add glowing for self traps
@@ -79,51 +105,16 @@ Bugs:
 - Rework achievement GUI to use top as category and contents as, well, fucking contents
 - Pretty sure witcher combo and zone ability don't work
 - Possible stackoverflow when calculating wave
-- [✔] Missing health pack on arena
 - "Flying is not enabled on this server"
-- [✔] DM can use spell with a FIST
-- [TESTME] Maybe don't remove player from team on leave?
 - Fix description from GRAY to DARK_GRAY
-- [✔] DM should damage with blinding curse; rename to darkness spell or something
-- [✔] DM slowing aura should interrupt and block using talents
-- [✔] Spectators can pickup game packs
-- [✔] fall damage custom
-- [✔] add /ram
-
-- [✔] Melee stance does not reset properly?
-- [✔] juju shield breaks all at once
-- [✔] Tamer broken
-
---------------------------------------------------------------------
-
 - Repackage heroes, storage -> archive
 - Add npc to parkour that counts fails (check for specific fall NOT on slime)
 - !!! Can push in lobby (joined player not updated?)
 - Lamp game
 - Use game task delay for delay, its built-in
-- [✔] Moonwalker does not have cd on new ability
-- !!! wither assist wrong?
-- make wither disapper whe ulting
-- 'Target is null' WARN
-- slow aura shoudl NOT shlo
-- vampire swarm not remove
-- slow falling when in zone
-
-- Add parkour GUI to see jumps etc
-
--- ORC TEST
-- [✔] Does not use custom cause?
-- [✔] Axe does not reset on death
-- [✔] Offset throwing axe to the left
-- [✔] Circle does not remover on death
-- [✔] Don't show dummy (< 1 damage) in display
-- [✔] eula nether -> iron remove from hand faster eula don't start eula if no axe
+- Vampire swarm not remove
 - BUFF GRAV ZONE
-- [✔] Display stays
 
---------------------------------------------------------------------
-
-- [✔] Add distance on shots
 - Rework techie a bit, add delay to traps and ult is useless :|
 
 - Repackage talent/hero handles?

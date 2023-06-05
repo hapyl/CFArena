@@ -3,6 +3,7 @@ package me.hapyl.fight.game.maps.maps;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.maps.GameMap;
 import me.hapyl.fight.game.maps.Size;
+import me.hapyl.fight.game.maps.features.Direction;
 import me.hapyl.fight.game.maps.features.Turbine;
 import me.hapyl.fight.game.maps.features.TurbineFeature;
 import me.hapyl.fight.game.maps.gamepack.PackType;
@@ -47,13 +48,13 @@ public class MoonBase extends GameMap {
                 new Turbine(
                         new BoundingBoxCollector(1899.5, 81.0, 1881.5, 1903.5, 85.0, 1890.5),
                         new BoundingBoxCollector(1903.5, 85.0, 1880.5, 1899.5, 81.0, 1880.5)
-                ).setDirections(Turbine.Direction.POSITIVE_Z));
+                ).setDirections(Direction.POSITIVE_Z));
 
         turbines.addTurbine(
                 new Turbine(
                         new BoundingBoxCollector(1861.5, 75.0, 1912.5, 1872.5, 80.0, 1917.5),
                         new BoundingBoxCollector(1872.5, 75.0, 1912.5, 1873.5, 80.0, 1917.5)
-                ).setDirections(Turbine.Direction.NEGATIVE_X)
+                ).setDirections(Direction.NEGATIVE_X)
         );
 
         addFeature(turbines);

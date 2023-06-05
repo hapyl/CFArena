@@ -66,7 +66,7 @@ public class TurbineFeature extends MapFeature {
                 return;
             }
 
-            final Turbine.Direction direction = turbine.getDirection();
+            final Direction direction = turbine.getDirection();
 
             PlayerLib.spawnParticle(
                     fxLocation,

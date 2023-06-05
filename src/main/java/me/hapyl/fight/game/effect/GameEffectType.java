@@ -20,8 +20,7 @@ public enum GameEffectType {
     BLEED(new BleedEffect()),
 
     ORC_GROWL(new OrcGrowlEffect()),
-
-    ;
+    WITHER_BLOOD(new WitherBlood());
 
     private final GameEffect gameEffect;
 

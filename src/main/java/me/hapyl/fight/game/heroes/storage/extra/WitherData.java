@@ -1,11 +1,9 @@
 package me.hapyl.fight.game.heroes.storage.extra;
 
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.EntityUtils;
 import me.hapyl.spigotutils.module.locaiton.LocationHelper;
@@ -20,7 +18,7 @@ import javax.annotation.Nonnull;
 
 public class WitherData {
 
-    public static final long ASSIST_DELAY = 1000;
+    public static final long ASSIST_DELAY = 2500; // Increase from 1000 -> 2500
     public static final double ASSIST_DAMAGE_TOTAL = 10.0d;
     public static final int ASSIST_HITS = 3;
 
@@ -58,17 +56,17 @@ public class WitherData {
                 wither.teleport(getWitherLocation(player));
 
                 // Make wither always look at the target
-                final LivingEntity target = Utils.getTargetEntity(player, 10.0d, 0.8d, living -> living != player && living != wither);
-
-                if (target == null) {
-                    return;
-                }
-
-                Utils.lookAt(wither, target.getLocation());
-
-                wither.setTarget(target);
-                wither.setTarget(Wither.Head.LEFT, target);
-                wither.setTarget(Wither.Head.RIGHT, target);
+                //final LivingEntity target = Utils.getTargetEntity(player, 10.0d, 0.8d, living -> living != player && living != wither);
+                //
+                //if (target == null) {
+                //    return;
+                //}
+                //
+                //Utils.lookAt(wither, target.getLocation());
+                //
+                //wither.setTarget(target);
+                //wither.setTarget(Wither.Head.LEFT, target);
+                //wither.setTarget(Wither.Head.RIGHT, target);
             }
 
             private String witherName() {
@@ -84,23 +82,16 @@ public class WitherData {
         animatedWither.remove();
     }
 
-    public void assistAttack() {
+    public void assistAttack(@Nonnull LivingEntity entity) {
         if (System.currentTimeMillis() - lastAssist < ASSIST_DELAY) {
             return;
         }
 
         lastAssist = System.currentTimeMillis();
 
-        final LivingEntity target = wither.getTarget();
-
-        if (target == null) {
-            Debug.warn("Target is null.");
-            return;
-        }
-
         GameTask.runTaskTimerTimes(task -> {
-            target.setNoDamageTicks(0); // yes
-            GamePlayer.damageEntityTick(target, ASSIST_DAMAGE_TOTAL / ASSIST_HITS, player, EnumDamageCause.WITHERBORN, ASSIST_HITS);
+            entity.setNoDamageTicks(0);
+            GamePlayer.damageEntityTick(entity, ASSIST_DAMAGE_TOTAL / ASSIST_HITS, player, EnumDamageCause.WITHERBORN, ASSIST_HITS);
 
             // Fx
             PlayerLib.playSound(wither.getLocation(), Sound.ENTITY_WITHER_SHOOT, 1.25f);

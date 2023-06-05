@@ -71,11 +71,18 @@ public class Buffer<E> implements List<E> {
     @Override
     public boolean add(@Nonnull E e) {
         if (size() + 1 > maxCapacity) {
-            linkedList.pollFirst();
+            final E last = linkedList.pollFirst();
+            if (last != null) {
+                unbuffered(last);
+            }
         }
 
         linkedList.addLast(e);
         return true;
+    }
+
+    // called whenever the first element is removed due to buffer size
+    public void unbuffered(@Nonnull E e) {
     }
 
     @Override

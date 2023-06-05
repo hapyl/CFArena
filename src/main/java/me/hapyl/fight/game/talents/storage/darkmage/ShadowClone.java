@@ -13,6 +13,7 @@ import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Wither;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -20,8 +21,10 @@ import java.util.Map;
 
 public class ShadowClone extends DarkMageTalent {
 
-    @DisplayField(suffix = "blocks") protected final double damageRadius = 3.0d;
-    @DisplayField protected final double damage = 3.0d;
+    @DisplayField(suffix = "blocks")
+    protected final double damageRadius = 3.0d;
+    @DisplayField
+    protected final double damage = 3.0d;
 
     private final Map<Player, ShadowCloneNPC> clones;
 
@@ -74,14 +77,23 @@ public class ShadowClone extends DarkMageTalent {
         final ShadowCloneNPC shadowClone = new ShadowCloneNPC(player);
         shadowClone.ultimate = witherData != null;
 
-        // Show player
-        GameTask.runLater(() -> Utils.showPlayer(player), getDuration());
-
         // Only explode if not using ultimate
         if (witherData == null) {
             GameTask.runLater(() -> {
                 shadowClone.explode(null);
                 clones.remove(player);
+            }, getDuration());
+        } else {
+            // Hide the wither too
+            final Wither wither = witherData.wither;
+
+            Utils.hideEntity(wither);
+            GameTask.runLater(() -> {
+                if (wither == null || wither.isDead()) {
+                    return;
+                }
+
+                Utils.showEntity(wither);
             }, getDuration());
         }
 

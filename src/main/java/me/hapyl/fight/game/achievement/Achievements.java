@@ -67,9 +67,7 @@ public enum Achievements {
                     })
     ),
 
-    //////////////////////////
-    // TESTING ACHIEVEMENTS //
-    //////////////////////////
+    COMPLETE_LAMP_PUZZLE(new Achievement("Light Them Up!", "Complete the lamp puzzle in the lobby.").setReward(Reward.currency().withCoins(2500))),
 
     ;
 

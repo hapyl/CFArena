@@ -54,6 +54,9 @@ import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Transformation;
+import org.joml.AxisAngle4f;
+import org.joml.Vector3f;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -108,6 +111,7 @@ public class CommandRegistry extends DependencyInjector<Main> {
         register(new ProfileCommand("profile"));
         register(new GVarCommand("gvar"));
         register(new PlayerAttributeCommand("playerAttribute"));
+        register(new SnakeBuilderCommand("snakeBuilder"));
 
         register(new SimpleAdminCommand("colorMeThis") {
             @Override
@@ -119,6 +123,32 @@ public class CommandRegistry extends DependencyInjector<Main> {
 
                 Chat.sendMessage(sender, "&aThere you go!");
                 Chat.sendMessage(sender, Chat.arrayToString(args, 0));
+            }
+        });
+
+        register(new SimplePlayerAdminCommand("debugSnakeBlock") {
+
+            private BlockDisplay display;
+
+            @Override
+            protected void execute(Player player, String[] args) {
+                if (display != null) {
+                    display.remove();
+                }
+
+                final float transformation = getArgument(args, 0).toFloat();
+
+                display = Entities.BLOCK_DISPLAY.spawn(player.getLocation(), self -> {
+                    self.setBlock(Material.STONE.createBlockData());
+                    self.setTransformation(new Transformation(
+                            new Vector3f(transformation, transformation, transformation),
+                            new AxisAngle4f(0.0f, 0.0f, 0.0f, 0.0f),
+                            new Vector3f(0.25f, 0.25f, 0.25f),
+                            new AxisAngle4f(0.0f, 0.0f, 0.0f, 0.0f)
+                    ));
+                });
+
+                Chat.sendMessage(player, "&aSpawned with %s.", transformation);
             }
         });
 
@@ -195,8 +225,7 @@ public class CommandRegistry extends DependencyInjector<Main> {
 
                 if (value > 0) {
                     attributes.increaseTemporary(Temper.COMMAND, attribute, value, duration);
-                }
-                else {
+                } else {
                     attributes.decreaseTemporary(Temper.COMMAND, attribute, value, duration);
                 }
 
@@ -312,7 +341,7 @@ public class CommandRegistry extends DependencyInjector<Main> {
 
                 if (mx instanceof com.sun.management.OperatingSystemMXBean sunOsBean) {
                     double cpuLoad = sunOsBean.getCpuLoad();
-                    Chat.sendMessage(sender, "&6CPU Load: &a%s%%", cpuLoad);
+                    Chat.sendMessage(sender, "&6CPU Load: &a%s%%" + (cpuLoad <= 0.0d ? " &cNot supported" : ""), cpuLoad);
                 }
             }
         });
@@ -395,6 +424,7 @@ public class CommandRegistry extends DependencyInjector<Main> {
                 );
             }
         });
+
 
         register(new SimplePlayerAdminCommand("debugDamageData") {
             @Override
@@ -794,8 +824,7 @@ public class CommandRegistry extends DependencyInjector<Main> {
                             final String get = document.get(arg1, "null");
 
                             Chat.sendMessage(player, "&e%s = &6%s", arg1, get);
-                        }
-                        else if (arg0.equalsIgnoreCase("set")) {
+                        } else if (arg0.equalsIgnoreCase("set")) {
                             if (args.length < 3) {
                                 Chat.sendMessage(player, "Forgot the value, stupid.");
                                 return;

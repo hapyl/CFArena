@@ -49,11 +49,11 @@ public enum EnumDamageCause {
     HOT_FLOOR(DamageCause.minecraft("didn't know that floor was lava")),
     DRYOUT(DamageCause.minecraft("though it was water, it wasn't")),
     FREEZE(DamageCause.minecraft("frooze to death")),
-    SONIC_BOOM(DamageCause.minecraft("BOOM BOOM BAKUDAN", "and {damager} is the one to blame")),
+    SONIC_BOOM(DamageCause.minecraft("BOOM BOOM BAKUDAN'ed", "and {damager} is the one to blame")),
 
     NONE(DamageCause.minecraft("mysteriously died")),  // this used as default return,
     CUSTOM(DamageCause.EMPTY), // should not be used
-    OTHER(DamageCause.EMPTY), // this used if there is no other damage
+    OTHER(DamageCause.EMPTY),  // this used if there is no other damage
 
     /**
      * End of system damage causes, add custom damage causes below.

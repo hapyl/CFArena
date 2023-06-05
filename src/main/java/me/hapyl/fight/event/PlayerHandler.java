@@ -1,6 +1,5 @@
 package me.hapyl.fight.event;
 
-import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.achievement.Achievements;
@@ -60,7 +59,6 @@ public class PlayerHandler implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handlePlayerJoin(PlayerJoinEvent ev) {
         final Player player = ev.getPlayer();
-        final Main plugin = Main.getPlugin();
         final Manager manager = Manager.current();
 
         manager.handlePlayer(player);
@@ -70,7 +68,7 @@ public class PlayerHandler implements Listener {
             final GameInstance gameInstance = (GameInstance) manager.getCurrentGame();
 
             gameInstance.getMode().onJoin(gameInstance, player);
-            gameInstance.populateScoreboard(player);
+//            gameInstance.populateScoreboard(player);
         }
         else {
             if (!player.hasPlayedBefore()) {
@@ -81,7 +79,7 @@ public class PlayerHandler implements Listener {
         ev.setJoinMessage(Chat.format("&7[&a+&7] %s%s &ewants to fight!", player.isOp() ? "&c" : "", player.getName()));
     }
 
-    // Prevent painting breaking while the game is in progress
+    // Prevent painting-breaking while the game is in progress
     @EventHandler()
     public void handlePaintingBreaking(HangingBreakEvent ev) {
         if (Manager.current().isGameInProgress()) {
@@ -109,7 +107,7 @@ public class PlayerHandler implements Listener {
 
         // delete database instance
         PlayerDatabase.removeDatabase(player.getUniqueId());
-        PlayerDatabase.dumpDatabaseInstanceInConsoleToConfirmThatThereIsNoMoreInstancesAfterRemoveIsCalledButThisIsTemporaryShouldRemoveOnProd();
+//        PlayerDatabase.dumpDatabaseInstanceInConsoleToConfirmThatThereIsNoMoreInstancesAfterRemoveIsCalledButThisIsTemporaryShouldRemoveOnProd();
 
         // Delete profile
         Manager.current().removeProfile(player);

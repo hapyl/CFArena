@@ -6,7 +6,6 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.storage.extra.DarkMageSpell;
-import me.hapyl.fight.game.heroes.storage.extra.WitherData;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -37,6 +36,8 @@ public class SlowingAura extends DarkMageTalent {
     public SlowingAura() {
         super("Slowing Aura", """
                 Creates a slowness pool at your target block that slows anyone in range.
+                                
+                &e;;The aura does not slow its creator.
                 """, Material.BONE_MEAL);
 
         setDurationSec(4);
@@ -59,10 +60,6 @@ public class SlowingAura extends DarkMageTalent {
     @Override
     public DarkMageSpell.SpellButton second() {
         return DarkMageSpell.SpellButton.LEFT;
-    }
-
-    @Override
-    public void assist(WitherData data) {
     }
 
     @Override
@@ -105,6 +102,10 @@ public class SlowingAura extends DarkMageTalent {
 
                 PlayerLib.playSound(location, BLOCK_HONEY_BLOCK_SLIDE, 0.0f);
                 Utils.getPlayersInRange(location, radius).forEach(entity -> {
+                    if (entity == player) {
+                        return; // Don't slow Dark Mage
+                    }
+
                     PlayerLib.addEffect(entity, PotionEffectType.SLOW, 10, 3);
 
                     // Witherborn assist

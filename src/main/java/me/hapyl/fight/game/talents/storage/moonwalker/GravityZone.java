@@ -106,10 +106,6 @@ public class GravityZone extends Talent {
         return Response.OK;
     }
 
-    public void repeat(Consumer<Integer> runnable, int delay, int max) {
-        GameTask.runTaskTimerTimes((task, i) -> runnable.accept(i), 0, delay, max);
-    }
-
     public void modifyLocationAnd(Location location, double x, double y, double z, Consumer<Location> andThen) {
         location.add(x, y, z);
         andThen.accept(location);

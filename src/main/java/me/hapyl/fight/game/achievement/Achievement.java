@@ -74,12 +74,14 @@ public class Achievement extends PatternId {
         builder.addLore();
         if (rewards.isEmpty()) {
             builder.addLore("&7No rewards :(");
-        } else {
+        }
+        else {
             // If a single reward, just display the reward
             if (rewards.size() == 1) {
                 builder.addLore("&7Reward:" + checkmark(isCompleted));
                 getRewardNonnull().display(player, builder);
-            } else {
+            }
+            else {
                 builder.addLore("&7Rewards:" + checkmark(isCompleted));
                 int tier = 1;
                 for (Map.Entry<Integer, Reward> entry : rewards.entrySet()) {
@@ -123,20 +125,19 @@ public class Achievement extends PatternId {
     }
 
     /**
-     * Get the sole reward; or throws error if none.
+     * Get the sole reward; or the empty reward.
      *
-     * @return the sole reward; or throws error if none.
-     * @throws IllegalArgumentException if there is no reward.
+     * @return the sole reward; or the empty reward.
      */
     @Nonnull
-    public Reward getRewardNonnull() throws IllegalArgumentException {
+    public Reward getRewardNonnull() {
         final Reward reward = getReward();
 
         if (reward != null) {
             return reward;
         }
 
-        throw new IllegalArgumentException("check for rewards before calling this");
+        return Reward.EMPTY;
     }
 
     /**
@@ -190,7 +191,7 @@ public class Achievement extends PatternId {
             return requirement;
         }
 
-        final Integer[] integers = rewards.keySet().toArray(new Integer[]{});
+        final Integer[] integers = rewards.keySet().toArray(new Integer[] {});
 
         for (int i = integers.length - 1; i >= 0; i--) {
             if (requirement >= integers[i] && (i + 1 < integers.length)) {
@@ -208,7 +209,7 @@ public class Achievement extends PatternId {
      * @return the tier for requirement.
      */
     public int getTier(int requirement) {
-        final Integer[] integers = rewards.keySet().toArray(new Integer[]{});
+        final Integer[] integers = rewards.keySet().toArray(new Integer[] {});
 
         for (int i = integers.length - 1; i >= 0; i--) {
             if (requirement >= integers[i]) {
