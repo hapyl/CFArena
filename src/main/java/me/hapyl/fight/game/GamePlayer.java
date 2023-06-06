@@ -13,7 +13,6 @@ import me.hapyl.fight.game.damage.EntityData;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.gamemode.CFGameMode;
-import me.hapyl.fight.game.heroes.ComplexHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.profile.PlayerProfile;
@@ -171,8 +170,9 @@ public class GamePlayer implements IGamePlayer {
         }
     }
 
-    private void resetAttribute(Attribute attribute, double value) {
-        Nulls.runIfNotNull(player.getAttribute(attribute), t -> t.setBaseValue(value));
+    @Nonnull
+    public PlayerInventory getInventory() {
+        return player.getInventory();
     }
 
     @Nonnull
@@ -803,6 +803,10 @@ public class GamePlayer implements IGamePlayer {
         return 0.5d;
     }
 
+    private void resetAttribute(Attribute attribute, double value) {
+        Nulls.runIfNotNull(player.getAttribute(attribute), t -> t.setBaseValue(value));
+    }
+
     private String replaceColor(String string, ChatColor color) {
         return string.replace("$", color.toString());
     }
@@ -844,11 +848,10 @@ public class GamePlayer implements IGamePlayer {
         executeOnDeathIfTalentIsNotNull(hero.getFirstTalent());
         executeOnDeathIfTalentIsNotNull(hero.getSecondTalent());
 
-        if (hero instanceof ComplexHero complex) {
-            executeOnDeathIfTalentIsNotNull(complex.getThirdTalent());
-            executeOnDeathIfTalentIsNotNull(complex.getFourthTalent());
-            executeOnDeathIfTalentIsNotNull(complex.getFifthTalent());
-        }
+        // complex
+        executeOnDeathIfTalentIsNotNull(hero.getThirdTalent());
+        executeOnDeathIfTalentIsNotNull(hero.getFourthTalent());
+        executeOnDeathIfTalentIsNotNull(hero.getFifthTalent());
     }
 
     private void executeOnDeathIfTalentIsNotNull(Talent talent) {

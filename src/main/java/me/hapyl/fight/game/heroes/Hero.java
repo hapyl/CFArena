@@ -9,8 +9,8 @@ import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.heroes.storage.Ender;
-import me.hapyl.fight.game.heroes.storage.Moonwalker;
+import me.hapyl.fight.game.heroes.archive.ender.Ender;
+import me.hapyl.fight.game.heroes.archive.moonwalker.Moonwalker;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
@@ -33,10 +33,12 @@ import java.util.Map;
 
 /**
  * Base Hero class.
+ * <p>
+ * A hero <b>must</b> contains {@link #getFirstTalent()}, {@link #getSecondTalent()} and {@link #getPassiveTalent()},
+ * but may or may not have up to 3 extra talents if needed.
  *
  * @see GameElement
  * @see PlayerElement
- * @see ComplexHero
  */
 public abstract class Hero implements GameElement, PlayerElement {
 
@@ -259,7 +261,7 @@ public abstract class Hero implements GameElement, PlayerElement {
     }
 
     /**
-     * Returns name of this hero.
+     * Returns the name of this hero.
      *
      * @return name of this hero.
      */
@@ -316,7 +318,7 @@ public abstract class Hero implements GameElement, PlayerElement {
 
     /**
      * Sets this hero's GUI item from a texture link.
-     *
+     * <p>
      * <b>
      * This link must be 'Minecraft-URL' from <a href="https://minecraft-heads.com/custom-heads">here</a>.
      * <br>
@@ -341,6 +343,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      * @return this hero a talent.
      */
     @ReturnValueMustBeAConstant
+    @Nullable
     public abstract Talent getFirstTalent();
 
     /**
@@ -349,6 +352,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      * @return this hero b talent.
      */
     @ReturnValueMustBeAConstant
+    @Nullable
     public abstract Talent getSecondTalent();
 
     /**
@@ -358,6 +362,24 @@ public abstract class Hero implements GameElement, PlayerElement {
      */
     @ReturnValueMustBeAConstant
     public abstract Talent getPassiveTalent();
+
+    @ReturnValueMustBeAConstant
+    @Nullable
+    public Talent getThirdTalent() {
+        return null;
+    }
+
+    @ReturnValueMustBeAConstant
+    @Nullable
+    public Talent getFourthTalent() {
+        return null;
+    }
+
+    @ReturnValueMustBeAConstant
+    @Nullable
+    public Talent getFifthTalent() {
+        return null;
+    }
 
     /**
      * Called when player DAMAGES something.
@@ -607,11 +629,10 @@ public abstract class Hero implements GameElement, PlayerElement {
         talents.add(getSecondTalent());
         talents.add(getPassiveTalent());
 
-        if (this instanceof ComplexHero complex) {
-            talents.add(complex.getThirdTalent());
-            talents.add(complex.getFourthTalent());
-            talents.add(complex.getFifthTalent());
-        }
+        // extra talents
+        talents.add(getThirdTalent());
+        talents.add(getFourthTalent());
+        talents.add(getFifthTalent());
 
         return talents;
     }
@@ -634,11 +655,10 @@ public abstract class Hero implements GameElement, PlayerElement {
         talents.add(getFirstTalent());
         talents.add(getSecondTalent());
 
-        if (this instanceof ComplexHero complex) {
-            talents.add(complex.getThirdTalent());
-            talents.add(complex.getFourthTalent());
-            talents.add(complex.getFifthTalent());
-        }
+        // Extra talents
+        talents.add(getThirdTalent());
+        talents.add(getFourthTalent());
+        talents.add(getFifthTalent());
 
         talents.add(getPassiveTalent());
 

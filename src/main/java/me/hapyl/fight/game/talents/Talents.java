@@ -3,78 +3,79 @@ package me.hapyl.fight.game.talents;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.talents.storage.TestChargeTalent;
-import me.hapyl.fight.game.talents.storage.alchemist.CauldronAbility;
-import me.hapyl.fight.game.talents.storage.alchemist.RandomPotion;
-import me.hapyl.fight.game.talents.storage.archer.ShockDark;
-import me.hapyl.fight.game.talents.storage.archer.TripleShot;
-import me.hapyl.fight.game.talents.storage.bountyhunter.GrappleHookTalent;
-import me.hapyl.fight.game.talents.storage.bountyhunter.ShortyShotgun;
-import me.hapyl.fight.game.talents.storage.darkmage.BlindingCurse;
-import me.hapyl.fight.game.talents.storage.darkmage.HealingAura;
-import me.hapyl.fight.game.talents.storage.darkmage.ShadowClone;
-import me.hapyl.fight.game.talents.storage.darkmage.SlowingAura;
-import me.hapyl.fight.game.talents.storage.doctor.ConfusionPotion;
-import me.hapyl.fight.game.talents.storage.doctor.HarvestBlocks;
-import me.hapyl.fight.game.talents.storage.ender.TeleportPearl;
-import me.hapyl.fight.game.talents.storage.ender.TransmissionBeacon;
-import me.hapyl.fight.game.talents.storage.freazly.IceCone;
-import me.hapyl.fight.game.talents.storage.harbinger.MeleeStance;
-import me.hapyl.fight.game.talents.storage.harbinger.TidalWaveTalent;
-import me.hapyl.fight.game.talents.storage.healer.HealingOrb;
-import me.hapyl.fight.game.talents.storage.healer.ReviveTotem;
-import me.hapyl.fight.game.talents.storage.heavy_knight.Slash;
-import me.hapyl.fight.game.talents.storage.heavy_knight.Updraft;
-import me.hapyl.fight.game.talents.storage.heavy_knight.Uppercut;
-import me.hapyl.fight.game.talents.storage.hercules.HerculesJump;
-import me.hapyl.fight.game.talents.storage.hercules.HerculesShift;
-import me.hapyl.fight.game.talents.storage.juju.ArrowShield;
-import me.hapyl.fight.game.talents.storage.juju.Climb;
-import me.hapyl.fight.game.talents.storage.km.LaserEye;
-import me.hapyl.fight.game.talents.storage.km.ShellGrande;
-import me.hapyl.fight.game.talents.storage.knight.SlownessPotion;
-import me.hapyl.fight.game.talents.storage.knight.Spear;
-import me.hapyl.fight.game.talents.storage.librarian.BlackHole;
-import me.hapyl.fight.game.talents.storage.librarian.EntityDarkness;
-import me.hapyl.fight.game.talents.storage.librarian.LibrarianShield;
-import me.hapyl.fight.game.talents.storage.librarian.WeaponDarkness;
-import me.hapyl.fight.game.talents.storage.mage.ArcaneMute;
-import me.hapyl.fight.game.talents.storage.mage.MageTransmission;
-import me.hapyl.fight.game.talents.storage.moonwalker.GravityZone;
-import me.hapyl.fight.game.talents.storage.moonwalker.MoonSliteBomb;
-import me.hapyl.fight.game.talents.storage.moonwalker.MoonslitePillar;
-import me.hapyl.fight.game.talents.storage.nightmare.Paranoia;
-import me.hapyl.fight.game.talents.storage.nightmare.ShadowShift;
-import me.hapyl.fight.game.talents.storage.ninja.NinjaDash;
-import me.hapyl.fight.game.talents.storage.ninja.NinjaSmoke;
-import me.hapyl.fight.game.talents.storage.orc.OrcAxe;
-import me.hapyl.fight.game.talents.storage.orc.OrcGrowl;
-import me.hapyl.fight.game.talents.storage.pytaria.FlowerBreeze;
-import me.hapyl.fight.game.talents.storage.pytaria.FlowerEscape;
-import me.hapyl.fight.game.talents.storage.shadowassassin.ShadowPrism;
-import me.hapyl.fight.game.talents.storage.shadowassassin.ShroudedStep;
-import me.hapyl.fight.game.talents.storage.shaman.ResonanceType;
-import me.hapyl.fight.game.talents.storage.shaman.Totem;
-import me.hapyl.fight.game.talents.storage.shaman.TotemTalent;
-import me.hapyl.fight.game.talents.storage.shark.Submerge;
-import me.hapyl.fight.game.talents.storage.shark.Whirlpool;
-import me.hapyl.fight.game.talents.storage.spark.Molotov;
-import me.hapyl.fight.game.talents.storage.spark.SparkFlash;
-import me.hapyl.fight.game.talents.storage.swooper.BlastPack;
-import me.hapyl.fight.game.talents.storage.swooper.Blink;
-import me.hapyl.fight.game.talents.storage.taker.DeathSwap;
-import me.hapyl.fight.game.talents.storage.taker.FatalReap;
-import me.hapyl.fight.game.talents.storage.taker.SpiritualBonesPassive;
-import me.hapyl.fight.game.talents.storage.tamer.MineOBall;
-import me.hapyl.fight.game.talents.storage.techie.TrapCage;
-import me.hapyl.fight.game.talents.storage.techie.TrapWire;
-import me.hapyl.fight.game.talents.storage.troll.Repulsor;
-import me.hapyl.fight.game.talents.storage.troll.TrollSpin;
-import me.hapyl.fight.game.talents.storage.vampire.BatSwarm;
-import me.hapyl.fight.game.talents.storage.vampire.VampirePet;
-import me.hapyl.fight.game.talents.storage.vortex.StarAligner;
-import me.hapyl.fight.game.talents.storage.vortex.VortexStar;
-import me.hapyl.fight.game.talents.storage.witcher.*;
+import me.hapyl.fight.game.talents.archive.engineer.EngineerSentry;
+import me.hapyl.fight.game.talents.archive.TestChargeTalent;
+import me.hapyl.fight.game.talents.archive.alchemist.CauldronAbility;
+import me.hapyl.fight.game.talents.archive.alchemist.RandomPotion;
+import me.hapyl.fight.game.talents.archive.archer.ShockDark;
+import me.hapyl.fight.game.talents.archive.archer.TripleShot;
+import me.hapyl.fight.game.talents.archive.bounty_hunter.GrappleHookTalent;
+import me.hapyl.fight.game.talents.archive.bounty_hunter.ShortyShotgun;
+import me.hapyl.fight.game.talents.archive.dark_mage.BlindingCurse;
+import me.hapyl.fight.game.talents.archive.dark_mage.HealingAura;
+import me.hapyl.fight.game.talents.archive.dark_mage.ShadowClone;
+import me.hapyl.fight.game.talents.archive.dark_mage.SlowingAura;
+import me.hapyl.fight.game.talents.archive.doctor.ConfusionPotion;
+import me.hapyl.fight.game.talents.archive.doctor.HarvestBlocks;
+import me.hapyl.fight.game.talents.archive.ender.TeleportPearl;
+import me.hapyl.fight.game.talents.archive.ender.TransmissionBeacon;
+import me.hapyl.fight.game.talents.archive.freazly.IceCone;
+import me.hapyl.fight.game.talents.archive.harbinger.MeleeStance;
+import me.hapyl.fight.game.talents.archive.harbinger.TidalWaveTalent;
+import me.hapyl.fight.game.talents.archive.healer.HealingOrb;
+import me.hapyl.fight.game.talents.archive.healer.ReviveTotem;
+import me.hapyl.fight.game.talents.archive.heavy_knight.Slash;
+import me.hapyl.fight.game.talents.archive.heavy_knight.Updraft;
+import me.hapyl.fight.game.talents.archive.heavy_knight.Uppercut;
+import me.hapyl.fight.game.talents.archive.hercules.HerculesJump;
+import me.hapyl.fight.game.talents.archive.hercules.HerculesShift;
+import me.hapyl.fight.game.talents.archive.juju.ArrowShield;
+import me.hapyl.fight.game.talents.archive.juju.Climb;
+import me.hapyl.fight.game.talents.archive.km.LaserEye;
+import me.hapyl.fight.game.talents.archive.km.ShellGrande;
+import me.hapyl.fight.game.talents.archive.knight.SlownessPotion;
+import me.hapyl.fight.game.talents.archive.knight.Spear;
+import me.hapyl.fight.game.talents.archive.librarian.BlackHole;
+import me.hapyl.fight.game.talents.archive.librarian.EntityDarkness;
+import me.hapyl.fight.game.talents.archive.librarian.LibrarianShield;
+import me.hapyl.fight.game.talents.archive.librarian.WeaponDarkness;
+import me.hapyl.fight.game.talents.archive.mage.ArcaneMute;
+import me.hapyl.fight.game.talents.archive.mage.MageTransmission;
+import me.hapyl.fight.game.talents.archive.moonwalker.GravityZone;
+import me.hapyl.fight.game.talents.archive.moonwalker.MoonSliteBomb;
+import me.hapyl.fight.game.talents.archive.moonwalker.MoonslitePillar;
+import me.hapyl.fight.game.talents.archive.nightmare.Paranoia;
+import me.hapyl.fight.game.talents.archive.nightmare.ShadowShift;
+import me.hapyl.fight.game.talents.archive.ninja.NinjaDash;
+import me.hapyl.fight.game.talents.archive.ninja.NinjaSmoke;
+import me.hapyl.fight.game.talents.archive.orc.OrcAxe;
+import me.hapyl.fight.game.talents.archive.orc.OrcGrowl;
+import me.hapyl.fight.game.talents.archive.pytaria.FlowerBreeze;
+import me.hapyl.fight.game.talents.archive.pytaria.FlowerEscape;
+import me.hapyl.fight.game.talents.archive.shadow_assassin.ShadowPrism;
+import me.hapyl.fight.game.talents.archive.shadow_assassin.ShroudedStep;
+import me.hapyl.fight.game.talents.archive.shaman.ResonanceType;
+import me.hapyl.fight.game.talents.archive.shaman.Totem;
+import me.hapyl.fight.game.talents.archive.shaman.TotemTalent;
+import me.hapyl.fight.game.talents.archive.shark.Submerge;
+import me.hapyl.fight.game.talents.archive.shark.Whirlpool;
+import me.hapyl.fight.game.talents.archive.spark.Molotov;
+import me.hapyl.fight.game.talents.archive.spark.SparkFlash;
+import me.hapyl.fight.game.talents.archive.swooper.BlastPack;
+import me.hapyl.fight.game.talents.archive.swooper.Blink;
+import me.hapyl.fight.game.talents.archive.taker.DeathSwap;
+import me.hapyl.fight.game.talents.archive.taker.FatalReap;
+import me.hapyl.fight.game.talents.archive.taker.SpiritualBonesPassive;
+import me.hapyl.fight.game.talents.archive.tamer.MineOBall;
+import me.hapyl.fight.game.talents.archive.techie.TrapCage;
+import me.hapyl.fight.game.talents.archive.techie.TrapWire;
+import me.hapyl.fight.game.talents.archive.troll.Repulsor;
+import me.hapyl.fight.game.talents.archive.troll.TrollSpin;
+import me.hapyl.fight.game.talents.archive.vampire.BatSwarm;
+import me.hapyl.fight.game.talents.archive.vampire.VampirePet;
+import me.hapyl.fight.game.talents.archive.vortex.StarAligner;
+import me.hapyl.fight.game.talents.archive.vortex.VortexStar;
+import me.hapyl.fight.game.talents.archive.witcher.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -364,6 +365,12 @@ public enum Talents {
     ORC_GROWN(new OrcGrowl()),
     ORC_AXE(new OrcAxe()),
 
+    // Engineer
+    ENGINEER_SENTRY(new EngineerSentry()),
+    ENGINEER_TURRET(null),
+    ENGINEER_RECALL(null),
+    ENGINEER_PASSIVE(null),
+
     // test (keep last)
     TestChargeTalent(new TestChargeTalent());
 
@@ -428,8 +435,14 @@ public enum Talents {
         }
     }
 
+    /**
+     * Gets the enum from a talent handle.
+     *
+     * @param talent - Talent handle.
+     * @return the enum if present, or null.
+     */
     @Nullable
-    public static Talents fromTalent(Talent talent) {
+    public static Talents fromTalent(@Nullable Talent talent) {
         if (talent == null) {
             return null;
         }

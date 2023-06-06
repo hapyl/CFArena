@@ -1,5 +1,8 @@
 package me.hapyl.fight.game.preset;
 
+import me.hapyl.fight.game.GamePlayer;
+import org.bukkit.entity.Player;
+
 import javax.annotation.Nonnull;
 
 public class HotbarPreset {
@@ -13,7 +16,7 @@ public class HotbarPreset {
             HotbarItem.ABILITY_5_COMPLEX,
             HotbarItem.HERO_ITEM,
             HotbarItem.EMPTY,
-            HotbarItem.EXTRA_ITEM
+            HotbarItem.MAP_ITEM
     );
 
     private final HotbarItem[] items;
@@ -29,5 +32,25 @@ public class HotbarPreset {
     @Nonnull
     public HotbarItem[] getItems() {
         return items;
+    }
+
+    public int getSlot(@Nonnull HotbarItem item) {
+        for (int i = 0; i < items.length; i++) {
+            if (items[i] == item) {
+                return i;
+            }
+        }
+
+        return 0;
+    }
+
+    @Nonnull
+    public static HotbarPreset getPreset(@Nonnull GamePlayer player) {
+        return getPreset(player.getPlayer());
+    }
+
+    @Nonnull
+    public static HotbarPreset getPreset(@Nonnull Player player) {
+        return DEFAULT;
     }
 }

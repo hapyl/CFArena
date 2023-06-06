@@ -16,7 +16,7 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.PlayerAttributes;
 import me.hapyl.fight.game.attribute.Temper;
 import me.hapyl.fight.game.damage.EntityData;
-import me.hapyl.fight.game.heroes.storage.extra.AnimatedWither;
+import me.hapyl.fight.game.heroes.archive.dark_mage.AnimatedWither;
 import me.hapyl.fight.game.reward.DailyReward;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
