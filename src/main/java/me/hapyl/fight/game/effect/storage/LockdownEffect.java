@@ -17,6 +17,7 @@ public class LockdownEffect extends GameEffect {
 
         setDescription("Drastically reduce player's movement speed, locks their ability to attack and use abilities.");
         setPositive(false);
+        setTalentBlocking(true);
         setEffectParticle(new EffectParticleBlockMarker(1, Material.BARRIER));
     }
 

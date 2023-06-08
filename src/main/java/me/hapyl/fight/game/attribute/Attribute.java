@@ -55,8 +55,13 @@ public class Attribute {
         return this;
     }
 
-    // If attribute changed and something needs to be updated, use this.
-    public void onChange(Player player, double value) {
+    /**
+     * Called every time {@link PlayerAttributes} calls {@link PlayerAttributes#get(AttributeType)} method.
+     *
+     * @param player - Player.
+     * @param value  - The actual value.
+     */
+    public void update(Player player, double value) {
     }
 
     public String toString(double value) {

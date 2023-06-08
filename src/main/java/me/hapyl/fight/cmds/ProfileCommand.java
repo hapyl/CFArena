@@ -6,7 +6,7 @@ import org.bukkit.entity.Player;
 public class ProfileCommand extends LobbyPlayerCommand {
     public ProfileCommand(String name) {
         super(name);
-        setAliases("p");
+        setAliases("pf");
     }
 
     @Override

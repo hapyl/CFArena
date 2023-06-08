@@ -28,7 +28,7 @@ public class PatternId {
     @Nonnull
     public String getId() throws IllegalStateException {
         if (id.isNull()) {
-            throw new IllegalStateException("Id is not set for " + getClass().getSimpleName());
+            throw new IllegalStateException("ID is not set for " + getClass().getSimpleName());
 
         }
         return id.get();

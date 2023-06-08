@@ -3,7 +3,7 @@ package me.hapyl.fight.game.weapons;
 import com.google.common.collect.Lists;
 import me.hapyl.fight.game.NonNullItemCreator;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
@@ -182,20 +182,24 @@ public class Weapon extends NonNullItemCreator implements Cloneable, DisplayFiel
         // Add click events
         if (id != null) {
             builder.addClickEvent(player -> {
-                final Response response = Utils.playerCanUseAbility(player);
+                final Response response = Talent.preconditionTalent(player);
+
                 if (response.isError()) {
                     response.sendError(player);
                     return;
                 }
+
                 onRightClick(player, player.getInventory().getItemInMainHand());
             }, Action.RIGHT_CLICK_BLOCK, Action.RIGHT_CLICK_AIR);
 
             builder.addClickEvent(player -> {
-                final Response response = Utils.playerCanUseAbility(player);
+                final Response response = Talent.preconditionTalent(player);
+
                 if (response.isError()) {
                     response.sendError(player);
                     return;
                 }
+
                 onLeftClick(player, player.getInventory().getItemInMainHand());
             }, Action.LEFT_CLICK_BLOCK, Action.LEFT_CLICK_AIR);
         }

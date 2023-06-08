@@ -18,6 +18,9 @@ import javax.annotation.Nullable;
  */
 public class PlayerProfile {
 
+    public static final String RESOURCE_PACK_URI = "https://download.mc-packs.net/pack/38a5079ae119f7159b56de8b22da9de089f82cc2.zip";
+    public static final String RESOURCE_PACK_HASH = "38a5079ae119f7159b56de8b22da9de089f82cc2";
+
     private final Player player;
     private final PlayerDatabase playerDatabase;
     private final ScoreboardTeams scoreboardTeams;
@@ -29,6 +32,7 @@ public class PlayerProfile {
     private Heroes selectedHero;   // selected hero
 
     private boolean loaded;
+    private boolean resourcePack;
 
     public PlayerProfile(@Nonnull Player player) {
         this.player = player;
@@ -38,6 +42,15 @@ public class PlayerProfile {
         this.scoreboardTeams = new ScoreboardTeams(player);
         this.display = new ProfileDisplay(this);
         this.loaded = false;
+        this.resourcePack = false;
+    }
+
+    public boolean isResourcePack() {
+        return resourcePack;
+    }
+
+    public void setResourcePack() {
+        this.resourcePack = true;
     }
 
     public ProfileDisplay getDisplay() {
@@ -58,6 +71,9 @@ public class PlayerProfile {
         selectedHero = playerDatabase.getHeroEntry().getSelectedHero();
         GameTeam.addMemberIfNotInTeam(player);
         playerUI = new GamePlayerUI(this);
+
+        // Prompt Resource Pack
+        promptResourcePack();
     }
 
     public Player getPlayer() {
@@ -95,6 +111,23 @@ public class PlayerProfile {
 
     public void setPlayerUI(GamePlayerUI playerUI) {
         this.playerUI = playerUI;
+    }
+
+    public void promptResourcePack() {
+        if (true) {
+            return;
+        }
+
+        player.setResourcePack(PlayerProfile.RESOURCE_PACK_URI, null, """
+                                
+                §b§lOPTIONAL
+                §aDownload resource pack for additional features?
+                                    
+                §e§lSome of the features:
+                §bBetter effects
+                §bCustom 3d models
+                §bFancies text
+                """);
     }
 
     @Nonnull

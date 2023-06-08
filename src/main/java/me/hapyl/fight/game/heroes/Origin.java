@@ -6,7 +6,9 @@ package me.hapyl.fight.game.heroes;
 public enum Origin {
 
     NOT_SET("Not set.", "Not set."),
-    UNKNOWN("Unknown", "Unknown"),
+
+    KINGDOM("Kingdom", "A royal kingdom."),
+    UNKNOWN("Unknown", "The origin of this hero is a mystery..."),
     ;
 
     private final String name;

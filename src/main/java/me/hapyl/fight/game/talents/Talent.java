@@ -5,11 +5,11 @@ import me.hapyl.fight.Main;
 import me.hapyl.fight.annotate.ExecuteOrder;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.achievement.Achievements;
+import me.hapyl.fight.game.effect.GameEffect;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.effect.storage.SlowingAuraEffect;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.fight.util.displayfield.DisplayFieldSerializer;
 import me.hapyl.spigotutils.module.annotate.Super;
@@ -34,10 +34,9 @@ public abstract class Talent extends NonNullItemCreator
 
     public static final Talent NULL = null;
     public static int DYNAMIC = -1;
-    private String name;
     private final Type type;
     private final List<String> attributeDescription;
-
+    private String name;
     @Nonnull
     private String description;
 
@@ -91,11 +90,6 @@ public abstract class Talent extends NonNullItemCreator
     @Override
     public int getDuration() {
         return duration;
-    }
-
-    @Override
-    public void setName(@Nonnull String name) {
-        this.name = name;
     }
 
     @Override
@@ -357,14 +351,13 @@ public abstract class Talent extends NonNullItemCreator
     @Super
     @Nonnull
     public final Response execute0(Player player) {
-        return precondition(player, execute(player));
-    }
+        final Response precondition = preconditionTalent(player);
 
-    public final Response precondition(Player player, Response response) {
-        final Response canUseRes = Utils.playerCanUseAbility(player);
-        if (canUseRes.isError()) {
-            return canUseRes;
+        if (precondition.isError()) {
+            return precondition;
         }
+
+        final Response response = execute(player);
 
         if (castMessage != null) {
             Chat.sendMessage(player, castMessage);
@@ -375,6 +368,13 @@ public abstract class Talent extends NonNullItemCreator
             return response == null ? Response.ERROR_DEFAULT : response;
         }
 
+        postProcessTalent(player);
+
+        return response;
+    }
+
+    // Performs post-process for a talent, such as storing stats, progressing achievements etc.
+    public final void postProcessTalent(Player player) {
         // Progress ability usage
         final StatContainer stats = GamePlayer.getPlayer(player).getStats();
         final Talents enumTalent = Talents.fromTalent(this);
@@ -385,8 +385,6 @@ public abstract class Talent extends NonNullItemCreator
 
         // Progress achievement
         Achievements.USE_TALENTS.complete(player);
-
-        return response;
     }
 
     public final void startCd(Player player, int cooldown) {
@@ -449,6 +447,11 @@ public abstract class Talent extends NonNullItemCreator
         return name;
     }
 
+    @Override
+    public void setName(@Nonnull String name) {
+        this.name = name;
+    }
+
     public Type getType() {
         return type;
     }
@@ -479,6 +482,29 @@ public abstract class Talent extends NonNullItemCreator
         return Numbers.clamp(cd / 200, 1, 100);
     }
 
+    // Precondition player talent (and weapon) if it can be used.
+    // Returns the error with a name of the blocking talent or OK.
+    public static Response preconditionTalent(Player player) {
+        final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
+
+        for (GameEffectType type : GameEffectType.values()) {
+            final GameEffect gameEffect = type.getGameEffect();
+
+            if (gameEffect.isTalentBlocking() && gamePlayer.hasEffect(type)) {
+                return Response.error(gameEffect.getName());
+            }
+        }
+
+        if (Manager.current().isGameInProgress()) {
+            final State state = Manager.current().getCurrentGame().getGameState();
+            if (state != State.IN_GAME) {
+                return Response.error("The game is not yet started!");
+            }
+        }
+
+        return Response.OK;
+    }
+
     public enum Type {
         /**
          * Normal talent.
@@ -503,5 +529,4 @@ public abstract class Talent extends NonNullItemCreator
          */
         ULTIMATE
     }
-
 }

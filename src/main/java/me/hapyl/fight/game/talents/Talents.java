@@ -3,6 +3,7 @@ package me.hapyl.fight.game.talents;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.talents.archive.engineer.EngineerRecall;
 import me.hapyl.fight.game.talents.archive.engineer.EngineerSentry;
 import me.hapyl.fight.game.talents.archive.TestChargeTalent;
 import me.hapyl.fight.game.talents.archive.alchemist.CauldronAbility;
@@ -19,6 +20,7 @@ import me.hapyl.fight.game.talents.archive.doctor.ConfusionPotion;
 import me.hapyl.fight.game.talents.archive.doctor.HarvestBlocks;
 import me.hapyl.fight.game.talents.archive.ender.TeleportPearl;
 import me.hapyl.fight.game.talents.archive.ender.TransmissionBeacon;
+import me.hapyl.fight.game.talents.archive.freazly.IceBarrier;
 import me.hapyl.fight.game.talents.archive.freazly.IceCone;
 import me.hapyl.fight.game.talents.archive.harbinger.MeleeStance;
 import me.hapyl.fight.game.talents.archive.harbinger.TidalWaveTalent;
@@ -225,6 +227,7 @@ public enum Talents {
 
     // Freazly
     ICE_CONE(new IceCone()),
+    ICE_BARRIER(new IceBarrier()),
 
     // Dark Mage
     BLINDING_CURSE(new BlindingCurse()),
@@ -368,7 +371,7 @@ public enum Talents {
     // Engineer
     ENGINEER_SENTRY(new EngineerSentry()),
     ENGINEER_TURRET(null),
-    ENGINEER_RECALL(null),
+    ENGINEER_RECALL(new EngineerRecall()),
     ENGINEER_PASSIVE(null),
 
     // test (keep last)

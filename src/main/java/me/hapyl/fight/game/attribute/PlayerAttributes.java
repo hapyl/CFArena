@@ -113,7 +113,7 @@ public class PlayerAttributes extends Attributes implements PlayerElement {
         Triggers.call(new AttributeChangeTrigger(gamePlayer.getPlayer(), type, oldBaseValue, newBaseValue));
 
         // Call update
-        type.attribute.onChange(gamePlayer.getPlayer(), newBaseValue);
+        type.attribute.update(gamePlayer.getPlayer(), newBaseValue);
 
         return ImmutableTuple.of(original, newValue);
     }

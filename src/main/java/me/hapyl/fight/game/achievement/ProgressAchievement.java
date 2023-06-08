@@ -1,8 +1,7 @@
 package me.hapyl.fight.game.achievement;
 
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.reward.Reward;
-import me.hapyl.spigotutils.module.math.Numbers;
+import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -13,11 +12,6 @@ import java.util.function.Consumer;
  * Represents an achievement that can be completed multiple times.
  */
 public class ProgressAchievement extends Achievement {
-
-    /**
-     * Max complete times are limited to 8 because of the GUI layout.
-     */
-    public static final int MAX_COMPLETE = 8;
 
     @Nullable
     private int[] requirements;
@@ -34,6 +28,8 @@ public class ProgressAchievement extends Achievement {
         this(id, name, description.replace("{}", toString(requirements)));
 
         this.requirements = requirements;
+        this.icon = Material.EMERALD;
+        this.iconLocked = Material.CHARCOAL;
     }
 
     @Override
@@ -43,12 +39,7 @@ public class ProgressAchievement extends Achievement {
 
     public ProgressAchievement setReward(int requirement, Reward reward) {
         this.rewards.put(requirement, reward);
-        this.maxCompleteCount = Numbers.clamp(requirement, maxCompleteCount, MAX_COMPLETE);
-
-        if (getRequirementCount() > MAX_COMPLETE) {
-            Debug.warn("%s tried to set reward for requirement that exceeds the max!", getName());
-        }
-
+        this.maxCompleteCount = Math.max(requirement, maxCompleteCount);
         return this;
     }
 
@@ -99,4 +90,9 @@ public class ProgressAchievement extends Achievement {
         return obj.toString();
     }
 
+    @Nonnull
+    @Override
+    public String getType() {
+        return "Progress Achievement";
+    }
 }

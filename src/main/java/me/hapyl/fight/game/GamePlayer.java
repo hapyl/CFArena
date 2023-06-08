@@ -53,7 +53,7 @@ import java.util.Map;
 
 /**
  * This class controls all in-game player data.
- *
+ * <p>
  * <b>A single instance should exist per game bases and cleared after the game ends.</b>
  */
 public class GamePlayer implements IGamePlayer {

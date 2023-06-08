@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.attribute;
 
 import com.google.common.collect.Lists;
+import me.hapyl.spigotutils.module.math.Numbers;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -31,9 +32,13 @@ public enum AttributeType {
     SPEED(
             new Attribute("Speed", "Movement speed of the hero.") {
                 @Override
-                public void onChange(Player player, double value) {
+                public void update(Player player, double value) {
+                    if (player.getWalkSpeed() == value) {
+                        return;
+                    }
+
                     player.sendMessage("updated speed");
-                    player.setWalkSpeed((float) value);
+                    player.setWalkSpeed(Numbers.clamp1neg1((float) value));
                 }
             }.setChar("🌊").setColor(ChatColor.AQUA).setToString(d -> 100 + (((d - 0.2d) / 0.2d) * 100) + "%"),
             0.2d

@@ -4,17 +4,24 @@ import com.google.common.collect.Maps;
 import me.hapyl.fight.annotate.ForceLowercase;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.AchievementEntry;
+import me.hapyl.fight.game.reward.CurrencyReward;
 import me.hapyl.fight.game.reward.Reward;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.trigger.PlayerTrigger;
 import me.hapyl.fight.trigger.Subscribe;
 import me.hapyl.fight.util.ProgressBarBuilder;
 import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.chat.Gradient;
+import me.hapyl.spigotutils.module.chat.gradient.Interpolators;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.spigotutils.module.player.PlayerLib;
+import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.awt.*;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.HashMap;
@@ -30,7 +37,13 @@ public class Achievement extends PatternId {
     protected final LinkedHashMap<Integer, Reward> rewards;
     private final String name;
     private final String description;
+    private final String GRADIENT = new Gradient("ACHIVEMENT COMPLETE").makeBold()
+            .rgb(new Color(235, 100, 52), new Color(235, 232, 52), Interpolators.QUADRATIC_SLOW_TO_FAST);
     protected int maxCompleteCount;
+    @Nonnull
+    protected Material icon;
+    @Nonnull
+    protected Material iconLocked;
     private Category category;
 
     public Achievement(@Nullable @ForceLowercase String id, @Nonnull String name, @Nonnull String description) {
@@ -41,7 +54,8 @@ public class Achievement extends PatternId {
         this.category = Category.GAMEPLAY;
         this.maxCompleteCount = 1;
 
-        this.rewards.put(1, Reward.EMPTY);
+        this.icon = Material.DIAMOND;
+        this.iconLocked = Material.COAL;
 
         if (id != null) {
             setId(id);
@@ -50,6 +64,16 @@ public class Achievement extends PatternId {
 
     public Achievement(@Nonnull String name, @Nonnull String description) {
         this(null, name, description);
+    }
+
+    @Nonnull
+    public Material getIcon() {
+        return icon;
+    }
+
+    @Nonnull
+    public Material getIconLocked() {
+        return iconLocked;
     }
 
     public void format(Player player, ItemBuilder builder) {
@@ -66,6 +90,7 @@ public class Achievement extends PatternId {
         // Progress
         final int nextComplete = nextComplete(completeCount);
 
+        builder.addLore(getType());
         builder.addLore();
         builder.addLore("&aProgress          &7%s/%s", completeCount, nextComplete);
         builder.addLore(ProgressBarBuilder.of("-", completeCount, nextComplete));
@@ -83,16 +108,69 @@ public class Achievement extends PatternId {
             }
             else {
                 builder.addLore("&7Rewards:" + checkmark(isCompleted));
-                int tier = 1;
-                for (Map.Entry<Integer, Reward> entry : rewards.entrySet()) {
-                    if (tier++ != 1) {
-                    }
 
+                // Only show the next reward, or all rewards if fully complete
+                long[] totalCoins = new long[2];
+                long[] totalExp = new long[2];
+                long[] totalRubies = new long[2];
+
+                for (Map.Entry<Integer, Reward> entry : rewards.entrySet()) {
                     final Integer requirement = entry.getKey();
                     final Reward reward = entry.getValue();
 
-                    builder.addLore("&7⭐".repeat(tier - 1) + checkmark(completeCount >= requirement));
-                    reward.display(player, builder);
+                    if (reward instanceof CurrencyReward currencyReward) {
+                        // If complete, store in gained rewards
+                        if (completeCount >= requirement) {
+                            totalCoins[0] += currencyReward.getCoins();
+                            totalExp[0] += currencyReward.getExp();
+                            totalRubies[0] += currencyReward.getRubies();
+                        }
+                        // Else store to 'to gain'
+                        else {
+                            totalCoins[1] += currencyReward.getCoins();
+                            totalExp[1] += currencyReward.getExp();
+                            totalRubies[1] += currencyReward.getRubies();
+                        }
+                    }
+                }
+
+                // If all rewards are claimed, show them all
+                if (isCompleted) {
+                    for (Reward reward : rewards.values()) {
+                        if (reward instanceof CurrencyReward) {
+                            continue;
+                        }
+
+                        reward.display(player, builder);
+                    }
+
+                    builder.addLore("");
+                    builder.addLore("&7In addition to:");
+                    addCoinsExpRubies(builder, totalCoins[0], totalExp[0], totalRubies[0]);
+                }
+                // Else display only the next reward and gained/to gain currency
+                else {
+                    // Display next reward
+                    final Reward nextReward = getReward(nextComplete);
+
+                    if (nextReward != null) {
+                        builder.addLore("");
+                        builder.addLore("&7Next Tier Rewards:");
+                        nextReward.display(player, builder);
+                    }
+
+                    // Show gained rewards
+                    if (totalCoins[0] > 0 || totalExp[0] > 0 || totalRubies[0] > 0) {
+                        builder.addLore("");
+                        builder.addLore("&7Gained");
+                        addCoinsExpRubies(builder, totalCoins[0], totalExp[0], totalRubies[0]);
+                    }
+
+                    if (totalCoins[1] > 0 || totalExp[1] > 0 || totalRubies[1] > 0) {
+                        builder.addLore("");
+                        builder.addLore("&7To Gain:");
+                        addCoinsExpRubies(builder, totalCoins[1], totalExp[1], totalRubies[1]);
+                    }
                 }
             }
         }
@@ -102,6 +180,11 @@ public class Achievement extends PatternId {
             builder.addLore("&a&lCompleted!");
             builder.addLore("&8" + new SimpleDateFormat("MMMM d'th' yyyy, HH:mm:ss").format(getCompletedAt(player)));
         }
+    }
+
+    @Nonnull
+    public String getType() {
+        return "Achievement";
     }
 
     /**
@@ -202,6 +285,10 @@ public class Achievement extends PatternId {
         return integers.length > 0 ? integers[0] : 1; // default to a a element or 1
     }
 
+    public int getMaxTier() {
+        return rewards.size();
+    }
+
     /**
      * Returns the tier for requirement.
      *
@@ -262,16 +349,19 @@ public class Achievement extends PatternId {
      */
     public void displayComplete(Player player) {
         Chat.sendMessage(player, "");
-        Chat.sendCenterMessage(player, "&6&lACHIEVEMENT COMPLETE");
+        Chat.sendCenterMessage(player, GRADIENT);
         Chat.sendCenterMessage(player, "&a" + getName());
         Chat.sendMessage(player, "");
+
+        PlayerLib.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1.25f);
+        PlayerLib.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 0.75f);
     }
 
     /**
      * Tries to complete achievement for player.
      *
      * @param player - Player to complete achievement for.
-     * @return true if completed, false if already completed.
+     * @return true if success, false if already completed.
      */
     public final boolean complete(Player player) {
         final PlayerDatabase database = PlayerDatabase.getDatabase(player);
@@ -397,11 +487,6 @@ public class Achievement extends PatternId {
         return maxCompleteCount;
     }
 
-    @Nonnull
-    private String checkmark(boolean condition) {
-        return condition ? " &a✔" : "";
-    }
-
     public <T extends PlayerTrigger> Achievement setTrigger(Subscribe<T> sub, AchievementTrigger<T> trigger) {
         sub.subscribe(t -> {
             final Player player = t.player;
@@ -416,6 +501,17 @@ public class Achievement extends PatternId {
         });
 
         return this;
+    }
+
+    private void addCoinsExpRubies(ItemBuilder builder, long coins, long exp, long rubies) {
+        builder.addLoreIf("&a+ &6" + coins + " Coins", coins > 0);
+        builder.addLoreIf("&a+ &9" + exp + " Experience", exp > 0);
+        builder.addLoreIf("&a+ &c" + rubies + " Rubies", rubies > 0);
+    }
+
+    @Nonnull
+    private String checkmark(boolean condition) {
+        return condition ? " &a✔" : "";
     }
 
 }

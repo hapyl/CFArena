@@ -16,11 +16,16 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.PlayerAttributes;
 import me.hapyl.fight.game.attribute.Temper;
 import me.hapyl.fight.game.damage.EntityData;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.dark_mage.AnimatedWither;
+import me.hapyl.fight.game.heroes.archive.engineer.Engineer;
+import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.reward.DailyReward;
+import me.hapyl.fight.game.talents.archive.engineer.Construct;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.display.DamageDisplay;
+import me.hapyl.fight.game.ui.splash.SplashText;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.block.display.BlockDisplayData;
 import me.hapyl.spigotutils.module.block.display.BlockStudioParser;
@@ -68,6 +73,7 @@ import java.lang.management.OperatingSystemMXBean;
 import java.util.List;
 import java.util.Queue;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 public class CommandRegistry extends DependencyInjector<Main> {
@@ -112,6 +118,58 @@ public class CommandRegistry extends DependencyInjector<Main> {
         register(new GVarCommand("gvar"));
         register(new PlayerAttributeCommand("playerAttribute"));
         register(new SnakeBuilderCommand("snakeBuilder"));
+
+        register("debugLevelUpConstruct", (player, args) -> {
+            final Construct construct = Heroes.ENGINEER.getHero(Engineer.class).getConstruct(player);
+
+            if (construct == null) {
+                Chat.sendMessage(player, "&cNo construct!");
+                return;
+            }
+
+            construct.levelUp();
+            Chat.sendMessage(player, "&aLevelled up!");
+        });
+
+        register(new SimplePlayerCommand("resourcePack") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                final PlayerProfile profile = PlayerProfile.getProfile(player);
+
+                if (profile == null) {
+                    Chat.sendMessage(player, "&cCouldn't find your profile! That's a bug you should report.");
+                    return;
+                }
+
+                profile.promptResourcePack();
+            }
+        });
+
+        register("testAchievementToast", (player, args) -> {
+        });
+
+        register(new SimplePlayerAdminCommand("testSplashText") {
+
+            private SplashText splash;
+
+            @Override
+            protected void execute(Player player, String[] args) {
+                if (splash == null) {
+                    splash = new SplashText(player);
+                }
+                else if (args.length == 0) {
+                    splash.remove();
+                    Chat.sendMessage(player, "&aRemoved!");
+                    return;
+                }
+
+                final int startLine = getArgument(args, 0).toInt();
+
+                splash.create(startLine, Arrays.copyOfRange(args, 1, args.length));
+
+                Chat.sendMessage(player, "&aDone!");
+            }
+        });
 
         register(new SimpleAdminCommand("colorMeThis") {
             @Override
@@ -225,7 +283,8 @@ public class CommandRegistry extends DependencyInjector<Main> {
 
                 if (value > 0) {
                     attributes.increaseTemporary(Temper.COMMAND, attribute, value, duration);
-                } else {
+                }
+                else {
                     attributes.decreaseTemporary(Temper.COMMAND, attribute, value, duration);
                 }
 
@@ -824,7 +883,8 @@ public class CommandRegistry extends DependencyInjector<Main> {
                             final String get = document.get(arg1, "null");
 
                             Chat.sendMessage(player, "&e%s = &6%s", arg1, get);
-                        } else if (arg0.equalsIgnoreCase("set")) {
+                        }
+                        else if (arg0.equalsIgnoreCase("set")) {
                             if (args.length < 3) {
                                 Chat.sendMessage(player, "Forgot the value, stupid.");
                                 return;
@@ -963,6 +1023,15 @@ public class CommandRegistry extends DependencyInjector<Main> {
                 action.use(player, strings);
             }
         };
+    }
+
+    private void register(String name, BiConsumer<Player, String[]> consumer) {
+        processor.registerCommand(new SimplePlayerAdminCommand(name) {
+            @Override
+            protected void execute(Player player, String[] args) {
+                consumer.accept(player, args);
+            }
+        });
     }
 
     private void register(SimpleCommand command) {

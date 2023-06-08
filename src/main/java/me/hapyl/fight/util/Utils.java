@@ -2,8 +2,9 @@ package me.hapyl.fight.util;
 
 import com.google.common.collect.Lists;
 import me.hapyl.fight.Main;
-import me.hapyl.fight.game.*;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.spigotutils.module.math.Geometry;
@@ -64,13 +65,19 @@ public class Utils {
     }
 
     public static void setEquipment(LivingEntity entity, Consumer<EntityEquipment> consumer) {
-        Nulls.runIfNotNull(entity.getEquipment(), consumer::accept);
+        Nulls.runIfNotNull(entity.getEquipment(), consumer);
     }
 
     public static double scaleParticleOffset(double v) {
         return v * v / 8.0d;
     }
 
+    /**
+     * Gets a loaded world from location or throws an error if the world is null.
+     *
+     * @param location - Location.
+     * @return a loaded world from location or throws an error if the world is null.
+     */
     @Nonnull
     public static World getWorld(Location location) {
         final World world = location.getWorld();
@@ -139,6 +146,7 @@ public class Utils {
         if (a == null || b == null) {
             return false;
         }
+
         return a.equals(b);
     }
 
@@ -159,6 +167,10 @@ public class Utils {
         return result;
     }
 
+    /**
+     * @deprecated use GameEffectType#INVISIBILITY
+     */
+    @Deprecated
     public static void hidePlayer(Player player) {
         Manager.current().getCurrentGame().getAlivePlayers().forEach(gp -> {
             if (gp.getPlayer() == player || gp.isSpectator() || GameTeam.isTeammate(gp.getPlayer(), player)) {
@@ -294,10 +306,14 @@ public class Utils {
         return new Location(start.getWorld(), x, y, z);
     }
 
+    // improve target to choose the closest entity to the dot, not the first one
     @Nullable
     public static LivingEntity getTargetEntity(Player player, double range, double dot, @Nullable Predicate<LivingEntity> predicate) {
         final List<LivingEntity> nearbyEntities = Utils.getEntitiesInRange(player.getLocation(), range);
-        Vector casterDirection = player.getLocation().getDirection().normalize();
+        final Vector casterDirection = player.getLocation().getDirection().normalize();
+
+        double closestDot = 0.0d;
+        LivingEntity closestEntity = null;
 
         for (LivingEntity entity : nearbyEntities) {
             // Test Predicate
@@ -305,46 +321,22 @@ public class Utils {
                 continue;
             }
 
-            final Vector playerDirection = entity.getLocation().subtract(player.getLocation()).toVector().normalize();
+            final Vector direction = entity.getLocation().subtract(player.getLocation()).toVector().normalize();
 
-            final double dotProduct = casterDirection.dot(playerDirection);
+            final double dotProduct = casterDirection.dot(direction);
             final double distance = player.getLocation().distance(entity.getLocation());
 
-            if (dotProduct > dot && distance <= range) {
-                return entity;
+            if (dotProduct > dot && distance <= range && dotProduct > closestDot) {
+                closestDot = dotProduct;
+                closestEntity = entity;
             }
         }
 
-        return null;
+        return closestEntity;
     }
 
     public static void rayTraceLine(Player shooter, double maxDistance, double shift, double damage, @Nullable Consumer<Location> onMove, @Nullable Consumer<LivingEntity> onHit) {
         rayTraceLine(shooter, maxDistance, shift, damage, null, onMove, onHit);
-    }
-
-    public static Response playerCanUseAbility(Player player) {
-        final IGamePlayer gp = GamePlayer.getPlayer(player);
-
-        if (gp.hasEffect(GameEffectType.STUN)) {
-            return Response.error("Talent is locked!");
-        }
-
-        if (gp.hasEffect(GameEffectType.LOCK_DOWN)) {
-            return Response.error("Talent is locked! (Lockdown)");
-        }
-
-        if (gp.hasEffect(GameEffectType.ARCANE_MUTE)) {
-            return Response.error("Unable to use talent! (Arcane Mute)");
-        }
-
-        if (Manager.current().isGameInProgress()) {
-            final State state = Manager.current().getCurrentGame().getGameState();
-            if (state != State.IN_GAME) {
-                return Response.error("Game is not yet started!");
-            }
-        }
-
-        return Response.OK;
     }
 
     public static Player getTargetPlayer(Player player, double maxDistance) {
@@ -609,10 +601,6 @@ public class Utils {
 
         return players;
 
-    }
-
-    public static void main(String[] args) {
-        System.out.println(colorString("Increased damage by 10% fo 30s.", "&7"));
     }
 
     public static void createExplosion(Location location, double range, double damage, Consumer<LivingEntity> consumer) {

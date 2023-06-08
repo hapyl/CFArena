@@ -56,15 +56,24 @@ public abstract class DarkMageTalent extends Talent {
             return Response.ERROR;
         }
 
-        final Response response = precondition(player, executeSpell(player));
+        final Response response = Talent.preconditionTalent(player);
 
-        if (response.isOk()) {
-            startCd(player);
-            Chat.sendTitle(player, "", "&aCasted: &l%s&a!".formatted(getName()), 0, 20, 5);
+        if (!response.isOk()) {
+            Chat.sendTitle(player, "", "&c" + response.getReason(), 0, 20, 5);
             return response;
         }
 
-        Chat.sendTitle(player, "", "&c" + response.getReason(), 0, 20, 5);
+        final Response spellResponse = executeSpell(player);
+
+        if (!spellResponse.isOk()) {
+            Chat.sendTitle(player, "", "&c" + spellResponse.getReason(), 0, 20, 5);
+            return spellResponse;
+        }
+
+        startCd(player);
+        postProcessTalent(player);
+
+        Chat.sendTitle(player, "", "&aCasted: &l%s&a!".formatted(getName()), 0, 20, 5);
         return response;
     }
 

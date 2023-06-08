@@ -10,7 +10,6 @@ import me.hapyl.spigotutils.module.inventory.gui.PlayerPageGUI;
 import me.hapyl.spigotutils.module.inventory.gui.SlotPattern;
 import me.hapyl.spigotutils.module.inventory.gui.SmartComponent;
 import me.hapyl.spigotutils.module.player.PlayerLib;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -27,8 +26,6 @@ public class AchievementGUI extends PlayerPageGUI<Achievement> {
         this(player, Category.GAMEPLAY);
     }
 
-    // FIXME (hapyl): 019, May 19, 2023: Make this look pretty
-    // FIXME (hapyl): 019, May 19, 2023: Put progress achievements in toggle or different category
     public AchievementGUI(Player player, Category category) {
         super(player, "Achievements", 6);
 
@@ -41,6 +38,11 @@ public class AchievementGUI extends PlayerPageGUI<Achievement> {
     @Override
     public void postProcessInventory(Player player, int page) {
         fillItem(0, 8, ItemStacks.BLACK_BAR);
+        fillItem(45, 53, ItemStacks.BLACK_BAR);
+
+        setPreviousPageSlot(47);
+        setNextPageSlot(51);
+        setCloseMenuItem(49);
 
         // Update header
         final SmartComponent component = newSmartComponent();
@@ -98,7 +100,7 @@ public class AchievementGUI extends PlayerPageGUI<Achievement> {
         final int completeCount = achievement.getCompleteCount(player);
         final boolean completed = achievement.hasCompletedAtLeastOnce(player);
 
-        final ItemBuilder builder = new ItemBuilder(completed ? Material.DIAMOND : Material.COAL);
+        final ItemBuilder builder = new ItemBuilder(completed ? achievement.getIcon() : achievement.getIconLocked());
 
         // Set count
         builder.setAmount(achievement.getTier(completeCount));

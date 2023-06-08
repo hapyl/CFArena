@@ -515,19 +515,6 @@ public final class Manager extends DependencyInjector<Main> {
         equipPlayer(player, getCurrentHero(player));
     }
 
-    @Nullable
-    public Talent getTalent(Hero hero, int slot) {
-        if (slot < 3) {
-            return slot == 1 ? hero.getFirstTalent() : slot == 2 ? hero.getSecondTalent() : null;
-        }
-        else if (hero instanceof ComplexHero complexHero) {
-            return slot == 3 ? complexHero.getThirdTalent() :
-                    slot == 4 ? complexHero.getFourthTalent() : slot == 5 ? complexHero.getFifthTalent() : null;
-        }
-
-        return null;
-    }
-
     /**
      * Called after the game stopped.
      */
@@ -677,7 +664,7 @@ public final class Manager extends DependencyInjector<Main> {
 
     private void giveTalentItem(Player player, Hero hero, int slot) {
         final PlayerInventory inventory = player.getInventory();
-        final Talent talent = getTalent(hero, slot);
+        final Talent talent = hero.getTalent(slot);
         final ItemStack talentItem = talent == null ? new ItemStack(Material.AIR) : talent.getItem();
 
         if (talent != null && !talent.isAutoAdd()) {

@@ -114,7 +114,8 @@ public enum EnumDamageCause {
     CORROSION(DamageCause.nonCrit("corroded to death", "with help from")),
     ORC_DASH(DamageCause.of("was hit too hard", "by")),
     ORC_WEAPON(DamageCause.of("was {damager}'s bullseye")),
-    CYCLING_AXE(DamageCause.of("couldn't see that {damager}'s is flying there"));
+    CYCLING_AXE(DamageCause.of("couldn't see that {damager}'s is flying there")),
+    FROSTBITE(DamageCause.of("froze to death"));
 
     private final DamageCause damageCause;
 

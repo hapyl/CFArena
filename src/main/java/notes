@@ -95,6 +95,13 @@ Bugs:
 - [✔] eula nether -> iron remove from hand faster eula don't start eula if no axe
 - [✔] Display stays
 - [✔] Add distance on shots
+- [✔, It's not] Pretty sure witcher combo and zone ability don't work
+- [✔] Repackage heroes, storage -> archive
+- [✔] Add npc to parkour that counts fails (check for specific fall NOT on slime)
+- [✔] Can push in lobby (joined player not updated?)
+- [✔] Lamp game
+- [✔] BUFF GRAV ZONE
+- [✔] Fail checks for talent wrong? When using build in ones (game not started, stunned etc)
 
 - Maybe genshin slowing aura for freazly
 - Maybe add glowing for self traps
@@ -103,17 +110,14 @@ Bugs:
 - Maybe add buff when JUJU uses climb
 - make juju shot work when hit enemies
 - Rework achievement GUI to use top as category and contents as, well, fucking contents
-- Pretty sure witcher combo and zone ability don't work
 - Possible stackoverflow when calculating wave
 - "Flying is not enabled on this server"
 - Fix description from GRAY to DARK_GRAY
-- Repackage heroes, storage -> archive
-- Add npc to parkour that counts fails (check for specific fall NOT on slime)
-- !!! Can push in lobby (joined player not updated?)
-- Lamp game
 - Use game task delay for delay, its built-in
 - Vampire swarm not remove
-- BUFF GRAV ZONE
+
+- Test DM since reworked spell casting
+- Improve DM dark spell
 
 - Rework techie a bit, add delay to traps and ult is useless :|
 

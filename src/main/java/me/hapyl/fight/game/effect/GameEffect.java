@@ -14,11 +14,21 @@ public abstract class GameEffect {
     private boolean isPositive;
 
     private StringDisplay display;
+    private boolean talentBlocking;
 
     public GameEffect(String name) {
         this.name = name;
         this.description = "";
         this.isPositive = true;
+        this.talentBlocking = false;
+    }
+
+    public void setTalentBlocking(boolean talentBlocking) {
+        this.talentBlocking = talentBlocking;
+    }
+
+    public boolean isTalentBlocking() {
+        return talentBlocking;
     }
 
     public StringDisplay getDisplay() {

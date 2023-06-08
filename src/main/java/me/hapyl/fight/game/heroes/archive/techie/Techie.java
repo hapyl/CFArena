@@ -47,10 +47,13 @@ public class Techie extends Hero implements UIComplexComponent, Listener {
     private final int neuralTheftPeriod = 200;
 
     /**
-     * Ultimate rework idea:
+     * RECORD IDEAS:
+     * <ul>
+     *     <li>Skill that tags with a BUG.</li>
+     *     <li>Move reveal to skill that also damaged and weakens, like a trap.</li>
+     * </ul>
      *
-     * - Sombra hack or something that increases CD or steals ult points,
-     * lockdown is useless
+     * Ult still IDK
      */
 
     public Techie() {
@@ -59,7 +62,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener {
         setRole(Role.STRATEGIST);
 
         setInfo(
-                "Anonymous hacker, who hacked his way to the fight. Weak by himself, but specifies on traps that makes him stronger."
+                "Anonymous hacker, who hacked his way to the fight. Weak by himself, but specifies on traps that make him stronger."
         );
 
         setItem("1e5b78987c70d73f2ad93a454f85dcab476c5b5679f50eaaf553d2404edc9c");

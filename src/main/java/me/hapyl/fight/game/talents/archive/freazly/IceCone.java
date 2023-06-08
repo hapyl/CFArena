@@ -37,10 +37,10 @@ public class IceCone extends Talent implements Listener {
 
     public IceCone() {
         super("Ice Cone", """
-                Launches a snowball in front of you.
+                Launch a snowball in front of you.
                                         
                 Upon hitting an opponent, cages them into an ice cone.
-                Upon hitting a block, creates a slowing aura for short duration.
+                Upon hitting a block, it creates a slowing aura for short duration.
                 """);
         setItem(Material.SNOWBALL);
         setCooldown(400);
@@ -83,7 +83,7 @@ public class IceCone extends Talent implements Listener {
                             entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 10, 3));
 
                             if (entity instanceof Player player) {
-                                GamePlayer.getPlayer(player).addEffect(GameEffectType.SLOWING_AURA, 20);
+                                GamePlayer.getPlayer(player).addEffect(GameEffectType.SLOWING_AURA, 60, true);
                             }
                         });
 

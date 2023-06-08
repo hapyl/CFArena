@@ -10,4 +10,10 @@ public class HiddenAchievement extends Achievement {
     public HiddenAchievement(@Nonnull String name, @Nonnull String description) {
         super(name, description);
     }
+
+    @Nonnull
+    @Override
+    public String getType() {
+        return "Hidden Achievement";
+    }
 }

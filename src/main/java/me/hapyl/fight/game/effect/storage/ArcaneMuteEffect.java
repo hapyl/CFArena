@@ -11,6 +11,7 @@ public class ArcaneMuteEffect extends GameEffect {
         super("Arcane Mute");
         setDescription(Talents.ARCANE_MUTE.getTalent().getDescription());
         setPositive(false);
+        setTalentBlocking(true);
     }
 
     @Override

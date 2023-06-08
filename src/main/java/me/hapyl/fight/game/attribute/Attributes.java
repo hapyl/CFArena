@@ -99,11 +99,14 @@ public class Attributes {
 
         if (d >= 0.75d && d < 1.0d) {
             scale = 2;
-        } else if (d == 1.0d) {
+        }
+        else if (d == 1.0d) {
             scale = 3;
-        } else if (d > 1.0 && d <= 1.25d) {
+        }
+        else if (d > 1.0 && d <= 1.25d) {
             scale = 4;
-        } else if (d > 1.25d && d <= 1.5d) {
+        }
+        else if (d > 1.25d && d <= 1.5d) {
             scale = 5;
         }
 

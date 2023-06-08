@@ -3,7 +3,6 @@ package me.hapyl.fight.game.heroes.archive.taker;
 import com.google.common.collect.Lists;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.archive.taker.Taker;
 import me.hapyl.fight.game.talents.archive.taker.SpiritualBonesPassive;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Utils;

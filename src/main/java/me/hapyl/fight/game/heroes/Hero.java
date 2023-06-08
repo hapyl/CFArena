@@ -617,6 +617,18 @@ public abstract class Hero implements GameElement, PlayerElement {
 
     // Utilities for checks, etc.
 
+    @Nullable
+    public Talent getTalent(int slot) {
+        return switch (slot) {
+            case 1 -> getFirstTalent();
+            case 2 -> getSecondTalent();
+            case 3 -> getThirdTalent();
+            case 4 -> getFourthTalent();
+            case 5 -> getFifthTalent();
+            default -> null;
+        };
+    }
+
     /**
      * Returns all talents of this hero, including nullable.
      *

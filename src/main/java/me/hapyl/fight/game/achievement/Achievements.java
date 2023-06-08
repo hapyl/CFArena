@@ -19,7 +19,7 @@ public enum Achievements {
     ///////////////////////////
     USE_TALENTS(
             new ProgressAchievement(
-                    "Talent-able",
+                    "Master of Talents",
                     "Use talents {} times.",
                     10, 100, 500, 1_000, 5_000, 10_000
             ).forEachRequirement((achievement, i) -> achievement.setReward(i, Reward.currency().withCoins(50L * i).withExp(i / 10)))
@@ -67,7 +67,8 @@ public enum Achievements {
                     })
     ),
 
-    COMPLETE_LAMP_PUZZLE(new Achievement("Light Them Up!", "Complete the lamp puzzle in the lobby.").setReward(Reward.currency().withCoins(2500))),
+    COMPLETE_LAMP_PUZZLE(new Achievement("Light Them Up!", "Complete the lamp puzzle in the lobby.").setReward(Reward.currency()
+            .withCoins(2500))),
 
     ;
 

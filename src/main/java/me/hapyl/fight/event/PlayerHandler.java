@@ -9,6 +9,7 @@ import me.hapyl.fight.game.damage.EntityData;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.parkour.CFParkour;
+import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.setting.Setting;
 import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.ChargedTalent;
@@ -68,7 +69,7 @@ public class PlayerHandler implements Listener {
             final GameInstance gameInstance = (GameInstance) manager.getCurrentGame();
 
             gameInstance.getMode().onJoin(gameInstance, player);
-//            gameInstance.populateScoreboard(player);
+            //            gameInstance.populateScoreboard(player);
         }
         else {
             if (!player.hasPlayedBefore()) {
@@ -107,7 +108,7 @@ public class PlayerHandler implements Listener {
 
         // delete database instance
         PlayerDatabase.removeDatabase(player.getUniqueId());
-//        PlayerDatabase.dumpDatabaseInstanceInConsoleToConfirmThatThereIsNoMoreInstancesAfterRemoveIsCalledButThisIsTemporaryShouldRemoveOnProd();
+        //        PlayerDatabase.dumpDatabaseInstanceInConsoleToConfirmThatThereIsNoMoreInstancesAfterRemoveIsCalledButThisIsTemporaryShouldRemoveOnProd();
 
         // Delete profile
         Manager.current().removeProfile(player);
@@ -559,25 +560,6 @@ public class PlayerHandler implements Listener {
         }
     }
 
-    private void processLobbyDamage(@Nonnull Entity entity, @Nonnull EntityDamageEvent.DamageCause cause) {
-        if (!(entity instanceof Player player)) {
-            return;
-        }
-
-        final ParkourManager parkourManager = EternaPlugin.getPlugin().getParkourManager();
-        final Data data = parkourManager.getData(player);
-
-        if (data == null) {
-            return;
-        }
-
-        if (!(data.getParkour() instanceof CFParkour parkour)) {
-            return;
-        }
-
-        parkour.onDamage(player, cause);
-    }
-
     @EventHandler()
     public void handleProjectileDamage(ProjectileLaunchEvent ev) {
     }
@@ -624,7 +606,7 @@ public class PlayerHandler implements Listener {
 
         // don't care if talent is null, either not a talent or not complete
         // null or air item means this skill should be ignored for now (not active)
-        final Talent talent = Manager.current().getTalent(hero, newSlot);
+        final Talent talent = hero.getTalent(newSlot);
         final ItemStack itemOnNewSlot = inventory.getItem(newSlot);
 
         if (talent == null || !isValidItem(talent, itemOnNewSlot)) {
@@ -744,6 +726,64 @@ public class PlayerHandler implements Listener {
         if (damager instanceof Player player) {
             handleInputTalent(player, true);
         }
+    }
+
+    @EventHandler()
+    public void handleResourcePack(PlayerResourcePackStatusEvent ev) {
+        final Player player = ev.getPlayer();
+        final PlayerResourcePackStatusEvent.Status status = ev.getStatus();
+        final PlayerProfile profile = PlayerProfile.getProfile(player);
+
+        if (profile == null) {
+            return;
+        }
+
+        switch (status) {
+            case ACCEPTED -> {
+                Chat.sendMessage(player, "&aDownloading resource pack...");
+            }
+            case DECLINED -> {
+                Chat.sendMessage(
+                        player,
+                        "&aNo worries! Though the resource pack will provide a better and more enjoyable experience, it is not required. Though if you change your mind, just use &e/resoucepack &acommand to prompt you again."
+                );
+                Chat.sendMessage(
+                        player,
+                        "&eYou might need to set &6'Server Resource Packs' &eto &6'Enabled' or &6'Prompt'&e in server info!"
+                );
+            }
+            case FAILED_DOWNLOAD -> {
+                Chat.sendMessage(
+                        player,
+                        "&4Failed to download resource pack! &cTry again using &e/resourcepack&c. If the issue continues, report this!"
+                );
+            }
+
+            case SUCCESSFULLY_LOADED -> {
+                Chat.sendMessage(player, "&aSuccessfully downloaded!");
+                profile.setResourcePack();
+            }
+        }
+
+    }
+
+    private void processLobbyDamage(@Nonnull Entity entity, @Nonnull EntityDamageEvent.DamageCause cause) {
+        if (!(entity instanceof Player player)) {
+            return;
+        }
+
+        final ParkourManager parkourManager = EternaPlugin.getPlugin().getParkourManager();
+        final Data data = parkourManager.getData(player);
+
+        if (data == null) {
+            return;
+        }
+
+        if (!(data.getParkour() instanceof CFParkour parkour)) {
+            return;
+        }
+
+        parkour.onDamage(player, cause);
     }
 
     private void cancelInputTalent(Player player) {
@@ -892,6 +932,7 @@ public class PlayerHandler implements Listener {
         }
 
         // await stops the code here, basically OK but does not start cooldown nor remove charge if charged talent.
+        // do not simplify so single line
         if (response.isAwait()) {
             return false;
         }

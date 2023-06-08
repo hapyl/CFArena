@@ -36,6 +36,8 @@ public abstract class RangeWeapon extends Weapon {
         this.setId(id);
     }
 
+
+
     public RangeWeapon setMaxDistance(double d) {
         this.maxDistance = d;
         return this;
