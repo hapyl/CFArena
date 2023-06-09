@@ -6,6 +6,7 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.attribute.PlayerAttributes;
 import me.hapyl.fight.game.attribute.Temper;
+import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -55,6 +56,8 @@ public class Orc extends Hero {
 
     public Orc() {
         super("Pakarat Rakab");
+
+        setArchetype(Archetype.DAMAGE);
 
         final HeroAttributes attributes = getAttributes();
         attributes.setValue(AttributeType.HEALTH, 150);

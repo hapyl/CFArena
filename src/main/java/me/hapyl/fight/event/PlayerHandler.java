@@ -980,5 +980,4 @@ public class PlayerHandler implements Listener {
 
         talent.startCd(player);
     }
-
 }

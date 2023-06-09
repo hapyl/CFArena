@@ -93,7 +93,6 @@ public enum Heroes {
     LIBRARIAN(new Librarian()),
     TECHIE(new Techie()),
     WAR_MACHINE(new KillingMachine()),
-
     HARBINGER(new Harbinger()),
     SHAMAN(new Shaman()),
 
@@ -113,27 +112,31 @@ public enum Heroes {
 
     private final static List<Heroes> PLAYABLE = Lists.newArrayList();
     private final static Map<Role, List<Heroes>> BY_ROLE = Maps.newHashMap();
+    private final static Map<Archetype, List<Heroes>> BY_ARCHETYPE = Maps.newHashMap();
 
     static {
-        for (Heroes value : values()) {
-            if (!value.isValidHero()) {
+        for (Heroes hero : values()) {
+            if (!hero.isValidHero()) {
                 continue;
             }
 
-            // by role
-            final Role role = value.getHero().getRole();
-            final List<Heroes> byRole = byRole(role);
+            // Store role/archetype for easier grab
+            final Role role = hero.hero.getRole();
+            final Archetype archetype = hero.hero.getArchetype();
 
-            byRole.add(value);
-            BY_ROLE.put(role, byRole);
+            final List<Heroes> byRole = BY_ROLE.computeIfAbsent(role, l -> Lists.newArrayList());
+            final List<Heroes> byArchetype = BY_ARCHETYPE.computeIfAbsent(archetype, l -> Lists.newArrayList());
 
-            // playable
-            PLAYABLE.add(value);
+            byRole.add(hero);
+            byArchetype.add(hero);
+
+            // Add playable
+            PLAYABLE.add(hero);
         }
     }
 
     private final Hero hero;
-    private final HeroStatsCollection stats; // can't store in hero object because requires enum
+    private final HeroStatsCollection stats; // can't store in a hero object because requires enum
 
     Heroes(Hero hero) {
         this.hero = hero;
@@ -291,7 +294,7 @@ public enum Heroes {
      * Returns all playable heroes.
      *
      * <p>
-     * Note that players can still select non-playable hero using <i>'-IKnowItsDisabledHeroAndWillBreakTheGame'</i> argument.
+     * Note that <b>admins</b> can still select non-playable hero using <i>'-IKnowItsDisabledHeroAndWillBreakTheGame'</i> argument.
      * </p>
      *
      * @return all playable heroes.
@@ -299,8 +302,6 @@ public enum Heroes {
     public static List<Heroes> playable() {
         return Lists.newArrayList(PLAYABLE);
     }
-
-    // static members
 
     /**
      * Returns all playable heroes sorted by favourites.
@@ -339,8 +340,19 @@ public enum Heroes {
      * @param role - Role to get heroes by.
      * @return list of heroes by role.
      */
-    public static List<Heroes> byRole(Role role) {
+    @Deprecated
+    public static List<Heroes> byRole(@Nonnull Role role) {
         return Lists.newArrayList(BY_ROLE.computeIfAbsent(role, (s) -> Lists.newArrayList()));
+    }
+
+    /**
+     * Gets a copy of heroes with a given archetype.
+     *
+     * @param archetype - Archetype.
+     * @return a copy of heroes with a given archetype.
+     */
+    public static List<Heroes> byArchetype(@Nonnull Archetype archetype) {
+        return Lists.newArrayList(BY_ARCHETYPE.computeIfAbsent(archetype, (s) -> Lists.newArrayList()));
     }
 
     /**

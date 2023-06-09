@@ -3,6 +3,7 @@ package me.hapyl.fight;
 import me.hapyl.fight.database.Database;
 import me.hapyl.fight.event.EnderPearlHandler;
 import me.hapyl.fight.event.PlayerHandler;
+import me.hapyl.fight.event.ServerHandler;
 import me.hapyl.fight.event.SnowFormHandler;
 import me.hapyl.fight.game.ChatController;
 import me.hapyl.fight.game.Manager;
@@ -35,7 +36,9 @@ import javax.annotation.Nullable;
 
 public class Main extends JavaPlugin {
 
-    public static final String GAME_NAME = "&e&lCLASSES FIGHT &c&lᴀʀᴇɴᴀ";
+    public static final String GAME_NAME_HEADER = "&e&lCLASSES FIGHT";
+    public static final String GAME_NAME_FOOTER = "&c&lᴀʀᴇɴᴀ";
+    public static final String GAME_NAME = GAME_NAME_HEADER + " " + GAME_NAME_FOOTER;
 
     private static long start;
     private static Main plugin;
@@ -193,6 +196,7 @@ public class Main extends JavaPlugin {
         pluginManager.registerEvents(new CosmeticsListener(), this);
         pluginManager.registerEvents(new HealthPackListener(), this);
         pluginManager.registerEvents(new SnowFormHandler(), this);
+        pluginManager.registerEvents(new ServerHandler(), this);
     }
 
     private void runSafe(Runnable runnable, String handler) {
@@ -207,6 +211,7 @@ public class Main extends JavaPlugin {
     private void registerProtocol() {
         new ArcaneMuteProtocol();
         new DismountProtocol();
+        //new HandshakeProtocol();
         //new ConfusionPotionProtocol(); -> doesn't work as good as I thought :(
     }
 

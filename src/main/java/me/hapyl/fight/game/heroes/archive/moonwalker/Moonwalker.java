@@ -2,10 +2,7 @@ package me.hapyl.fight.game.heroes.archive.moonwalker;
 
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.HeroEquipment;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.Role;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.archive.moonwalker.MoonslitePillar;
@@ -34,6 +31,7 @@ public class Moonwalker extends Hero implements PlayerElement, UIComponent {
 
         setMinimumLevel(3);
         setRole(Role.RANGE);
+        setArchetype(Archetype.DAMAGE);
 
         setInfo("A traveller from another planet... or, should I say moon? Brings his skills and... planets... with himself!");
         setItem("1cf8fbd76586920c5273519927862fdc111705a1851d4d1aac450bcfd2b3a");

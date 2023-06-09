@@ -3,6 +3,7 @@ package me.hapyl.fight.game.heroes.archive.archer;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
+import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
@@ -46,6 +47,8 @@ public class Archer extends Hero implements Listener {
         super("Archer");
 
         setRole(Role.RANGE);
+        setArchetype(Archetype.DAMAGE);
+
         setInfo("One of the best archers joins the fight! Not alone though but with his &bcustom-made &8&obow.");
         setItem("106c16817c73ff64a4a49b590d2cdb25bcfa52c630fe7281a177eabacdaa857b");
 

@@ -49,6 +49,7 @@ public abstract class Hero implements GameElement, PlayerElement {
     private final Map<Player, GameTask> reverseTasks;
     private Origin origin;
     private Role role;
+    private Archetype archetype;
     private String description;
     private ItemStack guiTexture;
     private Weapon weapon;
@@ -67,6 +68,7 @@ public abstract class Hero implements GameElement, PlayerElement {
         this.equipment = new HeroEquipment();
         this.attributes = new HeroAttributes(this);
         this.origin = Origin.NOT_SET;
+        this.archetype = Archetype.NOT_SET;
         this.role = Role.NONE;
         this.minimumLevel = 0;
         this.ultimate = new UltimateTalent("Unknown Ultimate", "This hero's ultimate talent is not yet implemented!", Integer.MAX_VALUE);
@@ -103,11 +105,21 @@ public abstract class Hero implements GameElement, PlayerElement {
         this.minimumLevel = minimumLevel;
     }
 
+    @Nonnull
+    public Archetype getArchetype() {
+        return archetype;
+    }
+
+    public void setArchetype(@Nonnull Archetype archetype) {
+        this.archetype = archetype;
+    }
+
     /**
      * Returns this hero's role.
      *
      * @return this hero's role.
      */
+    @Deprecated
     public Role getRole() {
         return role;
     }
@@ -117,6 +129,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      *
      * @param role - New role.
      */
+    @Deprecated
     public void setRole(Role role) {
         this.role = role;
     }

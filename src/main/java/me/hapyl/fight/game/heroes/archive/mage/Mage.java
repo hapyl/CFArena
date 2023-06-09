@@ -3,6 +3,7 @@ package me.hapyl.fight.game.heroes.archive.mage;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
@@ -63,6 +64,7 @@ public class Mage extends Hero implements UIComponent {
         super("Mage");
 
         setRole(Role.MELEE_RANGE);
+        setArchetype(Archetype.DAMAGE);
 
         setInfo(
                 "Amateur Necromancer with ability to absorb soul fragments upon hitting his foes to use them as fuel for his &e&lSoul Eater&7.__Which makes him both &bmelee &7and &brange &7warrior!"

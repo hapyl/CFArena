@@ -1,10 +1,7 @@
 package me.hapyl.fight.game.heroes.archive.engineer;
 
 import com.google.common.collect.Maps;
-import me.hapyl.fight.game.heroes.DisabledHero;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.Role;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.preset.HotbarItem;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -33,6 +30,8 @@ public class Engineer extends Hero implements DisabledHero {
         super("Engineer");
 
         setRole(Role.STRATEGIST);
+        setArchetype(Archetype.STRATEGY);
+
         setItem("55f0bfea3071a0eb37bcc2ca6126a8bdd79b79947734d86e26e4d4f4c7aa9");
     }
 

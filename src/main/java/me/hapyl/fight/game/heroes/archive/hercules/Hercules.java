@@ -5,6 +5,7 @@ import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.cosmetic.CosmeticsHandle;
+import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
@@ -39,10 +40,14 @@ public class Hercules extends Hero implements Listener, PlayerElement {
 
     public Hercules() {
         super("Hercules");
+
         setRole(Role.MELEE);
+        setArchetype(Archetype.MOBILITY);
+
         setInfo(
                 "The greatest warrior of all time - \"The Great Hercules\" descended from heaven to punish the infidels! Super-Duper strong punches give you a chance to win."
         );
+
         setItem("f210c961b9d787327c0d1646e65ae40c6d834514877824335d4b9b62b2365a24");
 
         final HeroEquipment equipment = getEquipment();

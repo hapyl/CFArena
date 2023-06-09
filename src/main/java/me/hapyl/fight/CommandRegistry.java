@@ -50,11 +50,9 @@ import org.bson.Document;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.Sign;
-import org.bukkit.block.Skull;
+import org.bukkit.block.*;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.v1_20_R1.util.CraftMagicNumbers;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -118,6 +116,19 @@ public class CommandRegistry extends DependencyInjector<Main> {
         register(new GVarCommand("gvar"));
         register(new PlayerAttributeCommand("playerAttribute"));
         register(new SnakeBuilderCommand("snakeBuilder"));
+
+        register("testClientCobweb", (player, args) -> {
+            final Block block = player.getTargetBlockExact(10);
+            final Block relative = block.getRelative(BlockFace.UP);
+
+            relative.setType(Material.COBWEB, false);
+
+            Runnables.runLater(() -> {
+                player.sendBlockChange(relative.getLocation(), Material.AIR.createBlockData());
+            }, 1);
+
+            Chat.sendMessage(player, "&aSent!");
+        });
 
         register("debugLevelUpConstruct", (player, args) -> {
             final Construct construct = Heroes.ENGINEER.getHero(Engineer.class).getConstruct(player);

@@ -1,10 +1,7 @@
 package me.hapyl.fight.game.heroes.archive.heavy_knight;
 
 import me.hapyl.fight.annotate.KeepNull;
-import me.hapyl.fight.game.heroes.ComplexHero;
-import me.hapyl.fight.game.heroes.DisabledHero;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.HeroEquipment;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.archive.heavy_knight.Slash;
@@ -51,6 +48,8 @@ public class SwordMaster extends Hero implements ComplexHero, DisabledHero {
 
     public SwordMaster() {
         super("Heavy Knight");
+
+        setArchetype(Archetype.DAMAGE);
 
         setItem("4b2a75f05437ba2e28fb2a7d0eb6697a6e091ce91072b5c4ff1945295b092");
 
