@@ -7,6 +7,7 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.heavy_knight.SwordMaster;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentQueue;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -48,7 +49,7 @@ public class Slash extends Talent {
 
         location.add(direction.multiply(distance));
 
-        final List<LivingEntity> entitiesHit = Utils.getEntitiesInRange(
+        final List<LivingEntity> entitiesHit = Collect.nearbyLivingEntities(
                 location,
                 distance,
                 entity -> Utils.isEntityValid(entity, player)

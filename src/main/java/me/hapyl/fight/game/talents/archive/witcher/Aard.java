@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.archive.witcher;
 
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
@@ -30,7 +30,7 @@ public class Aard extends Talent {
             return Response.error("world is null");
         }
 
-        Utils.getEntitiesInRange(inFront, radius).forEach(entity -> {
+        Collect.nearbyLivingEntities(inFront, radius).forEach(entity -> {
             if (entity == player) {
                 return;
             }

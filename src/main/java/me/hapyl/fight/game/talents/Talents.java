@@ -63,6 +63,7 @@ import me.hapyl.fight.game.talents.archive.shark.Submerge;
 import me.hapyl.fight.game.talents.archive.shark.Whirlpool;
 import me.hapyl.fight.game.talents.archive.spark.Molotov;
 import me.hapyl.fight.game.talents.archive.spark.SparkFlash;
+import me.hapyl.fight.game.talents.archive.sun.SyntheticSun;
 import me.hapyl.fight.game.talents.archive.swooper.BlastPack;
 import me.hapyl.fight.game.talents.archive.swooper.Blink;
 import me.hapyl.fight.game.talents.archive.taker.DeathSwap;
@@ -373,6 +374,9 @@ public enum Talents {
     ENGINEER_TURRET(null),
     ENGINEER_RECALL(new EngineerRecall()),
     ENGINEER_PASSIVE(null),
+
+    // ???
+    SYNTHETIC_SUN(new SyntheticSun()),
 
     // test (keep last)
     TestChargeTalent(new TestChargeTalent());

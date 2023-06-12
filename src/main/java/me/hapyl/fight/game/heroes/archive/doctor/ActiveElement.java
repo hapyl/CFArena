@@ -1,13 +1,12 @@
-package me.hapyl.fight.game.talents.archive.extra;
+package me.hapyl.fight.game.heroes.archive.doctor;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.archive.doctor.GravityGun;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -32,7 +31,8 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.List;
 
-public class Element {
+// represents an active element that is currently held by the doctor
+public class ActiveElement {
 
     private final Player player;
     private final Entity entity;
@@ -42,7 +42,7 @@ public class Element {
     private final ItemStack stack;
     private GameTask task;
 
-    public Element(Player player, Block block) {
+    public ActiveElement(Player player, Block block) {
         final Location location = player.getLocation();
         this.player = player;
         this.material = block.getType();
@@ -62,7 +62,6 @@ public class Element {
         }
 
         this.entity = spawnBlockEntity(location.add(location.getDirection().multiply(2)));
-
     }
 
     public void remove() {
@@ -97,12 +96,13 @@ public class Element {
                     .setOffZ(0.1d)
                     .setSpeed(0.015f);
             final String name = this.material.name();
-            final ArmorStand stand = (ArmorStand) Element.this.entity;
+            final ArmorStand stand = (ArmorStand) ActiveElement.this.entity;
             final AnimationType animationType = name.contains("SLAB") ?
                     AnimationType.SLAB :
                     name.contains("STAIRS") ? AnimationType.STAIRS : AnimationType.FULL_BLOCK;
 
-            player.setCooldown(Heroes.DR_ED.getHero().getWeapon().getMaterial(), this.type.getCd());
+            final Element element = type.getElement();
+            player.setCooldown(Heroes.DR_ED.getHero().getWeapon().getMaterial(), element.getCd());
 
             new GameTask() {
                 private int distance = 0;
@@ -132,17 +132,15 @@ public class Element {
                         return;
                     }
 
-                    final List<LivingEntity> players = Utils.getEntitiesInRange(Element.this.entity.getLocation(), 1.0d);
+                    final List<LivingEntity> players = Collect.nearbyLivingEntities(ActiveElement.this.entity.getLocation(), 1.0d);
                     if (players.isEmpty()) {
                         return;
                     }
 
                     entityPoof();
                     players.forEach(target -> {
-                        GamePlayer.damageEntity(target, type.getDamage(), player, EnumDamageCause.GRAVITY_GUN);
-                        if (type.getEffect() != null) {
-                            type.getEffect().use(target);
-                        }
+                        GamePlayer.damageEntity(target, element.getDamage(), player, EnumDamageCause.GRAVITY_GUN);
+                        element.onHit(target, material);
                     });
                     this.cancel();
 

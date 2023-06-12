@@ -2,7 +2,6 @@ package me.hapyl.fight.game.talents.archive.vortex;
 
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.archive.extra.AstralStars;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.chat.Chat;

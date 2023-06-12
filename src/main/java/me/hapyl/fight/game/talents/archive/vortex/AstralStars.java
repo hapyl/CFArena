@@ -1,4 +1,4 @@
-package me.hapyl.fight.game.talents.archive.extra;
+package me.hapyl.fight.game.talents.archive.vortex;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.Main;

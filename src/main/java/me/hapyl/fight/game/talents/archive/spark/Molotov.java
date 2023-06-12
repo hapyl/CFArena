@@ -5,7 +5,7 @@ import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.Quality;
@@ -94,7 +94,7 @@ public class Molotov extends Talent implements Listener {
                     return;
                 }
 
-                Utils.getEntitiesInRange(location, fireRadius).forEach(entity -> {
+                Collect.nearbyLivingEntities(location, fireRadius).forEach(entity -> {
                     if (entity == player) {
                         GamePlayer.getPlayer(player).heal(fireHealing);
                     }

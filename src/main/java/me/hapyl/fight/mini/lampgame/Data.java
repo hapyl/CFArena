@@ -19,6 +19,8 @@ import java.util.Map;
 
 public class Data {
 
+    public static final int INIT_LIT = 5;
+
     private final BlockFace[] relativeFaces = { BlockFace.UP, BlockFace.DOWN, BlockFace.WEST, BlockFace.EAST };
     private final Player player;
     private final Map<Block, Boolean> board;
@@ -60,8 +62,7 @@ public class Data {
 
         board.replaceAll((l, b) -> false);
 
-        final int randomLitCount = ThreadRandom.nextInt(5, 12);
-        while (countLit() < randomLitCount) {
+        while (countLit() < INIT_LIT) {
             litRandomly();
         }
 

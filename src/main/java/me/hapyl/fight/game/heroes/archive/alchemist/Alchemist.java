@@ -6,6 +6,7 @@ import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
+import me.hapyl.fight.game.damage.EntityData;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -16,8 +17,8 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.RandomTable;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -25,6 +26,8 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.meta.trim.TrimMaterial;
+import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -48,7 +51,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
         setRole(Role.STRATEGIST);
         // FIXME (hapyl): 023, May 23, 2023: typos
         setInfo(
-                "An alchemist who was deceived by creation of the abyss. In return of help received an Abyssal Bottle that creates potions from the &0&lvoid &8itself."
+                "An alchemist who was deceived by the creation of the abyss. In return of help received an Abyssal Bottle that creates potions from the &0&lvoid &8itself."
         );
         setItem("661691fb01825b9d9ec1b8f04199443146aa7d5627aa745962c0704b6a236027");
 
@@ -63,7 +66,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
         attributes.setValue(AttributeType.SPEED, 0.22d);
 
         final HeroEquipment equipment = getEquipment();
-        equipment.setChestplate(31, 5, 3);
+        equipment.setChestplate(31, 5, 3, TrimPattern.SHAPER, TrimMaterial.COPPER);
 
         positiveEffects.add(new Effect("made you &lFASTER", PotionEffectType.SPEED, 30, 2))
                 .add(new Effect("gave you &lJUMP BOOST", PotionEffectType.JUMP, 30, 1))
@@ -71,16 +74,26 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
                 .add(new Effect("gave you &lRESISTANCE", PotionEffectType.DAMAGE_RESISTANCE, 30, 1))
                 .add(new Effect("healed half of your missing health", 30) {
                     @Override
-                    public void affect(Player player) {
-                        final IGamePlayer gp = GamePlayer.getPlayer(player);
+                    public void affect(Player player, Player victim) {
+                        final IGamePlayer gp = GamePlayer.getPlayer(victim);
                         double missingHealth = gp.getMaxHealth() - gp.getHealth();
                         gp.heal(missingHealth / 2d);
                     }
                 });
 
-        negativeEffects.add(new Effect("&lpoisoned you", PotionEffectType.POISON, 15, 0))
+        negativeEffects.add(new Effect("&lpoisoned you", PotionEffectType.POISON, 15, 0) {
+                    @Override
+                    public void affect(Player player, Player victim) {
+                        EntityData.of(victim).setLastDamager(player);
+                    }
+                })
                 .add(new Effect("&lblinded you", PotionEffectType.BLINDNESS, 15, 0))
-                .add(new Effect("&lis withering your blood", PotionEffectType.WITHER, 7, 0))
+                .add(new Effect("&lis withering your blood", PotionEffectType.WITHER, 7, 0) {
+                    @Override
+                    public void affect(Player player, Player victim) {
+                        EntityData.of(victim).setLastDamager(player);
+                    }
+                })
                 .add(new Effect("&lslowed you", PotionEffectType.SLOW, 15, 2))
                 .add(new Effect("&lmade you weaker", PotionEffectType.WEAKNESS, 15, 0))
                 .add(new Effect("&lis... confusing?", PotionEffectType.CONFUSION, 15, 0));
@@ -97,8 +110,8 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
         final Effect positiveEffect = positiveEffects.getRandomElement();
         final Effect negativeEffect = negativeEffects.getRandomElement();
 
-        positiveEffect.applyEffects(player);
-        Utils.getEnemyPlayers(player).forEach(alivePlayer -> negativeEffect.applyEffects(alivePlayer.getPlayer()));
+        positiveEffect.applyEffects(player, player);
+        Collect.enemyPlayers(player).forEach(alivePlayer -> negativeEffect.applyEffects(player, alivePlayer.getPlayer()));
     }
 
     @Override

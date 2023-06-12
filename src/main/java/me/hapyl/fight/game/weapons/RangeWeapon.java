@@ -2,8 +2,8 @@ package me.hapyl.fight.game.weapons;
 
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -188,7 +188,7 @@ public abstract class RangeWeapon extends Weapon {
                 break;
             }
 
-            for (final LivingEntity target : Utils.getEntitiesInRange(location, 0.5d)) {
+            for (final LivingEntity target : Collect.nearbyLivingEntities(location, 0.5d)) {
                 if (target == player || !predicateEntity(target)) {
                     continue;
                 }

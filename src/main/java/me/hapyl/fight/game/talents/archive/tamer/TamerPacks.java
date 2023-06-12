@@ -5,8 +5,8 @@ import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -105,7 +105,7 @@ public enum TamerPacks {
             GameTask.runDuration(Heroes.TAMER.getHero().getUltimate(), (task, i) -> {
                 final Location location = player.getLocation();
 
-                Utils.getPlayersInRange(location, 2).forEach(target -> {
+                Collect.nearbyPlayers(location, 2).forEach(target -> {
                     if (target != player) {
                         GamePlayer.damageEntity(target, 2, player, EnumDamageCause.AURA_OF_CIRCUS);
                     }
@@ -253,7 +253,7 @@ public enum TamerPacks {
                 return;
             }
 
-            final LivingEntity target = Utils.getNearestLivingEntity(guardian.getLocation(), 10.0d, living ->
+            final LivingEntity target = Collect.nearestLivingEntity(guardian.getLocation(), 10.0d, living ->
                     living != player && !pack.isInPack(living) && guardian.hasLineOfSight(living));
 
             if (target == null) {

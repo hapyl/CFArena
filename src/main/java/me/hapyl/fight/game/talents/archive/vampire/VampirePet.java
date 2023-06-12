@@ -3,6 +3,7 @@ package me.hapyl.fight.game.talents.archive.vampire;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
@@ -51,7 +52,7 @@ public class VampirePet extends Talent {
             @Override
             public void run() {
                 pets.forEach((player, bat) -> {
-                    final Entity nearestEntity = Utils.getNearestEntity(player.getLocation(), 20.0d, entity -> {
+                    final Entity nearestEntity = Collect.nearestEntityRaw(player.getLocation(), 20.0d, entity -> {
                         return Utils.isEntityValid(entity, player) && !entity.equals(bat);
                     });
 

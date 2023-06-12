@@ -18,6 +18,7 @@ import me.hapyl.fight.game.attribute.Temper;
 import me.hapyl.fight.game.damage.EntityData;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.dark_mage.AnimatedWither;
+import me.hapyl.fight.game.heroes.archive.doctor.ElementType;
 import me.hapyl.fight.game.heroes.archive.engineer.Engineer;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.reward.DailyReward;
@@ -26,7 +27,7 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.display.DamageDisplay;
 import me.hapyl.fight.game.ui.splash.SplashText;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.block.display.BlockDisplayData;
 import me.hapyl.spigotutils.module.block.display.BlockStudioParser;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -52,10 +53,15 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.*;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_20_R1.util.CraftMagicNumbers;
 import org.bukkit.entity.*;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ArmorMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.trim.ArmorTrim;
+import org.bukkit.inventory.meta.trim.TrimMaterial;
+import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Transformation;
 import org.joml.AxisAngle4f;
@@ -105,6 +111,7 @@ public class CommandRegistry extends DependencyInjector<Main> {
         register(new SyncDatabaseCommand("syncDatabase"));
         register(new CastSpellCommand("cast"));
         register(new UpdateParkourLeaderboardCommand("updateParkourLeaderboard"));
+        register(new ModifyParkourCommand("modifyParkour"));
         register(new InterruptCommand("interrupt"));
         register(new TestDatabaseCommand("testdatabase"));
         register(new EquipCommand("equip"));
@@ -128,6 +135,214 @@ public class CommandRegistry extends DependencyInjector<Main> {
             }, 1);
 
             Chat.sendMessage(player, "&aSent!");
+        });
+
+        register("recipes", (player, args) -> {
+            if (args.length == 0) {
+                Chat.sendMessage(player, "&cMissing argument, either 'reset' or 'clear'.");
+                return;
+            }
+
+            final String arg = args[0];
+
+            if (arg.equalsIgnoreCase("reset")) {
+                Bukkit.resetRecipes();
+                Chat.broadcast("&aReset recipes!");
+            }
+            else if (arg.equalsIgnoreCase("clear")) {
+                Bukkit.clearRecipes();
+                Chat.broadcast("&aCleared recipes!");
+            }
+            else {
+                Chat.sendMessage(player, "&cInvalid usage!");
+            }
+        });
+
+        register("dumpBlockNamesCSV", (player, args) -> {
+            Runnables.runAsync(() -> {
+                final File path = new File(Main.getPlugin().getDataFolder(), "element_types.csv");
+
+                try (FileWriter writer = new FileWriter(path)) {
+                    for (Material material : Material.values()) {
+                        if (material.isBlock()) {
+                            writer.append(material.name().toUpperCase()).append(",").append("NULL");
+                            writer.append("\n");
+                        }
+                    }
+
+                    Runnables.runSync(() -> {
+                        Chat.sendMessage(player, "&aDumped into &e%s&a!", path.getAbsolutePath());
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        });
+
+        register("testEternaItemBuilderAddTrim", (player, args) -> {
+            player.getInventory()
+                    .addItem(ItemBuilder.of(Material.DIAMOND_CHESTPLATE).setArmorTrim(TrimPattern.EYE, TrimMaterial.DIAMOND).asIcon());
+        });
+
+        register("getUuidName", (player, args) -> {
+            try {
+                final UUID uuid = UUID.fromString(args[0]);
+
+                Chat.sendMessage(player, "&a%s belongs to %s", uuid.toString(), Bukkit.getOfflinePlayer(uuid).getName());
+            } catch (Exception e) {
+                Chat.sendMessage(player, "&cProvide a valid uuid!");
+            }
+        });
+
+        register(new SimplePlayerAdminCommand("nextTrim") {
+
+            // bro just make this a fucking enum
+            private final TrimPattern[] PATTERNS =
+                    {
+                            TrimPattern.SENTRY,
+                            TrimPattern.DUNE,
+                            TrimPattern.COAST,
+                            TrimPattern.WILD,
+                            TrimPattern.WARD,
+                            TrimPattern.EYE,
+                            TrimPattern.VEX,
+                            TrimPattern.TIDE,
+                            TrimPattern.SNOUT,
+                            TrimPattern.RIB,
+                            TrimPattern.SPIRE,
+                            TrimPattern.WAYFINDER,
+                            TrimPattern.SHAPER,
+                            TrimPattern.SILENCE,
+                            TrimPattern.RAISER,
+                            TrimPattern.HOST
+                    };
+
+            private void nextTrim(Player player, EquipmentSlot slot) {
+                final PlayerInventory inventory = player.getInventory();
+                final ItemStack item = inventory.getItem(slot);
+
+                if (item == null) {
+                    Chat.sendMessage(player, "&cNot a valid item.");
+                    return;
+                }
+
+                if (!(item.getItemMeta() instanceof ArmorMeta meta)) {
+                    Chat.sendMessage(player, "&cCannot apply trim to this piece!");
+                    return;
+                }
+
+                final ArmorTrim trim = meta.getTrim();
+                TrimPattern pattern = trim == null ? PATTERNS[0] : trim.getPattern();
+
+                for (int i = 0; i < PATTERNS.length; i++) {
+                    if (PATTERNS[i] == pattern) {
+                        pattern = i >= PATTERNS.length + 1 ? PATTERNS[0] : PATTERNS[i + 1];
+                        break;
+                    }
+                }
+
+                meta.setTrim(new ArmorTrim(trim == null ? TrimMaterial.QUARTZ : trim.getMaterial(), pattern));
+                item.setItemMeta(meta);
+
+                Chat.sendMessage(player, "&aSet %s pattern.", pattern.getKey().getKey());
+            }
+
+            @Override
+            protected void execute(Player player, String[] strings) {
+                final String string = getArgument(strings, 0).toString().toLowerCase();
+
+                switch (string) {
+                    case "helmet" -> nextTrim(player, EquipmentSlot.HEAD);
+                    case "chestplate", "chest" -> nextTrim(player, EquipmentSlot.CHEST);
+                    case "leggings", "legs" -> nextTrim(player, EquipmentSlot.LEGS);
+                    case "boots" -> nextTrim(player, EquipmentSlot.FEET);
+                    default -> {
+                        Chat.sendMessage(player, "&cInvalid argument, accepting: [helmet, chestplate, chest, leggings, legs, boots]");
+                    }
+                }
+            }
+        });
+
+        register("readElementTypesCSV", (player, args) -> {
+            Runnables.runAsync(() -> {
+                final File file = new File(Main.getPlugin().getDataFolder(), "element_types.csv");
+
+                if (!file.exists()) {
+                    Chat.sendMessage(player, "&cFile 'element_types.csv' doesn't exists!");
+                    return;
+                }
+
+                final Map<ElementType, Set<Material>> mapped = Maps.newHashMap();
+
+                try (var reader = new Scanner(file)) {
+                    int index = 1;
+
+                    while (reader.hasNextLine()) {
+                        final String line = reader.nextLine();
+                        final String[] split = line.split(",");
+
+                        final Material material = Enums.byName(Material.class, split[0]);
+                        final ElementType elementType = Enums.byName(ElementType.class, split[1]);
+
+                        if (material == null) {
+                            Chat.sendMessage(player, "&4ERROR @ %s! &cMaterial %s is invalid!", index, split[0]);
+                            reader.close();
+                            return;
+                        }
+
+                        if (elementType == null) {
+                            Chat.sendMessage(player, "&4ERROR @ %s! &cType %s is invalid!", index, split[1]);
+                            reader.close();
+                            return;
+                        }
+
+                        // Don't care about null
+                        if (elementType == ElementType.NULL) {
+                            continue;
+                        }
+
+                        mapped.compute(elementType, (t, set) -> {
+                            if (set == null) {
+                                set = Sets.newHashSet();
+                            }
+
+                            set.add(material);
+
+                            return set;
+                        });
+
+                        index++;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                // Write to file
+                final File fileOut = new File(Main.getPlugin().getDataFolder(), "element_types.mapped");
+
+                try (var writer = new FileWriter(fileOut)) {
+                    for (ElementType type : ElementType.values()) {
+                        final Set<Material> materials = mapped.getOrDefault(type, Sets.newHashSet());
+
+                        writer.append("//").append(String.valueOf(type)).append("\n");
+
+                        int index = 0;
+                        for (Material material : materials) {
+                            if (index++ != 0) {
+                                writer.append(",\n");
+                            }
+                            writer.append("     Material.").append(material.name());
+                        }
+
+                        writer.append("\n");
+                    }
+
+                    Runnables.runSync(() -> Chat.sendMessage(player, "&aDumped into &e%s&a!", fileOut.getAbsolutePath()));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            });
         });
 
         register("debugLevelUpConstruct", (player, args) -> {
@@ -499,14 +714,14 @@ public class CommandRegistry extends DependencyInjector<Main> {
         register(new SimplePlayerAdminCommand("debugDamageData") {
             @Override
             protected void execute(Player player, String[] strings) {
-                final LivingEntity targetEntity = Utils.getTargetEntity(player, 20.0d, 0.9d, e -> e != player);
+                final LivingEntity targetEntity = Collect.targetLivingEntity(player, 20.0d, 0.9d, e -> e != player);
 
                 if (targetEntity == null) {
-                    Chat.sendMessage(player, EntityData.getEntityData(player));
+                    Chat.sendMessage(player, EntityData.of(player));
                     return;
                 }
 
-                Chat.sendMessage(player, EntityData.getEntityData(targetEntity));
+                Chat.sendMessage(player, EntityData.of(targetEntity));
             }
         });
 

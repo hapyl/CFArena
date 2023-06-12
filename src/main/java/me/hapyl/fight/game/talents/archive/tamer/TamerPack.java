@@ -2,8 +2,8 @@ package me.hapyl.fight.game.talents.archive.tamer;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -207,11 +207,11 @@ public class TamerPack {
      */
     @Nullable
     public LivingEntity findNearestTarget() {
-        LivingEntity nearest = Utils.getNearestPlayer(getLocation(), maxDistance, player);
+        LivingEntity nearest = Collect.nearestPlayer(getLocation(), maxDistance, player);
 
         // If not player nearby then find the nearest mob
         if (nearest == null) {
-            nearest = Utils.getNearestLivingEntity(getLocation(), maxDistance, entity -> !isInPack(entity) && entity != player);
+            nearest = Collect.nearestLivingEntity(getLocation(), maxDistance, entity -> !isInPack(entity) && entity != player);
         }
 
         return nearest;

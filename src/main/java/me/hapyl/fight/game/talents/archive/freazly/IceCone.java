@@ -5,7 +5,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.Quality;
@@ -79,7 +79,7 @@ public class IceCone extends Talent implements Listener {
                             return;
                         }
 
-                        Utils.getEntitiesInRange(location, 4.0d).forEach(entity -> {
+                        Collect.nearbyLivingEntities(location, 4.0d).forEach(entity -> {
                             entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 10, 3));
 
                             if (entity instanceof Player player) {

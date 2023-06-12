@@ -13,12 +13,18 @@ public class LeaderboardData implements Comparator<Long> {
     private final String name;
     private final long completionTime;
     private final Map<Stats.Type, Long> stats;
+    private boolean dirty;
 
     public LeaderboardData(UUID uuid, String name, long completionTime) {
         this.uuid = uuid;
         this.name = name;
         this.completionTime = completionTime;
         this.stats = Maps.newHashMap();
+        this.dirty = false;
+    }
+
+    public void markDirty() {
+        dirty = true;
     }
 
     public UUID getUuid() {
@@ -48,5 +54,9 @@ public class LeaderboardData implements Comparator<Long> {
 
     public boolean hasStats() {
         return !stats.isEmpty();
+    }
+
+    public boolean isDirty() {
+        return dirty;
     }
 }

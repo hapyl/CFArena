@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.archive.troll;
 
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -19,7 +19,7 @@ public class TrollSpin extends Talent {
 
 	@Override
 	public Response execute(Player player) {
-		Utils.getEnemyPlayers(player).forEach(victim -> {
+		Collect.enemyPlayers(player).forEach(victim -> {
 			final Player victimPlayer = victim.getPlayer();
 			final Location location = victimPlayer.getLocation();
 

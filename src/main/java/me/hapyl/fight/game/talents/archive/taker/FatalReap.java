@@ -7,7 +7,7 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.taker.Taker;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
@@ -41,7 +41,7 @@ public class FatalReap extends Talent {
         for (double d = length; d >= -length; d -= 0.2d) {
             final Location location = calculateLocation(player.getEyeLocation(), d);
 
-            Utils.getEntitiesInRange(location, 1.0d).forEach(victim -> {
+            Collect.nearbyLivingEntities(location, 1.0d).forEach(victim -> {
                 if (GameTeam.isSelfOrTeammate(player, victim)) {
                     return;
                 }

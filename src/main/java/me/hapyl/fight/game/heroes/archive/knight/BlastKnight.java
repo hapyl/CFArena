@@ -14,9 +14,9 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.knight.Spear;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -217,7 +217,7 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Lis
         }, 200);
 
         // Explode
-        Utils.getEntitiesInRange(player.getLocation(), 10.0d).forEach(entity -> {
+        Collect.nearbyLivingEntities(player.getLocation(), 10.0d).forEach(entity -> {
             if (entity == player) {
                 return;
             }

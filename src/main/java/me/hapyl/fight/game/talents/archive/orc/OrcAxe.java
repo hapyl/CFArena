@@ -1,13 +1,13 @@
 package me.hapyl.fight.game.talents.archive.orc;
 
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EntityData;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.InputTalent;
-import me.hapyl.fight.game.task.GeometryTask;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.task.GeometryTask;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.entity.Entities;
@@ -52,19 +52,20 @@ public class OrcAxe extends InputTalent {
     @Nonnull
     @Override
     public Response onLeftClick(Player player) {
-        // Don't allow spin if no axe
         final PlayerInventory inventory = player.getInventory();
         final ItemStack item = inventory.getItem(0);
 
+        // Don't allow spin if no axe
         if (item == null || item.getType() != Material.IRON_AXE) {
             return Response.error("The Axe is missing!");
         }
 
         final ArmorStand axe = Entities.ARMOR_STAND_MARKER.spawn(player.getLocation(), self -> {
-            Utils.setEquipment(self, equipment -> {
-                self.setVisible(false);
-                self.setRightArmPose(new EulerAngle(Math.toRadians(90), 0.0d, Math.toRadians(90)));
+            self.getLocation().setYaw(player.getLocation().getYaw()); // fix weird spawn yaw
+            self.setVisible(false);
+            self.setRightArmPose(new EulerAngle(Math.toRadians(170), Math.toRadians(180), Math.toRadians(90)));
 
+            Utils.setEquipment(self, equipment -> {
                 equipment.setItemInMainHand(new ItemStack(Material.IRON_AXE));
             });
 
@@ -72,30 +73,38 @@ public class OrcAxe extends InputTalent {
         });
 
         new GeometryTask() {
-            @Override
-            public void run(double theta) {
-                final Location playerLocation = player.getLocation();
-
-                offsetXZ(playerLocation, 2.0d, location -> {
-                    // Damage
-                    Utils.getEntitiesInRange(location, 1.0d, living -> living != player)
-                            .forEach(entity -> {
-                                GamePlayer.damageEntity(entity, 5.0d, player, EnumDamageCause.CYCLING_AXE);
-                            });
-
-                    axe.teleport(location);
-                });
-            }
 
             @Override
             public void onStop() {
                 axe.remove();
-                Heroes.ORC.getHero().getWeapon().giveWeapon(player);
+                Heroes.ORC.getHero().getWeapon().give(player);
+            }
+
+            @Override
+            public void run(double theta) {
+                final Location playerLocation = player.getLocation();
+
+                offsetXZ(playerLocation, 0.5d, axe::teleport);
+
+                offsetXZ(playerLocation, 3.0d, location -> {
+                    Utils.lookAt(axe, location);
+                    PlayerLib.spawnParticle(location, Particle.SWEEP_ATTACK, 1);
+
+                    // Damage and KB
+                    Collect.nearbyLivingEntities(location, 1.0d, entity -> entity != player)
+                            .forEach(entity -> {
+                                EntityData.damage(entity, 15.0d, player, EnumDamageCause.CYCLING_AXE);
+                                entity.setVelocity(entity.getLocation().getDirection().normalize().multiply(-1.5d));
+                            });
+                });
+
             }
         }.properties()
                 .max(leftData)
-                .step(Math.PI / 12)
+                .maxSpins(1)
                 .cancelIfDead(player)
+                .step(Math.PI / 16)
+                .iterations(2)
                 .task()
                 .runTaskTimer(0, 1);
 
@@ -123,7 +132,7 @@ public class OrcAxe extends InputTalent {
                     return;
                 }
 
-                final LivingEntity hitEntity = Utils.getNearestLivingEntity(location, 0.5d, living -> living != player);
+                final LivingEntity hitEntity = Collect.nearestLivingEntity(location, 0.5d, living -> living != player);
 
                 if (hitEntity != null) {
                     executeHit(hitEntity.getLocation());

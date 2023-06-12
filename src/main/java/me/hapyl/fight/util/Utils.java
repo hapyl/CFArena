@@ -1,22 +1,21 @@
 package me.hapyl.fight.util;
 
-import com.google.common.collect.Lists;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.spigotutils.module.annotate.TestedNMS;
+import me.hapyl.spigotutils.module.annotate.Version;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.Quality;
 import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.Reflect;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
 import net.minecraft.world.entity.boss.wither.EntityWither;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
@@ -28,8 +27,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Utilities for the plugin
@@ -54,16 +51,6 @@ public class Utils {
         return builder.toString().trim();
     }
 
-    /**
-     * Returns List of GamePlayers that are not:
-     * Spectator, Teammate nor player itself
-     */
-    public static List<GamePlayer> getEnemyPlayers(Player player) {
-        return Manager.current()
-                .getCurrentGame()
-                .getAlivePlayers(predicate -> !predicate.isSpectator() && !predicate.compare(player) && !predicate.isTeammate(player));
-    }
-
     public static void setEquipment(LivingEntity entity, Consumer<EntityEquipment> consumer) {
         Nulls.runIfNotNull(entity.getEquipment(), consumer);
     }
@@ -86,12 +73,6 @@ public class Utils {
         }
 
         return world;
-    }
-
-    public static <E> List<String> collectionToStringList(Collection<E> e, java.util.function.Function<E, String> fn) {
-        final List<String> list = new ArrayList<>();
-        e.forEach(el -> list.add(fn.apply(el)));
-        return list;
     }
 
     @Nullable
@@ -137,6 +118,19 @@ public class Utils {
         }.runTaskLater(cutAt);
     }
 
+    /**
+     * Compares 2 objects.
+     *
+     * <pre>
+     *     a && b == null -> TRUE
+     *     a || b == null -> FALSE
+     *     a == b         -> TRUE
+     * </pre>
+     *
+     * @param a - First object.
+     * @param b - Second object.
+     * @return if two objects either both null or equal; false otherwise.
+     */
     public static boolean compare(@Nullable Object a, @Nullable Object b) {
         // true if both objects are null
         if (a == null && b == null) {
@@ -168,7 +162,7 @@ public class Utils {
     }
 
     /**
-     * @deprecated use GameEffectType#INVISIBILITY
+     * @deprecated use {@link me.hapyl.fight.game.effect.GameEffectType#INVISIBILITY}
      */
     @Deprecated
     public static void hidePlayer(Player player) {
@@ -181,32 +175,16 @@ public class Utils {
         });
     }
 
+    /**
+     * @deprecated use {@link me.hapyl.fight.game.effect.GameEffectType#INVISIBILITY}
+     */
+    @Deprecated
     public static void showPlayer(Player player) {
         Manager.current().getCurrentGame().getPlayers().forEach((uuid, gp) -> {
             if (gp.getPlayer() != player) {
                 gp.getPlayer().showPlayer(Main.getPlugin(), player);
             }
         });
-    }
-
-    public static void hideEntity(Entity entity, Player player) {
-        Reflect.hideEntity(entity, player);
-    }
-
-    public static void hideEntity(Entity entity) {
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            hideEntity(entity, player);
-        }
-    }
-
-    public static void showEntity(Entity entity, Player player) {
-        Reflect.showEntity(entity, player);
-    }
-
-    public static void showEntity(Entity entity) {
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            showEntity(entity, player);
-        }
     }
 
     public static void rayTracePath(@Nonnull Location start, @Nonnull Location end, double shift, double searchRange, @Nullable Consumer<LivingEntity> funcLiving, @Nullable Consumer<Location> funcLoc) {
@@ -225,7 +203,7 @@ public class Utils {
 
                 start.add(vector);
 
-                Nulls.runIfNotNull(funcLiving, f -> Utils.getEntitiesInRange(start, searchRange).forEach(f));
+                Nulls.runIfNotNull(funcLiving, f -> Collect.nearbyLivingEntities(start, searchRange).forEach(f));
                 Nulls.runIfNotNull(funcLoc, f -> f.accept(start));
 
                 tick -= shift;
@@ -251,7 +229,7 @@ public class Utils {
                 break;
             }
 
-            for (final LivingEntity living : getEntitiesInRange(location, 0.5)) {
+            for (final LivingEntity living : Collect.nearbyLivingEntities(location, 0.5)) {
                 if (living == shooter || living instanceof Player player && !Manager.current().isPlayerInGame(player)) {
                     continue;
                 }
@@ -294,84 +272,15 @@ public class Utils {
         return entity;
     }
 
-    public static Location lerp(Location start, Location end, double percent) {
-        return BukkitUtils.newLocation(start).add(end.toVector().subtract(start.toVector()).multiply(percent));
-    }
-
-    public static Location lerpf(Location start, Location end, float f) {
-        double x = start.getX() + f * (end.getX() - start.getX());
-        double y = start.getY() + f * (end.getY() - start.getY());
-        double z = start.getZ() + f * (end.getZ() - start.getZ());
-
-        return new Location(start.getWorld(), x, y, z);
-    }
-
-    // improve target to choose the closest entity to the dot, not the first one
-    @Nullable
-    public static LivingEntity getTargetEntity(Player player, double range, double dot, @Nullable Predicate<LivingEntity> predicate) {
-        final List<LivingEntity> nearbyEntities = Utils.getEntitiesInRange(player.getLocation(), range);
-        final Vector casterDirection = player.getLocation().getDirection().normalize();
-
-        double closestDot = 0.0d;
-        LivingEntity closestEntity = null;
-
-        for (LivingEntity entity : nearbyEntities) {
-            // Test Predicate
-            if ((!isEntityValid(entity, player)) || (predicate != null && !predicate.test(entity))) {
-                continue;
-            }
-
-            final Vector direction = entity.getLocation().subtract(player.getLocation()).toVector().normalize();
-
-            final double dotProduct = casterDirection.dot(direction);
-            final double distance = player.getLocation().distance(entity.getLocation());
-
-            if (dotProduct > dot && distance <= range && dotProduct > closestDot) {
-                closestDot = dotProduct;
-                closestEntity = entity;
-            }
-        }
-
-        return closestEntity;
-    }
-
     public static void rayTraceLine(Player shooter, double maxDistance, double shift, double damage, @Nullable Consumer<Location> onMove, @Nullable Consumer<LivingEntity> onHit) {
         rayTraceLine(shooter, maxDistance, shift, damage, null, onMove, onHit);
     }
 
-    public static Player getTargetPlayer(Player player, double maxDistance) {
-        return (Player) getTargetEntity(
-                player,
-                maxDistance,
-                entity -> entity != player && entity instanceof Player p && Manager.current().isPlayerInGame(p)
-        );
-    }
-
-    @Nullable
-    public static LivingEntity getTargetEntity(Player player, double maxDistance, Predicate<LivingEntity> predicate) {
-        final Location location = player.getLocation().add(0, 1.5, 0);
-        final Vector vector = location.getDirection().normalize();
-        final float radius = 1.25f;
-
-        for (double i = 0; i < maxDistance; i += 0.5d) {
-            final double x = vector.getX() * i;
-            final double y = vector.getY() * i;
-            final double z = vector.getZ() * i;
-            location.add(x, y, z);
-
-            for (final LivingEntity entity : Utils.getEntitiesInRange(location, radius)) {
-                if (!entity.hasLineOfSight(player) || !predicate.test(entity)) {
-                    continue;
-                }
-                return entity;
-            }
-
-            location.subtract(x, y, z);
-        }
-
-        return null;
-    }
-
+    /**
+     * Performs a "smart" collection clear, with removing entities and updating block states.
+     *
+     * @param collection - Collection.
+     */
     public static <E> void clearCollection(Collection<E> collection) {
         for (final E entry : collection) {
             if (entry == null) {
@@ -398,6 +307,7 @@ public class Utils {
         throw new IllegalArgumentException(errorMessage);
     }
 
+    @TestedNMS(version = Version.V1_20)
     public static void setWitherInvul(Wither wither, int invul) {
         //Reflect.setDataWatcherValue(
         //        Objects.requireNonNull(Reflect.getMinecraftEntity(wither)),
@@ -406,15 +316,7 @@ public class Utils {
         //        invul,
         //        Bukkit.getOnlinePlayers().toArray(new Player[] {})
         //);
-        ((EntityWither) Objects.requireNonNull(Reflect.getMinecraftEntity(wither))).r(invul);
-    }
-
-    public static List<CommandSender> getOnlineOperatorsAndConsole() {
-        final List<CommandSender> list = Lists.newArrayList(Bukkit.getConsoleSender());
-
-        Bukkit.getOnlinePlayers().stream().filter(Player::isOp).forEach(list::add);
-
-        return list;
+        ((EntityWither) Objects.requireNonNull(Reflect.getMinecraftEntity(wither))).s(invul);
     }
 
     /**
@@ -429,37 +331,6 @@ public class Utils {
 
         location.setDirection(dirBetweenLocations);
         entity.teleport(location);
-    }
-
-    public static Player getNearestPlayer(Location location, double radius, Player exclude) {
-        return (Player) getNearestEntity(location, radius, entity -> {
-            return entity instanceof Player && entity != exclude && Manager.current().isPlayerInGame((Player) entity) &&
-                    !GameTeam.isTeammate(exclude, (Player) entity);
-        });
-    }
-
-    public static LivingEntity getNearestLivingEntity(Location location, double radius, Player player) {
-        return (LivingEntity) getNearestEntity(location, radius, entity -> {
-            if (!(entity instanceof LivingEntity)) {
-                return false;
-            }
-
-            return isEntityValid(entity, player);
-        });
-    }
-
-    public static LivingEntity getNearestLivingEntityPrioritizePlayers(Location location, double radius, Predicate<LivingEntity> predicate) {
-        final LivingEntity nearestPlayer = getNearestLivingEntity(
-                location,
-                radius,
-                check -> check instanceof Player && predicate.test(check)
-        );
-
-        if (nearestPlayer != null) {
-            return nearestPlayer;
-        }
-
-        return getNearestLivingEntity(location, radius, predicate);
     }
 
     public static boolean isEntityValid(Entity entity) {
@@ -503,106 +374,6 @@ public class Utils {
         return true;
     }
 
-    public static List<LivingEntity> getEntitiesInRange(Player player, double range) {
-        return getEntitiesInRange(player.getLocation(), range).stream()
-                .filter(entity -> entity != player && isEntityValid(entity, player))
-                .collect(Collectors.toList());
-    }
-
-    // This method gets entities in range but checks for distance to make sure
-    public static List<LivingEntity> getEntitiesInRangeValidateRange(Location location, double range) {
-        final List<LivingEntity> entities = getEntitiesInRange(location, range);
-        entities.removeIf(entity -> entity.getLocation().distance(location) > range);
-
-        return entities;
-    }
-
-    // This method gets entities in range but checks for distance to make sure
-    public static List<Player> getPlayersInRangeValidateRange(Location location, double range) {
-        return getEntitiesInRangeValidateRange(location, range).stream()
-                .filter(entity -> entity instanceof Player)
-                .map(entity -> (Player) entity)
-                .collect(Collectors.toList());
-    }
-
-    public static List<LivingEntity> getEntitiesInRange(Location location, double range, Predicate<LivingEntity> filter) {
-        return getEntitiesInRange(location, range).stream().filter(filter).collect(Collectors.toList());
-    }
-
-    public static List<LivingEntity> getEntitiesInRange(Location location, double range) {
-        final World world = location.getWorld();
-        final List<LivingEntity> entities = new ArrayList<>();
-
-        if (world == null) {
-            return entities;
-        }
-
-        world.getNearbyEntities(location, range, range, range)
-                .stream()
-                .filter(entity -> isEntityValid(entity, null) && entity instanceof LivingEntity)
-                .forEach(entity -> entities.add((LivingEntity) entity));
-
-        return entities;
-    }
-
-    public static LivingEntity getNearestLivingEntity(Location location, double radius, Predicate<LivingEntity> predicate) {
-        return (LivingEntity) getNearestEntity(location, radius, test -> {
-            if (!(test instanceof LivingEntity)) {
-                return false;
-            }
-
-            return predicate.test((LivingEntity) test) && isEntityValid(test, null);
-        });
-    }
-
-    @Warning(reason = "This does not do any checks")
-    public static Entity getNearestEntity(Location fromWhere, double radius, Predicate<Entity> predicate) {
-        if (fromWhere.getWorld() == null) {
-            throw new NullPointerException("Cannot find entity in null world!");
-        }
-
-        final List<Entity> list = fromWhere.getWorld()
-                .getNearbyEntities(fromWhere, radius, radius, radius)
-                .stream()
-                .filter(predicate)
-                .toList();
-
-        Entity nearest = null;
-        double dist = -1;
-        for (Entity entity : list) {
-            final double distance = entity.getLocation().distance(fromWhere);
-            // init
-            if (nearest == null) {
-                nearest = entity;
-                dist = distance;
-            }
-            else {
-                if (distance <= dist) {
-                    nearest = entity;
-                    dist = distance;
-                }
-            }
-        }
-        return nearest;
-    }
-
-    public static List<Player> getPlayersInRange(Location location, double range) {
-        final World world = location.getWorld();
-        final List<Player> players = new ArrayList<>();
-
-        if (world == null) {
-            return players;
-        }
-
-        world.getNearbyEntities(location, range, range, range)
-                .stream()
-                .filter(entity -> entity instanceof Player && Manager.current().isPlayerInGame((Player) entity))
-                .forEach(player -> players.add((Player) player));
-
-        return players;
-
-    }
-
     public static void createExplosion(Location location, double range, double damage, Consumer<LivingEntity> consumer) {
         createExplosion(location, range, damage, null, null, consumer);
     }
@@ -617,7 +388,7 @@ public class Utils {
             return;
         }
 
-        Utils.getEntitiesInRange(location, range).forEach(entity -> {
+        Collect.nearbyLivingEntities(location, range).forEach(entity -> {
             if (damage > 0.0d) {
                 GamePlayer.damageEntity(entity, damage, damager, cause);
             }
@@ -661,4 +432,9 @@ public class Utils {
         return def;
     }
 
+    public static <E> List<String> collectionToStringList(Collection<E> e, java.util.function.Function<E, String> fn) {
+        final List<String> list = new ArrayList<>();
+        e.forEach(el -> list.add(fn.apply(el)));
+        return list;
+    }
 }

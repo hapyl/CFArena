@@ -1,4 +1,4 @@
-package me.hapyl.fight.game.talents.archive.extra;
+package me.hapyl.fight.game.talents.archive.shaman;
 
 public interface ActiveTotemResonance {
 

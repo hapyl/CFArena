@@ -15,7 +15,7 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.pytaria.FlowerBreeze;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -104,7 +104,7 @@ public class Pytaria extends Hero {
             me.setAI(false);
         });
 
-        final LivingEntity nearestEntity = Utils.getNearestLivingEntityPrioritizePlayers(location, 50, check -> check != player);
+        final LivingEntity nearestEntity = Collect.nearestLivingEntityPrioritizePlayers(location, 50, check -> check != player);
         PlayerLib.playSound(location, Sound.ENTITY_BEE_LOOP_AGGRESSIVE, 1.0f);
 
         new GameTask() {
@@ -123,7 +123,7 @@ public class Pytaria extends Hero {
                     bee.remove();
                     cancel();
 
-                    Utils.getEntitiesInRange(touchLocation, 1.5d).forEach(victim -> {
+                    Collect.nearbyLivingEntities(touchLocation, 1.5d).forEach(victim -> {
                         GamePlayer.damageEntity(victim, finalDamage, player, EnumDamageCause.FEEL_THE_BREEZE);
                     });
 

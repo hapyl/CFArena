@@ -5,8 +5,8 @@ import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.maps.MapFeature;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Direction;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
@@ -47,7 +47,7 @@ public class JapanFeature extends MapFeature implements Listener {
         }
 
         for (final Location location : healingSakuraLocations) {
-            Utils.getPlayersInRange(location, 6.5d).forEach(player -> {
+            Collect.nearbyPlayers(location, 6.5d).forEach(player -> {
                 if (!canBeHealed(player)) {
                     return;
                 }

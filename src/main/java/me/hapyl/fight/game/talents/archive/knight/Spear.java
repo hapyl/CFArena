@@ -5,7 +5,7 @@ import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Color;
@@ -43,7 +43,7 @@ public class Spear extends Talent {
 					return;
 				}
 
-                Utils.getEntitiesInRange(player.getLocation(), radius).forEach(entity -> {
+                Collect.nearbyLivingEntities(player.getLocation(), radius).forEach(entity -> {
                     if (entity == player) {
                         return;
                     }

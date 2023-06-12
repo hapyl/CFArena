@@ -11,7 +11,7 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.task.RaycastTask;
 import me.hapyl.fight.game.weapons.RangeWeapon;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -67,7 +67,7 @@ public class Freazly extends Hero implements DisabledHero {
 
                     public void onHit(LivingEntity entity) {
                         EntityData.damage(entity, 7.5d, player, EnumDamageCause.FROSTBITE);
-                        EntityData.getEntityData(entity).addEffect(GameEffectType.SLOWING_AURA, 20, true);
+                        EntityData.of(entity).addEffect(GameEffectType.SLOWING_AURA, 20, true);
                     }
 
                     @Override
@@ -76,7 +76,7 @@ public class Freazly extends Hero implements DisabledHero {
                         PlayerLib.spawnParticle(location, Particle.SNOWBALL, 1, 0, 0, 0, 0.025f);
 
                         // Damage detection
-                        final LivingEntity collision = Utils.getNearestLivingEntity(location, 0.75d, entity -> entity != player);
+                        final LivingEntity collision = Collect.nearestLivingEntity(location, 0.75d, entity -> entity != player);
                         if (collision != null) {
                             onHit(collision);
                             return true;

@@ -7,7 +7,7 @@ import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.dark_mage.DarkMageSpell;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.Draw;
@@ -101,7 +101,7 @@ public class SlowingAura extends DarkMageTalent {
                 });
 
                 PlayerLib.playSound(location, BLOCK_HONEY_BLOCK_SLIDE, 0.0f);
-                Utils.getPlayersInRange(location, radius).forEach(entity -> {
+                Collect.nearbyPlayers(location, radius).forEach(entity -> {
                     if (entity == player) {
                         return; // Don't slow Dark Mage
                     }

@@ -7,7 +7,7 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.shadow_assassin.ShadowAssassin;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -66,7 +66,7 @@ public class ShroudedStep extends Talent {
                 final Location decoyLocation = decoy.getLocation().add(0.0d, 1.8d, 0.0d);
 
                 decoy.remove();
-                Utils.getEntitiesInRange(decoyLocation, decoyExplosionRadius).forEach(entity -> {
+                Collect.nearbyLivingEntities(decoyLocation, decoyExplosionRadius).forEach(entity -> {
                     if (entity == player) {
                         return;
                     }

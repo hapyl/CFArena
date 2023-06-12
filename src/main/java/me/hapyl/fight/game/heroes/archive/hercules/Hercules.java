@@ -14,7 +14,7 @@ import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
@@ -209,7 +209,7 @@ public class Hercules extends Hero implements Listener, PlayerElement {
 
                     CosmeticsHandle.GROUND_PUNCH_COSMETIC.playAnimation(player.getLocation(), 2);
 
-                    Utils.getEntitiesInRange(player.getLocation(), 4).forEach(target -> {
+                    Collect.nearbyLivingEntities(player.getLocation(), 4).forEach(target -> {
                         if (target == player) {
                             return;
                         }

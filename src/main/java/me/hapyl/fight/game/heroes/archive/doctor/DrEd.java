@@ -12,8 +12,8 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.ItemStacks;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -69,12 +69,12 @@ public class DrEd extends Hero implements UIComponent {
 
                     // Collision Check
                     final Location location = entity.getLocation().add(0.0d, 0.75d, 0.0d);
-                    final LivingEntity nearest = Utils.getNearestLivingEntity(location, 0.3d, player);
+                    final LivingEntity nearest = Collect.nearestLivingEntity(location, 0.3d, player);
 
                     if (nearest != null) {
                         final Material material = shield.getMaterial();
 
-                        GamePlayer.damageEntity(nearest, shield.getElement().getDamage(), player, EnumDamageCause.BLOCK_SHIELD);
+                        GamePlayer.damageEntity(nearest, shield.getType().getElement().getDamage(), player, EnumDamageCause.BLOCK_SHIELD);
 
                         shield.remove();
                         scheduleNextShield(player, 10);
@@ -160,6 +160,6 @@ public class DrEd extends Hero implements UIComponent {
             return "";
         }
 
-        return "&6🛡 " + Chat.capitalize(shield.getElement());
+        return "&6🛡 " + Chat.capitalize(shield.getType());
     }
 }

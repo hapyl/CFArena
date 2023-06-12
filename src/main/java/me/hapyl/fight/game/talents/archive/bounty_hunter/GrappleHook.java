@@ -4,8 +4,8 @@ import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.entity.EntityUtils;
@@ -120,7 +120,7 @@ public class GrappleHook {
                     return;
                 }
 
-                final LivingEntity nearest = Utils.getNearestLivingEntity(location, 1.5d, player);
+                final LivingEntity nearest = Collect.nearestLivingEntity(location, 1.5d, player);
 
                 if (nearest != null) {
                     hookedEntity = nearest;

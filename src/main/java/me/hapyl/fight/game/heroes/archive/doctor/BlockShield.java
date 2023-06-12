@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.heroes.archive.doctor;
 
-import me.hapyl.fight.game.talents.archive.extra.ElementType;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.inventory.ItemStackBuilder;
@@ -24,7 +23,7 @@ public class BlockShield {
 
     private Entity entity;
     private Material material;
-    private ElementType element;
+    private ElementType type;
     private double theta;
 
     public BlockShield(Player player) {
@@ -38,14 +37,14 @@ public class BlockShield {
 
         // Get random block around the player
         final Block block = randomBlock();
-        setElement(block.getType());
+        setType(block.getType());
 
         PlayerLib.playSound(player, Sound.ENTITY_CHICKEN_EGG, 0.0f);
     }
 
-    private void setElement(Material material) {
+    private void setType(Material material) {
         this.material = material;
-        this.element = ElementType.getElement(material);
+        this.type = ElementType.getElement(material);
         this.theta = 0;
 
         this.entity = Entities.ARMOR_STAND_MARKER.spawn(player.getLocation(), self -> {
@@ -104,7 +103,7 @@ public class BlockShield {
 
         theta = 0;
         material = null;
-        element = null;
+        type = null;
     }
 
     public boolean exists() {
@@ -115,8 +114,8 @@ public class BlockShield {
         return entity;
     }
 
-    public ElementType getElement() {
-        return element;
+    public ElementType getType() {
+        return type;
     }
 
     public Material getMaterial() {

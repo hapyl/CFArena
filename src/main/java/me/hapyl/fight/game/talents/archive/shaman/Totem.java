@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.archive.extra.ActiveTotem;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Location;

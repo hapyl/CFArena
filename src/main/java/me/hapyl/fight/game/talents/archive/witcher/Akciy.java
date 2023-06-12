@@ -5,7 +5,7 @@ import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -26,7 +26,7 @@ public class Akciy extends Talent {
 
     @Override
     public Response execute(Player player) {
-        final Player target = Utils.getTargetPlayer(player, 50.0d);
+        final Player target = Collect.targetPlayer(player, 50.0d);
 
         if (target == null) {
             return Response.error("No valid target!");

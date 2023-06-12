@@ -4,7 +4,7 @@ import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
@@ -47,7 +47,7 @@ public class ArcaneMute extends Talent {
     }
 
     public Entity targetEntityChatGPT(Player player, int range) {
-        return Utils.getTargetEntity(player, range, 0.95, entity -> entity instanceof Player && player.hasLineOfSight(entity));
+        return Collect.targetLivingEntity(player, range, 0.95, entity -> entity instanceof Player && player.hasLineOfSight(entity));
     }
 
 }

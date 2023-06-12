@@ -1,4 +1,4 @@
-package me.hapyl.fight.game.talents.archive.extra;
+package me.hapyl.fight.game.talents.archive.techie;
 
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.effect.GameEffectType;

@@ -7,6 +7,7 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.harbinger.Harbinger;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -114,7 +115,7 @@ public class TidalWave {
             }
 
             // Push enemies
-            Utils.getEntitiesInRange(location, 1.0d, entity -> Utils.isEntityValid(entity, player))
+            Collect.nearbyLivingEntities(location, 1.0d, entity -> Utils.isEntityValid(entity, player))
                     .forEach(entity -> {
                         entity.setVelocity(pushVector);
                         Heroes.HARBINGER.getHero(Harbinger.class).addRiptide(player, entity, talent.riptideDuration, false);

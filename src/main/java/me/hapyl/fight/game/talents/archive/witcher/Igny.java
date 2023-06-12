@@ -4,7 +4,7 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
@@ -40,7 +40,7 @@ public class Igny extends Talent {
         final Location location = player.getLocation();
         final Location targetLocation = location.add(player.getLocation().getDirection().multiply(3));
 
-        Utils.getPlayersInRange(targetLocation, maximumDistance).forEach(target -> {
+        Collect.nearbyPlayers(targetLocation, maximumDistance).forEach(target -> {
             if (target == player) {
                 return;
             }

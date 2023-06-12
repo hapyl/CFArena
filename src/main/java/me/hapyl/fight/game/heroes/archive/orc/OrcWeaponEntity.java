@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.archive.orc;
 
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.locaiton.LocationHelper;
@@ -21,8 +22,8 @@ import javax.annotation.Nonnull;
 public abstract class OrcWeaponEntity extends GameTask {
 
     private static final int MAX_ALIVE_TICKS = Tick.fromSecond(10);
-
     private final double FLIGHT_SPEED = 0.75d;
+
     private final BlockData[] BLOCK_DATA = {
             Material.WHITE_CONCRETE_POWDER.createBlockData(),
             Material.LIGHT_BLUE_CONCRETE_POWDER.createBlockData()
@@ -145,7 +146,7 @@ public abstract class OrcWeaponEntity extends GameTask {
         }
 
         // Check for entity hit
-        final LivingEntity nearestEntity = Utils.getNearestLivingEntity(hitLocation, 0.1d, predicate -> predicate != player);
+        final LivingEntity nearestEntity = Collect.nearestLivingEntity(hitLocation, 0.2d, predicate -> predicate != player);
 
         if (nearestEntity != null) {
             hitEntity = nearestEntity;

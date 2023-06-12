@@ -43,11 +43,16 @@ public class ParkourLeaderboardGUI extends PlayerPageGUI<LeaderboardData> {
                 .setSkullOwner(data.getName())
                 .addLore("&8#" + (index + 1))
                 .addLore()
-                .addLore("Completion Time: &f&l%s&fs", leaderboard.formatTime(data.getCompletionTime()))
-                .addLore()
-                .addLore("&eStats:");
+                .addLore("Completion Time: &f&l%s&fs", leaderboard.formatTime(data))
+                .addLore();
+
+        if (data.isDirty()) {
+            builder.addSmartLore("&cThis record was modified by an admin!");
+            builder.addLore();
+        }
 
         if (data.hasStats()) {
+            builder.addLore("&e&lStats:");
             for (Stats.Type value : Stats.Type.values()) {
                 builder.addLore(" &7%s &f&l%s", Chat.capitalize(value.name()), data.getStat(value));
             }

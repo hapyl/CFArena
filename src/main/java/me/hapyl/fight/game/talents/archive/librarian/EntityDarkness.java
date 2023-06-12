@@ -4,8 +4,7 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
-import me.hapyl.fight.game.talents.archive.extra.LibrarianTalent;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -40,7 +39,7 @@ public class EntityDarkness extends LibrarianTalent {
             }
 
             PlayerLib.spawnParticle(location, Particle.SQUID_INK, 1, 0.1, 0.05, 0.1, 0);
-            Utils.getEntitiesInRange(location, 1.25d).forEach(victim -> {
+            Collect.nearbyLivingEntities(location, 1.25d).forEach(victim -> {
                 if (victim == player) {
                     return;
                 }

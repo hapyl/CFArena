@@ -98,7 +98,7 @@ public class CFParkour extends Parkour implements ParkourHandler {
         });
     }
 
-    protected void updateLeaderboardIfExists() {
+    public void updateLeaderboardIfExists() {
         if (leaderboard != null) {
             leaderboard.update();
         }

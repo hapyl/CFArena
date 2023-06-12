@@ -6,6 +6,7 @@ import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -89,7 +90,7 @@ public class Lockdown {
                 if (tick % delayBetweenDraw == 0) {
                     int lockdownRadius = Heroes.TECHIE.getHero(Techie.class).LOCKDOWN_RADIUS;
 
-                    Utils.getPlayersInRange(Lockdown.this.location, lockdownRadius).forEach(target -> {
+                    Collect.nearbyPlayers(Lockdown.this.location, lockdownRadius).forEach(target -> {
                         PlayerLib.playSound(target, Sound.BLOCK_BEACON_AMBIENT, 2.0f);
                         GamePlayer.getPlayer(target).sendWarning("Lockdown Warning!", 5);
                     });
@@ -137,7 +138,7 @@ public class Lockdown {
         entity.remove();
 
         int affectedSize = 0;
-        for (final Player player : Utils.getPlayersInRange(location, Heroes.TECHIE.getHero(Techie.class).LOCKDOWN_RADIUS)) {
+        for (final Player player : Collect.nearbyPlayers(location, Heroes.TECHIE.getHero(Techie.class).LOCKDOWN_RADIUS)) {
             if (player == Lockdown.this.player) {
                 continue;
             }

@@ -113,7 +113,7 @@ public class GamePlayer implements IGamePlayer {
     }
 
     public void resetPlayer(Ignore... ignores) {
-        final EntityData playerData = EntityData.getEntityData(player);
+        final EntityData playerData = EntityData.of(player);
         if (isNotIgnored(ignores, Ignore.DAMAGER)) {
             playerData.setLastDamager(null);
         }
@@ -268,7 +268,7 @@ public class GamePlayer implements IGamePlayer {
 
     @Nonnull
     public EntityData getData() {
-        return EntityData.getEntityData(player);
+        return EntityData.of(player);
     }
 
     public void addEffect(GameEffectType type, int ticks, boolean override) {
@@ -417,7 +417,7 @@ public class GamePlayer implements IGamePlayer {
 
         triggerOnDeath();
 
-        final EntityData data = EntityData.getEntityData(player);
+        final EntityData data = EntityData.of(player);
 
         // Award killer coins for kill
         if (data.getLastDamager() != null) {
@@ -920,12 +920,12 @@ public class GamePlayer implements IGamePlayer {
     }
 
     public static void damageEntityTick(LivingEntity entity, double damage, @Nullable LivingEntity damager, @Nullable EnumDamageCause cause, int tick) {
-        EntityData.getEntityData(entity).damageTick(entity, damage, damager, cause, tick);
+        EntityData.of(entity).damageTick(entity, damage, damager, cause, tick);
     }
 
     @Super
     public static void damageEntity(LivingEntity entity, double damage, LivingEntity damager, EnumDamageCause cause) {
-        EntityData.getEntityData(entity).damage(entity, damage, damager, cause);
+        EntityData.of(entity).damage(entity, damage, damager, cause);
     }
 
     public enum Ignore {

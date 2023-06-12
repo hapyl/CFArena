@@ -28,10 +28,12 @@ public class StringDisplay {
     @Nullable protected DisplayAnimation animation;
     @Nonnull protected Transformation initTransformation = transformationScale(1.0f);
     @Nonnull protected String string;
+    protected float viewRange;
 
     public StringDisplay(@Nonnull String string, final int stay) {
         this.string = string;
         this.stay = stay;
+        this.viewRange = 16;
     }
 
     public StringDisplay(final int stay) {
@@ -45,6 +47,10 @@ public class StringDisplay {
 
     public void setAnimation(@Nullable DisplayAnimation animation) {
         this.animation = animation;
+    }
+
+    public void setViewRange(float viewRange) {
+        this.viewRange = viewRange;
     }
 
     /**
@@ -95,6 +101,7 @@ public class StringDisplay {
             self.setTransformation(initTransformation);
             self.setTextOpacity((byte) -1);
             self.setText(Chat.format(string));
+            self.setViewRange(viewRange);
         }, false);
 
         onStart(text);

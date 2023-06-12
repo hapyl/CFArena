@@ -8,6 +8,7 @@ import me.hapyl.fight.game.attribute.PlayerAttributes;
 import me.hapyl.fight.game.attribute.Temper;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -16,9 +17,12 @@ import me.hapyl.fight.game.talents.archive.orc.OrcGrowl;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.meta.trim.TrimMaterial;
+import org.bukkit.inventory.meta.trim.TrimPattern;
 
 public class Orc extends Hero {
 
@@ -66,6 +70,13 @@ public class Orc extends Hero {
         attributes.setValue(AttributeType.CRIT_CHANCE, 0.15d);
 
         setWeapon(new OrcWeapon());
+
+        setItem("a06220fdfef4d53da8bcef8cbef9a8a3add3d776de43a3781b2f58869ce3d738");
+
+        final HeroEquipment equipment = getEquipment();
+        equipment.setChestplate(138, 140, 133, TrimPattern.RIB, TrimMaterial.QUARTZ);
+        equipment.setLeggings(20, 19, 51);
+        equipment.setBoots(Material.NETHERITE_BOOTS);
 
         setUltimate(
                 new UltimateTalent("Berserk", 70)

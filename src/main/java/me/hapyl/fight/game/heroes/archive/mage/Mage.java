@@ -26,6 +26,8 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.trim.TrimMaterial;
+import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
@@ -73,9 +75,9 @@ public class Mage extends Hero implements UIComponent {
         setItem("f41e6e4bcd2667bb284fb0dde361894840ea782efbfb717f6244e06b951c2b3f");
 
         final HeroEquipment equipment = this.getEquipment();
-        equipment.setChestplate(82, 12, 135);
-        equipment.setLeggings(163, 52, 247);
-        equipment.setBoots(82, 12, 135);
+        equipment.setChestplate(82, 12, 135, TrimPattern.VEX, TrimMaterial.AMETHYST);
+        equipment.setLeggings(82, 12, 135, TrimPattern.TIDE, TrimMaterial.AMETHYST);
+        equipment.setBoots(Material.NETHERITE_BOOTS, TrimPattern.TIDE, TrimMaterial.AMETHYST);
 
         setWeapon(new Weapon(Material.IRON_HOE) {
             @Override

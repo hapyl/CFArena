@@ -251,7 +251,7 @@ public class PlayerHandler implements Listener {
 
         // This is what actually stores all the custom data
         // needed to handle custom damage/causes.
-        final EntityData data = EntityData.getEntityData(livingEntity);
+        final EntityData data = EntityData.of(livingEntity);
 
         // REASSIGNMENT STATE
         // If an entity wasn't hit by using DamageHandler, we
@@ -506,7 +506,7 @@ public class PlayerHandler implements Listener {
 
         // Show damage indicator if dealt more
         // than 1 damage to remove clutter
-        if (damage >= 1.0d && !(entity instanceof ArmorStand)) {
+        if (damage >= 1.0d && !(entity instanceof ArmorStand) && !livingEntity.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
             //            final DamageIndicator damageIndicator = new DamageIndicator(entity.getLocation(), damage, isCrit);
             //            damageIndicator.display(isCrit ? 30 : 20);
 

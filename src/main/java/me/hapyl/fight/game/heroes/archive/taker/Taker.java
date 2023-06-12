@@ -16,6 +16,7 @@ import me.hapyl.fight.game.talents.archive.taker.FatalReap;
 import me.hapyl.fight.game.talents.archive.taker.SpiritualBonesPassive;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
@@ -26,6 +27,8 @@ import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.meta.trim.TrimMaterial;
+import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
@@ -51,9 +54,9 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
         setItem("ff1e554161bd4b2ce4cad18349fd756994f74cabf1fd1dacdf91b6d05dffaf");
 
         final HeroEquipment equipment = getEquipment();
-        equipment.setChestplate(Color.BLACK);
-        equipment.setLeggings(Color.BLACK);
-        equipment.setBoots(Color.BLACK);
+        equipment.setChestplate(28, 28, 28);
+        equipment.setLeggings(0, 0, 0, TrimPattern.SILENCE, TrimMaterial.QUARTZ);
+        equipment.setBoots(28, 28, 28, TrimPattern.SILENCE, TrimMaterial.QUARTZ);
 
         setWeapon(Material.IRON_HOE, "Scythe", 6.66d);
 
@@ -147,7 +150,7 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
             if (i % hitDelay == 0) {
                 final Location hitLocation = LocationHelper.getInFront(player.getEyeLocation(), 1.5d);
 
-                Utils.getEntitiesInRange(
+                Collect.nearbyLivingEntities(
                         hitLocation,
                         2.0d,
                         living -> Utils.isEntityValid(living, player)
@@ -231,7 +234,7 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
 
                 location.add(x, y, z);
 
-                Utils.getEntitiesInRange(location, 1.0d, entity -> entity != player)
+                Collect.nearbyLivingEntities(location, 1.0d, entity -> entity != player)
                         .forEach(entity -> GamePlayer.damageEntity(entity, 10.0d, player, EnumDamageCause.DEATH_RAY));
 
                 // Fx

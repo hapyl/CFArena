@@ -80,6 +80,7 @@ public class ActivePack implements Ticking {
         remove();
 
         entity = Entities.ARMOR_STAND_MARKER.spawn(location, self -> {
+            self.addScoreboardTag("GamePack");
             self.setSmall(true);
             self.setVisible(false);
             Utils.setEquipment(self, equipment -> equipment.setHelmet(pack.getTexture()));

@@ -232,8 +232,12 @@ public abstract class GameTask implements Runnable {
         return this.task.getTaskId();
     }
 
-    // Called when the task is canceled
-    public void onCancel() {
+    // called before the task is scheduled
+    public void onStart() {
+    }
+
+    // Called when the task is stopped (canceled)
+    public void onStop() {
     }
 
     public synchronized void cancelIfActive() {
@@ -241,14 +245,14 @@ public abstract class GameTask implements Runnable {
             return;
         }
 
-        onCancel();
+        onStop();
         Bukkit.getScheduler().cancelTask(this.task.getTaskId());
     }
 
     public synchronized void cancel() {
         this.validateExists();
 
-        onCancel();
+        onStop();
         Bukkit.getScheduler().cancelTask(this.task.getTaskId());
     }
 
@@ -273,6 +277,8 @@ public abstract class GameTask implements Runnable {
         if (!Main.getPlugin().isEnabled()) {
             return this;
         }
+
+        onStart();
         this.task = task;
         Main.getPlugin().getTaskList().register(this);
         return this;

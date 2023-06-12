@@ -7,9 +7,10 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.trim.TrimMaterial;
+import org.bukkit.inventory.meta.trim.TrimPattern;
 
 import javax.annotation.Nonnull;
-import java.util.Locale;
 
 /**
  * Represents a hero armor equipment.
@@ -24,10 +25,62 @@ public class HeroEquipment {
         this.armor = new ItemStack[4];
     }
 
-    public void setArmor(ItemStack[] stack) {
-        if (stack.length == 4) {
-            System.arraycopy(stack, 0, this.armor, 0, this.armor.length);
-        }
+    public HeroEquipment setChestplate(Material material, TrimPattern pattern, TrimMaterial trimMaterial) {
+        this.armor[1] = new ItemBuilder(material).setArmorTrim(pattern, trimMaterial).cleanToItemSack();
+        return this;
+    }
+
+    public HeroEquipment setLeggings(Material material, TrimPattern pattern, TrimMaterial trimMaterial) {
+        this.armor[2] = new ItemBuilder(material).setArmorTrim(pattern, trimMaterial).cleanToItemSack();
+        return this;
+    }
+
+    public HeroEquipment setBoots(Material material, TrimPattern pattern, TrimMaterial trimMaterial) {
+        this.armor[3] = new ItemBuilder(material).setArmorTrim(pattern, trimMaterial).cleanToItemSack();
+        return this;
+    }
+
+    /**
+     * @deprecated Use {@link Hero#setItem(String)}
+     */
+    @Deprecated
+    public void setTexture(String texture64) {
+        this.setHelmet(ItemBuilder.playerHeadUrl(texture64).cleanToItemSack());
+    }
+
+    public HeroEquipment setHelmet(int red, int green, int blue) {
+        return this.setHelmet(ItemBuilder.leatherHat(Color.fromRGB(red, green, blue)).cleanToItemSack());
+    }
+
+    public HeroEquipment setChestplate(int red, int green, int blue) {
+        return this.setChestplate(ItemBuilder.leatherTunic(Color.fromRGB(red, green, blue)).cleanToItemSack());
+    }
+
+    public HeroEquipment setLeggings(int red, int green, int blue) {
+        return this.setLeggings(ItemBuilder.leatherPants(Color.fromRGB(red, green, blue)).cleanToItemSack());
+    }
+
+    public HeroEquipment setBoots(int red, int green, int blue) {
+        return this.setBoots(ItemBuilder.leatherBoots(Color.fromRGB(red, green, blue)).cleanToItemSack());
+    }
+
+    public HeroEquipment setChestplate(int red, int green, int blue, TrimPattern pattern, TrimMaterial material) {
+        return this.setChestplate(ItemBuilder.leatherTunic(Color.fromRGB(red, green, blue))
+                .setArmorTrim(pattern, material)
+                .cleanToItemSack());
+    }
+
+    public HeroEquipment setLeggings(int red, int green, int blue, TrimPattern pattern, TrimMaterial material) {
+        return this.setLeggings(ItemBuilder.leatherPants(Color.fromRGB(red, green, blue)).setArmorTrim(pattern, material).cleanToItemSack());
+    }
+
+    public HeroEquipment setBoots(int red, int green, int blue, TrimPattern pattern, TrimMaterial material) {
+        return this.setBoots(ItemBuilder.leatherBoots(Color.fromRGB(red, green, blue)).setArmorTrim(pattern, material).cleanToItemSack());
+    }
+
+    @Nonnull
+    public ItemStack getHelmet() {
+        return this.itemOrNull(this.armor[0]);
     }
 
     public HeroEquipment setHelmet(ItemStack stack) {
@@ -41,79 +94,8 @@ public class HeroEquipment {
         return this;
     }
 
-    public HeroEquipment setChestplate(Material material) {
-        this.armor[1] = new ItemBuilder(material).cleanToItemSack();
-        return this;
-    }
-
-    public HeroEquipment setLeggings(Material material) {
-        this.armor[2] = new ItemBuilder(material).cleanToItemSack();
-        return this;
-    }
-
-    public HeroEquipment setBoots(Material material) {
-        this.armor[3] = new ItemBuilder(material).cleanToItemSack();
-        return this;
-    }
-
-    public HeroEquipment setArmorPiece(Material material) {
-        final String lowerName = material.name().toLowerCase(Locale.ROOT);
-        switch (lowerName) {
-            case "helmet" -> {
-                return this.setHelmet(material);
-            }
-            case "chestplate" -> {
-                return this.setChestplate(material);
-            }
-            case "leggings" -> {
-                return this.setLeggings(material);
-            }
-            case "boots" -> {
-                return this.setBoots(material);
-            }
-            default -> throw new IllegalArgumentException(String.format("couldn't figure out where to put %s!", material.name()));
-        }
-
-    }
-
-    public void setTexture(String texture64) {
-        this.setHelmet(ItemBuilder.playerHeadUrl(texture64).cleanToItemSack());
-    }
-
-    public HeroEquipment setHelmet(int red, int green, int blue) {
-        return this.setHelmet(ItemBuilder.leatherHat(Color.fromRGB(red, green, blue)).cleanToItemSack());
-    }
-
-    public HeroEquipment setChestplate(ItemStack stack) {
-        this.armor[1] = stack;
-        return this;
-    }
-
-    public HeroEquipment setChestplate(int red, int green, int blue) {
-        return this.setChestplate(ItemBuilder.leatherTunic(Color.fromRGB(red, green, blue)).cleanToItemSack());
-    }
-
-    public HeroEquipment setLeggings(ItemStack stack) {
-        this.armor[2] = stack;
-        return this;
-    }
-
-    public HeroEquipment setLeggings(int red, int green, int blue) {
-        return this.setLeggings(ItemBuilder.leatherPants(Color.fromRGB(red, green, blue)).cleanToItemSack());
-    }
-
-    public HeroEquipment setBoots(ItemStack stack) {
-        this.armor[3] = stack;
-        return this;
-    }
-
-    public HeroEquipment setBoots(int red, int green, int blue) {
-        return this.setBoots(ItemBuilder.leatherBoots(Color.fromRGB(red, green, blue)).cleanToItemSack());
-    }
-
-    @Nonnull
-    public ItemStack getHelmet() {
-        return this.itemOrNull(this.armor[0]);
+    public void setHelmet(Color color) {
+        this.setHelmet(color.getRed(), color.getGreen(), color.getBlue());
     }
 
     @Nonnull
@@ -121,14 +103,56 @@ public class HeroEquipment {
         return this.itemOrNull(this.armor[1]);
     }
 
+    public HeroEquipment setChestplate(Material material) {
+        this.armor[1] = new ItemBuilder(material).cleanToItemSack();
+        return this;
+    }
+
+    public HeroEquipment setChestplate(ItemStack stack) {
+        this.armor[1] = stack;
+        return this;
+    }
+
+    public void setChestplate(Color color) {
+        this.setChestplate(color.getRed(), color.getGreen(), color.getBlue());
+    }
+
     @Nonnull
     public ItemStack getLeggings() {
         return this.itemOrNull(this.armor[2]);
     }
 
+    public HeroEquipment setLeggings(Material material) {
+        this.armor[2] = new ItemBuilder(material).cleanToItemSack();
+        return this;
+    }
+
+    public HeroEquipment setLeggings(ItemStack stack) {
+        this.armor[2] = stack;
+        return this;
+    }
+
+    public void setLeggings(Color color) {
+        this.setLeggings(color.getRed(), color.getGreen(), color.getBlue());
+    }
+
     @Nonnull
     public ItemStack getBoots() {
         return this.itemOrNull(this.armor[3]);
+    }
+
+    public HeroEquipment setBoots(Material material) {
+        this.armor[3] = new ItemBuilder(material).cleanToItemSack();
+        return this;
+    }
+
+    public HeroEquipment setBoots(ItemStack stack) {
+        this.armor[3] = stack;
+        return this;
+    }
+
+    public void setBoots(Color color) {
+        this.setBoots(color.getRed(), color.getGreen(), color.getBlue());
     }
 
     public void equip(Player player) {
@@ -154,28 +178,18 @@ public class HeroEquipment {
         return armor;
     }
 
+    public void setArmor(ItemStack[] stack) {
+        if (stack.length == 4) {
+            System.arraycopy(stack, 0, this.armor, 0, this.armor.length);
+        }
+    }
+
     private ItemStack armorOrNull(int index) {
         return this.itemOrNull(this.armor[index]);
     }
 
     private ItemStack itemOrNull(ItemStack s) {
         return s == null ? NULL_ITEM : s;
-    }
-
-    public void setHelmet(Color color) {
-        this.setHelmet(color.getRed(), color.getGreen(), color.getBlue());
-    }
-
-    public void setChestplate(Color color) {
-        this.setChestplate(color.getRed(), color.getGreen(), color.getBlue());
-    }
-
-    public void setLeggings(Color color) {
-        this.setLeggings(color.getRed(), color.getGreen(), color.getBlue());
-    }
-
-    public void setBoots(Color color) {
-        this.setBoots(color.getRed(), color.getGreen(), color.getBlue());
     }
 
 }

@@ -4,7 +4,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EntityData;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.Tick;
@@ -37,12 +37,12 @@ public class OrcGrowl extends Talent {
 
         player.addPotionEffect(PotionEffectType.SLOW.createEffect(20, 3));
 
-        Utils.getEntitiesInRangeValidateRange(location, distance).forEach(victim -> {
+        Collect.nearbyLivingEntitiesValidate(location, distance).forEach(victim -> {
             if (victim == player) {
                 return;
             }
 
-            EntityData.getEntityData(victim).addEffect(GameEffectType.ORC_GROWL, debuffDuration, true);
+            EntityData.of(victim).addEffect(GameEffectType.ORC_GROWL, debuffDuration, true);
         });
 
         // Fx

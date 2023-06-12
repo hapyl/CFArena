@@ -12,6 +12,7 @@ import me.hapyl.fight.game.talents.archive.vortex.VortexStar;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.Quality;
@@ -70,7 +71,7 @@ public class Vortex extends Hero implements UIComponent {
                             PlayerLib.playSound(nextLocation, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.25f);
                         }
 
-                        Utils.getEntitiesInRange(nextLocation, 2.0d).forEach(entity -> {
+                        Collect.nearbyLivingEntities(nextLocation, 2.0d).forEach(entity -> {
                             if (entity == player) {
                                 return;
                             }
@@ -136,7 +137,7 @@ public class Vortex extends Hero implements UIComponent {
             world.playSound(location, Sound.ITEM_FLINTANDSTEEL_USE, 10, 0.75f);
 
             // damage
-            Utils.getEntitiesInRange(location, 2.0d).forEach(entity -> {
+            Collect.nearbyLivingEntities(location, 2.0d).forEach(entity -> {
                 if (player == entity) {
                     return;
                 }

@@ -116,8 +116,34 @@ Bugs:
 - Use game task delay for delay, its built-in
 - Vampire swarm not remove
 
-- Test DM since reworked spell casting
-- Improve DM dark spell
+== 1.20 ==
+- Poison alch damage does not change damager
+- Wither is BIG
+- [✔] Don't show damage when invisible
+- /2 CD when DM has ULT
+- [✔] Fix snake parkour quit location
+- Lover damage in darkness nightmare
+- [✔] ADD TRIM COMMAND
+- Add patterns to TECHIE
+- TECHIE ult should lockdown or break linked opponents
+- Maybe rework passive to be "If have paranoia, take more damage" though it would be hard to detect who applied without using a map
+- UPGRADES PEOPLE UPGRADES not removed on death
+- Anchor dr ed particles
+
+- Input talent does not reset when predicate false?
+
+- Check for melee damage
+- Some death messages show damager when they shouldn't
+- Ender TP should give attack
+- Add global cobweb for troll
+- DEAD GIFT TECHIE
+- [✔] Add damage boost to shorty while in hook
+- [✔] Lower defense
+
+- [✔] Test DM since reworked spell casting
+- [✔] Improve DM dark spell
+
+- !!! Allow console to use stop
 
 - Rework techie a bit, add delay to traps and ult is useless :|
 

@@ -6,12 +6,12 @@ import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.archive.extra.LibrarianTalent;
+import me.hapyl.fight.game.talents.archive.librarian.LibrarianTalent;
 import me.hapyl.fight.game.talents.archive.librarian.EntityDarkness;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.chat.Gradient;
 import me.hapyl.spigotutils.module.chat.gradient.Interpolators;
@@ -28,6 +28,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.trim.TrimMaterial;
+import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -61,7 +63,7 @@ public class Librarian extends Hero implements ComplexHero, Listener, DisabledHe
         setItem("a88b1cd9574672e8e3262f210c0dddbc082ea7569e8e70f0c07b4bee75e32f62");
 
         final HeroEquipment equipment = getEquipment();
-        equipment.setChestplate(47, 32, 40);
+        equipment.setChestplate(47, 32, 40, TrimPattern.WARD, TrimMaterial.GOLD);
         equipment.setLeggings(Material.NETHERITE_LEGGINGS);
         equipment.setBoots(84, 37, 62);
 
@@ -145,7 +147,7 @@ public class Librarian extends Hero implements ComplexHero, Listener, DisabledHe
                 PlayerLib.spawnParticle(castLocation, Particle.SQUID_INK, 50, 5, 1.5, 5, 0.05f);
                 PlayerLib.spawnParticle(castLocation, Particle.SQUID_INK, 10, 5, 1.5, 5, 2.0f);
 
-                Utils.getEntitiesInRange(castLocation, 20).forEach(entity -> {
+                Collect.nearbyLivingEntities(castLocation, 20).forEach(entity -> {
                     if (entity == player) {
                         PlayerLib.addEffect(player, EffectType.SPEED, 20, 1);
                         PlayerLib.addEffect(player, EffectType.STRENGTH, 20, 0);

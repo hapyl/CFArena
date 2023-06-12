@@ -1,12 +1,12 @@
-package me.hapyl.fight.game.talents.archive.extra;
+package me.hapyl.fight.game.talents.archive.alchemist;
 
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.alchemist.Alchemist;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -117,7 +117,7 @@ public class AlchemicalCauldron {
                     });
 
                     // Damage players in zone
-                    Utils.getPlayersInRange(location, 4.5d).forEach(player -> {
+                    Collect.nearbyPlayers(location, 4.5d).forEach(player -> {
                         if (player == owner) {
                             Chat.sendTitle(player, "", "&cIntoxication Warning!", 0, 20, 0);
                             ((Alchemist) Heroes.ALCHEMIST.getHero()).addToxin(player, 8);

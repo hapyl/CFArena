@@ -8,7 +8,7 @@ import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.GameEffectType;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.annotate.Super;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
@@ -434,7 +434,7 @@ public final class EntityData {
      */
     @Super
     public static void damage(@Nonnull LivingEntity entity, double damage, @Nullable LivingEntity damager, @Nullable EnumDamageCause cause) {
-        final EntityData data = getEntityData(entity);
+        final EntityData data = of(entity);
 
         // Don't reassign the damage if self damage!
         // That's the whole point of the system to
@@ -477,7 +477,7 @@ public final class EntityData {
      * @return list of damaged entities.
      */
     public static List<LivingEntity> damageAoE(@Nonnull Location location, double radius, double damage, @Nullable LivingEntity damager, @Nullable EnumDamageCause cause, @Nonnull Predicate<LivingEntity> predicate) {
-        final List<LivingEntity> entities = Utils.getEntitiesInRangeValidateRange(location, radius).stream().filter(predicate).toList();
+        final List<LivingEntity> entities = Collect.nearbyLivingEntitiesValidate(location, radius).stream().filter(predicate).toList();
 
         for (LivingEntity entity : entities) {
             damage(entity, damage, damager, cause);
@@ -493,7 +493,7 @@ public final class EntityData {
      * @return the entity data for the given entity from the current game instance.
      */
     @Nonnull
-    public static EntityData getEntityData(@Nonnull LivingEntity entity) {
+    public static EntityData of(@Nonnull LivingEntity entity) {
         return Manager.current().getCurrentGame().getEntityData(entity);
     }
 

@@ -7,8 +7,8 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.pytaria.Pytaria;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Geometry;
@@ -74,7 +74,7 @@ public class FlowerEscape extends Talent {
                     entity.remove();
                     PlayerLib.playSound(location, Sound.ITEM_TOTEM_USE, 2.0f);
                     PlayerLib.spawnParticle(location, Particle.SPELL_MOB, 15, 1, 0.5, 1, 0);
-                    Utils.getPlayersInRange(location, flowerRadius).forEach(victim -> {
+                    Collect.nearbyPlayers(location, flowerRadius).forEach(victim -> {
                         GamePlayer.damageEntity(victim, finalDamage * 2.0d, player, EnumDamageCause.FLOWER);
                     });
 
@@ -107,7 +107,7 @@ public class FlowerEscape extends Talent {
                         }
                     });
 
-                    Utils.getPlayersInRange(fixedLocation, flowerRadius).forEach(target -> {
+                    Collect.nearbyPlayers(fixedLocation, flowerRadius).forEach(target -> {
                         GamePlayer.damageEntity(target, finalDamage, player, EnumDamageCause.FLOWER);
                     });
 

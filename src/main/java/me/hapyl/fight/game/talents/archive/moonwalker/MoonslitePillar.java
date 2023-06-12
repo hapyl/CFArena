@@ -6,6 +6,7 @@ import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -143,7 +144,7 @@ public class MoonslitePillar extends Talent {
 
         PlayerLib.playSound(location, Sound.BLOCK_STONE_BREAK, 0.0f);
 
-        Utils.getEntitiesInRange(location, pulseRange).forEach(entity -> {
+        Collect.nearbyLivingEntities(location, pulseRange).forEach(entity -> {
             if (entity == owner) {
                 GamePlayer.getPlayer(owner).heal(healingPerPulse);
                 PlayerLib.addEffect(owner, PotionEffectType.JUMP, 20, 2);

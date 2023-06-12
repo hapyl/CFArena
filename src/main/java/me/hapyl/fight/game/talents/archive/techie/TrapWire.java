@@ -4,7 +4,6 @@ import com.google.common.collect.Sets;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.ChargedTalent;
-import me.hapyl.fight.game.talents.archive.extra.Tripwire;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.chat.Chat;

@@ -3,7 +3,7 @@ package me.hapyl.fight.game.talents.archive.nightmare;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
@@ -57,7 +57,7 @@ public class ShadowShift extends Talent implements Listener {
     }
 
     public TargetLocation getLocationAndCheck0(Player player, double maxDistance, double dot) {
-        final LivingEntity target = Utils.getTargetEntity(player, maxDistance, dot, player::hasLineOfSight);
+        final LivingEntity target = Collect.targetLivingEntity(player, maxDistance, dot, player::hasLineOfSight);
 
         if (target == null) {
             return new TargetLocation(null, null, ErrorCode.NO_TARGET);

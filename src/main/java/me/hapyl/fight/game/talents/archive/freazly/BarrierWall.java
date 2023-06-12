@@ -4,8 +4,8 @@ import com.google.common.collect.Lists;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.Quality;
 import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
@@ -79,7 +79,7 @@ public class BarrierWall extends GameTask implements Removable {
 
     @Override
     public void run() {
-        for (LivingEntity entity : Utils.getEntitiesInRangeValidateRange(location, talent.radius)) {
+        for (LivingEntity entity : Collect.nearbyLivingEntitiesValidate(location, talent.radius)) {
             if (entity == player) {
                 GamePlayer.getPlayer(player).heal(talent.healingPerTick);
             }

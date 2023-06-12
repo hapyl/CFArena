@@ -8,7 +8,7 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.taker.Taker;
 import me.hapyl.fight.game.heroes.archive.taker.SpiritualBones;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -92,7 +92,7 @@ public class DeathSwap extends Talent {
             return Response.error("Not enough &lSpiritual Bones&c!");
         }
 
-        final LivingEntity target = Utils.getTargetEntity(player, 50.0d, 0.85d, entity -> true);
+        final LivingEntity target = Collect.targetLivingEntity(player, 50.0d, 0.85d, entity -> true);
 
         if (target == null) {
             return Response.error("No target found!");

@@ -3,7 +3,7 @@ package me.hapyl.fight.game.talents.archive.troll;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -27,7 +27,7 @@ public class Repulsor extends Talent {
     public Response execute(Player player) {
         PlayerLib.playSound(player.getLocation(), Sound.ENTITY_WITHER_SHOOT, 1.8f);
 
-        Utils.getPlayersInRange(player.getLocation(), radius).forEach(victim -> {
+        Collect.nearbyPlayers(player.getLocation(), radius).forEach(victim -> {
             if (victim == player || GameTeam.isTeammate(player, victim)) {
                 return;
             }

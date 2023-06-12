@@ -61,7 +61,7 @@ public class ActiveGameEffect {
         remainingTicks = 0;
         type.getGameEffect().onStop(entity);
 
-        final EntityData data = EntityData.getEntityData(entity);
+        final EntityData data = EntityData.of(entity);
         data.clearEffect(type);
     }
 

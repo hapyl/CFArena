@@ -3,7 +3,6 @@ package me.hapyl.fight.game.talents.archive.shaman;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.talents.archive.extra.ActiveTotem;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.entity.Player;

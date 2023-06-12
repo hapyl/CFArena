@@ -5,11 +5,11 @@ import com.google.common.collect.Sets;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.heroes.archive.doctor.ElementType;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.archive.extra.ElementType;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -91,7 +91,7 @@ public class HarvestBlocks extends Talent {
                 Nulls.runIfNotNull(entity.getEquipment(), eq -> eq.setHelmet(ItemBuilder.of(b.getType()).asIcon()));
             }));
 
-            damage.addAndGet(e.getDamage());
+            damage.addAndGet(e.getElement().getDamage());
         });
 
         for (Entity entity : entities) {
@@ -188,7 +188,7 @@ public class HarvestBlocks extends Talent {
                     return;
                 }
 
-                final LivingEntity nearestEntity = Utils.getNearestLivingEntity(location, 1.5d, player);
+                final LivingEntity nearestEntity = Collect.nearestLivingEntity(location, 1.5d, player);
                 final Location fixedLocation = entity.getLocation().add(0.0d, 1.5d, 0.0d);
 
                 if (fixedLocation.getBlock().getType().isOccluding()) {

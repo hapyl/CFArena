@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This class stores global variables that can be changed in runtime.
+ * This class stores global variables that can be changed at runtime.
  * It is mainly for debug and testing purposes and probably should not
  * be in PROD, but is definitely fine to use. By fine, I mean not fine,
  * it's static, you know.

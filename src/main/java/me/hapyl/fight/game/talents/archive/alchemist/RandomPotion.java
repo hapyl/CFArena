@@ -7,7 +7,6 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.alchemist.Alchemist;
 import me.hapyl.fight.game.heroes.archive.alchemist.CauldronEffect;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.archive.extra.Effect;
 import me.hapyl.fight.util.RandomTable;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.chat.Chat;

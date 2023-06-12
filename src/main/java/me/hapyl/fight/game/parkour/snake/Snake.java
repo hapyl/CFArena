@@ -78,7 +78,7 @@ public class Snake extends BukkitRunnable {
                 self.setSmall(true);
                 self.setInvisible(true);
                 self.addScoreboardTag("SnakeEntity");
-            });
+            }, false/* Don't cache since */);
         }
     }
 

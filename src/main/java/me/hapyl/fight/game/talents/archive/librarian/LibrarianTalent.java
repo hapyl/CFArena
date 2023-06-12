@@ -1,4 +1,4 @@
-package me.hapyl.fight.game.talents.archive.extra;
+package me.hapyl.fight.game.talents.archive.librarian;
 
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.heroes.Heroes;

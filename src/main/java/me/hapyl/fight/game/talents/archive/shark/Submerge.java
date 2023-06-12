@@ -5,8 +5,8 @@ import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -116,7 +116,7 @@ public class Submerge extends Talent {
                 PlayerLib.spawnParticle(fixedLocation, Particle.WATER_SPLASH, 1, 0.2, 0.1, 0.2, 0.1f);
 
                 // Hit detection
-                Utils.getEntitiesInRange(fixedLocation, 1.0d).forEach(victim -> {
+                Collect.nearbyLivingEntities(fixedLocation, 1.0d).forEach(victim -> {
                     if (victim == player) {
                         return;
                     }

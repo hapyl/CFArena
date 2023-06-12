@@ -3,7 +3,7 @@ package me.hapyl.fight.game.heroes.archive.doctor;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
@@ -54,7 +54,7 @@ public class PhysGun extends Weapon {
         }
 
         // Get the target entity
-        final LivingEntity target = Utils.getTargetEntity(player, 3.0d, e -> e != player);
+        final LivingEntity target = Collect.targetLivingEntity(player, 3.0d, e -> e != player);
 
         if (target == null) {
             Chat.sendMessage(player, "&cNo valid target!");

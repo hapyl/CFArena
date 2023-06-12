@@ -23,7 +23,7 @@ public class ParkourLeaderboard {
     private final Hologram hologram;
 
     public ParkourLeaderboard(CFParkour parkour, double x, double y, double z) {
-        this(parkour, new Location(parkour.getStart().getLocation().getWorld(), x, y, z));
+        this(parkour, new Location(parkour.getStart().getLocation().getWorld(), x, y + 0.25d, z));
     }
 
     public ParkourLeaderboard(CFParkour parkour, Location location) {
@@ -46,7 +46,7 @@ public class ParkourLeaderboard {
             this.hologram.addLine("&b#%d - &a%s &7%ss".formatted(
                     i.incrementAndGet(),
                     record.getName(),
-                    formatTime(record.getCompletionTime())
+                    formatTime(record)
             ));
         });
 
@@ -59,14 +59,21 @@ public class ParkourLeaderboard {
         this.hologram.showAll();
     }
 
-    public String formatTime(long millis) {
+    public String formatTime(LeaderboardData data) {
+        final long millis = data.getCompletionTime();
+        String formatted;
+
         if (millis >= 3.6e+6) {
-            return new SimpleDateFormat("hh:mm:ss.SSS").format(millis);
+            formatted = new SimpleDateFormat("hh:mm:ss.SSS").format(millis);
         }
         else if (millis >= 60000) {
-            return new SimpleDateFormat("mm:ss.SSS").format(millis);
+            formatted = new SimpleDateFormat("mm:ss.SSS").format(millis);
         }
-        return new SimpleDateFormat("ss.SSS").format(millis);
+        else {
+            formatted = new SimpleDateFormat("ss.SSS").format(millis);
+        }
+
+        return data.isDirty() ? "&m" + formatted : formatted;
     }
 
     public long getWorldRecord() {
@@ -96,6 +103,10 @@ public class ParkourLeaderboard {
 
                 // strikethrough offline players
                 final LeaderboardData data = new LeaderboardData(uuid, (offline ? "&m" : "") + playerName, time);
+
+                if (record.get("is_dirty", false)) {
+                    data.markDirty();
+                }
 
                 for (Stats.Type value : Stats.Type.values()) {
                     data.setStat(value, stats.get(value.name().toLowerCase(), 0L));

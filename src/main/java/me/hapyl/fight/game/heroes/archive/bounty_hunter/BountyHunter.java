@@ -5,6 +5,8 @@ import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.IGamePlayer;
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
@@ -17,8 +19,8 @@ import me.hapyl.fight.game.talents.archive.bounty_hunter.ShortyShotgun;
 import me.hapyl.fight.game.talents.archive.nightmare.ShadowShift;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.ItemStacks;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.math.Tick;
@@ -52,8 +54,10 @@ public class BountyHunter extends Hero {
 
         setWeapon(new Weapon(Material.IRON_SWORD).setName("Iron Sword").setDamage(6.0d));
 
-        final HeroEquipment equipment = getEquipment();
+        final HeroAttributes attributes = getAttributes();
+        attributes.setValue(AttributeType.DEFENSE, 0.8d);
 
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestplate(50, 54, 57);
         equipment.setLeggings(80, 97, 68);
         equipment.setBoots(Material.LEATHER_BOOTS);
@@ -162,7 +166,7 @@ public class BountyHunter extends Hero {
 
         // Fx and blindness
         GameTask.runTaskTimerTimes(task -> {
-            Utils.getPlayersInRange(location, 3.0d).forEach(inRange -> {
+            Collect.nearbyPlayers(location, 3.0d).forEach(inRange -> {
                 PlayerLib.addEffect(inRange, EffectType.BLINDNESS, 25, 1);
                 GamePlayer.getPlayer(inRange).addEffect(GameEffectType.INVISIBILITY, 25, true);
             });

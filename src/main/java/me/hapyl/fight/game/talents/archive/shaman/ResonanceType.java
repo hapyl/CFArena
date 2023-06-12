@@ -2,9 +2,7 @@ package me.hapyl.fight.game.talents.archive.shaman;
 
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.IGamePlayer;
-import me.hapyl.fight.game.talents.archive.extra.ActiveTotem;
-import me.hapyl.fight.game.talents.archive.extra.ActiveTotemResonance;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.ChatColor;
@@ -58,7 +56,7 @@ public enum ResonanceType {
             10,
             (totem) -> {
                 final Location location = totem.getLocationCentered();
-                Utils.getPlayersInRange(location, totem.getResonanceType().getRange()).forEach(player -> {
+                Collect.nearbyPlayers(location, totem.getResonanceType().getRange()).forEach(player -> {
                     final Location entityLocation = player.getLocation();
                     player.setVelocity(location.toVector().subtract(entityLocation.toVector()).multiply(0.1d));
                 });

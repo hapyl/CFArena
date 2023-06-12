@@ -12,7 +12,7 @@ import java.util.function.BiConsumer;
 
 public class Attributes {
 
-    public final Map<AttributeType, Double> mapped;
+    protected final Map<AttributeType, Double> mapped;
 
     public Attributes() {
         mapped = Maps.newHashMap();

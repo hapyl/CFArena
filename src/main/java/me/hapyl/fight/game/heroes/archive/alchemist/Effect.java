@@ -12,8 +12,7 @@ public class Effect {
 	private final PotionEffect effect;
 	private final boolean isPositive;
 
-	public void affect(Player player) {
-
+	public void affect(Player player, Player victim) {
 	}
 
 	public Effect(String suffix, PotionEffectType type, int duration, int level) {
@@ -30,12 +29,14 @@ public class Effect {
 		this(suffix, null, duration, 0);
 	}
 
-	public void applyEffects(Player player) {
-		this.affect(player);
+	public void applyEffects(Player player, Player victim) {
+		this.affect(player, victim);
+
 		if (effect != null) {
-			PlayerLib.addEffect(player, effect.getType(), effect.getDuration(), effect.getAmplifier());
+			PlayerLib.addEffect(victim, effect.getType(), effect.getDuration(), effect.getAmplifier());
 		}
-		Chat.sendMessage(player, isPositive ?
+
+		Chat.sendMessage(victim, isPositive ?
 				"&a&l☘ &aAlchemical Madness %s&a!".formatted(suffix) :
 				"&c☠ Alchemical Madness %s&c!".formatted(suffix));
 	}

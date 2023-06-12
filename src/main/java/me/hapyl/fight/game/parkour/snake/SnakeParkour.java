@@ -2,6 +2,7 @@ package me.hapyl.fight.game.parkour.snake;
 
 import me.hapyl.fight.game.parkour.CFParkour;
 import me.hapyl.fight.game.parkour.ParkourLeaderboard;
+import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Material;
 
 public class SnakeParkour extends CFParkour {
@@ -14,10 +15,12 @@ public class SnakeParkour extends CFParkour {
         addCheckpoint(26, 67, -19, 90, 0);
         addCheckpoint(23, 67, -14, 0, 0);
 
+        setQuitLocation(BukkitUtils.defLocation(25, 65, -7, -180, 0));
+
         setLeaderboard(new ParkourLeaderboard(this, 22.5, 66, -8.5));
 
         snake = Snake.builder()
-                .setLength(6)
+                .setLength(8)
                 .setBlock(Material.CHISELED_STONE_BRICKS)
                 .next(27, 64, -12)
                 .next(27, 64, -13)

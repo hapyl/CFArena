@@ -4,9 +4,8 @@ import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.librarian.Librarian;
-import me.hapyl.fight.game.talents.archive.extra.LibrarianTalent;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -57,7 +56,7 @@ public class BlackHole extends LibrarianTalent {
                 location.subtract(x, tick120, z);
             }
 
-            Utils.getEntitiesInRange(location, suckRadius).forEach(entity -> {
+            Collect.nearbyLivingEntities(location, suckRadius).forEach(entity -> {
                 if (entity == player) {
                     return;
                 }

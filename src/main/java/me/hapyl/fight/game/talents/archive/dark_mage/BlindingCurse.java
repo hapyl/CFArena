@@ -5,7 +5,7 @@ import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.dark_mage.DarkMageSpell;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Geometry;
@@ -57,7 +57,7 @@ public class BlindingCurse extends DarkMageTalent {
 
     @Override
     public Response executeSpell(Player player) {
-        final LivingEntity target = Utils.getTargetEntity(
+        final LivingEntity target = Collect.targetLivingEntity(
                 player,
                 maxDistance,
                 0.9d,
@@ -88,7 +88,7 @@ public class BlindingCurse extends DarkMageTalent {
             return null;
         }
 
-        final LivingEntity bounce = Utils.getNearestLivingEntity(
+        final LivingEntity bounce = Collect.nearestLivingEntity(
                 bounced[0].getLocation(),
                 10.0d,
                 living -> {

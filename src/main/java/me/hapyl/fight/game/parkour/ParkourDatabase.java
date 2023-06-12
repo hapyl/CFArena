@@ -60,6 +60,8 @@ public class ParkourDatabase extends AsynchronousDatabase {
         player.put("time", data.getCompletionTime());
         player.put("completed", true);
 
+        player.remove("is_dirty"); // force removes dirty tag if completed after modifications
+
         final Stats dataStats = data.getStats();
 
         for (Stats.Type value : Stats.Type.values()) {

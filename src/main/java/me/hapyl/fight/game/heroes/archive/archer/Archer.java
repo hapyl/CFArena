@@ -12,6 +12,7 @@ import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -178,7 +179,7 @@ public class Archer extends Hero implements Listener {
     }
 
     private Entity findNearestTarget(Player shooter, Location location) {
-        return Utils.getNearestLivingEntity(location, 3.0d, shooter);
+        return Collect.nearestLivingEntity(location, 3.0d, shooter);
     }
 
     @Override

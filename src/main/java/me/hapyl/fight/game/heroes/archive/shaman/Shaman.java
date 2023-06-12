@@ -5,7 +5,7 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.talents.archive.extra.ActiveTotem;
+import me.hapyl.fight.game.talents.archive.shaman.ActiveTotem;
 import me.hapyl.fight.game.talents.archive.shaman.Totem;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;

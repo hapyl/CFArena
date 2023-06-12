@@ -11,13 +11,13 @@ import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.archive.extra.StanceData;
+import me.hapyl.fight.game.talents.archive.harbinger.StanceData;
 import me.hapyl.fight.game.talents.archive.harbinger.MeleeStance;
 import me.hapyl.fight.game.talents.archive.harbinger.TidalWaveTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -174,7 +174,7 @@ public class Harbinger extends Hero implements Listener, UIComponent {
 
                                 location.add(x, 0, z);
 
-                                Utils.getEntitiesInRange(location, 2.0d).forEach(entity -> {
+                                Collect.nearbyLivingEntities(location, 2.0d).forEach(entity -> {
                                     if (entity == player) {
                                         return;
                                     }
@@ -214,7 +214,7 @@ public class Harbinger extends Hero implements Listener, UIComponent {
         new GameTask() {
             @Override
             public void run() {
-                Utils.getEntitiesInRange(location, ultimateRadius).forEach(entity -> {
+                Collect.nearbyLivingEntities(location, ultimateRadius).forEach(entity -> {
                     if (entity == player) {
                         return;
                     }

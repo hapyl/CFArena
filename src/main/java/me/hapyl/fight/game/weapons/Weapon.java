@@ -48,6 +48,12 @@ public class Weapon extends NonNullItemCreator implements Cloneable, DisplayFiel
         this.enchants = Lists.newArrayList();
     }
 
+    /**
+     * Sets the weapon attack speed.
+     * Use <code>/setattackspeed (value)</code> in game to test this, the value is quite arbitrary.
+     *
+     * @param attackSpeed - Attack speed.
+     */
     public Weapon setAttackSpeed(double attackSpeed) {
         this.attackSpeed = attackSpeed;
         return this;
@@ -142,7 +148,7 @@ public class Weapon extends NonNullItemCreator implements Cloneable, DisplayFiel
         return this instanceof RangeWeapon || (material == Material.BOW || material == Material.CROSSBOW || material == Material.TRIDENT);
     }
 
-    public void giveWeapon(Player player) {
+    public void give(Player player) {
         player.getInventory().setItem(0, getItem());
     }
 

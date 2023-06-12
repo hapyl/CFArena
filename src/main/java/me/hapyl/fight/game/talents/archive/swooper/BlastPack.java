@@ -6,8 +6,8 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
@@ -109,7 +109,7 @@ public class BlastPack extends ChargedTalent {
         final Location location = entity.getLocation();
 
         // Explosion
-        Utils.getEntitiesInRange(location, explosionRadius).forEach(living -> {
+        Collect.nearbyLivingEntities(location, explosionRadius).forEach(living -> {
             if (living == player) {
                 GamePlayer.getPlayer(player).addEffect(GameEffectType.FALL_DAMAGE_RESISTANCE, 40);
             }

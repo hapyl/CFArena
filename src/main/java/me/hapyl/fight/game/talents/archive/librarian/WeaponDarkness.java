@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.talents.archive.librarian;
 
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.talents.archive.extra.LibrarianTalent;
 import me.hapyl.spigotutils.module.player.EffectType;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;

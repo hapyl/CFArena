@@ -5,7 +5,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.heroes.archive.dark_mage.DarkMageSpell;
 import me.hapyl.fight.game.heroes.archive.witcher.WitherData;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
@@ -73,7 +73,7 @@ public class HealingAura extends DarkMageTalent {
                 theta = theta >= 36 ? 0 : theta + 0.1;
 
                 if ((tick % 20) == 0) {
-                    Utils.getPlayersInRange(location, radius).forEach(target -> {
+                    Collect.nearbyPlayers(location, radius).forEach(target -> {
                         GamePlayer.getPlayer(target).heal(2.0d);
                         PlayerLib.playSound(target, Sound.BLOCK_GRASS_HIT, 1.0f);
                     });

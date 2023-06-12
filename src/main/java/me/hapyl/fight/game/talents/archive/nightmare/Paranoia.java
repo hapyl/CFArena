@@ -6,7 +6,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
@@ -63,7 +63,7 @@ public class Paranoia extends Talent {
                 PlayerLib.playSound(standLocation, Sound.BLOCK_ANVIL_STEP, 1.5f);
 
                 // Apply blindness
-                Utils.getPlayersInRange(standLocation, 2.0d).forEach(target -> {
+                Collect.nearbyPlayers(standLocation, 2.0d).forEach(target -> {
                     if (player == target || !Manager.current().isPlayerInGame(target)) {
                         return;
                     }

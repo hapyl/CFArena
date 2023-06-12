@@ -84,6 +84,10 @@ public class GrappleHookTalent extends ChargedTalent implements Listener {
         return playerHooks.get(player);
     }
 
+    public boolean hasHook(Player player) {
+        return getHook(player) != null;
+    }
+
     @Override
     public Response execute(Player player) {
         final GrappleHook oldHook = getHook(player);

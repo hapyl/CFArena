@@ -5,6 +5,7 @@ import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.taker.Taker;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -73,7 +74,7 @@ public class TakerHook {
                     return;
                 }
 
-                final LivingEntity nearest = Utils.getNearestLivingEntity(location, 1.5d, player);
+                final LivingEntity nearest = Collect.nearestLivingEntity(location, 1.5d, player);
 
                 if (nearest != null) {
                     hooked = nearest;

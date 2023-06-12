@@ -14,7 +14,7 @@ public class ServerHandler implements Listener {
 
     @EventHandler()
     public void handleServerList(ServerListPingEvent ev) {
-        ev.setMaxPlayers(69420);
+        ev.setMaxPlayers(0);
         ev.setMotd(centerMotd(
                 Main.GAME_NAME,
                 "&3Hosted by &bServer.pro"

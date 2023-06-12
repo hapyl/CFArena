@@ -5,7 +5,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -33,7 +33,7 @@ public class NinjaSmoke extends Talent {
 
         GameTask.runDuration(this, i -> {
             PlayerLib.spawnParticle(location, Particle.EXPLOSION_NORMAL, 20, 1, 0, 1, 0.0f);
-            Utils.getPlayersInRange(location, 2).forEach(range -> PlayerLib.addEffect(range, PotionEffectType.BLINDNESS, 30, 1));
+            Collect.nearbyPlayers(location, 2).forEach(range -> PlayerLib.addEffect(range, PotionEffectType.BLINDNESS, 30, 1));
         }, 20);
 
         PlayerLib.playSound(player, Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.0f);

@@ -1,11 +1,11 @@
-package me.hapyl.fight.game.talents.archive.extra;
+package me.hapyl.fight.game.talents.archive.shaman;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.archive.shaman.ResonanceType;
 import me.hapyl.fight.game.talents.archive.shaman.Totem;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.Quality;
@@ -137,7 +137,7 @@ public class ActiveTotem {
     }
 
     public List<Player> getPlayerInRange() {
-        return Utils.getPlayersInRange(getLocationCentered(), resonanceType.getRange());
+        return Collect.nearbyPlayers(getLocationCentered(), resonanceType.getRange());
     }
 
     public void drawCircle(Particle particle) {

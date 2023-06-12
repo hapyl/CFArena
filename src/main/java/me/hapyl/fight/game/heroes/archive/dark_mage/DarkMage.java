@@ -24,6 +24,7 @@ import me.hapyl.fight.game.talents.archive.dark_mage.ShadowCloneNPC;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIFormat;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
@@ -182,7 +183,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
                             this.cancel();
                             CosmeticsHandle.GROUND_PUNCH_COSMETIC.playAnimation(player.getLocation(), 2);
 
-                            Utils.getPlayersInRange(player.getLocation(), 4).forEach(target -> {
+                            Collect.nearbyPlayers(player.getLocation(), 4).forEach(target -> {
                                 if (target == player) {
                                     return;
                                 }
@@ -215,7 +216,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
 
         // Handle passive
         if (entity != null && new Random().nextDouble() < PASSIVE_CHANCE) {
-            EntityData.getEntityData(entity).addEffect(GameEffectType.WITHER_BLOOD, 60, true);
+            EntityData.of(entity).addEffect(GameEffectType.WITHER_BLOOD, 60, true);
 
             if (entity instanceof Player playerEntity) {
                 Chat.sendMessage(playerEntity, "&8☠ &c%s poisoned your blood!", player.getName());

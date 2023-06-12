@@ -1,7 +1,5 @@
 package me.hapyl.fight.game.heroes.archive.doctor;
 
-import me.hapyl.fight.game.talents.archive.extra.Element;
-import me.hapyl.fight.game.talents.archive.extra.ElementType;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -17,7 +15,7 @@ import java.util.Map;
 
 public class GravityGun extends Weapon {
 
-    private final Map<Player, Element> elements = new HashMap<>();
+    private final Map<Player, ActiveElement> elements = new HashMap<>();
 
     public GravityGun() {
         super(Material.IRON_HORSE_ARMOR);
@@ -30,12 +28,12 @@ public class GravityGun extends Weapon {
         );
 
         GameTask.scheduleCancelTask(() -> {
-            elements.values().forEach(Element::remove);
+            elements.values().forEach(ActiveElement::remove);
             elements.clear();
         });
     }
 
-    private Element getElement(Player player) {
+    private ActiveElement getElement(Player player) {
         return elements.getOrDefault(player, null);
     }
 
@@ -43,7 +41,7 @@ public class GravityGun extends Weapon {
         return this.getElement(player) != null;
     }
 
-    public void setElement(Player player, @Nullable Element element) {
+    public void setElement(Player player, @Nullable ActiveElement element) {
         if (element == null) {
             this.elements.remove(player);
             return;
@@ -52,7 +50,7 @@ public class GravityGun extends Weapon {
     }
 
     public void remove(Player player) {
-        final Element element = getElement(player);
+        final ActiveElement element = getElement(player);
         if (element != null) {
             element.stopTask();
             element.remove();
@@ -71,7 +69,7 @@ public class GravityGun extends Weapon {
 
         // throw
         if (hasElement(player)) {
-            final Element element = getElement(player);
+            final ActiveElement element = getElement(player);
             element.stopTask();
             element.throwEntity();
             this.setElement(player, null);
@@ -94,7 +92,7 @@ public class GravityGun extends Weapon {
             return;
         }
 
-        final Element element = new Element(player, targetBlock);
+        final ActiveElement element = new ActiveElement(player, targetBlock);
         player.setCooldown(getType(), 2); // fix instant throw
         element.startTask();
         setElement(player, element);

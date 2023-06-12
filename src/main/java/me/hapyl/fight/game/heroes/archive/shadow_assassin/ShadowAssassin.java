@@ -13,6 +13,7 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.particle.ParticleBuilder;
@@ -104,7 +105,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
 
     @Nullable
     private LivingEntity getNearestEntity(Player player) {
-        return Utils.getTargetEntity(player, 10, 0.5d, player::hasLineOfSight);
+        return Collect.targetLivingEntity(player, 10, 0.5d, player::hasLineOfSight);
 
         //final Location location = player.getLocation();
         //LivingEntity closest = null;

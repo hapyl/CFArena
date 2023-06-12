@@ -1,7 +1,7 @@
 package me.hapyl.fight;
 
 import me.hapyl.fight.game.Debug;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.chat.CenterChat;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -65,7 +65,7 @@ public final class ReloadChecker extends DependencyInjector<Main> {
 
     private void sendCenterMessageToOperatorsAndConsole(String message, @Nullable Object... format) {
         if (message.isEmpty() || message.isBlank()) {
-            Utils.getOnlineOperatorsAndConsole().forEach(sender -> {
+            Collect.onlineOperatorsAndConsole().forEach(sender -> {
                 Chat.sendMessage(sender, "", format);
             });
             return;
@@ -76,7 +76,7 @@ public final class ReloadChecker extends DependencyInjector<Main> {
         for (String string : strings) {
             final String centerString = CenterChat.makeString(string);
 
-            Utils.getOnlineOperatorsAndConsole().forEach(sender -> {
+            Collect.onlineOperatorsAndConsole().forEach(sender -> {
                 Chat.sendMessage(sender, centerString, format);
             });
         }

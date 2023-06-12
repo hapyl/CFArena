@@ -6,7 +6,7 @@ import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.util.ThreadRandom;
@@ -59,7 +59,7 @@ public class BatSwarm extends Talent {
                         continue;
                     }
 
-                    Utils.getEntitiesInRange(bat.getLocation(), 1.0d).forEach(entity -> {
+                    Collect.nearbyLivingEntities(bat.getLocation(), 1.0d).forEach(entity -> {
                         if (entity == player || entity instanceof Bat || entity.getNoDamageTicks() > 0) {
                             return;
                         }

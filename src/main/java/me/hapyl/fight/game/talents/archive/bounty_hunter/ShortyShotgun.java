@@ -6,7 +6,8 @@ import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
@@ -103,7 +104,7 @@ public class ShortyShotgun extends Talent {
 
         for (double d = 0; d < maxDistance; d += 0.25) {
             final Location location = playerEyeLocation.clone().add(direction.clone().multiply(d));
-            final LivingEntity entity = Utils.getNearestLivingEntity(location, 1.0d, player);
+            final LivingEntity entity = Collect.nearestLivingEntity(location, 1.0d, player);
 
             // Had to put fx here since breaking
             player.getWorld().spawnParticle(Particle.BLOCK_CRACK, location, 1, Material.COAL_BLOCK.createBlockData());
@@ -117,7 +118,13 @@ public class ShortyShotgun extends Talent {
                     }
                 }
 
-                GamePlayer.damageEntity(entity, maxDamagePerPellet - d, player, EnumDamageCause.SHOTGUN);
+                double damage = maxDamagePerPellet - d;
+
+                if (Talents.GRAPPLE.getTalent(GrappleHookTalent.class).hasHook(player)) {
+                    damage *= 1.5d;
+                }
+
+                GamePlayer.damageEntity(entity, damage, player, EnumDamageCause.SHOTGUN);
 
                 // Knock back entity
                 entity.setVelocity(location.getDirection().normalize().multiply(1.2d).setY(0.25d));

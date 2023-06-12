@@ -4,7 +4,7 @@ import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.npc.ClickType;
 import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
@@ -126,7 +126,7 @@ public class ShadowCloneNPC extends HumanNPC {
         PlayerLib.spawnParticle(location.add(0.0d, 0.5d, 0.0d), Particle.SQUID_INK, 30, 0.1, 0.5, 0.1, 0.05f);
         PlayerLib.playSound(location, ENTITY_SQUID_SQUIRT, 0.25f);
 
-        Utils.getPlayersInRange(location, talent.damageRadius).forEach(target -> {
+        Collect.nearbyPlayers(location, talent.damageRadius).forEach(target -> {
             if (target == player) {
                 return; // don't damage self
             }

@@ -46,6 +46,9 @@ public abstract class NonNullItemCreator implements LoreAppender {
         return item;
     }
 
+    /**
+     * A class must override and set item using this method.
+     */
     public abstract void createItem();
 
 }

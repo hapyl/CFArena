@@ -7,9 +7,9 @@ import me.hapyl.fight.game.heroes.archive.dark_mage.DarkMage;
 import me.hapyl.fight.game.heroes.archive.dark_mage.DarkMageSpell;
 import me.hapyl.fight.game.heroes.archive.witcher.WitherData;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.reflect.Reflect;
 import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -83,17 +83,18 @@ public class ShadowClone extends DarkMageTalent {
                 shadowClone.explode(null);
                 clones.remove(player);
             }, getDuration());
-        } else {
+        }
+        else {
             // Hide the wither too
             final Wither wither = witherData.wither;
 
-            Utils.hideEntity(wither);
+            Reflect.hideEntity(wither);
             GameTask.runLater(() -> {
-                if (wither == null || wither.isDead()) {
+                if (wither.isDead()) {
                     return;
                 }
 
-                Utils.showEntity(wither);
+                Reflect.showEntity(wither);
             }, getDuration());
         }
 

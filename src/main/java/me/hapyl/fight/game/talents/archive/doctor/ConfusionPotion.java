@@ -5,7 +5,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Geometry;
@@ -81,7 +81,7 @@ public class ConfusionPotion extends Talent {
 
         GameTask.runDuration(this, i -> {
             Geometry.drawCircle(location, 3.5d, Quality.HIGH, new WorldParticle(Particle.END_ROD, 0.0d, 0.0d, 0.0d, 0.01f));
-            Utils.getPlayersInRange(location, 3.5d).forEach(target -> {
+            Collect.nearbyPlayers(location, 3.5d).forEach(target -> {
                 if (player == target) {
                     return;
                 }

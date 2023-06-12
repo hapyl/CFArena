@@ -6,7 +6,7 @@ import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.Quality;
@@ -75,7 +75,7 @@ public class MoonwalkerUltimate extends UltimateTalent {
                 }
 
                 // Notify players in range that they're in danger
-                Utils.getPlayersInRangeValidateRange(playerLocation, meteoriteRadius).forEach(target -> {
+                Collect.nearbyPlayersValidate(playerLocation, meteoriteRadius).forEach(target -> {
                     GamePlayer.getPlayer(target).sendWarning("Meteorite Warning!", 5);
                 });
 
@@ -180,7 +180,7 @@ public class MoonwalkerUltimate extends UltimateTalent {
             throw new NullPointerException("world is null");
         }
 
-        Utils.getEntitiesInRangeValidateRange(location, meteoriteRadius).forEach(entity -> {
+        Collect.nearbyLivingEntitiesValidate(location, meteoriteRadius).forEach(entity -> {
             GamePlayer.damageEntity(entity, meteoriteDamage, executor, EnumDamageCause.METEORITE);
 
             if (entity instanceof Player player) {
