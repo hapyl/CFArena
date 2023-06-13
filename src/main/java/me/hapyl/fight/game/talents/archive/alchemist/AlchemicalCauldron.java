@@ -1,10 +1,9 @@
 package me.hapyl.fight.game.talents.archive.alchemist;
 
-import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.alchemist.Alchemist;
 import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -26,7 +25,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.EulerAngle;
 
-public class AlchemicalCauldron {
+public class AlchemicalCauldron extends TickingGameTask {
 
     private final Player owner;
     private final Location location;
@@ -61,74 +60,59 @@ public class AlchemicalCauldron {
         });
 
         updateName();
-        startTask();
+        runTaskTimer(0, 1);
     }
 
-    private void startTask() {
-        // Progress Task
-        new GameTask() {
-            private int tick = 0;
+    @Override
+    public void run(final int tick) {
+        if (progress > 100) {
+            status = Status.FINISHED;
+            playSound(Sound.BLOCK_BREWING_STAND_BREW, 1.0f);
+            cancel();
+        }
 
-            @Override
-            public void run() {
-                tick++;
+        updateName();
 
-                if (GamePlayer.getPlayer(owner).isDead()) {
-                    this.cancel();
-                    return;
-                }
+        if (status == Status.PAUSED || status == Status.FINISHED) {
+            return;
+        }
 
-                if (progress > 100) {
-                    status = Status.FINISHED;
-                    playSound(Sound.BLOCK_BREWING_STAND_BREW, 1.0f);
-                    this.cancel();
-                }
+        if (status == Status.BREWING) {
+            // Animate every tick but progress every 10
+            animateCauldron();
 
-                updateName();
-
-                if (status == Status.PAUSED || status == Status.FINISHED) {
-                    return;
-                }
-
-
-                if (status == Status.BREWING) {
-                    // Animate every tick but progress every 10
-                    animateCauldron();
-
-                    if (tick % 10 != 0) {
-                        return;
-                    }
-
-                    progress += 1.5d;
-
-                    if (progress % 15 == 0) {
-                        playSound(Sound.AMBIENT_UNDERWATER_EXIT, 1.5f);
-                    }
-
-                    // Draw particles on top
-                    spawnParticle(location);
-
-                    // Draw the zone
-                    Geometry.drawCircle(location, 4.5d, Quality.SUPER_HIGH, new Draw(Particle.SPELL) {
-                        @Override
-                        public void draw(Location location) {
-                            spawnParticle(location);
-                        }
-                    });
-
-                    // Damage players in zone
-                    Collect.nearbyPlayers(location, 4.5d).forEach(player -> {
-                        if (player == owner) {
-                            Chat.sendTitle(player, "", "&cIntoxication Warning!", 0, 20, 0);
-                            ((Alchemist) Heroes.ALCHEMIST.getHero()).addToxin(player, 8);
-                        }
-                        else {
-                            PlayerLib.addEffect(player, PotionEffectType.POISON, 1, 5);
-                        }
-                    });
-                }
+            if (tick % 10 != 0) {
+                return;
             }
-        }.runTaskTimer(0, 1);
+
+            progress += 1.5d;
+
+            if (progress % 15 == 0) {
+                playSound(Sound.AMBIENT_UNDERWATER_EXIT, 1.5f);
+            }
+
+            // Draw particles on top
+            spawnParticle(location);
+
+            // Draw the zone
+            Geometry.drawCircle(location, 4.5d, Quality.SUPER_HIGH, new Draw(Particle.SPELL) {
+                @Override
+                public void draw(Location location) {
+                    spawnParticle(location);
+                }
+            });
+
+            // Damage players in zone
+            Collect.nearbyPlayers(location, 4.5d).forEach(player -> {
+                if (player == owner) {
+                    Chat.sendTitle(player, "", "&cIntoxication Warning!", 0, 20, 0);
+                    ((Alchemist) Heroes.ALCHEMIST.getHero()).addToxin(player, 8);
+                }
+                else {
+                    PlayerLib.addEffect(player, PotionEffectType.POISON, 1, 5);
+                }
+            });
+        }
     }
 
     private void animateCauldron() {
@@ -223,10 +207,11 @@ public class AlchemicalCauldron {
 
     public void clear() {
         //this.location.getBlock().setType(Material.AIR, false);
-        this.cauldronBlock.setType(Material.AIR, false);
-        this.standOwner.remove();
-        this.standBar.remove();
-        this.standAnimation.remove();
+        cancelIfActive();
+        cauldronBlock.setType(Material.AIR, false);
+        standOwner.remove();
+        standBar.remove();
+        standAnimation.remove();
     }
 
     public enum Status {

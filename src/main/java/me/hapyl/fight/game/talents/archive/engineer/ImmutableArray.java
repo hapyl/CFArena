@@ -3,7 +3,6 @@ package me.hapyl.fight.game.talents.archive.engineer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-// allows since write and read from array of generics
 public class ImmutableArray<T> {
 
     private final T[] values;

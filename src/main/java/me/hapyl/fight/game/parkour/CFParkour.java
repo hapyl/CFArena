@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.parkour;
 
+import me.hapyl.fight.game.Manager;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.parkour.*;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -135,6 +136,12 @@ public class CFParkour extends Parkour implements ParkourHandler {
     @Nullable
     @Override
     public Response onStart(Player player, Data data) {
+        if (Manager.current().isGameInProgress()) {
+            Chat.sendMessage(player, "&cCannot start parkour while a game is in progress!");
+            player.teleport(getQuitLocation());
+            return Response.CANCEL;
+        }
+
         if (!Bukkit.getOnlineMode()) {
             Chat.sendMessage(player, "&cParkour is unavailable in offline mode!");
             Chat.sendMessage(player, "&cSet &e'online-mode'&c to &etrue&c in your &eserver.properties&c!");

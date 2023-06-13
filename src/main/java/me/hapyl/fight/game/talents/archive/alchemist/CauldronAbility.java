@@ -6,7 +6,6 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.util.Nulls;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -91,6 +90,42 @@ public class CauldronAbility extends Talent implements Listener {
         }
     }
 
+    @Override
+    public void onStop() {
+        cauldrons.values().forEach(AlchemicalCauldron::clear);
+        cauldrons.clear();
+    }
+
+    @Override
+    public void onDeath(Player player) {
+        final AlchemicalCauldron cauldron = cauldrons.remove(player);
+
+        if (cauldron != null) {
+            cauldron.clear();
+        }
+    }
+
+    @Override
+    public Response execute(Player player) {
+        final Block targetBlock = getTargetBlock(player);
+
+        if (targetBlock == null) {
+            return Response.error("Invalid target block!");
+        }
+
+        if (!targetBlock.getType().isAir()) {
+            return Response.error("Target block is occupied!");
+        }
+
+        if (cauldrons.containsKey(player)) {
+            return Response.error("You already have a cauldron!");
+        }
+
+        cauldrons.put(player, new AlchemicalCauldron(player, targetBlock.getLocation().clone()));
+        return Response.OK;
+
+    }
+
     private void changeItem(Player player, boolean flag) {
         final PlayerInventory inventory = player.getInventory();
         GameTask.runLater(() -> {
@@ -113,39 +148,6 @@ public class CauldronAbility extends Talent implements Listener {
                 player.setCooldown(missingStickItem, 10);
             }
         }, 1);
-    }
-
-    @Override
-    public void onStop() {
-        cauldrons.values().forEach(AlchemicalCauldron::clear);
-        cauldrons.clear();
-    }
-
-    @Override
-    public void onDeath(Player player) {
-        Nulls.runIfNotNull(cauldrons.get(player), AlchemicalCauldron::clear);
-        cauldrons.remove(player);
-    }
-
-    @Override
-    public Response execute(Player player) {
-        final Block targetBlock = getTargetBlock(player);
-
-        if (targetBlock == null) {
-            return Response.error("Invalid target block!");
-        }
-
-        if (!targetBlock.getType().isAir()) {
-            return Response.error("Target block is occupied!");
-        }
-
-        if (cauldrons.containsKey(player)) {
-            return Response.error("You already have a cauldron!");
-        }
-
-        cauldrons.put(player, new AlchemicalCauldron(player, targetBlock.getLocation().clone()));
-        return Response.OK;
-
     }
 
     private Block getTargetBlock(Player player) {

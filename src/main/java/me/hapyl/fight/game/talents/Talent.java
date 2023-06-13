@@ -30,7 +30,7 @@ import java.util.function.Consumer;
  * Base talent.
  */
 public abstract class Talent extends NonNullItemCreator
-        implements GameElement, DisplayFieldProvider, Nameable, Timed, Cooldown {
+        implements GameElement, PlayerElement, DisplayFieldProvider, Nameable, Timed, Cooldown {
 
     public static final Talent NULL = null;
     public static int DYNAMIC = -1;

@@ -72,6 +72,11 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Lis
     }
 
     @Override
+    public void onDeath(Player player) {
+        shieldCharge.remove(player);
+    }
+
+    @Override
     public void useUltimate(Player player) {
         // Summon Horse
         final Horse oldHorse = horseMap.get(player);
