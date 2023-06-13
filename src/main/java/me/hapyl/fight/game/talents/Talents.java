@@ -368,6 +368,7 @@ public enum Talents {
     // Orc
     ORC_GROWN(new OrcGrowl()),
     ORC_AXE(new OrcAxe()),
+    ORC_PASSIVE(new PassiveTalent("", "", Material.STONE)),
 
     // Engineer
     ENGINEER_SENTRY(new EngineerSentry()),

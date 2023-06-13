@@ -2,7 +2,7 @@ package me.hapyl.fight.game.heroes.archive.doctor;
 
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.inventory.ItemStackBuilder;
+import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.particle.ParticleBuilder;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
@@ -52,7 +52,7 @@ public class BlockShield {
             self.setInvisible(true);
 
             Nulls.runIfNotNull(self.getEquipment(), equipment -> {
-                equipment.setHelmet(ItemStackBuilder.of(material).build());
+                equipment.setHelmet(ItemBuilder.of(material).build());
             });
         });
     }

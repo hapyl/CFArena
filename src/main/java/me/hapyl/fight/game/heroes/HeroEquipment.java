@@ -11,6 +11,7 @@ import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 
 import javax.annotation.Nonnull;
+import java.util.function.Consumer;
 
 /**
  * Represents a hero armor equipment.
@@ -182,6 +183,18 @@ public class HeroEquipment {
         if (stack.length == 4) {
             System.arraycopy(stack, 0, this.armor, 0, this.armor.length);
         }
+    }
+
+    private ItemStack create(Material material, Consumer<ItemBuilder> consumer) {
+        final ItemBuilder builder = ItemBuilder.of(material);
+
+        consumer.accept(builder);
+
+        // Default names etc
+        builder.addTextBlockLore("""
+                """);
+
+        return builder.asIcon();
     }
 
     private ItemStack armorOrNull(int index) {

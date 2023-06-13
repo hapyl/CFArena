@@ -12,13 +12,13 @@ import java.util.function.Function;
 public final class TalentFormat<T> {
 
     public static final TalentFormat<Nameable> NAME
-            = create("{name}", nameable -> "&a" + nameable.getName());
+            = create("{name}", nameable -> "&a" + nameable.getName() + "&7");
 
     public static final TalentFormat<Timed> DURATION
-            = create("{duration}", timed -> "&b" + BukkitUtils.roundTick(timed.getDuration()) + "s");
+            = create("{duration}", timed -> "&b" + BukkitUtils.roundTick(timed.getDuration()) + "s&7");
 
     public static final TalentFormat<Cooldown> COOLDOWN
-            = create("{cooldown}", cooldown -> "&b" + BukkitUtils.roundTick(cooldown.getCooldown()) + "s");
+            = create("{cooldown}", cooldown -> "&b" + BukkitUtils.roundTick(cooldown.getCooldown()) + "s&7");
 
     private final String target;
     private final Function<T, String> function;

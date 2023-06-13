@@ -135,7 +135,7 @@ Bugs:
 - Check for melee damage
 - Some death messages show damager when they shouldn't
 - Ender TP should give attack
-- Add global cobweb for troll
+- [✔] Add global cobweb for troll
 - DEAD GIFT TECHIE
 - [✔] Add damage boost to shorty while in hook
 - [✔] Lower defense

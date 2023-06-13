@@ -1,8 +1,19 @@
 package me.hapyl.fight.game;
 
+import me.hapyl.spigotutils.module.chat.Gradient;
+import me.hapyl.spigotutils.module.chat.gradient.Interpolators;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
+import org.bukkit.projectiles.ProjectileSource;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.awt.*;
+
 public record DeathMessage(String message, String damagerSuffix) {
 
-    // Include this in either message or damagerSuffix, and it will be replaced with the damager name
     private static final String DAMAGER_PLACEHOLDER = "{damager}";
 
     public DeathMessage(String message, String damagerSuffix) {
@@ -33,6 +44,50 @@ public record DeathMessage(String message, String damagerSuffix) {
         }
 
         return damagerSuffix.replace(DAMAGER_PLACEHOLDER, damager);
+    }
+
+    @Nonnull
+    public String format(@Nonnull Player player, @Nullable LivingEntity killer, double distance) {
+        return format(player, getValidPronoun(killer), distance);
+    }
+
+    @Nonnull
+    public String format(@Nonnull Player player, @Nonnull String killer, double distance) {
+        final String message = message().replace(DAMAGER_PLACEHOLDER, killer);
+        final String suffix = damagerSuffix().replace(DAMAGER_PLACEHOLDER, killer);
+        final String longDistanceSuffix = distance >= 20.0d ? " (from %.1f meters away!)".formatted(distance) : "";
+
+        String string;
+        final String playerName = player.getName();
+
+        if (killer.isBlank()) {
+            string = "%s %s".formatted(playerName, message + longDistanceSuffix);
+        }
+        else {
+            string = "%s %s %s".formatted(playerName, message, suffix + longDistanceSuffix);
+        }
+
+        return "&4☠ " + new Gradient(string)
+                .rgb(
+                        new Color(160, 0, 0),
+                        new Color(255, 51, 51),
+                        Interpolators.LINEAR
+                );
+    }
+
+    private String getValidPronoun(@Nullable Entity entity) {
+        if (entity == null) {
+            return "";
+        }
+
+        if (entity instanceof Projectile projectile) {
+            final ProjectileSource shooter = projectile.getShooter();
+
+            if (shooter instanceof LivingEntity livingShooter) {
+                return livingShooter.getName() + "'s " + entity.getName();
+            }
+        }
+        return entity.getName();
     }
 
     public static DeathMessage of(String message, String suffix) {

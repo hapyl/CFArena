@@ -124,17 +124,22 @@ public class CommandRegistry extends DependencyInjector<Main> {
         register(new PlayerAttributeCommand("playerAttribute"));
         register(new SnakeBuilderCommand("snakeBuilder"));
 
-        register("testClientCobweb", (player, args) -> {
-            final Block block = player.getTargetBlockExact(10);
-            final Block relative = block.getRelative(BlockFace.UP);
+        register(new SimplePlayerAdminCommand("simulateDeathMessage") {
+            @Override
+            protected void execute(Player player, String[] strings) {
+                final EnumDamageCause cause = getArgument(strings, 0).toEnum(EnumDamageCause.class);
+                final String killer = getArgument(strings, 1).toString();
+                final double distance = getArgument(strings, 2).toDouble();
 
-            relative.setType(Material.COBWEB, false);
+                final String format = cause.getRandomIfMultiple().format(player, killer, distance);
+                Chat.sendMessage(player, ChatColor.RED + format);
+            }
 
-            Runnables.runLater(() -> {
-                player.sendBlockChange(relative.getLocation(), Material.AIR.createBlockData());
-            }, 1);
-
-            Chat.sendMessage(player, "&aSent!");
+            @Nullable
+            @Override
+            protected List<String> tabComplete(CommandSender sender, String[] args) {
+                return completerSort(EnumDamageCause.values(), args);
+            }
         });
 
         register("recipes", (player, args) -> {

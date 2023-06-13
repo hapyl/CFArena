@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.troll;
 
+import com.google.common.collect.Maps;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
@@ -16,23 +17,22 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
-public class Troll extends Hero {
+public class Troll extends Hero implements Listener {
 
-    private final Map<Player, Set<Block>> blocks = new HashMap<>();
+    private final Map<Player, StickyCobweb> cobwebs = Maps.newHashMap();
 
     public Troll() {
         super("Troll");
@@ -49,7 +49,12 @@ public class Troll extends Hero {
         equipment.setBoots(255, 204, 84);
 
         setWeapon(new Weapon(Material.STICK).setName("Stickonator")
-                .setDescription("- What's brown and sticky?__- What?__- A stick!__- ...")
+                .setDescription("""
+                        - What's brown and sticky?
+                        - What?
+                        - A stick!
+                        - ...
+                        """)
                 .setDamage(4.0)
                 .addEnchant(Enchantment.KNOCKBACK, 1));
 
@@ -60,19 +65,46 @@ public class Troll extends Hero {
         ).setSound(Sound.ENTITY_SPIDER_AMBIENT, 1.0f)
                 .setItem(Material.COBWEB)
                 .setCooldownSec(20));
+    }
 
+    @EventHandler
+    public void handleCobwebClear(PlayerInteractEvent ev) {
+        final Block block = ev.getClickedBlock();
+        final Player player = ev.getPlayer();
+
+        if (block == null || ev.getHand() == EquipmentSlot.OFF_HAND) {
+            return;
+        }
+
+        for (StickyCobweb value : cobwebs.values()) {
+            value.clear(player, block);
+        }
+    }
+
+    @Override
+    public void onDeath(Player player) {
+        clearCobwebs(player);
+    }
+
+    @Override
+    public void onStop() {
+        cobwebs.values().forEach(StickyCobweb::remove);
+        cobwebs.clear();
+    }
+
+    public void clearCobwebs(Player player) {
+        final StickyCobweb oldCobwebs = cobwebs.remove(player);
+
+        if (oldCobwebs != null) {
+            oldCobwebs.remove();
+        }
     }
 
     @Override
     public void useUltimate(Player player) {
-        Bukkit.getOnlinePlayers().forEach(target -> {
-            if (target == player) {
-                return;
-            }
-            Chat.sendMessage(target, "&aAh... Sticky! &e&lPUNCH &athe cobweb to remove it!");
-        });
-        clearCobweb(player);
-        createCobweb(player);
+        clearCobwebs(player);
+
+        cobwebs.put(player, new StickyCobweb(player));
     }
 
     @Override
@@ -108,47 +140,6 @@ public class Troll extends Hero {
         }
 
         return null;
-    }
-
-    private void clearCobweb(Player player) {
-        final Set<Block> blocks = Troll.this.blocks.get(player);
-        if (blocks == null) {
-            return;
-        }
-
-        blocks.forEach(location -> location.getState().update(false, false));
-    }
-
-    private void createCobweb(Player player) {
-        final Location location = player.getLocation().clone().subtract(2, 0, 2);
-        final Set<Block> hashSet = blocks.computeIfAbsent(player, t -> new HashSet<>());
-
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-                location.add(i, 0, j);
-                if (!location.getBlock().getType().isSolid()) {
-                    hashSet.add(location.getBlock());
-                    Bukkit.getOnlinePlayers().forEach(target -> {
-                        if (target == player) {
-                            return;
-                        }
-                        target.sendBlockChange(location, Material.COBWEB.createBlockData());
-                    });
-                }
-                location.subtract(i, 0, j);
-            }
-        }
-    }
-
-    @Override
-    public DamageOutput processDamageAsVictim(DamageInput input) {
-        return null;
-    }
-
-    @Override
-    public void onStop() {
-        blocks.values().forEach(locations -> locations.forEach(block -> block.getState().update(false, false)));
-        blocks.clear();
     }
 
     @Override

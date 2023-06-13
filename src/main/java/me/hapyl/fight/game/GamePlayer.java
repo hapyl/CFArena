@@ -27,8 +27,6 @@ import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.spigotutils.module.annotate.Super;
 import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.chat.Gradient;
-import me.hapyl.spigotutils.module.chat.gradient.Interpolators;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -38,17 +36,13 @@ import me.hapyl.spigotutils.module.util.BukkitUtils;
 import net.minecraft.network.protocol.game.PacketPlayOutAnimation;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.projectiles.ProjectileSource;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.awt.Color;
 import java.util.Map;
 
 /**
@@ -473,22 +467,11 @@ public class GamePlayer implements IGamePlayer {
 
         stats.addValue(StatType.DEATHS, 1);
 
-        // Broadcast the death message
-        final double distanceToDamager = Nulls.getIfNotNull(
+        final String deathMessage = getRandomDeathMessage().format(
+                player,
                 lastDamager,
-                f -> lastDamager.getLocation().distance(player.getLocation()),
-                0.0d
+                lastDamager == null ? 0 : lastDamager.getLocation().distance(player.getLocation())
         );
-
-        final String distanceSuffix = distanceToDamager >= 20.0d ? " (from %.2f meters away!)".formatted(distanceToDamager) : "";
-
-        final String deathMessage =
-                new Gradient(concat("☠ %s ".formatted(player.getName()), getRandomDeathMessage(), lastDamager) + distanceSuffix)
-                        .rgb(
-                                new Color(160, 0, 0),
-                                new Color(255, 51, 51),
-                                Interpolators.LINEAR
-                        );
 
         // Send death info to manager
         final GameInstance gameInstance = Manager.current().getGameInstance(); /*ignore deprecation*/
@@ -818,30 +801,6 @@ public class GamePlayer implements IGamePlayer {
             }
         }
         return true;
-    }
-
-    private String concat(String original, DeathMessage message, Entity killer) {
-        if (killer == null) {
-            return original + message.message();
-        }
-
-        final String pronoun = getValidPronoun(killer);
-        return (original + message.formatMessage(pronoun) + " " + message.formatSuffix(pronoun)).trim();
-    }
-
-    private String getValidPronoun(Entity entity) {
-        if (entity == null) {
-            return "";
-        }
-
-        if (entity instanceof Projectile projectile) {
-            final ProjectileSource shooter = projectile.getShooter();
-
-            if (shooter instanceof LivingEntity livingShooter) {
-                return livingShooter.getName() + "'s " + entity.getName();
-            }
-        }
-        return entity.getName();
     }
 
     private void executeTalentsOnDeath() {
