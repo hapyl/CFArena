@@ -147,6 +147,8 @@ Bugs:
 - Orc dash is very long
 - cauldron zone is not removed
 - shield does not reset on death
+- apply riptide on CRITS (might be too OP and wil have to nerf riptide slash)
+- pillar is not removed when bottom block is air since it only check for it
 
 - Rework techie a bit, add delay to traps and ult is useless :|
 

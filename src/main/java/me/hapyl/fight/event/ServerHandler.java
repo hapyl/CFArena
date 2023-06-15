@@ -2,6 +2,7 @@ package me.hapyl.fight.event;
 
 import me.hapyl.fight.Main;
 import me.hapyl.spigotutils.module.chat.Chat;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -14,7 +15,7 @@ public class ServerHandler implements Listener {
 
     @EventHandler()
     public void handleServerList(ServerListPingEvent ev) {
-        ev.setMaxPlayers(0);
+        ev.setMaxPlayers(Bukkit.getOnlinePlayers().size() + 1);
         ev.setMotd(centerMotd(
                 Main.GAME_NAME,
                 "&3Hosted by &bServer.pro"

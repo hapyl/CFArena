@@ -391,6 +391,14 @@ public class GamePlayer implements IGamePlayer {
     public void heal(double amount) {
         this.health = Numbers.clamp(health + amount, 0.5d, getMaxHealth());
         this.updateHealth();
+
+        // Fx
+        PlayerLib.spawnParticle(
+                player.getEyeLocation().add(0.0d, 0.5d, 0.0d),
+                Particle.HEART,
+                (int) Numbers.clamp(amount / 5, 1, 10),
+                0.44, 0.2, 0.44, 0.015f
+        );
     }
 
     public void die(boolean force) {

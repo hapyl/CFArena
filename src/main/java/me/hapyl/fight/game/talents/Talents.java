@@ -3,8 +3,6 @@ package me.hapyl.fight.game.talents;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.talents.archive.engineer.EngineerRecall;
-import me.hapyl.fight.game.talents.archive.engineer.EngineerSentry;
 import me.hapyl.fight.game.talents.archive.TestChargeTalent;
 import me.hapyl.fight.game.talents.archive.alchemist.CauldronAbility;
 import me.hapyl.fight.game.talents.archive.alchemist.RandomPotion;
@@ -20,6 +18,8 @@ import me.hapyl.fight.game.talents.archive.doctor.ConfusionPotion;
 import me.hapyl.fight.game.talents.archive.doctor.HarvestBlocks;
 import me.hapyl.fight.game.talents.archive.ender.TeleportPearl;
 import me.hapyl.fight.game.talents.archive.ender.TransmissionBeacon;
+import me.hapyl.fight.game.talents.archive.engineer.EngineerRecall;
+import me.hapyl.fight.game.talents.archive.engineer.EngineerSentry;
 import me.hapyl.fight.game.talents.archive.freazly.IceBarrier;
 import me.hapyl.fight.game.talents.archive.freazly.IceCone;
 import me.hapyl.fight.game.talents.archive.harbinger.MeleeStance;
@@ -44,8 +44,8 @@ import me.hapyl.fight.game.talents.archive.librarian.WeaponDarkness;
 import me.hapyl.fight.game.talents.archive.mage.ArcaneMute;
 import me.hapyl.fight.game.talents.archive.mage.MageTransmission;
 import me.hapyl.fight.game.talents.archive.moonwalker.GravityZone;
+import me.hapyl.fight.game.talents.archive.moonwalker.MoonPillarTalent;
 import me.hapyl.fight.game.talents.archive.moonwalker.MoonSliteBomb;
-import me.hapyl.fight.game.talents.archive.moonwalker.MoonslitePillar;
 import me.hapyl.fight.game.talents.archive.nightmare.Paranoia;
 import me.hapyl.fight.game.talents.archive.nightmare.ShadowShift;
 import me.hapyl.fight.game.talents.archive.ninja.NinjaDash;
@@ -125,7 +125,7 @@ public enum Talents {
     )),
 
     // Moonwalker
-    MOONSLITE_PILLAR(new MoonslitePillar()),
+    MOONSLITE_PILLAR(new MoonPillarTalent()),
     @Deprecated MOONSLITE_BOMB(new MoonSliteBomb()),
     MOON_GRAVITY(new GravityZone()),
     TARGET(new PassiveTalent("Space Suit", "Your suit grants you slow falling ability.", Material.FEATHER)),

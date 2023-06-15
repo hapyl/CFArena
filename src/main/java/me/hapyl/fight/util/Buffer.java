@@ -169,4 +169,12 @@ public class Buffer<E> implements List<E> {
     public List<E> subList(int fromIndex, int toIndex) {
         return linkedList.subList(fromIndex, toIndex);
     }
+
+    @Override
+    public String toString() {
+        return "Buffer{" +
+                "maxCapacity=" + maxCapacity +
+                ", buffer=" + linkedList +
+                '}';
+    }
 }

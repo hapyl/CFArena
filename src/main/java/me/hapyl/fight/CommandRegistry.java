@@ -51,8 +51,12 @@ import org.bson.Document;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.block.*;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Sign;
+import org.bukkit.block.Skull;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -631,7 +635,7 @@ public class CommandRegistry extends DependencyInjector<Main> {
 
                 if (mx instanceof com.sun.management.OperatingSystemMXBean sunOsBean) {
                     double cpuLoad = sunOsBean.getCpuLoad();
-                    Chat.sendMessage(sender, "&6CPU Load: &a%s%%" + (cpuLoad <= 0.0d ? " &cNot supported" : ""), cpuLoad);
+                    Chat.sendMessage(sender, "&6CPU Load: &a%.1f%%" + (cpuLoad <= 0.0d ? " &cNot supported" : ""), cpuLoad * 100);
                 }
             }
         });
@@ -1234,14 +1238,15 @@ public class CommandRegistry extends DependencyInjector<Main> {
 
             @Override
             protected void execute(CommandSender sender, String[] args) {
-                final boolean type = args.length == 1 && (args[0].equalsIgnoreCase("server") || args[0].equalsIgnoreCase("s"));
+                if (sender instanceof ConsoleCommandSender) {
+                    Bukkit.dispatchCommand(sender, "minecraft:stop");
+                    return;
+                }
 
-                Bukkit.dispatchCommand(sender, type ? "minecraft:stop" : "cf stop");
-            }
+                final String arg = getArgument(args, 0).toString();
+                Bukkit.dispatchCommand(sender, (arg.equalsIgnoreCase("server") || arg.equalsIgnoreCase("s")) ? "minecraft:stop" : "cf stop");
 
-            @Override
-            protected List<String> tabComplete(CommandSender sender, String[] args) {
-                return super.completerSort(Arrays.asList("game", "server"), args);
+                Chat.sendMessage(sender, "&6&lWARNING &eDeprecated usage of &n/stop&e command, prefer &n/cf stop&e!");
             }
         });
 

@@ -5,7 +5,7 @@ import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.talents.archive.moonwalker.MoonslitePillar;
+import me.hapyl.fight.game.talents.archive.moonwalker.MoonPillarTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -124,8 +124,8 @@ public class Moonwalker extends Hero implements PlayerElement, UIComponent {
     }
 
     @Override
-    public MoonslitePillar getFirstTalent() {
-        return (MoonslitePillar) Talents.MOONSLITE_PILLAR.getTalent();
+    public MoonPillarTalent getFirstTalent() {
+        return (MoonPillarTalent) Talents.MOONSLITE_PILLAR.getTalent();
     }
 
     @Override

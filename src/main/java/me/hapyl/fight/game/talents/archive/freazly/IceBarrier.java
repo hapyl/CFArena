@@ -1,17 +1,32 @@
 package me.hapyl.fight.game.talents.archive.freazly;
 
+import com.google.common.collect.Lists;
+import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.talents.MappedTalent;
+import me.hapyl.fight.game.talents.CreationTalent;
+import me.hapyl.fight.game.talents.TickingCreation;
+import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Direction;
+import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.displayfield.DisplayField;
+import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.Tick;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import me.hapyl.spigotutils.module.math.geometry.Quality;
+import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
+import me.hapyl.spigotutils.module.player.PlayerLib;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.Ageable;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffectType;
 
-public class IceBarrier extends MappedTalent<BarrierWall> {
+import javax.annotation.Nullable;
+import java.util.List;
+
+public class IceBarrier extends CreationTalent {
 
     @DisplayField protected final int buildDelay = 4;
     @DisplayField(suffix = "blocks") protected final double radius = 3.5d;
@@ -46,22 +61,120 @@ public class IceBarrier extends MappedTalent<BarrierWall> {
         final Direction direction = Direction.getDirection(player);
         final boolean isEastWest = direction.isEastWest();
 
-        final BarrierWall wall = createMapped(player, new BarrierWall(player, targetLocation.add(0.5d, 0.0d, 0.5d), this));
         final Location location = targetLocation.subtract((isEastWest ? 0 : 2), 0, (isEastWest ? 2 : 0));
 
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 5; j++) {
-                final Block blockToChange = location.add(isEastWest ? 0 : j, i, isEastWest ? j : 0).getBlock();
+        newCreation(player, new TickingCreation() {
+            private final List<Block> blocks = Lists.newArrayList();
 
-                if (blockToChange.getType().isAir()) {
-                    wall.add(blockToChange);
+            @Override
+            public void run(int tick) {
+                for (LivingEntity entity : Collect.nearbyLivingEntitiesValidate(location, radius)) {
+                    if (entity == player) {
+                        GamePlayer.getPlayer(player).heal(healingPerTick);
+                    }
+                    else {
+                        entity.addPotionEffect(PotionEffectType.SLOW.createEffect(20, 3));
+                    }
                 }
 
-                location.subtract(isEastWest ? 0 : j, i, isEastWest ? j : 0);
+                Geometry.drawCircle(location, radius, Quality.SUPER_HIGH, new WorldParticle(Particle.FALLING_WATER));
+                Geometry.drawCircle(location, radius, Quality.SUPER_HIGH, new WorldParticle(Particle.BUBBLE_POP));
             }
-        }
 
-        wall.build();
+            @Override
+            public void create(Player player) {
+                for (int i = 0; i < 3; i++) {
+                    for (int j = 0; j < 5; j++) {
+                        final Block blockToChange = location.add(isEastWest ? 0 : j, i, isEastWest ? j : 0).getBlock();
+
+                        if (blockToChange.getType().isAir()) {
+                            blocks.add(blockToChange);
+                        }
+
+                        location.subtract(isEastWest ? 0 : j, i, isEastWest ? j : 0);
+                    }
+                }
+
+                if (blocks.isEmpty()) {
+                    return;
+                }
+
+                iterateBlocks(0, 5, buildDelay);
+                iterateBlocks(5, 10, buildDelay * 2);
+                iterateBlocks(10, 15, buildDelay * 3, () -> {
+                    // Start melting
+                    runTaskTimer(0, 20);
+
+                    if (getDuration() > 0) {
+                        melt();
+                    }
+                });
+            }
+
+            @Override
+            public void remove() {
+                for (Block block : blocks) {
+                    block.getWorld().playSound(block.getLocation(), Sound.BLOCK_GLASS_BREAK, SoundCategory.MASTER, 10, 2f);
+                    block.setType(Material.AIR, false);
+                }
+
+                cancel();
+                blocks.clear();
+            }
+
+            private void setBlock(Block block) {
+                block.setType(Material.ICE, false);
+
+                PlayerLib.playSound(block.getLocation(), Sound.ENTITY_SNOW_GOLEM_HURT, 0.8f);
+                PlayerLib.playSound(block.getLocation(), Sound.ENTITY_SNOW_GOLEM_HURT, 1.6f);
+            }
+
+            private void melt() {
+                final int delay = getDuration() / 4;
+
+                new GameTask() {
+                    private int currentTick = 0;
+
+                    @Override
+                    public void run() {
+                        for (Block block : blocks) {
+                            block.setType(Material.FROSTED_ICE, false);
+                            final Ageable blockData = (Ageable) block.getBlockData();
+
+                            blockData.setAge(Math.min(currentTick, 3));
+                            block.setBlockData(blockData, false);
+                        }
+
+                        if (currentTick++ > 3) {
+                            destroy();
+                            cancel();
+                        }
+                    }
+                }.runTaskTimer(0, delay);
+
+            }
+
+            private void destroy() {
+                removeCreation(player, this);
+            }
+
+            private void iterateBlocks(int start, int end, int delay) {
+                iterateBlocks(start, end, delay, null);
+            }
+
+            private void iterateBlocks(int start, int end, int delay, @Nullable Runnable runnable) {
+                GameTask.runLater(() -> {
+                    for (int i = start; i < end; i++) {
+                        if (blocks.size() <= i) {
+                            break;
+                        }
+                        setBlock(blocks.get(i));
+                    }
+
+                    Nulls.runIfNotNull(runnable, Runnable::run);
+                }, delay);
+            }
+        });
 
         return Response.OK;
     }

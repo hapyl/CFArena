@@ -1,9 +1,21 @@
 package me.hapyl.fight.game.talents;
 
+import me.hapyl.fight.annotate.SelfCallable;
 import org.bukkit.entity.Player;
 
 public interface Removable {
-
+    /**
+     * The remove method that must be implemented by the removable.
+     * <p>
+     *
+     * <h1>
+     * Plugin must not, and should not call this method within the removable!
+     * The method is handled automatically by the {@link CreationTalent}!
+     * </h1>
+     * <p>
+     * Call {@link CreationTalent#removeCreation(Player, Creation)} to properly handle the removal of the object!
+     */
+    @SelfCallable(false)
     void remove();
 
     /**
@@ -13,5 +25,4 @@ public interface Removable {
      */
     default void onReplace(Player player) {
     }
-
 }
