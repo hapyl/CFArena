@@ -47,7 +47,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
 
         setRole(Role.ASSASSIN);
 
-        setInfo("Well trained assassin from dimension of shadows.");
+        setDescription("Well trained assassin from dimension of shadows.");
         setItem("9598fcbbf65b9ff66da99487403e4baf7e4c50144d06c7417bbded578d76d004");
 
         final HeroEquipment equipment = getEquipment();

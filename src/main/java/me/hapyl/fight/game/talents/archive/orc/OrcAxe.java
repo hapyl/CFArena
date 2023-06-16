@@ -5,8 +5,8 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EntityData;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.InputTalent;
-import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.GeometryTask;
+import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.fight.util.Utils;
@@ -120,14 +120,15 @@ public class OrcAxe extends InputTalent {
         vector.setY(0.0d);
         vector.normalize();
 
-        new GameTask() {
+        new TickingGameTask() {
 
             @Override
-            public void run() {
+            public void run(int tick) {
                 final Location location = player.getLocation();
+                final Location eyeLocation = player.getEyeLocation();
 
-                if (startLocation.distance(location) >= 6.0d) {
-                    executeHit(location);
+                if (tick >= 50 || startLocation.distance(location) >= 6.0d) {
+                    executeHit(eyeLocation);
                     cancel();
                     return;
                 }
@@ -135,13 +136,19 @@ public class OrcAxe extends InputTalent {
                 final LivingEntity hitEntity = Collect.nearestLivingEntity(location, 0.5d, living -> living != player);
 
                 if (hitEntity != null) {
-                    executeHit(hitEntity.getLocation());
+                    executeHit(hitEntity.getEyeLocation());
                     cancel();
                     return;
                 }
 
                 // Travel
                 player.setVelocity(player.getLocation().getDirection().normalize().setY(-1.0d).multiply(0.75d));
+
+                // Fx
+                if (tick % 5 == 0) {
+                    PlayerLib.spawnParticle(eyeLocation, Particle.SWEEP_ATTACK, 1, 0.1d, 0.1d, 0.1d, 1);
+                    PlayerLib.spawnParticle(eyeLocation, Particle.LAVA, 1, 0.1d, 0.1d, 0.1d, 1);
+                }
             }
 
             private void executeHit(@Nonnull Location location) {

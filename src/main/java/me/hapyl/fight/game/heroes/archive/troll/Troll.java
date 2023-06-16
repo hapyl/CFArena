@@ -40,7 +40,7 @@ public class Troll extends Hero implements Listener {
         setRole(Role.MELEE);
         setArchetype(Archetype.STRATEGY);
 
-        setInfo("Not a good fighter... but definitely a good troll!");
+        setDescription("Not a good fighter... but definitely a good troll!");
         setItem("9626c019c8b41c7b249ae9bb6760c4e6980051cf0d6895cb3e6846d81245ad11");
 
         final HeroEquipment equipment = getEquipment();

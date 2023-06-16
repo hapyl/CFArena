@@ -56,7 +56,7 @@ public class MoonPillarTalent extends CreationTalent {
         final Location location = block.getLocation().add(0.5d, 0.0d, 0.5d);
 
         if (!canFit(location)) {
-            return Response.error("Cannot fit pillar!");
+            return Response.error("Cannot fit the pillar!");
         }
 
         newCreation(player, new TickingCreation() {

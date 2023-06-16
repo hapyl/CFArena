@@ -1,7 +1,12 @@
 package me.hapyl.fight.game.heroes.archive.orc;
 
+import com.google.common.collect.Maps;
+import me.hapyl.fight.event.DamageInput;
+import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.IGamePlayer;
+import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.attribute.PlayerAttributes;
@@ -9,12 +14,16 @@ import me.hapyl.fight.game.attribute.Temper;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
+import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.orc.OrcAxe;
 import me.hapyl.fight.game.talents.archive.orc.OrcGrowl;
-import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.task.PlayerTask;
+import me.hapyl.fight.game.ui.display.BuffDisplay;
+import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -24,47 +33,24 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Map;
+
 public class Orc extends Hero {
 
-    /**
-     * WEAPON:
-     * - Axe
-     * - RIGHT CLICK:
-     * -- Throw: (10s max)
-     * --- When enemy hit:
-     * ---- Freeze & Slow
-     * --- When hit block:
-     * ----- Stuck in block, flies back longer.
-     * --- Flies back parabola
-     * <p>
-     * ABILITY 1:
-     * - Grown
-     * -- 8 blocks radius zone:
-     * --- Slowness, Weakness (6s)
-     * <p>
-     * ABILITY 2: INPUT
-     * - LEFT CLICK: Eula
-     * - RIGHT CLICK: Dash damage
-     * <p>
-     * PASSIVE: (3s, cd 30s)
-     * If keep taking damage by player mini ultimate.
-     * Negative effects deal less damage
-     * <p>
-     * ULTIMATE: (20s)
-     * - Berserk Mode
-     * -- -70 defense
-     * -- Crit chance increase
-     * -- Speed
-     * -- Attack
-     */
+    private final Map<Player, DamageData> damageMap = Maps.newHashMap();
 
     public Orc() {
         super("Pakarat Rakab");
 
+        setDescription("Orc.");
+
+        setRole(Role.MELEE);
         setArchetype(Archetype.DAMAGE);
 
         final HeroAttributes attributes = getAttributes();
-        attributes.setValue(AttributeType.HEALTH, 150);
+        attributes.setValue(AttributeType.HEALTH, 125);
         attributes.setValue(AttributeType.DEFENSE, 0.75d);
         attributes.setValue(AttributeType.SPEED, 0.22d);
         attributes.setValue(AttributeType.CRIT_CHANCE, 0.15d);
@@ -82,12 +68,47 @@ public class Orc extends Hero {
                 new UltimateTalent("Berserk", 70)
                         .setDurationSec(20)
                         .setCooldown(30)
-                        .appendDescription("""
-                                Enter berserk mode for {duration}.
-                                                                
-                                While active, your %s, %s and %s is increased, but you lose 70 %s.
-                                """, AttributeType.ATTACK, AttributeType.SPEED, AttributeType.CRIT_CHANCE, AttributeType.DEFENSE)
+                        .setItem(Material.NETHER_WART)
+                        .appendDescription(
+                                """
+                                        Enter %s for {duration}.
+                                                                        
+                                        While active, gain:
+                                        • &aIncreased %s.
+                                        • &aIncreased %s.
+                                        • &c-70 %s.
+                                        """,
+                                Named.BERSERK,
+                                AttributeType.ATTACK,
+                                AttributeType.SPEED,
+                                AttributeType.CRIT_CHANCE,
+                                AttributeType.DEFENSE
+                        )
         );
+    }
+
+    @Nullable
+    @Override
+    public DamageOutput processDamageAsVictim(DamageInput input) {
+        final Player player = input.getPlayer();
+        final EnumDamageCause cause = input.getDamageCause();
+        final double damage = input.getDamage();
+
+        switch (cause) {
+            case WITHER, POISON -> {
+                return new DamageOutput(damage / 2);
+            }
+        }
+
+        if (cause != EnumDamageCause.ENTITY_ATTACK) {
+            return null;
+        }
+
+        if (damageMap.computeIfAbsent(player, DamageData::new).addHitAndCheck()) {
+            enterBerserk(player, Tick.fromSecond(3));
+        }
+
+        return null;
     }
 
     @Override
@@ -101,6 +122,7 @@ public class Orc extends Hero {
             return;
         }
 
+        damageMap.remove(player);
         orcWeapon.remove(player);
     }
 
@@ -113,18 +135,26 @@ public class Orc extends Hero {
         attributes.increaseTemporary(Temper.BERSERK_MODE, AttributeType.CRIT_CHANCE, 0.4d, duration);
         attributes.decreaseTemporary(Temper.BERSERK_MODE, AttributeType.DEFENSE, 0.7d, duration);
 
+        new BuffDisplay(Named.BERSERK.toString(), 30).display(player.getLocation());
+        Chat.sendMessage(player, "%s &aYou're berserk!", Named.BERSERK.getCharacter());
+
         // Fx
-        new GameTask() {
+        new PlayerTask(player) {
             private int tick = 0;
 
             @Override
-            public void run() {
+            public void onStop() {
+                Chat.sendMessage(player, "%s &ais over!", Named.BERSERK);
+            }
+
+            @Override
+            public void run(@Nonnull GamePlayer player) {
                 if (tick++ >= duration) {
                     cancel();
                     return;
                 }
 
-                final Location location = player.getLocation();
+                final Location location = player.getEyeLocation();
 
                 // Sound FX
                 if (tick % 20 == 0) {
@@ -133,11 +163,19 @@ public class Orc extends Hero {
                 }
 
                 // Particle FX
-                if (tick % 10 != 0) {
-                    PlayerLib.spawnParticle(location, Particle.LAVA, 1, 0, 0, 0, 0.1f);
+                if (tick % 5 == 0) {
+                    PlayerLib.spawnParticle(location, Particle.LAVA, 2, 0.1, 0.2, 0.1, 0.1f);
                 }
             }
-        };
+        }.runTaskTimer(0, 1);
+    }
+
+    @Override
+    public void onStop() {
+        if (getWeapon() instanceof OrcWeapon weapon) {
+            weapon.removeAll();
+        }
+        damageMap.clear();
     }
 
     @Override
@@ -152,6 +190,6 @@ public class Orc extends Hero {
 
     @Override
     public Talent getPassiveTalent() {
-        return null;
+        return Talents.ORC_PASSIVE.getTalent();
     }
 }

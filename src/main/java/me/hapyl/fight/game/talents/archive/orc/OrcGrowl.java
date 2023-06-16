@@ -24,7 +24,11 @@ public class OrcGrowl extends Talent {
     @DisplayField private final double distance = 8.0;
 
     public OrcGrowl() {
-        super("Beast's Grown");
+        super("Growl of a Beast");
+
+        setDescription("""
+                Growl with your beautiful and deadly voice, scaring opponents in moderate range, slowing and weakening them.
+                """);
 
         setItem(Material.GOAT_HORN);
         setDurationSec(5);

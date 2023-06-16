@@ -27,7 +27,7 @@ public class Nightmare extends Hero {
         setRole(Role.ASSASSIN);
         setArchetype(Archetype.DAMAGE);
 
-        setInfo("A spirit from the worst dreams and nightmares, blinds enemies and strikes from behind!");
+        setDescription("A spirit from the worst dreams and nightmares, blinds enemies and strikes from behind!");
         setItem("79c55e0e4af71824e8da68cde87de717b214f92e9949c4b16da22b357f97b1fc");
 
         setWeapon(new Weapon(Material.NETHERITE_SWORD).setName("Omen")

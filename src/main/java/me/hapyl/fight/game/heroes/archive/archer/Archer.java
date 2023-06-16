@@ -50,7 +50,7 @@ public class Archer extends Hero implements Listener {
         setRole(Role.RANGE);
         setArchetype(Archetype.DAMAGE);
 
-        setInfo("One of the best archers joins the fight! Not alone though but with his &bcustom-made &8&obow.");
+        setDescription("One of the best archers joins the fight! Not alone though but with his &bcustom-made &8&obow.");
         setItem("106c16817c73ff64a4a49b590d2cdb25bcfa52c630fe7281a177eabacdaa857b");
 
         setWeapon(Material.BOW, "Bow of Destiny", "A custom-made bow with some unique abilities!", 5.0d);

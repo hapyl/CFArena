@@ -60,7 +60,7 @@ public class JuJu extends Hero implements Listener {
         setRole(Role.RANGE);
         setMinimumLevel(5);
 
-        setInfo("A bandit from the depths of the jungle. Highly skilled in range combat.");
+        setDescription("A bandit from the depths of the jungle. Highly skilled in range combat.");
         setItem("9dcff46588f394987979b7dd770adea94d8ee1fb1f7b8704e1baf91227f6a4d");
 
         final HeroEquipment equipment = getEquipment();

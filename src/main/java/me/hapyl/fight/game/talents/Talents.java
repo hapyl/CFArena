@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
+import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.talents.archive.TestChargeTalent;
 import me.hapyl.fight.game.talents.archive.alchemist.CauldronAbility;
@@ -79,6 +80,7 @@ import me.hapyl.fight.game.talents.archive.vampire.VampirePet;
 import me.hapyl.fight.game.talents.archive.vortex.StarAligner;
 import me.hapyl.fight.game.talents.archive.vortex.VortexStar;
 import me.hapyl.fight.game.talents.archive.witcher.*;
+import me.hapyl.spigotutils.module.util.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -346,7 +348,7 @@ public enum Talents {
                         
             Drink the blood to &cincrease your damage&7 and &cheal yourself&7.
                         
-            &6;;Healing, damage boost, duration and cooldown is based on the amount of stacks consumed.
+            &6;;Healing, damage boost, duration and cooldown are based on the number of stacks consumed.
             """,
             Material.REDSTONE
     )),
@@ -354,10 +356,10 @@ public enum Talents {
     // Bounty Hunter
     SHORTY(new ShortyShotgun()),
     GRAPPLE(new GrappleHookTalent()),
-    SMOKE_BOMB(new PassiveTalent(
-            "Smoke Bomb",
-            "Whenever your health falls below &c50%&7, you gain a &eSmoke Bomb&7.____Throw it to create a smoke field that &bblinds&7 everyone inside it and grant you a &bspeed boost&7.",
-            Material.ENDERMAN_SPAWN_EGG
+    SMOKE_BOMB(new PassiveTalent("Smoke Bomb", """
+            Whenever your health falls below &c50%&7, you gain a &eSmoke Bomb&7.
+            Throw it to create a smoke field that &bblinds&7 everyone inside it and grant you a &bspeed boost&7.
+            """, Material.ENDERMAN_SPAWN_EGG
     )),
 
     // Heavy Knight
@@ -368,7 +370,13 @@ public enum Talents {
     // Orc
     ORC_GROWN(new OrcGrowl()),
     ORC_AXE(new OrcAxe()),
-    ORC_PASSIVE(new PassiveTalent("", "", Material.STONE)),
+    ORC_PASSIVE(new PassiveTalent("Don't Anger Me/Orc's Blood", format("""
+            &b&lDon't Anger Me
+            Taking continuous damage within the set time window will trigger {} for &b3s&7.
+                        
+            &b&lOrc's Blood
+            Negative effects deal 50% less damage.
+            """, Named.BERSERK), Material.FERMENTED_SPIDER_EYE)),
 
     // Engineer
     ENGINEER_SENTRY(new EngineerSentry()),
@@ -456,6 +464,14 @@ public enum Talents {
         }
 
         return HANDLE_TO_ENUM.get(talent);
+    }
+
+    private static String format(String textBlock, @Nullable Object... format) {
+        if (format == null || format.length == 0) {
+            return textBlock;
+        }
+
+        return Placeholder.format(textBlock, format);
     }
 
 }

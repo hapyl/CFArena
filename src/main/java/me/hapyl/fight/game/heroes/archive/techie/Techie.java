@@ -61,7 +61,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener {
 
         setRole(Role.STRATEGIST);
 
-        setInfo(
+        setDescription(
                 "Anonymous hacker, who hacked his way to the fight. Weak by himself, but specifies on traps that make him stronger."
         );
 

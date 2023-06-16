@@ -35,7 +35,7 @@ public class DrEd extends Hero implements UIComponent {
     public DrEd() {
         super("Dr. Ed");
         setRole(Role.STRATEGIST);
-        setInfo("Simply named scientist with not so simple inventions...");
+        setDescription("Simply named scientist with not so simple inventions...");
         setItem("3b51e96bddd177992d68278c9d5f1e685b60fbb94aaa709259e9f2781c76f8");
 
         final HeroEquipment equipment = getEquipment();

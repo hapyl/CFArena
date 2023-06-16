@@ -44,6 +44,7 @@ import org.bukkit.potion.PotionEffectType;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * This class controls all in-game player data.
@@ -794,6 +795,16 @@ public class GamePlayer implements IGamePlayer {
         return 0.5d;
     }
 
+    @Nonnull
+    public Location getLocation() {
+        return player.getLocation();
+    }
+
+    @Nonnull
+    public Location getEyeLocation() {
+        return player.getEyeLocation();
+    }
+
     private void resetAttribute(Attribute attribute, double value) {
         Nulls.runIfNotNull(player.getAttribute(attribute), t -> t.setBaseValue(value));
     }
@@ -835,6 +846,8 @@ public class GamePlayer implements IGamePlayer {
      */
     @Nullable
     public static GamePlayer getExistingPlayer(Player player) {
+        // FIXME (hapyl): 016, Jun 16: This system should change when, or if,
+        //  multiple game instances are implemented.
         final GameInstance gameInstance = Manager.current().getGameInstance();
 
         if (gameInstance == null) {
@@ -846,19 +859,6 @@ public class GamePlayer implements IGamePlayer {
 
     /**
      * Returns either an actual GamePlayer instance if there is a GameInstance, otherwise AbstractGamePlayer.
-     * <p>
-     * fixme -> Add nullability or use Optional, this system sucks COCK (RISE PENIS)
-     * Adding nullability will remove need for interfaces and updating NULL instance every FUCKING TIME
-     * something is added.
-     * Well, a base interface should probably still be used, but this NULL GAME PLAYER
-     * is annoying thing to deal why did I implement it this way, just check for the fucking null, or, well,
-     * use OPTIONAL.
-     * Now the question is, if GameEntity is the base class, how should it be stored, still in game instance?
-     * Should GamePlayer and GameEntity stored in the same map and use casting and checking to retrieve them?
-     * -- (Considering GamePlayer extends GameEntity)
-     * GamePlayer's are created upon game instance, what about GameEntity?
-     * <p>
-     * Or maybe separate shit into GameData or EntityData or something !!
      *
      * @param player bukkit player.
      * @return either an actual GamePlayer instance if there is a GameInstance, otherwise AbstractGamePlayer.
@@ -867,6 +867,12 @@ public class GamePlayer implements IGamePlayer {
     public static IGamePlayer getPlayer(Player player) {
         final GamePlayer gamePlayer = getExistingPlayer(player);
         return gamePlayer == null ? IGamePlayer.NULL_GAME_PLAYER : gamePlayer;
+    }
+
+    @Nonnull
+    public static Optional<GamePlayer> getPlayerOptional(Player player) {
+        final GamePlayer gamePlayer = getExistingPlayer(player);
+        return gamePlayer == null ? Optional.empty() : Optional.of(gamePlayer);
     }
 
     // static members
@@ -887,12 +893,12 @@ public class GamePlayer implements IGamePlayer {
     }
 
     public static void damageEntityTick(LivingEntity entity, double damage, @Nullable LivingEntity damager, @Nullable EnumDamageCause cause, int tick) {
-        EntityData.of(entity).damageTick(entity, damage, damager, cause, tick);
+        EntityData.damageTick(entity, damage, damager, cause, tick);
     }
 
     @Super
     public static void damageEntity(LivingEntity entity, double damage, LivingEntity damager, EnumDamageCause cause) {
-        EntityData.of(entity).damage(entity, damage, damager, cause);
+        EntityData.damage(entity, damage, damager, cause);
     }
 
     public enum Ignore {

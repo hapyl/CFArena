@@ -28,10 +28,19 @@ public class OrcWeapon extends Weapon implements Cooldown {
 
         thrownAxe = Maps.newHashMap();
 
+        setName("Poleaxe");
+        setDescription("""
+                A sharp poleaxe.
+                                
+                &6&lRIGHT CLICK&e to throw at your enemies.
+                Upon hitting an enemy, it drastically slows them and deals damage before returning to you.
+                                
+                Upon hitting a block, stay in a block for a while before returning to you.
+                """);
+
         setDamage(10.0d);
         setAttackSpeed(-2.5d);
         setId("orc_axe");
-        setName("Poleaxe");
     }
 
     @Override
@@ -89,5 +98,10 @@ public class OrcWeapon extends Weapon implements Cooldown {
         }
 
         weapon.remove();
+    }
+
+    public void removeAll() {
+        thrownAxe.values().forEach(OrcWeaponEntity::remove);
+        thrownAxe.clear();
     }
 }

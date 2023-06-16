@@ -25,7 +25,7 @@ public class KillingMachine extends Hero implements DisabledHero {
 
         setRole(Role.RANGE);
 
-        setInfo("A machine of war that was left for scrap, until now...");
+        setDescription("A machine of war that was left for scrap, until now...");
         setItem("ec2f3d5d62fd9be6d654d314c123390abfa3698d3d87c1516a453a7ee4fcbf");
 
         final HeroEquipment equipment = this.getEquipment();

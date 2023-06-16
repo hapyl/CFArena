@@ -61,7 +61,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         super("Dark Mage");
 
         setRole(Role.MELEE);
-        setInfo("A mage that was cursed by &8&lDark &8&lMagic&8&o. But even it couldn't kill him...");
+        setDescription("A mage that was cursed by &8&lDark &8&lMagic&8&o. But even it couldn't kill him...");
         setItem("e6ca63569e8728722ecc4d12020e42f086830e34e82db55cf5c8ecd51c8c8c29");
 
         final HeroAttributes attributes = getAttributes();

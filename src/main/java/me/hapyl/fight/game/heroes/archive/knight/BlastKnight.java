@@ -54,7 +54,7 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Lis
         super("Blast Knight");
 
         setRole(Role.MELEE);
-        setInfo("Royal Knight with high-end technology gadgets.");
+        setDescription("Royal Knight with high-end technology gadgets.");
         setItem("e2dfde6c2c8f0a7adf7ae4e949a804fedf95c6b9562767eae6c22a401cd02cbd");
 
         final HeroEquipment equipment = getEquipment();

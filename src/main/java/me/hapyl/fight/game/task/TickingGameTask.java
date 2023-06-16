@@ -18,4 +18,5 @@ public abstract class TickingGameTask extends GameTask {
 
         tick += increment;
     }
+
 }

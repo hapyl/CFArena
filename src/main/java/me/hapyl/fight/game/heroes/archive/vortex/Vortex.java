@@ -38,7 +38,7 @@ public class Vortex extends Hero implements UIComponent {
 
         setRole(Role.STRATEGIST);
 
-        setInfo("A young boy with power of speaking to starts...");
+        setDescription("A young boy with power of speaking to starts...");
         setItem("2adc458dfabc20b8d587b0476280da2fb325fc616a5212784466a78b85fb7e4d");
 
         final HeroEquipment equipment = this.getEquipment();

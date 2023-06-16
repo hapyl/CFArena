@@ -33,7 +33,7 @@ public class Moonwalker extends Hero implements PlayerElement, UIComponent {
         setRole(Role.RANGE);
         setArchetype(Archetype.DAMAGE);
 
-        setInfo("A traveller from another planet... or, should I say moon? Brings his skills and... planets... with himself!");
+        setDescription("A traveller from another planet... or, should I say moon? Brings his skills and... planets... with himself!");
         setItem("1cf8fbd76586920c5273519927862fdc111705a1851d4d1aac450bcfd2b3a");
 
         final HeroAttributes attributes = getAttributes();

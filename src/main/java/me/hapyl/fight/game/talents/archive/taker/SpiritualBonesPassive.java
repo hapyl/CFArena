@@ -15,7 +15,7 @@ public class SpiritualBonesPassive extends PassiveTalent {
         super("Spiritual Bones", Material.BONE);
 
         setDescription("""
-                You may posses up to &b{MAX_BONES}&7 &eSpiritual Bones&7 that orbit around you.
+                You may possess up to &b{MAX_BONES}&7 &eSpiritual Bones&7 that orbit around you.
                                 
                 &l&oEach &7bone provides the following effects:
                                 

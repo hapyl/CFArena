@@ -34,7 +34,7 @@ public class Spark extends Hero implements PlayerElement {
         super("Spark");
 
         setRole(Role.RANGE);
-        setInfo("Strikes as fire with his fire abilities.");
+        setDescription("Strikes as fire with his fire abilities.");
         setItem("ade095332720215ca9b85e7eacd1d092b1697fad34d696add94d3b70976702c");
 
         final HeroEquipment equipment = this.getEquipment();

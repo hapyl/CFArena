@@ -78,12 +78,12 @@ public abstract class Hero implements GameElement, PlayerElement {
 
     public Hero(String name, String lore) {
         this(name);
-        this.setInfo(lore);
+        this.setDescription(lore);
     }
 
     public Hero(String name, String lore, Material material) {
         this(name);
-        setInfo(lore);
+        setDescription(lore);
         setItem(material);
     }
 
@@ -296,7 +296,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      *
      * @param about - New description.
      */
-    public void setInfo(String about) {
+    public void setDescription(String about) {
         this.description = about;
     }
 
