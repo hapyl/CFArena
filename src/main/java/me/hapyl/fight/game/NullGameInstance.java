@@ -118,12 +118,6 @@ public class NullGameInstance implements IGameInstance {
         return Modes.FFA.getMode();
     }
 
-    @Nonnull
-    @Override
-    public Modes getCurrentMode() {
-        return Modes.FFA;
-    }
-
     @Override
     public boolean isWinner(Player player) {
         return false;

@@ -101,7 +101,6 @@ public class CommandRegistry extends DependencyInjector<Main> {
         register(new ModeCommand("mode"));
         register(new AdminCommand("admin"));
         register(new DebugBooster("debugBooster"));
-        register(new TrialCommand("trial"));
         register(new SettingCommand("setting"));
         register(new TutorialCommand("tutorial"));
         register(new TeamCommand("team"));

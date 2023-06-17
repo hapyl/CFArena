@@ -1,7 +1,6 @@
 package me.hapyl.fight.game;
 
 import me.hapyl.fight.game.attribute.PlayerAttributes;
-import me.hapyl.fight.game.cosmetic.skin.Skins;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -92,13 +91,6 @@ public class NullGamePlayer implements IGamePlayer {
 
     @Override
     public void markLastMoved() {
-
-    }
-
-    @Nullable
-    @Override
-    public Skins getSkin() {
-        return null;
     }
 
     @Override
@@ -108,7 +100,6 @@ public class NullGamePlayer implements IGamePlayer {
 
     @Override
     public void setUltimateAccelerationModifier(double d) {
-
     }
 
     @Override

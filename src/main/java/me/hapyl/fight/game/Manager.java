@@ -46,16 +46,16 @@ import java.util.stream.Collectors;
 
 public final class Manager extends DependencyInjector<Main> {
 
-    @Nonnull private GameMaps currentMap;
-    @Nonnull private Modes currentMode;
-
     private final Map<UUID, PlayerProfile> profiles;
-
     private final SkinEffectManager skinEffectManager;
     private final AutoSync autoSave;
+    private final Trial trial;
+
+    @Nonnull private GameMaps currentMap;
+    @Nonnull private Modes currentMode;
     private boolean isDebug = true;
+
     private GameInstance gameInstance; // @implNote: For now, only one game instance can be active at a time.
-    private Trial trial;
 
     public Manager(Main main) {
         super(main);
@@ -71,6 +71,8 @@ public final class Manager extends DependencyInjector<Main> {
 
         // start auto save timer
         autoSave = new AutoSync(Tick.fromMinute(10));
+
+        trial = new Trial(main);
     }
 
     /**
@@ -123,7 +125,7 @@ public final class Manager extends DependencyInjector<Main> {
     }
 
     public boolean isAbleToUse(Player player) {
-        return isGameInProgress() || isTrialExistsAndIsOwner(player);
+        return isGameInProgress() || trial.isInTrial(player);
     }
 
     public boolean isGameInProgress() {
@@ -196,31 +198,6 @@ public final class Manager extends DependencyInjector<Main> {
         return getTrial() != null;
     }
 
-    public boolean isTrialExistsAndIsOwner(Player player) {
-        return hasTrial() && getTrial().getPlayer() == player;
-    }
-
-    public void startTrial(Player player, Heroes heroes) {
-        if (hasTrial()) {
-            return;
-        }
-
-        trial = new Trial(getOrCreateProfile(player), heroes);
-        trial.onStart();
-        trial.onPlayersReveal();
-        trial.broadcastMessage("&a%s started a trial of %s.", player.getName(), heroes.getHero().getName());
-    }
-
-    public void stopTrial() {
-        if (!hasTrial()) {
-            return;
-        }
-
-        trial.broadcastMessage("&a%s has stopped a trial challenge.", trial.getPlayer().getName());
-        trial.onStop();
-        trial = null;
-    }
-
     public Modes getCurrentMode() {
         return currentMode;
     }
@@ -261,18 +238,13 @@ public final class Manager extends DependencyInjector<Main> {
     /**
      * Creates a new game instance.
      * <p>
-     * Only one game instance can be active at a time. (for now?)
+     * Only one game instance can be active at a time.
      */
     public void createNewGameInstance(boolean debug) {
         // Pre-game start checks
         if ((!currentMap.isPlayable() || !currentMap.getMap().hasLocation()) && !debug) {
             displayError("Invalid map!");
             return;
-        }
-
-        // Stop trial
-        if (hasTrial()) {
-            stopTrial();
         }
 
         isDebug = debug;
@@ -607,10 +579,7 @@ public final class Manager extends DependencyInjector<Main> {
 
     @Nonnull
     public Heroes getCurrentEnumHero(Player player) {
-        if (isTrialExistsAndIsOwner(player)) {
-            return getTrial().getHeroes();
-        }
-        else if (isPlayerInGame(player)) {
+        if (isPlayerInGame(player)) {
             final GamePlayer gamePlayer = getCurrentGame().getPlayer(player);
             if (gamePlayer == null) {
                 return Heroes.ARCHER;

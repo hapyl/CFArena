@@ -8,7 +8,6 @@ import me.hapyl.fight.game.attribute.PlayerAttributes;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
-import me.hapyl.fight.game.cosmetic.skin.Skins;
 import me.hapyl.fight.game.damage.EntityData;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.GameEffectType;
@@ -44,7 +43,9 @@ import org.bukkit.potion.PotionEffectType;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * This class controls all in-game player data.
@@ -55,9 +56,7 @@ public class GamePlayer implements IGamePlayer {
 
     public static final long COMBAT_TAG_DURATION = 5000L;
 
-    private final Heroes enumHero;
-    private final Hero hero; // this represents hero that player locked in game with, cannot be changed
-    private final Skins skin;
+    private final UUID uuid;
     private final StatContainer stats;
     private final TalentQueue talentQueue;
     private final PlayerAttributes attributes;
@@ -80,12 +79,11 @@ public class GamePlayer implements IGamePlayer {
     private InputTalent inputTalent;
 
     @SuppressWarnings("all")
-    public GamePlayer(@Nonnull PlayerProfile profile, @Nonnull Heroes enumHero) {
-        this.attributes = new PlayerAttributes(this, enumHero.getHero().getAttributes());
+    public GamePlayer(@Nonnull PlayerProfile profile) {
+        this.attributes = new PlayerAttributes(this, profile.getHeroHandle().getAttributes());
         this.profile = profile;
+        this.uuid = profile.getUuid();
         this.player = profile.getPlayer();
-        this.enumHero = enumHero;
-        this.hero = enumHero.getHero();
         this.health = attributes.get(AttributeType.HEALTH);
         this.state = PlayerState.ALIVE;
         this.ultimateModifier = 1.0d;
@@ -93,12 +91,8 @@ public class GamePlayer implements IGamePlayer {
         this.stats = new StatContainer(this);
         this.lastMoved = System.currentTimeMillis();
         this.combatTag = 0L;
-        this.skin = PlayerDatabase.getDatabase(player).getHeroEntry().getSkin(enumHero);
         this.canMove = true;
         this.wasHit = false;
-
-        // supply to profile
-        profile.setGamePlayer(this);
     }
 
     @Nonnull
@@ -109,6 +103,8 @@ public class GamePlayer implements IGamePlayer {
 
     public void resetPlayer(Ignore... ignores) {
         final EntityData playerData = EntityData.of(player);
+
+        // FIXME (hapyl): 017, Jun 17: Why would we want to NOT reset damager or cause like ever?
         if (isNotIgnored(ignores, Ignore.DAMAGER)) {
             playerData.setLastDamager(null);
         }
@@ -179,12 +175,6 @@ public class GamePlayer implements IGamePlayer {
         return killStreak;
     }
 
-    @Nullable
-    @Override
-    public Skins getSkin() {
-        return skin;
-    }
-
     public double getShield() {
         return shield;
     }
@@ -225,7 +215,7 @@ public class GamePlayer implements IGamePlayer {
         final String pointsString = "&b&l%s&b/&b&l%s".formatted(getUltPoints(), getUltPointsNeeded());
 
         if (getHero().isUsingUltimate(player)) {
-            final long durationLeft = hero.getUltimateDurationLeft(player);
+            final long durationLeft = getHero().getUltimateDurationLeft(player);
             return "&b&lIN USE &b(%s&b)".formatted(durationLeft == 0 ? "&lUSE" : BukkitUtils.roundTick(Tick.fromMillis(durationLeft)) + "s");
         }
 
@@ -300,7 +290,7 @@ public class GamePlayer implements IGamePlayer {
     }
 
     public boolean isUltimateReady() {
-        return this.ultPoints >= this.hero.getUltimate().getCost();
+        return this.ultPoints >= getHero().getUltimate().getCost();
     }
 
     @Override
@@ -553,16 +543,16 @@ public class GamePlayer implements IGamePlayer {
     }
 
     public UltimateTalent getUltimate() {
-        return this.hero.getUltimate();
+        return getHero().getUltimate();
     }
 
     public void addUltimatePoints(int points) {
         // cannot give points if using ultimate or dead
-        if (hero.isUsingUltimate(player) || !this.isAlive() || this.ultPoints >= this.getUltPointsNeeded()) {
+        if (getHero().isUsingUltimate(player) || !this.isAlive() || this.ultPoints >= this.getUltPointsNeeded()) {
             return;
         }
 
-        this.ultPoints = Numbers.clamp(this.ultPoints + points, 0, this.hero.getUltimate().getCost());
+        this.ultPoints = Numbers.clamp(this.ultPoints + points, 0, getHero().getUltimate().getCost());
 
         // show once at broadcast
         if (this.ultPoints >= this.getUltPointsNeeded()) {
@@ -601,11 +591,12 @@ public class GamePlayer implements IGamePlayer {
 
     @Nonnull
     public Hero getHero() {
-        return hero;
+        return profile.getHeroHandle();
     }
 
+    @Nonnull
     public Heroes getEnumHero() {
-        return enumHero;
+        return profile.getHero();
     }
 
     public boolean isDead() {
@@ -671,73 +662,6 @@ public class GamePlayer implements IGamePlayer {
         player.setGameMode(GameMode.SPECTATOR);
     }
 
-    public void respawn() {
-        resetPlayer(Ignore.DAMAGE_CAUSE, Ignore.DAMAGER, Ignore.GAME_MODE);
-
-        state = PlayerState.ALIVE;
-        ultPoints = 0;
-        hero.setUsingUltimate(player, false);
-        setHealth(this.getMaxHealth());
-
-        player.getInventory().clear();
-        Manager.current().equipPlayer(player, hero);
-
-        hero.onRespawn(player);
-
-        player.setGameMode(GameMode.SURVIVAL);
-
-        // Add spawn protection
-        addEffect(GameEffectType.RESPAWN_RESISTANCE, 60);
-
-        // Respawn location
-        final IGameInstance gameInstance = Manager.current().getCurrentGame();
-        final Location location = gameInstance.getMap().getMap().getLocation();
-
-        BukkitUtils.mergePitchYaw(player.getLocation(), location);
-        sendTitle("&aRespawned!", "", 0, 20, 5);
-        player.teleport(location);
-
-        addPotionEffect(PotionEffectType.BLINDNESS, 20, 1);
-    }
-
-    public int getUltPointsNeeded() {
-        return this.hero == null ? 999 : this.hero.getUltimate().getCost();
-    }
-
-    public int getUltPoints() {
-        return ultPoints;
-    }
-
-    public void setUltPoints(int ultPoints) {
-        this.ultPoints = ultPoints;
-    }
-
-    public boolean compare(GamePlayer gamePlayer) {
-        return gamePlayer == this;
-    }
-
-    public boolean compare(Player player) {
-        return this.getPlayer() == player;
-    }
-
-    public boolean isValid() {
-        return valid;
-    }
-
-    // Use this as 'onStop()'
-    public void setValid(boolean flag) {
-        valid = flag;
-        talentQueue.clear();
-    }
-
-    public PlayerDatabase getDatabase() {
-        return profile.getDatabase();
-    }
-
-    public PlayerProfile getProfile() {
-        return profile;
-    }
-
     public void respawnIn(int tick) {
         state = PlayerState.RESPAWNING;
 
@@ -767,6 +691,75 @@ public class GamePlayer implements IGamePlayer {
         }.runTaskTimer(0, 1);
     }
 
+    public void respawn() {
+        resetPlayer(Ignore.DAMAGE_CAUSE, Ignore.DAMAGER, Ignore.GAME_MODE);
+
+        final Hero hero = getHero();
+
+        state = PlayerState.ALIVE;
+        ultPoints = 0;
+        hero.setUsingUltimate(player, false);
+        setHealth(this.getMaxHealth());
+
+        player.getInventory().clear();
+        Manager.current().equipPlayer(player, hero);
+
+        hero.onRespawn(player);
+
+        player.setGameMode(GameMode.SURVIVAL);
+
+        // Add spawn protection
+        addEffect(GameEffectType.RESPAWN_RESISTANCE, 60);
+
+        // Respawn location
+        final IGameInstance gameInstance = Manager.current().getCurrentGame();
+        final Location location = gameInstance.getMap().getMap().getLocation();
+
+        BukkitUtils.mergePitchYaw(player.getLocation(), location);
+        sendTitle("&aRespawned!", "", 0, 20, 5);
+        player.teleport(location);
+
+        addPotionEffect(PotionEffectType.BLINDNESS, 20, 1);
+    }
+
+    public int getUltPointsNeeded() {
+        return getHero().getUltimate().getCost();
+    }
+
+    public int getUltPoints() {
+        return ultPoints;
+    }
+
+    public void setUltPoints(int ultPoints) {
+        this.ultPoints = ultPoints;
+    }
+
+    public boolean compare(GamePlayer gamePlayer) {
+        return gamePlayer == this;
+    }
+
+    public boolean compare(Player player) {
+        return this.getPlayer() == player;
+    }
+
+    public boolean isValid() {
+        return valid;
+    }
+    // Use this as 'onStop()'
+
+    public void setValid(boolean flag) {
+        valid = flag;
+        talentQueue.clear();
+    }
+
+    public PlayerDatabase getDatabase() {
+        return profile.getDatabase();
+    }
+
+    public PlayerProfile getProfile() {
+        return profile;
+    }
+
     @Override
     public GameTeam getTeam() {
         return GameTeam.getPlayerTeam(player);
@@ -788,6 +781,24 @@ public class GamePlayer implements IGamePlayer {
     @Override
     public String toString() {
         return "GamePlayer{" + player.getName() + "}";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final GamePlayer that = (GamePlayer) o;
+        return Objects.equals(uuid, that.uuid);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(uuid);
     }
 
     @Override
@@ -823,6 +834,8 @@ public class GamePlayer implements IGamePlayer {
     }
 
     private void executeTalentsOnDeath() {
+        final Hero hero = getHero();
+
         executeOnDeathIfTalentIsNotNull(hero.getFirstTalent());
         executeOnDeathIfTalentIsNotNull(hero.getSecondTalent());
 
@@ -846,15 +859,13 @@ public class GamePlayer implements IGamePlayer {
      */
     @Nullable
     public static GamePlayer getExistingPlayer(Player player) {
-        // FIXME (hapyl): 016, Jun 16: This system should change when, or if,
-        //  multiple game instances are implemented.
-        final GameInstance gameInstance = Manager.current().getGameInstance();
+        final PlayerProfile profile = PlayerProfile.getProfile(player);
 
-        if (gameInstance == null) {
+        if (profile == null) {
             return null;
         }
 
-        return gameInstance.getPlayer(player);
+        return profile.getGamePlayer();
     }
 
     /**
@@ -896,7 +907,6 @@ public class GamePlayer implements IGamePlayer {
         EntityData.damageTick(entity, damage, damager, cause, tick);
     }
 
-    @Super
     public static void damageEntity(LivingEntity entity, double damage, LivingEntity damager, EnumDamageCause cause) {
         EntityData.damage(entity, damage, damager, cause);
     }

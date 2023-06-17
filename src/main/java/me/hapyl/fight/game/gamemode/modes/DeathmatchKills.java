@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.gamemode.modes;
 
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.GameResult;

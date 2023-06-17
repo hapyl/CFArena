@@ -160,14 +160,6 @@ public interface IGamePlayer {
     void markLastMoved();
 
     /**
-     * Returns currently equipped skin for {@link #getHero()} or null if none.
-     *
-     * @return currently equipped skin for {@link #getHero()} or null if none.
-     */
-    @Nullable
-    Skins getSkin();
-
-    /**
      * Returns a modifier for ultimate points generation.
      *
      * @return a modifier for ultimate points generation.

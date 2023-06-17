@@ -352,4 +352,5 @@ public enum GameTeam {
             getSmallestTeam().addMember(player);
         }
     }
+
 }

@@ -41,17 +41,21 @@ public class GameInstance implements IGameInstance, GameElement {
     private final Map<LivingEntity, EntityData> entityData;
     private final GameMaps currentMap;
     private final GameTask gameTask;
-    private final Modes mode;
+    private final CFGameMode mode;
     private final GameReport gameReport;
     private final GameResult gameResult;
+
     private long timeLimit;
     private State gameState;
     private Set<Heroes> activeHeroes;
 
-    public GameInstance(Modes mode, GameMaps map) {
+    public GameInstance(@Nonnull CFGameMode mode, @Nonnull GameMaps map) {
         this.startedAt = System.currentTimeMillis();
         this.mode = mode;
-        this.timeLimit = mode.getMode().getTimeLimit() * 1000L;
+
+        final int modeLimit = mode.getTimeLimit();
+        this.timeLimit = modeLimit == -1 ? modeLimit : modeLimit * 1000L;
+
         this.entityData = Maps.newHashMap();
         this.players = Maps.newHashMap();
         this.createGamePlayers();
@@ -63,7 +67,11 @@ public class GameInstance implements IGameInstance, GameElement {
         this.currentMap = map;
 
         // This is a main ticker of the game.
-        this.gameTask = startTask();
+        this.gameTask = startTask(); // FIXME (hapyl): 017, Jun 17: The instance itself should probably be a task, no?
+    }
+
+    public GameInstance(@Nonnull Modes mode, @Nonnull GameMaps map) {
+        this(mode.getMode(), map);
     }
 
     public void increaseTimeLimit(long limit) {
@@ -249,14 +257,10 @@ public class GameInstance implements IGameInstance, GameElement {
 
         // If player joined after the game started, create new
         if (gamePlayer == null) {
-            gamePlayer = new GamePlayer(PlayerProfile.getOrCreateProfile(player), getHero(player));
-            players.put(player.getUniqueId(), gamePlayer);
-        }
-
-        // If player re-joined, change their handle and update it
-        if (!gamePlayer.compare(player)) {
-            gamePlayer.setHandle(player);
+            gamePlayer = PlayerProfile.getOrCreateProfile(player).createGamePlayer();
             gamePlayer.updateScoreboard(false);
+
+            players.put(player.getUniqueId(), gamePlayer);
         }
 
         return gamePlayer;
@@ -276,12 +280,6 @@ public class GameInstance implements IGameInstance, GameElement {
     @Nonnull
     @Override
     public CFGameMode getMode() {
-        return mode.getMode();
-    }
-
-    @Nonnull
-    @Override
-    public Modes getCurrentMode() {
         return mode;
     }
 
@@ -324,13 +322,14 @@ public class GameInstance implements IGameInstance, GameElement {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
+
         final GameInstance that = (GameInstance) o;
-        return startedAt == that.startedAt && timeLimit == that.timeLimit && Objects.equals(players, that.players);
+        return Objects.equals(hexCode, that.hexCode);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(startedAt, timeLimit, players);
+        return Objects.hash(hexCode);
     }
 
     public long getStartedAt() {
@@ -358,7 +357,7 @@ public class GameInstance implements IGameInstance, GameElement {
         Bukkit.getOnlinePlayers().forEach(player -> {
             final Heroes hero = getHero(player);
             final PlayerProfile profile = PlayerProfile.getOrCreateProfile(player);
-            final GamePlayer gamePlayer = new GamePlayer(profile, hero);
+            final GamePlayer gamePlayer = profile.createGamePlayer();
 
             // Spectate Setting
             if (Setting.SPECTATE.isEnabled(player)) {
@@ -418,6 +417,10 @@ public class GameInstance implements IGameInstance, GameElement {
 
                 });
 
+                if (timeLimit == -1) {
+                    return;
+                }
+
                 // Auto-Points
                 if (tick % 20 == 0) {
                     getAlivePlayers().forEach(player -> {
@@ -430,12 +433,10 @@ public class GameInstance implements IGameInstance, GameElement {
                     getAlivePlayers().forEach(Award.MINUTE_PLAYED::award);
                 }
 
-                // Game UI -> Moved to GamePlayerUI
-
                 if (tick < 0) {
                     Chat.broadcast("&a&lTime is Up! &aGame Over.");
                     Manager.current().stopCurrentGame();
-                    this.cancel();
+                    cancel();
                 }
 
                 --tick;

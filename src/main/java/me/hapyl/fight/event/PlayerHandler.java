@@ -163,6 +163,7 @@ public class PlayerHandler implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handlePlayerSwapEvent(PlayerSwapHandItemsEvent ev) {
         ev.setCancelled(true);
+
         final Player player = ev.getPlayer();
         final Hero hero = Manager.current().getCurrentHero(player);
 
@@ -839,11 +840,6 @@ public class PlayerHandler implements Listener {
     }
 
     private GamePlayer getAlivePlayer(Player player) {
-        final Manager manager = Manager.current();
-        if (manager.isTrialExistsAndIsOwner(player)) {
-            return manager.getTrial().getGamePlayer();
-        }
-
         return GamePlayer.getExistingPlayer(player);
     }
 

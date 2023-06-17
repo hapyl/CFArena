@@ -7,7 +7,6 @@ import me.hapyl.fight.game.GameResult;
 import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.nn.IntInt;
@@ -50,7 +49,7 @@ public class Deathmatch extends CFGameMode {
         final GameTeam playerTeam = gamePlayer.getTeam();
         final Map<GameTeam, Integer> topKills = getTopTeamKills(instance, SCOREBOARD_DISPLAY_LIMIT);
 
-        builder.addLines("", "&6&lDeathmatch: &f(&b🗡 &l%s&f)".formatted(gamePlayer.getStats().getValue(StatType.KILLS)));
+        builder.addLines("", "&6&lDeathmatch: &f(&b🗡 &l%s&f)".formatted(playerTeam.kills));
 
         final IntInt i = new IntInt(1);
         topKills.forEach((team, kills) -> {
@@ -101,7 +100,7 @@ public class Deathmatch extends CFGameMode {
         gamePlayer.setDead(true);
 
         Chat.broadcast("");
-        Chat.broadcast("&c%s left the game. Them may rejoin and continue playing!", player.getName());
+        Chat.broadcast("&c%s left the game. They may rejoin and continue playing!", player.getName());
         Chat.broadcast("");
     }
 
@@ -114,7 +113,7 @@ public class Deathmatch extends CFGameMode {
             // supply to profile
             final PlayerProfile profile = PlayerProfile.getProfile(player);
             if (profile != null) {
-                profile.setGamePlayer(gamePlayer);
+                profile.createGamePlayer();
             }
 
             gamePlayer.setHandle(player);
@@ -138,7 +137,7 @@ public class Deathmatch extends CFGameMode {
             }
 
             gameResult.getWinningTeams().add(team);
-            return true; // The a team is always the winner
+            return true; // The first team is always the winner
         }
 
         return true;

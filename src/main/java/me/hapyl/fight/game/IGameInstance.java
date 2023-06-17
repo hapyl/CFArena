@@ -177,23 +177,15 @@ public interface IGameInstance {
     CFGameMode getMode();
 
     /**
-     * Returns this instance game mode as enum.
-     *
-     * @return This instance game mode as enum.
-     */
-    @Nonnull
-    Modes getCurrentMode();
-
-    /**
      * Returns true if player is winner.
      *
      * @param player - Player to check.
-     * @return True if player is winner.
+     * @return True if player is a winner.
      */
     boolean isWinner(Player player);
 
     /**
-     * Returns this instance map.
+     * Returns this instance maps.
      *
      * @return This instance map.
      */

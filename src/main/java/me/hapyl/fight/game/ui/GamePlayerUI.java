@@ -13,7 +13,6 @@ import me.hapyl.fight.game.setting.Setting;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.fight.game.trial.Trial;
 import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -156,12 +155,10 @@ public class GamePlayerUI {
 
         }
         // Trial
-        else if (Manager.current().isTrialExistsAndIsOwner(player)) {
-            final Trial trial = Manager.current().getTrial();
+        else if (Manager.current().getTrial().isInTrial(player)) {
             this.builder.addLines(
                     "&6&lTrial:",
-                    " &e&lTime Left: &f%s".formatted(new SimpleDateFormat("mm:ss").format(trial.getTimeLeft())),
-                    " &e&lHero: &f%s &cTrial".formatted(trial.getHeroes().getHero().getName())
+                    " &e&lHero: &f%s &cTrial".formatted(profile.getHero().getName())
             );
         }
         else {

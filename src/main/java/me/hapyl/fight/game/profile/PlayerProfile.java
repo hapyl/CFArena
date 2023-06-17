@@ -4,6 +4,7 @@ import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.ScoreboardTeams;
+import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.GamePlayerUI;
@@ -11,6 +12,7 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.UUID;
 
 /**
  * This class stores all player data while the player is online,
@@ -37,8 +39,9 @@ public class PlayerProfile {
     public PlayerProfile(@Nonnull Player player) {
         this.player = player;
 
-        // Init player database
+        // Init player database first before loading everything else
         this.playerDatabase = new PlayerDatabase(player);
+
         this.scoreboardTeams = new ScoreboardTeams(player);
         this.display = new ProfileDisplay(this);
         this.loaded = false;
@@ -89,6 +92,30 @@ public class PlayerProfile {
         return gamePlayer;
     }
 
+    /**
+     * Creates a new game player.
+     *
+     * @return a new game player.
+     */
+    @Nonnull
+    public GamePlayer createGamePlayer() {
+        this.gamePlayer = new GamePlayer(this);
+        return gamePlayer;
+    }
+
+    /**
+     * Gets rid of the current game player.
+     *
+     * @return the old game player if existed.
+     */
+    @Nullable
+    public GamePlayer deleteGamePlayer() {
+        final GamePlayer oldGamePlayer = gamePlayer;
+        this.gamePlayer = null;
+
+        return oldGamePlayer;
+    }
+
     public void setGamePlayer(@Nullable GamePlayer gamePlayer) {
         this.gamePlayer = gamePlayer;
     }
@@ -126,8 +153,20 @@ public class PlayerProfile {
                 §e§lSome of the features:
                 §bBetter effects
                 §bCustom 3d models
-                §bFancies text
+                §bFancier text
                 """);
+    }
+
+    public UUID getUuid() {
+        return player.getUniqueId();
+    }
+
+    public Heroes getHero() {
+        return selectedHero;
+    }
+
+    public Hero getHeroHandle() {
+        return selectedHero.getHero();
     }
 
     @Nonnull
