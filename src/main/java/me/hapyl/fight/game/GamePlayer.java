@@ -77,6 +77,7 @@ public class GamePlayer implements IGamePlayer {
     private long combatTag;
     private int killStreak;
     private InputTalent inputTalent;
+    private double cdModifier;
 
     @SuppressWarnings("all")
     public GamePlayer(@Nonnull PlayerProfile profile) {
@@ -93,6 +94,15 @@ public class GamePlayer implements IGamePlayer {
         this.combatTag = 0L;
         this.canMove = true;
         this.wasHit = false;
+        this.cdModifier = 1.0d;
+    }
+
+    public double getCooldownModifier() {
+        return cdModifier;
+    }
+
+    public void setCooldownModifier(double cdModifier) {
+        this.cdModifier = cdModifier;
     }
 
     @Nonnull
@@ -816,6 +826,18 @@ public class GamePlayer implements IGamePlayer {
         return player.getEyeLocation();
     }
 
+    public boolean hasCooldown(Material material) {
+        return player.hasCooldown(material);
+    }
+
+    public int getCooldown(Material material) {
+        return player.getCooldown(material);
+    }
+
+    public void setCooldown(Material material, int i) {
+        player.setCooldown(material, (int) Math.max(i * cdModifier, 0)); // not calling static method for obvious reasons
+    }
+
     private void resetAttribute(Attribute attribute, double value) {
         Nulls.runIfNotNull(player.getAttribute(attribute), t -> t.setBaseValue(value));
     }
@@ -849,6 +871,37 @@ public class GamePlayer implements IGamePlayer {
         if (talent != null) {
             talent.onDeath(player);
         }
+    }
+
+    /**
+     * Sets player's material cooldown with support of {@link GamePlayer#cdModifier}.
+     * If there is no game player for a given player, the native {@link Player#setCooldown(Material, int)} will be used.
+     *
+     * @param player   - Player.
+     * @param material - Material.
+     * @param i        - New cooldown.
+     */
+    public static void setCooldown(@Nonnull Player player, @Nonnull Material material, int i) {
+        final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
+
+        // if no player, use native set method
+        if (gamePlayer == null) {
+            player.setCooldown(material, i);
+            return;
+        }
+
+        gamePlayer.setCooldown(material, i);
+    }
+
+    /**
+     * Scaled the cooldown by cooldown modifier.
+     *
+     * @param player - Player.
+     * @param cd     - Cooldown.
+     * @return the scaled cooldown.
+     */
+    public static int scaleCooldown(Player player, int cd) {
+        return (int) Math.max(cd * getPlayer(player).getCooldownModifier(), 0);
     }
 
     /**

@@ -71,7 +71,7 @@ public class DeathSwap extends Talent {
     }
 
     public void reduceCooldown(Player player) {
-        player.setCooldown(getMaterial(), getCdTimeLeft(player) / 2);
+        GamePlayer.setCooldown(player, getMaterial(), getCdTimeLeft(player) / 2);
     }
 
     private void removeHook(Player player) {

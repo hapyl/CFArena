@@ -419,58 +419,6 @@ public class PlayerHandler implements Listener {
             }
         }
 
-        // PROCESS HERO EVENTS
-
-        boolean cancelDamage = false;
-
-        // As victim
-        if (livingEntity instanceof Player player) {
-            final DamageOutput output = getDamageOutput(player, data.getLastDamager(), damage, false);
-
-            if (output != null) {
-                damage = output.getDamage();
-                cancelDamage = output.isCancelDamage();
-            }
-        }
-
-        // As damager
-        if (data.getLastDamager() instanceof Player player) {
-            final DamageOutput output = getDamageOutput(player, livingEntity, damage, true);
-
-            if (output != null) {
-                damage = output.getDamage();
-
-                // Don't 'uncancel' the event
-                if (!cancelDamage) {
-                    cancelDamage = output.isCancelDamage();
-                }
-            }
-        }
-
-        // As projectile
-        if (data.getLastDamager() instanceof Player player && finalProjectile != null && Manager.current().isGameInProgress()) {
-            final DamageOutput output = GamePlayer.getPlayer(player)
-                    .getHero()
-                    .processDamageAsDamagerProjectile(new DamageInput(player, livingEntity, damage), finalProjectile);
-
-            if (output != null) {
-                damage = output.getDamage();
-
-                // Don't 'uncancel' the event
-                if (!cancelDamage) {
-                    cancelDamage = output.isCancelDamage();
-                }
-            }
-        }
-
-        // Don't damage players
-        ev.setDamage(livingEntity instanceof Player ? 0.0d : damage);
-
-        if (cancelDamage) {
-            ev.setCancelled(true);
-            return;
-        }
-
         boolean isCrit = false;
 
         // CALCULATE DAMAGE USING ATTRIBUTES
@@ -502,6 +450,61 @@ public class PlayerHandler implements Listener {
             damage = 0.0d;
         }
 
+        // PROCESS HERO EVENTS
+
+        boolean cancelDamage = false;
+
+        // As victim
+        if (livingEntity instanceof Player player) {
+            final DamageOutput output = getDamageOutput(player, data.getLastDamager(), damage, false, isCrit);
+
+            if (output != null) {
+                damage = output.getDamage();
+                cancelDamage = output.isCancelDamage();
+            }
+        }
+
+        // As damager
+        if (data.getLastDamager() instanceof Player player) {
+            final DamageOutput output = getDamageOutput(player, livingEntity, damage, true, isCrit);
+
+            if (output != null) {
+                damage = output.getDamage();
+
+                // Don't 'uncancel' the event
+                if (!cancelDamage) {
+                    cancelDamage = output.isCancelDamage();
+                }
+            }
+        }
+
+        // As projectile
+        if (data.getLastDamager() instanceof Player player && finalProjectile != null && Manager.current().isGameInProgress()) {
+            final DamageOutput output = GamePlayer.getPlayer(player)
+                    .getHero()
+                    .processDamageAsDamagerProjectile(
+                            new DamageInput(player, livingEntity, data.getLastDamageCause(), damage, isCrit),
+                            finalProjectile
+                    );
+
+            if (output != null) {
+                damage = output.getDamage();
+
+                // Don't 'uncancel' the event
+                if (!cancelDamage) {
+                    cancelDamage = output.isCancelDamage();
+                }
+            }
+        }
+
+        // Don't damage players
+        ev.setDamage(livingEntity instanceof Player ? 0.0d : damage);
+
+        if (cancelDamage) {
+            ev.setCancelled(true);
+            return;
+        }
+
         // Store data in DamageData
         data.setLastDamage(damage);
         data.setCrit(isCrit);
@@ -509,9 +512,6 @@ public class PlayerHandler implements Listener {
         // Show damage indicator if dealt more
         // than 1 damage to remove clutter
         if (damage >= 1.0d && !(entity instanceof ArmorStand) && !livingEntity.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
-            //            final DamageIndicator damageIndicator = new DamageIndicator(entity.getLocation(), damage, isCrit);
-            //            damageIndicator.display(isCrit ? 30 : 20);
-
             new DamageDisplay(damage, isCrit).display(livingEntity.getEyeLocation());
         }
 
@@ -654,7 +654,7 @@ public class PlayerHandler implements Listener {
                     return;
                 }
 
-                // I think this should be used instead of cancel to not cancel bows etc.
+                // I think this should be used instead of cancel to not cancel bows, etc.
                 ev.setUseInteractedBlock(Event.Result.DENY);
             }
         }
@@ -686,6 +686,8 @@ public class PlayerHandler implements Listener {
                 ev.setCancelled(true);
                 return;
             }
+
+            gp.getActiveEffects().values().forEach(effect -> effect.processEvent(ev));
 
             // Amnesia
             if (gp.hasEffect(GameEffectType.AMNESIA)) {
@@ -852,12 +854,12 @@ public class PlayerHandler implements Listener {
         PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
     }
 
-    private DamageOutput getDamageOutput(Player player, LivingEntity entity, double damage, boolean asDamager) {
+    private DamageOutput getDamageOutput(Player player, LivingEntity entity, double damage, boolean asDamager, boolean isCrit) {
         if (Manager.current().isPlayerInGame(player)) {
             final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
             final Hero hero = gamePlayer.getHero();
 
-            final DamageInput input = new DamageInput(player, entity, gamePlayer.getLastDamageCause(), damage);
+            final DamageInput input = new DamageInput(player, entity, gamePlayer.getLastDamageCause(), damage, isCrit);
             return asDamager ? hero.processDamageAsDamager(input) : hero.processDamageAsVictim(input);
         }
         return null;

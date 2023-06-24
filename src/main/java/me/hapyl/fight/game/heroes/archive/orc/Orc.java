@@ -50,8 +50,8 @@ public class Orc extends Hero {
         setArchetype(Archetype.DAMAGE);
 
         final HeroAttributes attributes = getAttributes();
-        attributes.setValue(AttributeType.HEALTH, 125);
-        attributes.setValue(AttributeType.DEFENSE, 0.75d);
+        attributes.setValue(AttributeType.HEALTH, 150);
+        attributes.setValue(AttributeType.DEFENSE, 0.6d);
         attributes.setValue(AttributeType.SPEED, 0.22d);
         attributes.setValue(AttributeType.CRIT_CHANCE, 0.15d);
 

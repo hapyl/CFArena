@@ -102,7 +102,7 @@ public class ActiveElement {
                     name.contains("STAIRS") ? AnimationType.STAIRS : AnimationType.FULL_BLOCK;
 
             final Element element = type.getElement();
-            player.setCooldown(Heroes.DR_ED.getHero().getWeapon().getMaterial(), element.getCd());
+            GamePlayer.setCooldown(player, Heroes.DR_ED.getHero().getWeapon().getMaterial(), element.getCd());
 
             new GameTask() {
                 private int distance = 0;

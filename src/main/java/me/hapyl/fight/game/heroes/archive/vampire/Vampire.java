@@ -46,14 +46,14 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
      * [SUMMARY]
      * 1 -- Summon a bat that will periodically attack opponents. Grant's stacks.
      * 2 -- Launch a swarm of bats that will rapidly attack opponents. Does not grant stacks.
-     *
+     * <p>
      * Passive -- Blood Thirst
-     *
+     * <p>
      * Your health is constantly drained.
      * ____Whenever you hit an opponent you will gain a stack of blood, up to 10 stacks.
      * ____Drink the blood to increase your damage and heal yourself.
      * __Healing, damage boost, duration and cooldown is based on the amount of stacks you used.
-     *
+     * <p>
      * ULTIMATE -> {}
      */
 
@@ -204,7 +204,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
 
         if (!player.hasCooldown(BLOOD_MATERIAL) && data.getBlood() < MAX_BLOOD_STACKS) {
             data.addBlood(1);
-            player.setCooldown(BLOOD_MATERIAL, BLOOD_POOL_COOLDOWN);
+            GamePlayer.setCooldown(player, BLOOD_MATERIAL, BLOOD_POOL_COOLDOWN);
             updateBloodPool(player);
         }
 
@@ -247,7 +247,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
                 BukkitUtils.roundTick(duration)
         );
 
-        player.setCooldown(Material.REDSTONE, duration + 80);
+        GamePlayer.setCooldown(player, Material.REDSTONE, duration + 80);
         GamePlayer.getPlayer(player).heal(health);
 
         data.setBlood(0);

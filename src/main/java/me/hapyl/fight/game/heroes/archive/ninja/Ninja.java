@@ -134,7 +134,7 @@ public class Ninja extends Hero implements Listener, UIComponent {
         player.setVelocity(new Vector(0.0d, 1.0d, 0.0d));
         player.setFlying(false);
         player.setAllowFlight(false);
-        player.setCooldown(this.getItem().getType(), 100);
+        GamePlayer.setCooldown(player, this.getItem().getType(), 100);
         GameTask.runLater(() -> {
             player.setAllowFlight(true);
         }, 100);
@@ -170,7 +170,7 @@ public class Ninja extends Hero implements Listener, UIComponent {
         }
 
         player.getInventory().setItem(0, normalSword.getItem());
-        player.setCooldown(this.getWeapon().getMaterial(), stunCd);
+        GamePlayer.setCooldown(player, getWeapon().getMaterial(), stunCd);
 
         // Fx
         PlayerLib.playSound(entity.getLocation(), Sound.BLOCK_ANVIL_PLACE, 1.25f);

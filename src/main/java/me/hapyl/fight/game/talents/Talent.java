@@ -403,7 +403,7 @@ public abstract class Talent extends NonNullItemCreator
             //return;
         }
 
-        player.setCooldown(material, cooldown);
+        GamePlayer.setCooldown(player, material, cooldown);
     }
 
     public void startCd(Player player) {

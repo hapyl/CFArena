@@ -193,14 +193,6 @@ public interface IGameInstance {
     GameMaps getMap();
 
     /**
-     * Returns a task that is running for this game instance.
-     *
-     * @return A task that is running for this game instance.
-     */
-    @Nullable
-    GameTask getGameTask();
-
-    /**
      * Returns HEX code of this game instance.
      *
      * @return HEX code of this game instance.

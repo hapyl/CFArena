@@ -17,6 +17,7 @@ import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.report.GameReport;
 import me.hapyl.fight.game.setting.Setting;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Bukkit;
@@ -31,7 +32,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
 
-public class GameInstance implements IGameInstance, GameElement {
+public class GameInstance extends TickingGameTask implements IGameInstance, GameElement {
 
     private final Cosmetics DEFAULT_WIN_COSMETIC = Cosmetics.FIREWORKS;
 
@@ -40,12 +41,11 @@ public class GameInstance implements IGameInstance, GameElement {
     private final Map<UUID, GamePlayer> players;
     private final Map<LivingEntity, EntityData> entityData;
     private final GameMaps currentMap;
-    private final GameTask gameTask;
     private final CFGameMode mode;
     private final GameReport gameReport;
     private final GameResult gameResult;
 
-    private long timeLimit;
+    private long timeLimitInTicks;
     private State gameState;
     private Set<Heroes> activeHeroes;
 
@@ -54,7 +54,7 @@ public class GameInstance implements IGameInstance, GameElement {
         this.mode = mode;
 
         final int modeLimit = mode.getTimeLimit();
-        this.timeLimit = modeLimit == -1 ? modeLimit : modeLimit * 1000L;
+        this.timeLimitInTicks = modeLimit == -1 ? modeLimit : modeLimit * 20L;
 
         this.entityData = Maps.newHashMap();
         this.players = Maps.newHashMap();
@@ -67,15 +67,15 @@ public class GameInstance implements IGameInstance, GameElement {
         this.currentMap = map;
 
         // This is a main ticker of the game.
-        this.gameTask = startTask(); // FIXME (hapyl): 017, Jun 17: The instance itself should probably be a task, no?
+        runTaskTimer(0, 1);
     }
 
     public GameInstance(@Nonnull Modes mode, @Nonnull GameMaps map) {
         this(mode.getMode(), map);
     }
 
-    public void increaseTimeLimit(long limit) {
-        this.timeLimit += limit;
+    public void increaseTimeLimit(int increase) {
+        this.timeLimitInTicks += increase;
     }
 
     @Nonnull
@@ -151,9 +151,13 @@ public class GameInstance implements IGameInstance, GameElement {
         }, delay);
     }
 
+    public long getTimeLimitMillis() {
+        return timeLimitInTicks == -1 ? -1 : timeLimitInTicks * 50L;
+    }
+
     @Override
     public long getTimeLeftRaw() {
-        return (timeLimit - (System.currentTimeMillis() - startedAt));
+        return (getTimeLimitMillis() - (System.currentTimeMillis() - startedAt));
     }
 
     @Override
@@ -162,12 +166,12 @@ public class GameInstance implements IGameInstance, GameElement {
     }
 
     public void setTimeLeft(long timeLeft) {
-        this.timeLimit = timeLeft;
+        this.timeLimitInTicks = timeLeft;
     }
 
     @Override
     public boolean isTimeIsUp() {
-        return System.currentTimeMillis() >= startedAt + timeLimit;
+        return System.currentTimeMillis() >= startedAt + getTimeLimitMillis();
     }
 
     @Override
@@ -310,11 +314,6 @@ public class GameInstance implements IGameInstance, GameElement {
     }
 
     @Override
-    public GameTask getGameTask() {
-        return gameTask;
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -353,9 +352,57 @@ public class GameInstance implements IGameInstance, GameElement {
         });
     }
 
+    @Override
+    public void run(final int tick) {
+        mode.tick(this, tick);
+
+        if (Manager.current().isDebug()) {
+            getAlivePlayers().forEach(player -> {
+                player.setUltPoints(player.getUltPointsNeeded());
+            });
+            return;
+        }
+
+        // AFK detection
+        getAlivePlayers().forEach(player -> {
+            if (player.hasMovedInLast(15000)) { // 15s afk detection
+                return;
+            }
+
+            player.addPotionEffect(PotionEffectType.GLOWING, 20, 1);
+            player.sendTitle("&c&lYOU'RE AFK", "&aMove to return from afk!", 0, 10, 0);
+            if (tick % 10 == 0) {
+                player.playSound(Sound.BLOCK_NOTE_BLOCK_HAT, 1.0f);
+            }
+
+        });
+
+        if (timeLimitInTicks == -1) {
+            return;
+        }
+
+        // Auto-Points
+        if (tick % 20 == 0) {
+            getAlivePlayers().forEach(player -> {
+                player.addUltimatePoints(1);
+            });
+        }
+
+        // Award coins for minute played
+        if (tick % 1200 == 0 && tick >= 60 * 50) {
+            getAlivePlayers().forEach(Award.MINUTE_PLAYED::award);
+        }
+
+        if (tick >= timeLimitInTicks) {
+            Chat.broadcast("&a&lTime is Up! &aGame Over.");
+            Manager.current().stopCurrentGame();
+            cancel();
+        }
+    }
+
+
     private void createGamePlayers() {
         Bukkit.getOnlinePlayers().forEach(player -> {
-            final Heroes hero = getHero(player);
             final PlayerProfile profile = PlayerProfile.getOrCreateProfile(player);
             final GamePlayer gamePlayer = profile.createGamePlayer();
 
@@ -364,6 +411,8 @@ public class GameInstance implements IGameInstance, GameElement {
                 gamePlayer.setSpectator(true);
             }
             else {
+                profile.setSelectedHero(getHero(player));
+
                 if (Setting.RANDOM_HERO.isEnabled(player)) {
                     gamePlayer.sendMessage("");
                     gamePlayer.sendMessage(
@@ -389,58 +438,4 @@ public class GameInstance implements IGameInstance, GameElement {
         return Integer.toHexString(new Random().nextInt());
     }
 
-    private GameTask startTask() {
-        return new GameTask() {
-            private int tick = (int) (timeLimit / 50);
-
-            @Override
-            public void run() {
-                if (Manager.current().isDebug()) {
-                    getAlivePlayers().forEach(player -> {
-                        player.setUltPoints(player.getUltPointsNeeded());
-                    });
-
-                    return;
-                }
-
-                // AFK detection
-                getAlivePlayers().forEach(player -> {
-                    if (player.hasMovedInLast(15000)) { // 15s afk detection
-                        return;
-                    }
-
-                    player.addPotionEffect(PotionEffectType.GLOWING, 20, 1);
-                    player.sendTitle("&c&lYOU'RE AFK", "&aMove to return from afk!", 0, 10, 0);
-                    if (tick % 10 == 0) {
-                        player.playSound(Sound.BLOCK_NOTE_BLOCK_HAT, 1.0f);
-                    }
-
-                });
-
-                if (timeLimit == -1) {
-                    return;
-                }
-
-                // Auto-Points
-                if (tick % 20 == 0) {
-                    getAlivePlayers().forEach(player -> {
-                        player.addUltimatePoints(1);
-                    });
-                }
-
-                // Award coins for minute played
-                if (tick % 1200 == 0 && tick < (timeLimit / 50)) {
-                    getAlivePlayers().forEach(Award.MINUTE_PLAYED::award);
-                }
-
-                if (tick < 0) {
-                    Chat.broadcast("&a&lTime is Up! &aGame Over.");
-                    Manager.current().stopCurrentGame();
-                    cancel();
-                }
-
-                --tick;
-            }
-        }.runTaskTimer(0, 1);
-    }
 }

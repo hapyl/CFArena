@@ -67,8 +67,15 @@ public enum Achievements {
                     })
     ),
 
-    COMPLETE_LAMP_PUZZLE(new Achievement("Light Them Up!", "Complete the lamp puzzle in the lobby.").setReward(Reward.currency()
-            .withCoins(2500))),
+    COMPLETE_LAMP_PUZZLE(
+            new Achievement("Light Them Up!", "Complete the lamp puzzle in the lobby.")
+                    .setReward(Reward.currency().withCoins(2500))
+    ),
+
+    BEYOND_CLOUDS(
+            new HiddenAchievement("Beyond Clouds", "Dei from falling out of the clouds.")
+                    .setReward(Reward.currency().withCoins(1000))
+    ),
 
     ;
 

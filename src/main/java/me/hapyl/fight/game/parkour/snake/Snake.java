@@ -2,6 +2,7 @@ package me.hapyl.fight.game.parkour.snake;
 
 import com.google.common.collect.Lists;
 import me.hapyl.fight.Main;
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.maps.features.Direction;
 import me.hapyl.fight.util.Buffer;
 import me.hapyl.spigotutils.module.entity.Entities;
@@ -21,6 +22,7 @@ import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
 
 import javax.annotation.Nonnull;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -34,6 +36,7 @@ public class Snake extends BukkitRunnable {
     );
 
     private final LinkedList<Location> locations;
+    private final String ENTITY_TAG = "SnakeEntity";
     private Material material;
     private int period;
     private int length;
@@ -49,7 +52,7 @@ public class Snake extends BukkitRunnable {
         this.material = Material.STONE;
     }
 
-    public void deleteEntities() {
+    public static void deleteEntities() {
         for (Entity entity : Bukkit.getWorlds().get(0).getEntities()) {
             if (!(entity instanceof ArmorStand)) {
                 continue;
@@ -62,14 +65,19 @@ public class Snake extends BukkitRunnable {
     }
 
     public void createEntities() {
-        deleteEntities();
-
         // FIXME (hapyl): 003, Jun 3: Switch to BlockDisplay maybe, I can't fucking center the block, is it a div or something
 
         final ItemStack itemStack = new ItemStack(material);
 
         for (Location location : locations) {
-            Entities.ARMOR_STAND_MARKER.spawn(location.clone().subtract(0.0d, 1.0d, 0.0d), self -> {
+            // don't spawn if there is already armor stand there
+            final Location toSpawn = location.clone().subtract(0.0d, 1.0d, 0.0d);
+
+            if (isEntityPresent(toSpawn)) {
+                continue;
+            }
+
+            Entities.ARMOR_STAND_MARKER.spawn(toSpawn, self -> {
                 final EntityEquipment equipment = self.getEquipment();
                 if (equipment != null) {
                     equipment.setHelmet(itemStack);
@@ -77,9 +85,28 @@ public class Snake extends BukkitRunnable {
 
                 self.setSmall(true);
                 self.setInvisible(true);
-                self.addScoreboardTag("SnakeEntity");
+                self.addScoreboardTag(ENTITY_TAG);
             }, false/* Don't cache since */);
         }
+    }
+
+    private boolean isEntityPresent(Location location) {
+        final World world = location.getWorld();
+        if (world == null) {
+            return false;
+        }
+
+        final Collection<Entity> entities = world.getNearbyEntities(
+                location,
+                0.5d,
+                0.5d,
+                0.5d,
+                entity -> entity instanceof ArmorStand && entity.getScoreboardTags().contains(ENTITY_TAG)
+        );
+
+        Debug.info("near count " + entities.size());
+
+        return !entities.isEmpty();
     }
 
     @Nonnull

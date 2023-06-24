@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.archive.archer;
 
 import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.heroes.Archetype;
@@ -48,9 +49,9 @@ public class Archer extends Hero implements Listener {
         super("Archer");
 
         setRole(Role.RANGE);
-        setArchetype(Archetype.DAMAGE);
+        setArchetype(Archetype.RANGE);
 
-        setDescription("One of the best archers joins the fight! Not alone though but with his &bcustom-made &8&obow.");
+        setDescription("One of the best archers joins the fight! Not alone though but with his &3custom-made &8&obow.");
         setItem("106c16817c73ff64a4a49b590d2cdb25bcfa52c630fe7281a177eabacdaa857b");
 
         setWeapon(Material.BOW, "Bow of Destiny", "A custom-made bow with some unique abilities!", 5.0d);
@@ -84,7 +85,7 @@ public class Archer extends Hero implements Listener {
         inventory.setItem(4, boomBow.getItem());
         inventory.setHeldItemSlot(4);
 
-        player.setCooldown(boomBow.getMaterial(), boomBowPerShotCd);
+        GamePlayer.setCooldown(player, boomBow.getMaterial(), boomBowPerShotCd);
 
         GameTask.runLater(() -> {
             inventory.setItem(4, ItemStacks.AIR);
@@ -138,7 +139,7 @@ public class Archer extends Hero implements Listener {
             // Handle ultimate arrows
             if (isUsingUltimate(player) && selectedSlot == 4) {
                 boomArrows.add(arrow);
-                player.setCooldown(boomBow.getMaterial(), boomBowPerShotCd);
+                GamePlayer.setCooldown(player, boomBow.getMaterial(), boomBowPerShotCd);
                 return;
             }
 

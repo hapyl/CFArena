@@ -15,16 +15,14 @@ public class DamageInput {
     private final LivingEntity entity;
     private final double damage;
     private final EnumDamageCause cause;
+    private final boolean isCrit;
 
-    public DamageInput(Player player, @Nullable LivingEntity entity, @Nullable EnumDamageCause damageCause, double originalDamage) {
+    public DamageInput(Player player, @Nullable LivingEntity entity, @Nullable EnumDamageCause damageCause, double originalDamage, boolean isCrit) {
         this.player = player;
         this.entity = entity;
         this.damage = originalDamage;
         this.cause = damageCause;
-    }
-
-    public DamageInput(Player player, @Nullable LivingEntity entity, double originalDamage) {
-        this(player, entity, null, originalDamage);
+        this.isCrit = isCrit;
     }
 
     /**
@@ -63,5 +61,23 @@ public class DamageInput {
      */
     public double getDamage() {
         return damage;
+    }
+
+    /**
+     * Returns true if the cause of this damage was an {@link EnumDamageCause#ENTITY_ATTACK} or {@link EnumDamageCause#ENTITY_ATTACK_NON_CRIT}.
+     *
+     * @return true if the cause of this damage was an {@link EnumDamageCause#ENTITY_ATTACK} or {@link EnumDamageCause#ENTITY_ATTACK_NON_CRIT}.
+     */
+    public boolean isEntityAttack() {
+        return cause == EnumDamageCause.ENTITY_ATTACK || cause == EnumDamageCause.ENTITY_ATTACK_NON_CRIT;
+    }
+
+    /**
+     * Returns true if the damage was critical; false otherwise.
+     *
+     * @return true if the damage was critical; false otherwise.
+     */
+    public boolean isCrit() {
+        return isCrit;
     }
 }

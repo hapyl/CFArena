@@ -37,7 +37,6 @@ public abstract class RangeWeapon extends Weapon {
     }
 
 
-
     public RangeWeapon setMaxDistance(double d) {
         this.maxDistance = d;
         return this;
@@ -140,7 +139,7 @@ public abstract class RangeWeapon extends Weapon {
     }
 
     public void startCooldown(Player player, int cd) {
-        player.setCooldown(getMaterial(), cd);
+        GamePlayer.setCooldown(player, getMaterial(), cd);
     }
 
     public boolean hasCooldown(Player player) {

@@ -38,8 +38,8 @@ import java.util.stream.Collectors;
 public class HarvestBlocks extends Talent {
 
     private final int TASK_PERIOD = 2;
-    @DisplayField private final int maximumBlocks = 10;
-    @DisplayField private final int collectDelay = 20;
+    @DisplayField private final short maximumBlocks = 10;
+    @DisplayField private final int collectDelay = 30;
 
     public HarvestBlocks() {
         super("Block Harvest");
@@ -47,7 +47,7 @@ public class HarvestBlocks extends Talent {
         setDescription("""
                 Quickly gather resources from up to {maximumBlocks} nearby blocks, then combine them in one big pile before throwing it at your enemies.
                                         
-                &a;;{name}'s damage is based on the number of blocks gathered.
+                &b;;The damage is based on the number of blocks gathered.
                 """);
 
         setCooldownSec(30);
@@ -91,7 +91,7 @@ public class HarvestBlocks extends Talent {
                 Nulls.runIfNotNull(entity.getEquipment(), eq -> eq.setHelmet(ItemBuilder.of(b.getType()).asIcon()));
             }));
 
-            damage.addAndGet(e.getElement().getDamage());
+            damage.addAndGet(e.getElement().getDamage() / 2.0d);
         });
 
         for (Entity entity : entities) {
@@ -155,8 +155,7 @@ public class HarvestBlocks extends Talent {
             }
         }.runTaskTimer(0, 2);
 
-        GameTask.runLater(() -> launchProjectile(player, damage.get() / 1.5d), collectDelay);
-
+        GameTask.runLater(() -> launchProjectile(player, damage.get()), collectDelay);
         PlayerLib.addEffect(player, PotionEffectType.SLOW, collectDelay, 10);
 
         return Response.OK;

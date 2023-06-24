@@ -120,7 +120,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
         final Player player = input.getPlayer();
         final CauldronEffect effect = cauldronEffectMap.get(player);
 
-        if (effect == null || effect.getEffectHits() <= 0 || victim == null) {
+        if (!input.isEntityAttack() || effect == null || effect.getEffectHits() <= 0 || victim == null) {
             return null;
         }
 

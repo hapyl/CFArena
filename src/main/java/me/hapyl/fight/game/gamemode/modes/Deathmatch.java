@@ -11,7 +11,7 @@ import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.nn.IntInt;
 import me.hapyl.spigotutils.module.scoreboard.Scoreboarder;
-import me.hapyl.spigotutils.module.util.Placeholder;
+import me.hapyl.spigotutils.module.util.BFormat;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -53,7 +53,7 @@ public class Deathmatch extends CFGameMode {
 
         final IntInt i = new IntInt(1);
         topKills.forEach((team, kills) -> {
-            builder.addLines(Placeholder.format(" &e#&l{Position} &f{Name} &b🗡 &l{Kills}", i.get(), formatTeamName(team), kills));
+            builder.addLines(BFormat.format(" &e#&l{Position} &f{Name} &b🗡 &l{Kills}", i.get(), formatTeamName(team), kills));
             i.increment();
         });
 

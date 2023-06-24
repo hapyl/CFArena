@@ -80,7 +80,7 @@ import me.hapyl.fight.game.talents.archive.vampire.VampirePet;
 import me.hapyl.fight.game.talents.archive.vortex.StarAligner;
 import me.hapyl.fight.game.talents.archive.vortex.VortexStar;
 import me.hapyl.fight.game.talents.archive.witcher.*;
-import me.hapyl.spigotutils.module.util.Placeholder;
+import me.hapyl.spigotutils.module.util.BFormat;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -471,7 +471,8 @@ public enum Talents {
             return textBlock;
         }
 
-        return Placeholder.format(textBlock, format);
+        return BFormat.format(textBlock, format);
     }
+
 
 }

@@ -214,7 +214,8 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Lis
         final PlayerInventory inventory = player.getInventory();
         inventory.setItem(EquipmentSlot.OFF_HAND, ItemStacks.AIR);
         shieldCharge.put(player, 0);
-        player.setCooldown(shieldRechargeCdItem, 200);
+
+        GamePlayer.setCooldown(player, shieldRechargeCdItem, 200);
 
         GameTask.runLater(() -> {
             inventory.setItem(EquipmentSlot.OFF_HAND, itemShield);

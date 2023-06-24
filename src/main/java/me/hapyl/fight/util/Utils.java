@@ -6,7 +6,7 @@ import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.spigotutils.module.annotate.TestedNMS;
+import me.hapyl.spigotutils.module.annotate.TestedOn;
 import me.hapyl.spigotutils.module.annotate.Version;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.Quality;
@@ -25,6 +25,9 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -32,6 +35,8 @@ import java.util.function.Consumer;
  * Utilities for the plugin
  */
 public class Utils {
+
+    private static String SERVER_IP;
 
     public static String colorString(String str, String defColor) {
         final StringBuilder builder = new StringBuilder();
@@ -307,7 +312,7 @@ public class Utils {
         throw new IllegalArgumentException(errorMessage);
     }
 
-    @TestedNMS(version = Version.V1_20)
+    @TestedOn(version = Version.V1_20)
     public static void setWitherInvul(Wither wither, int invul) {
         //Reflect.setDataWatcherValue(
         //        Objects.requireNonNull(Reflect.getMinecraftEntity(wither)),
@@ -436,5 +441,34 @@ public class Utils {
         final List<String> list = new ArrayList<>();
         e.forEach(el -> list.add(fn.apply(el)));
         return list;
+    }
+
+    @Nonnull
+    public static String getServerIp() {
+        if (SERVER_IP == null) {
+            String ip = Bukkit.getIp();
+            final int port = Bukkit.getPort();
+
+            if (ip.isEmpty() || ip.isBlank()) {
+                try {
+                    ip = InetAddress.getLocalHost().getHostAddress();
+                } catch (Exception ignored0) {
+                    try {
+                        ip = Inet4Address.getLocalHost().getHostAddress();
+                    } catch (Exception ignored1) {
+                        try {
+                            ip = Inet6Address.getLocalHost().getHostAddress();
+                        } catch (Exception ignored2) {
+                            SERVER_IP = "Unavailable";
+                            return SERVER_IP;
+                        }
+                    }
+                }
+            }
+
+            SERVER_IP = ip + ":" + port;
+        }
+
+        return SERVER_IP;
     }
 }

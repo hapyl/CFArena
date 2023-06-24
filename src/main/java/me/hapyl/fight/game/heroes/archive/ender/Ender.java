@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.ender;
 
+import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
@@ -55,7 +56,8 @@ public class Ender extends Hero implements Listener {
 
         setMinimumLevel(5);
 
-        setDescription("Weird enderman-like looking warrior with teleportation abilities. He hits you with his arm, but it hurts like a brick.");
+        setDescription(
+                "Weird enderman-like looking warrior with teleportation abilities. He hits you with his arm, but it hurts like a brick.");
 
         final HeroEquipment equipment = this.getEquipment();
         equipment.setChestplate(85, 0, 102);
@@ -163,7 +165,7 @@ public class Ender extends Hero implements Listener {
                         Geometry.drawLine(playerLocation, location, 0.25f, new WorldParticle(Particle.PORTAL));
 
                         player.teleport(location);
-                        player.setCooldown(item.getType(), portKeyCooldown);
+                        GamePlayer.setCooldown(player, item.getType(), portKeyCooldown);
                         targetLocation.remove(player);
 
                         PlayerLib.playSound(playerLocation, Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f);
@@ -176,7 +178,7 @@ public class Ender extends Hero implements Listener {
         }.setName("Fist")
                 .setId("ender_weapon")
                 .setDescription(
-                        "Just a normal sized a.____&e&lRIGHT CLICK &7to initiate teleport to the target block. &e&lRIGHT CLICK &7again to cancel.____&aCooldown: &l%ss",
+                        "Just a normal-sized fist.____&e&lRIGHT CLICK&7 to initiate teleport to the target block. &e&lRIGHT CLICK &7again to cancel.____&aCooldown: &l%ss",
                         BukkitUtils.roundTick(portKeyCooldown)
                 )
                 .setDamage(7.0));

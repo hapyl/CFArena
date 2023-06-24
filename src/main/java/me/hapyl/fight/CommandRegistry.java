@@ -127,6 +127,20 @@ public class CommandRegistry extends DependencyInjector<Main> {
         register(new PlayerAttributeCommand("playerAttribute"));
         register(new SnakeBuilderCommand("snakeBuilder"));
 
+        register("setCdMultiplier", (player, args) -> {
+            final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
+
+            if (gamePlayer == null) {
+                Chat.sendMessage(player, "&cNot in a game.");
+                return;
+            }
+
+            final double modifier = Validate.getDouble(args[0]);
+            gamePlayer.setCooldownModifier(modifier);
+
+            Chat.sendMessage(player, "&aSet cooldown modifier to " + modifier);
+        });
+
         register(new SimplePlayerAdminCommand("simulateDeathMessage") {
             @Override
             protected void execute(Player player, String[] strings) {

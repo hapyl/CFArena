@@ -35,7 +35,7 @@ public class Shark extends Hero implements Listener {
     public Shark() {
         super(
                 "Shark",
-                "Strong warrior from the &bDepth of Waters&7... not well versed in on-land fights but don't let it touch the water or you'll regret it."
+                "Strong warrior from the &3Depth of Waters&8&o... not well versed in on-land fights but don't let it touch the water, or you'll regret it."
         );
 
         setRole(Role.STRATEGIST);
@@ -51,7 +51,7 @@ public class Shark extends Hero implements Listener {
 
         setWeapon(new Weapon(Material.QUARTZ)
                 .setName("Claws")
-                .setDescription("Using one's claws is the better idea than using a stick, don't you think so?")
+                .setDescription("Using one's claws is a better idea than using a stick, don't you think so?")
                 .setDamage(7.0d));
 
         setUltimate(new UltimateTalent(
@@ -117,8 +117,8 @@ public class Shark extends Hero implements Listener {
             return null;
         }
 
-        if (Math.random() >= 0.9) {
-            player.setCooldown(getPassiveTalent().getMaterial(), 20 * 5);
+        if (input.isCrit()) {
+            GamePlayer.setCooldown(player, getPassiveTalent().getMaterial(), 20 * 5);
             performCriticalHit(player, entity);
         }
 

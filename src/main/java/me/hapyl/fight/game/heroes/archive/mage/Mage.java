@@ -2,7 +2,9 @@ package me.hapyl.fight.game.heroes.archive.mage;
 
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.damage.EntityData;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
@@ -68,9 +70,10 @@ public class Mage extends Hero implements UIComponent {
         setRole(Role.MELEE_RANGE);
         setArchetype(Archetype.DAMAGE);
 
-        setDescription(
-                "Amateur Necromancer with ability to absorb soul fragments upon hitting his foes to use them as fuel for his &e&lSoul Eater&7.__Which makes him both &bmelee &7and &brange &7warrior!"
-        );
+        setDescription("""
+                Amateur Necromancer with ability to absorb soul fragments upon hitting his foes to use them as fuel for his &e&lSoul Eater&7.
+                Which makes him both &3melee &7&oand &3range &8&owarrior!
+                """);
 
         setItem("f41e6e4bcd2667bb284fb0dde361894840ea782efbfb717f6244e06b951c2b3f");
 
@@ -95,7 +98,7 @@ public class Mage extends Hero implements UIComponent {
                 addSouls(player, -1);
                 player.setCooldown(Material.IRON_HOE, 10);
                 PlayerLib.playSound(player, Sound.BLOCK_SOUL_SAND_BREAK, 0.75f);
-                Utils.rayTraceLine(player, 50, 0.5, -1.0d, this::spawnParticles, this::hitEnemy);
+                Utils.rayTraceLine(player, 50, 0.5, -1.0d, this::spawnParticles, entity -> hitEnemy(entity, player));
 
             }
 
@@ -103,10 +106,12 @@ public class Mage extends Hero implements UIComponent {
                 PlayerLib.spawnParticle(location, Particle.SOUL, 1, 0.1d, 0.0d, 0.1d, 0.035f);
             }
 
-            private void hitEnemy(LivingEntity livingEntity) {
+            private void hitEnemy(LivingEntity livingEntity, Player player) {
                 final Location location = livingEntity.getLocation();
                 livingEntity.addScoreboardTag("LastDamage=Soul");
-                livingEntity.damage(this.getDamage());
+
+                EntityData.damage(livingEntity, getDamage(), player, EnumDamageCause.SOUL_WHISPER);
+
                 PlayerLib.spawnParticle(location, Particle.SOUL, 8, 0, 0, 0, 0.10f);
                 PlayerLib.spawnParticle(location, Particle.SOUL_FIRE_FLAME, 10, 0, 0, 0, 0.25f);
             }

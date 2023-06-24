@@ -145,7 +145,7 @@ public class Hercules extends Hero implements Listener, PlayerElement {
         final Trident trident = fragileTrident.get(player);
         trident.remove();
 
-        player.setCooldown(Material.TRIDENT, lessCooldown ? tridentCooldown / 3 : tridentCooldown);
+        GamePlayer.setCooldown(player, Material.TRIDENT, lessCooldown ? tridentCooldown / 3 : tridentCooldown);
         player.getInventory().setItem(0, this.getWeapon().getItem());
         player.updateInventory();
 

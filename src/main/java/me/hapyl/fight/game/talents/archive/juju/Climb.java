@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class Climb extends Talent {
 
-    @DisplayField(suffix = "Maximum Bounce Time") private final int cdDeadLine = 80;
+    @DisplayField(suffix = "Maximum Bounce Time") private final int cdDeadline = 80;
     @DisplayField private final int cooldown = 160;
     @DisplayField private final double magnitude = 0.6d;
 
@@ -85,7 +85,7 @@ public class Climb extends Talent {
                 self.cancel();
                 tasks.remove(player);
             }
-        }, 1, cdDeadLine));
+        }, 1, cdDeadline));
     }
 
 }

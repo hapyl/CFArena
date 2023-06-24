@@ -80,19 +80,21 @@ public class Vortex extends Hero implements UIComponent {
                         });
 
                         if (((distanceFlew += distanceShift) >= maxDistance) || nextLocation.getBlock().getType().isOccluding()) {
-                            player.setCooldown(Material.STONE_SWORD, sotsCooldown);
-                            this.cancel();
+                            GamePlayer.setCooldown(player, Material.STONE_SWORD, sotsCooldown);
+                            cancel();
                         }
 
                     }
                 }.runTaskTimer(0, 1);
 
-                player.setCooldown(this.getMaterial(), sotsCooldown);
+                GamePlayer.setCooldown(player, getMaterial(), sotsCooldown);
             }
-        }.setName("Sword of Thousands Stars").setId("sots_weapon").setDescription(String.format(
-                "A sword with ability to summon thousands stars.____&e&lRIGHT CLICK &7to launch vortex energy in front of you, that follows your crosshair and rapidly damages and knocks enemies back upon hit.____&aCooldown: &l%ss",
-                BukkitUtils.roundTick(sotsCooldown)
-        )).setDamage(6.5d));
+        }.setName("Sword of Thousands Stars")
+                .setId("sots_weapon")
+                .setDescription(String.format(
+                        "A sword with the ability to summon thousands of stars.____&e&lRIGHT CLICK &7to launch vortex energy in front of you, that follows your crosshair and rapidly damages and knocks enemies back upon hit.____&aCooldown: &l%ss",
+                        BukkitUtils.roundTick(sotsCooldown)
+                )).setDamage(6.5d));
 
 
         setUltimate(new UltimateTalent("All the Stars", """
@@ -118,7 +120,7 @@ public class Vortex extends Hero implements UIComponent {
     }
 
     public void startInitWeaponCooldown(Player player) {
-        player.setCooldown(getWeapon().getMaterial(), sotsCooldown / 2);
+        GamePlayer.setCooldown(player, getWeapon().getMaterial(), sotsCooldown / 2);
     }
 
     private void performFinalSlash(Location location, Player player) {

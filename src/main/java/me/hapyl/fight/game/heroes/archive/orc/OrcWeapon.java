@@ -2,6 +2,7 @@ package me.hapyl.fight.game.heroes.archive.orc;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.damage.EntityData;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.Cooldown;
@@ -38,7 +39,7 @@ public class OrcWeapon extends Weapon implements Cooldown {
                 Upon hitting a block, stay in a block for a while before returning to you.
                 """);
 
-        setDamage(10.0d);
+        setDamage(12.0d);
         setAttackSpeed(-2.5d);
         setId("orc_axe");
     }
@@ -68,7 +69,7 @@ public class OrcWeapon extends Weapon implements Cooldown {
             public void onReturn(@Nonnull Player player) {
                 thrownAxe.remove(player);
 
-                player.setCooldown(weapon.getMaterial(), getCooldown());
+                GamePlayer.setCooldown(player, weapon.getMaterial(), getCooldown());
                 player.getInventory().setItem(0, weapon.getItem());
             }
 

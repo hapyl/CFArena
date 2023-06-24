@@ -4,10 +4,7 @@ import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.effect.GameEffectType;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.HeroEquipment;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.Role;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -36,7 +33,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class Techie extends Hero implements UIComplexComponent, Listener {
+public class Techie extends Hero implements UIComplexComponent, Listener, DisabledHero {
 
     private final Set<Lockdown> lockdownSet = new HashSet<>();
 
@@ -52,7 +49,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener {
      *     <li>Skill that tags with a BUG.</li>
      *     <li>Move reveal to skill that also damaged and weakens, like a trap.</li>
      * </ul>
-     *
+     * <p>
      * Ult still IDK
      */
 

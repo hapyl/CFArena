@@ -14,6 +14,7 @@ import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.maps.features.BoosterController;
 import me.hapyl.fight.game.maps.gamepack.HealthPackListener;
 import me.hapyl.fight.game.parkour.CFParkourManager;
+import me.hapyl.fight.game.parkour.snake.Snake;
 import me.hapyl.fight.game.task.TaskList;
 import me.hapyl.fight.mini.lampgame.LampGame;
 import me.hapyl.fight.notifier.Notifier;

@@ -168,7 +168,7 @@ public class PlayerDatabase {
         final String playerName = player == null ? uuid.toString() : player.getName();
 
         document.append("lastOnline", System.currentTimeMillis());
-        document.append("lastOnlineServer", Bukkit.getServer().getIp() + ":" + Bukkit.getServer().getPort());
+        document.append("lastOnlineServer", Utils.getServerIp());
 
         try {
             //Bukkit.getScheduler().runTaskAsynchronously(Main.getPlugin(), () -> {

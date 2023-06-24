@@ -98,6 +98,9 @@ public abstract class CFGameMode {
     public void onDeath(@Nonnull GameInstance instance, @Nonnull GamePlayer player) {
     }
 
+    public void tick(@Nonnull GameInstance instance, int tick) {
+    }
+
     // Default impl, override if needed
     public void onLeave(@Nonnull GameInstance instance, @Nonnull Player player) {
         final GamePlayer gamePlayer = instance.getPlayer(player);

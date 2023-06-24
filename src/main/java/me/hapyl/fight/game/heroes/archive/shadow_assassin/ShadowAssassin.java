@@ -97,7 +97,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
         }
 
         GamePlayer.damageEntity(livingEntity, getWeapon().getDamage(), player, EnumDamageCause.NEVERMISS);
-        player.setCooldown(getWeapon().getMaterial(), NEVERMISS_CD);
+        GamePlayer.setCooldown(player, getWeapon().getMaterial(), NEVERMISS_CD);
 
         // fx
         PlayerLib.playSound(player.getLocation(), Sound.BLOCK_NETHER_ORE_BREAK, 1.75f);
@@ -168,7 +168,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
     }
 
     public void setDarkCoverCd(Player player, int cd) {
-        player.setCooldown(Talents.SECRET_SHADOW_WARRIOR_TECHNIQUE.getTalent().getMaterial(), cd);
+        GamePlayer.setCooldown(player, Talents.SECRET_SHADOW_WARRIOR_TECHNIQUE.getTalent().getMaterial(), cd);
     }
 
     public int getDarkCoverCd(Player player) {
@@ -255,7 +255,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
             Chat.sendMessage(playerEntity, "&a%s stabbed you!", player.getName());
         }
 
-        player.setCooldown(getWeapon().getMaterial(), BACK_STAB_CD);
+        GamePlayer.setCooldown(player, getWeapon().getMaterial(), BACK_STAB_CD);
 
         // fx
         PlayerLib.playSound(location, Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 0.65f);

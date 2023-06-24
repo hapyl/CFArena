@@ -8,7 +8,6 @@ import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.maps.GameMaps;
-import me.hapyl.fight.game.task.GameTask;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
@@ -127,12 +126,6 @@ public class NullGameInstance implements IGameInstance {
     @Override
     public GameMaps getMap() {
         return GameMaps.ARENA;
-    }
-
-    @Nullable
-    @Override
-    public GameTask getGameTask() {
-        return null;
     }
 
     @Nonnull

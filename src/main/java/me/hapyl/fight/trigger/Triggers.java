@@ -2,6 +2,7 @@ package me.hapyl.fight.trigger;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.game.Debug;
+import me.hapyl.fight.trigger.subscribe.AbilityCooldownStartTrigger;
 import me.hapyl.fight.trigger.subscribe.AttributeChangeTrigger;
 import me.hapyl.fight.trigger.subscribe.GameChangeStateTrigger;
 
@@ -15,6 +16,7 @@ public final class Triggers {
     // subscribes
     public static final Subscribe<AttributeChangeTrigger> ATTRIBUTE_CHANGE = register(AttributeChangeTrigger.class);
     public static final Subscribe<GameChangeStateTrigger> GAME_CHANGE_STATE = register(GameChangeStateTrigger.class);
+    public static final Subscribe<AbilityCooldownStartTrigger> ABILITY_COOLDOWN_START = register(AbilityCooldownStartTrigger.class);
 
     private static <T extends Trigger> Subscribe<T> register(Class<T> clazz) {
         final Subscribe<T> subscribe = new Subscribe<>();

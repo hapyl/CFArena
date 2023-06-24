@@ -29,7 +29,7 @@ public class CooldownCommand extends SimplePlayerAdminCommand {
             return;
         }
 
-        player.setCooldown(gamePlayer.getHero().getWeapon().getMaterial(), 0);
+        GamePlayer.setCooldown(player, gamePlayer.getHero().getWeapon().getMaterial(), 0);
 
         for (Talent talent : gamePlayer.getHero().getTalents()) {
             if (talent == null) {

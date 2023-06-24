@@ -47,7 +47,6 @@ public class ShortyShotgun extends Talent {
 
         setItem(Material.CROSSBOW);
         setStartAmount(2);
-
         setCooldown(50);
     }
 
@@ -94,8 +93,6 @@ public class ShortyShotgun extends Talent {
         else {
             item.setAmount(2);
         }
-
-        player.updateInventory();
     }
 
     private void raycastPellet(Player player) {

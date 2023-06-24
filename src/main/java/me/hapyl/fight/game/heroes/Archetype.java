@@ -3,7 +3,9 @@ package me.hapyl.fight.game.heroes;
 import javax.annotation.Nonnull;
 
 public enum Archetype {
+
     DAMAGE("Damage", "Experts in dealing as much damage as possible."),
+    RANGE("Range", "Rangers are dead-eye shooters that can hold distance to strike."),
     DEFENSE("Defense", "Provides defense for self and allies."),
     MOBILITY("Mobility", "Fast and mobile, they zip around the battlefield."),
     STRATEGY("Strategy", "Strategists rely on their abilities, rather than combat to win."),

@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.moonwalker;
 
+import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.heroes.*;
@@ -54,7 +55,8 @@ public class Moonwalker extends Hero implements PlayerElement, UIComponent {
                 arrow.setDamage(this.getDamage() / 2.0d);
                 arrow.setCritical(false);
                 arrow.setShooter(player);
-                player.setCooldown(Material.BOW, 20);
+
+                GamePlayer.setCooldown(player, Material.BOW, 20);
 
                 // fx
                 PlayerLib.playSound(player, Sound.ENTITY_ARROW_SHOOT, 1.25f);

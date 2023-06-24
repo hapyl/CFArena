@@ -2,7 +2,6 @@ package me.hapyl.fight.database;
 
 import com.mongodb.client.MongoCollection;
 import me.hapyl.fight.Main;
-import me.hapyl.fight.game.Debug;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -93,7 +92,8 @@ public final class MongoUtils {
 
         if (value == null) { // remove if null
             currentNode.remove(segment);
-        } else {
+        }
+        else {
             currentNode.put(segment, value);
         }
     }

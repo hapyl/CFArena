@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.archive.bounty_hunter;
 
 import com.google.common.collect.Maps;
+import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -40,7 +41,7 @@ public class GrappleHookTalent extends ChargedTalent implements Listener {
     @Override
     public void onLastCharge(Player player) {
         grantAllCharges(player, cooldown);
-        player.setCooldown(getNoChargedMaterial(), cooldown);
+        GamePlayer.setCooldown(player, getNoChargedMaterial(), cooldown);
     }
 
     @EventHandler()

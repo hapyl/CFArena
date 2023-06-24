@@ -1,7 +1,9 @@
 package me.hapyl.fight.game;
 
+import com.google.common.collect.Maps;
 import me.hapyl.fight.game.attribute.PlayerAttributes;
 import me.hapyl.fight.game.cosmetic.skin.Skins;
+import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.stats.StatContainer;
@@ -17,6 +19,7 @@ import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -487,9 +490,9 @@ public interface IGamePlayer {
     }
 
     /**
-     * Returns UUID of current player handle.
+     * Returns UUID of this owner.
      *
-     * @return UUID of current player handle.
+     * @return UUID of this owner.
      */
     @Nonnull
     default UUID getUUID() {
@@ -499,5 +502,13 @@ public interface IGamePlayer {
         }
 
         return player.getUniqueId();
+    }
+
+    default double getCooldownModifier() {
+        return 1.0d;
+    }
+
+    default Map<GameEffectType, ActiveGameEffect> getActiveEffects() {
+        return Maps.newHashMap();
     }
 }

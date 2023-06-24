@@ -4,6 +4,8 @@ import me.hapyl.fight.game.damage.EntityData;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.display.StringDisplay;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.player.PlayerEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 
 public class ActiveGameEffect {
 
@@ -63,6 +65,9 @@ public class ActiveGameEffect {
 
         final EntityData data = EntityData.of(entity);
         data.clearEffect(type);
+    }
+
+    public <T extends PlayerEvent> void processEvent(T ev) {
     }
 
     private void startTicking() {
