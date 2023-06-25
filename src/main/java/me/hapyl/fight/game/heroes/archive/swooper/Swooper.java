@@ -5,6 +5,7 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
+import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
@@ -49,6 +50,7 @@ public class Swooper extends Hero implements Listener, UIComponent {
         super("Swooper");
 
         setRole(Role.RANGE);
+        setArchetype(Archetype.RANGE);
 
         setDescription("A sniper with slow firing rifle, but fast ways to move around the battlefield.");
         setItem("f181c811ad37467550d7c01cac2e5223c4e99fa7906348f940c9456d8aa0cd1b");
@@ -84,6 +86,7 @@ public class Swooper extends Hero implements Listener, UIComponent {
             }
 
         }.setCooldown(45)
+                .setMaxAmmo(5)
                 .setParticleTick(new PackedParticle(Particle.FIREWORKS_SPARK))
                 .setMaxDistance(-1)
                 .setDamage(-1)

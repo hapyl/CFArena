@@ -5,6 +5,7 @@ import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.PlayerElement;
+import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
@@ -34,6 +35,8 @@ public class Spark extends Hero implements PlayerElement {
         super("Spark");
 
         setRole(Role.RANGE);
+        setArchetype(Archetype.RANGE);
+
         setDescription("Strikes as fire with his fire abilities.");
         setItem("ade095332720215ca9b85e7eacd1d092b1697fad34d696add94d3b70976702c");
 

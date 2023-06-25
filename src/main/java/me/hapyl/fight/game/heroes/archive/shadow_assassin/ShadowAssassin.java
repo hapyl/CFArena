@@ -4,6 +4,7 @@ import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
@@ -46,8 +47,9 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
         super("Shadow Assassin");
 
         setRole(Role.ASSASSIN);
+        setArchetype(Archetype.STRATEGY);
 
-        setDescription("Well trained assassin from dimension of shadows.");
+        setDescription("Well-trained assassin from dimension of shadows.");
         setItem("9598fcbbf65b9ff66da99487403e4baf7e4c50144d06c7417bbded578d76d004");
 
         final HeroEquipment equipment = getEquipment();

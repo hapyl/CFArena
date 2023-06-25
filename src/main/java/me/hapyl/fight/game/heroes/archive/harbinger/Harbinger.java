@@ -5,6 +5,7 @@ import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
@@ -52,6 +53,8 @@ public class Harbinger extends Hero implements Listener, UIComponent {
         super("Harbinger", "She is a harbinger of unknown organization. Nothing else is known.", Material.ANVIL);
 
         setRole(Role.MELEE_RANGE);
+        setArchetype(Archetype.STRATEGY);
+
         setMinimumLevel(5);
         setItem("22a1ac2a8dd48c371482806b3963571952997a5712806e2c8060b8e7777754");
 

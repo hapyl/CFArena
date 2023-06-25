@@ -2,6 +2,7 @@ package me.hapyl.fight.game.heroes.archive.vortex;
 
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
@@ -37,8 +38,9 @@ public class Vortex extends Hero implements UIComponent {
         super("Vortex");
 
         setRole(Role.STRATEGIST);
+        setArchetype(Archetype.STRATEGY);
 
-        setDescription("A young boy with power of speaking to starts...");
+        setDescription("A young boy with the power of speaking to starts...");
         setItem("2adc458dfabc20b8d587b0476280da2fb325fc616a5212784466a78b85fb7e4d");
 
         final HeroEquipment equipment = this.getEquipment();

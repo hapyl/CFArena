@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.ui;
 
 import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.ChatColor;
 
@@ -40,16 +41,29 @@ public class UIFormat {
         toFormat = toFormat.replace("{Div}", DIV);
 
         // UIComponent
-        if (player.getHero() instanceof UIComponent uiHero) {
-            final StringBuilder builder = new StringBuilder(toFormat);
-            if (!uiHero.getString(player.getPlayer()).isEmpty()) {
-                builder.append(" %s ".formatted(DIV)).append(uiHero.getString(player.getPlayer()));
-            }
+        final Hero hero = player.getHero();
 
-            toFormat = builder.toString();
+        if (hero instanceof UIComponent component) {
+            toFormat = sew(toFormat, component, player);
+        }
+
+        if (hero.getWeapon() instanceof UIComponent component) {
+            toFormat = sew(toFormat, component, player);
         }
 
         return toFormat;
+    }
+
+    private String sew(String sew, UIComponent component, GamePlayer player) {
+        final StringBuilder builder = new StringBuilder(sew);
+
+        final String string = component.getString(player.getPlayer());
+
+        if (!string.isEmpty()) {
+            builder.append(" %s ".formatted(DIV)).append(string);
+        }
+
+        return builder.toString();
     }
 
 }

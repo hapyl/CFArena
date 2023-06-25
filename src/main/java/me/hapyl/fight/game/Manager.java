@@ -21,6 +21,7 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.trial.Trial;
 import me.hapyl.fight.game.ui.GamePlayerUI;
+import me.hapyl.fight.game.weapons.RangeWeapon;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.EternaPlugin;
@@ -435,6 +436,10 @@ public final class Manager extends DependencyInjector<Main> {
             Nulls.runIfNotNull(value.getHero(), hero -> {
                 hero.onStop();
                 hero.clearUsingUltimate();
+
+                if (hero.getWeapon() instanceof RangeWeapon rangeWeapon) {
+                    rangeWeapon.onStop();
+                }
             });
         }
 

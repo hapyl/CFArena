@@ -3,10 +3,7 @@ package me.hapyl.fight.game.heroes.archive.witcher;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.PlayerElement;
-import me.hapyl.fight.game.heroes.ComplexHero;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.HeroEquipment;
-import me.hapyl.fight.game.heroes.Role;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -35,6 +32,7 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
         super("The Witcher");
 
         setRole(Role.MELEE);
+        setArchetype(Archetype.DAMAGE);
 
         setDescription("Some say that he's the most trained Witcher ever; Well versed in any kind of magic...");
         setItem("910905be4f67e2fcad291cdf8aeb2e9ff55fe93f27b8c1f0959024a3cb4a7052");

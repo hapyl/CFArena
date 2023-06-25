@@ -4,9 +4,7 @@ import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.HeroEquipment;
-import me.hapyl.fight.game.heroes.Role;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -29,7 +27,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
-public class Tamer extends Hero implements Listener {
+public class Tamer extends Hero implements Listener, DisabledHero {
 
     private final double WEAPON_DAMAGE = 8.0d; // since it's a fishing rod, we're storing the damage here
     private final int WEAPON_COOLDOWN = 10;
@@ -39,6 +37,7 @@ public class Tamer extends Hero implements Listener {
         setItem("fbad693d041db13ff36b81480b06456cd0ad6a57655338b956ea015a150516e2");
 
         setRole(Role.STRATEGIST);
+        setArchetype(Archetype.STRATEGY);
 
         final HeroEquipment equipment = getEquipment();
 

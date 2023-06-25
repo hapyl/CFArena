@@ -5,6 +5,7 @@ import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.PlayerElement;
+import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
@@ -41,7 +42,7 @@ import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BlastKnight extends Hero implements PlayerElement, UIComponent, Listener {
+public class BlastKnight extends Hero implements DisabledHero, PlayerElement, UIComponent, Listener {
 
     private final ItemStack itemShield = new ItemBuilder(Material.SHIELD).setName("&aShield").setUnbreakable().build();
     private final Map<Player, Integer> shieldCharge = new HashMap<>();
@@ -49,6 +50,8 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Lis
 
     private final Shield shield = new Shield();
     private final Material shieldRechargeCdItem = Material.HORSE_SPAWN_EGG;
+
+    // FIXME (hapyl): 025, Jun 25: Rework add high end technology there is like one
 
     public BlastKnight() {
         super("Blast Knight");

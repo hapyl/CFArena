@@ -5,10 +5,7 @@ import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.HeroEquipment;
-import me.hapyl.fight.game.heroes.NewHero;
-import me.hapyl.fight.game.heroes.Role;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.taker.DeathSwap;
@@ -51,6 +48,8 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
         super("Taker", "Will take your life away!");
 
         setRole(Role.MELEE);
+        setArchetype(Archetype.DAMAGE);
+
         setItem("ff1e554161bd4b2ce4cad18349fd756994f74cabf1fd1dacdf91b6d05dffaf");
 
         final HeroEquipment equipment = getEquipment();

@@ -6,6 +6,7 @@ import me.hapyl.fight.Main;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
@@ -58,6 +59,8 @@ public class JuJu extends Hero implements Listener {
         super("JuJu the Bandit");
 
         setRole(Role.RANGE);
+        setArchetype(Archetype.RANGE);
+
         setMinimumLevel(5);
 
         setDescription("A bandit from the depths of the jungle. Highly skilled in range combat.");

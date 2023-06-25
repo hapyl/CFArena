@@ -6,6 +6,7 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
@@ -49,10 +50,12 @@ public class Ninja extends Hero implements Listener, UIComponent {
     public Ninja() {
         super(
                 "Ninja",
-                "Extremely well trained fighter with a gift from the wind, that allows him to Dash, Double Jump and take no fall damage."
+                "An extremely well-trained fighter with a gift from the wind, that allows him to Dash, Double Jump and take no fall damage."
         );
 
         setRole(Role.ASSASSIN);
+        setArchetype(Archetype.MOBILITY);
+
         setItem("1413159cfab50aba283e68c1659d74412392fbcb1f7d663d1bd2a2a6430c2743");
 
         final HeroEquipment equipment = this.getEquipment();

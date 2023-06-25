@@ -6,7 +6,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
+import me.hapyl.spigotutils.module.math.Tick;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -168,7 +168,7 @@ public class Weapon extends NonNullItemCreator implements Cloneable, DisplayFiel
             builder.addLore().addTextBlockLore(description);
         }
 
-        if (this.lore != null && false/*don't add lor for now*/) {
+        if (this.lore != null && false/*don't add lore for now*/) {
             builder.addLore().addSmartLore(lore, "&8&o");
         }
 
@@ -178,11 +178,16 @@ public class Weapon extends NonNullItemCreator implements Cloneable, DisplayFiel
             final double weaponDamage = rangeWeapon.getDamage();
 
             builder.addLore();
+            builder.addLore("&aLeft-Click to manually reload!");
+            builder.addLore();
             builder.addLore("&e&lAttributes:");
 
-            addDynamicLore(builder, " Reload Time: &f&l%s", reloadTime, t -> BukkitUtils.roundTick(t.intValue()) + "s");
+            addDynamicLore(builder, " Fire Rate: &f&l%s", reloadTime, t -> Tick.round(t.intValue()) + "s");
             addDynamicLore(builder, " Max Distance: &f&l%s", maxDistance, t -> t + "s");
             addDynamicLore(builder, " Damage: &f&l%s", weaponDamage, Object::toString);
+
+            builder.addLore(" Max Ammo: &f&l%s", rangeWeapon.getMaxAmmo());
+            builder.addLore(" Reload Time: &f&l%s", Tick.round(rangeWeapon.getReloadTime()) + "s");
         }
 
         // Add click events

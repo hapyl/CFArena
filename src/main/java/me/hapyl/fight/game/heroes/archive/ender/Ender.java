@@ -2,10 +2,7 @@ package me.hapyl.fight.game.heroes.archive.ender;
 
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.HeroEquipment;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.Role;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -51,9 +48,11 @@ public class Ender extends Hero implements Listener {
 
     public Ender() {
         super("Ender");
-        setRole(Role.ASSASSIN);
-        setItem("aacb357709d8cdf1cd9c9dbe313e7bab3276ae84234982e93e13839ab7cc5d16");
 
+        setRole(Role.ASSASSIN);
+        setArchetype(Archetype.MOBILITY);
+
+        setItem("aacb357709d8cdf1cd9c9dbe313e7bab3276ae84234982e93e13839ab7cc5d16");
         setMinimumLevel(5);
 
         setDescription(

@@ -4,6 +4,7 @@ import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
@@ -39,6 +40,7 @@ public class Shark extends Hero implements Listener {
         );
 
         setRole(Role.STRATEGIST);
+        setArchetype(Archetype.STRATEGY);
 
         setItem("3447e7e8271f573969f2da734c4125f93b2864fb51db69da5ecba7487cf882b0");
 

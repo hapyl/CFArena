@@ -11,10 +11,7 @@ import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.cosmetic.CosmeticsHandle;
 import me.hapyl.fight.game.damage.EntityData;
 import me.hapyl.fight.game.effect.GameEffectType;
-import me.hapyl.fight.game.heroes.ComplexHero;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.HeroEquipment;
-import me.hapyl.fight.game.heroes.Role;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.archive.witcher.WitherData;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -61,6 +58,8 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         super("Dark Mage");
 
         setRole(Role.MELEE);
+        setArchetype(Archetype.MAGIC);
+
         setDescription("A mage that was cursed by &8&lDark &8&lMagic&8&o. But even it couldn't kill him...");
         setItem("e6ca63569e8728722ecc4d12020e42f086830e34e82db55cf5c8ecd51c8c8c29");
 

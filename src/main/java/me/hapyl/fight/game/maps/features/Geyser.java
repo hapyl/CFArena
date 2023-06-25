@@ -24,7 +24,6 @@ import java.util.Set;
 
 public class Geyser {
 
-
     private final Location location;
     private final Location spawnLocation;
     private final Direction direction;

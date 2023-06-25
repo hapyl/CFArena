@@ -7,10 +7,7 @@ import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.damage.EntityData;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.HeroEquipment;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.Role;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -48,8 +45,10 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
 
     public Alchemist() {
         super("Alchemist");
+
         setRole(Role.STRATEGIST);
-        // FIXME (hapyl): 023, May 23, 2023: typos
+        setArchetype(Archetype.STRATEGY);
+
         setDescription(
                 "An alchemist who was deceived by the creation of the abyss. In return of help received an Abyssal Bottle that creates potions from the &0&lvoid &8itself."
         );

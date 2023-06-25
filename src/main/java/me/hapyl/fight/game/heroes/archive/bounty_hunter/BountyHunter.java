@@ -8,6 +8,7 @@ import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Role;
@@ -50,6 +51,8 @@ public class BountyHunter extends Hero {
         super("Bounty Hunter", "She is a skilled bounty hunter.____&o\"Jackpot! Everyone here's got a bounty on their head.\"");
 
         setRole(Role.MELEE);
+        setArchetype(Archetype.MOBILITY);
+
         setItem("cf4f866f1432f324e31b0a502e6e9ebccd7a66f474f1ca9cb0cfab879ea22ce0");
 
         setWeapon(new Weapon(Material.IRON_SWORD).setName("Iron Sword").setDamage(6.0d));

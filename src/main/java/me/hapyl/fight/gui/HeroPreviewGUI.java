@@ -2,6 +2,7 @@ package me.hapyl.fight.gui;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.attribute.HeroAttributes;
+import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.Origin;
@@ -124,7 +125,7 @@ public class HeroPreviewGUI extends PlayerGUI {
                 17,
                 new ItemBuilder(favourite ? Material.LIME_DYE : Material.GRAY_DYE).setName("&aFavourite")
                         .addLore()
-                        .addSmartLore("Favourite heroes appear a in hero selection screen.")
+                        .addSmartLore("Favourite heroes appear first in hero selection screen.")
                         .addLore()
                         .addLore("&eClick to %s your favourite list.", (favourite ? "remove from" : "add to"))
                         .predicate(favourite, ItemBuilder::glow)
@@ -155,15 +156,21 @@ public class HeroPreviewGUI extends PlayerGUI {
         openInventory();
     }
 
+    // FIXME (hapyl): 025, Jun 25: This should really be in hero class
     @Nonnull
     private ItemStack buildHeroPreview(Hero hero) {
         final ItemBuilder builder = new ItemBuilder(hero.getItem());
 
+        final Archetype archetype = hero.getArchetype();
+
         builder.setName("&a%s", hero.getName())
                 .addLore()
-                // Role
-                .addLore("&7Role: &b%s", hero.getRole().getName())
-                .addSmartLore(hero.getRole().getDescription(), "&8&o");
+                //// Role
+                //.addLore("&7Role: &b%s", hero.getRole().getName())
+                //.addSmartLore(hero.getRole().getDescription(), "&8&o")
+                // Archetype
+                .addLore("&7Archetype: &b" + archetype)
+                .addSmartLore(archetype.getDescription(), "&8&o");
 
         // Fraction
         if (hero.getOrigin() != Origin.NOT_SET) {

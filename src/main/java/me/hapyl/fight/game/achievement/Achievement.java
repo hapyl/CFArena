@@ -37,8 +37,10 @@ public class Achievement extends PatternId {
     protected final LinkedHashMap<Integer, Reward> rewards;
     private final String name;
     private final String description;
-    private final String GRADIENT = new Gradient("ACHIVEMENT COMPLETE").makeBold()
+    private final String GRADIENT = new Gradient("ACHIVEMENT COMPLETE")
+            .makeBold()
             .rgb(new Color(235, 100, 52), new Color(235, 232, 52), Interpolators.QUADRATIC_SLOW_TO_FAST);
+
     protected int maxCompleteCount;
     @Nonnull
     protected Material icon;
