@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.maps.features;
 
 import me.hapyl.fight.util.BoundingBoxCollector;
+import me.hapyl.fight.util.Direction;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
@@ -63,9 +64,9 @@ public class Turbine {
 
     public double getRadius() {
         return switch (direction) {
-            case POSITIVE_X, NEGATIVE_X -> (boundingBox.getMaxX() - boundingBox.getMinX()) / 4.0d;
-            case POSITIVE_Y, NEGATIVE_Y -> (boundingBox.getMaxY() - boundingBox.getMinY()) / 4.0d;
-            case POSITIVE_Z, NEGATIVE_Z -> (boundingBox.getMaxZ() - boundingBox.getMinZ()) / 4.0d;
+            case EAST, WEST -> (boundingBox.getMaxX() - boundingBox.getMinX()) / Math.PI; // 4.0
+            case UP, DOWN -> (boundingBox.getMaxY() - boundingBox.getMinY()) / Math.PI;
+            case SOUTH, NORTH -> (boundingBox.getMaxZ() - boundingBox.getMinZ()) / Math.PI;
             default -> 0.0d;
         };
     }

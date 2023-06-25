@@ -7,7 +7,7 @@ import me.hapyl.fight.game.maps.features.LibraryFeature;
 import me.hapyl.fight.game.maps.gamepack.PackType;
 import me.hapyl.fight.game.maps.maps.DragonsGorge;
 import me.hapyl.fight.game.maps.maps.MoonBase;
-import me.hapyl.fight.game.maps.maps.WineryMap;
+import me.hapyl.fight.game.maps.winery.WineryMap;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.Material;
 

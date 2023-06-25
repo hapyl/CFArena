@@ -133,6 +133,23 @@ public class GameMap implements GameElement, PlayerElement {
         return features;
     }
 
+    public boolean hasFeatures() {
+        if (features.isEmpty()) {
+            return false;
+        }
+
+        int notHiddenCount = 0;
+        for (MapFeature feature : features) {
+            if (feature instanceof HiddenMapFeature) {
+                continue;
+            }
+
+            notHiddenCount++;
+        }
+
+        return notHiddenCount > 0;
+    }
+
     public GameMap addFeature(MapFeature feature) {
         this.features.add(feature);
         return this;
@@ -202,9 +219,9 @@ public class GameMap implements GameElement, PlayerElement {
     }
 
     /**
-     * Returns a or random location.
+     * Returns a random location.
      *
-     * @return a or random location.
+     * @return a random location.
      */
     @SuppressWarnings("unchecked")
     @Nonnull
@@ -282,7 +299,7 @@ public class GameMap implements GameElement, PlayerElement {
 
     public GameMap addPackLocation(PackType type, double x, double y, double z) {
         if (!gamePacks.containsKey(type)) {
-            throw new IllegalStateException("game pack %s no initiated?".formatted(type.name()));
+            throw new IllegalStateException("game pack %s not initiated?".formatted(type.name()));
         }
 
         gamePacks.get(type).addLocation(BukkitUtils.defLocation(x, y, z));

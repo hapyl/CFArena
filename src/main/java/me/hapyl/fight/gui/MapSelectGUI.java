@@ -3,6 +3,7 @@ package me.hapyl.fight.gui;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.maps.GameMap;
 import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.maps.HiddenMapFeature;
 import me.hapyl.fight.game.maps.MapFeature;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -30,9 +31,14 @@ public class MapSelectGUI extends PlayerAutoGUI {
                     .addLore("")
                     .addSmartLore(map.getDescription());
 
-            if (!map.getFeatures().isEmpty()) {
+            if (map.hasFeatures()) {
                 builder.addLore().addLore("&aMap Features:").addLore();
-                for (final MapFeature feature : map.getFeatures()) {
+
+                for (MapFeature feature : map.getFeatures()) {
+                    if (feature instanceof HiddenMapFeature) {
+                        continue;
+                    }
+
                     builder.addLore(" &b" + feature.getName());
                     builder.addSmartLore(feature.getInfo(), "  &7&o");
                 }

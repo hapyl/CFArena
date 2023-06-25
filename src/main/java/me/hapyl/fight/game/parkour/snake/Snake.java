@@ -2,8 +2,7 @@ package me.hapyl.fight.game.parkour.snake;
 
 import com.google.common.collect.Lists;
 import me.hapyl.fight.Main;
-import me.hapyl.fight.game.Debug;
-import me.hapyl.fight.game.maps.features.Direction;
+import me.hapyl.fight.util.Direction;
 import me.hapyl.fight.util.Buffer;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
@@ -99,12 +98,10 @@ public class Snake extends BukkitRunnable {
         final Collection<Entity> entities = world.getNearbyEntities(
                 location,
                 0.5d,
-                0.5d,
+                1d,
                 0.5d,
                 entity -> entity instanceof ArmorStand && entity.getScoreboardTags().contains(ENTITY_TAG)
         );
-
-        Debug.info("near count " + entities.size());
 
         return !entities.isEmpty();
     }

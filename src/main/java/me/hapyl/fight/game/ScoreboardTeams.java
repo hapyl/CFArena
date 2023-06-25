@@ -11,7 +11,6 @@ import org.bukkit.scoreboard.Team;
 
 import javax.annotation.Nonnull;
 
-// FIXME (hapyl): 031, May 31: lobby has collision for some reason
 public class ScoreboardTeams {
 
     private final Player player;
@@ -48,7 +47,8 @@ public class ScoreboardTeams {
     public void populateInGame(Player other) {
         if (GameTeam.isTeammate(other, player)) {
             LocalTeam.GAME_ALLY.fetchTeam(player, false).addEntry(other.getName());
-        } else {
+        }
+        else {
             LocalTeam.GAME_ENEMY.fetchTeam(player, false).addEntry(other.getName());
         }
     }
@@ -61,7 +61,8 @@ public class ScoreboardTeams {
                 team.addEntry(other.getName());
             }
 
-        } else {
+        }
+        else {
             final Team teamAlly = LocalTeam.GAME_ALLY.fetchTeam(player, clean);
             final Team teamEnemy = LocalTeam.GAME_ENEMY.fetchTeam(player, clean);
 
@@ -70,7 +71,8 @@ public class ScoreboardTeams {
 
                 if (GameTeam.isTeammate(other, player)) {
                     teamAlly.addEntry(name);
-                } else {
+                }
+                else {
                     teamEnemy.addEntry(name);
                 }
             }

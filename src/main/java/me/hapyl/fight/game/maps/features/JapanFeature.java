@@ -128,7 +128,7 @@ public class JapanFeature extends MapFeature implements Listener {
         final Block block = ev.getClickedBlock();
 
         if (action == Action.PHYSICAL && block != null && block.getType() == Material.LIGHT_WEIGHTED_PRESSURE_PLATE) {
-            final Direction direction = Direction.getDirection(player);
+            final Direction direction = Direction.getDirection(player.getLocation());
 
             final Vector vector = new Vector(0.0d, 2.0d, 0.0d);
             final double trueDoubleValue = 1.15d;

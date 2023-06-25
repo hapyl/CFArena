@@ -27,4 +27,7 @@ public abstract class TickingGameTask extends GameTask {
         tick += increment;
     }
 
+    public int getTick() {
+        return tick;
+    }
 }

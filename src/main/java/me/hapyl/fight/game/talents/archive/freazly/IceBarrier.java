@@ -58,8 +58,8 @@ public class IceBarrier extends CreationTalent {
             return Response.error("No valid block in sight!");
         }
 
-        final Direction direction = Direction.getDirection(player);
-        final boolean isEastWest = direction.isEastWest();
+        final Direction direction = Direction.getDirection(player.getLocation());
+        final boolean isEastWest = direction.isEastOrWest();
 
         final Location location = targetLocation.subtract((isEastWest ? 0 : 2), 0, (isEastWest ? 2 : 0));
 

@@ -1,19 +1,26 @@
 package me.hapyl.fight.game;
 
 import com.google.common.collect.Sets;
+import me.hapyl.fight.Main;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
 import java.util.Set;
 import java.util.function.Consumer;
 
-public class GameAdapter {
+public class GameEventListener {
 
     // has to be static
-    private static final Set<GameAdapter> ADAPTERS = Sets.newConcurrentHashSet();
+    private static final Set<GameEventListener> LISTENERS = Sets.newConcurrentHashSet();
 
-    public GameAdapter() {
-        ADAPTERS.add(this);
+    public GameEventListener() {
+        LISTENERS.add(this);
+
+        if (this instanceof Listener listener) {
+            Bukkit.getPluginManager().registerEvents(listener, Main.getPlugin());
+        }
     }
 
     /**
@@ -59,35 +66,22 @@ public class GameAdapter {
     }
 
     /**
-     * Removes itself from adapters.
-     *
-     * @throws IllegalArgumentException if already removed.
-     */
-    public void dispose() throws IllegalArgumentException {
-        if (!ADAPTERS.contains(this)) {
-            throw new IllegalArgumentException("already disposed");
-        }
-
-        ADAPTERS.remove(this);
-    }
-
-    /**
      * Performs a for each iteration for all adapters.
      *
      * @param consumer - Consumer.
      */
-    public static void forEach(@Nonnull Consumer<GameAdapter> consumer) {
-        ADAPTERS.forEach(consumer);
+    public static void forEach(@Nonnull Consumer<GameEventListener> consumer) {
+        LISTENERS.forEach(consumer);
     }
 
     /**
-     * Returns a copy of adapters.
+     * Returns a copy of listeners.
      *
-     * @return a copy of adapters.
+     * @return a copy of listeners.
      */
     @Nonnull
-    public static Set<GameAdapter> getAdapters() {
-        return Sets.newHashSet(ADAPTERS);
+    public static Set<GameEventListener> getListeners() {
+        return Sets.newHashSet(LISTENERS);
     }
 
 }

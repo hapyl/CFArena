@@ -69,6 +69,7 @@ import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Transformation;
 import org.joml.AxisAngle4f;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import javax.annotation.Nonnull;
@@ -126,6 +127,43 @@ public class CommandRegistry extends DependencyInjector<Main> {
         register(new GVarCommand("gvar"));
         register(new PlayerAttributeCommand("playerAttribute"));
         register(new SnakeBuilderCommand("snakeBuilder"));
+
+        register("testTransformationRotation", (player, args) -> {
+            if (args.length != 8) {
+                Chat.sendMessage(
+                        player,
+                        "&cInvalid usage! /testTransformationRotation (double0) (double1) (double2) (double3) (double4) (double5) (double6) (double7)"
+                );
+                return;
+            }
+
+            final double a = Validate.getDouble(args[0]);
+            final double b = Validate.getDouble(args[1]);
+            final double c = Validate.getDouble(args[2]);
+            final double d = Validate.getDouble(args[3]);
+
+            final double e = Validate.getDouble(args[4]);
+            final double f = Validate.getDouble(args[5]);
+            final double g = Validate.getDouble(args[6]);
+            final double h = Validate.getDouble(args[7]);
+
+            Entities.ITEM_DISPLAY.spawn(player.getLocation(), self -> {
+                self.setItemStack(ItemBuilder.playerHeadUrl("2c8c8f382667bf59f164106849c00e6dfd9ad00a72670b9de99589e4dcd00900").asIcon());
+                self.setItemDisplayTransform(ItemDisplay.ItemDisplayTransform.HEAD);
+                self.setTransformation(new Transformation
+                        (
+                                new Vector3f(0, 0, 0),
+                                new Quaternionf(a, b, c, d),
+                                new Vector3f(1, 1, 1),
+                                new Quaternionf(e, f, g, h)
+                        ));
+
+                self.setCustomName("(%s, %s, %s, %s) (%s, %s, %s, %s)".formatted(a, b, c, d, e, f, g, h));
+                self.setCustomNameVisible(true);
+            });
+
+            Chat.sendMessage(player, "&aSpawned!");
+        });
 
         register("setCdMultiplier", (player, args) -> {
             final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);

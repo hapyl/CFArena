@@ -18,13 +18,6 @@ public final class Triggers {
     public static final Subscribe<GameChangeStateTrigger> GAME_CHANGE_STATE = register(GameChangeStateTrigger.class);
     public static final Subscribe<AbilityCooldownStartTrigger> ABILITY_COOLDOWN_START = register(AbilityCooldownStartTrigger.class);
 
-    private static <T extends Trigger> Subscribe<T> register(Class<T> clazz) {
-        final Subscribe<T> subscribe = new Subscribe<>();
-
-        HANDLERS.put(clazz, subscribe);
-        return subscribe;
-    }
-
     @SuppressWarnings("unchecked")
     public static <T extends Trigger> void call(@Nonnull T trigger) {
         final Subscribe<T> subscribe = (Subscribe<T>) HANDLERS.get(trigger.getClass());
@@ -37,6 +30,13 @@ public final class Triggers {
         subscribe.getSubscribers().forEach(handler -> {
             handler.handle(trigger);
         });
+    }
+
+    private static <T extends Trigger> Subscribe<T> register(Class<T> clazz) {
+        final Subscribe<T> subscribe = new Subscribe<>();
+
+        HANDLERS.put(clazz, subscribe);
+        return subscribe;
     }
 
 }

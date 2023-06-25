@@ -121,6 +121,8 @@ Bugs:
 - Use game task delay for delay, its built-in
 - Vampire swarm not remove
 
+- refactor map to be normal, not feature fuckiature !!
+
 == 1.20 ==
 - /2 CD when DM has ULT
 - Lover damage in darkness nightmare

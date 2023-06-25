@@ -1,7 +1,8 @@
-package me.hapyl.fight.game.maps.maps;
+package me.hapyl.fight.game.maps.winery;
 
 import me.hapyl.fight.game.maps.GameMap;
-import me.hapyl.fight.game.maps.MapFeature;
+import me.hapyl.fight.game.maps.HiddenMapFeature;
+import me.hapyl.fight.game.maps.features.WinerySteamFeature;
 import me.hapyl.fight.game.maps.gamepack.PackType;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.math.Tick;
@@ -39,7 +40,7 @@ public class WineryMap extends GameMap {
         addPackLocation(PackType.CHARGE, 223.5, 84.0, 227.5);
         addPackLocation(PackType.CHARGE, 190.5, 60.0, 215.5);
 
-        addFeature(new MapFeature("...", "") {
+        addFeature(new HiddenMapFeature() {
 
             @Override
             public void onStart() {
@@ -63,6 +64,8 @@ public class WineryMap extends GameMap {
 
             }
         });
+
+        addFeature(new WinerySteamFeature());
 
         setWeather(WeatherType.DOWNFALL);
         setTime(18000);

@@ -411,9 +411,9 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
                 gamePlayer.setSpectator(true);
             }
             else {
-                profile.setSelectedHero(getHero(player));
-
                 if (Setting.RANDOM_HERO.isEnabled(player)) {
+                    profile.setSelectedHero(Heroes.randomHero());
+
                     gamePlayer.sendMessage("");
                     gamePlayer.sendMessage(
                             "&a&l%s &awas randomly selected as your hero!",
