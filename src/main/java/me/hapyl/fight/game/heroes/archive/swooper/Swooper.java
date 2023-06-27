@@ -39,7 +39,7 @@ public class Swooper extends Hero implements Listener, UIComponent {
     private final int ultimateSpeed = 2;
     private final int SHOWSTOPPER_DELAY = 30;
 
-    private final ItemStack rocketLauncher = new ItemBuilder(Material.GOLDEN_HORSE_ARMOR, "swooper_ultimate")
+    private final ItemStack ROCKET_LAUNCHER = new ItemBuilder(Material.GOLDEN_HORSE_ARMOR, "swooper_ultimate")
             .setName("&aRocket Launcher")
             .addClickEvent(this::launchProjectile)
             .build();
@@ -153,11 +153,10 @@ public class Swooper extends Hero implements Listener, UIComponent {
         final PlayerInventory inventory = player.getInventory();
 
         // Add delay before shooting but increase time
-        player.setCooldown(rocketLauncher.getType(), SHOWSTOPPER_DELAY);
+        player.setCooldown(ROCKET_LAUNCHER.getType(), SHOWSTOPPER_DELAY);
 
-        inventory.setItem(4, rocketLauncher);
+        inventory.setItem(4, ROCKET_LAUNCHER);
         inventory.setHeldItemSlot(4);
-
 
         new GameTask() {
             private final int DURATION = getUltimateDuration() + SHOWSTOPPER_DELAY;
@@ -284,7 +283,12 @@ public class Swooper extends Hero implements Listener, UIComponent {
     }
 
     private void launchProjectile(Player player) {
+        if (player.hasCooldown(ROCKET_LAUNCHER.getType())) {
+            return;
+        }
+
         player.getInventory().getItemInMainHand().setAmount(0);
+
         final Location location = player.getEyeLocation().clone();
         final Vector vector = location.getDirection();
 
