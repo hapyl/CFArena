@@ -9,6 +9,14 @@ import java.util.function.Function;
 
 public class Nulls {
 
+    public static <N extends Number> short increment(@Nullable N number) {
+        return (short) (number == null ? 1 : number.shortValue() + 1);
+    }
+
+    public static <N extends Number> short decrement(@Nullable N number) {
+        return (short) (number == null ? -1 : number.shortValue() - 1);
+    }
+
     public static <E, R> R getIfNotNull(@Nullable E e, @Nonnull Function<E, R> function, R def) {
         if (e == null) {
             return def;

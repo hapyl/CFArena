@@ -54,8 +54,8 @@ public abstract class Hero implements GameElement, PlayerElement {
     private ItemStack guiTexture;
     private Weapon weapon;
     private long minimumLevel;
-
     private UltimateTalent ultimate;
+    private final CachedHeroItem cachedHeroItem;
 
     @Super
     public Hero(String name) {
@@ -72,6 +72,7 @@ public abstract class Hero implements GameElement, PlayerElement {
         this.role = Role.NONE;
         this.minimumLevel = 0;
         this.ultimate = new UltimateTalent("Unknown Ultimate", "This hero's ultimate talent is not yet implemented!", Integer.MAX_VALUE);
+        this.cachedHeroItem = new CachedHeroItem(this);
 
         setItem("null"); // default to null because I don't like exceptions
     }
@@ -85,6 +86,11 @@ public abstract class Hero implements GameElement, PlayerElement {
         this(name);
         setDescription(lore);
         setItem(material);
+    }
+
+    @Nonnull
+    public CachedHeroItem getCachedHeroItem() {
+        return cachedHeroItem;
     }
 
     /**

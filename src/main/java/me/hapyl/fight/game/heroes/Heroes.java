@@ -12,9 +12,6 @@ import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.heroes.archive.alchemist.Alchemist;
 import me.hapyl.fight.game.heroes.archive.archer.Archer;
-import me.hapyl.fight.game.heroes.archive.heavy_knight.SwordMaster;
-import me.hapyl.fight.game.heroes.archive.shadow_assassin.ShadowAssassin;
-import me.hapyl.fight.game.heroes.archive.knight.BlastKnight;
 import me.hapyl.fight.game.heroes.archive.bounty_hunter.BountyHunter;
 import me.hapyl.fight.game.heroes.archive.dark_mage.DarkMage;
 import me.hapyl.fight.game.heroes.archive.doctor.DrEd;
@@ -22,10 +19,12 @@ import me.hapyl.fight.game.heroes.archive.ender.Ender;
 import me.hapyl.fight.game.heroes.archive.engineer.Engineer;
 import me.hapyl.fight.game.heroes.archive.harbinger.Harbinger;
 import me.hapyl.fight.game.heroes.archive.healer.Healer;
+import me.hapyl.fight.game.heroes.archive.heavy_knight.SwordMaster;
 import me.hapyl.fight.game.heroes.archive.hercules.Hercules;
 import me.hapyl.fight.game.heroes.archive.iceologer.Freazly;
 import me.hapyl.fight.game.heroes.archive.juju.JuJu;
 import me.hapyl.fight.game.heroes.archive.km.KillingMachine;
+import me.hapyl.fight.game.heroes.archive.knight.BlastKnight;
 import me.hapyl.fight.game.heroes.archive.librarian.Librarian;
 import me.hapyl.fight.game.heroes.archive.mage.Mage;
 import me.hapyl.fight.game.heroes.archive.moonwalker.Moonwalker;
@@ -33,6 +32,7 @@ import me.hapyl.fight.game.heroes.archive.nightmare.Nightmare;
 import me.hapyl.fight.game.heroes.archive.ninja.Ninja;
 import me.hapyl.fight.game.heroes.archive.orc.Orc;
 import me.hapyl.fight.game.heroes.archive.pytaria.Pytaria;
+import me.hapyl.fight.game.heroes.archive.shadow_assassin.ShadowAssassin;
 import me.hapyl.fight.game.heroes.archive.shaman.Shaman;
 import me.hapyl.fight.game.heroes.archive.shark.Shark;
 import me.hapyl.fight.game.heroes.archive.spark.Spark;
@@ -110,12 +110,20 @@ public enum Heroes {
 
     ;
 
+    public static final Heroes DEFAULT_HERO = ARCHER;
+
     private final static List<Heroes> PLAYABLE = Lists.newArrayList();
     private final static Map<Role, List<Heroes>> BY_ROLE = Maps.newHashMap();
     private final static Map<Archetype, List<Heroes>> BY_ARCHETYPE = Maps.newHashMap();
+    private final static Map<Hero, Heroes> BY_HANDLE = Maps.newHashMap();
 
     static {
         for (Heroes hero : values()) {
+            // save handles either way
+            if (hero.hero != null) {
+                BY_HANDLE.put(hero.hero, hero);
+            }
+
             if (!hero.isValidHero()) {
                 continue;
             }
@@ -351,6 +359,7 @@ public enum Heroes {
      * @param archetype - Archetype.
      * @return a copy of heroes with a given archetype.
      */
+    @Nonnull
     public static List<Heroes> byArchetype(@Nonnull Archetype archetype) {
         return Lists.newArrayList(BY_ARCHETYPE.computeIfAbsent(archetype, (s) -> Lists.newArrayList()));
     }
@@ -360,8 +369,13 @@ public enum Heroes {
      *
      * @return random playable hero.
      */
+    @Nonnull
     public static Heroes randomHero() {
-        return CollectionUtils.randomElement(playable());
+        return CollectionUtils.randomElement(playable(), DEFAULT_HERO);
     }
 
+    @Nonnull
+    public static Heroes byHandle(Hero hero) {
+        return BY_HANDLE.getOrDefault(hero, DEFAULT_HERO);
+    }
 }

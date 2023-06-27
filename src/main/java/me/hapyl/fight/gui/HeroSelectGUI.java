@@ -1,9 +1,9 @@
 package me.hapyl.fight.gui;
 
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.PlayerGUI;
@@ -13,10 +13,7 @@ import org.bukkit.event.inventory.ClickType;
 
 import javax.annotation.Nonnull;
 import java.util.List;
-import java.util.Locale;
 
-// FIXME (hapyl): 025, Jun 25: God this should really be cached!
-//  It takes a moment to render even on local machine.
 public class HeroSelectGUI extends PlayerGUI {
 
     private final int guiFitSize = 21;
@@ -67,7 +64,6 @@ public class HeroSelectGUI extends PlayerGUI {
             }
 
             // if (hero == null) { slot -= slot % 9 == 7 ? 3 : 1; continue; }
-
             final Heroes enumHero = list.get(i);
             final Hero hero = enumHero.getHero();
 
@@ -79,37 +75,7 @@ public class HeroSelectGUI extends PlayerGUI {
                 );
             }
             else {
-                final ItemBuilder builder = new ItemBuilder(hero.getItem())
-                        .setName("&a" + hero.getName())
-                        .addLore("&8/hero " + enumHero.name().toLowerCase(Locale.ROOT))
-                        .addLore()
-                        //.addLore("&7Role: &b%s", hero.getRole().getName())
-                        .addLore("&7Archetype: &b" + hero.getArchetype())
-                        .addLoreIf("&7Origin: &b%s".formatted(hero.getOrigin().getName()), hero.getOrigin() != Origin.NOT_SET)
-                        .addLore();
-
-                final HeroAttributes attributes = hero.getAttributes();
-                builder.addLore("&e&lAttributes: ");
-                builder.addLore(attributes.getLore(AttributeType.HEALTH));
-                builder.addLore(attributes.getLore(AttributeType.ATTACK));
-                builder.addLore(attributes.getLore(AttributeType.DEFENSE));
-                builder.addLore(attributes.getLore(AttributeType.SPEED));
-
-                builder.addLore();
-                builder.addSmartLore(hero.getDescription(), "&8&o");
-
-                if (hero instanceof ComplexHero) {
-                    builder.addLore();
-                    builder.addTextBlockLore("""
-                            &6&lComplex Hero!
-                            This hero is more difficult to play than others. Thus is &nnot&7 recommended for newer players.
-                            """);
-                }
-
-                // Usage
-                builder.addLore().addLore("&eLeft Click to select").addLore("&6Right Click for details");
-
-                setItem(slot, builder.asIcon());
+                setItem(slot, hero.getCachedHeroItem().getSelectItem());
                 setClick(
                         slot,
                         pl -> Manager.current().setSelectedHero(player, enumHero),
