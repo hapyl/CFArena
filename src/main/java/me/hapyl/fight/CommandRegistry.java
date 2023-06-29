@@ -20,6 +20,7 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.dark_mage.AnimatedWither;
 import me.hapyl.fight.game.heroes.archive.doctor.ElementType;
 import me.hapyl.fight.game.heroes.archive.engineer.Engineer;
+import me.hapyl.fight.game.lobby.StartCountdown;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.reward.DailyReward;
 import me.hapyl.fight.game.talents.archive.engineer.Construct;
@@ -51,7 +52,6 @@ import net.minecraft.world.entity.Entity;
 import org.bson.Document;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -129,15 +129,19 @@ public class CommandRegistry extends DependencyInjector<Main> {
         register(new GVarCommand("gvar"));
         register(new PlayerAttributeCommand("playerAttribute"));
         register(new SnakeBuilderCommand("snakeBuilder"));
+        register(new SimplePlayerCommand("cancelCountdown") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                final Manager manager = Manager.current();
+                final StartCountdown countdown = manager.getStartCountdown();
 
-        register("temperAttackKnockback", (player, args) -> {
-            final AttributeInstance attribute = player.getAttribute(Attribute.GENERIC_ATTACK_KNOCKBACK);
+                if (countdown == null) {
+                    Chat.sendMessage(player, "&cNothing to cancel!");
+                    return;
+                }
 
-            final double value = attribute.getBaseValue();
-            final double newValue = Validate.getDouble(args[0]);
-
-            attribute.setBaseValue(newValue);
-            Chat.sendMessage(player, "&aModified to %s, previous value %s.", newValue, value);
+                countdown.cancelByPlayer(player);
+            }
         });
 
         register(new SimplePlayerAdminCommand("testOrbiting") {

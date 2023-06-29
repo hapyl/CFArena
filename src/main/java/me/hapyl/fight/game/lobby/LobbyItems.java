@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.lobby;
 
-import me.hapyl.fight.game.Debug;
+import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.gui.HeroSelectGUI;
 import me.hapyl.fight.gui.MapSelectGUI;
 import me.hapyl.fight.gui.PlayerProfileGUI;
@@ -47,10 +47,15 @@ public enum LobbyItems {
     START_GAME(new LobbyItem(Material.CLOCK, 7, "Start Vote", "Click to start a vote to start the game!") {
         @Override
         public void onClick(Player player) {
-            if (player.isOp()) {
+            final Manager manager = Manager.current();
+            final StartCountdown countdown = manager.getStartCountdown();
+
+            if (countdown != null) {
+                countdown.cancelByPlayer(player);
+                return;
             }
-            Debug.info("Ignoring start vote");
-            player.performCommand("cf start");
+
+            manager.createStartCountdown();
         }
     }),
 

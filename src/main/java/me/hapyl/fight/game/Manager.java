@@ -78,12 +78,27 @@ public final class Manager extends DependencyInjector<Main> {
         trial = new Trial(main);
     }
 
-    public void createStartVote() {
+    public void createStartCountdown() {
+        if (!canStartGame(false)) {
+            return;
+        }
+
         if (startCountdown != null) {
             startCountdown.cancel();
         }
 
-        startCountdown = new StartCountdown();
+        startCountdown = new StartCountdown() {
+            @Override
+            public void onCountdownFinish() {
+                startCountdown = null;
+                createNewGameInstance();
+            }
+        };
+    }
+
+    @Nullable
+    public StartCountdown getStartCountdown() {
+        return startCountdown;
     }
 
     /**
@@ -246,19 +261,12 @@ public final class Manager extends DependencyInjector<Main> {
         createNewGameInstance(false);
     }
 
-    /**
-     * Creates a new game instance.
-     * <p>
-     * Only one game instance can be active at a time.
-     */
-    public void createNewGameInstance(boolean debug) {
+    public boolean canStartGame(boolean debug) {
         // Pre-game start checks
         if ((!currentMap.isPlayable() || !currentMap.getMap().hasLocation()) && !debug) {
             displayError("Invalid map!");
-            return;
+            return false;
         }
-
-        isDebug = debug;
 
         final int playerRequirements = getCurrentMode().getMode().getPlayerRequirements();
         final Collection<Player> nonSpectatorPlayers = getNonSpectatorPlayers();
@@ -267,8 +275,23 @@ public final class Manager extends DependencyInjector<Main> {
         // fixme -> Check for teams, not players
         if (nonSpectatorPlayers.size() < playerRequirements && !isDebug) {
             displayError("Not enough players! &l(%s/%s)", nonSpectatorPlayers.size(), playerRequirements);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Creates a new game instance.
+     * <p>
+     * Only one game instance can be active at a time.
+     */
+    public void createNewGameInstance(boolean debug) {
+        if (!canStartGame(debug)) {
             return;
         }
+
+        isDebug = debug;
 
         // Check for team balance
         // todo -> Maybe add config support for unbalanced teams

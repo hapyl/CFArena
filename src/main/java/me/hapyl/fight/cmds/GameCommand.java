@@ -21,24 +21,33 @@ public class GameCommand extends SimpleCommand {
         // game (start/stop/pause)
         if (args.length >= 1) {
             final Manager manager = Manager.current();
-            // TODO: 027, Mar 27, 2023 -> Add checks for admins or add votes
-
             switch (args[0].toLowerCase(Locale.ROOT)) {
                 case "start" -> {
                     if (manager.isGameInProgress()) {
-                        Chat.sendMessage(sender, "&cA game is already in progress, stop it a!");
+                        Chat.sendMessage(sender, "&cA game is already in progress, stop it first!");
                         return;
                     }
 
                     final boolean debug = args.length >= 2 && args[1].equalsIgnoreCase("-d");
 
+                    if (debug) {
+                        manager.createNewGameInstance(true);
+                    }
+                    else {
+                        manager.createStartCountdown();
+                    }
+
                     Chat.sendMessage(sender, "&aCreating new game instance%s...", debug ? " in debug mode " : "");
-                    manager.createNewGameInstance(debug);
                 }
 
                 case "stop" -> {
                     if (!manager.isGameInProgress()) {
                         Chat.sendMessage(sender, "&cCouldn't find any game instances in progress.");
+                        return;
+                    }
+
+                    if (!sender.isOp()) {
+                        Chat.sendMessage(sender, "&4No permissions.");
                         return;
                     }
 
