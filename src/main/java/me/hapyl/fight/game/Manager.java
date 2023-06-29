@@ -10,6 +10,7 @@ import me.hapyl.fight.game.heroes.ComplexHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.lobby.LobbyItems;
+import me.hapyl.fight.game.lobby.StartCountdown;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.setting.Setting;
@@ -56,6 +57,7 @@ public final class Manager extends DependencyInjector<Main> {
     @Nonnull private Modes currentMode;
     private boolean isDebug = true;
 
+    private StartCountdown startCountdown;
     private GameInstance gameInstance; // @implNote: For now, only one game instance can be active at a time.
 
     public Manager(Main main) {
@@ -74,6 +76,14 @@ public final class Manager extends DependencyInjector<Main> {
         autoSave = new AutoSync(Tick.fromMinute(10));
 
         trial = new Trial(main);
+    }
+
+    public void createStartVote() {
+        if (startCountdown != null) {
+            startCountdown.cancel();
+        }
+
+        startCountdown = new StartCountdown();
     }
 
     /**

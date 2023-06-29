@@ -35,6 +35,7 @@ public class PlayerProfile {
 
     private boolean loaded;
     private boolean resourcePack;
+    private boolean buildMode;
 
     public PlayerProfile(@Nonnull Player player) {
         this.player = player;
@@ -46,6 +47,15 @@ public class PlayerProfile {
         this.display = new ProfileDisplay(this);
         this.loaded = false;
         this.resourcePack = false;
+        this.buildMode = false;
+    }
+
+    public boolean isBuildMode() {
+        return buildMode;
+    }
+
+    public void setBuildMode(boolean buildMode) {
+        this.buildMode = buildMode;
     }
 
     public boolean isResourcePack() {

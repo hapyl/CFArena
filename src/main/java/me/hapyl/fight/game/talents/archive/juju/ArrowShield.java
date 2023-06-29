@@ -19,6 +19,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,6 +70,8 @@ public class ArrowShield extends Talent implements Listener {
 
         final Arrow arrow = list.remove(sizeMinusOne);
 
+
+
         Utils.createExplosion(arrow.getLocation(), explosionRadius, 0.0d, player, EnumDamageCause.ENTITY_EXPLOSION, entity -> {
             if (entity == player || !Utils.isEntityValid(entity)) {
                 return;
@@ -76,6 +79,7 @@ public class ArrowShield extends Talent implements Listener {
 
             GamePlayer.damageEntity(entity, explosionDamage, player, EnumDamageCause.ENTITY_EXPLOSION);
         });
+
         arrow.remove();
     }
 
@@ -86,6 +90,7 @@ public class ArrowShield extends Talent implements Listener {
 
         for (int i = 0; i < shieldCharges; i++) {
             list.add(Entities.ARROW.spawn(player.getLocation(), me -> {
+                me.getLocation().setDirection(new Vector(0.0d, 1.0d, 0.0d));
                 me.setSilent(true);
                 me.setGravity(false);
                 me.setDamage(0.0d);

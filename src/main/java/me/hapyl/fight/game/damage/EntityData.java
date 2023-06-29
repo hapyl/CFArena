@@ -2,10 +2,7 @@ package me.hapyl.fight.game.damage;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.annotate.Important;
-import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.IGameInstance;
-import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.util.Collect;
@@ -495,6 +492,20 @@ public final class EntityData {
     @Nonnull
     public static EntityData of(@Nonnull LivingEntity entity) {
         return Manager.current().getCurrentGame().getEntityData(entity);
+    }
+
+    public static void die(@Nonnull LivingEntity livingEntity) {
+        if (livingEntity instanceof Player player) {
+            final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
+
+            gamePlayer.setLastDamageCause(EnumDamageCause.VOID);
+            gamePlayer.die(true);
+        }
+        else {
+            if (!livingEntity.isInvisible()) {
+                livingEntity.remove();
+            }
+        }
     }
 
     /**

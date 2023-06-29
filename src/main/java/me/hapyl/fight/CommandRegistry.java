@@ -23,6 +23,7 @@ import me.hapyl.fight.game.heroes.archive.engineer.Engineer;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.reward.DailyReward;
 import me.hapyl.fight.game.talents.archive.engineer.Construct;
+import me.hapyl.fight.game.talents.archive.juju.Orbiting;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.display.DamageDisplay;
@@ -50,6 +51,7 @@ import net.minecraft.world.entity.Entity;
 import org.bson.Document;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -127,6 +129,65 @@ public class CommandRegistry extends DependencyInjector<Main> {
         register(new GVarCommand("gvar"));
         register(new PlayerAttributeCommand("playerAttribute"));
         register(new SnakeBuilderCommand("snakeBuilder"));
+
+        register("temperAttackKnockback", (player, args) -> {
+            final AttributeInstance attribute = player.getAttribute(Attribute.GENERIC_ATTACK_KNOCKBACK);
+
+            final double value = attribute.getBaseValue();
+            final double newValue = Validate.getDouble(args[0]);
+
+            attribute.setBaseValue(newValue);
+            Chat.sendMessage(player, "&aModified to %s, previous value %s.", newValue, value);
+        });
+
+        register(new SimplePlayerAdminCommand("testOrbiting") {
+
+            private Orbiting orbiting;
+
+            @Override
+            protected void execute(Player player, String[] args) {
+                if (orbiting == null) {
+                    orbiting = new Orbiting(3, Material.ARROW) {
+                        @Override
+                        public @Nonnull Location getAnchorLocation() {
+                            return player.getLocation();
+                        }
+                    };
+
+                    orbiting.addMissing(player.getLocation());
+                    orbiting.runTaskTimer(0, 1);
+
+                    Chat.sendMessage(player, "&aSpawned!");
+                    return;
+                }
+
+                switch (args[0].toLowerCase()) {
+                    case "delete" -> {
+                        orbiting.removeAll();
+                        orbiting = null;
+
+                        Chat.sendMessage(player, "&cDeleted!");
+                    }
+                    case "remove" -> {
+                        orbiting.remove();
+
+                        Chat.sendMessage(player, "&aRemoved!");
+                    }
+                    case "add" -> {
+                        orbiting.add(player.getLocation());
+
+                        Chat.sendMessage(player, "&aAdded!");
+                    }
+                    case "tp" -> {
+                        orbiting.forEach(stand -> {
+                            stand.teleport(stand.getLocation().add(0, 1, 0));
+                        });
+
+                        Chat.sendMessage(player, "&aTeleported!");
+                    }
+                }
+            }
+        });
 
         register("testTransformationRotation", (player, args) -> {
             if (args.length != 8) {

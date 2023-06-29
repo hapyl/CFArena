@@ -114,14 +114,6 @@ public class GamePlayer implements IGamePlayer {
     public void resetPlayer(Ignore... ignores) {
         final EntityData playerData = EntityData.of(player);
 
-        // FIXME (hapyl): 017, Jun 17: Why would we want to NOT reset damager or cause like ever?
-        if (isNotIgnored(ignores, Ignore.DAMAGER)) {
-            playerData.setLastDamager(null);
-        }
-        if (isNotIgnored(ignores, Ignore.DAMAGE_CAUSE)) {
-            playerData.setLastDamageCause(null);
-        }
-
         killStreak = 0;
         combatTag = 0;
 
@@ -702,7 +694,7 @@ public class GamePlayer implements IGamePlayer {
     }
 
     public void respawn() {
-        resetPlayer(Ignore.DAMAGE_CAUSE, Ignore.DAMAGER, Ignore.GAME_MODE);
+        resetPlayer(Ignore.GAME_MODE);
 
         final Hero hero = getHero();
 
@@ -966,8 +958,6 @@ public class GamePlayer implements IGamePlayer {
 
     public enum Ignore {
         GAME_MODE,
-        DAMAGER,
-        DAMAGE_CAUSE,
         COOLDOWNS
     }
 

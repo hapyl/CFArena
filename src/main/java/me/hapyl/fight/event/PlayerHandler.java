@@ -232,9 +232,13 @@ public class PlayerHandler implements Listener {
         double damage = ev.getDamage();
         Projectile finalProjectile = null;
 
-        // FIXME (hapyl): 014, Jun 14: do something with void damage
         // Ignore non living entities and/or void damage
-        if (!(entity instanceof LivingEntity livingEntity) || cause == EntityDamageEvent.DamageCause.VOID) {
+        if (!(entity instanceof LivingEntity livingEntity)) {
+            return;
+        }
+
+        if (ev.getCause() == EntityDamageEvent.DamageCause.VOID) {
+            EntityData.die(livingEntity);
             return;
         }
 

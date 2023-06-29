@@ -47,6 +47,7 @@ public abstract class Hero implements GameElement, PlayerElement {
     private final String name;
     private final Map<Player, Long> usedUltimateAt;
     private final Map<Player, GameTask> reverseTasks;
+    private final CachedHeroItem cachedHeroItem;
     private Origin origin;
     private Role role;
     private Archetype archetype;
@@ -55,7 +56,6 @@ public abstract class Hero implements GameElement, PlayerElement {
     private Weapon weapon;
     private long minimumLevel;
     private UltimateTalent ultimate;
-    private final CachedHeroItem cachedHeroItem;
 
     @Super
     public Hero(String name) {
@@ -706,6 +706,19 @@ public abstract class Hero implements GameElement, PlayerElement {
         return SmallCaps.format(getName());
     }
 
+    @Override
+    public String toString() {
+        if (this instanceof HeroPlaque plaque) {
+            final long until = plaque.until();
+
+            if (until == -1L || System.currentTimeMillis() <= until) {
+                return "&a" + getName() + " " + plaque.text();
+            }
+        }
+
+        return "&a" + getName();
+    }
+
     private void cancelOldReverseTask(Player player) {
         final GameTask oldTask = reverseTasks.get(player);
 
@@ -726,5 +739,4 @@ public abstract class Hero implements GameElement, PlayerElement {
         final Manager current = Manager.current();
         return current.isGameInProgress() && current.isPlayerInGame(player);
     }
-
 }

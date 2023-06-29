@@ -2,10 +2,22 @@ package me.hapyl.fight.game.attribute;
 
 public enum Temper {
 
-    COMMAND,   // for testing
+    COMMAND(true),   // for testing
 
-    FLOWER_BREEZE,
+    FLOWER_BREEZE(true),
+    BERSERK_MODE(true);
 
-    BERSERK_MODE;
+    private final boolean isBuff;
 
+    Temper(boolean isBuff) {
+        this.isBuff = isBuff;
+    }
+
+    public boolean isBuff() {
+        return isBuff;
+    }
+
+    public boolean isDebuff() {
+        return !isBuff();
+    }
 }

@@ -52,7 +52,6 @@ public class LibraryFeature extends MapFeature implements Listener {
 
             @Override
             public void run() {
-
                 portals.getEntrances().forEach(blockLoc -> {
                     final Location location = blockLoc.toLocation().add(0.0d, 1.0d, 0.0d);
 
@@ -67,14 +66,6 @@ public class LibraryFeature extends MapFeature implements Listener {
                 tick += 5;
             }
         }.runTaskTimer(5, 5);
-    }
-
-    private void spawnVoidCat() {
-
-    }
-
-    private void killVoidCat() {
-
     }
 
     private void removeVoidValue(GamePlayer gamePlayer) {

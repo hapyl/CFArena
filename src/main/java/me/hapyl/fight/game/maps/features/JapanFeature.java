@@ -37,7 +37,7 @@ public class JapanFeature extends MapFeature implements Listener {
     private final Map<Player, Long> lastMovedAt = new HashMap<>();
 
     public JapanFeature() {
-        super("Healing Sakura", "Stand inside &eSakura's &7&orange to feel it's healing petals!");
+        super("Healing Sakura", "Stand inside &eSakura's &7&orange to feel its healing petals!");
     }
 
     @Override
@@ -127,9 +127,11 @@ public class JapanFeature extends MapFeature implements Listener {
         final Action action = ev.getAction();
         final Block block = ev.getClickedBlock();
 
-        if (action == Action.PHYSICAL && block != null && block.getType() == Material.LIGHT_WEIGHTED_PRESSURE_PLATE) {
-            final Direction direction = Direction.getDirection(player.getLocation());
+        if (action == Action.PHYSICAL
+                && block != null
+                && block.getType() == Material.LIGHT_WEIGHTED_PRESSURE_PLATE) {
 
+            final Direction direction = Direction.getDirection(player.getLocation());
             final Vector vector = new Vector(0.0d, 2.0d, 0.0d);
             final double trueDoubleValue = 1.15d;
 

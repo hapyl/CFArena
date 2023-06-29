@@ -25,7 +25,7 @@ public class CachedHeroItem {
             final ItemBuilder builder = new ItemBuilder(hero.getItem());
             final Archetype archetype = hero.getArchetype();
 
-            builder.setName("&a%s", hero.getName())
+            builder.setName(hero.toString())
                     .addLore()
                     //// Role
                     //.addLore("&7Role: &b%s", hero.getRole().getName())
@@ -62,7 +62,7 @@ public class CachedHeroItem {
     public ItemStack getSelectItem() {
         if (selectItem == null) {
             final ItemBuilder builder = new ItemBuilder(hero.getItem())
-                    .setName("&a" + hero.getName())
+                    .setName(hero.toString())
                     .addLore("&8/hero " + Heroes.byHandle(hero).name().toLowerCase(Locale.ROOT))
                     .addLore()
                     //.addLore("&7Role: &b%s", hero.getRole().getName())

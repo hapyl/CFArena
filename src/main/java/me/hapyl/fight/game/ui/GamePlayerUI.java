@@ -67,14 +67,19 @@ public class GamePlayerUI {
                 // debugging items.
                 updateDebug();
 
-                if (Setting.SPECTATE.isEnabled(player)) {
-                    Chat.sendActionbar(player, "&aYou will spectate when the game starts.");
-                }
-
                 final GamePlayer gamePlayer = profile.getGamePlayer();
 
                 if (gamePlayer != null) {
                     sendInGameUI(tick <= 20 ? ChatColor.AQUA : ChatColor.DARK_AQUA);
+                }
+
+                if (Setting.SPECTATE.isEnabled(player)) {
+                    Chat.sendActionbar(
+                            player,
+                            gamePlayer == null
+                                    ? "&aYou will spectate when the game starts."
+                                    : "&aYou are currently spectating."
+                    );
                 }
 
                 tick = (tick >= 40) ? 0 : tick + 5;
@@ -130,9 +135,9 @@ public class GamePlayerUI {
             // Have to reduce this so everything fits
             if (!gamePlayer.isAlive() && !gamePlayer.isRespawning()) {
                 this.builder.addLines("&6&lSpectator: &f%s".formatted(getTimeLeftString(game)));
-                for (final GamePlayer alive : game.getPlayers().values()) {
+                for (final GamePlayer alive : game.getAlivePlayers()) {
                     this.builder.addLine(
-                            " &6%s &e%s %s &c%s ❤",
+                            " &6%s &e%s %s &c%.1f ❤",
                             alive.getHero().getName(),
                             alive.getPlayer().getName(),
                             UIFormat.DIV,
@@ -189,7 +194,7 @@ public class GamePlayerUI {
     }
 
     private String getTimeLeftString(IGameInstance game) {
-        return new SimpleDateFormat("mm:ss").format(game.getTimeLeftRaw());
+        return Manager.current().isDebug() ? "∞" : new SimpleDateFormat("mm:ss").format(game.getTimeLeftRaw());
     }
 
     private StringBuilder buildGameFooter() {

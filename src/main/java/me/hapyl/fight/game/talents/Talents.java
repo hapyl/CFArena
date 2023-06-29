@@ -34,6 +34,7 @@ import me.hapyl.fight.game.talents.archive.hercules.HerculesJump;
 import me.hapyl.fight.game.talents.archive.hercules.HerculesShift;
 import me.hapyl.fight.game.talents.archive.juju.ArrowShield;
 import me.hapyl.fight.game.talents.archive.juju.Climb;
+import me.hapyl.fight.game.talents.archive.juju.TricksOfTheJungle;
 import me.hapyl.fight.game.talents.archive.km.LaserEye;
 import me.hapyl.fight.game.talents.archive.km.ShellGrande;
 import me.hapyl.fight.game.talents.archive.knight.SlownessPotion;
@@ -264,15 +265,17 @@ public enum Talents {
     DEATH_SWAP(new DeathSwap()),
     SPIRITUAL_BONES(new SpiritualBonesPassive()),
 
-    // JuJu
+    // Juju
     ARROW_SHIELD(new ArrowShield()),
-    CLIMB(new Climb()),
-    ELUSIVE_BURST(new PassiveTalent(
-            "Elusive Burst", """
-            Fully &ncharged&7 shots while &nsneaking&7 will infuse your arrow.
-
-            Infused arrows exploded into small clusters dealing big damage upon hit.
-            """, Material.PEONY
+    @Deprecated CLIMB(new Climb()),
+    TRICKS_OF_THE_JUNGLE(new TricksOfTheJungle()),
+    JUJU_PASSIVE(new PassiveTalent(
+            "Climb", """
+            Raised by the jungle, Juju mastered the ability to climb anything.
+                        
+            &e&lJUMP &7near the wall to grab onto it.
+            &e&lSNEAK &7to climb higher.
+            """, Material.LEATHER_BOOTS
     )),
 
     // Swooper

@@ -2,6 +2,7 @@ package me.hapyl.fight.game.heroes.archive.spark;
 
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.PlayerElement;
@@ -24,6 +25,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
+import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,9 +53,10 @@ public class Spark extends Hero implements PlayerElement {
                 entity.setFireTicks(10);
             }
 
+            @Nonnull
             @Override
-            public void onMove(Player player, Location location) {
-
+            public EnumDamageCause getDamageCause(Player player) {
+                return EnumDamageCause.FIRE_SPRAY;
             }
         }.setCooldown(30)
                 .setSound(Sound.ENTITY_BLAZE_SHOOT, 1.75f)
@@ -61,8 +64,6 @@ public class Spark extends Hero implements PlayerElement {
                 .setParticleTick(new PackedParticle(Particle.FLAME).setSpeed(0.001f))
                 .setDamage(8.0d)
                 .setName("Fire Sprayer")
-                // A long range weapon that shoots fire lasers! How cool is that...
-                // A long range weapon that can shoot fire lasers in front of you! How cool is that...
                 .setDescription("A long range weapon that can shoot fire lasers in front of you! How cool is that..."));
 
         setUltimate(new UltimateTalent(

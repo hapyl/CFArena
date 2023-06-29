@@ -1,6 +1,7 @@
 package me.hapyl.fight.util;
 
 import me.hapyl.fight.Main;
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
@@ -15,6 +16,8 @@ import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.Reflect;
 import net.minecraft.world.entity.boss.wither.EntityWither;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.EntityEquipment;
@@ -28,14 +31,17 @@ import javax.annotation.Nullable;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Utilities for the plugin
  */
 public class Utils {
 
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.0");
     private static String SERVER_IP;
 
     public static String colorString(String str, String defColor) {
@@ -134,7 +140,7 @@ public class Utils {
      *
      * @param a - First object.
      * @param b - Second object.
-     * @return if two objects either both null or equal; false otherwise.
+     * @return if two objects either both null or equal, false otherwise.
      */
     public static boolean compare(@Nullable Object a, @Nullable Object b) {
         // true if both objects are null
@@ -342,6 +348,13 @@ public class Utils {
         return isEntityValid(entity, null);
     }
 
+    /**
+     * Performs an entity check to validate if the entity is considered "valid."
+     *
+     * @param entity - Entity to check.
+     * @param player - Player if team check is needed.
+     * @return true if entity is "valid," false otherwise.
+     */
     public static boolean isEntityValid(Entity entity, @Nullable Player player) {
         // null entities, self or armor stands are not valid
         if (entity == null || (player != null && entity == player) || entity instanceof ArmorStand) {
@@ -470,5 +483,26 @@ public class Utils {
         }
 
         return SERVER_IP;
+    }
+
+    public static String formatTick(int tick) {
+        return DECIMAL_FORMAT.format(tick / 20L);
+    }
+
+    public static void modifyKnockback(@Nonnull LivingEntity target, @Nonnull Function<Double, Double> fn, @Nonnull Consumer<LivingEntity> consumer) {
+        final AttributeInstance attribute = target.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
+
+        if (attribute == null) {
+            consumer.accept(target);
+            Debug.warn("%s does not have GENERIC_KNOCKBACK_RESISTANCE");
+            return;
+        }
+
+        final double base = attribute.getBaseValue();
+        final double newValue = fn.apply(base);
+
+        attribute.setBaseValue(newValue);
+        consumer.accept(target);
+        attribute.setBaseValue(base);
     }
 }

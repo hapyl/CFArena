@@ -56,7 +56,12 @@ public abstract class Sortable<E, S extends Enum<S>> {
         item.addLoreIf(" &8None", sort != null);
 
         for (S value : values) {
-            item.addLore((sort == value ? "&a➥ " : "&8 ") + value.toString());
+            final boolean currentValue = sort == value;
+
+            item.addLore((currentValue ? "&a➥ " : "&8 ") + value.toString());
+            if (currentValue && value instanceof DescribedEnum described) {
+                item.addSmartLore(described.getDescription(), " &7&o");
+            }
         }
 
         item.addLore();

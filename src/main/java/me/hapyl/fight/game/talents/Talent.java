@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents;
 
 import com.google.common.collect.Lists;
 import me.hapyl.fight.Main;
+import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.annotate.ExecuteOrder;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.achievement.Achievements;
@@ -29,11 +30,13 @@ import java.util.function.Consumer;
 /**
  * Base talent.
  */
+@AutoRegisteredListener
 public abstract class Talent extends NonNullItemCreator
         implements GameElement, PlayerElement, DisplayFieldProvider, Nameable, Timed, Cooldown {
 
     public static final Talent NULL = null;
     public static int DYNAMIC = -1;
+
     private final Type type;
     private final List<String> attributeDescription;
     private String name;
@@ -385,6 +388,10 @@ public abstract class Talent extends NonNullItemCreator
 
         // Progress achievement
         Achievements.USE_TALENTS.complete(player);
+    }
+
+    public final void startMaxCd(Player player) {
+        startCd(player, 99999);
     }
 
     public final void startCd(Player player, int cooldown) {

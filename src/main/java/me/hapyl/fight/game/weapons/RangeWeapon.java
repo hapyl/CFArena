@@ -8,6 +8,7 @@ import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
+import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -309,7 +310,9 @@ public abstract class RangeWeapon extends Weapon implements GameElement, UICompo
 
                 this.onHit(player, target);
 
-                GamePlayer.damageEntity(target, getDamage(player), player, getDamageCause(player));
+                Utils.modifyKnockback(target, v -> 0.5d, t -> {
+                    GamePlayer.damageEntity(target, getDamage(player), player, getDamageCause(player));
+                });
 
                 Nulls.runIfNotNull(particleHit, p -> {
                     p.display(location);
