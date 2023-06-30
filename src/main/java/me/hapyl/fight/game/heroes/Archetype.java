@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.heroes;
 
-import me.hapyl.fight.gui.DescribedEnum;
+import me.hapyl.fight.util.DescribedEnum;
 
 import javax.annotation.Nonnull;
 

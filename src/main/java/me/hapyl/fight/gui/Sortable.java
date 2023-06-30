@@ -1,6 +1,7 @@
 package me.hapyl.fight.gui;
 
 import com.google.common.collect.Lists;
+import me.hapyl.fight.util.DescribedEnum;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.PlayerGUI;
 import me.hapyl.spigotutils.module.player.PlayerLib;

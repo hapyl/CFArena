@@ -12,7 +12,6 @@ import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.Quality;
 import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
 import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -31,8 +30,7 @@ public class MoonwalkerUltimate extends UltimateTalent {
     public MoonwalkerUltimate() {
         super(
                 "Moonteorite",
-                "Summons meteorite at the &etarget &7location. Upon landing, creates huge explosion dealing massive damage and applying &6&lCorrosion &7for &b%ss&7.".formatted(
-                        BukkitUtils.roundTick(130)),
+                "Summons meteorite at the &etarget &7location. Upon landing, it creates a huge explosion dealing with massive damage and applying &6&lCorrosion &7for &b{corrosionTime}s&7.",
                 80
         );
 

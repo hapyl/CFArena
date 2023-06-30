@@ -1,4 +1,4 @@
-package me.hapyl.fight.gui;
+package me.hapyl.fight.util;
 
 import javax.annotation.Nonnull;
 

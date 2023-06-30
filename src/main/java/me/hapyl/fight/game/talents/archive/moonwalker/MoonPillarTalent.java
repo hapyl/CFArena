@@ -4,14 +4,17 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.CreationTalent;
-import me.hapyl.fight.game.talents.TickingCreation;
-import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.talents.TickingDisplayCreation;
+import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.fight.util.displayfield.DisplayField;
+import me.hapyl.spigotutils.module.block.display.BlockStudioParser;
+import me.hapyl.spigotutils.module.block.display.DisplayData;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.Quality;
 import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -23,6 +26,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
+
 public class MoonPillarTalent extends CreationTalent {
 
     @DisplayField protected final int pulseInterval = 15;
@@ -31,6 +36,10 @@ public class MoonPillarTalent extends CreationTalent {
     @DisplayField(suffix = "blocks") protected final double pulseRange = 2.5d;
 
     private final BlockData PARTICLE_DATA = Material.END_STONE.createBlockData();
+    private final DisplayData DISPLAY_DATA = BlockStudioParser.parse(
+            "{Passengers:[{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone\",Properties:{}},transformation:[1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone\",Properties:{}},transformation:[1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f,0.0000f,1.0000f,0.0000f,0.0000f,1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone\",Properties:{}},transformation:[1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f,0.0000f,2.0000f,0.0000f,0.0000f,1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\"}},transformation:[-0.0000f,-1.3125f,0.0000f,1.1875f,1.0000f,-0.0000f,0.0000f,0.2500f,0.0000f,0.0000f,1.1250f,0.3438f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\",north:\"low\",west:\"low\"}},transformation:[1.0000f,0.0000f,0.0000f,0.3750f,0.0000f,1.0000f,0.0000f,1.0000f,0.0000f,0.0000f,1.0000f,0.3750f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\",north:\"low\",west:\"low\"}},transformation:[-0.0000f,0.0000f,-1.0000f,0.6250f,0.0000f,1.0000f,0.0000f,-0.5000f,1.0000f,0.0000f,-0.0000f,0.4375f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\"}},transformation:[-0.0000f,-1.3125f,0.0000f,1.1875f,1.0000f,-0.0000f,0.0000f,1.7500f,0.0000f,0.0000f,1.1250f,0.3438f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\"}},transformation:[0.0000f,1.3125f,-0.0000f,-0.1875f,1.0000f,-0.0000f,0.0000f,0.2500f,-0.0000f,-0.0000f,-1.1250f,0.6563f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\",north:\"low\",west:\"low\"}},transformation:[-1.0000f,0.0000f,-0.0000f,0.6250f,0.0000f,1.0000f,0.0000f,1.0000f,0.0000f,0.0000f,-1.0000f,0.6250f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\",north:\"low\",west:\"low\"}},transformation:[0.0000f,0.0000f,1.0000f,0.3750f,0.0000f,1.0000f,0.0000f,-0.5000f,-1.0000f,0.0000f,0.0000f,0.5625f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\"}},transformation:[0.0000f,1.3125f,-0.0000f,-0.1875f,1.0000f,-0.0000f,0.0000f,1.7500f,-0.0000f,-0.0000f,-1.1250f,0.6563f,0.0000f,0.0000f,0.0000f,1.0000f]}]}"
+    );
+
 
     public MoonPillarTalent() {
         super("Moonslite Pillar", """
@@ -59,7 +68,7 @@ public class MoonPillarTalent extends CreationTalent {
             return Response.error("Cannot fit the pillar!");
         }
 
-        newCreation(player, new TickingCreation() {
+        newCreation(player, new TickingDisplayCreation(DISPLAY_DATA) {
 
             @Override
             public void run(int tick) {
@@ -71,23 +80,16 @@ public class MoonPillarTalent extends CreationTalent {
                 pulse();
             }
 
+            @Nonnull
             @Override
-            public void create(Player player) {
-                location.getBlock().setType(Material.END_STONE_BRICKS, false);
-
-                // Added a little extend animation
-                GameTask.runLater(() -> location.getBlock().getRelative(BlockFace.UP).setType(Material.END_STONE_BRICKS, false), 2);
-                GameTask.runLater(() -> location.getBlock().getRelative(BlockFace.UP, 2).setType(Material.END_STONE, false), 4);
-
-                PlayerLib.playSound(location, Sound.BLOCK_PISTON_EXTEND, 0.25f);
-
-                // Start task
-                setIncrement(pulseInterval);
-                runTaskTimer(6/*compensate animation*/, pulseInterval);
+            public Location getLocation() {
+                return BukkitUtils.newLocation(location).subtract(0.5, 3, 0.5);
             }
 
             @Override
             public void remove() {
+                super.remove();
+
                 location.getBlock().setType(Material.AIR, false);
                 location.getBlock().getRelative(BlockFace.UP).setType(Material.AIR, false);
                 location.getBlock().getRelative(BlockFace.UP, 2).setType(Material.AIR, false);
@@ -97,6 +99,33 @@ public class MoonPillarTalent extends CreationTalent {
                 Utils.getWorld(location).spawnParticle(Particle.SPIT, location.clone().add(0, 2, 0), 15, 0, 1, 0, 0.05);
 
                 cancelIfActive();
+            }
+
+            @Override
+            public void create(Player player) {
+                super.create(player);
+
+                location.getBlock().setType(Material.BARRIER, false);
+                location.getBlock().getRelative(BlockFace.UP).setType(Material.BARRIER, false);
+                location.getBlock().getRelative(BlockFace.UP, 2).setType(Material.BARRIER, false);
+
+                new TickingGameTask() {
+                    @Override
+                    public void run(int tick) {
+                        if (tick > 6) {
+                            cancel();
+                            return;
+                        }
+
+                        entity.teleport(entity.getHead().getLocation().add(0, 0.5, 0));
+                    }
+                }.runTaskTimer(0, 1);
+
+                // Start task
+                setIncrement(pulseInterval);
+                runTaskTimer(6, pulseInterval);
+
+                PlayerLib.playSound(location, Sound.BLOCK_PISTON_EXTEND, 0.25f);
             }
 
             private void pulse() {

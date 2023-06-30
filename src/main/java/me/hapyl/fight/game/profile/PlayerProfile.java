@@ -6,6 +6,7 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.ScoreboardTeams;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.setting.Setting;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.GamePlayerUI;
 import org.bukkit.entity.Player;
@@ -136,6 +137,11 @@ public class PlayerProfile {
 
     public Heroes getSelectedHero() {
         return selectedHero;
+    }
+
+    public String getSelectedHeroString() {
+        final boolean randomHeroEnabled = Setting.RANDOM_HERO.isEnabled(player);
+        return randomHeroEnabled ? "&l❓&f ʀᴀɴᴅᴏᴍ" : selectedHero.getFormatted();
     }
 
     public void setSelectedHero(Heroes selectedHero) {

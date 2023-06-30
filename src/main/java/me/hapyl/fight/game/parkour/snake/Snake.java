@@ -56,6 +56,10 @@ public class Snake extends BukkitRunnable {
     }
 
     public void createEntities() {
+        if (true) {
+            return; // can't remove properly
+        }
+
         final BlockData blockData = material.createBlockData();
 
         for (Location location : locations) {

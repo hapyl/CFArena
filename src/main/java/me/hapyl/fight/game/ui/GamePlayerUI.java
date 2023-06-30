@@ -183,10 +183,7 @@ public class GamePlayerUI {
                     " &e&lMode: &f%s".formatted(current.getCurrentMode().getMode().getName()),
                     " &e&lCoins: &f%s".formatted(currency.getFormatted(Currency.COINS)),
                     " &e&lRubies: &f%s".formatted(currency.getFormatted(Currency.RUBIES)),
-                    String.format(
-                            " &e&lHero: &f%s",
-                            Setting.RANDOM_HERO.isEnabled(player) ? "Random" : profile.getSelectedHero().getName()
-                    )
+                    " &e&lHero: &f%s".formatted(profile.getSelectedHeroString())
             );
         }
 

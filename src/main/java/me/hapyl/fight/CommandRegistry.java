@@ -30,8 +30,6 @@ import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.display.DamageDisplay;
 import me.hapyl.fight.game.ui.splash.SplashText;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.spigotutils.module.block.display.BlockDisplayData;
-import me.hapyl.spigotutils.module.block.display.BlockStudioParser;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.chat.Gradient;
 import me.hapyl.spigotutils.module.chat.LazyEvent;
@@ -727,26 +725,6 @@ public class CommandRegistry extends DependencyInjector<Main> {
 
                     location.subtract(x, y, z);
                 }
-            }
-        });
-
-        register(new SimplePlayerAdminCommand("parseBlockStudio") {
-
-            private BlockDisplayData data;
-
-            @Override
-            protected void execute(Player player, String[] args) {
-                // parse
-                if (data == null) {
-                    data = new BlockStudioParser(
-                            "/summon block_display ~-0.5 ~-0.5 ~-0.5 {Passengers:[{id:\"minecraft:block_display\",block_state:{Name:\"acacia_trapdoor\",Properties:{facing:\"north\",half:\"top\",open:\"true\"}},transformation:[1f,0f,0f,0f,0f,1f,0f,0f,0f,0f,1f,0f,0f,0f,0f,1f]},{id:\"minecraft:block_display\",block_state:{Name:\"acacia_stairs\",Properties:{facing:\"south\",half:\"bottom\",shape:\"outer_left\"}},transformation:[1f,0f,0f,0f,0f,1f,0f,0f,0f,0f,1f,-1f,0f,0f,0f,1f]},{id:\"minecraft:block_display\",block_state:{Name:\"end_stone_brick_slab\",Properties:{type:\"bottom\"}},transformation:[7.0164487118496375f,0.7738133613786835f,0f,-3.5625f,6.027598814949745f,-0.9007603076023183f,0f,0f,0f,0f,-4.125f,2.75f,0f,0f,0f,1f]}]}"
-                    ).parse();
-                    Chat.sendMessage(player, "&aParsed!");
-                    return;
-                }
-
-                data.spawn(player.getLocation());
-                Chat.sendMessage(player, "&aSpawned!");
             }
         });
 

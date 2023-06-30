@@ -46,6 +46,7 @@ import me.hapyl.fight.game.heroes.archive.vortex.Vortex;
 import me.hapyl.fight.game.heroes.archive.witcher.WitcherClass;
 import me.hapyl.fight.game.heroes.archive.zealot.Zealot;
 import me.hapyl.fight.game.profile.PlayerProfile;
+import me.hapyl.fight.util.Formatted;
 import me.hapyl.fight.util.SmallCaps;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
 import org.bukkit.Bukkit;
@@ -63,7 +64,7 @@ import java.util.Map;
  * <p>
  * Make sure not to change names, as it will break the database.
  */
-public enum Heroes {
+public enum Heroes implements Formatted {
 
     // New Hero -> Halloween
 
@@ -284,6 +285,7 @@ public enum Heroes {
      *
      * @return actual name of the hero, not enum.
      */
+    @Nonnull
     public String getName() {
         return hero.getName();
     }
@@ -296,6 +298,12 @@ public enum Heroes {
      */
     public String getNameSmallCaps() {
         return hero.getNameSmallCaps();
+    }
+
+    @Nonnull
+    @Override
+    public String getFormatted() {
+        return hero.getArchetype().getPrefix() + " &f" + hero.getNameSmallCaps();
     }
 
     /**
@@ -378,4 +386,5 @@ public enum Heroes {
     public static Heroes byHandle(Hero hero) {
         return BY_HANDLE.getOrDefault(hero, DEFAULT_HERO);
     }
+
 }
