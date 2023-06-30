@@ -140,6 +140,10 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
     public DamageOutput processDamageAsDamager(DamageInput input) {
         final Player player = input.getPlayer();
 
+        if (input.getDamageCause() != EnumDamageCause.ENTITY_ATTACK) {
+            return DamageOutput.OK;
+        }
+
         // Calculate back stab
         final LivingEntity entity = input.getEntity();
         if (validateCanBackStab(player, entity)) {

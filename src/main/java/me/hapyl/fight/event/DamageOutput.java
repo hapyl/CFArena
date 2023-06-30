@@ -11,6 +11,7 @@ public class DamageOutput {
      * Static access to cancel damage.
      */
     public static final DamageOutput CANCEL = new DamageOutput(0.0d, true);
+    public static final DamageOutput OK = null;
 
     private final boolean cancelDamage;
     private double damage; // not an additional damage, override damage
