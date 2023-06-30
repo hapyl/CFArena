@@ -420,7 +420,7 @@ public final class Manager extends DependencyInjector<Main> {
             final StatContainer stats = player.getStats();
 
             Glowing.stopGlowing(player.getPlayer());
-            player.updateScoreboard(true);
+            player.updateScoreboardTeams(true);
             player.resetPlayer();
             player.setValid(false);
             player.getPlayer().setWalkSpeed(0.2f);

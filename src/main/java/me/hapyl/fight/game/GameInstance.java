@@ -262,7 +262,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
         // If player joined after the game started, create new
         if (gamePlayer == null) {
             gamePlayer = PlayerProfile.getOrCreateProfile(player).createGamePlayer();
-            gamePlayer.updateScoreboard(false);
+            gamePlayer.updateScoreboardTeams(false);
 
             players.put(player.getUniqueId(), gamePlayer);
         }
@@ -425,7 +425,12 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
                 gamePlayer.resetPlayer();
             }
 
-            gamePlayer.updateScoreboard(false);
+            if (Setting.HIDE_UI.isEnabled(player)) {
+                gamePlayer.sendMessage("&6Your UI is hidden!");
+                gamePlayer.sendMessage("&6Use &e/settings &76 to turn enable the UI!");
+            }
+
+            gamePlayer.updateScoreboardTeams(false);
             players.put(player.getUniqueId(), gamePlayer);
         });
     }

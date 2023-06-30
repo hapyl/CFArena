@@ -355,7 +355,7 @@ public class GamePlayer implements IGamePlayer {
         PlayerLib.playSound(player, sound, pitch);
     }
 
-    public void updateScoreboard(boolean toLobby) {
+    public void updateScoreboardTeams(boolean toLobby) {
         profile.getScoreboardTeams().populate(toLobby);
     }
 

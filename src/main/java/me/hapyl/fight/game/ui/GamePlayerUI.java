@@ -24,6 +24,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.DisplaySlot;
 
 import javax.annotation.Nonnull;
 import java.text.SimpleDateFormat;
@@ -44,6 +45,10 @@ public class GamePlayerUI {
         this.builder = new Scoreboarder(Main.GAME_NAME);
         this.updateScoreboard();
 
+        if (Setting.HIDE_UI.isEnabled(player)) {
+            hideScoreboard();
+        }
+
         new GameTask() {
             private int tick;
 
@@ -54,18 +59,24 @@ public class GamePlayerUI {
                     return;
                 }
 
+                tick = (tick >= 40) ? 0 : tick + 5;
+
                 // update a player list and scoreboard
                 final String[] headerFooter = formatHeaderFooter();
                 player.setPlayerListHeaderFooter(Chat.format(headerFooter[0]), Chat.format(headerFooter[1]));
                 player.setPlayerListName(profile.getDisplay().getDisplayNameTab());
 
-                animateScoreboard();
-                updateScoreboard();
+                if (Setting.HIDE_UI.isEnabled(player)) {
+                    return;
+                }
 
                 // Yes, I know it's not really a UI thing,
                 // but I ain't making another ticker just for
                 // debugging items.
                 updateDebug();
+
+                animateScoreboard();
+                updateScoreboard();
 
                 final GamePlayer gamePlayer = profile.getGamePlayer();
 
@@ -81,8 +92,6 @@ public class GamePlayerUI {
                                     : "&aYou are currently spectating."
                     );
                 }
-
-                tick = (tick >= 40) ? 0 : tick + 5;
             }
         }.runTaskTimer(0, 5).setShutdownAction(ShutdownAction.IGNORE);
     }
@@ -188,6 +197,14 @@ public class GamePlayerUI {
 
     public Player getPlayer() {
         return player;
+    }
+
+    public void hideScoreboard() {
+        this.builder.getScoreboard().clearSlot(DisplaySlot.SIDEBAR);
+    }
+
+    public void showScoreboard() {
+        this.builder.getObjective().setDisplaySlot(DisplaySlot.SIDEBAR);
     }
 
     private void animateScoreboard() {

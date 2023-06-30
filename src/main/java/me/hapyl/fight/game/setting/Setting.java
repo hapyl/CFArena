@@ -2,6 +2,7 @@ package me.hapyl.fight.game.setting;
 
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.profile.PlayerProfile;
+import me.hapyl.fight.game.ui.GamePlayerUI;
 import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -33,7 +34,21 @@ public enum Setting {
             Material.GLASS_PANE,
             "Hide Game UI",
             "Whenever to hide most of the game UI elements, such as actionbar, scoreboard, damage indicators, etc."
-    ),
+    ) {
+        @Override
+        public void onEnable(Player player) {
+            final GamePlayerUI ui = PlayerProfile.getOrCreateProfile(player).getPlayerUI();
+
+            ui.hideScoreboard();
+        }
+
+        @Override
+        public void onDisabled(Player player) {
+            final GamePlayerUI ui = PlayerProfile.getOrCreateProfile(player).getPlayerUI();
+
+            ui.showScoreboard();
+        }
+    },
 
     ;
 
@@ -79,10 +94,6 @@ public enum Setting {
         return info;
     }
 
-    public boolean isEnabled(Player player) {
-        return PlayerProfile.getOrCreateProfile(player).getDatabase().getSettings().getValue(this);
-    }
-
     public void onEnable(Player player) {
     }
 
@@ -104,6 +115,10 @@ public enum Setting {
         else {
             onDisabled(player);
         }
+    }
+
+    public boolean isEnabled(Player player) {
+        return PlayerProfile.getOrCreateProfile(player).getDatabase().getSettings().getValue(this);
     }
 
     public boolean isDisabled(Player player) {
