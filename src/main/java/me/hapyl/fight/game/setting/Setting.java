@@ -24,10 +24,16 @@ public enum Setting {
     SHOW_YOURSELF_AS_TEAMMATE(
             28,
             Material.PLAYER_HEAD,
-            "Show Yourself as Teammate",
-            "Whenever you will see yourself as a teammate in tab list."
+            "Show Yourself as a Teammate",
+            "Whenever you will see yourself as a teammate in a tab list."
     ),
 
+    HIDE_UI(
+            29,
+            Material.GLASS_PANE,
+            "Hide Game UI",
+            "Whenever to hide most of the game UI elements, such as actionbar, scoreboard, damage indicators, etc."
+    ),
 
     ;
 
@@ -77,7 +83,13 @@ public enum Setting {
         return PlayerProfile.getOrCreateProfile(player).getDatabase().getSettings().getValue(this);
     }
 
-    public void setEnabled(Player player, boolean flag) {
+    public void onEnable(Player player) {
+    }
+
+    public void onDisabled(Player player) {
+    }
+
+    public final void setEnabled(Player player, boolean flag) {
         if (isEnabled(player) == flag) {
             Chat.sendMessage(player, "&c%s is already %s!", this.getName(), flag ? "enabled" : "disabled");
             return;
@@ -85,6 +97,13 @@ public enum Setting {
 
         Manager.current().getOrCreateProfile(player).getDatabase().getSettings().setValue(this, flag);
         Chat.sendMessage(player, "%s%s is now %s.", flag ? "&a" : "&c", this.getName(), flag ? "enabled" : "disabled");
+
+        if (flag) {
+            onEnable(player);
+        }
+        else {
+            onDisabled(player);
+        }
     }
 
     public boolean isDisabled(Player player) {

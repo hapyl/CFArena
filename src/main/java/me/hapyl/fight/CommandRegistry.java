@@ -145,7 +145,6 @@ public class CommandRegistry extends DependencyInjector<Main> {
         });
 
         register(new SimplePlayerAdminCommand("testOrbiting") {
-
             private Orbiting orbiting;
 
             @Override
@@ -158,6 +157,24 @@ public class CommandRegistry extends DependencyInjector<Main> {
                         }
                     };
 
+                    orbiting.setMatrix(
+                            0.5000f,
+                            0.5000f,
+                            0.7071f,
+                            0.0000f,
+                            -0.7071f,
+                            0.7071f,
+                            -0.0000f,
+                            0.0000f,
+                            -0.5000f,
+                            -0.5000f,
+                            0.7071f,
+                            0.0000f,
+                            0.0000f,
+                            0.0000f,
+                            0.0000f,
+                            1.0000f
+                    );
                     orbiting.addMissing(player.getLocation());
                     orbiting.runTaskTimer(0, 1);
 
@@ -342,6 +359,21 @@ public class CommandRegistry extends DependencyInjector<Main> {
                             TrimPattern.HOST
                     };
 
+            @Override
+            protected void execute(Player player, String[] strings) {
+                final String string = getArgument(strings, 0).toString().toLowerCase();
+
+                switch (string) {
+                    case "helmet" -> nextTrim(player, EquipmentSlot.HEAD);
+                    case "chestplate", "chest" -> nextTrim(player, EquipmentSlot.CHEST);
+                    case "leggings", "legs" -> nextTrim(player, EquipmentSlot.LEGS);
+                    case "boots" -> nextTrim(player, EquipmentSlot.FEET);
+                    default -> {
+                        Chat.sendMessage(player, "&cInvalid argument, accepting: [helmet, chestplate, chest, leggings, legs, boots]");
+                    }
+                }
+            }
+
             private void nextTrim(Player player, EquipmentSlot slot) {
                 final PlayerInventory inventory = player.getInventory();
                 final ItemStack item = inventory.getItem(slot);
@@ -370,21 +402,6 @@ public class CommandRegistry extends DependencyInjector<Main> {
                 item.setItemMeta(meta);
 
                 Chat.sendMessage(player, "&aSet %s pattern.", pattern.getKey().getKey());
-            }
-
-            @Override
-            protected void execute(Player player, String[] strings) {
-                final String string = getArgument(strings, 0).toString().toLowerCase();
-
-                switch (string) {
-                    case "helmet" -> nextTrim(player, EquipmentSlot.HEAD);
-                    case "chestplate", "chest" -> nextTrim(player, EquipmentSlot.CHEST);
-                    case "leggings", "legs" -> nextTrim(player, EquipmentSlot.LEGS);
-                    case "boots" -> nextTrim(player, EquipmentSlot.FEET);
-                    default -> {
-                        Chat.sendMessage(player, "&cInvalid argument, accepting: [helmet, chestplate, chest, leggings, legs, boots]");
-                    }
-                }
             }
         });
 

@@ -131,7 +131,7 @@ Bugs:
 - Maybe rework passive to be "If have paranoia, take more damage" though it would be hard to detect who applied without using a map
 - UPGRADES PEOPLE UPGRADES not removed on death
 - Anchor dr ed particles
-- Reduce knockback from range weapons
+- [✔] Reduce knockback from range weapons
 - [✔] Start vote does not work using item
 - [✔] Can die from fell world
 - [✔] Jump japan dont work

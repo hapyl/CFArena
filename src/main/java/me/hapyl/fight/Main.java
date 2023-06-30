@@ -14,7 +14,8 @@ import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.maps.features.BoosterController;
 import me.hapyl.fight.game.maps.gamepack.HealthPackListener;
 import me.hapyl.fight.game.parkour.CFParkourManager;
-import me.hapyl.fight.game.parkour.snake.Snake;
+import me.hapyl.fight.game.parkour.ParkourCourse;
+import me.hapyl.fight.game.parkour.snake.SnakeParkour;
 import me.hapyl.fight.game.task.TaskList;
 import me.hapyl.fight.mini.lampgame.LampGame;
 import me.hapyl.fight.notifier.Notifier;
@@ -134,6 +135,10 @@ public class Main extends JavaPlugin {
         }, "Player database save.");
 
         runSafe(database::stopConnection, "Database connection stop.");
+
+        runSafe(() -> {
+            ((SnakeParkour) ParkourCourse.SNAKE_PARKOUR.getParkour()).getSnake().stop();
+        }, "Snake removal");
 
         runSafe(() -> {
             if (this.manager.isGameInProgress()) {

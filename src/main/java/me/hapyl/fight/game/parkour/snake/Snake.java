@@ -1,41 +1,39 @@
 package me.hapyl.fight.game.parkour.snake;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import me.hapyl.fight.Main;
-import me.hapyl.fight.util.Direction;
 import me.hapyl.fight.util.Buffer;
+import me.hapyl.fight.util.Direction;
+import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.entity.ArmorStand;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Transformation;
-import org.joml.AxisAngle4f;
-import org.joml.Vector3f;
+import org.joml.Matrix4f;
 
 import javax.annotation.Nonnull;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Set;
 
 public class Snake extends BukkitRunnable {
 
-    public static final Transformation TRANSFORMATION = new Transformation(
-            new Vector3f(0.125f, 0.125f, 0.125f),
-            new AxisAngle4f(0.0f, 0.0f, 0.0f, 0.0f),
-            new Vector3f(0.25f, 0.25f, 0.25f),
-            new AxisAngle4f(0.0f, 0.0f, 0.0f, 0.0f)
+    public static final Matrix4f MATRIX = Utils.parseMatrix(
+            0.5000f, 0.0000f, 0.0000f, -0.2500f,
+            0.0000f, 0.5000f, 0.0000f, -0.2500f,
+            0.0000f, 0.0000f, 0.5000f, -0.2500f,
+            0.0000f, 0.0000f, 0.0000f, 1.0000f
     );
 
     private final LinkedList<Location> locations;
-    private final String ENTITY_TAG = "SnakeEntity";
+    private final Set<BlockDisplay> entities;
     private Material material;
     private int period;
     private int length;
@@ -45,65 +43,28 @@ public class Snake extends BukkitRunnable {
 
     private Snake() {
         this.locations = Lists.newLinkedList();
+        this.entities = Sets.newHashSet();
         this.radius = 32;
         this.period = 10;
         this.length = 5;
         this.material = Material.STONE;
     }
 
-    public static void deleteEntities() {
-        for (Entity entity : Bukkit.getWorlds().get(0).getEntities()) {
-            if (!(entity instanceof ArmorStand)) {
-                continue;
-            }
-
-            if (entity.getScoreboardTags().contains("SnakeEntity")) {
-                entity.remove();
-            }
-        }
+    public void deleteEntities() {
+        entities.forEach(Entity::remove);
+        entities.clear();
     }
 
     public void createEntities() {
-        // FIXME (hapyl): 003, Jun 3: Switch to BlockDisplay maybe, I can't fucking center the block, is it a div or something
-
-        final ItemStack itemStack = new ItemStack(material);
+        final BlockData blockData = material.createBlockData();
 
         for (Location location : locations) {
-            // don't spawn if there is already armor stand there
-            final Location toSpawn = location.clone().subtract(0.0d, 1.0d, 0.0d);
-
-            if (isEntityPresent(toSpawn)) {
-                continue;
-            }
-
-            Entities.ARMOR_STAND_MARKER.spawn(toSpawn, self -> {
-                final EntityEquipment equipment = self.getEquipment();
-                if (equipment != null) {
-                    equipment.setHelmet(itemStack);
-                }
-
-                self.setSmall(true);
-                self.setInvisible(true);
-                self.addScoreboardTag(ENTITY_TAG);
-            }, false/* Don't cache since */);
+            //final Location toSpawn = location.clone().subtract(0.0d, 1.0d, 0.0d);
+            entities.add(Entities.BLOCK_DISPLAY.spawn(location, self -> {
+                self.setBlock(blockData);
+                self.setTransformationMatrix(MATRIX);
+            }, false));
         }
-    }
-
-    private boolean isEntityPresent(Location location) {
-        final World world = location.getWorld();
-        if (world == null) {
-            return false;
-        }
-
-        final Collection<Entity> entities = world.getNearbyEntities(
-                location,
-                0.5d,
-                1d,
-                0.5d,
-                entity -> entity instanceof ArmorStand && entity.getScoreboardTags().contains(ENTITY_TAG)
-        );
-
-        return !entities.isEmpty();
     }
 
     @Nonnull

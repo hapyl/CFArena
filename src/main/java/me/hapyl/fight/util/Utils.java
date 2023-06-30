@@ -25,6 +25,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
+import org.joml.Matrix4f;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -504,5 +505,18 @@ public class Utils {
         attribute.setBaseValue(newValue);
         consumer.accept(target);
         attribute.setBaseValue(base);
+    }
+
+    public static Matrix4f parseMatrix(@Range(min = 16, max = 16) float... matrix) {
+        if (matrix.length != 16) {
+            throw new IllegalArgumentException("matrix length must be 16, not " + matrix.length);
+        }
+
+        return new Matrix4f(
+                matrix[0], matrix[4], matrix[8], matrix[12],
+                matrix[1], matrix[5], matrix[9], matrix[13],
+                matrix[2], matrix[6], matrix[10], matrix[14],
+                matrix[3], matrix[7], matrix[11], matrix[15]
+        );
     }
 }

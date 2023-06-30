@@ -4,6 +4,7 @@ import me.hapyl.fight.Main;
 import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.ServerListPingEvent;
@@ -13,13 +14,20 @@ import javax.annotation.Nonnull;
 // handles server-related events
 public class ServerHandler implements Listener {
 
+    private String[] motd;
+
     @EventHandler()
     public void handleServerList(ServerListPingEvent ev) {
+        if (motd == null) {
+            final FileConfiguration config = Main.getPlugin().getConfig();
+            final String header = config.getString("motd.header");
+            final String footer = config.getString("motd.footer");
+
+            motd = new String[] { header, footer };
+        }
+
         ev.setMaxPlayers(Bukkit.getOnlinePlayers().size() + 1);
-        ev.setMotd(centerMotd(
-                Main.GAME_NAME,
-                "&3Hosted by &bServer.pro"
-        ));
+        ev.setMotd(centerMotd(motd[0], motd[1]));
     }
 
     public String centerMotd(@Nonnull String header, @Nonnull String footer) {
