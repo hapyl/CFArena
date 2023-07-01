@@ -26,6 +26,9 @@ public abstract class TickingDisplayCreation extends TickingCreation {
         entity = displayData.spawn(getLocation());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @MustCallSuper
     @Override
     public void remove() {

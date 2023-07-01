@@ -3,7 +3,7 @@ package me.hapyl.fight.game.cosmetic.storage;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.WinCosmetic;
-import me.hapyl.fight.game.shop.Rarity;
+import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.npc.Human;
 import me.hapyl.spigotutils.module.reflect.npc.NPCPose;
@@ -27,7 +27,6 @@ public class TwerkWinEffect extends WinCosmetic {
         super(
                 "Twerk It!",
                 "Imagine yourself shaking what their mama gave you. So get ready to wiggle those hips and show off those moves",
-                5000,
                 Rarity.LEGENDARY
         );
 

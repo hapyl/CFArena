@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.cosmetic;
 
-import me.hapyl.fight.game.shop.Rarity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.ShutdownAction;
 import org.bukkit.Location;
@@ -12,8 +11,8 @@ public abstract class WinCosmetic extends Cosmetic {
     private int maxTimes;
     private int step;
 
-    public WinCosmetic(String name, String description, long cost, Rarity rarity) {
-        super(name, description, cost, Type.WIN, rarity);
+    public WinCosmetic(String name, String description, Rarity rarity) {
+        super(name, description, Type.WIN, rarity);
 
         this.delay = 10;
         this.maxTimes = 1;

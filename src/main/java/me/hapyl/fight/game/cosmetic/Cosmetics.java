@@ -4,8 +4,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.cosmetic.storage.*;
-import me.hapyl.fight.game.shop.Rarity;
-import me.hapyl.fight.game.shop.ShopItem;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.command.DisabledCommand;
 import org.bukkit.*;
@@ -90,25 +88,23 @@ public enum Cosmetics {
             "Fighter",
             "Show everyone who you really are.",
             "&a[&lFighter&a]",
-            ShopItem.NOT_PURCHASABLE,
             Rarity.COMMON
     ).setIcon(Material.WOODEN_SWORD)),
 
-    OCTAVE(new PrefixCosmetic("Octave", "♪ ♪♫ ♪ ♫♫", "&d♪&lOctave&d♫", 1000, Rarity.RARE).setIcon(Material.NOTE_BLOCK)),
+    OCTAVE(new PrefixCosmetic("Octave", "♪ ♪♫ ♪ ♫♫", "&d♪&lOctave&d♫", Rarity.RARE).setIcon(Material.NOTE_BLOCK)),
 
-    STAR(new PrefixCosmetic("Star", "I'm on a roll!", "&e★&6&lStar&e☆", 1500, Rarity.EPIC).setIcon(Material.GOLD_NUGGET)),
+    STAR(new PrefixCosmetic("Star", "I'm on a roll!", "&e★&6&lStar&e☆", Rarity.EPIC).setIcon(Material.GOLD_NUGGET)),
 
-    BIOHAZARD(new PrefixCosmetic("Biohazard", "Put your mask on!", "&a☢&2&lBiohazard&a☣", 1500, Rarity.EPIC).setIcon(Material.SLIME_BALL)),
+    BIOHAZARD(new PrefixCosmetic("Biohazard", "Put your mask on!", "&a☢&2&lBiohazard&a☣", Rarity.EPIC).setIcon(Material.SLIME_BALL)),
 
-    LOVE(new PrefixCosmetic("Love", "Love is...", "&c♥&d&lLove&c❤", 1000, Rarity.RARE).setIcon(Material.APPLE)),
-    PEACE(new PrefixCosmetic("Peace", "Peace!", "&2&l✌", 0, Rarity.LEGENDARY).setIcon(Material.WHITE_WOOL)),
-    HAPPY(new PrefixCosmetic("Happy", "Just be happy!", "&a☺&lHappy&a☻", 500, Rarity.COMMON).setIcon(Material.EMERALD)),
+    LOVE(new PrefixCosmetic("Love", "Love is...", "&c♥&d&lLove&c❤", Rarity.RARE).setIcon(Material.APPLE)),
+    PEACE(new PrefixCosmetic("Peace", "Peace!", "&2&l✌", Rarity.LEGENDARY).setIcon(Material.WHITE_WOOL)),
+    HAPPY(new PrefixCosmetic("Happy", "Just be happy!", "&a☺&lHappy&a☻", Rarity.COMMON).setIcon(Material.EMERALD)),
 
     GENDER_MALE(new PrefixCosmetic(
             "Gender: Male",
             "Express your gender!",
             "&b♂&3&lMale&b♂",
-            1000,
             Rarity.RARE
     ).setIcon(Material.SOUL_LANTERN)),
 
@@ -116,7 +112,6 @@ public enum Cosmetics {
             "Gender: Female",
             "Express your gender!",
             "&d♀&5&lFemale&d♀",
-            1000,
             Rarity.RARE
     ).setIcon(Material.LANTERN)),
 
@@ -124,7 +119,6 @@ public enum Cosmetics {
             "Annihilator",
             "Show me what you got!",
             "&c☠&4&lAnnihilator&c&l☠",
-            5000,
             Rarity.LEGENDARY
     ).setIcon(Material.WITHER_SKELETON_SKULL)),
 
@@ -132,7 +126,6 @@ public enum Cosmetics {
             "Sunny",
             "It's a nice weather outside :)",
             "&e☀&6&lSunny&e☀",
-            2000,
             Rarity.EPIC
     ).setIcon(Material.GOLD_BLOCK)),
 
@@ -140,7 +133,6 @@ public enum Cosmetics {
             "Rainy",
             "I've got my umbrella!",
             "&b🌧&3&lRainy&b☂",
-            2000,
             Rarity.EPIC
     ).setIcon(Material.WATER_BUCKET)),
 
@@ -148,7 +140,6 @@ public enum Cosmetics {
             "Glitch",
             "Is this thing on?",
             "&a✚&lGl&k&l1&atch&a&k&l✚&R",
-            1000,
             Rarity.RARE
     ).setIcon(Material.REDSTONE_TORCH)),
 

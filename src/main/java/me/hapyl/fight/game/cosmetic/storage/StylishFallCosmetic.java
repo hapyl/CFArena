@@ -3,8 +3,7 @@ package me.hapyl.fight.game.cosmetic.storage;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
-import me.hapyl.fight.game.shop.Rarity;
-import me.hapyl.fight.game.shop.ShopItem;
+import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
 import me.hapyl.spigotutils.module.reflect.npc.NPCAnimation;
@@ -15,7 +14,7 @@ import org.bukkit.Sound;
 
 public class StylishFallCosmetic extends Cosmetic {
     public StylishFallCosmetic() {
-        super("Stylish Fall", "Fall in style.", ShopItem.NOT_PURCHASABLE, Type.DEATH, Rarity.LEGENDARY, Material.PLAYER_HEAD);
+        super("Stylish Fall", "Fall in style.", Type.DEATH, Rarity.LEGENDARY, Material.PLAYER_HEAD);
     }
 
     @Override

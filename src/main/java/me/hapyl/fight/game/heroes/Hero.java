@@ -352,6 +352,12 @@ public abstract class Hero implements GameElement, PlayerElement {
     }
 
     /**
+     * Called whenever a player presses the ultimate, no matter if it's ready or not.
+     */
+    public void onUltimate(Player player, UltimateStatus status) {
+    }
+
+    /**
      * Unleashes this hero's ultimate.
      */
     public abstract void useUltimate(Player player);

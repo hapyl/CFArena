@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.WinCosmetic;
-import me.hapyl.fight.game.shop.Rarity;
+import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
@@ -21,7 +21,7 @@ public class AvalancheWinEffect extends WinCosmetic {
     private final BlockData blockData;
 
     public AvalancheWinEffect() {
-        super("Avalanche", "Freeze!", 10000, Rarity.MYTHIC);
+        super("Avalanche", "Freeze!", Rarity.MYTHIC);
 
         blocks = Sets.newHashSet();
         blockData = Material.ICE.createBlockData();

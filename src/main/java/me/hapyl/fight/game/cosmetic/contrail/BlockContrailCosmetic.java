@@ -5,7 +5,7 @@ import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.State;
 import me.hapyl.fight.game.cosmetic.Display;
-import me.hapyl.fight.game.shop.Rarity;
+import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
 import org.bukkit.Location;
@@ -23,7 +23,7 @@ public class BlockContrailCosmetic extends ContrailCosmetic {
     private int stay;
 
     public BlockContrailCosmetic(String name, String description, long cost, Rarity rarity) {
-        super(name, description, cost, rarity);
+        super(name, description, rarity);
 
         this.materials = Lists.newArrayList();
         this.stay = 20;

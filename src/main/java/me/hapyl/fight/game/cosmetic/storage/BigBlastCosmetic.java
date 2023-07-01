@@ -3,7 +3,7 @@ package me.hapyl.fight.game.cosmetic.storage;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
-import me.hapyl.fight.game.shop.Rarity;
+import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Firework;

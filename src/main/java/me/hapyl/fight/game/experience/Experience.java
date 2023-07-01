@@ -4,7 +4,9 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
+import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.ExperienceEntry;
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.reward.HeroUnlockReward;
@@ -51,7 +53,7 @@ public class Experience extends DependencyInjector<Main> {
      * Returns total experience required to reach lvl, or {@link Long#MAX_VALUE} is level is maxed.
      *
      * @param lvl - level to get exp required for.
-     * @return exp required to reach level.
+     * @return exp required reaching level.
      */
     public long getExpRequired(long lvl) {
         if (experienceLevelMap.containsKey(lvl)) {
@@ -70,7 +72,7 @@ public class Experience extends DependencyInjector<Main> {
 
     /**
      * This iterating through all rewards and grants
-     * or revokes them depending on player level.
+     * or revoking them depending on player level.
      * <p>
      * Needed in case of new reward to grant, or admin
      * manipulations.

@@ -3,16 +3,11 @@ package me.hapyl.fight.game.cosmetic;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CosmeticEntry;
-import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.game.cosmetic.contrail.BlockContrailCosmetic;
 import me.hapyl.fight.game.cosmetic.contrail.ContrailCosmetic;
 import me.hapyl.fight.game.cosmetic.contrail.ParticleContrailCosmetic;
 import me.hapyl.fight.game.cosmetic.gui.CosmeticGUI;
-import me.hapyl.fight.game.cosmetic.gui.PurchaseConfirmGUI;
-import me.hapyl.fight.game.cosmetic.gui.PurchaseResult;
-import me.hapyl.fight.game.shop.Rarity;
-import me.hapyl.fight.game.shop.ShopItem;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.Action;
@@ -25,14 +20,18 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public abstract class Cosmetic extends ShopItem {
 
     @Nonnull
     private final Type type;
 
-    public Cosmetic(String name, String description, long cost, @Nonnull Type type, Rarity rarity, Material icon) {
-        super(name, description, cost);
+    @Nullable
+    private Collection collection;
+
+    public Cosmetic(String name, String description, @Nonnull Type type, Rarity rarity, Material icon) {
+        super(name, description);
         this.setIcon(icon);
         this.setRarity(rarity);
         this.type = type;
@@ -42,16 +41,21 @@ public abstract class Cosmetic extends ShopItem {
         }
     }
 
-    public Cosmetic(String name, String description, Type type, Rarity rarity, Material material) {
-        this(name, description, rarity.getDefaultPrice(), type, rarity, material);
+    public Cosmetic(String name, String description, Type type, Rarity rarity) {
+        this(name, description, type, rarity, Material.BARRIER);
     }
 
-    public Cosmetic(String name, String description, long cost, Type type, Rarity rarity) {
-        this(name, description, cost, type, rarity, Material.BARRIER);
+    protected Cosmetic(String name, String description, Type type) {
+        this(name, description, type, Rarity.UNSET, Material.BARRIER);
     }
 
-    protected Cosmetic(String name, String description, long cost, Type type) {
-        this(name, description, cost, type, Rarity.UNSET, Material.BARRIER);
+    @Nullable
+    public Collection getCollection() {
+        return collection;
+    }
+
+    public void setCollection(@Nullable Collection collection) {
+        this.collection = collection;
     }
 
     public ItemActionPair createItem(Player player, Cosmetics cosmetic, CosmeticGUI previous) {
@@ -95,39 +99,6 @@ public abstract class Cosmetic extends ShopItem {
         else {
             builder.addLore();
             builder.addLore("&c&lLOCKED");
-
-            // Check if it's purchasable
-            if (getCost() != ShopItem.NOT_PURCHASABLE) {
-                builder.addLore("&7Price: &e" + getCost() + " Coins");
-                builder.addLore();
-
-                // Check if player can afford it
-                if (currency.get(Currency.COINS) >= getCost()) {
-                    builder.addLore("&eClick to purchase this cosmetic.");
-
-                    action = pl -> new PurchaseConfirmGUI(player, this) {
-                        @Override
-                        public void onPurchase(Player player, ShopItem item, PurchaseResult result) {
-                            Chat.sendMessage(player, result.getMessage());
-
-                            if (result == PurchaseResult.OK) {
-                                entry.addOwned(cosmetic);
-                                Chat.sendMessage(player, "&aYou have purchased the %s cosmetic.", Chat.capitalize(type.name()));
-                                PlayerLib.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 2.0f);
-                            }
-
-                            new CosmeticGUI(player, type);
-                        }
-                    };
-
-                }
-                else {
-                    builder.addLore("&cCannot afford!");
-                }
-            }
-            else {
-                builder.addLore("&cThis cosmetic is not purchasable.");
-            }
         }
 
         return new ItemActionPair(builder.asIcon(), action);
@@ -140,7 +111,7 @@ public abstract class Cosmetic extends ShopItem {
         final Rarity rarity = getRarity();
 
         // Rarity Type Cosmetic
-        builder.addLore("&8%s %s Cosmetic", rarity.getName(), Chat.capitalize(getType()));
+        builder.addLore(rarity.toString());
         builder.addLore("");
         builder.addSmartLore("&7" + getDescription());
 

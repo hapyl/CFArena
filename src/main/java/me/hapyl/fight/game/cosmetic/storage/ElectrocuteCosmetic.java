@@ -4,7 +4,7 @@ import com.google.common.collect.Sets;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
-import me.hapyl.fight.game.shop.Rarity;
+import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.util.Nulls;

@@ -2,7 +2,7 @@ package me.hapyl.fight.game.cosmetic.contrail;
 
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.setting.Setting;
-import me.hapyl.fight.game.shop.Rarity;
+import me.hapyl.fight.game.cosmetic.Rarity;
 import org.bukkit.Particle;
 
 public class ParticleContrailCosmetic extends ContrailCosmetic {
@@ -10,7 +10,7 @@ public class ParticleContrailCosmetic extends ContrailCosmetic {
     private final Particle particle;
 
     public ParticleContrailCosmetic(Particle particle, String name, String description, long cost, Rarity rarity) {
-        super(name, description, cost, rarity);
+        super(name, description, rarity);
         this.particle = particle;
     }
 

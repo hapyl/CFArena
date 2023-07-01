@@ -3,7 +3,7 @@ package me.hapyl.fight.game.cosmetic.storage;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.WinCosmetic;
-import me.hapyl.fight.game.shop.Rarity;
+import me.hapyl.fight.game.cosmetic.Rarity;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
@@ -19,7 +19,7 @@ public class FireworksWinEffect extends WinCosmetic {
     private final Set<Firework> fireworks;
 
     public FireworksWinEffect() {
-        super("Fireworks", "Let's celebrate this win!", -1, Rarity.COMMON);
+        super("Fireworks", "Let's celebrate this win!", Rarity.COMMON);
 
         fireworks = Sets.newHashSet();
 

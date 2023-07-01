@@ -3,7 +3,7 @@ package me.hapyl.fight.game.cosmetic.storage;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
-import me.hapyl.fight.game.shop.Rarity;
+import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.util.ThreadRandom;

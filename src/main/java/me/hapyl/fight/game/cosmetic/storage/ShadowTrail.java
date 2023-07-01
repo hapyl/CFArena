@@ -3,7 +3,7 @@ package me.hapyl.fight.game.cosmetic.storage;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.contrail.ContrailCosmetic;
-import me.hapyl.fight.game.shop.Rarity;
+import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.reflect.npc.Human;
 import me.hapyl.spigotutils.module.reflect.npc.NPCPose;
@@ -20,7 +20,7 @@ public class ShadowTrail extends ContrailCosmetic {
     private final Map<Player, Queue<Human>> humans;
 
     public ShadowTrail() {
-        super("Shadow Trail", "There is something trailing behind you!", 10000, Rarity.MYTHIC);
+        super("Shadow Trail", "There is something trailing behind you!", Rarity.MYTHIC);
 
         setIcon(Material.PLAYER_HEAD);
         humans = Maps.newConcurrentMap();
