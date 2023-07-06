@@ -25,14 +25,28 @@ public enum Message {
         send(sender, Color.ERROR_DARKER + "✘ " + Color.ERROR + message, format);
     }
 
+    public static void broadcast(@Nonnull String message, @Nullable Object... format) {
+        Chat.broadcast(BFormat.format(message, format));
+    }
+
     private static void send(CommandSender sender, String message, Object... format) {
         Chat.sendMessage(sender, BFormat.format(message, format));
     }
 
-    public enum Error implements Sendable {
+    // Enum for errors
+    public enum Error implements MessageSender {
 
         PLAYER_NOT_ONLINE("{} is not online!"),
-        ;
+        NOT_ENOUGH_ARGUMENTS("Not enough arguments!"),
+        INVALID_ENUMERABLE_ARGUMENT("Invalid argument! Try these: {}"),
+        NOT_PERMISSIONS_NEED_RANK("You must be {} or higher to use this!"),
+        CANNOT_FETCH_CRATE_ITEM(
+                "Couldn't get your item! Try again before reporting this! (\"{}\")."
+        ),
+        CANNOT_FIND_CRATE("It doesn't seem that you have any {}!"),
+
+
+        _RESERVED("_RESERVED");
 
         private final String message;
 
@@ -46,10 +60,25 @@ public enum Message {
         }
     }
 
-    public interface Sendable {
+    // Enum for broadcasts
+    public enum Broadcast implements MessageBroadcaster {
 
-        void send(@Nonnull CommandSender sender, @Nullable Object... format);
+        CRATE_FLEX("&6&lCRATE! &a{} has gotten a {} item from {}!"),
 
+        _RESERVED("_RESERVED"),
+
+        ;
+
+        private final String message;
+
+        Broadcast(String message) {
+            this.message = message;
+        }
+
+        @Override
+        public void broadcast(@Nullable Object... format) {
+            Message.broadcast(Color.DEFAULT + message, format);
+        }
     }
 
 }

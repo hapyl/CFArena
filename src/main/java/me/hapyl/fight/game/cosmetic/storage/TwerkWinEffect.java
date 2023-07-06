@@ -26,7 +26,7 @@ public class TwerkWinEffect extends WinCosmetic {
     public TwerkWinEffect() {
         super(
                 "Twerk It!",
-                "Imagine yourself shaking what their mama gave you. So get ready to wiggle those hips and show off those moves",
+                "Imagine yourself shaking what your mama gave you. So get ready to wiggle those hips and show off those moves",
                 Rarity.LEGENDARY
         );
 
@@ -52,7 +52,7 @@ public class TwerkWinEffect extends WinCosmetic {
 
             dancers.add(npc);
 
-            // 50/50 chance to tweak init
+            // 50/50 chance to twerk init
             npc.setPose(new Random().nextBoolean() ? NPCPose.CROUCHING : pose);
         }
     }

@@ -75,7 +75,7 @@ public class OrcAxe extends InputTalent {
         new GeometryTask() {
 
             @Override
-            public void onStop() {
+            public void onTaskStop() {
                 axe.remove();
                 Heroes.ORC.getHero().getWeapon().give(player);
             }

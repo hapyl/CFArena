@@ -14,7 +14,9 @@ import me.hapyl.spigotutils.module.math.geometry.Quality;
 import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.Reflect;
+import net.minecraft.network.protocol.game.PacketPlayOutBlockAction;
 import net.minecraft.world.entity.boss.wither.EntityWither;
+import net.minecraft.world.level.block.Blocks;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -41,6 +43,8 @@ import java.util.function.Function;
  * Utilities for the plugin
  */
 public class Utils {
+
+    public static final Object[] DISAMBIGUATE = new Object[] {};
 
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.0");
     private static String SERVER_IP;
@@ -519,4 +523,23 @@ public class Utils {
                 matrix[3], matrix[7], matrix[11], matrix[15]
         );
     }
+
+    public static void playChestAnimation(Block block, boolean open) {
+        net.minecraft.world.level.block.Block nmsBlock = switch (block.getType()) {
+            case CHEST -> Blocks.cv;
+            case TRAPPED_CHEST -> Blocks.gV;
+            case ENDER_CHEST -> Blocks.fG;
+            default -> throw new IllegalArgumentException("invalid chest type: " + block.getType());
+        };
+
+        final PacketPlayOutBlockAction packet = new PacketPlayOutBlockAction(
+                Reflect.getBlockPosition(block),
+                nmsBlock,
+                1,
+                open ? 1 : 0
+        );
+
+        Bukkit.getOnlinePlayers().forEach(player -> Reflect.sendPacket(player, packet));
+    }
+
 }

@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.heroes;
 
-import me.hapyl.fight.util.DescribedEnum;
+import me.hapyl.fight.util.Described;
 
 import javax.annotation.Nonnull;
 
-public enum Archetype implements DescribedEnum {
+public enum Archetype implements Described {
 
     DAMAGE("&4&l💢&4", "Damage", "Experts in dealing as much damage as possible."),
     RANGE("&b&l🎯&b", "Range", "Rangers are dead-eye shooters that can hold distance to strike."),

@@ -1,5 +1,6 @@
 package me.hapyl.fight;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
@@ -11,10 +12,13 @@ import me.hapyl.fight.build.NamedSignReader;
 import me.hapyl.fight.cmds.*;
 import me.hapyl.fight.database.Database;
 import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.PlayerAttributes;
 import me.hapyl.fight.game.attribute.Temper;
+import me.hapyl.fight.game.cosmetic.CosmeticCollection;
+import me.hapyl.fight.game.cosmetic.crate.Crates;
 import me.hapyl.fight.game.damage.EntityData;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.dark_mage.AnimatedWither;
@@ -30,16 +34,20 @@ import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.display.DamageDisplay;
 import me.hapyl.fight.game.ui.splash.SplashText;
 import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.ux.Message;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.chat.Gradient;
 import me.hapyl.spigotutils.module.chat.LazyEvent;
 import me.hapyl.spigotutils.module.chat.gradient.Interpolators;
 import me.hapyl.spigotutils.module.command.*;
 import me.hapyl.spigotutils.module.entity.Entities;
+import me.hapyl.spigotutils.module.hologram.Hologram;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import me.hapyl.spigotutils.module.math.Cuboid;
 import me.hapyl.spigotutils.module.math.nn.IntInt;
+import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.DataWatcherType;
 import me.hapyl.spigotutils.module.reflect.Reflect;
 import me.hapyl.spigotutils.module.reflect.glow.Glowing;
@@ -127,6 +135,9 @@ public class CommandRegistry extends DependencyInjector<Main> {
         register(new GVarCommand("gvar"));
         register(new PlayerAttributeCommand("playerAttribute"));
         register(new SnakeBuilderCommand("snakeBuilder"));
+        register(new CrateCommandCommand("crate"));
+        register(new GlobalConfigCommand("globalConfig"));
+
         register(new SimplePlayerCommand("cancelCountdown") {
             @Override
             protected void execute(Player player, String[] args) {
@@ -140,6 +151,28 @@ public class CommandRegistry extends DependencyInjector<Main> {
 
                 countdown.cancelByPlayer(player);
             }
+        });
+
+        register("debugCollection", (player, args) -> {
+            final CosmeticCollection collection = Enums.byName(CosmeticCollection.class, args[0]);
+
+            if (collection == null) {
+                Message.error(player, "Invalid collection.");
+                return;
+            }
+
+            Message.info(player, collection.getItems().toString());
+        });
+
+        register("debugCrate", (player, args) -> {
+            final Crates crate = Enums.byName(Crates.class, args.length == 0 ? "null" : args[0]);
+
+            if (crate == null) {
+                Message.error(player, "Cannot find crate named {}.", args[0]);
+                return;
+            }
+
+            Message.info(player, crate.getCrate().toString());
         });
 
         register(new SimplePlayerAdminCommand("testOrbiting") {
@@ -910,6 +943,96 @@ public class CommandRegistry extends DependencyInjector<Main> {
             @Override
             protected void execute(CommandSender commandSender, String[] strings) {
                 Manager.current().listProfiles();
+            }
+        });
+
+        register(new CFCommand("testHologramHeights", PlayerRank.ADMIN) {
+
+            private List<Hologram> holograms = Lists.newArrayList();
+            private GameTask task;
+
+            @Override
+            protected void execute(Player player, String[] args, PlayerRank rank) {
+                final double offsetY = getArgument(args, 0).toDouble(0.0d);
+                final Location absoluteLocation = player.getLocation();
+                final Location location = player.getLocation().subtract(0, offsetY, 0);
+
+                if (task != null) {
+                    task.cancel();
+                    task = null;
+                }
+
+                holograms.forEach(Hologram::destroy);
+                holograms.clear();
+
+                task = new GameTask() {
+                    @Override
+                    public void run() {
+                        for (int i = 0; i < 10; i++) {
+                            absoluteLocation.add(i, 0, 0);
+                            PlayerLib.spawnParticle(absoluteLocation, Particle.VILLAGER_HAPPY, 1);
+                            absoluteLocation.subtract(i, 0, 0);
+                        }
+                    }
+                }.runTaskTimer(0, 1);
+
+                for (int i = 0; i < 10; i++) {
+                    location.add(1, 0, 0);
+
+                    holograms.add(new Hologram()
+                            .setLines(createArray(i + 1))
+                            .create(location)
+                            .showAll());
+                }
+
+                Chat.sendMessage(player, "&aDone!");
+            }
+
+            private String[] createArray(int size) {
+                final String[] array = new String[size];
+
+                for (int i = 0; i < size; i++) {
+                    array[i] = "test" + i;
+                }
+
+                return array;
+            }
+
+        });
+
+        register(new CFCommand("testChestAnimation", PlayerRank.ADMIN) {
+            @Override
+            protected void execute(Player player, String[] args, PlayerRank rank) {
+                // <command> (open, close)
+                final String argument = getArgument(args, 0).toString().toLowerCase();
+
+                final Block targetBlock = player.getTargetBlockExact(10);
+
+                if (targetBlock == null) {
+                    Message.error(player, "Not looking at a block.");
+                    return;
+                }
+
+                final Material type = targetBlock.getType();
+
+                if (type != Material.CHEST && type != Material.TRAPPED_CHEST && type != Material.ENDER_CHEST) {
+                    Message.error(player, "Not looking at a chest!");
+                    return;
+                }
+
+                switch (argument) {
+                    case "open" -> {
+                        Utils.playChestAnimation(targetBlock, true);
+                        Message.success(player, "Playing open animation.");
+                    }
+
+                    case "close" -> {
+                        Utils.playChestAnimation(targetBlock, false);
+                        Message.success(player, "Playing close animation.");
+                    }
+
+                    default -> Message.error(player, "Invalid argument! Must be either 'open' or 'close'!");
+                }
             }
         });
 

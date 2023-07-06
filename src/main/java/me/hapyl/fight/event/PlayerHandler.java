@@ -80,6 +80,11 @@ public class PlayerHandler implements Listener {
         ev.setJoinMessage(Chat.format("&7[&a+&7] %s%s &ewants to fight!", player.isOp() ? "&c" : "", player.getName()));
     }
 
+    @EventHandler()
+    public void handlePlayerQuitEvent(PlayerQuitEvent ev) {
+
+    }
+
     // Prevent painting-breaking while the game is in progress
     @EventHandler()
     public void handlePaintingBreaking(HangingBreakEvent ev) {

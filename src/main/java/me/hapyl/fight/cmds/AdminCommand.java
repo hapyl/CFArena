@@ -39,7 +39,7 @@ public class AdminCommand extends SimplePlayerAdminCommand {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String[] args) {
-        if (!PlayerRank.getRank(sender).isAdministrator()) {
+        if (!PlayerRank.getRank(sender).isOrHigher(PlayerRank.ADMIN)) {
             return List.of("§cYou are not administrator!");
         }
 
@@ -67,8 +67,8 @@ public class AdminCommand extends SimplePlayerAdminCommand {
 
     @Override
     protected void execute(Player player, String[] args) {
-        if (!PlayerRank.getRank(player).isAdministrator()) {
-            sendError(player, "You are not administrator!");
+        if (!PlayerRank.getRank(player).isOrHigher(PlayerRank.ADMIN)) {
+            sendError(player, "You are not an administrator!");
             return;
         }
 

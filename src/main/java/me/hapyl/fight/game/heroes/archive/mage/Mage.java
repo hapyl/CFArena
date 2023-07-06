@@ -71,8 +71,7 @@ public class Mage extends Hero implements UIComponent {
         setArchetype(Archetype.MAGIC);
 
         setDescription("""
-                Amateur Necromancer with ability to absorb soul fragments upon hitting his foes to use them as fuel for his &e&lSoul Eater&7.
-                Which makes him both &3melee &7&oand &3range &8&owarrior!
+                Amateur Necromancer with ability to absorb soul fragments upon hitting his foes to use them as fuel for his &e&lSoul &e&lEater&7.
                 """);
 
         setItem("f41e6e4bcd2667bb284fb0dde361894840ea782efbfb717f6244e06b951c2b3f");

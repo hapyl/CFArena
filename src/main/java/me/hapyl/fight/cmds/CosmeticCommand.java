@@ -77,6 +77,23 @@ public class CosmeticCommand extends SimplePlayerCommand {
 
                     Message.success(player, "Gave all cosmetics to {}.", target.getName());
                 }
+                case "removeall" -> {
+                    final Player target = Bukkit.getPlayer(args[1]);
+
+                    if (target == null) {
+                        Message.Error.PLAYER_NOT_ONLINE.send(player, args[1]);
+                        return;
+                    }
+
+                    final PlayerDatabase database = PlayerDatabase.getDatabase(target);
+                    final CosmeticEntry cosmetics = database.getCosmetics();
+
+                    for (Cosmetics value : Cosmetics.values()) {
+                        cosmetics.removeOwned(value);
+                    }
+
+                    Message.success(player, "Removed all cosmetics from {}.", target.getName());
+                }
             }
         }
         else if (args.length == 3) {

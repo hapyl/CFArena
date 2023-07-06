@@ -2,6 +2,7 @@ package me.hapyl.fight.game.color;
 
 import me.hapyl.fight.util.Range;
 import me.hapyl.spigotutils.module.math.Numbers;
+import me.hapyl.spigotutils.module.util.BFormat;
 import net.md_5.bungee.api.ChatColor;
 
 import javax.annotation.Nonnull;
@@ -10,10 +11,18 @@ import javax.annotation.Nullable;
 public class Color {
 
     public static final Color DEFAULT = new Color("#aabbcc");
+
     public static final Color SUCCESS = new Color("#05e30c");
     public static final Color SUCCESS_DARKER = SUCCESS.adjust(0.75f);
+
     public static final Color ERROR = new Color("#ed0000");
     public static final Color ERROR_DARKER = ERROR.adjust(0.75f);
+
+    public static final Color BUTTON = new Color("#F6A623");
+
+    public static final Color SPECTATOR = new Color("#87B6F5");
+    public static final Color MODERATOR = new Color("#119905");
+    public static final Color ADMIN = new Color("#CC0826");
 
     public final ChatColor color;
     private ColorFlag[] flags;
@@ -35,8 +44,8 @@ public class Color {
         this.color = validateColor(color);
     }
 
-    public String color(@Nonnull String string) {
-        return this + string;
+    public String color(@Nonnull String string, @Nullable Object... format) {
+        return this + BFormat.format(string, format);
     }
 
     public final Color adjust(@Range(max = 2) float factor) {
@@ -99,6 +108,10 @@ public class Color {
         }
 
         return false;
+    }
+
+    public String bold() {
+        return color + ChatColor.BOLD.toString();
     }
 
     public static ChatColor parseHex(@Nonnull String hex) {

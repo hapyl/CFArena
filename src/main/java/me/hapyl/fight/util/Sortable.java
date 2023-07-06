@@ -1,7 +1,7 @@
-package me.hapyl.fight.gui;
+package me.hapyl.fight.util;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.util.DescribedEnum;
+import me.hapyl.fight.annotate.ExcludeInSort;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.PlayerGUI;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -11,6 +11,7 @@ import org.bukkit.event.inventory.ClickType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.function.BiConsumer;
 
@@ -28,19 +29,16 @@ public abstract class Sortable<E, S extends Enum<S>> {
 
     @SafeVarargs
     public Sortable(@Nonnull Class<S> clazz, @Nonnull S... excludes) {
-        this(clazz);
-        excludes(excludes);
-    }
-
-    public Sortable(@Nonnull Class<S> clazz) {
-        this.values = Lists.newArrayList(clazz.getEnumConstants());
         this.clazz = clazz;
+        this.values = Lists.newArrayList();
         this.sort = null;
+
+        // init constants
+        setValues(excludes);
     }
 
-    @SafeVarargs
-    public final void excludes(@Nonnull S... elements) {
-        values.removeAll(List.of(elements));
+    public final int ordinal(@Nullable S s) {
+        return s == null ? -1 : values.indexOf(s);
     }
 
     public abstract boolean isKeep(@Nonnull E e, @Nonnull S s);
@@ -60,7 +58,7 @@ public abstract class Sortable<E, S extends Enum<S>> {
             final boolean currentValue = sort == value;
 
             item.addLore((currentValue ? "&a➥ " : "&8 ") + value.toString());
-            if (currentValue && value instanceof DescribedEnum described) {
+            if (currentValue && value instanceof Described described) {
                 item.addSmartLore(described.getDescription(), " &7&o");
             }
         }
@@ -82,18 +80,28 @@ public abstract class Sortable<E, S extends Enum<S>> {
         }, ClickType.RIGHT, ClickType.SHIFT_RIGHT);
     }
 
+    /**
+     * Gets the current sort element, null if set to "none."
+     *
+     * @return the current sort element, null if set to "None."
+     */
     @Nullable
     public S current() {
         return sort;
     }
 
+    /**
+     * Switches to the next element and get it, or null if it is "None."
+     *
+     * @return the next element and get it, or null if it is "None."
+     */
     @Nullable
     public S next() {
         if (sort == null) {
             sort = values.get(0);
         }
         else {
-            final int nextOrdinal = sort.ordinal() + 1;
+            final int nextOrdinal = ordinal() + 1;
 
             if (nextOrdinal >= values.size()) {
                 sort = null;
@@ -106,13 +114,18 @@ public abstract class Sortable<E, S extends Enum<S>> {
         return sort;
     }
 
+    /**
+     * Switches to the previous element and get it, or null if it is "None."
+     *
+     * @return the previous element and get it, or null if it is "none."
+     */
     @Nullable
     public S previous() {
         if (sort == null) {
             sort = values.get(values.size() - 1);
         }
         else {
-            final int previousOrdinal = sort.ordinal() - 1;
+            final int previousOrdinal = ordinal() - 1;
 
             if (previousOrdinal < 0) {
                 sort = null;
@@ -123,6 +136,48 @@ public abstract class Sortable<E, S extends Enum<S>> {
         }
 
         return sort;
+    }
+
+    private int ordinal() {
+        return ordinal(sort);
+    }
+
+    @SafeVarargs
+    private void setValues(@Nonnull S... excludes) {
+        values.clear();
+
+        for (S s : clazz.getEnumConstants()) {
+            // check exclusions
+            if (checkArray(s, excludes)) {
+                continue;
+            }
+
+            try {
+                final Field field = clazz.getField(s.name());
+                if (field.isAnnotationPresent(ExcludeInSort.class)) {
+                    continue;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            values.add(s);
+        }
+    }
+
+    @SafeVarargs
+    private boolean checkArray(S element, S... array) {
+        if (array == null) {
+            return false;
+        }
+
+        for (S s : array) {
+            if (element == s || element.equals(s)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }

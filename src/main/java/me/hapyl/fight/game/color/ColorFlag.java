@@ -40,7 +40,6 @@ public enum ColorFlag {
         this.color = color;
     }
 
-    @Nonnull
     public void gradient(@Nonnull Gradient gradient) {
     }
 }

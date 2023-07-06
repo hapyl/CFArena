@@ -2,7 +2,6 @@ package me.hapyl.fight.game;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.game.attribute.PlayerAttributes;
-import me.hapyl.fight.game.cosmetic.skin.Skins;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Hero;
@@ -370,7 +369,7 @@ public interface IGamePlayer {
     boolean isUltimateReady();
 
     /**
-     * Sends chat message to a player.
+     * Sends a chat message to a player.
      *
      * @param message - Message.
      * @param objects - Formatter.

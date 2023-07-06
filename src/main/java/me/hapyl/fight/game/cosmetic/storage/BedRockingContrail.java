@@ -1,17 +1,17 @@
 package me.hapyl.fight.game.cosmetic.storage;
 
 import me.hapyl.fight.game.cosmetic.Display;
-import me.hapyl.fight.game.cosmetic.contrail.BlockContrailCosmetic;
 import me.hapyl.fight.game.cosmetic.Rarity;
-import me.hapyl.fight.game.cosmetic.ShopItem;
+import me.hapyl.fight.game.cosmetic.contrail.BlockContrailCosmetic;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 
 public class BedRockingContrail extends BlockContrailCosmetic {
 
     public BedRockingContrail() {
-        super("Bed Rocking", "The strongest of it's kind!", ShopItem.NOT_PURCHASABLE, Rarity.LEGENDARY);
+        super("Bed Rocking", "The strongest of its kind!", Rarity.LEGENDARY);
 
+        setExclusive(true);
         setIcon(Material.BEDROCK);
         addMaterials(Material.BEDROCK);
     }

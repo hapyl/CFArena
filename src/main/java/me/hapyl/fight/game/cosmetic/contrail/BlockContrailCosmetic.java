@@ -22,7 +22,7 @@ public class BlockContrailCosmetic extends ContrailCosmetic {
     private final List<Material> materials;
     private int stay;
 
-    public BlockContrailCosmetic(String name, String description, long cost, Rarity rarity) {
+    public BlockContrailCosmetic(String name, String description, Rarity rarity) {
         super(name, description, rarity);
 
         this.materials = Lists.newArrayList();

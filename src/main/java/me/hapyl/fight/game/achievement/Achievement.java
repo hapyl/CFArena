@@ -9,6 +9,7 @@ import me.hapyl.fight.game.reward.Reward;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.trigger.PlayerTrigger;
 import me.hapyl.fight.trigger.Subscribe;
+import me.hapyl.fight.util.PatternId;
 import me.hapyl.fight.util.ProgressBarBuilder;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.chat.Gradient;
@@ -93,6 +94,12 @@ public class Achievement extends PatternId {
         final int nextComplete = nextComplete(completeCount);
 
         builder.addLore(getType());
+
+        // Name and description
+        builder.setName(getName());
+        builder.addLore();
+        builder.addSmartLore(getDescription());
+
         builder.addLore();
         builder.addLore("&aProgress          &7%s/%s", completeCount, nextComplete);
         builder.addLore(ProgressBarBuilder.of("-", completeCount, nextComplete));

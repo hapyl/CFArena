@@ -3,6 +3,8 @@ package me.hapyl.fight.game.cosmetic;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
+
 public class PrefixCosmetic extends Cosmetic {
 
     private final String prefix;
@@ -11,7 +13,12 @@ public class PrefixCosmetic extends Cosmetic {
         super(name, description, Type.PREFIX, rarity);
 
         this.prefix = prefix;
+    }
 
+    @Override
+    public void setHandle(@Nonnull Cosmetics cosmetics) {
+        super.setHandle(cosmetics);
+        cosmetics.setCollectionAndAdd(CosmeticCollection.PREFIX);
     }
 
     public String getPrefix() {

@@ -134,6 +134,7 @@ public final class Manager extends DependencyInjector<Main> {
 
         profile.loadData();
         getPlugin().getExperience().triggerUpdate(player);
+        Main.getPlugin().getCrateManager().createHologram(player);
         return profile;
     }
 
@@ -633,7 +634,13 @@ public final class Manager extends DependencyInjector<Main> {
     }
 
     public void removeProfile(Player player) {
-        profiles.remove(player.getUniqueId());
+        final PlayerProfile profile = profiles.remove(player.getUniqueId());
+
+        if (profile == null) {
+            return;
+        }
+
+        Main.getPlugin().getCrateManager().removeHologram(player);
     }
 
     public boolean anyProfiles() {

@@ -1,9 +1,11 @@
 package me.hapyl.fight.game.profile;
 
 import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.ScoreboardTeams;
+import me.hapyl.fight.game.delivery.Deliveries;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.setting.Setting;
@@ -27,7 +29,6 @@ public class PlayerProfile {
     private final Player player;
     private final PlayerDatabase playerDatabase;
     private final ScoreboardTeams scoreboardTeams;
-    private final ProfileDisplay display;
 
     @Nullable
     private GamePlayer gamePlayer; // current game player
@@ -45,7 +46,6 @@ public class PlayerProfile {
         this.playerDatabase = new PlayerDatabase(player);
 
         this.scoreboardTeams = new ScoreboardTeams(player);
-        this.display = new ProfileDisplay(this);
         this.loaded = false;
         this.resourcePack = false;
         this.buildMode = false;
@@ -67,8 +67,9 @@ public class PlayerProfile {
         this.resourcePack = true;
     }
 
+    @Nonnull
     public ProfileDisplay getDisplay() {
-        return display;
+        return new ProfileDisplay(this);
     }
 
     public ScoreboardTeams getScoreboardTeams() {
@@ -88,6 +89,9 @@ public class PlayerProfile {
 
         // Prompt Resource Pack
         promptResourcePack();
+
+        // Legacy Crates Delivery
+        Deliveries.LEGACY_CRATES.deliver(player);
     }
 
     public Player getPlayer() {
@@ -101,6 +105,10 @@ public class PlayerProfile {
     @Nullable
     public GamePlayer getGamePlayer() {
         return gamePlayer;
+    }
+
+    public void setGamePlayer(@Nullable GamePlayer gamePlayer) {
+        this.gamePlayer = gamePlayer;
     }
 
     /**
@@ -127,10 +135,6 @@ public class PlayerProfile {
         return oldGamePlayer;
     }
 
-    public void setGamePlayer(@Nullable GamePlayer gamePlayer) {
-        this.gamePlayer = gamePlayer;
-    }
-
     public void resetGamePlayer() {
         gamePlayer = null;
     }
@@ -139,13 +143,13 @@ public class PlayerProfile {
         return selectedHero;
     }
 
+    public void setSelectedHero(Heroes selectedHero) {
+        this.selectedHero = selectedHero;
+    }
+
     public String getSelectedHeroString() {
         final boolean randomHeroEnabled = Setting.RANDOM_HERO.isEnabled(player);
         return randomHeroEnabled ? "&l❓&f ʀᴀɴᴅᴏᴍ" : selectedHero.getFormatted();
-    }
-
-    public void setSelectedHero(Heroes selectedHero) {
-        this.selectedHero = selectedHero;
     }
 
     public GamePlayerUI getPlayerUI() {
@@ -183,6 +187,11 @@ public class PlayerProfile {
 
     public Hero getHeroHandle() {
         return selectedHero.getHero();
+    }
+
+    @Nonnull
+    public PlayerRank getRank() {
+        return playerDatabase.getRank();
     }
 
     @Nonnull

@@ -3,7 +3,7 @@ package me.hapyl.fight.game.cosmetic.gui;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.database.entry.CurrencyEntry;
-import me.hapyl.fight.game.cosmetic.ShopItem;
+import me.hapyl.fight.game.cosmetic.CollectionItem;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.PlayerGUI;
 import org.bukkit.Material;
@@ -13,16 +13,16 @@ import org.bukkit.inventory.ItemStack;
 @Deprecated
 public abstract class PurchaseConfirmGUI extends PlayerGUI {
 
-    private final ShopItem item;
+    private final CollectionItem item;
 
-    public PurchaseConfirmGUI(Player player, ShopItem item) {
+    public PurchaseConfirmGUI(Player player, CollectionItem item) {
         super(player, "Confirm Purchase", 3);
 
         this.item = item;
         updateInventory();
     }
 
-    public abstract void onPurchase(Player player, ShopItem item, PurchaseResult result);
+    public abstract void onPurchase(Player player, CollectionItem item, PurchaseResult result);
 
     private void updateInventory() {
         try {

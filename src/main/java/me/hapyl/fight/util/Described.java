@@ -2,7 +2,7 @@ package me.hapyl.fight.util;
 
 import javax.annotation.Nonnull;
 
-public interface DescribedEnum {
+public interface Described {
 
     @Nonnull
     String getName();

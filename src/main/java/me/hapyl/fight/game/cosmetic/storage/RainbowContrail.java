@@ -1,8 +1,7 @@
 package me.hapyl.fight.game.cosmetic.storage;
 
-import me.hapyl.fight.game.cosmetic.contrail.BlockContrailCosmetic;
 import me.hapyl.fight.game.cosmetic.Rarity;
-import me.hapyl.fight.game.cosmetic.ShopItem;
+import me.hapyl.fight.game.cosmetic.contrail.BlockContrailCosmetic;
 import org.bukkit.Material;
 
 public class RainbowContrail extends BlockContrailCosmetic {
@@ -11,10 +10,10 @@ public class RainbowContrail extends BlockContrailCosmetic {
         super(
                 "Rainbow",
                 "There are all the colors!__&8Or are there?",
-                ShopItem.NOT_PURCHASABLE,
                 Rarity.LEGENDARY
         );
 
+        setExclusive(true);
         setIcon(Material.RED_STAINED_GLASS);
 
         addMaterials(

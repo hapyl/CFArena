@@ -39,6 +39,8 @@ public class PlayerDatabase {
     public final FriendsEntry friendsEntry;
     public final CollectibleEntry collectibleEntry;
     public final DailyRewardEntry dailyRewardEntry;
+    public final CrateEntry crateEntry;
+    public final DeliveryEntry deliveryEntry;
     /////////////////
     // ENTRIES END //
     /////////////////
@@ -65,6 +67,8 @@ public class PlayerDatabase {
         this.collectibleEntry = new CollectibleEntry(this);
         this.heroEntry = new HeroEntry(this);
         this.dailyRewardEntry = new DailyRewardEntry(this);
+        this.crateEntry = new CrateEntry(this);
+        this.deliveryEntry = new DeliveryEntry(this);
 
         UUID_DATABASE_MAP.put(uuid, this);
     }

@@ -23,7 +23,7 @@ public class ParkourLeaderboard {
     private final Hologram hologram;
 
     public ParkourLeaderboard(CFParkour parkour, double x, double y, double z) {
-        this(parkour, new Location(parkour.getStart().getLocation().getWorld(), x, y + 0.25d, z));
+        this(parkour, new Location(parkour.getStart().getLocation().getWorld(), x, y, z));
     }
 
     public ParkourLeaderboard(CFParkour parkour, Location location) {

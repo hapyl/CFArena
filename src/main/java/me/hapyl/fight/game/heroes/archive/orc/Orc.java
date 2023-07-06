@@ -143,7 +143,7 @@ public class Orc extends Hero {
             private int tick = 0;
 
             @Override
-            public void onStop() {
+            public void onTaskStop() {
                 Chat.sendMessage(player, "%s &ais over!", Named.BERSERK);
             }
 

@@ -3,9 +3,11 @@ package me.hapyl.fight.game.color;
 import me.hapyl.spigotutils.module.chat.Gradient;
 import me.hapyl.spigotutils.module.chat.gradient.Interpolator;
 import me.hapyl.spigotutils.module.chat.gradient.Interpolators;
+import me.hapyl.spigotutils.module.util.BFormat;
 import net.md_5.bungee.api.ChatColor;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class GradientColor extends Color {
 
@@ -21,12 +23,12 @@ public class GradientColor extends Color {
     }
 
     @Override
-    public String color(@Nonnull String string) {
+    public String color(@Nonnull String string, @Nullable Object... format) {
         return color(string, Interpolators.LINEAR);
     }
 
-    public String color(@Nonnull String string, @Nonnull Interpolator interpolator) {
-        final Gradient gradient = new Gradient(string);
+    public String color(@Nonnull String string, @Nonnull Interpolator interpolator, @Nullable Object... format) {
+        final Gradient gradient = new Gradient(BFormat.format(string, format));
 
         for (ColorFlag flag : getFlags()) {
             flag.gradient(gradient);

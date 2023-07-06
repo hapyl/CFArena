@@ -101,11 +101,15 @@ public abstract class GeometryTask extends GameTask {
      * @param callback - Callback.
      */
     public void offsetXZ(@Nonnull Location location, double distance, @Nonnull Callback<Location> callback) {
+        offsetXZ(location, distance, 0, callback);
+    }
+
+    public void offsetXZ(@Nonnull Location location, double distance, double y, @Nonnull Callback<Location> callback) {
         final double[] sin2cos = sin2cos(distance);
 
-        location.add(sin2cos[0], 0, sin2cos[1]);
+        location.add(sin2cos[0], y, sin2cos[1]);
         callback.callback(location);
-        location.subtract(sin2cos[0], 0, sin2cos[1]);
+        location.subtract(sin2cos[0], y, sin2cos[1]);
     }
 
     /**
@@ -227,7 +231,7 @@ public abstract class GeometryTask extends GameTask {
         private int maxSpin;
         private int maxTick;
         private int runIterations = 1;
-        private double step;
+        private double step = Math.PI / 12;
         private LivingEntity deathEntity;
 
         private Properties(GeometryTask task) {
@@ -314,6 +318,11 @@ public abstract class GeometryTask extends GameTask {
          */
         public Properties step(double step) {
             this.step = Math.min(step, PI_2);
+            return this;
+        }
+
+        public Properties infinite() {
+            this.maxTick = Integer.MAX_VALUE - 1;
             return this;
         }
 

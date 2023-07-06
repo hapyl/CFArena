@@ -105,19 +105,10 @@ public class AchievementGUI extends PlayerPageGUI<Achievement> {
         // Set count
         builder.setAmount(achievement.getTier(completeCount));
 
-        // Name and Lore
-        builder.setName(achievement.getName());
-        builder.addLore();
-        builder.addSmartLore(achievement.getDescription());
-
         // Format
         achievement.format(player, builder);
 
         return builder.asIcon();
-    }
-
-    @Override
-    public void onClick(Player player, Achievement achievement, int index, int page) {
     }
 
 }

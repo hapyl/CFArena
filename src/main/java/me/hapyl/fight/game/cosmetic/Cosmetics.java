@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public enum Cosmetics {
+public enum Cosmetics implements RareItem, BelongsToCollection {
 
     BLOOD(new Cosmetic("Blood", "A classic redstone particles mimicking blood.", Type.KILL, Rarity.COMMON, Material.REDSTONE) {
         @Override
@@ -124,7 +124,7 @@ public enum Cosmetics {
 
     SUNNY(new PrefixCosmetic(
             "Sunny",
-            "It's a nice weather outside :)",
+            "It's nice weather outside :)",
             "&e☀&6&lSunny&e☀",
             Rarity.EPIC
     ).setIcon(Material.GOLD_BLOCK)),
@@ -144,13 +144,17 @@ public enum Cosmetics {
     ).setIcon(Material.REDSTONE_TORCH)),
 
     // Win Effects
-    FIREWORKS(new FireworksWinEffect(), true),
+    /**
+     * Should not explicitly be used.
+     */
+    @Deprecated FIREWORKS(new FireworksWinEffect(), true),
     AVALANCHE(new AvalancheWinEffect()),
     TWERK(new TwerkWinEffect()),
 
     ;
 
     private final static Map<Type, List<Cosmetics>> byType = Maps.newHashMap();
+    private final static Map<Class<?>, List<Cosmetics>> BY_CLASS = Maps.newHashMap();
 
     static {
         for (Cosmetics value : values()) {
@@ -164,6 +168,8 @@ public enum Cosmetics {
 
     private final boolean ignore;
     private final Cosmetic cosmetic;
+    @Nullable
+    private CosmeticCollection collection;
 
     Cosmetics(Cosmetic cosmetic) {
         this(cosmetic, false);
@@ -171,6 +177,7 @@ public enum Cosmetics {
 
     Cosmetics(Cosmetic cosmetic, boolean force) {
         this.cosmetic = cosmetic;
+        this.cosmetic.setHandle(this);
         this.ignore = force;
     }
 
@@ -189,6 +196,42 @@ public enum Cosmetics {
 
     public boolean isSelected(Player player) {
         return PlayerDatabase.getDatabase(player).getCosmetics().getSelected(getType()) == this;
+    }
+
+    @Nonnull
+    @Override
+    public Rarity getRarity() {
+        return cosmetic.getRarity();
+    }
+
+    @Nonnull
+    @Override
+    public String getId() {
+        return name();
+    }
+
+    @Nonnull
+    public <T> T getCosmetic(Class<T> clazz) {
+        if (clazz.isInstance(cosmetic)) {
+            return clazz.cast(cosmetic);
+        }
+
+        throw new IllegalArgumentException("%s cannot be cast to %s".formatted(this, clazz.getSimpleName()));
+    }
+
+    public boolean isIgnore() {
+        return ignore;
+    }
+
+    @Nullable
+    @Override
+    public CosmeticCollection getCollection() {
+        return collection;
+    }
+
+    @Override
+    public void setCollection(@Nullable CosmeticCollection collection) {
+        this.collection = collection;
     }
 
     // static members

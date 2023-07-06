@@ -8,27 +8,22 @@ import me.hapyl.fight.game.cosmetic.contrail.BlockContrailCosmetic;
 import me.hapyl.fight.game.cosmetic.contrail.ContrailCosmetic;
 import me.hapyl.fight.game.cosmetic.contrail.ParticleContrailCosmetic;
 import me.hapyl.fight.game.cosmetic.gui.CosmeticGUI;
+import me.hapyl.fight.util.Formatted;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.Action;
 import me.hapyl.spigotutils.module.player.PlayerLib;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
-public abstract class Cosmetic extends ShopItem {
+public abstract class Cosmetic extends CollectionItem implements Formatted, EnumHandle<Cosmetics> {
 
     @Nonnull
     private final Type type;
-
-    @Nullable
-    private Collection collection;
+    private Cosmetics handle;
 
     public Cosmetic(String name, String description, @Nonnull Type type, Rarity rarity, Material icon) {
         super(name, description);
@@ -49,13 +44,15 @@ public abstract class Cosmetic extends ShopItem {
         this(name, description, type, Rarity.UNSET, Material.BARRIER);
     }
 
-    @Nullable
-    public Collection getCollection() {
-        return collection;
+    @Nonnull
+    @Override
+    public Cosmetics getHandle() {
+        return handle;
     }
 
-    public void setCollection(@Nullable Collection collection) {
-        this.collection = collection;
+    @Override
+    public void setHandle(@Nonnull Cosmetics cosmetics) {
+        handle = cosmetics;
     }
 
     public ItemActionPair createItem(Player player, Cosmetics cosmetic, CosmeticGUI previous) {
@@ -167,6 +164,12 @@ public abstract class Cosmetic extends ShopItem {
 
     public void onDisplay(Location location) {
         onDisplay(new Display(null, location));
+    }
+
+    @Nonnull
+    @Override
+    public String getFormatted() {
+        return ChatColor.GREEN + getName() + " &7(" + Chat.capitalize(type) + " Cosmetic) " + getRarity().getFormatted() + "&7";
     }
 
     @Nonnull

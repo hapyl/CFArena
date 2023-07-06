@@ -8,6 +8,7 @@ import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.cosmetic.WinCosmetic;
+import me.hapyl.fight.game.cosmetic.crate.Crates;
 import me.hapyl.fight.game.damage.EntityData;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.gamemode.Modes;
@@ -294,12 +295,23 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
 
     @Override
     public void onStart() {
-        //Chat.broadcast("&7&oStarting game instance #%s...", this.hexCode());
     }
 
     @Override
     public void onStop() {
-        //Chat.broadcast("&7&oStopping game instance #%s...".formatted(this.hexCode()));
+        // Generate crates
+        if (Manager.current().isDebug()) {
+            //return;
+        }
+
+        // Give crates to players
+        players.values().forEach(player -> {
+            if (player.isSpectator()) {
+                return;
+            }
+
+            Crates.grant(player, Crates.randomCrate());
+        });
     }
 
     @Nonnull

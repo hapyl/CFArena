@@ -5,6 +5,7 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import me.hapyl.fight.Main;
+import me.hapyl.fight.database.collection.GlobalConfigCollection;
 import me.hapyl.spigotutils.module.util.DependencyInjector;
 import org.bson.Document;
 import org.bukkit.Bukkit;
@@ -25,13 +26,14 @@ public class Database extends DependencyInjector<Main> {
 
     private final FileConfiguration config;
     private final NamedDatabase namedDatabase;
-
-    private MongoClient client;
-    private MongoDatabase database;
+    public MongoCollection<Document> friends;
     protected MongoCollection<Document> players;
     protected MongoCollection<Document> parkour;
     protected MongoCollection<Document> heroStats;
-    public MongoCollection<Document> friends;
+    protected MongoCollection<Document> global;
+    private MongoClient client;
+    private MongoDatabase database;
+    private GlobalConfigCollection globalConfig;
 
     public Database(Main main) {
         super(main);
@@ -83,9 +85,17 @@ public class Database extends DependencyInjector<Main> {
             parkour = database.getCollection("parkour");
             heroStats = database.getCollection("hero_stats");
             friends = database.getCollection("friends");
+            global = database.getCollection("global");
+
+            // load async database
+            globalConfig = new GlobalConfigCollection(global);
         } catch (Exception e) {
             breakConnectionAndDisablePlugin("Failed to retrieve database collection!");
         }
+    }
+
+    public GlobalConfigCollection getGlobalConfig() {
+        return globalConfig;
     }
 
     public String getDatabaseString() {

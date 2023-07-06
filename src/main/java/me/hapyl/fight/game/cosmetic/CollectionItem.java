@@ -4,12 +4,10 @@ import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class ShopItem {
-
-    @Deprecated
-    public static final long NOT_PURCHASABLE = -1L;
+public class CollectionItem {
 
     private final String name;
     private final String description;
@@ -17,8 +15,9 @@ public class ShopItem {
     private String extra;
     private Rarity rarity;
     private Material icon;
+    private boolean exclusive;
 
-    public ShopItem(String name, String description) {
+    public CollectionItem(String name, String description) {
         this.name = name;
         this.description = description;
         this.extra = null;
@@ -38,7 +37,7 @@ public class ShopItem {
             builder.addSmartLore(extra);
         }
 
-        if (isPurchaseable()) {
+        if (isExclusive()) {
             builder.addLore();
             // TODO (hapyl): 002, Jul 2:
             //builder.addLore("&eCost: &a%s", instantBuy);
@@ -52,30 +51,34 @@ public class ShopItem {
         return extra;
     }
 
-    public ShopItem setExtra(String extra) {
+    public CollectionItem setExtra(String extra) {
         this.extra = extra;
         return this;
     }
 
-    @Deprecated(forRemoval = true)
-    public boolean isPurchaseable() {
-        return false;
+    public boolean isExclusive() {
+        return exclusive;
+    }
+
+    public void setExclusive(boolean exclusive) {
+        this.exclusive = exclusive;
     }
 
     public Material getIcon() {
         return icon;
     }
 
-    public ShopItem setIcon(Material icon) {
+    public CollectionItem setIcon(Material icon) {
         this.icon = icon;
         return this;
     }
 
+    @Nonnull
     public Rarity getRarity() {
-        return rarity;
+        return rarity == null ? Rarity.UNSET : rarity;
     }
 
-    public ShopItem setRarity(Rarity rarity) {
+    public CollectionItem setRarity(Rarity rarity) {
         this.rarity = rarity;
         return this;
     }

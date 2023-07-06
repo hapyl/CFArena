@@ -28,15 +28,15 @@ public class CosmeticGUI extends PlayerGUI {
         final List<Cosmetics> cosmetics = Cosmetics.getByType(type);
 
         // Don't show unobtainable cosmetics unless magically selected
-        cosmetics.removeIf(cosmetic -> {
-            if (!cosmetic.getCosmetic().isPurchaseable()) {
-                return !cosmetic.isUnlocked(getPlayer()) && !cosmetic.isSelected(getPlayer());
-            }
+        //cosmetics.removeIf(cosmetic -> {
+        //    if (!cosmetic.getCosmetic().isExclusive()) {
+        //        return !cosmetic.isUnlocked(getPlayer()) && !cosmetic.isSelected(getPlayer());
+        //    }
+        //
+        //    return false;
+        //});
 
-            return false;
-        });
-
-        // Set back button at slot 18
+        // Set the back button at slot 18
         setItem(18, ItemBuilder.of(Material.ARROW, "Go Back").asIcon(), CollectionGUI::new);
 
         if (cosmetics.isEmpty()) {

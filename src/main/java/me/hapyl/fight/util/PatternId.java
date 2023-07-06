@@ -1,7 +1,6 @@
-package me.hapyl.fight.game.achievement;
+package me.hapyl.fight.util;
 
 import me.hapyl.fight.annotate.ForceLowercase;
-import me.hapyl.fight.util.Final;
 import me.hapyl.spigotutils.module.util.Validate;
 
 import javax.annotation.Nonnull;

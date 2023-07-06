@@ -5,6 +5,7 @@ import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.util.ItemStacks;
+import me.hapyl.fight.util.Sortable;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.PlayerGUI;
 import org.bukkit.Material;
@@ -40,7 +41,6 @@ public class HeroSelectGUI extends PlayerGUI {
         clearEverything();
 
         final Player player = getPlayer();
-
         final List<Heroes> list = archetypeSort.sort(Heroes.playableRespectLockedFavourites(player));
 
         // add previous page button

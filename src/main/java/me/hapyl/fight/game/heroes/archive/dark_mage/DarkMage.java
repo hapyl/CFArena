@@ -8,7 +8,8 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.cosmetic.CosmeticsHandle;
+import me.hapyl.fight.game.cosmetic.Cosmetics;
+import me.hapyl.fight.game.cosmetic.storage.GroundPunchCosmetic;
 import me.hapyl.fight.game.damage.EntityData;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.*;
@@ -180,7 +181,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
                     public void run() {
                         if (maxAirTicks-- <= 0 || player.isOnGround()) {
                             this.cancel();
-                            CosmeticsHandle.GROUND_PUNCH_COSMETIC.playAnimation(player.getLocation(), 2);
+                            Cosmetics.GROUND_PUNCH.getCosmetic(GroundPunchCosmetic.class).playAnimation(player.getLocation(), 2);
 
                             Collect.nearbyPlayers(player.getLocation(), 4).forEach(target -> {
                                 if (target == player) {

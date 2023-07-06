@@ -10,6 +10,7 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.achievement.AchievementRegistry;
 import me.hapyl.fight.game.collectible.Collectibles;
 import me.hapyl.fight.game.cosmetic.CosmeticsListener;
+import me.hapyl.fight.game.cosmetic.crate.CrateManager;
 import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.maps.features.BoosterController;
 import me.hapyl.fight.game.maps.gamepack.HealthPackListener;
@@ -55,11 +56,13 @@ public class Main extends JavaPlugin {
     public CFParkourManager parkourManager;
     public Collectibles collectibles;
     public AchievementRegistry achievementRegistry;
+    private CrateManager crateManager;
 
     @Override
     public void onEnable() {
         // Assign singleton & start time
         plugin = this;
+        CF.plugin = this;
         start = System.currentTimeMillis();
 
         // Initiate API
@@ -83,6 +86,7 @@ public class Main extends JavaPlugin {
         humanManager = new HumanManager(this);
         collectibles = new Collectibles(this);
         achievementRegistry = new AchievementRegistry(this);
+        crateManager = new CrateManager(this);
 
         new LampGame(this);
 
@@ -191,6 +195,10 @@ public class Main extends JavaPlugin {
         }
 
         return enumValue;
+    }
+
+    public CrateManager getCrateManager() {
+        return crateManager;
     }
 
     private void registerEvents() {
