@@ -217,7 +217,7 @@ public class PlayerHandler implements Listener {
             for (final Player online : Bukkit.getOnlinePlayers()) {
                 Chat.sendMessage(
                         online,
-                        "&b&l※ &b%s used &l%s&7!".formatted(online == player ? "You" : player.getName(), ultimate.getName())
+                        "&b&l※ &b%s used &l%s&7!" .formatted(online == player ? "You" : player.getName(), ultimate.getName())
                 );
                 PlayerLib.playSound(online, ultimate.getSound(), ultimate.getPitch());
             }
@@ -819,6 +819,11 @@ public class PlayerHandler implements Listener {
 
         final Response response = isLeftClick ? talent.onLeftClick(player) : talent.onRightClick(player);
         final String usage = talent.getUsage(isLeftClick);
+
+        if (response.isError()) {
+            gamePlayer.setInputTalent(null);
+            player.getInventory().setHeldItemSlot(0);
+        }
 
         if (!checkResponse(player, response)) {
             return;

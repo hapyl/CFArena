@@ -9,7 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 
-public class StylishFallCosmetic extends Cosmetic implements DisabledCosmetic {
+public class StylishFallCosmetic extends Cosmetic {
     public StylishFallCosmetic() {
         super("Stylish Fall", "Fall in style.", Type.DEATH, Rarity.LEGENDARY, Material.PLAYER_HEAD);
     }

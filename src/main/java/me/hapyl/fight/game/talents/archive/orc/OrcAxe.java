@@ -108,6 +108,11 @@ public class OrcAxe extends InputTalent {
                 .task()
                 .runTaskTimer(0, 1);
 
+        // Fx
+        final Location location = player.getLocation();
+        PlayerLib.playSound(location, Sound.ENTITY_ILLUSIONER_PREPARE_MIRROR, 0.75f);
+        PlayerLib.playSound(location, Sound.ENTITY_EVOKER_CAST_SPELL, 1.25f);
+
         return Response.OK;
     }
 
@@ -127,13 +132,13 @@ public class OrcAxe extends InputTalent {
                 final Location location = player.getLocation();
                 final Location eyeLocation = player.getEyeLocation();
 
-                if (tick >= 50 || startLocation.distance(location) >= 6.0d) {
+                if (tick >= 25 || startLocation.distance(location) >= 6.0d) {
                     executeHit(eyeLocation);
                     cancel();
                     return;
                 }
 
-                final LivingEntity hitEntity = Collect.nearestLivingEntity(location, 0.5d, living -> living != player);
+                final LivingEntity hitEntity = Collect.nearestLivingEntity(location, 1.0d, living -> living != player);
 
                 if (hitEntity != null) {
                     executeHit(hitEntity.getEyeLocation());
@@ -152,13 +157,17 @@ public class OrcAxe extends InputTalent {
             }
 
             private void executeHit(@Nonnull Location location) {
-                EntityData.damageAoE(location, 1.0d, 10.0d, player, EnumDamageCause.ORC_DASH, living -> living != player);
+                EntityData.damageAoE(location, 2.5d, 10.0d, player, EnumDamageCause.ORC_DASH, living -> living != player);
 
                 // Fx
                 PlayerLib.spawnParticle(location, Particle.SWEEP_ATTACK, 1, 0.1d, 0.1d, 0.1d, 10);
                 PlayerLib.playSound(location, Sound.BLOCK_ANVIL_HIT, 0.75f);
             }
         }.runTaskTimer(0, 1);
+
+        // Fx
+        PlayerLib.playSound(startLocation, Sound.ENTITY_CAMEL_DASH, 0.75f);
+        PlayerLib.playSound(startLocation, Sound.ENTITY_CAMEL_DASH_READY, 0.0f);
 
         return Response.OK;
     }
