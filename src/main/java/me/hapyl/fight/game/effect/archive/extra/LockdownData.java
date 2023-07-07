@@ -1,4 +1,4 @@
-package me.hapyl.fight.game.effect.storage.extra;
+package me.hapyl.fight.game.effect.archive.extra;
 
 import me.hapyl.spigotutils.module.util.Holder;
 import org.bukkit.entity.Player;

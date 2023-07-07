@@ -5,7 +5,6 @@ import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.gui.TeamSelectGUI;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.command.SimplePlayerCommand;
-import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.entity.Player;
 
 public class TeamCommand extends SimplePlayerCommand {
@@ -33,15 +32,15 @@ public class TeamCommand extends SimplePlayerCommand {
             return;
         }
 
-        final String arg0 = args[0].toLowerCase();
+        final String string = getArgument(args, 0).toString();
+        final GameTeam team = getArgument(args, 1).toEnum(GameTeam.class);
 
-        final GameTeam team = Validate.getEnumValue(GameTeam.class, args[1]);
         if (team == null) {
             Chat.sendMessage(player, "&cCould not find team '%s'!", args[1]);
             return;
         }
 
-        if (arg0.equalsIgnoreCase("join")) {
+        if (string.equalsIgnoreCase("join")) {
             if (team.addMember(player)) {
                 Chat.sendMessage(player, "&aJoined %s team.", team.getName());
             }

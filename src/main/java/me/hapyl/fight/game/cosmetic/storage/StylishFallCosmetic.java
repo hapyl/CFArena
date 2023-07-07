@@ -9,15 +9,14 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 
-// FIXME (hapyl): 002, Jul 2: NPC does not fall
-public class StylishFallCosmetic extends Cosmetic {
+public class StylishFallCosmetic extends Cosmetic implements DisabledCosmetic {
     public StylishFallCosmetic() {
         super("Stylish Fall", "Fall in style.", Type.DEATH, Rarity.LEGENDARY, Material.PLAYER_HEAD);
     }
 
     @Override
     public void onDisplay(Display display) {
-        final Location location = display.getLocation();
+        final Location location = display.getLocation().subtract(0.0d, 0.75d, 0.0d);
 
         location.setPitch(0.0f);
 
@@ -27,6 +26,7 @@ public class StylishFallCosmetic extends Cosmetic {
 
         human.playAnimation(NPCAnimation.TAKE_DAMAGE);
         human.setDataWatcherByteValue(0, (byte) 0x80);
+        human.updateDataWatcher();
 
         GameTask.runLater(() -> {
             display.particle(Particle.CLOUD, 16, 0.5d, 0.1d, 0.5d, 0.04f);

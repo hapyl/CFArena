@@ -30,6 +30,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Base Hero class.
@@ -586,6 +587,11 @@ public abstract class Hero implements GameElement, PlayerElement {
      */
     protected void setUltimate(UltimateTalent ultimate) {
         this.ultimate = ultimate;
+    }
+
+    protected void setUltimate(UltimateTalent ultimate, Consumer<UltimateTalent> andThen) {
+        setUltimate(ultimate);
+        andThen.accept(ultimate);
     }
 
     /**

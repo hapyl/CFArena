@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.effect;
 
-import me.hapyl.fight.game.effect.storage.*;
+import me.hapyl.fight.game.effect.archive.*;
 
 public enum GameEffectType {
 
@@ -20,7 +20,10 @@ public enum GameEffectType {
     BLEED(new BleedEffect()),
 
     ORC_GROWL(new OrcGrowlEffect()),
-    WITHER_BLOOD(new WitherBlood());
+    WITHER_BLOOD(new WitherBlood()),
+    POISON_IVY(new PoisonIvy()),
+
+    ;
 
     private final GameEffect gameEffect;
 

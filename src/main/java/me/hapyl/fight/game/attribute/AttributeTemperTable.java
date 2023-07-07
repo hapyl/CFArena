@@ -90,6 +90,15 @@ public final class AttributeTemperTable {
         return total;
     }
 
+    public boolean has(Temper temper) {
+        return tempers.containsRow(temper);
+    }
+
+    public void cancelAll() {
+        tempers.forEach(AttributeTemper::cancel);
+        tempers.clear();
+    }
+
     private void remove(@Nonnull Temper temper, @Nonnull AttributeType type) {
         final AttributeTemper remove = tempers.remove(temper, type);
 
@@ -99,10 +108,5 @@ public final class AttributeTemperTable {
 
         remove.cancel();
         tempers.remove(temper, type);
-    }
-
-    public void cancelAll() {
-        tempers.forEach(AttributeTemper::cancel);
-        tempers.clear();
     }
 }

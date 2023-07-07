@@ -34,6 +34,7 @@ import me.hapyl.fight.game.talents.archive.hercules.HerculesJump;
 import me.hapyl.fight.game.talents.archive.hercules.HerculesShift;
 import me.hapyl.fight.game.talents.archive.juju.ArrowShield;
 import me.hapyl.fight.game.talents.archive.juju.Climb;
+import me.hapyl.fight.game.talents.archive.juju.PoisonZone;
 import me.hapyl.fight.game.talents.archive.juju.TricksOfTheJungle;
 import me.hapyl.fight.game.talents.archive.km.LaserEye;
 import me.hapyl.fight.game.talents.archive.km.ShellGrande;
@@ -269,6 +270,7 @@ public enum Talents {
     ARROW_SHIELD(new ArrowShield()),
     @Deprecated CLIMB(new Climb()),
     TRICKS_OF_THE_JUNGLE(new TricksOfTheJungle()),
+    POISON_ZONE(new PoisonZone()),
     JUJU_PASSIVE(new PassiveTalent(
             "Climb", """
             Raised by the jungle, Juju mastered the ability to climb anything.

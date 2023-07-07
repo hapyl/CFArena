@@ -1,4 +1,4 @@
-package me.hapyl.fight.game.effect.storage;
+package me.hapyl.fight.game.effect.archive;
 
 import me.hapyl.fight.game.effect.GameEffect;
 import me.hapyl.fight.game.ui.display.DebuffDisplay;

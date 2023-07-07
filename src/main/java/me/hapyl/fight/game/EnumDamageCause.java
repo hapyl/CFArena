@@ -116,9 +116,9 @@ public enum EnumDamageCause {
     ORC_WEAPON(DamageCause.of("was {damager}'s bullseye")),
     CYCLING_AXE(DamageCause.of("couldn't see that {damager}'s axe is flying there")),
     FROSTBITE(DamageCause.of("froze to death, and {damager} is the one to blame")),
+    POISON_IVY(DamageCause.nonCrit("was poised to death by {damager}'s poison ivy")),
 
-
-    /* Keep this semicolon here for easy clone. */;
+    ;
 
     private final DamageCause damageCause;
 

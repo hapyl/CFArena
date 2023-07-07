@@ -61,8 +61,13 @@ public class PlayerAttributes extends Attributes implements PlayerElement {
      * @param duration - Duration of increase.
      */
     public void increaseTemporary(@Nonnull Temper temper, @Nonnull AttributeType type, double value, int duration) {
+        final boolean newTemper = !tempers.has(temper);
         tempers.add(temper, type, value, duration);
-        display(type, value > -value);
+
+        // do not spawn if player already has this temper
+        if (newTemper) {
+            display(type, value > -value);
+        }
     }
 
     /**

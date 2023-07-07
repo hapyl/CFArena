@@ -1,17 +1,17 @@
-package me.hapyl.fight.game.effect.storage;
+package me.hapyl.fight.game.effect.archive;
 
 import me.hapyl.fight.game.effect.GameEffect;
 import org.bukkit.entity.LivingEntity;
 
-public class Strength extends GameEffect {
+public class PoisonIvy extends GameEffect {
+    public PoisonIvy() {
+        super("Poison Ivy");
 
-    public Strength() {
-        super("Strength");
+        setPositive(false);
     }
 
     @Override
     public void onStart(LivingEntity entity) {
-
     }
 
     @Override

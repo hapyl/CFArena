@@ -8,7 +8,7 @@ import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.effect.GameEffect;
 import me.hapyl.fight.game.effect.GameEffectType;
-import me.hapyl.fight.game.effect.storage.SlowingAuraEffect;
+import me.hapyl.fight.game.effect.archive.SlowingAuraEffect;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;

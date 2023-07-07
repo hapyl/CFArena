@@ -4,6 +4,7 @@ import me.hapyl.fight.game.EnumDamageCause;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -26,9 +27,7 @@ public class DamageInput {
     }
 
     /**
-     * Returns entity who is being damaged. (Victim)
-     *
-     * @return entity who is being damage. (Victim)
+     * Gets the entity who is either being hit, or damaging based on the event.
      */
     @Nullable
     public LivingEntity getEntity() {
@@ -45,10 +44,9 @@ public class DamageInput {
     }
 
     /**
-     * Returns player who damaged the entity.
-     *
-     * @return player who damaged the entity.
+     * Gets the player, either the player who got hit or the player who is damaging based on the event.
      */
+    @Nonnull
     public Player getPlayer() {
         return player;
     }

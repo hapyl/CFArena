@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.juju;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
@@ -10,9 +11,10 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.juju.ArrowShield;
 import me.hapyl.fight.game.talents.archive.juju.TricksOfTheJungle;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.game.ui.UIComponent;
+import me.hapyl.fight.game.ui.UIComplexComponent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Iterators;
+import me.hapyl.fight.ux.Message;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -23,8 +25,11 @@ import org.bukkit.Sound;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
@@ -32,19 +37,25 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-public class JuJu extends Hero implements Listener, UIComponent, HeroPlaque {
+public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaque {
+
+    private final Map<Player, ArrowData> playerArrows = Maps.newHashMap();
+    private final Map<Arrow, ArrowType> arrowType = Maps.newHashMap();
 
     private final Set<Player> climbing = Sets.newHashSet();
     private final int CLIMB_COOLDOWN = Tick.fromSecond(10);
 
     public JuJu() {
-        super("Juju the Bandit");
+        super("Juju");
 
         setRole(Role.RANGE);
-        setArchetype(Archetype.RANGE);
+        setArchetype(Archetype.HEXBANE);
 
         setMinimumLevel(5);
 
@@ -61,7 +72,42 @@ public class JuJu extends Hero implements Listener, UIComponent, HeroPlaque {
                 .setDescription("A bow made of anything you can find in the middle of the jungle.")
                 .setDamage(4.0d));
 
-        setUltimate(new UltimateTalent("", 555));
+        setUltimate(
+                new UltimateTalent(ArrowType.POISON_IVY.getName(), 60)
+                        .setItem(Material.SPIDER_EYE)
+                        .setDurationSec(4),
+                then -> then.setDescription(ArrowType.POISON_IVY.getTalentDescription(then))
+        );
+    }
+
+    public void setArrowType(Player player, ArrowType type, int duration) {
+        final ArrowData arrowData = playerArrows.get(player);
+
+        if (arrowData != null) {
+            Message.error(player, "Cannot change now!");
+            return;
+        }
+
+        final ArrowData previous = playerArrows.put(player, new ArrowData(player, type, duration));
+
+        if (previous != null) {
+            previous.cancelIfActive();
+            previous.type.onUnequip(player);
+        }
+
+        type.onEquip(player);
+    }
+
+    public void unequipArrow(Player player, ArrowType type) {
+        final ArrowData data = playerArrows.remove(player);
+
+        if (data == null || data.type != type) {
+            return;
+        }
+
+        data.cancel();
+        data.type.onUnequip(player);
+        playerArrows.remove(player);
     }
 
     @EventHandler()
@@ -118,32 +164,77 @@ public class JuJu extends Hero implements Listener, UIComponent, HeroPlaque {
         }
     }
 
-    public Arrow bounceArrow(Arrow arrow, BlockFace hitBlock) {
-        // Calculate the angle of reflection for the arrow.
-        final Vector arrowVelocity = arrow.getVelocity();
-        final Vector surfaceNormal = hitBlock.getDirection();
-        final Vector reflectedVelocity = arrowVelocity.subtract(surfaceNormal.multiply(1.5d * arrowVelocity.dot(surfaceNormal)));
+    @Override
+    public boolean predicateUltimate(Player player) {
+        return getArrowType(player) == null;
+    }
 
-        // Set the new velocity of the arrow to the reflected velocity.
-        return Entities.ARROW.spawn(arrow.getLocation(), self -> {
-            self.setShooter(arrow.getShooter());
-            self.setDamage(arrow.getDamage() * 2);
-            self.setColor(Color.GREEN);
-            self.setCritical(arrow.isCritical());
-            self.setVelocity(reflectedVelocity);
-        });
+    @Override
+    public String predicateMessage(Player player) {
+        return "Cannot use while " + getSecondTalent().getName() + " is active!";
     }
 
     @Override
     public void useUltimate(Player player) {
+        setArrowType(player, ArrowType.POISON_IVY, getUltimateDuration());
+    }
+
+    @EventHandler()
+    public void handleBowShoot(ProjectileLaunchEvent ev) {
+        final Projectile projectile = ev.getEntity();
+
+        if (!(projectile instanceof Arrow arrow)
+                || !(arrow.getShooter() instanceof Player player)) {
+            return;
+        }
+
+        final ArrowData arrowData = playerArrows.get(player);
+
+        if (arrowData == null) {
+            return;
+        }
+
+        arrowData.type.onShoot(player, arrow);
+        arrowType.put(arrow, arrowData.type);
+    }
+
+    @EventHandler()
+    public void handleProjectileHitEvent(ProjectileHitEvent ev) {
+        final Projectile projectile = ev.getEntity();
+
+        if (!(projectile instanceof Arrow arrow) || !(projectile.getShooter() instanceof Player player)) {
+            return;
+        }
+
+        final ArrowType arrowType = this.arrowType.get(arrow);
+
+        if (arrowType != null) {
+            arrowType.onHit(player, arrow);
+        }
     }
 
     @Override
     public void onDeath(Player player) {
+        climbing.remove(player);
+        final ArrowData data = playerArrows.remove(player);
+
+        if (data != null) {
+            data.cancelIfActive();
+        }
+
+        // Remove all player-owned arrows
+        arrowType.keySet().removeIf(arrow -> arrow.getShooter() == player);
     }
 
     @Override
-    public void onUltimateEnd(Player player) {
+    public void onStop() {
+        climbing.clear();
+
+        playerArrows.values().forEach(GameTask::cancel);
+        playerArrows.clear();
+
+        arrowType.keySet().forEach(Arrow::remove);
+        arrowType.clear();
     }
 
     @Override
@@ -151,11 +242,16 @@ public class JuJu extends Hero implements Listener, UIComponent, HeroPlaque {
         player.getInventory().setItem(9, new ItemStack(Material.ARROW));
     }
 
-    @Nonnull
+    @Nullable
     @Override
-    public String getString(Player player) {
+    public List<String> getStrings(Player player) {
+        final ArrowType type = getArrowType(player);
         final int climbCooldown = player.getCooldown(getPassiveTalent().getMaterial());
-        return climbCooldown <= 0 ? "" : "&7&l🧗 " + Tick.round(climbCooldown) + "s";
+
+        return List.of(
+                climbCooldown <= 0 ? "" : "&7&l🧗 " + Tick.round(climbCooldown) + "s",
+                type == null ? "" : "&a🎯 &l" + type.getName()
+        );
     }
 
     @Override
@@ -173,6 +269,15 @@ public class JuJu extends Hero implements Listener, UIComponent, HeroPlaque {
 
                     player.addPotionEffect(PotionEffectType.SLOW_FALLING.createEffect(2, 1));
                 });
+
+                // Arrows
+                arrowType.keySet().removeIf(Arrow::isDead);
+                arrowType.forEach((arrow, type) -> {
+                    // should never ever happen but just in case
+                    if (arrow.getShooter() instanceof Player player) {
+                        type.onTick(player, arrow);
+                    }
+                });
             }
         }.runTaskTimer(0, 1);
     }
@@ -187,15 +292,18 @@ public class JuJu extends Hero implements Listener, UIComponent, HeroPlaque {
 
             return DamageOutput.CANCEL;
         }
+
         return null;
     }
 
     @Override
+    @Nonnull
     public ArrowShield getFirstTalent() {
         return (ArrowShield) Talents.ARROW_SHIELD.getTalent();
     }
 
     @Override
+    @Nonnull
     public TricksOfTheJungle getSecondTalent() {
         return (TricksOfTheJungle) Talents.TRICKS_OF_THE_JUNGLE.getTalent();
     }
@@ -209,6 +317,33 @@ public class JuJu extends Hero implements Listener, UIComponent, HeroPlaque {
     @Override
     public String text() {
         return "&b&lUPDATED!";
+    }
+
+    @Nullable
+    public ArrowData getArrowData(Player player) {
+        return playerArrows.get(player);
+    }
+
+    @Nullable
+    public ArrowType getArrowType(Player player) {
+        final ArrowData data = getArrowData(player);
+        return data != null ? data.type : null;
+    }
+
+    private Arrow bounceArrow(Arrow arrow, BlockFace hitBlock) {
+        // Calculate the angle of reflection for the arrow.
+        final Vector arrowVelocity = arrow.getVelocity();
+        final Vector surfaceNormal = hitBlock.getDirection();
+        final Vector reflectedVelocity = arrowVelocity.subtract(surfaceNormal.multiply(1.5d * arrowVelocity.dot(surfaceNormal)));
+
+        // Set the new velocity of the arrow to the reflected velocity.
+        return Entities.ARROW.spawn(arrow.getLocation(), self -> {
+            self.setShooter(arrow.getShooter());
+            self.setDamage(arrow.getDamage() * 2);
+            self.setColor(Color.GREEN);
+            self.setCritical(arrow.isCritical());
+            self.setVelocity(reflectedVelocity);
+        });
     }
 
     private boolean isHuggingWall(Location location) {

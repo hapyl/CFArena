@@ -5,7 +5,11 @@ public enum Temper {
     COMMAND(true),   // for testing
 
     FLOWER_BREEZE(true),
-    BERSERK_MODE(true);
+    BERSERK_MODE(true),
+
+    POISON_IVY(false),
+
+    ;
 
     private final boolean isBuff;
 

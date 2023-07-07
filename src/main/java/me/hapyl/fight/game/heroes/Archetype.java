@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes;
 
+import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.util.Described;
 
 import javax.annotation.Nonnull;
@@ -13,6 +14,11 @@ public enum Archetype implements Described {
     MOBILITY("&d👣", "Mobility", "Fast and mobile, they zip around the battlefield."),
     STRATEGY("&e💡", "Strategy", "Strategists rely on their abilities, rather than combat to win."),
     SUPPORT("&2🍀", "Support", "Provide buffs to self and allies."),
+    HEXBANE(
+            new Color("#5C3D2E") + "🕷",
+            "Hexbane",
+            "Masters of debuffs, they weaken and hinder enemies with eerie precision."
+    ),
 
     NOT_SET();
 

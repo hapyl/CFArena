@@ -85,6 +85,16 @@ public final class ConcurrentTable<R, C, V> {
         return hashMap.containsValue(v);
     }
 
+    public boolean containsRow(@Nonnull R r) {
+        for (Map.Entry<Cell<R, C>, V> entry : entrySet()) {
+            if (entry.getKey().row.equals(r)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     @Nullable
     public V remove(@Nonnull R row, @Nonnull C column) {
         return hashMap.remove(Cell.of(row, column));
