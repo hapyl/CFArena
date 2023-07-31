@@ -1,9 +1,10 @@
 package me.hapyl.fight.game.heroes.archive.tamer;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -142,10 +143,14 @@ public class Tamer extends Hero implements Listener, DisabledHero {
 
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final Player player = input.getPlayer();
-        final LivingEntity entity = input.getEntity();
+        final Player player = input.getBukkitPlayer();
+        final GameEntity entity = input.getDamager();
 
-        if (getFirstTalent().isPackEntity(player, entity)) {
+        if (entity == null) {
+            return null;
+        }
+
+        if (getFirstTalent().isPackEntity(player, entity.getEntity())) {
             Chat.sendMessage(player, "&cYou cannot damage your own minion!");
             return DamageOutput.CANCEL;
         }
@@ -188,7 +193,9 @@ public class Tamer extends Hero implements Listener, DisabledHero {
             return;
         }
 
-        GamePlayer.damageEntity(livingEntity, finalDamage, mineOBall.getOwner(livingDamager), EnumDamageCause.MINION);
+        CF.getEntityOptional(livingEntity).ifPresent(gameEntity -> {
+            gameEntity.damage(finalDamage, mineOBall.getOwner(livingDamager), EnumDamageCause.MINION);
+        });
     }
 
     @EventHandler()
@@ -207,7 +214,9 @@ public class Tamer extends Hero implements Listener, DisabledHero {
         }
 
         if (ev.getHitEntity() instanceof LivingEntity living) {
-            GamePlayer.damageEntity(living, WEAPON_DAMAGE, player, EnumDamageCause.LEASHED);
+            CF.getEntityOptional(living).ifPresent(gameEntity -> {
+                gameEntity.damage(WEAPON_DAMAGE, player, EnumDamageCause.LEASHED);
+            });
             hook.remove();
         }
 

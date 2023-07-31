@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.archive.knight;
 
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
@@ -29,34 +29,34 @@ public class Spear extends Talent {
         setCooldown(100);
     }
 
-	@Override
-	public Response execute(Player player) {
-		player.setVelocity(player.getLocation().getDirection().setY(0.0d).multiply(1.5d));
+    @Override
+    public Response execute(Player player) {
+        player.setVelocity(player.getLocation().getDirection().setY(0.0d).multiply(1.5d));
 
-		new GameTask() {
+        new GameTask() {
             private int tick = getDuration();
 
-			@Override
-			public void run() {
-				if (tick < 0) {
+            @Override
+            public void run() {
+                if (tick < 0) {
                     cancel();
-					return;
-				}
+                    return;
+                }
 
-                Collect.nearbyLivingEntities(player.getLocation(), radius).forEach(entity -> {
-                    if (entity == player) {
+                Collect.nearbyEntities(player.getLocation(), radius).forEach(entity -> {
+                    if (entity.is(player)) {
                         return;
                     }
 
-                    GamePlayer.damageEntity(entity, damage, player, EnumDamageCause.ENTITY_ATTACK);
+                    entity.damage(damage, player, EnumDamageCause.ENTITY_ATTACK);
                 });
 
-				--tick;
-			}
-		}.runTaskTimer(0, 1);
+                --tick;
+            }
+        }.runTaskTimer(0, 1);
 
-		// fx
-		PlayerLib.playSound(player.getLocation(), Sound.ITEM_TRIDENT_RIPTIDE_1, 1.25f);
-		return Response.OK;
-	}
+        // fx
+        PlayerLib.playSound(player.getLocation(), Sound.ITEM_TRIDENT_RIPTIDE_1, 1.25f);
+        return Response.OK;
+    }
 }

@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.archive.moonwalker;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.CreationTalent;
 import me.hapyl.fight.game.talents.TickingDisplayCreation;
@@ -138,14 +138,14 @@ public class MoonPillarTalent extends CreationTalent {
 
                 PlayerLib.playSound(location, Sound.BLOCK_STONE_BREAK, 0.0f);
 
-                Collect.nearbyLivingEntities(location, pulseRange).forEach(entity -> {
-                    if (entity == player) {
-                        GamePlayer.getPlayer(player).heal(healingPerPulse);
+                Collect.nearbyEntities(location, pulseRange).forEach(entity -> {
+                    if (entity.is(player)) {
+                        CF.getOrCreatePlayer(player).heal(healingPerPulse);
                         PlayerLib.addEffect(player, PotionEffectType.JUMP, 20, 2);
                         return;
                     }
 
-                    GamePlayer.damageEntity(entity, pulseDamage, player, EnumDamageCause.MOON_PILLAR);
+                    entity.damage(pulseDamage, CF.getPlayer(player), EnumDamageCause.MOON_PILLAR);
 
                     // Push the opposite direction from the pilar
                     final Vector vector = location.toVector()

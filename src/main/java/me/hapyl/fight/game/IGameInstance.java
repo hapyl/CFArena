@@ -1,19 +1,13 @@
 package me.hapyl.fight.game;
 
-import me.hapyl.fight.game.damage.EntityData;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.gamemode.CFGameMode;
-import me.hapyl.fight.game.gamemode.Modes;
-import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.maps.GameMaps;
-import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.*;
-import java.util.function.Predicate;
+import java.util.Collection;
 
 /**
  * This is used as a base for all game instances.
@@ -43,15 +37,6 @@ public interface IGameInstance {
      */
     @Nonnull
     State getGameState();
-
-    /**
-     * Gets or creates entity data.
-     *
-     * @param entity - Entity.
-     * @return entity's data.
-     */
-    @Nonnull
-    EntityData getEntityData(@Nonnull LivingEntity entity);
 
     /**
      * Changes current game state.
@@ -85,83 +70,6 @@ public interface IGameInstance {
      * @return - True if time is up, false otherwise.
      */
     boolean isTimeIsUp();
-
-    /**
-     * Returns GamePlayer instance of a player, or null if player doesn't exist.
-     *
-     * @param player - Player.
-     * @return GamePlayer instance of a player, or null if player doesn't exist.
-     */
-    @Nullable
-    GamePlayer getPlayer(Player player);
-
-    /**
-     * Returns GamePlayer instance of a player, or null if player doesn't exist.
-     *
-     * @param uuid - Player's UUID.
-     * @return GamePlayer instance of a player, or null if player doesn't exist.
-     */
-    @Nullable
-    GamePlayer getPlayer(UUID uuid);
-
-    /**
-     * Returns map of players mapped to their UUID.
-     *
-     * @return Map of players mapped to their UUID.
-     */
-    @Nonnull
-    Map<UUID, GamePlayer> getPlayers();
-
-    /**
-     * Returns all alive players with specifier hero selected.
-     *
-     * @param heroes - Filter.
-     * @return All alive players with specifier hero selected.
-     */
-    @Nonnull
-    List<GamePlayer> getAlivePlayers(Heroes heroes);
-
-    /**
-     * Returns all alive players.
-     *
-     * @return All alive players.
-     */
-    @Nonnull
-    List<GamePlayer> getAlivePlayers();
-
-    /**
-     * Returns all alive players as bukkit player.
-     *
-     * @return All alive players as bukkit player.
-     */
-    @Nonnull
-    List<Player> getAlivePlayersAsPlayers();
-
-    /**
-     * Returns all alive players who match the predicate.
-     *
-     * @param predicate - Predicate to match.
-     * @return All alive players who match the predicate.
-     */
-    @Nonnull
-    List<GamePlayer> getAlivePlayers(Predicate<GamePlayer> predicate);
-
-    /**
-     * Returns all alive players as bukkit player who match the predicate.
-     *
-     * @param predicate - Predicate to match.
-     * @return All alive players as bukkit player who match the predicate.
-     */
-    @Nonnull
-    List<Player> getAlivePlayersAsPlayers(Predicate<GamePlayer> predicate);
-
-    /**
-     * Returns a list of heroes that are used in the game.
-     *
-     * @return A list of heroes that are used in the game.
-     */
-    @Nonnull
-    Set<Heroes> getActiveHeroes();
 
     /**
      * Forced game to check for win condition <b>and</b> stop and game if check passed.
@@ -199,14 +107,6 @@ public interface IGameInstance {
      */
     @Nonnull
     String hexCode();
-
-    /**
-     * Returns all players, no matter if they're alive, dead, online etc.
-     *
-     * @return All players, no matter if they're alive, dead, online etc.
-     */
-    @Nonnull
-    Collection<GamePlayer> getAllPlayers();
 
     /**
      * Returns true if this is a real GameInstance, false otherwise.

@@ -1,10 +1,12 @@
 package me.hapyl.fight.game.heroes.archive.knight;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.PlayerElement;
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
@@ -27,7 +29,6 @@ import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Horse;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -164,18 +165,18 @@ public class BlastKnight extends Hero implements DisabledHero, PlayerElement, UI
 
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final Player player = input.getPlayer();
-        final Horse playerHorse = getPlayerHorse(player);
-        final LivingEntity victim = input.getEntity();
-        if (!isUsingUltimate(player) || playerHorse == null || victim == null || victim == player) {
+        final GamePlayer player = input.getPlayer();
+        final Horse playerHorse = getPlayerHorse(player.getPlayer());
+        final GameEntity victim = input.getDamager();
+        if (!isUsingUltimate(player.getPlayer()) || playerHorse == null || victim == null || victim == player) {
             return null;
         }
 
-        if (victim == playerHorse) {
+        if (victim.is(playerHorse)) {
             return DamageOutput.CANCEL;
         }
 
-        if (playerHorse.getPassengers().contains(player)) {
+        if (playerHorse.getPassengers().contains(player.getPlayer())) {
             victim.setVelocity(victim.getLocation().getDirection().normalize().multiply(-1.0d));
 
             return new DamageOutput(input.getDamage() * 1.5d);
@@ -186,17 +187,19 @@ public class BlastKnight extends Hero implements DisabledHero, PlayerElement, UI
 
     @Override
     public DamageOutput processDamageAsVictim(DamageInput input) {
-        final Player player = input.getPlayer();
-        if (player.isBlocking()) {
-            if (player.hasCooldown(Material.SHIELD)) {
+        final GamePlayer gamePlayer = input.getPlayer();
+        final Player player = gamePlayer.getPlayer();
+
+        if (gamePlayer.isBlocking()) {
+            if (gamePlayer.hasCooldown(Material.SHIELD)) {
                 return null;
             }
 
             shieldCharge.compute(player, (pl, i) -> i == null ? 1 : i + 1);
             final int charge = getShieldCharge(player); // updated
 
-            PlayerLib.playSound(player.getLocation(), Sound.ITEM_SHIELD_BLOCK, 1.0f);
-            player.setCooldown(Material.SHIELD, 10);
+            PlayerLib.playSound(gamePlayer.getLocation(), Sound.ITEM_SHIELD_BLOCK, 1.0f);
+            gamePlayer.setCooldown(Material.SHIELD, 10);
             shield.updateTexture(player, charge);
 
             if (charge >= 10) {
@@ -226,12 +229,12 @@ public class BlastKnight extends Hero implements DisabledHero, PlayerElement, UI
         }, 200);
 
         // Explode
-        Collect.nearbyLivingEntities(player.getLocation(), 10.0d).forEach(entity -> {
-            if (entity == player) {
+        Collect.nearbyEntities(player.getLocation(), 10.0d).forEach(entity -> {
+            if (entity.is(player)) {
                 return;
             }
 
-            GamePlayer.damageEntity(entity, 30.0d, player, EnumDamageCause.NOVA_EXPLOSION);
+            entity.damage(30.0d, CF.getPlayer(player), EnumDamageCause.NOVA_EXPLOSION);
             entity.setVelocity(entity.getLocation().getDirection().multiply(-2.0d));
         });
 

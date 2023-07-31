@@ -1,9 +1,9 @@
 package me.hapyl.fight.game.effect.archive;
 
 import me.hapyl.fight.game.effect.GameEffect;
+import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.ui.display.DebuffDisplay;
 import org.bukkit.Location;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
@@ -27,19 +27,19 @@ public class OrcGrowlEffect extends GameEffect {
     }
 
     @Override
-    public void onStart(LivingEntity entity) {
-        entity.addPotionEffect(PotionEffectType.SLOW.createEffect(10000, 4));
-        entity.addPotionEffect(PotionEffectType.WEAKNESS.createEffect(10000, 0));
+    public void onStart(GameEntity entity) {
+        entity.addPotionEffect(PotionEffectType.SLOW, 10000, 4);
+        entity.addPotionEffect(PotionEffectType.WEAKNESS, 10000, 0);
     }
 
     @Override
-    public void onStop(LivingEntity entity) {
+    public void onStop(GameEntity entity) {
         entity.removePotionEffect(PotionEffectType.SLOW);
         entity.removePotionEffect(PotionEffectType.WEAKNESS);
     }
 
     @Override
-    public void onTick(LivingEntity entity, int tick) {
+    public void onTick(GameEntity entity, int tick) {
 
     }
 }

@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.effect;
 
+import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.ui.display.StringDisplay;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
@@ -67,13 +68,13 @@ public abstract class GameEffect {
         isPositive = positive;
     }
 
-    public abstract void onStart(LivingEntity entity);
+    public abstract void onStart(GameEntity entity);
 
-    public abstract void onStop(LivingEntity entity);
+    public abstract void onStop(GameEntity entity);
 
-    public abstract void onTick(LivingEntity entity, int tick);
+    public abstract void onTick(GameEntity entity, int tick);
 
-    public void onUpdate(LivingEntity entity) {
+    public void onUpdate(GameEntity entity) {
     }
 
     public String getExtra() {

@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.talents.archive.swooper;
 
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.ChargedTalent;
@@ -109,16 +108,16 @@ public class BlastPack extends ChargedTalent {
         final Location location = entity.getLocation();
 
         // Explosion
-        Collect.nearbyLivingEntities(location, explosionRadius).forEach(living -> {
-            if (living == player) {
-                GamePlayer.getPlayer(player).addEffect(GameEffectType.FALL_DAMAGE_RESISTANCE, 40);
+        Collect.nearbyEntities(location, explosionRadius).forEach(gameEntity -> {
+            if (gameEntity.is(player)) {
+                gameEntity.addEffect(GameEffectType.FALL_DAMAGE_RESISTANCE, 40);
             }
             else {
-                GamePlayer.damageEntity(living, 5.0d, player, EnumDamageCause.SATCHEL);
+                gameEntity.damage(5.0d, player, EnumDamageCause.SATCHEL);
             }
 
-            final Vector vector = living.getLocation().toVector().subtract(location.toVector()).normalize();
-            living.setVelocity(vector.multiply(living == player ? 1.35d : 0.35d));
+            final Vector vector = gameEntity.getLocation().toVector().subtract(location.toVector()).normalize();
+            gameEntity.setVelocity(vector.multiply(gameEntity.is(player) ? 1.35d : 0.35d));
         });
 
         // FX

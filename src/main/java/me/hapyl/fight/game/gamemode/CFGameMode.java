@@ -1,7 +1,9 @@
 package me.hapyl.fight.game.gamemode;
 
+import me.hapyl.fight.CF;
+import me.hapyl.fight.game.EntityState;
 import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.setting.Setting;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -103,7 +105,7 @@ public abstract class CFGameMode {
 
     // Default impl, override if needed
     public void onLeave(@Nonnull GameInstance instance, @Nonnull Player player) {
-        final GamePlayer gamePlayer = instance.getPlayer(player);
+        final GamePlayer gamePlayer = CF.getPlayer(player);
         if (gamePlayer == null) {
             return;
         }
@@ -112,13 +114,13 @@ public abstract class CFGameMode {
         Chat.broadcast("&c%s left while fighting and was removed from the game!");
         Chat.broadcast("");
 
-        gamePlayer.setDead(true);
+        gamePlayer.setState(EntityState.DEAD);
         instance.checkWinCondition();
     }
 
     // Default impl, override if used
     public void onJoin(@Nonnull GameInstance instance, @Nonnull Player player) {
-        final GamePlayer gamePlayer = instance.getOrCreateGamePlayer(player);
+        final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
 
         gamePlayer.setSpectator(true);
 

@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.heroes.archive.spark;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.IGamePlayer;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
@@ -77,7 +77,7 @@ public class Spark extends Hero implements PlayerElement {
     @Override
     public void useUltimate(Player player) {
         final Location location = getSafeLocation(player.getLocation());
-        final IGamePlayer gp = GamePlayer.getPlayer(player);
+        final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
 
         if (location == null) {
             return;
@@ -85,8 +85,8 @@ public class Spark extends Hero implements PlayerElement {
 
         setUsingUltimate(player, true);
         final ArmorStand marker = Entities.ARMOR_STAND.spawn(location, me -> {
-            me.setMaxHealth(gp.getHealth());
-            me.setHealth(gp.getHealth());
+            me.setMaxHealth(gamePlayer.getHealth());
+            me.setHealth(gamePlayer.getHealth());
             me.setGravity(false);
             me.setInvisible(true);
             me.setVisible(false);
@@ -171,11 +171,11 @@ public class Spark extends Hero implements PlayerElement {
             return;
         }
 
-        final IGamePlayer gp = GamePlayer.getPlayer(player);
+        final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
         final Location location = player.getLocation(); // location before tp
 
         player.setInvulnerable(true);
-        gp.setHealth(stand.getHealth());
+        gamePlayer.setHealth(stand.getHealth());
         final Location teleportLocation = stand.getLocation().add(0.0d, 1.0d, 0.0d);
 
         markerLocation.remove(player);
@@ -195,7 +195,7 @@ public class Spark extends Hero implements PlayerElement {
 
     @Override
     public DamageOutput processDamageAsVictim(DamageInput input) {
-        final Player player = input.getPlayer();
+        final Player player = input.getBukkitPlayer();
 
         if (!validatePlayer(player)) {
             return null;
@@ -216,8 +216,7 @@ public class Spark extends Hero implements PlayerElement {
 
         // Cancel any fire damage
         if (validCause) {
-            input.getPlayer().setFireTicks(0);
-
+            player.setFireTicks(0);
             return DamageOutput.CANCEL;
         }
         return null;

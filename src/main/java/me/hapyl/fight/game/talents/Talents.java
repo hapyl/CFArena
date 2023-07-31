@@ -37,7 +37,6 @@ import me.hapyl.fight.game.talents.archive.juju.Climb;
 import me.hapyl.fight.game.talents.archive.juju.PoisonZone;
 import me.hapyl.fight.game.talents.archive.juju.TricksOfTheJungle;
 import me.hapyl.fight.game.talents.archive.km.LaserEye;
-import me.hapyl.fight.game.talents.archive.km.ShellGrande;
 import me.hapyl.fight.game.talents.archive.knight.SlownessPotion;
 import me.hapyl.fight.game.talents.archive.knight.Spear;
 import me.hapyl.fight.game.talents.archive.librarian.BlackHole;
@@ -324,7 +323,7 @@ public enum Talents {
 
     // Killing Machine
     LASER_EYE(new LaserEye()),
-    GRENADE(new ShellGrande()),
+    //GRENADE(new ShellGrande()),
 
     // Shaman
     TOTEM(new Totem()),

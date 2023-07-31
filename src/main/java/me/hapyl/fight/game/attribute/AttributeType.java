@@ -1,9 +1,9 @@
 package me.hapyl.fight.game.attribute;
 
 import com.google.common.collect.Lists;
+import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.spigotutils.module.math.Numbers;
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -32,13 +32,13 @@ public enum AttributeType {
     SPEED(
             new Attribute("Speed", "Movement speed of the hero.") {
                 @Override
-                public void update(Player player, double value) {
-                    if (player.getWalkSpeed() == value) {
+                public void update(GameEntity entity, double value) {
+                    if (entity.getWalkSpeed() == value) {
                         return;
                     }
 
-                    player.sendMessage("updated speed");
-                    player.setWalkSpeed(Numbers.clamp1neg1((float) value));
+                    entity.sendMessage("updated speed");
+                    entity.setWalkSpeed(Numbers.clamp1neg1((float) value));
                 }
             }.setChar("🌊").setColor(ChatColor.AQUA).setToString(d -> 100 + (((d - 0.2d) / 0.2d) * 100) + "%"),
             0.2d
@@ -56,7 +56,17 @@ public enum AttributeType {
                     .setColor(ChatColor.BLUE)
                     .setToString(d -> "%.2f%%".formatted(d * 100.0d)),
             0.5d
+    ),
+
+    FEROCITY(
+            new Attribute("Ferocity", "The change to strike twice.")
+                    .setChar("\uD83C\uDF00")
+                    .setColor(ChatColor.RED)
+                    .setToString(d -> d + "%"),
+            0
     );
+
+    // TODO (hapyl): 031, Jul 31: don't show <= 0 attributes in menu
 
     private static final List<String> NAMES;
 

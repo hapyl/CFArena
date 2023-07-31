@@ -1,9 +1,11 @@
 package me.hapyl.fight.game.heroes.archive.shadow_assassin;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
@@ -98,7 +100,10 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
             return;
         }
 
-        GamePlayer.damageEntity(livingEntity, getWeapon().getDamage(), player, EnumDamageCause.NEVERMISS);
+        CF.getEntityOptional(livingEntity).ifPresent(gameEntity -> {
+            gameEntity.damage(getWeapon().getDamage(), player, EnumDamageCause.NEVERMISS);
+        });
+
         GamePlayer.setCooldown(player, getWeapon().getMaterial(), NEVERMISS_CD);
 
         // fx
@@ -107,7 +112,8 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
 
     @Nullable
     private LivingEntity getNearestEntity(Player player) {
-        return Collect.targetLivingEntity(player, 10, 0.5d, player::hasLineOfSight);
+        final GameEntity gameEntity = Collect.targetEntity(player, 10, 0.5d, t -> t.hasLineOfSight(player));
+        return gameEntity == null ? null : gameEntity.getEntity();
 
         //final Location location = player.getLocation();
         //LivingEntity closest = null;
@@ -126,10 +132,10 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
     }
 
     @Override
-    public boolean processInvisibilityDamage(Player player, LivingEntity entity, double damage) {
+    public boolean processInvisibilityDamage(GamePlayer player, GameEntity entity, double damage) {
         if (player.isSneaking()) {
-            PlayerLib.playSoundMessage(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f, "&cCannot deal damage while in &lDark Cover&c!");
-
+            player.sendMessage("&cCannot deal damage while in &lDark Cover&c!");
+            player.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
             return true;
         }
 
@@ -138,16 +144,22 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
 
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final Player player = input.getPlayer();
+        final Player player = input.getBukkitPlayer();
 
         if (input.getDamageCause() != EnumDamageCause.ENTITY_ATTACK) {
             return DamageOutput.OK;
         }
 
         // Calculate back stab
-        final LivingEntity entity = input.getEntity();
+        final GameEntity gameEntity = input.getDamager();
+        if (gameEntity == null) {
+            return null;
+        }
+
+        final LivingEntity entity = gameEntity.getEntity();
+
         if (validateCanBackStab(player, entity)) {
-            if (player.getLocation().getDirection().dot(entity.getLocation().getDirection()) > 0) {
+            if (player.getLocation().getDirection().dot(gameEntity.getLocation().getDirection()) > 0) {
                 performBackStab(player, entity);
             }
         }
@@ -157,7 +169,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
 
     @Override
     public DamageOutput processDamageAsVictim(DamageInput input) {
-        final Player player = input.getPlayer();
+        final Player player = input.getBukkitPlayer();
         if (!canHide(player)) {
             return null;
         }

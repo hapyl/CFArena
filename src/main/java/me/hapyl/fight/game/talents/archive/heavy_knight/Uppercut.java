@@ -3,7 +3,6 @@ package me.hapyl.fight.game.talents.archive.heavy_knight;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Location;
@@ -30,8 +29,8 @@ public class Uppercut extends Talent {
 
         location.add(vector.multiply(3.0d));
 
-        Collect.nearbyLivingEntities(location, range).forEach(entity -> {
-            if (!Utils.isEntityValid(entity, player)) {
+        Collect.nearbyEntities(location, range).forEach(entity -> {
+            if (!entity.isValid(player)) {
                 return;
             }
 

@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.task;
 
 import me.hapyl.fight.game.Callback;
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Timed;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;

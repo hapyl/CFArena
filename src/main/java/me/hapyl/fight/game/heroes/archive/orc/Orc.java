@@ -1,15 +1,15 @@
 package me.hapyl.fight.game.heroes.archive.orc;
 
 import com.google.common.collect.Maps;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.IGamePlayer;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.attribute.PlayerAttributes;
+import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.Temper;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
@@ -90,8 +90,8 @@ public class Orc extends Hero {
     @Nullable
     @Override
     public DamageOutput processDamageAsVictim(DamageInput input) {
-        final Player player = input.getPlayer();
-        final EnumDamageCause cause = input.getDamageCause();
+        final Player player = input.getPlayer().getPlayer();
+        final EnumDamageCause cause = input.getDamageCauseOr(EnumDamageCause.NONE);
         final double damage = input.getDamage();
 
         switch (cause) {
@@ -127,8 +127,8 @@ public class Orc extends Hero {
     }
 
     public void enterBerserk(Player player, int duration) {
-        final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
-        final PlayerAttributes attributes = gamePlayer.getAttributes();
+        final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
+        final EntityAttributes attributes = gamePlayer.getAttributes();
 
         attributes.increaseTemporary(Temper.BERSERK_MODE, AttributeType.ATTACK, 0.5d, duration);
         attributes.increaseTemporary(Temper.BERSERK_MODE, AttributeType.SPEED, 0.05d, duration);

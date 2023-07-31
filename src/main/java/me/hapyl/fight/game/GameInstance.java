@@ -1,15 +1,13 @@
 package me.hapyl.fight.game;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.database.Award;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.cosmetic.WinCosmetic;
 import me.hapyl.fight.game.cosmetic.crate.Crates;
-import me.hapyl.fight.game.damage.EntityData;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -24,14 +22,14 @@ import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.*;
-import java.util.function.Predicate;
+import java.util.List;
+import java.util.Objects;
+import java.util.Random;
+import java.util.Set;
 
 public class GameInstance extends TickingGameTask implements IGameInstance, GameElement {
 
@@ -39,8 +37,8 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
 
     private final String hexCode;
     private final long startedAt;
-    private final Map<UUID, GamePlayer> players;
-    private final Map<LivingEntity, EntityData> entityData;
+    //private final Map<UUID, GamePlayer> players;
+    //private final Map<LivingEntity, EntityData> entityData;
     private final GameMaps currentMap;
     private final CFGameMode mode;
     private final GameReport gameReport;
@@ -57,8 +55,6 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
         final int modeLimit = mode.getTimeLimit();
         this.timeLimitInTicks = modeLimit == -1 ? modeLimit : modeLimit * 20L;
 
-        this.entityData = Maps.newHashMap();
-        this.players = Maps.newHashMap();
         this.createGamePlayers();
 
         this.gameResult = new GameResult(this);
@@ -77,16 +73,6 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
 
     public void increaseTimeLimit(int increase) {
         this.timeLimitInTicks += increase;
-    }
-
-    @Nonnull
-    @Override
-    public EntityData getEntityData(@Nonnull LivingEntity entity) {
-        return entityData.computeIfAbsent(entity, EntityData::new);
-    }
-
-    public Map<LivingEntity, EntityData> getEntityData() {
-        return entityData;
     }
 
     @Nonnull
@@ -176,102 +162,6 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
     }
 
     @Override
-    @Nullable
-    public GamePlayer getPlayer(Player player) {
-        return getPlayer(player.getUniqueId());
-    }
-
-    @Override
-    @Nullable
-    public GamePlayer getPlayer(UUID uuid) {
-        return players.get(uuid);
-    }
-
-    @Nonnull
-    @Override
-    public Map<UUID, GamePlayer> getPlayers() {
-        return players;
-    }
-
-    @Nonnull
-    @Override
-    public Collection<GamePlayer> getAllPlayers() {
-        return players.values();
-    }
-
-    @Nonnull
-    @Override
-    public List<GamePlayer> getAlivePlayers(Heroes heroes) {
-        return getAlivePlayers(gp -> gp.getHero() == heroes.getHero());
-    }
-
-    @Nonnull
-    @Override
-    public List<GamePlayer> getAlivePlayers() {
-        return getAlivePlayers(gp -> gp.getPlayer().isOnline());
-    }
-
-    @Nonnull
-    @Override
-    public List<GamePlayer> getAlivePlayers(Predicate<GamePlayer> predicate) {
-        final List<GamePlayer> players = new ArrayList<>();
-        this.players.forEach((uuid, gp) -> {
-            if (gp.isAlive() && predicate.test(gp)) {
-                players.add(gp);
-            }
-        });
-        return players;
-    }
-
-    @Nonnull
-    @Override
-    public List<Player> getAlivePlayersAsPlayers() {
-        final List<Player> list = Lists.newArrayList();
-        getAlivePlayers().forEach(player -> list.add(player.getPlayer()));
-        return list;
-    }
-
-    @Nonnull
-    @Override
-    public List<Player> getAlivePlayersAsPlayers(Predicate<GamePlayer> predicate) {
-        final List<GamePlayer> players = getAlivePlayers(predicate);
-        final List<Player> list = Lists.newArrayList();
-        for (GamePlayer player : players) {
-            list.add(player.getPlayer());
-        }
-        return list;
-    }
-
-    @Nonnull
-    @Override
-    public Set<Heroes> getActiveHeroes() {
-        if (activeHeroes == null) {
-            activeHeroes = Sets.newHashSet();
-
-            for (GamePlayer value : getPlayers().values()) {
-                activeHeroes.add(value.getEnumHero());
-            }
-        }
-
-        return activeHeroes;
-    }
-
-    @Nonnull
-    public GamePlayer getOrCreateGamePlayer(Player player) {
-        GamePlayer gamePlayer = getPlayer(player);
-
-        // If player joined after the game started, create new
-        if (gamePlayer == null) {
-            gamePlayer = PlayerProfile.getOrCreateProfile(player).createGamePlayer();
-            gamePlayer.updateScoreboardTeams(false);
-
-            players.put(player.getUniqueId(), gamePlayer);
-        }
-
-        return gamePlayer;
-    }
-
-    @Override
     public void checkWinCondition() {
         if (gameState == State.POST_GAME) {
             return;
@@ -305,7 +195,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
         }
 
         // Give crates to players
-        players.values().forEach(player -> {
+        CF.getPlayers().forEach(player -> {
             if (player.isSpectator()) {
                 return;
             }
@@ -349,8 +239,10 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
 
     @Nonnull
     public Location getRandomPlayerLocationOrMapLocationIfThereAreNoPlayers() {
+        final Set<GamePlayer> players = CF.getPlayers();
+
         if (players.size() != 0) {
-            for (GamePlayer value : players.values()) {
+            for (GamePlayer value : players) {
                 return value.getPlayer().getLocation();
             }
         }
@@ -359,7 +251,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
     }
 
     public void populateScoreboard(Player player) {
-        players.values().forEach(gamePlayer -> {
+        CF.getPlayers().forEach(gamePlayer -> {
             gamePlayer.getProfile().getScoreboardTeams().populateInGame(player);
         });
     }
@@ -368,15 +260,17 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
     public void run(final int tick) {
         mode.tick(this, tick);
 
+        final List<GamePlayer> alivePlayers = CF.getAlivePlayers();
+
         if (Manager.current().isDebug()) {
-            getAlivePlayers().forEach(player -> {
+            alivePlayers.forEach(player -> {
                 player.setUltPoints(player.getUltPointsNeeded());
             });
             return;
         }
 
         // AFK detection
-        getAlivePlayers().forEach(player -> {
+        alivePlayers.forEach(player -> {
             if (player.hasMovedInLast(15000)) { // 15s afk detection
                 return;
             }
@@ -395,14 +289,14 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
 
         // Auto-Points
         if (tick % 20 == 0) {
-            getAlivePlayers().forEach(player -> {
+            alivePlayers.forEach(player -> {
                 player.addUltimatePoints(1);
             });
         }
 
         // Award coins for minute played
         if (tick % 1200 == 0 && tick >= 60 * 50) {
-            getAlivePlayers().forEach(Award.MINUTE_PLAYED::award);
+            alivePlayers.forEach(Award.MINUTE_PLAYED::award);
         }
 
         if (tick >= timeLimitInTicks) {
@@ -416,7 +310,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
     private void createGamePlayers() {
         Bukkit.getOnlinePlayers().forEach(player -> {
             final PlayerProfile profile = PlayerProfile.getOrCreateProfile(player);
-            final GamePlayer gamePlayer = profile.createGamePlayer();
+            final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
 
             // Spectate Setting
             if (Setting.SPECTATE.isEnabled(player)) {
@@ -443,7 +337,6 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
             }
 
             gamePlayer.updateScoreboardTeams(false);
-            players.put(player.getUniqueId(), gamePlayer);
         });
     }
 

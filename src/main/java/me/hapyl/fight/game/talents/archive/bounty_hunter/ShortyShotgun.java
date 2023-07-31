@@ -1,8 +1,10 @@
 package me.hapyl.fight.game.talents.archive.bounty_hunter;
 
 import com.google.common.collect.Sets;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.Talent;
@@ -101,7 +103,7 @@ public class ShortyShotgun extends Talent {
 
         for (double d = 0; d < maxDistance; d += 0.25) {
             final Location location = playerEyeLocation.clone().add(direction.clone().multiply(d));
-            final LivingEntity entity = Collect.nearestLivingEntity(location, 1.0d, player);
+            final GameEntity entity = Collect.nearestEntity(location, 1.0d, player);
 
             // Had to put fx here since breaking
             player.getWorld().spawnParticle(Particle.BLOCK_CRACK, location, 1, Material.COAL_BLOCK.createBlockData());
@@ -109,10 +111,8 @@ public class ShortyShotgun extends Talent {
             if (entity != null) {
                 // Check for bleed
                 if (entity.getLocation().distance(player.getLocation()) <= bleedThreshold) {
-                    if (entity instanceof Player entityPlayer) {
-                        GamePlayer.getPlayer(entityPlayer).addEffect(GameEffectType.BLEED, bleedDuration, true);
-                        GamePlayer.getPlayer(entityPlayer).addEffect(GameEffectType.VULNERABLE, bleedDuration, true);
-                    }
+                    entity.addEffect(GameEffectType.BLEED, bleedDuration, true);
+                    entity.addEffect(GameEffectType.VULNERABLE, bleedDuration, true);
                 }
 
                 double damage = maxDamagePerPellet - d;
@@ -121,7 +121,7 @@ public class ShortyShotgun extends Talent {
                     damage *= 1.5d;
                 }
 
-                GamePlayer.damageEntity(entity, damage, player, EnumDamageCause.SHOTGUN);
+                entity.damage(damage, player, EnumDamageCause.SHOTGUN);
 
                 // Knock back entity
                 entity.setVelocity(location.getDirection().normalize().multiply(1.2d).setY(0.25d));

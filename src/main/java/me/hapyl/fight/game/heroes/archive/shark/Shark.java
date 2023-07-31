@@ -3,7 +3,8 @@ package me.hapyl.fight.game.heroes.archive.shark;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
@@ -23,7 +24,6 @@ import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EvokerFangs;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -113,30 +113,30 @@ public class Shark extends Hero implements Listener {
 
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final Player player = input.getPlayer();
-        final LivingEntity entity = input.getEntity();
-        if (player.hasCooldown(getPassiveTalent().getMaterial()) || entity == null || entity == player) {
+        final Player player = input.getBukkitPlayer();
+        final GameEntity entity = input.getDamager();
+        if (player.hasCooldown(getPassiveTalent().getMaterial()) || entity == null || entity.is(player)) {
             return null;
         }
 
         if (input.isCrit()) {
             GamePlayer.setCooldown(player, getPassiveTalent().getMaterial(), 20 * 5);
-            performCriticalHit(player, entity);
+            performCriticalHit(input.getPlayer(), entity);
         }
 
         return null;
     }
 
-    public void performCriticalHit(Player player, LivingEntity entity) {
+    public void performCriticalHit(GamePlayer player, GameEntity entity) {
         final EvokerFangs fangs = Entities.EVOKER_FANGS.spawn(entity.getLocation());
-        fangs.setOwner(player);
+        fangs.setOwner(player.getPlayer());
 
         // Sync for effect only
         GameTask.runTaskTimerTimes(r -> fangs.teleport(entity.getLocation()), 0, 1, 30);
 
-        // Perform critical hit
-        GamePlayer.damageEntity(entity, CRITICAL_AMOUNT, player, EnumDamageCause.FEET_ATTACK);
-        GamePlayer.getPlayer(player).heal(CRITICAL_AMOUNT);
+        // Perform critical hit and heal the player
+        entity.damage(CRITICAL_AMOUNT, player, EnumDamageCause.FEET_ATTACK);
+        player.heal(CRITICAL_AMOUNT);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.effect.archive;
 
 import me.hapyl.fight.game.effect.GameEffect;
-import org.bukkit.entity.LivingEntity;
+import me.hapyl.fight.game.entity.GameEntity;
 
 public class FallDamageResistance extends GameEffect {
 
@@ -11,17 +11,17 @@ public class FallDamageResistance extends GameEffect {
     }
 
     @Override
-    public void onTick(LivingEntity entity, int tick) {
+    public void onTick(GameEntity entity, int tick) {
 
     }
 
     @Override
-    public void onStart(LivingEntity entity) {
+    public void onStart(GameEntity entity) {
 
     }
 
     @Override
-    public void onStop(LivingEntity entity) {
+    public void onStop(GameEntity entity) {
 
     }
 }

@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.archive.shaman;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.Main;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.archive.shaman.ResonanceType;
 import me.hapyl.fight.game.talents.archive.shaman.Totem;
@@ -136,7 +137,7 @@ public class ActiveTotem {
         shulkerTeam.setColor(resonanceType.getColor());
     }
 
-    public List<Player> getPlayerInRange() {
+    public List<GamePlayer> getPlayerInRange() {
         return Collect.nearbyPlayers(getLocationCentered(), resonanceType.getRange());
     }
 

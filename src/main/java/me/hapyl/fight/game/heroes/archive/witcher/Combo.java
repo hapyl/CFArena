@@ -35,7 +35,7 @@ public class Combo {
 	}
 
 	public boolean validateSameEntity(LivingEntity entity) {
-		return getEntity() != null && getEntity() == entity;
+		return entity != null && getEntity() != null && getEntity() == entity;
 	}
 
 	public Player getPlayer() {

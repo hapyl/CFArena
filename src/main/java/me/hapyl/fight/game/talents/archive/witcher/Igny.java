@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.talents.archive.witcher;
 
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.Collect;
@@ -26,9 +25,9 @@ public class Igny extends Talent {
 
     public Igny() {
         super("Igni", """
-                Fires blazing spirits in front of you that deal damage and sets enemies on fire.
+                Fires blazing spirits in front of you that deal damage and set enemies on fire.
                                 
-                Damage and burning duration falls off with distance.
+                Damage and burning duration fall off with distance.
                 """);
 
         setItem(Material.BLAZE_POWDER);
@@ -41,22 +40,22 @@ public class Igny extends Talent {
         final Location targetLocation = location.add(player.getLocation().getDirection().multiply(3));
 
         Collect.nearbyPlayers(targetLocation, maximumDistance).forEach(target -> {
-            if (target == player) {
+            if (target.is(player)) {
                 return;
             }
 
             final double distance = targetLocation.distance(target.getLocation());
 
             if (isBetween(distance, 0, 1)) {
-                GamePlayer.damageEntity(target, damageClosest, player, EnumDamageCause.ENTITY_ATTACK);
+                target.damage(damageClosest, player, EnumDamageCause.ENTITY_ATTACK);
                 target.setFireTicks(fireDurationClosest);
             }
             else if (isBetween(distance, 1, 2.5)) {
-                GamePlayer.damageEntity(target, damageMedium, player, EnumDamageCause.ENTITY_ATTACK);
+                target.damage(damageMedium, player, EnumDamageCause.ENTITY_ATTACK);
                 target.setFireTicks(fireTicksMedium);
             }
             else if (isBetween(distance, 2.5, 4.1d)) {
-                GamePlayer.damageEntity(target, damageFurther, player, EnumDamageCause.ENTITY_ATTACK);
+                target.damage(damageFurther, player, EnumDamageCause.ENTITY_ATTACK);
                 target.setFireTicks(fireTicksFurther);
             }
         });

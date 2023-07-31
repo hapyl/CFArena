@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.task;
 
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GamePlayer;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -21,7 +21,7 @@ public abstract class PlayerTask extends GameTask {
 
     @Override
     public final void run() {
-        if (!player.isAlive() || !player.isValid()) {
+        if (!player.isAlive()) {
             cancelIfActive();
             return;
         }

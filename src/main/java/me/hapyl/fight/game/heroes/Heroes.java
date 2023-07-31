@@ -2,14 +2,14 @@ package me.hapyl.fight.game.heroes;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.collection.HeroStatsCollection;
 import me.hapyl.fight.database.entry.ExperienceEntry;
 import me.hapyl.fight.database.entry.HeroEntry;
-import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.archive.alchemist.Alchemist;
 import me.hapyl.fight.game.heroes.archive.archer.Archer;
 import me.hapyl.fight.game.heroes.archive.bounty_hunter.BountyHunter;
@@ -54,10 +54,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Registry for Heroes.
@@ -208,20 +208,10 @@ public enum Heroes implements Formatted {
      * @return list of players that have this hero selected.
      */
     public List<GamePlayer> getPlayers() {
-        final List<GamePlayer> players = new ArrayList<>();
-        final GameInstance gameInstance = Manager.current().getGameInstance();
+        final Set<GamePlayer> players = CF.getPlayers();
+        players.removeIf(player -> !isSelected(player.getPlayer()));
 
-        if (gameInstance == null) {
-            return players;
-        }
-
-        gameInstance.getPlayers().forEach((uuid, gp) -> {
-            if (isSelected(gp.getPlayer())) {
-                players.add(gp);
-            }
-        });
-
-        return players;
+        return Lists.newArrayList(players);
     }
 
     /**
@@ -232,6 +222,7 @@ public enum Heroes implements Formatted {
     public List<GamePlayer> getAlivePlayers() {
         final List<GamePlayer> players = getPlayers();
         players.removeIf(filter -> !filter.isAlive());
+
         return players;
     }
 

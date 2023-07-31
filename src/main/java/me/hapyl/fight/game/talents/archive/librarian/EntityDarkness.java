@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.talents.archive.librarian;
 
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.util.Collect;
@@ -39,15 +38,13 @@ public class EntityDarkness extends LibrarianTalent {
             }
 
             PlayerLib.spawnParticle(location, Particle.SQUID_INK, 1, 0.1, 0.05, 0.1, 0);
-            Collect.nearbyLivingEntities(location, 1.25d).forEach(victim -> {
-                if (victim == player) {
+            Collect.nearbyEntities(location, 1.25d).forEach(victim -> {
+                if (victim.is(player)) {
                     return;
                 }
 
-                GamePlayer.damageEntity(victim, getCurrentValue(player), player, EnumDamageCause.DARKNESS);
-                if (victim instanceof Player playerVictim) {
-                    GamePlayer.getPlayer(playerVictim).addEffect(GameEffectType.PARANOIA, 20);
-                }
+                victim.damage(getCurrentValue(player), player, EnumDamageCause.DARKNESS);
+                victim.addEffect(GameEffectType.PARANOIA, 20);
 
                 // Fx
                 PlayerLib.playSound(location, Sound.BLOCK_STONE_STEP, 0.0f);

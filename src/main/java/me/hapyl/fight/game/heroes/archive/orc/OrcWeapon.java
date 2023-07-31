@@ -1,9 +1,9 @@
 package me.hapyl.fight.game.heroes.archive.orc;
 
 import com.google.common.collect.Maps;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.damage.EntityData;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.Cooldown;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -59,10 +59,11 @@ public class OrcWeapon extends Weapon implements Cooldown {
 
             @Override
             public void onHit(@Nonnull LivingEntity entity) {
-                EntityData.damage(entity, 16.0d, player, EnumDamageCause.ORC_WEAPON);
-
-                entity.addPotionEffect(PotionEffectType.SLOW.createEffect(100, 4));
-                entity.setFreezeTicks(100);
+                CF.getEntityOptional(entity).ifPresent(gameEntity -> {
+                    gameEntity.damage(16.0d, player, EnumDamageCause.ORC_WEAPON);
+                    gameEntity.addPotionEffect(PotionEffectType.SLOW.createEffect(100, 4));
+                    gameEntity.setFreezeTicks(100);
+                });
             }
 
             @Override

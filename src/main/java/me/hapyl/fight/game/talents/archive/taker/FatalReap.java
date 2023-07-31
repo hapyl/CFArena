@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.talents.archive.taker;
 
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.taker.Taker;
@@ -41,19 +40,19 @@ public class FatalReap extends Talent {
         for (double d = length; d >= -length; d -= 0.2d) {
             final Location location = calculateLocation(player.getEyeLocation(), d);
 
-            Collect.nearbyLivingEntities(location, 1.0d).forEach(victim -> {
-                if (GameTeam.isSelfOrTeammate(player, victim)) {
+            Collect.nearbyEntities(location, 1.0d).forEach(victim -> {
+                if (GameTeam.isSelfOrTeammate(player, victim.getEntity())) {
                     return;
                 }
 
                 double health = victim.getHealth();
 
                 if (victim instanceof Player) {
-                    health = GamePlayer.getPlayer((Player) victim).getHealth();
+                    health = victim.getHealth();
                 }
 
                 final double damage = Math.min(health * 0.2d, 100.0d);
-                GamePlayer.damageEntity(victim, damage, player, EnumDamageCause.RIP_BONES);
+                victim.damage(damage, player, EnumDamageCause.RIP_BONES);
             });
 
             PlayerLib.spawnParticle(location, Particle.SWEEP_ATTACK, 1, 0.0f, 0.0f, 0.0f, 0.0f);

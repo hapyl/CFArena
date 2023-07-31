@@ -1,7 +1,8 @@
 package me.hapyl.fight.game.heroes.archive.vortex;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
@@ -73,12 +74,12 @@ public class Vortex extends Hero implements UIComponent {
                             PlayerLib.playSound(nextLocation, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.25f);
                         }
 
-                        Collect.nearbyLivingEntities(nextLocation, 2.0d).forEach(entity -> {
-                            if (entity == player) {
+                        Collect.nearbyEntities(nextLocation, 2.0d).forEach(entity -> {
+                            if (entity.is(player)) {
                                 return;
                             }
 
-                            GamePlayer.damageEntityTick(entity, sotsDamage, player, EnumDamageCause.SOTS, 0);
+                            entity.damageTick(sotsDamage, CF.getPlayer(player), EnumDamageCause.SOTS, 0);
                         });
 
                         if (((distanceFlew += distanceShift) >= maxDistance) || nextLocation.getBlock().getType().isOccluding()) {
@@ -141,12 +142,13 @@ public class Vortex extends Hero implements UIComponent {
             world.playSound(location, Sound.ITEM_FLINTANDSTEEL_USE, 10, 0.75f);
 
             // damage
-            Collect.nearbyLivingEntities(location, 2.0d).forEach(entity -> {
-                if (player == entity) {
+            Collect.nearbyEntities(location, 2.0d).forEach(entity -> {
+                if (entity.is(player)) {
                     return;
                 }
+
+                entity.damage(1.0d, CF.getPlayer(player), EnumDamageCause.ENTITY_ATTACK);
                 entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 80, 2));
-                GamePlayer.damageEntity(entity, 1.0d, player, EnumDamageCause.ENTITY_ATTACK);
             });
 
             location.subtract(x, 0, z);
@@ -203,11 +205,11 @@ public class Vortex extends Hero implements UIComponent {
     public void performStarSlash(Location start, Location finish, Player player) {
         // ray-trace string
         Utils.rayTracePath(start, finish, 1.0d, 2.0d, living -> {
-            if (living == player) {
+            if (living.is(player)) {
                 return;
             }
 
-            GamePlayer.damageEntity(living, starDamage, player, EnumDamageCause.STAR_SLASH);
+            living.damage(starDamage, CF.getPlayer(player), EnumDamageCause.STAR_SLASH);
         }, loc -> {
             PlayerLib.spawnParticle(loc, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0);
             PlayerLib.playSound(loc, Sound.ITEM_FLINTANDSTEEL_USE, 0.75f);

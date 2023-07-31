@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.effect.archive;
 
 import me.hapyl.fight.game.effect.PotionGameEffect;
+import me.hapyl.fight.game.entity.GameEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffectType;
 
@@ -17,7 +18,7 @@ public class WitherBlood extends PotionGameEffect {
     }
 
     @Override
-    public void onTick(LivingEntity entity, int tick) {
+    public void onTick(GameEntity entity, int tick) {
     }
 
     @Override

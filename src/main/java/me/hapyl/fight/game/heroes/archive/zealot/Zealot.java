@@ -7,6 +7,12 @@ import me.hapyl.fight.game.talents.Talent;
 import org.bukkit.entity.Player;
 
 public class Zealot extends Hero implements DisabledHero {
+
+    /**
+     * Sword adds ferocity like in hypixel.
+     * Armor and sword changed color to indicate.
+     */
+
     public Zealot() {
         super("Zealot");
 

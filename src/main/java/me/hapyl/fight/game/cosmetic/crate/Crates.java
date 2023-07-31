@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.cosmetic.crate;
 
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.CosmeticCollection;
 import me.hapyl.fight.game.cosmetic.Cosmetics;

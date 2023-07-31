@@ -2,7 +2,6 @@ package me.hapyl.fight.game.talents.archive.vampire;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
@@ -14,7 +13,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Bat;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.Set;
@@ -59,13 +57,13 @@ public class BatSwarm extends Talent {
                         continue;
                     }
 
-                    Collect.nearbyLivingEntities(bat.getLocation(), 1.0d).forEach(entity -> {
-                        if (entity == player || entity instanceof Bat || entity.getNoDamageTicks() > 0) {
+                    Collect.nearbyEntities(bat.getLocation(), 1.0d).forEach(entity -> {
+                        if (entity.is(player) || entity instanceof Bat || entity.getNoDamageTicks() > 0) {
                             return;
                         }
 
-                        GamePlayer.damageEntityTick(entity, 2.0d, player, EnumDamageCause.SWARM, 1);
-                        entity.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20, 1));
+                        entity.damageTick(2.0d, player, EnumDamageCause.SWARM, 1);
+                        entity.addPotionEffect(PotionEffectType.BLINDNESS, 20, 1);
 
                         bats.remove(bat);
                         bat.remove();

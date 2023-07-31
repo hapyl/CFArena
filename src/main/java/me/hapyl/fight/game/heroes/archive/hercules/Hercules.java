@@ -1,7 +1,8 @@
 package me.hapyl.fight.game.heroes.archive.hercules;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
@@ -210,14 +211,14 @@ public class Hercules extends Hero implements Listener, PlayerElement {
 
                     Cosmetics.GROUND_PUNCH.getCosmetic(GroundPunchCosmetic.class).playAnimation(player.getLocation(), 2);
 
-                    Collect.nearbyLivingEntities(player.getLocation(), 4).forEach(target -> {
-                        if (target == player) {
+                    Collect.nearbyEntities(player.getLocation(), 4).forEach(target -> {
+                        if (target.is(player)) {
                             return;
                         }
-                        GamePlayer.damageEntity(
-                                target,
+
+                        target.damage(
                                 isUsingUltimate(player) ? plungeDamage * 2 : plungeDamage,
-                                player,
+                                CF.getPlayer(player),
                                 EnumDamageCause.PLUNGE
                         );
                     });

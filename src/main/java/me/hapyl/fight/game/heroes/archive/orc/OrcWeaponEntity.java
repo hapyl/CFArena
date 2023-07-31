@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.orc;
 
+import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Utils;
@@ -146,13 +147,13 @@ public abstract class OrcWeaponEntity extends GameTask {
         }
 
         // Check for entity hit
-        final LivingEntity nearestEntity = Collect.nearestLivingEntity(hitLocation, 0.2d, predicate -> predicate != player);
+        final GameEntity nearestEntity = Collect.nearestEntity(hitLocation, 0.2d, predicate -> predicate.isNot(player));
 
         if (nearestEntity != null) {
-            hitEntity = nearestEntity;
+            hitEntity = nearestEntity.getEntity();
             aliveTicks = 0;
 
-            onHit(nearestEntity);
+            onHit(hitEntity);
             return true;
         }
 

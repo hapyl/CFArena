@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.archive.witcher;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.dark_mage.AnimatedWither;
 import me.hapyl.fight.game.task.GameTask;
@@ -92,7 +92,9 @@ public class WitherData {
 
         GameTask.runTaskTimerTimes(task -> {
             entity.setNoDamageTicks(0);
-            GamePlayer.damageEntityTick(entity, ASSIST_DAMAGE_TOTAL / ASSIST_HITS, player, EnumDamageCause.WITHERBORN, ASSIST_HITS);
+            CF.getEntityOptional(entity).ifPresent(gameEntity -> {
+                gameEntity.damageTick(ASSIST_DAMAGE_TOTAL / ASSIST_HITS, player, EnumDamageCause.WITHERBORN, ASSIST_HITS);
+            });
 
             // Fx
             PlayerLib.playSound(wither.getLocation(), Sound.ENTITY_WITHER_SHOOT, 1.25f);

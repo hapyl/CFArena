@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.talents.archive.librarian;
 
-import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.librarian.Librarian;
@@ -56,8 +55,8 @@ public class BlackHole extends LibrarianTalent {
                 location.subtract(x, tick120, z);
             }
 
-            Collect.nearbyLivingEntities(location, suckRadius).forEach(entity -> {
-                if (entity == player) {
+            Collect.nearbyEntities(location, suckRadius).forEach(entity -> {
+                if (entity.is(player)) {
                     return;
                 }
 
@@ -65,9 +64,9 @@ public class BlackHole extends LibrarianTalent {
                 entity.setVelocity(location.toVector().subtract(entityLocation.toVector()).multiply(0.2d));
 
                 if (tick % 20 == 0) {
-                    GamePlayer.damageEntity(entity, getCurrentValue(Heroes.LIBRARIAN.getHero(Librarian.class).getGrimoireLevel(player)));
-                    PlayerLib.spawnParticle(entityLocation, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0);
-                    PlayerLib.playSound(entityLocation, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.25f);
+                    entity.damage(getCurrentValue(Heroes.LIBRARIAN.getHero(Librarian.class).getGrimoireLevel(player)));
+                    entity.spawnParticle(entityLocation, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0);
+                    entity.playSound(Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.25f);
                 }
 
             });

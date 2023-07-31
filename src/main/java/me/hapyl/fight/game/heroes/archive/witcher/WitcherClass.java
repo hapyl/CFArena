@@ -3,6 +3,7 @@ package me.hapyl.fight.game.heroes.archive.witcher;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.PlayerElement;
+import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -16,7 +17,6 @@ import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
@@ -94,16 +94,17 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
 
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final Player player = input.getPlayer();
+        final Player player = input.getBukkitPlayer();
         final Combo combo = getCombo(player);
-        double damage = input.getDamage();
-        final LivingEntity entity = input.getEntity();
+        final GameEntity entity = input.getDamager();
 
-        if (combo.getEntity() == null && entity != null && entity != player) {
-            combo.setEntity(entity);
+        double damage = input.getDamage();
+
+        if (combo.getEntity() == null && entity != null && entity.isNot(player)) {
+            combo.setEntity(entity.getEntity());
         }
 
-        if (!combo.validateSameEntity(entity)) {
+        if (!combo.validateSameEntity(entity == null ? null : entity.getEntity())) {
             combo.reset();
         }
 
@@ -132,8 +133,9 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
 
     @Override
     public DamageOutput processDamageAsVictim(DamageInput input) {
-        final Kven kven = (Kven) getThirdTalent();
-        final Player player = input.getPlayer();
+        final Kven kven = getThirdTalent();
+        final Player player = input.getBukkitPlayer();
+
         if (kven.getShieldCharge(player) > 0) {
             kven.removeShieldCharge(player);
 
@@ -153,6 +155,7 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
     }
 
     @Override
+    @Nonnull
     public Kven getThirdTalent() {
         return (Kven) Talents.KVEN.getTalent();
     }

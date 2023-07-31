@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.gamemode.modes;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.GameInstance;
 import org.bukkit.Material;
 
@@ -24,7 +25,7 @@ public class Rush extends DeathmatchKills {
 
     @Override
     public boolean onStart(@Nonnull GameInstance instance) {
-        instance.getPlayers().values().forEach(player -> player.setCooldownModifier(0.5d));
+        CF.getPlayers().forEach(player -> player.setCooldownModifier(0.5d));
         return false;
     }
 
@@ -34,7 +35,7 @@ public class Rush extends DeathmatchKills {
             return;
         }
 
-        instance.getAlivePlayers().forEach(player -> {
+        CF.getAlivePlayers().forEach(player -> {
             player.addUltimatePoints(1);
         });
     }

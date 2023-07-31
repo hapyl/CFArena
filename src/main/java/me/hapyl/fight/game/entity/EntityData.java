@@ -1,18 +1,19 @@
-package me.hapyl.fight.game.damage;
+package me.hapyl.fight.game.entity;
 
 import com.google.common.collect.Maps;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.Important;
-import me.hapyl.fight.game.*;
+import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.GameInstance;
+import me.hapyl.fight.game.IGameInstance;
+import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.annotate.Super;
 import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Numbers;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Location;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -25,28 +26,24 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 /**
- * Stores entity data per-game instance.
- * Used to store custom damage, custom effects, etc.
+ * Used to store custom damage, effects, etc.
  */
 public final class EntityData {
-
-    public static final EntityData EMPTY = new EntityData(Entities.PIG.spawn(BukkitUtils.defLocation(0, -64, 0), Entity::remove));
 
     private final Map<GameEffectType, ActiveGameEffect> gameEffects;
     private final Map<Player, Double> damageTaken;
 
-    private final LivingEntity entity;
+    private final GameEntity entity;
 
-    @Nullable private LivingEntity lastDamager;
+    @Nullable private GameEntity lastDamager;
     @Nullable private EnumDamageCause lastDamageCause;
 
     private double lastDamage;
     private boolean isCrit;
 
-    @Important("Notifies the event that the damage is custom, not vanilla.")
-    private boolean wasHit;
+    @Important("Notifies the event that the damage is custom, not vanilla.") protected boolean wasHit;
 
-    public EntityData(LivingEntity entity) {
+    public EntityData(GameEntity entity) {
         this.entity = entity;
         this.damageTaken = Maps.newHashMap();
         this.gameEffects = Maps.newConcurrentMap();
@@ -159,7 +156,7 @@ public final class EntityData {
      * @return entity that owns this data.
      */
     @Nonnull
-    public LivingEntity getEntity() {
+    public GameEntity getEntity() {
         return entity;
     }
 
@@ -169,7 +166,7 @@ public final class EntityData {
      * @return the last damager.
      */
     @Nullable
-    public LivingEntity getLastDamager() {
+    public GameEntity getLastDamager() {
         return lastDamager;
     }
 
@@ -178,7 +175,7 @@ public final class EntityData {
      *
      * @param lastDamager - New last damager.
      */
-    public void setLastDamager(@Nullable LivingEntity lastDamager) {
+    public void setLastDamager(@Nullable GameEntity lastDamager) {
         this.lastDamager = lastDamager;
     }
 
@@ -199,7 +196,7 @@ public final class EntityData {
             return null;
         }
 
-        return lastDamager;
+        return lastDamager.getEntity();
     }
 
     /**
@@ -236,7 +233,7 @@ public final class EntityData {
      *
      * @param living - New damager.
      */
-    public void setLastDamagerIfNative(LivingEntity living) {
+    public void setLastDamagerIfNative(GameEntity living) {
         if (isNativeDamage()) {
             lastDamager = living;
         }
@@ -330,7 +327,7 @@ public final class EntityData {
      *
      * @param player - Player to notify.
      */
-    public void notifyChatIncoming(Player player) {
+    public void notifyChatIncoming(GamePlayer player) {
         final double damage = this.lastDamage;
 
         if (damage < 1) {
@@ -350,7 +347,7 @@ public final class EntityData {
             message += " &b&lCRITICAL";
         }
 
-        Chat.sendMessage(player, prefix + message);
+        player.sendMessage(prefix + message);
     }
 
     /**
@@ -358,7 +355,7 @@ public final class EntityData {
      *
      * @param player - Player to notify.
      */
-    public void notifyChatOutgoing(Player player) {
+    public void notifyChatOutgoing(GamePlayer player) {
         final double damage = this.lastDamage;
 
         if (damage < 1) {
@@ -367,15 +364,12 @@ public final class EntityData {
 
         final String prefix = "&7[&a⚔&7] &f";
 
-        Chat.sendMessage(
-                player,
-                prefix + "&l%.2f &fusing &l%s &fto &l%s%s".formatted(
-                        damage,
-                        Chat.capitalize(this.getLastDamageCauseNonNull()),
-                        this.entity.getName(),
-                        this.isCrit ? " &b&lCRITICAL" : ""
-                )
-        );
+        player.sendMessage(prefix + "&l%.2f &fusing &l%s &fto &l%s%s".formatted(
+                damage,
+                Chat.capitalize(this.getLastDamageCauseNonNull()),
+                this.entity.getName(),
+                this.isCrit ? " &b&lCRITICAL" : ""
+        ));
     }
 
     @Override
@@ -390,99 +384,6 @@ public final class EntityData {
                 '}';
     }
 
-    // static members
-
-    /**
-     * Performs damage, with a given no damage ticks.
-     *
-     * @param entity  - Entity to damage.
-     * @param damage  - Damage.
-     * @param damager - Damager.
-     * @param cause   - Cause.
-     * @param tick    - No damage ticks.
-     */
-    @Super
-    public static void damageTick(@Nonnull LivingEntity entity, double damage, @Nullable LivingEntity damager, @Nullable EnumDamageCause cause, int tick) {
-        final int maximumNoDamageTicks = entity.getMaximumNoDamageTicks();
-        tick = Numbers.clamp(tick, 0, maximumNoDamageTicks);
-
-        entity.setMaximumNoDamageTicks(tick);
-        damage(entity, damage, damager, cause == null ? EnumDamageCause.ENTITY_ATTACK : cause);
-        entity.setMaximumNoDamageTicks(maximumNoDamageTicks);
-    }
-
-    // see @Super method
-    public static void damageTick(@Nonnull LivingEntity entity, double damage, @Nullable LivingEntity damager, int tick) {
-        damageTick(entity, damage, damager, null, tick);
-    }
-
-    // see @Super method
-    public static void damageTick(@Nonnull LivingEntity entity, double damage, int tick) {
-        damageTick(entity, damage, null, null, tick);
-    }
-
-    /**
-     * Performs damage to an entity.
-     *
-     * @param entity  - Entity to damage.
-     * @param damage  - Damage.
-     * @param damager - Damager.
-     * @param cause   - Cause.
-     */
-    @Super
-    public static void damage(@Nonnull LivingEntity entity, double damage, @Nullable LivingEntity damager, @Nullable EnumDamageCause cause) {
-        final EntityData data = of(entity);
-
-        // Don't reassign the damage if self damage!
-        // That's the whole point of the system to
-        // award the last damager even if player killed themselves.
-        if (damager != null && entity != damager) {
-            data.lastDamager = damager;
-        }
-
-        if (cause != null) {
-            data.lastDamageCause = cause;
-        }
-
-        data.lastDamage = damage;
-
-        // Call the damage event
-        data.wasHit = true; // This tag is VERY important for calculations
-        entity.damage(damage, damager);
-        data.wasHit = false;
-    }
-
-    // see @Super method
-    public static void damage(@Nonnull LivingEntity entity, double damage, @Nullable LivingEntity damager) {
-        damage(entity, damage, damager, null);
-    }
-
-    // see @Super method
-    public static void damage(@Nonnull LivingEntity entity, double damage) {
-        damage(entity, damage, null, null);
-    }
-
-    /**
-     * Damages all entities in the AoE.
-     *
-     * @param location  - Center of the AoE damage.
-     * @param radius    - Radius of AoE damage.
-     * @param damage    - Damage.
-     * @param damager   - Damager
-     * @param cause     - Cause.
-     * @param predicate - Predicate for the entities.
-     * @return list of damaged entities.
-     */
-    public static List<LivingEntity> damageAoE(@Nonnull Location location, double radius, double damage, @Nullable LivingEntity damager, @Nullable EnumDamageCause cause, @Nonnull Predicate<LivingEntity> predicate) {
-        final List<LivingEntity> entities = Collect.nearbyLivingEntitiesValidate(location, radius).stream().filter(predicate).toList();
-
-        for (LivingEntity entity : entities) {
-            damage(entity, damage, damager, cause);
-        }
-
-        return entities;
-    }
-
     /**
      * Gets the entity data for the given entity from the current game instance.
      *
@@ -490,22 +391,25 @@ public final class EntityData {
      * @return the entity data for the given entity from the current game instance.
      */
     @Nonnull
+    @Deprecated(forRemoval = true)
     public static EntityData of(@Nonnull LivingEntity entity) {
-        return Manager.current().getCurrentGame().getEntityData(entity);
+        final GameEntity gameEntity = CF.getEntity(entity);
+
+        if (gameEntity == null) {
+            throw new IllegalStateException("cannot find game entity for " + entity);
+        }
+
+        return gameEntity.getData();
     }
 
     public static void die(@Nonnull LivingEntity livingEntity) {
-        if (livingEntity instanceof Player player) {
-            final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
+        final GameEntity gameEntity = CF.getEntity(livingEntity);
+        if (gameEntity == null) {
+            return;
+        }
 
-            gamePlayer.setLastDamageCause(EnumDamageCause.VOID);
-            gamePlayer.die(true);
-        }
-        else {
-            if (!livingEntity.isInvisible()) {
-                livingEntity.remove();
-            }
-        }
+        gameEntity.setLastDamageCause(EnumDamageCause.SUICIDE);
+        gameEntity.die(true);
     }
 
     /**
@@ -514,10 +418,8 @@ public final class EntityData {
     public static void resetDamageData() {
         final IGameInstance instance = Manager.current().getCurrentGame();
 
-        if (instance instanceof GameInstance gameInstance) {
-            gameInstance.getEntityData().forEach((entity, data) -> {
-                data.resetDamage();
-            });
+        if (instance instanceof GameInstance) {
+            CF.getEntities().forEach(entity -> entity.getData().resetDamage());
         }
     }
 }

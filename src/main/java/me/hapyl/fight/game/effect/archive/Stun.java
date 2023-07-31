@@ -1,8 +1,10 @@
 package me.hapyl.fight.game.effect.archive;
 
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.effect.EffectParticle;
 import me.hapyl.fight.game.effect.GameEffect;
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GamePlayer;
 import org.bukkit.Particle;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -24,26 +26,26 @@ public class Stun extends GameEffect {
     }
 
     @Override
-    public void onTick(LivingEntity entity, int tick) {
-        displayParticles(entity.getLocation().add(0.0d, 1.0d, 0.0d), entity);
+    public void onTick(GameEntity entity, int tick) {
+        displayParticles(entity.getLocation().add(0.0d, 1.0d, 0.0d), entity.getEntity());
     }
 
     @Override
-    public void onStart(LivingEntity entity) {
+    public void onStart(GameEntity entity) {
         if (!(entity instanceof Player player)) {
             return;
         }
 
-        oldSpeed.put(entity, player.getWalkSpeed());
+        oldSpeed.put(entity.getEntity(), player.getWalkSpeed());
 
         player.setWalkSpeed(0.0f);
         player.addPotionEffect(PotionEffectType.WEAKNESS.createEffect(999999, 250));
 
-        GamePlayer.getPlayer(player).setCanMove(false);
+        CF.getOrCreatePlayer(player).setCanMove(false);
     }
 
     @Override
-    public void onStop(LivingEntity entity) {
+    public void onStop(GameEntity entity) {
         if (!(entity instanceof Player player)) {
             return;
         }

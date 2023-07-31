@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents;
 
 import com.google.common.collect.Maps;
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;

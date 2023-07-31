@@ -1,8 +1,8 @@
 package me.hapyl.fight.cmds;
 
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.PlayerAttributes;
+import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
 import me.hapyl.spigotutils.module.util.Validate;
@@ -36,7 +36,7 @@ public class PlayerAttributeCommand extends SimplePlayerAdminCommand {
             return;
         }
 
-        final PlayerAttributes attributes = gamePlayer.getAttributes();
+        final EntityAttributes attributes = gamePlayer.getAttributes();
 
         if (args.length > 1 && args[1].equalsIgnoreCase("reset")) {
             attributes.reset();

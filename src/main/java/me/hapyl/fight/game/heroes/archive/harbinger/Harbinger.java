@@ -1,10 +1,12 @@
 package me.hapyl.fight.game.heroes.archive.harbinger;
 
 import com.google.common.collect.Maps;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
@@ -74,15 +76,14 @@ public class Harbinger extends Hero implements Listener, UIComponent {
 
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final Player player = input.getPlayer();
-        final LivingEntity entity = input.getEntity();
+        final Player player = input.getBukkitPlayer();
+        final GameEntity entity = input.getDamager();
 
         if (entity == null || !Talents.STANCE.getTalent(MeleeStance.class).isActive(player)) {
             return null;
         }
 
-        executeRiptideSlashIfPossible(player, entity);
-
+        executeRiptideSlashIfPossible(player, entity.getEntity());
         return null;
     }
 
@@ -93,12 +94,12 @@ public class Harbinger extends Hero implements Listener, UIComponent {
             return null;
         }
 
-        final Player player = input.getPlayer();
-        final LivingEntity entity = input.getEntity();
+        final Player player = input.getBukkitPlayer();
+        final GameEntity entity = input.getDamager();
 
         if (entity != null) {
-            executeRiptideSlashIfPossible(player, entity);
-            addRiptide(player, entity, 150, false);
+            executeRiptideSlashIfPossible(player, entity.getEntity());
+            addRiptide(player, entity.getEntity(), 150, false);
         }
 
         return null;
@@ -127,7 +128,8 @@ public class Harbinger extends Hero implements Listener, UIComponent {
     }
 
     @Override
-    public void onDeathGlobal(@Nonnull Player player, @Nullable LivingEntity killer, @Nullable EnumDamageCause cause) {
+    public void onDeathGlobal(@Nonnull GamePlayer gamePlayer, @Nullable GameEntity killer, @Nullable EnumDamageCause cause) {
+        final Player player = gamePlayer.getPlayer();
         for (RiptideStatus value : riptideStatus.values()) {
             if (value.isAffected(player)) {
                 value.stop(player);
@@ -177,12 +179,12 @@ public class Harbinger extends Hero implements Listener, UIComponent {
 
                                 location.add(x, 0, z);
 
-                                Collect.nearbyLivingEntities(location, 2.0d).forEach(entity -> {
-                                    if (entity == player) {
+                                Collect.nearbyEntities(location, 2.0d).forEach(entity -> {
+                                    if (entity.is(player)) {
                                         return;
                                     }
 
-                                    GamePlayer.damageEntity(entity, 40.0d, player, EnumDamageCause.RIPTIDE);
+                                    entity.damage(40.0d, CF.getPlayer(player), EnumDamageCause.RIPTIDE);
                                 });
 
                                 PlayerLib.spawnParticle(location, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0);
@@ -217,16 +219,16 @@ public class Harbinger extends Hero implements Listener, UIComponent {
         new GameTask() {
             @Override
             public void run() {
-                Collect.nearbyLivingEntities(location, ultimateRadius).forEach(entity -> {
-                    if (entity == player) {
+                Collect.nearbyEntities(location, ultimateRadius).forEach(entity -> {
+                    if (entity.is(player)) {
                         return;
                     }
 
-                    GamePlayer.damageEntity(entity, 25.0d, player, EnumDamageCause.RIPTIDE);
+                    entity.damage(25.0d, CF.getPlayer(player), EnumDamageCause.RIPTIDE);
                     PlayerLib.playSound(entity.getLocation(), Sound.ENTITY_GENERIC_BIG_FALL, 0.75f);
                     PlayerLib.playSound(entity.getLocation(), Sound.ENTITY_GENERIC_HURT, 1.25f);
 
-                    addRiptide(player, entity, 500, false);
+                    addRiptide(player, entity.getEntity(), 500, false);
                 });
 
                 // Fx

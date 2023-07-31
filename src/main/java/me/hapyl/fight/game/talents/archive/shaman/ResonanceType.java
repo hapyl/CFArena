@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.archive.shaman;
 
-import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.IGamePlayer;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -16,7 +16,7 @@ public enum ResonanceType {
 
     SLOWING_AURA(Material.BLUE_DYE, ChatColor.AQUA, ChatColor.BLUE, "Slows all enemies around the totem.", 3.0d, 10, (totem) -> {
         // Heal
-        totem.getPlayerInRange().forEach(player -> PlayerLib.addEffect(player, PotionEffectType.SLOW, 10, 0));
+        totem.getPlayerInRange().forEach(player -> player.addPotionEffect(PotionEffectType.SLOW, 10, 0));
         totem.drawCircle(Particle.SPELL_MOB);
     }),
 
@@ -30,7 +30,7 @@ public enum ResonanceType {
             (totem) -> {
                 // Heal
                 totem.getPlayerInRange().forEach(player -> {
-                    GamePlayer.getPlayer(player).heal(2.0d);
+                    player.heal(2.0d);
                     PlayerLib.spawnParticle(
                             player.getLocation().add(0.0d, player.getEyeHeight(), 0.0d),
                             Particle.HEART,
@@ -73,8 +73,7 @@ public enum ResonanceType {
             3.0d,
             10,
             (totem) -> {
-                totem.getPlayerInRange().forEach(player -> {
-                    final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
+                totem.getPlayerInRange().forEach(gamePlayer -> {
                     gamePlayer.addPotionEffect(PotionEffectType.SPEED, 15, 0);
                     gamePlayer.addUltimatePoints(1);
                 });

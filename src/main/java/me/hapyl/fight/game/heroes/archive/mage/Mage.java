@@ -1,10 +1,11 @@
 package me.hapyl.fight.game.heroes.archive.mage;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.damage.EntityData;
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
@@ -109,7 +110,9 @@ public class Mage extends Hero implements UIComponent {
                 final Location location = livingEntity.getLocation();
                 livingEntity.addScoreboardTag("LastDamage=Soul");
 
-                EntityData.damage(livingEntity, getDamage(), player, EnumDamageCause.SOUL_WHISPER);
+                CF.getEntityOptional(livingEntity).ifPresent(entity -> {
+                    entity.damage(getDamage(), CF.getPlayer(player), EnumDamageCause.SOUL_WHISPER);
+                });
 
                 PlayerLib.spawnParticle(location, Particle.SOUL, 8, 0, 0, 0, 0.10f);
                 PlayerLib.spawnParticle(location, Particle.SOUL_FIRE_FLAME, 10, 0, 0, 0, 0.25f);
@@ -145,15 +148,15 @@ public class Mage extends Hero implements UIComponent {
 
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final LivingEntity victim = input.getEntity();
-        final Player player = input.getPlayer();
+        final GameEntity victim = input.getDamager();
+        final Player player = input.getBukkitPlayer();
         if (victim == null) {
             return null;
         }
-        if (!victim.getScoreboardTags().contains("LastDamage=Soul")) {
+        if (!victim.hasTag("LastDamage=Soul")) {
             addSouls(player, 1);
         }
-        victim.removeScoreboardTag("LastDamage=Soul");
+        victim.removeTag("LastDamage=Soul");
         return null;
     }
 

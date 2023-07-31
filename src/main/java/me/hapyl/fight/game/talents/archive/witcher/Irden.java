@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.talents.archive.witcher;
 
-import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.Talent;
@@ -10,7 +9,6 @@ import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.Quality;
 import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -59,14 +57,14 @@ public class Irden extends Talent {
         }
 
         Collect.nearbyPlayers(location, radius).forEach(target -> {
-            if (target == player) {
+            if (target.is(player)) {
                 return;
             }
 
-            PlayerLib.addEffect(target, PotionEffectType.SLOW, 5, 3);
-            PlayerLib.addEffect(target, PotionEffectType.WEAKNESS, 5, 0);
-            GamePlayer.getPlayer(target).addEffect(GameEffectType.VULNERABLE, 5, true);
-            GamePlayer.getPlayer(target).addEffect(GameEffectType.IMMOVABLE, 5, true);
+            target.addPotionEffect(PotionEffectType.SLOW, 5, 3);
+            target.addPotionEffect(PotionEffectType.WEAKNESS, 5, 0);
+            target.addEffect(GameEffectType.VULNERABLE, 5, true);
+            target.addEffect(GameEffectType.IMMOVABLE, 5, true);
         });
     }
 

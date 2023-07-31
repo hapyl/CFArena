@@ -1,13 +1,14 @@
 package me.hapyl.fight.game.heroes.archive.pytaria;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.attribute.PlayerAttributes;
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -23,10 +24,8 @@ import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Bee;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
@@ -52,7 +51,8 @@ public class Pytaria extends Hero {
         setRole(Role.ASSASSIN);
         setArchetype(Archetype.DAMAGE);
 
-        setDescription("Beautiful, but deadly opponent with addiction to flowers. She suffered all her youth, which at the end, made her only stronger.");
+        setDescription(
+                "Beautiful, but deadly opponent with addiction to flowers. She suffered all her youth, which at the end, made her only stronger.");
         setItem("7bb0752f9fa87a693c2d0d9f29549375feb6f76952da90d68820e7900083f801");
 
         final HeroAttributes attributes = getAttributes();
@@ -86,9 +86,9 @@ public class Pytaria extends Hero {
 
     @Override
     public void useUltimate(Player player) {
-        final IGamePlayer gp = GamePlayer.getPlayer(player);
-        final double health = gp.getHealth();
-        final double maxHealth = gp.getMaxHealth();
+        final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
+        final double health = gamePlayer.getHealth();
+        final double maxHealth = gamePlayer.getMaxHealth();
         final double missingHp = (maxHealth - health) * healthRegenPercent / maxHealth;
 
         // FIXME (hapyl): 023, May 23, 2023: don't need this
@@ -104,7 +104,7 @@ public class Pytaria extends Hero {
             me.setAI(false);
         });
 
-        final LivingEntity nearestEntity = Collect.nearestLivingEntityPrioritizePlayers(location, 50, check -> check != player);
+        final GameEntity nearestEntity = Collect.nearestEntityPrioritizePlayers(location, 50, check -> check.isNot(player));
         PlayerLib.playSound(location, Sound.ENTITY_BEE_LOOP_AGGRESSIVE, 1.0f);
 
         new GameTask() {
@@ -123,8 +123,8 @@ public class Pytaria extends Hero {
                     bee.remove();
                     cancel();
 
-                    Collect.nearbyLivingEntities(touchLocation, 1.5d).forEach(victim -> {
-                        GamePlayer.damageEntity(victim, finalDamage, player, EnumDamageCause.FEEL_THE_BREEZE);
+                    Collect.nearbyEntities(touchLocation, 1.5d).forEach(victim -> {
+                        victim.damage(finalDamage, player, EnumDamageCause.FEEL_THE_BREEZE);
                     });
 
                     PlayerLib.spawnParticle(touchLocation, Particle.EXPLOSION_LARGE, 3, 0.5, 0, 0.5, 0);
@@ -134,7 +134,7 @@ public class Pytaria extends Hero {
         }.runTaskTimer(0, 1);
 
         Chat.sendMessage(player, "&a&l][ &a%s healed for &c%s❤ &a!", this.getName(), BukkitUtils.decimalFormat(missingHp));
-        gp.heal(missingHp);
+        gamePlayer.heal(missingHp);
     }
 
     private Location drawLine(Location start, Location end) {
@@ -189,8 +189,8 @@ public class Pytaria extends Hero {
         return null;
     }
 
-    public void recalculateStats(@Nonnull IGamePlayer gamePlayer) {
-        final PlayerAttributes attributes = gamePlayer.getAttributes();
+    public void recalculateStats(@Nonnull GamePlayer gamePlayer) {
+        final EntityAttributes attributes = gamePlayer.getAttributes();
 
         final double maxHealth = gamePlayer.getMaxHealth();
         final double health = gamePlayer.getHealth();
@@ -212,36 +212,15 @@ public class Pytaria extends Hero {
         return ItemBuilder.leatherTunic(Color.fromRGB(red, green, blue)).cleanToItemSack();
     }
 
-    private void updateChestplateColor(Player player) {
-        final PlayerInventory inventory = player.getInventory();
-        final IGamePlayer gp = GamePlayer.getPlayer(player);
-        final double missingHealth = gp.getMaxHealth() - gp.getHealth();
-
-        if (isBetween(missingHealth, 0, 10)) {
-            inventory.setChestplate(armorColors[0]);
-        }
-        else if (isBetween(missingHealth, 10, 20)) {
-            inventory.setChestplate(armorColors[1]);
-        }
-        else if (isBetween(missingHealth, 20, 30)) {
-            inventory.setChestplate(armorColors[2]);
-        }
-        else if (isBetween(missingHealth, 30, 40)) {
-            inventory.setChestplate(armorColors[3]);
-        }
-        else {
-            inventory.setChestplate(armorColors[4]);
-        }
-    }
 
     private boolean isBetween(double value, double min, double max) {
         return value >= min && value < max;
     }
 
     public double calculateDamage(Player player, double damage) {
-        final IGamePlayer gp = GamePlayer.getPlayer(player);
-        final double health = gp.getHealth();
-        final double maxHealth = gp.getMaxHealth();
+        final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
+        final double health = gamePlayer.getHealth();
+        final double maxHealth = gamePlayer.getMaxHealth();
         //final double multiplier = ((maxHealth - health) / 10);
         //final double addDamage = (damage * 30 / 100) * multiplier;
         //

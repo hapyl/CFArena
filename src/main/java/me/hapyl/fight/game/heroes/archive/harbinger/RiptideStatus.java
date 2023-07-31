@@ -1,8 +1,9 @@
 package me.hapyl.fight.game.heroes.archive.harbinger;
 
 import com.google.common.collect.Maps;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.Ticking;
@@ -85,16 +86,18 @@ public class RiptideStatus implements Ticking {
         entity.setMaximumNoDamageTicks(0);
 
         GameTask.runTaskTimerTimes((task, tick) -> {
-            GamePlayer.damageEntity(entity, RIPTIDE_DAMAGE, player, EnumDamageCause.RIPTIDE);
-            entity.setVelocity(new Vector(new Random().nextDouble() * 0.5d, 0.25d, new Random().nextDouble() * 0.5d));
+            CF.getEntityOptional(entity).ifPresent(gameEntity -> {
+                gameEntity.damage(RIPTIDE_DAMAGE, player, EnumDamageCause.RIPTIDE);
+                gameEntity.setVelocity(new Vector(new Random().nextDouble() * 0.5d, 0.25d, new Random().nextDouble() * 0.5d));
 
-            if (tick == 0) {
-                entity.setMaximumNoDamageTicks(maxTicks);
-            }
+                if (tick == 0) {
+                    entity.setMaximumNoDamageTicks(maxTicks);
+                }
 
-            final Location location = entity.getEyeLocation();
-            PlayerLib.spawnParticle(location, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0);
-            PlayerLib.playSound(location, Sound.ITEM_BUCKET_FILL, 1.75f);
+                final Location location = entity.getEyeLocation();
+                PlayerLib.spawnParticle(location, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0);
+                PlayerLib.playSound(location, Sound.ITEM_BUCKET_FILL, 1.75f);
+            });
         }, 0, 2, RIPTIDE_AMOUNT);
     }
 

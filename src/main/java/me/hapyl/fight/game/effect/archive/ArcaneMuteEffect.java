@@ -1,9 +1,9 @@
 package me.hapyl.fight.game.effect.archive;
 
 import me.hapyl.fight.game.effect.GameEffect;
+import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.spigotutils.module.chat.Chat;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 public class ArcaneMuteEffect extends GameEffect {
@@ -15,7 +15,7 @@ public class ArcaneMuteEffect extends GameEffect {
     }
 
     @Override
-    public void onStart(LivingEntity entity) {
+    public void onStart(GameEntity entity) {
         if (!(entity instanceof Player player)) {
             return;
         }
@@ -24,11 +24,11 @@ public class ArcaneMuteEffect extends GameEffect {
     }
 
     @Override
-    public void onStop(LivingEntity entity) {
-        Chat.sendMessage(entity, "&e&l☠ &aArcane Mute is gone.");
+    public void onStop(GameEntity entity) {
+        entity.sendMessage("&e&l☠ &aArcane Mute is gone.");
     }
 
     @Override
-    public void onTick(LivingEntity entity, int tick) {
+    public void onTick(GameEntity entity, int tick) {
     }
 }

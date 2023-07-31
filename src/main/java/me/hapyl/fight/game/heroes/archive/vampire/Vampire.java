@@ -3,12 +3,13 @@ package me.hapyl.fight.game.heroes.archive.vampire;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -190,7 +191,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
 
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final Player player = input.getPlayer();
+        final Player player = input.getBukkitPlayer();
         final VampireData data = getData(player);
 
         if (isUsingUltimate(player)) {
@@ -269,7 +270,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
         new GameTask() {
             @Override
             public void run() {
-                Manager.current().getCurrentGame().getAlivePlayers(Heroes.VAMPIRE).forEach(player -> {
+                CF.getAlivePlayers(Heroes.VAMPIRE).forEach(player -> {
                     if (!Manager.current().isGameInProgress() || isUsingUltimate(player.getPlayer())) {
                         return;
                     }

@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.preset;
 
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GamePlayer;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

@@ -15,11 +15,12 @@ import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.PlayerAttributes;
+import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.Temper;
 import me.hapyl.fight.game.cosmetic.CosmeticCollection;
 import me.hapyl.fight.game.cosmetic.crate.Crates;
-import me.hapyl.fight.game.damage.EntityData;
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.dark_mage.AnimatedWither;
 import me.hapyl.fight.game.heroes.archive.doctor.ElementType;
@@ -241,6 +242,10 @@ public class CommandRegistry extends DependencyInjector<Main> {
             }
         });
 
+        register("dumpEntities", (player, args) -> {
+            Chat.sendMessage(player, CF.getEntities());
+        });
+
         register("testTransformationRotation", (player, args) -> {
             if (args.length != 8) {
                 Chat.sendMessage(
@@ -299,7 +304,7 @@ public class CommandRegistry extends DependencyInjector<Main> {
                 final String killer = getArgument(strings, 1).toString();
                 final double distance = getArgument(strings, 2).toDouble();
 
-                final String format = cause.getRandomIfMultiple().format(player, killer, distance);
+                final String format = cause.getRandomIfMultiple().format(CF.getPlayer(player), killer, distance);
                 Chat.sendMessage(player, ChatColor.RED + format);
             }
 
@@ -678,7 +683,7 @@ public class CommandRegistry extends DependencyInjector<Main> {
                     return;
                 }
 
-                final PlayerAttributes attributes = gamePlayer.getAttributes();
+                final EntityAttributes attributes = gamePlayer.getAttributes();
 
                 if (value > 0) {
                     attributes.increaseTemporary(Temper.COMMAND, attribute, value, duration);
@@ -711,7 +716,7 @@ public class CommandRegistry extends DependencyInjector<Main> {
                     return;
                 }
 
-                gamePlayer.setLastDamager(player);
+                gamePlayer.setLastDamager(CF.getPlayer(player));
                 gamePlayer.die(true);
             }
         });
@@ -867,14 +872,14 @@ public class CommandRegistry extends DependencyInjector<Main> {
         register(new SimplePlayerAdminCommand("debugDamageData") {
             @Override
             protected void execute(Player player, String[] strings) {
-                final LivingEntity targetEntity = Collect.targetLivingEntity(player, 20.0d, 0.9d, e -> e != player);
+                final GameEntity targetEntity = Collect.targetEntity(player, 20.0d, 0.9d, e -> e.isNot(player));
 
                 if (targetEntity == null) {
-                    Chat.sendMessage(player, EntityData.of(player));
+                    Chat.sendMessage(player, CF.getPlayer(player).getData());
                     return;
                 }
 
-                Chat.sendMessage(player, EntityData.of(targetEntity));
+                Chat.sendMessage(player, targetEntity.getData());
             }
         });
 

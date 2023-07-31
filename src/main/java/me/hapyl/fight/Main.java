@@ -1,10 +1,7 @@
 package me.hapyl.fight;
 
 import me.hapyl.fight.database.Database;
-import me.hapyl.fight.event.EnderPearlHandler;
-import me.hapyl.fight.event.PlayerHandler;
-import me.hapyl.fight.event.ServerHandler;
-import me.hapyl.fight.event.SnowFormHandler;
+import me.hapyl.fight.event.*;
 import me.hapyl.fight.game.ChatController;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.achievement.AchievementRegistry;
@@ -78,6 +75,8 @@ public class Main extends JavaPlugin {
 
         // Register 'managers' 🤪
         manager = new Manager(this);
+        CF.manager = manager;
+
         taskList = new TaskList(this);
         experience = new Experience(this);
         boosters = new BoosterController(this);
@@ -205,6 +204,7 @@ public class Main extends JavaPlugin {
         final PluginManager pluginManager = Bukkit.getServer().getPluginManager();
 
         pluginManager.registerEvents(new PlayerHandler(), this);
+        pluginManager.registerEvents(new EntityHandler(), this);
         pluginManager.registerEvents(new ChatController(), this);
         pluginManager.registerEvents(new EnderPearlHandler(), this);
         pluginManager.registerEvents(new CosmeticsListener(), this);

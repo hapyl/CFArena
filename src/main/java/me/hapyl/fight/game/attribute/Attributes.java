@@ -53,6 +53,26 @@ public class Attributes {
         return chance >= 1.0d || new Random().nextDouble(0.0d, 1.0d) < chance;
     }
 
+    public void setHealth(double value) {
+        setValue(AttributeType.HEALTH, value);
+    }
+
+    public void setAttack(double value) {
+        setValueScaled(AttributeType.ATTACK, 100);
+    }
+
+    public void setDefense(double value) {
+        checkValue(value);
+    }
+
+    public void setValue(AttributeType type, double value) {
+        mapped.put(type, value);
+    }
+
+    public void setValueScaled(AttributeType type, double value) {
+        setValue(type, value * 100);
+    }
+
     /**
      * Gets or computes the value into the map.
      *
@@ -114,5 +134,21 @@ public class Attributes {
         final ChatColor color = type.attribute.getColor();
 
         return (color + character.repeat(scale)) + (ChatColor.DARK_GRAY + character.repeat(5 - scale));
+    }
+
+    private void checkValue(double value) {
+        if (value < 1.0) {
+            throw new IllegalArgumentException("This method scales down the value! %s is too small, did you mean %s?".formatted(
+                    value,
+                    value * 100
+            ));
+        }
+    }
+
+    public static Attributes copyOf(@Nonnull Attributes attributes) {
+        final Attributes copy = new Attributes();
+        copy.mapped.putAll(attributes.mapped);
+
+        return copy;
     }
 }

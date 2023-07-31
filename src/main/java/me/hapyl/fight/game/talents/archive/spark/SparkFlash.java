@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.archive.spark;
 
-import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
@@ -52,8 +52,7 @@ public class SparkFlash extends Talent {
                 // Explode
                 final Location itemLocation = item.getLocation();
                 if (tick-- < 0) {
-
-                    Manager.current().getCurrentGame().getAlivePlayers().forEach(victim -> {
+                    CF.getAlivePlayers().forEach(victim -> {
                         final Player victimPlayer = victim.getPlayer();
 
                         // Check for dot instead of line of sight

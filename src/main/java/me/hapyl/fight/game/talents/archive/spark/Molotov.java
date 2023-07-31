@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.talents.archive.spark;
 
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
@@ -94,12 +93,12 @@ public class Molotov extends Talent implements Listener {
                     return;
                 }
 
-                Collect.nearbyLivingEntities(location, fireRadius).forEach(entity -> {
-                    if (entity == player) {
-                        GamePlayer.getPlayer(player).heal(fireHealing);
+                Collect.nearbyEntities(location, fireRadius).forEach(entity -> {
+                    if (entity.is(player)) {
+                        entity.heal(fireHealing);
                     }
                     else {
-                        GamePlayer.damageEntity(entity, fireDamage, player, EnumDamageCause.FIRE_MOLOTOV);
+                        entity.damage(fireDamage, player, EnumDamageCause.FIRE_MOLOTOV);
                     }
                 });
 

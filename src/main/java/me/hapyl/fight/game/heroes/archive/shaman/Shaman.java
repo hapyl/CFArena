@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.archive.shaman;
 
-import me.hapyl.fight.game.IGamePlayer;
-import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -11,6 +11,8 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+
+import javax.annotation.Nonnull;
 
 public class Shaman extends Hero implements ComplexHero, DisabledHero {
 
@@ -31,11 +33,9 @@ public class Shaman extends Hero implements ComplexHero, DisabledHero {
         new GameTask() {
             @Override
             public void run() {
-                Manager.current()
-                        .getCurrentGame()
-                        .getAlivePlayers(Heroes.SHAMAN)
+                CF.getAlivePlayers(Heroes.SHAMAN)
                         .stream()
-                        .map(IGamePlayer::getPlayer)
+                        .map(GamePlayer::getPlayer)
                         .forEach(player -> {
                             final Totem totemTalent = getFirstTalent();
                             final ActiveTotem totem = totemTalent.getTargetTotem(player);
@@ -56,6 +56,7 @@ public class Shaman extends Hero implements ComplexHero, DisabledHero {
     }
 
     @Override
+    @Nonnull
     public Totem getFirstTalent() {
         return (Totem) Talents.TOTEM.getTalent();
     }

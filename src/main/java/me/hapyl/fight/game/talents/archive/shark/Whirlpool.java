@@ -51,9 +51,9 @@ public class Whirlpool extends Talent {
                         createWhirlpool(location, range - (i / 2d), i + 4);
                     }
 
-                    // Pull enemies towards center
-                    Collect.nearbyLivingEntitiesValidate(location, range).forEach(entity -> {
-                        if (entity == player || GameTeam.isTeammate(player, entity)) {
+                    // Pull enemies towards the center
+                    Collect.nearbyEntities(location, range).forEach(entity -> {
+                        if (entity.is(player) || GameTeam.isTeammate(player, entity.getEntity())) {
                             return;
                         }
 

@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.effect.archive;
 
 import me.hapyl.fight.game.effect.GameEffect;
-import org.bukkit.entity.LivingEntity;
+import me.hapyl.fight.game.entity.GameEntity;
 import org.bukkit.potion.PotionEffectType;
 
 public class Amnesia extends GameEffect {
@@ -13,17 +13,17 @@ public class Amnesia extends GameEffect {
     }
 
     @Override
-    public void onTick(LivingEntity entity, int tick) {
+    public void onTick(GameEntity entity, int tick) {
 
     }
 
     @Override
-    public void onStart(LivingEntity entity) {
-        entity.addPotionEffect(PotionEffectType.CONFUSION.createEffect(99999, 1));
+    public void onStart(GameEntity entity) {
+        entity.addPotionEffect(PotionEffectType.CONFUSION, 99999, 1);
     }
 
     @Override
-    public void onStop(LivingEntity entity) {
+    public void onStop(GameEntity entity) {
         entity.removePotionEffect(PotionEffectType.CONFUSION);
     }
 }

@@ -1,17 +1,18 @@
 package me.hapyl.fight.game.heroes.archive.dark_mage;
 
 import com.google.common.collect.Maps;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.KeepNull;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.storage.GroundPunchCosmetic;
-import me.hapyl.fight.game.damage.EntityData;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.archive.witcher.WitherData;
 import me.hapyl.fight.game.talents.Talent;
@@ -31,7 +32,6 @@ import me.hapyl.spigotutils.module.reflect.Reflect;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Wither;
 import org.bukkit.event.EventHandler;
@@ -43,6 +43,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Random;
@@ -184,10 +185,11 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
                             Cosmetics.GROUND_PUNCH.getCosmetic(GroundPunchCosmetic.class).playAnimation(player.getLocation(), 2);
 
                             Collect.nearbyPlayers(player.getLocation(), 4).forEach(target -> {
-                                if (target == player) {
+                                if (target.is(player)) {
                                     return;
                                 }
-                                GamePlayer.damageEntity(target, 5.0d, player);
+
+                                target.damage(5.0d, CF.getPlayer(player));
                             });
                         }
                     }
@@ -210,13 +212,13 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
     @Override
     public DamageOutput processDamageAsVictim(DamageInput input) {
         final ShadowClone talent = getFourthTalent();
-        final Player player = input.getPlayer();
-        final LivingEntity entity = input.getEntity();
+        final Player player = input.getPlayer().getPlayer();
+        final GameEntity entity = input.getDamager();
         final ShadowCloneNPC clone = talent.getClone(player);
 
         // Handle passive
         if (entity != null && new Random().nextDouble() < PASSIVE_CHANCE) {
-            EntityData.of(entity).addEffect(GameEffectType.WITHER_BLOOD, 60, true);
+            entity.addEffect(GameEffectType.WITHER_BLOOD, 60, true);
 
             if (entity instanceof Player playerEntity) {
                 Chat.sendMessage(playerEntity, "&8☠ &c%s poisoned your blood!", player.getName());
@@ -248,8 +250,9 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
     @Nullable
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final Player player = input.getPlayer();
-        final LivingEntity entity = input.getEntity();
+        final GamePlayer gamePlayer = input.getPlayer();
+        final Player player = gamePlayer.getPlayer();
+        final GameEntity entity = input.getDamager();
 
         // Skip witherboard damage
         if (entity == null || input.getDamageCause() == EnumDamageCause.WITHERBORN) {
@@ -259,7 +262,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         final WitherData data = getWither(player);
 
         if (data != null) {
-            data.assistAttack(entity);
+            data.assistAttack(entity.getEntity());
         }
 
         return null;
@@ -334,6 +337,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
     //}
 
     @Override
+    @Nonnull
     public ShadowClone getFourthTalent() {
         return (ShadowClone) Talents.SHADOW_CLONE.getTalent();
     }
@@ -388,7 +392,8 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
             }
 
             spell.addButton(DarkMageSpell.SpellButton.RIGHT);
-        } else if (!spell.isEmpty()) {
+        }
+        else if (!spell.isEmpty()) {
             spell.addButton(DarkMageSpell.SpellButton.LEFT);
         }
 

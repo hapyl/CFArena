@@ -1,13 +1,13 @@
 package me.hapyl.fight.game.heroes.archive.bounty_hunter;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
@@ -25,7 +25,6 @@ import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.math.Tick;
-import me.hapyl.spigotutils.module.player.EffectType;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -78,17 +77,16 @@ public class BountyHunter extends Hero {
     @Nullable
     @Override
     public DamageOutput processDamageAsVictim(DamageInput input) {
-        final Player player = input.getPlayer();
+        final GamePlayer player = input.getPlayer();
         final double damage = input.getDamage();
 
-        final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
-        final double health = gamePlayer.getHealth();
+        final double health = player.getHealth();
 
-        if (health > 50 && (health - damage <= (gamePlayer.getMaxHealth() / 2.0d))) {
+        if (health > 50 && (health - damage <= (player.getMaxHealth() / 2.0d))) {
             final PlayerInventory inventory = player.getInventory();
 
             inventory.setItem(4, SMOKE_BOMB);
-            Chat.sendTitle(player, "", "&aSmoke Bomb triggered!", 5, 20, 5);
+            player.sendTitle("", "&aSmoke Bomb triggered!", 5, 20, 5);
         }
 
         return null;
@@ -107,7 +105,9 @@ public class BountyHunter extends Hero {
         final LivingEntity target = targetOutput.getEntity();
 
         player.teleport(location);
-        GamePlayer.damageEntity(target, 30.0d, player, EnumDamageCause.BACKSTAB);
+        CF.getEntityOptional(target).ifPresent(entity -> {
+            entity.damage(30.0d, CF.getPlayer(player), EnumDamageCause.BACKSTAB);
+        });
 
         // Fx
         Chat.sendMessage(player, "&aBackstabbed &7%s&a!", target.getName());
@@ -170,8 +170,8 @@ public class BountyHunter extends Hero {
         // Fx and blindness
         GameTask.runTaskTimerTimes(task -> {
             Collect.nearbyPlayers(location, 3.0d).forEach(inRange -> {
-                PlayerLib.addEffect(inRange, EffectType.BLINDNESS, 25, 1);
-                GamePlayer.getPlayer(inRange).addEffect(GameEffectType.INVISIBILITY, 25, true);
+                inRange.addPotionEffect(PotionEffectType.BLINDNESS, 25, 1);
+                inRange.addEffect(GameEffectType.INVISIBILITY, 25, true);
             });
 
             PlayerLib.spawnParticle(location, Particle.SQUID_INK, 20, smokeRadiusScaled, smokeRadiusScaled, smokeRadiusScaled, 0.01f);

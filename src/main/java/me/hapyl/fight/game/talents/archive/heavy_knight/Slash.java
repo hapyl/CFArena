@@ -1,23 +1,21 @@
 package me.hapyl.fight.game.talents.archive.heavy_knight;
 
-import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.heavy_knight.SwordMaster;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentQueue;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
@@ -49,14 +47,14 @@ public class Slash extends Talent {
 
         location.add(direction.multiply(distance));
 
-        final List<LivingEntity> entitiesHit = Collect.nearbyLivingEntities(
+        final List<GameEntity> entitiesHit = Collect.nearbyEntities(
                 location,
                 distance,
-                entity -> Utils.isEntityValid(entity, player)
+                entity -> entity.isValid(player)
         );
 
         entitiesHit.forEach(entity -> {
-            GamePlayer.damageEntity(entity, 10.0d, player);
+            entity.damage(10.0d, player);
         });
 
         // Fx
@@ -69,7 +67,7 @@ public class Slash extends Talent {
                 entity.addPotionEffect(PotionEffectType.SLOW.createEffect(effectDuration, 1));
                 entity.addPotionEffect(PotionEffectType.WEAKNESS.createEffect(effectDuration, 1));
 
-                Chat.sendMessage(entity, "");
+                entity.sendMessage(""); // ???
             });
             return Response.AWAIT;
         }

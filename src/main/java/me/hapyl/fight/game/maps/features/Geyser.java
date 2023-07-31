@@ -1,6 +1,8 @@
 package me.hapyl.fight.game.maps.features;
 
 import com.google.common.collect.Sets;
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.Collect;
@@ -138,17 +140,17 @@ public class Geyser {
     }
 
     private void affect(int tick) {
-        final Set<LivingEntity> affectedEntities = Sets.newHashSet();
+        final Set<GameEntity> affectedEntities = Sets.newHashSet();
 
         for (double d = 0; d < range; d += 1) {
             direction.modifyLocation(location, d, loc -> {
-                affectedEntities.addAll(Collect.nearbyLivingEntities(loc, 0.5d));
+                affectedEntities.addAll(Collect.nearbyEntities(loc, 0.5d));
                 affectLocationTick(BukkitUtils.newLocation(loc), tick);
             });
         }
 
-        for (LivingEntity living : affectedEntities) {
-            affectEntityTick(living, tick);
+        for (GameEntity living : affectedEntities) {
+            affectEntityTick(living.getEntity(), tick);
         }
 
         affectedEntities.clear();

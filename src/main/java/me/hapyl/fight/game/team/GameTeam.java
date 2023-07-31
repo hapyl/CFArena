@@ -1,8 +1,9 @@
 package me.hapyl.fight.game.team;
 
 import com.google.common.collect.Lists;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Debug;
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.util.SmallCaps;
@@ -79,7 +80,7 @@ public enum GameTeam {
     }
 
     /**
-     * Returns PLAYER from current game instance that are in the team; or empty list is no players or no game instance.
+     * Returns list with players from that are in the team; or an empty list is no players or no game instance.
      *
      * @return list of players in the team
      */
@@ -91,7 +92,7 @@ public enum GameTeam {
             return players;
         }
 
-        for (GamePlayer gamePlayer : instance.getPlayers().values()) {
+        for (GamePlayer gamePlayer : CF.getPlayers()) {
             if (members.contains(gamePlayer.getUUID())) {
                 players.add(gamePlayer);
             }
@@ -276,7 +277,7 @@ public enum GameTeam {
             return false;
         }
 
-        return isTeammate(player, otherPlayer);
+        return isTeammate(CF.getPlayer(player), CF.getPlayer(otherPlayer));
     }
 
     public static boolean isSelfOrTeammate(Player player, LivingEntity other) {
@@ -287,7 +288,7 @@ public enum GameTeam {
         return other instanceof Player otherPlayer && isTeammate(player, otherPlayer);
     }
 
-    public static boolean isTeammate(Player player, Player other) {
+    public static boolean isTeammate(GamePlayer player, GamePlayer other) {
         // Must consider self-check as NOT teammate.
         if ((player == null || other == null) || (player == other)) {
             return false;

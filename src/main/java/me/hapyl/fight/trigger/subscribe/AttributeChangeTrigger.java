@@ -1,10 +1,10 @@
 package me.hapyl.fight.trigger.subscribe;
 
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.trigger.PlayerTrigger;
-import org.bukkit.entity.Player;
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.trigger.EntityTrigger;
 
-public class AttributeChangeTrigger extends PlayerTrigger {
+public class AttributeChangeTrigger extends EntityTrigger {
 
     /**
      * Type of the changed attribute.
@@ -19,8 +19,8 @@ public class AttributeChangeTrigger extends PlayerTrigger {
      */
     public final double newValue;
 
-    public AttributeChangeTrigger(Player player, AttributeType type, double oldValue, double newValue) {
-        super(player);
+    public AttributeChangeTrigger(GameEntity entity, AttributeType type, double oldValue, double newValue) {
+        super(entity);
         this.type = type;
         this.oldValue = oldValue;
         this.newValue = newValue;
@@ -29,7 +29,7 @@ public class AttributeChangeTrigger extends PlayerTrigger {
     @Override
     public String toString() {
         return "AttributeChangeTrigger{" +
-                "player=" + player +
+                "player=" + entity +
                 ", type=" + type +
                 ", oldValue=" + oldValue +
                 ", newValue=" + newValue +

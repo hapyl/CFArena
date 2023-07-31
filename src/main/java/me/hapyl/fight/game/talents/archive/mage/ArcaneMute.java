@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.archive.mage;
 
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.Talent;
@@ -47,7 +48,14 @@ public class ArcaneMute extends Talent {
     }
 
     public Entity targetEntityChatGPT(Player player, int range) {
-        return Collect.targetLivingEntity(player, range, 0.95, entity -> entity instanceof Player && player.hasLineOfSight(entity));
+        final GameEntity gameEntity = Collect.targetEntity(
+                player,
+                range,
+                0.95,
+                entity -> entity instanceof Player && entity.hasLineOfSight(player)
+        );
+
+        return gameEntity == null ? null : gameEntity.getEntity();
     }
 
 }

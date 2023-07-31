@@ -5,7 +5,6 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -28,11 +27,11 @@ public class Repulsor extends Talent {
         PlayerLib.playSound(player.getLocation(), Sound.ENTITY_WITHER_SHOOT, 1.8f);
 
         Collect.nearbyPlayers(player.getLocation(), radius).forEach(victim -> {
-            if (victim == player || GameTeam.isTeammate(player, victim)) {
+            if (victim.is(player) || GameTeam.isTeammate(player, victim.getPlayer())) {
                 return;
             }
 
-            Chat.sendMessage(victim, "&aWhoosh!");
+            victim.sendMessage("&aWhoosh!");
             victim.setVelocity(new Vector(0.0d, 1.0d, 0.0d));
         });
 

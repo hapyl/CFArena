@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.archive.shadow_assassin;
 
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.shadow_assassin.ShadowAssassin;
@@ -66,12 +66,12 @@ public class ShroudedStep extends Talent {
                 final Location decoyLocation = decoy.getLocation().add(0.0d, 1.8d, 0.0d);
 
                 decoy.remove();
-                Collect.nearbyLivingEntities(decoyLocation, decoyExplosionRadius).forEach(entity -> {
-                    if (entity == player) {
+                Collect.nearbyEntities(decoyLocation, decoyExplosionRadius).forEach(entity -> {
+                    if (entity.is(player)) {
                         return;
                     }
 
-                    GamePlayer.damageEntity(entity, decoyExplosionDamage, player, EnumDamageCause.DECOY);
+                    entity.damage(decoyExplosionDamage, player, EnumDamageCause.DECOY);
                 });
 
                 PlayerLib.spawnParticle(decoyLocation, Particle.CRIT_MAGIC, 50, 0.5d, 0.5d, 0.5d, 0.01f);

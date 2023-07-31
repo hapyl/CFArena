@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.attribute;
 
+import me.hapyl.fight.game.entity.GameEntity;
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import java.util.function.Function;
@@ -56,12 +56,12 @@ public class Attribute {
     }
 
     /**
-     * Called every time {@link PlayerAttributes} calls {@link PlayerAttributes#get(AttributeType)} method.
+     * Called every time {@link EntityAttributes} calls {@link EntityAttributes#get(AttributeType)} method.
      *
-     * @param player - Player.
+     * @param entity - Player.
      * @param value  - The actual value.
      */
-    public void update(Player player, double value) {
+    public void update(GameEntity entity, double value) {
     }
 
     public String toString(double value) {

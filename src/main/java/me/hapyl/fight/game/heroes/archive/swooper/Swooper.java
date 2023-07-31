@@ -2,7 +2,6 @@ package me.hapyl.fight.game.heroes.archive.swooper;
 
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.heroes.Archetype;
@@ -16,7 +15,10 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.PackedParticle;
 import me.hapyl.fight.game.weapons.RangeWeapon;
-import me.hapyl.fight.util.*;
+import me.hapyl.fight.util.Buffer;
+import me.hapyl.fight.util.BufferMap;
+import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.math.Numbers;
@@ -323,9 +325,9 @@ public class Swooper extends Hero implements Listener, UIComponent {
                 PlayerLib.playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 0.0f);
                 PlayerLib.playSound(location, Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 0.75f);
 
-                Collect.nearbyLivingEntities(location, 6.0d).forEach(entity -> {
+                Collect.nearbyEntities(location, 6.0d).forEach(entity -> {
                     final double damage = (100 - (entity.getLocation().distance(location) * 8.33d));
-                    GamePlayer.damageEntity(entity, (entity == player ? damage / 2 : damage), player, EnumDamageCause.ENTITY_EXPLOSION);
+                    entity.damage((entity.is(player) ? damage / 2 : damage), player, EnumDamageCause.ENTITY_EXPLOSION);
                 });
 
                 this.cancel();

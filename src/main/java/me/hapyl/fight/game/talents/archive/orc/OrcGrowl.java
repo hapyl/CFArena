@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.talents.archive.orc;
 
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.EntityData;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.Collect;
@@ -41,12 +40,12 @@ public class OrcGrowl extends Talent {
 
         player.addPotionEffect(PotionEffectType.SLOW.createEffect(20, 3));
 
-        Collect.nearbyLivingEntitiesValidate(location, distance).forEach(victim -> {
-            if (victim == player) {
+        Collect.nearbyEntities(location, distance).forEach(victim -> {
+            if (victim.is(player)) {
                 return;
             }
 
-            EntityData.of(victim).addEffect(GameEffectType.ORC_GROWL, debuffDuration, true);
+            victim.addEffect(GameEffectType.ORC_GROWL, debuffDuration, true);
         });
 
         // Fx

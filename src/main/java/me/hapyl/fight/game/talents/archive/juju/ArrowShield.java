@@ -1,12 +1,12 @@
 package me.hapyl.fight.game.talents.archive.juju;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.Temper;
-import me.hapyl.fight.game.damage.EntityData;
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
@@ -20,7 +20,6 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Arrow;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -52,7 +51,7 @@ public class ArrowShield extends Talent implements Listener {
 
         setDescription("""
                 Creates a shield of arrows for {duration} that blocks any damage.
-                
+                                
                 When hit, an arrow triggers a rapid explosion in small AoE, dealing damage, applying poison, and reducing %s.
                 """, AttributeType.DEFENSE);
 
@@ -89,16 +88,16 @@ public class ArrowShield extends Talent implements Listener {
     }
 
     public void createExplosion(Player player, Location location) {
-        final List<LivingEntity> livingEntities = Collect.nearbyLivingEntities(location, explosionRadius, lv -> lv != player);
+        final List<GameEntity> livingEntities = Collect.nearbyEntities(location, explosionRadius, lv -> lv.isNot(player));
 
         livingEntities.forEach(entity -> {
             if (entity instanceof Player target) {
-                final IGamePlayer gamePlayer = GamePlayer.getPlayer(target);
+                final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
                 gamePlayer.getAttributes().decreaseTemporary(Temper.POISON_IVY, AttributeType.DEFENSE, 0.2d, poisonDuration);
             }
 
             entity.addPotionEffect(effect);
-            EntityData.damage(entity, explosionDamage, player, EnumDamageCause.POISON_IVY);
+            entity.damage(explosionDamage, CF.getPlayer(player), EnumDamageCause.POISON_IVY);
         });
 
         // Fx

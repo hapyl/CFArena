@@ -2,8 +2,10 @@ package me.hapyl.fight.game.heroes.archive.doctor;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
@@ -88,7 +90,6 @@ public class ActiveElement {
 
     public void throwEntity() {
         if (this.entity instanceof ArmorStand) {
-
             final AbstractParticleBuilder particles = ParticleBuilder.blockDust(this.material)
                     .setAmount(3)
                     .setOffX(0.1d)
@@ -132,15 +133,15 @@ public class ActiveElement {
                         return;
                     }
 
-                    final List<LivingEntity> players = Collect.nearbyLivingEntities(ActiveElement.this.entity.getLocation(), 1.0d);
+                    final List<GameEntity> players = Collect.nearbyEntities(ActiveElement.this.entity.getLocation(), 1.0d);
                     if (players.isEmpty()) {
                         return;
                     }
 
                     entityPoof();
                     players.forEach(target -> {
-                        GamePlayer.damageEntity(target, element.getDamage(), player, EnumDamageCause.GRAVITY_GUN);
-                        element.onHit(target, material);
+                        target.damage(element.getDamage(), CF.getPlayer(player), EnumDamageCause.GRAVITY_GUN);
+                        element.onHit(target.getEntity(), material);
                     });
                     this.cancel();
 

@@ -1,13 +1,13 @@
 package me.hapyl.fight.game.heroes.archive.librarian;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.KeepNull;
-import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.archive.librarian.LibrarianTalent;
 import me.hapyl.fight.game.talents.archive.librarian.EntityDarkness;
+import me.hapyl.fight.game.talents.archive.librarian.LibrarianTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Collect;
@@ -93,7 +93,7 @@ public class Librarian extends Hero implements ComplexHero, Listener, DisabledHe
         new GameTask() {
             @Override
             public void run() {
-                Manager.current().getCurrentGame().getAlivePlayers(Heroes.LIBRARIAN).forEach(player -> {
+                CF.getAlivePlayers(Heroes.LIBRARIAN).forEach(player -> {
                     final Player playerPlayer = player.getPlayer();
                     final Grimoire grimoire = grimoireMap.get(playerPlayer);
 
@@ -147,8 +147,8 @@ public class Librarian extends Hero implements ComplexHero, Listener, DisabledHe
                 PlayerLib.spawnParticle(castLocation, Particle.SQUID_INK, 50, 5, 1.5, 5, 0.05f);
                 PlayerLib.spawnParticle(castLocation, Particle.SQUID_INK, 10, 5, 1.5, 5, 2.0f);
 
-                Collect.nearbyLivingEntities(castLocation, 20).forEach(entity -> {
-                    if (entity == player) {
+                Collect.nearbyEntities(castLocation, 20).forEach(entity -> {
+                    if (entity.is(player)) {
                         PlayerLib.addEffect(player, EffectType.SPEED, 20, 1);
                         PlayerLib.addEffect(player, EffectType.STRENGTH, 20, 0);
                     }

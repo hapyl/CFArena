@@ -1,13 +1,15 @@
 package me.hapyl.fight.game.ui;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.game.*;
-import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.attribute.PlayerAttributes;
+import me.hapyl.fight.game.attribute.Attributes;
+import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.effect.GameEffect;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.setting.Setting;
 import me.hapyl.fight.game.task.GameTask;
@@ -103,8 +105,8 @@ public class GamePlayerUI {
             return;
         }
 
-        final PlayerAttributes attributes = gamePlayer.getAttributes();
-        final HeroAttributes baseAttributes = attributes.getBaseAttributes();
+        final EntityAttributes attributes = gamePlayer.getAttributes();
+        final Attributes baseAttributes = attributes.getBaseAttributes();
 
         final ItemBuilder baseBuilder = ItemBuilder.of(Material.COARSE_DIRT, "Base Attributes", "&8Debug").addLore();
         baseAttributes.forEach((type, value) -> baseBuilder.addLore(type.getFormatted(baseAttributes)));
@@ -139,12 +141,12 @@ public class GamePlayerUI {
 
         if (current.isGameInProgress()) {
             final IGameInstance game = current.getCurrentGame();
-            final IGamePlayer gamePlayer = GamePlayer.getPlayer(this.player);
+            final GamePlayer gamePlayer = CF.getOrCreatePlayer(this.player);
 
             // Have to reduce this so everything fits
             if (!gamePlayer.isAlive() && !gamePlayer.isRespawning()) {
                 this.builder.addLines("&6&lSpectator: &f%s".formatted(getTimeLeftString(game)));
-                for (final GamePlayer alive : game.getAlivePlayers()) {
+                for (final GamePlayer alive : CF.getAlivePlayers()) {
                     this.builder.addLine(
                             " &6%s &e%s %s &c%.1f ❤",
                             alive.getHero().getName(),
@@ -164,7 +166,7 @@ public class GamePlayerUI {
                         " &e&lStatus: &f%s".formatted(gamePlayer.getStatusString())
                 );
 
-                game.getMode().formatScoreboard(builder, (GameInstance) game, (GamePlayer) gamePlayer);
+                game.getMode().formatScoreboard(builder, (GameInstance) game, gamePlayer);
             }
 
         }

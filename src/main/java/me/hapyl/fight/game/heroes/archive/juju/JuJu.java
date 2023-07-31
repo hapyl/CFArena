@@ -285,7 +285,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
     @Override
     public DamageOutput processDamageAsVictim(DamageInput input) {
         final ArrowShield shield = getFirstTalent();
-        final Player player = input.getPlayer();
+        final Player player = input.getBukkitPlayer();
 
         if (shield.getCharges(player) > 0) {
             shield.removeCharge(player);

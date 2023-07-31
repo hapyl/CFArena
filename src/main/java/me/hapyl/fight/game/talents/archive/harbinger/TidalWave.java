@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.talents.archive.harbinger;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.harbinger.Harbinger;
 import me.hapyl.fight.game.talents.Talents;
@@ -115,15 +115,15 @@ public class TidalWave {
             }
 
             // Push enemies
-            Collect.nearbyLivingEntities(location, 1.0d, entity -> Utils.isEntityValid(entity, player))
+            Collect.nearbyEntities(location, 1.0d, entity -> entity.isValid(player))
                     .forEach(entity -> {
                         entity.setVelocity(pushVector);
-                        Heroes.HARBINGER.getHero(Harbinger.class).addRiptide(player, entity, talent.riptideDuration, false);
+                        Heroes.HARBINGER.getHero(Harbinger.class).addRiptide(player, entity.getEntity(), talent.riptideDuration, false);
                     });
 
             affectedBlocks.add(block);
 
-            for (GamePlayer player : Manager.current().getCurrentGame().getAlivePlayers()) {
+            for (GamePlayer player : CF.getAlivePlayers()) {
                 final Location blockLocation = block.getLocation();
                 player.getPlayer().sendBlockChange(blockLocation, Material.WATER.createBlockData());
 

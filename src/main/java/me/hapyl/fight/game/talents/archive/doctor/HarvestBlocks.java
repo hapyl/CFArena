@@ -3,8 +3,8 @@ package me.hapyl.fight.game.talents.archive.doctor;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.heroes.archive.doctor.ElementType;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
@@ -25,7 +25,6 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
@@ -187,7 +186,7 @@ public class HarvestBlocks extends Talent {
                     return;
                 }
 
-                final LivingEntity nearestEntity = Collect.nearestLivingEntity(location, 1.5d, player);
+                final GameEntity nearestEntity = Collect.nearestEntity(location, 1.5d, player);
                 final Location fixedLocation = entity.getLocation().add(0.0d, 1.5d, 0.0d);
 
                 if (fixedLocation.getBlock().getType().isOccluding()) {
@@ -197,7 +196,7 @@ public class HarvestBlocks extends Talent {
                 }
 
                 if (nearestEntity != null) {
-                    GamePlayer.damageEntity(nearestEntity, damage, player, EnumDamageCause.GRAVITY_GUN);
+                    nearestEntity.damage(damage, player, EnumDamageCause.GRAVITY_GUN);
                     entity.remove();
                     this.cancel();
                     return;

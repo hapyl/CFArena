@@ -96,7 +96,7 @@ public class KillingMachine extends Hero implements DisabledHero {
 
     @Override
     public Talent getSecondTalent() {
-        return Talents.GRENADE.getTalent();
+        return null;
     }
 
     @Override

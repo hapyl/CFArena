@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.ui;
 
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.ChatColor;
@@ -30,10 +30,6 @@ public class UIFormat {
 
     @Nonnull
     public String format(@Nonnull GamePlayer player, @Nonnull ChatColor ultimateColor) {
-        if (!player.isReal()) {
-            return "cannot format fake player";
-        }
-
         String toFormat = format;
 
         toFormat = toFormat.replace("{Health}", player.getHealthFormatted());

@@ -1,7 +1,8 @@
 package me.hapyl.fight.event;
 
 import me.hapyl.fight.game.EnumDamageCause;
-import org.bukkit.entity.LivingEntity;
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GamePlayer;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -12,15 +13,15 @@ import javax.annotation.Nullable;
  */
 public class DamageInput {
 
-    private final Player player;
-    private final LivingEntity entity;
+    private final GameEntity entity;
+    private final GameEntity damager;
     private final double damage;
     private final EnumDamageCause cause;
     private final boolean isCrit;
 
-    public DamageInput(Player player, @Nullable LivingEntity entity, @Nullable EnumDamageCause damageCause, double originalDamage, boolean isCrit) {
-        this.player = player;
+    public DamageInput(GameEntity entity, @Nullable GameEntity damager, @Nullable EnumDamageCause damageCause, double originalDamage, boolean isCrit) {
         this.entity = entity;
+        this.damager = damager;
         this.damage = originalDamage;
         this.cause = damageCause;
         this.isCrit = isCrit;
@@ -30,8 +31,8 @@ public class DamageInput {
      * Gets the entity who is either being hit, or damaging based on the event.
      */
     @Nullable
-    public LivingEntity getEntity() {
-        return entity;
+    public GameEntity getDamager() {
+        return damager;
     }
 
     /**
@@ -39,16 +40,36 @@ public class DamageInput {
      *
      * @return cause of the damage.
      */
+    @Nullable
     public EnumDamageCause getDamageCause() {
         return cause;
+    }
+
+    @Nonnull
+    public EnumDamageCause getDamageCauseOr(@Nonnull EnumDamageCause def) {
+        return cause == null ? def : cause;
     }
 
     /**
      * Gets the player, either the player who got hit or the player who is damaging based on the event.
      */
     @Nonnull
-    public Player getPlayer() {
-        return player;
+    public GameEntity getEntity() {
+        return entity;
+    }
+
+    @Nonnull
+    public GamePlayer getPlayer() {
+        if (entity instanceof GamePlayer gamePlayer) {
+            return gamePlayer;
+        }
+
+        throw new IllegalArgumentException(entity + " is not a player");
+    }
+
+    @Nonnull
+    public Player getBukkitPlayer() {
+        return getPlayer().getPlayer();
     }
 
     /**
@@ -77,5 +98,9 @@ public class DamageInput {
      */
     public boolean isCrit() {
         return isCrit;
+    }
+
+    public static DamageInput clone(DamageInput data, double newDamage) {
+        return new DamageInput(data.entity, data.damager, data.cause, newDamage, data.isCrit);
     }
 }

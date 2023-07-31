@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.archive.pytaria;
 
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.pytaria.Pytaria;
@@ -75,7 +75,7 @@ public class FlowerEscape extends Talent {
                     PlayerLib.playSound(location, Sound.ITEM_TOTEM_USE, 2.0f);
                     PlayerLib.spawnParticle(location, Particle.SPELL_MOB, 15, 1, 0.5, 1, 0);
                     Collect.nearbyPlayers(location, flowerRadius).forEach(victim -> {
-                        GamePlayer.damageEntity(victim, finalDamage * 2.0d, player, EnumDamageCause.FLOWER);
+                        victim.damage(finalDamage * 2.0d, player, EnumDamageCause.FLOWER);
                     });
 
                     cancel();
@@ -108,7 +108,7 @@ public class FlowerEscape extends Talent {
                     });
 
                     Collect.nearbyPlayers(fixedLocation, flowerRadius).forEach(target -> {
-                        GamePlayer.damageEntity(target, finalDamage, player, EnumDamageCause.FLOWER);
+                        target.damage(finalDamage, player, EnumDamageCause.FLOWER);
                     });
 
                     final float pitch = Math.min(0.5f + ((0.1f * (((float) getDuration() - tick) / 20))), 2.0f);

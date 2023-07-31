@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.maps.gamepack;
 
-import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.IGamePlayer;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import me.hapyl.spigotutils.module.math.Tick;
@@ -21,7 +21,7 @@ public class ChangePack extends GamePack {
 
     @Override
     public void onPickup(Player player) {
-        final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
+        final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
 
         gamePlayer.addUltimatePoints(CHARGE_POINTS);
         //gamePlayer.sendMessage("&3&lCHARGE PACK &7⁑ &b&l+%s &b※ Ultimate Points", CHARGE_POINTS);

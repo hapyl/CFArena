@@ -22,7 +22,7 @@ public class ShellGrande extends Talent {
     public ShellGrande() {
         super("Grenade");
         setDescription("""
-                Throw a grenade that bounce off walls. Explodes after &b{explosionDelay} &7ane deals AoE damage to nearby opponents.
+                Throw a grenade that bounces off walls. Explodes after &b{explosionDelay} &7ane deals AoE damage to nearby opponents.
                                         
                 &e&lSNEAK &7while throwing to toss closer.
                 """);

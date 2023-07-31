@@ -15,6 +15,7 @@ public class DamageOutput {
 
     private final boolean cancelDamage;
     private double damage; // not an additional damage, override damage
+    private boolean finalized;
 
     /**
      * Creates a new DamageOutput with damage.
@@ -35,6 +36,16 @@ public class DamageOutput {
     public DamageOutput(double damage, boolean cancelEvent) {
         this.damage = damage;
         this.cancelDamage = cancelEvent;
+        this.finalized = false;
+    }
+
+    public boolean isFinalized() {
+        return finalized;
+    }
+
+    public DamageOutput setFinalized() {
+        this.finalized = true;
+        return this;
     }
 
     /**

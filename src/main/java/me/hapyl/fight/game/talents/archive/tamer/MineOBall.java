@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.archive.tamer;
 
 import com.google.common.collect.Maps;
-import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.Talent;
@@ -123,7 +123,7 @@ public class MineOBall extends Talent implements Listener {
         new GameTask() {
             @Override
             public void run() {
-                Manager.current().getCurrentGame().getAlivePlayers().forEach(gp -> {
+                CF.getAlivePlayers().forEach(gp -> {
                     final Player player = gp.getPlayer();
                     final TamerPack pack = getPack(player);
 

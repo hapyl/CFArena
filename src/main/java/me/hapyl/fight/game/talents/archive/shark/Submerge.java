@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.talents.archive.shark;
 
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
@@ -116,12 +115,12 @@ public class Submerge extends Talent {
                 PlayerLib.spawnParticle(fixedLocation, Particle.WATER_SPLASH, 1, 0.2, 0.1, 0.2, 0.1f);
 
                 // Hit detection
-                Collect.nearbyLivingEntities(fixedLocation, 1.0d).forEach(victim -> {
-                    if (victim == player) {
+                Collect.nearbyEntities(fixedLocation, 1.0d).forEach(victim -> {
+                    if (victim.is(player)) {
                         return;
                     }
 
-                    GamePlayer.damageEntity(victim, damage, player, EnumDamageCause.SUBMERGE);
+                    victim.damage(damage, player, EnumDamageCause.SUBMERGE);
                     victim.setVelocity(victim.getLocation().getDirection().multiply(-1.0d).setY(0.5d));
                 });
 

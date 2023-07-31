@@ -1,12 +1,12 @@
 package me.hapyl.fight.game.effect.archive;
 
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.effect.EffectParticleBlockMarker;
 import me.hapyl.fight.game.effect.GameEffect;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
@@ -22,7 +22,7 @@ public class LockdownEffect extends GameEffect {
     }
 
     @Override
-    public void onStart(LivingEntity entity) {
+    public void onStart(GameEntity entity) {
         if (entity instanceof Player player) {
             GamePlayer.getPlayer(player).setCanMove(false);
             PlayerLib.playSound(player, Sound.BLOCK_BEACON_ACTIVATE, 0.75f);
@@ -37,7 +37,7 @@ public class LockdownEffect extends GameEffect {
     }
 
     @Override
-    public void onStop(LivingEntity entity) {
+    public void onStop(GameEntity entity) {
         if (entity instanceof Player player) {
             GamePlayer.getPlayer(player).setCanMove(true);
             PlayerLib.playSound(player, Sound.BLOCK_BEACON_ACTIVATE, 2);
@@ -48,9 +48,9 @@ public class LockdownEffect extends GameEffect {
     }
 
     @Override
-    public void onTick(LivingEntity entity, int tick) {
+    public void onTick(GameEntity entity, int tick) {
         if (tick == 0) {
-            displayParticles(entity.getLocation().add(0.0d, 2.0d, 0.0d), entity);
+            displayParticles(entity.getLocation().add(0.0d, 2.0d, 0.0d), entity.getEntity());
         }
     }
 }

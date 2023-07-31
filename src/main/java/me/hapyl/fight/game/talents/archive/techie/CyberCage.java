@@ -1,9 +1,9 @@
 package me.hapyl.fight.game.talents.archive.techie;
 
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.talents.archive.techie.TrapCage;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -54,6 +54,7 @@ public class CyberCage {
     public void activate(Player victim) {
         final LivingEntity marker = getEntity();
         final Player player = getPlayer();
+
         if (marker == null) {
             return;
         }
@@ -64,8 +65,11 @@ public class CyberCage {
 
         final TrapCage talent = Talents.TRAP_CAGE.getTalent(TrapCage.class);
 
-        GamePlayer.damageEntity(victim, talent.cageDamage, player);
-        GamePlayer.getPlayer(victim).addEffect(GameEffectType.VULNERABLE, talent.vulnerabilityDuration);
+        CF.getEntityOptional(victim).ifPresent(gameEntity -> {
+            gameEntity.damage(talent.cageDamage, player);
+            gameEntity.addEffect(GameEffectType.VULNERABLE, talent.vulnerabilityDuration);
+        });
+
         victim.setVelocity(marker.getLocation().toVector().subtract(victim.getLocation().toVector()).normalize());
 
         // Glowing

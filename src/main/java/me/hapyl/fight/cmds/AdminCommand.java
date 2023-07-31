@@ -1,12 +1,13 @@
 package me.hapyl.fight.cmds;
 
 import com.google.common.collect.Maps;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.cmds.extra.Acceptor;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.database.rank.PlayerRank;
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -98,8 +99,12 @@ public class AdminCommand extends SimplePlayerAdminCommand {
                     return;
                 }
 
-                GamePlayer.damageEntity(player, value);
-                sendMessage(player, "&aDealt &l%s&a damage to you!", value);
+                CF.getPlayerOptional(player).ifPresentOrElse(gamePlayer -> {
+                    gamePlayer.damage(value);
+                    sendMessage(player, "&aDealt &l%s&a damage to you!", value);
+                }, () -> {
+                    sendMessage(player, "&cCannot find game player instance.");
+                });
             }
         });
 

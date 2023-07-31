@@ -1,7 +1,7 @@
 package me.hapyl.fight.cmds;
 
-import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.IGamePlayer;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
 import org.bukkit.entity.Player;
@@ -16,9 +16,9 @@ public class DebugPlayerCommand extends SimplePlayerAdminCommand {
 
     @Override
     protected void execute(Player player, String[] args) {
-        final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
+        final GamePlayer gamePlayer = CF.getPlayer(player);
 
-        if (!gamePlayer.isReal()) {
+        if (gamePlayer == null) {
             Chat.sendMessage(player, "&cNo game instance found.");
             return;
         }

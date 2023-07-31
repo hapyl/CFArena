@@ -1,11 +1,11 @@
 package me.hapyl.fight.game.talents.archive.healer;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Material;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -23,7 +23,7 @@ public class HealingOrb extends InputTalent {
     @Nonnull
     @Override
     public Response onLeftClick(Player player) {
-        final LivingEntity target = Collect.targetLivingEntity(player, 20.0d, 0.8d, null);
+        final GameEntity target = Collect.targetEntity(player, 20.0d, 0.8d, null);
 
         if (target == null) {
             return Response.error("No valid target!");

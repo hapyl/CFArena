@@ -1,7 +1,5 @@
 package me.hapyl.fight.game.talents.archive.dark_mage;
 
-import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -102,11 +100,11 @@ public class SlowingAura extends DarkMageTalent {
 
                 PlayerLib.playSound(location, BLOCK_HONEY_BLOCK_SLIDE, 0.0f);
                 Collect.nearbyPlayers(location, radius).forEach(entity -> {
-                    if (entity == player) {
+                    if (entity.is(player)) {
                         return; // Don't slow Dark Mage
                     }
 
-                    PlayerLib.addEffect(entity, PotionEffectType.SLOW, 10, 3);
+                    entity.addPotionEffect(PotionEffectType.SLOW, 10, 3);
 
                     // Witherborn assist
                     if (!Heroes.DARK_MAGE.getHero().isUsingUltimate(player)) {
@@ -114,12 +112,11 @@ public class SlowingAura extends DarkMageTalent {
                     }
 
                     // Add stun effect
-                    final IGamePlayer gamePlayer = GamePlayer.getPlayer(entity);
-                    gamePlayer.addEffect(GameEffectType.SLOWING_AURA, 40, true);
+                    entity.addEffect(GameEffectType.SLOWING_AURA, 40, true);
 
                     // Interrupt
                     if (tick % 20 == 0) {
-                        gamePlayer.interrupt();
+                        entity.interrupt();
                     }
                 });
 

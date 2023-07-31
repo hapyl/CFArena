@@ -5,7 +5,6 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Location;
@@ -39,7 +38,7 @@ public class Updraft extends Talent {
             direction.setY(0.0d);
             location.add(direction.normalize().multiply(2.0d));
 
-            Collect.nearbyLivingEntities(location, 3.0d, entity -> Utils.isEntityValid(entity, player))
+            Collect.nearbyEntities(location, 3.0d, entity -> entity.isValid(player))
                     .forEach(entity -> {
                         entity.setVelocity(pushDownVelocity);
                         Debug.info("pushing down " + entity);

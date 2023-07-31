@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.attribute;
 
-import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.PlayerElement;
+import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.ui.display.AttributeDisplay;
 import me.hapyl.fight.trigger.Triggers;
 import me.hapyl.fight.trigger.subscribe.AttributeChangeTrigger;
@@ -19,16 +19,16 @@ import javax.annotation.Nonnull;
  * as additional stats and the getter returns the base value
  * plus additional.
  */
-public class PlayerAttributes extends Attributes implements PlayerElement {
+public class EntityAttributes extends Attributes implements PlayerElement {
 
-    private final GamePlayer gamePlayer;
-    private final HeroAttributes heroAttributes;
+    private final GameEntity gameEntity;
+    private final Attributes baseAttributes;
 
     private final AttributeTemperTable tempers;
 
-    public PlayerAttributes(GamePlayer gamePlayer, HeroAttributes heroAttributes) {
-        this.gamePlayer = gamePlayer;
-        this.heroAttributes = heroAttributes;
+    public EntityAttributes(GameEntity gameEntity, Attributes baseAttributes) {
+        this.gameEntity = gameEntity;
+        this.baseAttributes = Attributes.copyOf(baseAttributes);
         this.tempers = new AttributeTemperTable();
 
         mapped.clear(); // default to 0
@@ -115,10 +115,10 @@ public class PlayerAttributes extends Attributes implements PlayerElement {
 
         // Call trigger
         final double newBaseValue = get(type);
-        Triggers.call(new AttributeChangeTrigger(gamePlayer.getPlayer(), type, oldBaseValue, newBaseValue));
+        Triggers.call(new AttributeChangeTrigger(gameEntity, type, oldBaseValue, newBaseValue));
 
         // Call update
-        type.attribute.update(gamePlayer.getPlayer(), newBaseValue);
+        type.attribute.update(gameEntity, newBaseValue);
 
         return ImmutableTuple.of(original, newValue);
     }
@@ -162,7 +162,7 @@ public class PlayerAttributes extends Attributes implements PlayerElement {
      * @return the base value of this type.
      */
     public double getBase(AttributeType type) {
-        return heroAttributes.get(type);
+        return baseAttributes.get(type);
     }
 
     /**
@@ -171,8 +171,8 @@ public class PlayerAttributes extends Attributes implements PlayerElement {
      * @return the game player.
      */
     @Nonnull
-    public GamePlayer getGamePlayer() {
-        return gamePlayer;
+    public GameEntity getGameEntity() {
+        return gameEntity;
     }
 
     /**
@@ -181,12 +181,12 @@ public class PlayerAttributes extends Attributes implements PlayerElement {
      * @return the base attributes.
      */
     @Nonnull
-    public HeroAttributes getBaseAttributes() {
-        return heroAttributes;
+    public Attributes getBaseAttributes() {
+        return baseAttributes;
     }
 
     private void display(AttributeType type, boolean isBuff) {
-        new AttributeDisplay(type, isBuff, gamePlayer.getPlayer().getLocation().add(0.0d, 0.5d, 0.0d));
+        new AttributeDisplay(type, isBuff, gameEntity.getLocation().add(0.0d, 0.5d, 0.0d));
     }
 
 }

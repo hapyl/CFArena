@@ -1,13 +1,13 @@
 package me.hapyl.fight.game.talents.archive.juju;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.PlayerAttributes;
+import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.Temper;
-import me.hapyl.fight.game.damage.EntityData;
+import me.hapyl.fight.game.entity.EntityData;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
@@ -49,12 +49,12 @@ public class PoisonZone extends Talent {
 
     public Response execute(Player player, Location location) {
         GameTask.runDuration(this, (task, tick) -> {
-            Collect.nearbyLivingEntitiesValidate(location, radius).forEach(living -> {
-                EntityData.damageTick(living, damagePerTick, player, EnumDamageCause.POISON_IVY, damageTick);
+            Collect.nearbyEntities(location, radius).forEach(living -> {
+                living.damageTick(damagePerTick, player, EnumDamageCause.POISON_IVY, damageTick);
 
                 if (living instanceof Player target) {
-                    final IGamePlayer gamePlayer = GamePlayer.getPlayer(target);
-                    final PlayerAttributes attributes = gamePlayer.getAttributes();
+                    final GamePlayer gamePlayer = CF.getOrCreatePlayer(target);
+                    final EntityAttributes attributes = gamePlayer.getAttributes();
 
                     attributes.decreaseTemporary(Temper.POISON_IVY, AttributeType.DEFENSE, defenseReduction, defenseReductionDuration);
                 }

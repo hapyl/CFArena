@@ -4,9 +4,9 @@ import com.google.common.collect.Maps;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.achievement.Achievements;
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
@@ -15,13 +15,10 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -110,33 +107,27 @@ public class Troll extends Hero implements Listener {
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
         if (Math.random() >= 0.98) {
-            final LivingEntity entity = input.getEntity();
-            final Player killer = input.getPlayer();
+            final GameEntity entity = input.getDamager();
+            final GamePlayer killer = input.getPlayer();
 
-            if (entity instanceof Player target) {
-                final IGamePlayer player = GamePlayer.getPlayer(target);
-
-                player.setLastDamager(killer);
-                player.setLastDamageCause(EnumDamageCause.TROLL_LAUGH);
-                player.die(true);
-
-                player.playSound(Sound.ENTITY_WITCH_CELEBRATE, 2.0f);
-                player.sendMessage("&a%s had the last laugh!", killer.getName());
-
-                Achievements.LAUGHING_OUT_LOUD_VICTIM.complete(player.getPlayer());
-                return null;
-            }
-            else if (entity != null) {
-                entity.remove();
-            }
-            else {
+            if (entity == null) {
                 return null;
             }
 
-            Chat.sendMessage(killer, "&aYou laughed at %s!", entity.getName());
-            PlayerLib.playSound(killer, Sound.ENTITY_WITCH_CELEBRATE, 2.0f);
+            entity.setLastDamager(killer);
+            entity.setLastDamageCause(EnumDamageCause.TROLL_LAUGH);
+            entity.die(true);
 
-            Achievements.LAUGHING_OUT_LOUD.complete(killer);
+            entity.playSound(Sound.ENTITY_WITCH_CELEBRATE, 2.0f);
+            entity.sendMessage("&a%s had the last laugh!", killer.getName());
+
+            entity.asPlayer(Achievements.LAUGHING_OUT_LOUD_VICTIM::complete);
+
+            // Fx
+            killer.sendMessage("&aYou laughed at %s!", entity.getName());
+            killer.playSound(Sound.ENTITY_WITCH_CELEBRATE, 2.0f);
+
+            Achievements.LAUGHING_OUT_LOUD.complete(killer.getPlayer());
         }
 
         return null;

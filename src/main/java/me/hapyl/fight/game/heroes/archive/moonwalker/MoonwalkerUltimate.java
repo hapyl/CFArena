@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.archive.moonwalker;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -73,8 +73,8 @@ public class MoonwalkerUltimate extends UltimateTalent {
                 }
 
                 // Notify players in range that they're in danger
-                Collect.nearbyPlayersValidate(playerLocation, meteoriteRadius).forEach(target -> {
-                    GamePlayer.getPlayer(target).sendWarning("Meteorite Warning!", 5);
+                Collect.nearbyPlayers(playerLocation, meteoriteRadius).forEach(target -> {
+                    target.sendWarning("Meteorite Warning!", 5);
                 });
 
                 Geometry.drawCircle(playerLocation, meteoriteRadius, Quality.NORMAL, new WorldParticle(Particle.CRIT));
@@ -178,12 +178,9 @@ public class MoonwalkerUltimate extends UltimateTalent {
             throw new NullPointerException("world is null");
         }
 
-        Collect.nearbyLivingEntitiesValidate(location, meteoriteRadius).forEach(entity -> {
-            GamePlayer.damageEntity(entity, meteoriteDamage, executor, EnumDamageCause.METEORITE);
-
-            if (entity instanceof Player player) {
-                GamePlayer.getPlayer(player).addEffect(GameEffectType.CORROSION, corrosionTime, true);
-            }
+        Collect.nearbyEntities(location, meteoriteRadius).forEach(entity -> {
+            entity.damage(meteoriteDamage, CF.getEntity(executor), EnumDamageCause.METEORITE);
+            entity.addEffect(GameEffectType.CORROSION, corrosionTime, true);
         });
 
         // FX

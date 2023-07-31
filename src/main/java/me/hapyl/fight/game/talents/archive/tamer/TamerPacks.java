@@ -1,8 +1,9 @@
 package me.hapyl.fight.game.talents.archive.tamer;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.IGamePlayer;
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
@@ -105,14 +106,14 @@ public enum TamerPacks {
             GameTask.runDuration(Heroes.TAMER.getHero().getUltimate(), (task, i) -> {
                 final Location location = player.getLocation();
 
-                Collect.nearbyPlayers(location, 2).forEach(target -> {
-                    if (target != player) {
-                        GamePlayer.damageEntity(target, 2, player, EnumDamageCause.AURA_OF_CIRCUS);
+                Collect.nearbyPlayers(location, 2.0d).forEach(target -> {
+                    if (target.isNot(player)) {
+                        target.damage(2.0d, player, EnumDamageCause.AURA_OF_CIRCUS);
                     }
                 });
                 Geometry.drawCircle(location.add(0d, 1d, 0d), 2d, Quality.NORMAL, new WorldParticle(Particle.CRIT));
 
-                if (!GamePlayer.getPlayer(player).isAlive()) {
+                if (!CF.getOrCreatePlayer(player).isAlive()) {
                     task.cancel();
                 }
             }, 0, 1);
@@ -201,9 +202,9 @@ public enum TamerPacks {
             PlayerLib.addEffect(player, EffectType.STRENGTH, Heroes.TAMER.getHero().getUltimateDuration(), 0);
             PlayerLib.addEffect(player, EffectType.SPEED, Heroes.TAMER.getHero().getUltimateDuration(), 2);
             GameTask.runDuration(Heroes.TAMER.getHero().getUltimate(), (task, i) -> {
-                final IGamePlayer gp = GamePlayer.getPlayer(player);
-                gp.heal(2d);
-                if (/*i == 0 || redundant tick check */!gp.isAlive()) {
+                final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
+                gamePlayer.heal(2d);
+                if (/*i == 0 || redundant tick check */!gamePlayer.isAlive()) {
                     task.cancel();
                 }
             }, 0, 20);
@@ -253,17 +254,17 @@ public enum TamerPacks {
                 return;
             }
 
-            final LivingEntity target = Collect.nearestLivingEntity(guardian.getLocation(), 10.0d, living ->
-                    living != player && !pack.isInPack(living) && guardian.hasLineOfSight(living));
+            final GameEntity target = Collect.nearestEntity(guardian.getLocation(), 10.0d, living ->
+                    living.isNot(player) && !pack.isInPack(living.getEntity()) && living.hasLineOfSight(guardian));
 
             if (target == null) {
                 return;
             }
 
-            guardian.setTarget(target);
+            guardian.setTarget(target.getEntity());
             guardian.setLaser(true);
 
-            GamePlayer.damageEntity(target, 1d, player, EnumDamageCause.MINION);
+            target.damage(1.0d, player, EnumDamageCause.MINION);
             target.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 10, 1));
         }
     }),

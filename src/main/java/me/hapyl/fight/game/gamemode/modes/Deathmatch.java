@@ -1,10 +1,12 @@
 package me.hapyl.fight.game.gamemode.modes;
 
 import com.google.common.collect.Maps;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.game.EntityState;
 import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.GameResult;
 import me.hapyl.fight.game.IGameInstance;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.team.GameTeam;
@@ -91,13 +93,14 @@ public class Deathmatch extends CFGameMode {
 
     @Override
     public void onLeave(@Nonnull GameInstance instance, @Nonnull Player player) {
-        final GamePlayer gamePlayer = instance.getPlayer(player);
+        final GamePlayer gamePlayer = CF.getPlayer(player);
+
         if (gamePlayer == null || gamePlayer.isSpectator()) {
             return;
         }
 
         player.setGameMode(GameMode.SPECTATOR);
-        gamePlayer.setDead(true);
+        gamePlayer.setState(EntityState.DEAD);
 
         Chat.broadcast("");
         Chat.broadcast("&c%s left the game. They may rejoin and continue playing!", player.getName());
@@ -106,7 +109,7 @@ public class Deathmatch extends CFGameMode {
 
     @Override
     public void onJoin(@Nonnull GameInstance instance, @Nonnull Player player) {
-        final GamePlayer gamePlayer = instance.getOrCreateGamePlayer(player);
+        final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
 
         // If player was spectator, don't respawn them
         if (!gamePlayer.isSpectator()) {

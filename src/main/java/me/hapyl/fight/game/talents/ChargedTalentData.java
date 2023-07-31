@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents;
 
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.GameTask;
 import org.bukkit.entity.Player;
 

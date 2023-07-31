@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.harbinger;
 
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GamePlayer;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 

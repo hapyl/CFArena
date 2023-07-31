@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.archive.archer;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
@@ -87,11 +87,12 @@ public class ShockDark extends Talent implements Listener {
                     }
                 });
                 PlayerLib.playSound(location, Sound.ENCHANT_THORNS_HIT, 1.2f);
-                Collect.nearbyLivingEntities(location, explosionRadius)
+                Collect.nearbyEntities(location, explosionRadius)
                         .forEach(target -> {
                             final double distance = target.getLocation().distance(location);
                             final double damage = distance <= 1 ? explosionMaxDamage : (explosionMaxDamage - (distance * 2));
-                            GamePlayer.damageEntity(target, damage, player, EnumDamageCause.SHOCK_DART);
+
+                            target.damage(damage, player, EnumDamageCause.SHOCK_DART);
                         });
             }
         }.runTaskLater(explosionWindup);

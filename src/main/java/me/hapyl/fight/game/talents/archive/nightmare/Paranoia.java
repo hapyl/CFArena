@@ -1,7 +1,5 @@
 package me.hapyl.fight.game.talents.archive.nightmare;
 
-import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.Talent;
@@ -64,10 +62,11 @@ public class Paranoia extends Talent {
 
                 // Apply blindness
                 Collect.nearbyPlayers(standLocation, 2.0d).forEach(target -> {
-                    if (player == target || !Manager.current().isPlayerInGame(target)) {
+                    if (target.is(player)) {
                         return;
                     }
-                    GamePlayer.getPlayer(target).addEffect(GameEffectType.PARANOIA, getDuration(), true);
+
+                    target.addEffect(GameEffectType.PARANOIA, getDuration(), true);
                 });
 
             }

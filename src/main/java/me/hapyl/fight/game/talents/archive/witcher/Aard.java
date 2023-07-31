@@ -30,7 +30,7 @@ public class Aard extends Talent {
             return Response.error("world is null");
         }
 
-        Collect.nearbyLivingEntities(inFront, radius).forEach(entity -> {
+        Collect.nearbyEntities(inFront, radius).forEach(entity -> {
             if (entity == player) {
                 return;
             }

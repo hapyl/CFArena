@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.nightmare;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Archetype;
@@ -56,7 +57,7 @@ public class Nightmare extends Hero {
         new GameTask() {
             @Override
             public void run() {
-                Manager.current().getCurrentGame().getPlayers().forEach((uuid, player) -> {
+               CF.getPlayers().forEach(player -> {
                     if (validatePlayer(player.getPlayer())) {
                         final Location location = player.getPlayer().getLocation();
                         if (location.getBlock().getLightLevel() <= 7) {
@@ -72,7 +73,7 @@ public class Nightmare extends Hero {
 
     @Override
     public void useUltimate(Player player) {
-        Manager.current().getCurrentGame().getAlivePlayers().forEach(alive -> {
+        CF.getAlivePlayers().forEach(alive -> {
             if (alive.compare(player)) {
                 return;
             }

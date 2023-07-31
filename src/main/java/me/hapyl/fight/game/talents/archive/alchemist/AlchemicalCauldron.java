@@ -104,12 +104,12 @@ public class AlchemicalCauldron extends TickingGameTask {
 
             // Damage players in zone
             Collect.nearbyPlayers(location, 4.5d).forEach(player -> {
-                if (player == owner) {
-                    Chat.sendTitle(player, "", "&cIntoxication Warning!", 0, 20, 0);
-                    ((Alchemist) Heroes.ALCHEMIST.getHero()).addToxin(player, 8);
+                if (player.is(owner)) {
+                    player.sendSubtitle("&cIntoxication Warning!", 0, 20, 0);
+                    ((Alchemist) Heroes.ALCHEMIST.getHero()).addToxin(player.getPlayer(), 8);
                 }
                 else {
-                    PlayerLib.addEffect(player, PotionEffectType.POISON, 1, 5);
+                    player.addPotionEffect(PotionEffectType.POISON, 1, 5);
                 }
             });
         }

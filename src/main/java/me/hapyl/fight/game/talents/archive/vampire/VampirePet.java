@@ -1,17 +1,20 @@
 package me.hapyl.fight.game.talents.archive.vampire;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.LinkedKeyValMap;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Bat;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Snowball;
 
 public class VampirePet extends Talent {
 
@@ -52,9 +55,11 @@ public class VampirePet extends Talent {
             @Override
             public void run() {
                 pets.forEach((player, bat) -> {
-                    final Entity nearestEntity = Collect.nearestEntityRaw(player.getLocation(), 20.0d, entity -> {
-                        return Utils.isEntityValid(entity, player) && !entity.equals(bat);
-                    });
+                    final GameEntity nearestEntity = Collect.nearestEntityRaw(
+                            player.getLocation(),
+                            20.0d,
+                            entity -> entity.isValid(player) && !entity.is(bat)
+                    );
 
                     if (nearestEntity == null) {
                         return;

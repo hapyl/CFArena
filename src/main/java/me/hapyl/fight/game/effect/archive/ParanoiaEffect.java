@@ -2,10 +2,10 @@ package me.hapyl.fight.game.effect.archive;
 
 import me.hapyl.fight.game.effect.EffectParticle;
 import me.hapyl.fight.game.effect.GameEffect;
+import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
 import me.hapyl.spigotutils.module.util.ThreadRandom;
 import org.bukkit.*;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
@@ -32,12 +32,12 @@ public class ParanoiaEffect extends GameEffect {
     }
 
     @Override
-    public void onTick(LivingEntity entity, int tick) {
+    public void onTick(GameEntity entity, int tick) {
         // Plays a sound every 20 ticks or with 10% chance
         if (tick == 0 || Math.random() >= 0.9d) {
             // Display paranoia for all players but the viewer
             final Location spawnLocation = entity.getLocation().clone().add(0, 1.7d, 0);
-            this.displayParticles(spawnLocation, entity);
+            this.displayParticles(spawnLocation, entity.getEntity());
 
             // Get a random location to play decoy sound
             Location location = entity.getLocation();
@@ -61,12 +61,12 @@ public class ParanoiaEffect extends GameEffect {
     }
 
     @Override
-    public void onStart(LivingEntity entity) {
+    public void onStart(GameEntity entity) {
         entity.addPotionEffect(PotionEffectType.DARKNESS.createEffect(99999, 1));
     }
 
     @Override
-    public void onStop(LivingEntity entity) {
+    public void onStop(GameEntity entity) {
         // This needed for smooth fade-out
         entity.removePotionEffect(PotionEffectType.DARKNESS);
         entity.addPotionEffect(PotionEffectType.BLINDNESS.createEffect(20, 1));

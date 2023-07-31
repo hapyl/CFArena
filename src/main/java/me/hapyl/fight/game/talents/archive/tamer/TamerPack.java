@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.archive.tamer;
 
 import com.google.common.collect.Sets;
+import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
@@ -207,14 +208,13 @@ public class TamerPack {
      */
     @Nullable
     public LivingEntity findNearestTarget() {
-        LivingEntity nearest = Collect.nearestPlayer(getLocation(), maxDistance, player);
+        final GameEntity nearest = Collect.nearestEntityPrioritizePlayers(
+                getLocation(),
+                maxDistance,
+                e -> !isInPack(e.getEntity()) && e.isNot(player)
+        );
 
-        // If not player nearby then find the nearest mob
-        if (nearest == null) {
-            nearest = Collect.nearestLivingEntity(getLocation(), maxDistance, entity -> !isInPack(entity) && entity != player);
-        }
-
-        return nearest;
+        return nearest == null ? null : nearest.getEntity();
     }
 
     /**

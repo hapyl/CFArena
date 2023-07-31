@@ -1,11 +1,11 @@
 package me.hapyl.fight.game.talents.archive.pytaria;
 
-import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.IGamePlayer;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.PlayerAttributes;
+import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.Temper;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -57,10 +57,10 @@ public class FlowerBreeze extends Talent {
         PlayerLib.addEffect(player, PotionEffectType.SLOW, 10, 2);
 
         final World world = location.getWorld();
-        final IGamePlayer gp = GamePlayer.getPlayer(player);
+        final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
 
         // can't go lower than 1 heart
-        gp.setHealth(Math.max(2, gp.getHealth() - healthSacrifice));
+        gamePlayer.setHealth(Math.max(2, gamePlayer.getHealth() - healthSacrifice));
 
         if (world != null) {
             for (int i = 0; i < 20; i++) {
@@ -73,7 +73,7 @@ public class FlowerBreeze extends Talent {
         //PlayerLib.addEffect(player, PotionEffectType.DAMAGE_RESISTANCE, getDuration(), 1);
         //PlayerLib.addEffect(player, PotionEffectType.INCREASE_DAMAGE, getDuration(), 1);
 
-        final PlayerAttributes attributes = GamePlayer.getPlayer(player).getAttributes();
+        final EntityAttributes attributes = GamePlayer.getPlayer(player).getAttributes();
         attributes.increaseTemporary(Temper.FLOWER_BREEZE, AttributeType.ATTACK, attackIncrease, getDuration());
         attributes.increaseTemporary(Temper.FLOWER_BREEZE, AttributeType.DEFENSE, defenseIncrease, getDuration());
 

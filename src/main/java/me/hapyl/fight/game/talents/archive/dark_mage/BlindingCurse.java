@@ -1,7 +1,9 @@
 package me.hapyl.fight.game.talents.archive.dark_mage;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.dark_mage.DarkMageSpell;
@@ -57,18 +59,18 @@ public class BlindingCurse extends DarkMageTalent {
 
     @Override
     public Response executeSpell(Player player) {
-        final LivingEntity target = Collect.targetLivingEntity(
+        final GameEntity target = Collect.targetEntity(
                 player,
                 maxDistance,
                 0.9d,
-                living -> living != player && player.hasLineOfSight(living)
+                living -> living.isNot(player) && living.hasLineOfSight(player)
         );
 
         if (target == null) {
             return Response.error("No valid target!");
         }
 
-        execute0(player, player, target);
+        execute0(player, player, target.getEntity());
 
         // Have to use assist here since it's based on ability casting
         if (!Heroes.DARK_MAGE.getHero().isUsingUltimate(player)) {
@@ -76,8 +78,8 @@ public class BlindingCurse extends DarkMageTalent {
         }
 
         // Bounce
-        final LivingEntity bounce = bounce(player, target);
-        bounce(player, bounce, target);
+        final LivingEntity bounce = bounce(player, target.getEntity());
+        bounce(player, bounce, target.getEntity());
 
         return Response.OK;
     }
@@ -88,7 +90,7 @@ public class BlindingCurse extends DarkMageTalent {
             return null;
         }
 
-        final LivingEntity bounce = Collect.nearestLivingEntity(
+        final GameEntity bounce = Collect.nearestEntity(
                 bounced[0].getLocation(),
                 10.0d,
                 living -> {
@@ -98,13 +100,15 @@ public class BlindingCurse extends DarkMageTalent {
                         }
                     }
 
-                    return living != player;
+                    return living.isNot(player);
                 }
         );
 
         if (bounce != null) {
-            execute0(player, bounced[0], bounce);
-            return bounce;
+            final LivingEntity entity = bounce.getEntity();
+
+            execute0(player, bounced[0], entity);
+            return entity;
         }
 
         return null;
@@ -129,7 +133,9 @@ public class BlindingCurse extends DarkMageTalent {
         to.addPotionEffect(PotionEffectType.BLINDNESS.createEffect(blindingDuration, 10));
         to.addPotionEffect(PotionEffectType.SLOW.createEffect(slowingDuration, 1));
 
-        GamePlayer.damageEntity(to, damage, player, EnumDamageCause.DARKNESS_CURSE);
+        CF.getEntityOptional(to).ifPresent(entity -> {
+            entity.damage(damage, player, EnumDamageCause.DARKNESS_CURSE);
+        });
 
         Chat.sendMessage(to, "&c%s has cursed you with the Dark Magic!", player.getName());
         Chat.sendMessage(player, "&aYou have cursed %s with Dark Magic!", to.getName());

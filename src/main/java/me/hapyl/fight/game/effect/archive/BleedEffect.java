@@ -1,12 +1,12 @@
 package me.hapyl.fight.game.effect.archive;
 
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.damage.EntityData;
+import me.hapyl.fight.game.entity.EntityData;
 import me.hapyl.fight.game.effect.GameEffect;
+import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Material;
 import org.bukkit.Particle;
-import org.bukkit.entity.LivingEntity;
 
 public class BleedEffect extends GameEffect {
 
@@ -18,20 +18,19 @@ public class BleedEffect extends GameEffect {
     }
 
     @Override
-    public void onStart(LivingEntity entity) {
-        Chat.sendMessage(entity, "&c&l∲ &7You are bleeding!");
+    public void onStart(GameEntity entity) {
+        entity.sendMessage("&c&l∲ &7You are bleeding!");
     }
 
     @Override
-    public void onStop(LivingEntity entity) {
-        Chat.sendMessage(entity, "&c&l∲ &aThe bleeding has stopped!");
+    public void onStop(GameEntity entity) {
+        entity.sendMessage("&c&l∲ &aThe bleeding has stopped!");
     }
 
     @Override
-    public void onTick(LivingEntity entity, int tick) {
+    public void onTick(GameEntity entity, int tick) {
         if (tick == 0) {
-            EntityData.damage(entity, damage, null, EnumDamageCause.BLEED);
-
+            entity.damage(damage, EnumDamageCause.BLEED);
             entity.getWorld()
                     .spawnParticle(
                             Particle.BLOCK_CRACK,

@@ -3,9 +3,9 @@ package me.hapyl.fight.game.heroes.archive.ninja;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.IGamePlayer;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
@@ -17,12 +17,10 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Utils;
-import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -76,10 +74,9 @@ public class Ninja extends Hero implements Listener, UIComponent {
     }
 
     @Override
-    public boolean processInvisibilityDamage(Player player, LivingEntity entity, double damage) {
-        final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
-        gamePlayer.removeEffect(GameEffectType.INVISIBILITY);
-        gamePlayer.sendMessage("&cYou dealt damage and lost your invisibility!");
+    public boolean processInvisibilityDamage(GamePlayer player, GameEntity entity, double damage) {
+        player.removeEffect(GameEffectType.INVISIBILITY);
+        player.sendMessage("&cYou dealt damage and lost your invisibility!");
 
         PlayerLib.spawnParticle(player.getEyeLocation(), Particle.EXPLOSION_NORMAL, 20, 0.25, 0.5, 0.25, 0.02f);
 
@@ -155,17 +152,19 @@ public class Ninja extends Hero implements Listener, UIComponent {
 
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final Player player = input.getPlayer();
-        final LivingEntity entity = input.getEntity();
-        if (entity == null || entity == player || player.hasCooldown(this.getWeapon().getMaterial())) {
+        final GamePlayer gamePlayer = input.getPlayer();
+        final Player player = input.getBukkitPlayer();
+        final GameEntity entity = input.getDamager();
+
+        if (entity == null || entity.is(player) || player.hasCooldown(this.getWeapon().getMaterial())) {
             return null;
         }
 
         // remove smoke bomb invisibility if exists
-        if (GamePlayer.getPlayer(player).hasEffect(GameEffectType.INVISIBILITY)) {
-            GamePlayer.getPlayer(player).removeEffect(GameEffectType.INVISIBILITY);
-            Chat.sendMessage(player, "&aYour invisibility is gone because you dealt damage.");
-            PlayerLib.playSound(player, Sound.ITEM_SHIELD_BREAK, 2.0f);
+        if (gamePlayer.hasEffect(GameEffectType.INVISIBILITY)) {
+            gamePlayer.removeEffect(GameEffectType.INVISIBILITY);
+            gamePlayer.sendMessage("&aYour invisibility is gone because you dealt damage.");
+            gamePlayer.playSound(Sound.ITEM_SHIELD_BREAK, 2.0f);
         }
 
         if (player.getInventory().getHeldItemSlot() != 0) {

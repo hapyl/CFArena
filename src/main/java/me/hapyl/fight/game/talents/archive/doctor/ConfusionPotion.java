@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.talents.archive.doctor;
 
-import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.Talent;
@@ -82,11 +81,11 @@ public class ConfusionPotion extends Talent {
         GameTask.runDuration(this, i -> {
             Geometry.drawCircle(location, 3.5d, Quality.HIGH, new WorldParticle(Particle.END_ROD, 0.0d, 0.0d, 0.0d, 0.01f));
             Collect.nearbyPlayers(location, 3.5d).forEach(target -> {
-                if (player == target) {
+                if (target.is(player)) {
                     return;
                 }
 
-                GamePlayer.getPlayer(target).addEffect(GameEffectType.AMNESIA, 20, true);
+                target.addEffect(GameEffectType.AMNESIA, 20, true);
             });
         }, explosionDelay, 1);
 

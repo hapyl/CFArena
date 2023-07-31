@@ -1,20 +1,20 @@
 package me.hapyl.fight.game.effect;
 
-import me.hapyl.fight.game.damage.EntityData;
+import me.hapyl.fight.game.entity.EntityData;
+import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.display.StringDisplay;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.player.PlayerEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 
 public class ActiveGameEffect {
 
-    private final LivingEntity entity;
+    private final GameEntity entity;
     private final GameEffectType type;
     private int level;
     private int remainingTicks;
 
-    public ActiveGameEffect(LivingEntity entity, GameEffectType type, int initTicks) {
+    public ActiveGameEffect(GameEntity entity, GameEffectType type, int initTicks) {
         this.entity = entity;
         this.type = type;
         this.remainingTicks = initTicks;
@@ -23,7 +23,7 @@ public class ActiveGameEffect {
         startTicking();
     }
 
-    public LivingEntity getEntity() {
+    public GameEntity getEntity() {
         return entity;
     }
 
@@ -62,9 +62,7 @@ public class ActiveGameEffect {
     public void forceStop() {
         remainingTicks = 0;
         type.getGameEffect().onStop(entity);
-
-        final EntityData data = EntityData.of(entity);
-        data.clearEffect(type);
+        entity.getData().clearEffect(type);
     }
 
     public <T extends PlayerEvent> void processEvent(T ev) {

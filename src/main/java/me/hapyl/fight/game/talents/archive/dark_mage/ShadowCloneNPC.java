@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.archive.dark_mage;
 
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.task.GameTask;
@@ -127,13 +127,13 @@ public class ShadowCloneNPC extends HumanNPC {
         PlayerLib.playSound(location, ENTITY_SQUID_SQUIRT, 0.25f);
 
         Collect.nearbyPlayers(location, talent.damageRadius).forEach(target -> {
-            if (target == player) {
+            if (target.is(player)) {
                 return; // don't damage self
             }
 
-            GamePlayer.damageEntity(target, talent.damage, target);
-            PlayerLib.addEffect(target, PotionEffectType.SLOW, 60, 2);
-            PlayerLib.addEffect(target, PotionEffectType.BLINDNESS, 60, 2);
+            target.damage(talent.damage, target);
+            target.addPotionEffect(PotionEffectType.SLOW, 60, 2);
+            target.addPotionEffect(PotionEffectType.BLINDNESS, 60, 2);
         });
     }
 

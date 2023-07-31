@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.maps.gamepack;
 
-import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.IGamePlayer;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -20,7 +20,7 @@ public class HealthPack extends GamePack {
 
     @Override
     public void onPickup(Player player) {
-        final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
+        final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
 
         gamePlayer.heal(HEALTH_POINTS);
         //gamePlayer.sendMessage("&4&lHEALTH PACK &7⁑ &c&l+20 &c❤", HEALTH_POINTS);

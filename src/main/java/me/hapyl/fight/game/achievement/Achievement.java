@@ -7,7 +7,7 @@ import me.hapyl.fight.database.entry.AchievementEntry;
 import me.hapyl.fight.game.reward.CurrencyReward;
 import me.hapyl.fight.game.reward.Reward;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.fight.trigger.PlayerTrigger;
+import me.hapyl.fight.trigger.EntityTrigger;
 import me.hapyl.fight.trigger.Subscribe;
 import me.hapyl.fight.util.PatternId;
 import me.hapyl.fight.util.ProgressBarBuilder;
@@ -18,6 +18,7 @@ import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -496,11 +497,11 @@ public class Achievement extends PatternId {
         return maxCompleteCount;
     }
 
-    public <T extends PlayerTrigger> Achievement setTrigger(Subscribe<T> sub, AchievementTrigger<T> trigger) {
+    public <T extends EntityTrigger> Achievement setTrigger(Subscribe<T> sub, AchievementTrigger<T> trigger) {
         sub.subscribe(t -> {
-            final Player player = t.player;
+            final LivingEntity entity = t.entity.getEntity();
 
-            if (isComplete(player)) { // don't check if already complete
+            if (!(entity instanceof Player player) || isComplete(player)) { // don't check if already complete
                 return;
             }
 

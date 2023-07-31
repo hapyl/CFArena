@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents;
 
 import com.google.common.collect.Lists;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.annotate.ExecuteOrder;
@@ -9,6 +10,7 @@ import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.effect.GameEffect;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.effect.archive.SlowingAuraEffect;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
@@ -492,7 +494,11 @@ public abstract class Talent extends NonNullItemCreator
     // Precondition player talent (and weapon) if it can be used.
     // Returns the error with a name of the blocking talent or OK.
     public static Response preconditionTalent(Player player) {
-        final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
+        final GamePlayer gamePlayer = CF.getPlayer(player);
+
+        if (gamePlayer == null) {
+            return Response.ERROR;
+        }
 
         for (GameEffectType type : GameEffectType.values()) {
             final GameEffect gameEffect = type.getGameEffect();

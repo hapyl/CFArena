@@ -9,6 +9,8 @@ import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.attribute.HeroAttributes;
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.archive.ender.Ender;
 import me.hapyl.fight.game.heroes.archive.moonwalker.Moonwalker;
 import me.hapyl.fight.game.talents.Talent;
@@ -17,11 +19,9 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.SmallCaps;
 import me.hapyl.spigotutils.module.annotate.Super;
-import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Material;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.inventory.ItemStack;
@@ -369,7 +369,6 @@ public abstract class Hero implements GameElement, PlayerElement {
      * @return this hero a talent.
      */
     @ReturnValueMustBeAConstant
-    @Nullable
     public abstract Talent getFirstTalent();
 
     /**
@@ -378,7 +377,6 @@ public abstract class Hero implements GameElement, PlayerElement {
      * @return this hero b talent.
      */
     @ReturnValueMustBeAConstant
-    @Nullable
     public abstract Talent getSecondTalent();
 
     /**
@@ -390,19 +388,16 @@ public abstract class Hero implements GameElement, PlayerElement {
     public abstract Talent getPassiveTalent();
 
     @ReturnValueMustBeAConstant
-    @Nullable
     public Talent getThirdTalent() {
         return null;
     }
 
     @ReturnValueMustBeAConstant
-    @Nullable
     public Talent getFourthTalent() {
         return null;
     }
 
     @ReturnValueMustBeAConstant
-    @Nullable
     public Talent getFifthTalent() {
         return null;
     }
@@ -494,8 +489,8 @@ public abstract class Hero implements GameElement, PlayerElement {
      * @param damage - Damage dealt.
      * @return true to cancel damage, false to allow.
      */
-    public boolean processInvisibilityDamage(Player player, LivingEntity entity, double damage) {
-        Chat.sendMessage(player, "&cCannot deal damage while invisible!");
+    public boolean processInvisibilityDamage(GamePlayer player, GameEntity entity, double damage) {
+        player.sendMessage("&cCannot deal damage while invisible!");
         return true;
     }
 
@@ -515,7 +510,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      * @param killer - Killer.
      * @param cause  - Cause.
      */
-    public void onDeathGlobal(@Nonnull Player player, @Nullable LivingEntity killer, @Nullable EnumDamageCause cause) {
+    public void onDeathGlobal(@Nonnull GamePlayer player, @Nullable GameEntity killer, @Nullable EnumDamageCause cause) {
     }
 
     /**

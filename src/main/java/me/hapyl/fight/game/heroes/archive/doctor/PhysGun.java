@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.archive.doctor;
 
 import com.google.common.collect.Maps;
+import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Collect;
@@ -54,14 +55,14 @@ public class PhysGun extends Weapon {
         }
 
         // Get the target entity
-        final LivingEntity target = Collect.targetLivingEntity(player, 3.0d, e -> e != player);
+        final GameEntity target = Collect.targetEntity(player, 3.0d, e -> e.isNot(player));
 
         if (target == null) {
             Chat.sendMessage(player, "&cNo valid target!");
             return;
         }
 
-        capturedEntity.put(player, target);
+        capturedEntity.put(player, target.getEntity());
         if (target instanceof Player targetPlayer) {
             flightMap.put(targetPlayer, targetPlayer.getAllowFlight());
             targetPlayer.setAllowFlight(true);
@@ -73,7 +74,7 @@ public class PhysGun extends Weapon {
             public void run() {
                 if (player.getInventory().getHeldItemSlot() != 4 || (capturedEntity.get(player) == null) ||
                         (capturedEntity.get(player) != target)) {
-                    dismountEntity(player, target);
+                    dismountEntity(player, target.getEntity());
                     this.cancel();
                     return;
                 }

@@ -1,8 +1,9 @@
 package me.hapyl.fight.game.heroes.archive.techie;
 
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
@@ -91,8 +92,8 @@ public class Lockdown {
                     int lockdownRadius = Heroes.TECHIE.getHero(Techie.class).LOCKDOWN_RADIUS;
 
                     Collect.nearbyPlayers(Lockdown.this.location, lockdownRadius).forEach(target -> {
-                        PlayerLib.playSound(target, Sound.BLOCK_BEACON_AMBIENT, 2.0f);
-                        GamePlayer.getPlayer(target).sendWarning("Lockdown Warning!", 5);
+                        target.playSound(Sound.BLOCK_BEACON_AMBIENT, 2.0f);
+                        target.sendWarning("Lockdown Warning!", 5);
                     });
 
                     Geometry.drawSphere(Lockdown.this.location, lockdownRadius * 1.5d, lockdownRadius, new Draw(Particle.VILLAGER_ANGRY) {
@@ -111,7 +112,7 @@ public class Lockdown {
                 }
 
                 // Countdown
-                Manager.current().getCurrentGame().getAlivePlayers().forEach(gamePlayer -> {
+                CF.getAlivePlayers().forEach(gamePlayer -> {
                     final String timeLeft = BukkitUtils.decimalFormat(tick * 5, "##,##");
                     displayLockdownMessage("&aAlly Lockdown", "&a&l" + timeLeft, "&cEnemy Lockdown", "&c&l" + timeLeft, 20);
                 });
@@ -122,7 +123,7 @@ public class Lockdown {
     }
 
     public void displayLockdownMessage(String allyTitle, String allySub, String enemyTitle, String enemySub, int length) {
-        Manager.current().getCurrentGame().getAlivePlayers().forEach(gamePlayer -> {
+        CF.getAlivePlayers().forEach(gamePlayer -> {
             final Player other = gamePlayer.getPlayer();
             if (GameTeam.isSelfOrTeammate(player, other)) {
                 gamePlayer.sendTitle(allyTitle + emptyStringTitle, allySub + emptyString, 0, length, 0);
@@ -138,13 +139,13 @@ public class Lockdown {
         entity.remove();
 
         int affectedSize = 0;
-        for (final Player player : Collect.nearbyPlayers(location, Heroes.TECHIE.getHero(Techie.class).LOCKDOWN_RADIUS)) {
-            if (player == Lockdown.this.player) {
+        for (final GamePlayer player : Collect.nearbyPlayers(location, Heroes.TECHIE.getHero(Techie.class).LOCKDOWN_RADIUS)) {
+            if (player.is(Lockdown.this.player)) {
                 continue;
             }
 
             ++affectedSize;
-            GamePlayer.getPlayer(player).addEffect(GameEffectType.LOCK_DOWN, Heroes.TECHIE.getHero(Techie.class).LOCKDOWN_AFFECT_TIME);
+            player.addEffect(GameEffectType.LOCK_DOWN, Heroes.TECHIE.getHero(Techie.class).LOCKDOWN_AFFECT_TIME);
         }
 
         displayLockdownMessage(
@@ -155,7 +156,7 @@ public class Lockdown {
                 80
         );
 
-        if ((affectedSize - 1) == Manager.current().getCurrentGame().getAlivePlayers().size()) {
+        if ((affectedSize - 1) == CF.getAlivePlayers().size()) {
             Chat.sendMessage(player, "&aLockdown affected opponents!");
             PlayerLib.playSound(player, Sound.ENTITY_WITCH_CELEBRATE, 1.25f);
         }

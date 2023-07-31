@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.archive.freazly;
 
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.Talent;
@@ -79,7 +79,7 @@ public class IceCone extends Talent implements Listener {
                             return;
                         }
 
-                        Collect.nearbyLivingEntities(location, 4.0d).forEach(entity -> {
+                        Collect.nearbyEntities(location, 4.0d).forEach(entity -> {
                             entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 10, 3));
 
                             if (entity instanceof Player player) {

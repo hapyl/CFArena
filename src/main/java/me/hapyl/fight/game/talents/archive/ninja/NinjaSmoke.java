@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.archive.ninja;
 
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.Talent;
@@ -29,11 +29,11 @@ public class NinjaSmoke extends Talent {
     @Override
     public Response execute(Player player) {
         final Location location = player.getLocation();
-        GamePlayer.getPlayer(player).addEffect(GameEffectType.INVISIBILITY, getDuration());
+        CF.getOrCreatePlayer(player).addEffect(GameEffectType.INVISIBILITY, getDuration());
 
         GameTask.runDuration(this, i -> {
             PlayerLib.spawnParticle(location, Particle.EXPLOSION_NORMAL, 20, 1, 0, 1, 0.0f);
-            Collect.nearbyPlayers(location, 2).forEach(range -> PlayerLib.addEffect(range, PotionEffectType.BLINDNESS, 30, 1));
+            Collect.nearbyPlayers(location, 2).forEach(range -> range.addPotionEffect(PotionEffectType.BLINDNESS, 30, 1));
         }, 20);
 
         PlayerLib.playSound(player, Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.0f);

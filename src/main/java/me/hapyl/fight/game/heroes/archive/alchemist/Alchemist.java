@@ -1,12 +1,16 @@
 package me.hapyl.fight.game.heroes.archive.alchemist;
 
 import io.netty.util.internal.ThreadLocalRandom;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
-import me.hapyl.fight.game.*;
+import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.damage.EntityData;
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -21,16 +25,15 @@ import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.bukkit.Sound.ENTITY_WITCH_AMBIENT;
 import static org.bukkit.Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR;
@@ -41,7 +44,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
     private final RandomTable<Effect> positiveEffects = new RandomTable<>();
     private final RandomTable<Effect> negativeEffects = new RandomTable<>();
     private final Map<Player, Integer> toxinLevel = new HashMap<>();
-    private final Map<Player, CauldronEffect> cauldronEffectMap = new HashMap<>();
+    private final Map<UUID, CauldronEffect> cauldronEffectMap = new HashMap<>();
 
     public Alchemist() {
         super("Alchemist");
@@ -73,24 +76,24 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
                 .add(new Effect("gave you &lRESISTANCE", PotionEffectType.DAMAGE_RESISTANCE, 30, 1))
                 .add(new Effect("healed half of your missing health", 30) {
                     @Override
-                    public void affect(Player player, Player victim) {
-                        final IGamePlayer gp = GamePlayer.getPlayer(victim);
-                        double missingHealth = gp.getMaxHealth() - gp.getHealth();
-                        gp.heal(missingHealth / 2d);
+                    public void affect(GamePlayer player, GamePlayer victim) {
+                        final double missingHealth = player.getMaxHealth() - player.getHealth();
+
+                        player.heal(missingHealth / 2d);
                     }
                 });
 
         negativeEffects.add(new Effect("&lpoisoned you", PotionEffectType.POISON, 15, 0) {
                     @Override
-                    public void affect(Player player, Player victim) {
-                        EntityData.of(victim).setLastDamager(player);
+                    public void affect(GamePlayer player, GamePlayer victim) {
+                        victim.getData().setLastDamager(player);
                     }
                 })
                 .add(new Effect("&lblinded you", PotionEffectType.BLINDNESS, 15, 0))
                 .add(new Effect("&lis withering your blood", PotionEffectType.WITHER, 7, 0) {
                     @Override
-                    public void affect(Player player, Player victim) {
-                        EntityData.of(victim).setLastDamager(player);
+                    public void affect(GamePlayer player, GamePlayer victim) {
+                        victim.getData().setLastDamager(player);
                     }
                 })
                 .add(new Effect("&lslowed you", PotionEffectType.SLOW, 15, 2))
@@ -106,29 +109,29 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
 
     @Override
     public void useUltimate(Player player) {
+        final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
         final Effect positiveEffect = positiveEffects.getRandomElement();
         final Effect negativeEffect = negativeEffects.getRandomElement();
 
-        positiveEffect.applyEffects(player, player);
-        Collect.enemyPlayers(player).forEach(alivePlayer -> negativeEffect.applyEffects(player, alivePlayer.getPlayer()));
+        positiveEffect.applyEffects(gamePlayer, gamePlayer);
+        Collect.enemyPlayers(player).forEach(alivePlayer -> negativeEffect.applyEffects(gamePlayer, alivePlayer));
     }
 
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final LivingEntity victim = input.getEntity();
-        final Player player = input.getPlayer();
-        final CauldronEffect effect = cauldronEffectMap.get(player);
+        final GameEntity victim = input.getDamager();
+        final GameEntity player = input.getEntity();
+        final CauldronEffect effect = cauldronEffectMap.get(player.getUUID());
 
         if (!input.isEntityAttack() || effect == null || effect.getEffectHits() <= 0 || victim == null) {
             return null;
         }
 
         final PotionEffectType randomEffect = getRandomEffect();
-        victim.addPotionEffect(new PotionEffect(randomEffect, 20, 3));
+        victim.addPotionEffect(randomEffect, 20, 3);
         effect.decrementEffectPotions();
 
-        Chat.sendMessage(
-                player,
+        player.sendMessage(
                 "&c¤ &eVenom Touch applied &l%s &eto %s. &l%s &echarges left.",
                 Chat.capitalize(randomEffect.getName()),
                 victim.getName(),
@@ -146,11 +149,11 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
     }
 
     public CauldronEffect getEffect(Player player) {
-        return this.cauldronEffectMap.get(player);
+        return this.cauldronEffectMap.get(player.getUniqueId());
     }
 
     public void startCauldronBoost(Player player) {
-        this.cauldronEffectMap.put(player, new CauldronEffect());
+        this.cauldronEffectMap.put(player.getUniqueId(), new CauldronEffect());
     }
 
     @Override
@@ -166,7 +169,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
 
     @Override
     public void onDeath(Player player) {
-        cauldronEffectMap.remove(player);
+        cauldronEffectMap.remove(player.getUniqueId());
         toxinLevel.remove(player);
     }
 
@@ -188,8 +191,8 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
         new GameTask() {
             @Override
             public void run() {
-                Manager.current().getCurrentGame().getAlivePlayers(Heroes.ALCHEMIST).forEach(gp -> {
-                    final Player player = gp.getPlayer();
+                CF.getAlivePlayers(Heroes.ALCHEMIST).forEach(gamePlayer -> {
+                    final Player player = gamePlayer.getPlayer();
                     if (isToxinLevelBetween(player, 50, 75)) {
                         PlayerLib.addEffect(player, POISON, 20, 2);
                     }
@@ -197,8 +200,8 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
                         PlayerLib.addEffect(player, WITHER, 20, 1);
                     }
                     else if (getToxinLevel(player) >= 100) {
-                        gp.setLastDamageCause(EnumDamageCause.TOXIN);
-                        gp.die(true);
+                        gamePlayer.setLastDamageCause(EnumDamageCause.TOXIN);
+                        gamePlayer.die(true);
                     }
                     setToxinLevel(player, getToxinLevel(player) - 1);
                 });

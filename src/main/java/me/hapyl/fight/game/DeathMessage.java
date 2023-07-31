@@ -1,10 +1,10 @@
 package me.hapyl.fight.game;
 
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.spigotutils.module.chat.Gradient;
 import me.hapyl.spigotutils.module.chat.gradient.Interpolators;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.projectiles.ProjectileSource;
 
@@ -47,12 +47,12 @@ public record DeathMessage(String message, String damagerSuffix) {
     }
 
     @Nonnull
-    public String format(@Nonnull Player player, @Nullable LivingEntity killer, double distance) {
+    public String format(@Nonnull GamePlayer player, @Nullable GameEntity killer, double distance) {
         return format(player, getValidPronoun(killer), distance);
     }
 
     @Nonnull
-    public String format(@Nonnull Player player, @Nonnull String killer, double distance) {
+    public String format(@Nonnull GamePlayer player, @Nonnull String killer, double distance) {
         final String message = message().replace(DAMAGER_PLACEHOLDER, killer);
         final String suffix = damagerSuffix().replace(DAMAGER_PLACEHOLDER, killer);
         final String longDistanceSuffix = distance >= 20.0d ? " (from %.1f meters away!)".formatted(distance) : "";
@@ -75,19 +75,22 @@ public record DeathMessage(String message, String damagerSuffix) {
                 );
     }
 
-    private String getValidPronoun(@Nullable Entity entity) {
-        if (entity == null) {
+    private String getValidPronoun(@Nullable GameEntity gameEntity) {
+        if (gameEntity == null) {
             return "";
         }
+
+        final LivingEntity entity = gameEntity.getEntity();
 
         if (entity instanceof Projectile projectile) {
             final ProjectileSource shooter = projectile.getShooter();
 
             if (shooter instanceof LivingEntity livingShooter) {
-                return livingShooter.getName() + "'s " + entity.getName();
+                return livingShooter.getName() + "'s " + gameEntity.getName();
             }
         }
-        return entity.getName();
+
+        return gameEntity.getName();
     }
 
     public static DeathMessage of(String message, String suffix) {

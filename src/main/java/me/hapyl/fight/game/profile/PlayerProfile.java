@@ -1,11 +1,12 @@
 package me.hapyl.fight.game.profile;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
-import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.ScoreboardTeams;
 import me.hapyl.fight.game.delivery.Deliveries;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.setting.Setting;
@@ -119,20 +120,13 @@ public class PlayerProfile {
     @Nonnull
     public GamePlayer createGamePlayer() {
         this.gamePlayer = new GamePlayer(this);
+
+        // FIXME (hapyl): 001, Aug 1:
+        final RuntimeException error = new RuntimeException();
+        CF.getLogger().warning("CALLED CREATE GAME PLAYE");
+        error.printStackTrace();
+
         return gamePlayer;
-    }
-
-    /**
-     * Gets rid of the current game player.
-     *
-     * @return the old game player if existed.
-     */
-    @Nullable
-    public GamePlayer deleteGamePlayer() {
-        final GamePlayer oldGamePlayer = gamePlayer;
-        this.gamePlayer = null;
-
-        return oldGamePlayer;
     }
 
     public void resetGamePlayer() {

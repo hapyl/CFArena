@@ -1,9 +1,8 @@
 package me.hapyl.fight.game.effect.archive;
 
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.effect.GameEffect;
-import org.bukkit.entity.LivingEntity;
+import me.hapyl.fight.game.entity.GameEntity;
 import org.bukkit.potion.PotionEffectType;
 
 public class Corrosion extends GameEffect {
@@ -17,20 +16,20 @@ public class Corrosion extends GameEffect {
     }
 
     @Override
-    public void onTick(LivingEntity entity, int tick) {
+    public void onTick(GameEntity entity, int tick) {
         if (tick % DAMAGE_PERIOD == 0) {
-            GamePlayer.damageEntityTick(entity, 1.0d, null, EnumDamageCause.CORROSION, DAMAGE_PERIOD);
+            entity.damageTick(1.0d, EnumDamageCause.CORROSION, DAMAGE_PERIOD);
         }
     }
 
     @Override
-    public void onStart(LivingEntity entity) {
-        entity.addPotionEffect(PotionEffectType.SLOW.createEffect(999999, 4));
-        entity.addPotionEffect(PotionEffectType.BLINDNESS.createEffect(999999, 4));
+    public void onStart(GameEntity entity) {
+        entity.addPotionEffect(PotionEffectType.SLOW, 999999, 4);
+        entity.addPotionEffect(PotionEffectType.BLINDNESS, 999999, 4);
     }
 
     @Override
-    public void onStop(LivingEntity entity) {
+    public void onStop(GameEntity entity) {
         entity.removePotionEffect(PotionEffectType.SLOW);
         entity.removePotionEffect(PotionEffectType.BLINDNESS);
     }

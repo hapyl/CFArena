@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.swooper;
 
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GamePlayer;
 import org.bukkit.Location;
 
 import javax.annotation.Nonnull;

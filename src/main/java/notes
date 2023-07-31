@@ -110,6 +110,18 @@ Bugs:
 - [✔] ADD TRIM COMMAND
 - [✔] Fix description from GRAY to DARK_GRAY
 
+### System Rework Notes: ###
+
+- Spawned mobs should *always* have a game entity
+associated with them; if spawned naturally, create
+default game entity.
+
+- Clone hero attribute to modify them.
+
+- "entity instanceof Player" is gonna throw a lot of errors...
+
+############################
+
 - Maybe genshin slowing aura for freazly
 - Maybe add glowing for self traps
 - rework TECHIE and TAKER ult

@@ -1,8 +1,9 @@
 package me.hapyl.fight.game.talents.archive.orc;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.EntityData;
+import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.task.GeometryTask;
@@ -17,7 +18,6 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -91,9 +91,9 @@ public class OrcAxe extends InputTalent {
                     PlayerLib.spawnParticle(location, Particle.SWEEP_ATTACK, 1);
 
                     // Damage and KB
-                    Collect.nearbyLivingEntities(location, 1.0d, entity -> entity != player)
+                    Collect.nearbyEntities(location, 1.0d, entity -> entity.isNot(player))
                             .forEach(entity -> {
-                                EntityData.damage(entity, 15.0d, player, EnumDamageCause.CYCLING_AXE);
+                                entity.damage(15.0d, player, EnumDamageCause.CYCLING_AXE);
                                 entity.setVelocity(entity.getLocation().getDirection().normalize().multiply(-1.5d));
                             });
                 });
@@ -138,7 +138,7 @@ public class OrcAxe extends InputTalent {
                     return;
                 }
 
-                final LivingEntity hitEntity = Collect.nearestLivingEntity(location, 1.0d, living -> living != player);
+                final GameEntity hitEntity = Collect.nearestEntity(location, 1.0d, living -> living.isNot(player));
 
                 if (hitEntity != null) {
                     executeHit(hitEntity.getEyeLocation());
@@ -157,7 +157,7 @@ public class OrcAxe extends InputTalent {
             }
 
             private void executeHit(@Nonnull Location location) {
-                EntityData.damageAoE(location, 2.5d, 10.0d, player, EnumDamageCause.ORC_DASH, living -> living != player);
+                CF.damageAoE(location, 2.5d, 10.0d, player, EnumDamageCause.ORC_DASH, living -> living.isNot(player));
 
                 // Fx
                 PlayerLib.spawnParticle(location, Particle.SWEEP_ATTACK, 1, 0.1d, 0.1d, 0.1d, 10);

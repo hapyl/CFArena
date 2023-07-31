@@ -1,24 +1,29 @@
 package me.hapyl.fight.game;
 
-public enum PlayerState {
+public enum EntityState {
 
     /**
      * The player is alive.
      */
-    ALIVE,
+    ALIVE("&aAlive"),
     /**
      * The player has died.
      */
-    DEAD,
+    DEAD("&cDead"),
     /**
      * The player is spectating.
      * This is different from dead, because the spectator tag
      * is only given to spectators at the start of the game.
      */
-    SPECTATOR,
+    SPECTATOR("&7Spectator"),
     /**
      * The player is currently spectating.
      */
-    RESPAWNING
+    RESPAWNING("&eRespawning");
 
+    public final String string;
+
+    EntityState(String string) {
+        this.string = string;
+    }
 }

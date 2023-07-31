@@ -1,10 +1,11 @@
 package me.hapyl.fight.game.heroes.archive.taker;
 
 import com.google.common.collect.Maps;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -149,13 +150,13 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
             if (i % hitDelay == 0) {
                 final Location hitLocation = LocationHelper.getInFront(player.getEyeLocation(), 1.5d);
 
-                Collect.nearbyLivingEntities(
+                Collect.nearbyEntities(
                         hitLocation,
                         2.0d,
-                        living -> Utils.isEntityValid(living, player)
+                        living -> living.isValid(player)
                 ).forEach(entity -> {
-                    GamePlayer.damageEntityTick(entity, damage, player, EnumDamageCause.EMBODIMENT_OF_DEATH, hitDelay);
-                    GamePlayer.getPlayer(player).heal(healing);
+                    entity.damageTick(damage, player, EnumDamageCause.EMBODIMENT_OF_DEATH, hitDelay);
+                    CF.getOrCreatePlayer(player).heal(healing);
                 });
 
                 // Hit Fx
@@ -233,8 +234,8 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
 
                 location.add(x, y, z);
 
-                Collect.nearbyLivingEntities(location, 1.0d, entity -> entity != player)
-                        .forEach(entity -> GamePlayer.damageEntity(entity, 10.0d, player, EnumDamageCause.DEATH_RAY));
+                Collect.nearbyEntities(location, 1.0d, entity -> entity.isNot(player))
+                        .forEach(entity -> entity.damage(10.0d, player, EnumDamageCause.DEATH_RAY));
 
                 // Fx
                 PlayerLib.spawnParticle(location, Particle.SQUID_INK, 1, 0.0d, 0.0d, 0.0d, 0.0f);
@@ -251,7 +252,7 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
     @Nullable
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final Player player = input.getPlayer();
+        final Player player = input.getBukkitPlayer();
         final SpiritualBones bones = getBones(player);
 
         if (bones.getBones() == 0) {
@@ -270,7 +271,7 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
     @Nullable
     @Override
     public DamageOutput processDamageAsVictim(DamageInput input) {
-        final Player player = input.getPlayer();
+        final Player player = input.getBukkitPlayer();
         final SpiritualBones bones = getBones(player);
 
         if (bones.getBones() == 0) {

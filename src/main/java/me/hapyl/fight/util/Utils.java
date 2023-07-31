@@ -1,10 +1,11 @@
 package me.hapyl.fight.util;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.spigotutils.module.annotate.TestedOn;
@@ -108,7 +109,7 @@ public class Utils {
 
     public static void playSoundAndCut(Location location, Sound sound, float pitch, int cutAt) {
         final Set<Player> playingTo = new HashSet<>();
-        Manager.current().getCurrentGame().getAlivePlayers().forEach(gp -> {
+        CF.getAlivePlayers().forEach(gp -> {
             final Player player = gp.getPlayer();
             player.playSound(location, sound, SoundCategory.RECORDS, 20f, pitch);
             playingTo.add(player);
@@ -182,7 +183,7 @@ public class Utils {
      */
     @Deprecated
     public static void hidePlayer(Player player) {
-        Manager.current().getCurrentGame().getAlivePlayers().forEach(gp -> {
+        CF.getAlivePlayers().forEach(gp -> {
             if (gp.getPlayer() == player || gp.isSpectator() || GameTeam.isTeammate(gp.getPlayer(), player)) {
                 return;
             }
@@ -196,14 +197,14 @@ public class Utils {
      */
     @Deprecated
     public static void showPlayer(Player player) {
-        Manager.current().getCurrentGame().getPlayers().forEach((uuid, gp) -> {
-            if (gp.getPlayer() != player) {
+        CF.getPlayers().forEach(gp -> {
+            if (gp.isNot(player)) {
                 gp.getPlayer().showPlayer(Main.getPlugin(), player);
             }
         });
     }
 
-    public static void rayTracePath(@Nonnull Location start, @Nonnull Location end, double shift, double searchRange, @Nullable Consumer<LivingEntity> funcLiving, @Nullable Consumer<Location> funcLoc) {
+    public static void rayTracePath(@Nonnull Location start, @Nonnull Location end, double shift, double searchRange, @Nullable Consumer<GameEntity> funcLiving, @Nullable Consumer<Location> funcLoc) {
         final double maxDistance = start.distance(end);
         final Vector vector = end.toVector().subtract(start.toVector()).normalize().multiply(shift);
 
@@ -219,7 +220,7 @@ public class Utils {
 
                 start.add(vector);
 
-                Nulls.runIfNotNull(funcLiving, f -> Collect.nearbyLivingEntities(start, searchRange).forEach(f));
+                Nulls.runIfNotNull(funcLiving, f -> Collect.nearbyEntities(start, searchRange).forEach(f));
                 Nulls.runIfNotNull(funcLoc, f -> f.accept(start));
 
                 tick -= shift;
@@ -245,17 +246,17 @@ public class Utils {
                 break;
             }
 
-            for (final LivingEntity living : Collect.nearbyLivingEntities(location, 0.5)) {
-                if (living == shooter || living instanceof Player player && !Manager.current().isPlayerInGame(player)) {
+            for (final GameEntity gameEntity : Collect.nearbyEntities(location, 0.5)) {
+                if (gameEntity.is(shooter) || gameEntity instanceof Player player && !Manager.current().isPlayerInGame(player)) {
                     continue;
                 }
 
                 if (onHit != null) {
-                    onHit.accept(living);
+                    onHit.accept(gameEntity.getEntity());
                 }
 
                 if (damage > 0.0d) {
-                    GamePlayer.damageEntity(living, damage, shooter, cause);
+                    gameEntity.damage(damage, CF.getEntity(shooter), cause);
                 }
                 break main;
             }
@@ -361,40 +362,16 @@ public class Utils {
      * @return true if entity is "valid," false otherwise.
      */
     public static boolean isEntityValid(Entity entity, @Nullable Player player) {
-        // null entities, self or armor stands are not valid
-        if (entity == null || (player != null && entity == player) || entity instanceof ArmorStand) {
+        if (!(entity instanceof LivingEntity livingEntity)) {
             return false;
         }
 
-        // dead or invisible entities are not valid
-        if (entity instanceof LivingEntity livingEntity) {
-            if (livingEntity.isDead() || livingEntity.isInvisible()) {
-                return false;
-            }
-
-            // players are only valid if they are alive and not on the same team
-            if (entity instanceof Player targetPlayer) {
-                // creative players should not be valid!
-                if (targetPlayer.getGameMode() == GameMode.CREATIVE) {
-                    return false;
-                }
-
-                if (Manager.current().isGameInProgress() && !GamePlayer.getPlayer(targetPlayer).isAlive()) {
-                    return false;
-                }
-                return !GameTeam.isTeammate(player, targetPlayer);
-            }
-
-            // Dummy check
-            if (livingEntity.getScoreboardTags().contains("dummy")) {
-                return true;
-            }
-
-            return livingEntity.hasAI();
+        final GameEntity gameEntity = CF.getEntity(livingEntity);
+        if (gameEntity == null) {
+            return false;
         }
 
-        // other entities are valid
-        return true;
+        return gameEntity.isValid(player);
     }
 
     public static void createExplosion(Location location, double range, double damage, Consumer<LivingEntity> consumer) {
@@ -411,12 +388,12 @@ public class Utils {
             return;
         }
 
-        Collect.nearbyLivingEntities(location, range).forEach(entity -> {
+        Collect.nearbyEntities(location, range).forEach(entity -> {
             if (damage > 0.0d) {
-                GamePlayer.damageEntity(entity, damage, damager, cause);
+                entity.damage(damage, CF.getEntity(damager), cause);
             }
             if (consumer != null) {
-                consumer.accept(entity);
+                consumer.accept(entity.getEntity());
             }
         });
 

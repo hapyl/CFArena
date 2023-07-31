@@ -2,7 +2,8 @@ package me.hapyl.fight.game.talents.archive.taker;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.taker.Taker;
@@ -92,14 +93,14 @@ public class DeathSwap extends Talent {
             return Response.error("Not enough &lSpiritual Bones&c!");
         }
 
-        final LivingEntity target = Collect.targetLivingEntity(player, 50.0d, 0.85d, entity -> true);
+        final GameEntity target = Collect.targetEntity(player, 50.0d, 0.85d, entity -> true);
 
         if (target == null) {
             return Response.error("No target found!");
         }
 
         final double damage = Math.min(target.getHealth() * (damagePercent / 100), 100.0d);
-        GamePlayer.damageEntity(target, damage, player, EnumDamageCause.RIP_BONES);
+        target.damage(damage, player, EnumDamageCause.RIP_BONES);
 
         // Swap
         final Location playerLocation = player.getLocation();

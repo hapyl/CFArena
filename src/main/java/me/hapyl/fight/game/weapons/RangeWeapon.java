@@ -1,14 +1,15 @@
 package me.hapyl.fight.game.weapons;
 
 import com.google.common.collect.Maps;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GameElement;
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -303,15 +304,16 @@ public abstract class RangeWeapon extends Weapon implements GameElement, UICompo
                 break;
             }
 
-            for (final LivingEntity target : Collect.nearbyLivingEntities(location, 0.5d)) {
-                if (target == player || !predicateEntity(target)) {
+            for (final GameEntity target : Collect.nearbyEntities(location, 0.5d)) {
+                final LivingEntity targetEntity = target.getEntity();
+                if (target.is(player) || !predicateEntity(targetEntity)) {
                     continue;
                 }
 
-                this.onHit(player, target);
+                this.onHit(player, targetEntity);
 
-                Utils.modifyKnockback(target, v -> 0.5d, t -> {
-                    GamePlayer.damageEntity(target, getDamage(player), player, getDamageCause(player));
+                target.modifyKnockback(0.5d, d -> {
+                    d.damage(getDamage(player), CF.getPlayer(player), getDamageCause(player));
                 });
 
                 Nulls.runIfNotNull(particleHit, p -> {

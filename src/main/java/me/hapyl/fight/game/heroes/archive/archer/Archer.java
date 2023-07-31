@@ -1,7 +1,8 @@
 package me.hapyl.fight.game.heroes.archive.archer;
 
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.heroes.Archetype;
@@ -180,7 +181,8 @@ public class Archer extends Hero implements Listener {
     }
 
     private Entity findNearestTarget(Player shooter, Location location) {
-        return Collect.nearestLivingEntity(location, 3.0d, shooter);
+        final GameEntity gameEntity = Collect.nearestEntity(location, 3.0d, shooter);
+        return gameEntity == null ? null : gameEntity.getEntity();
     }
 
     @Override

@@ -1,9 +1,8 @@
 package me.hapyl.fight.game.heroes.archive.techie;
 
-import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.IGameInstance;
-import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -100,9 +99,8 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Disabl
             public void run() {
                 Heroes.TECHIE.getAlivePlayers().forEach(player -> {
                     int amountRevealed = 0;
-                    final IGameInstance game = Manager.current().getCurrentGame();
-
-                    for (final GamePlayer alive : game.getAlivePlayers()) {
+                    
+                    for (final GamePlayer alive : CF.getAlivePlayers()) {
                         if (alive.compare(player)) {
                             continue;
                         }

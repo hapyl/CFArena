@@ -1,14 +1,15 @@
 package me.hapyl.fight.game.talents.archive.taker;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.taker.Taker;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Utils;
-import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
@@ -74,28 +75,23 @@ public class TakerHook {
                     return;
                 }
 
-                final LivingEntity nearest = Collect.nearestLivingEntity(location, 1.5d, player);
+                final GameEntity nearest = Collect.nearestEntity(location, 1.5d, player);
 
                 if (nearest != null) {
-                    hooked = nearest;
+                    hooked = nearest.getEntity();
                     double health = hooked.getHealth();
 
-                    if (hooked instanceof Player hookedPlayer) {
-                        health = GamePlayer.getPlayer(hookedPlayer).getHealth();
+                    nearest.sendMessage(
+                            "&4☠ &cOuch! %s hooked you and you lost &e%s%%&c of you health!",
+                            player.getName(),
+                            talent().damagePercent
+                    );
 
-                        Chat.sendMessage(
-                                hookedPlayer,
-                                "&4☠ &cOuch! %s hooked you and you lost &e%s%%&c of you health!",
-                                player.getName(),
-                                talent().damagePercent
-                        );
-
-                        PlayerLib.addEffect(hookedPlayer, PotionEffectType.SLOW, 60, 1);
-                        PlayerLib.addEffect(hookedPlayer, PotionEffectType.WITHER, 60, 1);
-                    }
+                    nearest.addPotionEffect(PotionEffectType.SLOW, 60, 1);
+                    nearest.addPotionEffect(PotionEffectType.WITHER, 60, 1);
 
                     final double damage = Math.min(health * (talent().damagePercent / 100), 100.0d);
-                    GamePlayer.damageEntity(hooked, damage, player);
+                    nearest.damage(damage, player);
 
                     // Reduce cooldown
                     talent().reduceCooldown(player);
@@ -136,7 +132,7 @@ public class TakerHook {
                     player.removePotionEffect(PotionEffectType.SLOW);
                     //player.removePotionEffect(PotionEffectType.JUMP);
 
-                    GamePlayer.getPlayer(player).setCanMove(true);
+                    CF.getOrCreatePlayer(player).setCanMove(true);
 
                     chains.clear();
                     cancel();

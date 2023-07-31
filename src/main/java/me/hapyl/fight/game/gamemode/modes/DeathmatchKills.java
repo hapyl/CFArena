@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.gamemode.modes;
 
 import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.GameResult;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.gamemode.Modes;
