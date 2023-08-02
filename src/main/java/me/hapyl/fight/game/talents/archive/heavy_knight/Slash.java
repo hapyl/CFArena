@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.archive.heavy_knight;
 
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -47,7 +47,7 @@ public class Slash extends Talent {
 
         location.add(direction.multiply(distance));
 
-        final List<GameEntity> entitiesHit = Collect.nearbyEntities(
+        final List<LivingGameEntity> entitiesHit = Collect.nearbyEntities(
                 location,
                 distance,
                 entity -> entity.isValid(player)

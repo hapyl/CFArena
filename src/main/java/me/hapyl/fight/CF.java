@@ -6,19 +6,19 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.cosmetic.crate.CrateManager;
 import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.util.Collect;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 
@@ -59,7 +59,7 @@ public final class CF {
     }
 
     @Nonnull
-    public static Optional<GameEntity> getEntityOptional(LivingEntity entity) {
+    public static Optional<LivingGameEntity> getEntityOptional(@Nullable LivingEntity entity) {
         if (entity == null) {
             return Optional.empty();
         }
@@ -67,8 +67,22 @@ public final class CF {
         return Optional.ofNullable(getEntity(entity.getUniqueId()));
     }
 
+    @Nonnull
+    public static <T extends LivingGameEntity> Optional<T> getEntity(@Nullable LivingEntity entity, @Nonnull Class<T> as) {
+        if (entity == null) {
+            return Optional.empty();
+        }
+
+        final LivingGameEntity gameEntity = getEntity(entity);
+        if (as.isInstance(gameEntity)) {
+            return Optional.of(as.cast(gameEntity));
+        }
+
+        return Optional.empty();
+    }
+
     @Nullable
-    public static GameEntity getEntity(LivingEntity entity) {
+    public static LivingGameEntity getEntity(@Nullable LivingEntity entity) {
         if (entity == null) {
             return null;
         }
@@ -77,7 +91,7 @@ public final class CF {
     }
 
     @Nullable
-    public static GameEntity getEntity(@Nonnull UUID uuid) {
+    public static LivingGameEntity getEntity(@Nonnull UUID uuid) {
         return manager.getEntity(uuid);
     }
 
@@ -126,6 +140,11 @@ public final class CF {
     }
 
     @Nonnull
+    public static <T extends GameEntity> Set<T> getEntities(Class<T> clazz) {
+        return manager.getEntities(clazz);
+    }
+
+    @Nonnull
     public static Set<GameEntity> getEntitiesExcludePlayers() {
         return manager.getEntitiesExcludePlayers();
     }
@@ -142,10 +161,10 @@ public final class CF {
     }
 
     @Nonnull
-    public static List<GameEntity> damageAoE(@Nonnull Location location, double damage, double radius, @Nullable GameEntity damager, @Nullable EnumDamageCause cause, @Nonnull Predicate<GameEntity> predicate) {
-        final List<GameEntity> entities = Collect.nearbyEntities(location, radius).stream().filter(predicate).toList();
+    public static List<LivingGameEntity> damageAoE(@Nonnull Location location, double damage, double radius, @Nullable LivingGameEntity damager, @Nullable EnumDamageCause cause, @Nonnull Predicate<LivingGameEntity> predicate) {
+        final List<LivingGameEntity> entities = Collect.nearbyEntities(location, radius).stream().filter(predicate).toList();
 
-        for (GameEntity entity : entities) {
+        for (LivingGameEntity entity : entities) {
             entity.damage(damage, damager, cause);
         }
 
@@ -153,12 +172,16 @@ public final class CF {
     }
 
     @Nonnull
-    public static List<GameEntity> damageAoE(Location location, double damage, double radius, @Nullable LivingEntity damager, @Nullable EnumDamageCause cause, @Nonnull Predicate<GameEntity> predicate) {
+    public static List<LivingGameEntity> damageAoE(Location location, double damage, double radius, @Nullable LivingEntity damager, @Nullable EnumDamageCause cause, @Nonnull Predicate<LivingGameEntity> predicate) {
         return damageAoE(location, damage, radius, CF.getEntity(damager), cause, predicate);
     }
 
     @Nonnull
     public static Logger getLogger() {
         return plugin.getLogger();
+    }
+
+    public static void registerEvents(@Nonnull Listener listener) {
+        Bukkit.getPluginManager().registerEvents(listener, plugin);
     }
 }

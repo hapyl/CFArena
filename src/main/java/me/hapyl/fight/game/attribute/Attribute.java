@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.attribute;
 
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.ChatColor;
 
 import javax.annotation.Nonnull;
@@ -61,7 +61,7 @@ public class Attribute {
      * @param entity - Player.
      * @param value  - The actual value.
      */
-    public void update(GameEntity entity, double value) {
+    public void update(LivingGameEntity entity, double value) {
     }
 
     public String toString(double value) {

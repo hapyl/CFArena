@@ -3,7 +3,7 @@ package me.hapyl.fight.game.heroes.archive.shark;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
@@ -114,7 +114,7 @@ public class Shark extends Hero implements Listener {
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
         final Player player = input.getBukkitPlayer();
-        final GameEntity entity = input.getDamager();
+        final LivingGameEntity entity = input.getDamagerAsLiving();
         if (player.hasCooldown(getPassiveTalent().getMaterial()) || entity == null || entity.is(player)) {
             return null;
         }
@@ -127,7 +127,7 @@ public class Shark extends Hero implements Listener {
         return null;
     }
 
-    public void performCriticalHit(GamePlayer player, GameEntity entity) {
+    public void performCriticalHit(GamePlayer player, LivingGameEntity entity) {
         final EvokerFangs fangs = Entities.EVOKER_FANGS.spawn(entity.getLocation());
         fangs.setOwner(player.getPlayer());
 

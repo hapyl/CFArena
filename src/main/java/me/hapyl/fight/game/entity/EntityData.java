@@ -9,11 +9,7 @@ import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.GameEffectType;
-import me.hapyl.fight.util.Collect;
-import me.hapyl.spigotutils.module.annotate.Super;
 import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.math.Numbers;
-import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -21,9 +17,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
 
 /**
  * Used to store custom damage, effects, etc.
@@ -33,7 +27,7 @@ public final class EntityData {
     private final Map<GameEffectType, ActiveGameEffect> gameEffects;
     private final Map<Player, Double> damageTaken;
 
-    private final GameEntity entity;
+    private final LivingGameEntity entity;
 
     @Nullable private GameEntity lastDamager;
     @Nullable private EnumDamageCause lastDamageCause;
@@ -41,9 +35,10 @@ public final class EntityData {
     private double lastDamage;
     private boolean isCrit;
 
-    @Important("Notifies the event that the damage is custom, not vanilla.") protected boolean wasHit;
+    @Important("Notifies the event that the damage is custom, not vanilla.")
+    boolean wasHit;
 
-    public EntityData(GameEntity entity) {
+    public EntityData(LivingGameEntity entity) {
         this.entity = entity;
         this.damageTaken = Maps.newHashMap();
         this.gameEffects = Maps.newConcurrentMap();
@@ -156,7 +151,7 @@ public final class EntityData {
      * @return entity that owns this data.
      */
     @Nonnull
-    public GameEntity getEntity() {
+    public LivingGameEntity getEntity() {
         return entity;
     }
 
@@ -168,6 +163,20 @@ public final class EntityData {
     @Nullable
     public GameEntity getLastDamager() {
         return lastDamager;
+    }
+
+    /**
+     * Gets the last damage as living damager if it's not null and is a living game entity.
+     *
+     * @return last damager or null.
+     */
+    @Nullable
+    public LivingGameEntity getLastDamagerAsLiving() {
+        if (lastDamager instanceof LivingGameEntity living) {
+            return living;
+        }
+
+        return null;
     }
 
     /**
@@ -233,7 +242,7 @@ public final class EntityData {
      *
      * @param living - New damager.
      */
-    public void setLastDamagerIfNative(GameEntity living) {
+    public void setLastDamagerIfNative(LivingGameEntity living) {
         if (isNativeDamage()) {
             lastDamager = living;
         }
@@ -393,7 +402,7 @@ public final class EntityData {
     @Nonnull
     @Deprecated(forRemoval = true)
     public static EntityData of(@Nonnull LivingEntity entity) {
-        final GameEntity gameEntity = CF.getEntity(entity);
+        final LivingGameEntity gameEntity = CF.getEntity(entity);
 
         if (gameEntity == null) {
             throw new IllegalStateException("cannot find game entity for " + entity);
@@ -403,7 +412,7 @@ public final class EntityData {
     }
 
     public static void die(@Nonnull LivingEntity livingEntity) {
-        final GameEntity gameEntity = CF.getEntity(livingEntity);
+        final LivingGameEntity gameEntity = CF.getEntity(livingEntity);
         if (gameEntity == null) {
             return;
         }
@@ -419,7 +428,7 @@ public final class EntityData {
         final IGameInstance instance = Manager.current().getCurrentGame();
 
         if (instance instanceof GameInstance) {
-            CF.getEntities().forEach(entity -> entity.getData().resetDamage());
+            CF.getEntities(LivingGameEntity.class).forEach(entity -> entity.getData().resetDamage());
         }
     }
 }

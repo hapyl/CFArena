@@ -1,6 +1,5 @@
 package me.hapyl.fight.event;
 
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Manager;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -15,13 +14,13 @@ public class EntityHandler implements Listener {
     @EventHandler()
     public void handleEntitySpawn(EntitySpawnEvent ev) {
         final Entity entity = ev.getEntity();
+        final Manager manager = Manager.current();
 
-        if (!(entity instanceof LivingEntity living)) {
+        if (!(entity instanceof LivingEntity living) || manager.isEntity(living) || manager.isIgnored(living)) {
             return;
         }
 
-        Debug.info("spawned using EVENT " + living);
-        Manager.current().createEntity(living);
+        manager.createEntity(living);
     }
 
     @EventHandler()

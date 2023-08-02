@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.effect.archive;
 
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.effect.EffectParticleBlockMarker;
 import me.hapyl.fight.game.effect.GameEffect;
@@ -22,7 +22,7 @@ public class LockdownEffect extends GameEffect {
     }
 
     @Override
-    public void onStart(GameEntity entity) {
+    public void onStart(LivingGameEntity entity) {
         if (entity instanceof Player player) {
             GamePlayer.getPlayer(player).setCanMove(false);
             PlayerLib.playSound(player, Sound.BLOCK_BEACON_ACTIVATE, 0.75f);
@@ -37,7 +37,7 @@ public class LockdownEffect extends GameEffect {
     }
 
     @Override
-    public void onStop(GameEntity entity) {
+    public void onStop(LivingGameEntity entity) {
         if (entity instanceof Player player) {
             GamePlayer.getPlayer(player).setCanMove(true);
             PlayerLib.playSound(player, Sound.BLOCK_BEACON_ACTIVATE, 2);
@@ -48,7 +48,7 @@ public class LockdownEffect extends GameEffect {
     }
 
     @Override
-    public void onTick(GameEntity entity, int tick) {
+    public void onTick(LivingGameEntity entity, int tick) {
         if (tick == 0) {
             displayParticles(entity.getLocation().add(0.0d, 2.0d, 0.0d), entity.getEntity());
         }

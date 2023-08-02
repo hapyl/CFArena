@@ -7,7 +7,7 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.Talent;
@@ -104,7 +104,7 @@ public class Pytaria extends Hero {
             me.setAI(false);
         });
 
-        final GameEntity nearestEntity = Collect.nearestEntityPrioritizePlayers(location, 50, check -> check.isNot(player));
+        final LivingGameEntity nearestEntity = Collect.nearestEntityPrioritizePlayers(location, 50, check -> check.isNot(player));
         PlayerLib.playSound(location, Sound.ENTITY_BEE_LOOP_AGGRESSIVE, 1.0f);
 
         new GameTask() {

@@ -4,7 +4,7 @@ import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.effect.GameEffectType;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
@@ -74,7 +74,7 @@ public class Ninja extends Hero implements Listener, UIComponent {
     }
 
     @Override
-    public boolean processInvisibilityDamage(GamePlayer player, GameEntity entity, double damage) {
+    public boolean processInvisibilityDamage(GamePlayer player, LivingGameEntity entity, double damage) {
         player.removeEffect(GameEffectType.INVISIBILITY);
         player.sendMessage("&cYou dealt damage and lost your invisibility!");
 
@@ -154,7 +154,7 @@ public class Ninja extends Hero implements Listener, UIComponent {
     public DamageOutput processDamageAsDamager(DamageInput input) {
         final GamePlayer gamePlayer = input.getPlayer();
         final Player player = input.getBukkitPlayer();
-        final GameEntity entity = input.getDamager();
+        final LivingGameEntity entity = input.getDamagerAsLiving();
 
         if (entity == null || entity.is(player) || player.hasCooldown(this.getWeapon().getMaterial())) {
             return null;

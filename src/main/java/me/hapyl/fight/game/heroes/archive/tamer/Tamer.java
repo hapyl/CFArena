@@ -4,7 +4,7 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -144,7 +144,7 @@ public class Tamer extends Hero implements Listener, DisabledHero {
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
         final Player player = input.getBukkitPlayer();
-        final GameEntity entity = input.getDamager();
+        final LivingGameEntity entity = input.getDamagerAsLiving();
 
         if (entity == null) {
             return null;

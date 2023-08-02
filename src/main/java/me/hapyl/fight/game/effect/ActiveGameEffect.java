@@ -1,20 +1,18 @@
 package me.hapyl.fight.game.effect;
 
-import me.hapyl.fight.game.entity.EntityData;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.display.StringDisplay;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.player.PlayerEvent;
 
 public class ActiveGameEffect {
 
-    private final GameEntity entity;
+    private final LivingGameEntity entity;
     private final GameEffectType type;
     private int level;
     private int remainingTicks;
 
-    public ActiveGameEffect(GameEntity entity, GameEffectType type, int initTicks) {
+    public ActiveGameEffect(LivingGameEntity entity, GameEffectType type, int initTicks) {
         this.entity = entity;
         this.type = type;
         this.remainingTicks = initTicks;
@@ -23,7 +21,7 @@ public class ActiveGameEffect {
         startTicking();
     }
 
-    public GameEntity getEntity() {
+    public LivingGameEntity getEntity() {
         return entity;
     }
 

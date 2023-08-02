@@ -5,7 +5,7 @@ import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.PlayerElement;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
@@ -167,7 +167,7 @@ public class BlastKnight extends Hero implements DisabledHero, PlayerElement, UI
     public DamageOutput processDamageAsDamager(DamageInput input) {
         final GamePlayer player = input.getPlayer();
         final Horse playerHorse = getPlayerHorse(player.getPlayer());
-        final GameEntity victim = input.getDamager();
+        final LivingGameEntity victim = input.getDamagerAsLiving();
         if (!isUsingUltimate(player.getPlayer()) || playerHorse == null || victim == null || victim == player) {
             return null;
         }

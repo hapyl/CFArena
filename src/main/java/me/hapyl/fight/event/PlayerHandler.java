@@ -6,10 +6,10 @@ import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.attribute.CriticalResponse;
 import me.hapyl.fight.game.attribute.EntityAttributes;
-import me.hapyl.fight.game.entity.EntityData;
 import me.hapyl.fight.game.effect.GameEffectType;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.EntityData;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.parkour.CFParkour;
 import me.hapyl.fight.game.profile.PlayerProfile;
@@ -48,6 +48,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
@@ -235,7 +236,6 @@ public class PlayerHandler implements Listener {
     public static final double RANGE_SCALE = 8.933d;
 
 
-    // FIXME (hapyl): 001, Aug 1: cannot damage
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handleDamage0(EntityDamageEvent ev) {
         final Entity entity = ev.getEntity();
@@ -253,8 +253,16 @@ public class PlayerHandler implements Listener {
             return;
         }
 
-        // Ignore lobby damage
-        if (!Manager.current().isGameInProgress()) {
+        // This is what actually stores all the custom data
+        // needed to handle custom damage/causes.
+        final LivingGameEntity gameEntity = CF.getEntity(livingEntity);
+
+        if (gameEntity == null) {
+            ev.setCancelled(true);
+            return;
+        }
+        // Ignore lobby damage unless game entity
+        else if (!Manager.current().isGameInProgress()) {
             // Don't cancel when falling on slime block for a slime glitch
             if (entity.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() == Material.SLIME_BLOCK) {
                 ev.setDamage(0.0d);
@@ -262,15 +270,6 @@ public class PlayerHandler implements Listener {
             }
 
             processLobbyDamage(entity, cause);
-            ev.setCancelled(true);
-            return;
-        }
-
-        // This is what actually stores all the custom data
-        // needed to handle custom damage/causes.
-        final GameEntity gameEntity = CF.getEntity(livingEntity);
-
-        if (gameEntity == null) {
             ev.setCancelled(true);
             return;
         }
@@ -295,7 +294,8 @@ public class PlayerHandler implements Listener {
         }
 
         // Calculate base damage and find final damager
-        if (ev instanceof EntityDamageByEntityEvent ev2) {
+        if (ev instanceof
+                EntityDamageByEntityEvent ev2) {
             final Entity damager = ev2.getDamager();
 
             // Ignore self-damage for the following
@@ -345,7 +345,7 @@ public class PlayerHandler implements Listener {
 
 
             // Process invisibility
-            final GameEntity lastDamager = data.getLastDamager();
+            final LivingGameEntity lastDamager = data.getLastDamagerAsLiving();
             instance.damager = lastDamager;
 
             if (lastDamager instanceof GamePlayer gamePlayer && gamePlayer.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
@@ -392,7 +392,7 @@ public class PlayerHandler implements Listener {
                     // FIXME (hapyl): 027, May 27, 2023: Player's cannot damage with weakness, convert to GameEffect or use something like UNLUCK
                 }
 
-                // Check for stun and nullity the damage
+                // Check for stun and nullify the damage
                 if (lastDamager.hasEffect(GameEffectType.STUN)) {
                     instance.damage = 0.0d;
                 }
@@ -436,7 +436,7 @@ public class PlayerHandler implements Listener {
         // CALCULATE DAMAGE USING ATTRIBUTES
 
         // Outgoing damage
-        final GameEntity lastDamager = data.getLastDamager();
+        final LivingGameEntity lastDamager = data.getLastDamagerAsLiving();
 
         if (lastDamager != null) {
             final EntityAttributes attributes = lastDamager.getAttributes();
@@ -447,11 +447,20 @@ public class PlayerHandler implements Listener {
         }
 
         // Incoming damage
-        instance.damage = gameEntity.getAttributes().calculateIncomingDamage(instance.damage);
+        final EntityAttributes attributes = gameEntity.getAttributes();
+        instance.damage = attributes.calculateIncomingDamage(instance.damage);
 
         // Don't allow negative damage
         if (instance.damage < 0.0d) {
             instance.damage = 0.0d;
+        }
+
+        // Ferocity
+        if (lastDamager != null) {
+            final EntityAttributes damagerAttributes = lastDamager.getAttributes();
+            final int ferocityStrikes = damagerAttributes.getFerocityStrikes();
+
+            // TODO (hapyl): 003, Aug 3: impl ferocity
         }
 
         // PROCESS HERO EVENTS
@@ -478,13 +487,13 @@ public class PlayerHandler implements Listener {
             instance.fromOutput(lastDamager.onDamageDealt(instance.toInput()));
         }
 
-        // Don't damage players
-        ev.setDamage(instance.damage);
-
         if (instance.isCancel()) {
             ev.setCancelled(true);
             return;
         }
+
+        // Don't actually damage anything, only visually
+        ev.setDamage(0.0d);
 
         // Store data in DamageData
         data.setLastDamage(instance.damage);
@@ -505,23 +514,22 @@ public class PlayerHandler implements Listener {
             }
         }
 
+        final double health = gameEntity.getHealth();
+        gameEntity.decreaseHealth(instance.damage);
+        //
+        //if (instance.damage >= health) {
+        //    ev.setCancelled(true);
+        //}
+
         // Make sure not to kill players but instead
         // put them in spectator mode
         if (gameEntity instanceof GamePlayer player) {
-            final double health = player.getHealth();
 
             // Decrease health
-            player.decreaseHealth(instance.damage);
             player.markCombatTag();
 
             // Progress stats for a victim
             player.getStats().addValue(StatType.DAMAGE_TAKEN, instance.damage);
-
-            // Cancel the event if finishing blow
-            if (instance.damage >= health) {
-                ev.setCancelled(true);
-                return;
-            }
 
             if (Setting.SHOW_DAMAGE_IN_CHAT.isEnabled(player.getPlayer())) {
                 data.notifyChatIncoming(player);
@@ -534,10 +542,38 @@ public class PlayerHandler implements Listener {
                 ev.setCancelled(true);
             }
         }
+
     }
 
+    // A little wonky implementation, but it allows damaging endermen with arrows.
     @EventHandler()
-    public void handleProjectileDamage(ProjectileLaunchEvent ev) {
+    public void handleProjectileEndermenDamage(ProjectileHitEvent ev) {
+        final Projectile projectile = ev.getEntity();
+        final ProjectileSource shooter = projectile.getShooter();
+        final Entity hitEntity = ev.getHitEntity();
+
+        if (!(hitEntity instanceof Enderman enderman)
+                || !(shooter instanceof Player player)
+                || !(projectile instanceof AbstractArrow arrow)) {
+            return;
+        }
+
+        final GamePlayer gamePlayer = CF.getPlayer(player);
+        if (gamePlayer == null) {
+            return;
+        }
+
+        double damage = gamePlayer.getHero().getWeapon().getDamage();
+        if (arrow.isCritical()) {
+            damage *= 1.5d;
+        }
+
+        final LivingGameEntity gameEntity = CF.getEntity(enderman);
+
+        if (gameEntity != null) {
+            ev.setCancelled(true);
+            gameEntity.damage(damage, player, EnumDamageCause.PROJECTILE);
+        }
     }
 
     // I... I don't know what this is...

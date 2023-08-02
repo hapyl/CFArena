@@ -5,7 +5,7 @@ import me.hapyl.fight.Main;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.spigotutils.module.annotate.TestedOn;
@@ -39,16 +39,25 @@ import java.text.DecimalFormat;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 /**
  * Utilities for the plugin
  */
 public class Utils {
 
+    public static final Pattern STRIP_COLOR_PATTERN = Pattern.compile("(?i)" + '&' + "[0-9A-FK-ORX]");
     public static final Object[] DISAMBIGUATE = new Object[] {};
 
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.0");
     private static String SERVER_IP;
+
+    public static String stripColor(String message) {
+        message = ChatColor.stripColor(message);
+        message = STRIP_COLOR_PATTERN.matcher(message).replaceAll("");
+
+        return message;
+    }
 
     public static String colorString(String str, String defColor) {
         final StringBuilder builder = new StringBuilder();
@@ -204,7 +213,7 @@ public class Utils {
         });
     }
 
-    public static void rayTracePath(@Nonnull Location start, @Nonnull Location end, double shift, double searchRange, @Nullable Consumer<GameEntity> funcLiving, @Nullable Consumer<Location> funcLoc) {
+    public static void rayTracePath(@Nonnull Location start, @Nonnull Location end, double shift, double searchRange, @Nullable Consumer<LivingGameEntity> funcLiving, @Nullable Consumer<Location> funcLoc) {
         final double maxDistance = start.distance(end);
         final Vector vector = end.toVector().subtract(start.toVector()).normalize().multiply(shift);
 
@@ -246,7 +255,7 @@ public class Utils {
                 break;
             }
 
-            for (final GameEntity gameEntity : Collect.nearbyEntities(location, 0.5)) {
+            for (final LivingGameEntity gameEntity : Collect.nearbyEntities(location, 0.5)) {
                 if (gameEntity.is(shooter) || gameEntity instanceof Player player && !Manager.current().isPlayerInGame(player)) {
                     continue;
                 }
@@ -366,7 +375,7 @@ public class Utils {
             return false;
         }
 
-        final GameEntity gameEntity = CF.getEntity(livingEntity);
+        final LivingGameEntity gameEntity = CF.getEntity(livingEntity);
         if (gameEntity == null) {
             return false;
         }

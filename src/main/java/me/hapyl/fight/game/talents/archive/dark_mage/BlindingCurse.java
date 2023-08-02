@@ -2,8 +2,7 @@ package me.hapyl.fight.game.talents.archive.dark_mage;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.entity.GameEntity;
-import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.dark_mage.DarkMageSpell;
@@ -59,7 +58,7 @@ public class BlindingCurse extends DarkMageTalent {
 
     @Override
     public Response executeSpell(Player player) {
-        final GameEntity target = Collect.targetEntity(
+        final LivingGameEntity target = Collect.targetEntity(
                 player,
                 maxDistance,
                 0.9d,
@@ -90,7 +89,7 @@ public class BlindingCurse extends DarkMageTalent {
             return null;
         }
 
-        final GameEntity bounce = Collect.nearestEntity(
+        final LivingGameEntity bounce = Collect.nearestEntity(
                 bounced[0].getLocation(),
                 10.0d,
                 living -> {

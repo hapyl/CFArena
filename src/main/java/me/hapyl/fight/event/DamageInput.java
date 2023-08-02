@@ -2,6 +2,7 @@ package me.hapyl.fight.event;
 
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import org.bukkit.entity.Player;
 
@@ -13,13 +14,13 @@ import javax.annotation.Nullable;
  */
 public class DamageInput {
 
-    private final GameEntity entity;
+    private final LivingGameEntity entity;
     private final GameEntity damager;
     private final double damage;
     private final EnumDamageCause cause;
     private final boolean isCrit;
 
-    public DamageInput(GameEntity entity, @Nullable GameEntity damager, @Nullable EnumDamageCause damageCause, double originalDamage, boolean isCrit) {
+    public DamageInput(LivingGameEntity entity, @Nullable GameEntity damager, @Nullable EnumDamageCause damageCause, double originalDamage, boolean isCrit) {
         this.entity = entity;
         this.damager = damager;
         this.damage = originalDamage;
@@ -54,7 +55,7 @@ public class DamageInput {
      * Gets the player, either the player who got hit or the player who is damaging based on the event.
      */
     @Nonnull
-    public GameEntity getEntity() {
+    public LivingGameEntity getEntity() {
         return entity;
     }
 
@@ -98,6 +99,15 @@ public class DamageInput {
      */
     public boolean isCrit() {
         return isCrit;
+    }
+
+    @Nullable
+    public LivingGameEntity getDamagerAsLiving() {
+        if (damager instanceof LivingGameEntity living) {
+            return living;
+        }
+
+        return null;
     }
 
     public static DamageInput clone(DamageInput data, double newDamage) {

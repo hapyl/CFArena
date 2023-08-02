@@ -2,7 +2,7 @@ package me.hapyl.fight.game.heroes.archive.doctor;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
@@ -72,7 +72,7 @@ public class DrEd extends Hero implements UIComponent {
 
                     // Collision Check
                     final Location location = entity.getLocation().add(0.0d, 0.75d, 0.0d);
-                    final GameEntity nearest = Collect.nearestEntity(location, 0.3d, player);
+                    final LivingGameEntity nearest = Collect.nearestEntity(location, 0.3d, player);
 
                     if (nearest != null) {
                         final Material material = shield.getMaterial();

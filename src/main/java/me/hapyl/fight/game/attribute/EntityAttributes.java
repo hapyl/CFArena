@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.attribute;
 
 import me.hapyl.fight.game.PlayerElement;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.ui.display.AttributeDisplay;
 import me.hapyl.fight.trigger.Triggers;
 import me.hapyl.fight.trigger.subscribe.AttributeChangeTrigger;
@@ -10,6 +10,7 @@ import me.hapyl.spigotutils.module.annotate.Super;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
+import java.util.Random;
 
 /**
  * This class stores player attributes that are changeable
@@ -21,12 +22,12 @@ import javax.annotation.Nonnull;
  */
 public class EntityAttributes extends Attributes implements PlayerElement {
 
-    private final GameEntity gameEntity;
+    private final LivingGameEntity gameEntity;
     private final Attributes baseAttributes;
 
     private final AttributeTemperTable tempers;
 
-    public EntityAttributes(GameEntity gameEntity, Attributes baseAttributes) {
+    public EntityAttributes(LivingGameEntity gameEntity, Attributes baseAttributes) {
         this.gameEntity = gameEntity;
         this.baseAttributes = Attributes.copyOf(baseAttributes);
         this.tempers = new AttributeTemperTable();
@@ -48,6 +49,24 @@ public class EntityAttributes extends Attributes implements PlayerElement {
     @Override
     public double get(AttributeType type) {
         return getBase(type) + super.get(type) + tempers.get(type);
+    }
+
+    public final int getFerocityStrikes() {
+        double ferocity = get(AttributeType.FEROCITY);
+        int strikes = 0;
+
+        while (ferocity >= 1) {
+            strikes += 1;
+            ferocity -= 1;
+        }
+
+        if (ferocity > 0.0d) {
+            if (new Random().nextDouble(0.0d, 1.0d) < ferocity) {
+                strikes++;
+            }
+        }
+
+        return strikes;
     }
 
     /**
@@ -171,7 +190,7 @@ public class EntityAttributes extends Attributes implements PlayerElement {
      * @return the game player.
      */
     @Nonnull
-    public GameEntity getGameEntity() {
+    public LivingGameEntity getGameEntity() {
         return gameEntity;
     }
 

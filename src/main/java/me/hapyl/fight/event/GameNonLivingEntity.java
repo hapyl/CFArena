@@ -2,12 +2,12 @@ package me.hapyl.fight.event;
 
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.entity.EntityData;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.entity.LivingEntity;
 
 import javax.annotation.Nonnull;
 
-public class GameNonLivingEntity extends GameEntity {
+public class GameNonLivingEntity extends LivingGameEntity {
     public GameNonLivingEntity(@Nonnull LivingEntity entity) {
         super(entity);
     }

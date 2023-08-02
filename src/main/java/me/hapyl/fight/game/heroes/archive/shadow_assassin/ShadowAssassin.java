@@ -4,7 +4,7 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
@@ -112,7 +112,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
 
     @Nullable
     private LivingEntity getNearestEntity(Player player) {
-        final GameEntity gameEntity = Collect.targetEntity(player, 10, 0.5d, t -> t.hasLineOfSight(player));
+        final LivingGameEntity gameEntity = Collect.targetEntity(player, 10, 0.5d, t -> t.hasLineOfSight(player));
         return gameEntity == null ? null : gameEntity.getEntity();
 
         //final Location location = player.getLocation();
@@ -132,7 +132,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
     }
 
     @Override
-    public boolean processInvisibilityDamage(GamePlayer player, GameEntity entity, double damage) {
+    public boolean processInvisibilityDamage(GamePlayer player, LivingGameEntity entity, double damage) {
         if (player.isSneaking()) {
             player.sendMessage("&cCannot deal damage while in &lDark Cover&c!");
             player.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
@@ -151,7 +151,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
         }
 
         // Calculate back stab
-        final GameEntity gameEntity = input.getDamager();
+        final LivingGameEntity gameEntity = input.getDamagerAsLiving();
         if (gameEntity == null) {
             return null;
         }

@@ -50,7 +50,7 @@ import java.util.Optional;
  * <p>
  * <b>A single instance should exist per game bases and cleared after the game ends.</b>
  */
-public class GamePlayer extends GameEntity {
+public class GamePlayer extends LivingGameEntity {
 
     public static final long COMBAT_TAG_DURATION = 5000L;
 
@@ -151,7 +151,7 @@ public class GamePlayer extends GameEntity {
     }
 
     @Override
-    public void onStop(GameInstance instance) {
+    public void onStop(@Nonnull GameInstance instance) {
         final Heroes hero = getEnumHero();
         final StatContainer stats = getStats();
         final Player player = getEntity();
@@ -182,11 +182,6 @@ public class GamePlayer extends GameEntity {
 
     @Override
     public void onDeath() {
-    }
-
-    @Override
-    public void remove() {
-        // don't remove players
     }
 
     @Override
@@ -374,20 +369,14 @@ public class GamePlayer extends GameEntity {
         return this.ultPoints >= getHero().getUltimate().getCost();
     }
 
-    /**
-     * This should only be called in the calculations, do not call it otherwise.
-     */
-    public void decreaseHealth(double damage) {
-        this.health -= damage;
-        if (this.health <= 0.0d) {
-            this.die(true);
-        }
-
-        this.updateHealth();
-    }
-
     public void updateScoreboardTeams(boolean toLobby) {
         profile.getScoreboardTeams().populate(toLobby);
+    }
+
+    @Override
+    public void decreaseHealth(double damage) {
+        super.decreaseHealth(damage);
+        updateHealth();
     }
 
     public void updateHealth() {

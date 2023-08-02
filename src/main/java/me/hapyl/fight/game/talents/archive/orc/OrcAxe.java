@@ -3,7 +3,7 @@ package me.hapyl.fight.game.talents.archive.orc;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.task.GeometryTask;
@@ -138,7 +138,7 @@ public class OrcAxe extends InputTalent {
                     return;
                 }
 
-                final GameEntity hitEntity = Collect.nearestEntity(location, 1.0d, living -> living.isNot(player));
+                final LivingGameEntity hitEntity = Collect.nearestEntity(location, 1.0d, living -> living.isNot(player));
 
                 if (hitEntity != null) {
                     executeHit(hitEntity.getEyeLocation());

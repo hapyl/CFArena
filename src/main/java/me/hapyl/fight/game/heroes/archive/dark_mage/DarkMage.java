@@ -11,7 +11,7 @@ import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.storage.GroundPunchCosmetic;
 import me.hapyl.fight.game.effect.GameEffectType;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.archive.witcher.WitherData;
@@ -213,7 +213,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
     public DamageOutput processDamageAsVictim(DamageInput input) {
         final ShadowClone talent = getFourthTalent();
         final Player player = input.getPlayer().getPlayer();
-        final GameEntity entity = input.getDamager();
+        final LivingGameEntity entity = input.getDamagerAsLiving();
         final ShadowCloneNPC clone = talent.getClone(player);
 
         // Handle passive
@@ -252,7 +252,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
     public DamageOutput processDamageAsDamager(DamageInput input) {
         final GamePlayer gamePlayer = input.getPlayer();
         final Player player = gamePlayer.getPlayer();
-        final GameEntity entity = input.getDamager();
+        final LivingGameEntity entity = input.getDamagerAsLiving();
 
         // Skip witherboard damage
         if (entity == null || input.getDamageCause() == EnumDamageCause.WITHERBORN) {

@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.attribute;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.spigotutils.module.math.Numbers;
 import org.bukkit.ChatColor;
 
@@ -32,7 +32,7 @@ public enum AttributeType {
     SPEED(
             new Attribute("Speed", "Movement speed of the hero.") {
                 @Override
-                public void update(GameEntity entity, double value) {
+                public void update(LivingGameEntity entity, double value) {
                     if (entity.getWalkSpeed() == value) {
                         return;
                     }
@@ -62,7 +62,7 @@ public enum AttributeType {
             new Attribute("Ferocity", "The change to strike twice.")
                     .setChar("\uD83C\uDF00")
                     .setColor(ChatColor.RED)
-                    .setToString(d -> d + "%"),
+                    .setToString(d -> "%.2f%%".formatted(d * 100.0d)),
             0
     );
 

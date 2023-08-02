@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.annotate.ExplicitEntityValidation;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.team.GameTeam;
@@ -56,14 +56,14 @@ public final class Collect {
      */
     @ExplicitEntityValidation
     @Nullable
-    public static GameEntity targetEntity(@Nonnull Player player, double radius, double dot, @Nullable Predicate<GameEntity> predicate) {
-        final List<GameEntity> nearbyEntities = nearbyEntities(player.getLocation(), radius);
+    public static LivingGameEntity targetEntity(@Nonnull Player player, double radius, double dot, @Nullable Predicate<LivingGameEntity> predicate) {
+        final List<LivingGameEntity> nearbyEntities = nearbyEntities(player.getLocation(), radius);
         final Vector casterDirection = player.getLocation().getDirection().normalize();
 
         double closestDot = 0.0d;
-        GameEntity closestEntity = null;
+        LivingGameEntity closestEntity = null;
 
-        for (GameEntity entity : nearbyEntities) {
+        for (LivingGameEntity entity : nearbyEntities) {
             // Test Predicate
             if ((!entity.isValid(player)) || (predicate != null && !predicate.test(entity))) {
                 continue;
@@ -115,7 +115,7 @@ public final class Collect {
      */
     @ExplicitEntityValidation
     @Nullable
-    public static GameEntity targetEntity(@Nonnull Player player, double maxDistance, @Nonnull Predicate<GameEntity> predicate) {
+    public static LivingGameEntity targetEntity(@Nonnull Player player, double maxDistance, @Nonnull Predicate<LivingGameEntity> predicate) {
         final Location location = player.getLocation().add(0, 1.5, 0);
         final Vector vector = location.getDirection().normalize();
         final float radius = 1.25f;
@@ -126,7 +126,7 @@ public final class Collect {
             final double z = vector.getZ() * i;
             location.add(x, y, z);
 
-            for (final GameEntity entity : nearbyEntities(location, radius)) {
+            for (final LivingGameEntity entity : nearbyEntities(location, radius)) {
                 if (!entity.hasLineOfSight(player) || !predicate.test(entity)) {
                     continue;
                 }
@@ -184,7 +184,7 @@ public final class Collect {
      */
     @ExplicitEntityValidation
     @Nullable
-    public static GameEntity nearestEntity(@Nonnull Location location, double radius, @Nonnull Player player) {
+    public static LivingGameEntity nearestEntity(@Nonnull Location location, double radius, @Nonnull Player player) {
         return nearestEntityRaw(location, radius, entity -> {
             if (!(entity instanceof LivingEntity)) {
                 return false;
@@ -204,8 +204,8 @@ public final class Collect {
      */
     @ExplicitEntityValidation
     @Nullable
-    public static GameEntity nearestEntityPrioritizePlayers(@Nonnull Location location, double radius, @Nonnull Predicate<GameEntity> predicate) {
-        final GameEntity nearestPlayer = nearestEntity(
+    public static LivingGameEntity nearestEntityPrioritizePlayers(@Nonnull Location location, double radius, @Nonnull Predicate<LivingGameEntity> predicate) {
+        final LivingGameEntity nearestPlayer = nearestEntity(
                 location,
                 radius,
                 check -> check instanceof Player && predicate.test(check)
@@ -227,7 +227,7 @@ public final class Collect {
      */
     @ExplicitEntityValidation
     @Nonnull
-    public static List<GameEntity> nearbyEntities(@Nonnull Player player, double radius) {
+    public static List<LivingGameEntity> nearbyEntities(@Nonnull Player player, double radius) {
         return nearbyEntities(player.getLocation(), radius).stream()
                 .filter(entity -> !entity.is(player) && entity.isValid(player))
                 .collect(Collectors.toList());
@@ -248,7 +248,7 @@ public final class Collect {
     @ExplicitEntityValidation
     @Nonnull
     @Deprecated
-    public static List<GameEntity> nearbyLivingEntitiesValidate(@Nonnull Location location, double radius) {
+    public static List<LivingGameEntity> nearbyLivingEntitiesValidate(@Nonnull Location location, double radius) {
         return nearbyEntities(location, radius); // validated by default
     }
 
@@ -281,7 +281,7 @@ public final class Collect {
      */
     @ExplicitEntityValidation
     @Nonnull
-    public static List<GameEntity> nearbyEntities(@Nonnull Location location, double radius, @Nonnull Predicate<GameEntity> filter) {
+    public static List<LivingGameEntity> nearbyEntities(@Nonnull Location location, double radius, @Nonnull Predicate<LivingGameEntity> filter) {
         return nearbyEntities(location, radius).stream().filter(filter).collect(Collectors.toList());
     }
 
@@ -294,9 +294,9 @@ public final class Collect {
      */
     @ExplicitEntityValidation
     @Nonnull
-    public static List<GameEntity> nearbyEntities(@Nonnull Location location, double radius) {
+    public static List<LivingGameEntity> nearbyEntities(@Nonnull Location location, double radius) {
         final World world = location.getWorld();
-        final List<GameEntity> entities = Lists.newArrayList();
+        final List<LivingGameEntity> entities = Lists.newArrayList();
 
         if (world == null) {
             return entities;
@@ -323,7 +323,7 @@ public final class Collect {
      * @param filter   - Filter.
      * @return the nearest living entity; or null if none.
      */
-    public static GameEntity nearestEntity(@Nonnull Location location, double radius, @Nonnull Predicate<GameEntity> filter) {
+    public static LivingGameEntity nearestEntity(@Nonnull Location location, double radius, @Nonnull Predicate<LivingGameEntity> filter) {
         return nearestEntityRaw(location, radius, test -> {
             if (!(test instanceof LivingEntity)) {
                 return false;
@@ -371,7 +371,7 @@ public final class Collect {
      * @return the nearest entity; or null if none.
      */
     @Nullable
-    public static GameEntity nearestEntityRaw(@Nonnull Location location, double radius, @Nonnull Predicate<GameEntity> predicate) {
+    public static LivingGameEntity nearestEntityRaw(@Nonnull Location location, double radius, @Nonnull Predicate<LivingGameEntity> predicate) {
         if (location.getWorld() == null) {
             throw new NullPointerException("unloaded world");
         }

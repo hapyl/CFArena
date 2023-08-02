@@ -7,10 +7,7 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.cosmetic.skin.SkinEffectManager;
-import me.hapyl.fight.game.entity.ConsumerFunction;
-import me.hapyl.fight.game.entity.EntityData;
-import me.hapyl.fight.game.entity.GameEntity;
-import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.*;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.heroes.ComplexHero;
 import me.hapyl.fight.game.heroes.Hero;
@@ -31,6 +28,7 @@ import me.hapyl.fight.game.weapons.RangeWeapon;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.EternaPlugin;
+import me.hapyl.spigotutils.module.annotate.Super;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Tick;
@@ -39,6 +37,7 @@ import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import me.hapyl.spigotutils.module.util.DependencyInjector;
 import org.bukkit.*;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -54,6 +53,7 @@ import java.util.stream.Collectors;
 
 public final class Manager extends DependencyInjector<Main> {
 
+    public final Set<UUID> ignoredEntities;
     private final Map<UUID, GameEntity> entities;
     private final Map<UUID, PlayerProfile> profiles;
     private final SkinEffectManager skinEffectManager;
@@ -70,6 +70,7 @@ public final class Manager extends DependencyInjector<Main> {
     public Manager(Main main) {
         super(main);
 
+        ignoredEntities = Sets.newHashSet();
         entities = Maps.newConcurrentMap();
         profiles = Maps.newConcurrentMap();
 
@@ -102,6 +103,18 @@ public final class Manager extends DependencyInjector<Main> {
                 createNewGameInstance();
             }
         };
+    }
+
+    public void addIgnored(LivingEntity entity) {
+        ignoredEntities.add(entity.getUniqueId());
+    }
+
+    public void removeIgnored(LivingEntity entity) {
+        ignoredEntities.remove(entity.getUniqueId());
+    }
+
+    public boolean isIgnored(LivingEntity entity) {
+        return ignoredEntities.contains(entity.getUniqueId());
     }
 
     @Nullable
@@ -146,22 +159,38 @@ public final class Manager extends DependencyInjector<Main> {
         return profile;
     }
 
+    /**
+     * Creates an entity based on the living entity type.
+     * <p>
+     * For some entities such as arrows, there is no need for
+     * damage and entity data to be present, and only the base is needed.
+     *
+     * @param entity - Entity.
+     */
+    @Nonnull
     public GameEntity createEntity(@Nonnull LivingEntity entity) {
-        return createEntity(entity, e -> new GameEntity(entity));
+        final EntityType type = entity.getType();
+
+        return switch (type) {
+            case ARROW, SPECTRAL_ARROW -> createEntity(entity, GameEntity::new);
+            default -> createEntity(entity, LivingGameEntity::new);
+        };
     }
 
+    @Nonnull
+    @Super
     public <T extends GameEntity> T createEntity(@Nonnull LivingEntity entity, ConsumerFunction<LivingEntity, T> consumer) {
         final UUID uuid = entity.getUniqueId();
+
+        if (entities.containsKey(uuid)) {
+            throw new IllegalArgumentException("duplicate entity creation");
+        }
+
         final T gameEntity = consumer.apply(entity);
         consumer.andThen(gameEntity);
 
-        final GameEntity oldEntity = entities.put(uuid, gameEntity);
-
-        if (oldEntity != null) {
-            oldEntity.remove();
-        }
-
         entities.put(uuid, gameEntity);
+        ignoredEntities.remove(uuid);
         return gameEntity;
     }
 
@@ -177,8 +206,8 @@ public final class Manager extends DependencyInjector<Main> {
     }
 
     @Nullable
-    public GameEntity getEntity(UUID uuid) {
-        return getEntity(uuid, GameEntity.class);
+    public LivingGameEntity getEntity(UUID uuid) {
+        return getEntity(uuid, LivingGameEntity.class);
     }
 
     public GamePlayer getOrCreatePlayer(Player player) {
@@ -202,25 +231,6 @@ public final class Manager extends DependencyInjector<Main> {
 
         entities.put(uuid, gamePlayer);
         return gamePlayer;
-    }
-
-    @Nonnull
-    public GameEntity getOrCreateEntity(LivingEntity entity) {
-        final UUID uuid = entity.getUniqueId();
-        final GameEntity existing = getEntity(uuid);
-
-        if (existing != null) {
-            return existing;
-        }
-
-        final GameEntity newInstance = new GameEntity(entity);
-        final GameEntity oldInstance = entities.put(uuid, newInstance);
-
-        if (oldInstance != null) {
-            oldInstance.remove();
-        }
-
-        return newInstance;
     }
 
     public void allProfiles(Consumer<PlayerProfile> consumer) {
@@ -500,10 +510,6 @@ public final class Manager extends DependencyInjector<Main> {
 
         gameInstance.calculateEverything();
 
-        // remove game entities
-        entities.values().forEach(gameEntity -> gameEntity.onStop(this.gameInstance));
-        entities.clear();
-
         this.gameInstance.onStop();
         this.gameInstance.setGameState(State.POST_GAME);
 
@@ -547,8 +553,11 @@ public final class Manager extends DependencyInjector<Main> {
             value.onStop();
         }
 
-        // remove temp entities
+        // remove entities
         Entities.killSpawned();
+
+        entities.forEach((uuid, entity) -> entity.onStop(this.gameInstance));
+        entities.clear();
 
         if (isDebug) {
             onStop();
@@ -768,11 +777,24 @@ public final class Manager extends DependencyInjector<Main> {
             return;
         }
 
-        gameEntity.remove();
+        //gameEntity.remove();
     }
 
     public Set<GameEntity> getEntities() {
         return Sets.newHashSet(entities.values());
+    }
+
+    @Nonnull
+    public <T extends GameEntity> Set<T> getEntities(Class<T> clazz) {
+        final Set<T> entities = Sets.newHashSet();
+
+        this.entities.forEach((uuid, entity) -> {
+            if (clazz.isInstance(entity)) {
+                entities.add(clazz.cast(entity));
+            }
+        });
+
+        return entities;
     }
 
     public Set<GameEntity> getEntitiesExcludePlayers() {
@@ -780,6 +802,10 @@ public final class Manager extends DependencyInjector<Main> {
         entities.removeIf(entity -> entities instanceof GamePlayer);
 
         return entities;
+    }
+
+    public boolean isEntity(LivingEntity living) {
+        return entities.containsKey(living.getUniqueId());
     }
 
     private Heroes getSelectedLobbyHero(Player player) {

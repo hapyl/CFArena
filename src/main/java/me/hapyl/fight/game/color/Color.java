@@ -24,6 +24,8 @@ public class Color {
     public static final Color MODERATOR = new Color("#119905");
     public static final Color ADMIN = new Color("#CC0826");
 
+    public static final Color DARK_PURPLE = new Color("#6A0DAD");
+
     public final ChatColor color;
     private ColorFlag[] flags;
 

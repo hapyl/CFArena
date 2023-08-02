@@ -10,6 +10,7 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.archive.ender.Ender;
 import me.hapyl.fight.game.heroes.archive.moonwalker.Moonwalker;
@@ -489,7 +490,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      * @param damage - Damage dealt.
      * @return true to cancel damage, false to allow.
      */
-    public boolean processInvisibilityDamage(GamePlayer player, GameEntity entity, double damage) {
+    public boolean processInvisibilityDamage(GamePlayer player, LivingGameEntity entity, double damage) {
         player.sendMessage("&cCannot deal damage while invisible!");
         return true;
     }

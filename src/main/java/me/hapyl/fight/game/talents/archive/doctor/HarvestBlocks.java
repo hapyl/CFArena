@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.archive.doctor.ElementType;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
@@ -186,7 +186,7 @@ public class HarvestBlocks extends Talent {
                     return;
                 }
 
-                final GameEntity nearestEntity = Collect.nearestEntity(location, 1.5d, player);
+                final LivingGameEntity nearestEntity = Collect.nearestEntity(location, 1.5d, player);
                 final Location fixedLocation = entity.getLocation().add(0.0d, 1.5d, 0.0d);
 
                 if (fixedLocation.getBlock().getType().isOccluding()) {

@@ -1,8 +1,7 @@
 package me.hapyl.fight.game.talents.archive.freazly;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.game.entity.GameEntity;
-import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.CreationTalent;
 import me.hapyl.fight.game.talents.TickingCreation;
@@ -20,7 +19,6 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Ageable;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
@@ -69,7 +67,7 @@ public class IceBarrier extends CreationTalent {
 
             @Override
             public void run(int tick) {
-                for (GameEntity entity : Collect.nearbyEntities(location, radius)) {
+                for (LivingGameEntity entity : Collect.nearbyEntities(location, radius)) {
                     if (entity.is(player)) {
                         entity.heal(healingPerTick);
                     }

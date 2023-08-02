@@ -4,7 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.task.GameTask;
@@ -23,7 +23,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Skull;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -133,7 +132,7 @@ public class ActiveElement {
                         return;
                     }
 
-                    final List<GameEntity> players = Collect.nearbyEntities(ActiveElement.this.entity.getLocation(), 1.0d);
+                    final List<LivingGameEntity> players = Collect.nearbyEntities(ActiveElement.this.entity.getLocation(), 1.0d);
                     if (players.isEmpty()) {
                         return;
                     }

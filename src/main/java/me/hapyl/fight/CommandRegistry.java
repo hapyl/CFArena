@@ -19,8 +19,9 @@ import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.Temper;
 import me.hapyl.fight.game.cosmetic.CosmeticCollection;
 import me.hapyl.fight.game.cosmetic.crate.Crates;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GameEntities;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.dark_mage.AnimatedWither;
 import me.hapyl.fight.game.heroes.archive.doctor.ElementType;
@@ -138,6 +139,27 @@ public class CommandRegistry extends DependencyInjector<Main> {
         register(new SnakeBuilderCommand("snakeBuilder"));
         register(new CrateCommandCommand("crate"));
         register(new GlobalConfigCommand("globalConfig"));
+
+        register(new SimplePlayerAdminCommand("entity") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                final GameEntities entity = getArgument(args, 0).toEnum(GameEntities.class);
+
+                if (entity == null) {
+                    Chat.sendMessage(player, "&cInvalid entity!");
+                    return;
+                }
+
+                entity.spawn(player.getLocation());
+                Chat.sendMessage(player, "&aSpawned %s!", entity.type);
+            }
+
+            @Nullable
+            @Override
+            protected List<String> tabComplete(CommandSender sender, String[] args) {
+                return completerSort(GameEntities.values(), args);
+            }
+        });
 
         register(new SimplePlayerCommand("cancelCountdown") {
             @Override
@@ -872,7 +894,7 @@ public class CommandRegistry extends DependencyInjector<Main> {
         register(new SimplePlayerAdminCommand("debugDamageData") {
             @Override
             protected void execute(Player player, String[] strings) {
-                final GameEntity targetEntity = Collect.targetEntity(player, 20.0d, 0.9d, e -> e.isNot(player));
+                final LivingGameEntity targetEntity = Collect.targetEntity(player, 20.0d, 0.9d, e -> e.isNot(player));
 
                 if (targetEntity == null) {
                     Chat.sendMessage(player, CF.getPlayer(player).getData());

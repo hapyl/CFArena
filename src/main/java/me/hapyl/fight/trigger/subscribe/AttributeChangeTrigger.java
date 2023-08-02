@@ -1,7 +1,7 @@
 package me.hapyl.fight.trigger.subscribe;
 
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.trigger.EntityTrigger;
 
 public class AttributeChangeTrigger extends EntityTrigger {
@@ -19,7 +19,7 @@ public class AttributeChangeTrigger extends EntityTrigger {
      */
     public final double newValue;
 
-    public AttributeChangeTrigger(GameEntity entity, AttributeType type, double oldValue, double newValue) {
+    public AttributeChangeTrigger(LivingGameEntity entity, AttributeType type, double oldValue, double newValue) {
         super(entity);
         this.type = type;
         this.oldValue = oldValue;

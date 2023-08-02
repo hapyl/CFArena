@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.effect.archive;
 
 import me.hapyl.fight.game.effect.GameEffect;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.potion.PotionEffectType;
 
 public class SlowingAuraEffect extends GameEffect {
@@ -15,16 +15,16 @@ public class SlowingAuraEffect extends GameEffect {
     }
 
     @Override
-    public void onStart(GameEntity entity) {
+    public void onStart(LivingGameEntity entity) {
         entity.addPotionEffect(PotionEffectType.SLOW, 10000, 1);
     }
 
     @Override
-    public void onStop(GameEntity entity) {
+    public void onStop(LivingGameEntity entity) {
         entity.removePotionEffect(PotionEffectType.SLOW);
     }
 
     @Override
-    public void onTick(GameEntity entity, int tick) {
+    public void onTick(LivingGameEntity entity, int tick) {
     }
 }

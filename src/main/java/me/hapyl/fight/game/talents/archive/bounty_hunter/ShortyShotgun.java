@@ -1,10 +1,8 @@
 package me.hapyl.fight.game.talents.archive.bounty_hunter;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.entity.GameEntity;
-import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.Talent;
@@ -16,7 +14,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -103,7 +100,7 @@ public class ShortyShotgun extends Talent {
 
         for (double d = 0; d < maxDistance; d += 0.25) {
             final Location location = playerEyeLocation.clone().add(direction.clone().multiply(d));
-            final GameEntity entity = Collect.nearestEntity(location, 1.0d, player);
+            final LivingGameEntity entity = Collect.nearestEntity(location, 1.0d, player);
 
             // Had to put fx here since breaking
             player.getWorld().spawnParticle(Particle.BLOCK_CRACK, location, 1, Material.COAL_BLOCK.createBlockData());

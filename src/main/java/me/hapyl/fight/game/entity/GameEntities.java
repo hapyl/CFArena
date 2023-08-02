@@ -1,44 +1,40 @@
 package me.hapyl.fight.game.entity;
 
-import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.entity.custom.Abobo;
+import me.hapyl.fight.game.entity.custom.AngryPiglin;
+import me.hapyl.fight.game.entity.custom.Voidgloom;
+import me.hapyl.fight.game.entity.custom.WardenDefender;
 import org.bukkit.Location;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Pig;
+import org.bukkit.entity.PigZombie;
 import org.bukkit.entity.Zombie;
 
 import javax.annotation.Nonnull;
 
-// Stores both custom and vanilla entity types
+// Stores both custom entity types
 public enum GameEntities {
 
-    // Custom
+    // Test entities
+    PIGGY(GameEntityType.of("Piggy", Pig.class)),
+    ZOMBOO(GameEntityType.of("Zomboo", Zombie.class).setType(EntityType.HOSTILE)),
+    PIGMEME(GameEntityType.of("Pigmeme", PigZombie.class).setType(EntityType.PASSIVE)),
+    ABOBO(new Abobo()),
 
+    WARDEN_DEFENDER(new WardenDefender()),
+    VOIDGLOOM(new Voidgloom()),
+    ANGRY_PIGLIN(new AngryPiglin()),
 
-    // Vanilla
-    ZOMBIE(GameEntityType.of(Zombie.class)),
     ;
 
-    private final GameEntityType<?> type;
+    public final GameEntityType<?> type;
 
     GameEntities(GameEntityType<?> clazz) {
         this.type = clazz;
     }
 
     @Nonnull
-    public final GameEntity spawn(@Nonnull Location location) {
-        final LivingEntity entity = type.spawn(location);
-
-        return Manager.current().createEntity(entity, new ConsumerFunction<LivingEntity, LivingGameEntity>() {
-            @Nonnull
-            @Override
-            public LivingGameEntity apply(LivingEntity entity) {
-                return new LivingGameEntity(entity);
-            }
-
-            @Override
-            public void andThen(LivingGameEntity livingGameEntity) {
-                type.onSpawn(livingGameEntity);
-            }
-        });
+    public final LivingGameEntity spawn(@Nonnull Location location) {
+        return type.create0(location);
     }
 
 }

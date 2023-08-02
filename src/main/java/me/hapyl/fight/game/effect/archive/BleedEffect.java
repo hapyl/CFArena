@@ -1,10 +1,8 @@
 package me.hapyl.fight.game.effect.archive;
 
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.entity.EntityData;
 import me.hapyl.fight.game.effect.GameEffect;
-import me.hapyl.fight.game.entity.GameEntity;
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 
@@ -18,17 +16,17 @@ public class BleedEffect extends GameEffect {
     }
 
     @Override
-    public void onStart(GameEntity entity) {
+    public void onStart(LivingGameEntity entity) {
         entity.sendMessage("&c&l∲ &7You are bleeding!");
     }
 
     @Override
-    public void onStop(GameEntity entity) {
+    public void onStop(LivingGameEntity entity) {
         entity.sendMessage("&c&l∲ &aThe bleeding has stopped!");
     }
 
     @Override
-    public void onTick(GameEntity entity, int tick) {
+    public void onTick(LivingGameEntity entity, int tick) {
         if (tick == 0) {
             entity.damage(damage, EnumDamageCause.BLEED);
             entity.getWorld()

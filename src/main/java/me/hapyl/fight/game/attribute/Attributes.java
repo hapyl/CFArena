@@ -58,11 +58,11 @@ public class Attributes {
     }
 
     public void setAttack(double value) {
-        setValueScaled(AttributeType.ATTACK, 100);
+        setValueScaled(AttributeType.ATTACK, value);
     }
 
     public void setDefense(double value) {
-        checkValue(value);
+        setValueScaled(AttributeType.DEFENSE, value);
     }
 
     public void setValue(AttributeType type, double value) {
@@ -70,7 +70,7 @@ public class Attributes {
     }
 
     public void setValueScaled(AttributeType type, double value) {
-        setValue(type, value * 100);
+        setValue(type, value / 100);
     }
 
     /**

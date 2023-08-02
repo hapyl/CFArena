@@ -5,7 +5,7 @@ import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.achievement.Achievements;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
@@ -107,7 +107,7 @@ public class Troll extends Hero implements Listener {
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
         if (Math.random() >= 0.98) {
-            final GameEntity entity = input.getDamager();
+            final LivingGameEntity entity = input.getDamagerAsLiving();
             final GamePlayer killer = input.getPlayer();
 
             if (entity == null) {

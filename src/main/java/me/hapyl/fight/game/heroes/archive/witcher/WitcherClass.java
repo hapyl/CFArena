@@ -3,7 +3,7 @@ package me.hapyl.fight.game.heroes.archive.witcher;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.PlayerElement;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -96,7 +96,7 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
     public DamageOutput processDamageAsDamager(DamageInput input) {
         final Player player = input.getBukkitPlayer();
         final Combo combo = getCombo(player);
-        final GameEntity entity = input.getDamager();
+        final LivingGameEntity entity = input.getDamagerAsLiving();
 
         double damage = input.getDamage();
 

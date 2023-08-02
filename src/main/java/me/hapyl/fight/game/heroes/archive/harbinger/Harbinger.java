@@ -6,6 +6,7 @@ import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
@@ -77,7 +78,7 @@ public class Harbinger extends Hero implements Listener, UIComponent {
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
         final Player player = input.getBukkitPlayer();
-        final GameEntity entity = input.getDamager();
+        final LivingGameEntity entity = input.getDamagerAsLiving();
 
         if (entity == null || !Talents.STANCE.getTalent(MeleeStance.class).isActive(player)) {
             return null;
@@ -95,7 +96,7 @@ public class Harbinger extends Hero implements Listener, UIComponent {
         }
 
         final Player player = input.getBukkitPlayer();
-        final GameEntity entity = input.getDamager();
+        final LivingGameEntity entity = input.getDamagerAsLiving();
 
         if (entity != null) {
             executeRiptideSlashIfPossible(player, entity.getEntity());

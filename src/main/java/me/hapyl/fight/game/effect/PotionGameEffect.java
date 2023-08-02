@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.effect;
 
 import com.google.common.collect.Maps;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffectType;
 
@@ -28,7 +28,7 @@ public abstract class PotionGameEffect extends GameEffect {
     public abstract void onStopAfter(@Nonnull LivingEntity entity);
 
     @Override
-    public final void onStart(GameEntity entity) {
+    public final void onStart(LivingGameEntity entity) {
         dataMap.forEach((type, level) -> {
             entity.addPotionEffect(type.createEffect(999999/* Pretty sure Integer.MAX_VALUE is too big. */, level));
         });
@@ -37,7 +37,7 @@ public abstract class PotionGameEffect extends GameEffect {
     }
 
     @Override
-    public final void onStop(GameEntity entity) {
+    public final void onStop(LivingGameEntity entity) {
         dataMap.forEach((type, level) -> {
             entity.removePotionEffect(type);
         });

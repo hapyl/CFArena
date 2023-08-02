@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.archive.taker;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -16,7 +16,6 @@ import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
@@ -93,7 +92,7 @@ public class DeathSwap extends Talent {
             return Response.error("Not enough &lSpiritual Bones&c!");
         }
 
-        final GameEntity target = Collect.targetEntity(player, 50.0d, 0.85d, entity -> true);
+        final LivingGameEntity target = Collect.targetEntity(player, 50.0d, 0.85d, entity -> true);
 
         if (target == null) {
             return Response.error("No target found!");

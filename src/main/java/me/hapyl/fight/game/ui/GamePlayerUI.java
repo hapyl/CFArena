@@ -5,7 +5,9 @@ import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.database.entry.CurrencyEntry;
-import me.hapyl.fight.game.*;
+import me.hapyl.fight.game.GameInstance;
+import me.hapyl.fight.game.IGameInstance;
+import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.attribute.Attributes;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.effect.GameEffect;
@@ -22,6 +24,7 @@ import me.hapyl.spigotutils.module.math.nn.IntInt;
 import me.hapyl.spigotutils.module.player.song.Song;
 import me.hapyl.spigotutils.module.player.song.SongPlayer;
 import me.hapyl.spigotutils.module.scoreboard.Scoreboarder;
+import net.minecraft.server.MinecraftServer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -303,8 +306,15 @@ public class GamePlayerUI {
 
         footer.append("\n&ehapyl.github.io/classes_fight");
 
+        //"\n&e&lCLASSES FIGHT\n&c&lᴀʀᴇɴᴀ\n\n&fTotal Players: &l" + Bukkit.getOnlinePlayers().size()
         return new String[] {
-                "\n&e&lCLASSES FIGHT\n&c&lᴀʀᴇɴᴀ\n\n&fTotal Players: &l" + Bukkit.getOnlinePlayers().size(), footer.toString()
+                """
+                                       
+                        &e&lCLASSES FIGHT
+                        &c&lᴀʀᴇɴᴀ
+                                                
+                        &fTotal Players: &l%s&f, Server TPS: &l%.1f
+                        """.formatted(Bukkit.getOnlinePlayers().size(), MinecraftServer.getServer().recentTps[0]), footer.toString()
         };
     }
 }

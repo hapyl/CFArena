@@ -3,7 +3,7 @@ package me.hapyl.fight.game.heroes.archive.iceologer;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.effect.GameEffectType;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
@@ -67,7 +67,7 @@ public class Freazly extends Hero implements DisabledHero {
                     }
 
                     public void onHit(LivingEntity entity) {
-                        final GameEntity gameEntity = CF.getEntity(entity);
+                        final LivingGameEntity gameEntity = CF.getEntity(entity);
 
                         if (gameEntity == null) {
                             return;
@@ -83,7 +83,7 @@ public class Freazly extends Hero implements DisabledHero {
                         PlayerLib.spawnParticle(location, Particle.SNOWBALL, 1, 0, 0, 0, 0.025f);
 
                         // Damage detection
-                        final GameEntity collision = Collect.nearestEntity(location, 0.75d, entity -> entity.isNot(player));
+                        final LivingGameEntity collision = Collect.nearestEntity(location, 0.75d, entity -> entity.isNot(player));
                         if (collision != null) {
                             onHit(collision.getEntity());
                             return true;

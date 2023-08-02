@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.archive.tamer;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.task.GameTask;
@@ -254,7 +254,7 @@ public enum TamerPacks {
                 return;
             }
 
-            final GameEntity target = Collect.nearestEntity(guardian.getLocation(), 10.0d, living ->
+            final LivingGameEntity target = Collect.nearestEntity(guardian.getLocation(), 10.0d, living ->
                     living.isNot(player) && !pack.isInPack(living.getEntity()) && living.hasLineOfSight(guardian));
 
             if (target == null) {

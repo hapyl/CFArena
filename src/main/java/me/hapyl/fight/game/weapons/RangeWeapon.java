@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GameElement;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
@@ -304,7 +304,7 @@ public abstract class RangeWeapon extends Weapon implements GameElement, UICompo
                 break;
             }
 
-            for (final GameEntity target : Collect.nearbyEntities(location, 0.5d)) {
+            for (final LivingGameEntity target : Collect.nearbyEntities(location, 0.5d)) {
                 final LivingEntity targetEntity = target.getEntity();
                 if (target.is(player) || !predicateEntity(targetEntity)) {
                     continue;

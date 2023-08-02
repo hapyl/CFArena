@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.archive.bounty_hunter;
 
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.Talents;
@@ -121,7 +121,7 @@ public class GrappleHook {
                     return;
                 }
 
-                final GameEntity nearest = Collect.nearestEntity(location, 1.5d, player);
+                final LivingGameEntity nearest = Collect.nearestEntity(location, 1.5d, player);
 
                 if (nearest != null) {
                     hookedEntity = nearest.getEntity();

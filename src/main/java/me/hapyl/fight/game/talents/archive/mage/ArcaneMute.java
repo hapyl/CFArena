@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.archive.mage;
 
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
@@ -48,7 +48,7 @@ public class ArcaneMute extends Talent {
     }
 
     public Entity targetEntityChatGPT(Player player, int range) {
-        final GameEntity gameEntity = Collect.targetEntity(
+        final LivingGameEntity gameEntity = Collect.targetEntity(
                 player,
                 range,
                 0.95,

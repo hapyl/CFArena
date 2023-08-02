@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.effect.archive;
 
 import me.hapyl.fight.game.effect.GameEffect;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.LivingEntity;
 
@@ -19,18 +19,18 @@ public class Immovable extends GameEffect {
     }
 
     @Override
-    public void onTick(GameEntity entity, int tick) {
+    public void onTick(LivingGameEntity entity, int tick) {
 
     }
 
     @Override
-    public void onStart(GameEntity entity) {
+    public void onStart(LivingGameEntity entity) {
         oldValue.put(entity.getEntity(), entity.getAttributeValue(Attribute.GENERIC_KNOCKBACK_RESISTANCE));
         entity.setAttributeValue(Attribute.GENERIC_KNOCKBACK_RESISTANCE, 1.0d);
     }
 
     @Override
-    public void onStop(GameEntity gameEntity) {
+    public void onStop(LivingGameEntity gameEntity) {
         final LivingEntity entity = gameEntity.getEntity();
 
         final Double value = oldValue.remove(entity);

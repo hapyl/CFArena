@@ -5,7 +5,7 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.Temper;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
@@ -88,7 +88,7 @@ public class ArrowShield extends Talent implements Listener {
     }
 
     public void createExplosion(Player player, Location location) {
-        final List<GameEntity> livingEntities = Collect.nearbyEntities(location, explosionRadius, lv -> lv.isNot(player));
+        final List<LivingGameEntity> livingEntities = Collect.nearbyEntities(location, explosionRadius, lv -> lv.isNot(player));
 
         livingEntities.forEach(entity -> {
             if (entity instanceof Player target) {

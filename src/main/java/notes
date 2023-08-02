@@ -120,6 +120,8 @@ default game entity.
 
 - "entity instanceof Player" is gonna throw a lot of errors...
 
+- Rejoining seems to be broken (ult does not recharge)
+
 ############################
 
 - Maybe genshin slowing aura for freazly

@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.archive.tamer;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
@@ -208,7 +208,7 @@ public class TamerPack {
      */
     @Nullable
     public LivingEntity findNearestTarget() {
-        final GameEntity nearest = Collect.nearestEntityPrioritizePlayers(
+        final LivingGameEntity nearest = Collect.nearestEntityPrioritizePlayers(
                 getLocation(),
                 maxDistance,
                 e -> !isInPack(e.getEntity()) && e.isNot(player)

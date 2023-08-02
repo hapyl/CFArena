@@ -2,7 +2,7 @@ package me.hapyl.fight.game.effect.archive;
 
 import me.hapyl.fight.game.effect.EffectParticle;
 import me.hapyl.fight.game.effect.GameEffect;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
 import me.hapyl.spigotutils.module.util.ThreadRandom;
 import org.bukkit.*;
@@ -32,7 +32,7 @@ public class ParanoiaEffect extends GameEffect {
     }
 
     @Override
-    public void onTick(GameEntity entity, int tick) {
+    public void onTick(LivingGameEntity entity, int tick) {
         // Plays a sound every 20 ticks or with 10% chance
         if (tick == 0 || Math.random() >= 0.9d) {
             // Display paranoia for all players but the viewer
@@ -61,12 +61,12 @@ public class ParanoiaEffect extends GameEffect {
     }
 
     @Override
-    public void onStart(GameEntity entity) {
+    public void onStart(LivingGameEntity entity) {
         entity.addPotionEffect(PotionEffectType.DARKNESS.createEffect(99999, 1));
     }
 
     @Override
-    public void onStop(GameEntity entity) {
+    public void onStop(LivingGameEntity entity) {
         // This needed for smooth fade-out
         entity.removePotionEffect(PotionEffectType.DARKNESS);
         entity.addPotionEffect(PotionEffectType.BLINDNESS.createEffect(20, 1));

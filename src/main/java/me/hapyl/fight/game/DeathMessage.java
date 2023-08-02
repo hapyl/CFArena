@@ -86,11 +86,11 @@ public record DeathMessage(String message, String damagerSuffix) {
             final ProjectileSource shooter = projectile.getShooter();
 
             if (shooter instanceof LivingEntity livingShooter) {
-                return livingShooter.getName() + "'s " + gameEntity.getName();
+                return livingShooter.getName() + "'s " + gameEntity.getNameUnformatted();
             }
         }
 
-        return gameEntity.getName();
+        return gameEntity.getNameUnformatted();
     }
 
     public static DeathMessage of(String message, String suffix) {

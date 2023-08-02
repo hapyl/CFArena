@@ -2,7 +2,7 @@ package me.hapyl.fight.game.effect.archive;
 
 import me.hapyl.fight.game.effect.EffectParticle;
 import me.hapyl.fight.game.effect.GameEffect;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -20,7 +20,7 @@ public class Riptide extends GameEffect {
     }
 
     @Override
-    public void onStart(GameEntity entity) {
+    public void onStart(LivingGameEntity entity) {
         entity.addPotionEffect(PotionEffectType.SLOW, 999999, 0);
         entity.addPotionEffect(PotionEffectType.SPEED, 999999, 0);
 
@@ -28,7 +28,7 @@ public class Riptide extends GameEffect {
     }
 
     @Override
-    public void onStop(GameEntity entity) {
+    public void onStop(LivingGameEntity entity) {
         entity.removePotionEffect(PotionEffectType.SLOW);
         entity.removePotionEffect(PotionEffectType.SPEED);
 
@@ -36,7 +36,7 @@ public class Riptide extends GameEffect {
     }
 
     @Override
-    public void onTick(GameEntity entity, int tick) {
+    public void onTick(LivingGameEntity entity, int tick) {
         if (tick == 10) {
             for (final EffectParticle particle : particles) {
                 displayParticles(entity.getEyeLocation().add(0.0d, 0.5d, 0.0d), entity.getEntity(), particle);

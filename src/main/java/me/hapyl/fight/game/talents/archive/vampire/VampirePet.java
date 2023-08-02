@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.archive.vampire;
 
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
@@ -55,7 +55,7 @@ public class VampirePet extends Talent {
             @Override
             public void run() {
                 pets.forEach((player, bat) -> {
-                    final GameEntity nearestEntity = Collect.nearestEntityRaw(
+                    final LivingGameEntity nearestEntity = Collect.nearestEntityRaw(
                             player.getLocation(),
                             20.0d,
                             entity -> entity.isValid(player) && !entity.is(bat)

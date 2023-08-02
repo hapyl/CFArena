@@ -5,12 +5,11 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -119,8 +118,8 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
 
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final GameEntity victim = input.getDamager();
-        final GameEntity player = input.getEntity();
+        final LivingGameEntity victim = input.getDamagerAsLiving();
+        final LivingGameEntity player = input.getEntity();
         final CauldronEffect effect = cauldronEffectMap.get(player.getUUID());
 
         if (!input.isEntityAttack() || effect == null || effect.getEffectHits() <= 0 || victim == null) {

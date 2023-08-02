@@ -2,13 +2,14 @@ package me.hapyl.fight.event;
 
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class DamageInstance {
 
-    protected final GameEntity entity;
+    protected final LivingGameEntity entity;
     @Nullable protected GameEntity damager;
     protected double damage;
     @Nullable protected EnumDamageCause cause;
@@ -16,7 +17,7 @@ public class DamageInstance {
     private boolean finalized;
     private boolean cancel;
 
-    public DamageInstance(GameEntity entity, double damage) {
+    public DamageInstance(LivingGameEntity entity, double damage) {
         this.entity = entity;
         this.damage = damage;
     }

@@ -4,7 +4,7 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInput;
 import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
@@ -148,8 +148,9 @@ public class Mage extends Hero implements UIComponent {
 
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final GameEntity victim = input.getDamager();
+        final LivingGameEntity victim = input.getDamagerAsLiving();
         final Player player = input.getBukkitPlayer();
+        
         if (victim == null) {
             return null;
         }

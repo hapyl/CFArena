@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.archive.doctor;
 
 import com.google.common.collect.Maps;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Collect;
@@ -55,7 +55,7 @@ public class PhysGun extends Weapon {
         }
 
         // Get the target entity
-        final GameEntity target = Collect.targetEntity(player, 3.0d, e -> e.isNot(player));
+        final LivingGameEntity target = Collect.targetEntity(player, 3.0d, e -> e.isNot(player));
 
         if (target == null) {
             Chat.sendMessage(player, "&cNo valid target!");

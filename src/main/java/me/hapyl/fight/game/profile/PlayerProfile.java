@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.profile;
 
-import me.hapyl.fight.CF;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.Manager;
@@ -121,10 +120,10 @@ public class PlayerProfile {
     public GamePlayer createGamePlayer() {
         this.gamePlayer = new GamePlayer(this);
 
-        // FIXME (hapyl): 001, Aug 1:
-        final RuntimeException error = new RuntimeException();
-        CF.getLogger().warning("CALLED CREATE GAME PLAYE");
-        error.printStackTrace();
+        //// FIXME (hapyl): 001, Aug 1:
+        //final RuntimeException error = new RuntimeException();
+        //CF.getLogger().warning("CALLED CREATE GAME PLAYE");
+        //error.printStackTrace();
 
         return gamePlayer;
     }

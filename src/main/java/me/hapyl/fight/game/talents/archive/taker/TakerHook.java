@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.archive.taker;
 
 import com.google.common.collect.Lists;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.taker.Taker;
@@ -75,7 +75,7 @@ public class TakerHook {
                     return;
                 }
 
-                final GameEntity nearest = Collect.nearestEntity(location, 1.5d, player);
+                final LivingGameEntity nearest = Collect.nearestEntity(location, 1.5d, player);
 
                 if (nearest != null) {
                     hooked = nearest.getEntity();
