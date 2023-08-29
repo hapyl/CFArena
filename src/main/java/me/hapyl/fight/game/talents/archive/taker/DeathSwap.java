@@ -120,15 +120,12 @@ public class DeathSwap extends Talent {
         PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.75f);
         Chat.sendMessage(player, "&aSwapped locations with %s!", target.getName());
 
-        if (target instanceof Player playerTarget) {
-            PlayerLib.playSound(playerTarget, Sound.ENTITY_ENDERMAN_TELEPORT, 0.75f);
-            Chat.sendMessage(
-                    playerTarget,
-                    "&c%s swapped locations with you! This is a weird feeling for you, looks like you lost &l%s%%&c of your health...",
-                    player.getName(),
-                    damagePercent
-            );
-        }
+        target.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.75f);
+        target.sendMessage(
+                "&c%s swapped locations with you! This is a weird feeling for you, looks like you lost &l%s%%&c of your health...",
+                player.getName(),
+                damagePercent
+        );
 
         bones.remove(spiritualBoneCost);
         return Response.OK;

@@ -52,6 +52,7 @@ public enum LobbyItems {
 
             if (countdown != null) {
                 countdown.cancelByPlayer(player);
+                manager.stopStartCountdown();
                 return;
             }
 

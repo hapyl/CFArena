@@ -1,5 +1,7 @@
 package me.hapyl.fight.game.collectible.relic;
 
+import me.hapyl.spigotutils.module.chat.Chat;
+
 public enum Type {
 
     AMETHYST("413600e6c4737192c3121f861487616b134423796d23bc396df521baddb31564"),
@@ -16,5 +18,9 @@ public enum Type {
 
     public String getTexture() {
         return texture;
+    }
+
+    public String getName() {
+        return Chat.capitalize(this);
     }
 }

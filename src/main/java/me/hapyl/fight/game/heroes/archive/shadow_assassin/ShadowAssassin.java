@@ -1,15 +1,14 @@
 package me.hapyl.fight.game.heroes.archive.shadow_assassin;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.event.DamageInput;
-import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.event.io.DamageInput;
+import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
-import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -48,7 +47,6 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
     public ShadowAssassin() {
         super("Shadow Assassin");
 
-        setRole(Role.ASSASSIN);
         setArchetype(Archetype.STRATEGY);
 
         setDescription("Well-trained assassin from dimension of shadows.");
@@ -144,7 +142,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
 
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final Player player = input.getBukkitPlayer();
+        final Player player = input.getDamagerAsBukkitPlayer();
 
         if (input.getDamageCause() != EnumDamageCause.ENTITY_ATTACK) {
             return DamageOutput.OK;
@@ -261,6 +259,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
                 && !player.hasCooldown(getWeapon().getMaterial()) && player.getInventory().getHeldItemSlot() == 0;
     }
 
+    // TODO (hapyl): 006, Aug 6: replace with game entity?
     public void performBackStab(Player player, @Nonnull LivingEntity entity) {
         final Location location = entity.getLocation();
         final Vector vector = location.getDirection();

@@ -8,12 +8,12 @@ import me.hapyl.fight.game.achievement.AchievementRegistry;
 import me.hapyl.fight.game.collectible.Collectibles;
 import me.hapyl.fight.game.cosmetic.CosmeticsListener;
 import me.hapyl.fight.game.cosmetic.crate.CrateManager;
+import me.hapyl.fight.game.entity.event.EntityEventHandler;
 import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.maps.features.BoosterController;
 import me.hapyl.fight.game.maps.gamepack.HealthPackListener;
 import me.hapyl.fight.game.parkour.CFParkourManager;
-import me.hapyl.fight.game.parkour.ParkourCourse;
-import me.hapyl.fight.game.parkour.snake.SnakeParkour;
+import me.hapyl.fight.game.talents.archive.bloodfiend.TwinPillarProtocol;
 import me.hapyl.fight.game.task.TaskList;
 import me.hapyl.fight.mini.lampgame.LampGame;
 import me.hapyl.fight.notifier.Notifier;
@@ -140,7 +140,7 @@ public class Main extends JavaPlugin {
         runSafe(database::stopConnection, "Database connection stop.");
 
         runSafe(() -> {
-            ((SnakeParkour) ParkourCourse.SNAKE_PARKOUR.getParkour()).getSnake().stop();
+            //((SnakeParkour) ParkourCourse.SNAKE_PARKOUR.getParkour()).getSnake().stop();
         }, "Snake removal");
 
         runSafe(() -> {
@@ -205,6 +205,7 @@ public class Main extends JavaPlugin {
 
         pluginManager.registerEvents(new PlayerHandler(), this);
         pluginManager.registerEvents(new EntityHandler(), this);
+        pluginManager.registerEvents(new EntityEventHandler(), this);
         pluginManager.registerEvents(new ChatController(), this);
         pluginManager.registerEvents(new EnderPearlHandler(), this);
         pluginManager.registerEvents(new CosmeticsListener(), this);
@@ -225,6 +226,7 @@ public class Main extends JavaPlugin {
     private void registerProtocol() {
         new ArcaneMuteProtocol();
         new DismountProtocol();
+        new TwinPillarProtocol();
         //new HandshakeProtocol();
         //new ConfusionPotionProtocol(); -> doesn't work as good as I thought :(
     }

@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.heroes.archive.tamer;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.event.DamageInput;
-import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.event.io.DamageInput;
+import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
@@ -37,7 +37,6 @@ public class Tamer extends Hero implements Listener, DisabledHero {
         super("Tamer", "A former circus pet trainer, with pets that loyal to him only!", Material.FISHING_ROD);
         setItem("fbad693d041db13ff36b81480b06456cd0ad6a57655338b956ea015a150516e2");
 
-        setRole(Role.STRATEGIST);
         setArchetype(Archetype.STRATEGY);
 
         final HeroEquipment equipment = getEquipment();
@@ -133,20 +132,16 @@ public class Tamer extends Hero implements Listener, DisabledHero {
         pack.removeAll();
     }
 
-    @Override
-    public void onStart() {
-    }
-
     public TamerPack getPlayerPack(Player player) {
         return getFirstTalent().getPack(player);
     }
 
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final Player player = input.getBukkitPlayer();
-        final LivingGameEntity entity = input.getDamagerAsLiving();
+        final Player player = input.getDamagerAsBukkitPlayer();
+        final LivingGameEntity entity = input.getEntity();
 
-        if (entity == null) {
+        if (player == null) {
             return null;
         }
 

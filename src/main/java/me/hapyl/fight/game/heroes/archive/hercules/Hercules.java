@@ -10,7 +10,6 @@ import me.hapyl.fight.game.cosmetic.storage.GroundPunchCosmetic;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
-import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -43,7 +42,6 @@ public class Hercules extends Hero implements Listener, PlayerElement {
     public Hercules() {
         super("Hercules");
 
-        setRole(Role.MELEE);
         setArchetype(Archetype.MOBILITY);
 
         setDescription(

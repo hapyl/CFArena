@@ -2,16 +2,17 @@ package me.hapyl.fight.game.heroes;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import me.hapyl.fight.event.DamageInput;
-import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.event.io.DamageInput;
+import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.GameEntity;
-import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.archive.ender.Ender;
 import me.hapyl.fight.game.heroes.archive.moonwalker.Moonwalker;
 import me.hapyl.fight.game.talents.Talent;
@@ -51,13 +52,13 @@ public abstract class Hero implements GameElement, PlayerElement {
     private final Map<Player, GameTask> reverseTasks;
     private final CachedHeroItem cachedHeroItem;
     private Origin origin;
-    private Role role;
     private Archetype archetype;
     private String description;
     private ItemStack guiTexture;
     private Weapon weapon;
     private long minimumLevel;
     private UltimateTalent ultimate;
+    private PlayerSkin skin; // todo
 
     @Super
     public Hero(String name) {
@@ -71,10 +72,10 @@ public abstract class Hero implements GameElement, PlayerElement {
         this.attributes = new HeroAttributes(this);
         this.origin = Origin.NOT_SET;
         this.archetype = Archetype.NOT_SET;
-        this.role = Role.NONE;
         this.minimumLevel = 0;
         this.ultimate = new UltimateTalent("Unknown Ultimate", "This hero's ultimate talent is not yet implemented!", Integer.MAX_VALUE);
         this.cachedHeroItem = new CachedHeroItem(this);
+        this.skin = null;
 
         setItem("null"); // default to null because I don't like exceptions
     }
@@ -123,26 +124,6 @@ public abstract class Hero implements GameElement, PlayerElement {
     }
 
     /**
-     * Returns this hero's role.
-     *
-     * @return this hero's role.
-     */
-    @Deprecated
-    public Role getRole() {
-        return role;
-    }
-
-    /**
-     * Sets this hero role.
-     *
-     * @param role - New role.
-     */
-    @Deprecated
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-    /**
      * Returns the origin of this hero.
      *
      * @return the origin of this hero.
@@ -175,6 +156,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      *
      * @return this hero's weapon.
      */
+    @Nonnull
     public HeroEquipment getEquipment() {
         return equipment;
     }
@@ -286,6 +268,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      *
      * @return name of this hero.
      */
+    @Nonnull
     public String getName() {
         return name;
     }
@@ -295,6 +278,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      *
      * @return description of this hero.
      */
+    @Nonnull
     public String getDescription() {
         return description;
     }
@@ -361,8 +345,20 @@ public abstract class Hero implements GameElement, PlayerElement {
 
     /**
      * Unleashes this hero's ultimate.
+     * If ultimate has castDuration, the ultimate will be delayed with that duration.
      */
     public abstract void useUltimate(Player player);
+
+    /**
+     * Called whenever player casts an ultimate.
+     * No matter the castDuration of the ultimate, this is instant cast.
+     *
+     * @param player - Player, who cast ultimate.
+     */
+    @Nullable
+    public UltimateCallback castUltimate(Player player) {
+        return null;
+    }
 
     /**
      * Returns this hero a talent.
@@ -420,6 +416,10 @@ public abstract class Hero implements GameElement, PlayerElement {
      *      return DamageOutput.CANCEL;
      * </pre>
      * </blockquote>
+     *
+     * <b>
+     * Keep in mind the player who damaged is a damager in the input, not the entity!
+     * </b>
      *
      * @param input - Initial damage input.
      * @return new damage output, or null to skip.
@@ -522,7 +522,7 @@ public abstract class Hero implements GameElement, PlayerElement {
     }
 
     /**
-     * @see GameElement#onStop() ()
+     * @see GameElement#onStop()
      */
     @Override
     public void onStop() {
@@ -574,6 +574,22 @@ public abstract class Hero implements GameElement, PlayerElement {
      */
     public UltimateTalent getUltimate() {
         return this.ultimate;
+    }
+
+    public final void useUltimate0(Player player) {
+        final int castDuration = ultimate.getCastDuration();
+        final UltimateCallback callback = castUltimate(player);
+
+        new GameTask() {
+            @Override
+            public void run() {
+                if (callback != null) { // execute call before using the ultimate
+                    callback.callback(player);
+                }
+
+                useUltimate(player);
+            }
+        }.runTaskLater(Math.max(castDuration, 0));
     }
 
     /**
@@ -629,6 +645,29 @@ public abstract class Hero implements GameElement, PlayerElement {
      */
     public void setWeapon(Weapon weapon) {
         this.weapon = weapon;
+    }
+
+    /**
+     * Gets all players that are using this hero.
+     *
+     * @return list of player using this hero.
+     */
+    @Nonnull
+    public List<GamePlayer> getPlayers() {
+        return CF.getAlivePlayers(predicate -> predicate.getHero() == this);
+    }
+
+    /**
+     * Gets all players that are using this hero who is alive.
+     *
+     * @return list of living player using this hero.
+     */
+    @Nonnull
+    public List<GamePlayer> getAlivePlayers() {
+        final List<GamePlayer> players = getPlayers();
+        players.removeIf(player -> !player.isAlive());
+
+        return players;
     }
 
     /**

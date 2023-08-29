@@ -41,8 +41,8 @@ public class JapanFeature extends MapFeature implements Listener {
     }
 
     @Override
-    public void tick(int tick) {
-        if (tick != 0) {
+    public void tick(int tickMod20) {
+        if (tickMod20 != 0) {
             return;
         }
 

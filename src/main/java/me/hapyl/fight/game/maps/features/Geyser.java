@@ -118,7 +118,6 @@ public class Geyser {
         return true;
     }
 
-
     public void createEntities() {
         Entities.ARMOR_STAND_MARKER.spawn(spawnLocation, self -> {
             Utils.setEquipment(self, equipment -> equipment.setHelmet(ItemBuilder.playerHeadUrl(texture).asIcon()));

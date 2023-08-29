@@ -49,8 +49,10 @@ public class CauldronAbility extends Talent implements Listener {
         final Player player = ev.getPlayer();
         final Block clickedBlock = ev.getClickedBlock();
 
-        if (ev.getHand() == EquipmentSlot.OFF_HAND || ev.getAction() != Action.RIGHT_CLICK_BLOCK || clickedBlock == null ||
-                clickedBlock.getType() != Material.WATER_CAULDRON) {
+        if (ev.getHand() == EquipmentSlot.OFF_HAND
+                || ev.getAction() != Action.RIGHT_CLICK_BLOCK
+                || clickedBlock == null
+                || clickedBlock.getType() != Material.WATER_CAULDRON) {
             return;
         }
 

@@ -22,7 +22,7 @@ public enum EnumDamageCause {
     ENTITY_ATTACK(DamageCause.of("was killed", "by")),
     // Use this for normal attacks that should not crit if too lazy to create a custom damage cause
     ENTITY_ATTACK_NON_CRIT(ENTITY_ATTACK.damageCause.clone().setCanCrit(false)),
-    PROJECTILE(DamageCause.minecraft("was shot", "by").setCanCrit(true)),
+    PROJECTILE(DamageCause.minecraft("was shot", "by").setCanCrit(true).setProjectile(true)),
     FALL(DamageCause.minecraft("fell to their death", "while escaping from")),
     FIRE(DamageCause.minecraft("was toasted", "with help from")),
     FIRE_TICK(FIRE.damageCause),
@@ -51,9 +51,10 @@ public enum EnumDamageCause {
     FREEZE(DamageCause.minecraft("frooze to death")),
     SONIC_BOOM(DamageCause.minecraft("BOOM BOOM BAKUDAN'ed", "and {damager} is the one to blame")),
 
-    NONE(DamageCause.minecraft("mysteriously died")),  // this used as default return,
-    CUSTOM(DamageCause.EMPTY), // should not be used
-    OTHER(DamageCause.EMPTY),  // this used if there is no other damage
+    FEROCIY(DamageCause.EMPTY),                       // this is used to indicate ferocity hits
+    NONE(DamageCause.minecraft("mysteriously died")), // this used as default return,
+    CUSTOM(DamageCause.EMPTY),                        // should not be used
+    OTHER(DamageCause.EMPTY),                         // this used if there is no other damage
 
     /**
      * End of system damage causes, add custom damage causes below.
@@ -117,7 +118,11 @@ public enum EnumDamageCause {
     CYCLING_AXE(DamageCause.of("couldn't see that {damager}'s axe is flying there")),
     FROSTBITE(DamageCause.of("froze to death, and {damager} is the one to blame")),
     POISON_IVY(DamageCause.nonCrit("was poised to death by {damager}'s poison ivy")),
-
+    DWARF_LAVA(DamageCause.nonCrit("didn't bounce high enough")),
+    IMPEL(DamageCause.nonCrit("failed to obey {damager}'s command")),
+    CHALICE(DamageCause.nonCrit("had their soul sucked away", "by")),
+    TWINCLAW(DamageCause.nonCrit("was pierced to death by {damager}'s claw")),
+    TWIN_PILLAR(DamageCause.nonCrit("was crushed by {damager}'s pillar")),
     ;
 
     private final DamageCause damageCause;
@@ -151,6 +156,10 @@ public enum EnumDamageCause {
 
     public boolean isCustomDamage() {
         return damageCause.isCustom();
+    }
+
+    public boolean isProjectile() {
+        return damageCause.isProjectile;
     }
 
     public static EnumDamageCause getFromCause(EntityDamageEvent.DamageCause cause) {

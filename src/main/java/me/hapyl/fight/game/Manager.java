@@ -53,17 +53,24 @@ import java.util.stream.Collectors;
 
 public final class Manager extends DependencyInjector<Main> {
 
+    private final Set<EntityType> ignoredTypes = Sets.newHashSet(
+            //EntityType.ARMOR_STAND,
+            EntityType.MARKER,
+            EntityType.TEXT_DISPLAY,
+            EntityType.BLOCK_DISPLAY,
+            EntityType.ITEM_DISPLAY
+    );
+
     public final Set<UUID> ignoredEntities;
+
     private final Map<UUID, GameEntity> entities;
     private final Map<UUID, PlayerProfile> profiles;
     private final SkinEffectManager skinEffectManager;
     private final AutoSync autoSave;
     private final Trial trial;
-
     @Nonnull private GameMaps currentMap;
     @Nonnull private Modes currentMode;
     private boolean isDebug = true;
-
     private StartCountdown startCountdown;
     private GameInstance gameInstance; // @implNote: For now, only one game instance can be active at a time.
 
@@ -98,11 +105,20 @@ public final class Manager extends DependencyInjector<Main> {
 
         startCountdown = new StartCountdown() {
             @Override
+            public void onTaskStop() {
+                startCountdown = null;
+            }
+
+            @Override
             public void onCountdownFinish() {
                 startCountdown = null;
                 createNewGameInstance();
             }
         };
+    }
+
+    public void stopStartCountdown() {
+        startCountdown = null;
     }
 
     public void addIgnored(LivingEntity entity) {
@@ -113,8 +129,8 @@ public final class Manager extends DependencyInjector<Main> {
         ignoredEntities.remove(entity.getUniqueId());
     }
 
-    public boolean isIgnored(LivingEntity entity) {
-        return ignoredEntities.contains(entity.getUniqueId());
+    public boolean isIgnored(@Nonnull LivingEntity entity) {
+        return ignoredTypes.contains(entity.getType()) || ignoredEntities.contains(entity.getUniqueId());
     }
 
     @Nullable
@@ -179,7 +195,7 @@ public final class Manager extends DependencyInjector<Main> {
 
     @Nonnull
     @Super
-    public <T extends GameEntity> T createEntity(@Nonnull LivingEntity entity, ConsumerFunction<LivingEntity, T> consumer) {
+    public <E extends LivingEntity, T extends GameEntity> T createEntity(@Nonnull E entity, @Nonnull ConsumerFunction<E, T> consumer) {
         final UUID uuid = entity.getUniqueId();
 
         if (entities.containsKey(uuid)) {
@@ -218,7 +234,7 @@ public final class Manager extends DependencyInjector<Main> {
             return entity;
         }
 
-        // FIXME (hapyl): 031, Jul 31: Might be some issues with scoreboard!
+        // FIXME (hapyl): 030, Aug 30: Can create while in lobby??
 
         final PlayerProfile profile = PlayerProfile.getProfile(player);
 
@@ -369,7 +385,7 @@ public final class Manager extends DependencyInjector<Main> {
 
         // Check for minimum players
         // fixme -> Check for teams, not players
-        if (nonSpectatorPlayers.size() < playerRequirements && !isDebug) {
+        if (nonSpectatorPlayers.size() < playerRequirements && !debug) {
             displayError("Not enough players! &l(%s/%s)", nonSpectatorPlayers.size(), playerRequirements);
             return false;
         }
@@ -806,6 +822,17 @@ public final class Manager extends DependencyInjector<Main> {
 
     public boolean isEntity(LivingEntity living) {
         return entities.containsKey(living.getUniqueId());
+    }
+
+    @Nullable
+    public GameEntity getEntityById(int entityId) {
+        for (GameEntity value : entities.values()) {
+            if (value.getId() == entityId) {
+                return value;
+            }
+        }
+
+        return null;
     }
 
     private Heroes getSelectedLobbyHero(Player player) {

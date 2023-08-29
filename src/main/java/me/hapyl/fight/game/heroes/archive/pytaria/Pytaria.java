@@ -1,14 +1,14 @@
 package me.hapyl.fight.game.heroes.archive.pytaria;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.event.DamageInput;
-import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.event.io.DamageInput;
+import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -48,7 +48,6 @@ public class Pytaria extends Hero {
     public Pytaria() {
         super("Pytaria");
 
-        setRole(Role.ASSASSIN);
         setArchetype(Archetype.DAMAGE);
 
         setDescription(
@@ -56,7 +55,7 @@ public class Pytaria extends Hero {
         setItem("7bb0752f9fa87a693c2d0d9f29549375feb6f76952da90d68820e7900083f801");
 
         final HeroAttributes attributes = getAttributes();
-        attributes.setValue(AttributeType.HEALTH, 125.0d);
+        attributes.setValue(AttributeType.MAX_HEALTH, 125.0d);
         attributes.setValue(AttributeType.ATTACK, 0.9d);
         attributes.setValue(AttributeType.CRIT_CHANCE, 0.2d);
         attributes.setValue(AttributeType.CRIT_DAMAGE, 0.4d);
@@ -74,9 +73,9 @@ public class Pytaria extends Hero {
                 .appendDescription("""
                         Summon a blooming Bee in front of Pytaria.
                                         
-                        The Bee will lock on a closest enemy and charge.
+                        The Bee will lock on the closest enemy and charge.
                                         
-                        Once charged, unleashes damage in small AoE and regenerates {healthRegenPercent}%% &7of Pytaria's missing health.
+                        Once charged, unleashes damage in small AoE and regenerates %s%% &7of Pytaria's missing health.
                         """, healthRegenPercent)
                 .appendAttributeDescription("Health Regeneration", healthRegenPercent)
                 .appendAttributeDescription("Ultimate Windup", ultimateWindup)
@@ -179,12 +178,6 @@ public class Pytaria extends Hero {
     }
 
     @Override
-    public DamageOutput processDamageAsDamager(DamageInput input) {
-        //return new DamageOutput(calculateDamage(input.getPlayer(), input.getDamage()));
-        return null;
-    }
-
-    @Override
     public DamageOutput processDamageAsVictim(DamageInput input) {
         return null;
     }
@@ -211,7 +204,6 @@ public class Pytaria extends Hero {
     private ItemStack createChestplate(int red, int green, int blue) {
         return ItemBuilder.leatherTunic(Color.fromRGB(red, green, blue)).cleanToItemSack();
     }
-
 
     private boolean isBetween(double value, double min, double max) {
         return value >= min && value < max;

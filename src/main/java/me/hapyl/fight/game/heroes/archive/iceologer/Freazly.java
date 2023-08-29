@@ -7,7 +7,6 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
-import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.task.RaycastTask;
@@ -32,8 +31,6 @@ public class Freazly extends Hero implements DisabledHero {
 
     public Freazly() {
         super("Frostbite");
-
-        setRole(Role.RANGE);
 
         setDescription("");
         setItem("cad7486b5d20823d5c24cba1850a600a7744209899828b19ccf93f69f2187058");

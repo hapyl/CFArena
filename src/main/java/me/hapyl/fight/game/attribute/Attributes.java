@@ -3,6 +3,7 @@ package me.hapyl.fight.game.attribute;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.game.EnumDamageCause;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.LivingEntity;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -13,6 +14,11 @@ import java.util.function.BiConsumer;
 public class Attributes {
 
     protected final Map<AttributeType, Double> mapped;
+
+    public Attributes(LivingEntity entity) {
+        this();
+        setHealth(entity.getHealth());
+    }
 
     public Attributes() {
         mapped = Maps.newHashMap();
@@ -54,7 +60,7 @@ public class Attributes {
     }
 
     public void setHealth(double value) {
-        setValue(AttributeType.HEALTH, value);
+        setValue(AttributeType.MAX_HEALTH, value);
     }
 
     public void setAttack(double value) {
@@ -63,6 +69,10 @@ public class Attributes {
 
     public void setDefense(double value) {
         setValueScaled(AttributeType.DEFENSE, value);
+    }
+
+    public void setSpeed(double value) {
+        setValue(AttributeType.SPEED, (value / 400.0) * (1.0d - 0.2d));
     }
 
     public void setValue(AttributeType type, double value) {
@@ -80,7 +90,7 @@ public class Attributes {
      * @return the value.
      */
     public double get(AttributeType type) {
-        return mapped.computeIfAbsent(type, t -> 0.0d);
+        return Math.min(mapped.computeIfAbsent(type, t -> 0.0d), type.maxValue());
     }
 
     public final void reset() {
@@ -98,10 +108,18 @@ public class Attributes {
         mapped.remove(type);
     }
 
-    public void forEach(BiConsumer<AttributeType, Double> consumer) {
+    public void forEach(@Nonnull BiConsumer<AttributeType, Double> consumer) {
         for (AttributeType type : AttributeType.values()) { // use values to keep sorted
             consumer.accept(type, get(type));
         }
+    }
+
+    public void forEachNonZero(@Nonnull BiConsumer<AttributeType, Double> consumer) {
+        forEach((type, value) -> {
+            if (value > 0.0d) {
+                consumer.accept(type, value);
+            }
+        });
     }
 
     @Nonnull
@@ -134,6 +152,10 @@ public class Attributes {
         final ChatColor color = type.attribute.getColor();
 
         return (color + character.repeat(scale)) + (ChatColor.DARK_GRAY + character.repeat(5 - scale));
+    }
+
+    public double getHealth() {
+        return get(AttributeType.MAX_HEALTH);
     }
 
     private void checkValue(double value) {

@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.heroes.archive.bounty_hunter;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.event.DamageInput;
-import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.event.io.DamageInput;
+import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
@@ -11,7 +11,6 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
-import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -49,7 +48,6 @@ public class BountyHunter extends Hero {
     public BountyHunter() {
         super("Bounty Hunter", "She is a skilled bounty hunter.____&o\"Jackpot! Everyone here's got a bounty on their head.\"");
 
-        setRole(Role.MELEE);
         setArchetype(Archetype.MOBILITY);
 
         setItem("cf4f866f1432f324e31b0a502e6e9ebccd7a66f474f1ca9cb0cfab879ea22ce0");
@@ -77,7 +75,7 @@ public class BountyHunter extends Hero {
     @Nullable
     @Override
     public DamageOutput processDamageAsVictim(DamageInput input) {
-        final GamePlayer player = input.getPlayer();
+        final GamePlayer player = input.getEntityAsPlayer();
         final double damage = input.getDamage();
 
         final double health = player.getHealth();

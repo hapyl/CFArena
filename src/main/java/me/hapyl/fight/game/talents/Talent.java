@@ -11,6 +11,8 @@ import me.hapyl.fight.game.effect.GameEffect;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.effect.archive.SlowingAuraEffect;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
@@ -19,6 +21,7 @@ import me.hapyl.spigotutils.module.annotate.Super;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.math.Numbers;
+import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -316,9 +319,11 @@ public abstract class Talent extends NonNullItemCreator
             }
         }
         else if (this instanceof UltimateTalent ult) {
+            final int castDuration = ult.getCastDuration();
+
             builderAttributes.addLore("Ultimate Cost: &f&l%s ※", ult.getCost());
+            builderAttributes.addLore("Cast Duration: &f&l%s", (castDuration == 0 ? "Instant" : Tick.round(castDuration) + "s"));
             builderAttributes.glow();
-            // ※
         }
 
         itemStats = builderAttributes.asIcon();
@@ -390,6 +395,11 @@ public abstract class Talent extends NonNullItemCreator
 
         // Progress achievement
         Achievements.USE_TALENTS.complete(player);
+
+        // FIXME (hapyl): 026, Aug 26: There should really be an event system, YEP
+        Heroes.BLOODFIEND.getHero(Bloodfiend.class).workImpel(player, (impel, gamePlayer) -> {
+            impel.complete(gamePlayer, me.hapyl.fight.game.heroes.archive.bloodfield.impel.Type.USE_ABILITY);
+        });
     }
 
     public final void startMaxCd(Player player) {
@@ -420,7 +430,7 @@ public abstract class Talent extends NonNullItemCreator
     }
 
     public final void stopCd(@Nonnull Player player) {
-        player.setCooldown(getItem().getType(), 0);
+        player.setCooldown(getMaterial(), 0);
     }
 
     public final boolean hasCd(Player player) {
@@ -473,6 +483,10 @@ public abstract class Talent extends NonNullItemCreator
     @Override
     public String toString() {
         return "%s{%s}".formatted(getClass().getName(), name);
+    }
+
+    public boolean isDisplayAttributes() {
+        return true;
     }
 
     private String formatIfPossible(@Nonnull String toFormat, @Nullable Object... format) {

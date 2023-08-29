@@ -49,7 +49,6 @@ public class Ender extends Hero implements Listener {
     public Ender() {
         super("Ender");
 
-        setRole(Role.ASSASSIN);
         setArchetype(Archetype.MOBILITY);
 
         setItem("aacb357709d8cdf1cd9c9dbe313e7bab3276ae84234982e93e13839ab7cc5d16");

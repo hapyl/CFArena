@@ -7,7 +7,6 @@ import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
-import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -51,7 +50,6 @@ public class Swooper extends Hero implements Listener, UIComponent {
     public Swooper() {
         super("Swooper");
 
-        setRole(Role.RANGE);
         setArchetype(Archetype.RANGE);
 
         setDescription("A sniper with slow firing rifle, but fast ways to move around the battlefield.");

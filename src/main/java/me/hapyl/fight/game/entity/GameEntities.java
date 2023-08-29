@@ -1,13 +1,10 @@
 package me.hapyl.fight.game.entity;
 
-import me.hapyl.fight.game.entity.custom.Abobo;
-import me.hapyl.fight.game.entity.custom.AngryPiglin;
-import me.hapyl.fight.game.entity.custom.Voidgloom;
-import me.hapyl.fight.game.entity.custom.WardenDefender;
+import me.hapyl.fight.game.entity.custom.*;
+import me.hapyl.fight.game.entity.custom.genie.Genie;
+import me.hapyl.fight.game.entity.custom.voids.VoidAbomination;
 import org.bukkit.Location;
-import org.bukkit.entity.Pig;
-import org.bukkit.entity.PigZombie;
-import org.bukkit.entity.Zombie;
+import org.bukkit.entity.*;
 
 import javax.annotation.Nonnull;
 
@@ -23,6 +20,11 @@ public enum GameEntities {
     WARDEN_DEFENDER(new WardenDefender()),
     VOIDGLOOM(new Voidgloom()),
     ANGRY_PIGLIN(new AngryPiglin()),
+    BLADESOUL(new Bladesoul()),
+    GENIE(new Genie()),
+
+    // Void
+    VOID_ABOMINATION(new VoidAbomination()),
 
     ;
 
@@ -34,7 +36,7 @@ public enum GameEntities {
 
     @Nonnull
     public final LivingGameEntity spawn(@Nonnull Location location) {
-        return type.create0(location);
+        return type.spawn(location);
     }
 
 }

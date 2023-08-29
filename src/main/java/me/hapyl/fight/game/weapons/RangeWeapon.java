@@ -304,7 +304,7 @@ public abstract class RangeWeapon extends Weapon implements GameElement, UICompo
                 break;
             }
 
-            for (final LivingGameEntity target : Collect.nearbyEntities(location, 0.5d)) {
+            for (final LivingGameEntity target : Collect.nearbyEntities(location, 1.0d)) {
                 final LivingEntity targetEntity = target.getEntity();
                 if (target.is(player) || !predicateEntity(targetEntity)) {
                     continue;

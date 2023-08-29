@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.entity;
 
-import me.hapyl.fight.event.DamageInput;
+import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.util.Rangef;
 import me.hapyl.spigotutils.module.math.Numbers;
 

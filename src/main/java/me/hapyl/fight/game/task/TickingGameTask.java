@@ -5,9 +5,11 @@ public abstract class TickingGameTask extends GameTask {
 
     private int increment = 1;
     private int tick;
+    private boolean ticked;
 
     public TickingGameTask(final int initTick) {
         this.tick = initTick;
+        this.ticked = false;
     }
 
     public TickingGameTask() {
@@ -22,9 +24,17 @@ public abstract class TickingGameTask extends GameTask {
 
     @Override
     public final void run() {
+        if (!ticked) {
+            ticked = true;
+            onTickOnce();
+        }
+
         run(tick);
 
         tick += increment;
+    }
+
+    public void onTickOnce() {
     }
 
     public int getTick() {

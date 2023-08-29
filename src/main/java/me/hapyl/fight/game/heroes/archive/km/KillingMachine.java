@@ -3,7 +3,6 @@ package me.hapyl.fight.game.heroes.archive.km;
 import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
-import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -22,8 +21,6 @@ public class KillingMachine extends Hero implements DisabledHero {
 
     public KillingMachine() {
         super("War Machine");
-
-        setRole(Role.RANGE);
 
         setDescription("A machine of war that was left for scrap, until now...");
         setItem("ec2f3d5d62fd9be6d654d314c123390abfa3698d3d87c1516a453a7ee4fcbf");

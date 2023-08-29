@@ -8,15 +8,20 @@ import org.bukkit.ChatColor;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public enum AttributeType {
+public enum AttributeType { // implements Placeholder2
 
-    HEALTH(
+    MAX_HEALTH(
             new Attribute("Health", "Maximum health hero has.")
                     .setChar("❤")
                     .setColor(ChatColor.RED)
                     .setToString(String::valueOf),
             100.0d
-    ),
+    ) {
+        @Override
+        public double maxValue() {
+            return 1_000_000_000;
+        }
+    },
     ATTACK(
             new Attribute("Attack", "The more attack you have, the more damage you deal.")
                     .setChar("🗡")
@@ -37,12 +42,21 @@ public enum AttributeType {
                         return;
                     }
 
-                    entity.sendMessage("updated speed");
                     entity.setWalkSpeed(Numbers.clamp1neg1((float) value));
                 }
-            }.setChar("🌊").setColor(ChatColor.AQUA).setToString(d -> 100 + (((d - 0.2d) / 0.2d) * 100) + "%"),
+            }.setChar("🌊").setColor(ChatColor.AQUA).setToString(value -> {
+                final double proportion = (value - 0.2d) / (1.0d - 0.2d);
+                final double increase = (proportion * 400.0d) + 100;
+
+                return "%.2f%%".formatted(increase);
+            }),
             0.2d
-    ),
+    ) {
+        @Override
+        public double maxValue() {
+            return 1.0d;
+        }
+    },
     CRIT_CHANCE(
             new Attribute("CRIT Chance", "Chance for attack to deal critical hit.")
                     .setChar("☣")
@@ -59,14 +73,17 @@ public enum AttributeType {
     ),
 
     FEROCITY(
-            new Attribute("Ferocity", "The change to strike twice.")
+            new Attribute("Ferocity", "The change to deal an extra strike.")
                     .setChar("\uD83C\uDF00")
                     .setColor(ChatColor.RED)
                     .setToString(d -> "%.2f%%".formatted(d * 100.0d)),
             0
-    );
-
-    // TODO (hapyl): 031, Jul 31: don't show <= 0 attributes in menu
+    ) {
+        @Override
+        public double maxValue() {
+            return 5;
+        }
+    };
 
     private static final List<String> NAMES;
 
@@ -84,6 +101,14 @@ public enum AttributeType {
     AttributeType(Attribute attribute, double defaultValue) {
         this.attribute = attribute;
         this.defaultValue = defaultValue;
+    }
+
+    public double minValue() {
+        return 0.0d;
+    }
+
+    public double maxValue() {
+        return 10.0d;
     }
 
     public String getName() {
@@ -117,5 +142,6 @@ public enum AttributeType {
     public static List<String> names() {
         return Lists.newArrayList(NAMES);
     }
+
 }
 

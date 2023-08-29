@@ -2,9 +2,9 @@ package me.hapyl.fight.game.talents.archive.bounty_hunter;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.util.Collect;

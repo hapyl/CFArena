@@ -1,8 +1,10 @@
 package me.hapyl.fight.game.entity;
 
+import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.event.DamageInput;
-import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.annotate.PreconditionMethod;
+import me.hapyl.fight.event.io.DamageInput;
+import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EntityState;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -10,14 +12,18 @@ import me.hapyl.fight.game.attribute.Attributes;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.entity.cooldown.Cooldown;
+import me.hapyl.fight.game.entity.cooldown.EntityCooldown;
+import me.hapyl.fight.game.ui.display.BuffDisplay;
+import me.hapyl.fight.game.ui.display.DebuffDisplay;
+import me.hapyl.fight.game.ui.display.StringDisplay;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.annotate.Super;
-import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.player.PlayerLib;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Particle;
-import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Creature;
@@ -27,22 +33,27 @@ import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 public class LivingGameEntity extends GameEntity {
 
     protected final EntityData entityData;
+    private final Set<EnumDamageCause> immunityCauses = Sets.newHashSet();
+    private final EntityMetadata metadata;
     @Nonnull
     protected EntityAttributes attributes;
     protected boolean wasHit; // Used to check if player was hit by custom damage
     protected double health;
     @Nonnull protected EntityState state;
-    private boolean canMove;
     private Shield shield;
+    private final EntityCooldown cooldown;
 
     public LivingGameEntity(@Nonnull LivingEntity entity) {
-        this(entity, new Attributes());
+        this(entity, new Attributes(entity));
     }
 
     public LivingGameEntity(@Nonnull LivingEntity entity, @Nonnull Attributes attributes) {
@@ -50,39 +61,13 @@ public class LivingGameEntity extends GameEntity {
         this.entityData = new EntityData(this);
         this.attributes = new EntityAttributes(this, attributes);
         this.wasHit = false;
-        this.health = attributes.get(AttributeType.HEALTH);
+        this.health = attributes.get(AttributeType.MAX_HEALTH);
         this.state = EntityState.ALIVE;
-        this.canMove = true;
+        this.metadata = new EntityMetadata();
+        this.cooldown = new EntityCooldown(this);
+        super.base = false;
 
         entity.setHealth(0.1d);
-    }
-
-    public void sendWarning(String warning, int stay) {
-        asPlayer(player -> Chat.sendTitle(player, "&4&l⚠", warning, 0, stay, 5));
-    }
-
-    public void sendMessage(String message, Object... objects) {
-        Chat.sendMessage(entity, message, objects);
-    }
-
-    public void sendTitle(String title, String subtitle, int fadeIn, int stay, int fadeOut) {
-        asPlayer(player -> Chat.sendTitle(player, title, subtitle, fadeIn, stay, fadeOut));
-    }
-
-    public void sendSubtitle(String subtitle, int fadeIn, int stay, int fadeOut) {
-        sendTitle("", subtitle, fadeIn, stay, fadeOut);
-    }
-
-    public void sendActionbar(String text, Object... objects) {
-        asPlayer(player -> Chat.sendActionbar(player, text, objects));
-    }
-
-    public void playSound(Sound sound, final float pitch) {
-        asPlayer(player -> PlayerLib.playSound(player, sound, Numbers.clamp(pitch, 0.0f, 2.0f)));
-    }
-
-    public void playSound(Location location, Sound sound, float pitch) {
-        PlayerLib.playSound(location, sound, pitch);
     }
 
     /**
@@ -92,6 +77,10 @@ public class LivingGameEntity extends GameEntity {
      */
     public boolean isDead() {
         return state == EntityState.DEAD;
+    }
+
+    public boolean isDeadOrRespawning() {
+        return state == EntityState.DEAD || state == EntityState.RESPAWNING;
     }
 
     @Nonnull
@@ -108,8 +97,19 @@ public class LivingGameEntity extends GameEntity {
      *
      * @return true if an entity can move; false otherwise.
      */
+    @Deprecated
     public boolean canMove() {
-        return canMove;
+        return metadata.CAN_MOVE.getValue();
+    }
+
+    @Deprecated
+    public void setCanMove(boolean canMove) {
+        metadata.CAN_MOVE.setValue(canMove);
+    }
+
+    @Nonnull
+    public EntityMetadata getMetadata() {
+        return metadata;
     }
 
     @Nonnull
@@ -245,13 +245,56 @@ public class LivingGameEntity extends GameEntity {
         }
 
         state = EntityState.DEAD;
+        cooldown.stopCooldowns();
         onDeath();
+    }
+
+    public boolean isImmune(@Nonnull EnumDamageCause cause) {
+        return immunityCauses.contains(cause);
+    }
+
+    public void addImmune(@Nonnull EnumDamageCause cause, @Nullable EnumDamageCause... other) {
+        immunityCauses.add(cause);
+        if (other != null) {
+            Collections.addAll(immunityCauses, other);
+        }
+    }
+
+    public void removeImmune(@Nullable EnumDamageCause... causes) {
+        if (causes != null) {
+            for (EnumDamageCause cause : causes) {
+                immunityCauses.remove(cause);
+            }
+        }
+    }
+
+    @PreconditionMethod
+    @Nullable
+    public final DamageOutput onDamageTaken0(@Nonnull DamageInput input) {
+        final EnumDamageCause cause = input.getDamageCause();
+
+        if (cause != null && immunityCauses.contains(cause)) {
+            final GameEntity damager = input.getDamager();
+            if (damager != null) {
+                damager.sendMessage(ChatColor.RED + getNameUnformatted() + " is immune to this kind of damage!");
+            }
+
+            return DamageOutput.CANCEL;
+        }
+
+        return onDamageTaken(input);
     }
 
     @Event
     @Nullable
     public DamageOutput onDamageTaken(@Nonnull DamageInput input) {
         return null;
+    }
+
+    @PreconditionMethod
+    @Nullable
+    public final DamageOutput onDamageDealt0(DamageInput input) {
+        return onDamageDealt(input);
     }
 
     @Event
@@ -306,11 +349,7 @@ public class LivingGameEntity extends GameEntity {
     }
 
     public double getMaxHealth() {
-        return attributes.get(AttributeType.HEALTH);
-    }
-
-    public void setCanMove(boolean canMove) {
-        this.canMove = canMove;
+        return attributes.get(AttributeType.MAX_HEALTH);
     }
 
     @Override
@@ -326,8 +365,8 @@ public class LivingGameEntity extends GameEntity {
         return 0.5d;
     }
 
-    public double getWalkSpeed() {
-        return getAttributeValue(Attribute.GENERIC_MOVEMENT_SPEED);
+    public float getWalkSpeed() {
+        return (float) getAttributeValue(Attribute.GENERIC_MOVEMENT_SPEED);
     }
 
     public void setWalkSpeed(double value) {
@@ -389,16 +428,6 @@ public class LivingGameEntity extends GameEntity {
         setKnockback(knockback);
     }
 
-    public void setTarget(@Nullable LivingEntity entity) {
-        if (this.entity instanceof Creature creature) {
-            creature.setTarget(entity);
-        }
-    }
-
-    public void setTarget(@Nullable LivingGameEntity entity) {
-        setTarget(entity == null ? null : entity.getEntity());
-    }
-
     public void setTargetClosest() {
         final LivingGameEntity living = Collect.nearestEntityPrioritizePlayers(getLocation(), 10, t -> true);
 
@@ -416,7 +445,17 @@ public class LivingGameEntity extends GameEntity {
         return null;
     }
 
+    public void setTarget(@Nullable LivingEntity entity) {
+        if (this.entity instanceof Creature creature) {
+            creature.setTarget(entity);
+        }
+    }
+
+    public void setTarget(@Nullable LivingGameEntity entity) {
+        setTarget(entity == null ? null : entity.getEntity());
+    }
     // this spawns globally
+
     public void spawnParticle(Location location, Particle particle, int amount, double x, double y, double z, float speed) {
         PlayerLib.spawnParticle(location, particle, amount, x, y, z, speed);
     }
@@ -429,11 +468,46 @@ public class LivingGameEntity extends GameEntity {
         damageTick(damage, (LivingGameEntity) null, cause, tick);
     }
 
+    @Nonnull
+    @Override
+    public LivingGameEntity getGameEntity() {
+        return this;
+    }
+
     public boolean isType(@Nonnull GameEntities type) {
-        if (this instanceof NamedGameEntity named) {
+        if (this instanceof NamedGameEntity<?> named) {
             return named.type.equals(type.type);
         }
 
         return false;
+    }
+
+    public void spawnBuffDisplay(@Nonnull String string, int duration) {
+        spawnDisplay(string, duration, BuffDisplay::new);
+    }
+
+    public void spawnDebuffDisplay(@Nonnull String string, int duration) {
+        spawnDisplay(string, duration, DebuffDisplay::new);
+    }
+
+    public <T extends StringDisplay> void spawnDisplay(@Nonnull String string, int duration, @Nonnull BiFunction<String, Integer, T> fn) {
+        fn.apply(string, duration).display(getLocation());
+    }
+
+    @Nonnull
+    public EntityCooldown getCooldown() {
+        return cooldown;
+    }
+
+    public boolean hasCooldown(@Nonnull Cooldown cooldown) {
+        return this.cooldown.hasCooldown(cooldown);
+    }
+
+    public void startCooldown(@Nonnull Cooldown cooldown, long duration) {
+        this.cooldown.startCooldown(cooldown, duration);
+    }
+
+    public void startCooldown(@Nonnull Cooldown cooldown) {
+        this.cooldown.startCooldown(cooldown);
     }
 }

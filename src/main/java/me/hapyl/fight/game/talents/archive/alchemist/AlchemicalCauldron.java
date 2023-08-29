@@ -103,16 +103,72 @@ public class AlchemicalCauldron extends TickingGameTask {
             });
 
             // Damage players in zone
-            Collect.nearbyPlayers(location, 4.5d).forEach(player -> {
-                if (player.is(owner)) {
-                    player.sendSubtitle("&cIntoxication Warning!", 0, 20, 0);
-                    ((Alchemist) Heroes.ALCHEMIST.getHero()).addToxin(player.getPlayer(), 8);
-                }
-                else {
-                    player.addPotionEffect(PotionEffectType.POISON, 1, 5);
-                }
-            });
+            Collect.nearbyEntities(location, 4.5d)
+                    .forEach(entity -> {
+                        if (entity.is(owner)) {
+                            entity.sendSubtitle("&cIntoxication Warning!", 0, 20, 0);
+                            entity.asPlayer(player -> {
+                                ((Alchemist) Heroes.ALCHEMIST.getHero()).addToxin(player, 8);
+                            });
+                        }
+                        else {
+                            entity.addPotionEffect(PotionEffectType.POISON, 20, 5);
+                        }
+                    });
         }
+    }
+
+    // just check for the distance at this point
+    public boolean compareBlock(Block other) {
+        return this.location.distance(other.getLocation()) < 2.0d;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        if (owner.hasCooldown(Material.STICK)) {
+            return;
+        }
+        this.status = status;
+
+        if (status == Status.BREWING) {
+            Nulls.runIfNotNull(standAnimation.getEquipment(), eq -> eq.setItemInMainHand(new ItemStack(Material.STICK)));
+        }
+        else if (status == Status.PAUSED) {
+            Nulls.runIfNotNull(standAnimation.getEquipment(), eq -> eq.setItemInMainHand(new ItemStack(Material.AIR)));
+        }
+    }
+
+    public void updateName() {
+        if (this.standBar == null || this.standOwner == null) {
+            return;
+        }
+        this.standBar.setCustomName(Chat.format(
+                status == Status.FINISHED ? status.getStatusString() : "&e%s%% %s",
+                BukkitUtils.decimalFormat(progress),
+                this.status.getStatusString()
+        ));
+        this.standOwner.setCustomName(Chat.format("&a%s's Cauldron", owner.getName()));
+    }
+
+    public void finish() {
+        PlayerLib.addEffect(owner, PotionEffectType.SPEED, 30, 2);
+        PlayerLib.playSound(owner, Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 2.0f);
+        Chat.sendMessage(owner, "&aYou have gained the Cauldron Buff!");
+        Talents.CAULDRON.getTalent().startCd(owner);
+        ((Alchemist) Heroes.ALCHEMIST.getHero()).startCauldronBoost(owner);
+        clear();
+    }
+
+    public void clear() {
+        //this.location.getBlock().setType(Material.AIR, false);
+        cancelIfActive();
+        cauldronBlock.setType(Material.AIR, false);
+        standOwner.remove();
+        standBar.remove();
+        standAnimation.remove();
     }
 
     private void animateCauldron() {
@@ -134,11 +190,6 @@ public class AlchemicalCauldron extends TickingGameTask {
         world.spawnParticle(Particle.SPELL_MOB, location.getX() + 0.5d, location.getY(), location.getZ() + 0.5d, 0, 0.000, 0.471, 0.031, 1);
     }
 
-    // just check for the distance at this point
-    public boolean compareBlock(Block other) {
-        return this.location.distance(other.getLocation()) < 2.0d;
-    }
-
     private ArmorStand createStand(Location location) {
         return createStand(location, null);
     }
@@ -155,36 +206,6 @@ public class AlchemicalCauldron extends TickingGameTask {
         });
     }
 
-    public void setStatus(Status status) {
-        if (owner.hasCooldown(Material.STICK)) {
-            return;
-        }
-        this.status = status;
-
-        if (status == Status.BREWING) {
-            Nulls.runIfNotNull(standAnimation.getEquipment(), eq -> eq.setItemInMainHand(new ItemStack(Material.STICK)));
-        }
-        else if (status == Status.PAUSED) {
-            Nulls.runIfNotNull(standAnimation.getEquipment(), eq -> eq.setItemInMainHand(new ItemStack(Material.AIR)));
-        }
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void updateName() {
-        if (this.standBar == null || this.standOwner == null) {
-            return;
-        }
-        this.standBar.setCustomName(Chat.format(
-                status == Status.FINISHED ? status.getStatusString() : "&e%s%% %s",
-                BukkitUtils.decimalFormat(progress),
-                this.status.getStatusString()
-        ));
-        this.standOwner.setCustomName(Chat.format("&a%s's Cauldron", owner.getName()));
-    }
-
     private void createCauldron() {
         cauldronBlock = this.location.getBlock();
         cauldronBlock.setType(Material.WATER_CAULDRON, false);
@@ -194,24 +215,6 @@ public class AlchemicalCauldron extends TickingGameTask {
         }
 
         cauldronBlock.getState().update(true, false);
-    }
-
-    public void finish() {
-        PlayerLib.addEffect(owner, PotionEffectType.SPEED, 30, 2);
-        PlayerLib.playSound(owner, Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 2.0f);
-        Chat.sendMessage(owner, "&aYou have gained the Cauldron Buff!");
-        Talents.CAULDRON.getTalent().startCd(owner);
-        ((Alchemist) Heroes.ALCHEMIST.getHero()).startCauldronBoost(owner);
-        clear();
-    }
-
-    public void clear() {
-        //this.location.getBlock().setType(Material.AIR, false);
-        cancelIfActive();
-        cauldronBlock.setType(Material.AIR, false);
-        standOwner.remove();
-        standBar.remove();
-        standAnimation.remove();
     }
 
     public enum Status {

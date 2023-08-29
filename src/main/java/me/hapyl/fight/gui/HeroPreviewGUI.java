@@ -3,7 +3,6 @@ package me.hapyl.fight.gui;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.talents.PassiveTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -28,7 +27,9 @@ import java.util.Set;
 public class HeroPreviewGUI extends PlayerGUI {
 
     private final SlotPattern PATTERN = new SlotPattern(new byte[][] {
-            { 0, 0, 0, 0, 1, 1, 1, 0, 0 }, { 0, 0, 0, 0, 1, 0, 1, 0, 0 }, { 0, 0, 0, 0, 0, 1, 0, 0, 0 }
+            { 0, 0, 0, 0, 1, 1, 1, 0, 0 },
+            { 0, 0, 0, 0, 1, 0, 1, 0, 0 },
+            { 0, 0, 0, 0, 0, 1, 0, 0, 0 }
     });
 
     private final Heroes heroes;
@@ -102,15 +103,16 @@ public class HeroPreviewGUI extends PlayerGUI {
                 return;
             }
 
-            if (talent instanceof PassiveTalent) {
-                component.add(abilityItemOrAir(talent));
-            }
-            else {
+            // Display attributes if needed
+            if (talent.isDisplayAttributes()) {
                 component.add(abilityItemOrAir(talent), player -> {
                     attributeDisplay.add(talent);
                     PlayerLib.plingNote(player, 2.0f);
                     update(index);
                 });
+            }
+            else {
+                component.add(abilityItemOrAir(talent));
             }
         });
 
@@ -171,10 +173,10 @@ public class HeroPreviewGUI extends PlayerGUI {
             return ItemStacks.AIR;
         }
 
-        final boolean isPassive = talent instanceof PassiveTalent;
+        final boolean isDisplayAttributes = talent.isDisplayAttributes();
         return new ItemBuilder(talent.getItem())
-                .addLoreIf("", !isPassive)
-                .addLoreIf("&eClick to show attributes", !isPassive)
+                .addLoreIf("", isDisplayAttributes)
+                .addLoreIf("&eClick to show attributes", isDisplayAttributes)
                 .asIcon();
     }
 

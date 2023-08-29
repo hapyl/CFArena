@@ -14,24 +14,31 @@ import me.hapyl.fight.database.Database;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.*;
-import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.EntityAttributes;
-import me.hapyl.fight.game.attribute.Temper;
+import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.cosmetic.CosmeticCollection;
 import me.hapyl.fight.game.cosmetic.crate.Crates;
 import me.hapyl.fight.game.entity.GameEntities;
+import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.entity.cooldown.Cooldown;
+import me.hapyl.fight.game.entity.cooldown.CooldownData;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.PlayerSkin;
+import me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend;
+import me.hapyl.fight.game.heroes.archive.bloodfield.BloodfiendData;
 import me.hapyl.fight.game.heroes.archive.dark_mage.AnimatedWither;
 import me.hapyl.fight.game.heroes.archive.doctor.ElementType;
 import me.hapyl.fight.game.heroes.archive.engineer.Engineer;
 import me.hapyl.fight.game.lobby.StartCountdown;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.reward.DailyReward;
+import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.archive.bloodfiend.TwinClaws;
 import me.hapyl.fight.game.talents.archive.engineer.Construct;
 import me.hapyl.fight.game.talents.archive.juju.Orbiting;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.display.DamageDisplay;
 import me.hapyl.fight.game.ui.splash.SplashText;
@@ -76,8 +83,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.trim.ArmorTrim;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Transformation;
+import org.bukkit.util.Vector;
 import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -159,6 +168,37 @@ public class CommandRegistry extends DependencyInjector<Main> {
             protected List<String> tabComplete(CommandSender sender, String[] args) {
                 return completerSort(GameEntities.values(), args);
             }
+        });
+
+        register("testKnockback360", (player, args) -> {
+            final TickingGameTask task = new TickingGameTask() {
+                @Override
+                public void run(int tick) {
+                    if (tick >= 360) {
+                        Chat.sendMessage(player, "&aFinished!");
+                        cancel();
+                        return;
+                    }
+
+                    player.sendHurtAnimation(tick);
+                }
+            };
+            task.setIncrement(15);
+            task.runTaskTimer(0, 1);
+        });
+
+        register("deleteGamePlayer", (player, args) -> {
+            final PlayerProfile profile = PlayerProfile.getOrCreateProfile(player);
+            profile.resetGamePlayer();
+
+            Chat.sendMessage(player, "&aDone!");
+        });
+
+        register("testSpawnPillar", (player, args) -> {
+            final TwinClaws talent = Talents.TWIN_CLAWS.getTalent(TwinClaws.class);
+            talent.spawnPillar(player, player.getLocation());
+
+            Chat.sendMessage(player, "&aDone!");
         });
 
         register(new SimplePlayerCommand("cancelCountdown") {
@@ -265,7 +305,119 @@ public class CommandRegistry extends DependencyInjector<Main> {
         });
 
         register("dumpEntities", (player, args) -> {
-            Chat.sendMessage(player, CF.getEntities());
+            final Set<GameEntity> entities = CF.getEntities();
+
+            Chat.sendMessage(player, "&aEntity Dump (%s)", entities.size());
+
+            boolean lighterColor = true;
+            for (GameEntity entity : entities) {
+                final String className = entity.getClass().getSimpleName();
+                final String name = entity.getName();
+
+                Chat.sendMessage(player, (lighterColor ? "&b " : "&3 ") + className + ":" + name);
+                lighterColor = !lighterColor;
+
+                // Glow duh
+                if (entity instanceof LivingGameEntity livingGameEntity) {
+                    livingGameEntity.addPotionEffect(PotionEffectType.GLOWING, 60, 1);
+                }
+            }
+        });
+
+        final PlayerSkin bloodfiendSkin = new PlayerSkin(
+                "ewogICJ0aW1lc3RhbXAiIDogMTY2MTQwMDI0MTc2NiwKICAicHJvZmlsZUlkIiA6ICI4YTg3NGJhNmFiZDM0ZTc5OTljOWM1ODMwYWYyY2NmNSIsCiAgInByb2ZpbGVOYW1lIiA6ICJSZXphMTExIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzVhYTI5ZWE5NjE3NTdkYzNjOTBiZmFiZjMwMmM1YWJlOWQzMDhmYjRhN2QzODY0ZTU3ODhhZDJjYzkxNjBhYTIiCiAgICB9CiAgfQp9",
+                "u7oD4NYj9J7UzMV/GZ3oScp3E6ci7+YI3DsDlTzVfsHKB5yWNEyZPttL09dMDWyJY1kdC8hsK8i5xhF5BaC/2pj/f3SNndzkrflEYrwUr8/1GVXpejIEVpb+SNqImpjsxWY3bLVQHaQ47WjMzvfrQ/gaEMKp3vDmjqST4gWKPxyk6hEHAudA1evE95QSjKX+ayMc822WQPOlPsqcFIZ/f/HYivYl9FQ4HbSyRfK2iI3Ibb0Mwg7BDcJuvkxdnIpkwBz1Hu3SH77dcpXZtLvIBc7dy41zJOMhUzyqkFFVrid5GvgTgb2o+iJ9mSNfVxN9khpG2q15lofdfIseijpq3QP2rAhdl3uX7DqT/CzOzfXP/9FGQaGuYySkNRlbt1WLfWJN9sHWK/jyz1nhV+JwJvwg/uV4Cor9q1jr01cv/FsWIUwSHLnXndIOEileCKnqlo6G/FtTU4Rgd1C5CryBUhY1WMc+HPk38wmWo6HzNOlhT1HltiPjb4kpSUP+vz5LTtplOqwomw/XBp/wuXuS2ijzCVo6lovtUzra5lsGa9EijHPreXt2dEHy68bTZBt2Os4BeWCMTz58d4wvSvC/hHNXdd/asx1CcW288HFxWRxoNLLawanDILCZLdRln4MwlGP1IruOuK0wJOkP3kxqHJdCL51psBPWDpPTzW0VC9c="
+        );
+
+        register("testSetSkin", (player, args) -> {
+            bloodfiendSkin.apply(player);
+            Chat.sendMessage(player, "&aDone!");
+        });
+
+        register(new SimplePlayerAdminCommand("testLine") {
+            @Override
+            protected void execute(Player player, String[] strings) {
+                final Location start = player.getLocation();
+                final Location end = player.getTargetBlockExact(100).getLocation().add(0.5d, 0.5d, 0.5d);
+
+                final double step = 0.25d;
+                final double distance = start.distance(end);
+                final Vector vector = end.clone().subtract(start).toVector().normalize().multiply(step);
+
+                final Location location = start.clone();
+
+                for (double d = 0.0d; d < distance; d += step) {
+                    final double traveled = d / distance;
+                    final double y = Math.sin(traveled * Math.PI * 3);
+
+                    location.add(vector);
+                    location.add(0, y, 0);
+
+                    PlayerLib.spawnParticle(location, Particle.VILLAGER_HAPPY, 1);
+                    location.subtract(0, y, 0);
+                }
+
+                Chat.sendMessage(player, "&aDrawn!");
+            }
+        });
+
+        register("testAddSucculence", (player, args) -> {
+            final Bloodfiend bloodfiend = Heroes.BLOODFIEND.getHero(Bloodfiend.class);
+            final BloodfiendData data = bloodfiend.getData(player);
+
+            data.addSucculence(CF.getPlayer(player));
+            Chat.sendMessage(player, "&aDone!");
+        });
+
+        register(new SimplePlayerAdminCommand("debugCooldown") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                final Cooldown cooldown = getArgument(args, 0).toEnum(Cooldown.class);
+                final long duration = getArgument(args, 1).toLong();
+
+                if (cooldown == null) {
+                    Message.Error.INVALID_ENUMERABLE_ARGUMENT.send(player, Arrays.toString(Cooldown.values()));
+                    return;
+                }
+
+                final GamePlayer gamePlayer = CF.getPlayer(player);
+
+                if (gamePlayer == null) {
+                    Message.error(player, "&cCannot use outside a game.");
+                    return;
+                }
+
+                if (duration > 0) {
+                    gamePlayer.startCooldown(cooldown, duration);
+                    Message.success(player, "Started cooldown!");
+                    return;
+                }
+
+                final CooldownData data = gamePlayer.getCooldown().getData(cooldown);
+                if (data == null) {
+                    Message.error(player, "&cYou don't have this cooldown!");
+                    return;
+                }
+
+                player.sendMessage(data.toString());
+            }
+        });
+
+        register(new SimplePlayerAdminCommand("velocty") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                final double x = getArgument(args, 0).toDouble();
+                final double y = getArgument(args, 1).toDouble();
+                final double z = getArgument(args, 2).toDouble();
+
+                if (x == 0 && y == 0 && z == 0) {
+                    Message.error(player, "At least one vector must be positive!");
+                    return;
+                }
+
+                player.setVelocity(new Vector(x, y, z));
+                player.sendMessage(ChatColor.GREEN + "Whoosh!");
+            }
         });
 
         register("testTransformationRotation", (player, args) -> {
@@ -323,10 +475,10 @@ public class CommandRegistry extends DependencyInjector<Main> {
             @Override
             protected void execute(Player player, String[] strings) {
                 final EnumDamageCause cause = getArgument(strings, 0).toEnum(EnumDamageCause.class);
-                final String killer = getArgument(strings, 1).toString();
-                final double distance = getArgument(strings, 2).toDouble();
+                final double distance = getArgument(strings, 1).toDouble();
+                final GamePlayer gamePlayer = CF.getPlayer(player);
 
-                final String format = cause.getRandomIfMultiple().format(CF.getPlayer(player), killer, distance);
+                final String format = cause.getRandomIfMultiple().format(gamePlayer, gamePlayer, distance);
                 Chat.sendMessage(player, ChatColor.RED + format);
             }
 
@@ -679,6 +831,7 @@ public class CommandRegistry extends DependencyInjector<Main> {
             @Override
             protected void execute(Player player, String[] args) {
                 // $ <stat> <amount> <duration>
+                // $ temper [value] [duration]
                 final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
 
                 if (gamePlayer == null) {
@@ -686,34 +839,16 @@ public class CommandRegistry extends DependencyInjector<Main> {
                     return;
                 }
 
-                final AttributeType attribute = Enums.byName(AttributeType.class, getArgument(args, 0).toString());
-                final double value = getArgument(args, 1).toDouble();
-                final int duration = getArgument(args, 2).toInt();
+                final Temper temper = getArgument(args, 0).toEnum(Temper.class);
+                final double value = getArgument(args, 1).toDouble(0.2d);
+                final int duration = getArgument(args, 2).toInt(100);
 
-                if (attribute == null) {
-                    Chat.sendMessage(player, "&cInvalid attribute.");
+                if (temper == null) {
+                    Message.error(player, "Invalid temper!");
                     return;
                 }
 
-                if (value == 0) {
-                    Chat.sendMessage(player, "&cValue cannot be zero.");
-                    return;
-                }
-
-                if (duration == 0) {
-                    Chat.sendMessage(player, "&cDuration cannot be zero.");
-                    return;
-                }
-
-                final EntityAttributes attributes = gamePlayer.getAttributes();
-
-                if (value > 0) {
-                    attributes.increaseTemporary(Temper.COMMAND, attribute, value, duration);
-                }
-                else {
-                    attributes.decreaseTemporary(Temper.COMMAND, attribute, value, duration);
-                }
-
+                temper.temper(gamePlayer, value, duration);
                 Chat.sendMessage(player, "&aDone!");
             }
 
@@ -721,7 +856,7 @@ public class CommandRegistry extends DependencyInjector<Main> {
             @Override
             protected List<String> tabComplete(CommandSender sender, String[] args) {
                 if (args.length == 1) {
-                    return completerSort(AttributeType.names(), args);
+                    return completerSort(Temper.values(), args);
                 }
 
                 return null;
@@ -1088,39 +1223,14 @@ public class CommandRegistry extends DependencyInjector<Main> {
 
         register(new SimplePlayerAdminCommand("riptide") {
 
-            private final Set<Player> riptideActive = new HashSet<>();
             private HumanNPC npc;
+            private org.bukkit.entity.Entity entity;
 
             @Override
             protected void execute(Player player, String[] args) {
-
-                // launch
-                if (args.length >= 1 && npc != null) {
-                    Chat.sendMessage(player, "&aLaunch started!");
-                    new GameTask() {
-                        private int maxTick = 20;
-
-                        @Override
-                        public void run() {
-                            if (maxTick-- < 0) {
-                                Chat.sendMessage(player, "&aLaunch finished!");
-                                this.cancel();
-                                return;
-                            }
-
-                            final Location location = npc.getLocation();
-                            location.setYaw(90f);
-                            location.setPitch(90f);
-                            location.add(player.getEyeLocation().getDirection().multiply(0.25d));
-                            npc.setLocation(location);
-
-                        }
-                    }.runTaskTimer(0, 1);
-
-                    return;
-                }
-
                 if (npc != null) {
+                    entity.remove();
+                    entity = null;
                     npc.remove();
                     npc = null;
                     Chat.sendMessage(player, "&aRemoved!");
@@ -1128,37 +1238,45 @@ public class CommandRegistry extends DependencyInjector<Main> {
                 }
 
                 final Location location = player.getLocation();
-                location.add(0.0d, 1.8d, 0.0d);
                 location.setYaw(90f);
                 location.setPitch(90f);
 
-                final HumanNPC npc = new HumanNPC(location, "", player.getName());
+                final Entities<? extends org.bukkit.entity.Entity> toSpawn = Entities.byName(args[0]);
+
+                if (toSpawn == null) {
+                    Chat.sendMessage(player, "&cInvalid entity = " + args[0]);
+                    return;
+                }
+
+                final HumanNPC npc = new HumanNPC(location.clone().subtract(0.0, GVar.get("riptide", 1d), 0.0), "", player.getName());
+                entity = toSpawn.spawn(location.clone().subtract(0.0, GVar.get("riptide2", 0.0d), 0.0d), self -> {
+                    self.setGravity(false);
+                });
+
                 npc.bukkitEntity().setInvisible(true);
+                npc.setCollision(false);
                 npc.showAll();
 
                 npc.setDataWatcherByteValue(8, (byte) 0x04);
+                npc.updateDataWatcher();
 
                 this.npc = npc;
                 Chat.sendMessage(player, "&aSpawned!");
 
-                if (true) {
-                    return;
-                }
-
-                if (riptideActive.contains(player)) {
-                    riptideActive.remove(player);
-                    return;
-                }
-
-                player.setVelocity(player.getLocation().getDirection().multiply(1.25d));
                 new GameTask() {
-                    private int maxTick = 40;
-
                     @Override
                     public void run() {
-                        if (maxTick-- < 0) {
+                        if (entity == null) {
                             this.cancel();
+                            return;
                         }
+
+                        final Location entityLocation = entity.getLocation();
+                        entityLocation.add(0.0, GVar.get("riptide3", 0.0d), 0.0);
+                        entityLocation.setYaw(90f);
+                        entityLocation.setPitch(90f);
+
+                        npc.teleport(entityLocation);
                     }
                 }.runTaskTimer(0, 1);
             }

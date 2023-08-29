@@ -46,7 +46,7 @@ public class CachedHeroItem {
             builder.addLore().addLore("&e&lAttributes:");
             final HeroAttributes attributes = hero.getAttributes();
 
-            attributes.forEach((type, value) -> {
+            attributes.forEachNonZero((type, value) -> {
                 builder.addLore(" &7%s: &b%s", type.getName(), type.getFormatted(attributes));
             });
 
@@ -73,7 +73,7 @@ public class CachedHeroItem {
 
             final HeroAttributes attributes = hero.getAttributes();
             builder.addLore("&e&lAttributes: ");
-            builder.addLore(attributes.getLore(AttributeType.HEALTH));
+            builder.addLore(attributes.getLore(AttributeType.MAX_HEALTH));
             builder.addLore(attributes.getLore(AttributeType.ATTACK));
             builder.addLore(attributes.getLore(AttributeType.DEFENSE));
             builder.addLore(attributes.getLore(AttributeType.SPEED));

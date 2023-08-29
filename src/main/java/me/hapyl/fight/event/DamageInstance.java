@@ -1,5 +1,8 @@
 package me.hapyl.fight.event;
 
+import me.hapyl.fight.event.custom.GameDamageEvent;
+import me.hapyl.fight.event.io.DamageInput;
+import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -50,5 +53,10 @@ public class DamageInstance {
     @Nonnull
     public DamageInput toInput() {
         return new DamageInput(entity, damager, cause, damage, isCrit);
+    }
+
+    @Nonnull
+    public GameDamageEvent toEvent() {
+        return new GameDamageEvent(entity, damager, damage, cause, isCrit);
     }
 }

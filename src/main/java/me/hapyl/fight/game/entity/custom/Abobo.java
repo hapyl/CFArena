@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.entity.custom;
 
-import me.hapyl.fight.event.DamageInput;
-import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.event.io.DamageInput;
+import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.attribute.Attributes;
 import me.hapyl.fight.game.entity.EntityType;

@@ -1,15 +1,14 @@
 package me.hapyl.fight.game.heroes.archive.ninja;
 
-import me.hapyl.fight.event.DamageInput;
-import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.event.io.DamageInput;
+import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.effect.GameEffectType;
-import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
-import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -51,7 +50,6 @@ public class Ninja extends Hero implements Listener, UIComponent {
                 "An extremely well-trained fighter with a gift from the wind, that allows him to Dash, Double Jump and take no fall damage."
         );
 
-        setRole(Role.ASSASSIN);
         setArchetype(Archetype.MOBILITY);
 
         setItem("1413159cfab50aba283e68c1659d74412392fbcb1f7d663d1bd2a2a6430c2743");
@@ -111,7 +109,6 @@ public class Ninja extends Hero implements Listener, UIComponent {
         );
 
         PlayerLib.playSound(player.getLocation(), Sound.ITEM_TRIDENT_THROW, 1.5f);
-
     }
 
     @Override
@@ -152,19 +149,18 @@ public class Ninja extends Hero implements Listener, UIComponent {
 
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final GamePlayer gamePlayer = input.getPlayer();
-        final Player player = input.getBukkitPlayer();
-        final LivingGameEntity entity = input.getDamagerAsLiving();
+        final GamePlayer player = input.getDamagerAsPlayer();
+        final LivingGameEntity entity = input.getEntity();
 
-        if (entity == null || entity.is(player) || player.hasCooldown(this.getWeapon().getMaterial())) {
+        if (entity == player || player == null || player.hasCooldown(this.getWeapon().getMaterial())) {
             return null;
         }
 
         // remove smoke bomb invisibility if exists
-        if (gamePlayer.hasEffect(GameEffectType.INVISIBILITY)) {
-            gamePlayer.removeEffect(GameEffectType.INVISIBILITY);
-            gamePlayer.sendMessage("&aYour invisibility is gone because you dealt damage.");
-            gamePlayer.playSound(Sound.ITEM_SHIELD_BREAK, 2.0f);
+        if (player.hasEffect(GameEffectType.INVISIBILITY)) {
+            player.removeEffect(GameEffectType.INVISIBILITY);
+            player.sendMessage("&aYour invisibility is gone because you dealt damage.");
+            player.playSound(Sound.ITEM_SHIELD_BREAK, 2.0f);
         }
 
         if (player.getInventory().getHeldItemSlot() != 0) {
@@ -172,7 +168,7 @@ public class Ninja extends Hero implements Listener, UIComponent {
         }
 
         player.getInventory().setItem(0, normalSword.getItem());
-        GamePlayer.setCooldown(player, getWeapon().getMaterial(), stunCd);
+        player.setCooldown(getWeapon().getMaterial(), stunCd);
 
         // Fx
         PlayerLib.playSound(entity.getLocation(), Sound.BLOCK_ANVIL_PLACE, 1.25f);
@@ -190,6 +186,7 @@ public class Ninja extends Hero implements Listener, UIComponent {
         if (input.getDamageCause() == EnumDamageCause.FALL) {
             return DamageOutput.CANCEL;
         }
+
         return null;
     }
 

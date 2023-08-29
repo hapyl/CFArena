@@ -3,6 +3,9 @@ package me.hapyl.fight.game.maps;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import me.hapyl.fight.event.io.DamageInput;
+import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.game.EntityElement;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.StaticServerEvent;
@@ -18,13 +21,14 @@ import org.bukkit.*;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 
-public class GameMap implements GameElement, PlayerElement {
+public class GameMap implements GameElement, PlayerElement, EntityElement {
 
     private final String name;
 
@@ -248,6 +252,18 @@ public class GameMap implements GameElement, PlayerElement {
         return BukkitUtils.defLocation(0, 0, 0);
     }
 
+    @Nonnull
+    public World getWorld() {
+        final PredicateLocation<?> location = locations.get(0);
+        final World world = location.getLocation().getWorld();
+
+        if (world == null) {
+            throw new IllegalStateException("perhaps loading the world would help");
+        }
+
+        return world;
+    }
+
     public void onStartOnce() {
     }
 
@@ -308,6 +324,18 @@ public class GameMap implements GameElement, PlayerElement {
 
     public Collection<GamePack> getGamePacks() {
         return gamePacks.values();
+    }
+
+    @Nullable
+    @Override
+    public DamageOutput onDamageTaken(@Nonnull DamageInput input) {
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public DamageOutput onDamageDealt(@Nonnull DamageInput input) {
+        return null;
     }
 
     private Location createLocation(double x, double y, double z, float yaw, float pitch) {

@@ -1,13 +1,10 @@
 package me.hapyl.fight.game.effect.archive;
 
-import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.effect.EffectParticleBlockMarker;
 import me.hapyl.fight.game.effect.GameEffect;
-import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
 public class LockdownEffect extends GameEffect {
@@ -23,28 +20,29 @@ public class LockdownEffect extends GameEffect {
 
     @Override
     public void onStart(LivingGameEntity entity) {
-        if (entity instanceof Player player) {
-            GamePlayer.getPlayer(player).setCanMove(false);
-            PlayerLib.playSound(player, Sound.BLOCK_BEACON_ACTIVATE, 0.75f);
+        entity.setCanMove(false);
 
-            // Force set slot to 7 so abilities cannot be used.
-            // Slot 8 is used for extra items like Relics.
+        // Force set slot to 7 so abilities cannot be used.
+        // Slot 8 is used for extra items like Relics.
+        entity.asPlayer(player -> {
             player.getInventory().setHeldItemSlot(7);
-        }
+        });
 
         entity.addPotionEffect(PotionEffectType.SLOW.createEffect(Integer.MAX_VALUE, 5));
         entity.addPotionEffect(PotionEffectType.WEAKNESS.createEffect(Integer.MAX_VALUE, 5));
+
+        // Fx
+        entity.playSound(Sound.BLOCK_BEACON_ACTIVATE, 0.75f);
     }
 
     @Override
     public void onStop(LivingGameEntity entity) {
-        if (entity instanceof Player player) {
-            GamePlayer.getPlayer(player).setCanMove(true);
-            PlayerLib.playSound(player, Sound.BLOCK_BEACON_ACTIVATE, 2);
-        }
-
+        entity.setCanMove(true);
         entity.removePotionEffect(PotionEffectType.SLOW);
         entity.removePotionEffect(PotionEffectType.WEAKNESS);
+
+        // Fx
+        entity.playSound(Sound.BLOCK_BEACON_ACTIVATE, 2);
     }
 
     @Override

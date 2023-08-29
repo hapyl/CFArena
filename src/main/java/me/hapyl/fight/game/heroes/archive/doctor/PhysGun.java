@@ -63,17 +63,18 @@ public class PhysGun extends Weapon {
         }
 
         capturedEntity.put(player, target.getEntity());
-        if (target instanceof Player targetPlayer) {
+        target.asPlayer(targetPlayer -> {
             flightMap.put(targetPlayer, targetPlayer.getAllowFlight());
             targetPlayer.setAllowFlight(true);
-        }
+        });
 
         // Tick entity
         new GameTask() {
             @Override
             public void run() {
-                if (player.getInventory().getHeldItemSlot() != 4 || (capturedEntity.get(player) == null) ||
-                        (capturedEntity.get(player) != target)) {
+                if (player.getInventory().getHeldItemSlot() != 4
+                        || (capturedEntity.get(player) == null)
+                        || (target.isNot(capturedEntity.get(player)))) {
                     dismountEntity(player, target.getEntity());
                     this.cancel();
                     return;
@@ -91,9 +92,7 @@ public class PhysGun extends Weapon {
                 }
 
                 target.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 20, 1, true));
-                if (target instanceof Player targetPlayer) {
-                    Chat.sendActionbar(targetPlayer, "&f&lCaptured by &a%s&f&l!", player.getName());
-                }
+                target.sendActionbar("&f&lCaptured by &a%s&f&l!", player.getName());
 
                 target.teleport(finalLocation);
                 Chat.sendTitle(player, "", "&f&lCarrying &a%s".formatted(target.getName()), 0, 10, 0);

@@ -1,15 +1,14 @@
 package me.hapyl.fight.game.heroes.archive.spark;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.event.DamageInput;
-import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.event.io.DamageInput;
+import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
-import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -36,7 +35,6 @@ public class Spark extends Hero implements PlayerElement {
     public Spark() {
         super("Spark");
 
-        setRole(Role.RANGE);
         setArchetype(Archetype.RANGE);
 
         setDescription("Strikes as fire with his fire abilities.");
@@ -196,12 +194,13 @@ public class Spark extends Hero implements PlayerElement {
     @Override
     public DamageOutput processDamageAsVictim(DamageInput input) {
         final Player player = input.getBukkitPlayer();
+        final EnumDamageCause cause = input.getDamageCause();
 
-        if (!validatePlayer(player)) {
+        if (!validatePlayer(player) || cause == null) {
             return null;
         }
 
-        boolean validCause = switch (input.getDamageCause()) {
+        boolean validCause = switch (cause) {
             case FIRE, FIRE_TICK, LAVA -> true;
             default -> false;
         };

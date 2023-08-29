@@ -9,6 +9,9 @@ import me.hapyl.fight.game.talents.archive.alchemist.CauldronAbility;
 import me.hapyl.fight.game.talents.archive.alchemist.RandomPotion;
 import me.hapyl.fight.game.talents.archive.archer.ShockDark;
 import me.hapyl.fight.game.talents.archive.archer.TripleShot;
+import me.hapyl.fight.game.talents.archive.bloodfiend.BloodChalice;
+import me.hapyl.fight.game.talents.archive.bloodfiend.BloodfiendPassive;
+import me.hapyl.fight.game.talents.archive.bloodfiend.TwinClaws;
 import me.hapyl.fight.game.talents.archive.bounty_hunter.GrappleHookTalent;
 import me.hapyl.fight.game.talents.archive.bounty_hunter.ShortyShotgun;
 import me.hapyl.fight.game.talents.archive.dark_mage.BlindingCurse;
@@ -293,7 +296,7 @@ public enum Talents {
     WHIRLPOOL(new Whirlpool()),
     CLAW_CRITICAL(new PassiveTalent(
             "Oceanborn/Sturdy Claws",
-            "&b&lOceanborn:__While in water, your speed and damage is drastically increased.____&b&lSturdy Claws:__&7Your hits have &b10% &7chance to &ccrit&7!__Critical hits summons an ancient creature from beneath that deals extra damage and heals you!",
+            "&b&lOceanborn:__While in water, your speed and damage is drastically increased.____&b&lSturdy Claws:__Critical hits summons an ancient creature from beneath that deals extra damage and heals you!",
             Material.MILK_BUCKET
     )),
 
@@ -387,6 +390,11 @@ public enum Talents {
     ENGINEER_TURRET(null),
     ENGINEER_RECALL(new EngineerRecall()),
     ENGINEER_PASSIVE(null),
+
+    // Bloodfiend
+    TWIN_CLAWS(new TwinClaws()),
+    BLOOD_CHALICE(new BloodChalice()),
+    SUCCULENCE(new BloodfiendPassive()),
 
     // ???
     SYNTHETIC_SUN(new SyntheticSun()),

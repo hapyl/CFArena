@@ -55,7 +55,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Disabl
     public Techie() {
         super("Techie");
 
-        setRole(Role.STRATEGIST);
+        setArchetype(Archetype.HEXBANE);
 
         setDescription(
                 "Anonymous hacker, who hacked his way to the fight. Weak by himself, but specifies on traps that make him stronger."

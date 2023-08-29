@@ -2,8 +2,8 @@ package me.hapyl.fight.game.heroes.archive.taker;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.event.DamageInput;
-import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.event.io.DamageInput;
+import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
@@ -48,7 +48,6 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
     public Taker() {
         super("Taker", "Will take your life away!");
 
-        setRole(Role.MELEE);
         setArchetype(Archetype.DAMAGE);
 
         setItem("ff1e554161bd4b2ce4cad18349fd756994f74cabf1fd1dacdf91b6d05dffaf");
@@ -252,7 +251,13 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
     @Nullable
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final Player player = input.getBukkitPlayer();
+        final GamePlayer gamePlayer = input.getDamagerAsPlayer();
+
+        if (gamePlayer == null) {
+            return null;
+        }
+
+        final Player player = gamePlayer.getPlayer();
         final SpiritualBones bones = getBones(player);
 
         if (bones.getBones() == 0) {
@@ -263,7 +268,7 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
         final double damage = input.getDamage();
 
         final double healingScaled = damage * healing / 100.0d;
-        GamePlayer.getPlayer(player).heal(healingScaled);
+        gamePlayer.heal(healingScaled);
 
         return new DamageOutput(damage + (damage / 10 * bones.getDamageMultiplier()));
     }

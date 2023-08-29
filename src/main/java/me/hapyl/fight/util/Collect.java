@@ -4,9 +4,10 @@ import com.google.common.collect.Lists;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.annotate.ExplicitEntityValidation;
-import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.team.GameTeam;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -15,10 +16,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -63,6 +66,8 @@ public final class Collect {
         double closestDot = 0.0d;
         LivingGameEntity closestEntity = null;
 
+        Debug.info(nearbyEntities);
+
         for (LivingGameEntity entity : nearbyEntities) {
             // Test Predicate
             if ((!entity.isValid(player)) || (predicate != null && !predicate.test(entity))) {
@@ -99,7 +104,7 @@ public final class Collect {
         return (Player) targetEntity(
                 player,
                 maxDistance,
-                entity -> entity.is(player) && entity instanceof Player p && Manager.current().isPlayerInGame(p)
+                entity -> entity.is(player)
         );
     }
 
@@ -169,8 +174,10 @@ public final class Collect {
         return (Player) nearestEntityRaw(
                 location,
                 radius,
-                entity -> entity instanceof Player && entity.isNot(exclude) && Manager.current().isPlayerInGame((Player) entity) &&
-                        !GameTeam.isTeammate(exclude, (Player) entity)
+                entity -> entity.is(Player.class)
+                        && entity.isNot(exclude)
+                        && Manager.current().isPlayerInGame((Player) entity)
+                        && !GameTeam.isTeammate(exclude, (Player) entity)
         );
     }
 
@@ -186,7 +193,7 @@ public final class Collect {
     @Nullable
     public static LivingGameEntity nearestEntity(@Nonnull Location location, double radius, @Nonnull Player player) {
         return nearestEntityRaw(location, radius, entity -> {
-            if (!(entity instanceof LivingEntity)) {
+            if (entity == null) {
                 return false;
             }
 
@@ -208,7 +215,7 @@ public final class Collect {
         final LivingGameEntity nearestPlayer = nearestEntity(
                 location,
                 radius,
-                check -> check instanceof Player && predicate.test(check)
+                check -> check.is(Player.class) && predicate.test(check)
         );
 
         if (nearestPlayer != null) {
@@ -285,6 +292,28 @@ public final class Collect {
         return nearbyEntities(location, radius).stream().filter(filter).collect(Collectors.toList());
     }
 
+    @ExplicitEntityValidation
+    @Nonnull
+    public static List<LivingGameEntity> nearbyEntities(@Nonnull World world, @Nonnull BoundingBox boundingBox, @Nonnull Predicate<LivingGameEntity> predicate) {
+        final Collection<Entity> entities = world.getNearbyEntities(boundingBox);
+        final List<LivingGameEntity> list = Lists.newArrayList();
+
+        entities.forEach(entity -> {
+            if (!(entity instanceof LivingEntity livingEntity)) {
+                return;
+            }
+
+            final LivingGameEntity gameEntity = CF.getEntity(livingEntity);
+            if (gameEntity == null || !gameEntity.isValid() || !predicate.test(gameEntity)) {
+                return;
+            }
+
+            list.add(gameEntity);
+        });
+
+        return list;
+    }
+
     /**
      * Gets a list of living entity to the given location.
      *
@@ -305,10 +334,20 @@ public final class Collect {
         world.getNearbyEntities(location, radius, radius, radius)
                 .stream()
                 .filter(entity -> {
-                    final Location entityLocation = entity.getLocation();
+                    if (!(entity instanceof LivingEntity living)) {
+                        return false;
+                    }
+
+                    final LivingGameEntity livingEntity = CF.getEntity(living);
+
+                    if (livingEntity == null) {
+                        return false;
+                    }
+
+                    final Location entityLocation = livingEntity.getLocation();
                     final double distance = entityLocation.distance(location);
 
-                    return Utils.isEntityValid(entity, null) && entity instanceof LivingEntity && distance <= radius;
+                    return livingEntity.isValid() && distance <= (radius * 2);
                 })
                 .forEach(entity -> entities.add(CF.getEntity((LivingEntity) entity)));
 
@@ -325,11 +364,7 @@ public final class Collect {
      */
     public static LivingGameEntity nearestEntity(@Nonnull Location location, double radius, @Nonnull Predicate<LivingGameEntity> filter) {
         return nearestEntityRaw(location, radius, test -> {
-            if (!(test instanceof LivingEntity)) {
-                return false;
-            }
-
-            return filter.test(CF.getEntity((LivingEntity) test)) && test.isValid(null);
+            return test != null && (filter.test(test) && test.isValid(null));
         });
     }
 
@@ -379,9 +414,10 @@ public final class Collect {
         final List<Entity> list = location.getWorld()
                 .getNearbyEntities(location, radius, radius, radius)
                 .stream()
-                .filter(p -> {
-                    if (p instanceof LivingEntity living) {
-                        return predicate.test(CF.getEntity(living));
+                .filter(e -> {
+                    if (e instanceof LivingEntity living) {
+                        final LivingGameEntity livingEntity = CF.getEntity(living);
+                        return livingEntity != null && predicate.test(livingEntity);
                     }
 
                     return false;

@@ -1,13 +1,10 @@
 package me.hapyl.fight.game.effect.archive;
 
-import me.hapyl.fight.CF;
 import me.hapyl.fight.game.effect.EffectParticle;
 import me.hapyl.fight.game.effect.GameEffect;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.entity.GamePlayer;
 import org.bukkit.Particle;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.HashMap;
@@ -32,27 +29,17 @@ public class Stun extends GameEffect {
 
     @Override
     public void onStart(LivingGameEntity entity) {
-        if (!(entity instanceof Player player)) {
-            return;
-        }
+        oldSpeed.put(entity.getEntity(), entity.getWalkSpeed());
 
-        oldSpeed.put(entity.getEntity(), player.getWalkSpeed());
-
-        player.setWalkSpeed(0.0f);
-        player.addPotionEffect(PotionEffectType.WEAKNESS.createEffect(999999, 250));
-
-        CF.getOrCreatePlayer(player).setCanMove(false);
+        entity.setWalkSpeed(0.0f);
+        entity.addPotionEffect(PotionEffectType.WEAKNESS.createEffect(999999, 250));
+        entity.setCanMove(false);
     }
 
     @Override
     public void onStop(LivingGameEntity entity) {
-        if (!(entity instanceof Player player)) {
-            return;
-        }
-
-        player.setWalkSpeed(oldSpeed.getOrDefault(entity, 0.1f));
-        player.removePotionEffect(PotionEffectType.WEAKNESS);
-
-        GamePlayer.getPlayer(player).setCanMove(true);
+        entity.setWalkSpeed(oldSpeed.getOrDefault(entity.getEntity(), 0.1f));
+        entity.removePotionEffect(PotionEffectType.WEAKNESS);
+        entity.setCanMove(true);
     }
 }

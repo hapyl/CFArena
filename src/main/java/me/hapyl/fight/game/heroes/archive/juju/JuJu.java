@@ -2,8 +2,8 @@ package me.hapyl.fight.game.heroes.archive.juju;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import me.hapyl.fight.event.DamageInput;
-import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.event.io.DamageInput;
+import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -54,7 +54,6 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
     public JuJu() {
         super("Juju");
 
-        setRole(Role.RANGE);
         setArchetype(Archetype.HEXBANE);
 
         setMinimumLevel(5);

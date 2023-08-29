@@ -1,4 +1,4 @@
-package me.hapyl.fight.event;
+package me.hapyl.fight.event.io;
 
 import me.hapyl.spigotutils.module.annotate.Super;
 

@@ -1,15 +1,14 @@
 package me.hapyl.fight.game.heroes.archive.mage;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.event.DamageInput;
-import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.event.io.DamageInput;
+import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
-import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -68,7 +67,6 @@ public class Mage extends Hero implements UIComponent {
     public Mage() {
         super("Mage");
 
-        setRole(Role.MELEE_RANGE);
         setArchetype(Archetype.MAGIC);
 
         setDescription("""
@@ -148,15 +146,13 @@ public class Mage extends Hero implements UIComponent {
 
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final LivingGameEntity victim = input.getDamagerAsLiving();
-        final Player player = input.getBukkitPlayer();
+        final LivingGameEntity victim = input.getEntity();
+        final Player player = input.getDamagerAsBukkitPlayer();
         
-        if (victim == null) {
-            return null;
-        }
         if (!victim.hasTag("LastDamage=Soul")) {
             addSouls(player, 1);
         }
+
         victim.removeTag("LastDamage=Soul");
         return null;
     }

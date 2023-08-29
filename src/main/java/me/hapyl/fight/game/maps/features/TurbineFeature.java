@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.maps.features;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
@@ -39,22 +38,19 @@ public class TurbineFeature extends MapFeature {
     }
 
     @Override
-    public void tick(int tick) {
+    public void tick(int tickMod20) {
         turbines.forEach(turbine -> {
             final BoundingBoxCollector boundingBox = turbine.getBoundingBox();
             final BoundingBoxCollector killTrigger = turbine.getKillTrigger();
 
             // Suck em all
-            boundingBox.collectValid(world).forEach(entity -> {
+            boundingBox.collect(world).forEach(entity -> {
                 entity.setVelocity(entity.getVelocity().add(turbine.getVector()).setY(0.0d));
             });
 
             // Kill em all
-            killTrigger.collectValid(world).forEach(entity -> {
-                CF.getEntityOptional(entity).ifPresent(gameEntity -> {
-                    gameEntity.damage(100, EnumDamageCause.SHREDS_AND_PIECES);
-                });
-
+            killTrigger.collect(world).forEach(entity -> {
+                entity.damage(100, EnumDamageCause.SHREDS_AND_PIECES);
                 Cosmetics.BLOOD.getCosmetic().onDisplay(entity.getLocation());
 
                 // Trigger achievement
@@ -66,7 +62,7 @@ public class TurbineFeature extends MapFeature {
             // Display Fx
             final Location fxLocation = turbine.getFxLocation();
 
-            if (tick != 0) {
+            if (tickMod20 != 0) {
                 return;
             }
 

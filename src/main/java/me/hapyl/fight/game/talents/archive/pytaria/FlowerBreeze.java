@@ -3,8 +3,7 @@ package me.hapyl.fight.game.talents.archive.pytaria;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.EntityAttributes;
-import me.hapyl.fight.game.attribute.Temper;
+import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -22,8 +21,8 @@ import org.bukkit.potion.PotionEffectType;
 public class FlowerBreeze extends Talent {
 
     @DisplayField private final double healthSacrifice = 15.0d;
-    @DisplayField(scaleFactor = 100.0d) private final double attackIncrease = 0.9d;
-    @DisplayField(scaleFactor = 100.0d) private final double defenseIncrease = 2.0d;
+    @DisplayField(scaleFactor = 100.0d) public final double attackIncrease = 0.9d;
+    @DisplayField(scaleFactor = 100.0d) public final double defenseIncrease = 2.0d;
 
     public FlowerBreeze() {
         super("Flower Breeze", """
@@ -70,13 +69,7 @@ public class FlowerBreeze extends Talent {
             }
         }
 
-        //PlayerLib.addEffect(player, PotionEffectType.DAMAGE_RESISTANCE, getDuration(), 1);
-        //PlayerLib.addEffect(player, PotionEffectType.INCREASE_DAMAGE, getDuration(), 1);
-
-        final EntityAttributes attributes = GamePlayer.getPlayer(player).getAttributes();
-        attributes.increaseTemporary(Temper.FLOWER_BREEZE, AttributeType.ATTACK, attackIncrease, getDuration());
-        attributes.increaseTemporary(Temper.FLOWER_BREEZE, AttributeType.DEFENSE, defenseIncrease, getDuration());
-
+        Temper.FLOWER_BREEZE.temper(GamePlayer.getPlayer(player).getAttributes());
         return Response.OK;
     }
 }

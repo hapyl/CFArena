@@ -1,14 +1,20 @@
 package me.hapyl.fight.game.entity;
 
+import com.google.common.collect.Maps;
+import me.hapyl.fight.game.entity.event.EntityEventListener;
+import me.hapyl.fight.game.entity.event.EventType;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.spigotutils.module.hologram.GlobalHologram;
 import me.hapyl.spigotutils.module.hologram.Hologram;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.entity.EntityEvent;
+import org.bukkit.inventory.EntityEquipment;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Map;
 
 /**
  * Named game entities are entities with a health bar above their head.
@@ -17,14 +23,16 @@ import javax.annotation.Nullable;
 public class NamedGameEntity<T extends LivingEntity> extends LivingGameEntity {
 
     protected final GameEntityType<T> type;
+    protected final T entity;
+    private final Map<EventType<?>, EntityEventListener<?>> eventHandles;
     private final Hologram aboveHead;
     private final GameTask task;
     protected int tick;
-    protected final T entity;
 
     public NamedGameEntity(GameEntityType<T> type, T entity) {
         super(entity, type.getAttributes());
 
+        this.eventHandles = Maps.newHashMap();
         this.entity = entity;
         this.type = type;
         this.aboveHead = new GlobalHologram();
@@ -54,6 +62,14 @@ public class NamedGameEntity<T extends LivingEntity> extends LivingGameEntity {
     public void onTick() {
     }
 
+    @Event
+    public void onTick10() {
+    }
+
+    @Event
+    public void onTick20() {
+    }
+
     public final void tick() {
         if (entity.isDead()) {
             remove();
@@ -62,13 +78,21 @@ public class NamedGameEntity<T extends LivingEntity> extends LivingGameEntity {
 
         onTick();
 
+        if (tick % 10 == 0) {
+            onTick10();
+        }
+
+        if (tick % 20 == 0) {
+            onTick20();
+        }
+
         // Update above head hologram
         final String[] extraLines = getExtraHologramLines();
         aboveHead.clear();
 
         if (extraLines != null) {
             aboveHead.addLines(extraLines);
-            aboveHead.addLine("");
+            //aboveHead.addLine("");
         }
 
         aboveHead.addLines(
@@ -94,6 +118,17 @@ public class NamedGameEntity<T extends LivingEntity> extends LivingGameEntity {
     }
 
     @Nonnull
+    public EntityEquipment getEquipment() {
+        final EntityEquipment equipment = entity.getEquipment();
+
+        if (equipment == null) {
+            throw new IllegalArgumentException(this + " does not have equipment");
+        }
+
+        return equipment;
+    }
+
+    @Nonnull
     @Override
     public String getName() {
         return type.getNameFormatted();
@@ -114,5 +149,24 @@ public class NamedGameEntity<T extends LivingEntity> extends LivingGameEntity {
 
     public int getTick() {
         return tick;
+    }
+
+    /**
+     * Allows listening to event for this specific entity.
+     *
+     * @param type    - Event type.
+     * @param handler - Handler for the event.
+     */
+    protected final <E extends EntityEvent> void listenTo(@Nonnull EventType<E> type, @Nonnull EntityEventListener<E> handler) {
+        eventHandles.put(type, handler);
+    }
+
+    @SuppressWarnings("unchecked")
+    public final <E extends EntityEvent> void callEvent(@Nonnull EventType<E> type, @Nonnull E event) {
+        final EntityEventListener<E> listener = (EntityEventListener<E>) eventHandles.get(type);
+
+        if (listener != null) {
+            listener.handle(event);
+        }
     }
 }

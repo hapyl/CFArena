@@ -1,8 +1,12 @@
 package me.hapyl.fight.game.entity;
 
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.events.PacketContainer;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.database.Award;
 import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.event.io.DamageInput;
+import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -146,6 +150,11 @@ public class GamePlayer extends LivingGameEntity {
     }
 
     @Override
+    public void remove() {
+        // don't remove player
+    }
+
+    @Override
     public boolean shouldDie() {
         return getEntity().getGameMode() == GameMode.CREATIVE;
     }
@@ -182,6 +191,29 @@ public class GamePlayer extends LivingGameEntity {
 
     @Override
     public void onDeath() {
+    }
+
+    @Nullable
+    @Override
+    public DamageOutput onDamageTaken(@Nonnull DamageInput input) {
+        final GameTeam team = getTeam();
+        final DamageOutput output = new DamageOutput(0.0d);
+
+        team.getPlayers().forEach(player -> {
+            if (player.equals(this)) {
+                return;
+            }
+
+            player.onDamageTakenByTeammate(player, input);
+        });
+
+        // TODO (hapyl): 004, Aug 4:
+        return null;
+    }
+
+    @Nullable
+    public DamageOutput onDamageTakenByTeammate(@Nonnull GamePlayer teammate, @Nonnull DamageInput input) {
+        return null;
     }
 
     @Override
@@ -594,8 +626,15 @@ public class GamePlayer extends LivingGameEntity {
         return profile;
     }
 
+    @Nonnull
     public GameTeam getTeam() {
-        return GameTeam.getPlayerTeam(getPlayer());
+        final GameTeam team = GameTeam.getPlayerTeam(getPlayer());
+
+        if (team == null) {
+            throw new IllegalStateException("game has no team?");
+        }
+
+        return team;
     }
 
     public boolean isTeammate(GamePlayer player) {
@@ -634,6 +673,10 @@ public class GamePlayer extends LivingGameEntity {
 
     public boolean isSneaking() {
         return getPlayer().isSneaking();
+    }
+
+    public void sendPacket(@Nonnull PacketContainer packet) {
+        ProtocolLibrary.getProtocolManager().sendServerPacket(getPlayer(), packet);
     }
 
     private void resetAttribute(Attribute attribute, double value) {
@@ -724,10 +767,8 @@ public class GamePlayer extends LivingGameEntity {
      *
      * @param player bukkit player.
      * @return either an actual GamePlayer instance if there is a GameInstance, otherwise AbstractGamePlayer.
-     * @deprecated Please migrate to using {@link #getPlayerOptional(Player)} or {@link #getExistingPlayer(Player)}.
      */
     @Nonnull
-    @Deprecated // use CF.getOrCreatePlayer()
     public static GamePlayer getPlayer(Player player) {
         return CF.getOrCreatePlayer(player);
     }

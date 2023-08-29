@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.talents.archive.freazly;
 
-import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.Talent;
@@ -48,8 +47,9 @@ public class IceCone extends Talent implements Listener {
 
     @EventHandler()
     public void handleSnowballHit(ProjectileHitEvent ev) {
-        if (ev.getEntity() instanceof Snowball snowball && snowball.getShooter() instanceof Player player &&
-                snowballMap.get(player) == snowball) {
+        if (ev.getEntity() instanceof Snowball snowball
+                && snowball.getShooter() instanceof Player player
+                && snowballMap.get(player) == snowball) {
 
             final Entity entity = ev.getHitEntity();
             final Block hitBlock = ev.getHitBlock();
@@ -81,10 +81,7 @@ public class IceCone extends Talent implements Listener {
 
                         Collect.nearbyEntities(location, 4.0d).forEach(entity -> {
                             entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 10, 3));
-
-                            if (entity instanceof Player player) {
-                                GamePlayer.getPlayer(player).addEffect(GameEffectType.SLOWING_AURA, 60, true);
-                            }
+                            entity.addEffect(GameEffectType.SLOWING_AURA, 60, true);
                         });
 
                         Geometry.drawCircle(location, 4.0d, Quality.HIGH, new WorldParticle(Particle.BLOCK_CRACK) {

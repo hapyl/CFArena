@@ -2,8 +2,8 @@ package me.hapyl.fight.game.heroes.archive.alchemist;
 
 import io.netty.util.internal.ThreadLocalRandom;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.event.DamageInput;
-import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.event.io.DamageInput;
+import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -48,7 +48,6 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
     public Alchemist() {
         super("Alchemist");
 
-        setRole(Role.STRATEGIST);
         setArchetype(Archetype.STRATEGY);
 
         setDescription(
@@ -62,7 +61,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
                 .setDescription("Turns out that a stick used in brewing can also be used in battle."));
 
         final HeroAttributes attributes = getAttributes();
-        attributes.setValue(AttributeType.HEALTH, 125);
+        attributes.setValue(AttributeType.MAX_HEALTH, 125);
         attributes.setValue(AttributeType.DEFENSE, 0.5d);
         attributes.setValue(AttributeType.SPEED, 0.22d);
 
@@ -118,11 +117,16 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
 
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final LivingGameEntity victim = input.getDamagerAsLiving();
-        final LivingGameEntity player = input.getEntity();
+        final LivingGameEntity victim = input.getEntity();
+        final LivingGameEntity player = input.getDamagerAsPlayer();
+
+        if (player == null) {
+            return null;
+        }
+
         final CauldronEffect effect = cauldronEffectMap.get(player.getUUID());
 
-        if (!input.isEntityAttack() || effect == null || effect.getEffectHits() <= 0 || victim == null) {
+        if (!input.isEntityAttack() || effect == null || effect.getEffectHits() <= 0) {
             return null;
         }
 

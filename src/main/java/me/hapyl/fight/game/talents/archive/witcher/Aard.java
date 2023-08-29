@@ -31,7 +31,7 @@ public class Aard extends Talent {
         }
 
         Collect.nearbyEntities(inFront, radius).forEach(entity -> {
-            if (entity == player) {
+            if (entity.is(player)) {
                 return;
             }
             entity.setVelocity(vector);

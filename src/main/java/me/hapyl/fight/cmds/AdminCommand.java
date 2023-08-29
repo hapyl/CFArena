@@ -100,7 +100,7 @@ public class AdminCommand extends SimplePlayerAdminCommand {
                 }
 
                 CF.getPlayerOptional(player).ifPresentOrElse(gamePlayer -> {
-                    gamePlayer.damage(value);
+                    gamePlayer.damage(value, player);
                     sendMessage(player, "&aDealt &l%s&a damage to you!", value);
                 }, () -> {
                     sendMessage(player, "&cCannot find game player instance.");

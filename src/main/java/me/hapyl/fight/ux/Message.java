@@ -44,6 +44,7 @@ public enum Message {
                 "Couldn't get your item! Try again before reporting this! (\"{}\")."
         ),
         CANNOT_FIND_CRATE("It doesn't seem that you have any {}!"),
+        INVALID_USAGE("Invalid usage! {}."),
 
 
         _RESERVED("_RESERVED");

@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.heroes.archive.knight;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.event.DamageInput;
-import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.event.io.DamageInput;
+import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -10,7 +10,6 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
-import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -57,7 +56,6 @@ public class BlastKnight extends Hero implements DisabledHero, PlayerElement, UI
     public BlastKnight() {
         super("Blast Knight");
 
-        setRole(Role.MELEE);
         setDescription("Royal Knight with high-end technology gadgets.");
         setItem("e2dfde6c2c8f0a7adf7ae4e949a804fedf95c6b9562767eae6c22a401cd02cbd");
 
@@ -165,10 +163,16 @@ public class BlastKnight extends Hero implements DisabledHero, PlayerElement, UI
 
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final GamePlayer player = input.getPlayer();
+        final GamePlayer player = input.getDamagerAsPlayer();
+
+        if (player == null) {
+            return null;
+        }
+
         final Horse playerHorse = getPlayerHorse(player.getPlayer());
-        final LivingGameEntity victim = input.getDamagerAsLiving();
-        if (!isUsingUltimate(player.getPlayer()) || playerHorse == null || victim == null || victim == player) {
+        final LivingGameEntity victim = input.getEntity();
+
+        if (!isUsingUltimate(player.getPlayer()) || playerHorse == null || victim == player) {
             return null;
         }
 
@@ -187,7 +191,7 @@ public class BlastKnight extends Hero implements DisabledHero, PlayerElement, UI
 
     @Override
     public DamageOutput processDamageAsVictim(DamageInput input) {
-        final GamePlayer gamePlayer = input.getPlayer();
+        final GamePlayer gamePlayer = input.getEntityAsPlayer();
         final Player player = gamePlayer.getPlayer();
 
         if (gamePlayer.isBlocking()) {

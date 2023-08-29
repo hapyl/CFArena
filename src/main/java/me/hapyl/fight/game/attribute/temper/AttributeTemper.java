@@ -1,4 +1,4 @@
-package me.hapyl.fight.game.attribute;
+package me.hapyl.fight.game.attribute.temper;
 
 import me.hapyl.fight.game.task.GameTask;
 

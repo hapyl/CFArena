@@ -2,8 +2,8 @@ package me.hapyl.fight.game.talents.archive.taker;
 
 import com.google.common.collect.Lists;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.taker.Taker;
 import me.hapyl.fight.game.task.GameTask;
@@ -54,10 +54,24 @@ public class TakerHook {
         PlayerLib.addEffect(player, PotionEffectType.SLOW, 10000, 10);
         //PlayerLib.addEffect(player, PotionEffectType.JUMP, 10000, 250);
 
-        GamePlayer.getPlayer(player).setCanMove(false);
+        final GamePlayer gamePlayer = GamePlayer.getPlayer(player);
+        gamePlayer.getMetadata().CAN_MOVE.setValue(false);
 
         taskExtend = new GameTask() {
             private double step = 0.0d;
+
+            @Override
+            public void run() {
+                if (step >= talent().getMaxDistanceScaled()) {
+                    contract();
+                    return;
+                }
+
+                // Create multiple chains to make extending faster
+                for (int i = 0; i < EXTEND_SPEED; i++) {
+                    nextChain();
+                }
+            }
 
             private void nextChain() {
                 if (hooked != null) {
@@ -78,6 +92,11 @@ public class TakerHook {
                 final LivingGameEntity nearest = Collect.nearestEntity(location, 1.5d, player);
 
                 if (nearest != null) {
+                    if (nearest.getMetadata().CC_AFFECT.isFalseAndNotify(gamePlayer)) {
+                        contract();
+                        return;
+                    }
+
                     hooked = nearest.getEntity();
                     double health = hooked.getHealth();
 
@@ -105,20 +124,19 @@ public class TakerHook {
 
                 location.subtract(x, y, z);
             }
-
-            @Override
-            public void run() {
-                if (step >= talent().getMaxDistanceScaled()) {
-                    contract();
-                    return;
-                }
-
-                // Create multiple chains to make extending faster
-                for (int i = 0; i < EXTEND_SPEED; i++) {
-                    nextChain();
-                }
-            }
         }.runTaskTimer(0, 1);
+    }
+
+    public void remove() {
+        Nulls.runIfNotNull(taskExtend, GameTask::cancel);
+        Nulls.runIfNotNull(taskContract, GameTask::cancel);
+
+        Utils.clearCollection(chains);
+
+        player.removePotionEffect(PotionEffectType.SLOW);
+        player.removePotionEffect(PotionEffectType.JUMP);
+
+        GamePlayer.getPlayer(player).getMetadata().CAN_MOVE.setValue(true);
     }
 
     private void contract() {
@@ -189,15 +207,5 @@ public class TakerHook {
         }));
 
         PlayerLib.playSound(location, Sound.BLOCK_CHAIN_PLACE, 1.0f);
-    }
-
-    public void remove() {
-        Nulls.runIfNotNull(taskExtend, GameTask::cancel);
-        Nulls.runIfNotNull(taskContract, GameTask::cancel);
-
-        Utils.clearCollection(chains);
-
-        player.removePotionEffect(PotionEffectType.SLOW);
-        player.removePotionEffect(PotionEffectType.JUMP);
     }
 }

@@ -9,6 +9,7 @@ public class DamageCause {
     public static final DamageCause EMPTY = new DamageCause("null", "");
 
     private final List<DeathMessage> deathMessages;
+    public boolean isProjectile;
     private DamageFormat damageFormat;
 
     private boolean custom;
@@ -18,6 +19,7 @@ public class DamageCause {
         this.deathMessages = Lists.newArrayList();
         this.canCrit = true;
         this.custom = true;
+        this.isProjectile = false;
     }
 
     private DamageCause(String string, String suffix) {
@@ -48,6 +50,11 @@ public class DamageCause {
 
     public DamageCause setCanCrit(boolean canCrit) {
         this.canCrit = canCrit;
+        return this;
+    }
+
+    public DamageCause setProjectile(boolean projectile) {
+        this.isProjectile = projectile;
         return this;
     }
 

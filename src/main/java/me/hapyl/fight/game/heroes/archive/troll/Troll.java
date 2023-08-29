@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.heroes.archive.troll;
 
 import com.google.common.collect.Maps;
-import me.hapyl.fight.event.DamageInput;
-import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.event.io.DamageInput;
+import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -10,7 +10,6 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
-import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -34,7 +33,6 @@ public class Troll extends Hero implements Listener {
     public Troll() {
         super("Troll");
 
-        setRole(Role.MELEE);
         setArchetype(Archetype.STRATEGY);
 
         setDescription("Not a good fighter... but definitely a good troll!");
@@ -106,14 +104,14 @@ public class Troll extends Hero implements Listener {
 
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
+        final GamePlayer killer = input.getDamagerAsPlayer();
+        final LivingGameEntity entity = input.getEntity();
+
+        if (killer == null) {
+            return null;
+        }
+
         if (Math.random() >= 0.98) {
-            final LivingGameEntity entity = input.getDamagerAsLiving();
-            final GamePlayer killer = input.getPlayer();
-
-            if (entity == null) {
-                return null;
-            }
-
             entity.setLastDamager(killer);
             entity.setLastDamageCause(EnumDamageCause.TROLL_LAUGH);
             entity.die(true);

@@ -2,6 +2,7 @@ package me.hapyl.fight.event;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.attribute.CriticalResponse;
@@ -11,6 +12,7 @@ import me.hapyl.fight.game.entity.EntityData;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.parkour.CFParkour;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.setting.Setting;
@@ -19,7 +21,6 @@ import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.tutorial.Tutorial;
 import me.hapyl.fight.game.ui.display.DamageDisplay;
 import me.hapyl.spigotutils.EternaPlugin;
@@ -60,6 +61,8 @@ import java.util.Random;
  * Handles all player related events.
  */
 public class PlayerHandler implements Listener {
+
+    public static final double RANGE_SCALE = 8.933d;
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handlePlayerJoin(PlayerJoinEvent ev) {
@@ -203,8 +206,7 @@ public class PlayerHandler implements Listener {
                 return;
             }
 
-            //ultimate.execute0(player);
-            hero.useUltimate(player);
+            hero.useUltimate0(player);
             ultimate.startCd(player);
             gamePlayer.setUltPoints(0);
 
@@ -233,9 +235,6 @@ public class PlayerHandler implements Listener {
         // ignore if using ultimate
     }
 
-    public static final double RANGE_SCALE = 8.933d;
-
-
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handleDamage0(EntityDamageEvent ev) {
         final Entity entity = ev.getEntity();
@@ -257,20 +256,18 @@ public class PlayerHandler implements Listener {
         // needed to handle custom damage/causes.
         final LivingGameEntity gameEntity = CF.getEntity(livingEntity);
 
-        if (gameEntity == null) {
-            ev.setCancelled(true);
-            return;
-        }
-        // Ignore lobby damage unless game entity
-        else if (!Manager.current().isGameInProgress()) {
+        if (!Manager.current().isGameInProgress()) {
+            // Ignore lobby damage unless game entity
             // Don't cancel when falling on slime block for a slime glitch
             if (entity.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() == Material.SLIME_BLOCK) {
                 ev.setDamage(0.0d);
                 return;
             }
 
-            processLobbyDamage(entity, cause);
-            ev.setCancelled(true);
+            processLobbyDamage(livingEntity, ev);
+        }
+
+        if (gameEntity == null) {
             return;
         }
 
@@ -284,6 +281,7 @@ public class PlayerHandler implements Listener {
 
         // Reassign cause
         data.setLastDamageCauseIfNative(cause);
+        instance.cause = data.getLastDamageCauseNonNull();
 
         // PRE-EVENTS TESTS, SUCH AS GAME EFFECT, ETC.
         // Test for fall damage resistance
@@ -294,8 +292,7 @@ public class PlayerHandler implements Listener {
         }
 
         // Calculate base damage and find final damager
-        if (ev instanceof
-                EntityDamageByEntityEvent ev2) {
+        if (ev instanceof EntityDamageByEntityEvent ev2) {
             final Entity damager = ev2.getDamager();
 
             // Ignore self-damage for the following
@@ -343,8 +340,6 @@ public class PlayerHandler implements Listener {
                 }
             }
 
-
-            // Process invisibility
             final LivingGameEntity lastDamager = data.getLastDamagerAsLiving();
             instance.damager = lastDamager;
 
@@ -359,11 +354,9 @@ public class PlayerHandler implements Listener {
             }
 
             // Process player to player checks
-            if (entity instanceof Player player && lastDamager instanceof Player playerDamager) {
-                // Check for teammate
-                if (GameTeam.isTeammate(player, playerDamager)) {
-                    Chat.sendMessage(playerDamager, "&cCannot damage teammates!");
-
+            if (gameEntity instanceof GamePlayer player && lastDamager instanceof GamePlayer playerDamager) {
+                if (player.getTeam().isTeamMembers(player, playerDamager)) {
+                    playerDamager.sendMessage("&cCannot damage teammates!");
                     ev.setDamage(0.0d);
                     ev.setCancelled(true);
                     return;
@@ -481,11 +474,17 @@ public class PlayerHandler implements Listener {
         }
 
         // PROCESS GAME ENTITY DAMAGE
-        instance.fromOutput(gameEntity.onDamageTaken(instance.toInput()));
+        instance.fromOutput(gameEntity.onDamageTaken0(instance.toInput()));
 
         if (lastDamager != null) {
-            instance.fromOutput(lastDamager.onDamageDealt(instance.toInput()));
+            instance.fromOutput(lastDamager.onDamageDealt0(instance.toInput()));
         }
+
+        // PROCESS MAP DAMAGE
+        final GameMaps currentMap = Manager.current().getCurrentMap();
+
+        instance.fromOutput(currentMap.getMap().onDamageTaken(instance.toInput()));
+        instance.fromOutput(currentMap.getMap().onDamageDealt(instance.toInput()));
 
         if (instance.isCancel()) {
             ev.setCancelled(true);
@@ -498,6 +497,15 @@ public class PlayerHandler implements Listener {
         // Store data in DamageData
         data.setLastDamage(instance.damage);
         data.setCrit(instance.isCrit);
+
+        // CALL DAMAGE EVENT
+        final GameDamageEvent event = instance.toEvent();
+        Bukkit.getPluginManager().callEvent(event);
+
+        if (event.isCancelled()) {
+            ev.setCancelled(true);
+            return;
+        }
 
         // Show damage indicator if dealt more
         // than 1 damage to remove clutter
@@ -784,10 +792,14 @@ public class PlayerHandler implements Listener {
 
     }
 
-    private void processLobbyDamage(@Nonnull Entity entity, @Nonnull EntityDamageEvent.DamageCause cause) {
+    private void processLobbyDamage(@Nonnull LivingEntity entity, @Nonnull EntityDamageEvent ev) {
+        final EntityDamageEvent.DamageCause cause = ev.getCause();
+
         if (!(entity instanceof Player player)) {
             return;
         }
+
+        ev.setCancelled(true);
 
         final ParkourManager parkourManager = EternaPlugin.getPlugin().getParkourManager();
         final Data data = parkourManager.getData(player);

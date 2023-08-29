@@ -1,5 +1,7 @@
-package me.hapyl.fight.game.attribute;
+package me.hapyl.fight.game.attribute.temper;
 
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.util.ConcurrentTable;
 
 import javax.annotation.Nonnull;
@@ -29,8 +31,10 @@ import javax.annotation.Nullable;
 public final class AttributeTemperTable {
 
     private final ConcurrentTable<Temper, AttributeType, AttributeTemper> tempers;
+    private final EntityAttributes attributes;
 
-    public AttributeTemperTable() {
+    public AttributeTemperTable(EntityAttributes attributes) {
+        this.attributes = attributes;
         this.tempers = new ConcurrentTable<>();
     }
 
@@ -43,6 +47,7 @@ public final class AttributeTemperTable {
             @Override
             public void run() {
                 remove(temper, type);
+                type.attribute.update(attributes.getGameEntity(), attributes.get(type));
             }
         });
     }

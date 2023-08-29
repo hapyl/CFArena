@@ -59,7 +59,6 @@ public class Librarian extends Hero implements ComplexHero, Listener, DisabledHe
         talentMap.put(3, (LibrarianTalent) Talents.LIBRARIAN_SHIELD.getTalent());
         talentMap.put(4, (LibrarianTalent) Talents.WEAPON_DARKNESS.getTalent());
 
-        setRole(Role.STRATEGIST);
         setItem("a88b1cd9574672e8e3262f210c0dddbc082ea7569e8e70f0c07b4bee75e32f62");
 
         final HeroEquipment equipment = getEquipment();

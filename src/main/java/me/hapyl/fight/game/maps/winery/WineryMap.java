@@ -60,7 +60,7 @@ public class WineryMap extends GameMap {
             }
 
             @Override
-            public void tick(int tick) {
+            public void tick(int tickMod20) {
 
             }
         });

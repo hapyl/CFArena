@@ -39,7 +39,7 @@ public class DragonsGorge extends GameMap {
             }
 
             @Override
-            public void tick(int tick) {
+            public void tick(int tickMod20) {
                 final Collection<GamePlayer> players = CF.getPlayers();
 
                 players.forEach(gamePlayer -> {
@@ -59,7 +59,7 @@ public class DragonsGorge extends GameMap {
                     }
 
                     // Punish
-                    if (tick == 0) {
+                    if (tickMod20 == 0) {
                         // Display cold meter
                         if (newValue > 0) {
                             gamePlayer.sendTitle("", ProgressBarBuilder.of("❄", ChatColor.AQUA, newValue, maxColdValue), 0, 25, 5);

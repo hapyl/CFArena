@@ -48,19 +48,18 @@ public record DeathMessage(String message, String damagerSuffix) {
 
     @Nonnull
     public String format(@Nonnull GamePlayer player, @Nullable GameEntity killer, double distance) {
-        return format(player, getValidPronoun(killer), distance);
-    }
-
-    @Nonnull
-    public String format(@Nonnull GamePlayer player, @Nonnull String killer, double distance) {
-        final String message = message().replace(DAMAGER_PLACEHOLDER, killer);
-        final String suffix = damagerSuffix().replace(DAMAGER_PLACEHOLDER, killer);
-        final String longDistanceSuffix = distance >= 20.0d ? " (from %.1f meters away!)".formatted(distance) : "";
+        final String killerPronoun = getValidPronoun(killer);
+        final String message = message().replace(DAMAGER_PLACEHOLDER, killerPronoun);
+        final String suffix = damagerSuffix().replace(DAMAGER_PLACEHOLDER, killerPronoun);
+        final String longDistanceSuffix =
+                (player.getLastDamageCause().isProjectile() && distance >= 20.0d)
+                        ? " (from %.1f meters away!)".formatted(distance)
+                        : "";
 
         String string;
         final String playerName = player.getName();
 
-        if (killer.isBlank()) {
+        if (killerPronoun.isBlank()) {
             string = "%s %s".formatted(playerName, message + longDistanceSuffix);
         }
         else {

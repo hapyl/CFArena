@@ -6,7 +6,6 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
-import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -38,7 +37,6 @@ public class Vortex extends Hero implements UIComponent {
     public Vortex() {
         super("Vortex");
 
-        setRole(Role.STRATEGIST);
         setArchetype(Archetype.STRATEGY);
 
         setDescription("A young boy with the power of speaking to starts...");

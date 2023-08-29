@@ -16,11 +16,19 @@ public class EntityHandler implements Listener {
         final Entity entity = ev.getEntity();
         final Manager manager = Manager.current();
 
-        if (!(entity instanceof LivingEntity living) || manager.isEntity(living) || manager.isIgnored(living)) {
+        if (!(entity instanceof LivingEntity living)) {
+            return;
+        }
+
+        // adding delay because it's the easiest way to do so.
+        // in reality tho, all entities
+        if (manager.isEntity(living) || manager.isIgnored(living)) {
             return;
         }
 
         manager.createEntity(living);
+        // who cares it's probably temp entity
+        //Debug.warn("Created GameEntity for %s because a developer used the wrong way to spawn entities!", living.getName());
     }
 
     @EventHandler()

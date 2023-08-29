@@ -6,7 +6,6 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
-import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -35,7 +34,6 @@ public class DrEd extends Hero implements UIComponent {
     public DrEd() {
         super("Dr. Ed");
 
-        setRole(Role.STRATEGIST);
         setArchetype(Archetype.STRATEGY);
 
         setDescription("Simply named scientist with not so simple inventions...");

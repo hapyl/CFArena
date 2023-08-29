@@ -5,15 +5,25 @@ import org.bukkit.ChatColor;
 
 import javax.annotation.Nonnull;
 
+/**
+ * Represents a type of the entity.
+ * Mainly used for health/name display.
+ */
 public enum EntityType {
 
+    /**
+     * A friendly entity that should not attack player.
+     */
     FRIENDLY {
         @Nonnull
         @Override
         public String formatName(@Nonnull String name) {
-            return ChatColor.GREEN + "🐰 " + name;
+            return ChatColor.GREEN + name;
         }
     },
+    /**
+     * A friendly entity by itself, but will attack if attacked.
+     */
     PASSIVE {
         @Nonnull
         @Override
@@ -21,20 +31,48 @@ public enum EntityType {
             return ChatColor.YELLOW + name;
         }
     },
+    /**
+     * A hostile entity, attacks players and/or other entities.
+     */
     HOSTILE {
         @Nonnull
         @Override
         public String formatName(@Nonnull String name) {
-            return ChatColor.DARK_RED + "☠ " + ChatColor.RED + name;
+            return ChatColor.RED + name;
         }
     },
-    BOSS {
-        // ﴾ ﴿
+    /**
+     * A mini-boss entity, usually with custom abilities.
+     */
+    MINIBOSS {
+        @Nonnull
+        @Override
+        public String formatName(@Nonnull String name) {
+            return "&c☠ &b&l" + name;
+        }
 
+        @Nonnull
+        public String formatHealth(@Nonnull NamedGameEntity<?> entity) {
+            final double health = entity.getHealth();
+            final double maxHealth = entity.getMaxHealth();
+            final ChatColor healthColor = getHealthColor(health, maxHealth);
+
+            return healthColor + getHealthString(health);
+        }
+    },
+    /**
+     * A boss entity, usually MUCH stronger than the mini-boss and has "phases".
+     */
+    BOSS {
         @Nonnull
         @Override
         public String formatName(@Nonnull String name) {
             return "&e&l﴾ " + Color.ERROR + name + " &e&l﴿";
+        }
+
+        @Nonnull
+        public String formatHealth(@Nonnull NamedGameEntity<?> entity) {
+            return MINIBOSS.formatHealth(entity);
         }
     };
 
@@ -44,15 +82,28 @@ public enum EntityType {
     }
 
     @Nonnull
-    public String formatHealth(@Nonnull NamedGameEntity entity) {
+    public String formatHealth(@Nonnull NamedGameEntity<?> entity) {
         final double health = entity.getHealth();
         final double maxHealth = entity.getMaxHealth();
         final ChatColor healthColor = getHealthColor(health, maxHealth);
 
-        return healthColor + getHealthString(health) + "&7/&c" + getHealthString(maxHealth);
+        return healthColor + getHealthString(health) + "&7/&a" + getHealthString(maxHealth);
     }
 
-    private String getHealthString(double health) {
+    protected final ChatColor getHealthColor(double health, double maxHealth) {
+        double percentHealth = health / maxHealth;
+
+        if (percentHealth <= 0.25d) {
+            return ChatColor.RED;
+        }
+        else if (percentHealth <= 0.5d) {
+            return ChatColor.YELLOW;
+        }
+
+        return ChatColor.GREEN;
+    }
+
+    protected final String getHealthString(double health) {
         if (health < 1000000) {
             return String.format("%.0f", health);
         }
@@ -62,19 +113,6 @@ public enum EntityType {
         else {
             return String.format("%.1fB", health / 1e9);
         }
-    }
-
-    private ChatColor getHealthColor(double health, double maxHealth) {
-        double percentHealth = health / maxHealth;
-
-        if (percentHealth <= 0.0d) {
-            return ChatColor.DARK_RED;
-        }
-        else if (percentHealth <= 0.5d) {
-            return ChatColor.YELLOW;
-        }
-
-        return ChatColor.RED;
     }
 
 }

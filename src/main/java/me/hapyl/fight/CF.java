@@ -5,11 +5,13 @@ import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.cosmetic.crate.CrateManager;
+import me.hapyl.fight.game.entity.ConsumerFunction;
 import me.hapyl.fight.game.entity.GameEntity;
-import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.util.Collect;
+import me.hapyl.spigotutils.module.entity.Entities;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
@@ -18,7 +20,10 @@ import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 
@@ -87,7 +92,13 @@ public final class CF {
             return null;
         }
 
-        return getEntity(entity.getUniqueId());
+        final LivingGameEntity gameEntity = getEntity(entity.getUniqueId());
+        return gameEntity == null ? null : gameEntity.getGameEntity();
+    }
+
+    @Nonnull
+    public static <T extends LivingEntity, E extends GameEntity> E createEntity(@Nonnull Location location, @Nonnull Entities<T> type, @Nonnull ConsumerFunction<T, E> consumer) {
+        return Manager.current().createEntity(type.spawn(location, self -> Manager.current().addIgnored(self)), consumer);
     }
 
     @Nullable
@@ -183,5 +194,10 @@ public final class CF {
 
     public static void registerEvents(@Nonnull Listener listener) {
         Bukkit.getPluginManager().registerEvents(listener, plugin);
+    }
+
+    @Nullable
+    public static GameEntity getEntityById(int entityId) {
+        return manager.getEntityById(entityId);
     }
 }

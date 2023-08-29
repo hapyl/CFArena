@@ -59,7 +59,7 @@ public class Molotov extends Talent implements Listener {
 
             @Override
             public void run() {
-                // fly down if in air for 3s or more
+                // fly down if in the air for 3s or more
                 if (flightTick-- <= 0) {
                     item.setVelocity(new Vector(0.0d, -0.25d, 0.0d));
                 }

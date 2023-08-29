@@ -2,8 +2,8 @@ package me.hapyl.fight.game.heroes.archive.harbinger;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.event.DamageInput;
-import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.event.io.DamageInput;
+import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -11,7 +11,6 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
-import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -55,7 +54,6 @@ public class Harbinger extends Hero implements Listener, UIComponent {
     public Harbinger() {
         super("Harbinger", "She is a harbinger of unknown organization. Nothing else is known.", Material.ANVIL);
 
-        setRole(Role.MELEE_RANGE);
         setArchetype(Archetype.STRATEGY);
 
         setMinimumLevel(5);
@@ -70,21 +68,21 @@ public class Harbinger extends Hero implements Listener, UIComponent {
 
         setUltimate(new UltimateTalent(
                 "Crowned Mastery",
-                "Gather the energy around you to execute a fatal slash:____While in &e&lRange Stance&7, shoot a magic arrow in front of you that explodes on impact, dealing AoE damage and applying &bRiptide &7effect to opponents.____While in &e&lMelee Stance&7, perform a slash around you that deals AoE damage and executes &bRiptide Slash &7if opponent is affected by &bRiptide&7.",
+                "Gather the surrounding energy to execute a fatal slash:____While in &e&lRange Stance&7, shoot a magic arrow in front of you that explodes on impact, dealing AoE damage and applying &bRiptide &7effect to opponents.____While in &e&lMelee Stance&7, perform a slash around you that deals AoE damage and executes &bRiptide Slash &7if opponent is affected by &bRiptide&7.",
                 70
         ).setItem(Material.DIAMOND).setDuration(40));
     }
 
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final Player player = input.getBukkitPlayer();
-        final LivingGameEntity entity = input.getDamagerAsLiving();
+        final GamePlayer player = input.getDamagerAsPlayer();
+        final LivingGameEntity entity = input.getEntity();
 
-        if (entity == null || !Talents.STANCE.getTalent(MeleeStance.class).isActive(player)) {
+        if (player == null || !Talents.STANCE.getTalent(MeleeStance.class).isActive(player.getPlayer())) {
             return null;
         }
 
-        executeRiptideSlashIfPossible(player, entity.getEntity());
+        executeRiptideSlashIfPossible(player.getPlayer(), entity.getEntity());
         return null;
     }
 

@@ -1,4 +1,4 @@
-package me.hapyl.fight.event;
+package me.hapyl.fight.event.io;
 
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.entity.GameEntity;
@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Optional;
 
 /**
  * Represents wrapped damage input.
@@ -52,15 +53,18 @@ public class DamageInput {
     }
 
     /**
-     * Gets the player, either the player who got hit or the player who is damaging based on the event.
+     * Gets the entity that is being damaged.
      */
     @Nonnull
     public LivingGameEntity getEntity() {
         return entity;
     }
 
+    /**
+     * @return Gets the <b>entity</b> as a player <b>if the entity is a player</b>, throws {@link IllegalArgumentException} otherwise.
+     */
     @Nonnull
-    public GamePlayer getPlayer() {
+    public GamePlayer getEntityAsPlayer() {
         if (entity instanceof GamePlayer gamePlayer) {
             return gamePlayer;
         }
@@ -68,9 +72,12 @@ public class DamageInput {
         throw new IllegalArgumentException(entity + " is not a player");
     }
 
+    /**
+     * Gets the entity as a bukkit player, throws {@link IllegalArgumentException} if entity is not a player.
+     */
     @Nonnull
     public Player getBukkitPlayer() {
-        return getPlayer().getPlayer();
+        return getEntityAsPlayer().getPlayer();
     }
 
     /**
@@ -101,6 +108,9 @@ public class DamageInput {
         return isCrit;
     }
 
+    /**
+     * Gets the damager as a living game entity if present, null otherwise.
+     */
     @Nullable
     public LivingGameEntity getDamagerAsLiving() {
         if (damager instanceof LivingGameEntity living) {
@@ -108,6 +118,29 @@ public class DamageInput {
         }
 
         return null;
+    }
+
+    /**
+     * Gets the damager as a GamePlayer if it is a GamePlayer, null otherwise.
+     */
+    @Nullable
+    public GamePlayer getDamagerAsPlayer() {
+        if (damager instanceof GamePlayer player) {
+            return player;
+        }
+
+        return null;
+    }
+
+    @Nullable
+    public Player getDamagerAsBukkitPlayer() {
+        final GamePlayer player = getDamagerAsPlayer();
+        return player == null ? null : player.getPlayer();
+    }
+
+    @Nonnull
+    public Optional<GameEntity> getDamagerOptional() {
+        return damager == null ? Optional.empty() : Optional.of(damager);
     }
 
     public static DamageInput clone(DamageInput data, double newDamage) {

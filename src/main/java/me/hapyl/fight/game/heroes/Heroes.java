@@ -12,6 +12,7 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.archive.alchemist.Alchemist;
 import me.hapyl.fight.game.heroes.archive.archer.Archer;
+import me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend;
 import me.hapyl.fight.game.heroes.archive.bounty_hunter.BountyHunter;
 import me.hapyl.fight.game.heroes.archive.dark_mage.DarkMage;
 import me.hapyl.fight.game.heroes.archive.doctor.DrEd;
@@ -108,13 +109,14 @@ public enum Heroes implements Formatted {
     // 1.6
     ORC(new Orc()),
 
+    // 2.0
+    BLOODFIEND(new Bloodfiend()),
 
     ;
 
     public static final Heroes DEFAULT_HERO = ARCHER;
 
     private final static List<Heroes> PLAYABLE = Lists.newArrayList();
-    private final static Map<Role, List<Heroes>> BY_ROLE = Maps.newHashMap();
     private final static Map<Archetype, List<Heroes>> BY_ARCHETYPE = Maps.newHashMap();
     private final static Map<Hero, Heroes> BY_HANDLE = Maps.newHashMap();
 
@@ -129,14 +131,11 @@ public enum Heroes implements Formatted {
                 continue;
             }
 
-            // Store role/archetype for easier grab
-            final Role role = hero.hero.getRole();
+            // Store archetype for easier grab
             final Archetype archetype = hero.hero.getArchetype();
 
-            final List<Heroes> byRole = BY_ROLE.computeIfAbsent(role, l -> Lists.newArrayList());
             final List<Heroes> byArchetype = BY_ARCHETYPE.computeIfAbsent(archetype, l -> Lists.newArrayList());
 
-            byRole.add(hero);
             byArchetype.add(hero);
 
             // Add playable
@@ -339,17 +338,6 @@ public enum Heroes implements Formatted {
      */
     public static List<String> playableStings() {
         return playable().stream().map(Enum::name).toList();
-    }
-
-    /**
-     * Returns list of heroes by role.
-     *
-     * @param role - Role to get heroes by.
-     * @return list of heroes by role.
-     */
-    @Deprecated
-    public static List<Heroes> byRole(@Nonnull Role role) {
-        return Lists.newArrayList(BY_ROLE.computeIfAbsent(role, (s) -> Lists.newArrayList()));
     }
 
     /**

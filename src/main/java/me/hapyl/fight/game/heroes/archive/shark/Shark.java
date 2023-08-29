@@ -1,14 +1,13 @@
 package me.hapyl.fight.game.heroes.archive.shark;
 
-import me.hapyl.fight.event.DamageInput;
-import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.event.io.DamageInput;
+import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
-import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -39,7 +38,6 @@ public class Shark extends Hero implements Listener {
                 "Strong warrior from the &3Depth of Waters&8&o... not well versed in on-land fights but don't let it touch the water, or you'll regret it."
         );
 
-        setRole(Role.STRATEGIST);
         setArchetype(Archetype.STRATEGY);
 
         setItem("3447e7e8271f573969f2da734c4125f93b2864fb51db69da5ecba7487cf882b0");
@@ -113,15 +111,16 @@ public class Shark extends Hero implements Listener {
 
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final Player player = input.getBukkitPlayer();
-        final LivingGameEntity entity = input.getDamagerAsLiving();
-        if (player.hasCooldown(getPassiveTalent().getMaterial()) || entity == null || entity.is(player)) {
+        final Player player = input.getDamagerAsBukkitPlayer();
+        final LivingGameEntity entity = input.getEntity();
+
+        if (player == null || player.hasCooldown(getPassiveTalent().getMaterial()) || entity.is(player)) {
             return null;
         }
 
         if (input.isCrit()) {
             GamePlayer.setCooldown(player, getPassiveTalent().getMaterial(), 20 * 5);
-            performCriticalHit(input.getPlayer(), entity);
+            performCriticalHit(input.getEntityAsPlayer(), entity);
         }
 
         return null;

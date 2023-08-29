@@ -34,6 +34,7 @@ public class ArcaneMute extends Talent {
             return Response.error("No light of sight!");
         }
 
+        // FIXME (hapyl): 006, Aug 6: fix this
         if (target instanceof Player targetPlayer) {
             GamePlayer.getPlayer(targetPlayer).addEffect(GameEffectType.ARCANE_MUTE, getDuration());
 
@@ -52,7 +53,7 @@ public class ArcaneMute extends Talent {
                 player,
                 range,
                 0.95,
-                entity -> entity instanceof Player && entity.hasLineOfSight(player)
+                entity -> entity.is(Player.class) && entity.hasLineOfSight(player)
         );
 
         return gameEntity == null ? null : gameEntity.getEntity();

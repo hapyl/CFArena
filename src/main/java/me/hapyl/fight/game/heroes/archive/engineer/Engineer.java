@@ -29,7 +29,6 @@ public class Engineer extends Hero implements DisabledHero {
     public Engineer() {
         super("Engineer");
 
-        setRole(Role.STRATEGIST);
         setArchetype(Archetype.STRATEGY);
 
         setItem("55f0bfea3071a0eb37bcc2ca6126a8bdd79b79947734d86e26e4d4f4c7aa9");

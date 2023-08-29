@@ -2,26 +2,24 @@ package me.hapyl.fight.game.heroes.archive.orc;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.event.DamageInput;
-import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.event.io.DamageInput;
+import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.attribute.EntityAttributes;
-import me.hapyl.fight.game.attribute.Temper;
+import me.hapyl.fight.game.attribute.HeroAttributes;
+import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
-import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.orc.OrcAxe;
 import me.hapyl.fight.game.talents.archive.orc.OrcGrowl;
 import me.hapyl.fight.game.task.PlayerTask;
-import me.hapyl.fight.game.ui.display.BuffDisplay;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -44,13 +42,10 @@ public class Orc extends Hero {
     public Orc() {
         super("Pakarat Rakab");
 
-        setDescription("Orc.");
-
-        setRole(Role.MELEE);
         setArchetype(Archetype.DAMAGE);
 
         final HeroAttributes attributes = getAttributes();
-        attributes.setValue(AttributeType.HEALTH, 150);
+        attributes.setValue(AttributeType.MAX_HEALTH, 150);
         attributes.setValue(AttributeType.DEFENSE, 0.6d);
         attributes.setValue(AttributeType.SPEED, 0.22d);
         attributes.setValue(AttributeType.CRIT_CHANCE, 0.15d);
@@ -76,6 +71,7 @@ public class Orc extends Hero {
                                         While active, gain:
                                         • &aIncreased %s.
                                         • &aIncreased %s.
+                                        • &aIncreased %s.
                                         • &c-70 %s.
                                         """,
                                 Named.BERSERK,
@@ -90,7 +86,7 @@ public class Orc extends Hero {
     @Nullable
     @Override
     public DamageOutput processDamageAsVictim(DamageInput input) {
-        final Player player = input.getPlayer().getPlayer();
+        final Player player = input.getEntityAsPlayer().getPlayer();
         final EnumDamageCause cause = input.getDamageCauseOr(EnumDamageCause.NONE);
         final double damage = input.getDamage();
 
@@ -130,13 +126,7 @@ public class Orc extends Hero {
         final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
         final EntityAttributes attributes = gamePlayer.getAttributes();
 
-        attributes.increaseTemporary(Temper.BERSERK_MODE, AttributeType.ATTACK, 0.5d, duration);
-        attributes.increaseTemporary(Temper.BERSERK_MODE, AttributeType.SPEED, 0.05d, duration);
-        attributes.increaseTemporary(Temper.BERSERK_MODE, AttributeType.CRIT_CHANCE, 0.4d, duration);
-        attributes.decreaseTemporary(Temper.BERSERK_MODE, AttributeType.DEFENSE, 0.7d, duration);
-
-        new BuffDisplay(Named.BERSERK.toString(), 30).display(player.getLocation());
-        Chat.sendMessage(player, "%s &aYou're berserk!", Named.BERSERK.getCharacter());
+        Temper.BERSERK_MODE.temper(attributes, duration);
 
         // Fx
         new PlayerTask(player) {

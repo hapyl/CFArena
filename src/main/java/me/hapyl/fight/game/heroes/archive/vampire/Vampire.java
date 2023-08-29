@@ -5,8 +5,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
-import me.hapyl.fight.event.DamageInput;
-import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.event.io.DamageInput;
+import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -75,7 +75,6 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
 
         vampireData = Maps.newHashMap();
 
-        setRole(Role.MELEE);
         setItem("8d44756e0b4ece8d746296a3d5e297e1415f4ba17647ffe228385383d161a9");
 
         final HeroEquipment equipment = getEquipment();
@@ -191,7 +190,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
 
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final Player player = input.getBukkitPlayer();
+        final Player player = input.getDamagerAsBukkitPlayer();
         final VampireData data = getData(player);
 
         if (isUsingUltimate(player)) {

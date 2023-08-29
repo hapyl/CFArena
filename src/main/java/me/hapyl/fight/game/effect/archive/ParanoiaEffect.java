@@ -6,7 +6,6 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
 import me.hapyl.spigotutils.module.util.ThreadRandom;
 import org.bukkit.*;
-import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
 public class ParanoiaEffect extends GameEffect {
@@ -46,16 +45,16 @@ public class ParanoiaEffect extends GameEffect {
             if (ThreadRandom.nextFloatAndCheckBetween(0.6f, 1.0f) && !location.getBlock().getType().isAir()) {
                 final SoundGroup soundGroup = location.getBlock().getBlockData().getSoundGroup();
 
-                if (entity instanceof Player player) {
+                entity.asPlayer(player -> {
                     player.playSound(location, soundGroup.getStepSound(), SoundCategory.MASTER, 1, 1);
-                }
+                });
             }
             else {
                 final Sound sound = CollectionUtils.randomElement(decoySounds, decoySounds[0]);
 
-                if (entity instanceof Player player) {
+                entity.asPlayer(player -> {
                     player.playSound(location, sound, SoundCategory.MASTER, 1, sound == Sound.AMBIENT_CAVE ? 2 : 1);
-                }
+                });
             }
         }
     }

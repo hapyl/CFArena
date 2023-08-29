@@ -122,7 +122,7 @@ public class PlayerProfile {
 
         //// FIXME (hapyl): 001, Aug 1:
         //final RuntimeException error = new RuntimeException();
-        //CF.getLogger().warning("CALLED CREATE GAME PLAYE");
+        //CF.getLogger().warning("CALLED CREATE GAME PLAYER");
         //error.printStackTrace();
 
         return gamePlayer;

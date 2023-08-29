@@ -74,7 +74,7 @@ public class FlowerEscape extends Talent {
                     entity.remove();
                     PlayerLib.playSound(location, Sound.ITEM_TOTEM_USE, 2.0f);
                     PlayerLib.spawnParticle(location, Particle.SPELL_MOB, 15, 1, 0.5, 1, 0);
-                    Collect.nearbyPlayers(location, flowerRadius).forEach(victim -> {
+                    Collect.nearbyEntities(location, flowerRadius).forEach(victim -> {
                         victim.damage(finalDamage * 2.0d, player, EnumDamageCause.FLOWER);
                     });
 
@@ -107,7 +107,7 @@ public class FlowerEscape extends Talent {
                         }
                     });
 
-                    Collect.nearbyPlayers(fixedLocation, flowerRadius).forEach(target -> {
+                    Collect.nearbyEntities(fixedLocation, flowerRadius).forEach(target -> {
                         target.damage(finalDamage, player, EnumDamageCause.FLOWER);
                     });
 

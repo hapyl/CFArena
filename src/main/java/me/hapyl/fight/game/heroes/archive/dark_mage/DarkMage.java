@@ -3,8 +3,8 @@ package me.hapyl.fight.game.heroes.archive.dark_mage;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.KeepNull;
-import me.hapyl.fight.event.DamageInput;
-import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.event.io.DamageInput;
+import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
@@ -59,7 +59,6 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
     public DarkMage() {
         super("Dark Mage");
 
-        setRole(Role.MELEE);
         setArchetype(Archetype.MAGIC);
 
         setDescription("A mage that was cursed by &8&lDark &8&lMagic&8&o. But even it couldn't kill him...");
@@ -212,7 +211,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
     @Override
     public DamageOutput processDamageAsVictim(DamageInput input) {
         final ShadowClone talent = getFourthTalent();
-        final Player player = input.getPlayer().getPlayer();
+        final Player player = input.getEntityAsPlayer().getPlayer();
         final LivingGameEntity entity = input.getDamagerAsLiving();
         final ShadowCloneNPC clone = talent.getClone(player);
 
@@ -220,10 +219,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         if (entity != null && new Random().nextDouble() < PASSIVE_CHANCE) {
             entity.addEffect(GameEffectType.WITHER_BLOOD, 60, true);
 
-            if (entity instanceof Player playerEntity) {
-                Chat.sendMessage(playerEntity, "&8☠ &c%s poisoned your blood!", player.getName());
-            }
-
+            entity.sendMessage("&8☠ &c%s poisoned your blood!", player.getName());
             Chat.sendMessage(player, "&8☠ &aYou poisoned %s's blood!", entity.getName());
         }
 
@@ -250,16 +246,15 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
     @Nullable
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final GamePlayer gamePlayer = input.getPlayer();
-        final Player player = gamePlayer.getPlayer();
-        final LivingGameEntity entity = input.getDamagerAsLiving();
+        final GamePlayer gamePlayer = input.getDamagerAsPlayer();
+        final LivingGameEntity entity = input.getEntity();
 
         // Skip witherboard damage
-        if (entity == null || input.getDamageCause() == EnumDamageCause.WITHERBORN) {
+        if (gamePlayer == null || input.getDamageCause() == EnumDamageCause.WITHERBORN) {
             return null;
         }
 
-        final WitherData data = getWither(player);
+        final WitherData data = getWither(gamePlayer.getPlayer());
 
         if (data != null) {
             data.assistAttack(entity.getEntity());

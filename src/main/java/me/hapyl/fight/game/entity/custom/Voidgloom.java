@@ -1,14 +1,14 @@
 package me.hapyl.fight.game.entity.custom;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.event.DamageInput;
-import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.event.io.DamageInput;
+import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.attribute.Attributes;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.EntityType;
-import me.hapyl.fight.game.entity.GameEntities;
 import me.hapyl.fight.game.entity.GameEntityType;
 import me.hapyl.fight.game.entity.NamedGameEntity;
+import me.hapyl.fight.game.entity.event.EventType;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -23,16 +23,14 @@ import javax.annotation.Nonnull;
 
 public class Voidgloom extends GameEntityType<Enderman> implements Listener {
 
-    private static final int MAX_HITS = 15;
-
     public Voidgloom() {
         super("Voidgloom Seraph", Enderman.class);
 
         final Attributes attributes = getAttributes();
-        attributes.setHealth(200);
+        attributes.setHealth(1000);
         attributes.setDefense(50);
 
-        setType(EntityType.BOSS);
+        setType(EntityType.MINIBOSS);
     }
 
     @EventHandler()
@@ -43,10 +41,8 @@ public class Voidgloom extends GameEntityType<Enderman> implements Listener {
             return;
         }
 
-        CF.getEntityOptional(living).ifPresent(gameEntity -> {
-            if (gameEntity.isType(GameEntities.VOIDGLOOM)) {
-                ev.setCancelled(true);
-            }
+        CF.getEntity(living, VoidgloomEntity.class).ifPresent(gameEntity -> {
+
         });
     }
 
@@ -58,20 +54,33 @@ public class Voidgloom extends GameEntityType<Enderman> implements Listener {
     @Nonnull
     @Override
     public NamedGameEntity<Enderman> create(@Nonnull Enderman entity) {
-        return new Instance(this, entity);
+        return new VoidgloomEntity(this, entity);
     }
 
-    private static class Instance extends NamedGameEntity<Enderman> {
+    private static class VoidgloomEntity extends NamedGameEntity<Enderman> {
 
+        private static final int MAX_HITS = 15;
         private static final int NO_DAMAGE_TICKS = 10;
         private static final int NO_DAMAGE_TICKS_HIT = 2;
 
+        private final double HITS_THRESHOLD = getMaxHealth() / 3;
+
+        private boolean allowTeleport = false;
         private boolean hitPhase = true;
         private int hitsLeft = MAX_HITS;
         private double damageTook = 0;
 
-        public Instance(GameEntityType<Enderman> type, Enderman entity) {
+        public VoidgloomEntity(GameEntityType<Enderman> type, Enderman entity) {
             super(type, entity);
+
+            listenTo(EventType.ENTITY_TELEPORT, ev -> {
+                if (allowTeleport) {
+                    allowTeleport = false;
+                    return;
+                }
+
+                ev.setCancelled(true);
+            });
         }
 
         @Override
@@ -114,7 +123,7 @@ public class Voidgloom extends GameEntityType<Enderman> implements Listener {
             else {
                 damageTook += input.getDamage();
 
-                if (damageTook >= 100) {
+                if (damageTook >= HITS_THRESHOLD) {
                     hitsLeft = MAX_HITS;
                     entity.setMaximumNoDamageTicks(NO_DAMAGE_TICKS_HIT);
                     hitPhase = true;

@@ -1,10 +1,10 @@
 package me.hapyl.fight.util;
 
 import com.google.common.collect.Sets;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
+import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.util.BoundingBox;
 
 import javax.annotation.Nonnull;
@@ -18,25 +18,6 @@ import java.util.function.Predicate;
  */
 public class BoundingBoxCollector extends BoundingBox {
 
-    // represents an empty bounding box to remove nullability
-    public static final BoundingBoxCollector EMPTY = new BoundingBoxCollector(0, 0, 0, 0, 0, 0) {
-
-        @Override
-        public Collection<Entity> collect(@Nonnull World world, @Nullable Predicate<Entity> filter) {
-            return Sets.newHashSet();
-        }
-
-        @Override
-        public Collection<LivingEntity> collectValid(@Nonnull World world) {
-            return Sets.newHashSet();
-        }
-
-        @Override
-        public Collection<Player> collectPlayers(@Nonnull World world) {
-            return Sets.newHashSet();
-        }
-    };
-
     public BoundingBoxCollector(double x1, double y1, double z1, double x2, double y2, double z2) {
         super(x1, y1, z1, x2, y2, z2);
     }
@@ -48,8 +29,8 @@ public class BoundingBoxCollector extends BoundingBox {
      * @param filter - Filter.
      * @return collection of entities that are within this bounding box.
      */
-    public Collection<Entity> collect(@Nonnull World world, @Nullable Predicate<Entity> filter) {
-        return world.getNearbyEntities(this, filter);
+    public Collection<LivingGameEntity> collect(@Nonnull World world, @Nullable Predicate<LivingGameEntity> filter) {
+        return Collect.nearbyEntities(world, this, filter == null ? f -> true : filter);
     }
 
     /**
@@ -58,8 +39,8 @@ public class BoundingBoxCollector extends BoundingBox {
      * @param world - World.
      * @return collection of valid entities that are within this bounding box.
      */
-    public Collection<LivingEntity> collectValid(@Nonnull World world) {
-        return convert(collect(world, Utils::isEntityValid), LivingEntity.class);
+    public Collection<LivingGameEntity> collect(@Nonnull World world) {
+        return collect(world, null);
     }
 
     /**
@@ -68,21 +49,22 @@ public class BoundingBoxCollector extends BoundingBox {
      * @param world - World.
      * @return collection of players that are within this bounding box.
      */
-    public Collection<Player> collectPlayers(@Nonnull World world) {
-        return convert(collect(world, Utils::isEntityValid), Player.class);
-    }
+    public Collection<GamePlayer> collectPlayers(@Nonnull World world) {
+        final Collection<LivingGameEntity> collect = collect(world, null);
+        final Set<GamePlayer> set = Sets.newHashSet();
 
-    // class cast converter
-    private <T extends Entity> Collection<T> convert(Collection<Entity> collection, Class<T> clazz) {
-        Set<T> set = Sets.newHashSet();
-
-        collection.forEach(entity -> {
-            if (clazz.isInstance(entity)) {
-                set.add(clazz.cast(entity));
+        collect.forEach(entity -> {
+            if (entity instanceof GamePlayer gamePlayer) {
+                set.add(gamePlayer);
             }
         });
 
+        collect.clear();
         return set;
     }
 
+    public boolean isWithin(LivingGameEntity gameEntity) {
+        final Location location = gameEntity.getLocation();
+        return contains(location.getX(), location.getY(), location.getZ());
+    }
 }

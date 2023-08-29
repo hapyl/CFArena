@@ -4,7 +4,6 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
@@ -50,6 +49,7 @@ public class Utils {
     public static final Object[] DISAMBIGUATE = new Object[] {};
 
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.0");
+    private static final DecimalFormat TICK_FORMAT = new DecimalFormat("0.00");
     private static String SERVER_IP;
 
     public static String stripColor(String message) {
@@ -77,7 +77,7 @@ public class Utils {
         return builder.toString().trim();
     }
 
-    public static void setEquipment(LivingEntity entity, Consumer<EntityEquipment> consumer) {
+    public static void setEquipment(LivingEntity entity, /*@IjSg("equipment")*/ Consumer<EntityEquipment> consumer) {
         Nulls.runIfNotNull(entity.getEquipment(), consumer);
     }
 
@@ -255,8 +255,8 @@ public class Utils {
                 break;
             }
 
-            for (final LivingGameEntity gameEntity : Collect.nearbyEntities(location, 0.5)) {
-                if (gameEntity.is(shooter) || gameEntity instanceof Player player && !Manager.current().isPlayerInGame(player)) {
+            for (final LivingGameEntity gameEntity : Collect.nearbyEntities(location, 1.0)) {
+                if (gameEntity.is(shooter)) {
                     continue;
                 }
 
@@ -267,6 +267,7 @@ public class Utils {
                 if (damage > 0.0d) {
                     gameEntity.damage(damage, CF.getEntity(shooter), cause);
                 }
+
                 break main;
             }
 
@@ -528,4 +529,28 @@ public class Utils {
         Bukkit.getOnlinePlayers().forEach(player -> Reflect.sendPacket(player, packet));
     }
 
+    @Nonnull
+    public static String decimalFormat(int tick) {
+        return TICK_FORMAT.format(tick / 20.0d) + "s";
+    }
+
+    // Anchors location to the ground
+    public static void anchorLocation(@Nonnull Location location) {
+        final World world = location.getWorld();
+        if (world == null) {
+            return;
+        }
+
+        final int minHeight = world.getMinHeight();
+
+        while (true) {
+            final double y = location.getY();
+            if (y <= minHeight || location.getBlock().getType().isOccluding()) {
+                Debug.particle(location, Particle.VILLAGER_HAPPY);
+                return;
+            }
+
+            location.subtract(0.0d, 0.1d, 0.0d);
+        }
+    }
 }

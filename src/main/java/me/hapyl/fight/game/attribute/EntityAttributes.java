@@ -1,6 +1,8 @@
 package me.hapyl.fight.game.attribute;
 
 import me.hapyl.fight.game.PlayerElement;
+import me.hapyl.fight.game.attribute.temper.AttributeTemperTable;
+import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.ui.display.AttributeDisplay;
 import me.hapyl.fight.trigger.Triggers;
@@ -30,7 +32,7 @@ public class EntityAttributes extends Attributes implements PlayerElement {
     public EntityAttributes(LivingGameEntity gameEntity, Attributes baseAttributes) {
         this.gameEntity = gameEntity;
         this.baseAttributes = Attributes.copyOf(baseAttributes);
-        this.tempers = new AttributeTemperTable();
+        this.tempers = new AttributeTemperTable(this);
 
         mapped.clear(); // default to 0
     }
@@ -48,7 +50,7 @@ public class EntityAttributes extends Attributes implements PlayerElement {
      */
     @Override
     public double get(AttributeType type) {
-        return getBase(type) + super.get(type) + tempers.get(type);
+        return Math.min(getBase(type) + super.get(type) + tempers.get(type), type.maxValue());
     }
 
     public final int getFerocityStrikes() {
@@ -87,6 +89,8 @@ public class EntityAttributes extends Attributes implements PlayerElement {
         if (newTemper) {
             display(type, value > -value);
         }
+
+        type.attribute.update(gameEntity, get(type));
     }
 
     /**
@@ -202,6 +206,10 @@ public class EntityAttributes extends Attributes implements PlayerElement {
     @Nonnull
     public Attributes getBaseAttributes() {
         return baseAttributes;
+    }
+
+    public boolean hasTemper(Temper temper) {
+        return tempers.has(temper);
     }
 
     private void display(AttributeType type, boolean isBuff) {

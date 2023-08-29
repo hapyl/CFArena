@@ -1,12 +1,10 @@
 package me.hapyl.fight.game.heroes.archive.nightmare;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
-import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -25,7 +23,6 @@ public class Nightmare extends Hero {
     public Nightmare() {
         super("Nightmare");
 
-        setRole(Role.ASSASSIN);
         setArchetype(Archetype.DAMAGE);
 
         setDescription("A spirit from the worst dreams and nightmares, blinds enemies and strikes from behind!");

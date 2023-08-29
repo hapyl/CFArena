@@ -1,8 +1,9 @@
 package me.hapyl.fight.game.heroes.archive.witcher;
 
-import me.hapyl.fight.event.DamageInput;
-import me.hapyl.fight.event.DamageOutput;
+import me.hapyl.fight.event.io.DamageInput;
+import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.PlayerElement;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.Talent;
@@ -13,7 +14,6 @@ import me.hapyl.fight.game.talents.archive.witcher.Kven;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -31,7 +31,6 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
     public WitcherClass() {
         super("The Witcher");
 
-        setRole(Role.MELEE);
         setArchetype(Archetype.DAMAGE);
 
         setDescription("Some say that he's the most trained Witcher ever; Well versed in any kind of magic...");
@@ -94,17 +93,21 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
 
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final Player player = input.getBukkitPlayer();
-        final Combo combo = getCombo(player);
-        final LivingGameEntity entity = input.getDamagerAsLiving();
+        final GamePlayer player = input.getDamagerAsPlayer();
+        final LivingGameEntity entity = input.getEntity();
 
+        if (player == null) {
+            return null;
+        }
+
+        final Combo combo = getCombo(player.getPlayer());
         double damage = input.getDamage();
 
-        if (combo.getEntity() == null && entity != null && entity.isNot(player)) {
+        if (combo.getEntity() == null && entity != player) {
             combo.setEntity(entity.getEntity());
         }
 
-        if (!combo.validateSameEntity(entity == null ? null : entity.getEntity())) {
+        if (!combo.validateSameEntity(entity.getEntity())) {
             combo.reset();
         }
 
@@ -122,13 +125,12 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
         if (comboHits > 2) {
             damage += damage * ((comboHits - 2) * 0.15);
 
-            // fx
-            PlayerLib.playSound(player, Sound.ITEM_SHIELD_BREAK, 1.75f);
-            Chat.sendTitle(player, "        &6Combo", "          &4&lx" + (comboHits - 2), 0, 25, 25);
+            // Fx
+            player.playSound(Sound.ITEM_SHIELD_BREAK, 1.75f);
+            player.sendTitle("        &6Combo", "          &4&lx" + (comboHits - 2), 0, 25, 25);
         }
 
         return new DamageOutput(damage);
-
     }
 
     @Override

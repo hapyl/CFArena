@@ -8,7 +8,6 @@ import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroEquipment;
-import me.hapyl.fight.game.heroes.Role;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -49,7 +48,6 @@ public class Archer extends Hero implements Listener {
     public Archer() {
         super("Archer");
 
-        setRole(Role.RANGE);
         setArchetype(Archetype.RANGE);
 
         setDescription("One of the best archers joins the fight! Not alone though but with his &3custom-made &8&obow.");
@@ -58,7 +56,7 @@ public class Archer extends Hero implements Listener {
         setWeapon(Material.BOW, "Bow of Destiny", "A custom-made bow with some unique abilities!", 5.0d);
 
         final HeroAttributes attributes = getAttributes();
-        attributes.setValue(AttributeType.HEALTH, 125.0d);
+        attributes.setValue(AttributeType.MAX_HEALTH, 125.0d);
         attributes.setValue(AttributeType.SPEED, 0.225d);
         attributes.setValue(AttributeType.DEFENSE, 0.8d);
 

@@ -124,6 +124,70 @@ default game entity.
 
 ############################
 
+### System Rework TEST Notes: ###
+
+- [✔] Bounty Hunter cannot SUCK
+- [✔] Return start item when cancelled
+- [✔] Witcher axii
+- [✔] Aard can affect self (and many more)?
+- [✔] Witcher combo shows to victim
+- [✔] Some entities should not be converted to GameEntity (ArmorStands)
+- [✔] Cauldron does not apply effect
+
+- !!! Improve custom AI, include invisibility, target the most damager ETC!!!
+- Show kill distance for projectiles only
+- Shark does not have bleed
+- Dwarf lava
+- Do something with non game entities, IDK what but do something!!!
+
+- [✔] Ninja takes fall damage
+- [✔] Ninja stars don't deal damage
+
+- [✔] HP shows in lobby (Parkour calls creation!)
+- [✔, Fixed using a work-around, need a better patch] Game PLayer is not removed after the game
+--  at ClassesFightArena.jar//me.hapyl.fight.game.ui.GamePlayerUI.updateScoreboard(GamePlayerUI.java:147)
+
+- Display damage boost for nightmare
+- Taker scythe (1) does not work
+- Range weapons does not work
+- Mage cannot damage range
+- Dont set GamePlayer set 1 HP!
+
+-- Super complex but worth a try:
+-- Custom player (Human) AI
+
+############################
+[BLOODFIEND TEST]
+- [Could not reproduce, neither in local nor in building server] Chalice laggs server?
+- ??? Remove all SUCC at death
+- [✔] Batransfer multiple reset cancel task
+- [✔] Batransfer fly when flying should cancel bat early
+- [✔] Replace air check with occluding for twinclaws
+- [✔] Add glowing to chalice
+- [✔] All players can hear taunt sound
+- [✔] Change twinclaws to fly toward direction.
+- ? Unrelated but TPS can be > 20 in tab
+- [✔] Anchor candlebane properly
+- [✔] Chalice does not kill (getting OWNER hp?)
+- [✔] Remove chalice if way away
+- [✔] Add message who is impelled
+- Maybe add life steal/vampirism?
+- Add rotating animation to candlebane?
+- Add FX that someone is bitten
+- Change Spectral Form FX to be swarm of bats like a cloud?
+- [✔] 200 CD candle too much, maybe remove cd since there is now a FUCK
+- [✔] Reduce weapon damage
+- Reduce defense?
+- [✔] Display chalice/pillar to vampire
+
+- Twinclaws CD 30 >> 15
+- Twinclaws now launch in the player direction
+- Candlebane click delay >> 0.1s >> 0.2s
+- Chalice duration 25 >> 45
+- Impel Cost 75 >> 65
+
+############################
+
 - Maybe genshin slowing aura for freazly
 - Maybe add glowing for self traps
 - rework TECHIE and TAKER ult
@@ -134,8 +198,6 @@ default game entity.
 - "Flying is not enabled on this server"
 - Use game task delay for delay, its built-in
 - Vampire swarm not remove
-
-- refactor map to be normal, not feature fuckiature !!
 
 == 1.20 ==
 - /2 CD when DM has ULT

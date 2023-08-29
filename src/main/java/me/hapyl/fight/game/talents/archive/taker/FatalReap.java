@@ -45,12 +45,7 @@ public class FatalReap extends Talent {
                     return;
                 }
 
-                double health = victim.getHealth();
-
-                if (victim instanceof Player) {
-                    health = victim.getHealth();
-                }
-
+                final double health = victim.getHealth();
                 final double damage = Math.min(health * 0.2d, 100.0d);
                 victim.damage(damage, player, EnumDamageCause.RIP_BONES);
             });

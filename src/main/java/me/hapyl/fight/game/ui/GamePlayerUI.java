@@ -142,36 +142,38 @@ public class GamePlayerUI {
         this.builder.addLines("");
         //        this.builder.addLines("", "Welcome %s to the".formatted(this.player.getName()), "&lClasses Fight &fArena!", "");
 
+        // FIXME (hapyl): 006, Aug 6: temp fix
         if (current.isGameInProgress()) {
             final IGameInstance game = current.getCurrentGame();
-            final GamePlayer gamePlayer = CF.getOrCreatePlayer(this.player);
+            final GamePlayer gamePlayer = CF.getPlayer(this.player);
 
-            // Have to reduce this so everything fits
-            if (!gamePlayer.isAlive() && !gamePlayer.isRespawning()) {
-                this.builder.addLines("&6&lSpectator: &f%s".formatted(getTimeLeftString(game)));
-                for (final GamePlayer alive : CF.getAlivePlayers()) {
-                    this.builder.addLine(
-                            " &6%s &e%s %s &c%.1f ❤",
-                            alive.getHero().getName(),
-                            alive.getPlayer().getName(),
-                            UIFormat.DIV,
-                            alive.getHealth()
+            if (gamePlayer != null) {
+                // Have to reduce this so everything fits
+                if (!gamePlayer.isAlive() && !gamePlayer.isRespawning()) {
+                    this.builder.addLines("&6&lSpectator: &f%s".formatted(getTimeLeftString(game)));
+                    for (final GamePlayer alive : CF.getAlivePlayers()) {
+                        this.builder.addLine(
+                                " &6%s &e%s %s &c%.1f ❤",
+                                alive.getHero().getName(),
+                                alive.getPlayer().getName(),
+                                UIFormat.DIV,
+                                alive.getHealth()
+                        );
+                    }
+                }
+
+                else {
+                    // Default Game Lines
+                    this.builder.addLines(
+                            "&6&lGame: &8" + game.hexCode(),
+                            " &e&lMap: &f%s".formatted(current.getCurrentMap().getMap().getName()),
+                            " &e&lTime Left: &f%s".formatted(getTimeLeftString(game)),
+                            " &e&lStatus: &f%s".formatted(gamePlayer.getStatusString())
                     );
+
+                    game.getMode().formatScoreboard(builder, (GameInstance) game, gamePlayer);
                 }
             }
-
-            else {
-                // Default Game Lines
-                this.builder.addLines(
-                        "&6&lGame: &8" + game.hexCode(),
-                        " &e&lMap: &f%s".formatted(current.getCurrentMap().getMap().getName()),
-                        " &e&lTime Left: &f%s".formatted(getTimeLeftString(game)),
-                        " &e&lStatus: &f%s".formatted(gamePlayer.getStatusString())
-                );
-
-                game.getMode().formatScoreboard(builder, (GameInstance) game, gamePlayer);
-            }
-
         }
         // Trial
         else if (Manager.current().getTrial().isInTrial(player)) {
