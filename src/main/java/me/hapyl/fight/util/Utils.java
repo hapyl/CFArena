@@ -535,10 +535,10 @@ public class Utils {
     }
 
     // Anchors location to the ground
-    public static void anchorLocation(@Nonnull Location location) {
+    public static Location anchorLocation(@Nonnull Location location) {
         final World world = location.getWorld();
         if (world == null) {
-            return;
+            return location;
         }
 
         final int minHeight = world.getMinHeight();
@@ -547,10 +547,11 @@ public class Utils {
             final double y = location.getY();
             if (y <= minHeight || location.getBlock().getType().isOccluding()) {
                 Debug.particle(location, Particle.VILLAGER_HAPPY);
-                return;
+                return location;
             }
 
             location.subtract(0.0d, 0.1d, 0.0d);
         }
     }
+
 }

@@ -13,7 +13,7 @@ import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.maps.features.BoosterController;
 import me.hapyl.fight.game.maps.gamepack.HealthPackListener;
 import me.hapyl.fight.game.parkour.CFParkourManager;
-import me.hapyl.fight.game.talents.archive.bloodfiend.TwinPillarProtocol;
+import me.hapyl.fight.game.talents.archive.bloodfiend.CandlebaneProtocol;
 import me.hapyl.fight.game.task.TaskList;
 import me.hapyl.fight.mini.lampgame.LampGame;
 import me.hapyl.fight.notifier.Notifier;
@@ -226,7 +226,7 @@ public class Main extends JavaPlugin {
     private void registerProtocol() {
         new ArcaneMuteProtocol();
         new DismountProtocol();
-        new TwinPillarProtocol();
+        new CandlebaneProtocol();
         //new HandshakeProtocol();
         //new ConfusionPotionProtocol(); -> doesn't work as good as I thought :(
     }

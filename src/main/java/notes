@@ -180,11 +180,14 @@ default game entity.
 - Reduce defense?
 - [✔] Display chalice/pillar to vampire
 
-- Twinclaws CD 30 >> 15
-- Twinclaws now launch in the player direction
-- Candlebane click delay >> 0.1s >> 0.2s
-- Chalice duration 25 >> 45
-- Impel Cost 75 >> 65
+- Twinclaws CD 30 >> 15.
+- Twinclaws now launch in the player's direction.
+- Candlebane click delay removed, but wrong clicks now damage the player.
+- Chalice duration 25 >> 30.
+- Impel Cost 75 >> 65.
+- Weapon Damage 8 >> 4.
+- Weapon Attack Speed (Delay) 0.0 >> 0.5.
+- Improve Spectral Form VFX.
 
 ############################
 

@@ -3,7 +3,7 @@ package me.hapyl.fight.game.heroes.archive.bloodfield;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.TalentHandle;
+import me.hapyl.fight.game.TalentReference;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -28,7 +28,7 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
 
-public class BloodfiendData implements Ticking, TalentHandle<BloodfiendPassive> {
+public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassive> {
 
     private final Player player;
     private final Map<GamePlayer, Integer> succulence;

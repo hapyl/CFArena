@@ -20,7 +20,7 @@ import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.bloodfiend.BloodChalice;
 import me.hapyl.fight.game.talents.archive.bloodfiend.Candlebane;
-import me.hapyl.fight.game.talents.archive.bloodfiend.Chalice;
+import me.hapyl.fight.game.talents.archive.bloodfiend.ChaliceTaunt;
 import me.hapyl.fight.game.talents.archive.bloodfiend.TwinClaws;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
@@ -80,7 +80,7 @@ public class Bloodfiend extends Hero implements Listener, UIComplexComponent {
         equipment.setLeggings(0, 0, 0);
         equipment.setBoots(0, 0, 0);
 
-        setWeapon(new Weapon(Material.GHAST_TEAR).setName("Vampire's Fang").setDamage(4.0d));
+        setWeapon(new Weapon(Material.GHAST_TEAR).setName("Vampire's Fang").setDamage(4.0d).setAttackSpeed(0.5d));
 
         final UltimateTalent ultimate = new UltimateTalent("Impel", 65)
                 .setItem(Material.MOOSHROOM_SPAWN_EGG)
@@ -332,8 +332,8 @@ public class Bloodfiend extends Hero implements Listener, UIComplexComponent {
         final TwinClaws twinClaws = getFirstTalent();
         final BloodChalice bloodChalice = getSecondTalent();
 
-        final Candlebane pillar = twinClaws.getPillar(player);
-        final Chalice chalice = bloodChalice.getChalice(player);
+        final Candlebane pillar = twinClaws.getTaunt(player);
+        final ChaliceTaunt chalice = bloodChalice.getTaunt(player);
 
         return List.of(
                 succulencePlayers > 0 ? "&c&l🦇 &f" + succulencePlayers : "",

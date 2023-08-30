@@ -2,13 +2,7 @@ package me.hapyl.fight.game.talents.archive.bloodfiend;
 
 import com.google.common.collect.Lists;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.TalentHandle;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend;
-import me.hapyl.fight.game.heroes.archive.bloodfield.BloodfiendData;
-import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.game.TalentReference;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
@@ -27,15 +21,14 @@ import org.bukkit.util.EulerAngle;
 import javax.annotation.Nonnull;
 import java.util.LinkedList;
 
-public class Candlebane extends TickingGameTask implements TalentHandle<TwinClaws> {
+public class Candlebane extends Taunt implements TalentReference<TwinClaws> {
 
     private static final ItemStack CANDLE_TEXTURE
             = ItemBuilder.playerHeadUrl("c3b5f5b6823fbfbc848c20562b07e2d414f685e996e31d10460efa61a822aa11").asIcon();
 
     private static final long CLICK_DELAY = 50;
 
-    private final Player player;
-    private final Location startLocation;
+    private final TwinClaws reference;
     private final LinkedList<ArmorStand> parts;
     private final double heightOffset;
     private final ArmorStand display;
@@ -43,21 +36,18 @@ public class Candlebane extends TickingGameTask implements TalentHandle<TwinClaw
     private int clicksLeft;
     private Click click;
 
-    public Candlebane(Player player, Location startLocation) {
-        final TwinClaws talent = getTalent();
+    public Candlebane(TwinClaws reference, Player player, Location startLocation) {
+        super(player, startLocation);
 
-        Utils.anchorLocation(startLocation);
-
-        this.player = player;
-        this.startLocation = startLocation.subtract(0.0d, 1.25d, 0.0d);
+        this.reference = reference;
         this.click = Click.LEFT;
         this.parts = Lists.newLinkedList();
-        this.clicksLeft = talent.pillarClicks;
+        this.clicksLeft = reference.pillarClicks;
         this.heightOffset = 0.06d;
 
         final Location location = startLocation.clone();
 
-        for (int i = 0; i < talent.pillarHeight; i++) {
+        for (int i = 0; i < reference.pillarHeight; i++) {
             final ArmorStand stand = createStand(location);
 
             if (i % 2 == 0) {
@@ -75,7 +65,7 @@ public class Candlebane extends TickingGameTask implements TalentHandle<TwinClaw
         });
 
         update();
-        runTaskTimer(0, 1);
+        start(reference.pillarDuration);
     }
 
     public void click(Player player, Click click) {
@@ -84,18 +74,18 @@ public class Candlebane extends TickingGameTask implements TalentHandle<TwinClaw
         }
 
         if (this.player == player) {
-            Chat.sendMessage(player, "&aThis is your Candlebane!");
+            Chat.sendMessage(player, "&aThis is your %s!", getName());
             return;
         }
 
         if (this.click != click) {
             CF.getPlayerOptional(player).ifPresent(gamePlayer -> {
                 gamePlayer.damage(1, this.player);
-                gamePlayer.sendSubtitle("&cWrong Click!", 0, 10, 10);
+                gamePlayer.sendSubtitle("&c&lWRONG CLICK!", 0, 10, 10);
 
-                gamePlayer.playSound(startLocation, Sound.ENTITY_CHICKEN_EGG, 0.0f);
-                gamePlayer.playSound(startLocation, Sound.BLOCK_LAVA_POP, 0.0f);
-                gamePlayer.playSound(startLocation, Sound.ENTITY_CAT_HISS, 1.0f);
+                gamePlayer.playSound(initialLocation, Sound.ENTITY_CHICKEN_EGG, 0.0f);
+                gamePlayer.playSound(initialLocation, Sound.BLOCK_LAVA_POP, 0.0f);
+                gamePlayer.playSound(initialLocation, Sound.ENTITY_CAT_HISS, 1.0f);
             });
             return;
         }
@@ -106,50 +96,49 @@ public class Candlebane extends TickingGameTask implements TalentHandle<TwinClaw
         update();
 
         // Fx
-        PlayerLib.playSound(startLocation, Sound.BLOCK_NOTE_BLOCK_PLING, 2.0f - (clicksLeft / 10.0f));
+        PlayerLib.playSound(initialLocation, Sound.BLOCK_NOTE_BLOCK_PLING, 2.0f - (clicksLeft / 10.0f));
 
         if (clicksLeft <= 0) {
             remove();
 
             // Fx
-            PlayerLib.playSound(startLocation, Sound.ENTITY_PLAYER_LEVELUP, 1.75f);
-            PlayerLib.spawnParticle(startLocation.add(0.0d, 1.75d, 0.0d), Particle.VILLAGER_HAPPY, 15, 0.2d, 0.2d, 0.2d, 0.0f);
+            PlayerLib.playSound(initialLocation, Sound.ENTITY_PLAYER_LEVELUP, 1.75f);
+            PlayerLib.spawnParticle(initialLocation.add(0.0d, 1.75d, 0.0d), Particle.VILLAGER_HAPPY, 15, 0.2d, 0.2d, 0.2d, 0.0f);
         }
     }
 
     public void remove() {
+        super.remove();
+
         parts.forEach(Entity::remove);
         parts.clear();
 
         display.remove();
-        cancel();
+
+        onRemove();
+    }
+
+    public void onRemove() {
+    }
+
+    @Nonnull
+    @Override
+    public String getName() {
+        return "Candlebane Pillar";
+    }
+
+    @Nonnull
+    @Override
+    public String getCharacter() {
+        return "&6&lⅡ";
     }
 
     @Override
     public void run(int tick) {
-        final TwinClaws talent = getTalent();
-        final Bloodfiend bloodfiend = Heroes.BLOODFIEND.getHero(Bloodfiend.class);
-        final BloodfiendData data = bloodfiend.getData(player);
-        final int pillarDuration = talent.pillarDuration;
-
-        // Kill if not removed
-        if (tick >= pillarDuration) {
-            remove();
-
-            data.getSucculencePlayers().forEach(target -> {
-                target.setLastDamageCause(EnumDamageCause.TWIN_PILLAR);
-                target.setLastDamager(CF.getOrCreatePlayer(player));
-                target.die(true);
-
-                target.sendMessage("&6&lⅡ &e%s's Candlebane took your life!", player.getName());
-            });
-            return;
-        }
-
         // Fx
         if (tick % 10 == 0) {
-            data.getSucculencePlayers().forEach(target -> {
-                target.playSound(startLocation, Sound.ENTITY_ZOMBIE_VILLAGER_CONVERTED, 0.0f);
+            getSucculencePlayers().forEach(target -> {
+                target.playSound(initialLocation, Sound.ENTITY_ZOMBIE_VILLAGER_CONVERTED, 0.0f);
             });
         }
 
@@ -164,15 +153,10 @@ public class Candlebane extends TickingGameTask implements TalentHandle<TwinClaw
         last.setCustomNameVisible(true);
     }
 
-    public int getTimeLeft() {
-        final TwinClaws talent = getTalent();
-        return talent.pillarDuration - getTick();
-    }
-
     @Nonnull
     @Override
     public TwinClaws getTalent() {
-        return Talents.TWIN_CLAWS.getTalent(TwinClaws.class);
+        return reference;
     }
 
     public boolean isPart(int entityId) {
@@ -197,7 +181,7 @@ public class Candlebane extends TickingGameTask implements TalentHandle<TwinClaw
     }
 
     private void update() {
-        final Location location = startLocation.clone();
+        final Location location = initialLocation.clone();
         final TwinClaws talent = getTalent();
         final double y = heightOffset * clicksLeft;
 

@@ -6,7 +6,7 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.WrappedEnumEntityUseAction;
 import me.hapyl.fight.Main;
-import me.hapyl.fight.game.TalentHandle;
+import me.hapyl.fight.game.TalentReference;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.spigotutils.module.reflect.protocol.ProtocolListener;
 import org.bukkit.entity.Player;
@@ -14,8 +14,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
 
-public class TwinPillarProtocol extends ProtocolListener implements TalentHandle<TwinClaws> {
-    public TwinPillarProtocol() {
+public class CandlebaneProtocol extends ProtocolListener implements TalentReference<TwinClaws> {
+    public CandlebaneProtocol() {
         super(PacketType.Play.Client.USE_ENTITY);
     }
 

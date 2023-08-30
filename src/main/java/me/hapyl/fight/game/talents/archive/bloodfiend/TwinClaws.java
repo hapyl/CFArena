@@ -1,8 +1,6 @@
 package me.hapyl.fight.game.talents.archive.bloodfiend;
 
-import com.google.common.collect.Maps;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Tick;
@@ -14,17 +12,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Map;
 
-public class TwinClaws extends Talent implements Listener {
+public class TwinClaws extends TauntTalent<Candlebane> implements Listener {
 
     @DisplayField protected final double twinClawDamage = 20.0d;
     @DisplayField protected final int pillarDuration = Tick.fromSecond(20);
     @DisplayField protected final short pillarHeight = 7;
     @DisplayField protected final short pillarClicks = 10;
-
-    private final Map<Player, Candlebane> pillars;
 
     public TwinClaws() {
         super("Twinclaws");
@@ -42,23 +37,6 @@ public class TwinClaws extends Talent implements Listener {
         setItem(Material.ACACIA_FENCE);
         setDuration(30);
         setCooldownSec(15);
-
-        pillars = Maps.newHashMap();
-    }
-
-    @Override
-    public void onDeath(Player player) {
-        final Candlebane pillar = pillars.remove(player);
-
-        if (pillar != null) {
-            pillar.remove();
-        }
-    }
-
-    @Override
-    public void onStop() {
-        pillars.values().forEach(Candlebane::remove);
-        pillars.clear();
     }
 
     @Override
@@ -84,29 +62,29 @@ public class TwinClaws extends Talent implements Listener {
         return Response.OK;
     }
 
-    @Nullable
-    public Candlebane getPillar(Player player) {
-        return pillars.get(player);
+    @Override
+    public Candlebane createTaunt(Player player) {
+        return null;
     }
 
     public void spawnPillar(Player player, Location location) {
-        final Candlebane oldPillar = pillars.remove(player);
+        final Candlebane candlebane = getTaunt(player);
 
-        if (oldPillar != null) {
-            oldPillar.remove();
-            Chat.sendMessage(player, "&aYour previous pillar was removed!");
+        if (candlebane != null) {
+            candlebane.remove();
+            Chat.sendMessage(player, "&aYour previous %s was removed!", candlebane.getName());
         }
 
-        pillars.put(player, new Candlebane(player, location) {
+        playerTaunt.put(player, new Candlebane(this, player, location) {
             @Override
             public void onTaskStop() {
-                pillars.remove(player);
+                playerTaunt.remove(player);
             }
         });
     }
 
     @Nonnull
     protected Map<Player, Candlebane> getPillars() {
-        return pillars;
+        return playerTaunt;
     }
 }
