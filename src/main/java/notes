@@ -180,14 +180,40 @@ default game entity.
 - Reduce defense?
 - [✔] Display chalice/pillar to vampire
 
-- Twinclaws CD 30 >> 15.
-- Twinclaws now launch in the player's direction.
-- Candlebane click delay removed, but wrong clicks now damage the player.
-- Chalice duration 25 >> 30.
-- Impel Cost 75 >> 65.
-- Weapon Damage 8 >> 4.
-- Weapon Attack Speed (Delay) 0.0 >> 0.5.
-- Improve Spectral Form VFX.
+- Twinclaws:
+-- Cooldown reduced 30s >> 15s.
+-- Now launches in the player's direction.
+
+- Candlebane Pillar
+-- Click delay removed, but wrong clicks deal damage.
+-- Add warning 5s before it explodes.
+-- Add text to show pillar's owner.
+-- Can no longer click at own pillar.
+
+- Blood Chalice
+-- Duration increased 25s >> 30s.
+-- Add warning 5s before it explodes.
+-- Improve VFX to better recognize own chalice.
+
+- Impel
+-- Cost reduced 75 >> 65.
+-- Player is now immune while casting the ultimate.
+
+- Weapon
+-- Damage reduced 8 >> 6.
+-- Attack Speed - None >> 0.5.
+
+- Spectral Form
+-- Renamed "Batransfer" >> "Spectral Form"
+-- Increased height limit 4 >> 6 blocks.
+-- No longer invisible/invulnerable while flying.
+-- Improve VFX.
+
+- Succulence (Vampire's Bite, Passive)
+-- Can ONLY be applied with melee hits.
+-- Increase bite duration 20s >> 30s.
+-- Add blood VFX to indicate that someone is bitten.
+(Only visible for the player who is bitten and bloodfiend.)
 
 ############################
 

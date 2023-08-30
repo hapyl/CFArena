@@ -41,6 +41,7 @@ import me.hapyl.spigotutils.module.util.BukkitUtils;
 import net.minecraft.network.protocol.game.PacketPlayOutAnimation;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffectType;
@@ -677,6 +678,10 @@ public class GamePlayer extends LivingGameEntity {
 
     public void sendPacket(@Nonnull PacketContainer packet) {
         ProtocolLibrary.getProtocolManager().sendServerPacket(getPlayer(), packet);
+    }
+
+    public <T> void spawnParticle(Particle particle, Location location, int amount, double x, double y, double z, float speed, T data) {
+        getPlayer().spawnParticle(particle, location, amount, x, y, z, speed, data);
     }
 
     private void resetAttribute(Attribute attribute, double value) {

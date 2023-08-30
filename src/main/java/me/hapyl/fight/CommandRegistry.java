@@ -25,6 +25,7 @@ import me.hapyl.fight.game.entity.cooldown.Cooldown;
 import me.hapyl.fight.game.entity.cooldown.CooldownData;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.PlayerSkin;
+import me.hapyl.fight.game.heroes.archive.bloodfield.BatCloud;
 import me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend;
 import me.hapyl.fight.game.heroes.archive.bloodfield.BloodfiendData;
 import me.hapyl.fight.game.heroes.archive.dark_mage.AnimatedWither;
@@ -185,6 +186,25 @@ public class CommandRegistry extends DependencyInjector<Main> {
             };
             task.setIncrement(15);
             task.runTaskTimer(0, 1);
+        });
+
+        register(new SimplePlayerAdminCommand("testBatCloud") {
+
+            private BatCloud batCloud;
+
+            @Override
+            protected void execute(Player player, String[] args) {
+                if (batCloud != null) {
+                    batCloud.remove();
+                    batCloud = null;
+
+                    Chat.sendMessage(player, "&cRemoved!");
+                    return;
+                }
+
+                batCloud = new BatCloud(player);
+                Chat.sendMessage(player, "&aSpawned!");
+            }
         });
 
         register("deleteGamePlayer", (player, args) -> {

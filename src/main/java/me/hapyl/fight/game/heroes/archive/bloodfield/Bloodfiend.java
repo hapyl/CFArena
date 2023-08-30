@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -80,7 +81,7 @@ public class Bloodfiend extends Hero implements Listener, UIComplexComponent {
         equipment.setLeggings(0, 0, 0);
         equipment.setBoots(0, 0, 0);
 
-        setWeapon(new Weapon(Material.GHAST_TEAR).setName("Vampire's Fang").setDamage(4.0d).setAttackSpeed(0.5d));
+        setWeapon(new Weapon(Material.GHAST_TEAR).setName("Vampire's Fang").setDamage(6.0d).setAttackSpeed(0.5d));
 
         final UltimateTalent ultimate = new UltimateTalent("Impel", 65)
                 .setItem(Material.MOOSHROOM_SPAWN_EGG)
@@ -131,8 +132,9 @@ public class Bloodfiend extends Hero implements Listener, UIComplexComponent {
     public DamageOutput processDamageAsDamager(DamageInput input) {
         final Player player = input.getDamagerAsBukkitPlayer();
         final LivingGameEntity gameEntity = input.getEntity();
+        final EnumDamageCause cause = input.getDamageCause();
 
-        if (!(gameEntity instanceof GamePlayer gamePlayer) || player == null) {
+        if (!(gameEntity instanceof GamePlayer gamePlayer) || player == null || cause != EnumDamageCause.ENTITY_ATTACK) {
             return DamageOutput.OK;
         }
 
@@ -160,10 +162,11 @@ public class Bloodfiend extends Hero implements Listener, UIComplexComponent {
 
     @Override
     public UltimateCallback castUltimate(Player player) {
-        // FIXME (hapyl): 030, Aug 30: Maybe make player invulnerable while casting
         final BloodfiendData data = getData(player);
         final Set<GamePlayer> succulencePlayers = data.getSucculencePlayers();
         final Location location = player.getLocation().add(0.0d, 0.5d, 0.0d);
+
+        player.setInvulnerable(true);
 
         PlayerMount.mount(player, location);
         playSoundAtTick(
@@ -205,6 +208,8 @@ public class Bloodfiend extends Hero implements Listener, UIComplexComponent {
 
     @Override
     public void useUltimate(Player player) {
+        player.setInvulnerable(false);
+
         getData(player).newImpelInstance(this, player).nextImpel(0);
     }
 

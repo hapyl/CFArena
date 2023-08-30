@@ -14,13 +14,10 @@ import me.hapyl.fight.game.talents.archive.bloodfiend.BloodfiendPassive;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.entity.EntityUtils;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Bat;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -30,14 +27,19 @@ import java.util.Set;
 
 public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassive> {
 
+    private static final Particle.DustTransition PARTICLE_DATA = new Particle.DustTransition(
+            Color.fromRGB(125, 1, 20),
+            Color.fromRGB(194, 14, 41),
+            2
+    );
+
     private final Player player;
     private final Map<GamePlayer, Integer> succulence;
-
     private ImpelInstance impelInstance;
     private int flightTime;
     private boolean flying;
-    private Bat flightBat;
     private GameTask cooldownTask;
+    private BatCloud batCloud;
 
     public BloodfiendData(Player player) {
         this.player = player;
@@ -131,6 +133,12 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
             }
             else {
                 succulence.put(player, tickMinusOne);
+
+                // Fx
+                final Location location = player.getLocation().add(0.0d, 0.5d, 0.0d);
+
+                player.spawnParticle(Particle.DUST_COLOR_TRANSITION, location, 1, 0.2d, 0.2d, 0.2d, 0, PARTICLE_DATA);
+                this.player.spawnParticle(Particle.DUST_COLOR_TRANSITION, location, 1, 0.2d, 0.2d, 0.2d, 0, PARTICLE_DATA);
             }
         });
 
@@ -140,15 +148,16 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
                 return;
             }
 
-            if (flightBat != null) {
-                flightBat.teleport(player.getLocation());
+            if (batCloud != null) {
+                batCloud.tick();
             }
 
             final int distanceToGround = getDistanceToGround();
 
             if (distanceToGround >= getTalent().maxFlightHeight) {
-                Chat.sendMessage(player, "&2&l\uD83D\uDD4A &aDon't fly too high!");
+                Chat.sendMessage(player, "&6&l\uD83D\uDD4A &eThe bats are afraid of height!");
                 stopFlying();
+                return;
             }
 
             // Fx
@@ -161,7 +170,7 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
 
         player.setAllowFlight(true);
         player.setFlying(true);
-        player.setFlySpeed(0.1f);
+        player.setFlySpeed(0.08f);
 
         flying = true;
         flightTime = getTalent().flightDuration;
@@ -171,19 +180,11 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
         PlayerLib.playSound(location, Sound.ENTITY_BAT_TAKEOFF, 0.75f);
         PlayerLib.playSound(location, Sound.ENTITY_BAT_TAKEOFF, 1.75f);
 
-        if (flightBat != null) {
-            flightBat.remove();
+        if (batCloud != null) {
+            batCloud.remove();
         }
 
-        flightBat = Entities.BAT.spawn(location, self -> {
-            self.setAwake(true);
-            self.setInvulnerable(true);
-            self.setCustomName(player.getName());
-            self.setCustomNameVisible(true);
-            EntityUtils.setCollision(self, EntityUtils.Collision.DENY, player);
-        });
-
-        CF.getOrCreatePlayer(player).addEffect(GameEffectType.INVISIBILITY, 1000);
+        batCloud = new BatCloud(player);
     }
 
     public void stopFlying() {
@@ -194,10 +195,10 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
 
         cooldownFlight(false);
 
-        flightBat.remove();
-        final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
+        batCloud.remove();
+        batCloud = null;
 
-        gamePlayer.removeEffect(GameEffectType.INVISIBILITY);
+        final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
         gamePlayer.addEffect(GameEffectType.FALL_DAMAGE_RESISTANCE, 100);
 
         // Fx
@@ -220,7 +221,7 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
         cooldownTask = GameTask.runLater(() -> {
             player.setAllowFlight(true);
             PlayerLib.playSound(player, Sound.ENTITY_BAT_TAKEOFF, 1.25f);
-            PlayerLib.playSound(player, Sound.ENTITY_BAT_DEATH, 1.25f);
+            PlayerLib.playSound(player, Sound.ENTITY_BAT_HURT, 0.0f);
             Chat.sendMessage(player, "&2&l\uD83D\uDD4A &aSpectral Form is ready!");
         }, cooldown);
     }
