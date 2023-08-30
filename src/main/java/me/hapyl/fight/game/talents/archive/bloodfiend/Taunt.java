@@ -1,16 +1,41 @@
 package me.hapyl.fight.game.talents.archive.bloodfiend;
 
-public enum Taunt {
+import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.task.GameTask;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
-    BLOOD_CHALICE("&4&l🍷", "Blood Chalice"),
-    TWIN_PILLAR("&6&lⅡ", "Candlebane");
+public abstract class Taunt<T extends Talent> extends GameTask {
 
-    public final String prefix;
-    public final String name;
+    protected final T reference;
+    protected final Player player;
+    protected final Location initialLocation;
+    private int tick;
 
-    Taunt(String prefix, String name) {
-        this.prefix = prefix;
-        this.name = name;
+    public Taunt(T reference, Player player, Location location) {
+        this.reference = reference;
+        this.player = player;
+        this.initialLocation = location;
     }
 
+    public void start(int duration) {
+        tick = duration;
+        runTaskTimer(0, 1);
+    }
+
+    public void remove() {
+
+    }
+
+    public int getDuration() {
+        return tick;
+    }
+
+    public abstract void run(int tick);
+
+    @Override
+    public final void run() {
+        run(tick);
+        tick--;
+    }
 }
