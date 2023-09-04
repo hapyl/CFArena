@@ -39,7 +39,7 @@ public class Tamer extends Hero implements Listener, DisabledHero {
 
         setArchetype(Archetype.STRATEGY);
 
-        final HeroEquipment equipment = getEquipment();
+        final Equipment equipment = getEquipment();
 
         equipment.setChestplate(
                 ItemBuilder.leatherTunic(Color.fromRGB(14557974))

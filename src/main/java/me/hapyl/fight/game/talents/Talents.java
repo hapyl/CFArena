@@ -9,9 +9,11 @@ import me.hapyl.fight.game.talents.archive.alchemist.CauldronAbility;
 import me.hapyl.fight.game.talents.archive.alchemist.RandomPotion;
 import me.hapyl.fight.game.talents.archive.archer.ShockDark;
 import me.hapyl.fight.game.talents.archive.archer.TripleShot;
-import me.hapyl.fight.game.talents.archive.bloodfiend.BloodChalice;
+import me.hapyl.fight.game.talents.archive.bloodfiend.chalice.BloodChaliceTalent;
+import me.hapyl.fight.game.talents.archive.bloodfiend.BloodCup;
 import me.hapyl.fight.game.talents.archive.bloodfiend.BloodfiendPassive;
 import me.hapyl.fight.game.talents.archive.bloodfiend.TwinClaws;
+import me.hapyl.fight.game.talents.archive.bloodfiend.candlebane.CandlebaneTalent;
 import me.hapyl.fight.game.talents.archive.bounty_hunter.GrappleHookTalent;
 import me.hapyl.fight.game.talents.archive.bounty_hunter.ShortyShotgun;
 import me.hapyl.fight.game.talents.archive.dark_mage.BlindingCurse;
@@ -393,7 +395,9 @@ public enum Talents {
 
     // Bloodfiend
     TWIN_CLAWS(new TwinClaws()),
-    BLOOD_CHALICE(new BloodChalice()),
+    CANDLEBANE(new CandlebaneTalent()),
+    BLOOD_CHALICE(new BloodChaliceTalent()),
+    BLOOD_CUP(new BloodCup()),
     SUCCULENCE(new BloodfiendPassive()),
 
     // ???

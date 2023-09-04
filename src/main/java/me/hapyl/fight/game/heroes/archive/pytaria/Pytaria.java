@@ -26,6 +26,8 @@ import org.bukkit.*;
 import org.bukkit.entity.Bee;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.trim.TrimMaterial;
+import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
@@ -51,7 +53,8 @@ public class Pytaria extends Hero {
         setArchetype(Archetype.DAMAGE);
 
         setDescription(
-                "Beautiful, but deadly opponent with addiction to flowers. She suffered all her youth, which at the end, made her only stronger.");
+                "Beautiful, but deadly opponent with addiction to flowers. She suffered all her youth, which at the end, made her only stronger."
+        );
         setItem("7bb0752f9fa87a693c2d0d9f29549375feb6f76952da90d68820e7900083f801");
 
         final HeroAttributes attributes = getAttributes();
@@ -62,10 +65,10 @@ public class Pytaria extends Hero {
 
         setWeapon(new Weapon(Material.ALLIUM).setName("Annihilallium").setDamage(8.0).setDescription("A beautiful flower, nothing more."));
 
-        final HeroEquipment equipment = getEquipment();
-        equipment.setChestplate(222, 75, 85);
+        final Equipment equipment = getEquipment();
+        equipment.setChestplate(50, 54, 57, TrimPattern.SILENCE, TrimMaterial.NETHERITE);
         equipment.setLeggings(54, 158, 110);
-        equipment.setBoots(179, 204, 204);
+        equipment.setBoots(160, 101, 64, TrimPattern.SILENCE, TrimMaterial.IRON);
 
         setUltimate(new UltimateTalent("Feel the Breeze", 60)
                 .setCooldownSec(50)

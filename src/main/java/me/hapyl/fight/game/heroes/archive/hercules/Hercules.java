@@ -9,7 +9,7 @@ import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.storage.GroundPunchCosmetic;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.HeroEquipment;
+import me.hapyl.fight.game.heroes.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -50,7 +50,7 @@ public class Hercules extends Hero implements Listener, PlayerElement {
 
         setItem("f210c961b9d787327c0d1646e65ae40c6d834514877824335d4b9b62b2365a24");
 
-        final HeroEquipment equipment = getEquipment();
+        final Equipment equipment = getEquipment();
         equipment.setChestplate(Color.WHITE);
         equipment.setBoots(Material.LEATHER_BOOTS);
 

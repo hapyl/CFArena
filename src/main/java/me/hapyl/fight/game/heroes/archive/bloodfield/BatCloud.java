@@ -64,7 +64,7 @@ public class BatCloud implements Ticking {
                 bat.remove();
 
                 // Fx
-                PlayerLib.spawnParticle(location, Particle.EXPLOSION_NORMAL, 3, 0.1d, 0.1d, 0.1d, 0.025f);
+                PlayerLib.spawnParticle(location, Particle.SMOKE_NORMAL, 3, 0.1d, 0.1d, 0.1d, 0.025f);
             }
 
             PlayerLib.playSound(player.getLocation(), Sound.ENTITY_BAT_DEATH, 1.25f);
@@ -75,7 +75,7 @@ public class BatCloud implements Ticking {
     }
 
     private void iterateLocation(BiConsumer<Integer, Location> consumer) {
-        final Location location = player.getLocation();
+        final Location location = player.getLocation().subtract(0.0d, 0.3d, 0.0d);
 
         for (int i = 0; i < BAT_OFFSET.length; i++) {
             final double[] offset = BAT_OFFSET[i];

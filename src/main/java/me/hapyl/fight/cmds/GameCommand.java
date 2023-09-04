@@ -1,5 +1,7 @@
 package me.hapyl.fight.cmds;
 
+import me.hapyl.fight.game.Debug;
+import me.hapyl.fight.game.DebugData;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.command.SimpleCommand;
@@ -28,16 +30,15 @@ public class GameCommand extends SimpleCommand {
                         return;
                     }
 
-                    final boolean debug = args.length >= 2 && args[1].equalsIgnoreCase("-d");
+                    final DebugData debug = DebugData.parse(args);
+                    manager.createNewGameInstance(debug);
 
-                    if (debug) {
-                        manager.createNewGameInstance(true);
+                    if (debug.any()) {
+                        Debug.info("Creating new debug instance.");
                     }
                     else {
-                        manager.createStartCountdown();
+                        Debug.info("Creating new game instance.");
                     }
-
-                    Chat.sendMessage(sender, "&aCreating new game instance%s...", debug ? " in debug mode " : "");
                 }
 
                 case "stop" -> {

@@ -86,7 +86,7 @@ public class Voidgloom extends GameEntityType<Enderman> implements Listener {
         @Override
         public void onTick() {
             if (tick % 10 == 0) {
-                spawnParticle(getLocation().add(0.0d, getEyeHeight(), 0.0d), Particle.SPELL_WITCH, 10, 0.1, 0.2, 0.1, 0.05f);
+                spawnWorldParticle(getLocation().add(0.0d, getEyeHeight(), 0.0d), Particle.SPELL_WITCH, 10, 0.1, 0.2, 0.1, 0.05f);
             }
         }
 
@@ -113,7 +113,7 @@ public class Voidgloom extends GameEntityType<Enderman> implements Listener {
 
                     // Fx
                     playSound(location, Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 1.75f);
-                    spawnParticle(location, Particle.EXPLOSION_LARGE, 3);
+                    spawnWorldParticle(location, Particle.EXPLOSION_LARGE, 3);
                     return null;
                 }
 

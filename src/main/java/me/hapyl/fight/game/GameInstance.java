@@ -306,7 +306,6 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
         }
     }
 
-
     private void createGamePlayers() {
         Bukkit.getOnlinePlayers().forEach(player -> {
             final PlayerProfile profile = PlayerProfile.getOrCreateProfile(player);

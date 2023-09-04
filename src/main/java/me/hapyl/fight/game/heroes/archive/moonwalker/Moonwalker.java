@@ -38,7 +38,7 @@ public class Moonwalker extends Hero implements PlayerElement, UIComponent {
 
         final HeroAttributes attributes = getAttributes();
 
-        final HeroEquipment equipment = getEquipment();
+        final Equipment equipment = getEquipment();
         equipment.setChestplate(255, 255, 255);
         equipment.setLeggings(186, 186, 186);
         equipment.setBoots(105, 105, 105);

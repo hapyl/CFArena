@@ -77,7 +77,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
 
         setItem("8d44756e0b4ece8d746296a3d5e297e1415f4ba17647ffe228385383d161a9");
 
-        final HeroEquipment equipment = getEquipment();
+        final Equipment equipment = getEquipment();
         equipment.setChestplate(Color.BLACK);
         equipment.setLeggings(Color.BLACK);
         equipment.setBoots(Color.BLACK);

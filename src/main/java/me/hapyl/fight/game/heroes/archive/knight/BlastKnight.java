@@ -9,7 +9,7 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.HeroEquipment;
+import me.hapyl.fight.game.heroes.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -59,7 +59,7 @@ public class BlastKnight extends Hero implements DisabledHero, PlayerElement, UI
         setDescription("Royal Knight with high-end technology gadgets.");
         setItem("e2dfde6c2c8f0a7adf7ae4e949a804fedf95c6b9562767eae6c22a401cd02cbd");
 
-        final HeroEquipment equipment = getEquipment();
+        final Equipment equipment = getEquipment();
         equipment.setChestplate(Color.BLUE);
         equipment.setLeggings(Material.CHAINMAIL_LEGGINGS);
         equipment.setBoots(Material.IRON_BOOTS);

@@ -150,7 +150,7 @@ public class GameEntity {
             return true;
         }
 
-        return entity.hasAI();
+        return entity.hasAI() && !entity.isInvulnerable();
     }
 
     public boolean hasLineOfSight(@Nonnull LivingEntity entity) {

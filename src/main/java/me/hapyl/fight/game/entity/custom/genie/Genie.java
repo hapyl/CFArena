@@ -127,7 +127,7 @@ public class Genie extends GameEntityType<Husk> {
             entity.teleport(child.getLocation().add(0.0d, 1.0d, 0.0d));
 
             // Fx
-            spawnParticle(location.add(0.0d, 0.75d, 0.0d), Particle.SNOWFLAKE, 1, 0.1d, 0.1d, 0.1d, 0.01f);
+            spawnWorldParticle(location.add(0.0d, 0.75d, 0.0d), Particle.SNOWFLAKE, 1, 0.1d, 0.1d, 0.1d, 0.01f);
         }
 
     }

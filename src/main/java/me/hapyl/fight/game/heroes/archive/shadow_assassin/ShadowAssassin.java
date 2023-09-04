@@ -8,7 +8,7 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.HeroEquipment;
+import me.hapyl.fight.game.heroes.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -52,7 +52,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
         setDescription("Well-trained assassin from dimension of shadows.");
         setItem("9598fcbbf65b9ff66da99487403e4baf7e4c50144d06c7417bbded578d76d004");
 
-        final HeroEquipment equipment = getEquipment();
+        final Equipment equipment = getEquipment();
         equipment.setChestplate(Color.BLACK);
         equipment.setLeggings(Color.BLACK);
         equipment.setBoots(Color.BLACK);

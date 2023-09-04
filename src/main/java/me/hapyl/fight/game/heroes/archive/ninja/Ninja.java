@@ -8,7 +8,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.HeroEquipment;
+import me.hapyl.fight.game.heroes.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -54,7 +54,7 @@ public class Ninja extends Hero implements Listener, UIComponent {
 
         setItem("1413159cfab50aba283e68c1659d74412392fbcb1f7d663d1bd2a2a6430c2743");
 
-        final HeroEquipment equipment = this.getEquipment();
+        final Equipment equipment = this.getEquipment();
         equipment.setChestplate(Color.WHITE);
         equipment.setLeggings(Material.CHAINMAIL_LEGGINGS);
         equipment.setBoots(Material.CHAINMAIL_BOOTS);

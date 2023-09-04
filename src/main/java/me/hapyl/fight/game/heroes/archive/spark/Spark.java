@@ -8,7 +8,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.HeroEquipment;
+import me.hapyl.fight.game.heroes.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -40,7 +40,7 @@ public class Spark extends Hero implements PlayerElement {
         setDescription("Strikes as fire with his fire abilities.");
         setItem("ade095332720215ca9b85e7eacd1d092b1697fad34d696add94d3b70976702c");
 
-        final HeroEquipment equipment = this.getEquipment();
+        final Equipment equipment = this.getEquipment();
         equipment.setChestplate(Color.ORANGE);
         equipment.setLeggings(Color.RED);
         equipment.setBoots(Color.ORANGE);

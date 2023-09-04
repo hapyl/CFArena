@@ -24,7 +24,7 @@ public class DeathSwap extends Talent {
 
     @DisplayField(suffix = "blocks") protected final double maxDistance = 20.0d;
     @DisplayField protected final double shift = 0.55d;
-    @DisplayField(suffix = "%") protected final double damagePercent = 10.0d;
+    @DisplayField(suffix = "%", suffixSpace = false) protected final double damagePercent = 10.0d;
     @DisplayField private final short spiritualBoneCost = 1;
 
     private final Map<Player, TakerHook> playerHooks = Maps.newHashMap();

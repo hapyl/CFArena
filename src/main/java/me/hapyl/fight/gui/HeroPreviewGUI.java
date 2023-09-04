@@ -3,6 +3,7 @@ package me.hapyl.fight.gui;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -66,6 +67,16 @@ public class HeroPreviewGUI extends PlayerGUI {
 
         setItem(11, hero.getCachedHeroItem().getDetailsItem());
         setItem(29, hero.getWeapon().getItem());
+
+        final PlayerSkin skin = hero.getSkin();
+        if (skin != null) {
+            setItem(26, ItemBuilder.of(Material.LEATHER_CHESTPLATE, "&aAbout Player Skins").addTextBlockLore("""
+                    &8This hero uses custom skin!
+                                        
+                    Instead of armor, your skin will be changed.
+                    &e;;You can turn this off in &e/settings&e.
+                    """).asIcon());
+        }
 
         final UltimateTalent ultimate = hero.getUltimate();
         final boolean showingUltimateAttributes = attributeDisplay.contains(ultimate);

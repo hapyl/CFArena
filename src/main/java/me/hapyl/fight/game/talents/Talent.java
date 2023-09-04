@@ -242,8 +242,8 @@ public abstract class Talent extends NonNullItemCreator
         // Now using text block lore
         try { // fixme: try-catch for debugging, remove on prod
             // fix % I fucking hate that java uses % as formatter fucking why
-            description = description.replace("%", "%%");
             description = TalentFormat.formatTalent(description, this);
+            description = description.replace("%", "%%");
 
             builderItem.addTextBlockLore(description);
         } catch (Exception e) {
@@ -388,8 +388,9 @@ public abstract class Talent extends NonNullItemCreator
         // Progress ability usage
         final StatContainer stats = GamePlayer.getPlayer(player).getStats();
         final Talents enumTalent = Talents.fromTalent(this);
+        final DebugData debug = Manager.current().getDebug();
 
-        if (stats != null && !Manager.current().isDebug()) {
+        if (!debug.any()) {
             stats.addAbilityUsage(enumTalent);
         }
 
@@ -417,9 +418,9 @@ public abstract class Talent extends NonNullItemCreator
         }
 
         // Don't start CD if in debug
-        if (Manager.current().isDebug()) {
-            // TODO: 031, Mar 31, 2023 -> Create different debug states: -c for cooldown, -u for ult etc
-            //return;
+        final DebugData debug = Manager.current().getDebug();
+        if (debug.is(DebugData.Flag.IGNORE_COOLDOWN)) {
+            return;
         }
 
         GamePlayer.setCooldown(player, material, cooldown);

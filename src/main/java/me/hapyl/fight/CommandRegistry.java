@@ -24,7 +24,6 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
 import me.hapyl.fight.game.entity.cooldown.CooldownData;
 import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.PlayerSkin;
 import me.hapyl.fight.game.heroes.archive.bloodfield.BatCloud;
 import me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend;
 import me.hapyl.fight.game.heroes.archive.bloodfield.BloodfiendData;
@@ -32,10 +31,9 @@ import me.hapyl.fight.game.heroes.archive.dark_mage.AnimatedWither;
 import me.hapyl.fight.game.heroes.archive.doctor.ElementType;
 import me.hapyl.fight.game.heroes.archive.engineer.Engineer;
 import me.hapyl.fight.game.lobby.StartCountdown;
+import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.reward.DailyReward;
-import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.talents.archive.bloodfiend.TwinClaws;
 import me.hapyl.fight.game.talents.archive.engineer.Construct;
 import me.hapyl.fight.game.talents.archive.juju.Orbiting;
 import me.hapyl.fight.game.task.GameTask;
@@ -56,6 +54,7 @@ import me.hapyl.spigotutils.module.hologram.Hologram;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import me.hapyl.spigotutils.module.math.Cuboid;
+import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.math.nn.IntInt;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.DataWatcherType;
@@ -81,6 +80,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ArmorMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.trim.ArmorTrim;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
@@ -99,6 +99,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Queue;
 import java.util.*;
@@ -188,6 +189,21 @@ public class CommandRegistry extends DependencyInjector<Main> {
             task.runTaskTimer(0, 1);
         });
 
+        register("damageSelf", (player, args) -> {
+            final GamePlayer gamePlayer = CF.getPlayer(player);
+
+            if (gamePlayer == null) {
+                Chat.sendMessage(player, "&cNo handle!");
+                return;
+            }
+
+            final double damage = args.length > 0 ? Numbers.getDouble(args[0], 1.0d) : 1.0d;
+
+            gamePlayer.setLastDamager(gamePlayer);
+            gamePlayer.damage(damage, EnumDamageCause.ENTITY_ATTACK);
+            Chat.sendMessage(player, "&aDamaged!");
+        });
+
         register(new SimplePlayerAdminCommand("testBatCloud") {
 
             private BatCloud batCloud;
@@ -214,12 +230,46 @@ public class CommandRegistry extends DependencyInjector<Main> {
             Chat.sendMessage(player, "&aDone!");
         });
 
-        register("testSpawnPillar", (player, args) -> {
-            final TwinClaws talent = Talents.TWIN_CLAWS.getTalent(TwinClaws.class);
-            talent.spawnPillar(player, player.getLocation());
+        register("dumpColor", (player, args) -> {
+            final ItemStack item = player.getInventory().getItemInMainHand();
+            final ItemMeta meta = item.getItemMeta();
 
-            Chat.sendMessage(player, "&aDone!");
+            if (meta instanceof LeatherArmorMeta colorMeta) {
+                final org.bukkit.Color color = colorMeta.getColor();
+                final int red = color.getRed();
+                final int green = color.getGreen();
+                final int blue = color.getBlue();
+
+                Chat.sendClickableHoverableMessage(
+                        player,
+                        LazyEvent.suggestCommand(red + ", " + green + ", " + blue),
+                        LazyEvent.showText("&eClick to copy color!"),
+                        "&aColor: " + color + " &6&lCLICK TO COPY RGB"
+                );
+            }
+
+            if (meta instanceof ArmorMeta armorMeta) {
+                final ArmorTrim trim = armorMeta.getTrim();
+
+                if (trim != null) {
+                    final TrimPattern pattern = trim.getPattern();
+                    final TrimMaterial material = trim.getMaterial();
+
+                    final String patternKey = pattern.getKey().getKey().toUpperCase();
+                    final String materialKey = material.getKey().getKey().toUpperCase();
+
+                    Chat.sendClickableHoverableMessage(
+                            player,
+                            LazyEvent.suggestCommand(patternKey + ", " + materialKey),
+                            LazyEvent.showText("&eClick to copy armor trim!"),
+                            "&aTrim: " + patternKey + " x " + materialKey + " &6&lCLICK TO COPY TRIM"
+                    );
+                }
+            }
+
         });
+
+        register(new SwiftTeleportCommand());
 
         register(new SimplePlayerCommand("cancelCountdown") {
             @Override
@@ -245,6 +295,30 @@ public class CommandRegistry extends DependencyInjector<Main> {
             }
 
             Message.info(player, collection.getItems().toString());
+        });
+
+        register(new SimplePlayerAdminCommand("skin") {
+
+            private final String textureUrl = "https://textures.minecraft.net/texture/";
+
+            @Override
+            protected void execute(Player player, String[] args) {
+                final String arg = getArgument(args, 0).toString();
+
+                if (arg.equalsIgnoreCase("reset")) {
+                    PlayerSkin.reset(player);
+                    Message.success(player, "Reset your skin!");
+                    return;
+                }
+
+                final String url = arg.contains(textureUrl) ? arg : textureUrl + arg;
+                final byte[] encoded = Base64.getEncoder().encode(url.getBytes(StandardCharsets.UTF_8));
+
+                Debug.info(encoded);
+
+                new PlayerSkin(new String(encoded), "").apply(player);
+                Message.success(player, "Set your skin!");
+            }
         });
 
         register("debugCrate", (player, args) -> {
@@ -350,6 +424,12 @@ public class CommandRegistry extends DependencyInjector<Main> {
         );
 
         register("testSetSkin", (player, args) -> {
+            if (args.length > 0 && args[0].equals("reset")) {
+                PlayerSkin.reset(player);
+                Chat.sendMessage(player, "&eReset!");
+                return;
+            }
+
             bloodfiendSkin.apply(player);
             Chat.sendMessage(player, "&aDone!");
         });
@@ -414,6 +494,7 @@ public class CommandRegistry extends DependencyInjector<Main> {
                 }
 
                 final CooldownData data = gamePlayer.getCooldown().getData(cooldown);
+
                 if (data == null) {
                     Message.error(player, "&cYou don't have this cooldown!");
                     return;
@@ -1629,7 +1710,7 @@ public class CommandRegistry extends DependencyInjector<Main> {
         // these are small shortcuts not feeling creating a class D:
 
         register(tinyCommand("start", (player, args) -> {
-            player.performCommand("cf start " + (args.length > 0 ? args[0] : ""));
+            player.performCommand("cf start " + Chat.arrayToString(args, 0));
         }));
 
         register(new SimpleAdminCommand("stop") {

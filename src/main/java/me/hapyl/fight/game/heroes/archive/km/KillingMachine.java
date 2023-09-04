@@ -2,7 +2,7 @@ package me.hapyl.fight.game.heroes.archive.km;
 
 import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.HeroEquipment;
+import me.hapyl.fight.game.heroes.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -25,7 +25,7 @@ public class KillingMachine extends Hero implements DisabledHero {
         setDescription("A machine of war that was left for scrap, until now...");
         setItem("ec2f3d5d62fd9be6d654d314c123390abfa3698d3d87c1516a453a7ee4fcbf");
 
-        final HeroEquipment equipment = this.getEquipment();
+        final Equipment equipment = this.getEquipment();
         equipment.setChestplate(Material.CHAINMAIL_CHESTPLATE);
         equipment.setLeggings(Material.CHAINMAIL_LEGGINGS);
         equipment.setBoots(Material.CHAINMAIL_BOOTS);

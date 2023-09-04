@@ -1,10 +1,11 @@
 package me.hapyl.fight.util.displayfield;
 
+import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Field;
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.function.BiConsumer;
 
@@ -17,6 +18,7 @@ public final class DisplayFieldSerializer {
             return "%s: &f&l%s".formatted(key, value);
         }
     };
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.00");
 
     public static void serialize(ItemBuilder builder, DisplayFieldProvider provider, DisplayFieldFormatter formatter) {
         for (Field field : provider.getClass().getDeclaredFields()) {
@@ -59,11 +61,11 @@ public final class DisplayFieldSerializer {
         serialize(builder, provider, DEFAULT_FORMATTER);
     }
 
-    public static String formatField(Field field, Object instance) {
-        return formatField(field, instance, 1.0d);
-    }
+    public static String formatField(Field field, Object instance, DisplayField display) {
+        final double scale = display.scaleFactor();
+        final String suffix = display.suffix();
+        final boolean suffixSpace = display.suffixSpace();
 
-    public static String formatField(Field field, Object instance, double scale) {
         try {
             field.setAccessible(true);
 
@@ -72,26 +74,28 @@ public final class DisplayFieldSerializer {
             String stringValue = "";
 
             if (value instanceof Double decimal) {
-                if (decimal % 1 == 0) {
-                    stringValue = String.valueOf(decimal.intValue() * scale);
+                final double scaled = decimal * scale;
+
+                if (scaled % 1 == 0) {
+                    stringValue = String.valueOf((int) scaled);
                 }
                 else {
-                    stringValue = BukkitUtils.decimalFormat(decimal * scale);
+                    stringValue = DECIMAL_FORMAT.format(scaled);
                 }
             }
             // Integers are always considered as ticks, use short or long for other values
             // Integers are NOT scaled with the scale!
             else if (value instanceof Integer tick) {
-                stringValue = BukkitUtils.roundTick(tick) + "s";
+                stringValue = Utils.decimalFormatTick(tick);
             }
             else if (value instanceof Number number) {
-                stringValue = String.valueOf(number.intValue() * scale);
+                stringValue = Utils.decimalFormat((int) number * scale);
             }
             else if (value instanceof String string) {
                 stringValue = string;
             }
 
-            return stringValue;
+            return stringValue + (suffix.isBlank() || suffix.isEmpty() ? "" : (suffixSpace ? " " : "") + suffix);
         } catch (Exception e) {
             return "null";
         }
@@ -146,9 +150,8 @@ public final class DisplayFieldSerializer {
             }
         }
 
-        final String stringValue = formatField(field, instance, display.scaleFactor());
-        final String suffix = display.suffix();
+        final String stringValue = formatField(field, instance, display);
 
-        return formatter.format(builder.toString().trim(), stringValue) + ((suffix.isEmpty() || suffix.isBlank()) ? "" : " " + suffix);
+        return formatter.format(builder.toString().trim(), stringValue);
     }
 }

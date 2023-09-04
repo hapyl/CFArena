@@ -47,9 +47,8 @@ public class Utils {
 
     public static final Pattern STRIP_COLOR_PATTERN = Pattern.compile("(?i)" + '&' + "[0-9A-FK-ORX]");
     public static final Object[] DISAMBIGUATE = new Object[] {};
+    private static final DecimalFormat TICK_FORMAT = new DecimalFormat("0.0");
 
-    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.0");
-    private static final DecimalFormat TICK_FORMAT = new DecimalFormat("0.00");
     private static String SERVER_IP;
 
     public static String stripColor(String message) {
@@ -477,10 +476,6 @@ public class Utils {
         return SERVER_IP;
     }
 
-    public static String formatTick(int tick) {
-        return DECIMAL_FORMAT.format(tick / 20L);
-    }
-
     public static void modifyKnockback(@Nonnull LivingEntity target, @Nonnull Function<Double, Double> fn, @Nonnull Consumer<LivingEntity> consumer) {
         final AttributeInstance attribute = target.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
 
@@ -530,8 +525,13 @@ public class Utils {
     }
 
     @Nonnull
-    public static String decimalFormat(int tick) {
+    public static String decimalFormatTick(int tick) {
         return TICK_FORMAT.format(tick / 20.0d) + "s";
+    }
+
+    @Nonnull
+    public static String decimalFormat(double number) {
+        return TICK_FORMAT.format(number);
     }
 
     // Anchors location to the ground
@@ -545,7 +545,7 @@ public class Utils {
 
         while (true) {
             final double y = location.getY();
-            if (y <= minHeight || location.getBlock().getType().isOccluding()) {
+            if (y <= minHeight || !location.getBlock().getType().isAir()) {
                 Debug.particle(location, Particle.VILLAGER_HAPPY);
                 return location;
             }
@@ -554,4 +554,33 @@ public class Utils {
         }
     }
 
+    public static void setGlowing(@Nonnull Player player, @Nonnull Entity entity, @Nonnull String teamName, @Nonnull ChatColor color) {
+        final Scoreboard scoreboard = player.getScoreboard();
+        Team team = scoreboard.getTeam(teamName);
+
+        if (team == null) {
+            team = scoreboard.registerNewTeam(teamName);
+        }
+
+        team.setColor(color);
+        team.addEntry(entity instanceof Player playerEntity ? playerEntity.getName() : entity.getUniqueId().toString());
+    }
+
+    public static <T> void forEach(T[] array, Consumer<T> consumer) {
+        for (T t : array) {
+            if (t == null) {
+                continue;
+            }
+
+            consumer.accept(t);
+        }
+    }
+
+    public static void modifyAttribute(LivingEntity entity, Attribute attribute, Consumer<AttributeInstance> consumer) {
+        final AttributeInstance instance = entity.getAttribute(attribute);
+
+        if (instance != null) {
+            consumer.accept(instance);
+        }
+    }
 }

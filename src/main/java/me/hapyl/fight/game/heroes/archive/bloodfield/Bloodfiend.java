@@ -7,31 +7,33 @@ import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.attribute.HeroAttributes;
+import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.HeroEquipment;
-import me.hapyl.fight.game.heroes.UltimateCallback;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.archive.bloodfield.impel.Impel;
 import me.hapyl.fight.game.heroes.archive.bloodfield.impel.ImpelInstance;
 import me.hapyl.fight.game.heroes.archive.bloodfield.impel.Type;
+import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.archive.bloodfiend.BloodChalice;
-import me.hapyl.fight.game.talents.archive.bloodfiend.Candlebane;
-import me.hapyl.fight.game.talents.archive.bloodfiend.ChaliceTaunt;
+import me.hapyl.fight.game.talents.archive.bloodfiend.BloodCup;
 import me.hapyl.fight.game.talents.archive.bloodfiend.TwinClaws;
+import me.hapyl.fight.game.talents.archive.bloodfiend.candlebane.Candlebane;
+import me.hapyl.fight.game.talents.archive.bloodfiend.candlebane.CandlebaneTalent;
+import me.hapyl.fight.game.talents.archive.bloodfiend.chalice.BloodChalice;
+import me.hapyl.fight.game.talents.archive.bloodfiend.chalice.BloodChaliceTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.UIComplexComponent;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.protocol.PlayerMount;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.entity.Entities;
+import me.hapyl.spigotutils.module.entity.EntityUtils;
 import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -44,6 +46,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
+import org.bukkit.inventory.meta.trim.TrimMaterial;
+import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
@@ -53,12 +57,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
-public class Bloodfiend extends Hero implements Listener, UIComplexComponent {
+public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplexComponent {
 
-    @DisplayField public final short impelTimes = 3;
-    @DisplayField public final int impelDuration = 50;
-    @DisplayField public final int impelCd = 15;
-    @DisplayField public final double impelDamage = 50.0d;
+    public static final int BLOOD_SLOT = 4;
+
+    @DisplayField public final short impelTimes = 5;
+    @DisplayField public final int impelDuration = 40;
+    @DisplayField public final int impelCd = 10;
+    @DisplayField public final double impelDamage = 30.0d;
 
     private final Map<Player, BloodfiendData> playerData = Maps.newConcurrentMap();
 
@@ -68,30 +74,34 @@ public class Bloodfiend extends Hero implements Listener, UIComplexComponent {
         setDescription("""
                 A vampire prince with a sunscreen.
                 """);
-        setArchetype(Archetype.STRATEGY);
+        setArchetype(Archetype.DAMAGE);
         setItem("5aa29ea961757dc3c90bfabf302c5abe9d308fb4a7d3864e5788ad2cc9160aa2");
+        setSkin(new PlayerSkin(
+                "ewogICJ0aW1lc3RhbXAiIDogMTY2MTQwMDI0MTc2NiwKICAicHJvZmlsZUlkIiA6ICI4YTg3NGJhNmFiZDM0ZTc5OTljOWM1ODMwYWYyY2NmNSIsCiAgInByb2ZpbGVOYW1lIiA6ICJSZXphMTExIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzVhYTI5ZWE5NjE3NTdkYzNjOTBiZmFiZjMwMmM1YWJlOWQzMDhmYjRhN2QzODY0ZTU3ODhhZDJjYzkxNjBhYTIiCiAgICB9CiAgfQp9",
+                "u7oD4NYj9J7UzMV/GZ3oScp3E6ci7+YI3DsDlTzVfsHKB5yWNEyZPttL09dMDWyJY1kdC8hsK8i5xhF5BaC/2pj/f3SNndzkrflEYrwUr8/1GVXpejIEVpb+SNqImpjsxWY3bLVQHaQ47WjMzvfrQ/gaEMKp3vDmjqST4gWKPxyk6hEHAudA1evE95QSjKX+ayMc822WQPOlPsqcFIZ/f/HYivYl9FQ4HbSyRfK2iI3Ibb0Mwg7BDcJuvkxdnIpkwBz1Hu3SH77dcpXZtLvIBc7dy41zJOMhUzyqkFFVrid5GvgTgb2o+iJ9mSNfVxN9khpG2q15lofdfIseijpq3QP2rAhdl3uX7DqT/CzOzfXP/9FGQaGuYySkNRlbt1WLfWJN9sHWK/jyz1nhV+JwJvwg/uV4Cor9q1jr01cv/FsWIUwSHLnXndIOEileCKnqlo6G/FtTU4Rgd1C5CryBUhY1WMc+HPk38wmWo6HzNOlhT1HltiPjb4kpSUP+vz5LTtplOqwomw/XBp/wuXuS2ijzCVo6lovtUzra5lsGa9EijHPreXt2dEHy68bTZBt2Os4BeWCMTz58d4wvSvC/hHNXdd/asx1CcW288HFxWRxoNLLawanDILCZLdRln4MwlGP1IruOuK0wJOkP3kxqHJdCL51psBPWDpPTzW0VC9c="
+        ));
 
         final HeroAttributes attributes = getAttributes();
         attributes.setHealth(80.0d);
 
-        final HeroEquipment equipment = getEquipment();
+        final Equipment equipment = getEquipment();
 
-        //equipment.setChestplate(26, 1, 1, TrimPattern.TIDE, TrimMaterial.IRON);
-        equipment.setChestplate(0, 0, 0);
-        equipment.setLeggings(0, 0, 0);
-        equipment.setBoots(0, 0, 0);
+        equipment.setChestplate(99, 8, 16, TrimPattern.SILENCE, TrimMaterial.NETHERITE);
+        equipment.setLeggings(28, 3, 7);
+        equipment.setBoots(5, 3, 23, TrimPattern.HOST, TrimMaterial.NETHERITE);
 
         setWeapon(new Weapon(Material.GHAST_TEAR).setName("Vampire's Fang").setDamage(6.0d).setAttackSpeed(0.5d));
 
-        final UltimateTalent ultimate = new UltimateTalent("Impel", 65)
+        final UltimateTalent ultimate = new UltimateTalent("Impel", 50)
                 .setItem(Material.MOOSHROOM_SPAWN_EGG)
                 .setDuration(impelDuration * impelTimes)
                 .setCastDuration(30);
 
         ultimate.setDescription("""
                 After a short casting time, impel all &cbitten &cenemies&7 for {duration}.
+                &8&o;;While casting, transform into a bat and fly freely.
                                 
-                While impelled, enemies must obey &b%s &7of yours commands.
+                While impelled, enemies must obey &b%s &7of your commands.
                                 
                 If failed to obey a command, they will suffer &c%s&7 damage.
                 """, impelTimes, impelDamage);
@@ -130,16 +140,36 @@ public class Bloodfiend extends Hero implements Listener, UIComplexComponent {
     @Nullable
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
+        final GamePlayer gamePlayer = input.getDamagerAsPlayer();
         final Player player = input.getDamagerAsBukkitPlayer();
-        final LivingGameEntity gameEntity = input.getEntity();
+        final LivingGameEntity entity = input.getEntity();
         final EnumDamageCause cause = input.getDamageCause();
 
-        if (!(gameEntity instanceof GamePlayer gamePlayer) || player == null || cause != EnumDamageCause.ENTITY_ATTACK) {
+        if (player == null || gamePlayer == null || cause != EnumDamageCause.ENTITY_ATTACK) {
             return DamageOutput.OK;
         }
 
+        entity.addEffect(GameEffectType.IMMOVABLE, 1);
+
         final BloodfiendData data = getData(player);
-        data.addSucculence(gamePlayer);
+        data.addBlood();
+
+        if (!(entity instanceof GamePlayer victim)) {
+            return DamageOutput.OK;
+        }
+
+        data.addSucculence(victim);
+
+        // Blood Chalice
+        final BloodChaliceTalent bloodChalice = getThirdTalent();
+        final BloodChalice taunt = bloodChalice.getTaunt(player);
+
+        if (taunt != null && taunt.target.equals(victim)) {
+            final double damage = input.getDamage();
+            final double healing = damage * bloodChalice.healingPercent / 100;
+
+            gamePlayer.heal(healing);
+        }
 
         return DamageOutput.OK;
     }
@@ -162,20 +192,15 @@ public class Bloodfiend extends Hero implements Listener, UIComplexComponent {
 
     @Override
     public UltimateCallback castUltimate(Player player) {
+        final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
         final BloodfiendData data = getData(player);
         final Set<GamePlayer> succulencePlayers = data.getSucculencePlayers();
         final Location location = player.getLocation().add(0.0d, 0.5d, 0.0d);
 
-        player.setInvulnerable(true);
+        final HumanNPC npc = new HumanNPC(player.getLocation(), "", player.getName());
 
-        PlayerMount.mount(player, location);
-        playSoundAtTick(
-                location,
-                Sound.ENTITY_ELDER_GUARDIAN_CURSE,
-                0.75f,
-                0.1f,
-                0, 2, 3, 5, 6, 9, 10, 12
-        );
+        npc.showAll();
+        npc.setSitting(true);
 
         // Draw particles
         succulencePlayers.forEach(target -> {
@@ -183,8 +208,7 @@ public class Bloodfiend extends Hero implements Listener, UIComplexComponent {
         });
 
         // Spawn bats
-        Set<Bat> fxBats = Sets.newHashSet();
-
+        final Set<Bat> fxBats = Sets.newHashSet();
         final Location eyeLocation = player.getEyeLocation();
 
         for (int i = 0; i < 10; i++) {
@@ -194,22 +218,67 @@ public class Bloodfiend extends Hero implements Listener, UIComplexComponent {
             }));
         }
 
+        gamePlayer.addEffect(GameEffectType.INVISIBILITY, 10000, true);
+
+        final Bat playerBat = Entities.BAT.spawn(eyeLocation, self -> {
+            self.setAwake(true);
+            self.setInvulnerable(true);
+
+            EntityUtils.setCollision(self, EntityUtils.Collision.DENY, player);
+        });
+
+        final float flySpeed = player.getFlySpeed();
+
+        player.teleport(eyeLocation);
+
+        player.setFlySpeed(0.05f);
+        player.setAllowFlight(true);
+        player.setFlying(true);
+
+        // Fx
+        final GameTask batTask = new GameTask() {
+            @Override
+            public void run() {
+                playerBat.teleport(player.getLocation());
+
+                // Fx
+                PlayerLib.spawnParticle(player.getLocation(), Particle.SMOKE_NORMAL, 2, 0.15d, 0.15d, 0.15d, 0.0f);
+            }
+        }.runTaskTimer(0, 1);
+
         PlayerLib.playSound(location, Sound.ENTITY_BAT_TAKEOFF, 0.25f);
+
+        playSoundAtTick(
+                location,
+                Sound.ENTITY_ELDER_GUARDIAN_CURSE,
+                0.75f,
+                0.1f,
+                0, 2, 3, 5, 6, 9, 10, 12
+        );
 
         return new UltimateCallback() {
             @Override
             public void callback(@Nonnull Player player) {
-                PlayerMount.dismount(player);
                 fxBats.forEach(Bat::remove);
                 fxBats.clear();
+
+                player.setFlySpeed(flySpeed);
+                player.setAllowFlight(false);
+                player.setFlying(false);
+
+                data.cooldownFlight(true);
+
+                gamePlayer.removeEffect(GameEffectType.INVISIBILITY);
+
+                npc.remove();
+                playerBat.remove();
+                batTask.cancelIfActive();
             }
         };
     }
 
     @Override
     public void useUltimate(Player player) {
-        player.setInvulnerable(false);
-
         getData(player).newImpelInstance(this, player).nextImpel(0);
     }
 
@@ -219,8 +288,18 @@ public class Bloodfiend extends Hero implements Listener, UIComplexComponent {
     }
 
     @Override
-    public BloodChalice getSecondTalent() {
-        return (BloodChalice) Talents.BLOOD_CHALICE.getTalent();
+    public CandlebaneTalent getSecondTalent() {
+        return (CandlebaneTalent) Talents.CANDLEBANE.getTalent();
+    }
+
+    @Override
+    public BloodChaliceTalent getThirdTalent() {
+        return (BloodChaliceTalent) Talents.BLOOD_CHALICE.getTalent();
+    }
+
+    @Override
+    public BloodCup getFourthTalent() {
+        return (BloodCup) Talents.BLOOD_CUP.getTalent();
     }
 
     @Override
@@ -314,6 +393,11 @@ public class Bloodfiend extends Hero implements Listener, UIComplexComponent {
             return;
         }
 
+        // Ultimate bat
+        if (isUsingUltimate(player)) {
+            return;
+        }
+
         if (data.isFlying()) {
             data.stopFlying();
             return;
@@ -334,17 +418,17 @@ public class Bloodfiend extends Hero implements Listener, UIComplexComponent {
         final int succulencePlayers = data.getSucculencePlayersCount();
         final int flightCooldown = data.getFlightCooldown();
 
-        final TwinClaws twinClaws = getFirstTalent();
-        final BloodChalice bloodChalice = getSecondTalent();
+        final CandlebaneTalent twinClaws = getSecondTalent();
+        final BloodChaliceTalent bloodChalice = getThirdTalent();
 
         final Candlebane pillar = twinClaws.getTaunt(player);
-        final ChaliceTaunt chalice = bloodChalice.getTaunt(player);
+        final BloodChalice chalice = bloodChalice.getTaunt(player);
 
         return List.of(
                 succulencePlayers > 0 ? "&c&l🦇 &f" + succulencePlayers : "",
-                flightCooldown > 0 ? "&2&l\uD83D\uDD4A &f" + Utils.decimalFormat(flightCooldown) : "",
-                pillar != null ? "&6&lⅡ &f" + Utils.decimalFormat(pillar.getTimeLeft()) : "",
-                chalice != null ? "&4&l🍷 &f" + Utils.decimalFormat(chalice.getTimeLeft()) : ""
+                flightCooldown > 0 ? "&2&l\uD83D\uDD4A &f" + Utils.decimalFormatTick(flightCooldown) : "",
+                pillar != null ? "&6&lⅡ &f" + Utils.decimalFormatTick(pillar.getTimeLeft()) : "",
+                chalice != null ? "&4&l🍷 &f" + Utils.decimalFormatTick(chalice.getTimeLeft()) : ""
         );
     }
 

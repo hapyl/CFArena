@@ -188,10 +188,14 @@ public class GamePlayerUI {
                     "&6&lLobby:",
                     " &e&lMap: &f%s".formatted(current.getCurrentMap().getMap().getName()),
                     " &e&lMode: &f%s".formatted(current.getCurrentMode().getMode().getName()),
-                    " &e&lCoins: &f%s".formatted(currency.getFormatted(Currency.COINS)),
-                    " &e&lRubies: &f%s".formatted(currency.getFormatted(Currency.RUBIES)),
-                    " &e&lHero: &f%s".formatted(profile.getSelectedHeroString())
+                    " &e&lCoins: &f%s".formatted(currency.getFormatted(Currency.COINS))
             );
+
+            if (currency.get(Currency.RUBIES) > 0) {
+                this.builder.addLine(" &e&lRubies: &f%s", currency.getFormatted(Currency.RUBIES));
+            }
+
+            this.builder.addLine(" &e&lHero: &f%s", profile.getSelectedHeroString());
         }
 
         this.builder.addLine("");

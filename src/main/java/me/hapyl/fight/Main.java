@@ -13,12 +13,13 @@ import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.maps.features.BoosterController;
 import me.hapyl.fight.game.maps.gamepack.HealthPackListener;
 import me.hapyl.fight.game.parkour.CFParkourManager;
-import me.hapyl.fight.game.talents.archive.bloodfiend.CandlebaneProtocol;
+import me.hapyl.fight.game.talents.archive.bloodfiend.candlebane.CandlebaneProtocol;
 import me.hapyl.fight.game.task.TaskList;
 import me.hapyl.fight.mini.lampgame.LampGame;
 import me.hapyl.fight.notifier.Notifier;
 import me.hapyl.fight.npc.HumanManager;
 import me.hapyl.fight.protocol.ArcaneMuteProtocol;
+import me.hapyl.fight.protocol.CameraProtocol;
 import me.hapyl.fight.protocol.DismountProtocol;
 import me.hapyl.spigotutils.EternaAPI;
 import me.hapyl.spigotutils.module.util.Validate;
@@ -227,6 +228,7 @@ public class Main extends JavaPlugin {
         new ArcaneMuteProtocol();
         new DismountProtocol();
         new CandlebaneProtocol();
+        new CameraProtocol();
         //new HandshakeProtocol();
         //new ConfusionPotionProtocol(); -> doesn't work as good as I thought :(
     }

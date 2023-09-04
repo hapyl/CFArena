@@ -7,7 +7,7 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.HeroEquipment;
+import me.hapyl.fight.game.heroes.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -60,7 +60,7 @@ public class Archer extends Hero implements Listener {
         attributes.setValue(AttributeType.SPEED, 0.225d);
         attributes.setValue(AttributeType.DEFENSE, 0.8d);
 
-        final HeroEquipment equipment = getEquipment();
+        final Equipment equipment = getEquipment();
         equipment.setChestplate(86, 86, 87);
         equipment.setLeggings(75, 75, 87);
         equipment.setBoots(51, 51, 51);

@@ -10,7 +10,7 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.HeroEquipment;
+import me.hapyl.fight.game.heroes.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -59,7 +59,7 @@ public class Harbinger extends Hero implements Listener, UIComponent {
         setMinimumLevel(5);
         setItem("22a1ac2a8dd48c371482806b3963571952997a5712806e2c8060b8e7777754");
 
-        final HeroEquipment equipment = getEquipment();
+        final Equipment equipment = getEquipment();
         equipment.setChestplate(82, 82, 76);
         equipment.setLeggings(54, 48, 48);
         equipment.setBoots(183, 183, 180);
@@ -93,15 +93,17 @@ public class Harbinger extends Hero implements Listener, UIComponent {
             return null;
         }
 
-        final Player player = input.getBukkitPlayer();
-        final LivingGameEntity entity = input.getDamagerAsLiving();
+        final Player player = input.getDamagerAsBukkitPlayer();
+        final LivingGameEntity entity = input.getEntity();
 
-        if (entity != null) {
-            executeRiptideSlashIfPossible(player, entity.getEntity());
-            addRiptide(player, entity.getEntity(), 150, false);
+        if (player == null) {
+            return DamageOutput.OK;
         }
 
-        return null;
+        executeRiptideSlashIfPossible(player, entity.getEntity());
+        addRiptide(player, entity.getEntity(), 150, false);
+
+        return DamageOutput.OK;
     }
 
     public void executeRiptideSlashIfPossible(Player player, LivingEntity entity) {

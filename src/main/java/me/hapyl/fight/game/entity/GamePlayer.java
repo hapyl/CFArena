@@ -3,6 +3,7 @@ package me.hapyl.fight.game.entity;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.Main;
 import me.hapyl.fight.database.Award;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.event.io.DamageInput;
@@ -19,7 +20,9 @@ import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.profile.PlayerProfile;
+import me.hapyl.fight.game.setting.Setting;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.InputTalent;
@@ -28,6 +31,8 @@ import me.hapyl.fight.game.talents.TalentQueue;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.game.weapons.RangeWeapon;
+import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -41,7 +46,7 @@ import me.hapyl.spigotutils.module.util.BukkitUtils;
 import net.minecraft.network.protocol.game.PacketPlayOutAnimation;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffectType;
@@ -61,6 +66,7 @@ public class GamePlayer extends LivingGameEntity {
 
     private final StatContainer stats;
     private final TalentQueue talentQueue;
+    public boolean blockDismount;
     @Nonnull
     private PlayerProfile profile;
     private int ultPoints;
@@ -170,6 +176,13 @@ public class GamePlayer extends LivingGameEntity {
         updateScoreboardTeams(true);
         resetPlayer();
         getPlayer().setWalkSpeed(0.2f);
+
+        // Reset skin if was applied
+        final PlayerSkin skin = hero.getHero().getSkin();
+
+        if (Setting.USE_SKINS_INSTEAD_OF_ARMOR.isEnabled(player) && skin != null) {
+            PlayerSkin.reset(player);
+        }
 
         Utils.showPlayer(player.getPlayer());
 
@@ -438,11 +451,17 @@ public class GamePlayer extends LivingGameEntity {
     public void triggerOnDeath() {
         final IGameInstance currentGame = Manager.current().getCurrentGame();
         final Player player = getEntity();
+        final Hero hero = getHero();
+        final Weapon weapon = hero.getWeapon();
 
         currentGame.getMap().getMap().onDeath(player);
-        getHero().onDeath(player);
+        hero.onDeath(player);
         attributes.onDeath(player);
         executeTalentsOnDeath();
+
+        if (weapon instanceof RangeWeapon rangeWeapon) {
+            rangeWeapon.onDeath(player);
+        }
 
         CF.getActiveHeroes().forEach(heroes -> {
             final EntityData data = getData();
@@ -558,7 +577,7 @@ public class GamePlayer extends LivingGameEntity {
                     return;
                 }
 
-                sendTitle("&aRespawning in", "&a&l" + BukkitUtils.roundTick(tickBeforeRespawn) + "s", 0, 25, 0);
+                sendTitle("&e&lʀᴇsᴘᴀᴡɴɪɴɢ", "&b&l" + Utils.decimalFormatTick(tickBeforeRespawn), 0, 25, 0);
                 if (tickBeforeRespawn % 20 == 0) {
                     playSound(Sound.BLOCK_NOTE_BLOCK_PLING, 2.0f - (0.2f * (tickBeforeRespawn / 20f)));
                 }
@@ -593,7 +612,7 @@ public class GamePlayer extends LivingGameEntity {
         final Location location = gameInstance.getMap().getMap().getLocation();
 
         BukkitUtils.mergePitchYaw(entity.getLocation(), location);
-        sendTitle("&aRespawned!", "", 0, 20, 5);
+        sendTitle("&a&lʀᴇsᴘᴀᴡɴᴇᴅ!", "", 0, 20, 5);
         entity.teleport(location);
 
         addPotionEffect(PotionEffectType.BLINDNESS, 20, 1);
@@ -682,6 +701,14 @@ public class GamePlayer extends LivingGameEntity {
 
     public <T> void spawnParticle(Particle particle, Location location, int amount, double x, double y, double z, float speed, T data) {
         getPlayer().spawnParticle(particle, location, amount, x, y, z, speed, data);
+    }
+
+    public void hideEntity(Entity entity) {
+        getPlayer().hideEntity(Main.getPlugin(), entity);
+    }
+
+    public void showEntity(Entity entity) {
+        getPlayer().showEntity(Main.getPlugin(), entity);
     }
 
     private void resetAttribute(Attribute attribute, double value) {

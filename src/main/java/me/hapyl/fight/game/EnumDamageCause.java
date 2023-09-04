@@ -122,7 +122,7 @@ public enum EnumDamageCause {
     IMPEL(DamageCause.nonCrit("failed to obey {damager}'s command")),
     CHALICE(DamageCause.nonCrit("had their soul sucked away", "by")),
     TWINCLAW(DamageCause.nonCrit("was pierced to death by {damager}'s claw")),
-    TWIN_PILLAR(DamageCause.nonCrit("was crushed by {damager}'s pillar")),
+    CANDLEBANE(DamageCause.nonCrit("was crushed by {damager}'s pillar")),
     ;
 
     private final DamageCause damageCause;

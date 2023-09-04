@@ -2,12 +2,14 @@ package me.hapyl.fight.game.profile;
 
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.ScoreboardTeams;
 import me.hapyl.fight.game.delivery.Deliveries;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.setting.Setting;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.GamePlayerUI;
@@ -29,6 +31,7 @@ public class PlayerProfile {
     private final Player player;
     private final PlayerDatabase playerDatabase;
     private final ScoreboardTeams scoreboardTeams;
+    private final PlayerSkin originalSkin;
 
     @Nullable
     private GamePlayer gamePlayer; // current game player
@@ -49,6 +52,13 @@ public class PlayerProfile {
         this.loaded = false;
         this.resourcePack = false;
         this.buildMode = false;
+
+        this.originalSkin = PlayerSkin.of(player);
+    }
+
+    @Nonnull
+    public PlayerSkin getOriginalSkin() {
+        return originalSkin;
     }
 
     public boolean isBuildMode() {
@@ -120,10 +130,9 @@ public class PlayerProfile {
     public GamePlayer createGamePlayer() {
         this.gamePlayer = new GamePlayer(this);
 
-        //// FIXME (hapyl): 001, Aug 1:
-        //final RuntimeException error = new RuntimeException();
-        //CF.getLogger().warning("CALLED CREATE GAME PLAYER");
-        //error.printStackTrace();
+        final RuntimeException exception = new RuntimeException();
+        Debug.severe("Dumped GamePlayer creation for " + player.getName());
+        exception.printStackTrace();
 
         return gamePlayer;
     }

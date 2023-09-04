@@ -135,7 +135,7 @@ default game entity.
 - [✔] Cauldron does not apply effect
 
 - !!! Improve custom AI, include invisibility, target the most damager ETC!!!
-- Show kill distance for projectiles only
+- [✔] Show kill distance for projectiles only
 - Shark does not have bleed
 - Dwarf lava
 - Do something with non game entities, IDK what but do something!!!
@@ -159,61 +159,70 @@ default game entity.
 ############################
 [BLOODFIEND TEST]
 - [Could not reproduce, neither in local nor in building server] Chalice laggs server?
-- ??? Remove all SUCC at death
+- [✔] Remove all SUCC at death
 - [✔] Batransfer multiple reset cancel task
 - [✔] Batransfer fly when flying should cancel bat early
 - [✔] Replace air check with occluding for twinclaws
 - [✔] Add glowing to chalice
 - [✔] All players can hear taunt sound
 - [✔] Change twinclaws to fly toward direction.
-- ? Unrelated but TPS can be > 20 in tab
 - [✔] Anchor candlebane properly
 - [✔] Chalice does not kill (getting OWNER hp?)
 - [✔] Remove chalice if way away
 - [✔] Add message who is impelled
-- Maybe add life steal/vampirism?
-- Add rotating animation to candlebane?
-- Add FX that someone is bitten
-- Change Spectral Form FX to be swarm of bats like a cloud?
+- [✔] Maybe add life steal/vampirism?
+- [✔] Add rotating animation to candlebane?
+- [✔] Add FX that someone is bitten
+- [✔] Change Spectral Form FX to be swarm of bats like a cloud?
 - [✔] 200 CD candle too much, maybe remove cd since there is now a FUCK
 - [✔] Reduce weapon damage
 - Reduce defense?
 - [✔] Display chalice/pillar to vampire
 
-- Twinclaws:
--- Cooldown reduced 30s >> 15s.
--- Now launches in the player's direction.
+###########################
+[Cat Test]
 
-- Candlebane Pillar
--- Click delay removed, but wrong clicks deal damage.
--- Add warning 5s before it explodes.
--- Add text to show pillar's owner.
--- Can no longer click at own pillar.
+- [✔] Vault lava does not bounce
+- [✔] Offset location if inside a slab/stair by 1
+- [✔] Fix anchor and offset location
+- [✔] Limit pillar to 1 player?
+- [✔] Invulnerable entities are valid
+- [✔] Armor is not given (BRUH)
+- [✔] Harbinger damages self
+- [✔] Change respawning DecimalFormat
+- [✔] Update inventory after skin apply
+- [✔] to the taunted "playerS"
+- [✔] Buff impel?
 
-- Blood Chalice
--- Duration increased 25s >> 30s.
--- Add warning 5s before it explodes.
--- Improve VFX to better recognize own chalice.
-
-- Impel
--- Cost reduced 75 >> 65.
--- Player is now immune while casting the ultimate.
-
-- Weapon
--- Damage reduced 8 >> 6.
--- Attack Speed - None >> 0.5.
-
-- Spectral Form
--- Renamed "Batransfer" >> "Spectral Form"
--- Increased height limit 4 >> 6 blocks.
--- No longer invisible/invulnerable while flying.
--- Improve VFX.
-
-- Succulence (Vampire's Bite, Passive)
--- Can ONLY be applied with melee hits.
--- Increase bite duration 20s >> 30s.
--- Add blood VFX to indicate that someone is bitten.
-(Only visible for the player who is bitten and bloodfiend.)
+- Add bleed FX with bloodfiend one.
+- Add remove FX to a pillar.
+- GameProfile is messed up for skins
+- Dying while taunt animation throws error and places the taunt anyways
+- Disallow creating game player in lobby
+- Add hypixel-like server restart
+- Remove knockback on vampire
+- Limit taunt to 1 player
+- Add bleed FX, add bleed to BH
+- Swooper weapon disappeared???
+- TAUNT DEAD MESSAGE IS BOLD
+- Add "time before spawn" for HP/enegry
+- Wrong taunt? 2 players, huh, how!
+- Achievement: Hit 2 players with Twinclaws
+- Bleed does not have damager?
+- DONT ALLOW TO REMOVE TAUNT BEFORE THE ANIMATION IS OVER
+- FAKE PLAYER WHEN BLOODFIEND ULT = REAL IS ONE OF THE BATS KEKW!!
+- Spectral Form has too big CD?
+- Get LOS target debug REMOVE IT
+- Achievement: SPAM CANCEL GAME LIKE 10 TIMES OR SOMETHING
+- UI does not update after rejoin (Only health and ult doesn't)
+- Maybe randomize candle clicks?
+- Armor stands are valid?
+- Chalice is TOO easy to break
+- dumpColor gives lower case shit and SUGGEST not COPY
+- Nightmare had 80 hp? (Random class issue I think)
+- [✔] Rifle does not reload on death
+- Maybe just damage with grav, not BUB DOWN BOOB BOOBA?
+- When rejoining a game, a selected class instead of random is given (I don't think this is fixable, just fucking remove rejoining who the fuck cares)
 
 ############################
 

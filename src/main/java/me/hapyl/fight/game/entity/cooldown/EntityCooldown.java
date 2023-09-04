@@ -32,7 +32,11 @@ public class EntityCooldown {
     public boolean hasCooldown(@Nonnull Cooldown cooldown) {
         final CooldownData data = cooldownMap.get(cooldown);
 
-        if (data != null && data.isFinished()) {
+        if (data == null) {
+            return false;
+        }
+
+        if (data.isFinished()) {
             cooldownMap.remove(cooldown);
             return false;
         }

@@ -57,7 +57,7 @@ public class Ender extends Hero implements Listener {
         setDescription(
                 "Weird enderman-like looking warrior with teleportation abilities. He hits you with his arm, but it hurts like a brick.");
 
-        final HeroEquipment equipment = this.getEquipment();
+        final Equipment equipment = this.getEquipment();
         equipment.setChestplate(85, 0, 102);
         equipment.setLeggings(128, 0, 128);
         equipment.setBoots(136, 0, 204);

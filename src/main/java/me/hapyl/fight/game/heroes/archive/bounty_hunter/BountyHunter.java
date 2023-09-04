@@ -4,13 +4,12 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.HeroEquipment;
+import me.hapyl.fight.game.heroes.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -55,9 +54,9 @@ public class BountyHunter extends Hero {
         setWeapon(new Weapon(Material.IRON_SWORD).setName("Iron Sword").setDamage(6.0d));
 
         final HeroAttributes attributes = getAttributes();
-        attributes.setValue(AttributeType.DEFENSE, 0.8d);
+        attributes.setDefense(100);
 
-        final HeroEquipment equipment = getEquipment();
+        final Equipment equipment = getEquipment();
         equipment.setChestplate(50, 54, 57);
         equipment.setLeggings(80, 97, 68);
         equipment.setBoots(Material.LEATHER_BOOTS);

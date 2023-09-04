@@ -61,7 +61,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
         setDescription("A bandit from the depths of the jungle. Highly skilled in range combat.");
         setItem("9dcff46588f394987979b7dd770adea94d8ee1fb1f7b8704e1baf91227f6a4d");
 
-        final HeroEquipment equipment = getEquipment();
+        final Equipment equipment = getEquipment();
         equipment.setChestplate(62, 51, 40);
         equipment.setLeggings(62, 51, 40);
         equipment.setBoots(16, 13, 10);

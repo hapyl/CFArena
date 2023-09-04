@@ -4,6 +4,7 @@ import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
@@ -14,29 +15,29 @@ import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 
 /**
- * Represents a hero armor equipment.
+ * Represents armor equipment that can be equipped to entities.
  */
-public class HeroEquipment {
+public class Equipment {
 
     private final static ItemStack NULL_ITEM = ItemStacks.AIR;
 
     private final ItemStack[] armor;
 
-    public HeroEquipment() {
+    public Equipment() {
         this.armor = new ItemStack[4];
     }
 
-    public HeroEquipment setChestplate(Material material, TrimPattern pattern, TrimMaterial trimMaterial) {
+    public Equipment setChestplate(Material material, TrimPattern pattern, TrimMaterial trimMaterial) {
         this.armor[1] = new ItemBuilder(material).setArmorTrim(pattern, trimMaterial).cleanToItemSack();
         return this;
     }
 
-    public HeroEquipment setLeggings(Material material, TrimPattern pattern, TrimMaterial trimMaterial) {
+    public Equipment setLeggings(Material material, TrimPattern pattern, TrimMaterial trimMaterial) {
         this.armor[2] = new ItemBuilder(material).setArmorTrim(pattern, trimMaterial).cleanToItemSack();
         return this;
     }
 
-    public HeroEquipment setBoots(Material material, TrimPattern pattern, TrimMaterial trimMaterial) {
+    public Equipment setBoots(Material material, TrimPattern pattern, TrimMaterial trimMaterial) {
         this.armor[3] = new ItemBuilder(material).setArmorTrim(pattern, trimMaterial).cleanToItemSack();
         return this;
     }
@@ -49,33 +50,33 @@ public class HeroEquipment {
         this.setHelmet(ItemBuilder.playerHeadUrl(texture64).cleanToItemSack());
     }
 
-    public HeroEquipment setHelmet(int red, int green, int blue) {
+    public Equipment setHelmet(int red, int green, int blue) {
         return this.setHelmet(ItemBuilder.leatherHat(Color.fromRGB(red, green, blue)).cleanToItemSack());
     }
 
-    public HeroEquipment setChestplate(int red, int green, int blue) {
+    public Equipment setChestplate(int red, int green, int blue) {
         return this.setChestplate(ItemBuilder.leatherTunic(Color.fromRGB(red, green, blue)).cleanToItemSack());
     }
 
-    public HeroEquipment setLeggings(int red, int green, int blue) {
+    public Equipment setLeggings(int red, int green, int blue) {
         return this.setLeggings(ItemBuilder.leatherPants(Color.fromRGB(red, green, blue)).cleanToItemSack());
     }
 
-    public HeroEquipment setBoots(int red, int green, int blue) {
+    public Equipment setBoots(int red, int green, int blue) {
         return this.setBoots(ItemBuilder.leatherBoots(Color.fromRGB(red, green, blue)).cleanToItemSack());
     }
 
-    public HeroEquipment setChestplate(int red, int green, int blue, TrimPattern pattern, TrimMaterial material) {
+    public Equipment setChestplate(int red, int green, int blue, TrimPattern pattern, TrimMaterial material) {
         return this.setChestplate(ItemBuilder.leatherTunic(Color.fromRGB(red, green, blue))
                 .setArmorTrim(pattern, material)
                 .cleanToItemSack());
     }
 
-    public HeroEquipment setLeggings(int red, int green, int blue, TrimPattern pattern, TrimMaterial material) {
+    public Equipment setLeggings(int red, int green, int blue, TrimPattern pattern, TrimMaterial material) {
         return this.setLeggings(ItemBuilder.leatherPants(Color.fromRGB(red, green, blue)).setArmorTrim(pattern, material).cleanToItemSack());
     }
 
-    public HeroEquipment setBoots(int red, int green, int blue, TrimPattern pattern, TrimMaterial material) {
+    public Equipment setBoots(int red, int green, int blue, TrimPattern pattern, TrimMaterial material) {
         return this.setBoots(ItemBuilder.leatherBoots(Color.fromRGB(red, green, blue)).setArmorTrim(pattern, material).cleanToItemSack());
     }
 
@@ -84,13 +85,13 @@ public class HeroEquipment {
         return this.itemOrNull(this.armor[0]);
     }
 
-    public HeroEquipment setHelmet(ItemStack stack) {
+    public Equipment setHelmet(ItemStack stack) {
         this.armor[0] = stack;
         return this;
     }
 
     @Deprecated
-    public HeroEquipment setHelmet(Material material) {
+    public Equipment setHelmet(Material material) {
         this.armor[0] = new ItemBuilder(material).cleanToItemSack();
         return this;
     }
@@ -104,12 +105,12 @@ public class HeroEquipment {
         return this.itemOrNull(this.armor[1]);
     }
 
-    public HeroEquipment setChestplate(Material material) {
+    public Equipment setChestplate(Material material) {
         this.armor[1] = new ItemBuilder(material).cleanToItemSack();
         return this;
     }
 
-    public HeroEquipment setChestplate(ItemStack stack) {
+    public Equipment setChestplate(ItemStack stack) {
         this.armor[1] = stack;
         return this;
     }
@@ -123,12 +124,12 @@ public class HeroEquipment {
         return this.itemOrNull(this.armor[2]);
     }
 
-    public HeroEquipment setLeggings(Material material) {
+    public Equipment setLeggings(Material material) {
         this.armor[2] = new ItemBuilder(material).cleanToItemSack();
         return this;
     }
 
-    public HeroEquipment setLeggings(ItemStack stack) {
+    public Equipment setLeggings(ItemStack stack) {
         this.armor[2] = stack;
         return this;
     }
@@ -142,12 +143,12 @@ public class HeroEquipment {
         return this.itemOrNull(this.armor[3]);
     }
 
-    public HeroEquipment setBoots(Material material) {
+    public Equipment setBoots(Material material) {
         this.armor[3] = new ItemBuilder(material).cleanToItemSack();
         return this;
     }
 
-    public HeroEquipment setBoots(ItemStack stack) {
+    public Equipment setBoots(ItemStack stack) {
         this.armor[3] = stack;
         return this;
     }
@@ -156,23 +157,23 @@ public class HeroEquipment {
         this.setBoots(color.getRed(), color.getGreen(), color.getBlue());
     }
 
-    public void equip(Player player) {
-        this.equipArmor(player);
-        player.updateInventory();
+    public void equip(@Nonnull LivingEntity entity) {
+        equipArmor(entity);
+
+        if (entity instanceof Player player1) {
+            player1.updateInventory();
+        }
     }
 
-    public void equipArmor(Player player) {
-        final EntityEquipment equipment = player.getEquipment();
+    public void equipArmor(LivingEntity entity) {
+        final EntityEquipment equipment = entity.getEquipment();
+
         if (equipment != null) {
             equipment.setHelmet(this.armorOrNull(0));
             equipment.setChestplate(this.armorOrNull(1));
             equipment.setLeggings(this.armorOrNull(2));
             equipment.setBoots(this.armorOrNull(3));
         }
-    }
-
-    public void unequip(Player player) {
-        player.getInventory().clear();
     }
 
     public ItemStack[] getArmor() {

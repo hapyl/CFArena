@@ -65,7 +65,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
         attributes.setValue(AttributeType.DEFENSE, 0.5d);
         attributes.setValue(AttributeType.SPEED, 0.22d);
 
-        final HeroEquipment equipment = getEquipment();
+        final Equipment equipment = getEquipment();
         equipment.setChestplate(31, 5, 3, TrimPattern.SHAPER, TrimMaterial.COPPER);
 
         positiveEffects.add(new Effect("made you &lFASTER", PotionEffectType.SPEED, 30, 2))

@@ -61,8 +61,10 @@ public class ImpelInstance extends Instance<Bloodfiend> {
                 player.sendMessage(
                         "&6&l🦇 &eFailed to obey %s's command! &c-%s &c❤",
                         ImpelInstance.this.player.getName(),
-                        instance.impelDamage
+                        (int) instance.impelDamage
                 );
+
+                player.sendSubtitle("&eImpel: &4&lFAILED! &c-%s ❤".formatted((int) instance.impelDamage), 0, 20, 5);
 
                 player.playSound(Sound.ENTITY_BLAZE_HURT, 0.25f);
                 player.playSound(Sound.ENTITY_ZOMBIE_HURT, 0.25f);

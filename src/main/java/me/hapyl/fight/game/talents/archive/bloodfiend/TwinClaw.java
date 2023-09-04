@@ -2,7 +2,11 @@ package me.hapyl.fight.game.talents.archive.bloodfiend;
 
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.TalentReference;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend;
+import me.hapyl.fight.game.heroes.archive.bloodfield.BloodfiendData;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.Collect;
@@ -91,9 +95,18 @@ public class TwinClaw extends TickingGameTask implements TalentReference<TwinCla
         }
 
         final TwinClaws talent = getTalent();
+        double damage = talent.twinClawDamage;
 
-        nearestEntity.damage(talent.twinClawDamage, player, EnumDamageCause.TWINCLAW);
-        talent.spawnPillar(player, location);
+        if (nearestEntity instanceof GamePlayer gamePlayer) {
+            final Bloodfiend bloodfiend = Heroes.BLOODFIEND.getHero(Bloodfiend.class);
+            final BloodfiendData data = bloodfiend.getData(player);
+
+            if (data.isBitten(gamePlayer)) {
+                damage += damage * talent.bittenDamageIncrease;
+            }
+        }
+
+        nearestEntity.damage(damage, player, EnumDamageCause.TWINCLAW);
         remove();
     }
 

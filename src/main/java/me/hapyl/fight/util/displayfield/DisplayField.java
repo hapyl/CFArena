@@ -26,6 +26,11 @@ public @interface DisplayField {
     String suffix() default "";
 
     /**
+     * Whenever suffix should be prepended by a space.
+     */
+    boolean suffixSpace() default true;
+
+    /**
      * Multiplier by which the numeral value will be scaled.
      */
     double scaleFactor() default 1.0d;

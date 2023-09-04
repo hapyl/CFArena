@@ -6,7 +6,7 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.HeroEquipment;
+import me.hapyl.fight.game.heroes.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -58,7 +58,7 @@ public class Swooper extends Hero implements Listener, UIComponent {
         final HeroAttributes attributes = getAttributes();
         attributes.setValue(AttributeType.SPEED, 0.23d);
 
-        final HeroEquipment equipment = this.getEquipment();
+        final Equipment equipment = this.getEquipment();
         equipment.setChestplate(25, 53, 82);
         equipment.setLeggings(25, 53, 92);
         equipment.setBoots(25, 53, 102);

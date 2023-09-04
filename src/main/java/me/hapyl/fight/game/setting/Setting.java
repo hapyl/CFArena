@@ -50,6 +50,14 @@ public enum Setting {
         }
     },
 
+    USE_SKINS_INSTEAD_OF_ARMOR(
+            30,
+            Material.LEATHER_CHESTPLATE,
+            "Use Hero Skins",
+            "Whenever to use hero skins instead of custom head and armor if supported.",
+            true
+    ),
+
     ;
 
     private final Material material;

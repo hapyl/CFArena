@@ -32,8 +32,8 @@ public class Immovable extends GameEffect {
     @Override
     public void onStop(LivingGameEntity gameEntity) {
         final LivingEntity entity = gameEntity.getEntity();
-
         final Double value = oldValue.remove(entity);
+
         gameEntity.setAttributeValue(Attribute.GENERIC_KNOCKBACK_RESISTANCE, value == null ? 0.0d : value);
     }
 }

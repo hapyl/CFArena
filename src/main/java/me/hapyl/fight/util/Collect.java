@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.annotate.ExplicitEntityValidation;
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -65,8 +64,6 @@ public final class Collect {
 
         double closestDot = 0.0d;
         LivingGameEntity closestEntity = null;
-
-        Debug.info(nearbyEntities);
 
         for (LivingGameEntity entity : nearbyEntities) {
             // Test Predicate

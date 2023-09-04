@@ -53,7 +53,7 @@ public class SwordMaster extends Hero implements ComplexHero, DisabledHero {
 
         setItem("4b2a75f05437ba2e28fb2a7d0eb6697a6e091ce91072b5c4ff1945295b092");
 
-        final HeroEquipment equipment = getEquipment();
+        final Equipment equipment = getEquipment();
         equipment.setChestplate(Material.NETHERITE_CHESTPLATE);
         equipment.setLeggings(Material.IRON_LEGGINGS);
         equipment.setBoots(Material.NETHERITE_BOOTS);

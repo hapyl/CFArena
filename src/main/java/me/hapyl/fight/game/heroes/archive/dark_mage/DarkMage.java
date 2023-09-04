@@ -67,7 +67,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         final HeroAttributes attributes = getAttributes();
         attributes.setValue(AttributeType.CRIT_CHANCE, 0.15d);
 
-        final HeroEquipment equipment = this.getEquipment();
+        final Equipment equipment = this.getEquipment();
         equipment.setChestplate(102, 255, 255);
         equipment.setLeggings(Material.IRON_LEGGINGS);
         equipment.setBoots(153, 51, 51);

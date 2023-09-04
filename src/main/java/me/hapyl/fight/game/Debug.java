@@ -27,7 +27,7 @@ public class Debug {
         send("&e" + any, format);
     }
 
-    public static void svr(Object any, Object... format) {
+    public static void severe(Object any, Object... format) {
         send("&4&l" + any, format);
     }
 

@@ -58,7 +58,7 @@ public class JapanFeature extends MapFeature implements Listener {
 
                 // fx
                 gamePlayer.sendSubtitle(ChatColor.of("#ffccff") + "You feel sakura's petals on your head", 0, 20, 5);
-                gamePlayer.spawnParticle(gamePlayer.getEyeLocation().add(0.0d, 0.5d, 0.0d), Particle.HEART, 1, 0, 0, 0, 0);
+                gamePlayer.spawnWorldParticle(gamePlayer.getEyeLocation().add(0.0d, 0.5d, 0.0d), Particle.HEART, 1, 0, 0, 0, 0);
             });
         }
 

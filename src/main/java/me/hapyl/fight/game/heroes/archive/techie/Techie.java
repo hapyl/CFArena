@@ -63,7 +63,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Disabl
 
         setItem("1e5b78987c70d73f2ad93a454f85dcab476c5b5679f50eaaf553d2404edc9c");
 
-        final HeroEquipment equipment = getEquipment();
+        final Equipment equipment = getEquipment();
         equipment.setChestplate(205, 205, 205);
         equipment.setLeggings(217, 217, 217);
         equipment.setBoots(255, 230, 204);

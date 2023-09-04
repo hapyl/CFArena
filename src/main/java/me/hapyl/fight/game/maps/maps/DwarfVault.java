@@ -18,7 +18,6 @@ import javax.annotation.Nullable;
 
 public class DwarfVault extends GameMap {
 
-
     public final BoundingBoxCollector LAVA_BOUNDING_BOX = new BoundingBoxCollector(1464, 44, 1539, 1531, 60, 1614);
     public final double DAMAGE = 20.0d;
     public final Vector PUSH_VELOCITY = new Vector(0.0d, 3.1d, 0.0d);
@@ -55,7 +54,12 @@ public class DwarfVault extends GameMap {
     @Override
     public DamageOutput onDamageTaken(@Nonnull DamageInput input) {
         final LivingGameEntity gameEntity = input.getEntity();
+        final EnumDamageCause cause = input.getDamageCause();
 
+        if (cause == EnumDamageCause.DWARF_LAVA) {
+            return DamageOutput.OK;
+        }
+        
         if (LAVA_BOUNDING_BOX.isWithin(gameEntity)) {
             launchUp(gameEntity);
             return DamageOutput.CANCEL;

@@ -20,7 +20,7 @@ public class FatalReap extends Talent {
 
     @DisplayField private final short spiritualBoneGeneration = 2;
     @DisplayField(suffix = "blocks") private final double length = 2.0d;
-    @DisplayField(suffix = "%") private final double damagePercent = 20.0d;
+    @DisplayField(suffix = "%", suffixSpace = false) private final double damagePercent = 20.0d;
 
     public FatalReap() {
         super("Fatal Reap");

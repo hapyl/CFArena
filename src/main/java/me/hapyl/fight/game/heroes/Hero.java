@@ -15,6 +15,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.archive.ender.Ender;
 import me.hapyl.fight.game.heroes.archive.moonwalker.Moonwalker;
+import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
@@ -46,7 +47,7 @@ import java.util.function.Consumer;
 public abstract class Hero implements GameElement, PlayerElement {
 
     private final HeroAttributes attributes;
-    private final HeroEquipment equipment;
+    private final Equipment equipment;
     private final String name;
     private final Map<Player, Long> usedUltimateAt;
     private final Map<Player, GameTask> reverseTasks;
@@ -58,7 +59,7 @@ public abstract class Hero implements GameElement, PlayerElement {
     private Weapon weapon;
     private long minimumLevel;
     private UltimateTalent ultimate;
-    private PlayerSkin skin; // todo
+    private PlayerSkin skin;
 
     @Super
     public Hero(String name) {
@@ -68,7 +69,7 @@ public abstract class Hero implements GameElement, PlayerElement {
         this.weapon = new Weapon(Material.WOODEN_SWORD);
         this.usedUltimateAt = Maps.newHashMap();
         this.reverseTasks = Maps.newConcurrentMap();
-        this.equipment = new HeroEquipment();
+        this.equipment = new Equipment();
         this.attributes = new HeroAttributes(this);
         this.origin = Origin.NOT_SET;
         this.archetype = Archetype.NOT_SET;
@@ -89,6 +90,15 @@ public abstract class Hero implements GameElement, PlayerElement {
         this(name);
         setDescription(lore);
         setItem(material);
+    }
+
+    public void setSkin(@Nullable PlayerSkin skin) {
+        this.skin = skin;
+    }
+
+    @Nullable
+    public PlayerSkin getSkin() {
+        return skin;
     }
 
     @Nonnull
@@ -157,7 +167,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      * @return this hero's weapon.
      */
     @Nonnull
-    public HeroEquipment getEquipment() {
+    public Equipment getEquipment() {
         return equipment;
     }
 

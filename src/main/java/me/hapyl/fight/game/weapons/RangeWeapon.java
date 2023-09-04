@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GameElement;
+import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.TickingGameTask;
@@ -27,7 +28,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
-public abstract class RangeWeapon extends Weapon implements GameElement, UIComponent {
+public abstract class RangeWeapon extends Weapon implements GameElement, PlayerElement, UIComponent {
 
     private final Map<Player, Integer> playerAmmo;
 
@@ -61,6 +62,11 @@ public abstract class RangeWeapon extends Weapon implements GameElement, UICompo
 
     @Override
     public void onStop() {
+        playerAmmo.clear();
+    }
+
+    @Override
+    public void onDeath(Player player) {
         playerAmmo.clear();
     }
 

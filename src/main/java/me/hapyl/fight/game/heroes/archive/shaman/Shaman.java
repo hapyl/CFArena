@@ -22,7 +22,7 @@ public class Shaman extends Hero implements ComplexHero, DisabledHero {
         setWeapon(new Weapon(Material.BAMBOO).setName("Shaman's Weapon").setDamage(5.0d));
         setItem("a90515c41b3e131b623cc04978f101aab2e5b82c892890df991b7c079f91d2bd");
 
-        final HeroEquipment equipment = getEquipment();
+        final Equipment equipment = getEquipment();
 
         equipment.setChestplate(110, 94, 74);
         equipment.setLeggings(57, 40, 90);

@@ -44,7 +44,7 @@ public final class TalentFormat<T> {
                     continue;
                 }
 
-                string = string.replace("{" + field.getName() + "}", DisplayFieldSerializer.formatField(field, t));
+                string = string.replace("{" + field.getName() + "}", DisplayFieldSerializer.formatField(field, t, annotation));
             }
         }
 

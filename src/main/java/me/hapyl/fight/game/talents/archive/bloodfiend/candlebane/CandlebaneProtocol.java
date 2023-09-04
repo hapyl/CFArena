@@ -1,4 +1,4 @@
-package me.hapyl.fight.game.talents.archive.bloodfiend;
+package me.hapyl.fight.game.talents.archive.bloodfiend.candlebane;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
@@ -14,7 +14,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
 
-public class CandlebaneProtocol extends ProtocolListener implements TalentReference<TwinClaws> {
+public class CandlebaneProtocol extends ProtocolListener implements TalentReference<CandlebaneTalent> {
     public CandlebaneProtocol() {
         super(PacketType.Play.Client.USE_ENTITY);
     }
@@ -31,9 +31,11 @@ public class CandlebaneProtocol extends ProtocolListener implements TalentRefere
             return;
         }
 
-        final TwinClaws talent = getTalent();
+        final CandlebaneTalent talent = getTalent();
+        final boolean isLeftClick = action == EnumWrappers.EntityUseAction.ATTACK;
+        final boolean isSneaking = player.isSneaking();
 
-        for (Candlebane pillar : talent.getPillars().values()) {
+        for (Candlebane pillar : talent.getPillars()) {
             if (!pillar.isPart(entityId)) {
                 continue;
             }
@@ -41,7 +43,7 @@ public class CandlebaneProtocol extends ProtocolListener implements TalentRefere
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    pillar.click(player, action == EnumWrappers.EntityUseAction.ATTACK ? Candlebane.Click.LEFT : Candlebane.Click.RIGHT);
+                    pillar.click(player, isLeftClick ? ClickType.LEFT : ClickType.RIGHT);
                 }
             }.runTask(Main.getPlugin());
         }
@@ -53,7 +55,7 @@ public class CandlebaneProtocol extends ProtocolListener implements TalentRefere
 
     @Nonnull
     @Override
-    public TwinClaws getTalent() {
-        return Talents.TWIN_CLAWS.getTalent(TwinClaws.class);
+    public CandlebaneTalent getTalent() {
+        return Talents.CANDLEBANE.getTalent(CandlebaneTalent.class);
     }
 }

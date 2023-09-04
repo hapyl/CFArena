@@ -456,12 +456,18 @@ public class LivingGameEntity extends GameEntity {
     }
     // this spawns globally
 
-    public void spawnParticle(Location location, Particle particle, int amount, double x, double y, double z, float speed) {
+    public void spawnWorldParticle(Location location, Particle particle, int amount, double x, double y, double z, float speed) {
         PlayerLib.spawnParticle(location, particle, amount, x, y, z, speed);
     }
 
-    public void spawnParticle(Location location, Particle particle, int amount) {
-        spawnParticle(location, particle, amount, 0, 0, 0, 0);
+    public void spawnWorldParticle(Location location, Particle particle, int amount) {
+        spawnWorldParticle(location, particle, amount, 0, 0, 0, 0);
+    }
+
+    public void spawnParticle(Location location, Particle particle, int amount, double x, double y, double z, float speed) {
+        asPlayer(player -> {
+            PlayerLib.spawnParticle(player, location, particle, amount, x, y, z, speed);
+        });
     }
 
     public void damageTick(double damage, EnumDamageCause cause, int tick) {

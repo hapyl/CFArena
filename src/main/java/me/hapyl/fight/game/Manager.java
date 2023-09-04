@@ -9,12 +9,13 @@ import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.cosmetic.skin.SkinEffectManager;
 import me.hapyl.fight.game.entity.*;
 import me.hapyl.fight.game.gamemode.Modes;
-import me.hapyl.fight.game.heroes.ComplexHero;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Equipment;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.lobby.StartCountdown;
 import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.setting.Setting;
 import me.hapyl.fight.game.talents.ChargedTalent;
@@ -53,6 +54,7 @@ import java.util.stream.Collectors;
 
 public final class Manager extends DependencyInjector<Main> {
 
+    public final Set<UUID> ignoredEntities;
     private final Set<EntityType> ignoredTypes = Sets.newHashSet(
             //EntityType.ARMOR_STAND,
             EntityType.MARKER,
@@ -60,19 +62,17 @@ public final class Manager extends DependencyInjector<Main> {
             EntityType.BLOCK_DISPLAY,
             EntityType.ITEM_DISPLAY
     );
-
-    public final Set<UUID> ignoredEntities;
-
     private final Map<UUID, GameEntity> entities;
     private final Map<UUID, PlayerProfile> profiles;
     private final SkinEffectManager skinEffectManager;
     private final AutoSync autoSave;
     private final Trial trial;
+
     @Nonnull private GameMaps currentMap;
     @Nonnull private Modes currentMode;
-    private boolean isDebug = true;
     private StartCountdown startCountdown;
     private GameInstance gameInstance; // @implNote: For now, only one game instance can be active at a time.
+    private DebugData debugData;
 
     public Manager(Main main) {
         super(main);
@@ -92,10 +92,11 @@ public final class Manager extends DependencyInjector<Main> {
         autoSave = new AutoSync(Tick.fromMinute(10));
 
         trial = new Trial(main);
+        debugData = DebugData.EMPTY;
     }
 
     public void createStartCountdown() {
-        if (!canStartGame(false)) {
+        if (!canStartGame(DebugData.EMPTY)) {
             return;
         }
 
@@ -262,12 +263,19 @@ public final class Manager extends DependencyInjector<Main> {
         return getOrCreateProfile(player).getPlayerUI();
     }
 
+    /**
+     * Returns if player is able to use an ability.
+     * Checks for the game to exist and being in progress.
+     *
+     * @param player - Player to check.
+     * @return true if a player is able to use an ability; false otherwise.
+     */
     public boolean isAbleToUse(Player player) {
         return isGameInProgress() || trial.isInTrial(player);
     }
 
     public boolean isGameInProgress() {
-        return gameInstance != null && !gameInstance.isTimeIsUp();
+        return gameInstance != null && gameInstance.getGameState() == State.IN_GAME;
     }
 
     public void handlePlayer(Player player) {
@@ -324,8 +332,14 @@ public final class Manager extends DependencyInjector<Main> {
         Main.getPlugin().setConfigValue("current-map", maps.name().toLowerCase(Locale.ROOT));
     }
 
+    @Deprecated
     public boolean isDebug() {
-        return isDebug;
+        return debugData.is(DebugData.Flag.DEBUG);
+    }
+
+    @Nonnull
+    public DebugData getDebug() {
+        return debugData;
     }
 
     public Trial getTrial() {
@@ -370,12 +384,12 @@ public final class Manager extends DependencyInjector<Main> {
     }
 
     public void createNewGameInstance() {
-        createNewGameInstance(false);
+        createNewGameInstance(DebugData.EMPTY);
     }
 
-    public boolean canStartGame(boolean debug) {
+    public boolean canStartGame(DebugData debug) {
         // Pre-game start checks
-        if ((!currentMap.isPlayable() || !currentMap.getMap().hasLocation()) && !debug) {
+        if ((!currentMap.isPlayable() || !currentMap.getMap().hasLocation()) && !debug.is(DebugData.Flag.DEBUG)) {
             displayError("Invalid map!");
             return false;
         }
@@ -385,7 +399,7 @@ public final class Manager extends DependencyInjector<Main> {
 
         // Check for minimum players
         // fixme -> Check for teams, not players
-        if (nonSpectatorPlayers.size() < playerRequirements && !debug) {
+        if (nonSpectatorPlayers.size() < playerRequirements && !debug.is(DebugData.Flag.DEBUG) && debug.not(DebugData.Flag.FORCE)) {
             displayError("Not enough players! &l(%s/%s)", nonSpectatorPlayers.size(), playerRequirements);
             return false;
         }
@@ -398,12 +412,12 @@ public final class Manager extends DependencyInjector<Main> {
      * <p>
      * Only one game instance can be active at a time.
      */
-    public void createNewGameInstance(boolean debug) {
+    public void createNewGameInstance(DebugData debug) {
         if (!canStartGame(debug)) {
             return;
         }
 
-        isDebug = debug;
+        this.debugData = debug;
 
         // Check for team balance
         // todo -> Maybe add config support for unbalanced teams
@@ -452,12 +466,19 @@ public final class Manager extends DependencyInjector<Main> {
             if (!gamePlayer.isSpectator()) {
                 equipPlayer(player, gamePlayer.getHero());
                 Utils.hidePlayer(player);
+
+                // Apply player skin if exists
+                final PlayerSkin skin = gamePlayer.getHero().getSkin();
+
+                if (Setting.USE_SKINS_INSTEAD_OF_ARMOR.isEnabled(player) && skin != null) {
+                    skin.apply(player);
+                }
             }
 
             player.teleport(currentMap.getMap().getLocation());
         }
 
-        if (!isDebug) {
+        if (!debug.is(DebugData.Flag.DEBUG)) {
             Chat.broadcast("&a&l➺ &aAll players have been hidden!");
             Chat.broadcast(
                     "&a&l➺ &aThey have &e%ss &ato spread before being revealed.",
@@ -486,10 +507,9 @@ public final class Manager extends DependencyInjector<Main> {
 
             gameInstance.getMap().getMap().onPlayersReveal();
 
-            if (debug) {
-                Chat.broadcast("&4Running in debug mode!");
-                Chat.broadcast("&cRunning in debug mode!");
-                Chat.broadcast("&6Running in debug mode!");
+            if (debug.any()) {
+                Chat.broadcast("&c&lDEBUG &fRunning in debug instance.");
+                Chat.broadcast("&c&lDEBUG &fDebugging: " + debug.list());
             }
 
             CF.getAlivePlayers().forEach(target -> {
@@ -499,13 +519,13 @@ public final class Manager extends DependencyInjector<Main> {
                 Utils.showPlayer(player);
                 Nulls.runIfNotNull(GameTeam.getPlayerTeam(player), GameTeam::glowTeammates);
 
-                if (world != null && !debug) {
+                if (world != null && !debug.is(DebugData.Flag.DEBUG)) {
                     world.strikeLightningEffect(player.getLocation().add(0.0d, 2.0d, 0.0d));
                 }
             });
 
             playAnimation();
-        }, isDebug ? 1 : currentMap.getMap().getTimeBeforeReveal());
+        }, debug.any() ? 1 : currentMap.getMap().getTimeBeforeReveal());
 
     }
 
@@ -575,7 +595,7 @@ public final class Manager extends DependencyInjector<Main> {
         entities.forEach((uuid, entity) -> entity.onStop(this.gameInstance));
         entities.clear();
 
-        if (isDebug) {
+        if (debugData.any()) {
             onStop();
             return;
         }
@@ -589,21 +609,27 @@ public final class Manager extends DependencyInjector<Main> {
         inventory.setHeldItemSlot(0);
         player.setGameMode(GameMode.SURVIVAL);
 
+        final PlayerSkin skin = hero.getSkin();
+        final Equipment equipment = hero.getEquipment();
+
         // Apply equipment
-        hero.getEquipment().equip(player);
+        if (skin == null) {
+            equipment.equip(player);
+        }
+        else if (Setting.USE_SKINS_INSTEAD_OF_ARMOR.isDisabled(player)) {
+            equipment.equip(player);
+        }
+
         hero.onStart(player);
 
         inventory.setItem(0, hero.getWeapon().getItem());
         giveTalentItem(player, hero, 1);
         giveTalentItem(player, hero, 2);
+        giveTalentItem(player, hero, 3);
+        giveTalentItem(player, hero, 4);
+        giveTalentItem(player, hero, 5);
 
-        if (hero instanceof ComplexHero) {
-            giveTalentItem(player, hero, 3);
-            giveTalentItem(player, hero, 4);
-            giveTalentItem(player, hero, 5);
-        }
-
-        player.updateInventory();
+        //player.updateInventory();
     }
 
     public void equipPlayer(Player player) {
