@@ -1,4 +1,4 @@
-package me.hapyl.fight.game.cosmetic.storage;
+package me.hapyl.fight.game.cosmetic.archive;
 
 import me.hapyl.fight.game.cosmetic.*;
 import me.hapyl.fight.game.task.GameTask;

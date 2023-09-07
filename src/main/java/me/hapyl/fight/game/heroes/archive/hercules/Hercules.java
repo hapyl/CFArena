@@ -6,7 +6,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
-import me.hapyl.fight.game.cosmetic.storage.GroundPunchCosmetic;
+import me.hapyl.fight.game.cosmetic.archive.GroundPunchCosmetic;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Equipment;

@@ -85,10 +85,13 @@ public class ProfileDisplay {
         return Chat.format("%s %s", this, formatPing());
     }
 
-    public String getPrefixPreview(PrefixCosmetic prefix) {
-        return "&6&l" + profile.getSelectedHero().getHero().getName() + " " + prefix.getPrefix() + " &e" + profile.getPlayer().getName();
+    public String getPrefixPreview(@Nonnull PrefixCosmetic prefix) {
+        final RankFormatter format = profile.getRank().getFormat();
+
+        return prefix.getPrefix() + " " + format.prefix() + format.nameColor() + " " + profile.getPlayer().getName();
     }
 
+    @Nonnull
     private String getPrefix() {
         final Cosmetics cosmetic = cosmetics.getSelected(Type.PREFIX);
         return cosmetic == null ? "" : ((PrefixCosmetic) cosmetic.getCosmetic()).getPrefix();

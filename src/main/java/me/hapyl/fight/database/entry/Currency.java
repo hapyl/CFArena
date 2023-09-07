@@ -9,6 +9,8 @@ public enum Currency implements FormattedEnum {
     COINS(new Color("#FFD700"), "🪙", "Coins"),
     RUBIES(new Color("#9B111E"), "💎", "Rubies"),
     CHEST_DUST(new Color("#964B00"), "📦", "Dust"),
+    ACHIEVEMENT_POINT(Color.ROYAL_BLUE, "\uD83C\uDF1F", "Achievement Points"),
+
     ;
 
     private final Color color;

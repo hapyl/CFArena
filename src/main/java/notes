@@ -207,7 +207,7 @@ default game entity.
 - TAUNT DEAD MESSAGE IS BOLD
 - Add "time before spawn" for HP/enegry
 - Wrong taunt? 2 players, huh, how!
-- Achievement: Hit 2 players with Twinclaws
+- [✔] Achievement: Hit 2 players with Twinclaws
 - Bleed does not have damager?
 - DONT ALLOW TO REMOVE TAUNT BEFORE THE ANIMATION IS OVER
 - FAKE PLAYER WHEN BLOODFIEND ULT = REAL IS ONE OF THE BATS KEKW!!
@@ -216,8 +216,8 @@ default game entity.
 - Achievement: SPAM CANCEL GAME LIKE 10 TIMES OR SOMETHING
 - UI does not update after rejoin (Only health and ult doesn't)
 - Maybe randomize candle clicks?
-- Armor stands are valid?
-- Chalice is TOO easy to break
+- [✔] Armor stands are valid?
+- [✔] Chalice is TOO easy to break
 - dumpColor gives lower case shit and SUGGEST not COPY
 - Nightmare had 80 hp? (Random class issue I think)
 - [✔] Rifle does not reload on death
@@ -234,8 +234,6 @@ default game entity.
 - make juju shot work when hit enemies
 - Possible stackoverflow when calculating wave
 - "Flying is not enabled on this server"
-- Use game task delay for delay, its built-in
-- Vampire swarm not remove
 
 == 1.20 ==
 - /2 CD when DM has ULT

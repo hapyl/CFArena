@@ -30,6 +30,7 @@ import me.hapyl.fight.game.heroes.archive.bloodfield.BloodfiendData;
 import me.hapyl.fight.game.heroes.archive.dark_mage.AnimatedWither;
 import me.hapyl.fight.game.heroes.archive.doctor.ElementType;
 import me.hapyl.fight.game.heroes.archive.engineer.Engineer;
+import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.lobby.StartCountdown;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.profile.PlayerProfile;
@@ -41,6 +42,8 @@ import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.display.DamageDisplay;
 import me.hapyl.fight.game.ui.splash.SplashText;
+import me.hapyl.fight.gui.LegacyAchievementGUI;
+import me.hapyl.fight.gui.styled.profile.DeliveryGUI;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.fight.ux.Message;
@@ -52,6 +55,7 @@ import me.hapyl.spigotutils.module.command.*;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.hologram.Hologram;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.spigotutils.module.inventory.gui.GUI;
 import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import me.hapyl.spigotutils.module.math.Cuboid;
 import me.hapyl.spigotutils.module.math.Numbers;
@@ -150,6 +154,44 @@ public class CommandRegistry extends DependencyInjector<Main> {
         register(new SnakeBuilderCommand("snakeBuilder"));
         register(new CrateCommandCommand("crate"));
         register(new GlobalConfigCommand("globalConfig"));
+        register(new SimplePlayerCommand("delivery") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                new DeliveryGUI(player);
+            }
+        });
+
+        register(new SimpleAdminCommand("lastHapylGUI") {
+            @Override
+            protected void execute(CommandSender sender, String[] args) {
+                final Player hapyl = Bukkit.getPlayer("hapyl");
+
+                if (hapyl == null) {
+                    Chat.sendMessage(sender, "&chapyl is not online!");
+                    return;
+                }
+
+                final GUI lastGUI = GUI.getPlayerLastGUI(hapyl);
+                Debug.info("lastGUI=" + (lastGUI == null ? "NONE!" : lastGUI.getName()));
+            }
+        });
+
+        register("viewLegacyAchievementGUI", (player, args) -> {
+            new LegacyAchievementGUI(player);
+        });
+
+        register("getLobbyItems", (player, args) -> {
+            LobbyItems.giveAll(player);
+            Chat.sendMessage(player, "&aThere you go!");
+        });
+
+        register("startAndCancelCountdown", (player, args) -> {
+            final Manager manager = Manager.current();
+            manager.createStartCountdown(DebugData.FORCE);
+            manager.stopStartCountdown(player);
+
+            Chat.sendMessage(player, "&aDone!");
+        });
 
         register(new SimplePlayerAdminCommand("entity") {
             @Override

@@ -22,7 +22,7 @@ public class Display {
     private final Player player;
     private final Location location;
 
-    public Display(Player player, Location location) {
+    public Display(@Nullable Player player, @Nonnull Location location) {
         this.player = player;
         this.location = location.clone();
         this.location.add(0.0d, player == null ? 0.5d : player.getEyeHeight() / 2, 0.0d);
@@ -35,6 +35,7 @@ public class Display {
         return player;
     }
 
+    @Nonnull
     public Location getLocation() {
         return new Location(location.getWorld(), location.getX(), location.getY(), location.getZ());
     }

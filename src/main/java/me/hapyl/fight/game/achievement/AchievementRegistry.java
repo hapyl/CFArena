@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.annotate.ForceLowercase;
 import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.reward.CurrencyReward;
 import me.hapyl.spigotutils.module.util.DependencyInjector;
 
 import javax.annotation.Nonnull;
@@ -111,30 +110,27 @@ public class AchievementRegistry extends DependencyInjector<Main> {
     private void registerAll() {
         // Hero progress achievement
         for (Heroes hero : Heroes.playable()) {
-            // Play hero
             final String heroName = hero.getName();
 
-            register(new ProgressAchievement(
+            register(new TieredAchievement(
                     "play_hero_" + hero.name(),
                     heroName + " Enjoyer",
-                    "Play as %s {} times.".formatted(heroName),
-                    1, 5, 10, 50, 100
+                    "Play games as %s {} times.".formatted(heroName),
+                    10, 50, 100, 250, 500
             ), achievement -> {
-                achievement.setCategory(Category.HERO_PLAYER);
-                achievement.forEachRequirement(i -> achievement.setReward(i, CurrencyReward.create().withCoins(10L * i)));
+                achievement.setCategory(Category.HERO_PLAY);
             });
 
             // Win hero
             register(
-                    new ProgressAchievement(
+                    new TieredAchievement(
                             "win_hero_" + hero.name(),
                             heroName + " Winner",
-                            "Win as %s {} times.".formatted(heroName),
-                            1, 5, 10, 50, 100
+                            "Win games while playing as %s {} times.".formatted(heroName),
+                            5, 25, 50, 100, 250
                     ),
                     achievement -> {
-                        achievement.setCategory(Category.HERO_WINNER);
-                        achievement.forEachRequirement((ref, i) -> achievement.setReward(i, CurrencyReward.create().withCoins(200L * i)));
+                        achievement.setCategory(Category.HERO_WIN);
                     }
             );
         }

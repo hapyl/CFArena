@@ -9,14 +9,17 @@ import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.cosmetic.skin.SkinEffectManager;
 import me.hapyl.fight.game.entity.*;
 import me.hapyl.fight.game.gamemode.Modes;
-import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Equipment;
+import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.lobby.StartCountdown;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.profile.PlayerProfile;
+import me.hapyl.fight.game.profile.data.AchievementData;
+import me.hapyl.fight.game.profile.data.PlayerData;
+import me.hapyl.fight.game.profile.data.Type;
 import me.hapyl.fight.game.setting.Setting;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.Talent;
@@ -95,8 +98,13 @@ public final class Manager extends DependencyInjector<Main> {
         debugData = DebugData.EMPTY;
     }
 
+
     public void createStartCountdown() {
-        if (!canStartGame(DebugData.EMPTY)) {
+        createStartCountdown(DebugData.EMPTY);
+    }
+
+    public void createStartCountdown(DebugData debug) {
+        if (!canStartGame(debug)) {
             return;
         }
 
@@ -118,8 +126,20 @@ public final class Manager extends DependencyInjector<Main> {
         };
     }
 
-    public void stopStartCountdown() {
-        startCountdown = null;
+    public void stopStartCountdown(@Nonnull Player player) {
+        if (startCountdown != null) {
+            startCountdown.cancelIfActive();
+            startCountdown = null;
+        }
+
+        final PlayerData playerData = getOrCreateProfile(player).getPlayerData();
+        final AchievementData data = playerData.getAchievementData(Achievements.I_DONT_WANT_TO_PLAY);
+
+        final int useTime = data.checkExpire(10000).increment(Type.USE_TIME, 1);
+
+        if (useTime >= 10) {
+            data.completeAchievement();
+        }
     }
 
     public void addIgnored(LivingEntity entity) {

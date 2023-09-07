@@ -4,9 +4,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
-import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.ExperienceEntry;
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.reward.HeroUnlockReward;
@@ -26,6 +24,7 @@ import java.util.Map;
 
 public class Experience extends DependencyInjector<Main> {
 
+    // TODO (hapyl): 005, Sep 5: Add level colors like hypixel?
     public final byte MAX_LEVEL = 50;
 
     private final Map<Long, ExperienceLevel> experienceLevelMap;

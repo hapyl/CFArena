@@ -17,7 +17,7 @@ public class HeroCommand extends SimplePlayerCommand {
     public HeroCommand(String str) {
         super(str);
         setUsage("hero (Hero)");
-        setDescription("Allows to select a hero to play as!");
+        setDescription("Allows selecting a hero to play as!");
         setAliases("class");
     }
 

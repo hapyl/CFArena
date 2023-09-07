@@ -1,4 +1,4 @@
-package me.hapyl.fight.game.cosmetic.storage;
+package me.hapyl.fight.game.cosmetic.archive;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;

@@ -5,14 +5,12 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class CollectionItem {
 
     private final String name;
     private final String description;
 
-    private String extra;
     private Rarity rarity;
     private Material icon;
     private boolean exclusive;
@@ -20,7 +18,6 @@ public class CollectionItem {
     public CollectionItem(String name, String description) {
         this.name = name;
         this.description = description;
-        this.extra = null;
         this.rarity = Rarity.UNSET;
         this.icon = Material.BARRIER;
     }
@@ -32,10 +29,7 @@ public class CollectionItem {
         builder.addLore();
         builder.addSmartLore(description);
 
-        if (extra != null) {
-            builder.addLore();
-            builder.addSmartLore(extra);
-        }
+        addExtraLore(builder, player);
 
         if (isExclusive()) {
             builder.addLore();
@@ -46,14 +40,7 @@ public class CollectionItem {
         return builder.addLore();
     }
 
-    @Nullable
-    public String getExtra() {
-        return extra;
-    }
-
-    public CollectionItem setExtra(String extra) {
-        this.extra = extra;
-        return this;
+    public void addExtraLore(@Nonnull ItemBuilder builder, @Nonnull Player player) {
     }
 
     public boolean isExclusive() {

@@ -36,12 +36,12 @@ public class HeroPreviewGUI extends PlayerGUI {
     private final Heroes heroes;
     private final Set<Talent> attributeDisplay;
 
-    public HeroPreviewGUI(Player player, Heroes heroes, int selectIndex) {
+    public HeroPreviewGUI(Player player, Heroes heroes, int returnPage) {
         super(player, "Hero Preview - " + heroes.getHero().getName(), 5);
         this.heroes = heroes;
         this.attributeDisplay = Sets.newHashSet();
 
-        update(selectIndex);
+        update(returnPage);
     }
 
     public void update(int index) {

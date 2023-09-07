@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
+import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.maps.MapFeature;
 import me.hapyl.fight.util.BoundingBoxCollector;
 import me.hapyl.fight.util.Direction;
@@ -50,8 +51,8 @@ public class TurbineFeature extends MapFeature {
 
             // Kill em all
             killTrigger.collect(world).forEach(entity -> {
-                entity.damage(100, EnumDamageCause.SHREDS_AND_PIECES);
-                Cosmetics.BLOOD.getCosmetic().onDisplay(entity.getLocation());
+                entity.damage(entity.getHealth() + 100, EnumDamageCause.SHREDS_AND_PIECES);
+                Cosmetics.BLOOD.getCosmetic().onDisplay0(new Display(null, entity.getLocation()));
 
                 // Trigger achievement
                 if (entity instanceof Player player) {

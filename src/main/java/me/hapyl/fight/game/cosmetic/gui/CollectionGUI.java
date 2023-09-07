@@ -2,48 +2,57 @@ package me.hapyl.fight.game.cosmetic.gui;
 
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CosmeticEntry;
+import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Type;
-import me.hapyl.fight.gui.PlayerProfileGUI;
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.fight.gui.styled.*;
+import me.hapyl.fight.gui.styled.profile.PlayerProfileGUI;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.inventory.gui.PlayerGUI;
 import me.hapyl.spigotutils.module.inventory.gui.SlotPattern;
 import me.hapyl.spigotutils.module.inventory.gui.SmartComponent;
 import me.hapyl.spigotutils.module.player.PlayerLib;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
-public class CollectionGUI extends PlayerGUI {
+import javax.annotation.Nullable;
+
+public class CollectionGUI extends StyledGUI {
 
     public CollectionGUI(Player player) {
-        super(player, "Collection", 4);
+        super(player, "Collection", Size.FOUR);
         setOpenEvent(e -> {
             PlayerLib.playSound(player, Sound.BLOCK_CHEST_OPEN, 1.0f);
         });
 
-        update();
         openInventory();
     }
 
-    public void update() {
-        final SmartComponent component = newSmartComponent();
-        final CosmeticEntry cosmetics = PlayerDatabase.getDatabase(getPlayer()).getCosmetics();
+    @Nullable
+    @Override
+    public ReturnData getReturnData() {
+        return ReturnData.of("Profile", PlayerProfileGUI::new);
+    }
 
-        setItem(4, ItemBuilder.of(Material.CHEST, "Collection", "View and purchase cosmetics!").asIcon());
-        setArrowBack(31, "Profile", t -> new PlayerProfileGUI(getPlayer()));
+    @Override
+    public void onUpdate() {
+        final CosmeticEntry cosmetics = PlayerDatabase.getDatabase(getPlayer()).getCosmetics();
+        final SmartComponent component = newSmartComponent();
+
+        setHeader(StyledItem.ICON_COSMETICS.asIcon());
 
         for (Type type : Type.values()) {
-            final String name = Chat.capitalize(type) + " Cosmetics";
+            final String name = type.getName();
             final Cosmetics selected = cosmetics.getSelected(type);
 
             component.add(ItemBuilder.of(type.getMaterial(), name)
                     .addSmartLore("&7" + type.getDescription())
                     .addLore()
-                    .addLore("&aCurrently Selected: &e" + (selected == null ? "&8None!" : selected.getCosmetic().getName()))
+                    .addLore(Color.SUCCESS.color(
+                            "Selected: {Selected}",
+                            (selected == null ? Color.WARM_GRAY + "None!" : Color.MINT_GREEN + selected.getCosmetic().getName())
+                    ))
                     .addLore()
-                    .addLore("&eClick to browse " + name + "!")
+                    .addLore(Color.BUTTON + "Click to browse %s!", name)
                     .asIcon(), player -> new CosmeticGUI(player, type));
         }
 

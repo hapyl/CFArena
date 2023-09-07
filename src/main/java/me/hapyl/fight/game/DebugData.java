@@ -9,10 +9,16 @@ import java.util.Set;
 public class DebugData {
 
     public static final DebugData EMPTY = new DebugData() {
-
         @Override
         public boolean is(@Nonnull Flag flag) {
             return false;
+        }
+    };
+
+    public static final DebugData FORCE = new DebugData() {
+        @Override
+        public boolean is(@Nonnull Flag flag) {
+            return flag == Flag.FORCE;
         }
     };
 

@@ -1,5 +1,6 @@
 package me.hapyl.fight.npc;
 
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.parkour.ParkourCourse;
 import me.hapyl.fight.game.parkour.storage.SlimeParkour;
 import me.hapyl.fight.gui.EyeGUI;
@@ -33,7 +34,7 @@ public enum StaticHuman {
                 self.addDialogLine("I see you are new to the server.");
                 self.addDialogLine("...As it happens, I am too!");
                 self.addDialogLine("Thus, I cannot help you for now.");
-                self.addDialogLine("But, I will be able to help you in the future.");
+                self.addDialogLine("But I will be able to help you in the future.");
             }
     ),
 
@@ -82,6 +83,27 @@ public enum StaticHuman {
 
                 PlayerLib.playSound(location, Sound.ENTITY_SKELETON_AMBIENT, 1.0f);
                 PlayerLib.playSound(location, Sound.ENTITY_SKELETON_HURT, 0.25f);
+            }
+    ),
+
+    BLOODFIEND(
+            "Bloodfiend",
+            getLocation(1.5, 58, 42.5, 135.0f, 0.0f),
+            Heroes.BLOODFIEND.getHero().getSkin().getTextures(),
+            self -> {
+                self.setSitting(true);
+
+                // Dialog
+                self.addDialogLine("...");
+                self.addDialogLine("Uhh, hello?");
+                self.addDialogLine("Can't you see you blocking the shadow?");
+                self.addDialogLine("I forgot to bring my sunscreen, so I have to hide here for a while.");
+                self.addDialogLine("I've already sent a bat courier to the &cChâteau&f to bring my sunscreen.");
+                self.addDialogLine("...");
+                self.addDialogLine("You're still blocking the shadow though, move.");
+            },
+            (self, player) -> {
+
             }
     ),
 

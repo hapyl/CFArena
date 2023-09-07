@@ -38,7 +38,7 @@ public class DebugAchievementCommand extends SimplePlayerAdminCommand {
         Chat.sendMessage(player, "&aType: &f" + achievement.getClass().getSimpleName());
         Chat.sendMessage(player, "&aName: &f" + achievement.getName());
         Chat.sendMessage(player, "&aDescription: &f" + achievement.getDescription());
-        Chat.sendMessage(player, "&aRewards: " + achievement.getRewards());
+        Chat.sendMessage(player, "&aRewards: " + achievement.getPointReward());
 
     }
 }

@@ -39,6 +39,16 @@ public class PlayerSkin {
         this.signature = signature;
     }
 
+    @Nonnull
+    public String getTexture() {
+        return texture;
+    }
+
+    @Nonnull
+    public String getSignature() {
+        return signature;
+    }
+
     public void apply(Player player) {
         final EntityPlayer nmsPlayer = Reflect.getMinecraftPlayer(player);
         final GameProfile gameProfile = nmsPlayer.fM();
@@ -50,6 +60,11 @@ public class PlayerSkin {
         properties.put("textures", new Property("textures", texture, signature));
 
         createPlayer(player);
+    }
+
+    @Nonnull
+    public String[] getTextures() {
+        return new String[] { texture, signature };
     }
 
     private void removePlayer(Player player) {

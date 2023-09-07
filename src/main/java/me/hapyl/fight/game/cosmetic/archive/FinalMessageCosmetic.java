@@ -1,4 +1,4 @@
-package me.hapyl.fight.game.cosmetic.storage;
+package me.hapyl.fight.game.cosmetic.archive;
 
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
@@ -9,10 +9,14 @@ import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
+import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Player;
+
+import javax.annotation.Nonnull;
 
 public class FinalMessageCosmetic extends Cosmetic {
 
@@ -29,13 +33,16 @@ public class FinalMessageCosmetic extends Cosmetic {
     public FinalMessageCosmetic() {
         super("Final Message", "Let them know your final words.", Type.DEATH, Rarity.EPIC, Material.PAPER);
 
-        final StringBuilder builder = new StringBuilder("&7Available Messages:__");
-        for (String message : AVAILABLE_MESSAGES) {
-            builder.append("- ").append("&b").append(message).append("__");
-        }
-
-        setExtra(builder.toString());
         setIcon(Material.PAPER);
+    }
+
+    @Override
+    public void addExtraLore(@Nonnull ItemBuilder builder, @Nonnull Player player) {
+        builder.addLore("&7Available Messages:");
+
+        for (String message : AVAILABLE_MESSAGES) {
+            builder.addLore("- &b" + message);
+        }
     }
 
     @Override

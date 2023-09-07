@@ -57,7 +57,7 @@ public class CosmeticCommand extends SimplePlayerCommand {
                         return;
                     }
 
-                    cosmetic.getCosmetic().onDisplay(new Display(player, player.getLocation()));
+                    cosmetic.getCosmetic().onDisplay0(new Display(player, player.getLocation()));
                     Chat.sendMessage(player, "&aDisplaying cosmetic %s", cosmetic.name());
                 }
                 case "giveall" -> {

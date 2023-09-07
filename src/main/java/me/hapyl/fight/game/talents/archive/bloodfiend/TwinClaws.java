@@ -16,7 +16,7 @@ public class TwinClaws extends Talent implements Listener {
     @DisplayField(scaleFactor = 100, suffix = "%", suffixSpace = false) protected final double bittenDamageIncrease = 0.5d;
 
     public TwinClaws() {
-        super("Twinclaws");
+        super("Twin Claws");
 
         setDescription("""
                 Launch two giant claws. One in front, one behind.
@@ -54,5 +54,4 @@ public class TwinClaws extends Talent implements Listener {
 
         return Response.OK;
     }
-
 }

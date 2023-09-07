@@ -269,7 +269,7 @@ public class GamePlayer extends LivingGameEntity {
                     // Display cosmetics
                     final Cosmetics killCosmetic = Cosmetics.getSelected(killer, Type.KILL);
                     if (killCosmetic != null) {
-                        killCosmetic.getCosmetic().onDisplay(new Display(killer, entity.getLocation()));
+                        killCosmetic.getCosmetic().onDisplay0(new Display(killer, entity.getLocation()));
                     }
                 }
             }
@@ -319,7 +319,7 @@ public class GamePlayer extends LivingGameEntity {
         // Display death cosmetics
         final Cosmetics deathCosmetic = Cosmetics.getSelected(player, Type.DEATH);
         if (deathCosmetic != null) {
-            deathCosmetic.getCosmetic().onDisplay(player);
+            deathCosmetic.getCosmetic().onDisplay0(new Display(player, player.getLocation()));
         }
 
         // KEEP LAST

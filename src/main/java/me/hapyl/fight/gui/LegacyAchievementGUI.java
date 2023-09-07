@@ -5,11 +5,13 @@ import me.hapyl.fight.game.achievement.Achievement;
 import me.hapyl.fight.game.achievement.AchievementRegistry;
 import me.hapyl.fight.game.achievement.Category;
 import me.hapyl.fight.util.ItemStacks;
+import me.hapyl.fight.ux.Message;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.PlayerPageGUI;
 import me.hapyl.spigotutils.module.inventory.gui.SlotPattern;
 import me.hapyl.spigotutils.module.inventory.gui.SmartComponent;
 import me.hapyl.spigotutils.module.player.PlayerLib;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -17,19 +19,21 @@ import org.bukkit.inventory.ItemStack;
 import javax.annotation.Nonnull;
 import java.util.LinkedList;
 
-public class AchievementGUI extends PlayerPageGUI<Achievement> {
+public class LegacyAchievementGUI extends PlayerPageGUI<Achievement> {
 
     private final AchievementRegistry registry;
     private Category category;
 
-    public AchievementGUI(Player player) {
+    public LegacyAchievementGUI(Player player) {
         this(player, Category.GAMEPLAY);
     }
 
-    public AchievementGUI(Player player, Category category) {
+    public LegacyAchievementGUI(Player player, Category category) {
         super(player, "Achievements", 6);
 
         registry = Main.getPlugin().getAchievementRegistry();
+
+        Message.error(player, "&lKeep in mind this is a legacy GUI, and it will not be updated or/and fixed!");
 
         setCategory(category);
         openInventory(1);
@@ -50,7 +54,7 @@ public class AchievementGUI extends PlayerPageGUI<Achievement> {
         for (Category value : Category.values()) {
             final boolean currentCategory = value == category;
 
-            component.add(new ItemBuilder(value.getMaterial()).setName(value.getName())
+            component.add(new ItemBuilder(Material.STONE).setName(value.getName())
                     .addLore()
                     .addSmartLore(value.getDescription())
                     .predicate(currentCategory, ItemBuilder::glow)
@@ -100,13 +104,15 @@ public class AchievementGUI extends PlayerPageGUI<Achievement> {
         final int completeCount = achievement.getCompleteCount(player);
         final boolean completed = achievement.hasCompletedAtLeastOnce(player);
 
-        final ItemBuilder builder = new ItemBuilder(completed ? achievement.getIcon() : achievement.getIconLocked());
+        final ItemBuilder builder = new ItemBuilder(completed ? Material.DIAMOND : Material.COAL);
 
         // Set count
-        builder.setAmount(achievement.getTier(completeCount));
+        builder.setAmount(achievement.getPointReward());
 
         // Format
-        achievement.format(player, builder);
+        builder.setName(achievement.getName());
+        builder.addLore();
+        builder.addSmartLore(achievement.getDescription());
 
         return builder.asIcon();
     }

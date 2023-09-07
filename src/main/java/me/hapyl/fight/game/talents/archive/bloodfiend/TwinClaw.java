@@ -2,11 +2,15 @@ package me.hapyl.fight.game.talents.archive.bloodfiend;
 
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.TalentReference;
+import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend;
 import me.hapyl.fight.game.heroes.archive.bloodfield.BloodfiendData;
+import me.hapyl.fight.game.profile.PlayerProfile;
+import me.hapyl.fight.game.profile.data.AchievementData;
+import me.hapyl.fight.game.profile.data.Type;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.Collect;
@@ -108,6 +112,16 @@ public class TwinClaw extends TickingGameTask implements TalentReference<TwinCla
 
         nearestEntity.damage(damage, player, EnumDamageCause.TWINCLAW);
         remove();
+
+        // Achievement
+        final PlayerProfile profile = PlayerProfile.getOrCreateProfile(player);
+        final AchievementData data = profile.getPlayerData().getAchievementData(Achievements.THEY_ARE_TWINS_ALRIGHT);
+
+        final int useTime = data.checkExpire(5000).increment(Type.USE_TIME, 1);
+
+        if (useTime >= 2) {
+            data.completeAchievement();
+        }
     }
 
     public void remove() {

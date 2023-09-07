@@ -90,7 +90,7 @@ public class CrateChest extends Location {
         Chat.sendMessage(player, "");
         Chat.sendCenterMessage(player, "&lObtained:");
         Chat.sendCenterMessage(player, (isNew ? "&a" : "&a&m") + cosmetic.getName());
-        Chat.sendCenterMessage(player, (isNew ? "&7" : "&7&m") + Chat.capitalize(cosmetic.getType()) + " Cosmetic");
+        Chat.sendCenterMessage(player, (isNew ? "&7" : "&7&m") + cosmetic.getType().getName());
         Chat.sendCenterMessage(player, rarity.getFormatted());
 
         if (!isNew) {

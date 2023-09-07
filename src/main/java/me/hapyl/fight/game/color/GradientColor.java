@@ -22,6 +22,7 @@ public class GradientColor extends Color {
         this.to = validateColor(to);
     }
 
+    @Nonnull
     @Override
     public String color(@Nonnull String string, @Nullable Object... format) {
         return color(string, Interpolators.LINEAR);

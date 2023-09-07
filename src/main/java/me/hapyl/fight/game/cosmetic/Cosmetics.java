@@ -3,9 +3,9 @@ package me.hapyl.fight.game.cosmetic;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.database.PlayerDatabase;
-import me.hapyl.fight.game.cosmetic.storage.*;
+import me.hapyl.fight.game.color.Color;
+import me.hapyl.fight.game.cosmetic.archive.*;
 import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.command.DisabledCommand;
 import org.bukkit.*;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -52,6 +52,7 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
     }),
 
     COUTURE_KILL(new CoutureCosmetic(Type.KILL)),
+    MUSIC_KILL(new MusicCosmetic()),
 
     // Death Cosmetics
     SCARY_DOOKIE(new Cosmetic("Scary Dookie", "The ultimate scare.", Type.DEATH, Rarity.RARE, Material.COCOA_BEANS) {
@@ -87,70 +88,96 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
     FIGHTER(new PrefixCosmetic(
             "Fighter",
             "Show everyone who you really are.",
-            "&a[&lFighter&a]",
+            "&a⚔",
             Rarity.COMMON
     ).setIcon(Material.WOODEN_SWORD)),
 
-    OCTAVE(new PrefixCosmetic("Octave", "♪ ♪♫ ♪ ♫♫", "&d♪&lOctave&d♫", Rarity.RARE).setIcon(Material.NOTE_BLOCK)),
-
-    STAR(new PrefixCosmetic("Star", "I'm on a roll!", "&e★&6&lStar&e☆", Rarity.EPIC).setIcon(Material.GOLD_NUGGET)),
-
-    BIOHAZARD(new PrefixCosmetic("Biohazard", "Put your mask on!", "&a☢&2&lBiohazard&a☣", Rarity.EPIC).setIcon(Material.SLIME_BALL)),
-
-    LOVE(new PrefixCosmetic("Love", "Love is...", "&c♥&d&lLove&c❤", Rarity.RARE).setIcon(Material.APPLE)),
+    OCTAVE(new PrefixCosmetic("Octave", "♪ ♪♫ ♪ ♫♫", "&d♫", Rarity.RARE).setIcon(Material.NOTE_BLOCK)),
+    STAR(new PrefixCosmetic("Star", "I'm on a roll!", "&e★", Rarity.EPIC).setIcon(Material.GOLD_NUGGET)),
+    BIOHAZARD(new PrefixCosmetic("Biohazard", "Put your mask on!", "&a☣", Rarity.EPIC).setIcon(Material.SLIME_BALL)),
+    LOVE(new PrefixCosmetic("Love", "Love is...", "&c♥", Rarity.RARE).setIcon(Material.APPLE)),
     PEACE(new PrefixCosmetic("Peace", "Peace!", "&2&l✌", Rarity.LEGENDARY).setIcon(Material.WHITE_WOOL)),
-    HAPPY(new PrefixCosmetic("Happy", "Just be happy!", "&a☺&lHappy&a☻", Rarity.COMMON).setIcon(Material.EMERALD)),
+    HAPPY(new PrefixCosmetic("Happy", "Just be happy!", "&a☻", Rarity.COMMON).setIcon(Material.EMERALD)),
 
     GENDER_MALE(new PrefixCosmetic(
             "Gender: Male",
             "Express your gender!",
-            "&b♂&3&lMale&b♂",
+            "&b♂",
             Rarity.RARE
     ).setIcon(Material.SOUL_LANTERN)),
 
     GENDER_FEMALE(new PrefixCosmetic(
             "Gender: Female",
             "Express your gender!",
-            "&d♀&5&lFemale&d♀",
+            "&d♀",
             Rarity.RARE
     ).setIcon(Material.LANTERN)),
 
     ANNIHILATOR(new PrefixCosmetic(
             "Annihilator",
             "Show me what you got!",
-            "&c☠&4&lAnnihilator&c&l☠",
+            "&c&l☠",
             Rarity.LEGENDARY
     ).setIcon(Material.WITHER_SKELETON_SKULL)),
 
     SUNNY(new PrefixCosmetic(
             "Sunny",
             "It's nice weather outside :)",
-            "&e☀&6&lSunny&e☀",
+            "&e☀",
             Rarity.EPIC
     ).setIcon(Material.GOLD_BLOCK)),
 
     RAINY(new PrefixCosmetic(
             "Rainy",
             "I've got my umbrella!",
-            "&b🌧&3&lRainy&b☂",
+            "&b🌧",
             Rarity.EPIC
     ).setIcon(Material.WATER_BUCKET)),
 
     GLITCH(new PrefixCosmetic(
             "Glitch",
             "Is this thing on?",
-            "&a✚&lGl&k&l1&atch&a&k&l✚&R",
+            "&a&l&k💻",
             Rarity.RARE
     ).setIcon(Material.REDSTONE_TORCH)),
 
+    CUPCAKE(new PrefixCosmetic(
+            "Cupcake",
+            "Tasty!~",
+            "&d🧁",
+            Rarity.EPIC
+    ).setIcon(Material.PUMPKIN_PIE)),
+
+    ACCESS_DENIED(new PrefixCosmetic(
+            "Access Denied",
+            "There is no way out!",
+            "&4\uD83D\uDEAB",
+            Rarity.EPIC
+    ).setIcon(Material.BARRIER)),
+
+    KISS_KISS(new PrefixCosmetic(
+            "Kiss, Kiss",
+            "x",
+            "&c\uD83D\uDC8B",
+            Rarity.RARE
+    ).setIcon(Material.APPLE)),
+
+    MONKEY(new PrefixCosmetic(
+            "Monkey!",
+            "I'm monkey!",
+            new Color("#674e38") + "🐵",
+            Rarity.RARE
+    ).setIcon(Material.BROWN_WOOL)),
+
     // Win Effects
+
     /**
      * Should not explicitly be used.
      */
-    @Deprecated FIREWORKS(new FireworksWinEffect(), true),
+    @Deprecated
+    FIREWORKS(new FireworksWinEffect(), true),
     AVALANCHE(new AvalancheWinEffect()),
     TWERK(new TwerkWinEffect()),
-
     ;
 
     private final static Map<Type, List<Cosmetics>> byType = Maps.newHashMap();
@@ -158,7 +185,7 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
 
     static {
         for (Cosmetics value : values()) {
-            if (value.ignore || value.cosmetic instanceof DisabledCommand) {
+            if (value.ignore || value.cosmetic instanceof DisabledCosmetic) {
                 continue;
             }
 
@@ -196,6 +223,14 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
 
     public boolean isSelected(Player player) {
         return PlayerDatabase.getDatabase(player).getCosmetics().getSelected(getType()) == this;
+    }
+
+    public void select(Player player) {
+        PlayerDatabase.getDatabase(player).getCosmetics().setSelected(getType(), this);
+    }
+
+    public void deselect(Player player) {
+        PlayerDatabase.getDatabase(player).getCosmetics().unsetSelected(getType());
     }
 
     @Nonnull

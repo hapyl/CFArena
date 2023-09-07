@@ -3,7 +3,6 @@ package me.hapyl.fight.game.cosmetic;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.ShutdownAction;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 
 public abstract class WinCosmetic extends Cosmetic {
 
@@ -68,16 +67,6 @@ public abstract class WinCosmetic extends Cosmetic {
 
     public int getStep() {
         return step;
-    }
-
-    @Override
-    public final void onDisplay(Location location) {
-        throw new IllegalArgumentException("Use onDisplay(Display) instead!");
-    }
-
-    @Override
-    public final void onDisplay(Player player) {
-        throw new IllegalArgumentException("Use onDisplay(Display) instead!");
     }
 
     public void setAdditionalDelay(int delay) {

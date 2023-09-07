@@ -10,7 +10,9 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
+import me.hapyl.fight.game.profile.data.PlayerData;
 import me.hapyl.fight.game.setting.Setting;
+import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.GamePlayerUI;
 import org.bukkit.entity.Player;
@@ -32,6 +34,7 @@ public class PlayerProfile {
     private final PlayerDatabase playerDatabase;
     private final ScoreboardTeams scoreboardTeams;
     private final PlayerSkin originalSkin;
+    private final PlayerData playerData;
 
     @Nullable
     private GamePlayer gamePlayer; // current game player
@@ -53,7 +56,13 @@ public class PlayerProfile {
         this.resourcePack = false;
         this.buildMode = false;
 
+        this.playerData = new PlayerData(this);
         this.originalSkin = PlayerSkin.of(player);
+    }
+
+    @Nonnull
+    public PlayerData getPlayerData() {
+        return playerData;
     }
 
     @Nonnull
@@ -100,8 +109,10 @@ public class PlayerProfile {
         // Prompt Resource Pack
         promptResourcePack();
 
-        // Legacy Crates Delivery
-        Deliveries.LEGACY_CRATES.deliver(player);
+        // Load Deliveries
+        GameTask.runLater(() -> {
+            Deliveries.notify(player);
+        }, 20);
     }
 
     public Player getPlayer() {

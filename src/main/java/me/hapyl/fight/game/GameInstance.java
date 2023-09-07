@@ -2,6 +2,7 @@ package me.hapyl.fight.game;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.database.Award;
+import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
@@ -129,7 +130,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
         }
 
         final int delay = winCosmetic.getDelay();
-        winCosmetic.onDisplay(new Display(winner, location));
+        winCosmetic.onDisplay0(new Display(winner, location));
 
         final Location finalLocation = location;
         GameTask.runLater(() -> {
@@ -281,6 +282,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
                 player.playSound(Sound.BLOCK_NOTE_BLOCK_HAT, 1.0f);
             }
 
+            Achievements.AFK.complete(player);
         });
 
         if (timeLimitInTicks == -1) {

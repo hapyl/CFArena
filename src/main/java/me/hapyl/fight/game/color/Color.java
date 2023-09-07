@@ -26,6 +26,11 @@ public class Color {
 
     public static final Color DARK_PURPLE = new Color("#6A0DAD");
 
+    public static final Color WARM_GRAY = new Color("#808080");
+    public static final Color MINT_GREEN = new Color("#00FF7F");
+    public static final Color DARK_ORANGE = new Color("#FF8C00");
+    public static final Color ROYAL_BLUE = new Color("#4169E1");
+
     public final ChatColor color;
     private ColorFlag[] flags;
 
@@ -46,6 +51,7 @@ public class Color {
         this.color = validateColor(color);
     }
 
+    @Nonnull
     public String color(@Nonnull String string, @Nullable Object... format) {
         return this + BFormat.format(string, format);
     }

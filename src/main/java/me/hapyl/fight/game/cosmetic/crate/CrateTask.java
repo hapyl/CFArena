@@ -5,7 +5,6 @@ import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.task.RangeTask;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.util.ImmutableTuple;
-import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.hologram.Hologram;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.ChatColor;
@@ -60,7 +59,7 @@ public abstract class CrateTask extends RangeTask {
 
         final Hologram hologram = new Hologram().setLines(
                 ChatColor.GREEN + cosmetic.getName(),
-                ChatColor.GRAY + Chat.capitalize(cosmetic.getType()) + " Cosmetic",
+                ChatColor.GRAY + cosmetic.getType().getName(),
                 rarity.getFormatted()
         ).create(location.add(0.0d, 0.25d, 0.0d)).showAll();
 

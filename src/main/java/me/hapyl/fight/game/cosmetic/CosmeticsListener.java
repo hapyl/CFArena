@@ -42,7 +42,7 @@ public class CosmeticsListener implements Listener {
             return;
         }
 
-        selectedContrail.getCosmetic().onDisplay(player);
+        selectedContrail.getCosmetic().onDisplay0(new Display(player, player.getLocation()));
     }
 
 }

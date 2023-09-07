@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.cosmetic;
 
 import me.hapyl.fight.game.profile.PlayerProfile;
+import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -21,6 +22,13 @@ public class PrefixCosmetic extends Cosmetic {
         cosmetics.setCollectionAndAdd(CosmeticCollection.PREFIX);
     }
 
+    @Override
+    public void addExtraLore(@Nonnull ItemBuilder builder, @Nonnull Player player) {
+        builder.addLore();
+        builder.addLore("&bPrefix Preview: ");
+        builder.addLore(" " + getPrefixPreview(player));
+    }
+
     public String getPrefix() {
         return prefix;
     }
@@ -31,6 +39,5 @@ public class PrefixCosmetic extends Cosmetic {
 
     @Override
     public void onDisplay(Display display) {
-
     }
 }

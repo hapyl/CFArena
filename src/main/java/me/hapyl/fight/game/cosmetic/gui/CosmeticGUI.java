@@ -3,57 +3,80 @@ package me.hapyl.fight.game.cosmetic.gui;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.database.entry.CosmeticEntry;
 import me.hapyl.fight.game.color.Color;
+import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
-import me.hapyl.fight.game.cosmetic.ItemActionPair;
 import me.hapyl.fight.game.cosmetic.Type;
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.fight.gui.styled.ReturnData;
+import me.hapyl.fight.gui.styled.Size;
+import me.hapyl.fight.gui.styled.StyledPageGUI;
+import me.hapyl.fight.ux.Message;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.inventory.gui.*;
+import me.hapyl.spigotutils.module.inventory.gui.GUI;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.inventory.ItemStack;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
-public class CosmeticGUI extends PlayerGUI {
+public class CosmeticGUI extends StyledPageGUI<Cosmetics> {
 
     private final Type type;
 
     public CosmeticGUI(Player player, Type type) {
-        super(player, "Cosmetic " + GUI.ARROW_FORWARD + " " + Chat.capitalize(type.name()), 5);
+        super(player, "Cosmetic " + GUI.ARROW_FORWARD + " " + type.getName(), Size.FOUR);
         this.type = type;
-
-        updateInventory();
-    }
-
-    public void updateInventory() {
-        clearEverything();
 
         final List<Cosmetics> cosmetics = Cosmetics.getByType(type);
 
         // Don't show unobtainable cosmetics unless magically selected
-        //cosmetics.removeIf(cosmetic -> {
-        //    if (!cosmetic.getCosmetic().isExclusive()) {
-        //        return !cosmetic.isUnlocked(getPlayer()) && !cosmetic.isSelected(getPlayer());
-        //    }
-        //
-        //    return false;
-        //});
+        cosmetics.removeIf(cosmetic -> {
+            if (!cosmetic.getCosmetic().isExclusive()) {
+                return !cosmetic.isUnlocked(getPlayer()) && !cosmetic.isSelected(getPlayer());
+            }
 
-        // Set the back button at slot 18
-        setItem(18, ItemBuilder.of(Material.ARROW, "Go Back").asIcon(), CollectionGUI::new);
+            return false;
+        });
+
+        // Sort by owned
+        cosmetics.sort((a, b) -> {
+            if (a.isUnlocked(getPlayer()) && !b.isUnlocked(getPlayer())) {
+                return -1;
+            }
+            else if (!a.isUnlocked(getPlayer()) && b.isUnlocked(getPlayer())) {
+                return 1;
+            }
+            return 0;
+        });
+
+        setContents(cosmetics);
+        setFit(Fit.SLIM);
+
+        openInventory(1);
+    }
+
+    @Nullable
+    @Override
+    public ReturnData getReturnData() {
+        return ReturnData.of("Collection", CollectionGUI::new);
+    }
+
+    @Override
+    public void onUpdate() {
+        setHeader(ItemBuilder.of(type.getMaterial(), type.getName(), type.getDescription()).asIcon());
 
         final Cosmetics selected = Cosmetics.getSelected(player, type);
 
         // Unequip Button
         if (selected == null) {
-            setItem(40, ItemBuilder.of(Material.GRAY_DYE, "Unequip", "Nothing is equipped!").asIcon());
+            setPanelItem(7, ItemBuilder.of(Material.GRAY_DYE, "Unequip", "Nothing is equipped!").asIcon());
         }
         else {
-            setItem(
-                    40,
-                    ItemBuilder.of(Material.LIGHT_BLUE_DYE, "Unequip")
+            setPanelItem(7, ItemBuilder.of(Material.LIGHT_BLUE_DYE, "Unequip")
                             .addLore()
                             .addLore("Currently Selected")
                             .addLore("&a&l " + selected.getCosmetic().getName())
@@ -64,46 +87,65 @@ public class CosmeticGUI extends PlayerGUI {
                         final CosmeticEntry entry = CF.getDatabase(player).getCosmetics();
 
                         entry.unsetSelected(type);
-                        updateInventory();
+                        update();
 
                         // Fx
                         PlayerLib.playSound(player, Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.0f);
                     }
             );
         }
+    }
 
-        if (cosmetics.isEmpty()) {
-            setItem(22, ItemBuilder.of(Material.MINECART, "&7No Cosmetics :(").asIcon());
+    @Nonnull
+    @Override
+    public ItemStack asItem(Player player, Cosmetics content, int index, int page) {
+        final Cosmetic cosmetic = content.getCosmetic();
+        final ItemBuilder builder = cosmetic.createItem(player);
+
+        // Check if player has the cosmetic
+        if (content.isUnlocked(player)) {
+            // Check if it's selected
+            if (content.isSelected(player)) {
+                builder.addLore();
+                builder.addLore(Color.SUCCESS.bold() + "Selected!");
+                builder.addLore(Color.BUTTON + "Click to deselect this cosmetic.");
+                builder.glow();
+            }
+            else {
+                builder.addLore();
+                builder.addLore(Color.SUCCESS_DARKER.bold() + "Unlocked!");
+                builder.addLore(Color.BUTTON + "Click to select this cosmetic.");
+            }
         }
         else {
-            // Sort by owned
-            cosmetics.sort((a, b) -> {
-                if (a.isUnlocked(getPlayer()) && !b.isUnlocked(getPlayer())) {
-                    return -1;
-                }
-                else if (!a.isUnlocked(getPlayer()) && b.isUnlocked(getPlayer())) {
-                    return 1;
-                }
-                return 0;
-            });
-
-            final SmartComponent component = newSmartComponent();
-            for (Cosmetics cosmetic : cosmetics) {
-                final ItemActionPair pair = cosmetic.getCosmetic().createItem(getPlayer(), cosmetic, this);
-
-                component.add(pair.getItemStack(), player -> {
-                    final Action action = pair.getAction();
-
-                    if (action != null) {
-                        action.invoke(player);
-                    }
-                });
-            }
-
-            component.apply(this, SlotPattern.INNER_LEFT_TO_RIGHT, 1);
+            builder.addLore();
+            builder.addLore(Color.ERROR.bold() + "Locked!");
         }
 
-        openInventory();
+        return builder.asIcon();
+    }
+
+    @Override
+    public void onClick(@Nonnull Player player, @Nonnull Cosmetics content, int index, int page, @Nonnull ClickType clickType) {
+        final Cosmetic cosmetic = content.getCosmetic();
+
+        if (!content.isUnlocked(player)) {
+            Message.error(player, "This cosmetic is locked!");
+            PlayerLib.villagerNo(player);
+            return;
+        }
+
+        if (content.isSelected(player)) {
+            content.deselect(player);
+            Message.success(player, Color.ERROR + "Deselected {Cosmetic}!", cosmetic.getName());
+        }
+        else {
+            content.select(player);
+            Message.success(player, "Selected {Cosmetic} as {Type}!", cosmetic.getName(), cosmetic.getType().getName());
+        }
+
+        PlayerLib.plingNote(player, 2.0f);
+        update();
     }
 
 }

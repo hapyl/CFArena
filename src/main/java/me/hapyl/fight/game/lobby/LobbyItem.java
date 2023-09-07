@@ -1,9 +1,12 @@
 package me.hapyl.fight.game.lobby;
 
+import me.hapyl.fight.game.color.Color;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+
+import javax.annotation.Nonnull;
 
 public abstract class LobbyItem {
 
@@ -22,6 +25,29 @@ public abstract class LobbyItem {
         this.itemStack = createBuilder();
     }
 
+    @Nonnull
+    public Material getMaterial() {
+        return material;
+    }
+
+    public int getSlot() {
+        return slot;
+    }
+
+    @Nonnull
+    public String getName() {
+        return name;
+    }
+
+    @Nonnull
+    public String getDescription() {
+        return description;
+    }
+
+    public ItemStack getItemStack() {
+        return itemStack;
+    }
+
     public abstract void onClick(Player player);
 
     public void modifyItem(Player player, ItemBuilder builder) {
@@ -31,13 +57,12 @@ public abstract class LobbyItem {
         final ItemBuilder builder = new ItemBuilder(itemStack);
 
         modifyItem(player, builder);
-
         player.getInventory().setItem(slot, builder.toItemStack());
     }
 
     private ItemStack createBuilder() {
         final ItemBuilder builder = new ItemBuilder(material, getId())
-                .setName(name)
+                .setName(Color.SUCCESS + name)
                 .addSmartLore(description)
                 .addClickEvent(LobbyItem.this::onClick);
 
