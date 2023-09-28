@@ -1,9 +1,16 @@
 package me.hapyl.fight.game.weapons;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import me.hapyl.fight.game.NonNullItemCreator;
-import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.color.Color;
+import me.hapyl.fight.game.talents.StaticFormat;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.weapons.ability.Ability;
+import me.hapyl.fight.game.weapons.ability.AbilityType;
+import me.hapyl.fight.util.CFUtils;
+import me.hapyl.fight.util.Described;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.math.Tick;
@@ -15,18 +22,18 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.function.Function;
 
-public class Weapon extends NonNullItemCreator implements Cloneable, DisplayFieldProvider {
+public class Weapon extends NonNullItemCreator implements Cloneable, Described, DisplayFieldProvider {
 
+    private final Map<AbilityType, Ability> abilities;
     private final List<Enchant> enchants;
     private final Material material;
+
     private String name;
     private String description;
     private String lore;
@@ -36,7 +43,7 @@ public class Weapon extends NonNullItemCreator implements Cloneable, DisplayFiel
     private String id;
 
     public Weapon(@Nonnull Material material) {
-        this(material, "unnamed weapon", "", 1);
+        this(material, "name a weapon idot", "add description idot", 1);
     }
 
     public Weapon(@Nonnull Material material, @Nonnull String name, @Nonnull String about, double damage) {
@@ -46,6 +53,28 @@ public class Weapon extends NonNullItemCreator implements Cloneable, DisplayFiel
         this.attackSpeed = 0.0d;
         this.damage = damage;
         this.enchants = Lists.newArrayList();
+        this.abilities = Maps.newHashMap();
+    }
+
+    public void setAbility(@Nonnull AbilityType type, @Nullable Ability ability) {
+        if (ability == null) {
+            this.abilities.remove(type);
+            return;
+        }
+
+        this.abilities.put(type, ability);
+    }
+
+    @Nullable
+    public Ability getAbility(@Nonnull AbilityType type) {
+        return abilities.get(type);
+    }
+
+    @Nonnull
+    public Optional<Ability> getAbilityOptional(@Nonnull AbilityType type) {
+        final Ability ability = getAbility(type);
+
+        return ability == null ? Optional.empty() : Optional.of(ability);
     }
 
     /**
@@ -68,6 +97,8 @@ public class Weapon extends NonNullItemCreator implements Cloneable, DisplayFiel
         return setDescription(info.formatted(replacements));
     }
 
+    @Override
+    @Nonnull
     public String getName() {
         return name;
     }
@@ -95,6 +126,8 @@ public class Weapon extends NonNullItemCreator implements Cloneable, DisplayFiel
         return material;
     }
 
+    @Override
+    @Nonnull
     public String getDescription() {
         return description;
     }
@@ -115,12 +148,6 @@ public class Weapon extends NonNullItemCreator implements Cloneable, DisplayFiel
 
         this.damage = damage;
         return this;
-    }
-
-    public void onLeftClick(Player player, ItemStack item) {
-    }
-
-    public void onRightClick(Player player, ItemStack item) {
     }
 
     @Override
@@ -172,13 +199,49 @@ public class Weapon extends NonNullItemCreator implements Cloneable, DisplayFiel
             builder.addLore().addSmartLore(lore, "&8&o");
         }
 
+        // Add click events
+        if (id != null) {
+            for (AbilityType type : AbilityType.values()) {
+                final Ability ability = abilities.get(type);
+                if (ability == null) {
+                    continue;
+                }
+
+                builder.addLore();
+                builder.addLore("&eAbility: " + ability.getName() + Color.BUTTON.bold() + " " + type.toString());
+
+                String description = ability.getDescription();
+
+                description = StaticFormat.COOLDOWN.format(description, ability);
+                description = StaticFormat.DURATION.format(description, ability);
+                description = description.replace("%", "%%"); // YEP KOK
+
+                builder.addTextBlockLore(description);
+
+                final int duration = ability.getDuration();
+                final int cooldown = ability.getCooldown();
+
+                if (duration > 0 || cooldown > 0) {
+                    builder.addLore();
+                }
+
+                builder.addLoreIf("&f&m•&f &7Cooldown: &f&l" + CFUtils.decimalFormatTick(cooldown), cooldown > 0);
+                builder.addLoreIf("&f&m•&f &7Duration: &f&l" + CFUtils.decimalFormatTick(duration), duration > 0);
+
+                final Action[] clickTypes = type.getClickTypes();
+                if (clickTypes != null) {
+                    builder.addClickEvent(player -> Talent.preconditionTalentAnd(player)
+                            .ifTrue((pl, rs) -> ability.execute0(pl, pl.getInventory().getItemInMainHand()))
+                            .ifFalse((pl, rs) -> rs.sendError(pl)), clickTypes);
+                }
+            }
+        }
+
         if (this instanceof RangeWeapon rangeWeapon) {
             final int reloadTime = rangeWeapon.getWeaponCooldown();
             final double maxDistance = rangeWeapon.getMaxDistance();
             final double weaponDamage = rangeWeapon.getDamage();
 
-            builder.addLore();
-            builder.addLore("&aLeft-Click to manually reload!");
             builder.addLore();
             builder.addLore("&e&lAttributes:");
 
@@ -188,31 +251,6 @@ public class Weapon extends NonNullItemCreator implements Cloneable, DisplayFiel
 
             builder.addLore(" Max Ammo: &f&l%s", rangeWeapon.getMaxAmmo());
             builder.addLore(" Reload Time: &f&l%s", Tick.round(rangeWeapon.getReloadTime()) + "s");
-        }
-
-        // Add click events
-        if (id != null) {
-            builder.addClickEvent(player -> {
-                final Response response = Talent.preconditionTalent(player);
-
-                if (response.isError()) {
-                    response.sendError(player);
-                    return;
-                }
-
-                onRightClick(player, player.getInventory().getItemInMainHand());
-            }, Action.RIGHT_CLICK_BLOCK, Action.RIGHT_CLICK_AIR);
-
-            builder.addClickEvent(player -> {
-                final Response response = Talent.preconditionTalent(player);
-
-                if (response.isError()) {
-                    response.sendError(player);
-                    return;
-                }
-
-                onLeftClick(player, player.getInventory().getItemInMainHand());
-            }, Action.LEFT_CLICK_BLOCK, Action.LEFT_CLICK_AIR);
         }
 
         if (!enchants.isEmpty()) {
@@ -256,6 +294,11 @@ public class Weapon extends NonNullItemCreator implements Cloneable, DisplayFiel
 
         builder.hideFlags();
         this.item = builder.build();
+    }
+
+    @Nonnull
+    public Set<Ability> getAbilities() {
+        return Sets.newHashSet(abilities.values());
     }
 
     private void addDynamicLore(@Nonnull ItemBuilder builder, @Nonnull String string, @Nonnull Number number, Function<Number, String> function) {

@@ -5,24 +5,21 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Equipment;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.vortex.VortexStar;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
-import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.Quality;
 import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
 import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -30,9 +27,9 @@ import javax.annotation.Nonnull;
 
 public class Vortex extends Hero implements UIComponent {
 
-    private final double sotsDamage = 1.0d;
-    private final double starDamage = 20.0d;
-    private final int sotsCooldown = 800;
+    public final double sotsDamage = 1.0d;
+    public final double starDamage = 20.0d;
+    public final int sotsCooldown = 800;
 
     public Vortex() {
         super("Vortex");
@@ -43,60 +40,11 @@ public class Vortex extends Hero implements UIComponent {
         setItem("2adc458dfabc20b8d587b0476280da2fb325fc616a5212784466a78b85fb7e4d");
 
         final Equipment equipment = this.getEquipment();
-        equipment.setChestplate(102, 51, 0);
+        equipment.setChestPlate(102, 51, 0);
         equipment.setLeggings(179, 89, 0);
         equipment.setBoots(255, 140, 26);
 
-        setWeapon(new Weapon(Material.STONE_SWORD) {
-
-            @Override
-            public void onRightClick(Player player, ItemStack item) {
-                if (player.hasCooldown(this.getMaterial())) {
-                    return;
-                }
-
-                final Location location = player.getEyeLocation();
-
-                new GameTask() {
-                    private final double distanceShift = 0.5d;
-                    private final double maxDistance = 100;
-                    private double distanceFlew = 0.0d;
-
-                    @Override
-                    public void run() {
-
-                        final Location nextLocation = location.add(player.getEyeLocation().getDirection().multiply(distanceShift));
-                        PlayerLib.spawnParticle(nextLocation, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0);
-
-                        if ((distanceFlew % 5) == 0) {
-                            PlayerLib.playSound(nextLocation, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.25f);
-                        }
-
-                        Collect.nearbyEntities(nextLocation, 2.0d).forEach(entity -> {
-                            if (entity.is(player)) {
-                                return;
-                            }
-
-                            entity.damageTick(sotsDamage, CF.getPlayer(player), EnumDamageCause.SOTS, 0);
-                        });
-
-                        if (((distanceFlew += distanceShift) >= maxDistance) || nextLocation.getBlock().getType().isOccluding()) {
-                            GamePlayer.setCooldown(player, Material.STONE_SWORD, sotsCooldown);
-                            cancel();
-                        }
-
-                    }
-                }.runTaskTimer(0, 1);
-
-                GamePlayer.setCooldown(player, getMaterial(), sotsCooldown);
-            }
-        }.setName("Sword of Thousands Stars")
-                .setId("sots_weapon")
-                .setDescription(String.format(
-                        "A sword with the ability to summon thousands of stars.____&e&lRIGHT CLICK &7to launch vortex energy in front of you, that follows your crosshair and rapidly damages and knocks enemies back upon hit.____&aCooldown: &l%ss",
-                        BukkitUtils.roundTick(sotsCooldown)
-                )).setDamage(6.5d));
-
+        setWeapon(new VortexWeapon(this));
 
         setUltimate(new UltimateTalent("All the Stars", """
                 Instantly create &b10 &7Astral Stars around you.
@@ -202,7 +150,7 @@ public class Vortex extends Hero implements UIComponent {
 
     public void performStarSlash(Location start, Location finish, Player player) {
         // ray-trace string
-        Utils.rayTracePath(start, finish, 1.0d, 2.0d, living -> {
+        CFUtils.rayTracePath(start, finish, 1.0d, 2.0d, living -> {
             if (living.is(player)) {
                 return;
             }

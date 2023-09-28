@@ -15,19 +15,13 @@ import java.util.function.Function;
 
 public class PersistentNPC extends HumanNPC {
 
+    private final String name;
+
     public PersistentNPC(@Nonnull Location location, @Nullable String name) {
         super(location, name == null ? null : Color.BUTTON.bold() + "CLICK", "");
+        this.name = name;
 
-        final String displayName = Color.SUCCESS + name;
-
-        if (name != null) {
-            addTextAboveHead(displayName);
-        }
-
-        setLookAtCloseDist(10);
-        setChatPrefix(displayName);
-
-        onPrepare();
+        init();
     }
 
     public PersistentNPC(double x, double y, double z, @Nullable String name) {
@@ -38,23 +32,9 @@ public class PersistentNPC extends HumanNPC {
         this(BukkitUtils.defLocation(x, y, z, yaw, pitch), name);
     }
 
-    @Deprecated
-    private PersistentNPC(@Nonnull Location location, @Nullable String npcName, @Nullable String skinOwner) {
-        super(location, npcName, skinOwner);
-    }
-
-    @Deprecated
-    private PersistentNPC(Location location, String npcName, String skinOwner, Function<UUID, String> hexNameFn) {
+    protected PersistentNPC(Location location, String npcName, String skinOwner, Function<UUID, String> hexNameFn) {
         super(location, npcName, skinOwner, hexNameFn);
-    }
-
-    public void create(Player player) {
-        if (!shouldCreate(player)) {
-            return;
-        }
-
-        super.show(player);
-        onSpawn(player);
+        this.name = npcName;
     }
 
     @Event
@@ -66,17 +46,37 @@ public class PersistentNPC extends HumanNPC {
     }
 
     @Override
-    @Deprecated(forRemoval = true)
     public final void show(@Nonnull Player... players) {
-        throw new IllegalStateException("use PersistentNPC#create()");
+        for (Player player : players) {
+            if (!shouldCreate(player)) {
+                return;
+            }
+
+            stopTalking();
+            super.show(player);
+            onSpawn(player);
+        }
     }
 
     @Override
     public void showAll() {
-        Bukkit.getOnlinePlayers().forEach(this::create);
+        Bukkit.getOnlinePlayers().forEach(this::show);
     }
 
     public boolean shouldCreate(Player player) {
         return true;
+    }
+
+    protected void init() {
+        final String displayName = Color.SUCCESS + name;
+
+        if (name != null) {
+            addTextAboveHead(displayName);
+        }
+
+        setLookAtCloseDist(10);
+        setChatPrefix(displayName);
+
+        onPrepare();
     }
 }

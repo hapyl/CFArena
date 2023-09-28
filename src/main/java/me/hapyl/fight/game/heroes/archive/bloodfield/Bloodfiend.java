@@ -10,10 +10,14 @@ import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.ComplexHero;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.archive.bloodfield.impel.Impel;
 import me.hapyl.fight.game.heroes.archive.bloodfield.impel.ImpelInstance;
 import me.hapyl.fight.game.heroes.archive.bloodfield.impel.Type;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -28,7 +32,7 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.UIComplexComponent;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.entity.EntityUtils;
@@ -86,7 +90,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
 
         final Equipment equipment = getEquipment();
 
-        equipment.setChestplate(99, 8, 16, TrimPattern.SILENCE, TrimMaterial.NETHERITE);
+        equipment.setChestPlate(99, 8, 16, TrimPattern.SILENCE, TrimMaterial.NETHERITE);
         equipment.setLeggings(28, 3, 7);
         equipment.setBoots(5, 3, 23, TrimPattern.HOST, TrimMaterial.NETHERITE);
 
@@ -426,9 +430,9 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
 
         return List.of(
                 succulencePlayers > 0 ? "&c&l🦇 &f" + succulencePlayers : "",
-                flightCooldown > 0 ? "&2&l\uD83D\uDD4A &f" + Utils.decimalFormatTick(flightCooldown) : "",
-                pillar != null ? "&6&lⅡ &f" + Utils.decimalFormatTick(pillar.getTimeLeft()) : "",
-                chalice != null ? "&4&l🍷 &f" + Utils.decimalFormatTick(chalice.getTimeLeft()) : ""
+                flightCooldown > 0 ? "&2&l\uD83D\uDD4A &f" + CFUtils.decimalFormatTick(flightCooldown) : "",
+                pillar != null ? "&6&lⅡ &f" + CFUtils.decimalFormatTick(pillar.getTimeLeft()) : "",
+                chalice != null ? "&4&l🍷 &f" + CFUtils.decimalFormatTick(chalice.getTimeLeft()) : ""
         );
     }
 

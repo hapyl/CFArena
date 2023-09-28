@@ -15,6 +15,9 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.archive.ender.Ender;
 import me.hapyl.fight.game.heroes.archive.moonwalker.Moonwalker;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.Slot;
+import me.hapyl.fight.game.heroes.friendship.HeroFriendship;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -52,6 +55,7 @@ public abstract class Hero implements GameElement, PlayerElement {
     private final Map<Player, Long> usedUltimateAt;
     private final Map<Player, GameTask> reverseTasks;
     private final CachedHeroItem cachedHeroItem;
+    private final HeroFriendship friendship;
     private Origin origin;
     private Archetype archetype;
     private String description;
@@ -77,6 +81,7 @@ public abstract class Hero implements GameElement, PlayerElement {
         this.ultimate = new UltimateTalent("Unknown Ultimate", "This hero's ultimate talent is not yet implemented!", Integer.MAX_VALUE);
         this.cachedHeroItem = new CachedHeroItem(this);
         this.skin = null;
+        this.friendship = new HeroFriendship(this);
 
         setItem("null"); // default to null because I don't like exceptions
     }
@@ -92,13 +97,18 @@ public abstract class Hero implements GameElement, PlayerElement {
         setItem(material);
     }
 
-    public void setSkin(@Nullable PlayerSkin skin) {
-        this.skin = skin;
+    @Nonnull
+    public HeroFriendship getFriendship() {
+        return friendship;
     }
 
     @Nullable
     public PlayerSkin getSkin() {
         return skin;
+    }
+
+    public void setSkin(@Nullable PlayerSkin skin) {
+        this.skin = skin;
     }
 
     @Nonnull
@@ -308,7 +318,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      * @return this hero GUI item, defaults to RED_BED.
      */
     public ItemStack getItem() {
-        return (guiTexture.getType() == Material.RED_BED) ? getEquipment().getHelmet() : guiTexture;
+        return (guiTexture.getType() == Material.RED_BED) ? getEquipment().getItem(Slot.HELMET) : guiTexture;
     }
 
     /**
@@ -586,6 +596,15 @@ public abstract class Hero implements GameElement, PlayerElement {
         return this.ultimate;
     }
 
+    /**
+     * Sets this hero's weapon.
+     *
+     * @param ultimate - New weapon.
+     */
+    protected void setUltimate(UltimateTalent ultimate) {
+        this.ultimate = ultimate;
+    }
+
     public final void useUltimate0(Player player) {
         final int castDuration = ultimate.getCastDuration();
         final UltimateCallback callback = castUltimate(player);
@@ -600,20 +619,6 @@ public abstract class Hero implements GameElement, PlayerElement {
                 useUltimate(player);
             }
         }.runTaskLater(Math.max(castDuration, 0));
-    }
-
-    /**
-     * Sets this hero's weapon.
-     *
-     * @param ultimate - New weapon.
-     */
-    protected void setUltimate(UltimateTalent ultimate) {
-        this.ultimate = ultimate;
-    }
-
-    protected void setUltimate(UltimateTalent ultimate, Consumer<UltimateTalent> andThen) {
-        setUltimate(ultimate);
-        andThen.accept(ultimate);
     }
 
     /**
@@ -691,8 +696,6 @@ public abstract class Hero implements GameElement, PlayerElement {
         return validPlayerInGame(player) && current.getCurrentHero(player) == this;
     }
 
-    // Utilities for checks, etc.
-
     @Nullable
     public Talent getTalent(int slot) {
         return switch (slot) {
@@ -704,6 +707,8 @@ public abstract class Hero implements GameElement, PlayerElement {
             default -> null;
         };
     }
+
+    // Utilities for checks, etc.
 
     /**
      * Returns all talents of this hero, including nullable.
@@ -774,6 +779,11 @@ public abstract class Hero implements GameElement, PlayerElement {
         }
 
         return "&a" + getName();
+    }
+
+    protected void setUltimate(UltimateTalent ultimate, Consumer<UltimateTalent> andThen) {
+        setUltimate(ultimate);
+        andThen.accept(ultimate);
     }
 
     private void cancelOldReverseTask(Player player) {

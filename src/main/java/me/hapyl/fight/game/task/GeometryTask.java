@@ -212,7 +212,7 @@ public abstract class GeometryTask extends GameTask {
 
         run(theta);
 
-        if (theta >= PI_2) {
+        if (theta > PI_2) {
             theta = 0;
             spin++;
         }

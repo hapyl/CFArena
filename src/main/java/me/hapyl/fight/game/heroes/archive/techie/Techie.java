@@ -3,7 +3,11 @@ package me.hapyl.fight.game.heroes.archive.techie;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.DisabledHero;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -64,7 +68,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Disabl
         setItem("1e5b78987c70d73f2ad93a454f85dcab476c5b5679f50eaaf553d2404edc9c");
 
         final Equipment equipment = getEquipment();
-        equipment.setChestplate(205, 205, 205);
+        equipment.setChestPlate(205, 205, 205);
         equipment.setLeggings(217, 217, 217);
         equipment.setBoots(255, 230, 204);
 
@@ -111,7 +115,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Disabl
 
                     if (amountRevealed > 0) {
                         player.sendTitle("", "&l%s &fPlayers Revealed".formatted(amountRevealed), 5, 15, 5);
-                        player.playSound(Sound.ENCHANT_THORNS_HIT, 2.0f);
+                        player.playPlayerSound(Sound.ENCHANT_THORNS_HIT, 2.0f);
                     }
 
                 });

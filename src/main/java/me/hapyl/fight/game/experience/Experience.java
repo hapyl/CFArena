@@ -1,22 +1,25 @@
 package me.hapyl.fight.game.experience;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.entry.ExperienceEntry;
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.achievement.Achievements;
+import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.reward.HeroUnlockReward;
 import me.hapyl.fight.game.reward.Reward;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.chat.Gradient;
 import me.hapyl.spigotutils.module.chat.gradient.Interpolators;
+import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.math.Numbers;
-import me.hapyl.spigotutils.module.math.nn.IntInt;
 import me.hapyl.spigotutils.module.util.DependencyInjector;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.List;
@@ -24,12 +27,11 @@ import java.util.Map;
 
 public class Experience extends DependencyInjector<Main> {
 
-    // TODO (hapyl): 005, Sep 5: Add level colors like hypixel?
-    public final byte MAX_LEVEL = 50;
-
     private final Map<Long, ExperienceLevel> experienceLevelMap;
+
     private final Color GRADIENT_COLOR_1 = new Color(253, 29, 29);
     private final Color GRADIENT_COLOR_2 = new Color(252, 210, 69);
+
     private final String LEVEL_UP_GRADIENT = new Gradient("LEVEL UP!")
             .makeBold()
             .rgb(
@@ -38,9 +40,8 @@ public class Experience extends DependencyInjector<Main> {
                     Interpolators.LINEAR
             );
 
-    /**
-     * Instantiate Experience manager.
-     */
+    private final int progressBarCount = 40;
+
     public Experience(Main main) {
         super(main);
         this.experienceLevelMap = Maps.newLinkedHashMap();
@@ -55,18 +56,27 @@ public class Experience extends DependencyInjector<Main> {
      * @return exp required reaching level.
      */
     public long getExpRequired(long lvl) {
-        if (experienceLevelMap.containsKey(lvl)) {
-            return experienceLevelMap.get(lvl).getExpRequired();
+        final ExperienceLevel level = experienceLevelMap.get(lvl);
+
+        if (level != null) {
+            return level.getExpRequired();
         }
+
         return Long.MAX_VALUE; // max value so we can accumulate exp further
     }
 
+    /**
+     * Returns true if player experience is equals or greater than the next level requirement.
+     *
+     * @param player - Player.
+     * @return true if a player can level up; false otherwise.
+     */
     public boolean canLevelUp(Player player) {
         final ExperienceEntry exp = getDatabaseEntry(player);
-        final long lvl = exp.get(ExperienceEntry.Type.LEVEL) + 1;
+        final long nextLevel = exp.get(ExperienceEntry.Type.LEVEL) + 1;
         final long totalExp = exp.get(ExperienceEntry.Type.EXP);
 
-        return totalExp >= getExpRequired(lvl);
+        return totalExp >= getExpRequired(nextLevel);
     }
 
     /**
@@ -89,8 +99,28 @@ public class Experience extends DependencyInjector<Main> {
                 }
             }
         });
+
+        // Fix achievement
+        Achievements.LEVEL_TIERED.setProgress(player, (int) playerLvl);
     }
 
+    @Nonnull
+    public ExperienceColor getExperienceColor(long level) {
+        return ExperienceColor.getByLevel(level);
+    }
+
+    @Nonnull
+    public String getExpPrefix(long level) {
+        return ChatColor.DARK_GRAY + "[" + getExperienceColor(level).getColor() + level + ChatColor.DARK_GRAY + "]";
+    }
+
+    /**
+     * Performs a player level up.
+     *
+     * @param player - Player.
+     * @param force  - Whenever to force player level up, even if player does not meet the requirements.
+     * @return true if player was leveled up; false otherwise.
+     */
     public boolean levelUp(Player player, boolean force) {
         if (!canLevelUp(player) && !force) {
             return false;
@@ -99,7 +129,7 @@ public class Experience extends DependencyInjector<Main> {
         final ExperienceEntry exp = getDatabaseEntry(player);
 
         final long currentLevel = exp.get(ExperienceEntry.Type.LEVEL);
-        final long nextLevel = Math.min(currentLevel + 1, MAX_LEVEL);
+        final long nextLevel = Math.min(currentLevel + 1, getMaxLevel());
 
         if (nextLevel <= 1) {
             // don't level to lvl 1
@@ -107,8 +137,8 @@ public class Experience extends DependencyInjector<Main> {
         }
 
         exp.set(ExperienceEntry.Type.LEVEL, nextLevel);
-        fixRewards(player);
 
+        fixRewards(player);
         displayRewardMessage(player, nextLevel);
         return true;
     }
@@ -124,10 +154,16 @@ public class Experience extends DependencyInjector<Main> {
         Chat.sendMessage(player, "");
     }
 
+    public long getMaxLevel() {
+        return ExperienceEntry.Type.LEVEL.getMaxValue();
+    }
+
+    @Nullable
     public List<Reward> getRewards(long level) {
-        if (level < 1 || level > MAX_LEVEL) {
-            return Lists.newArrayList();
+        if (level < 1 || level > getMaxLevel()) {
+            return null;
         }
+
         return experienceLevelMap.get(level).getRewards();
     }
 
@@ -145,7 +181,7 @@ public class Experience extends DependencyInjector<Main> {
      * @return progress from 0 to 1.
      */
     public float getProgress(Player player) {
-        return (float) (getExpScaled(player)) / (float) (getExpScaledNext(player));
+        return Numbers.clamp((float) (getExpScaled(player)) / (float) (getExpScaledNext(player)), 0.0f, 1.0f);
     }
 
     /**
@@ -179,10 +215,6 @@ public class Experience extends DependencyInjector<Main> {
         return Manager.current().getOrCreateProfile(player).getDatabase().getExperienceEntry();
     }
 
-    public Map<Long, ExperienceLevel> getLevels() {
-        return experienceLevelMap;
-    }
-
     public long getLevel(Player player) {
         return getDatabaseEntry(player).get(ExperienceEntry.Type.LEVEL);
     }
@@ -198,8 +230,8 @@ public class Experience extends DependencyInjector<Main> {
 
     public String getProgressBar(Player player) {
         final float progress = getProgress(player);
-        final int bars = (int) (progress * 20);
-        final int empty = 20 - bars;
+        final int bars = (int) (progress * progressBarCount);
+        final int empty = progressBarCount - bars;
 
         final String bar = "&a" + Strings.repeat("|", bars);
         final String emptyBar = "&c" + Strings.repeat("|", empty);
@@ -207,10 +239,45 @@ public class Experience extends DependencyInjector<Main> {
         return bar + emptyBar;
     }
 
+    /**
+     * Returns a feed of 5 closest levels.
+     * The array <b>always</b> contains 5 levels.
+     * <p>
+     * Array structure:
+     * <pre>
+     *     [n-1, n, n+1, n+2, n+3]
+     * </pre>
+     *
+     * @param currentLevel - Current level.
+     * @return an arrow with 5 closest {@link ExperienceLevel} to the currentLevel.
+     */
+    @Nonnull
+    public ExperienceLevel[] getLevelFeed(long currentLevel) {
+        final ExperienceLevel[] levels = new ExperienceLevel[5];
+        long feedEnd = Math.min(currentLevel + 3, getMaxLevel());
+
+        // Keep a feed end at least 5
+        while (feedEnd < 5) {
+            feedEnd++;
+        }
+
+        for (int i = 0; i < 5; i++) {
+            final long level = Math.max(feedEnd - i, getMinLevel());
+            levels[4 - i] = getLevel(level);
+        }
+
+        return levels;
+    }
+
+    public long getMinLevel() {
+        return 1;
+    }
+
     private void setupMap() {
         long currentExp = 0;
-        for (long i = 1; i <= MAX_LEVEL; i++) {
-            if (i > 1) {
+
+        for (long level = 1; level <= getMaxLevel(); level++) {
+            if (level > 1) {
                 currentExp = (long) (currentExp * 1.2 + 100);
                 if (currentExp % 10 < 5) {
                     currentExp += 5 - currentExp % 10;
@@ -220,19 +287,38 @@ public class Experience extends DependencyInjector<Main> {
                 }
             }
 
-            final long points = (i > 1 && i % 5 == 0) ? 4 : 2;
+            final boolean isPrestige = level % 5 == 0;
+            final ExperienceColor color = getExperienceColor(level);
 
-            experienceLevelMap.put(i, new ExperienceLevel(i, currentExp));
+            final ExperienceLevel experienceLevel = new ExperienceLevel(level, currentExp);
+
+            if (isPrestige) {
+                experienceLevel.addReward(new Reward("Prestige Color") {
+                    @Override
+                    public void display(@Nonnull Player player, @Nonnull ItemBuilder builder) {
+                        builder.addLore(BULLET + color + " &7prestige color");
+                    }
+
+                    @Override
+                    public void grantReward(@Nonnull Player player) {
+                    }
+
+                    @Override
+                    public void revokeReward(@Nonnull Player player) {
+                    }
+                });
+            }
+
+            experienceLevelMap.put(level, experienceLevel);
         }
     }
 
     private void setupRewards() {
-        final IntInt i = new IntInt(1);
-        for (ExperienceLevel value : experienceLevelMap.values()) {
-        }
+        // Manual rewards
+        setReward(1, Reward.cosmetics(Cosmetics.PEACE));
+        setReward(2, Reward.cosmetics(Cosmetics.EMERALD_EXPLOSION));
 
-        setReward(7, Reward.create("Random Test Reward"));
-
+        // Hero unlocks
         for (Heroes value : Heroes.values()) {
             final long minLevel = value.getHero().getMinimumLevel();
             if (minLevel > 0) {
@@ -252,7 +338,7 @@ public class Experience extends DependencyInjector<Main> {
     }
 
     private void updateProgressBar(Player player) {
-        final float progress = Numbers.clamp(getProgress(player), 0.0f, 1.0f);
+        final float progress = getProgress(player);
 
         player.setLevel((int) getLevel(player));
         player.setExp(progress);

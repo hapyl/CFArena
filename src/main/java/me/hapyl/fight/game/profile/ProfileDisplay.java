@@ -1,14 +1,16 @@
 package me.hapyl.fight.game.profile;
 
+import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CosmeticEntry;
 import me.hapyl.fight.database.entry.ExperienceEntry;
 import me.hapyl.fight.database.rank.RankFormatter;
-import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.PrefixCosmetic;
 import me.hapyl.fight.game.cosmetic.Type;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -16,8 +18,6 @@ import org.bukkit.entity.Player;
 import javax.annotation.Nonnull;
 
 public class ProfileDisplay {
-
-    private static final String FORMAT = "&b[{Level}] {Prefix}{Rank}{Name}";
 
     private final PlayerProfile profile;
     private final CosmeticEntry cosmetics;
@@ -42,9 +42,16 @@ public class ProfileDisplay {
 
     @Override
     public String toString() {
-        final StringBuilder builder = new StringBuilder();
+        return getFormat() + customName;
+    }
 
-        builder.append("&b[").append(level).append("&b] ");
+    @Nonnull
+    public String getFormat() {
+        final StringBuilder builder = new StringBuilder();
+        final Experience experience = Main.getPlugin().getExperience();
+
+        // Append level
+        builder.append(experience.getExpPrefix(level)).append(" ");
 
         final GamePlayer gamePlayer = profile.getGamePlayer();
 
@@ -72,7 +79,7 @@ public class ProfileDisplay {
             builder.append(rankPrefix).append(" ");
         }
 
-        builder.append(rank.nameColor()).append(customName);
+        builder.append(rank.nameColor());
 
         return Chat.format(builder);
     }
@@ -85,10 +92,16 @@ public class ProfileDisplay {
         return Chat.format("%s %s", this, formatPing());
     }
 
+    @Nonnull
     public String getPrefixPreview(@Nonnull PrefixCosmetic prefix) {
         final RankFormatter format = profile.getRank().getFormat();
 
         return prefix.getPrefix() + " " + format.prefix() + format.nameColor() + " " + profile.getPlayer().getName();
+    }
+
+    @Nonnull
+    public ChatColor getColor() {
+        return rank.nameColor();
     }
 
     @Nonnull
@@ -99,6 +112,11 @@ public class ProfileDisplay {
 
     private String formatPing() {
         final int ping = profile.getPlayer().getPing();
+
+        // Loading or localhost
+        if (ping == 0) {
+            return "&e🔃";
+        }
 
         if (ping <= 100) {
             return "&a" + ping + "ms";

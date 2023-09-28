@@ -2,7 +2,7 @@ package me.hapyl.fight.game.effect.archive;
 
 import me.hapyl.fight.game.effect.GameEffect;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.CFUtils;
 import org.bukkit.potion.PotionEffectType;
 
 public class Invisibility extends GameEffect {
@@ -14,13 +14,13 @@ public class Invisibility extends GameEffect {
 
     @Override
     public void onStart(LivingGameEntity entity) {
-        entity.asPlayer(Utils::hidePlayer);
+        entity.asPlayer(CFUtils::hidePlayer);
         entity.addPotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1);
     }
 
     @Override
     public void onStop(LivingGameEntity entity) {
-        entity.asPlayer(Utils::showPlayer);
+        entity.asPlayer(CFUtils::showPlayer);
         entity.removePotionEffect(PotionEffectType.INVISIBILITY);
     }
 

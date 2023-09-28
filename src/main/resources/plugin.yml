@@ -6,4 +6,4 @@ description: ${description}
 depend: [ "EternaAPI", "ProtocolLib" ]
 authors: [ "hapyl", "sdimas74", "DiDenPro", "DirtyEl" ]
 website: "hapyl.github.io/classes_fight"
-prefix: "ClassesFightArena"
+prefix: "CF"

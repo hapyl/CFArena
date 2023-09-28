@@ -2,7 +2,11 @@ package me.hapyl.fight.game.heroes.archive.shaman;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.ComplexHero;
+import me.hapyl.fight.game.heroes.DisabledHero;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.archive.shaman.ActiveTotem;
@@ -24,7 +28,7 @@ public class Shaman extends Hero implements ComplexHero, DisabledHero {
 
         final Equipment equipment = getEquipment();
 
-        equipment.setChestplate(110, 94, 74);
+        equipment.setChestPlate(110, 94, 74);
         equipment.setLeggings(57, 40, 90);
     }
 

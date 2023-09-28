@@ -1,30 +1,23 @@
 package me.hapyl.fight.game.heroes.archive.mage;
 
-import me.hapyl.fight.CF;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
-import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Equipment;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.ui.UIComponent;
-import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
-import org.bukkit.Sound;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -76,51 +69,11 @@ public class Mage extends Hero implements UIComponent {
         setItem("f41e6e4bcd2667bb284fb0dde361894840ea782efbfb717f6244e06b951c2b3f");
 
         final Equipment equipment = this.getEquipment();
-        equipment.setChestplate(82, 12, 135, TrimPattern.VEX, TrimMaterial.AMETHYST);
+        equipment.setChestPlate(82, 12, 135, TrimPattern.VEX, TrimMaterial.AMETHYST);
         equipment.setLeggings(82, 12, 135, TrimPattern.TIDE, TrimMaterial.AMETHYST);
         equipment.setBoots(Material.NETHERITE_BOOTS, TrimPattern.TIDE, TrimMaterial.AMETHYST);
 
-        setWeapon(new Weapon(Material.IRON_HOE) {
-            @Override
-            public void onRightClick(Player player, ItemStack item) {
-                if (player.hasCooldown(Material.IRON_HOE)) {
-                    return;
-                }
-
-                final int souls = getSouls(player);
-                if (souls <= 0) {
-                    PlayerLib.playSound(player, Sound.ENTITY_PLAYER_BURP, 2.0f);
-                    return;
-                }
-
-                addSouls(player, -1);
-                player.setCooldown(Material.IRON_HOE, 10);
-                PlayerLib.playSound(player, Sound.BLOCK_SOUL_SAND_BREAK, 0.75f);
-                Utils.rayTraceLine(player, 50, 0.5, -1.0d, this::spawnParticles, entity -> hitEnemy(entity, player));
-
-            }
-
-            private void spawnParticles(Location location) {
-                PlayerLib.spawnParticle(location, Particle.SOUL, 1, 0.1d, 0.0d, 0.1d, 0.035f);
-            }
-
-            private void hitEnemy(LivingEntity livingEntity, Player player) {
-                final Location location = livingEntity.getLocation();
-                livingEntity.addScoreboardTag("LastDamage=Soul");
-
-                CF.getEntityOptional(livingEntity).ifPresent(entity -> {
-                    entity.damage(getDamage(), CF.getPlayer(player), EnumDamageCause.SOUL_WHISPER);
-                });
-
-                PlayerLib.spawnParticle(location, Particle.SOUL, 8, 0, 0, 0, 0.10f);
-                PlayerLib.spawnParticle(location, Particle.SOUL_FIRE_FLAME, 10, 0, 0, 0, 0.25f);
-            }
-
-        }.setDamage(10.0d)
-                .setName("Soul Eater")
-                .setDescription(
-                        "A weapon capable of absorbing soul fragments and convert them into fuel.____&e&lRIGHT CLICK &7to shoot a soul laser.")
-                .setId("soul_eater"));
+        setWeapon(new MageWeapon(this));
 
         setUltimate(new UltimateTalent(
                 "Magical Trainings",
@@ -148,7 +101,7 @@ public class Mage extends Hero implements UIComponent {
     public DamageOutput processDamageAsDamager(DamageInput input) {
         final LivingGameEntity victim = input.getEntity();
         final Player player = input.getDamagerAsBukkitPlayer();
-        
+
         if (!victim.hasTag("LastDamage=Soul")) {
             addSouls(player, 1);
         }
@@ -162,11 +115,11 @@ public class Mage extends Hero implements UIComponent {
         soulsCharge.remove(player);
     }
 
-    private void addSouls(Player player, int amount) {
+    public void addSouls(Player player, int amount) {
         this.soulsCharge.put(player, Numbers.clamp(getSouls(player) + amount, 0, maxSoulsAmount));
     }
 
-    private int getSouls(Player player) {
+    public int getSouls(Player player) {
         return soulsCharge.getOrDefault(player, 0);
     }
 

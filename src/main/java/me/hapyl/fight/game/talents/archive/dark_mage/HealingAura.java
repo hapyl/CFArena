@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.archive.dark_mage;
 
-import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.archive.dark_mage.DarkMageSpell;
 import me.hapyl.fight.game.heroes.archive.witcher.WitherData;
 import me.hapyl.fight.game.task.GameTask;
@@ -75,7 +75,7 @@ public class HealingAura extends DarkMageTalent {
                 if ((tick % 20) == 0) {
                     Collect.nearbyPlayers(location, radius).forEach(target -> {
                         target.heal(2.0d);
-                        target.playSound(Sound.BLOCK_GRASS_HIT, 1.0f);
+                        target.playPlayerSound(Sound.BLOCK_GRASS_HIT, 1.0f);
                     });
                     PlayerLib.spawnParticle(location, Particle.HEART, 5, 1, 0.2, 1, 0.01f);
                 }

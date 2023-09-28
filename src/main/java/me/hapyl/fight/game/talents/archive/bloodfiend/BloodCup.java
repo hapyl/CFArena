@@ -66,7 +66,7 @@ public class BloodCup extends Talent implements HeroReference<Bloodfiend> {
         CF.getPlayerOptional(player).ifPresent(gamePlayer -> {
             gamePlayer.heal(healing);
             gamePlayer.sendMessage("&4&l🩸 &aHealed for &c%s &c❤&a!", healing);
-            gamePlayer.playSound(Sound.BLOCK_BREWING_STAND_BREW, 0.0f);
+            gamePlayer.playPlayerSound(Sound.BLOCK_BREWING_STAND_BREW, 0.0f);
         });
 
         data.clearBlood();

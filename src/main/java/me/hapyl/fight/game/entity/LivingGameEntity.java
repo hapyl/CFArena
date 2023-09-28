@@ -14,16 +14,17 @@ import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
 import me.hapyl.fight.game.entity.cooldown.EntityCooldown;
+import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.display.BuffDisplay;
 import me.hapyl.fight.game.ui.display.DebuffDisplay;
 import me.hapyl.fight.game.ui.display.StringDisplay;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.annotate.Super;
+import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.Numbers;
+import me.hapyl.spigotutils.module.math.geometry.Draw;
 import me.hapyl.spigotutils.module.player.PlayerLib;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Particle;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Creature;
@@ -35,22 +36,46 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 public class LivingGameEntity extends GameEntity {
 
+    private static final Draw FEROCITY_PARTICLE_DATA = new Draw(null) {
+        @Override
+        public void draw(Location location) {
+            final World world = location.getWorld();
+
+            if (world == null) {
+                return;
+            }
+
+            world.spawnParticle(
+                    Particle.DUST_COLOR_TRANSITION,
+                    location,
+                    1,
+                    0,
+                    0,
+                    0,
+                    new Particle.DustTransition(Color.fromRGB(77, 2, 8), Color.fromRGB(181, 43, 54), 1)
+            );
+        }
+    };
+
     protected final EntityData entityData;
     private final Set<EnumDamageCause> immunityCauses = Sets.newHashSet();
     private final EntityMetadata metadata;
+    private final EntityCooldown cooldown;
+    private final Random random;
+
     @Nonnull
     protected EntityAttributes attributes;
-    protected boolean wasHit; // Used to check if player was hit by custom damage
+    protected boolean wasHit; // Used to check if an entity was hit by custom damage
     protected double health;
     @Nonnull protected EntityState state;
     private Shield shield;
-    private final EntityCooldown cooldown;
 
     public LivingGameEntity(@Nonnull LivingEntity entity) {
         this(entity, new Attributes(entity));
@@ -65,9 +90,22 @@ public class LivingGameEntity extends GameEntity {
         this.state = EntityState.ALIVE;
         this.metadata = new EntityMetadata();
         this.cooldown = new EntityCooldown(this);
+        this.random = new Random();
         super.base = false;
 
+        // The actual health of the entity is set to 0.1 to remove the weird
+        // hearts when it dies, since the health is not actually decreased.
+        // Could really make it so entity actually has the health,
+        // but I'm pretty sure the max health is 2048, which is wack
         entity.setHealth(0.1d);
+
+        updateAttributes();
+    }
+
+    public void updateAttributes() {
+        attributes.forEach((type, d) -> {
+            type.attribute.update(this, d);
+        });
     }
 
     /**
@@ -179,6 +217,7 @@ public class LivingGameEntity extends GameEntity {
         final int maximumNoDamageTicks = entity.getMaximumNoDamageTicks();
         tick = Numbers.clamp(tick, 0, maximumNoDamageTicks);
 
+        entity.setNoDamageTicks(0);
         entity.setMaximumNoDamageTicks(tick);
         damage(damage, damager, cause == null ? EnumDamageCause.ENTITY_ATTACK : cause);
         entity.setMaximumNoDamageTicks(maximumNoDamageTicks);
@@ -189,6 +228,9 @@ public class LivingGameEntity extends GameEntity {
     }
 
     public void heal(double amount) {
+        final EntityAttributes attributes = getAttributes();
+        amount = attributes.calculateHealing(amount);
+
         this.health = Numbers.clamp(health + amount, 0.5d, getMaxHealth());
 
         // Fx
@@ -385,6 +427,7 @@ public class LivingGameEntity extends GameEntity {
 
     public double getAttributeValue(Attribute attribute) {
         final AttributeInstance instance = entity.getAttribute(attribute);
+
         if (instance == null) {
             return 0.0d;
         }
@@ -450,11 +493,11 @@ public class LivingGameEntity extends GameEntity {
             creature.setTarget(entity);
         }
     }
+    // this spawns globally
 
     public void setTarget(@Nullable LivingGameEntity entity) {
         setTarget(entity == null ? null : entity.getEntity());
     }
-    // this spawns globally
 
     public void spawnWorldParticle(Location location, Particle particle, int amount, double x, double y, double z, float speed) {
         PlayerLib.spawnParticle(location, particle, amount, x, y, z, speed);
@@ -515,5 +558,47 @@ public class LivingGameEntity extends GameEntity {
 
     public void startCooldown(@Nonnull Cooldown cooldown) {
         this.cooldown.startCooldown(cooldown);
+    }
+
+    public void executeFerocity(double damage, LivingGameEntity lastDamager, int ferocityStrikes) {
+        if (hasCooldown(Cooldown.FEROCITY)) {
+            return;
+        }
+
+        PlayerLib.playSound(getLocation(), Sound.ITEM_FLINTANDSTEEL_USE, 0.0f);
+
+        for (int i = 0; i < ferocityStrikes; i++) {
+            GameTask.runLater(() -> damageFerocity(damage, lastDamager), i * 3 + 13);
+        }
+
+        startCooldown(Cooldown.FEROCITY);
+    }
+
+    public void damageFerocity(double damage, LivingGameEntity lastDamager) {
+        if (isDead()) {
+            return;
+        }
+
+        // Ferocity knock-back is kinda crazy, using this little hack to remove it.
+        entityData.setLastDamager(lastDamager);
+        damageTick(damage, (LivingGameEntity) null, EnumDamageCause.FEROCIY, 1);
+
+        // Fx
+        final Location location = getLocation();
+
+        PlayerLib.playSound(location, Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 1.75f);
+        PlayerLib.playSound(location, Sound.ENTITY_DONKEY_HURT, 1.25f);
+
+        final double eyeHeight = entity.getEyeHeight();
+
+        final double x = randomDouble(0.5d, 1.25d);
+        final double z = randomDouble(0.5d, 1.25d);
+
+        Geometry.drawLine(location.clone().add(x, eyeHeight, z), location.clone().subtract(x, 0, z), 0.2d, FEROCITY_PARTICLE_DATA);
+    }
+
+    private double randomDouble(double origin, double bound) {
+        final double value = random.nextDouble(origin, bound);
+        return random.nextBoolean() ? value : -value;
     }
 }

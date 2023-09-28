@@ -60,7 +60,7 @@ public class AchievementEntry extends PlayerDatabaseEntry {
         return getValue("achievement.%s.completed_at".formatted(achievement.getId()), 0L);
     }
 
-    private void setCompleteCount(Achievement achievement, int count) {
+    public void setCompleteCount(Achievement achievement, int count) {
         if (count <= 0) {
             setValue("achievement.%s".formatted(achievement.getId()), null);
             return;

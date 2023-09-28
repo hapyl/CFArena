@@ -7,9 +7,9 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.taker.Taker;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
@@ -131,7 +131,7 @@ public class TakerHook {
         Nulls.runIfNotNull(taskExtend, GameTask::cancel);
         Nulls.runIfNotNull(taskContract, GameTask::cancel);
 
-        Utils.clearCollection(chains);
+        CFUtils.clearCollection(chains);
 
         player.removePotionEffect(PotionEffectType.SLOW);
         player.removePotionEffect(PotionEffectType.JUMP);
@@ -200,7 +200,7 @@ public class TakerHook {
             self.setVisible(false);
             self.setSilent(true);
 
-            Utils.setEquipment(self, equipment -> {
+            CFUtils.setEquipment(self, equipment -> {
                 equipment.setHelmet(new ItemStack(Material.CHAIN));
                 self.setHeadPose(new EulerAngle(Math.toRadians(location.getPitch() + 90.0d), 0.0d, 0.0d));
             });

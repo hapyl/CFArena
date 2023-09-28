@@ -1,23 +1,22 @@
 package me.hapyl.fight.game.heroes.archive.moonwalker;
 
-import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.archive.moonwalker.MoonPillarTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
-import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
-import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
@@ -39,40 +38,11 @@ public class Moonwalker extends Hero implements PlayerElement, UIComponent {
         final HeroAttributes attributes = getAttributes();
 
         final Equipment equipment = getEquipment();
-        equipment.setChestplate(255, 255, 255);
+        equipment.setChestPlate(255, 255, 255);
         equipment.setLeggings(186, 186, 186);
         equipment.setBoots(105, 105, 105);
 
-        this.setWeapon(new Weapon(Material.BOW) {
-            @Override
-            public void onLeftClick(Player player, ItemStack item) {
-                if (player.hasCooldown(Material.BOW)) {
-                    return;
-                }
-
-                final Arrow arrow = player.launchProjectile(Arrow.class);
-                arrow.setDamage(this.getDamage() / 2.0d);
-                arrow.setCritical(false);
-                arrow.setShooter(player);
-
-                GamePlayer.setCooldown(player, Material.BOW, 20);
-
-                // fx
-                PlayerLib.playSound(player, Sound.ENTITY_ARROW_SHOOT, 1.25f);
-            }
-        }
-                .setName("Stinger")
-                // There are no words to describe how much I hate java's
-                // string formatter being %.
-                // Honestly, it's just easier to rewrite everything using {} -h
-                .setDescription("""
-                        A unique bow made of unknown materials, seems to have two firing modes.
-                        &e&lLEFT &e&lCLICK &7to fire quick arrow that deals 50% of normal damage.
-                        """)
-                .setDamage(4.5d)
-                .setId("MOON_WEAPON"));
-
-        // moved to its own class because it was unreadable lol
+        setWeapon(new MoonwalkerWeapon());
         setUltimate(new MoonwalkerUltimate());
     }
 

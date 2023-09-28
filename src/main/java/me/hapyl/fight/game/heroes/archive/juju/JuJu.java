@@ -4,7 +4,10 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
-import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroPlaque;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -62,7 +65,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
         setItem("9dcff46588f394987979b7dd770adea94d8ee1fb1f7b8704e1baf91227f6a4d");
 
         final Equipment equipment = getEquipment();
-        equipment.setChestplate(62, 51, 40);
+        equipment.setChestPlate(62, 51, 40);
         equipment.setLeggings(62, 51, 40);
         equipment.setBoots(16, 13, 10);
 

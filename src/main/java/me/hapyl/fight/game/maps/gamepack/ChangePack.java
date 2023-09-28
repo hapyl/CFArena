@@ -2,17 +2,20 @@ package me.hapyl.fight.game.maps.gamepack;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 
 public class ChangePack extends GamePack {
 
-    private final BlockData BLOCK_DATA = Material.TUBE_CORAL_BLOCK.createBlockData();
+    public static final Particle.DustTransition DUST_TRANSITION = new Particle.DustTransition(
+            Color.fromRGB(2, 32, 79),
+            Color.fromRGB(33, 55, 89),
+            1
+    );
     private final int CHARGE_POINTS = 10;
 
     public ChangePack() {
@@ -32,12 +35,12 @@ public class ChangePack extends GamePack {
 
     @Override
     public void displayParticle(Location location) {
-        final World world = Utils.getWorld(location);
+        final World world = CFUtils.getWorld(location);
 
         final Location front = LocationHelper.getInFront(location, 0.5d);
         final Location back = LocationHelper.getBehind(location, 0.5d);
 
-        world.spawnParticle(Particle.FALLING_DUST, front, 1, 0, 0, 0, 0, BLOCK_DATA);
-        world.spawnParticle(Particle.FALLING_DUST, back, 1, 0, 0, 0, 0, BLOCK_DATA);
+        world.spawnParticle(Particle.DUST_COLOR_TRANSITION, front, 1, 0, 0, 0, 0, DUST_TRANSITION);
+        world.spawnParticle(Particle.DUST_COLOR_TRANSITION, back, 1, 0, 0, 0, 0, DUST_TRANSITION);
     }
 }

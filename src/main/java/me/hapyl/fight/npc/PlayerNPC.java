@@ -31,6 +31,6 @@ public class PlayerNPC extends PersistentNPC {
     }
 
     public final void create() {
-        super.create(player);
+        super.show(player);
     }
 }

@@ -4,9 +4,9 @@ import com.google.common.collect.Sets;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Direction;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.math.Tick;
@@ -120,7 +120,7 @@ public class Geyser {
 
     public void createEntities() {
         Entities.ARMOR_STAND_MARKER.spawn(spawnLocation, self -> {
-            Utils.setEquipment(self, equipment -> equipment.setHelmet(ItemBuilder.playerHeadUrl(texture).asIcon()));
+            CFUtils.setEquipment(self, equipment -> equipment.setHelmet(ItemBuilder.playerHeadUrl(texture).asIcon()));
             self.setHeadPose(direction.toEulerAngle());
         });
     }

@@ -1,15 +1,14 @@
 package me.hapyl.fight.game.heroes.archive.techie;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Geometry;
@@ -92,7 +91,7 @@ public class Lockdown {
                     int lockdownRadius = Heroes.TECHIE.getHero(Techie.class).LOCKDOWN_RADIUS;
 
                     Collect.nearbyPlayers(Lockdown.this.location, lockdownRadius).forEach(target -> {
-                        target.playSound(Sound.BLOCK_BEACON_AMBIENT, 2.0f);
+                        target.playPlayerSound(Sound.BLOCK_BEACON_AMBIENT, 2.0f);
                         target.sendWarning("Lockdown Warning!", 5);
                     });
 
@@ -174,7 +173,7 @@ public class Lockdown {
             me.setHealth(HEALTH);
             me.addScoreboardTag("LockdownDevice");
 
-            Utils.lockArmorStand(me);
+            CFUtils.lockArmorStand(me);
             Nulls.runIfNotNull(me.getEquipment(), eq -> eq.setHelmet(new ItemStack(Material.DAYLIGHT_DETECTOR)));
         });
     }

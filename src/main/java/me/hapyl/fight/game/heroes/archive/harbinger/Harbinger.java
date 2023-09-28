@@ -6,16 +6,16 @@ import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.entity.GameEntity;
-import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Equipment;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.archive.harbinger.StanceData;
 import me.hapyl.fight.game.talents.archive.harbinger.MeleeStance;
+import me.hapyl.fight.game.talents.archive.harbinger.StanceData;
 import me.hapyl.fight.game.talents.archive.harbinger.TidalWaveTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
@@ -60,7 +60,7 @@ public class Harbinger extends Hero implements Listener, UIComponent {
         setItem("22a1ac2a8dd48c371482806b3963571952997a5712806e2c8060b8e7777754");
 
         final Equipment equipment = getEquipment();
-        equipment.setChestplate(82, 82, 76);
+        equipment.setChestPlate(82, 82, 76);
         equipment.setLeggings(54, 48, 48);
         equipment.setBoots(183, 183, 180);
 

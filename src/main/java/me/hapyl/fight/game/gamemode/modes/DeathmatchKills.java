@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.gamemode.modes;
 
 import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.GameResult;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.team.GameTeam;
@@ -22,7 +22,7 @@ public class DeathmatchKills extends CFGameMode {
     }
 
     public DeathmatchKills() {
-        this("Kills Deathmatch", 1800, 10);
+        this("K Deathmatch", 1800, 10);
 
         setDescription("""
                 Free for All death-match when everyone is fighting for kills.

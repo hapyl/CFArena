@@ -4,8 +4,8 @@ import com.google.common.collect.Lists;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.archive.taker.SpiritualBonesPassive;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -66,7 +66,7 @@ public class SpiritualBones implements Ticking {
     }
 
     public void clearArmorStands() {
-        Utils.clearCollection(armorStands);
+        CFUtils.clearCollection(armorStands);
         theta = 0.0f;
         yaw = 0.0f;
     }
@@ -134,7 +134,7 @@ public class SpiritualBones implements Ticking {
                 self.setSilent(true);
                 self.setHeadPose(new EulerAngle(0.0d, 0.0d, Math.toRadians(90.0d)));
 
-                Utils.setEquipment(self, equipment -> equipment.setHelmet(ItemBuilder.of(Material.BONE).asIcon()));
+                CFUtils.setEquipment(self, equipment -> equipment.setHelmet(ItemBuilder.of(Material.BONE).asIcon()));
             }));
         }
     }

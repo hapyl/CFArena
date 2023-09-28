@@ -56,7 +56,7 @@ public final class HumanManager implements Listener {
     public void updateAll(Player player) {
         Runnables.runLater(() -> {
             for (PersistentNPCs npc : PersistentNPCs.values()) {
-                npc.getNpc().create(player);
+                npc.getNpc().show(player);
             }
         }, 10L);
     }

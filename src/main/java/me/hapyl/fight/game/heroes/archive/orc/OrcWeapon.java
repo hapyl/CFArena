@@ -6,7 +6,10 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.Cooldown;
+import me.hapyl.fight.game.weapons.RightClickable;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.game.weapons.ability.Ability;
+import me.hapyl.fight.game.weapons.ability.AbilityType;
 import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
@@ -20,7 +23,7 @@ import org.bukkit.potion.PotionEffectType;
 import javax.annotation.Nonnull;
 import java.util.Map;
 
-public class OrcWeapon extends Weapon implements Cooldown {
+public class OrcWeapon extends Weapon implements Cooldown, RightClickable {
 
     private final Map<Player, OrcWeaponEntity> thrownAxe;
 
@@ -30,22 +33,22 @@ public class OrcWeapon extends Weapon implements Cooldown {
         thrownAxe = Maps.newHashMap();
 
         setName("Poleaxe");
-        setDescription("""
-                A sharp poleaxe.
-                                
-                &6&lRIGHT CLICK&e to throw at your enemies.
-                Upon hitting an enemy, it drastically slows them and deals damage before returning to you.
-                                
-                Upon hitting a block, stay in a block for a while before returning to you.
-                """);
-
+        setDescription("A sharp poleaxe.");
         setDamage(12.0d);
         setAttackSpeed(-2.5d);
         setId("orc_axe");
+
+        setAbility(AbilityType.RIGHT_CLICK, Ability.of("Throw", """
+                Throw your poleaxe at your enemies!
+                                
+                Upon hitting an enemy, it drastically slows them and deals damage before returning to you.
+                                
+                Upon hitting a block, stay in a block for a while before returning to you.
+                """, this));
     }
 
     @Override
-    public void onRightClick(Player player, ItemStack item) {
+    public void onRightClick(@Nonnull Player player, @Nonnull ItemStack item) {
         final Location location = player.getLocation();
         final Weapon weapon = Heroes.ORC.getHero().getWeapon();
 

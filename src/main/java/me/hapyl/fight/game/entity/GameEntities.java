@@ -4,7 +4,9 @@ import me.hapyl.fight.game.entity.custom.*;
 import me.hapyl.fight.game.entity.custom.genie.Genie;
 import me.hapyl.fight.game.entity.custom.voids.VoidAbomination;
 import org.bukkit.Location;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Pig;
+import org.bukkit.entity.PigZombie;
+import org.bukkit.entity.Zombie;
 
 import javax.annotation.Nonnull;
 
@@ -25,6 +27,10 @@ public enum GameEntities {
 
     // Void
     VOID_ABOMINATION(new VoidAbomination()),
+
+    // Overlay
+    SLIME_GIRL(new Slimegirl()),
+    INQUISITOR(new Inquisitor()),
 
     ;
 

@@ -51,7 +51,7 @@ public class Deathmatch extends CFGameMode {
         final GameTeam playerTeam = gamePlayer.getTeam();
         final Map<GameTeam, Integer> topKills = getTopTeamKills(instance, SCOREBOARD_DISPLAY_LIMIT);
 
-        builder.addLines("", "&6&lDeathmatch: &f(&b🗡 &l%s&f)".formatted(playerTeam.kills));
+        builder.addLines("", "&6&l%s: &f(&b🗡 &l%s&f)".formatted(getName(), playerTeam.kills));
 
         final IntInt i = new IntInt(1);
         topKills.forEach((team, kills) -> {
@@ -103,29 +103,41 @@ public class Deathmatch extends CFGameMode {
         gamePlayer.setState(EntityState.DEAD);
 
         Chat.broadcast("");
-        Chat.broadcast("&c%s left the game. They may rejoin and continue playing!", player.getName());
+        Chat.broadcast(ChatColor.RED + "%s left the game.", player.getName());
+        Chat.broadcast(ChatColor.RED + "They may rejoin and continue playing!");
         Chat.broadcast("");
     }
 
     @Override
     public void onJoin(@Nonnull GameInstance instance, @Nonnull Player player) {
-        final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
+        GamePlayer gamePlayer = CF.getPlayer(player);
+        final PlayerProfile profile = PlayerProfile.getOrCreateProfile(player);
+        final String playerName = player.getName();
 
-        // If player was spectator, don't respawn them
-        if (!gamePlayer.isSpectator()) {
-            // supply to profile
-            final PlayerProfile profile = PlayerProfile.getProfile(player);
-            if (profile != null) {
-                profile.createGamePlayer();
-            }
+        // Player joined while the game is in progress
+        if (gamePlayer == null) {
+            player.setGameMode(GameMode.SPECTATOR);
 
+            gamePlayer = profile.createGamePlayer();
+            gamePlayer.resetPlayer();
+            gamePlayer.respawnIn(60);
+
+            Chat.broadcast("");
+            Chat.broadcast(ChatColor.GREEN + "%s joined the game!", playerName);
+            Chat.broadcast(ChatColor.GREEN + "They will be playing with you.");
+            Chat.broadcast("");
+        }
+        // Player re-joined
+        else {
             gamePlayer.setHandle(player);
+            profile.setGamePlayer(gamePlayer);
+
+            Chat.broadcast("");
+            Chat.broadcast(ChatColor.GREEN + "%s rejoined the game!", playerName);
+            Chat.broadcast("");
+
             gamePlayer.respawnIn(60);
         }
-
-        Chat.broadcast("");
-        Chat.broadcast("&a%s rejoined the game!", player.getName());
-        Chat.broadcast("");
     }
 
     @Override

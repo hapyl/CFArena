@@ -12,7 +12,7 @@ import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.archive.bloodfiend.BloodCup;
 import me.hapyl.fight.game.talents.archive.bloodfiend.BloodfiendPassive;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.ThreadRandom;
@@ -145,7 +145,7 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
             }
 
             // Fx
-            Chat.sendTitle(player, "", "&2\uD83D\uDD4A &l" + Utils.decimalFormatTick(flightTime), 0, 5, 0);
+            Chat.sendTitle(player, "", "&2\uD83D\uDD4A &l" + CFUtils.decimalFormatTick(flightTime), 0, 5, 0);
         }
     }
 

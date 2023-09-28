@@ -3,11 +3,12 @@ package me.hapyl.fight.game.heroes.archive.shark;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Equipment;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -43,7 +44,7 @@ public class Shark extends Hero implements Listener {
         setItem("3447e7e8271f573969f2da734c4125f93b2864fb51db69da5ecba7487cf882b0");
 
         final Equipment equipment = getEquipment();
-        equipment.setChestplate(116, 172, 204);
+        equipment.setChestPlate(116, 172, 204);
         equipment.setLeggings(116, 172, 204);
         equipment.setBoots(ItemBuilder.leatherBoots(Color.fromRGB(116, 172, 204))
                 .addEnchant(Enchantment.DEPTH_STRIDER, 5)
@@ -59,6 +60,11 @@ public class Shark extends Hero implements Listener {
                 "Creates a &bShark Aura &7that follow you for {duration} and imitates water.",
                 70
         ).setItem(Material.WATER_BUCKET).setDuration(120).setSound(Sound.AMBIENT_UNDERWATER_ENTER, 0.0f).setCooldownSec(60));
+    }
+
+    @Override
+    public void onStart(Player player) {
+        player.addPotionEffect(EffectType.WATER_BREATHING.getType().createEffect(10000, 1));
     }
 
     @Override
@@ -135,6 +141,7 @@ public class Shark extends Hero implements Listener {
 
         // Perform critical hit and heal the player
         entity.damage(CRITICAL_AMOUNT, player, EnumDamageCause.FEET_ATTACK);
+        entity.addEffect(GameEffectType.BLEED, 60, true);
         player.heal(CRITICAL_AMOUNT);
     }
 

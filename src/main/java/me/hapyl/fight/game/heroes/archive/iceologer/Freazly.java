@@ -6,7 +6,7 @@ import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Equipment;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.task.RaycastTask;
@@ -36,7 +36,7 @@ public class Freazly extends Hero implements DisabledHero {
         setItem("cad7486b5d20823d5c24cba1850a600a7744209899828b19ccf93f69f2187058");
 
         final Equipment equipment = getEquipment();
-        equipment.setChestplate(Color.fromRGB(139, 169, 214));
+        equipment.setChestPlate(Color.fromRGB(139, 169, 214));
         equipment.setLeggings(Color.fromRGB(116, 141, 179));
         equipment.setBoots(Color.fromRGB(45, 54, 69));
 

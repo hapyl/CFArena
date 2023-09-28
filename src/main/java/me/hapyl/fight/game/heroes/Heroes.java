@@ -33,6 +33,7 @@ import me.hapyl.fight.game.heroes.archive.nightmare.Nightmare;
 import me.hapyl.fight.game.heroes.archive.ninja.Ninja;
 import me.hapyl.fight.game.heroes.archive.orc.Orc;
 import me.hapyl.fight.game.heroes.archive.pytaria.Pytaria;
+import me.hapyl.fight.game.heroes.archive.ronin.Ronin;
 import me.hapyl.fight.game.heroes.archive.shadow_assassin.ShadowAssassin;
 import me.hapyl.fight.game.heroes.archive.shaman.Shaman;
 import me.hapyl.fight.game.heroes.archive.shark.Shark;
@@ -103,14 +104,15 @@ public enum Heroes implements Formatted {
     VAMPIRE(new Vampire()),
     BOUNTY_HUNTER(new BountyHunter()),
     SWORD_MASTER(new SwordMaster()),
-    ZEALOT(new Zealot()),
     ENGINEER(new Engineer()),
 
-    // 1.6
+    // 1.6,
     ORC(new Orc()),
 
     // 2.0
     BLOODFIEND(new Bloodfiend()),
+    ZEALOT(new Zealot()),
+    RONIN(new Ronin()),
 
     ;
 

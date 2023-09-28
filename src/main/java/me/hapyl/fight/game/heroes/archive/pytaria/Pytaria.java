@@ -9,7 +9,11 @@ import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -57,6 +61,11 @@ public class Pytaria extends Hero {
         );
         setItem("7bb0752f9fa87a693c2d0d9f29549375feb6f76952da90d68820e7900083f801");
 
+        setSkin(new PlayerSkin(
+                "ewogICJ0aW1lc3RhbXAiIDogMTY3NjUwMjEwMDEyNiwKICAicHJvZmlsZUlkIiA6ICJmODJmNTQ1MDIzZDA0MTFkYmVlYzU4YWI4Y2JlMTNjNyIsCiAgInByb2ZpbGVOYW1lIiA6ICJSZXNwb25kZW50cyIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS83YmIwNzUyZjlmYTg3YTY5M2MyZDBkOWYyOTU0OTM3NWZlYjZmNzY5NTJkYTkwZDY4ODIwZTc5MDAwODNmODAxIiwKICAgICAgIm1ldGFkYXRhIiA6IHsKICAgICAgICAibW9kZWwiIDogInNsaW0iCiAgICAgIH0KICAgIH0KICB9Cn0=",
+                "H3AVcL/7zqHEmsX55h/4LCTRrJ0IZmxHENAhgExVOcyVSLqdT3ln/FE0KjjtyQ2i8IdPUoBYrlm2ln1m7YFRzGGgNbyPKyv9SHwKH1YF1W7gJMK9XxRtoRwagoLSFwTObds0ht/+g9V4SE0KjIbXRWV6kUo/2GRDip08U2TGJS7pbi9StzH+Ro3IgfQveMPESZKr3Gu8bgoygUZJ7Gsxn3WX0Rdj7Xze3k9YiO4nDM554XkHD/q/OlAtca2QCfaib1FJ5oFy67sr+vkyTs9l5lppQs94hSBSt2QatSrPyWReo72Fam6f1+u9t4kqZlei16/5nU2k7tCLE9dJPsnVOTkgqTk0LZHfciQqQbdJ/zG55+17zLWtdtAWRP0iqIdHOqKZq543UwyPQpmxGtQRb3WAiHNWY/cs3o5mjiw+6MtyNsgHkabJ8RG79SKQ25RY/2yUFvhH+aPNMdJkan34Q+XO49ZtMqQCCZPYTMG+I1E+7FUBHrIhTCtyVnP12wDRgmzwJhdqWJAlLyGpMcT41CJ4goXo+qTi+DOl2b7DdhwQTYdGrqP0uIL4ikKCZv68SdxLJuqGBDHT5jMBdm148N78q9Z+7NaBPysDveqbmAMRuHGhcbBYDBPZT5OoNnErmUNR/AEoqlRao0u9xNE/5BGbLT6d+lFj6fnOUWEmn2w="
+        ));
+
         final HeroAttributes attributes = getAttributes();
         attributes.setValue(AttributeType.MAX_HEALTH, 125.0d);
         attributes.setValue(AttributeType.ATTACK, 0.9d);
@@ -66,7 +75,7 @@ public class Pytaria extends Hero {
         setWeapon(new Weapon(Material.ALLIUM).setName("Annihilallium").setDamage(8.0).setDescription("A beautiful flower, nothing more."));
 
         final Equipment equipment = getEquipment();
-        equipment.setChestplate(50, 54, 57, TrimPattern.SILENCE, TrimMaterial.NETHERITE);
+        equipment.setChestPlate(50, 54, 57, TrimPattern.SILENCE, TrimMaterial.NETHERITE);
         equipment.setLeggings(54, 158, 110);
         equipment.setBoots(160, 101, 64, TrimPattern.SILENCE, TrimMaterial.IRON);
 

@@ -43,12 +43,25 @@ public class CollectionItem {
     public void addExtraLore(@Nonnull ItemBuilder builder, @Nonnull Player player) {
     }
 
-    public boolean isExclusive() {
-        return exclusive;
+    /**
+     * Sets if this cosmetics is exclusive.
+     * Exclusive cosmetics cannot be dropped from crates or bought.
+     *
+     * @param exclusive - Is explosive.
+     */
+    public CollectionItem setExclusive(boolean exclusive) {
+        this.exclusive = exclusive;
+        return this;
     }
 
-    public void setExclusive(boolean exclusive) {
-        this.exclusive = exclusive;
+    /**
+     * Returns true if this cosmetic is exclusive.
+     * Exclusive cosmetics cannot be dropped from crates or bought.
+     *
+     * @return true if this cosmetic is exclusive, false otherwise.
+     */
+    public boolean isExclusive() {
+        return exclusive;
     }
 
     public Material getIcon() {

@@ -121,13 +121,16 @@ public class Display {
         }.runTaskTimer(0, period);
     }
 
+    @Nonnull
     public Item item(Material material, int lifeTicks) {
         if (location.getWorld() == null) {
-            throw new IllegalStateException("Location's world is null!");
+            throw new IllegalStateException("unloaded world");
         }
 
-        final Item item = location.getWorld()
-                .dropItemNaturally(location, new ItemBuilder(material).setName(String.valueOf(ThreadRandom.nextFloat())).toItemStack());
+        final Item item = location.getWorld().dropItemNaturally(
+                location,
+                new ItemBuilder(material).setName(String.valueOf(ThreadRandom.nextFloat())).toItemStack()
+        );
 
         Entities.getEntities().add(item);
 

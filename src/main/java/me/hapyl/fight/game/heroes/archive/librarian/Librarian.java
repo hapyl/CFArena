@@ -2,7 +2,11 @@ package me.hapyl.fight.game.heroes.archive.librarian;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.KeepNull;
-import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.ComplexHero;
+import me.hapyl.fight.game.heroes.DisabledHero;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -62,7 +66,7 @@ public class Librarian extends Hero implements ComplexHero, Listener, DisabledHe
         setItem("a88b1cd9574672e8e3262f210c0dddbc082ea7569e8e70f0c07b4bee75e32f62");
 
         final Equipment equipment = getEquipment();
-        equipment.setChestplate(47, 32, 40, TrimPattern.WARD, TrimMaterial.GOLD);
+        equipment.setChestPlate(47, 32, 40, TrimPattern.WARD, TrimMaterial.GOLD);
         equipment.setLeggings(Material.NETHERITE_LEGGINGS);
         equipment.setBoots(84, 37, 62);
 

@@ -16,6 +16,7 @@ public class DamageDisplay extends StringDisplay {
     public static final DisplayAnimation ANIMATION = (display, tick, max) -> {
         final Location displayLocation = display.getLocation();
 
+        // FIXME (hapyl): 008, Sep 8: Maybe use sin
         if (tick < max / 2) {
             displayLocation.add(0.0d, BukkitUtils.GRAVITY / 2, 0.0d);
         }

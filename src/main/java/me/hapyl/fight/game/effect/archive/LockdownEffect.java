@@ -32,7 +32,7 @@ public class LockdownEffect extends GameEffect {
         entity.addPotionEffect(PotionEffectType.WEAKNESS.createEffect(Integer.MAX_VALUE, 5));
 
         // Fx
-        entity.playSound(Sound.BLOCK_BEACON_ACTIVATE, 0.75f);
+        entity.playPlayerSound(Sound.BLOCK_BEACON_ACTIVATE, 0.75f);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class LockdownEffect extends GameEffect {
         entity.removePotionEffect(PotionEffectType.WEAKNESS);
 
         // Fx
-        entity.playSound(Sound.BLOCK_BEACON_ACTIVATE, 2);
+        entity.playPlayerSound(Sound.BLOCK_BEACON_ACTIVATE, 2);
     }
 
     @Override

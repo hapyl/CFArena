@@ -30,7 +30,7 @@ public class Impel extends TickingGameTask {
 
     public void onComplete(GamePlayer player) {
         player.sendSubtitle("&eImpel: &a&l✔", 0, 20, 5);
-        player.playSound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.75f);
+        player.playPlayerSound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.75f);
     }
 
     public void onImpelStop() {
@@ -58,8 +58,8 @@ public class Impel extends TickingGameTask {
     public void onTickOnce() {
         // Fx
         targetPlayers.forEach(player -> {
-            player.playSound(Sound.ENTITY_BAT_TAKEOFF, 0.0f);
-            player.playSound(Sound.ENTITY_BAT_HURT, 0.0f);
+            player.playPlayerSound(Sound.ENTITY_BAT_TAKEOFF, 0.0f);
+            player.playPlayerSound(Sound.ENTITY_BAT_HURT, 0.0f);
         });
     }
 

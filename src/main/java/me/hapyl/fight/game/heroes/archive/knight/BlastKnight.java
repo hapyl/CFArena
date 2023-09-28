@@ -5,11 +5,12 @@ import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.PlayerElement;
-import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Equipment;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -56,11 +57,12 @@ public class BlastKnight extends Hero implements DisabledHero, PlayerElement, UI
     public BlastKnight() {
         super("Blast Knight");
 
+        setArchetype(Archetype.DEFENSE);
         setDescription("Royal Knight with high-end technology gadgets.");
         setItem("e2dfde6c2c8f0a7adf7ae4e949a804fedf95c6b9562767eae6c22a401cd02cbd");
 
         final Equipment equipment = getEquipment();
-        equipment.setChestplate(Color.BLUE);
+        equipment.setChestPlate(Color.BLUE);
         equipment.setLeggings(Material.CHAINMAIL_LEGGINGS);
         equipment.setBoots(Material.IRON_BOOTS);
 

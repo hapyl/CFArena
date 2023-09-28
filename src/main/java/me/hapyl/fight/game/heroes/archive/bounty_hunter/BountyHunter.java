@@ -9,7 +9,7 @@ import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Equipment;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -32,6 +32,8 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.trim.TrimMaterial;
+import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nullable;
@@ -57,9 +59,9 @@ public class BountyHunter extends Hero {
         attributes.setDefense(100);
 
         final Equipment equipment = getEquipment();
-        equipment.setChestplate(50, 54, 57);
+        equipment.setChestPlate(50, 54, 57, TrimPattern.SILENCE, TrimMaterial.NETHERITE);
         equipment.setLeggings(80, 97, 68);
-        equipment.setBoots(Material.LEATHER_BOOTS);
+        equipment.setBoots(160, 101, 64, TrimPattern.SILENCE, TrimMaterial.IRON);
 
         setUltimate(new UltimateTalent(
                 "Backstab",

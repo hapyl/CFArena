@@ -5,9 +5,9 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.TalentReference;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Equipment;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.archive.bloodfiend.taunt.Taunt;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -32,11 +32,11 @@ public class Candlebane extends Taunt implements TalentReference<CandlebaneTalen
 
     private static final ItemStack CANDLE_TEXTURE
             = ItemBuilder.playerHeadUrl("c3b5f5b6823fbfbc848c20562b07e2d414f685e996e31d10460efa61a822aa11").asIcon();
-    private static final long CLICK_DELAY = 50;
+    private static final long CLICK_DELAY = 100;
 
     static {
         UNDEAD_EQUIPMENT.setTexture("aef904c66f4cd357eb80a1e405783f521d284503435aede603c89db15e685709");
-        UNDEAD_EQUIPMENT.setChestplate(51, 40, 38);
+        UNDEAD_EQUIPMENT.setChestPlate(51, 40, 38);
         UNDEAD_EQUIPMENT.setLeggings(38, 32, 31);
         UNDEAD_EQUIPMENT.setBoots(28, 11, 8);
     }
@@ -69,8 +69,6 @@ public class Candlebane extends Taunt implements TalentReference<CandlebaneTalen
         for (int i = 0; i < reference.pillarHeight; i++) {
             final ArmorStand stand = createStand(location);
 
-            stand.setInvulnerable(true);
-
             if (i % 2 == 0) {
                 stand.setHeadPose(new EulerAngle(0.0d, Math.toRadians(45.0d), 0.0d));
             }
@@ -99,10 +97,6 @@ public class Candlebane extends Taunt implements TalentReference<CandlebaneTalen
 
     @Override
     public void onAnimationEnd() {
-        parts.forEach(stand -> {
-            stand.setInvulnerable(false);
-        });
-
         display = spawnEntity(Entities.ARMOR_STAND_MARKER, getDisplayLocation(), self -> {
             self.setGravity(false);
             self.setInvisible(true);
@@ -139,9 +133,9 @@ public class Candlebane extends Taunt implements TalentReference<CandlebaneTalen
                 gamePlayer.damage(1, this.player);
                 gamePlayer.sendSubtitle("&c&lWRONG CLICK!", 0, 10, 10);
 
-                gamePlayer.playSound(initialLocation, Sound.ENTITY_CHICKEN_EGG, 0.0f);
-                gamePlayer.playSound(initialLocation, Sound.BLOCK_LAVA_POP, 0.0f);
-                gamePlayer.playSound(initialLocation, Sound.ENTITY_CAT_HISS, 1.0f);
+                gamePlayer.playPlayerSound(initialLocation, Sound.ENTITY_CHICKEN_EGG, 0.0f);
+                gamePlayer.playPlayerSound(initialLocation, Sound.BLOCK_LAVA_POP, 0.0f);
+                gamePlayer.playPlayerSound(initialLocation, Sound.ENTITY_CAT_HISS, 1.0f);
             });
             return;
         }
@@ -226,9 +220,25 @@ public class Candlebane extends Taunt implements TalentReference<CandlebaneTalen
         last.setCustomName(Chat.format(
                 "%s &c%s",
                 currentClick == null ? "&8&lNONE!" : currentClick.toString(),
-                Utils.decimalFormatTick(timeLeft)
+                CFUtils.decimalFormatTick(timeLeft)
         ));
         last.setCustomNameVisible(true);
+    }
+
+    @Nonnull
+    @Override
+    public CandlebaneTalent getTalent() {
+        return reference;
+    }
+
+    public boolean isPart(int entityId) {
+        for (ArmorStand part : parts) {
+            if (part.getEntityId() == entityId) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void spawnUndead() {
@@ -267,22 +277,6 @@ public class Candlebane extends Taunt implements TalentReference<CandlebaneTalen
         return last.getLocation().add(0.0d, 2.25d, 0.0d);
     }
 
-    @Nonnull
-    @Override
-    public CandlebaneTalent getTalent() {
-        return reference;
-    }
-
-    public boolean isPart(int entityId) {
-        for (ArmorStand part : parts) {
-            if (part.getEntityId() == entityId) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     private ArmorStand createStand(Location location) {
         return spawnEntity(Entities.ARMOR_STAND, location, self -> {
             self.setInvulnerable(true);
@@ -290,7 +284,7 @@ public class Candlebane extends Taunt implements TalentReference<CandlebaneTalen
             self.setHelmet(CANDLE_TEXTURE);
             self.setGravity(false);
 
-            Utils.lockArmorStand(self);
+            CFUtils.lockArmorStand(self);
         });
     }
 

@@ -2,6 +2,7 @@ package me.hapyl.fight.database.rank;
 
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.color.Color;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
@@ -11,12 +12,12 @@ import javax.annotation.Nonnull;
 public enum PlayerRank {
 
     // Default
-    DEFAULT(0, RankFormatter.of("", "&e")),
-    PREMIUM(1, RankFormatter.of("&b&l⭐", "&3")),
+    DEFAULT(0, RankFormatter.of("", ChatColor.YELLOW)),
+    PREMIUM(1, RankFormatter.of("&b&l⭐", ChatColor.DARK_BLUE)),
 
     // Administrators
-    MODERATOR(100, RankFormatter.of(Color.MODERATOR.bold() + "ᴍᴏᴅ", "&2", "&f")),
-    ADMIN(101, RankFormatter.of(Color.ADMIN.bold() + "ᴀᴅᴍɪɴ", "&c", "&f", true)),
+    MODERATOR(100, RankFormatter.of(Color.MODERATOR.bold() + "ᴍᴏᴅ", ChatColor.DARK_GREEN, "&f")),
+    ADMIN(101, RankFormatter.of(Color.ADMIN.bold() + "ᴀᴅᴍɪɴ", ChatColor.RED, "&f", true)),
     CONSOLE(102, RankFormatter.of("[CONSOLE]")),
 
     ;

@@ -2,6 +2,7 @@ package me.hapyl.fight.game.entity;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
+import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.Award;
@@ -30,11 +31,12 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentQueue;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.task.PlayerGameTask;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.weapons.RangeWeapon;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.math.Tick;
@@ -54,6 +56,7 @@ import org.bukkit.potion.PotionEffectType;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * This class controls all in-game player data.
@@ -66,6 +69,8 @@ public class GamePlayer extends LivingGameEntity {
 
     private final StatContainer stats;
     private final TalentQueue talentQueue;
+    private final Set<GameTask> taskSet;
+
     public boolean blockDismount;
     @Nonnull
     private PlayerProfile profile;
@@ -88,6 +93,7 @@ public class GamePlayer extends LivingGameEntity {
         this.combatTag = 0L;
         this.cdModifier = 1.0d;
         this.attributes = new EntityAttributes(this, profile.getHeroHandle().getAttributes());
+        this.taskSet = Sets.newHashSet();
     }
 
     public double getCooldownModifier() {
@@ -173,7 +179,6 @@ public class GamePlayer extends LivingGameEntity {
         final Player player = getEntity();
 
         Glowing.stopGlowing(player);
-        updateScoreboardTeams(true);
         resetPlayer();
         getPlayer().setWalkSpeed(0.2f);
 
@@ -184,7 +189,7 @@ public class GamePlayer extends LivingGameEntity {
             PlayerSkin.reset(player);
         }
 
-        Utils.showPlayer(player.getPlayer());
+        CFUtils.showPlayer(player.getPlayer());
 
         // Keep winner in survival, so it's clear for them that they have won
         final boolean isWinner = instance.isWinner(player.getPlayer());
@@ -201,6 +206,11 @@ public class GamePlayer extends LivingGameEntity {
         // Save stats
         getDatabase().getStatistics().fromPlayerStatistic(hero, stats);
         hero.getStats().fromPlayerStatistic(stats);
+
+        // Update scoreboard
+        GameTask.runLater(() -> {
+            updateScoreboardTeams(true);
+        }, 5);
     }
 
     @Override
@@ -321,6 +331,10 @@ public class GamePlayer extends LivingGameEntity {
         if (deathCosmetic != null) {
             deathCosmetic.getCosmetic().onDisplay0(new Display(player, player.getLocation()));
         }
+
+        // Clear tasks
+        taskSet.forEach(GameTask::cancelIfActive);
+        taskSet.clear();
 
         // KEEP LAST
         resetPlayer(GamePlayer.Ignore.GAME_MODE);
@@ -444,8 +458,8 @@ public class GamePlayer extends LivingGameEntity {
         }, 1);
 
         // Fx
-        playSound(Sound.ENTITY_ELDER_GUARDIAN_CURSE, 2.0f);
-        playSound(Sound.ENCHANT_THORNS_HIT, 0.0f);
+        playPlayerSound(Sound.ENTITY_ELDER_GUARDIAN_CURSE, 2.0f);
+        playPlayerSound(Sound.ENCHANT_THORNS_HIT, 0.0f);
     }
 
     public void triggerOnDeath() {
@@ -454,7 +468,7 @@ public class GamePlayer extends LivingGameEntity {
         final Hero hero = getHero();
         final Weapon weapon = hero.getWeapon();
 
-        currentGame.getMap().getMap().onDeath(player);
+        currentGame.getEnumMap().getMap().onDeath(player);
         hero.onDeath(player);
         attributes.onDeath(player);
         executeTalentsOnDeath();
@@ -557,6 +571,16 @@ public class GamePlayer extends LivingGameEntity {
         getEntity().setGameMode(GameMode.SPECTATOR);
     }
 
+    @Override
+    public float getWalkSpeed() {
+        return getPlayer().getWalkSpeed();
+    }
+
+    @Override
+    public void setWalkSpeed(double value) {
+        getPlayer().setWalkSpeed((float) value);
+    }
+
     public void respawnIn(int tick) {
         state = EntityState.RESPAWNING;
 
@@ -577,9 +601,9 @@ public class GamePlayer extends LivingGameEntity {
                     return;
                 }
 
-                sendTitle("&e&lʀᴇsᴘᴀᴡɴɪɴɢ", "&b&l" + Utils.decimalFormatTick(tickBeforeRespawn), 0, 25, 0);
+                sendTitle("&e&lʀᴇsᴘᴀᴡɴɪɴɢ", "&b&l" + CFUtils.decimalFormatTick(tickBeforeRespawn), 0, 25, 0);
                 if (tickBeforeRespawn % 20 == 0) {
-                    playSound(Sound.BLOCK_NOTE_BLOCK_PLING, 2.0f - (0.2f * (tickBeforeRespawn / 20f)));
+                    playPlayerSound(Sound.BLOCK_NOTE_BLOCK_PLING, 2.0f - (0.2f * (tickBeforeRespawn / 20f)));
                 }
                 --tickBeforeRespawn;
             }
@@ -589,7 +613,6 @@ public class GamePlayer extends LivingGameEntity {
     public void respawn() {
         resetPlayer(Ignore.GAME_MODE);
         final Player player = getEntity();
-
         final Hero hero = getHero();
 
         state = EntityState.ALIVE;
@@ -609,7 +632,7 @@ public class GamePlayer extends LivingGameEntity {
 
         // Respawn location
         final IGameInstance gameInstance = Manager.current().getCurrentGame();
-        final Location location = gameInstance.getMap().getMap().getLocation();
+        final Location location = gameInstance.getEnumMap().getMap().getLocation();
 
         BukkitUtils.mergePitchYaw(entity.getLocation(), location);
         sendTitle("&a&lʀᴇsᴘᴀᴡɴᴇᴅ!", "", 0, 20, 5);
@@ -711,6 +734,15 @@ public class GamePlayer extends LivingGameEntity {
         getPlayer().showEntity(Main.getPlugin(), entity);
     }
 
+    public void addTask(PlayerGameTask task) {
+        taskSet.add(task);
+    }
+
+    @Override
+    public String toString() {
+        return "GamePlayer{" + getName() + "}";
+    }
+
     private void resetAttribute(Attribute attribute, double value) {
         Nulls.runIfNotNull(entity.getAttribute(attribute), t -> t.setBaseValue(value));
     }
@@ -801,6 +833,7 @@ public class GamePlayer extends LivingGameEntity {
      * @return either an actual GamePlayer instance if there is a GameInstance, otherwise AbstractGamePlayer.
      */
     @Nonnull
+    @Deprecated
     public static GamePlayer getPlayer(Player player) {
         return CF.getOrCreatePlayer(player);
     }
@@ -809,11 +842,6 @@ public class GamePlayer extends LivingGameEntity {
     public static Optional<GamePlayer> getPlayerOptional(Player player) {
         final GamePlayer gamePlayer = getExistingPlayer(player);
         return gamePlayer == null ? Optional.empty() : Optional.of(gamePlayer);
-    }
-
-    @Override
-    public String toString() {
-        return "GamePlayer{" + getName() + "}";
     }
 
     public enum Ignore {

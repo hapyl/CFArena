@@ -18,6 +18,7 @@ import me.hapyl.fight.game.report.GameReport;
 import me.hapyl.fight.game.setting.Setting;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.packet.StaticPacket;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Bukkit;
@@ -212,7 +213,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
 
     @Nonnull
     @Override
-    public GameMaps getMap() {
+    public GameMaps getEnumMap/*prefer adding enum to an enums*/() {
         return currentMap;
     }
 
@@ -279,7 +280,8 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
             player.addPotionEffect(PotionEffectType.GLOWING, 20, 1);
             player.sendTitle("&c&lYOU'RE AFK", "&aMove to return from afk!", 0, 10, 0);
             if (tick % 10 == 0) {
-                player.playSound(Sound.BLOCK_NOTE_BLOCK_HAT, 1.0f);
+                player.playPlayerSound(Sound.BLOCK_NOTE_BLOCK_HAT, 1.0f);
+                StaticPacket.Demo.SHOW_HOW_TO_MOVE.send(player);
             }
 
             Achievements.AFK.complete(player);

@@ -1,13 +1,11 @@
 package me.hapyl.fight.game;
 
-import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.team.GameTeam;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
-import java.util.Collection;
 
 /**
  * This is used as a base for all game instances.
@@ -98,7 +96,7 @@ public interface IGameInstance {
      * @return This instance map.
      */
     @Nonnull
-    GameMaps getMap();
+    GameMaps getEnumMap();
 
     /**
      * Returns HEX code of this game instance.

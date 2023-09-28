@@ -22,6 +22,7 @@ public enum GameEffectType {
     ORC_GROWL(new OrcGrowlEffect()),
     WITHER_BLOOD(new WitherBlood()),
     POISON_IVY(new PoisonIvy()),
+    SADNESS(new SadnessEffect()),
 
     ;
 

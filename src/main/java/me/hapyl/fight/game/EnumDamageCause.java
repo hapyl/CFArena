@@ -63,7 +63,7 @@ public enum EnumDamageCause {
     CREEPER_EXPLOSION(DamageCause.of("'sploded by lovely friend", "of")),
     NOVA_EXPLOSION(DamageCause.of("has been split into atoms", "by")),
     SHOCK_DART(DamageCause.of("was shocked", "by")),
-    BOOM_BOW_ULTIMATE(DamageCause.nonCrit("went out with a BIG BANG", "of")),
+    BOOM_BOW(DamageCause.nonCrit("went out with a BIG BANG", "of").setTrueDamage()),
     FIRE_MOLOTOV(DamageCause.of("couldn't find a way out of {damager}'s fire")),
     FIRE_SPRAY(DamageCause.of("got sprayed to death", "by")),
     FROZEN_WEAPON(DamageCause.of("has been frozen to death", "by")),
@@ -123,6 +123,9 @@ public enum EnumDamageCause {
     CHALICE(DamageCause.nonCrit("had their soul sucked away", "by")),
     TWINCLAW(DamageCause.nonCrit("was pierced to death by {damager}'s claw")),
     CANDLEBANE(DamageCause.nonCrit("was crushed by {damager}'s pillar")),
+    RADIATION(DamageCause.nonCrit("was lasered to death", "by").setTrueDamage()),
+    SOULS_REBOUND(DamageCause.nonCrit("had their soul rebounded", "by").setTrueDamage()),
+
     ;
 
     private final DamageCause damageCause;
@@ -155,11 +158,15 @@ public enum EnumDamageCause {
     }
 
     public boolean isCustomDamage() {
-        return damageCause.isCustom();
+        return damageCause.custom;
     }
 
     public boolean isProjectile() {
         return damageCause.isProjectile;
+    }
+
+    public boolean isTrueDamage() {
+        return damageCause.isTrueDamage;
     }
 
     public static EnumDamageCause getFromCause(EntityDamageEvent.DamageCause cause) {

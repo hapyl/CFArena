@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.cosmetic.skin;
 
-import me.hapyl.fight.game.heroes.Equipment;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import org.bukkit.entity.Player;
 
 public abstract class Skin implements EffectHandler {

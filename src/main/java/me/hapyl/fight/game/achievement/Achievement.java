@@ -140,16 +140,21 @@ public class Achievement extends PatternId {
      * @return true if success, false if already completed.
      */
     public final boolean complete(Player player) {
-        final PlayerDatabase database = PlayerDatabase.getDatabase(player);
-        final AchievementEntry entry = database.getAchievementEntry();
-        final int completeCount = entry.getCompleteCount(this);
+        final int completeCount = getCompleteCount(player);
 
         // If already completed, check if progress achievement
         if (completeCount > 0 && completeCount >= getMaxCompleteCount()) {
             return false;
         }
 
-        entry.addCompleteCount(this);
+        return setCompleteCount(player, completeCount + 1);
+    }
+
+    public final boolean setCompleteCount(Player player, int completeCount) {
+        final PlayerDatabase database = PlayerDatabase.getDatabase(player);
+        final AchievementEntry entry = database.getAchievementEntry();
+
+        entry.setCompleteCount(this, completeCount);
 
         awardPlayer(player);
         markComplete(player);

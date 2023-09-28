@@ -1,12 +1,12 @@
 package me.hapyl.fight.game.talents.archive.moonwalker;
 
-import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
@@ -114,7 +114,7 @@ public class MoonSliteBomb extends Talent implements Listener {
         final Item item = ev.getItem();
         if (isBombItem(item)) {
             ev.setCancelled(true);
-            if (!Utils.compare(item.getOwner(), ev.getEntity().getUniqueId())) {
+            if (!CFUtils.compare(item.getOwner(), ev.getEntity().getUniqueId())) {
                 explode(item);
             }
         }
@@ -134,7 +134,7 @@ public class MoonSliteBomb extends Talent implements Listener {
             getBombs(owner).remove(item);
         }
 
-        Utils.createExplosion(item.getLocation(), explosionRadius, explosionDamage, this::applyCorrosion);
+        CFUtils.createExplosion(item.getLocation(), explosionRadius, explosionDamage, this::applyCorrosion);
         item.remove();
     }
 

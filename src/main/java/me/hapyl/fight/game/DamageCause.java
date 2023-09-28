@@ -6,20 +6,21 @@ import java.util.List;
 
 public class DamageCause {
 
-    public static final DamageCause EMPTY = new DamageCause("null", "");
+    public static final DamageCause EMPTY = new DamageCause("null", "null");
 
     private final List<DeathMessage> deathMessages;
     public boolean isProjectile;
+    protected boolean custom;
+    protected boolean canCrit;
+    protected boolean isTrueDamage;
     private DamageFormat damageFormat;
-
-    private boolean custom;
-    private boolean canCrit;
 
     private DamageCause() {
         this.deathMessages = Lists.newArrayList();
         this.canCrit = true;
         this.custom = true;
         this.isProjectile = false;
+        this.isTrueDamage = false;
     }
 
     private DamageCause(String string, String suffix) {
@@ -42,6 +43,15 @@ public class DamageCause {
     public DamageCause setCustom(boolean custom) {
         this.custom = custom;
         return this;
+    }
+
+    public DamageCause setTrueDamage() {
+        isTrueDamage = true;
+        return this;
+    }
+
+    public boolean isTrueDamage() {
+        return isTrueDamage;
     }
 
     public boolean isCanCrit() {

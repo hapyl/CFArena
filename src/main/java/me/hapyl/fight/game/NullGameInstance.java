@@ -54,7 +54,7 @@ public class NullGameInstance implements IGameInstance {
 
     @Nonnull
     @Override
-    public GameMaps getMap() {
+    public GameMaps getEnumMap() {
         return GameMaps.ARENA;
     }
 

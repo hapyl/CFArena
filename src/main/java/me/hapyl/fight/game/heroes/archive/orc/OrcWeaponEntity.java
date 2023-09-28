@@ -2,8 +2,8 @@ package me.hapyl.fight.game.heroes.archive.orc;
 
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import me.hapyl.spigotutils.module.math.Tick;
@@ -49,7 +49,7 @@ public abstract class OrcWeaponEntity extends GameTask {
             self.setInvisible(true);
             self.setSilent(true);
 
-            Utils.setEquipment(self, equipment -> {
+            CFUtils.setEquipment(self, equipment -> {
                 self.setRightArmPose(new EulerAngle(Math.toRadians(-85d), 0.0d, 0.0d));
                 equipment.setItemInMainHand(new ItemStack(Material.IRON_AXE));
             });
@@ -170,7 +170,7 @@ public abstract class OrcWeaponEntity extends GameTask {
             @Override
             public void run() {
                 final Location playerLocation = player.getLocation();
-                Utils.lookAt(entity, playerLocation);
+                CFUtils.lookAt(entity, playerLocation);
 
                 final Location location = entity.getLocation();
                 final Vector vector = location.getDirection().normalize().multiply(FLIGHT_SPEED * 2);

@@ -8,9 +8,9 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.task.GeometryTask;
 import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.ItemStacks;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
@@ -65,7 +65,7 @@ public class OrcAxe extends InputTalent {
             self.setVisible(false);
             self.setRightArmPose(new EulerAngle(Math.toRadians(170), Math.toRadians(180), Math.toRadians(90)));
 
-            Utils.setEquipment(self, equipment -> {
+            CFUtils.setEquipment(self, equipment -> {
                 equipment.setItemInMainHand(new ItemStack(Material.IRON_AXE));
             });
 
@@ -87,8 +87,8 @@ public class OrcAxe extends InputTalent {
                 offsetXZ(playerLocation, 0.5d, axe::teleport);
 
                 offsetXZ(playerLocation, 3.0d, location -> {
-                    Utils.lookAt(axe, location);
-                    PlayerLib.spawnParticle(location, Particle.SWEEP_ATTACK, 1);
+                    CFUtils.lookAt(axe, location);
+                    PlayerLib.spawnParticle(location.clone().add(0.0d, 0.75d, 0.0d), Particle.SWEEP_ATTACK, 1);
 
                     // Damage and KB
                     Collect.nearbyEntities(location, 1.0d, entity -> entity.isNot(player))

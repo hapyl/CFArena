@@ -6,7 +6,7 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Equipment;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -23,6 +23,7 @@ import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -59,14 +60,14 @@ public class Swooper extends Hero implements Listener, UIComponent {
         attributes.setValue(AttributeType.SPEED, 0.23d);
 
         final Equipment equipment = this.getEquipment();
-        equipment.setChestplate(25, 53, 82);
+        equipment.setChestPlate(25, 53, 82);
         equipment.setLeggings(25, 53, 92);
         equipment.setBoots(25, 53, 102);
 
         setWeapon(new RangeWeapon(Material.WOODEN_HOE, "swooper_weapon") {
 
             @Override
-            public double getDamage(Player player) {
+            public double getDamage(Player player, boolean headshot) {
                 return player.isSneaking() ? 10.0d : 5.0d;
             }
 
@@ -85,6 +86,9 @@ public class Swooper extends Hero implements Listener, UIComponent {
                 PlayerLib.playSound(player.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 2.0f);
             }
 
+            @Override
+            public void onHit(Player player, LivingEntity entity, boolean headshot) {
+            }
         }.setCooldown(45)
                 .setMaxAmmo(5)
                 .setParticleTick(new PackedParticle(Particle.FIREWORKS_SPARK))

@@ -103,9 +103,15 @@ public abstract class CFGameMode {
     public void tick(@Nonnull GameInstance instance, int tick) {
     }
 
-    // Default impl, override if needed
+    /**
+     * Called upon player leaving while the game is in progress.
+     *
+     * @param instance - Game Instance player left from.
+     * @param player   - Player who left.
+     */
     public void onLeave(@Nonnull GameInstance instance, @Nonnull Player player) {
         final GamePlayer gamePlayer = CF.getPlayer(player);
+
         if (gamePlayer == null) {
             return;
         }
@@ -118,13 +124,20 @@ public abstract class CFGameMode {
         instance.checkWinCondition();
     }
 
-    // Default impl, override if used
+    /**
+     * Called upon player joining while the game is in progress.
+     *
+     * @param instance - Game Instance player joined to.
+     * @param player   - Player who left.
+     */
     public void onJoin(@Nonnull GameInstance instance, @Nonnull Player player) {
         final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
 
         gamePlayer.setSpectator(true);
+        Chat.broadcast("&a%s joined the game as a spectator!", player.getName());
 
         GameTask.runLater(() -> {
+            gamePlayer.sendSubtitle("&aYou are currently spectating!", 0, 20, 0);
             gamePlayer.teleport(instance.getRandomPlayerLocationOrMapLocationIfThereAreNoPlayers());
         }, 1);
     }

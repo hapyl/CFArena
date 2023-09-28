@@ -2,7 +2,7 @@ package me.hapyl.fight.game.heroes.archive.troll;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
@@ -82,7 +82,7 @@ public class StickyCobweb extends GameTask {
     }
 
     public void remove() {
-        Utils.clearCollection(blocks);
+        CFUtils.clearCollection(blocks);
         cancel();
     }
 }

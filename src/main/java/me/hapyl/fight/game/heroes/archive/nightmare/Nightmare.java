@@ -4,7 +4,7 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Equipment;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -33,7 +33,7 @@ public class Nightmare extends Hero {
                 .setDamage(7.0d));
 
         final Equipment equipment = getEquipment();
-        equipment.setChestplate(50, 0, 153);
+        equipment.setChestPlate(50, 0, 153);
         equipment.setLeggings(40, 0, 153);
         equipment.setBoots(30, 0, 153);
 

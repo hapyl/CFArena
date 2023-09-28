@@ -319,7 +319,7 @@ public class GamePlayerUI {
                         &e&lCLASSES FIGHT
                         &c&lᴀʀᴇɴᴀ
                                                 
-                        &fTotal Players: &l%s&f, Server TPS: &l%.1f
+                        &fPlayers: &l%s&f, TPS: &l%.1f
                         """.formatted(Bukkit.getOnlinePlayers().size(), MinecraftServer.getServer().recentTps[0]), footer.toString()
         };
     }

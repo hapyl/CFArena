@@ -27,7 +27,7 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
         }
     }),
 
-    COOKIE_MADNESS(new Cosmetic("Cookie Madness", "More cookies! Mo-o-ore!", Type.KILL, Rarity.UNCOMMON, Material.COOKIE) {
+    COOKIE_MADNESS(new Cosmetic("Cookie Madness", "More cookies! Moooore!", Type.KILL, Rarity.UNCOMMON, Material.COOKIE) {
         @Override
         public void onDisplay(Display display) {
             display.repeat(10, 2, (r, tick) -> {
@@ -76,6 +76,7 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
     COUTURE_DEATH(new CoutureCosmetic(Type.DEATH)),
     STYLISH_FALL(new StylishFallCosmetic()),
     ELECTROCUTE(new ElectrocuteCosmetic()),
+    EMERALD_EXPLOSION(new EmeraldExplosion()),
 
     // Contrails
     MUSIC(new MusicContrail()),
@@ -96,7 +97,7 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
     STAR(new PrefixCosmetic("Star", "I'm on a roll!", "&e★", Rarity.EPIC).setIcon(Material.GOLD_NUGGET)),
     BIOHAZARD(new PrefixCosmetic("Biohazard", "Put your mask on!", "&a☣", Rarity.EPIC).setIcon(Material.SLIME_BALL)),
     LOVE(new PrefixCosmetic("Love", "Love is...", "&c♥", Rarity.RARE).setIcon(Material.APPLE)),
-    PEACE(new PrefixCosmetic("Peace", "Peace!", "&2&l✌", Rarity.LEGENDARY).setIcon(Material.WHITE_WOOL)),
+    PEACE(new PrefixCosmetic("Peace", "Peace!", "&2&l✌", Rarity.LEGENDARY).setIcon(Material.WHITE_WOOL).setExclusive(true)),
     HAPPY(new PrefixCosmetic("Happy", "Just be happy!", "&a☻", Rarity.COMMON).setIcon(Material.EMERALD)),
 
     GENDER_MALE(new PrefixCosmetic(
@@ -116,7 +117,7 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
     ANNIHILATOR(new PrefixCosmetic(
             "Annihilator",
             "Show me what you got!",
-            "&c&l☠",
+            "&4&kx &4☠ &4&kx",
             Rarity.LEGENDARY
     ).setIcon(Material.WITHER_SKELETON_SKULL)),
 
@@ -160,7 +161,7 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
             "x",
             "&c\uD83D\uDC8B",
             Rarity.RARE
-    ).setIcon(Material.APPLE)),
+    ).setIcon(Material.GOLDEN_APPLE)),
 
     MONKEY(new PrefixCosmetic(
             "Monkey!",
@@ -168,6 +169,28 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
             new Color("#674e38") + "🐵",
             Rarity.RARE
     ).setIcon(Material.BROWN_WOOL)),
+
+    SMILEY(new PrefixCosmetic(
+            "Smiley",
+            "Smiling through the day.",
+            "&f&lツ",
+            Rarity.RARE
+    ).setIcon(Material.PUFFERFISH)),
+
+    TRIANGLE(new PrefixCosmetic(
+            "Triangle",
+            "Is it aligned?",
+            "&3📐",
+            Rarity.RARE
+    ).setIcon(Material.WARPED_STAIRS)),
+
+    DRAGON(new PrefixCosmetic(
+            "Dragon",
+            "How do I train it?",
+            Color.MAROON + "🐉",
+            Rarity.EPIC
+    ).setIcon(Material.DRAGON_HEAD)),
+
 
     // Win Effects
 

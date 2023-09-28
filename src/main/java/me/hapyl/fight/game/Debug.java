@@ -19,16 +19,34 @@ public class Debug {
         info(any, format);
     }
 
-    public static void info(Object any, Object... format) {
-        send("&7" + any, format);
+    /**
+     * Sends info debug in gray text.
+     *
+     * @param message - Message.
+     * @param format  - Format.
+     */
+    public static void info(Object message, Object... format) {
+        send("&7" + message, format);
     }
 
-    public static void warn(Object any, Object... format) {
-        send("&e" + any, format);
+    /**
+     * Sends info debug in yellow text.
+     *
+     * @param message - Message.
+     * @param format  - Format.
+     */
+    public static void warn(Object message, Object... format) {
+        send("&e" + message, format);
     }
 
-    public static void severe(Object any, Object... format) {
-        send("&4&l" + any, format);
+    /**
+     * Sends info debug in dark red bold text.
+     *
+     * @param message - Message.
+     * @param format  - Format.
+     */
+    public static void severe(Object message, Object... format) {
+        send("&4&l" + message, format);
     }
 
     public static void wrap(Runnable runnable) {

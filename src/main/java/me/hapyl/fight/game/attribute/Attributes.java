@@ -29,6 +29,10 @@ public class Attributes {
         }
     }
 
+    public final double calculateHealing(double healing) {
+        return healing * get(AttributeType.MENDING);
+    }
+
     public final double calculateIncomingDamage(double damage) {
         return damage * (2.0d - get(AttributeType.DEFENSE));
     }

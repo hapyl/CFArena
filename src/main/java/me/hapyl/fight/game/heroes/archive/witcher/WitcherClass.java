@@ -5,7 +5,10 @@ import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.ComplexHero;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -37,7 +40,7 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
         setItem("910905be4f67e2fcad291cdf8aeb2e9ff55fe93f27b8c1f0959024a3cb4a7052");
 
         final Equipment equipment = getEquipment();
-        equipment.setChestplate(44, 48, 101);
+        equipment.setChestPlate(44, 48, 101);
         equipment.setLeggings(60, 66, 69);
         equipment.setBoots(29, 29, 33);
 
@@ -126,7 +129,7 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
             damage += damage * ((comboHits - 2) * 0.15);
 
             // Fx
-            player.playSound(Sound.ITEM_SHIELD_BREAK, 1.75f);
+            player.playPlayerSound(Sound.ITEM_SHIELD_BREAK, 1.75f);
             player.sendTitle("        &6Combo", "          &4&lx" + (comboHits - 2), 0, 25, 25);
         }
 

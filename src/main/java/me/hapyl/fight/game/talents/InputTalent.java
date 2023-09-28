@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents;
 
-import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Material;
@@ -160,9 +160,9 @@ public abstract class InputTalent extends Talent {
     }
 
     private String format(@Nonnull String string, @Nonnull InputTalentData data) {
-        string = TalentFormat.NAME.format(string, this);
-        string = TalentFormat.DURATION.format(string, data);
-        string = TalentFormat.COOLDOWN.format(string, data);
+        string = StaticFormat.NAME.format(string, this);
+        string = StaticFormat.DURATION.format(string, data);
+        string = StaticFormat.COOLDOWN.format(string, data);
 
         return string;
     }

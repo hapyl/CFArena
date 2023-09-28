@@ -4,7 +4,7 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -86,7 +86,7 @@ public class GameEntity {
 
     @Nonnull
     public final String getNameUnformatted() {
-        return Utils.stripColor(getName());
+        return CFUtils.stripColor(getName());
     }
 
     @Nonnull
@@ -218,7 +218,6 @@ public class GameEntity {
     @Event
     public void onDeath() {
         remove();
-
     }
 
     public <T extends GameEntity> void as(@Nonnull Class<T> clazz, @Nonnull Consumer<T> consumer) {
@@ -247,12 +246,16 @@ public class GameEntity {
         asPlayer(player -> Chat.sendActionbar(player, text, objects));
     }
 
-    public void playSound(Sound sound, final float pitch) {
+    public void playPlayerSound(Sound sound, final float pitch) {
         asPlayer(player -> PlayerLib.playSound(player, sound, Numbers.clamp(pitch, 0.0f, 2.0f)));
     }
 
-    public void playSound(Location location, Sound sound, float pitch) {
+    public void playPlayerSound(Location location, Sound sound, float pitch) {
         asPlayer(player -> PlayerLib.playSound(player, location, sound, pitch));
+    }
+
+    public void playSound(Sound sound, float pitch) {
+        PlayerLib.playSound(getLocation(), sound, pitch);
     }
 
     @Override
@@ -316,4 +319,5 @@ public class GameEntity {
     public Vector getVelocity() {
         return entity.getVelocity();
     }
+
 }

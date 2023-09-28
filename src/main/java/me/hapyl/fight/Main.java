@@ -1,21 +1,24 @@
 package me.hapyl.fight;
 
+import me.hapyl.fight.chat.ChatHandler;
+import me.hapyl.fight.command.CommandRegistry;
 import me.hapyl.fight.database.Database;
 import me.hapyl.fight.event.*;
-import me.hapyl.fight.game.ChatController;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.achievement.AchievementRegistry;
 import me.hapyl.fight.game.collectible.Collectibles;
 import me.hapyl.fight.game.cosmetic.CosmeticsListener;
 import me.hapyl.fight.game.cosmetic.crate.CrateManager;
 import me.hapyl.fight.game.entity.event.EntityEventHandler;
+import me.hapyl.fight.game.entity.overlay.OverlayListener;
 import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.maps.features.BoosterController;
-import me.hapyl.fight.game.maps.gamepack.HealthPackListener;
+import me.hapyl.fight.game.maps.gamepack.GamePackListener;
 import me.hapyl.fight.game.parkour.CFParkourManager;
 import me.hapyl.fight.game.talents.archive.bloodfiend.candlebane.CandlebaneProtocol;
+import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TaskList;
-import me.hapyl.fight.mini.lampgame.LampGame;
+import me.hapyl.fight.garbage.CFGarbageCollector;
 import me.hapyl.fight.notifier.Notifier;
 import me.hapyl.fight.npc.HumanManager;
 import me.hapyl.fight.protocol.ArcaneMuteProtocol;
@@ -88,7 +91,7 @@ public class Main extends JavaPlugin {
         achievementRegistry = new AchievementRegistry(this);
         crateManager = new CrateManager(this);
 
-        new LampGame(this);
+        //new LampGame(this);
 
         // Register events and protocol listeners
         registerEvents();
@@ -125,6 +128,9 @@ public class Main extends JavaPlugin {
 
         // Check for reload
         ReloadChecker.check(this, 20);
+
+        // Clear garbage entities
+        GameTask.runLater(CFGarbageCollector::clearInAllWorlds, 20);
 
         // Initiate runtime tests
         new Test(this);
@@ -207,12 +213,14 @@ public class Main extends JavaPlugin {
         pluginManager.registerEvents(new PlayerHandler(), this);
         pluginManager.registerEvents(new EntityHandler(), this);
         pluginManager.registerEvents(new EntityEventHandler(), this);
-        pluginManager.registerEvents(new ChatController(), this);
+        pluginManager.registerEvents(new ChatHandler(), this);
         pluginManager.registerEvents(new EnderPearlHandler(), this);
         pluginManager.registerEvents(new CosmeticsListener(), this);
-        pluginManager.registerEvents(new HealthPackListener(), this);
+        pluginManager.registerEvents(new GamePackListener(), this);
         pluginManager.registerEvents(new SnowFormHandler(), this);
         pluginManager.registerEvents(new ServerHandler(), this);
+        pluginManager.registerEvents(new OverlayListener(), this);
+        pluginManager.registerEvents(new CFGarbageCollector(), this);
     }
 
     private void runSafe(Runnable runnable, String handler) {

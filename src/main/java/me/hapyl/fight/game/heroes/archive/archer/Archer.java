@@ -1,21 +1,21 @@
 package me.hapyl.fight.game.heroes.archive.archer;
 
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Equipment;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.ItemStacks;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.ThreadRandom;
 import org.bukkit.Location;
@@ -61,13 +61,13 @@ public class Archer extends Hero implements Listener {
         attributes.setValue(AttributeType.DEFENSE, 0.8d);
 
         final Equipment equipment = getEquipment();
-        equipment.setChestplate(86, 86, 87);
+        equipment.setChestPlate(86, 86, 87);
         equipment.setLeggings(75, 75, 87);
         equipment.setBoots(51, 51, 51);
 
         setUltimate(new UltimateTalent(
                 "Boom Bow",
-                "Equip a &6&lBOOM BOW &7for {duration} that fires explosive arrows that explode on impact dealing with massive damage.",
+                "Equip a &6&lBOOM BOW &7for {duration} that fires explosive arrows that explode on impact dealing with massive &ftrue damage&7.",
                 50
         ).setItem(Material.BLAZE_POWDER)
                 .setDuration(120)
@@ -109,7 +109,7 @@ public class Archer extends Hero implements Listener {
 
     @Override
     public void onStop() {
-        Utils.clearCollection(boomArrows);
+        CFUtils.clearCollection(boomArrows);
     }
 
     @EventHandler()
@@ -118,12 +118,12 @@ public class Archer extends Hero implements Listener {
             final ProjectileSource shooter = arrow.getShooter();
 
             if (shooter instanceof Player player) {
-                Utils.createExplosion(
+                CFUtils.createExplosion(
                         arrow.getLocation(),
                         explosionRadius,
                         explosionDamage,
                         player,
-                        EnumDamageCause.BOOM_BOW_ULTIMATE,
+                        EnumDamageCause.BOOM_BOW,
                         null
                 );
             }

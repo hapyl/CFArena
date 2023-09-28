@@ -8,14 +8,14 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Equipment;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
@@ -55,7 +55,7 @@ public class Ninja extends Hero implements Listener, UIComponent {
         setItem("1413159cfab50aba283e68c1659d74412392fbcb1f7d663d1bd2a2a6430c2743");
 
         final Equipment equipment = this.getEquipment();
-        equipment.setChestplate(Color.WHITE);
+        equipment.setChestPlate(Color.WHITE);
         equipment.setLeggings(Material.CHAINMAIL_LEGGINGS);
         equipment.setBoots(Material.CHAINMAIL_BOOTS);
 
@@ -99,7 +99,7 @@ public class Ninja extends Hero implements Listener, UIComponent {
             setUsingUltimate(player, false);
         }
 
-        Utils.rayTraceLine(
+        CFUtils.rayTraceLine(
                 player,
                 40,
                 0.5d,
@@ -160,7 +160,7 @@ public class Ninja extends Hero implements Listener, UIComponent {
         if (player.hasEffect(GameEffectType.INVISIBILITY)) {
             player.removeEffect(GameEffectType.INVISIBILITY);
             player.sendMessage("&aYour invisibility is gone because you dealt damage.");
-            player.playSound(Sound.ITEM_SHIELD_BREAK, 2.0f);
+            player.playPlayerSound(Sound.ITEM_SHIELD_BREAK, 2.0f);
         }
 
         if (player.getInventory().getHeldItemSlot() != 0) {

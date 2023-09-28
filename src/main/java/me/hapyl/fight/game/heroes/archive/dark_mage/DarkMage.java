@@ -11,10 +11,13 @@ import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.archive.GroundPunchCosmetic;
 import me.hapyl.fight.game.effect.GameEffectType;
-import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.ComplexHero;
+import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.archive.witcher.WitherData;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -23,8 +26,8 @@ import me.hapyl.fight.game.talents.archive.dark_mage.ShadowCloneNPC;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIFormat;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -68,7 +71,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         attributes.setValue(AttributeType.CRIT_CHANCE, 0.15d);
 
         final Equipment equipment = this.getEquipment();
-        equipment.setChestplate(102, 255, 255);
+        equipment.setChestPlate(102, 255, 255);
         equipment.setLeggings(Material.IRON_LEGGINGS);
         equipment.setBoots(153, 51, 51);
 
@@ -127,7 +130,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         player.setFlying(true);
 
         final double playerHealth = GamePlayer.getPlayer(player).getHealth();
-        Utils.hidePlayer(player);
+        CFUtils.hidePlayer(player);
 
         final Wither wither = Entities.WITHER.spawn(player.getLocation(), me -> {
             me.setAI(false);
@@ -199,7 +202,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
                 if (player != null) {
                     player.setFlying(false);
                     player.setAllowFlight(false);
-                    Utils.showPlayer(player);
+                    CFUtils.showPlayer(player);
                 }
                 PlayerLib.playSound(wither.getLocation(), ENTITY_WITHER_DEATH, 1.0f);
                 wither.remove();

@@ -59,7 +59,11 @@ public class ActiveGameEffect {
 
     public void forceStop() {
         remainingTicks = 0;
-        type.getGameEffect().onStop(entity);
+
+        if (!entity.isDead()) {
+            type.getGameEffect().onStop(entity);
+        }
+
         entity.getData().clearEffect(type);
     }
 

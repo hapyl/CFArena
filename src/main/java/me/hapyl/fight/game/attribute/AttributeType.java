@@ -2,6 +2,7 @@ package me.hapyl.fight.game.attribute;
 
 import com.google.common.collect.Lists;
 import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.module.math.Numbers;
 import org.bukkit.ChatColor;
 
@@ -48,7 +49,7 @@ public enum AttributeType { // implements Placeholder2
                 final double proportion = (value - 0.2d) / (1.0d - 0.2d);
                 final double increase = (proportion * 400.0d) + 100;
 
-                return "%.2f%%".formatted(increase);
+                return "%.1f%%".formatted(increase);
             }),
             0.2d
     ) {
@@ -61,29 +62,37 @@ public enum AttributeType { // implements Placeholder2
             new Attribute("CRIT Chance", "Chance for attack to deal critical hit.")
                     .setChar("☣")
                     .setColor(ChatColor.BLUE)
-                    .setToString(d -> "%.2f%%".formatted(d * 100.0d)),
+                    .setToString(AttributeType::doubleFormat),
             0.1d
     ),
     CRIT_DAMAGE(
             new Attribute("CRIT Damage", "The damage increase modifier for critical hit.")
                     .setChar("☠")
                     .setColor(ChatColor.BLUE)
-                    .setToString(d -> "%.2f%%".formatted(d * 100.0d)),
+                    .setToString(AttributeType::doubleFormat),
             0.5d
     ),
-
     FEROCITY(
             new Attribute("Ferocity", "The change to deal an extra strike.")
                     .setChar("\uD83C\uDF00")
                     .setColor(ChatColor.RED)
-                    .setToString(d -> "%.2f%%".formatted(d * 100.0d)),
+                    .setToString(AttributeType::doubleFormat),
             0
     ) {
         @Override
         public double maxValue() {
             return 5;
         }
-    };
+    },
+    MENDING(
+            new Attribute("Mending", "Incoming healing multiplier.")
+                    .setChar("🌿")
+                    .setColor(ChatColor.GREEN)
+                    .setToString(AttributeType::doubleFormat),
+            1.0d
+    ),
+
+    ;
 
     private static final List<String> NAMES;
 
@@ -133,6 +142,11 @@ public enum AttributeType { // implements Placeholder2
     }
 
     @Nonnull
+    public String getDecimalFormatted(Attributes attributes) {
+        return CFUtils.decimalFormat(get(attributes) * 100.0d);
+    }
+
+    @Nonnull
     public String getFormatted(Attributes attributes) {
         final double value = get(attributes);
 
@@ -141,6 +155,10 @@ public enum AttributeType { // implements Placeholder2
 
     public static List<String> names() {
         return Lists.newArrayList(NAMES);
+    }
+
+    private static String doubleFormat(double d) {
+        return "%.1f%%".formatted(d * 100.0d);
     }
 
 }

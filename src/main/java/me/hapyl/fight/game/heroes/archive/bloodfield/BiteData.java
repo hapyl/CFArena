@@ -55,8 +55,8 @@ public class BiteData implements TalentReference<BloodfiendPassive> {
 
         player.getPlayer().setWorldBorder(worldBorder);
         player.sendMessage("&6&l🦇 &e%s has bitten you! &c-%s ❤", this.vampire.getName(), reference.healthDeduction);
-        player.playSound(Sound.ENTITY_BAT_DEATH, 0.75f);
-        player.playSound(Sound.ENTITY_ZOMBIE_HURT, 0.75f);
+        player.playPlayerSound(Sound.ENTITY_BAT_DEATH, 0.75f);
+        player.playPlayerSound(Sound.ENTITY_ZOMBIE_HURT, 0.75f);
     }
 
     public void remove() {
@@ -66,8 +66,8 @@ public class BiteData implements TalentReference<BloodfiendPassive> {
         // Fx
         player.getPlayer().setWorldBorder(null);
         player.sendMessage("&6&l🦇 &e&oMuch better! &a+%s ❤", reference.healthDeduction);
-        player.playSound(Sound.ENTITY_HORSE_SADDLE, 0.75f);
-        player.playSound(Sound.ENTITY_WARDEN_HEARTBEAT, 0.0f);
+        player.playPlayerSound(Sound.ENTITY_HORSE_SADDLE, 0.75f);
+        player.playPlayerSound(Sound.ENTITY_WARDEN_HEARTBEAT, 0.0f);
     }
 
     @Nonnull

@@ -5,7 +5,7 @@ import com.mongodb.client.MongoCollection;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.entry.*;
 import me.hapyl.fight.database.rank.PlayerRank;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -172,7 +172,7 @@ public class PlayerDatabase {
         final String playerName = player == null ? uuid.toString() : player.getName();
 
         document.append("lastOnline", System.currentTimeMillis());
-        document.append("lastOnlineServer", Utils.getServerIp());
+        document.append("lastOnlineServer", CFUtils.getServerIp());
 
         try {
             //Bukkit.getScheduler().runTaskAsynchronously(Main.getPlugin(), () -> {
@@ -231,7 +231,7 @@ public class PlayerDatabase {
 
     @Nonnull
     public static PlayerDatabase getDatabase(@Nonnull UUID uuid) {
-        return Utils.getElementOrThrowErrorIfNull(UUID_DATABASE_MAP, uuid, "database does not exist for " + uuid);
+        return CFUtils.getElementOrThrowErrorIfNull(UUID_DATABASE_MAP, uuid, "database does not exist for " + uuid);
     }
 
     public static boolean removeDatabase(@Nonnull UUID uuid) {

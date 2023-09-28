@@ -4,8 +4,8 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
 import org.bukkit.entity.Item;
@@ -63,7 +63,7 @@ public class ShellGrande extends Talent {
 
             if (tick == 0) {
                 item.remove();
-                Utils.createExplosion(item.getLocation(), 5.0d, 20.0d, player, EnumDamageCause.ENTITY_EXPLOSION, null);
+                CFUtils.createExplosion(item.getLocation(), 5.0d, 20.0d, player, EnumDamageCause.ENTITY_EXPLOSION, null);
             }
 
         }, 1, 40);

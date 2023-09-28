@@ -1,7 +1,10 @@
 package me.hapyl.fight.game.heroes.archive.doctor;
 
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.weapons.RightClickable;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.game.weapons.ability.Ability;
+import me.hapyl.fight.game.weapons.ability.AbilityType;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
@@ -9,11 +12,12 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GravityGun extends Weapon {
+public class GravityGun extends Weapon implements RightClickable {
 
     private final Map<Player, ActiveElement> elements = new HashMap<>();
 
@@ -23,9 +27,15 @@ public class GravityGun extends Weapon {
         setDamage(1.0d);
         setId("dr_ed_gun");
         setName("Dr. Ed's Gravity Energy Capacitor Mk. 3");
-        setDescription(
-                "A tool that is capable of absorbing blocks elements.____&e&lRIGHT CLICK &7a block to harvest element from it.____&e&lRIGHT CLICK &7again with element equipped to launch it forward, damaging up to &bone &7opponents on it's way.____The damage and cooldown is based on the element."
-        );
+        setDescription("A tool that is capable of absorbing block elements.");
+
+        setAbility(AbilityType.RIGHT_CLICK, Ability.of("Block Harvest", """
+                Right-click on a block to harvest an element from it.
+                                
+                Right-click again with an element equipped to launch it forward, damaging up to &bone &7opponents on its way.
+                                
+                &a;;The damage and cooldown are based on the element.
+                """, this));
 
         GameTask.scheduleCancelTask(() -> {
             elements.values().forEach(ActiveElement::remove);
@@ -60,7 +70,7 @@ public class GravityGun extends Weapon {
     }
 
     @Override
-    public void onRightClick(Player player, ItemStack item) {
+    public void onRightClick(@Nonnull Player player, @Nonnull ItemStack item) {
         if (player.hasCooldown(getMaterial())) {
             return;
         }

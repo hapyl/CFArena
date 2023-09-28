@@ -1,16 +1,17 @@
 package me.hapyl.fight.build;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.sign.Side;
+import org.bukkit.block.sign.SignSide;
 
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 
 public class NamedSignReader {
@@ -22,43 +23,10 @@ public class NamedSignReader {
     }
 
     public Queue<Sign> readAsQueue() {
-        final List<Sign> list = read();
+        final List<Sign> signs = read();
+        signs.sort(Comparator.comparing(sign -> sign.getSide(Side.FRONT).getLine(0)));
 
-        list.sort((a, b) -> {
-            final NamedSign namedA = NamedSign.fromSign(a);
-            final NamedSign namedB = NamedSign.fromSign(b);
-
-            if (namedA == null || namedB == null) {
-                return 0;
-            }
-
-            return Integer.compare(namedA.ordinal(), namedB.ordinal());
-        });
-
-        return new LinkedList<>(list);
-    }
-
-    public Map<NamedSign, List<Sign>> readAsMap() {
-        final Map<NamedSign, List<Sign>> map = Maps.newLinkedHashMap();
-
-        for (Sign sign : read()) {
-            final NamedSign named = NamedSign.fromSign(sign);
-
-            if (named == null) {
-                continue;
-            }
-
-            map.compute(named, (type, list) -> {
-                if (list == null) {
-                    list = Lists.newArrayList();
-                }
-
-                list.add(sign);
-                return list;
-            });
-        }
-
-        return map;
+        return new LinkedList<>(signs);
     }
 
     public List<Sign> read() {
@@ -71,7 +39,7 @@ public class NamedSignReader {
                 if (blockData instanceof org.bukkit.block.data.type.Sign) {
                     final Sign sign = (Sign) tile;
 
-                    if (NamedSign.check(sign)) {
+                    if (check(sign)) {
                         list.add(sign);
                     }
                 }
@@ -79,6 +47,13 @@ public class NamedSignReader {
         }
 
         return list;
+    }
+
+    public boolean check(Sign sign) {
+        final SignSide side = sign.getSide(Side.FRONT);
+        final String line = side.getLine(0);
+
+        return line.startsWith("[") && line.endsWith("]");
     }
 
 }

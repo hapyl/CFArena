@@ -30,6 +30,7 @@ public class Color {
     public static final Color MINT_GREEN = new Color("#00FF7F");
     public static final Color DARK_ORANGE = new Color("#FF8C00");
     public static final Color ROYAL_BLUE = new Color("#4169E1");
+    public static final Color MAROON = new Color("#800000");
 
     public final ChatColor color;
     private ColorFlag[] flags;

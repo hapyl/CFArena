@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
@@ -126,7 +126,7 @@ public class GravityZone extends Talent {
         }
 
         world.getNearbyEntities(location, radius, radiusY + y, radius).forEach(entity -> {
-            if (Utils.isEntityValid(entity) && entity instanceof LivingEntity living) {
+            if (CFUtils.isEntityValid(entity) && entity instanceof LivingEntity living) {
                 list.add(living);
             }
         });

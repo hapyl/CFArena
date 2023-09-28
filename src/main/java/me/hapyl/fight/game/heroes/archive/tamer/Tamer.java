@@ -5,7 +5,10 @@ import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.DisabledHero;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -41,7 +44,7 @@ public class Tamer extends Hero implements Listener, DisabledHero {
 
         final Equipment equipment = getEquipment();
 
-        equipment.setChestplate(
+        equipment.setChestPlate(
                 ItemBuilder.leatherTunic(Color.fromRGB(14557974))
                         .addEnchant(Enchantment.THORNS, 3)
                         .cleanToItemSack()

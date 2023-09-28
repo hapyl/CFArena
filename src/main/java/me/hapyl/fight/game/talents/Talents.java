@@ -9,11 +9,11 @@ import me.hapyl.fight.game.talents.archive.alchemist.CauldronAbility;
 import me.hapyl.fight.game.talents.archive.alchemist.RandomPotion;
 import me.hapyl.fight.game.talents.archive.archer.ShockDark;
 import me.hapyl.fight.game.talents.archive.archer.TripleShot;
-import me.hapyl.fight.game.talents.archive.bloodfiend.chalice.BloodChaliceTalent;
 import me.hapyl.fight.game.talents.archive.bloodfiend.BloodCup;
 import me.hapyl.fight.game.talents.archive.bloodfiend.BloodfiendPassive;
 import me.hapyl.fight.game.talents.archive.bloodfiend.TwinClaws;
 import me.hapyl.fight.game.talents.archive.bloodfiend.candlebane.CandlebaneTalent;
+import me.hapyl.fight.game.talents.archive.bloodfiend.chalice.BloodChaliceTalent;
 import me.hapyl.fight.game.talents.archive.bounty_hunter.GrappleHookTalent;
 import me.hapyl.fight.game.talents.archive.bounty_hunter.ShortyShotgun;
 import me.hapyl.fight.game.talents.archive.dark_mage.BlindingCurse;
@@ -86,6 +86,8 @@ import me.hapyl.fight.game.talents.archive.vampire.VampirePet;
 import me.hapyl.fight.game.talents.archive.vortex.StarAligner;
 import me.hapyl.fight.game.talents.archive.vortex.VortexStar;
 import me.hapyl.fight.game.talents.archive.witcher.*;
+import me.hapyl.fight.game.talents.archive.zealot.BrokenHeartRadiation;
+import me.hapyl.fight.game.talents.archive.zealot.MalevolentHitshield;
 import me.hapyl.spigotutils.module.util.BFormat;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -384,7 +386,7 @@ public enum Talents {
             Taking continuous damage within the set time window will trigger {} for &b3s&7.
                         
             &b&lOrc's Blood
-            Negative effects deal 50% less damage.
+            Negative effects are 50% less effective.
             """, Named.BERSERK), Material.FERMENTED_SPIDER_EYE)),
 
     // Engineer
@@ -400,10 +402,15 @@ public enum Talents {
     BLOOD_CUP(new BloodCup()),
     SUCCULENCE(new BloodfiendPassive()),
 
+    // Zealot
+    BROKEN_HEART_RADIATION(new BrokenHeartRadiation()),
+    MALEVOLENT_HITSHIELD(new MalevolentHitshield()),
+
+
     // ???
     SYNTHETIC_SUN(new SyntheticSun()),
 
-    // test (keep last)
+    // test (keep last),
     TestChargeTalent(new TestChargeTalent());
 
     private final static Map<Talent, Talents> HANDLE_TO_ENUM;

@@ -15,6 +15,8 @@ public class PlayerData {
     private final PlayerProfile profile;
     private final Map<Achievements, AchievementData> achievementData;
 
+    public String lastMessage;
+
     public PlayerData(PlayerProfile profile) {
         this.profile = profile;
         this.achievementData = Maps.newHashMap();
@@ -37,4 +39,24 @@ public class PlayerData {
         return achievementData.computeIfAbsent(achievement, fn -> new AchievementData(profile, achievement));
     }
 
+    public boolean isLastMessageSimilarTo(String message) {
+        if (lastMessage == null || message == null) {
+            return false;
+        }
+
+        String lastMessageLower = lastMessage.toLowerCase();
+        int intersections = 0;
+        int unions = 0;
+
+        for (char c : message.toCharArray()) {
+            if (lastMessageLower.contains(String.valueOf(Character.toLowerCase(c)))) {
+                intersections++;
+            }
+            unions++;
+        }
+
+        double similarity = (double) intersections / unions;
+
+        return similarity >= 0.75d;
+    }
 }

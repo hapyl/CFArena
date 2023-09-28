@@ -14,6 +14,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend;
 import me.hapyl.fight.game.stats.StatContainer;
+import me.hapyl.fight.util.Condition;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.fight.util.displayfield.DisplayFieldSerializer;
@@ -242,7 +243,7 @@ public abstract class Talent extends NonNullItemCreator
         // Now using text block lore
         try { // fixme: try-catch for debugging, remove on prod
             // fix % I fucking hate that java uses % as formatter fucking why
-            description = TalentFormat.formatTalent(description, this);
+            description = StaticFormat.formatTalent(description, this);
             description = description.replace("%", "%%");
 
             builderItem.addTextBlockLore(description);
@@ -506,6 +507,17 @@ public abstract class Talent extends NonNullItemCreator
         return Numbers.clamp(cd / 200, 1, 100);
     }
 
+    public static Condition<Player, Response> preconditionTalentAnd(@Nonnull Player player) {
+        final Response response = preconditionTalent(player);
+        final Condition<Player, Response> condition = new Condition<>(player, response);
+
+        if (response.isError()) {
+            return condition.setStatus(false);
+        }
+
+        return condition.setStatus(true);
+    }
+
     // Precondition player talent (and weapon) if it can be used.
     // Returns the error with a name of the blocking talent or OK.
     public static Response preconditionTalent(Player player) {
@@ -556,5 +568,11 @@ public abstract class Talent extends NonNullItemCreator
          * Yes, ultimates are considered talents.
          */
         ULTIMATE
+    }
+
+    @SuppressWarnings("all")
+    @Deprecated
+    public synchronized void nullifyItem() {
+        item = null;
     }
 }

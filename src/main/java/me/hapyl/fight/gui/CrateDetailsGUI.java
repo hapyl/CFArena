@@ -41,7 +41,7 @@ public class CrateDetailsGUI extends PlayerPageGUI<Cosmetics> {
     }
 
     @Override
-    public void postProcessInventory(Player player, int page) {
+    public void postProcessInventory(@Nonnull Player player, int page) {
         setArrowBack(40, "Crates", cl -> new CrateGUI(player, location));
 
         sortable.setSortItem(this, 39, (onClick, rarity) -> update());
@@ -57,6 +57,7 @@ public class CrateDetailsGUI extends PlayerPageGUI<Cosmetics> {
 
         builder.addLore();
         builder.addLore(Color.DEFAULT.color("Drop Chance: &l%.1f%%"), dropChance * 100);
+        builder.addSmartLore("Drop chances displayed for individual items.", "&8&o");
         builder.addLore(cosmetics.isUnlocked(player)
                 ? (Color.SUCCESS.color("✔ You own this item!"))
                 : (Color.ERROR.color("❌ You don't own this item.")));

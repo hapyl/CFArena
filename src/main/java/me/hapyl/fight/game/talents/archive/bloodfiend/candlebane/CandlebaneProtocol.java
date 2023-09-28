@@ -36,7 +36,7 @@ public class CandlebaneProtocol extends ProtocolListener implements TalentRefere
         final boolean isSneaking = player.isSneaking();
 
         for (Candlebane pillar : talent.getPillars()) {
-            if (!pillar.isPart(entityId)) {
+            if (!pillar.isPart(entityId) || pillar.isAnimation()) {
                 continue;
             }
 

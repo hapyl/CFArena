@@ -2,7 +2,7 @@ package me.hapyl.fight.game.heroes;
 
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.inventory.ItemStack;
 
@@ -80,7 +80,7 @@ public class CachedHeroItem {
 
             builder.addLore();
 
-            builder.addTextBlockLore(hero.getDescription(), "&8&o", 35, Utils.DISAMBIGUATE);
+            builder.addTextBlockLore(hero.getDescription(), "&8&o", 35, CFUtils.DISAMBIGUATE);
 
             if (hero instanceof ComplexHero) {
                 builder.addLore();

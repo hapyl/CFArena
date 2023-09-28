@@ -6,8 +6,8 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Bukkit;
@@ -147,7 +147,7 @@ public class MineOBall extends Talent implements Listener {
                         final LivingEntity target = creature.getTarget();
 
                         // if the target is null or invalid, then change it
-                        if (target == null || (target instanceof Player playerTarget && !Utils.isEntityValid(playerTarget))) {
+                        if (target == null || (target instanceof Player playerTarget && !CFUtils.isEntityValid(playerTarget))) {
                             final LivingEntity newTarget = pack.findNearestTarget();
 
                             if (newTarget == null) {

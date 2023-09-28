@@ -47,4 +47,13 @@ public class ExperienceLevel {
     public boolean hasRewards() {
         return !reward.isEmpty();
     }
+
+    @Override
+    public String toString() {
+        return "ExperienceLevel{level=%s, exp=%s}".formatted(level, exp);
+    }
+
+    public boolean isPrestige() {
+        return level % 5 == 0;
+    }
 }

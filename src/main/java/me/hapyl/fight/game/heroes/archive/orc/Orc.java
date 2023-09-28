@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.archive.orc;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
@@ -13,7 +14,7 @@ import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Equipment;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -27,17 +28,27 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-public class Orc extends Hero {
+public class Orc extends Hero implements Listener {
 
     private final Map<Player, DamageData> damageMap = Maps.newHashMap();
+    private final Set<PotionEffectType> negativeEffects = Sets.newHashSet();
+    private final Set<Player> awaitEffectChange = Sets.newHashSet();
 
     public Orc() {
         super("Pakarat Rakab");
@@ -55,7 +66,7 @@ public class Orc extends Hero {
         setItem("a06220fdfef4d53da8bcef8cbef9a8a3add3d776de43a3781b2f58869ce3d738");
 
         final Equipment equipment = getEquipment();
-        equipment.setChestplate(138, 140, 133, TrimPattern.RIB, TrimMaterial.QUARTZ);
+        equipment.setChestPlate(138, 140, 133, TrimPattern.RIB, TrimMaterial.QUARTZ);
         equipment.setLeggings(20, 19, 51);
         equipment.setBoots(Material.NETHERITE_BOOTS);
 
@@ -81,6 +92,47 @@ public class Orc extends Hero {
                                 AttributeType.DEFENSE
                         )
         );
+
+        negativeEffects.addAll(
+                List.of(
+                        PotionEffectType.SLOW, PotionEffectType.SLOW_DIGGING, PotionEffectType.HARM,
+                        PotionEffectType.CONFUSION, PotionEffectType.BLINDNESS, PotionEffectType.HUNGER,
+                        PotionEffectType.WEAKNESS, PotionEffectType.POISON, PotionEffectType.WITHER, PotionEffectType.DARKNESS
+                )
+        );
+    }
+
+    @EventHandler()
+    public void handleNegativePotion(EntityPotionEffectEvent ev) {
+        final Entity entity = ev.getEntity();
+        final PotionEffect newEffect = ev.getNewEffect();
+        final EntityPotionEffectEvent.Action action = ev.getAction();
+
+        if (!(entity instanceof Player player) || action != EntityPotionEffectEvent.Action.ADDED) {
+            return;
+        }
+
+        if (awaitEffectChange.contains(player)) {
+            awaitEffectChange.remove(player);
+            return;
+        }
+
+        if (!validatePlayer(player) || newEffect == null) {
+            return;
+        }
+
+        final PotionEffectType type = newEffect.getType();
+        if (isNegativeEffect(type)) {
+            final PotionEffect weakerEffect = type.createEffect(
+                    Math.max(newEffect.getDuration() / 2, 0),
+                    Math.max(newEffect.getAmplifier() / 2, 0)
+            );
+
+            ev.setCancelled(true);
+
+            awaitEffectChange.add(player);
+            player.addPotionEffect(weakerEffect);
+        }
     }
 
     @Nullable
@@ -88,13 +140,6 @@ public class Orc extends Hero {
     public DamageOutput processDamageAsVictim(DamageInput input) {
         final Player player = input.getEntityAsPlayer().getPlayer();
         final EnumDamageCause cause = input.getDamageCauseOr(EnumDamageCause.NONE);
-        final double damage = input.getDamage();
-
-        switch (cause) {
-            case WITHER, POISON -> {
-                return new DamageOutput(damage / 2);
-            }
-        }
 
         if (cause != EnumDamageCause.ENTITY_ATTACK) {
             return null;
@@ -181,5 +226,9 @@ public class Orc extends Hero {
     @Override
     public Talent getPassiveTalent() {
         return Talents.ORC_PASSIVE.getTalent();
+    }
+
+    private boolean isNegativeEffect(PotionEffectType type) {
+        return negativeEffects.contains(type);
     }
 }

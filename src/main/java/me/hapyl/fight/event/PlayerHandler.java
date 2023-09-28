@@ -11,6 +11,7 @@ import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.EntityData;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.entity.cooldown.Cooldown;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.parkour.CFParkour;
@@ -63,6 +64,7 @@ import java.util.Random;
 public class PlayerHandler implements Listener {
 
     public static final double RANGE_SCALE = 8.933d;
+    public static final double DAMAGE_LIMIT = Integer.MAX_VALUE;
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handlePlayerJoin(PlayerJoinEvent ev) {
@@ -76,20 +78,48 @@ public class PlayerHandler implements Listener {
             final GameInstance gameInstance = (GameInstance) manager.getCurrentGame();
 
             gameInstance.getMode().onJoin(gameInstance, player);
-            //            gameInstance.populateScoreboard(player);
+            ev.setJoinMessage(null);
         }
         else {
             if (!player.hasPlayedBefore()) {
                 new Tutorial(player);
             }
-        }
 
-        ev.setJoinMessage(Chat.format("&7[&a+&7] %s%s &ewants to fight!", player.isOp() ? "&c" : "", player.getName()));
+            // Only show the join message if the game is not in progress.
+            // Game instance should modify and broadcast the join message.
+            ev.setJoinMessage(Chat.format("&7[&a+&7] %s%s &ewants to fight!", player.isOp() ? "&c" : "", player.getName()));
+        }
     }
 
-    @EventHandler()
-    public void handlePlayerQuitEvent(PlayerQuitEvent ev) {
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void handlePlayerQuit(PlayerQuitEvent ev) {
+        final Player player = ev.getPlayer();
+        final Manager manager = Manager.current();
 
+        if (manager.isGameInProgress()) {
+            final IGameInstance game = manager.getCurrentGame();
+            final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
+
+            if (gamePlayer != null) {
+                game.getMode().onLeave((GameInstance) game, player);
+            }
+
+            ev.setQuitMessage(null);
+        }
+        else {
+            // Only show the quit message if the game is not in progress.
+            // Game instance should modify and broadcast the quit message.
+            ev.setQuitMessage(Chat.format("&7[&c-&7] %s%s &ehas fallen!", player.isOp() ? "&c" : "", player.getName()));
+        }
+
+        // Save database
+        manager.getOrCreateProfile(player).getDatabase().save();
+
+        // Delete database instance
+        PlayerDatabase.removeDatabase(player.getUniqueId());
+
+        // Delete profile
+        manager.removeProfile(player);
     }
 
     // Prevent painting-breaking while the game is in progress
@@ -98,32 +128,6 @@ public class PlayerHandler implements Listener {
         if (Manager.current().isGameInProgress()) {
             ev.setCancelled(true);
         }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void handlePlayerQuit(PlayerQuitEvent ev) {
-        final Player player = ev.getPlayer();
-
-        if (Manager.current().isGameInProgress()) {
-            final IGameInstance game = Manager.current().getCurrentGame();
-            final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
-
-            if (gamePlayer != null) {
-                game.getMode().onLeave((GameInstance) game, player);
-            }
-        }
-
-        ev.setQuitMessage(Chat.format("&7[&c-&7] %s%s &ehas fallen!", player.isOp() ? "&c" : "", player.getName()));
-
-        // save database
-        Manager.current().getOrCreateProfile(player).getDatabase().save();
-
-        // delete database instance
-        PlayerDatabase.removeDatabase(player.getUniqueId());
-        //        PlayerDatabase.dumpDatabaseInstanceInConsoleToConfirmThatThereIsNoMoreInstancesAfterRemoveIsCalledButThisIsTemporaryShouldRemoveOnProd();
-
-        // Delete profile
-        Manager.current().removeProfile(player);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -252,8 +256,15 @@ public class PlayerHandler implements Listener {
             return;
         }
 
+        // Don't damage invulnerable entities
+        if (livingEntity.isInvulnerable()) {
+            ev.setDamage(0.0d);
+            ev.setCancelled(true);
+            return;
+        }
+
         // This is what actually stores all the custom data
-        // needed to handle custom damage/causes.
+        // needed to handle custom damage/causes
         final LivingGameEntity gameEntity = CF.getEntity(livingEntity);
 
         if (!Manager.current().isGameInProgress()) {
@@ -271,6 +282,7 @@ public class PlayerHandler implements Listener {
             return;
         }
 
+        final double initialDamage = ev.getDamage();
         final DamageInstance instance = new DamageInstance(gameEntity, ev.getDamage());
         final EntityData data = gameEntity.getData();
 
@@ -449,11 +461,13 @@ public class PlayerHandler implements Listener {
         }
 
         // Ferocity
-        if (lastDamager != null) {
+        if (lastDamager != null && instance.cause != EnumDamageCause.FEROCIY && !gameEntity.hasCooldown(Cooldown.FEROCITY)) {
             final EntityAttributes damagerAttributes = lastDamager.getAttributes();
             final int ferocityStrikes = damagerAttributes.getFerocityStrikes();
 
-            // TODO (hapyl): 003, Aug 3: impl ferocity
+            if (ferocityStrikes > 0) {
+                gameEntity.executeFerocity(instance.damage, lastDamager, ferocityStrikes);
+            }
         }
 
         // PROCESS HERO EVENTS
@@ -507,6 +521,19 @@ public class PlayerHandler implements Listener {
             return;
         }
 
+        // Process true damage
+        if (instance.cause.isTrueDamage()) {
+            instance.damage = initialDamage;
+            data.setLastDamage(initialDamage);
+        }
+
+        // Keep damage in limit
+        if (instance.damage > DAMAGE_LIMIT) {
+            Debug.warn("%s dealt too much damage! (%.1f)", lastDamager == null ? "Server" : lastDamager.getName(), instance.damage);
+            instance.damage = DAMAGE_LIMIT;
+            data.setLastDamage(DAMAGE_LIMIT);
+        }
+
         // Show damage indicator if dealt more
         // than 1 damage to remove clutter
         if (instance.damage >= 1.0d && !(entity instanceof ArmorStand) && !livingEntity.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
@@ -532,7 +559,6 @@ public class PlayerHandler implements Listener {
         // Make sure not to kill players but instead
         // put them in spectator mode
         if (gameEntity instanceof GamePlayer player) {
-
             // Decrease health
             player.markCombatTag();
 
@@ -550,7 +576,6 @@ public class PlayerHandler implements Listener {
                 ev.setCancelled(true);
             }
         }
-
     }
 
     // A little wonky implementation, but it allows damaging endermen with arrows.

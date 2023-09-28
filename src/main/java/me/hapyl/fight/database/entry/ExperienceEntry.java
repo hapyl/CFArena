@@ -15,10 +15,46 @@ public class ExperienceEntry extends PlayerDatabaseEntry {
         super(playerDatabase);
     }
 
+    public void reset(Type type) {
+        this.set(type, type.getMinValue());
+    }
+
+    public Document getExperience() {
+        return getDocument().get("experience", new Document());
+    }
+
+    public long get(Type type) {
+        return getExperience().get(type.name(), type.getMinValue());
+    }
+
+    public void set(Type type, long value) {
+        final Document document = getExperience();
+        document.put(type.name(), Numbers.clamp(value, type.getMinValue(), type.getMaxValue()));
+
+        type.onSet(getPlayer(), value);
+        getDocument().put("experience", document);
+
+        // Only update if exp changed
+        final Experience experience = Main.getPlugin().getExperience();
+        final Player player = getPlayer();
+
+        if (type == Type.EXP && experience.canLevelUp(player)) {
+            experience.levelUp(getPlayer(), false);
+        }
+    }
+
+    public void remove(Type type, long value) {
+        add(type, -value);
+    }
+
+    public void add(Type type, long value) {
+        set(type, get(type) + value);
+    }
+
     public enum Type {
 
         EXP("Total amount of experience.", 0),
-        LEVEL("Current level.", 1, 20) {
+        LEVEL("Current level.", 1, 50) {
             @Override
             public void onSet(Player player, long value) {
                 final Experience experience = Main.getPlugin().getExperience();
@@ -63,53 +99,9 @@ public class ExperienceEntry extends PlayerDatabaseEntry {
             return maxValue;
         }
 
-        public String pathLegacy() {
-            return "exp." + name().toLowerCase();
-        }
-
         public void onSet(Player player, long value) {
         }
 
-    }
-
-    public void reset(Type type) {
-        this.set(type, type.getMinValue());
-    }
-
-    public Document getExperience() {
-        return getDocument().get("experience", new Document());
-    }
-
-    public long get(Type type) {
-        return getExperience().get(type.name(), type.getMinValue());
-    }
-
-    // Super
-    public void set(Type type, long value) {
-        final Document experience = getExperience();
-        experience.put(type.name(), Numbers.clamp(value, type.getMinValue(), type.getMaxValue()));
-
-        type.onSet(getPlayer(), value);
-
-        getDocument().put("experience", experience);
-
-        // Update experience
-        updateExperience();
-    }
-
-    public void updateExperience() {
-        final Experience experience = Main.getPlugin().getExperience();
-
-        experience.levelUp(getPlayer(), false);
-        experience.triggerUpdate(getPlayer());
-    }
-
-    public void remove(Type type, long value) {
-        add(type, -value);
-    }
-
-    public void add(Type type, long value) {
-        set(type, get(type) + value);
     }
 
 

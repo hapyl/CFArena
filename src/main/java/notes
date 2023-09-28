@@ -136,9 +136,9 @@ default game entity.
 
 - !!! Improve custom AI, include invisibility, target the most damager ETC!!!
 - [✔] Show kill distance for projectiles only
-- Shark does not have bleed
-- Dwarf lava
-- Do something with non game entities, IDK what but do something!!!
+- [✔] Shark does not have bleed
+- [✔] Dwarf lava
+- [✔] Do something with non game entities, IDK what but do something!!!
 
 - [✔] Ninja takes fall damage
 - [✔] Ninja stars don't deal damage
@@ -148,16 +148,15 @@ default game entity.
 --  at ClassesFightArena.jar//me.hapyl.fight.game.ui.GamePlayerUI.updateScoreboard(GamePlayerUI.java:147)
 
 - Display damage boost for nightmare
-- Taker scythe (1) does not work
-- Range weapons does not work
-- Mage cannot damage range
-- Dont set GamePlayer set 1 HP!
+- [✔] Taker scythe (1) does not work
+- [✔] Range weapons does not work
+- [✔] Mage cannot damage range
+- [✔] Don't set GamePlayer set 1 HP!
 
 -- Super complex but worth a try:
 -- Custom player (Human) AI
 
 ############################
-[BLOODFIEND TEST]
 - [Could not reproduce, neither in local nor in building server] Chalice laggs server?
 - [✔] Remove all SUCC at death
 - [✔] Batransfer multiple reset cancel task
@@ -176,12 +175,7 @@ default game entity.
 - [✔] Change Spectral Form FX to be swarm of bats like a cloud?
 - [✔] 200 CD candle too much, maybe remove cd since there is now a FUCK
 - [✔] Reduce weapon damage
-- Reduce defense?
 - [✔] Display chalice/pillar to vampire
-
-###########################
-[Cat Test]
-
 - [✔] Vault lava does not bounce
 - [✔] Offset location if inside a slab/stair by 1
 - [✔] Fix anchor and offset location
@@ -193,38 +187,49 @@ default game entity.
 - [✔] Update inventory after skin apply
 - [✔] to the taunted "playerS"
 - [✔] Buff impel?
+- [✔] Achievement: Hit 2 players with Twinclaws
+- [✔] DONT ALLOW TO REMOVE TAUNT BEFORE THE ANIMATION IS OVER
+- [✔] FAKE PLAYER WHEN BLOODFIEND ULT = REAL IS ONE OF THE BATS KEKW!!
+- [✔] Get LOS target debug REMOVE IT
+- [✔] Armor stands are valid?
+- [✔] Chalice is TOO easy to break
+- [✔] GameProfile is messed up for skins
+- [✔] Dying while taunt animation throws error and places the taunt anyways
+- [✔] Disallow creating game player in lobby
+- [✔] Remove knockback on vampire
+- [✔] Achievement: SPAM CANCEL GAME LIKE 10 TIMES OR SOMETHING
+- [✔] dumpColor gives lower case shit and SUGGEST not COPY
+- [✔] Rifle does not reload on death
+- [✔] Reduce knockback from range weapons
+- [✔] Start vote does not work using item
+- [✔] Can die from fell world
+- [✔] Jump japan dont work
+- [✔] Spark not cause
+- [✔] Add global cobweb for troll
+- [✔] Add damage boost to shorty while in hook
+- [✔] Lower defense
+- [✔] Test DM since reworked spell casting
+- [✔] Improve DM dark spell
+- [✔] TAUNT DEAD MESSAGE IS BOLD
 
 - Add bleed FX with bloodfiend one.
 - Add remove FX to a pillar.
-- GameProfile is messed up for skins
-- Dying while taunt animation throws error and places the taunt anyways
-- Disallow creating game player in lobby
 - Add hypixel-like server restart
-- Remove knockback on vampire
-- Limit taunt to 1 player
+- Limit taunt to 1 player (then ability becomes kinda useless with 1v1)
 - Add bleed FX, add bleed to BH
-- Swooper weapon disappeared???
-- TAUNT DEAD MESSAGE IS BOLD
-- Add "time before spawn" for HP/enegry
+- [Could not reproduce] Swooper weapon disappeared???
+- [✔] Add "time before spawn" for HP/enegry
 - Wrong taunt? 2 players, huh, how!
-- [✔] Achievement: Hit 2 players with Twinclaws
 - Bleed does not have damager?
-- DONT ALLOW TO REMOVE TAUNT BEFORE THE ANIMATION IS OVER
-- FAKE PLAYER WHEN BLOODFIEND ULT = REAL IS ONE OF THE BATS KEKW!!
 - Spectral Form has too big CD?
-- Get LOS target debug REMOVE IT
-- Achievement: SPAM CANCEL GAME LIKE 10 TIMES OR SOMETHING
-- UI does not update after rejoin (Only health and ult doesn't)
-- Maybe randomize candle clicks?
-- [✔] Armor stands are valid?
-- [✔] Chalice is TOO easy to break
-- dumpColor gives lower case shit and SUGGEST not COPY
+- [✔] Maybe randomize candle clicks?
 - Nightmare had 80 hp? (Random class issue I think)
-- [✔] Rifle does not reload on death
 - Maybe just damage with grav, not BUB DOWN BOOB BOOBA?
 - When rejoining a game, a selected class instead of random is given (I don't think this is fixable, just fucking remove rejoining who the fuck cares)
 
 ############################
+
+- ACHIEVEMENT: Look at all owls in winery.
 
 - Maybe genshin slowing aura for freazly
 - Maybe add glowing for self traps
@@ -243,33 +248,33 @@ default game entity.
 - Maybe rework passive to be "If have paranoia, take more damage" though it would be hard to detect who applied without using a map
 - UPGRADES PEOPLE UPGRADES not removed on death
 - Anchor dr ed particles
-- [✔] Reduce knockback from range weapons
-- [✔] Start vote does not work using item
-- [✔] Can die from fell world
-- [✔] Jump japan dont work
-- [✔] Spark not cause
 
 - Input talent does not reset when predicate false?
 
 - Check for melee damage
 - Some death messages show damager when they shouldn't
 - Ender TP should give attack
-- [✔] Add global cobweb for troll
 - DEAD GIFT TECHIE
-- [✔] Add damage boost to shorty while in hook
-- [✔] Lower defense
-
-- [✔] Test DM since reworked spell casting
-- [✔] Improve DM dark spell
 
 - !!! Allow console to use stop
 - Orc dash is very long
 - cauldron zone is not removed
 - shield does not reset on death
 - apply riptide on CRITS (might be too OP and wil have to nerf riptide slash)
-- pillar is not removed when bottom block is air since it only check for it
+- [✔] pillar is not removed when bottom block is air since it only check for it
 
 - Rework techie a bit, add delay to traps and ult is useless :|
+
+#################
+
+- [✔] ferocity -150?
+- [✔] heal anim is weird (THEY ARE FAST WTF)
+- [✔] Shark drowning kekw
+
+- Skin messes up with effects? entity status thing glowing
+- Backstab does not work?
+
+##################
 
 - Repackage talent/hero handles?
 - Cleanup Code
@@ -282,7 +287,7 @@ default game entity.
     - [✔] Dr. Ed (Second✔, Passive)
     - Freazly (Second, Passive)
     - [✔] Dark Mage (Passive)
-    - Swooper (Second✔)
+    - [✔] Swooper (Second✔)
     - Tamer (First, Second, Passive)
     - Shark (Second)
     - Librarian (Passive)

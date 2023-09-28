@@ -2,7 +2,6 @@ package me.hapyl.fight.game.profile;
 
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.ScoreboardTeams;
 import me.hapyl.fight.game.delivery.Deliveries;
@@ -11,10 +10,12 @@ import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.profile.data.PlayerData;
+import me.hapyl.fight.game.profile.relationship.PlayerRelationship;
 import me.hapyl.fight.game.setting.Setting;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.GamePlayerUI;
+import me.hapyl.fight.infraction.PlayerInfraction;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -35,6 +36,8 @@ public class PlayerProfile {
     private final ScoreboardTeams scoreboardTeams;
     private final PlayerSkin originalSkin;
     private final PlayerData playerData;
+    private final PlayerInfraction infractions;
+    private final PlayerRelationship relationship;
 
     @Nullable
     private GamePlayer gamePlayer; // current game player
@@ -55,9 +58,20 @@ public class PlayerProfile {
         this.loaded = false;
         this.resourcePack = false;
         this.buildMode = false;
-
+        this.infractions = new PlayerInfraction(this);
+        this.relationship = new PlayerRelationship(this);
         this.playerData = new PlayerData(this);
         this.originalSkin = PlayerSkin.of(player);
+    }
+
+    @Nonnull
+    public PlayerRelationship getPlayerRelationship() {
+        return relationship;
+    }
+
+    @Nonnull
+    public PlayerInfraction getInfractions() {
+        return infractions;
     }
 
     @Nonnull
@@ -141,9 +155,11 @@ public class PlayerProfile {
     public GamePlayer createGamePlayer() {
         this.gamePlayer = new GamePlayer(this);
 
-        final RuntimeException exception = new RuntimeException();
-        Debug.severe("Dumped GamePlayer creation for " + player.getName());
-        exception.printStackTrace();
+        if (Manager.current().getDebug().any()) {
+            //final RuntimeException exception = new RuntimeException();
+            //Debug.info("Dumped GamePlayer creation for " + player.getName());
+            //exception.printStackTrace();
+        }
 
         return gamePlayer;
     }

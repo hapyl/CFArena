@@ -4,7 +4,7 @@ import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Rarity;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.ux.Message;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.hologram.PlayerHologram;
@@ -71,11 +71,11 @@ public class CrateChest extends Location {
     }
 
     public void playOpenAnimation() {
-        Utils.playChestAnimation(getBlock(), true);
+        CFUtils.playChestAnimation(getBlock(), true);
     }
 
     public void playCloseAnimation() {
-        Utils.playChestAnimation(getBlock(), false);
+        CFUtils.playChestAnimation(getBlock(), false);
     }
 
     public void broadcastLoot(@Nonnull CrateLoot crateLoot) {

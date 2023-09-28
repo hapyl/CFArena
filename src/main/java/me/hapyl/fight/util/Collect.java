@@ -394,7 +394,7 @@ public final class Collect {
     }
 
     /**
-     * Gets the nearest entity to the given location <b>without</b> performing {@link Utils#isEntityValid(Entity)} check.
+     * Gets the nearest entity to the given location <b>without</b> performing {@link CFUtils#isEntityValid(Entity)} check.
      * It is <b>not</b> recommended to use this method, because it is missing the important checks.
      *
      * @param location  - Location.

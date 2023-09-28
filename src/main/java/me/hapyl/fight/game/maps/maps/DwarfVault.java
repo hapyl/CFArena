@@ -78,8 +78,8 @@ public class DwarfVault extends GameMap {
         entity.startCooldown(Cooldown.DWARF_LAVA);
 
         // Fx
-        entity.playSound(Sound.BLOCK_LAVA_POP, 0.0f);
-        entity.playSound(Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.0f);
-        entity.playSound(Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 0.75f);
+        entity.playPlayerSound(Sound.BLOCK_LAVA_POP, 0.0f);
+        entity.playPlayerSound(Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.0f);
+        entity.playPlayerSound(Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 0.75f);
     }
 }

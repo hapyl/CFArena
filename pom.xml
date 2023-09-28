@@ -88,6 +88,11 @@
         </repository>
 
         <repository>
+            <id>citizens-repo</id>
+            <url>https://maven.citizensnpcs.co/repo</url>
+        </repository>
+
+        <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
@@ -130,17 +135,10 @@
             <scope>provided</scope>
         </dependency>
 
-        <!--         LOCAL REPO FOR TESTING -->
-        <!--        <dependency>-->
-        <!--            <groupId>me.hapyl</groupId>-->
-        <!--            <artifactId>EternaAPI</artifactId>-->
-        <!--            <version>2.34.4-SNAPSHOT</version>-->
-        <!--        </dependency>-->
-
         <dependency>
             <groupId>com.github.hapyl</groupId>
             <artifactId>EternaAPI</artifactId>
-            <version>2.35.2-SNAPSHOT</version>
+            <version>2.36.2-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -148,6 +146,15 @@
             <artifactId>mongo-java-driver</artifactId>
             <version>3.12.12</version>
         </dependency>
+
+        <!--        <dependency>-->
+        <!--            <groupId>net.citizensnpcs</groupId>-->
+        <!--            <artifactId>citizensapi</artifactId>-->
+        <!--            <version>2.0.30-SNAPSHOT</version>-->
+        <!--            <type>jar</type>-->
+        <!--            <scope>compile</scope>-->
+        <!--        </dependency>-->
+
     </dependencies>
 
 </project>

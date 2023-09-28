@@ -5,10 +5,12 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.PlayerElement;
-import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
+import me.hapyl.fight.game.weapons.ability.Ability;
+import me.hapyl.fight.game.weapons.ability.AbilityType;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -28,7 +30,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
-public abstract class RangeWeapon extends Weapon implements GameElement, PlayerElement, UIComponent {
+public abstract class RangeWeapon extends Weapon
+        implements GameElement, PlayerElement, UIComponent, LeftClickable, RightClickable {
 
     private final Map<Player, Integer> playerAmmo;
 
@@ -54,6 +57,95 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
         this.playerAmmo = Maps.newHashMap();
         this.maxAmmo = 8;
         this.reloadTime = 100;
+
+        setAbility(AbilityType.RIGHT_CLICK, Ability.of("Shoot!", "Shoot your weapon.", (RightClickable) this));
+        setAbility(AbilityType.LEFT_CLICK, Ability.of("Reload!", "Reload your weapon manually.", (LeftClickable) this));
+    }
+
+    @Override
+    public void onLeftClick(@Nonnull Player player, @Nonnull ItemStack item) {
+        if (hasCooldown(player) || getPlayerAmmo(player) >= maxAmmo) {
+            return;
+        }
+
+        reload(player);
+    }
+
+    @Override
+    public void onRightClick(@Nonnull Player player, @Nonnull ItemStack item) {
+        if (hasCooldown(player)) {
+            return;
+        }
+
+        final double maxDistance = getMaxDistance(player);
+        final int weaponCooldown = getWeaponCooldown(player);
+
+        onShoot(player);
+
+        Nulls.runIfNotNull(sound, s -> {
+            PlayerLib.playSound(player.getLocation(), s, pitch);
+        });
+
+        final Location location = player.getLocation().add(0, 1.5, 0);
+        final Vector vector = location.getDirection().normalize();
+
+        // Cooldown and Ammunition
+        final int ammo = subtractAmmo(player);
+
+        if (ammo <= 0) {
+            reload(player);
+        }
+        else {
+            startCooldown(player, weaponCooldown);
+        }
+
+        for (double i = 0; i < maxDistance; i += shift) {
+            final double x = vector.getX() * i;
+            final double y = vector.getY() * i;
+            final double z = vector.getZ() * i;
+
+            location.add(x, y, z);
+
+            // check for block predicate
+            if (!predicateBlock(location.getBlock())) {
+                Nulls.runIfNotNull(particleHit, p -> {
+                    p.display(location);
+                });
+                break;
+            }
+
+            for (final LivingGameEntity target : Collect.nearbyEntities(location, 1.0d)) {
+                final LivingEntity targetEntity = target.getEntity();
+                if (target.is(player) || !predicateEntity(targetEntity)) {
+                    continue;
+                }
+
+                final double distanceToHead = location.distance(target.getEyeLocation());
+                final boolean isHeadShot = distanceToHead <= HEADSHOT_THRESHOLD;
+
+                onHit(player, targetEntity, isHeadShot);
+
+                target.modifyKnockback(0.5d, d -> {
+                    d.damage(getDamage(player, false), CF.getPlayer(player), getDamageCause(player));
+                });
+
+                Nulls.runIfNotNull(particleHit, p -> {
+                    p.display(location);
+                });
+
+                return;
+            }
+
+            if (i > 1.0) {
+                Nulls.runIfNotNull(particleTick, p -> {
+                    p.display(location);
+                });
+
+                onMove(player, location);
+            }
+
+            location.subtract(x, y, z);
+        }
     }
 
     @Override
@@ -148,7 +240,7 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
     }
 
     // override for custom per-player damage
-    public double getDamage(Player player) {
+    public double getDamage(Player player, boolean headshot) {
         return getDamage();
     }
 
@@ -160,10 +252,11 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
     /**
      * Called whenever entity was hit by the path.
      *
-     * @param player - Shooter.
-     * @param entity - Hit entity.
+     * @param player   - Shooter.
+     * @param entity   - Hit entity.
+     * @param headshot - Whenever the hit was a headshot or not.
      */
-    public void onHit(Player player, LivingEntity entity) {
+    public void onHit(Player player, LivingEntity entity, boolean headshot) {
     }
 
     /**
@@ -215,15 +308,6 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
         return this;
     }
 
-    @Override
-    public final void onLeftClick(Player player, ItemStack item) {
-        if (hasCooldown(player) || getPlayerAmmo(player) >= maxAmmo) {
-            return;
-        }
-
-        reload(player);
-    }
-
     public void reload(Player player) {
         final ItemStack item = player.getInventory().getItem(0);
 
@@ -267,78 +351,7 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
         startCooldown(player, reloadTime);
     }
 
-    @Override
-    public final void onRightClick(Player player, ItemStack item) {
-        if (hasCooldown(player)) {
-            return;
-        }
-
-        final double maxDistance = getMaxDistance(player);
-        final int weaponCooldown = getWeaponCooldown(player);
-
-        this.onShoot(player);
-
-        Nulls.runIfNotNull(sound, s -> {
-            PlayerLib.playSound(player.getLocation(), s, pitch);
-        });
-
-        final Location location = player.getLocation().add(0, 1.5, 0);
-        final Vector vector = location.getDirection().normalize();
-
-        // Cooldown and Ammunition
-        final int ammo = subtractAmmo(player);
-
-        if (ammo <= 0) {
-            reload(player);
-        }
-        else {
-            startCooldown(player, weaponCooldown);
-        }
-
-        for (double i = 0; i < maxDistance; i += shift) {
-            final double x = vector.getX() * i;
-            final double y = vector.getY() * i;
-            final double z = vector.getZ() * i;
-
-            location.add(x, y, z);
-
-            // check for block predicate
-            if (!predicateBlock(location.getBlock())) {
-                Nulls.runIfNotNull(particleHit, p -> {
-                    p.display(location);
-                });
-                break;
-            }
-
-            for (final LivingGameEntity target : Collect.nearbyEntities(location, 1.0d)) {
-                final LivingEntity targetEntity = target.getEntity();
-                if (target.is(player) || !predicateEntity(targetEntity)) {
-                    continue;
-                }
-
-                this.onHit(player, targetEntity);
-
-                target.modifyKnockback(0.5d, d -> {
-                    d.damage(getDamage(player), CF.getPlayer(player), getDamageCause(player));
-                });
-
-                Nulls.runIfNotNull(particleHit, p -> {
-                    p.display(location);
-                });
-                return;
-            }
-
-            if (i > 1.0) {
-                Nulls.runIfNotNull(particleTick, p -> {
-                    p.display(location);
-                });
-
-                this.onMove(player, location);
-            }
-
-            location.subtract(x, y, z);
-        }
-    }
+    public static final double HEADSHOT_THRESHOLD = 0.75d;
 
     public int getPlayerAmmo(Player player) {
         return playerAmmo.computeIfAbsent(player, fn -> maxAmmo);

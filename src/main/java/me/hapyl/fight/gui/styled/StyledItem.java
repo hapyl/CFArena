@@ -15,7 +15,7 @@ public class StyledItem implements StyledBuilder {
     );
 
     public static final StyledItem ICON_LEVELLING = new StyledItem(
-            Material.EMERALD,
+            "87d885b32b0dd2d6b7f1b582a34186f8a5373c46589a273423132b448b803462",
             "Leveling",
             "Earn experience by playing the game to unlock &bheroes&7 and &6unique &7rewards!"
     );

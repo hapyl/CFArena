@@ -52,6 +52,7 @@ public enum Temper implements Described {
             attributes.decreaseTemporary(this, AttributeType.DEFENSE, value, duration);
         }
     },
+
     INQUISITION("Inquisition", "Reduces all attributes by 20%.", false) {
         @Override
         public String getMessage() {
@@ -73,6 +74,14 @@ public enum Temper implements Described {
 
                 attributes.decreaseTemporary(this, type, value * 0.8d, duration);
             }
+        }
+    },
+
+    RADIATION("Radiation", "Reduces mending.", false) {
+        @Override
+        protected void affect(@Nonnull EntityAttributes attributes, double value, int duration) {
+            attributes.decreaseTemporary(this, AttributeType.MENDING, value, duration);
+            attributes.decreaseTemporary(this, AttributeType.DEFENSE, value, duration);
         }
     },
 

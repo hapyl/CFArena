@@ -6,7 +6,8 @@ package me.hapyl.fight.game.entity.cooldown;
 public enum Cooldown {
 
     DWARF_LAVA(1000),
-    ;
+    BEAM_TOUCH(500),
+    FEROCITY(100);
 
     public final long duration;
 

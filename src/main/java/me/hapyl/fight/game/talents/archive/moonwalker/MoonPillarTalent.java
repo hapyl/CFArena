@@ -6,8 +6,8 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.CreationTalent;
 import me.hapyl.fight.game.talents.TickingDisplayCreation;
 import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.block.display.BlockStudioParser;
 import me.hapyl.spigotutils.module.block.display.DisplayData;
@@ -96,7 +96,7 @@ public class MoonPillarTalent extends CreationTalent {
 
                 //fx
                 PlayerLib.playSound(location, Sound.ENTITY_IRON_GOLEM_DAMAGE, 0.75f);
-                Utils.getWorld(location).spawnParticle(Particle.SPIT, location.clone().add(0, 2, 0), 15, 0, 1, 0, 0.05);
+                CFUtils.getWorld(location).spawnParticle(Particle.SPIT, location.clone().add(0, 2, 0), 15, 0, 1, 0, 0.05);
 
                 cancelIfActive();
             }

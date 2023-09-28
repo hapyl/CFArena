@@ -66,7 +66,7 @@ public class BlackHole extends LibrarianTalent {
                 if (tick % 20 == 0) {
                     entity.damage(getCurrentValue(Heroes.LIBRARIAN.getHero(Librarian.class).getGrimoireLevel(player)));
                     entity.spawnWorldParticle(entityLocation, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0);
-                    entity.playSound(Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.25f);
+                    entity.playPlayerSound(Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.25f);
                 }
 
             });

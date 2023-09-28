@@ -1,6 +1,6 @@
 package me.hapyl.fight.util.displayfield;
 
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 
 import javax.annotation.Nonnull;
@@ -18,7 +18,7 @@ public final class DisplayFieldSerializer {
             return "%s: &f&l%s".formatted(key, value);
         }
     };
-    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.00");
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.0");
 
     public static void serialize(ItemBuilder builder, DisplayFieldProvider provider, DisplayFieldFormatter formatter) {
         for (Field field : provider.getClass().getDeclaredFields()) {
@@ -74,22 +74,15 @@ public final class DisplayFieldSerializer {
             String stringValue = "";
 
             if (value instanceof Double decimal) {
-                final double scaled = decimal * scale;
-
-                if (scaled % 1 == 0) {
-                    stringValue = String.valueOf((int) scaled);
-                }
-                else {
-                    stringValue = DECIMAL_FORMAT.format(scaled);
-                }
+                stringValue = scaleFormat(decimal * scale);
             }
             // Integers are always considered as ticks, use short or long for other values
             // Integers are NOT scaled with the scale!
             else if (value instanceof Integer tick) {
-                stringValue = Utils.decimalFormatTick(tick);
+                stringValue = CFUtils.decimalFormatTick(tick);
             }
             else if (value instanceof Number number) {
-                stringValue = Utils.decimalFormat((int) number * scale);
+                stringValue = scaleFormat(number.intValue() * scale);
             }
             else if (value instanceof String string) {
                 stringValue = string;
@@ -97,7 +90,8 @@ public final class DisplayFieldSerializer {
 
             return stringValue + (suffix.isBlank() || suffix.isEmpty() ? "" : (suffixSpace ? " " : "") + suffix);
         } catch (Exception e) {
-            return "null";
+            e.printStackTrace();
+            return "ERROR!";
         }
     }
 
@@ -125,6 +119,15 @@ public final class DisplayFieldSerializer {
         forEachDisplayField(from, (f, df) -> {
             to.getDisplayFieldData().add(new DisplayFieldData(f, df, from));
         });
+    }
+
+    private static String scaleFormat(double v) {
+        if (v % 1 == 0) {
+            return String.valueOf((int) v);
+        }
+        else {
+            return DECIMAL_FORMAT.format(v);
+        }
     }
 
     private static String format(DisplayField display, DisplayFieldFormatter formatter, Field field, Object instance) {

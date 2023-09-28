@@ -26,7 +26,7 @@ public class FatalReap extends Talent {
         super("Fatal Reap");
 
         setDescription("""
-                Instantly charge opponents' bones with a powerful scythe swipe and unleash a devastating attack that shatters their bones, dealing &c{damagePercent}%%&7 of their current health as damage.
+                Instantly charge opponents' bones with a powerful scythe swipe and unleash a devastating attack that shatters their bones, dealing &c{damagePercent}&7 of their current health as damage.
                                 
                 &6;;Convert &b{spiritualBoneGeneration}&6 broken bones directly into &eSpiritual Bones&6.
                 """);

@@ -4,19 +4,19 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Equipment;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.particle.ParticleBuilder;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -53,7 +53,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
         setItem("9598fcbbf65b9ff66da99487403e4baf7e4c50144d06c7417bbded578d76d004");
 
         final Equipment equipment = getEquipment();
-        equipment.setChestplate(Color.BLACK);
+        equipment.setChestPlate(Color.BLACK);
         equipment.setLeggings(Color.BLACK);
         equipment.setBoots(Color.BLACK);
 
@@ -133,7 +133,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
     public boolean processInvisibilityDamage(GamePlayer player, LivingGameEntity entity, double damage) {
         if (player.isSneaking()) {
             player.sendMessage("&cCannot deal damage while in &lDark Cover&c!");
-            player.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
+            player.playPlayerSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
             return true;
         }
 
@@ -144,14 +144,14 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
     public DamageOutput processDamageAsDamager(DamageInput input) {
         final Player player = input.getDamagerAsBukkitPlayer();
 
-        if (input.getDamageCause() != EnumDamageCause.ENTITY_ATTACK) {
+        if (player == null || input.getDamageCause() != EnumDamageCause.ENTITY_ATTACK) {
             return DamageOutput.OK;
         }
 
         // Calculate back stab
         final LivingGameEntity gameEntity = input.getDamagerAsLiving();
         if (gameEntity == null) {
-            return null;
+            return DamageOutput.OK;
         }
 
         final LivingEntity entity = gameEntity.getEntity();
@@ -162,7 +162,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
             }
         }
 
-        return null;
+        return DamageOutput.OK;
     }
 
     @Override
@@ -195,14 +195,14 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
         // Enter
         if (flag) {
             PlayerLib.addEffect(player, PotionEffectType.INVISIBILITY, 999999, 5);
-            Utils.hidePlayer(player);
+            CFUtils.hidePlayer(player);
 
             playDarkCoverFx(player, true);
         }
 
         else {
             PlayerLib.removeEffect(player, PotionEffectType.INVISIBILITY);
-            Utils.showPlayer(player);
+            CFUtils.showPlayer(player);
 
             playDarkCoverFx(player, false);
         }
@@ -259,6 +259,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
                 && !player.hasCooldown(getWeapon().getMaterial()) && player.getInventory().getHeldItemSlot() == 0;
     }
 
+    // FIXME (hapyl): 028, Sep 28: Pretty sure this does not work
     // TODO (hapyl): 006, Aug 6: replace with game entity?
     public void performBackStab(Player player, @Nonnull LivingEntity entity) {
         final Location location = entity.getLocation();

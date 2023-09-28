@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.archive.bounty_hunter;
 
 import com.google.common.collect.Sets;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
@@ -108,6 +109,7 @@ public class ShortyShotgun extends Talent {
             if (entity != null) {
                 // Check for bleed
                 if (entity.getLocation().distance(player.getLocation()) <= bleedThreshold) {
+                    entity.setLastDamager(CF.getPlayer(player));
                     entity.addEffect(GameEffectType.BLEED, bleedDuration, true);
                     entity.addEffect(GameEffectType.VULNERABLE, bleedDuration, true);
                 }

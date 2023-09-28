@@ -18,8 +18,8 @@ public class BloodChaliceTalent extends TauntTalent<BloodChalice> implements Lis
 
     @DisplayField protected final short chaliceHealth = 3;
     @DisplayField protected final double maxDistance = 30.0d;
-    @DisplayField private final double damage = 75.0d;
-    @DisplayField(suffix = "%", suffixSpace = false) public final double healingPercent = 10;
+    @DisplayField private final double damage = 25.0d;
+    @DisplayField(suffix = "%", suffixSpace = false) public final double healingPercent = 50;
 
     public BloodChaliceTalent() {
         super("Blood Chalice");

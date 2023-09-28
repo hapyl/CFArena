@@ -14,7 +14,7 @@ public class BloodfiendPassive extends PassiveTalent {
     @DisplayField public final double maxFlightHeight = 6;
 
     public BloodfiendPassive() {
-        super("Vampire's Bite/Batransfer", Material.RED_DYE);
+        super("Vampire's Bite/Spectral Form", Material.RED_DYE);
 
         setDescription("""
                 &b&lVampire's Bite

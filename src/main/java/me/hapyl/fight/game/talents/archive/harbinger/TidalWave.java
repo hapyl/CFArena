@@ -7,8 +7,8 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.harbinger.Harbinger;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
@@ -54,7 +54,7 @@ public class TidalWave {
             @Override
             public void run() {
                 if (!affectedBlocks.isEmpty()) {
-                    Utils.clearCollection(affectedBlocks);
+                    CFUtils.clearCollection(affectedBlocks);
                 }
 
                 if (tick > duration) {
@@ -128,7 +128,7 @@ public class TidalWave {
                 player.getPlayer().sendBlockChange(blockLocation, Material.WATER.createBlockData());
 
                 // Fx
-                final double offset = Utils.scaleParticleOffset(0.5d);
+                final double offset = CFUtils.scaleParticleOffset(0.5d);
                 PlayerLib.spawnParticle(blockLocation, Particle.WATER_SPLASH, 1, offset, offset, offset, 0.15f);
             }
         }

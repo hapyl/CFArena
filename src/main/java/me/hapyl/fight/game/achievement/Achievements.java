@@ -32,11 +32,11 @@ public enum Achievements {
             )
     ),
 
-    TEST_TIERED_ACHIEVEMENT(
+    LEVEL_TIERED(
             new TieredAchievement(
-                    "test test blah blah blah",
-                    "remove me {} times",
-                    1, 5, 10, 15, 20
+                    "Mountain Climber",
+                    "Reach level {}.",
+                    10, 20, 30, 40, 50
             )
     ),
 
@@ -125,4 +125,7 @@ public enum Achievements {
         achievement.completeAll(team);
     }
 
+    public void setProgress(Player player, int nextLevel) {
+        achievement.setCompleteCount(player, nextLevel);
+    }
 }

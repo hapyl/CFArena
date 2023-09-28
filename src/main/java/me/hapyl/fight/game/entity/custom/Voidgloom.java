@@ -112,12 +112,12 @@ public class Voidgloom extends GameEntityType<Enderman> implements Listener {
                     entity.setMaximumNoDamageTicks(NO_DAMAGE_TICKS);
 
                     // Fx
-                    playSound(location, Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 1.75f);
+                    playPlayerSound(location, Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 1.75f);
                     spawnWorldParticle(location, Particle.EXPLOSION_LARGE, 3);
                     return null;
                 }
 
-                playSound(location, Sound.ENTITY_ENDERMAN_TELEPORT, 2.0f - (1.0f / MAX_HITS * hitsLeft));
+                playPlayerSound(location, Sound.ENTITY_ENDERMAN_TELEPORT, 2.0f - (1.0f / MAX_HITS * hitsLeft));
                 return DamageOutput.CANCEL;
             }
             else {

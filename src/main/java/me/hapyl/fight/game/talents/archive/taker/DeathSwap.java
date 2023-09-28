@@ -2,12 +2,12 @@ package me.hapyl.fight.game.talents.archive.taker;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.archive.taker.Taker;
 import me.hapyl.fight.game.heroes.archive.taker.SpiritualBones;
+import me.hapyl.fight.game.heroes.archive.taker.Taker;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -37,7 +37,7 @@ public class DeathSwap extends Talent {
                                 
                 After, retracts back to you.
                                 
-                If opponent is hit, they will be retracted with chains, take &c{damagePercent}%%&7 of their current health as damage will be slowed and withered for short duration.
+                If opponent is hit, they will be retracted with chains, take &c{damagePercent}&7 of their current health as damage will be slowed and withered for short duration.
                                 
                 Additionally, the cooldown is reduced by &b50%%&7.
                 """);
@@ -120,7 +120,7 @@ public class DeathSwap extends Talent {
         PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.75f);
         Chat.sendMessage(player, "&aSwapped locations with %s!", target.getName());
 
-        target.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.75f);
+        target.playPlayerSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.75f);
         target.sendMessage(
                 "&c%s swapped locations with you! This is a weird feeling for you, looks like you lost &l%s%%&c of your health...",
                 player.getName(),

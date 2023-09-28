@@ -10,13 +10,16 @@ import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.DisabledHero;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComplexComponent;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -78,7 +81,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
         setItem("8d44756e0b4ece8d746296a3d5e297e1415f4ba17647ffe228385383d161a9");
 
         final Equipment equipment = getEquipment();
-        equipment.setChestplate(Color.BLACK);
+        equipment.setChestPlate(Color.BLACK);
         equipment.setLeggings(Color.BLACK);
         equipment.setBoots(Color.BLACK);
 
@@ -108,7 +111,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
         getFirstTalent().startCd(player, 99999);
         getSecondTalent().startCd(player, 99999);
 
-        Utils.hidePlayer(player);
+        CFUtils.hidePlayer(player);
 
         final Bat bat = Entities.BAT.spawn(player.getLocation(), self -> {
             self.setCustomName(player.getCustomName());
@@ -134,7 +137,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
                     player.setFlying(false);
                     player.setAllowFlight(false);
 
-                    Utils.showPlayer(player);
+                    CFUtils.showPlayer(player);
                     bat.remove();
 
                     data.setBlood(bloodAfterUse);

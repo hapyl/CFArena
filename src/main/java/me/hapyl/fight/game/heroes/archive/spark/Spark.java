@@ -4,11 +4,11 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.PlayerElement;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Equipment;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -41,13 +41,13 @@ public class Spark extends Hero implements PlayerElement {
         setItem("ade095332720215ca9b85e7eacd1d092b1697fad34d696add94d3b70976702c");
 
         final Equipment equipment = this.getEquipment();
-        equipment.setChestplate(Color.ORANGE);
+        equipment.setChestPlate(Color.ORANGE);
         equipment.setLeggings(Color.RED);
         equipment.setBoots(Color.ORANGE);
 
         setWeapon(new RangeWeapon(Material.STICK, "fire_weapon") {
             @Override
-            public void onHit(Player player, LivingEntity entity) {
+            public void onHit(Player player, LivingEntity entity, boolean headshot) {
                 entity.setFireTicks(10);
             }
 

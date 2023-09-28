@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.archive.dark_mage;
 
 import me.hapyl.fight.Main;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.util.Runnables;
 import org.bukkit.Location;
@@ -25,7 +25,7 @@ public abstract class AnimatedWither {
     public AnimatedWither(@Nonnull Location location, int initInvul) {
         wither = Entities.WITHER.spawn(location, self -> {
             self.setAI(false);
-            Utils.setWitherInvul(self, initInvul);
+            CFUtils.setWitherInvul(self, initInvul);
             onInit(self);
         });
     }
@@ -99,7 +99,7 @@ public abstract class AnimatedWither {
 
     public final void setInvul(int i) {
         invul = i;
-        Utils.setWitherInvul(wither, i);
+        CFUtils.setWitherInvul(wither, i);
         //wither.setInvulnerabilityTicks(i); - I don't know why it doesn't work, updated with BuildTools
     }
 

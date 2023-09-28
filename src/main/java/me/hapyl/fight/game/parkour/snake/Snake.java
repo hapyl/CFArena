@@ -4,8 +4,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.util.Buffer;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Direction;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Location;
@@ -25,7 +25,7 @@ import java.util.Set;
 
 public class Snake extends BukkitRunnable {
 
-    public static final Matrix4f MATRIX = Utils.parseMatrix(
+    public static final Matrix4f MATRIX = CFUtils.parseMatrix(
             0.5000f, 0.0000f, 0.0000f, -0.2500f,
             0.0000f, 0.5000f, 0.0000f, -0.2500f,
             0.0000f, 0.0000f, 0.5000f, -0.2500f,

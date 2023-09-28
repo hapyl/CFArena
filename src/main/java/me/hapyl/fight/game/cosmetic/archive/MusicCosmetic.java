@@ -15,6 +15,8 @@ public class MusicCosmetic extends Cosmetic {
 
     public MusicCosmetic() {
         super("Music", "Those are the tunes!", Type.KILL, Rarity.EPIC, Material.MUSIC_DISC_CHIRP);
+
+        setExclusive(true);
     }
 
     @Override

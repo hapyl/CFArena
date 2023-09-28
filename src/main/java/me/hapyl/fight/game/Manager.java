@@ -9,9 +9,9 @@ import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.cosmetic.skin.SkinEffectManager;
 import me.hapyl.fight.game.entity.*;
 import me.hapyl.fight.game.gamemode.Modes;
-import me.hapyl.fight.game.heroes.Equipment;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.lobby.StartCountdown;
 import me.hapyl.fight.game.maps.GameMaps;
@@ -29,8 +29,11 @@ import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.trial.Trial;
 import me.hapyl.fight.game.ui.GamePlayerUI;
 import me.hapyl.fight.game.weapons.RangeWeapon;
+import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.game.weapons.ability.Ability;
+import me.hapyl.fight.garbage.CFGarbageCollector;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.annotate.Super;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -302,8 +305,9 @@ public final class Manager extends DependencyInjector<Main> {
         createProfile(player);
 
         // teleport either to spawn or the map if there is a game in progress
-        final IGameInstance game = getCurrentGame();
-        if (!game.isReal()) {
+        final GameInstance gameInstance = getGameInstance();
+
+        if (gameInstance == null) {
             final GameMode gameMode = player.getGameMode();
 
             if (gameMode != GameMode.CREATIVE && gameMode != GameMode.SPECTATOR) {
@@ -312,7 +316,7 @@ public final class Manager extends DependencyInjector<Main> {
             }
         }
         else {
-            player.teleport(game.getMap().getMap().getLocation());
+            player.teleport(gameInstance.getEnumMap().getMap().getLocation());
         }
 
         // Notify operators
@@ -477,7 +481,7 @@ public final class Manager extends DependencyInjector<Main> {
             Nulls.runIfNotNull(value.getTalent(), Talent::onStart);
         }
 
-        gameInstance.getMap().getMap().onStart();
+        gameInstance.getEnumMap().getMap().onStart();
 
         for (final GamePlayer gamePlayer : CF.getPlayers()) {
             final Player player = gamePlayer.getPlayer();
@@ -485,7 +489,7 @@ public final class Manager extends DependencyInjector<Main> {
             // Equip and hide players
             if (!gamePlayer.isSpectator()) {
                 equipPlayer(player, gamePlayer.getHero());
-                Utils.hidePlayer(player);
+                CFUtils.hidePlayer(player);
 
                 // Apply player skin if exists
                 final PlayerSkin skin = gamePlayer.getHero().getSkin();
@@ -525,7 +529,7 @@ public final class Manager extends DependencyInjector<Main> {
                 Nulls.runIfNotNull(value.getTalent(), Talent::onPlayersReveal);
             }
 
-            gameInstance.getMap().getMap().onPlayersReveal();
+            gameInstance.getEnumMap().getMap().onPlayersReveal();
 
             if (debug.any()) {
                 Chat.broadcast("&c&lDEBUG &fRunning in debug instance.");
@@ -536,7 +540,7 @@ public final class Manager extends DependencyInjector<Main> {
                 final Player player = target.getPlayer();
                 final World world = player.getLocation().getWorld();
 
-                Utils.showPlayer(player);
+                CFUtils.showPlayer(player);
                 Nulls.runIfNotNull(GameTeam.getPlayerTeam(player), GameTeam::glowTeammates);
 
                 if (world != null && !debug.is(DebugData.Flag.DEBUG)) {
@@ -587,15 +591,22 @@ public final class Manager extends DependencyInjector<Main> {
         }
 
         // call heroes onStop
-        for (final Heroes value : Heroes.values()) {
-            Nulls.runIfNotNull(value.getHero(), hero -> {
-                hero.onStop();
-                hero.clearUsingUltimate();
+        for (final Heroes enumHero : Heroes.values()) {
+            final Hero hero = enumHero.getHero();
 
-                if (hero.getWeapon() instanceof RangeWeapon rangeWeapon) {
-                    rangeWeapon.onStop();
-                }
-            });
+            if (hero == null) {
+                continue;
+            }
+
+            hero.onStop();
+            hero.clearUsingUltimate();
+
+            final Weapon weapon = hero.getWeapon();
+            weapon.getAbilities().forEach(Ability::clearCooldowns);
+
+            if (weapon instanceof RangeWeapon rangeWeapon) {
+                rangeWeapon.onStop();
+            }
         }
 
         // call maps onStop
@@ -609,8 +620,11 @@ public final class Manager extends DependencyInjector<Main> {
             value.onStop();
         }
 
-        // remove entities
+        // Remove entities
         Entities.killSpawned();
+
+        // Remove garbage entities
+        CFGarbageCollector.clearInAllWorlds();
 
         entities.forEach((uuid, entity) -> entity.onStop(this.gameInstance));
         entities.clear();

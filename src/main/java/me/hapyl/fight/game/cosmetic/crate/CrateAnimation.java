@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.cosmetic.crate;
 
 import me.hapyl.fight.game.cosmetic.Rarity;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -22,7 +22,7 @@ public interface CrateAnimation {
         final ArmorStand chest = Entities.ARMOR_STAND_MARKER.spawn(loot.getChest().subtractAsNew(0.0d, 1.0d, 0.0d), self -> {
             self.setInvisible(true);
 
-            Utils.setEquipment(self, equipment -> {
+            CFUtils.setEquipment(self, equipment -> {
                 equipment.setHelmet(ItemBuilder.of(loot.getEnumCrate().getCrate().getMaterial()).asIcon());
             });
         });

@@ -2,12 +2,12 @@ package me.hapyl.fight.game.talents.archive.km;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.module.particle.ParticleBuilder;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Color;
@@ -38,7 +38,7 @@ public class LaserEye extends Talent {
         PlayerLib.addEffect(player, PotionEffectType.SLOW, duration, 255);
 
         GameTask.runTaskTimerTimes((task, tick) -> {
-            Utils.rayTraceLine(player, 50, 0.5d, 0.0d, move -> {
+            CFUtils.rayTraceLine(player, 50, 0.5d, 0.0d, move -> {
                 if (move.getBlock().isPassable()) {
                     ParticleBuilder.redstoneDust(Color.RED).display(move);
                 }

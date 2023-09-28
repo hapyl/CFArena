@@ -15,6 +15,7 @@ public class CoutureCosmetic extends Cosmetic {
     public CoutureCosmetic(Type type) {
         super("Couture", "Very stylish!", type);
 
+        setExclusive(true);
         setRarity(Rarity.LEGENDARY);
         setIcon(Material.GOLD_INGOT);
     }

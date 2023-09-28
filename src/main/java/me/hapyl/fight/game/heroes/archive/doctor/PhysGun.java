@@ -3,7 +3,10 @@ package me.hapyl.fight.game.heroes.archive.doctor;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.weapons.RightClickable;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.game.weapons.ability.Ability;
+import me.hapyl.fight.game.weapons.ability.AbilityType;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -19,9 +22,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import javax.annotation.Nonnull;
 import java.util.Map;
 
-public class PhysGun extends Weapon {
+public class PhysGun extends Weapon implements RightClickable {
 
     private final Map<Player, LivingEntity> capturedEntity = Maps.newHashMap();
     private final Map<Player, Boolean> flightMap = Maps.newHashMap();
@@ -31,11 +35,12 @@ public class PhysGun extends Weapon {
         setId("dr_ed_gun_2");
         setName("Upgraded Dr. Ed's Gravity Energy Capacitor Mk. 4");
 
+        setAbility(AbilityType.RIGHT_CLICK, Ability.of("Harvest V2", "", this));
         GameTask.scheduleCancelTask(capturedEntity::clear);
     }
 
     @Override
-    public void onRightClick(Player player, ItemStack item) {
+    public void onRightClick(@Nonnull Player player, @Nonnull ItemStack item) {
         // Throw
         if (capturedEntity.containsKey(player)) {
             final LivingEntity entity = capturedEntity.get(player);

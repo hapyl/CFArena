@@ -66,9 +66,9 @@ public class ImpelInstance extends Instance<Bloodfiend> {
 
                 player.sendSubtitle("&eImpel: &4&lFAILED! &c-%s ❤".formatted((int) instance.impelDamage), 0, 20, 5);
 
-                player.playSound(Sound.ENTITY_BLAZE_HURT, 0.25f);
-                player.playSound(Sound.ENTITY_ZOMBIE_HURT, 0.25f);
-                player.playSound(Sound.ENTITY_PLAYER_BREATH, 1.0f);
+                player.playPlayerSound(Sound.ENTITY_BLAZE_HURT, 0.25f);
+                player.playPlayerSound(Sound.ENTITY_ZOMBIE_HURT, 0.25f);
+                player.playPlayerSound(Sound.ENTITY_PLAYER_BREATH, 1.0f);
             }
 
             @Override

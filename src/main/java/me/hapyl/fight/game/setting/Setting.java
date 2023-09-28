@@ -3,11 +3,16 @@ package me.hapyl.fight.game.setting;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.ui.GamePlayerUI;
+import me.hapyl.fight.util.PlayerItemCreator;
 import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
-public enum Setting {
+import javax.annotation.Nonnull;
+
+public enum Setting implements PlayerItemCreator {
 
     SPECTATE(10, Material.ENDER_EYE, "Spectate", "Whenever you will spectate the game instead of playing it."),
     CHAT_PING(11, Material.GOLD_INGOT, "Chat Notification", "Whenever you will hear a ping in chat if someone mentions you.", true),
@@ -62,20 +67,20 @@ public enum Setting {
 
     private final Material material;
     private final String name;
-    private final String info;
+    private final String description;
     private final boolean def;
     private final int slot;
 
-    Setting(int slot, Material material, String name, String info, boolean def) {
+    Setting(int slot, Material material, String name, String description, boolean def) {
         this.slot = slot;
         this.name = name;
         this.material = material;
-        this.info = info;
+        this.description = description;
         this.def = def;
     }
 
-    Setting(int slot, Material material, String name, String info) {
-        this(slot, material, name, info, false);
+    Setting(int slot, Material material, String name, String description) {
+        this(slot, material, name, description, false);
     }
 
     public int getSlot() {
@@ -98,14 +103,27 @@ public enum Setting {
         return name();
     }
 
-    public String getInfo() {
-        return info;
+    public String getDescription() {
+        return description;
     }
 
     public void onEnable(Player player) {
     }
 
     public void onDisabled(Player player) {
+    }
+
+    @Nonnull
+    public ItemBuilder create(@Nonnull Player player) {
+        final boolean isEnabled = isEnabled(player);
+
+        return new ItemBuilder(material)
+                .setName((isEnabled ? ChatColor.GREEN : ChatColor.RED) + name)
+                .addLore("&8This setting is currently " + (isEnabled ? "enabled" : "disabled"))
+                .addLore()
+                .addSmartLore(description)
+                .addLore()
+                .addLore("&eClick to " + (isEnabled ? "disable" : "enable"));
     }
 
     public final void setEnabled(Player player, boolean flag) {

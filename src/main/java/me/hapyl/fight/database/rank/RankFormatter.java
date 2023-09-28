@@ -1,6 +1,7 @@
 package me.hapyl.fight.database.rank;
 
 import me.hapyl.fight.game.talents.InsteadOfNull;
+import org.bukkit.ChatColor;
 
 import javax.annotation.Nonnull;
 
@@ -12,7 +13,7 @@ public interface RankFormatter {
 
     @Nonnull
     @InsteadOfNull("Empty String")
-    String nameColor();
+    ChatColor nameColor();
 
     @Nonnull
     @InsteadOfNull("Empty String")
@@ -21,18 +22,18 @@ public interface RankFormatter {
     boolean allowFormatting();
 
     static RankFormatter of(@Nonnull String prefix) {
-        return of(prefix, prefix, "&f", false);
+        return of(prefix, ChatColor.WHITE, "&f", false);
     }
 
-    static RankFormatter of(@Nonnull String prefix, @Nonnull String nameColor) {
+    static RankFormatter of(@Nonnull String prefix, @Nonnull ChatColor nameColor) {
         return of(prefix, nameColor, "&f", false);
     }
 
-    static RankFormatter of(@Nonnull String prefix, @Nonnull String nameColor, @Nonnull String textColor) {
+    static RankFormatter of(@Nonnull String prefix, @Nonnull ChatColor nameColor, @Nonnull String textColor) {
         return of(prefix, nameColor, textColor, false);
     }
 
-    static RankFormatter of(@Nonnull String prefix, @Nonnull String nameColor, @Nonnull String textColor, boolean allowFormat) {
+    static RankFormatter of(@Nonnull String prefix, @Nonnull ChatColor nameColor, @Nonnull String textColor, boolean allowFormat) {
         return new RankFormatter() {
             @Nonnull
             @Override
@@ -42,7 +43,7 @@ public interface RankFormatter {
 
             @Nonnull
             @Override
-            public String nameColor() {
+            public ChatColor nameColor() {
                 return nameColor;
             }
 

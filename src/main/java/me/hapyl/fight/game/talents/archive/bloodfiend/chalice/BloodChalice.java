@@ -5,7 +5,7 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.TalentReference;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.archive.bloodfiend.taunt.Taunt;
-import me.hapyl.fight.util.Utils;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -38,7 +38,7 @@ public class BloodChalice extends Taunt implements TalentReference<BloodChaliceT
         this.stand = new ArmorStand[2];
 
         this.stand[0] = spawnEntity(Entities.ARMOR_STAND, location, self -> {
-            Utils.lockArmorStand(self);
+            CFUtils.lockArmorStand(self);
 
             self.setMaxHealth(reference.chaliceHealth);
             self.setHealth(reference.chaliceHealth);
@@ -68,8 +68,8 @@ public class BloodChalice extends Taunt implements TalentReference<BloodChaliceT
             self.setSilent(true);
             self.setHelmet(BLOOD_TEXTURE);
 
-            Utils.setGlowing(player, self, "chalice", ChatColor.GREEN);
-            Utils.setGlowing(target.getPlayer(), self, "chalice", ChatColor.RED);
+            CFUtils.setGlowing(player, self, "chalice", ChatColor.GREEN);
+            CFUtils.setGlowing(target.getPlayer(), self, "chalice", ChatColor.RED);
 
             self.setGlowing(true);
         });
@@ -94,7 +94,7 @@ public class BloodChalice extends Taunt implements TalentReference<BloodChaliceT
             return;
         }
 
-        stand[0].setCustomName(Chat.format("&bTaunting %s &c%s", target.getName(), Utils.decimalFormatTick(timeLeft)));
+        stand[0].setCustomName(Chat.format("&bTaunting %s &c%s", target.getName(), CFUtils.decimalFormatTick(timeLeft)));
         stand[0].setCustomNameVisible(true);
 
         final Location location = stand[1].getLocation();
@@ -158,7 +158,7 @@ public class BloodChalice extends Taunt implements TalentReference<BloodChaliceT
 
         final Location location = stand[0].getLocation().add(0.0d, 1.5d, 0.0d);
 
-        Utils.forEach(stand, Entity::remove);
+        CFUtils.forEach(stand, Entity::remove);
 
         // Fx
         asPlayers(player -> {

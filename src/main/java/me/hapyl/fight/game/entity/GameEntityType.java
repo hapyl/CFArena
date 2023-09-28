@@ -77,7 +77,7 @@ public class GameEntityType<T extends LivingEntity> {
      * @param entity - Entity that will be spawned.
      */
     @Event
-    public void onSpawn(@Nonnull LivingEntity entity) {
+    public void onSpawn(@Nonnull T entity) {
     }
 
     /**

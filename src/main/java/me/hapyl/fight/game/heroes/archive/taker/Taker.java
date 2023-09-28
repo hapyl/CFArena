@@ -6,7 +6,10 @@ import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.NewHero;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.taker.DeathSwap;
@@ -14,8 +17,8 @@ import me.hapyl.fight.game.talents.archive.taker.FatalReap;
 import me.hapyl.fight.game.talents.archive.taker.SpiritualBonesPassive;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.fight.util.displayfield.DisplayFieldSerializer;
@@ -23,7 +26,10 @@ import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
-import org.bukkit.*;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
@@ -53,11 +59,11 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
         setItem("ff1e554161bd4b2ce4cad18349fd756994f74cabf1fd1dacdf91b6d05dffaf");
 
         final Equipment equipment = getEquipment();
-        equipment.setChestplate(28, 28, 28);
+        equipment.setChestPlate(28, 28, 28);
         equipment.setLeggings(0, 0, 0, TrimPattern.SILENCE, TrimMaterial.QUARTZ);
         equipment.setBoots(28, 28, 28, TrimPattern.SILENCE, TrimMaterial.QUARTZ);
 
-        setWeapon(Material.IRON_HOE, "Scythe", 6.66d);
+        setWeapon(Material.IRON_HOE, "Reaper Scythe", 6.66d);
 
         final UltimateTalent ultimate = new UltimateTalent(
                 "Embodiment of Death", """
@@ -197,7 +203,7 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
                 launchUltimateProjectile(player);
             }
 
-            final double particleOffset = Utils.scaleParticleOffset(0.5d);
+            final double particleOffset = CFUtils.scaleParticleOffset(0.5d);
 
             PlayerLib.spawnParticle(player.getLocation(), Particle.SQUID_INK, 5, particleOffset, 0.6d, particleOffset, 0.01f);
             // Fx

@@ -10,7 +10,10 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -66,7 +69,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
         attributes.setValue(AttributeType.SPEED, 0.22d);
 
         final Equipment equipment = getEquipment();
-        equipment.setChestplate(31, 5, 3, TrimPattern.SHAPER, TrimMaterial.COPPER);
+        equipment.setChestPlate(31, 5, 3, TrimPattern.SHAPER, TrimMaterial.COPPER);
 
         positiveEffects.add(new Effect("made you &lFASTER", PotionEffectType.SPEED, 30, 2))
                 .add(new Effect("gave you &lJUMP BOOST", PotionEffectType.JUMP, 30, 1))

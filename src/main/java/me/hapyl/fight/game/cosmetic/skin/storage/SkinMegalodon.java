@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.cosmetic.skin.storage;
 
 import me.hapyl.fight.game.cosmetic.skin.Skin;
-import me.hapyl.fight.game.heroes.Equipment;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;

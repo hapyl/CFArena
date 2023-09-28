@@ -49,6 +49,12 @@ public abstract class Cosmetic extends CollectionItem implements Formatted, Enum
     }
 
     @Override
+    public Cosmetic setExclusive(boolean exclusive) {
+        super.setExclusive(exclusive);
+        return this;
+    }
+
+    @Override
     public ItemBuilder createItem(Player player) {
         final ItemBuilder builder = super.createItem(player).removeLore();
 
