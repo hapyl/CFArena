@@ -1,81 +1,82 @@
 package me.hapyl.fight.game.reward;
 
-import me.hapyl.fight.database.PlayerDatabase;
-import me.hapyl.fight.database.entry.Currency;
-import me.hapyl.fight.database.entry.CurrencyEntry;
-import me.hapyl.fight.database.entry.ExperienceEntry;
-import me.hapyl.fight.util.Booleans;
+import com.google.common.collect.Maps;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
+import java.util.Map;
 import java.util.UUID;
 
-public class CurrencyReward extends Reward {
+public class CurrencyReward extends Reward implements OneTimeReward {
 
-    private long coins;
-    private long rubies;
-    private long exp;
+    private final Map<CurrencyType, Long> currencyMap;
 
     public CurrencyReward(String name) {
         super(name);
+        this.currencyMap = Maps.newHashMap();
     }
 
-    public static CurrencyReward create() {
-        return new CurrencyReward(UUID.randomUUID().toString());
+    public CurrencyReward with(@Nonnull CurrencyType currency, long value) {
+        currencyMap.put(currency, value);
+        return this;
+    }
+
+    public long get(@Nonnull CurrencyType currency) {
+        return currencyMap.getOrDefault(currency, 0L);
     }
 
     public CurrencyReward withCoins(long coins) {
-        this.coins = coins;
-        return this;
+        return with(CurrencyType.COINS, coins);
     }
 
     public CurrencyReward withRubies(long rubies) {
-        this.rubies = rubies;
-        return this;
+        return with(CurrencyType.RUBY, rubies);
     }
 
     public CurrencyReward withExp(long exp) {
-        this.exp = exp;
-        return this;
+        return with(CurrencyType.EXPERIENCE, exp);
     }
 
     public long getCoins() {
-        return coins;
+        return get(CurrencyType.COINS);
     }
 
     public long getRubies() {
-        return rubies;
+        return get(CurrencyType.RUBY);
     }
 
     public long getExp() {
-        return exp;
+        return get(CurrencyType.EXPERIENCE);
     }
 
     @Override
     public void display(@Nonnull Player player, @Nonnull ItemBuilder builder) {
-        builder.addLoreIf("&a+ &6" + coins + " Coins", coins > 0);
-        builder.addLoreIf("&a+ &9" + exp + " Experience", exp > 0);
-        builder.addLoreIf("&a+ &c" + rubies + " Rubies", rubies > 0);
+        for (CurrencyType currency : CurrencyType.values()) {
+            final long value = get(currency);
+
+            if (value > 0) {
+                builder.addLore(BULLET + currency.format(value));
+            }
+        }
     }
 
     @Override
     public void grantReward(@Nonnull Player player) {
-        final PlayerDatabase database = PlayerDatabase.getDatabase(player);
-        final CurrencyEntry currency = database.currencyEntry;
-
-        Booleans.ifTrue(coins > 0, () -> currency.add(Currency.COINS, coins));
-        Booleans.ifTrue(exp > 0, () -> database.experienceEntry.add(ExperienceEntry.Type.EXP, exp));
-        Booleans.ifTrue(rubies > 0, () -> currency.add(Currency.RUBIES, rubies));
+        currencyMap.forEach((currency, value) -> {
+            currency.increment(player, value);
+        });
     }
 
     @Override
     public void revokeReward(@Nonnull Player player) {
-        final PlayerDatabase database = PlayerDatabase.getDatabase(player);
-        final CurrencyEntry currency = PlayerDatabase.getDatabase(player).getCurrency();
+        currencyMap.forEach(((currency, value) -> {
+            currency.decrement(player, value);
+        }));
+    }
 
-        Booleans.ifTrue(coins > 0, () -> currency.subtract(Currency.COINS, coins));
-        Booleans.ifTrue(rubies > 0, () -> currency.subtract(Currency.RUBIES, rubies));
-        Booleans.ifTrue(exp > 0, () -> database.experienceEntry.remove(ExperienceEntry.Type.EXP, exp));
+    @Nonnull
+    public static CurrencyReward create() {
+        return new CurrencyReward(UUID.randomUUID().toString());
     }
 }

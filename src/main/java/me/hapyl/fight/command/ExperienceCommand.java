@@ -3,6 +3,7 @@ package me.hapyl.fight.command;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.entry.ExperienceEntry;
 import me.hapyl.fight.game.experience.Experience;
+import me.hapyl.fight.game.experience.ExperienceDebugGUI;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
 import me.hapyl.spigotutils.module.math.Numbers;
@@ -23,9 +24,7 @@ public class ExperienceCommand extends SimplePlayerAdminCommand {
         final Experience experience = Main.getPlugin().getExperience();
 
         if (args.length == 0) {
-            for (int i = 1; i <= experience.getMaxLevel(); i++) {
-                Chat.sendMessage(player, "&a%s &7<- &f%s", i, experience.getExpRequired(i));
-            }
+            new ExperienceDebugGUI(player);
             return;
         }
 

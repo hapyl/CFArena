@@ -3,7 +3,6 @@ package me.hapyl.fight.database.entry;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.PlayerDatabaseEntry;
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Numbers;
@@ -62,7 +61,6 @@ public class ExperienceEntry extends PlayerDatabaseEntry {
                 final long exp = experience.getExp(player);
 
                 if (exp < expRequired) {
-                    Debug.info("fixed %s's exp", player.getName());
                     PlayerDatabase.getDatabase(player).getExperienceEntry().set(EXP, expRequired);
                 }
             }

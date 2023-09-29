@@ -6,6 +6,7 @@ import me.hapyl.fight.util.FormattedEnum;
 import javax.annotation.Nonnull;
 
 public enum Currency implements FormattedEnum {
+
     COINS(new Color("#FFD700"), "🪙", "Coins"),
     RUBIES(new Color("#9B111E"), "💎", "Rubies"),
     CHEST_DUST(new Color("#964B00"), "📦", "Dust"),

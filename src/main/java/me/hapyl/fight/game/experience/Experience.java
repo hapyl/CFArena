@@ -8,8 +8,7 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.reward.HeroUnlockReward;
-import me.hapyl.fight.game.reward.Reward;
+import me.hapyl.fight.game.reward.*;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.chat.Gradient;
 import me.hapyl.spigotutils.module.chat.gradient.Interpolators;
@@ -28,10 +27,8 @@ import java.util.Map;
 public class Experience extends DependencyInjector<Main> {
 
     private final Map<Long, ExperienceLevel> experienceLevelMap;
-
     private final Color GRADIENT_COLOR_1 = new Color(253, 29, 29);
     private final Color GRADIENT_COLOR_2 = new Color(252, 210, 69);
-
     private final String LEVEL_UP_GRADIENT = new Gradient("LEVEL UP!")
             .makeBold()
             .rgb(
@@ -39,7 +36,6 @@ public class Experience extends DependencyInjector<Main> {
                     GRADIENT_COLOR_2,
                     Interpolators.LINEAR
             );
-
     private final int progressBarCount = 40;
 
     public Experience(Main main) {
@@ -90,15 +86,27 @@ public class Experience extends DependencyInjector<Main> {
         final ExperienceEntry entry = getDatabaseEntry(player);
         final long playerLvl = entry.get(ExperienceEntry.Type.LEVEL);
 
-        experienceLevelMap.values().forEach(exp -> {
-            for (Reward reward : exp.getRewards()) {
-                reward.revokeReward(player);
-
-                if (playerLvl >= exp.getLevel()) {
-                    reward.grantReward(player);
-                }
+        // Give all previous rewards
+        for (long lvl = playerLvl; lvl > 0; lvl--) {
+            final List<Reward> rewards = getRewards(lvl);
+            if (rewards == null) {
+                continue;
             }
-        });
+
+            for (Reward reward : rewards) {
+                // Don't give one time rewards, such as coins etc
+
+                // FIXME (hapyl): 029, Sep 29:
+                //  This could really use reward entry and storing claimed reward,
+                //  but then all rewards must be named or ID's somehow.
+                //  And what about daily or repeatable rewards?
+                if (reward instanceof OneTimeReward) {
+                    continue;
+                }
+
+                reward.grantReward(player);
+            }
+        }
 
         // Fix achievement
         Achievements.LEVEL_TIERED.setProgress(player, (int) playerLvl);
@@ -138,7 +146,18 @@ public class Experience extends DependencyInjector<Main> {
 
         exp.set(ExperienceEntry.Type.LEVEL, nextLevel);
 
+        // Grant rewards
+        final List<Reward> rewards = getRewards(nextLevel);
+        if (rewards != null) {
+            for (Reward reward : rewards) {
+                reward.grantReward(player);
+            }
+        }
+
+        // Fix rewards
         fixRewards(player);
+
+        // Display reward message and sound
         displayRewardMessage(player, nextLevel);
         return true;
     }
@@ -254,12 +273,7 @@ public class Experience extends DependencyInjector<Main> {
     @Nonnull
     public ExperienceLevel[] getLevelFeed(long currentLevel) {
         final ExperienceLevel[] levels = new ExperienceLevel[5];
-        long feedEnd = Math.min(currentLevel + 3, getMaxLevel());
-
-        // Keep a feed end at least 5
-        while (feedEnd < 5) {
-            feedEnd++;
-        }
+        final long feedEnd = Numbers.clamp(currentLevel + 3, 5, getMaxLevel());
 
         for (int i = 0; i < 5; i++) {
             final long level = Math.max(feedEnd - i, getMinLevel());
@@ -271,6 +285,11 @@ public class Experience extends DependencyInjector<Main> {
 
     public long getMinLevel() {
         return 1;
+    }
+
+    @Nonnull
+    protected Map<Long, ExperienceLevel> getExperienceLevelMap() {
+        return experienceLevelMap;
     }
 
     private void setupMap() {
@@ -293,18 +312,10 @@ public class Experience extends DependencyInjector<Main> {
             final ExperienceLevel experienceLevel = new ExperienceLevel(level, currentExp);
 
             if (isPrestige) {
-                experienceLevel.addReward(new Reward("Prestige Color") {
+                experienceLevel.addReward(new DisplayReward("Prestige Color") {
                     @Override
                     public void display(@Nonnull Player player, @Nonnull ItemBuilder builder) {
                         builder.addLore(BULLET + color + " &7prestige color");
-                    }
-
-                    @Override
-                    public void grantReward(@Nonnull Player player) {
-                    }
-
-                    @Override
-                    public void revokeReward(@Nonnull Player player) {
                     }
                 });
             }
@@ -314,9 +325,18 @@ public class Experience extends DependencyInjector<Main> {
     }
 
     private void setupRewards() {
-        // Manual rewards
-        setReward(1, Reward.cosmetics(Cosmetics.PEACE));
-        setReward(2, Reward.cosmetics(Cosmetics.EMERALD_EXPLOSION));
+        // Coins rewards
+        experienceLevelMap.forEach((lvl, level) -> {
+            final CurrencyReward reward = new CurrencyReward("Coins Reward Level " + lvl);
+
+            reward.with(CurrencyType.COINS, 1000 * lvl);
+
+            if (level.isPrestige()) {
+                reward.with(CurrencyType.RUBY, 1);
+            }
+
+            level.addReward(reward);
+        });
 
         // Hero unlocks
         for (Heroes value : Heroes.values()) {
@@ -328,6 +348,11 @@ public class Experience extends DependencyInjector<Main> {
                 }
             }
         }
+
+        // Manual rewards
+        // Keep manual rewards last for consistency
+        setReward(1, Reward.cosmetics(Cosmetics.PEACE));
+        setReward(2, Reward.cosmetics(Cosmetics.EMERALD_EXPLOSION));
     }
 
     private void setReward(int level, Reward reward) {
