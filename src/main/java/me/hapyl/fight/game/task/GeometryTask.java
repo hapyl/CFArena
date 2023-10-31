@@ -1,11 +1,9 @@
 package me.hapyl.fight.game.task;
 
 import me.hapyl.fight.game.Callback;
-import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Timed;
 import org.bukkit.Location;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -188,15 +186,10 @@ public abstract class GeometryTask extends GameTask {
             return true;
         }
 
-        final LivingEntity deathEntity = properties.deathEntity;
+        final LivingGameEntity deathEntity = properties.deathEntity;
 
         if (deathEntity == null) {
             return false;
-        }
-
-        // perform different check based on an entity
-        if (deathEntity instanceof Player player) {
-            return GamePlayer.getPlayer(player).isDead();
         }
 
         return deathEntity.isDead();
@@ -232,7 +225,7 @@ public abstract class GeometryTask extends GameTask {
         private int maxTick;
         private int runIterations = 1;
         private double step = Math.PI / 12;
-        private LivingEntity deathEntity;
+        private LivingGameEntity deathEntity;
 
         private Properties(GeometryTask task) {
             this.task = task;
@@ -252,7 +245,7 @@ public abstract class GeometryTask extends GameTask {
          *
          * @param entity - Entity to check for being alive.
          */
-        public Properties cancelIfDead(@Nonnull LivingEntity entity) {
+        public Properties cancelIfDead(@Nonnull LivingGameEntity entity) {
             deathEntity = entity;
             return this;
         }
@@ -348,7 +341,7 @@ public abstract class GeometryTask extends GameTask {
         }
 
         @Nullable
-        public LivingEntity getDeathEntity() {
+        public LivingGameEntity getDeathEntity() {
             return deathEntity;
         }
     }

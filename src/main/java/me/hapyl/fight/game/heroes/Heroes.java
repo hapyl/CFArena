@@ -210,7 +210,7 @@ public enum Heroes implements Formatted {
      */
     public List<GamePlayer> getPlayers() {
         final Set<GamePlayer> players = CF.getPlayers();
-        players.removeIf(player -> !isSelected(player.getPlayer()));
+        players.removeIf(player -> !isSelected(player));
 
         return Lists.newArrayList(players);
     }
@@ -233,7 +233,7 @@ public enum Heroes implements Formatted {
      * @param player - Player to check.
      * @return true if player's current hero is this hero.
      */
-    public boolean isSelected(Player player) {
+    public boolean isSelected(GamePlayer player) {
         return Manager.current().getCurrentEnumHero(player) == this;
     }
 

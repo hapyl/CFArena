@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.archive.heavy_knight;
 
 import me.hapyl.fight.annotate.KeepNull;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.ComplexHero;
 import me.hapyl.fight.game.heroes.DisabledHero;
@@ -12,10 +13,10 @@ import me.hapyl.fight.game.talents.archive.heavy_knight.Slash;
 import me.hapyl.fight.game.talents.archive.heavy_knight.Updraft;
 import me.hapyl.fight.game.talents.archive.heavy_knight.Uppercut;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
+
+import javax.annotation.Nonnull;
 
 public class SwordMaster extends Hero implements ComplexHero, DisabledHero {
 
@@ -66,17 +67,17 @@ public class SwordMaster extends Hero implements ComplexHero, DisabledHero {
     }
 
     @Override
-    public void onRespawn(Player player) {
+    public void onRespawn(@Nonnull GamePlayer player) {
         onStart(player);
     }
 
     @Override
-    public void onStart(Player player) {
-        PlayerLib.addEffect(player, PotionEffectType.SLOW, 999999, 1);
+    public void onStart(@Nonnull GamePlayer player) {
+        player.addPotionEffect(PotionEffectType.SLOW, 999999, 1);
     }
 
     @Override
-    public void useUltimate(Player player) {
+    public void useUltimate(@Nonnull GamePlayer player) {
     }
 
     @Override

@@ -45,11 +45,11 @@ public enum GameMaps {
     JAPAN(
             new GameMap("Japan")
                     .setDescription("This map is based on real-life temple &e平等院 (Byōdō-in)&7!")
-                    .setMaterial(Material.PINK_GLAZED_TERRACOTTA)
+                    .setMaterial(Material.CHERRY_SAPLING)
                     .setSize(Size.LARGE)
                     .setTicksBeforeReveal(160)
                     .addFeature(new JapanFeature())
-                    .addLocation(300, 64, 0, 180, 0)
+                    .addLocation(-492, 64, 6, 180, 0)
     ),
 
     GREENHOUSE(
@@ -136,11 +136,8 @@ public enum GameMaps {
     ),
 
     DRAGONS_GORGE(new DragonsGorge()), // complex map, stored in separate file
-
     WINERY(new WineryMap()), // complex map, stored in separate file
-
     MOON_BASE(new MoonBase()), // complex map, stored in separate file
-
     DWARF_VAULT(new DwarfVault()),
 
     ;

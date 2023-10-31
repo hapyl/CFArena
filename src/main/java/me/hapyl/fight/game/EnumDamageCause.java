@@ -32,7 +32,7 @@ public enum EnumDamageCause {
     ENTITY_EXPLOSION(DamageCause.minecraft("exploded", "by")),
     VOID(DamageCause.minecraft("fell into the void", "with help from")),
     POISON(DamageCause.minecraft("poisoned to death", "by")),
-    MAGIC(DamageCause.minecraft("magically died", "with help of")),
+    MAGIC(DamageCause.minecraft("magically died", "with help from")),
     WITHER(DamageCause.minecraft("withered to death", "by")),
     FALLING_BLOCK(DamageCause.minecraft("should've been wearing a helmet", "and {damager} knew that")),
     DRAGON_BREATH(DamageCause.minecraft("didn't like the smell of dragon", "wait... it's not a dragon, it's")),
@@ -42,7 +42,7 @@ public enum EnumDamageCause {
     SUFFOCATION(DamageCause.minecraft("couldn't hold their breath", "and {damager} was watching, menacingly")),
     MELTING(DamageCause.minecraft("is now a puddle of water", "isn't that fun, {damager}?")),
     LIGHTNING(DamageCause.minecraft("was struck by lightning", "by")),
-    SUICIDE(DamageCause.minecraft("died", "how did you that, {damager}?")),
+    SUICIDE(DamageCause.minecraft("died", "how did you do that, {damager}?")),
     STARVATION(DamageCause.minecraft("starved to death", "and {damager} didn't share their food")),
     THORNS(DamageCause.minecraft("was pricked", "by")),
     FLY_INTO_WALL(DamageCause.minecraft("hit the wall at 69,420 mph", "while running from")),
@@ -51,10 +51,10 @@ public enum EnumDamageCause {
     FREEZE(DamageCause.minecraft("frooze to death")),
     SONIC_BOOM(DamageCause.minecraft("BOOM BOOM BAKUDAN'ed", "and {damager} is the one to blame")),
 
-    FEROCIY(DamageCause.EMPTY),                       // this is used to indicate ferocity hits
-    NONE(DamageCause.minecraft("mysteriously died")), // this used as default return,
-    CUSTOM(DamageCause.EMPTY),                        // should not be used
-    OTHER(DamageCause.EMPTY),                         // this used if there is no other damage
+    FEROCIY(DamageCause.nonCrit("was killed", "by")),                   // this is used to indicate ferocity hits
+    NONE(DamageCause.minecraft("mysteriously died", "with help from")), // this used as default return,
+    CUSTOM(DamageCause.EMPTY), // should not be used
+    OTHER(DamageCause.EMPTY),  // this used if there is no other damage
 
     /**
      * End of system damage causes, add custom damage causes below.
@@ -69,18 +69,18 @@ public enum EnumDamageCause {
     FROZEN_WEAPON(DamageCause.of("has been frozen to death", "by")),
     LEASHED(DamageCause.of("leashed to death", "by")),
     SOUL_WHISPER(DamageCause.of("has entered {damager}'s souls collection")),
-    TOXIN(DamageCause.nonCrit("drunk too many potions")),
+    TOXIN(DamageCause.nonCrit("drunk too many potions", "while trying to fight")),
     METEORITE(DamageCause.nonCrit("felt the wrath of the rock", "of")),
     MOON_PILLAR(DamageCause.of("couldn't handle the beat", "of")),
     WITHER_SKULLED(DamageCause.of("was scared to death", "by")),
-    GRAVITY_GUN(DamageCause.of("clearly couldn't see {damager}'s block of size of their head flying in their direction..")),
+    GRAVITY_GUN(DamageCause.of("clearly couldn't see {damager}'s block of size of their head flying in their direction...")),
     PLUNGE(DamageCause.of("was stepped on", "by")),
-    BLACK_HOLE(DamageCause.of("was sucked into the black hole created", "by")),
+    BLACK_HOLE(DamageCause.of("was sucked into the black hole", "created by")),
     DARKNESS(DamageCause.of("was blinded to death", "by")),
-    THROWING_STARS(DamageCause.of("felt the absolute pain {damager}'s dagger")),
+    THROWING_STARS(DamageCause.of("felt the absolute pain of {damager}'s dagger")),
     STARFALL(DamageCause.of("doesn't know how danger looks like, yes {damager}?")),
     GOLDEN_PATH(DamageCause.of("couldn't fight against their willpower", "created by shine of")),
-    FLOWER(DamageCause.of("was pruned to death", "by")),
+    FLOWER(DamageCause.nonCrit("was pruned to death", "by")),
     FEEL_THE_BREEZE(DamageCause.nonCrit("felt {damager}'s breeze...")),
     NEVERMISS(DamageCause.of("couldn't dodge {damager}'s attack, what a noob..")),
     FEET_ATTACK(DamageCause.of("probably lost their toe")),
@@ -125,7 +125,8 @@ public enum EnumDamageCause {
     CANDLEBANE(DamageCause.nonCrit("was crushed by {damager}'s pillar")),
     RADIATION(DamageCause.nonCrit("was lasered to death", "by").setTrueDamage()),
     SOULS_REBOUND(DamageCause.nonCrit("had their soul rebounded", "by").setTrueDamage()),
-
+    GRAVITY(DamageCause.nonCrit("felt the gravity of {damager}'s planet")),
+    ENDER_TELEPORT(DamageCause.nonCrit("was too scared of {damager}'s threatening aura")),
     ;
 
     private final DamageCause damageCause;
@@ -141,10 +142,6 @@ public enum EnumDamageCause {
 
     public boolean isCanCrit() {
         return damageCause.isCanCrit();
-    }
-
-    public DamageFormat getFormat() {
-        return damageCause.getDamageFormat();
     }
 
     public DeathMessage getRandomIfMultiple() {
@@ -167,6 +164,14 @@ public enum EnumDamageCause {
 
     public boolean isTrueDamage() {
         return damageCause.isTrueDamage;
+    }
+
+    public boolean isMelee() {
+        return this == ENTITY_ATTACK || this == ENTITY_ATTACK_NON_CRIT;
+    }
+
+    public boolean isAllowedForFerocity() {
+        return isMelee() || this == PROJECTILE;
     }
 
     public static EnumDamageCause getFromCause(EntityDamageEvent.DamageCause cause) {

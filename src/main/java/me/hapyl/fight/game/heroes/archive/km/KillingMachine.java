@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.km;
 
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
@@ -8,12 +9,11 @@ import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.weapons.PackedParticle;
 import me.hapyl.fight.game.weapons.RangeWeapon;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+
+import javax.annotation.Nonnull;
 
 public class KillingMachine extends Hero implements DisabledHero {
 
@@ -32,17 +32,7 @@ public class KillingMachine extends Hero implements DisabledHero {
 
         this.setWeapon(new RangeWeapon(Material.IRON_HORSE_ARMOR, "km_weapon") {
             @Override
-            public void onHit(Player player, LivingEntity entity, boolean headshot) {
-
-            }
-
-            @Override
-            public void onMove(Player player, Location location) {
-
-            }
-
-            @Override
-            public void onShoot(Player player) {
+            public void onShoot(@Nonnull GamePlayer player) {
                 startCooldown(player, isUsingUltimate(player) ? (weaponCd / 2) : weaponCd);
             }
 
@@ -61,7 +51,7 @@ public class KillingMachine extends Hero implements DisabledHero {
     }
 
     @Override
-    public void useUltimate(Player player) {
+    public void useUltimate(@Nonnull GamePlayer player) {
         // Glow Self
         //final Glowing glowing = new Glowing(player, ChatColor.RED, getUltimateDuration());
         //final List<GamePlayer> alivePlayers = Manager.current().getCurrentGame().getAlivePlayers();

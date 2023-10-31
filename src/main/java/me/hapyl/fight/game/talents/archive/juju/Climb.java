@@ -1,20 +1,19 @@
 package me.hapyl.fight.game.talents.archive.juju;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Supplier;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.HashMap;
-import java.util.Map;
+import javax.annotation.Nonnull;
 
 public class Climb extends Talent {
 
@@ -22,7 +21,7 @@ public class Climb extends Talent {
     @DisplayField private final int cooldown = 160;
     @DisplayField private final double magnitude = 0.6d;
 
-    private final Map<Player, GameTask> tasks = new HashMap<>();
+    private final PlayerMap<GameTask> tasks = PlayerMap.newMap();
 
     public Climb() {
         super("Climb");
@@ -38,7 +37,7 @@ public class Climb extends Talent {
         tasks.clear();
     }
 
-    public void cancelTask(Player player) {
+    public void cancelTask(GamePlayer player) {
         final GameTask task = tasks.get(player);
 
         if (task != null) {
@@ -48,7 +47,7 @@ public class Climb extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final Location playerLocation = player.getLocation();
         final Location location = playerLocation.add(playerLocation.getDirection().multiply(1).setY(0.0d));
 
@@ -63,8 +62,8 @@ public class Climb extends Talent {
             player.setVelocity(player.getLocation().getDirection().normalize().multiply(magnitude).setY(magnitude));
         }, 1);
 
-        PlayerLib.addEffect(player, PotionEffectType.SPEED, 60, 1);
-        PlayerLib.playSound(playerLocation, Sound.BLOCK_SLIME_BLOCK_BREAK, 0.75f);
+        player.addPotionEffect(PotionEffectType.SPEED, 60, 1);
+        player.playSound(Sound.BLOCK_SLIME_BLOCK_BREAK, 0.75f);
 
         if (!Heroes.JUJU.getHero().isUsingUltimate(player)) {
             taskController(player);
@@ -73,7 +72,7 @@ public class Climb extends Talent {
         return Response.OK;
     }
 
-    private void taskController(Player player) {
+    private void taskController(GamePlayer player) {
         final GameTask oldTask = tasks.get(player);
         if (oldTask != null) {
             return;

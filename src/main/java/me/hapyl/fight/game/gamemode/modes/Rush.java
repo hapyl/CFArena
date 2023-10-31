@@ -24,9 +24,8 @@ public class Rush extends DeathmatchKills {
     }
 
     @Override
-    public boolean onStart(@Nonnull GameInstance instance) {
+    public void onStart(@Nonnull GameInstance instance) {
         CF.getPlayers().forEach(player -> player.setCooldownModifier(0.5d));
-        return false;
     }
 
     @Override

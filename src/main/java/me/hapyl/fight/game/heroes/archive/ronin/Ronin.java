@@ -3,6 +3,7 @@ package me.hapyl.fight.game.heroes.archive.ronin;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
@@ -106,7 +107,7 @@ public class Ronin extends Hero implements Listener, DisabledHero {
     }
 
     @Override
-    public void useUltimate(Player player) {
+    public void useUltimate(@Nonnull GamePlayer player) {
     }
 
     @Override

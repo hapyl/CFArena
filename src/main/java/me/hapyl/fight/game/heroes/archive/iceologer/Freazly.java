@@ -3,6 +3,7 @@ package me.hapyl.fight.game.heroes.archive.iceologer;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
@@ -16,7 +17,6 @@ import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 
@@ -42,7 +42,7 @@ public class Freazly extends Hero implements DisabledHero {
 
         setWeapon(new RangeWeapon(Material.IRON_SHOVEL, "FrostStaff") {
             @Override
-            public void onShoot(Player player) {
+            public void onShoot(@Nonnull GamePlayer player) {
                 final Location location = player.getLocation().add(0.0d, player.getEyeHeight(), 0.0d);
 
                 // Fx
@@ -70,7 +70,7 @@ public class Freazly extends Hero implements DisabledHero {
                             return;
                         }
 
-                        gameEntity.damage(7.5d, CF.getPlayer(player), EnumDamageCause.FROSTBITE);
+                        gameEntity.damage(7.5d, player, EnumDamageCause.FROSTBITE);
                         gameEntity.addEffect(GameEffectType.SLOWING_AURA, 20, true);
                     }
 
@@ -80,7 +80,8 @@ public class Freazly extends Hero implements DisabledHero {
                         PlayerLib.spawnParticle(location, Particle.SNOWBALL, 1, 0, 0, 0, 0.025f);
 
                         // Damage detection
-                        final LivingGameEntity collision = Collect.nearestEntity(location, 0.75d, entity -> entity.isNot(player));
+                        final LivingGameEntity collision = Collect.nearestEntity(location, 0.75d, entity -> !entity.equals(player));
+
                         if (collision != null) {
                             onHit(collision.getEntity());
                             return true;
@@ -92,12 +93,12 @@ public class Freazly extends Hero implements DisabledHero {
             }
 
             @Override
-            public double getMaxDistance(Player player) {
+            public double getMaxDistance(@Nonnull GamePlayer player) {
                 return 0;
             }
 
             @Override
-            public int getWeaponCooldown(Player player) {
+            public int getWeaponCooldown(@Nonnull GamePlayer player) {
                 return 40;
             }
         }.setId("FrostStaff"));
@@ -105,12 +106,12 @@ public class Freazly extends Hero implements DisabledHero {
     }
 
     @Override
-    public String predicateMessage(Player player) {
+    public String predicateMessage(@Nonnull GamePlayer player) {
         return "No valid block in sight!";
     }
 
     @Override
-    public void useUltimate(Player player) {
+    public void useUltimate(@Nonnull GamePlayer player) {
 
     }
 

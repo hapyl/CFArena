@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.archive.vortex;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.vortex.Vortex;
 import me.hapyl.fight.game.talents.Talent;
@@ -11,8 +12,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class StarAligner extends Talent {
@@ -27,7 +28,7 @@ public class StarAligner extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final AstralStars stars = Talents.VORTEX_STAR.getTalent(VortexStar.class).getStars(player);
         final List<LivingEntity> lastTwo = stars.getLastTwoStars();
 

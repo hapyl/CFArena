@@ -77,13 +77,9 @@ public enum Temper implements Described {
         }
     },
 
-    RADIATION("Radiation", "Reduces mending.", false) {
-        @Override
-        protected void affect(@Nonnull EntityAttributes attributes, double value, int duration) {
-            attributes.decreaseTemporary(this, AttributeType.MENDING, value, duration);
-            attributes.decreaseTemporary(this, AttributeType.DEFENSE, value, duration);
-        }
-    },
+    RADIATION("Radiation", "Reduces mending.", false),
+    WYVERN_HEART("Wyvern Heart", "", false),
+    ENDER_TELEPORT("Ender Teleport", "", false),
 
     ;
 
@@ -156,7 +152,7 @@ public enum Temper implements Described {
     }
 
     protected void affect(@Nonnull EntityAttributes attributes, double value, int duration) {
-        throw new IllegalArgumentException("override affect method");
+        throw new IllegalArgumentException(getName() + " does not support affect!");
     }
 
 }

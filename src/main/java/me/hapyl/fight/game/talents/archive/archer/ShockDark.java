@@ -2,8 +2,8 @@ package me.hapyl.fight.game.talents.archive.archer;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
@@ -19,15 +19,22 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
 
+import javax.annotation.Nonnull;
 import java.util.Set;
 
 public class ShockDark extends Talent implements Listener {
 
     @DisplayField(suffix = "blocks") private final double explosionRadius = 3.7d;
-    @DisplayField private final double explosionMaxDamage = 15.0d; //9.0
+    @DisplayField private final double explosionMaxDamage = 15.0d;
     @DisplayField private final int explosionWindup = 18;
 
-    private final Set<Arrow> arrows;
+    private final ParticleBuilder blueColor = ParticleBuilder.redstoneDust(Color.fromRGB(89, 255, 233));
+    private final ParticleBuilder redColor = ParticleBuilder.redstoneDust(Color.RED);
+
+    private final int sphereRings = 20;
+    private final Color arrowColor = Color.fromRGB(115, 157, 199);
+
+    private final Set<Arrow> shockArrows;
 
     public ShockDark() {
         super(
@@ -35,16 +42,17 @@ public class ShockDark extends Talent implements Listener {
                 "Shoots an arrow infused with &oshocking &7power. Upon hit, charges and explodes dealing damage based on distance.",
                 Type.COMBAT
         );
+
         setItem(Material.LIGHT_BLUE_DYE);
         setCooldown(120);
 
-        arrows = Sets.newHashSet();
+        shockArrows = Sets.newHashSet();
     }
 
     @Override
     public void onStop() {
-        arrows.forEach(Arrow::remove);
-        arrows.clear();
+        shockArrows.forEach(Arrow::remove);
+        shockArrows.clear();
     }
 
     @EventHandler()
@@ -57,18 +65,26 @@ public class ShockDark extends Talent implements Listener {
             return;
         }
 
-        if (arrows.contains(arrow)) {
+        if (shockArrows.contains(arrow)) {
             executeShockExplosion(shooter, arrow.getLocation());
-            arrows.remove(arrow);
+            shockArrows.remove(arrow);
         }
     }
 
+    @Override
+    public Response execute(@Nonnull GamePlayer player) {
+        final Arrow arrow = player.launchProjectile(Arrow.class);
+        arrow.setColor(arrowColor);
+
+        shockArrows.add(arrow);
+
+        // Fx
+        PlayerLib.playSound(player.getLocation(), Sound.ENTITY_ARROW_SHOOT, 1.0f);
+        return Response.OK;
+    }
+
     private void executeShockExplosion(Player player, Location location) {
-
-        final ParticleBuilder blueColor = ParticleBuilder.redstoneDust(Color.fromRGB(89, 255, 233));
-        final ParticleBuilder redColor = ParticleBuilder.redstoneDust(Color.RED);
-
-        Geometry.drawSphere(location, 10, 4, new Draw(Particle.VILLAGER_HAPPY) {
+        Geometry.drawSphere(location, sphereRings, explosionRadius, new Draw(Particle.VILLAGER_HAPPY) {
             @Override
             public void draw(Location location) {
                 blueColor.display(location);
@@ -80,20 +96,22 @@ public class ShockDark extends Talent implements Listener {
         new GameTask() {
             @Override
             public void run() {
-                Geometry.drawSphere(location, 10, explosionRadius, new Draw(Particle.VILLAGER_HAPPY) {
+                Geometry.drawSphere(location, sphereRings, explosionRadius, new Draw(Particle.VILLAGER_HAPPY) {
                     @Override
                     public void draw(Location location) {
                         redColor.display(location);
                     }
                 });
-                PlayerLib.playSound(location, Sound.ENCHANT_THORNS_HIT, 1.2f);
-                Collect.nearbyEntities(location, explosionRadius)
-                        .forEach(target -> {
-                            final double distance = target.getLocation().distance(location);
-                            final double damage = distance <= 1 ? explosionMaxDamage : (explosionMaxDamage - (distance * 2));
 
-                            target.damage(damage, player, EnumDamageCause.SHOCK_DART);
-                        });
+                Collect.nearbyEntities(location, explosionRadius).forEach(target -> {
+                    final double distance = target.getLocation().distance(location);
+                    final double damage = distance <= 1 ? explosionMaxDamage : (explosionMaxDamage - (distance * 2));
+
+                    target.damage(damage, player, EnumDamageCause.SHOCK_DART);
+                });
+
+                // Fx
+                PlayerLib.playSound(location, Sound.ENCHANT_THORNS_HIT, 1.2f);
             }
         }.runTaskLater(explosionWindup);
 
@@ -107,13 +125,5 @@ public class ShockDark extends Talent implements Listener {
 
         PlayerLib.playSound(location, sound, pitch);
         GameTask.runLater(() -> Bukkit.getOnlinePlayers().forEach(player -> player.stopSound(sound, SoundCategory.RECORDS)), cutAt);
-    }
-
-    @Override
-    public Response execute(Player player) {
-        final Arrow arrow = player.launchProjectile(Arrow.class);
-        this.arrows.add(arrow);
-        PlayerLib.playSound(player.getLocation(), Sound.ENTITY_ARROW_SHOOT, 1.0f);
-        return Response.OK;
     }
 }

@@ -2,6 +2,7 @@ package me.hapyl.fight.game.heroes.archive.nightmare;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
@@ -15,8 +16,9 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
+
+import javax.annotation.Nonnull;
 
 public class Nightmare extends Hero {
 
@@ -69,7 +71,7 @@ public class Nightmare extends Hero {
     }
 
     @Override
-    public void useUltimate(Player player) {
+    public void useUltimate(@Nonnull GamePlayer player) {
         CF.getAlivePlayers().forEach(alive -> {
             if (alive.compare(player)) {
                 return;

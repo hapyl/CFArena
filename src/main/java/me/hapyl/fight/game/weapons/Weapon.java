@@ -3,8 +3,10 @@ package me.hapyl.fight.game.weapons;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.NonNullItemCreator;
 import me.hapyl.fight.game.color.Color;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.StaticFormat;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.weapons.ability.Ability;
@@ -62,6 +64,7 @@ public class Weapon extends NonNullItemCreator implements Cloneable, Described, 
             return;
         }
 
+        ability.setCooldownMaterial(material); // I guess this is fine?
         this.abilities.put(type, ability);
     }
 
@@ -175,7 +178,7 @@ public class Weapon extends NonNullItemCreator implements Cloneable, Described, 
         return this instanceof RangeWeapon || (material == Material.BOW || material == Material.CROSSBOW || material == Material.TRIDENT);
     }
 
-    public void give(Player player) {
+    public void give(GamePlayer player) {
         player.getInventory().setItem(0, getItem());
     }
 
@@ -230,9 +233,17 @@ public class Weapon extends NonNullItemCreator implements Cloneable, Described, 
 
                 final Action[] clickTypes = type.getClickTypes();
                 if (clickTypes != null) {
-                    builder.addClickEvent(player -> Talent.preconditionTalentAnd(player)
-                            .ifTrue((pl, rs) -> ability.execute0(pl, pl.getInventory().getItemInMainHand()))
-                            .ifFalse((pl, rs) -> rs.sendError(pl)), clickTypes);
+                    builder.addClickEvent(player -> {
+                        final GamePlayer gamePlayer = CF.getPlayer(player);
+
+                        if (gamePlayer == null) {
+                            return;
+                        }
+
+                        Talent.preconditionTalentAnd(gamePlayer)
+                                .ifTrue((pl, rs) -> ability.execute0(pl, pl.getInventory().getItemInMainHand()))
+                                .ifFalse((pl, rs) -> rs.sendError(pl));
+                    }, clickTypes);
                 }
             }
         }

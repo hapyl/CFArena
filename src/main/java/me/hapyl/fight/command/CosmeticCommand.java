@@ -76,6 +76,7 @@ public class CosmeticCommand extends SimplePlayerCommand {
                     }
 
                     Message.success(player, "Gave all cosmetics to {}.", target.getName());
+                    Chat.sendMessage(target, "&aAn admin gave you all the cosmetics. Wow!");
                 }
                 case "removeall" -> {
                     final Player target = Bukkit.getPlayer(args[1]);
@@ -93,11 +94,11 @@ public class CosmeticCommand extends SimplePlayerCommand {
                     }
 
                     Message.success(player, "Removed all cosmetics from {}.", target.getName());
+                    Chat.sendMessage(target, "&aAn admin took away all your cosmetics.");
                 }
             }
         }
         else if (args.length == 3) {
-
             final String action = args[0];
             final Player target = Bukkit.getPlayer(args[1]);
             final Cosmetics cosmetic = Validate.getEnumValue(Cosmetics.class, args[2]);
@@ -116,36 +117,44 @@ public class CosmeticCommand extends SimplePlayerCommand {
             final CosmeticEntry cosmetics = playerDatabase.getCosmetics();
             final Type cosmeticType = cosmetic.getType();
 
+            final String cosmeticName = cosmetic.name();
+            final String cosmeticTypeName = cosmeticType.name();
+
             switch (action) {
                 case "set" -> {
+
                     if (cosmetics.getSelected(cosmeticType) == cosmetic) {
                         cosmetics.unsetSelected(cosmeticType);
-                        Chat.sendMessage(player, "&aUnset %s's %s cosmetic!", target.getName(), cosmeticType.name());
+                        Chat.sendMessage(player, "&aUnset %s's %s cosmetic!", target.getName(), cosmeticTypeName);
+                        Chat.sendMessage(target, "&aAn admin unselected your %s.", cosmeticTypeName);
                         return;
                     }
 
                     cosmetics.setSelected(cosmeticType, cosmetic);
-                    Chat.sendMessage(player, "&aSet %s's %s cosmetic to %s", target.getName(), cosmeticType.name(), cosmetic.name());
+                    Chat.sendMessage(player, "&aSet %s's %s cosmetic to %s", target.getName(), cosmeticTypeName, cosmeticName);
+                    Chat.sendMessage(target, "&aAn admin set your %s to %s.", cosmeticTypeName, cosmeticName);
                 }
 
                 case "has" -> {
                     final boolean hasCosmetic = cosmetics.hasCosmetic(cosmetic);
-                    Chat.sendMessage(player, "&a%s %s %s!", target.getName(), hasCosmetic ? "has" : "does not have", cosmetic.name());
+                    Chat.sendMessage(player, "&a%s %s %s!", target.getName(), hasCosmetic ? "has" : "does not have", cosmeticName);
                 }
 
                 case "give" -> {
                     if (cosmetics.hasCosmetic(cosmetic)) {
-                        Chat.sendMessage(player, "&c%s already has %s!", target.getName(), cosmetic.name());
+                        Chat.sendMessage(player, "&c%s already has %s!", target.getName(), cosmeticName);
                         return;
                     }
 
                     cosmetics.addOwned(cosmetic);
-                    Chat.sendMessage(player, "&aGave %s to %s", cosmetic.name(), target.getName());
+                    Chat.sendMessage(player, "&aGave %s to %s", cosmeticName, target.getName());
+                    Chat.sendMessage(target, "&aAn admin gave you %s.", cosmeticName);
                 }
 
                 case "remove" -> {
                     cosmetics.removeOwned(cosmetic);
-                    Chat.sendMessage(player, "&aRemoved %s from %s", cosmetic.name(), target.getName());
+                    Chat.sendMessage(player, "&aRemoved %s from %s", cosmeticName, target.getName());
+                    Chat.sendMessage(target, "&aAn admin removed %s from you.", cosmeticName);
                 }
 
                 default -> {

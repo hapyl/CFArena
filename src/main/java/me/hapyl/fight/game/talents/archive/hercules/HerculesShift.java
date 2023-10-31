@@ -1,11 +1,13 @@
 package me.hapyl.fight.game.talents.archive.hercules;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
+
+import javax.annotation.Nonnull;
 
 public class HerculesShift extends ChargedTalent {
 	public HerculesShift() {
@@ -17,7 +19,7 @@ public class HerculesShift extends ChargedTalent {
     }
 
 	@Override
-	public Response execute(Player player) {
+	public Response execute(@Nonnull GamePlayer player) {
 		player.setVelocity(player.getLocation().getDirection().normalize().multiply(1.8d));
 
 		PlayerLib.playSound(player.getLocation(), Sound.ENTITY_GHAST_SHOOT, 1.25f);

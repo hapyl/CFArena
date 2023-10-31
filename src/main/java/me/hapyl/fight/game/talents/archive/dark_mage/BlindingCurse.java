@@ -1,14 +1,13 @@
 package me.hapyl.fight.game.talents.archive.dark_mage;
 
-import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.dark_mage.DarkMageSpell;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -16,8 +15,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
@@ -57,19 +54,19 @@ public class BlindingCurse extends DarkMageTalent {
     }
 
     @Override
-    public Response executeSpell(Player player) {
+    public Response executeSpell(@Nonnull GamePlayer player) {
         final LivingGameEntity target = Collect.targetEntity(
                 player,
                 maxDistance,
                 0.9d,
-                living -> living.isNot(player) && living.hasLineOfSight(player)
+                living -> !living.equals(player) && living.hasLineOfSight(player)
         );
 
         if (target == null) {
             return Response.error("No valid target!");
         }
 
-        execute0(player, player, target.getEntity());
+        execute0(player, player, target);
 
         // Have to use assist here since it's based on ability casting
         if (!Heroes.DARK_MAGE.getHero().isUsingUltimate(player)) {
@@ -77,14 +74,14 @@ public class BlindingCurse extends DarkMageTalent {
         }
 
         // Bounce
-        final LivingEntity bounce = bounce(player, target.getEntity());
-        bounce(player, bounce, target.getEntity());
+        final LivingGameEntity bounce = bounce(player, target);
+        bounce(player, bounce, target);
 
         return Response.OK;
     }
 
     @Nullable
-    private LivingEntity bounce(@Nonnull Player player, LivingEntity... bounced) {
+    private LivingGameEntity bounce(@Nonnull GamePlayer player, LivingGameEntity... bounced) {
         if (bounced == null || bounced.length == 0 || bounced[0] == null) {
             return null;
         }
@@ -93,27 +90,25 @@ public class BlindingCurse extends DarkMageTalent {
                 bounced[0].getLocation(),
                 10.0d,
                 living -> {
-                    for (LivingEntity livingEntity : bounced) {
-                        if (livingEntity == living) {
+                    for (LivingGameEntity livingEntity : bounced) {
+                        if (livingEntity.equals(living)) {
                             return false;
                         }
                     }
 
-                    return living.isNot(player);
+                    return !living.equals(player);
                 }
         );
 
         if (bounce != null) {
-            final LivingEntity entity = bounce.getEntity();
-
-            execute0(player, bounced[0], entity);
-            return entity;
+            execute0(player, bounced[0], bounce);
+            return bounce;
         }
 
         return null;
     }
 
-    private void execute0(@Nonnull Player player, @Nonnull LivingEntity from, @Nonnull LivingEntity to) {
+    private void execute0(@Nonnull GamePlayer player, @Nonnull LivingGameEntity from, @Nonnull LivingGameEntity to) {
         final Location location = from.getLocation();
 
         Geometry.drawLine(
@@ -125,19 +120,15 @@ public class BlindingCurse extends DarkMageTalent {
         PlayerLib.playSound(location, Sound.ENTITY_GLOW_SQUID_SQUIRT, 1.8f);
         PlayerLib.spawnParticle(location, Particle.SQUID_INK, 1, 0.3d, 0.3d, 0.3, 3f);
 
-        if (to instanceof Player toPlayer) {
-            Chat.sendTitle(toPlayer, "&0&l☠", "&0&l☠", 0, blindingDuration - 10, 10);
-        }
+        to.sendTitle("&0&l☠", "&0&l☠", 0, blindingDuration - 10, 10);
 
         to.addPotionEffect(PotionEffectType.BLINDNESS.createEffect(blindingDuration, 10));
         to.addPotionEffect(PotionEffectType.SLOW.createEffect(slowingDuration, 1));
 
-        CF.getEntityOptional(to).ifPresent(entity -> {
-            entity.damage(damage, player, EnumDamageCause.DARKNESS_CURSE);
-        });
+        to.damage(damage, player, EnumDamageCause.DARKNESS_CURSE);
 
-        Chat.sendMessage(to, "&c%s has cursed you with the Dark Magic!", player.getName());
-        Chat.sendMessage(player, "&aYou have cursed %s with Dark Magic!", to.getName());
+        to.sendMessage("&c%s has cursed you with the Dark Magic!", player.getName());
+        player.sendMessage("&aYou have cursed %s with Dark Magic!", to.getName());
     }
 
 }

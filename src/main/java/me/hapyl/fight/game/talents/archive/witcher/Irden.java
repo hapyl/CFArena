@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.archive.witcher;
 
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
@@ -12,8 +13,9 @@ import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
-import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
+
+import javax.annotation.Nonnull;
 
 public class Irden extends Talent {
 
@@ -31,7 +33,7 @@ public class Irden extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocation();
 
         new GameTask() {
@@ -51,13 +53,13 @@ public class Irden extends Talent {
         return Response.OK;
     }
 
-    public void affect(Player player, Location location, int tick) {
+    public void affect(GamePlayer player, Location location, int tick) {
         if (tick % 20 == 0 || tick == (getDuration() - 1)) {
             Geometry.drawCircle(location, radius, Quality.HIGH, new WorldParticle(Particle.SPELL_WITCH));
         }
 
         Collect.nearbyPlayers(location, radius).forEach(target -> {
-            if (target.is(player)) {
+            if (target.equals(player)) {
                 return;
             }
 

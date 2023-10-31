@@ -14,51 +14,59 @@ public abstract class Reward {
 
     public static final String BULLET = "&8+ &7";
 
-    private final String name;
-
-    public Reward(String name) {
-        this.name = name;
+    public Reward() {
     }
 
     public PlayerDatabase getDatabase(Player player) {
         return PlayerDatabase.getDatabase(player);
     }
 
-    public String getName() {
-        return name;
-    }
+    /**
+     * Gets the display for this reward.
+     * Display is used in item lore and player chat to notify them what this reward gives.
+     *
+     * @param player - Player.
+     * @return a {@link RewardDisplay}.
+     */
+    @Nonnull
+    public abstract RewardDisplay getDisplay(@Nonnull Player player);
 
-    public abstract void display(@Nonnull Player player, @Nonnull ItemBuilder builder);
+    /**
+     * Grants this reward to a player.
+     *
+     * @param player - Player.
+     */
+    public abstract void grant(@Nonnull Player player);
 
-    public abstract void grantReward(@Nonnull Player player);
-
-    public abstract void revokeReward(@Nonnull Player player);
+    /**
+     * Revokes this reward from a player.
+     *
+     * @param player - Player.
+     */
+    public abstract void revoke(@Nonnull Player player);
 
     @Nonnull
-    public ItemBuilder displayGet(@Nonnull Player player, @Nonnull ItemBuilder builder) {
-        display(player, builder);
+    public ItemBuilder formatBuilder(@Nonnull Player player, @Nonnull ItemBuilder builder) {
+        getDisplay(player).forEach(builder::addLore);
 
         return builder;
     }
 
-    @Override
-    public String toString() {
-        return name;
-    }
-
     @Nonnull
-    public static Reward create(String name) {
-        return new Reward(name) {
+    public static Reward create() {
+        return new Reward() {
             @Override
-            public void grantReward(@Nonnull Player player) {
+            public void grant(@Nonnull Player player) {
             }
 
             @Override
-            public void revokeReward(@Nonnull Player player) {
+            public void revoke(@Nonnull Player player) {
             }
 
             @Override
-            public void display(@Nonnull Player player, @Nonnull ItemBuilder builder) {
+            @Nonnull
+            public RewardDisplay getDisplay(@Nonnull Player player) {
+                return RewardDisplay.EMPTY;
             }
         };
     }
@@ -73,19 +81,24 @@ public abstract class Reward {
         Validate.isTrue(cosmetics != null, "cosmetics cannot be null");
         Validate.isTrue(cosmetics.length > 0, "there must be at least one cosmetic");
 
-        return new Reward("Cosmetics Reward") {
+        return new Reward() {
 
             @Override
-            public void display(@Nonnull Player player, @Nonnull ItemBuilder builder) {
+            @Nonnull
+            public RewardDisplay getDisplay(@Nonnull Player player) {
+                final RewardDisplay display = new RewardDisplay();
+
                 for (Cosmetics enumCosmetic : cosmetics) {
                     final Cosmetic cosmetic = enumCosmetic.getCosmetic();
 
-                    builder.addLore(BULLET + cosmetic.getFormatted());
+                    display.add(cosmetic.getFormatted());
                 }
+
+                return display;
             }
 
             @Override
-            public void grantReward(@Nonnull Player player) {
+            public void grant(@Nonnull Player player) {
                 final CosmeticEntry entry = PlayerDatabase.getDatabase(player).getCosmetics();
 
                 for (Cosmetics cosmetic : cosmetics) {
@@ -94,7 +107,7 @@ public abstract class Reward {
             }
 
             @Override
-            public void revokeReward(@Nonnull Player player) {
+            public void revoke(@Nonnull Player player) {
                 final CosmeticEntry entry = PlayerDatabase.getDatabase(player).getCosmetics();
 
                 for (Cosmetics cosmetic : cosmetics) {

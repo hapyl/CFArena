@@ -27,7 +27,7 @@ public abstract class NonNullItemCreator implements LoreAppender {
 
     public final ItemStack getItemUnsafe() throws IllegalStateException {
         if (this.item == null) {
-            throw new IllegalStateException("unsafe");
+            throw new IllegalStateException("getItemUnsafe()");
         }
 
         return item;

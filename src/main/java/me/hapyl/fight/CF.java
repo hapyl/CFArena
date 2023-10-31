@@ -106,11 +106,6 @@ public final class CF {
         return manager.getEntity(uuid);
     }
 
-    @Nonnull
-    public static GamePlayer getOrCreatePlayer(@Nonnull Player player) {
-        return manager.getOrCreatePlayer(player);
-    }
-
     @Nullable
     public static GamePlayer getPlayer(@Nullable Player player) {
         if (player == null) {
@@ -118,6 +113,11 @@ public final class CF {
         }
 
         return manager.getPlayer(player);
+    }
+
+    @Nullable
+    public static GamePlayer getPlayer(@Nonnull UUID uuid) {
+        return manager.getPlayer(uuid);
     }
 
     @Nonnull

@@ -4,6 +4,7 @@ import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
@@ -23,7 +24,6 @@ import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -67,28 +67,25 @@ public class Swooper extends Hero implements Listener, UIComponent {
         setWeapon(new RangeWeapon(Material.WOODEN_HOE, "swooper_weapon") {
 
             @Override
-            public double getDamage(Player player, boolean headshot) {
+            public double getDamage(@Nonnull GamePlayer player, boolean headshot) {
                 return player.isSneaking() ? 10.0d : 5.0d;
             }
 
             @Override
-            public double getMaxDistance(Player player) {
+            public double getMaxDistance(@Nonnull GamePlayer player) {
                 return player.isSneaking() ? 50 : 25;
             }
 
             @Override
-            public EnumDamageCause getDamageCause(Player player) {
+            public EnumDamageCause getDamageCause(@Nonnull GamePlayer player) {
                 return EnumDamageCause.RIFLE;
             }
 
             @Override
-            public void onShoot(Player player) {
-                PlayerLib.playSound(player.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 2.0f);
+            public void onShoot(@Nonnull GamePlayer player) {
+                player.playWorldSound(Sound.ENTITY_GENERIC_EXPLODE, 2.0f);
             }
 
-            @Override
-            public void onHit(Player player, LivingEntity entity, boolean headshot) {
-            }
         }.setCooldown(45)
                 .setMaxAmmo(5)
                 .setParticleTick(new PackedParticle(Particle.FIREWORKS_SPARK))
@@ -147,11 +144,11 @@ public class Swooper extends Hero implements Listener, UIComponent {
     }
 
     @Override
-    public void onDeath(Player player) {
+    public void onDeath(@Nonnull GamePlayer player) {
         //dataMap.removeBuffer(player);
     }
 
-    public void useUltimate(Player player) {
+    public void useUltimate(@Nonnull GamePlayer player) {
         setUsingUltimate(player, true);
 
         final PlayerInventory inventory = player.getInventory();
@@ -180,7 +177,7 @@ public class Swooper extends Hero implements Listener, UIComponent {
                     builder.append(i <= tick20 ? ChatColor.GOLD : ChatColor.DARK_GRAY).append("-");
                 }
 
-                Chat.sendTitle(player, "&eRocket Fuse", builder.toString(), 0, 5, 2);
+                player.sendTitle("&eRocket Fuse", builder.toString(), 0, 5, 2);
             }
 
             private void removeRocketLauncher() {
@@ -193,7 +190,7 @@ public class Swooper extends Hero implements Listener, UIComponent {
 
     @Nonnull
     @Override
-    public String getString(Player player) {
+    public String getString(@Nonnull GamePlayer player) {
         return "";
         //final Buffer<SwooperData> buffer = dataMap.get(player);
         //

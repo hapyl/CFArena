@@ -24,6 +24,7 @@ import me.hapyl.fight.npc.HumanManager;
 import me.hapyl.fight.protocol.ArcaneMuteProtocol;
 import me.hapyl.fight.protocol.CameraProtocol;
 import me.hapyl.fight.protocol.DismountProtocol;
+import me.hapyl.fight.protocol.PlayerClickAtEntityProtocol;
 import me.hapyl.spigotutils.EternaAPI;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.Bukkit;
@@ -237,6 +238,7 @@ public class Main extends JavaPlugin {
         new DismountProtocol();
         new CandlebaneProtocol();
         new CameraProtocol();
+        new PlayerClickAtEntityProtocol();
         //new HandshakeProtocol();
         //new ConfusionPotionProtocol(); -> doesn't work as good as I thought :(
     }

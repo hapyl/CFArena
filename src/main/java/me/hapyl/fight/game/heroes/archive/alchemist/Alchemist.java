@@ -21,13 +21,12 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.RandomTable;
+import me.hapyl.fight.util.collection.RandomTable;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.potion.PotionEffectType;
@@ -45,7 +44,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
 
     private final RandomTable<Effect> positiveEffects = new RandomTable<>();
     private final RandomTable<Effect> negativeEffects = new RandomTable<>();
-    private final Map<Player, Integer> toxinLevel = new HashMap<>();
+    private final Map<GamePlayer, Integer> toxinLevel = new HashMap<>();
     private final Map<UUID, CauldronEffect> cauldronEffectMap = new HashMap<>();
 
     public Alchemist() {
@@ -109,13 +108,12 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
     }
 
     @Override
-    public void useUltimate(Player player) {
-        final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
+    public void useUltimate(@Nonnull GamePlayer player) {
         final Effect positiveEffect = positiveEffects.getRandomElement();
         final Effect negativeEffect = negativeEffects.getRandomElement();
 
-        positiveEffect.applyEffects(gamePlayer, gamePlayer);
-        Collect.enemyPlayers(player).forEach(alivePlayer -> negativeEffect.applyEffects(gamePlayer, alivePlayer));
+        positiveEffect.applyEffects(player, player);
+        Collect.enemyPlayers(player).forEach(alivePlayer -> negativeEffect.applyEffects(player, alivePlayer));
     }
 
     @Override
@@ -147,23 +145,16 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
         return null;
     }
 
-    // some effects aren't really allowed so
-    private PotionEffectType getRandomEffect() {
-        final PotionEffectType value = PotionEffectType.values()[ThreadLocalRandom.current().nextInt(PotionEffectType.values().length)];
-        return (value == BAD_OMEN || value == HEAL || value == HEALTH_BOOST || value == REGENERATION || value == ABSORPTION ||
-                value == SATURATION || value == LUCK || value == UNLUCK || value == HERO_OF_THE_VILLAGE) ? getRandomEffect() : value;
+    public CauldronEffect getEffect(GamePlayer player) {
+        return this.cauldronEffectMap.get(player.getUUID());
     }
 
-    public CauldronEffect getEffect(Player player) {
-        return this.cauldronEffectMap.get(player.getUniqueId());
-    }
-
-    public void startCauldronBoost(Player player) {
-        this.cauldronEffectMap.put(player.getUniqueId(), new CauldronEffect());
+    public void startCauldronBoost(GamePlayer player) {
+        this.cauldronEffectMap.put(player.getUUID(), new CauldronEffect());
     }
 
     @Override
-    public void onStart(Player player) {
+    public void onStart(@Nonnull GamePlayer player) {
         toxinLevel.put(player, 0);
     }
 
@@ -174,22 +165,9 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
     }
 
     @Override
-    public void onDeath(Player player) {
-        cauldronEffectMap.remove(player.getUniqueId());
+    public void onDeath(@Nonnull GamePlayer player) {
+        cauldronEffectMap.remove(player.getUUID());
         toxinLevel.remove(player);
-    }
-
-    private int getToxinLevel(Player player) {
-        return toxinLevel.getOrDefault(player, 0);
-    }
-
-    private void setToxinLevel(Player player, int i) {
-        toxinLevel.put(player, Numbers.clamp(i, 0, 100));
-    }
-
-    private boolean isToxinLevelBetween(Player player, int a, int b) {
-        final int toxinLevel = getToxinLevel(player);
-        return toxinLevel >= a && toxinLevel < b;
     }
 
     @Override
@@ -198,18 +176,17 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
             @Override
             public void run() {
                 CF.getAlivePlayers(Heroes.ALCHEMIST).forEach(gamePlayer -> {
-                    final Player player = gamePlayer.getPlayer();
-                    if (isToxinLevelBetween(player, 50, 75)) {
-                        PlayerLib.addEffect(player, POISON, 20, 2);
+                    if (isToxinLevelBetween(gamePlayer, 50, 75)) {
+                        gamePlayer.addPotionEffect(POISON, 20, 2);
                     }
-                    else if (isToxinLevelBetween(player, 75, 90)) {
-                        PlayerLib.addEffect(player, WITHER, 20, 1);
+                    else if (isToxinLevelBetween(gamePlayer, 75, 90)) {
+                        gamePlayer.addPotionEffect(WITHER, 20, 1);
                     }
-                    else if (getToxinLevel(player) >= 100) {
-                        gamePlayer.setLastDamageCause(EnumDamageCause.TOXIN);
-                        gamePlayer.die(true);
+                    else if (getToxinLevel(gamePlayer) >= 100) {
+                        gamePlayer.dieBy(EnumDamageCause.TOXIN);
                     }
-                    setToxinLevel(player, getToxinLevel(player) - 1);
+
+                    setToxinLevel(gamePlayer, getToxinLevel(gamePlayer) - 1);
                 });
             }
         }.runTaskTimer(0, 10);
@@ -230,17 +207,38 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
         return Talents.INTOXICATION.getTalent();
     }
 
-    public void addToxin(Player player, int value) {
+    public void addToxin(GamePlayer player, int value) {
         setToxinLevel(player, getToxinLevel(player) + value);
     }
 
     @Override
-    public @Nonnull String getString(Player player) {
+    @Nonnull
+    public String getString(@Nonnull GamePlayer player) {
         final int toxinLevel = getToxinLevel(player);
         return getToxinColor(player) + "☠ &l" + toxinLevel + "%%";
     }
 
-    private String getToxinColor(Player player) {
+    // some effects aren't really allowed so
+    private PotionEffectType getRandomEffect() {
+        final PotionEffectType value = PotionEffectType.values()[ThreadLocalRandom.current().nextInt(PotionEffectType.values().length)];
+        return (value == BAD_OMEN || value == HEAL || value == HEALTH_BOOST || value == REGENERATION || value == ABSORPTION ||
+                value == SATURATION || value == LUCK || value == UNLUCK || value == HERO_OF_THE_VILLAGE) ? getRandomEffect() : value;
+    }
+
+    private int getToxinLevel(GamePlayer player) {
+        return toxinLevel.getOrDefault(player, 0);
+    }
+
+    private void setToxinLevel(GamePlayer player, int i) {
+        toxinLevel.put(player, Numbers.clamp(i, 0, 100));
+    }
+
+    private boolean isToxinLevelBetween(GamePlayer player, int a, int b) {
+        final int toxinLevel = getToxinLevel(player);
+        return toxinLevel >= a && toxinLevel < b;
+    }
+
+    private String getToxinColor(GamePlayer player) {
         if (isToxinLevelBetween(player, 30, 50)) {
             return "&e";
         }

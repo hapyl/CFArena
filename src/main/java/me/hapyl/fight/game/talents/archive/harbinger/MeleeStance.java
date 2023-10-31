@@ -1,20 +1,18 @@
 package me.hapyl.fight.game.talents.archive.harbinger;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.PlayerInventory;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
 
 public class MeleeStance extends Talent {
 
@@ -22,7 +20,7 @@ public class MeleeStance extends Talent {
     @DisplayField private final int minimumCd = 60;
     @DisplayField private final int cdPerSecond = 30;
 
-    private final Map<Player, StanceData> dataMap = new HashMap<>();
+    private final PlayerMap<StanceData> dataMap = PlayerMap.newMap();
 
     private final Weapon abilityItem = new Weapon(Material.IRON_SWORD).setDamage(8.0d)
             .setName("Raging Blade")
@@ -49,7 +47,7 @@ public class MeleeStance extends Talent {
     }
 
     @Override
-    public void onDeath(Player player) {
+    public void onDeath(@Nonnull GamePlayer player) {
         final StanceData data = dataMap.get(player);
         if (data != null) {
             data.cancelTask();
@@ -58,12 +56,12 @@ public class MeleeStance extends Talent {
         dataMap.remove(player);
     }
 
-    public boolean isActive(Player player) {
+    public boolean isActive(GamePlayer player) {
         return getData(player) != null;
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final StanceData data = getData(player);
 
         // Switch to Melee
@@ -82,11 +80,11 @@ public class MeleeStance extends Talent {
     }
 
     @Nullable
-    public StanceData getData(Player player) {
+    public StanceData getData(GamePlayer player) {
         return dataMap.get(player);
     }
 
-    public void switchToMelee(Player player) {
+    public void switchToMelee(GamePlayer player) {
         final StanceData data = getData(player);
         if (data != null) {
             data.cancelTask();
@@ -101,11 +99,11 @@ public class MeleeStance extends Talent {
         startCd(player, 20);
 
         // Fx
-        PlayerLib.playSound(player, Sound.ENTITY_ITEM_BREAK, 1.25f);
-        Chat.sendTitle(player, "&2⚔", "", 5, 15, 5);
+        player.playSound(Sound.ITEM_SHIELD_BREAK, 1.25f);
+        player.sendTitle("&2⚔", "", 5, 15, 5);
     }
 
-    public void switchToRange(Player player) {
+    public void switchToRange(GamePlayer player) {
         final StanceData data = getData(player);
         if (data == null) {
             return;
@@ -116,14 +114,14 @@ public class MeleeStance extends Talent {
         final int cooldown = calculateCooldown(data.getDuration());
 
         startCd(player, cooldown);
-        Chat.sendMessage(player, "&aMelee Stance is on cooldown for &l%ss&a!", BukkitUtils.roundTick(cooldown));
+        player.sendMessage("&aMelee Stance is on cooldown for &l%ss&a!", BukkitUtils.roundTick(cooldown));
 
         player.getInventory().setItem(0, data.getOriginalWeapon());
         player.getInventory().setHeldItemSlot(0);
         dataMap.remove(player);
 
-        PlayerLib.playSound(player, Sound.ENTITY_ARROW_SHOOT, 0.75f);
-        Chat.sendTitle(player, "&2🏹", "", 5, 15, 5);
+        player.playSound(Sound.ENTITY_ARROW_SHOOT, 0.75f);
+        player.sendTitle("&2🏹", "", 5, 15, 5);
     }
 
     private int calculateCooldown(long duration) {

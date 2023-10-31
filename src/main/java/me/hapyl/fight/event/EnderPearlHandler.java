@@ -1,7 +1,9 @@
 package me.hapyl.fight.event;
 
-import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.event.custom.EnderPearlTeleportEvent;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
@@ -12,6 +14,7 @@ import org.bukkit.entity.EnderPearl;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
 
@@ -20,28 +23,43 @@ import org.bukkit.event.entity.ProjectileHitEvent;
  */
 public final class EnderPearlHandler implements Listener {
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void handleHit(ProjectileHitEvent ev) {
         if (!(ev.getEntity() instanceof EnderPearl enderPearl) || !(enderPearl.getShooter() instanceof Player player)) {
             return;
         }
 
+        final GamePlayer gamePlayer = CF.getPlayer(player);
         final Location location = enderPearl.getLocation();
+
+        if (gamePlayer == null) {
+            return;
+        }
 
         if (!isSafeLocation(location)) {
             enderPearl.remove();
+            ev.setCancelled(true);
+
             Chat.sendMessage(player, "&cYou cannot travel there using Ender Pearls!");
             PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
-            ev.setCancelled(true);
+            return;
         }
-        else {
-            enderPearl.getPassengers().forEach(Entity::eject);
-            location.setYaw(player.getLocation().getYaw());
-            location.setPitch(player.getLocation().getPitch());
-            GamePlayer.getPlayer(player).addEffect(GameEffectType.FALL_DAMAGE_RESISTANCE, 20, true);
-            player.teleport(location);
-            PlayerLib.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f);
+
+        final Location playerLocation = player.getLocation();
+        enderPearl.getPassengers().forEach(Entity::eject);
+
+        location.setYaw(playerLocation.getYaw());
+        location.setPitch(playerLocation.getPitch());
+
+        final EnderPearlTeleportEvent event = new EnderPearlTeleportEvent(gamePlayer, location);
+
+        if (event.callAndCheck()) {
+            return;
         }
+
+        gamePlayer.addEffect(GameEffectType.FALL_DAMAGE_RESISTANCE, 20, true);
+        gamePlayer.teleport(location);
+        gamePlayer.playWorldSound(Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f);
     }
 
     private boolean isSafeLocation(Location location) {

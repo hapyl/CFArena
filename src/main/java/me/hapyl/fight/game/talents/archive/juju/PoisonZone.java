@@ -4,6 +4,7 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
@@ -15,8 +16,9 @@ import me.hapyl.spigotutils.module.math.geometry.Quality;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Particle;
-import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
+
+import javax.annotation.Nonnull;
 
 public class PoisonZone extends Talent {
 
@@ -39,11 +41,11 @@ public class PoisonZone extends Talent {
     }
 
     @Override
-    public final Response execute(Player player) {
+    public final Response execute(@Nonnull GamePlayer player) {
         return execute(player, player.getLocation());
     }
 
-    public Response execute(Player player, Location location) {
+    public Response execute(GamePlayer player, Location location) {
         GameTask.runDuration(this, (task, tick) -> {
             Collect.nearbyEntities(location, radius).forEach(living -> {
                 living.damageTick(damagePerTick, player, EnumDamageCause.POISON_IVY, damageTick);

@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.ninja;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
@@ -40,7 +41,15 @@ public class Ninja extends Hero implements Listener, UIComponent {
 
     private final ItemStack throwingStar = new ItemBuilder(Material.NETHER_STAR, "THROWING_STAR").setName("Throwing Star")
             .setAmount(5)
-            .addClickEvent(this::shootStar)
+            .addClickEvent(player -> {
+                final GamePlayer gamePlayer = CF.getPlayer(player);
+
+                if (gamePlayer == null) {
+                    return;
+                }
+
+                shootStar(gamePlayer);
+            })
             .withCooldown(10)
             .build();
 
@@ -82,7 +91,7 @@ public class Ninja extends Hero implements Listener, UIComponent {
     }
 
     @Override
-    public void useUltimate(Player player) {
+    public void useUltimate(@Nonnull GamePlayer player) {
         final PlayerInventory inventory = player.getInventory();
 
         setUsingUltimate(player, true);
@@ -91,7 +100,7 @@ public class Ninja extends Hero implements Listener, UIComponent {
         player.setCooldown(throwingStar.getType(), 20);
     }
 
-    private void shootStar(Player player) {
+    private void shootStar(GamePlayer player) {
         final ItemStack item = player.getInventory().getItemInMainHand();
         item.setAmount(item.getAmount() - 1);
 
@@ -108,14 +117,13 @@ public class Ninja extends Hero implements Listener, UIComponent {
                 hit -> PlayerLib.playSound(hit.getLocation(), Sound.ITEM_TRIDENT_HIT, 2.0f)
         );
 
-        PlayerLib.playSound(player.getLocation(), Sound.ITEM_TRIDENT_THROW, 1.5f);
+        player.playWorldSound(Sound.ITEM_TRIDENT_THROW, 1.5f);
     }
 
     @Override
-    public void onStart(Player player) {
+    public void onStart(@Nonnull GamePlayer player) {
         player.setAllowFlight(true);
-
-        PlayerLib.addEffect(player, PotionEffectType.SPEED, 999999, 0);
+        player.addPotionEffect(PotionEffectType.SPEED, 999999, 0);
     }
 
     @EventHandler()
@@ -131,7 +139,7 @@ public class Ninja extends Hero implements Listener, UIComponent {
         player.setVelocity(new Vector(0.0d, 1.0d, 0.0d));
         player.setFlying(false);
         player.setAllowFlight(false);
-        GamePlayer.setCooldown(player, this.getItem().getType(), 100);
+        player.setCooldown(getItem().getType(), 100);
         GameTask.runLater(() -> {
             player.setAllowFlight(true);
         }, 100);
@@ -142,7 +150,7 @@ public class Ninja extends Hero implements Listener, UIComponent {
     }
 
     @Override
-    public @Nonnull String getString(Player player) {
+    public @Nonnull String getString(@Nonnull GamePlayer player) {
         return player.hasCooldown(getItem().getType()) ? "&f🌊 &l%ss".formatted(BukkitUtils.roundTick(player.getCooldown(this.getItem()
                 .getType()))) : "";
     }
@@ -160,7 +168,7 @@ public class Ninja extends Hero implements Listener, UIComponent {
         if (player.hasEffect(GameEffectType.INVISIBILITY)) {
             player.removeEffect(GameEffectType.INVISIBILITY);
             player.sendMessage("&aYour invisibility is gone because you dealt damage.");
-            player.playPlayerSound(Sound.ITEM_SHIELD_BREAK, 2.0f);
+            player.playSound(Sound.ITEM_SHIELD_BREAK, 2.0f);
         }
 
         if (player.getInventory().getHeldItemSlot() != 0) {

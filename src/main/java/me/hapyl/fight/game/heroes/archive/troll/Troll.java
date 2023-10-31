@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.troll;
 
-import com.google.common.collect.Maps;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
@@ -14,21 +14,21 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
-import java.util.Map;
+import javax.annotation.Nonnull;
 
 public class Troll extends Hero implements Listener {
 
-    private final Map<Player, StickyCobweb> cobwebs = Maps.newHashMap();
+    private final PlayerMap<StickyCobweb> cobwebs = PlayerMap.newMap();
 
     public Troll() {
         super("Troll");
@@ -64,10 +64,10 @@ public class Troll extends Hero implements Listener {
 
     @EventHandler
     public void handleCobwebClear(PlayerInteractEvent ev) {
+        final GamePlayer player = CF.getPlayer(ev.getPlayer());
         final Block block = ev.getClickedBlock();
-        final Player player = ev.getPlayer();
 
-        if (block == null || ev.getHand() == EquipmentSlot.OFF_HAND) {
+        if (player == null || block == null || ev.getHand() == EquipmentSlot.OFF_HAND) {
             return;
         }
 
@@ -77,7 +77,7 @@ public class Troll extends Hero implements Listener {
     }
 
     @Override
-    public void onDeath(Player player) {
+    public void onDeath(@Nonnull GamePlayer player) {
         clearCobwebs(player);
     }
 
@@ -87,7 +87,7 @@ public class Troll extends Hero implements Listener {
         cobwebs.clear();
     }
 
-    public void clearCobwebs(Player player) {
+    public void clearCobwebs(GamePlayer player) {
         final StickyCobweb oldCobwebs = cobwebs.remove(player);
 
         if (oldCobwebs != null) {
@@ -96,7 +96,7 @@ public class Troll extends Hero implements Listener {
     }
 
     @Override
-    public void useUltimate(Player player) {
+    public void useUltimate(@Nonnull GamePlayer player) {
         clearCobwebs(player);
 
         cobwebs.put(player, new StickyCobweb(player));
@@ -113,17 +113,16 @@ public class Troll extends Hero implements Listener {
 
         if (Math.random() >= 0.98) {
             entity.setLastDamager(killer);
-            entity.setLastDamageCause(EnumDamageCause.TROLL_LAUGH);
-            entity.die(true);
+            entity.dieBy(EnumDamageCause.TROLL_LAUGH);
 
-            entity.playPlayerSound(Sound.ENTITY_WITCH_CELEBRATE, 2.0f);
+            entity.playSound(Sound.ENTITY_WITCH_CELEBRATE, 2.0f);
             entity.sendMessage("&a%s had the last laugh!", killer.getName());
 
             entity.asPlayer(Achievements.LAUGHING_OUT_LOUD_VICTIM::complete);
 
             // Fx
             killer.sendMessage("&aYou laughed at %s!", entity.getName());
-            killer.playPlayerSound(Sound.ENTITY_WITCH_CELEBRATE, 2.0f);
+            killer.playSound(Sound.ENTITY_WITCH_CELEBRATE, 2.0f);
 
             Achievements.LAUGHING_OUT_LOUD.complete(killer.getPlayer());
         }

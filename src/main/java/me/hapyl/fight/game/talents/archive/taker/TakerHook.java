@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.talents.archive.taker;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.CF;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -17,8 +16,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.EulerAngle;
@@ -31,15 +28,15 @@ public class TakerHook {
     private final int EXTEND_SPEED = 3;
     private final int CONTRACT_SPEED = 2;
 
-    private final Player player;
+    private final GamePlayer player;
     private final LinkedList<ArmorStand> chains;
     private final double HEIGHT = 1.5d;
 
-    private LivingEntity hooked;
+    private LivingGameEntity hooked;
     private GameTask taskExtend;
     private GameTask taskContract;
 
-    public TakerHook(Player player) {
+    public TakerHook(GamePlayer player) {
         this.player = player;
         this.chains = Lists.newLinkedList();
         this.hooked = null;
@@ -51,11 +48,8 @@ public class TakerHook {
         final Location location = player.getEyeLocation().subtract(0.0d, 0.5d, 0.0d);
         final Vector vector = location.getDirection().normalize();
 
-        PlayerLib.addEffect(player, PotionEffectType.SLOW, 10000, 10);
-        //PlayerLib.addEffect(player, PotionEffectType.JUMP, 10000, 250);
-
-        final GamePlayer gamePlayer = GamePlayer.getPlayer(player);
-        gamePlayer.getMetadata().CAN_MOVE.setValue(false);
+        player.addPotionEffect(PotionEffectType.SLOW, 10000, 10);
+        player.getMetadata().CAN_MOVE.setValue(false);
 
         taskExtend = new GameTask() {
             private double step = 0.0d;
@@ -92,12 +86,12 @@ public class TakerHook {
                 final LivingGameEntity nearest = Collect.nearestEntity(location, 1.5d, player);
 
                 if (nearest != null) {
-                    if (nearest.getMetadata().CC_AFFECT.isFalseAndNotify(gamePlayer)) {
+                    if (nearest.getMetadata().CC_AFFECT.isFalseAndNotify(player)) {
                         contract();
                         return;
                     }
 
-                    hooked = nearest.getEntity();
+                    hooked = nearest;
                     double health = hooked.getHealth();
 
                     nearest.sendMessage(
@@ -136,7 +130,7 @@ public class TakerHook {
         player.removePotionEffect(PotionEffectType.SLOW);
         player.removePotionEffect(PotionEffectType.JUMP);
 
-        GamePlayer.getPlayer(player).getMetadata().CAN_MOVE.setValue(true);
+        player.getMetadata().CAN_MOVE.setValue(true);
     }
 
     private void contract() {
@@ -148,9 +142,7 @@ public class TakerHook {
             public void run() {
                 if (chains.isEmpty()) {
                     player.removePotionEffect(PotionEffectType.SLOW);
-                    //player.removePotionEffect(PotionEffectType.JUMP);
-
-                    CF.getOrCreatePlayer(player).setCanMove(true);
+                    player.getMetadata().CAN_MOVE.setValue(true);
 
                     chains.clear();
                     cancel();

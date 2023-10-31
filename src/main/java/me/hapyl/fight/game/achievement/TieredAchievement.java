@@ -24,7 +24,7 @@ public class TieredAchievement extends Achievement {
     }
 
     public TieredAchievement(@Nullable String id, @Nonnull String name, @Nonnull String description, @Nonnull @Range(min = 5, max = 5) int... tiers) {
-        this(id, name, description);
+        this(id == null ? null : id.toLowerCase(), name, description);
 
         if (tiers.length != 5) {
             throw new IllegalArgumentException("There must be 5 tiers!");

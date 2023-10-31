@@ -1,13 +1,15 @@
 package me.hapyl.fight.game.talents.archive.witcher;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
-import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+
+import javax.annotation.Nonnull;
 
 public class Aard extends Talent {
 
@@ -21,7 +23,7 @@ public class Aard extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final Vector vector = player.getLocation().getDirection().setY(0.125d).multiply(2.0d);
         final Location inFront = player.getLocation().add(vector);
         final World world = inFront.getWorld();
@@ -31,7 +33,7 @@ public class Aard extends Talent {
         }
 
         Collect.nearbyEntities(inFront, radius).forEach(entity -> {
-            if (entity.is(player)) {
+            if (entity.equals(player)) {
                 return;
             }
             entity.setVelocity(vector);

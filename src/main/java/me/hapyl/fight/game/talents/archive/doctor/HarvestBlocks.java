@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.archive.doctor.ElementType;
 import me.hapyl.fight.game.talents.Talent;
@@ -13,7 +14,6 @@ import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import me.hapyl.spigotutils.module.math.Cuboid;
 import me.hapyl.spigotutils.module.math.nn.DoubleDouble;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -25,9 +25,9 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
+import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +56,7 @@ public class HarvestBlocks extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final Location start = player.getLocation().add(3, 3, 3);
         final Location end = player.getLocation().subtract(3, 3, 3);
 
@@ -154,17 +154,13 @@ public class HarvestBlocks extends Talent {
             }
         }.runTaskTimer(0, 2);
 
-        GameTask.runLater(() -> launchProjectile(player, damage.get()), collectDelay);
-        PlayerLib.addEffect(player, PotionEffectType.SLOW, collectDelay, 10);
+        player.schedule(() -> launchProjectile(player, damage.get()), collectDelay);
+        player.addPotionEffect(PotionEffectType.SLOW, collectDelay, 10);
 
         return Response.OK;
     }
 
-    private Location getPlayerLocation(Player player) {
-        return LocationHelper.getInFront(player.getLocation(), 1.0d).subtract(0.0d, 0.5d, 0.0d);
-    }
-
-    public void launchProjectile(Player player, double damage) {
+    public void launchProjectile(GamePlayer player, double damage) {
         final Location location = getPlayerLocation(player);
         final ArmorStand entity = Entities.ARMOR_STAND_MARKER.spawn(location, self -> {
             Nulls.runIfNotNull(self.getEquipment(), eq -> {
@@ -175,8 +171,8 @@ public class HarvestBlocks extends Talent {
         });
 
         new GameTask() {
-            private double distanceTravelled = 0.0d;
             private final double maxDistance = 20.0d;
+            private double distanceTravelled = 0.0d;
 
             @Override
             public void run() {
@@ -210,5 +206,9 @@ public class HarvestBlocks extends Talent {
             }
         }.runTaskTimer(0, 1);
 
+    }
+
+    private Location getPlayerLocation(GamePlayer player) {
+        return player.getLocationInFront(1.0d).subtract(0.0d, 0.5d, 0.0d);
     }
 }

@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.archive.swooper;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -9,10 +10,10 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class Blink extends ChargedTalent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         // Check if the player has enough space to blink
         final Location start = player.getEyeLocation();
         final Vector direction = start.getDirection().normalize();
@@ -80,7 +81,7 @@ public class Blink extends ChargedTalent {
         player.teleport(dest);
 
         // Fx
-        PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f);
+        player.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f);
 
         return Response.OK;
     }

@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.archive.km;
 
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.CFUtils;
@@ -9,9 +10,10 @@ import me.hapyl.fight.util.Nulls;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
 import org.bukkit.entity.Item;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkEffectMeta;
+
+import javax.annotation.Nonnull;
 
 public class ShellGrande extends Talent {
 
@@ -40,7 +42,7 @@ public class ShellGrande extends Talent {
 
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocation();
 
         // Fx

@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.talents.archive.moonwalker;
 
-import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.CreationTalent;
 import me.hapyl.fight.game.talents.TickingDisplayCreation;
 import me.hapyl.fight.game.task.TickingGameTask;
@@ -22,7 +22,6 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
@@ -40,10 +39,9 @@ public class MoonPillarTalent extends CreationTalent {
             "{Passengers:[{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone\",Properties:{}},transformation:[1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone\",Properties:{}},transformation:[1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f,0.0000f,1.0000f,0.0000f,0.0000f,1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone\",Properties:{}},transformation:[1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f,0.0000f,2.0000f,0.0000f,0.0000f,1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\"}},transformation:[-0.0000f,-1.3125f,0.0000f,1.1875f,1.0000f,-0.0000f,0.0000f,0.2500f,0.0000f,0.0000f,1.1250f,0.3438f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\",north:\"low\",west:\"low\"}},transformation:[1.0000f,0.0000f,0.0000f,0.3750f,0.0000f,1.0000f,0.0000f,1.0000f,0.0000f,0.0000f,1.0000f,0.3750f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\",north:\"low\",west:\"low\"}},transformation:[-0.0000f,0.0000f,-1.0000f,0.6250f,0.0000f,1.0000f,0.0000f,-0.5000f,1.0000f,0.0000f,-0.0000f,0.4375f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\"}},transformation:[-0.0000f,-1.3125f,0.0000f,1.1875f,1.0000f,-0.0000f,0.0000f,1.7500f,0.0000f,0.0000f,1.1250f,0.3438f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\"}},transformation:[0.0000f,1.3125f,-0.0000f,-0.1875f,1.0000f,-0.0000f,0.0000f,0.2500f,-0.0000f,-0.0000f,-1.1250f,0.6563f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\",north:\"low\",west:\"low\"}},transformation:[-1.0000f,0.0000f,-0.0000f,0.6250f,0.0000f,1.0000f,0.0000f,1.0000f,0.0000f,0.0000f,-1.0000f,0.6250f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\",north:\"low\",west:\"low\"}},transformation:[0.0000f,0.0000f,1.0000f,0.3750f,0.0000f,1.0000f,0.0000f,-0.5000f,-1.0000f,0.0000f,0.0000f,0.5625f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\"}},transformation:[0.0000f,1.3125f,-0.0000f,-0.1875f,1.0000f,-0.0000f,0.0000f,1.7500f,-0.0000f,-0.0000f,-1.1250f,0.6563f,0.0000f,0.0000f,0.0000f,1.0000f]}]}"
     );
 
-
     public MoonPillarTalent() {
         super("Moonslite Pillar", """
-                Raise a pillar at &etarget &7location for {duration} &7that pulses in set intervals, damaging enemies and healing yourself.
+                Raise a pillar at the &etarget &7location for {duration} &7that pulses in set intervals, damaging enemies and healing yourself.
                                         
                 &6;;You can only have 1 pillar at a time.
                 """
@@ -55,7 +53,7 @@ public class MoonPillarTalent extends CreationTalent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final Block block = getTargetBlock(player);
 
         if (block == null) {
@@ -102,7 +100,7 @@ public class MoonPillarTalent extends CreationTalent {
             }
 
             @Override
-            public void create(Player player) {
+            public void create(@Nonnull GamePlayer player) {
                 super.create(player);
 
                 location.getBlock().setType(Material.BARRIER, false);
@@ -139,13 +137,13 @@ public class MoonPillarTalent extends CreationTalent {
                 PlayerLib.playSound(location, Sound.BLOCK_STONE_BREAK, 0.0f);
 
                 Collect.nearbyEntities(location, pulseRange).forEach(entity -> {
-                    if (entity.is(player)) {
-                        CF.getOrCreatePlayer(player).heal(healingPerPulse);
-                        PlayerLib.addEffect(player, PotionEffectType.JUMP, 20, 2);
+                    if (entity.equals(player)) {
+                        player.heal(healingPerPulse);
+                        player.addPotionEffect(PotionEffectType.JUMP, 20, 2);
                         return;
                     }
 
-                    entity.damage(pulseDamage, CF.getPlayer(player), EnumDamageCause.MOON_PILLAR);
+                    entity.damage(pulseDamage, player, EnumDamageCause.MOON_PILLAR);
 
                     // Push the opposite direction from the pilar
                     final Vector vector = location.toVector()
@@ -171,7 +169,7 @@ public class MoonPillarTalent extends CreationTalent {
                 && block.getRelative(BlockFace.UP, 2).isEmpty();
     }
 
-    private Block getTargetBlock(Player player) {
+    private Block getTargetBlock(GamePlayer player) {
         final Block block = player.getTargetBlockExact(7);
 
         return block == null ? null : block.getRelative(BlockFace.UP);

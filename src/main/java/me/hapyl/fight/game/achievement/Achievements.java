@@ -40,6 +40,22 @@ public enum Achievements {
             )
     ),
 
+    USE_GADGETS(
+            new TieredAchievement(
+                    "Playful Nature",
+                    "Use gadgets {} times.",
+                    100, 500, 1_000, 1_500, 2_000
+            )
+    ),
+
+    GAIN_COINS(
+            new TieredAchievement(
+                    "Oh, the Riches!",
+                    "Obtain {} coins.",
+                    1_000, 10_000, 100_000, 500_000, 1_000_000
+            )
+    ),
+
     ///////////////////////////////
     // HERO RELATED ACHIEVEMENTS //
     ///////////////////////////////
@@ -96,17 +112,24 @@ public enum Achievements {
             new HiddenAchievement("I DONT WANT TO PLAY!!!", "Let everyone know that you don't want to play right now.")
     ),
 
+    OWL_SPY(
+            new HiddenAchievement("Owl Spy", "Find all the hidden owls at the winery in the single game.")
+    ),
     ;
 
     public final Achievement achievement;
 
     Achievements(@Nonnull Achievement achievement) {
         this.achievement = achievement;
-        this.achievement.setId(name());
+        this.achievement.setId(name().toLowerCase());
     }
 
     Achievements(@Nonnull String name, @Nonnull String description) {
         this(new Achievement(name, description));
+    }
+
+    public boolean hasCompletedAtLeastOnce(GamePlayer player) {
+        return hasCompletedAtLeastOnce(player.getPlayer());
     }
 
     public boolean hasCompletedAtLeastOnce(Player player) {
@@ -125,7 +148,11 @@ public enum Achievements {
         achievement.completeAll(team);
     }
 
-    public void setProgress(Player player, int nextLevel) {
-        achievement.setCompleteCount(player, nextLevel);
+    public void setProgress(Player player, int progress) {
+        achievement.setCompleteCount(player, progress);
+    }
+
+    public void addProgress(Player player, int progress) {
+        achievement.setCompleteCount(player, achievement.getCompleteCount(player) + progress);
     }
 }

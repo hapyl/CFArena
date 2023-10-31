@@ -3,6 +3,7 @@ package me.hapyl.fight.game.maps.gamepack;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.GameElement;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -110,15 +111,12 @@ public abstract class GamePack implements GameElement, Listener {
         this.locations.add(location);
     }
 
-    public abstract void onPickup(Player player);
+    public abstract void onPickup(@Nonnull GamePlayer player);
 
     public abstract void displayParticle(Location location);
 
     public void accelerate() {
         activePacks.forEach(pack -> pack.nextSpawn = ActivePack.SPAWN_THRESHOLD + 1);
-    }
-
-    protected void sendMessage(Player player, String message) {
     }
 
 }

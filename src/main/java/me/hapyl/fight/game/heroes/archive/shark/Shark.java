@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.shark;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
@@ -20,14 +21,14 @@ import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.Quality;
 import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
 import me.hapyl.spigotutils.module.player.EffectType;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EvokerFangs;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
+
+import javax.annotation.Nonnull;
 
 public class Shark extends Hero implements Listener {
 
@@ -63,12 +64,12 @@ public class Shark extends Hero implements Listener {
     }
 
     @Override
-    public void onStart(Player player) {
+    public void onStart(@Nonnull GamePlayer player) {
         player.addPotionEffect(EffectType.WATER_BREATHING.getType().createEffect(10000, 1));
     }
 
     @Override
-    public void useUltimate(Player player) {
+    public void useUltimate(@Nonnull GamePlayer player) {
         setState(player, true, getUltimateDuration());
 
         new GameTask() {
@@ -96,19 +97,20 @@ public class Shark extends Hero implements Listener {
 
     @EventHandler()
     public void handlePlayerMove(PlayerMoveEvent ev) {
-        final Player player = ev.getPlayer();
-        if (!validatePlayer(player) || isUsingUltimate(player)) {
+        final GamePlayer player = CF.getPlayer(ev.getPlayer());
+
+        if (player == null || !validatePlayer(player) || isUsingUltimate(player)) {
             return;
         }
 
         setState(player, player.isInWater(), 10);
     }
 
-    public void setState(Player player, boolean state, int duration) {
+    public void setState(GamePlayer player, boolean state, int duration) {
         if (state) {
             player.setWalkSpeed(0.4f);
-            PlayerLib.addEffect(player, EffectType.STRENGTH, duration, 2);
-            PlayerLib.addEffect(player, EffectType.RESISTANCE, duration, 1);
+            player.addPotionEffect(EffectType.STRENGTH, duration, 2);
+            player.addPotionEffect(EffectType.RESISTANCE, duration, 1);
         }
         else {
             player.setWalkSpeed(0.2f);
@@ -117,15 +119,15 @@ public class Shark extends Hero implements Listener {
 
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final Player player = input.getDamagerAsBukkitPlayer();
+        final GamePlayer player = input.getDamagerAsPlayer();
         final LivingGameEntity entity = input.getEntity();
 
-        if (player == null || player.hasCooldown(getPassiveTalent().getMaterial()) || entity.is(player)) {
+        if (player == null || player.hasCooldown(getPassiveTalent().getMaterial()) || entity.equals(player)) {
             return null;
         }
 
         if (input.isCrit()) {
-            GamePlayer.setCooldown(player, getPassiveTalent().getMaterial(), 20 * 5);
+            player.setCooldown(getPassiveTalent().getMaterial(), 20 * 5);
             performCriticalHit(input.getEntityAsPlayer(), entity);
         }
 

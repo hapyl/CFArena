@@ -1,24 +1,25 @@
 package me.hapyl.fight.game.talents.archive.vampire;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.LinkedKeyValMap;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Bat;
-import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Snowball;
 
+import javax.annotation.Nonnull;
+
 public class VampirePet extends Talent {
 
-    private final LinkedKeyValMap<Player, Bat> pets;
+    private final LinkedKeyValMap<GamePlayer, Bat> pets;
     private final int ATTACK_PERIOD = 30;
 
     public VampirePet() {
@@ -34,12 +35,12 @@ public class VampirePet extends Talent {
         pets = LinkedKeyValMap.of();
     }
 
-    public Bat getPet(Player player) {
+    public Bat getPet(GamePlayer player) {
         return pets.getValue(player);
     }
 
     @Override
-    public void onDeath(Player player) {
+    public void onDeath(@Nonnull GamePlayer player) {
         pets.useValueAndRemove(player, Bat::remove);
     }
 
@@ -75,14 +76,14 @@ public class VampirePet extends Talent {
                     );
 
                     projectile.setGravity(false);
-                    projectile.setShooter(player);
+                    projectile.setShooter(player.getPlayer());
                 });
             }
         }.runTaskTimer(0, ATTACK_PERIOD);
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final Bat oldPet = getPet(player);
 
         if (oldPet != null) {
@@ -97,8 +98,8 @@ public class VampirePet extends Talent {
         });
 
         pets.put(player, pet);
-        Chat.sendMessage(player, "&a*bat noises*!");
-        PlayerLib.playSound(player, Sound.ENTITY_BAT_TAKEOFF, 0.0f);
+        player.sendMessage("&a*bat noises*!");
+        player.playSound(Sound.ENTITY_BAT_TAKEOFF, 0.0f);
 
         GameTask.runLater(() -> {
             if (pet.isDead()) {
@@ -107,8 +108,8 @@ public class VampirePet extends Talent {
 
             pets.useValueAndRemove(player, Bat::remove);
 
-            PlayerLib.playSound(player, Sound.ENTITY_BAT_DEATH, 0.0f);
-            Chat.sendMessage(player, "&c*bat noises*...");
+            player.playSound(Sound.ENTITY_BAT_DEATH, 0.0f);
+            player.sendMessage("&c*bat noises*...");
         }, getDuration());
 
         return Response.OK;

@@ -252,12 +252,6 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
         return currentMap.getMap().getLocation();
     }
 
-    public void populateScoreboard(Player player) {
-        CF.getPlayers().forEach(gamePlayer -> {
-            gamePlayer.getProfile().getScoreboardTeams().populateInGame(player);
-        });
-    }
-
     @Override
     public void run(final int tick) {
         mode.tick(this, tick);
@@ -280,7 +274,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
             player.addPotionEffect(PotionEffectType.GLOWING, 20, 1);
             player.sendTitle("&c&lYOU'RE AFK", "&aMove to return from afk!", 0, 10, 0);
             if (tick % 10 == 0) {
-                player.playPlayerSound(Sound.BLOCK_NOTE_BLOCK_HAT, 1.0f);
+                player.playSound(Sound.BLOCK_NOTE_BLOCK_HAT, 1.0f);
                 StaticPacket.Demo.SHOW_HOW_TO_MOVE.send(player);
             }
 
@@ -313,7 +307,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
     private void createGamePlayers() {
         Bukkit.getOnlinePlayers().forEach(player -> {
             final PlayerProfile profile = PlayerProfile.getOrCreateProfile(player);
-            final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
+            final GamePlayer gamePlayer = profile.createGamePlayer();
 
             // Spectate Setting
             if (Setting.SPECTATE.isEnabled(player)) {
@@ -343,8 +337,8 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
         });
     }
 
-    private Heroes getHero(Player player) {
-        return Setting.RANDOM_HERO.isEnabled(player) ? Heroes.randomHero() : Manager.current().getCurrentEnumHero(player);
+    private Heroes getHero(GamePlayer player) {
+        return Setting.RANDOM_HERO.isEnabled(player.getPlayer()) ? Heroes.randomHero() : Manager.current().getCurrentEnumHero(player);
     }
 
     private String generateHexCode() {
@@ -352,3 +346,4 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
     }
 
 }
+

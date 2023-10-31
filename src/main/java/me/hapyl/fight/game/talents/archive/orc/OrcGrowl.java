@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.archive.orc;
 
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -14,8 +15,9 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
+
+import javax.annotation.Nonnull;
 
 public class OrcGrowl extends Talent {
 
@@ -35,13 +37,13 @@ public class OrcGrowl extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocation();
 
         player.addPotionEffect(PotionEffectType.SLOW.createEffect(20, 3));
 
         Collect.nearbyEntities(location, distance).forEach(victim -> {
-            if (victim.is(player)) {
+            if (victim.equals(player)) {
                 return;
             }
 

@@ -2,10 +2,8 @@ package me.hapyl.fight.game.talents;
 
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 
@@ -59,7 +57,7 @@ public abstract class InputTalent extends Talent {
      * @param player - Player who clicked.
      */
     @Nonnull
-    public abstract Response onLeftClick(Player player);
+    public abstract Response onLeftClick(@Nonnull GamePlayer player);
 
     /**
      * Called whenever player right clicks after equipping the talent.
@@ -67,22 +65,22 @@ public abstract class InputTalent extends Talent {
      * @param player - Player who clicked.
      */
     @Nonnull
-    public abstract Response onRightClick(Player player);
+    public abstract Response onRightClick(@Nonnull GamePlayer player);
 
     /**
-     * Called whenever player equips talent. Would be {@link #execute(Player)} for normal talents.
+     * Called whenever player equips talent. Would be {@link Talent#execute(GamePlayer)} for normal talents.
      *
      * @param player - Player, who equipped talent.
      */
     @Nonnull
-    public Response onEquip(Player player) {
+    public Response onEquip(@Nonnull GamePlayer player) {
         return Response.OK;
     }
 
     /**
      * Called whenever a player cancels the talent.
      */
-    public void onCancel(Player player) {
+    public void onCancel(@Nonnull GamePlayer player) {
     }
 
     @Deprecated
@@ -100,7 +98,7 @@ public abstract class InputTalent extends Talent {
 
     @Deprecated
     @Override
-    public final void startCd(Player player) {
+    public final void startCd(@Nonnull GamePlayer player) {
     }
 
     @Override
@@ -113,21 +111,19 @@ public abstract class InputTalent extends Talent {
     public void setPoint(int point) {
     }
 
-    public void startCdLeft(Player player) {
+    public void startCdLeft(GamePlayer player) {
         super.startCd(player, leftData.getCooldown());
     }
 
-    public void startCdRight(Player player) {
+    public void startCdRight(GamePlayer player) {
         super.startCd(player, rightData.getCooldown());
     }
 
     @Override
-    public final Response execute(Player player) {
+    public final Response execute(@Nonnull GamePlayer player) {
         final Response response = onEquip(player);
 
-        Chat.sendTitle(
-                player,
-                "&6&lL&e&lCLICK     &6&lR&e&lCLICK",
+        player.sendTitle("&6&lL&e&lCLICK     &6&lR&e&lCLICK",
                 ("&ato " + trim(leftData.action) + "         &ato " + trim(rightData.action)),
                 1, 10000, 1
         );
@@ -151,11 +147,11 @@ public abstract class InputTalent extends Talent {
         return rightData.action;
     }
 
-    public final void addPoint(Player player, boolean isLeftClick) {
+    public final void addPoint(GamePlayer player, boolean isLeftClick) {
         int point = isLeftClick ? leftData.pointGeneration : rightData.pointGeneration;
 
         if (point > 0) {
-            GamePlayer.getPlayer(player).addUltimatePoints(point);
+            player.addUltimatePoints(point);
         }
     }
 

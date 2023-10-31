@@ -1,11 +1,12 @@
 package me.hapyl.fight.game.talents.archive.shaman;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.collection.player.ConcurrentPlayerMap;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -13,14 +14,12 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import org.bukkit.entity.Shulker;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Set;
 
 public class Totem extends Talent {
@@ -28,7 +27,7 @@ public class Totem extends Talent {
     private final int MAX_TOTEMS = 3;
     private final int PLACE_CD = 120;
     private final int DESTROY_CD = 60;
-    private final Map<Player, LinkedList<ActiveTotem>> playerTotems = Maps.newConcurrentMap();
+    private final ConcurrentPlayerMap<LinkedList<ActiveTotem>> playerTotems = new ConcurrentPlayerMap<>();
 
     public Totem() {
         super(
@@ -70,7 +69,7 @@ public class Totem extends Talent {
     }
 
     @Override
-    public void onDeath(Player player) {
+    public void onDeath(@Nonnull GamePlayer player) {
         getPlayerTotems(player).forEach(ActiveTotem::destroy);
         playerTotems.remove(player);
     }
@@ -82,9 +81,10 @@ public class Totem extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         // Check for destroying
         final ActiveTotem targetTotem = getTargetTotem(player);
+
         if (targetTotem != null) {
             getPlayerTotems(player).remove(targetTotem);
             targetTotem.destroy();
@@ -124,7 +124,7 @@ public class Totem extends Talent {
     }
 
     @Nullable
-    public ActiveTotem getTargetTotem(Player player) {
+    public ActiveTotem getTargetTotem(GamePlayer player) {
         // TODO: 019, Mar 19, 2023 - Maybe use dot
         final Location location = player.getLocation().add(0, 1.5, 0);
         final Vector vector = location.getDirection().normalize();
@@ -142,7 +142,7 @@ public class Totem extends Talent {
                 }
 
                 for (ActiveTotem totem : totems) {
-                    if (totem.isShulker(shulker) && totem.getPlayer() == player) {
+                    if (totem.isShulker(shulker) && totem.getPlayer().equals(player)) {
                         return totem;
                     }
                 }
@@ -155,7 +155,7 @@ public class Totem extends Talent {
     }
 
     @Nonnull
-    public LinkedList<ActiveTotem> getPlayerTotems(Player player) {
+    public LinkedList<ActiveTotem> getPlayerTotems(GamePlayer player) {
         return playerTotems.computeIfAbsent(player, m -> Lists.newLinkedList());
     }
 
@@ -176,7 +176,7 @@ public class Totem extends Talent {
         return set;
     }
 
-    public void defaultAllTotems(Player player) {
+    public void defaultAllTotems(GamePlayer player) {
         for (ActiveTotem totem : getPlayerTotems(player)) {
             totem.defaultColor();
         }

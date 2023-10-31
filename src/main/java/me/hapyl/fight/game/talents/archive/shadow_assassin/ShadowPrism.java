@@ -1,10 +1,11 @@
 package me.hapyl.fight.game.talents.archive.shadow_assassin;
 
-import me.hapyl.fight.Main;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Nulls;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -15,22 +16,20 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
-import java.util.Map;
+import javax.annotation.Nonnull;
 
 public class ShadowPrism extends Talent {
 
     @DisplayField(name = "Cooldown on Deploy") private final int deployCd = 20;
     @DisplayField(name = "Cooldown on Teleport") private final int teleportCd = 400;
     @DisplayField private final int windupTime = 20;
-    private final double prismTravelSpeed = 0.4d;
-    private final Map<Player, ArmorStand> playerPrism = new HashMap<>();
+    @DisplayField private final double prismTravelSpeed = 0.4d;
+
+    private final PlayerMap<ArmorStand> playerPrism = PlayerMap.newMap();
 
     public ShadowPrism() {
         super("Shadow Prism", """
@@ -52,21 +51,21 @@ public class ShadowPrism extends Talent {
     }
 
     @Override
-    public void onDeath(Player player) {
+    public void onDeath(@Nonnull GamePlayer player) {
         Nulls.runIfNotNull(getPrism(player), ArmorStand::remove);
         playerPrism.remove(player);
     }
 
-    public ArmorStand getPrism(Player player) {
+    public ArmorStand getPrism(GamePlayer player) {
         return playerPrism.get(player);
     }
 
-    public boolean hasPrism(Player player) {
+    public boolean hasPrism(GamePlayer player) {
         return playerPrism.containsKey(player);
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final ArmorStand prism = getPrism(player);
 
         // Deploy Prism
@@ -103,7 +102,7 @@ public class ShadowPrism extends Talent {
 
             // Hide prism for everyone but player
             //Visibility.of(entity, player);
-            player.showEntity(Main.getPlugin(), entity);
+            player.showEntity(entity);
 
             // Add glowing
             handleGlowing(entity, player);
@@ -126,14 +125,13 @@ public class ShadowPrism extends Talent {
 
                     --tick;
 
-                    // fx
-                    PlayerLib.spawnParticle(player, entity.getLocation(), Particle.PORTAL, 10, 0.5d, 0.5d, 0.5d, 0.05f);
-
+                    // Fx
+                    player.spawnParticle(entity.getLocation(), Particle.PORTAL, 10, 0.5d, 0.5d, 0.5d, 0.05f);
                 }
             }.runTaskTimer(0, 2);
 
-            // fx
-            PlayerLib.playSound(player, Sound.ENTITY_SHULKER_AMBIENT, 1.75f);
+            // Fx
+            player.playSound(Sound.ENTITY_SHULKER_AMBIENT, 1.75f);
 
             return Response.OK;
         }
@@ -142,8 +140,8 @@ public class ShadowPrism extends Talent {
         startCd(player, 9999);
         final float pitchPerTick = 2.0f / windupTime;
 
-        PlayerLib.addEffect(player, PotionEffectType.SLOW, windupTime, 100);
-        PlayerLib.addEffect(player, PotionEffectType.SLOW_FALLING, windupTime, 0);
+        player.addPotionEffect(PotionEffectType.SLOW, windupTime, 100);
+        player.addPotionEffect(PotionEffectType.SLOW_FALLING, windupTime, 0);
 
         GameTask.runTaskTimerTimes((task, i) -> {
             final Location eyeLocation = player.getEyeLocation();
@@ -171,27 +169,22 @@ public class ShadowPrism extends Talent {
             playerPrism.remove(player);
 
             // Fx
-            PlayerLib.addEffect(player, PotionEffectType.BLINDNESS, 20, 1);
-            PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.75f);
+            player.addPotionEffect(PotionEffectType.BLINDNESS, 20, 1);
+            player.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.75f);
         }, 1, windupTime);
 
         return Response.OK;
     }
 
-    private void handleGlowing(ArmorStand prism, Player player) {
+    private void handleGlowing(ArmorStand prism, GamePlayer player) {
         final Team team = getGlowingTeam(player);
         team.addEntry(prism.getUniqueId().toString());
         prism.setGlowing(true);
     }
 
-    private Team getGlowingTeam(Player player) {
-        final Scoreboard scoreboard = player.getScoreboard();
-        Team team = scoreboard.getTeam("ShadowPrismGlowing");
-
-        if (team == null) {
-            team = scoreboard.registerNewTeam("ShadowPrismGlowing");
-            team.setColor(ChatColor.DARK_PURPLE);
-        }
+    private Team getGlowingTeam(GamePlayer player) {
+        final Team team = player.getOrCreateScoreboardTeam("ShadowPrismGlowing");
+        team.setColor(ChatColor.DARK_PURPLE);
 
         return team;
     }

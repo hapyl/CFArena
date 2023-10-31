@@ -11,7 +11,8 @@ import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
+
+import javax.annotation.Nonnull;
 
 public class Spear extends Talent {
 
@@ -30,7 +31,7 @@ public class Spear extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         player.setVelocity(player.getLocation().getDirection().setY(0.0d).multiply(1.5d));
 
         new GameTask() {
@@ -44,7 +45,7 @@ public class Spear extends Talent {
                 }
 
                 Collect.nearbyEntities(player.getLocation(), radius).forEach(entity -> {
-                    if (entity.is(player)) {
+                    if (entity.equals(player)) {
                         return;
                     }
 

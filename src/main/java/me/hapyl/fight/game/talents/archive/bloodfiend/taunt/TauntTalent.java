@@ -8,7 +8,6 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend;
 import me.hapyl.fight.game.heroes.archive.bloodfield.BloodfiendData;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -17,7 +16,7 @@ import java.util.Map;
 
 public abstract class TauntTalent<T extends Taunt> extends Talent {
 
-    protected final Map<Player, T> playerTaunt;
+    protected final Map<GamePlayer, T> playerTaunt;
 
     public TauntTalent(@Nonnull String name) {
         super(name);
@@ -47,7 +46,7 @@ public abstract class TauntTalent<T extends Taunt> extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final GamePlayer mostRecentBitPlayer = getMostRecentBitPlayer(player);
 
         if (mostRecentBitPlayer == null) {
@@ -58,7 +57,7 @@ public abstract class TauntTalent<T extends Taunt> extends Talent {
 
         if (taunt != null) {
             taunt.remove();
-            Chat.sendMessage(player, "&aYour previous %s was removed!", taunt.getName());
+            player.sendMessage("&aYour previous %s was removed!", taunt.getName());
         }
 
         playerTaunt.put(player, createTaunt(player, mostRecentBitPlayer));
@@ -66,11 +65,11 @@ public abstract class TauntTalent<T extends Taunt> extends Talent {
     }
 
     @Nullable
-    public T getTaunt(Player player) {
+    public T getTaunt(GamePlayer player) {
         return playerTaunt.get(player);
     }
 
-    public abstract T createTaunt(Player player, GamePlayer target);
+    public abstract T createTaunt(GamePlayer player, GamePlayer target);
 
     @Nonnull
     public abstract String getDescription();
@@ -88,7 +87,7 @@ public abstract class TauntTalent<T extends Taunt> extends Talent {
     }
 
     @Override
-    public void onDeath(Player player) {
+    public void onDeath(@Nonnull GamePlayer player) {
         final T taunt = playerTaunt.remove(player);
 
         if (taunt != null) {
@@ -102,12 +101,12 @@ public abstract class TauntTalent<T extends Taunt> extends Talent {
         playerTaunt.clear();
     }
 
-    public void removeTaunt(Player player) {
+    public void removeTaunt(GamePlayer player) {
         playerTaunt.remove(player);
     }
 
     @Nullable
-    protected GamePlayer getMostRecentBitPlayer(Player player) {
+    protected GamePlayer getMostRecentBitPlayer(GamePlayer player) {
         final Bloodfiend bloodfiend = Heroes.BLOODFIEND.getHero(Bloodfiend.class);
         final BloodfiendData data = bloodfiend.getData(player);
 

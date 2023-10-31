@@ -16,8 +16,6 @@ import me.hapyl.fight.game.talents.archive.techie.TrapWire;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComplexComponent;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.hologram.Hologram;
 import me.hapyl.spigotutils.module.reflect.glow.Glowing;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.ChatColor;
@@ -32,6 +30,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 
+import javax.annotation.Nonnull;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -103,19 +102,19 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Disabl
             public void run() {
                 Heroes.TECHIE.getAlivePlayers().forEach(player -> {
                     int amountRevealed = 0;
-                    
+
                     for (final GamePlayer alive : CF.getAlivePlayers()) {
                         if (alive.compare(player)) {
                             continue;
                         }
 
                         ++amountRevealed;
-                        revealPlayer(player.getPlayer(), alive.getPlayer());
+                        //revealPlayer(player.getPlayer(), alive.getPlayer());
                     }
 
                     if (amountRevealed > 0) {
                         player.sendTitle("", "&l%s &fPlayers Revealed".formatted(amountRevealed), 5, 15, 5);
-                        player.playPlayerSound(Sound.ENCHANT_THORNS_HIT, 2.0f);
+                        player.playSound(Sound.ENCHANT_THORNS_HIT, 2.0f);
                     }
 
                 });
@@ -138,10 +137,10 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Disabl
         }
     }
 
-    private void revealPlayer(Player player, LivingEntity revealed) {
+    private void revealPlayer(GamePlayer player, LivingEntity revealed) {
         //Glowing.stopGlowing(revealed); fixme -> This is not needed?
 
-        Glowing.glow(revealed, ChatColor.AQUA, 20, player);
+        Glowing.glow(revealed, ChatColor.AQUA, 20, player.getPlayer());
 
         // If revealed not player don't show health.
         if (!(revealed instanceof Player revealedPlayer)) {
@@ -154,48 +153,48 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Disabl
         }
 
         // Health
-        final Hologram hologram = new Hologram();
-        hologram.addLine("&a&l" + revealed.getName())
-                .addLine("&c&l%s &c❤".formatted(GamePlayer.getPlayer(revealedPlayer).getHealthFormatted()))
-                .create(revealed.getEyeLocation())
-                .show(player);
+        //final Hologram hologram = new Hologram();
+        //hologram.addLine("&a&l" + revealed.getName())
+        //        .addLine("&c&l%s &c❤".formatted(GamePlayer.getPlayer(revealedPlayer).getHealthFormatted()))
+        //        .create(revealed.getEyeLocation())
+        //        .show(player);
 
-        new GameTask() {
-            private int tick = 30;
-
-            @Override
-            public void run() {
-                if (tick < 0) {
-                    hologram.destroy();
-                    this.cancel();
-                    return;
-                }
-
-                hologram.teleport(revealed.getEyeLocation().add(0.0d, 0.25d, 0.0d));
-                --tick;
-            }
-        }.addCancelEvent(hologram::destroy).runTaskTimer(0, 1);
+        //new GameTask() {
+        //    private int tick = 30;
+        //
+        //    @Override
+        //    public void run() {
+        //        if (tick < 0) {
+        //            hologram.destroy();
+        //            this.cancel();
+        //            return;
+        //        }
+        //
+        //        hologram.teleport(revealed.getEyeLocation().add(0.0d, 0.25d, 0.0d));
+        //        --tick;
+        //    }
+        //}.addCancelEvent(hologram::destroy).runTaskTimer(0, 1);
     }
 
     @Override
-    public void useUltimate(Player player) {
+    public void useUltimate(@Nonnull GamePlayer player) {
         final Location location = player.getLocation();
 
         if (!location.getBlock().getType().isAir()) {
             return;
         }
 
-        lockdownSet.add(new Lockdown(player));
-        Chat.sendMessage(player, "&aCountdown initiated!");
+        //lockdownSet.add(new Lockdown(player));
+        //Chat.sendMessage(player, "&aCountdown initiated!");
     }
 
     @Override
-    public String predicateMessage(Player player) {
+    public String predicateMessage(@Nonnull GamePlayer player) {
         return "Location is obstructed.";
     }
 
     @Override
-    public boolean predicateUltimate(Player player) {
+    public boolean predicateUltimate(@Nonnull GamePlayer player) {
         return player.getLocation().getBlock().getType().isAir();
     }
 
@@ -215,8 +214,9 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Disabl
     }
 
     @Override
-    public List<String> getStrings(Player player) {
-        return List.of("&f⁂ &l" + getFirstTalent().getCages(player).size(), "&f⁑ &l" + getSecondTalent().getTraps(player).size());
+    public List<String> getStrings(@Nonnull GamePlayer player) {
+        //return List.of("&f⁂ &l" + getFirstTalent().getCages(player).size(), "&f⁑ &l" + getSecondTalent().getTraps(player).size());
+        return List.of("&f⁂ &l" + 0, "&f⁑ &l" + 0);
     }
 
 }

@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.archive.spark;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -15,6 +16,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
+
+import javax.annotation.Nonnull;
 
 public class SparkFlash extends Talent {
 
@@ -33,7 +36,7 @@ public class SparkFlash extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getEyeLocation();
         if (location.getWorld() == null) {
             return Response.error("world is null");

@@ -417,8 +417,7 @@ public final class EntityData {
             return;
         }
 
-        gameEntity.setLastDamageCause(EnumDamageCause.SUICIDE);
-        gameEntity.die(true);
+        gameEntity.dieBy(EnumDamageCause.SUICIDE);
     }
 
     /**

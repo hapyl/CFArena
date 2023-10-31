@@ -1,15 +1,16 @@
 package me.hapyl.fight.game.talents.archive.mage;
 
-import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Material;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class ArcaneMute extends Talent {
     public ArcaneMute() {
@@ -24,8 +25,8 @@ public class ArcaneMute extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
-        final Entity target = targetEntityChatGPT(player, 20);
+    public Response execute(@Nonnull GamePlayer player) {
+        final LivingGameEntity target = getTargetEntity(player, 20);
 
         if (target == null) {
             return Response.error("No valid target!");
@@ -34,29 +35,22 @@ public class ArcaneMute extends Talent {
             return Response.error("No light of sight!");
         }
 
-        // FIXME (hapyl): 006, Aug 6: fix this
-        if (target instanceof Player targetPlayer) {
-            GamePlayer.getPlayer(targetPlayer).addEffect(GameEffectType.ARCANE_MUTE, getDuration());
+        target.addEffect(GameEffectType.ARCANE_MUTE, getDuration());
 
-            Chat.sendMessage(targetPlayer, "&e&l☠ &cYou have been cursed by Arcane Mute! &8(%s)", player.getName());
-            Chat.sendMessage(player, "&aArcane Mute cursed %s.", targetPlayer.getName());
-        }
-        else {
-            return Response.error("Non player target?");
-        }
+        target.sendMessage("&e&l☠ &cYou have been cursed by Arcane Mute! &8(%s)", player.getName());
+        player.sendMessage("&aArcane Mute cursed %s.", target.getName());
 
         return Response.OK;
     }
 
-    public Entity targetEntityChatGPT(Player player, int range) {
-        final LivingGameEntity gameEntity = Collect.targetEntity(
+    @Nullable
+    public LivingGameEntity getTargetEntity(GamePlayer player, int range) {
+        return Collect.targetEntity(
                 player,
                 range,
                 0.95,
                 entity -> entity.is(Player.class) && entity.hasLineOfSight(player)
         );
-
-        return gameEntity == null ? null : gameEntity.getEntity();
     }
 
 }

@@ -1,14 +1,13 @@
 package me.hapyl.fight.game.talents.archive.engineer;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.engineer.Engineer;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 
@@ -22,13 +21,14 @@ public abstract class EngineerTalent extends Talent {
         this.ironCost = Math.max(1, ironCost);
     }
 
-    public abstract Construct create(Player player, Location location);
+    @Nonnull
+    public abstract Construct create(@Nonnull GamePlayer player, @Nonnull Location location);
 
     @Nonnull
-    public abstract Response predicate(Player player, Location location);
+    public abstract Response predicate(@Nonnull GamePlayer player, @Nonnull Location location);
 
     @Override
-    public final Response execute(Player player) {
+    public final Response execute(@Nonnull GamePlayer player) {
         final Engineer hero = Heroes.ENGINEER.getHero(Engineer.class);
         final Block targetBlock = player.getTargetBlockExact(7);
         final int playerIron = hero.getIron(player);
@@ -58,7 +58,7 @@ public abstract class EngineerTalent extends Talent {
 
         if (oldConstruct != null) {
             oldConstruct.remove();
-            Chat.sendMessage(player, "&aYour previous %s was removed!", getName());
+            player.sendMessage("&aYour previous %s was removed!", getName());
         }
 
         hero.subtractIron(player, ironCost);

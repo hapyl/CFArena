@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.heroes.archive.dark_mage;
 
-import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.KeepNull;
 import me.hapyl.fight.event.io.DamageInput;
@@ -8,8 +7,6 @@ import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.cosmetic.Cosmetics;
-import me.hapyl.fight.game.cosmetic.archive.GroundPunchCosmetic;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -23,15 +20,10 @@ import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.dark_mage.ShadowClone;
 import me.hapyl.fight.game.talents.archive.dark_mage.ShadowCloneNPC;
-import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIFormat;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.reflect.Reflect;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -44,20 +36,19 @@ import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Map;
 import java.util.Random;
 
 import static org.bukkit.Sound.*;
 
 public class DarkMage extends Hero implements ComplexHero, Listener {
 
-    private final Map<Player, DarkMageSpell> spellMap = Maps.newHashMap();
-    private final Map<Player, WitherData> withers = Maps.newHashMap();
     private final double PASSIVE_CHANCE = 0.12d;
+
+    private final PlayerMap<DarkMageSpell> spellMap = PlayerMap.newMap();
+    private final PlayerMap<WitherData> withers = PlayerMap.newMap();
 
     public DarkMage() {
         super("Dark Mage");
@@ -104,7 +95,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
     }
 
     @Override
-    public void onDeath(Player player) {
+    public void onDeath(@Nonnull GamePlayer player) {
         killWither(player);
     }
 
@@ -115,106 +106,21 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
     }
 
     @Override
-    public void useUltimate(Player player) {
+    public void useUltimate(@Nonnull GamePlayer player) {
         killWither(player);
         withers.put(player, new WitherData(player));
     }
 
     @Override
-    public void onUltimateEnd(Player player) {
+    public void onUltimateEnd(@Nonnull GamePlayer player) {
         killWither(player);
-    }
-
-    public void useUltimateOld(Player player) {
-        player.setAllowFlight(true);
-        player.setFlying(true);
-
-        final double playerHealth = GamePlayer.getPlayer(player).getHealth();
-        CFUtils.hidePlayer(player);
-
-        final Wither wither = Entities.WITHER.spawn(player.getLocation(), me -> {
-            me.setAI(false);
-            me.setMaxHealth(playerHealth);
-            me.setHealth(playerHealth);
-            me.setCustomName(player.getName());
-            me.setCustomNameVisible(true);
-            me.setGlowing(true);
-            me.setInvulnerable(false); // killable eya
-        });
-
-        updateWitherName(player, wither);
-        Reflect.hideEntity(wither, player);
-
-        new GameTask() {
-            private int tick = getUltimateDuration();
-
-            @Override
-            public void run() {
-
-                if (wither.isDead() || GamePlayer.getPlayer(player).isDead()) {
-                    killWither(!wither.isDead() ? null : player, wither);
-                    this.cancel();
-                    return;
-                }
-
-                if (tick < 0) {
-                    killWither(player, wither);
-                    plungeAttack(player);
-                    this.cancel();
-                    return;
-                }
-
-                if (tick % 10 == 0) {
-                    updateWitherName(player, wither);
-                }
-
-                wither.teleport(player);
-                --tick;
-            }
-
-            private void plungeAttack(Player player) {
-                final int maxPlungeTime = 100;
-                GamePlayer.getPlayer(player).addEffect(GameEffectType.FALL_DAMAGE_RESISTANCE, maxPlungeTime, true);
-                player.setVelocity(new Vector(0.0d, -0.5d, 0.0d));
-
-                new GameTask() {
-                    private int maxAirTicks = maxPlungeTime;
-
-                    @Override
-                    public void run() {
-                        if (maxAirTicks-- <= 0 || player.isOnGround()) {
-                            this.cancel();
-                            Cosmetics.GROUND_PUNCH.getCosmetic(GroundPunchCosmetic.class).playAnimation(player.getLocation(), 2);
-
-                            Collect.nearbyPlayers(player.getLocation(), 4).forEach(target -> {
-                                if (target.is(player)) {
-                                    return;
-                                }
-
-                                target.damage(5.0d, CF.getPlayer(player));
-                            });
-                        }
-                    }
-                }.runTaskTimer(0, 1);
-            }
-
-            private void killWither(@Nullable Player player, Wither wither) {
-                if (player != null) {
-                    player.setFlying(false);
-                    player.setAllowFlight(false);
-                    CFUtils.showPlayer(player);
-                }
-                PlayerLib.playSound(wither.getLocation(), ENTITY_WITHER_DEATH, 1.0f);
-                wither.remove();
-            }
-        }.runTaskTimer(0, 1);
     }
 
     @Nullable
     @Override
     public DamageOutput processDamageAsVictim(DamageInput input) {
         final ShadowClone talent = getFourthTalent();
-        final Player player = input.getEntityAsPlayer().getPlayer();
+        final GamePlayer player = input.getEntityAsPlayer();
         final LivingGameEntity entity = input.getDamagerAsLiving();
         final ShadowCloneNPC clone = talent.getClone(player);
 
@@ -223,7 +129,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
             entity.addEffect(GameEffectType.WITHER_BLOOD, 60, true);
 
             entity.sendMessage("&8☠ &c%s poisoned your blood!", player.getName());
-            Chat.sendMessage(player, "&8☠ &aYou poisoned %s's blood!", entity.getName());
+            player.sendMessage("&8☠ &aYou poisoned %s's blood!", entity.getName());
         }
 
         // Handle clone
@@ -232,13 +138,13 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
             talent.removeClone(clone);
 
             // Fx
-            Chat.sendMessage(player, "&aYour %s nullified the damage!", talent.getName());
+            player.sendMessage("&aYour %s nullified the damage!", talent.getName());
 
-            PlayerLib.addEffect(player, PotionEffectType.BLINDNESS, 10, 1);
+            player.addPotionEffect(PotionEffectType.BLINDNESS, 10, 1);
 
-            PlayerLib.playSound(player, ENTITY_ENDERMAN_TELEPORT, 1.0f);
-            PlayerLib.playSound(player, ENTITY_PLAYER_BREATH, 1.0f);
-            PlayerLib.playSound(player, ENTITY_GHAST_SCREAM, 0.75f);
+            player.playSound(ENTITY_ENDERMAN_TELEPORT, 1.0f);
+            player.playSound(ENTITY_PLAYER_BREATH, 1.0f);
+            player.playSound(ENTITY_GHAST_SCREAM, 0.75f);
 
             return DamageOutput.CANCEL;
         }
@@ -257,10 +163,10 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
             return null;
         }
 
-        final WitherData data = getWither(gamePlayer.getPlayer());
+        final WitherData data = getWither(gamePlayer);
 
         if (data != null) {
-            data.assistAttack(entity.getEntity());
+            data.assistAttack(entity);
         }
 
         return null;
@@ -268,9 +174,9 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
 
     @EventHandler()
     public void handleInteraction(PlayerInteractAtEntityEvent ev) {
-        final Player player = ev.getPlayer();
+        final GamePlayer player = CF.getPlayer(ev.getPlayer());
 
-        if (!validatePlayer(player) || ev.getHand() == EquipmentSlot.OFF_HAND) {
+        if (player == null || !validatePlayer(player) || ev.getHand() == EquipmentSlot.OFF_HAND) {
             return;
         }
 
@@ -279,10 +185,11 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
 
     @EventHandler()
     public void handleInteraction(PlayerInteractEvent ev) {
-        final Player player = ev.getPlayer();
+        final GamePlayer player = CF.getPlayer(ev.getPlayer());
         final Action action = ev.getAction();
 
-        if (!validatePlayer(player)
+        if (player == null
+                || !validatePlayer(player)
                 || ev.getHand() == EquipmentSlot.OFF_HAND
                 || player.hasCooldown(getWeapon().getMaterial())
                 || ev.getAction() == Action.PHYSICAL) {
@@ -293,18 +200,10 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
 
         processSpellClick(player, isLeftClick);
         ev.setCancelled(true);
-
-        //final WitherSkull skull = player.launchProjectile(WitherSkull.class, player.getLocation().getDirection().multiply(3.0d));
-        //skull.setCharged(true);
-        //skull.setYield(0.0f);
-        //skull.setShooter(player);
-        //
-        //player.setCooldown(this.getWeapon().getMaterial(), 20);
-        //PlayerLib.playSound(player, ENTITY_WITHER_SHOOT, 1.0f);
     }
 
     @Nullable
-    public WitherData getWither(Player player) {
+    public WitherData getWither(GamePlayer player) {
         return withers.get(player);
     }
 
@@ -359,7 +258,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
     // And also the fucking left-clicking entity does not fire the event either, like why?
     // I'm clearly fucking interacting???
     // But of course, the event handles with 2 hands, even if I have nothing in my b hand, makes sense.
-    private void processSpellClick(Player player, boolean isLeftClick) {
+    private void processSpellClick(GamePlayer player, boolean isLeftClick) {
         // Check for actual wand maybe?
         if (player.getInventory().getItemInMainHand().getType() != getWeapon().getMaterial()) {
             return;
@@ -401,7 +300,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         }
     }
 
-    private void killWither(Player player) {
+    private void killWither(GamePlayer player) {
         final WitherData data = withers.get(player);
 
         if (data != null) {

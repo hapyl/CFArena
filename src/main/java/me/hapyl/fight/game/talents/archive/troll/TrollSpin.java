@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.archive.troll;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -8,6 +9,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+
+import javax.annotation.Nonnull;
 
 public class TrollSpin extends Talent {
 	public TrollSpin() {
@@ -18,7 +21,7 @@ public class TrollSpin extends Talent {
 	}
 
 	@Override
-	public Response execute(Player player) {
+	public Response execute(@Nonnull GamePlayer player) {
 		Collect.enemyPlayers(player).forEach(victim -> {
 			final Player victimPlayer = victim.getPlayer();
 			final Location location = victimPlayer.getLocation();

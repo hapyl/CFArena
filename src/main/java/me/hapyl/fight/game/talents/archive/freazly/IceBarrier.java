@@ -1,8 +1,9 @@
 package me.hapyl.fight.game.talents.archive.freazly;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.CreationTalent;
 import me.hapyl.fight.game.talents.TickingCreation;
 import me.hapyl.fight.game.task.GameTask;
@@ -19,9 +20,9 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Ageable;
-import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
@@ -46,7 +47,7 @@ public class IceBarrier extends CreationTalent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         if (isExists(player)) {
             return Response.error("Already created!");
         }
@@ -68,7 +69,7 @@ public class IceBarrier extends CreationTalent {
             @Override
             public void run(int tick) {
                 for (LivingGameEntity entity : Collect.nearbyEntities(location, radius)) {
-                    if (entity.is(player)) {
+                    if (entity.equals(player)) {
                         entity.heal(healingPerTick);
                     }
                     else {
@@ -81,7 +82,7 @@ public class IceBarrier extends CreationTalent {
             }
 
             @Override
-            public void create(Player player) {
+            public void create(@Nonnull GamePlayer player) {
                 for (int i = 0; i < 3; i++) {
                     for (int j = 0; j < 5; j++) {
                         final Block blockToChange = location.add(isEastWest ? 0 : j, i, isEastWest ? j : 0).getBlock();
@@ -178,7 +179,7 @@ public class IceBarrier extends CreationTalent {
         return Response.OK;
     }
 
-    private Location getBuildLocation(Player player) {
+    private Location getBuildLocation(GamePlayer player) {
         final Block target = player.getTargetBlockExact(5);
 
         if (target == null) {

@@ -10,21 +10,21 @@ public class Effect {
     private final PotionEffect effect;
     private final boolean isPositive;
 
-    public void affect(GamePlayer player, GamePlayer victim) {
-    }
-
     public Effect(String suffix, PotionEffectType type, int duration, int level) {
         this.suffix = suffix;
         this.effect = type == null ? null : new PotionEffect(type, duration * 20, level);
         this.isPositive = duration == 30;
     }
 
-    public String getSuffix() {
-        return suffix;
-    }
-
     public Effect(String suffix, int duration) {
         this(suffix, null, duration, 0);
+    }
+
+    public void affect(GamePlayer player, GamePlayer victim) {
+    }
+
+    public String getSuffix() {
+        return suffix;
     }
 
     public void applyEffects(GamePlayer player, GamePlayer victim) {

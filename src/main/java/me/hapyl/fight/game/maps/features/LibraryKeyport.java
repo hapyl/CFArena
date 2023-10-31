@@ -1,11 +1,10 @@
 package me.hapyl.fight.game.maps.features;
 
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.BlockLocation;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.ThreadRandom;
 import org.bukkit.Location;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.HashMap;
@@ -44,15 +43,18 @@ public class LibraryKeyport {
         this.portals.put(entrance7, new BlockLocation(-18, 64, -107, -90, 0));
     }
 
-    public boolean testPlayer(Player player) {
+    public boolean testPlayer(GamePlayer player) {
         final Location location = player.getLocation();
-        for (final BlockLocation entrance : this.portals.keySet()) {
+
+        for (BlockLocation entrance : portals.keySet()) {
             double distance = 3.0d;
+
             if (entrance.toLocation().distance(location) <= distance) {
                 final Location exit = getRandomExitAndMergePitch(entrance, player);
+
                 player.teleport(exit);
-                PlayerLib.addEffect(player, PotionEffectType.BLINDNESS, 20, 1);
-                PlayerLib.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.25f);
+                player.addPotionEffect(PotionEffectType.BLINDNESS, 20, 1);
+                player.playWorldSound(Sound.ENTITY_ENDERMAN_TELEPORT, 1.25f);
                 return true;
             }
         }
@@ -64,7 +66,7 @@ public class LibraryKeyport {
         return portals.get(enter) == element ? getRandomButSelf(enter) : element;
     }
 
-    private Location getRandomExitAndMergePitch(BlockLocation enter, Player player) {
+    private Location getRandomExitAndMergePitch(BlockLocation enter, GamePlayer player) {
         final Location location = getRandomButSelf(enter).toLocation(true);
         location.setPitch(player.getLocation().getPitch());
         return location;

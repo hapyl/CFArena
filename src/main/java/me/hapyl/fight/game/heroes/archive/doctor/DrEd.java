@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.archive.doctor;
 
-import com.google.common.collect.Maps;
 import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
@@ -14,22 +14,21 @@ import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.ItemStacks;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.PlayerInventory;
 
 import javax.annotation.Nonnull;
-import java.util.Map;
 
 public class DrEd extends Hero implements UIComponent {
 
     private final Weapon ultimateWeapon = new PhysGun();
-    private final Map<Player, BlockShield> playerShield;
+    private final PlayerMap<BlockShield> playerShield;
 
     public DrEd() {
         super("Dr. Ed");
@@ -53,7 +52,7 @@ public class DrEd extends Hero implements UIComponent {
                 .setDuration(200)
                 .setItem(Material.GOLDEN_HORSE_ARMOR));
 
-        playerShield = Maps.newHashMap();
+        playerShield = PlayerMap.newMap();
     }
 
     @Override
@@ -91,23 +90,23 @@ public class DrEd extends Hero implements UIComponent {
         }.runTaskTimer(0, 1);
     }
 
-    private void scheduleNextShield(Player player, int delay) {
+    private void scheduleNextShield(GamePlayer player, int delay) {
         GameTask.runLater(() -> getShield(player).newElement(), Tick.fromSecond(delay));
     }
 
     @Override
-    public void onStart(Player player) {
+    public void onStart(@Nonnull GamePlayer player) {
         // New shield
         scheduleNextShield(player, 5);
     }
 
     @Override
-    public void onRespawn(Player player) {
+    public void onRespawn(@Nonnull GamePlayer player) {
         onStart(player);
     }
 
     @Override
-    public void onDeath(Player player) {
+    public void onDeath(@Nonnull GamePlayer player) {
         getShield(player).remove();
 
         if (getWeapon() instanceof GravityGun weapon) {
@@ -121,12 +120,12 @@ public class DrEd extends Hero implements UIComponent {
         playerShield.clear();
     }
 
-    public BlockShield getShield(Player player) {
+    public BlockShield getShield(GamePlayer player) {
         return playerShield.computeIfAbsent(player, BlockShield::new);
     }
 
     @Override
-    public void useUltimate(Player player) {
+    public void useUltimate(@Nonnull GamePlayer player) {
         final PlayerInventory inventory = player.getInventory();
         inventory.setItem(4, ultimateWeapon.getItem());
         inventory.setHeldItemSlot(4);
@@ -154,7 +153,7 @@ public class DrEd extends Hero implements UIComponent {
 
     @Nonnull
     @Override
-    public String getString(Player player) {
+    public String getString(@Nonnull GamePlayer player) {
         final BlockShield shield = getShield(player);
 
         if (!shield.exists()) {

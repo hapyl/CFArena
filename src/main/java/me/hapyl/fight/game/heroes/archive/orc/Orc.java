@@ -1,8 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.orc;
 
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import me.hapyl.fight.CF;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
@@ -21,7 +19,7 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.orc.OrcAxe;
 import me.hapyl.fight.game.talents.archive.orc.OrcGrowl;
 import me.hapyl.fight.game.task.PlayerTask;
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
@@ -41,12 +39,11 @@ import org.bukkit.potion.PotionEffectType;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class Orc extends Hero implements Listener {
 
-    private final Map<Player, DamageData> damageMap = Maps.newHashMap();
+    private final PlayerMap<DamageData> damageMap = PlayerMap.newMap();
     private final Set<PotionEffectType> negativeEffects = Sets.newHashSet();
     private final Set<Player> awaitEffectChange = Sets.newHashSet();
 
@@ -138,7 +135,7 @@ public class Orc extends Hero implements Listener {
     @Nullable
     @Override
     public DamageOutput processDamageAsVictim(DamageInput input) {
-        final Player player = input.getEntityAsPlayer().getPlayer();
+        final GamePlayer player = input.getEntityAsPlayer();
         final EnumDamageCause cause = input.getDamageCauseOr(EnumDamageCause.NONE);
 
         if (cause != EnumDamageCause.ENTITY_ATTACK) {
@@ -153,12 +150,12 @@ public class Orc extends Hero implements Listener {
     }
 
     @Override
-    public void useUltimate(Player player) {
+    public void useUltimate(@Nonnull GamePlayer player) {
         enterBerserk(player, getUltimateDuration());
     }
 
     @Override
-    public void onDeath(Player player) {
+    public void onDeath(@Nonnull GamePlayer player) {
         if (!(getWeapon() instanceof OrcWeapon orcWeapon)) {
             return;
         }
@@ -167,9 +164,8 @@ public class Orc extends Hero implements Listener {
         orcWeapon.remove(player);
     }
 
-    public void enterBerserk(Player player, int duration) {
-        final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
-        final EntityAttributes attributes = gamePlayer.getAttributes();
+    public void enterBerserk(GamePlayer player, int duration) {
+        final EntityAttributes attributes = player.getAttributes();
 
         Temper.BERSERK_MODE.temper(attributes, duration);
 
@@ -179,7 +175,7 @@ public class Orc extends Hero implements Listener {
 
             @Override
             public void onTaskStop() {
-                Chat.sendMessage(player, "%s &ais over!", Named.BERSERK);
+                player.sendMessage(Named.BERSERK + " &ais over!");
             }
 
             @Override

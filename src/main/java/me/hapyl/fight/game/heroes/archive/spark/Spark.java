@@ -1,11 +1,11 @@
 package me.hapyl.fight.game.heroes.archive.spark;
 
-import me.hapyl.fight.CF;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
@@ -15,22 +15,19 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.PackedParticle;
 import me.hapyl.fight.game.weapons.RangeWeapon;
+import me.hapyl.fight.util.MetadataValue;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Spark extends Hero implements PlayerElement {
 
-    private final Map<Player, ArmorStand> markerLocation = new HashMap<>();
+    private final PlayerMap<ArmorStand> markerLocation = PlayerMap.newMap();
 
     public Spark() {
         super("Spark");
@@ -47,13 +44,13 @@ public class Spark extends Hero implements PlayerElement {
 
         setWeapon(new RangeWeapon(Material.STICK, "fire_weapon") {
             @Override
-            public void onHit(Player player, LivingEntity entity, boolean headshot) {
+            public void onHit(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity, boolean headshot) {
                 entity.setFireTicks(10);
             }
 
             @Nonnull
             @Override
-            public EnumDamageCause getDamageCause(Player player) {
+            public EnumDamageCause getDamageCause(@Nonnull GamePlayer player) {
                 return EnumDamageCause.FIRE_SPRAY;
             }
         }.setCooldown(30)
@@ -73,22 +70,19 @@ public class Spark extends Hero implements PlayerElement {
     }
 
     @Override
-    public void useUltimate(Player player) {
+    public void useUltimate(@Nonnull GamePlayer player) {
         final Location location = getSafeLocation(player.getLocation());
-        final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
-
-        if (location == null) {
-            return;
-        }
+        final double health = player.getHealth();
 
         setUsingUltimate(player, true);
+
         final ArmorStand marker = Entities.ARMOR_STAND.spawn(location, me -> {
-            me.setMaxHealth(gamePlayer.getHealth());
-            me.setHealth(gamePlayer.getHealth());
+            me.setInvulnerable(true);
             me.setGravity(false);
             me.setInvisible(true);
             me.setVisible(false);
             me.setFireTicks(getUltimateDuration());
+            me.setMetadata("Health", new MetadataValue(health));
         });
 
         markerLocation.put(player, marker);
@@ -100,13 +94,13 @@ public class Spark extends Hero implements PlayerElement {
             public void run() {
                 // if already on rebirth, can happen when damage is called rebirth
                 if (getMarker(player) == null) {
-                    this.cancel();
+                    cancel();
                     return;
                 }
 
                 if (tick < 0) {
                     rebirthPlayer(player);
-                    this.cancel();
+                    cancel();
                     return;
                 }
 
@@ -117,33 +111,32 @@ public class Spark extends Hero implements PlayerElement {
                     builder.append(Chat.format(i >= (tick / 10) ? "&c|" : "&a|"));
                 }
 
-                Chat.sendTitle(player, "", builder.toString(), 0, 10, 0);
+                player.sendSubtitle(builder.toString(), 0, 10, 0);
 
                 --tick;
 
-                // fx
-                PlayerLib.spawnParticle(player.getEyeLocation(), Particle.FLAME, 1, 0.5d, 0.0d, 0.5d, 0.01f);
+                // Fx
+                player.spawnWorldParticle(player.getEyeLocation(), Particle.FLAME, 1, 0.5d, 0.0d, 0.5d, 0.01f);
 
-                // fx at marker
-                PlayerLib.spawnParticle(location, Particle.LANDING_LAVA, 1, 0.2d, 0.2, 0.2d, 0.05f);
-                PlayerLib.spawnParticle(location, Particle.DRIP_LAVA, 1, 0.2d, 0.2, 0.2d, 0.05f);
-
+                // Fx at marker
+                player.spawnWorldParticle(location, Particle.LANDING_LAVA, 1, 0.2d, 0.2, 0.2d, 0.05f);
+                player.spawnWorldParticle(location, Particle.DRIP_LAVA, 1, 0.2d, 0.2, 0.2d, 0.05f);
             }
         }.runTaskTimer(0, 1);
 
     }
 
     @Override
-    public boolean predicateUltimate(Player player) {
+    public boolean predicateUltimate(@Nonnull GamePlayer player) {
         return isSafeLocation(player.getLocation());
     }
 
     @Override
-    public String predicateMessage(Player player) {
+    public String predicateMessage(@Nonnull GamePlayer player) {
         return "Location is not safe!";
     }
 
-    private ArmorStand getMarker(Player player) {
+    private ArmorStand getMarker(GamePlayer player) {
         return markerLocation.get(player);
     }
 
@@ -163,17 +156,18 @@ public class Spark extends Hero implements PlayerElement {
         return null;
     }
 
-    public void rebirthPlayer(Player player) {
+    public void rebirthPlayer(GamePlayer player) {
         final ArmorStand stand = markerLocation.get(player);
+
         if (stand == null) {
             return;
         }
 
-        final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
-        final Location location = player.getLocation(); // location before tp
+        final double health = Math.max(stand.getMetadata("Health").get(0).asDouble(), player.getMinHealth());
 
         player.setInvulnerable(true);
-        gamePlayer.setHealth(stand.getHealth());
+        player.setHealth(health);
+
         final Location teleportLocation = stand.getLocation().add(0.0d, 1.0d, 0.0d);
 
         markerLocation.remove(player);
@@ -181,19 +175,19 @@ public class Spark extends Hero implements PlayerElement {
 
         player.teleport(teleportLocation);
 
-        // fx
-        PlayerLib.addEffect(player, PotionEffectType.SLOW, 20, 50);
-        PlayerLib.playSound(location, Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 1.5f);
-        PlayerLib.spawnParticle(location, Particle.FIREWORKS_SPARK, 50, 0.1d, 0.5d, 0.1d, 0.2f);
-        PlayerLib.spawnParticle(location, Particle.LAVA, 10, 0.1d, 0.5d, 0.1d, 0.2f);
-        Chat.sendTitle(player, "&6🔥", "&eOn Rebirth...", 5, 10, 5);
+        // Fx
+        player.addPotionEffect(PotionEffectType.SLOW, 20, 50);
+        player.playWorldSound(Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 1.5f);
+        player.spawnWorldParticle(Particle.FIREWORKS_SPARK, 50, 0.1d, 0.5d, 0.1d, 0.2f);
+        player.spawnWorldParticle(Particle.LAVA, 10, 0.1d, 0.5d, 0.1d, 0.2f);
+        player.sendTitle("&6🔥", "&eOn Rebirth...", 5, 10, 5);
 
         GameTask.runLater(() -> player.setInvulnerable(false), 20);
     }
 
     @Override
     public DamageOutput processDamageAsVictim(DamageInput input) {
-        final Player player = input.getBukkitPlayer();
+        final GamePlayer player = input.getEntityAsPlayer();
         final EnumDamageCause cause = input.getDamageCause();
 
         if (!validatePlayer(player) || cause == null) {
@@ -206,7 +200,7 @@ public class Spark extends Hero implements PlayerElement {
         };
 
         // Check for ultimate death
-        if (isUsingUltimate(player) && input.getDamage() >= GamePlayer.getPlayer(player).getHealth()) {
+        if (isUsingUltimate(player) && input.getDamage() >= player.getHealth()) {
             rebirthPlayer(player);
             setUsingUltimate(player, false);
 
@@ -222,8 +216,8 @@ public class Spark extends Hero implements PlayerElement {
     }
 
     @Override
-    public void onStart(Player player) {
-        PlayerLib.addEffect(player, PotionEffectType.FIRE_RESISTANCE, 999999, 1);
+    public void onStart(@Nonnull GamePlayer player) {
+        player.addPotionEffect(PotionEffectType.FIRE_RESISTANCE, 999999, 1);
     }
 
     @Override

@@ -1,19 +1,14 @@
 package me.hapyl.fight.game.talents.archive.techie;
 
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.reflect.glow.Glowing;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffectType;
 
 import java.util.Set;
 
@@ -66,14 +61,14 @@ public class Tripwire {
         this.blocks.forEach(block -> block.setType(Material.AIR, false));
     }
 
-    public void affectPlayer(Player player) {
-        PlayerLib.addEffect(player, PotionEffectType.SLOW, 80, 4);
-        GamePlayer.getPlayer(player).addEffect(GameEffectType.VULNERABLE, 80);
-
-        // Fx
-        Glowing.glow(player, ChatColor.RED, 80, getPlayer());
-        PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_SCREAM, 1.25f);
-        Chat.sendTitle(this.getPlayer(), "&aTripwire Triggered!", "&7You caught " + player.getName(), 10, 20, 10);
+    public void affectPlayer(GamePlayer player) {
+        //PlayerLib.addEffect(player, PotionEffectType.SLOW, 80, 4);
+        //GamePlayer.getPlayer(player).addEffect(GameEffectType.VULNERABLE, 80);
+        //
+        //// Fx
+        //Glowing.glow(player, ChatColor.RED, 80, getPlayer());
+        //PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_SCREAM, 1.25f);
+        //Chat.sendTitle(this.getPlayer(), "&aTripwire Triggered!", "&7You caught " + player.getName(), 10, 20, 10);
     }
 
     public boolean isBlockATrap(Block block) {

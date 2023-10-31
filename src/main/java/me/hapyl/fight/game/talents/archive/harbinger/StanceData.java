@@ -1,19 +1,18 @@
 package me.hapyl.fight.game.talents.archive.harbinger;
 
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.talents.archive.harbinger.MeleeStance;
 import me.hapyl.fight.game.task.GameTask;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class StanceData {
 
-    private final Player player;
+    private final GamePlayer player;
     private final long usedAt;
     private final ItemStack stack;
     private final GameTask task;
 
-    public StanceData(Player player, ItemStack weapon) {
+    public StanceData(GamePlayer player, ItemStack weapon) {
         this.player = player;
         this.stack = weapon;
         this.usedAt = System.currentTimeMillis();
@@ -37,7 +36,7 @@ public class StanceData {
         return stack;
     }
 
-    public Player getPlayer() {
+    public GamePlayer getPlayer() {
         return player;
     }
 

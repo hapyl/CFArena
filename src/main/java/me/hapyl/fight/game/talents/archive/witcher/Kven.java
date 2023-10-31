@@ -1,22 +1,21 @@
 package me.hapyl.fight.game.talents.archive.witcher;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 
-import java.util.HashMap;
-import java.util.Map;
+import javax.annotation.Nonnull;
 
 public class Kven extends Talent {
 
-    private final Map<Player, Integer> shieldCharges = new HashMap<>();
+    private final PlayerMap<Integer> shieldCharges = PlayerMap.newMap();
 
     public Kven() {
         super("Quen", "Applies two charges of Quen shield that blocks damage.");
@@ -30,26 +29,26 @@ public class Kven extends Talent {
         shieldCharges.clear();
     }
 
-    public int getShieldCharge(Player player) {
+    public int getShieldCharge(GamePlayer player) {
         return shieldCharges.getOrDefault(player, 0);
     }
 
-    public void removeShieldCharge(Player player) {
+    public void removeShieldCharge(GamePlayer player) {
         shieldCharges.put(player, getShieldCharge(player) - 1);
         if (getShieldCharge(player) <= 0) {
             shieldCharges.remove(player);
-            Chat.sendMessage(player, "&aYour &l%s &ashield has broke!", this.getName());
+
+            player.sendMessage("&aYour &l%s &ashield has broke!", getName());
+            player.playSound(Sound.ITEM_SHIELD_BREAK, 0.5f);
         }
         else {
-            Chat.sendMessage(player, "&aOne of your &l%s &ashields broke!", this.getName());
+            player.sendMessage("&aOne of your &l%s &ashields broke!", getName());
+            player.playSound(Sound.ITEM_SHIELD_BREAK, 0.75f);
         }
-
-        // fx
-        PlayerLib.playSound(player, Sound.ITEM_SHIELD_BREAK, 0.75f);
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         if (getShieldCharge(player) != 0) {
             return Response.error("Already have shield applied!");
         }
@@ -85,9 +84,9 @@ public class Kven extends Talent {
             }
         }.runTaskTimer(0, 1);
 
-        // fx
-        Chat.sendMessage(player, "&a%s Shields have been activated!", this.getName());
-        PlayerLib.playSound(player, Sound.BLOCK_BELL_RESONATE, 2.0f);
+        // Fx
+        player.sendMessage("&a%s Shields have been activated!", getName());
+        player.playSound(Sound.BLOCK_BELL_RESONATE, 2.0f);
         shieldCharges.put(player, 2);
 
         return Response.OK;

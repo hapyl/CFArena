@@ -43,7 +43,6 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Bat;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -70,7 +69,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
     @DisplayField public final int impelCd = 10;
     @DisplayField public final double impelDamage = 30.0d;
 
-    private final Map<Player, BloodfiendData> playerData = Maps.newConcurrentMap();
+    private final Map<GamePlayer, BloodfiendData> playerData = Maps.newConcurrentMap();
 
     public Bloodfiend() {
         super("Bloodfiend");
@@ -132,24 +131,23 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
     }
 
     @Override
-    public void onStart(Player player) {
+    public void onStart(@Nonnull GamePlayer player) {
         getData(player).cooldownFlight(true);
     }
 
     @Override
-    public void onRespawn(Player player) {
+    public void onRespawn(@Nonnull GamePlayer player) {
         getData(player).cooldownFlight(true);
     }
 
     @Nullable
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final GamePlayer gamePlayer = input.getDamagerAsPlayer();
-        final Player player = input.getDamagerAsBukkitPlayer();
+        final GamePlayer player = input.getDamagerAsPlayer();
         final LivingGameEntity entity = input.getEntity();
         final EnumDamageCause cause = input.getDamageCause();
 
-        if (player == null || gamePlayer == null || cause != EnumDamageCause.ENTITY_ATTACK) {
+        if (player == null || cause != EnumDamageCause.ENTITY_ATTACK) {
             return DamageOutput.OK;
         }
 
@@ -172,19 +170,19 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
             final double damage = input.getDamage();
             final double healing = damage * bloodChalice.healingPercent / 100;
 
-            gamePlayer.heal(healing);
+            player.heal(healing);
         }
 
         return DamageOutput.OK;
     }
 
     @Nonnull
-    public BloodfiendData getData(Player player) {
+    public BloodfiendData getData(GamePlayer player) {
         return playerData.computeIfAbsent(player, BloodfiendData::new);
     }
 
     @Override
-    public void onDeath(Player player) {
+    public void onDeath(@Nonnull GamePlayer player) {
         final BloodfiendData data = playerData.remove(player);
 
         if (data == null) {
@@ -195,8 +193,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
     }
 
     @Override
-    public UltimateCallback castUltimate(Player player) {
-        final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
+    public UltimateCallback castUltimate(@Nonnull GamePlayer player) {
         final BloodfiendData data = getData(player);
         final Set<GamePlayer> succulencePlayers = data.getSucculencePlayers();
         final Location location = player.getLocation().add(0.0d, 0.5d, 0.0d);
@@ -222,13 +219,13 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
             }));
         }
 
-        gamePlayer.addEffect(GameEffectType.INVISIBILITY, 10000, true);
+        player.addEffect(GameEffectType.INVISIBILITY, 10000, true);
 
         final Bat playerBat = Entities.BAT.spawn(eyeLocation, self -> {
             self.setAwake(true);
             self.setInvulnerable(true);
 
-            EntityUtils.setCollision(self, EntityUtils.Collision.DENY, player);
+            EntityUtils.setCollision(self, EntityUtils.Collision.DENY, player.getPlayer());
         });
 
         final float flySpeed = player.getFlySpeed();
@@ -262,7 +259,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
 
         return new UltimateCallback() {
             @Override
-            public void callback(@Nonnull Player player) {
+            public void callback(@Nonnull GamePlayer player) {
                 fxBats.forEach(Bat::remove);
                 fxBats.clear();
 
@@ -272,7 +269,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
 
                 data.cooldownFlight(true);
 
-                gamePlayer.removeEffect(GameEffectType.INVISIBILITY);
+                player.removeEffect(GameEffectType.INVISIBILITY);
 
                 npc.remove();
                 playerBat.remove();
@@ -282,7 +279,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
     }
 
     @Override
-    public void useUltimate(Player player) {
+    public void useUltimate(@Nonnull GamePlayer player) {
         getData(player).newImpelInstance(this, player).nextImpel(0);
     }
 
@@ -314,7 +311,12 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
     // impel handles
     @EventHandler()
     public void handleImpelClick(PlayerInteractEvent ev) {
-        final Player player = ev.getPlayer();
+        final GamePlayer player = CF.getPlayer(ev.getPlayer());
+
+        if (player == null) {
+            return;
+        }
+
         final float pitch = player.getLocation().getPitch();
 
         workImpel(player, (impel, gamePlayer) -> {
@@ -330,7 +332,11 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
 
     @EventHandler()
     public void handleImpelSneak(PlayerToggleSneakEvent ev) {
-        final Player player = ev.getPlayer();
+        final GamePlayer player = CF.getPlayer(ev.getPlayer());
+
+        if (player == null) {
+            return;
+        }
 
         workImpel(player, (impel, gamePlayer) -> {
             impel.complete(gamePlayer, Type.SNEAK);
@@ -339,11 +345,11 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
 
     @EventHandler()
     public void handleImpelJump(PlayerMoveEvent ev) {
-        final Player player = ev.getPlayer();
+        final GamePlayer player = CF.getPlayer(ev.getPlayer());
         final Location to = ev.getTo();
         final Location from = ev.getFrom();
 
-        if (to == null || (to.getY() <= from.getY()) || player.isOnGround()) {
+        if (player == null || to == null || (to.getY() <= from.getY()) || player.isOnGround()) {
             return;
         }
 
@@ -353,7 +359,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
     }
 
     @Nullable
-    public ImpelInstance getPlayerImpel(Player player) {
+    public ImpelInstance getPlayerImpel(GamePlayer player) {
         for (BloodfiendData data : playerData.values()) {
             final ImpelInstance impel = data.getImpelInstance();
             if (impel == null || !impel.isPlayer(player)) {
@@ -366,16 +372,14 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
         return null;
     }
 
-    public void workImpel(Player player, BiConsumer<Impel, GamePlayer> consumer) {
-        final ImpelInstance impelInstance = getPlayerImpel(player);
-
-        if (impelInstance == null) {
+    public void workImpel(GamePlayer player, BiConsumer<Impel, GamePlayer> consumer) {
+        if (player == null) {
             return;
         }
 
-        final GamePlayer gamePlayer = CF.getPlayer(player);
+        final ImpelInstance impelInstance = getPlayerImpel(player);
 
-        if (gamePlayer == null) {
+        if (impelInstance == null) {
             return;
         }
 
@@ -385,12 +389,17 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
             return;
         }
 
-        consumer.accept(impel, gamePlayer);
+        consumer.accept(impel, player);
     }
 
     @EventHandler()
     public void handleFlight(PlayerToggleFlightEvent ev) {
-        final Player player = ev.getPlayer();
+        final GamePlayer player = CF.getPlayer(ev.getPlayer());
+
+        if (player == null) {
+            return;
+        }
+
         final BloodfiendData data = getData(player);
 
         if (!validatePlayer(player)) {
@@ -417,7 +426,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
 
     @Nullable
     @Override
-    public List<String> getStrings(Player player) {
+    public List<String> getStrings(@Nonnull GamePlayer player) {
         final BloodfiendData data = getData(player);
         final int succulencePlayers = data.getSucculencePlayersCount();
         final int flightCooldown = data.getFlightCooldown();

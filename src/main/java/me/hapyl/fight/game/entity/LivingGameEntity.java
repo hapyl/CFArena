@@ -3,6 +3,7 @@ package me.hapyl.fight.game.entity;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.PreconditionMethod;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EntityState;
@@ -16,6 +17,7 @@ import me.hapyl.fight.game.entity.cooldown.Cooldown;
 import me.hapyl.fight.game.entity.cooldown.EntityCooldown;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.display.BuffDisplay;
+import me.hapyl.fight.game.ui.display.DamageDisplay;
 import me.hapyl.fight.game.ui.display.DebuffDisplay;
 import me.hapyl.fight.game.ui.display.StringDisplay;
 import me.hapyl.fight.util.Collect;
@@ -23,10 +25,15 @@ import me.hapyl.spigotutils.module.annotate.Super;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.math.geometry.Draw;
+import me.hapyl.spigotutils.module.player.EffectType;
 import me.hapyl.spigotutils.module.player.PlayerLib;
-import org.bukkit.*;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
@@ -43,39 +50,19 @@ import java.util.function.Consumer;
 
 public class LivingGameEntity extends GameEntity {
 
-    private static final Draw FEROCITY_PARTICLE_DATA = new Draw(null) {
-        @Override
-        public void draw(Location location) {
-            final World world = location.getWorld();
-
-            if (world == null) {
-                return;
-            }
-
-            world.spawnParticle(
-                    Particle.DUST_COLOR_TRANSITION,
-                    location,
-                    1,
-                    0,
-                    0,
-                    0,
-                    new Particle.DustTransition(Color.fromRGB(77, 2, 8), Color.fromRGB(181, 43, 54), 1)
-            );
-        }
-    };
+    private static final Draw FEROCITY_PARTICLE_DATA = new FerocityFx();
+    private static final int FEROCITY_HIT_CD = 9;
 
     protected final EntityData entityData;
     private final Set<EnumDamageCause> immunityCauses = Sets.newHashSet();
     private final EntityMetadata metadata;
     private final EntityCooldown cooldown;
     private final Random random;
-
     @Nonnull
     protected EntityAttributes attributes;
     protected boolean wasHit; // Used to check if an entity was hit by custom damage
     protected double health;
     @Nonnull protected EntityState state;
-    private Shield shield;
 
     public LivingGameEntity(@Nonnull LivingEntity entity) {
         this(entity, new Attributes(entity));
@@ -245,10 +232,31 @@ public class LivingGameEntity extends GameEntity {
     /**
      * This should only be called in the calculations, do not call it otherwise.
      */
-    public void decreaseHealth(double damage) {
+    public void decreaseHealth(@Nonnull DamageInstance instance) {
+        final double damage = instance.getDamage();
         this.health -= damage;
+
         if (this.health <= 0.0d) {
             this.die(true);
+            return;
+        }
+
+        // Damage indicator
+        displayDamage(instance);
+    }
+
+    public void displayDamage(@Nonnull DamageInstance instance) {
+        final double damage = instance.getDamage();
+
+        if (damage < 1.0d || entity instanceof ArmorStand || entity.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
+            return;
+        }
+
+        final EnumDamageCause cause = instance.getCause();
+
+        if (cause != null) {
+            final String format = cause.getDamageCause().getDamageFormat().getFormat();
+            new DamageDisplay(damage, instance.isCrit()).display(getLocation());
         }
     }
 
@@ -274,6 +282,11 @@ public class LivingGameEntity extends GameEntity {
 
     public void addPotionEffect(PotionEffectType type, int duration, int amplifier) {
         entity.addPotionEffect(type.createEffect(duration, amplifier));
+    }
+
+    public void dieBy(@Nonnull EnumDamageCause cause) {
+        setLastDamageCause(cause);
+        die(true);
     }
 
     public void die(boolean force) {
@@ -381,15 +394,6 @@ public class LivingGameEntity extends GameEntity {
         this.health = health;
     }
 
-    @Nullable
-    public Shield getShield() {
-        return shield;
-    }
-
-    public void setShield(@Nonnull Shield shield) {
-        this.shield = shield;
-    }
-
     public double getMaxHealth() {
         return attributes.get(AttributeType.MAX_HEALTH);
     }
@@ -435,6 +439,7 @@ public class LivingGameEntity extends GameEntity {
         return instance.getBaseValue();
     }
 
+    @Nonnull
     public EntityData getData() {
         return entityData;
     }
@@ -487,24 +492,28 @@ public class LivingGameEntity extends GameEntity {
 
         return null;
     }
+    // this spawns globally
 
     public void setTarget(@Nullable LivingEntity entity) {
         if (this.entity instanceof Creature creature) {
             creature.setTarget(entity);
         }
     }
-    // this spawns globally
 
     public void setTarget(@Nullable LivingGameEntity entity) {
         setTarget(entity == null ? null : entity.getEntity());
+    }
+
+    public void spawnWorldParticle(Particle particle, int amount, double x, double y, double z, float speed) {
+        spawnWorldParticle(getLocation(), particle, amount, x, y, z, speed);
     }
 
     public void spawnWorldParticle(Location location, Particle particle, int amount, double x, double y, double z, float speed) {
         PlayerLib.spawnParticle(location, particle, amount, x, y, z, speed);
     }
 
-    public void spawnWorldParticle(Location location, Particle particle, int amount) {
-        spawnWorldParticle(location, particle, amount, 0, 0, 0, 0);
+    public void spawnWorldParticle(Particle particle, int amount) {
+        spawnWorldParticle(particle, amount, 0, 0, 0, 0);
     }
 
     public void spawnParticle(Location location, Particle particle, int amount, double x, double y, double z, float speed) {
@@ -568,7 +577,7 @@ public class LivingGameEntity extends GameEntity {
         PlayerLib.playSound(getLocation(), Sound.ITEM_FLINTANDSTEEL_USE, 0.0f);
 
         for (int i = 0; i < ferocityStrikes; i++) {
-            GameTask.runLater(() -> damageFerocity(damage, lastDamager), i * 3 + 13);
+            GameTask.runLater(() -> damageFerocity(damage, lastDamager), i * 3 + FEROCITY_HIT_CD);
         }
 
         startCooldown(Cooldown.FEROCITY);
@@ -595,6 +604,18 @@ public class LivingGameEntity extends GameEntity {
         final double z = randomDouble(0.5d, 1.25d);
 
         Geometry.drawLine(location.clone().add(x, eyeHeight, z), location.clone().subtract(x, 0, z), 0.2d, FEROCITY_PARTICLE_DATA);
+    }
+
+    public void addPotionEffect(EffectType effectType, int duration, int amplifier) {
+        addPotionEffect(effectType.getType().createEffect(duration, amplifier));
+    }
+
+    public int getMaximumNoDamageTicks() {
+        return getEntity().getMaximumNoDamageTicks();
+    }
+
+    public void setMaximumNoDamageTicks(int i) {
+        getEntity().setMaximumNoDamageTicks(i);
     }
 
     private double randomDouble(double origin, double bound) {

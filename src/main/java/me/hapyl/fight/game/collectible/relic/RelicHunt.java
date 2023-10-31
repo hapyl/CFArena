@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.annotate.Unique;
 import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.reward.CurrencyReward;
 import me.hapyl.fight.game.reward.Reward;
 import me.hapyl.fight.util.Range;
 import me.hapyl.spigotutils.module.nbt.NBT;
@@ -50,15 +51,15 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
         collectorRewards = Maps.newHashMap();
         exchangeReward = Maps.newHashMap();
 
-        collectorRewards.put(1, new RelicCollectorReward(1).withCoins(500).withExp(5));
-        collectorRewards.put(2, new RelicCollectorReward(2).withCoins(1000).withExp(10));
-        collectorRewards.put(3, new RelicCollectorReward(3).withCoins(2000).withExp(20).withRubies(1));
+        collectorRewards.put(1, new CurrencyReward().withCoins(500).withExp(5));
+        collectorRewards.put(2, new CurrencyReward().withCoins(1000).withExp(10));
+        collectorRewards.put(3, new CurrencyReward().withCoins(2000).withExp(20).withRubies(1));
 
-        exchangeReward.put(1, new ExchangeReward(1).withCoins(500).withExp(5));
-        exchangeReward.put(2, new ExchangeReward(2).withCoins(1000).withExp(10));
-        exchangeReward.put(3, new ExchangeReward(3).withCoins(1500).withExp(15));
-        exchangeReward.put(4, new ExchangeReward(4).withCoins(2000).withExp(20));
-        exchangeReward.put(5, new ExchangeReward(5).withCoins(3000).withExp(30).withRubies(1));
+        exchangeReward.put(1, new CurrencyReward().withCoins(500).withExp(5));
+        exchangeReward.put(2, new CurrencyReward().withCoins(1000).withExp(10));
+        exchangeReward.put(3, new CurrencyReward().withCoins(1500).withExp(15));
+        exchangeReward.put(4, new CurrencyReward().withCoins(2000).withExp(20));
+        exchangeReward.put(5, new CurrencyReward().withCoins(3000).withExp(30).withRubies(1));
 
         Bukkit.getPluginManager().registerEvents(this, plugin);
         Bukkit.getScheduler().runTaskTimer(plugin, new RelicRunnable(this), 0L, 20L);

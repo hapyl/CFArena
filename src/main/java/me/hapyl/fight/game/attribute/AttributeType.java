@@ -45,12 +45,14 @@ public enum AttributeType { // implements Placeholder2
 
                     entity.setWalkSpeed(Numbers.clamp1neg1((float) value));
                 }
-            }.setChar("🌊").setColor(ChatColor.AQUA).setToString(value -> {
-                final double proportion = (value - 0.2d) / (1.0d - 0.2d);
-                final double increase = (proportion * 400.0d) + 100;
+            }.setChar("🌊")
+                    .setColor(ChatColor.AQUA)
+                    .setToString(value -> {
+                        final double proportion = (value - 0.2d) / (1.0d - 0.2d);
+                        final double increase = (proportion * 400.0d) + 100;
 
-                return "%.1f%%".formatted(increase);
-            }),
+                        return "%.1f%%".formatted(increase);
+                    }),
             0.2d
     ) {
         @Override
@@ -91,6 +93,19 @@ public enum AttributeType { // implements Placeholder2
                     .setToString(AttributeType::doubleFormat),
             1.0d
     ),
+    // todo -> impl me LOSER
+    DODGE(
+            new Attribute("Dodge", "Chance to dodge and nullity an attack.")
+                    .setChar("")
+                    .setColor(ChatColor.GOLD)
+                    .setToString(AttributeType::doubleFormat),
+            0.0d
+    ) {
+        @Override
+        public double maxValue() {
+            return 0.8d;
+        }
+    },
 
     ;
 

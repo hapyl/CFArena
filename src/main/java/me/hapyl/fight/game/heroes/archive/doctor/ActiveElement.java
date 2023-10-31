@@ -2,10 +2,9 @@ package me.hapyl.fight.game.heroes.archive.doctor;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
@@ -23,7 +22,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Skull;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -35,7 +33,7 @@ import java.util.List;
 // represents an active element that is currently held by the doctor
 public class ActiveElement {
 
-    private final Player player;
+    private final GamePlayer player;
     private final Entity entity;
     private final Material material;
     private final ElementType type;
@@ -43,7 +41,7 @@ public class ActiveElement {
     private final ItemStack stack;
     private GameTask task;
 
-    public ActiveElement(Player player, Block block) {
+    public ActiveElement(GamePlayer player, Block block) {
         final Location location = player.getLocation();
         this.player = player;
         this.material = block.getType();
@@ -102,7 +100,7 @@ public class ActiveElement {
                     name.contains("STAIRS") ? AnimationType.STAIRS : AnimationType.FULL_BLOCK;
 
             final Element element = type.getElement();
-            GamePlayer.setCooldown(player, Heroes.DR_ED.getHero().getWeapon().getMaterial(), element.getCd());
+            player.setCooldown(Heroes.DR_ED.getHero().getWeapon().getMaterial(), element.getCd());
 
             new GameTask() {
                 private int distance = 0;
@@ -139,7 +137,7 @@ public class ActiveElement {
 
                     entityPoof();
                     players.forEach(target -> {
-                        target.damage(element.getDamage(), CF.getPlayer(player), EnumDamageCause.GRAVITY_GUN);
+                        target.damage(element.getDamage(), player, EnumDamageCause.GRAVITY_GUN);
                         element.onHit(target.getEntity(), material);
                     });
                     this.cancel();
@@ -170,12 +168,12 @@ public class ActiveElement {
                     entityPoof();
                     PlayerLib.playSound(Sound.ITEM_SHIELD_BREAK, 0.75f);
                     ((GravityGun) Heroes.DR_ED.getHero().getWeapon()).setElement(player, null);
-                    Chat.sendMessage(player, "&aYour current equipped element has shattered!");
+                    player.sendMessage("&aYour current equipped element has shattered!");
                     cancel();
                     return;
                 }
 
-                Chat.sendTitle(player, "", "&f[&a&l%s&f]".formatted(Chat.capitalize(type)), 0, 10, 0);
+                player.sendSubtitle("&f[&a&l%s&f]".formatted(Chat.capitalize(type)), 0, 10, 0);
                 entity.teleport(player.getLocation().add(player.getLocation().getDirection().multiply(2)));
             }
         }.runTaskTimer(0, 1);

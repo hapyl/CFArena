@@ -8,26 +8,33 @@ import javax.annotation.Nonnull;
 
 public class CollectionItem {
 
-    private final String name;
-    private final String description;
+    protected final String name;
+    protected String description;
 
-    private Rarity rarity;
-    private Material icon;
+    protected Rarity rarity;
+    protected Material icon;
+    protected String texture;
+
     private boolean exclusive;
 
-    public CollectionItem(String name, String description) {
+    public CollectionItem(@Nonnull String name, @Nonnull String description) {
         this.name = name;
         this.description = description;
         this.rarity = Rarity.UNSET;
         this.icon = Material.BARRIER;
     }
 
+    @Nonnull
     public ItemBuilder createItem(Player player) {
         final ItemBuilder builder = ItemBuilder.of(icon, name);
 
         builder.addLore(rarity.toString());
         builder.addLore();
-        builder.addSmartLore(description);
+        builder.addTextBlockLore(description);
+
+        if (texture != null) {
+            builder.setHeadTextureUrl(texture);
+        }
 
         addExtraLore(builder, player);
 
@@ -44,6 +51,16 @@ public class CollectionItem {
     }
 
     /**
+     * Returns true if this cosmetic is exclusive.
+     * Exclusive cosmetics cannot be dropped from crates or bought.
+     *
+     * @return true if this cosmetic is exclusive, false otherwise.
+     */
+    public boolean isExclusive() {
+        return exclusive;
+    }
+
+    /**
      * Sets if this cosmetics is exclusive.
      * Exclusive cosmetics cannot be dropped from crates or bought.
      *
@@ -52,16 +69,6 @@ public class CollectionItem {
     public CollectionItem setExclusive(boolean exclusive) {
         this.exclusive = exclusive;
         return this;
-    }
-
-    /**
-     * Returns true if this cosmetic is exclusive.
-     * Exclusive cosmetics cannot be dropped from crates or bought.
-     *
-     * @return true if this cosmetic is exclusive, false otherwise.
-     */
-    public boolean isExclusive() {
-        return exclusive;
     }
 
     public Material getIcon() {
@@ -91,4 +98,12 @@ public class CollectionItem {
         return description;
     }
 
+    public void setDescription(String description, Object... format) {
+        this.description = description.formatted(format);
+    }
+
+    public CollectionItem setTexture(String texture) {
+        this.texture = texture;
+        return this;
+    }
 }

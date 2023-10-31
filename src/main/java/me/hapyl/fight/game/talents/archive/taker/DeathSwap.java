@@ -1,24 +1,16 @@
 package me.hapyl.fight.game.talents.archive.taker;
 
-import com.google.common.collect.Maps;
-import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.taker.SpiritualBones;
 import me.hapyl.fight.game.heroes.archive.taker.Taker;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 
-import java.util.Map;
+import javax.annotation.Nonnull;
 
 public class DeathSwap extends Talent {
 
@@ -27,7 +19,7 @@ public class DeathSwap extends Talent {
     @DisplayField(suffix = "%", suffixSpace = false) protected final double damagePercent = 10.0d;
     @DisplayField private final short spiritualBoneCost = 1;
 
-    private final Map<Player, TakerHook> playerHooks = Maps.newHashMap();
+    private final PlayerMap<TakerHook> playerHooks = PlayerMap.newMap();
 
     public DeathSwap() {
         super("Hook of Death");
@@ -51,7 +43,7 @@ public class DeathSwap extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final SpiritualBones bones = Heroes.TAKER.getHero(Taker.class).getBones(player);
 
         if (!player.isOnGround()) {
@@ -70,11 +62,11 @@ public class DeathSwap extends Talent {
         return Response.OK;
     }
 
-    public void reduceCooldown(Player player) {
-        GamePlayer.setCooldown(player, getMaterial(), getCdTimeLeft(player) / 2);
+    public void reduceCooldown(GamePlayer player) {
+        player.setCooldown(getMaterial(), getCdTimeLeft(player) / 2);
     }
 
-    private void removeHook(Player player) {
+    private void removeHook(GamePlayer player) {
         final TakerHook hook = playerHooks.get(player);
         if (hook == null) {
             return;
@@ -82,52 +74,5 @@ public class DeathSwap extends Talent {
 
         hook.remove();
         playerHooks.remove(player);
-    }
-
-    //@Override
-    public Response executeSwap(Player player) {
-        final SpiritualBones bones = Heroes.TAKER.getHero(Taker.class).getBones(player);
-
-        if (bones.getBones() < spiritualBoneCost) {
-            return Response.error("Not enough &lSpiritual Bones&c!");
-        }
-
-        final LivingGameEntity target = Collect.targetEntity(player, 50.0d, 0.85d, entity -> true);
-
-        if (target == null) {
-            return Response.error("No target found!");
-        }
-
-        final double damage = Math.min(target.getHealth() * (damagePercent / 100), 100.0d);
-        target.damage(damage, player, EnumDamageCause.RIP_BONES);
-
-        // Swap
-        final Location playerLocation = player.getLocation();
-        final Location targetLocation = target.getLocation();
-
-        final float playerYaw = playerLocation.getYaw();
-        final float playerPitch = playerLocation.getPitch();
-
-        playerLocation.setYaw(targetLocation.getYaw());
-        playerLocation.setPitch(targetLocation.getPitch());
-
-        targetLocation.setYaw(playerYaw);
-        targetLocation.setPitch(playerPitch);
-
-        player.teleport(targetLocation);
-        target.teleport(playerLocation);
-
-        PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.75f);
-        Chat.sendMessage(player, "&aSwapped locations with %s!", target.getName());
-
-        target.playPlayerSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.75f);
-        target.sendMessage(
-                "&c%s swapped locations with you! This is a weird feeling for you, looks like you lost &l%s%%&c of your health...",
-                player.getName(),
-                damagePercent
-        );
-
-        bones.remove(spiritualBoneCost);
-        return Response.OK;
     }
 }

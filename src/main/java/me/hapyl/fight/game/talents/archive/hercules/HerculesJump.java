@@ -1,12 +1,14 @@
 package me.hapyl.fight.game.talents.archive.hercules;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+
+import javax.annotation.Nonnull;
 
 public class HerculesJump extends Talent {
 	public HerculesJump() {
@@ -17,7 +19,7 @@ public class HerculesJump extends Talent {
     }
 
 	@Override
-	public Response execute(Player player) {
+	public Response execute(@Nonnull GamePlayer player) {
 		player.setVelocity(new Vector(0.0d, 1.05d, 0.0d));
 
 		PlayerLib.playSound(player.getLocation(), Sound.ENTITY_SLIME_JUMP, 0.5f);

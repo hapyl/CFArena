@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.archive.librarian;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.librarian.Librarian;
 import me.hapyl.fight.game.task.GameTask;
@@ -12,7 +13,8 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Player;
+
+import javax.annotation.Nonnull;
 
 public class BlackHole extends LibrarianTalent {
 
@@ -29,7 +31,7 @@ public class BlackHole extends LibrarianTalent {
     }
 
     @Override
-    public Response executeGrimoire(Player player) {
+    public Response executeGrimoire(@Nonnull GamePlayer player) {
         final Block block = player.getTargetBlockExact(10);
 
         if (block == null) {
@@ -56,7 +58,7 @@ public class BlackHole extends LibrarianTalent {
             }
 
             Collect.nearbyEntities(location, suckRadius).forEach(entity -> {
-                if (entity.is(player)) {
+                if (entity.equals(player)) {
                     return;
                 }
 
@@ -66,7 +68,7 @@ public class BlackHole extends LibrarianTalent {
                 if (tick % 20 == 0) {
                     entity.damage(getCurrentValue(Heroes.LIBRARIAN.getHero(Librarian.class).getGrimoireLevel(player)));
                     entity.spawnWorldParticle(entityLocation, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0);
-                    entity.playPlayerSound(Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.25f);
+                    entity.playSound(Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.25f);
                 }
 
             });

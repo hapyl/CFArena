@@ -20,14 +20,19 @@ public class CurrencyEntry extends PlayerDatabaseEntry {
 
     public void add(Currency currency, long value) {
         set(currency, get(currency) + value);
+        currency.onIncrease(getPlayer(), value);
     }
 
     public void subtract(Currency currency, long value) {
         set(currency, get(currency) - value);
+        currency.onDecrease(getPlayer(), value);
     }
 
     public String getFormatted(Currency currency) {
         return String.format("%,d", get(currency));
     }
 
+    public boolean has(Currency currency, long value) {
+        return get(currency) >= value;
+    }
 }

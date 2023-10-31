@@ -1,10 +1,12 @@
 package me.hapyl.fight.game.talents.archive.harbinger;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
+
+import javax.annotation.Nonnull;
 
 public class TidalWaveTalent extends Talent {
 
@@ -23,7 +25,7 @@ public class TidalWaveTalent extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         new TidalWave(player, getDuration());
 
         return Response.OK;

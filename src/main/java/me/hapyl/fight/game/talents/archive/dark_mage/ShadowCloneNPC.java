@@ -21,18 +21,18 @@ import static org.bukkit.Sound.*;
 
 public class ShadowCloneNPC extends HumanNPC {
 
-    public final Player player;
+    public final GamePlayer player;
     public boolean ultimate;
 
     private boolean valid;
 
-    public ShadowCloneNPC(Player player) {
+    public ShadowCloneNPC(GamePlayer player) {
         super(player.getLocation(), "", player.getName());
 
         this.player = player;
 
         // Spawn
-        GamePlayer.getPlayer(player).addEffect(GameEffectType.INVISIBILITY, getTalent().getDuration());
+        player.addEffect(GameEffectType.INVISIBILITY, getTalent().getDuration());
         showAll();
         setEquipment(player.getEquipment());
 
@@ -53,7 +53,7 @@ public class ShadowCloneNPC extends HumanNPC {
 
     @Override
     public void onClick(Player clicker, HumanNPC npc, ClickType clickType) {
-        if (clicker == player) {
+        if (player.is(clicker)) {
             return;
         }
 
@@ -127,7 +127,7 @@ public class ShadowCloneNPC extends HumanNPC {
         PlayerLib.playSound(location, ENTITY_SQUID_SQUIRT, 0.25f);
 
         Collect.nearbyPlayers(location, talent.damageRadius).forEach(target -> {
-            if (target.is(player)) {
+            if (target.equals(player)) {
                 return; // don't damage self
             }
 

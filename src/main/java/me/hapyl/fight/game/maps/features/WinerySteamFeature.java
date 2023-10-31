@@ -49,6 +49,6 @@ public class WinerySteamFeature extends MapFeature {
     }
 
     @Override
-    public void tick(int tickMod20) {
+    public void tick(int tick) {
     }
 }

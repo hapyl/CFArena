@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.maps.gamepack;
 
-import me.hapyl.fight.CF;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import me.hapyl.spigotutils.module.math.Tick;
@@ -8,7 +7,8 @@ import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
+
+import javax.annotation.Nonnull;
 
 public class HealthPack extends GamePack {
 
@@ -19,14 +19,11 @@ public class HealthPack extends GamePack {
     }
 
     @Override
-    public void onPickup(Player player) {
-        final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
+    public void onPickup(@Nonnull GamePlayer player) {
+        player.heal(HEALTH_POINTS);
 
-        gamePlayer.heal(HEALTH_POINTS);
-        //gamePlayer.sendMessage("&4&lHEALTH PACK &7⁑ &c&l+20 &c❤", HEALTH_POINTS);
-        gamePlayer.sendTitle("&c♥&4❤&c♥", "&a+&l%s".formatted(HEALTH_POINTS), 0, 15, 5);
-
-        PlayerLib.playSound(player.getLocation(), Sound.ENTITY_CHICKEN_EGG, 1.0f);
+        player.sendTitle("&c♥&4❤&c♥", "&a+&l%s".formatted(HEALTH_POINTS), 0, 15, 5);
+        player.playWorldSound(Sound.ENTITY_CHICKEN_EGG, 1.0f);
     }
 
     @Override

@@ -15,17 +15,20 @@ import me.hapyl.fight.build.NamedSignReader;
 import me.hapyl.fight.database.Database;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
+import me.hapyl.fight.fx.GiantItem;
 import me.hapyl.fight.fx.beam.Quadrant;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.cosmetic.CosmeticCollection;
 import me.hapyl.fight.game.cosmetic.crate.Crates;
+import me.hapyl.fight.game.cosmetic.crate.convert.CrateConverts;
 import me.hapyl.fight.game.entity.GameEntities;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
 import me.hapyl.fight.game.entity.cooldown.CooldownData;
+import me.hapyl.fight.game.entity.shield.Shield;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.bloodfield.BatCloud;
 import me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend;
@@ -179,6 +182,45 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
+        register(new SimplePlayerAdminCommand("testShield") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                final GamePlayer gamePlayer = CF.getPlayer(player);
+
+                if (gamePlayer == null) {
+                    Chat.sendMessage(player, "&cMust be in game.");
+                    return;
+                }
+
+                final double capacity = getArgument(args, 0).toDouble(20);
+                final float strength = getArgument(args, 1).toFloat(0.5f);
+
+                gamePlayer.setShield(new Shield(gamePlayer, capacity, strength));
+                Chat.sendMessage(player, "&aApplied shield with %s capacity and %s strength.", capacity, strength);
+            }
+        });
+
+        register(new SimplePlayerCommand("canConvertCrate") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                final CrateConverts convert = getArgument(args, 0).toEnum(CrateConverts.class);
+
+                if (convert == null) {
+                    Chat.sendMessage(player, "&cInvalid convert!");
+                    return;
+                }
+
+                final boolean canConvert = convert.get().canConvert(player);
+
+                if (canConvert) {
+                    Chat.sendMessage(player, "&aYou have enough items to convert!");
+                }
+                else {
+                    Chat.sendMessage(player, "&cYou don't have enough items to convert!");
+                }
+            }
+        });
+
         register(new SimpleAdminCommand("lastHapylGUI") {
             @Override
             protected void execute(CommandSender sender, String[] args) {
@@ -198,15 +240,72 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             for (Talents enumTalent : Talents.values()) {
                 final Talent talent = enumTalent.getTalent();
 
-                talent.nullifyItem();
+                if (talent != null) {
+                    talent.nullifyItem();
+                }
             }
 
             Chat.sendMessage(player, "&aDone!");
         });
 
+        register(new SimplePlayerAdminCommand("testGiantItem") {
+
+            private GiantItem item;
+
+            @Override
+            protected void execute(Player player, String[] args) {
+                if (item == null) {
+                    item = new GiantItem(player.getTargetBlockExact(50).getLocation(), Material.GOLDEN_SWORD);
+                    Chat.sendMessage(player, "&aSpawned!");
+                    return;
+                }
+
+                final TypeConverter argument = getArgument(args, 0);
+                final double degree = argument.toDouble(-1);
+
+                if (degree != -1) {
+                    item.rotate(degree);
+                    Chat.sendMessage(player, "&aRotated %s degrees.", degree);
+                    return;
+                }
+
+                final String string = argument.toString();
+
+                if (string.equalsIgnoreCase("remove")) {
+                    item.remove();
+                    item = null;
+                    Chat.sendMessage(player, "&cRemoved!");
+                }
+
+                if (string.equalsIgnoreCase("dance")) {
+                    new TickingGameTask() {
+
+                        double d;
+
+                        @Override
+                        public void run(int tick) {
+                            if (d >= 360) {
+                                cancel();
+                                Chat.sendMessage(player, "&aDone!");
+                                return;
+                            }
+
+                            d++;
+                            item.rotate(tick);
+
+                            Debug.info("degree = " + d);
+                        }
+                    }.runTaskTimer(2, 1);
+                }
+
+            }
+        });
+
         register("viewLegacyAchievementGUI", (player, args) -> {
             new LegacyAchievementGUI(player);
         });
+
+        register(new CustomItemCommand("customItem"));
 
         register("getLobbyItems", (player, args) -> {
             LobbyItems.giveAll(player);
@@ -589,10 +688,17 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         });
 
         register("testAddSucculence", (player, args) -> {
-            final Bloodfiend bloodfiend = Heroes.BLOODFIEND.getHero(Bloodfiend.class);
-            final BloodfiendData data = bloodfiend.getData(player);
+            final GamePlayer gamePlayer = CF.getPlayer(player);
 
-            data.addSucculence(CF.getPlayer(player));
+            if (gamePlayer == null) {
+                Chat.sendMessage(player, "&cNo handle.");
+                return;
+            }
+
+            final Bloodfiend bloodfiend = Heroes.BLOODFIEND.getHero(Bloodfiend.class);
+            final BloodfiendData data = bloodfiend.getData(gamePlayer);
+
+            data.addSucculence(gamePlayer);
             Chat.sendMessage(player, "&aDone!");
         });
 
@@ -926,7 +1032,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         });
 
         register("debugLevelUpConstruct", (player, args) -> {
-            final Construct construct = Heroes.ENGINEER.getHero(Engineer.class).getConstruct(player);
+            final Construct construct = Heroes.ENGINEER.getHero(Engineer.class).getConstruct(CF.getPlayer(player));
 
             if (construct == null) {
                 Chat.sendMessage(player, "&cNo construct!");
@@ -1257,10 +1363,17 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new SimplePlayerAdminCommand("debugDamageData") {
             @Override
             protected void execute(Player player, String[] strings) {
-                final LivingGameEntity targetEntity = Collect.targetEntity(player, 20.0d, 0.9d, e -> e.isNot(player));
+                final GamePlayer gamePlayer = CF.getPlayer(player);
+
+                if (gamePlayer == null) {
+                    Chat.sendMessage(player, "&cNo handle.");
+                    return;
+                }
+
+                final LivingGameEntity targetEntity = Collect.targetEntity(gamePlayer, 20.0d, 0.9d, e -> e.isNot(player));
 
                 if (targetEntity == null) {
-                    Chat.sendMessage(player, CF.getPlayer(player).getData());
+                    Chat.sendMessage(player, gamePlayer.getData());
                     return;
                 }
 

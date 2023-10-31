@@ -2,12 +2,13 @@ package me.hapyl.fight.game.talents.archive.witcher;
 
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
+
+import javax.annotation.Nonnull;
 
 public class Akciy extends Talent {
 
@@ -24,8 +25,8 @@ public class Akciy extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
-        final LivingGameEntity target = Collect.targetEntity(player, 50.0d, 0.8d, e -> e.isNot(player));
+    public Response execute(@Nonnull GamePlayer player) {
+        final LivingGameEntity target = Collect.targetEntity(player, 50.0d, 0.8d, e -> !e.equals(player));
 
         if (target == null) {
             return Response.error("No valid target!");
@@ -34,7 +35,7 @@ public class Akciy extends Talent {
         target.addEffect(GameEffectType.STUN, getDuration());
         target.sendMessage("&c%s stunned you!", player.getName());
 
-        Chat.sendMessage(player, "&aStunned %s!", target.getName());
+        player.sendMessage("&aStunned %s!", target.getName());
         return Response.OK;
     }
 }

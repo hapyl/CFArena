@@ -2,7 +2,6 @@ package me.hapyl.fight.game.heroes.archive.bloodfield;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import me.hapyl.fight.CF;
 import me.hapyl.fight.game.TalentReference;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -13,13 +12,11 @@ import me.hapyl.fight.game.talents.archive.bloodfiend.BloodCup;
 import me.hapyl.fight.game.talents.archive.bloodfiend.BloodfiendPassive;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.ThreadRandom;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -34,7 +31,7 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
             2
     );
 
-    private final Player player;
+    private final GamePlayer player;
     private final Map<GamePlayer, BiteData> succulence; // FIXME -> Maybe chance this to apply to living entities?
     private ImpelInstance impelInstance;
     private int flightTime;
@@ -43,7 +40,7 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
     private BatCloud batCloud;
     private int blood;
 
-    public BloodfiendData(Player player) {
+    public BloodfiendData(GamePlayer player) {
         this.player = player;
         this.succulence = Maps.newConcurrentMap();
         this.flightTime = 0;
@@ -56,7 +53,7 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
     }
 
     @Nonnull
-    public ImpelInstance newImpelInstance(Bloodfiend instance, Player player) {
+    public ImpelInstance newImpelInstance(Bloodfiend instance, GamePlayer player) {
         if (impelInstance != null) {
             impelInstance.stop();
         }
@@ -139,13 +136,13 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
             final int distanceToGround = getDistanceToGround();
 
             if (distanceToGround >= getTalent().maxFlightHeight) {
-                Chat.sendMessage(player, "&6&l\uD83D\uDD4A &eThe bats are afraid of height!");
+                player.sendMessage("&6&l\uD83D\uDD4A &eThe bats are afraid of height!");
                 stopFlying();
                 return;
             }
 
             // Fx
-            Chat.sendTitle(player, "", "&2\uD83D\uDD4A &l" + CFUtils.decimalFormatTick(flightTime), 0, 5, 0);
+            player.sendSubtitle("&2\uD83D\uDD4A &l" + CFUtils.decimalFormatTick(flightTime), 0, 5, 0);
         }
     }
 
@@ -168,7 +165,7 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
             batCloud.remove();
         }
 
-        batCloud = new BatCloud(player);
+        batCloud = new BatCloud(player.getPlayer());
     }
 
     public void stopFlying() {
@@ -182,8 +179,7 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
         batCloud.remove();
         batCloud = null;
 
-        final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
-        gamePlayer.addEffect(GameEffectType.FALL_DAMAGE_RESISTANCE, 100);
+        player.addEffect(GameEffectType.FALL_DAMAGE_RESISTANCE, 100);
 
         // Fx
         final Location location = player.getLocation();
@@ -204,9 +200,9 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
 
         cooldownTask = GameTask.runLater(() -> {
             player.setAllowFlight(true);
-            PlayerLib.playSound(player, Sound.ENTITY_BAT_TAKEOFF, 1.25f);
-            PlayerLib.playSound(player, Sound.ENTITY_BAT_HURT, 0.0f);
-            Chat.sendMessage(player, "&2&l\uD83D\uDD4A &aSpectral Form is ready!");
+            player.playSound(Sound.ENTITY_BAT_TAKEOFF, 1.25f);
+            player.playSound(Sound.ENTITY_BAT_HURT, 0.0f);
+            player.sendMessage("&2&l\uD83D\uDD4A &aSpectral Form is ready!");
         }, cooldown);
     }
 
@@ -284,7 +280,7 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
     }
 
     @Nonnull
-    public Player getPlayer() {
+    public GamePlayer getPlayer() {
         return player;
     }
 

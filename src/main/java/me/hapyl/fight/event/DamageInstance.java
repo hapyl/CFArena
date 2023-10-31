@@ -13,10 +13,12 @@ import javax.annotation.Nullable;
 public class DamageInstance {
 
     protected final LivingGameEntity entity;
+    public double damage;
+
     @Nullable protected GameEntity damager;
-    protected double damage;
     @Nullable protected EnumDamageCause cause;
     protected boolean isCrit;
+
     private boolean finalized;
     private boolean cancel;
 
@@ -48,6 +50,28 @@ public class DamageInstance {
 
     public boolean isCancel() {
         return cancel;
+    }
+
+    public LivingGameEntity getEntity() {
+        return entity;
+    }
+
+    @Nullable
+    public GameEntity getDamager() {
+        return damager;
+    }
+
+    public double getDamage() {
+        return damage;
+    }
+
+    @Nullable
+    public EnumDamageCause getCause() {
+        return cause;
+    }
+
+    public boolean isCrit() {
+        return isCrit;
     }
 
     @Nonnull

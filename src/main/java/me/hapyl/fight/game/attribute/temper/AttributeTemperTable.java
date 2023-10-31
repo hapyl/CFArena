@@ -2,7 +2,7 @@ package me.hapyl.fight.game.attribute.temper;
 
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
-import me.hapyl.fight.util.ConcurrentTable;
+import me.hapyl.fight.util.collection.ConcurrentTable;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

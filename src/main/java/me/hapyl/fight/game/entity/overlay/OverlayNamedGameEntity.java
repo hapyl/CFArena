@@ -105,7 +105,7 @@ public class OverlayNamedGameEntity extends NamedGameEntity<Zombie> implements S
         npc.setDataWatcherByteValue(0, (byte) 0x80);
         npc.updateDataWatcher();
 
-        playSound(Sound.ENTITY_PLAYER_DEATH, 1.0f);
+        playWorldSound(Sound.ENTITY_PLAYER_DEATH, 1.0f);
 
         GameTask.runLater(() -> {
             npc.remove();
@@ -144,7 +144,7 @@ public class OverlayNamedGameEntity extends NamedGameEntity<Zombie> implements S
     @Override
     public void simulateTakeDamage() {
         npc.playAnimation(NPCAnimation.TAKE_DAMAGE);
-        playSound(Sound.ENTITY_PLAYER_HURT, 1.0f);
+        playWorldSound(Sound.ENTITY_PLAYER_HURT, 1.0f);
     }
 
     private double getHandItemDamage(Player player) {

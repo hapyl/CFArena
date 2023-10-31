@@ -1,25 +1,31 @@
 package me.hapyl.fight.game.profile;
 
+import com.google.common.collect.Queues;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.ScoreboardTeams;
 import me.hapyl.fight.game.delivery.Deliveries;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.loadout.HotbarLoadout;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.profile.data.PlayerData;
 import me.hapyl.fight.game.profile.relationship.PlayerRelationship;
 import me.hapyl.fight.game.setting.Setting;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.game.team.LocalTeamManager;
 import me.hapyl.fight.game.ui.GamePlayerUI;
 import me.hapyl.fight.infraction.PlayerInfraction;
+import me.hapyl.spigotutils.module.chat.Chat;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Deque;
 import java.util.UUID;
 
 /**
@@ -33,11 +39,12 @@ public class PlayerProfile {
 
     private final Player player;
     private final PlayerDatabase playerDatabase;
-    private final ScoreboardTeams scoreboardTeams;
+    private final LocalTeamManager localTeamManager;
     private final PlayerSkin originalSkin;
     private final PlayerData playerData;
     private final PlayerInfraction infractions;
     private final PlayerRelationship relationship;
+    private final HotbarLoadout hotbarLoadout;
 
     @Nullable
     private GamePlayer gamePlayer; // current game player
@@ -54,7 +61,7 @@ public class PlayerProfile {
         // Init player database first before loading everything else
         this.playerDatabase = new PlayerDatabase(player);
 
-        this.scoreboardTeams = new ScoreboardTeams(player);
+        this.localTeamManager = new LocalTeamManager(player);
         this.loaded = false;
         this.resourcePack = false;
         this.buildMode = false;
@@ -62,6 +69,12 @@ public class PlayerProfile {
         this.relationship = new PlayerRelationship(this);
         this.playerData = new PlayerData(this);
         this.originalSkin = PlayerSkin.of(player);
+        this.hotbarLoadout = new HotbarLoadout(this);
+    }
+
+    @Nonnull
+    public HotbarLoadout getHotbarLoadout() {
+        return hotbarLoadout;
     }
 
     @Nonnull
@@ -105,8 +118,9 @@ public class PlayerProfile {
         return new ProfileDisplay(this);
     }
 
-    public ScoreboardTeams getScoreboardTeams() {
-        return scoreboardTeams;
+    @Nonnull
+    public LocalTeamManager getLocalTeamManager() {
+        return localTeamManager;
     }
 
     public void loadData() {
@@ -142,6 +156,11 @@ public class PlayerProfile {
         return gamePlayer;
     }
 
+    @Nonnull
+    public GamePlayer getOrCreateGamePlayer() {
+        return gamePlayer != null ? gamePlayer : createGamePlayer();
+    }
+
     public void setGamePlayer(@Nullable GamePlayer gamePlayer) {
         this.gamePlayer = gamePlayer;
     }
@@ -153,21 +172,74 @@ public class PlayerProfile {
      */
     @Nonnull
     public GamePlayer createGamePlayer() {
-        this.gamePlayer = new GamePlayer(this);
+        this.gamePlayer = Manager.current().registerGamePlayer(new GamePlayer(this));
 
         if (Manager.current().getDebug().any()) {
-            //final RuntimeException exception = new RuntimeException();
-            //Debug.info("Dumped GamePlayer creation for " + player.getName());
-            //exception.printStackTrace();
+            final RuntimeException exception = new RuntimeException();
+            createTraceDump(exception);
         }
 
         return gamePlayer;
+    }
+
+    private void createTraceDump(RuntimeException exception) {
+        final StackTraceElement[] stackTrace = exception.getStackTrace();
+        final Deque<String> deque = Queues.newArrayDeque();
+
+        for (int i = stackTrace.length - 1; i >= 0; i--) {
+            final StackTraceElement trace = stackTrace[i];
+            final String classLoaderName = trace.getClassLoaderName();
+
+            if (classLoaderName == null || !classLoaderName.contains("ClassesFightArena.jar")) {
+                continue;
+            }
+
+            String fileName = trace.getFileName();
+
+            if (fileName != null) {
+                fileName = fileName.replace(".java", "");
+            }
+
+            final String methodName = trace.getMethodName();
+            deque.offer(fileName + "." + methodName + ":" + trace.getLineNumber());
+        }
+
+        final StringBuilder builder = new StringBuilder();
+
+        int index = 0;
+        for (String string : deque) {
+            if (index != 0) {
+                builder.append("\n");
+            }
+
+            builder.append(index % 2 == 0 ? ChatColor.BLUE : ChatColor.RED);
+
+            if (index != deque.size() - 1) {
+                builder.append("├─");
+            }
+            else {
+                builder.append("└─");
+            }
+
+            builder.append(string);
+
+            index++;
+        }
+
+        Bukkit.getOnlinePlayers().stream().filter(Player::isOp).forEach(player -> {
+            Chat.sendHoverableMessage(
+                    player,
+                    builder.toString(),
+                    "&c&lDEBUG &e" + deque.getFirst() + " requested GamePlayer creation! &6&lHOVER"
+            );
+        });
     }
 
     public void resetGamePlayer() {
         gamePlayer = null;
     }
 
+    @Nonnull
     public Heroes getSelectedHero() {
         return selectedHero;
     }

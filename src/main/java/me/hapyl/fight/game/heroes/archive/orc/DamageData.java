@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.orc;
 
-import org.bukkit.entity.Player;
+import me.hapyl.fight.game.entity.GamePlayer;
 
 public class DamageData {
 
@@ -8,12 +8,12 @@ public class DamageData {
     public static final long USE_DELAY = 30_000;
     public static final int HITS_THRESHOLD = 7;
 
-    private final Player player;
+    private final GamePlayer player;
     protected long lastHit;
     protected int hitsTaken;
     protected long lastUse;
 
-    public DamageData(Player player) {
+    public DamageData(GamePlayer player) {
         this.player = player;
     }
 

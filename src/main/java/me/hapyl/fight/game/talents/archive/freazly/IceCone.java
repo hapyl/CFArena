@@ -1,10 +1,14 @@
 package me.hapyl.fight.game.talents.archive.freazly;
 
+import com.google.common.collect.Sets;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.Quality;
@@ -27,12 +31,13 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.Objects;
+import java.util.Set;
 
 public class IceCone extends Talent implements Listener {
 
-    private final Set<Location> locationSet = new HashSet<>();
-    private final Map<Player, Snowball> snowballMap = new HashMap<>();
+    private final Set<Location> locationSet = Sets.newHashSet();
+    private final PlayerMap<Snowball> snowballMap = PlayerMap.newMap();
 
     public IceCone() {
         super("Ice Cone", """
@@ -48,8 +53,13 @@ public class IceCone extends Talent implements Listener {
     @EventHandler()
     public void handleSnowballHit(ProjectileHitEvent ev) {
         if (ev.getEntity() instanceof Snowball snowball
-                && snowball.getShooter() instanceof Player player
-                && snowballMap.get(player) == snowball) {
+                && snowball.getShooter() instanceof Player player) {
+
+            final GamePlayer gamePlayer = CF.getPlayer(player);
+
+            if (gamePlayer == null || snowballMap.get(gamePlayer) != snowball) {
+                return;
+            }
 
             final Entity entity = ev.getHitEntity();
             final Block hitBlock = ev.getHitBlock();
@@ -146,13 +156,13 @@ public class IceCone extends Talent implements Listener {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final Snowball snowball = player.launchProjectile(Snowball.class);
 
-        snowball.setShooter(player);
+        snowball.setShooter(player.getPlayer());
         snowballMap.put(player, snowball);
 
-        PlayerLib.playSound(player, Sound.ENTITY_SNOWBALL_THROW, 1.0f);
+        player.playSound(Sound.ENTITY_SNOWBALL_THROW, 1.0f);
 
         return Response.OK;
     }

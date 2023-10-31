@@ -37,9 +37,9 @@ public class SoulsRebound extends GameTask implements HeroReference<Zealot> {
 
             // Fx
             entity.sendMessage("&d👻 &5Took &c%s❤&5 damage from %s's Souls Rebound!", CFUtils.decimalFormat(damage), player.getName());
-            entity.playPlayerSound(Sound.ITEM_SHIELD_BREAK, 0.0f);
-            entity.playPlayerSound(Sound.ENTITY_ENDERMAN_HURT, 0.25f);
-            entity.playPlayerSound(Sound.ENTITY_ENDERMAN_HURT, 0.5f);
+            entity.playSound(Sound.ITEM_SHIELD_BREAK, 0.0f);
+            entity.playSound(Sound.ENTITY_ENDERMAN_HURT, 0.25f);
+            entity.playSound(Sound.ENTITY_ENDERMAN_HURT, 0.5f);
 
             Debug.info("dealt " + damage + " to " + entity.getName());
         });

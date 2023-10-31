@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.talents.archive.vortex;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.Main;
+import me.hapyl.fight.fx.GamePlayerParticle;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Geometry;
-import me.hapyl.spigotutils.module.math.geometry.PlayerParticle;
 import me.hapyl.spigotutils.module.math.geometry.Quality;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Bukkit;
@@ -14,7 +14,6 @@ import org.bukkit.Particle;
 import org.bukkit.entity.Bat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
@@ -24,10 +23,10 @@ public class AstralStars {
 
     private final double pickupDistance = 3.0d;
 
-    private final Player player;
+    private final GamePlayer player;
     private final Set<LivingEntity> bats;
 
-    public AstralStars(Player player) {
+    public AstralStars(GamePlayer player) {
         this.player = player;
         this.bats = Sets.newHashSet();
     }
@@ -49,8 +48,7 @@ public class AstralStars {
         });
 
         // Show bat to player
-        player.showEntity(Main.getPlugin(), bat);
-
+        player.showEntity(bat);
         bats.add(bat);
     }
 
@@ -65,11 +63,11 @@ public class AstralStars {
 
             //Geometry.drawSphere(location, 20, pickupDistance, new PlayerParticle(Particle.CRIT, player));
 
-            Geometry.drawCircle(location, pickupDistance, Quality.HIGH, new PlayerParticle(Particle.CRIT, player));
+            Geometry.drawCircle(location, pickupDistance, Quality.HIGH, new GamePlayerParticle(Particle.CRIT, player));
 
             // Display particles for others
             Bukkit.getOnlinePlayers().forEach(other -> {
-                if (other == player) {
+                if (player.is(other)) {
                     return;
                 }
 

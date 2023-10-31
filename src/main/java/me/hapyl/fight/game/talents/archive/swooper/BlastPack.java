@@ -3,10 +3,12 @@ package me.hapyl.fight.game.talents.archive.swooper;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
@@ -17,19 +19,17 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
 
 public class BlastPack extends ChargedTalent {
 
     @DisplayField(suffix = "blocks") private final double explosionRadius = 4.0d;
 
-    private final Map<Player, Entity> blastPackMap = new HashMap<>();
+    private final PlayerMap<Entity> blastPackMap = PlayerMap.newMap();
 
     public BlastPack() {
         super("Blast Pack", """
@@ -51,18 +51,18 @@ public class BlastPack extends ChargedTalent {
     }
 
     @Override
-    public void onDeathCharged(Player player) {
+    public void onDeathCharged(@Nonnull GamePlayer player) {
         Nulls.runIfNotNull(blastPackMap.get(player), Entity::remove);
         blastPackMap.remove(player);
     }
 
     @Nullable
-    public Entity getBlastPack(Player player) {
+    public Entity getBlastPack(GamePlayer player) {
         return blastPackMap.get(player);
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final Entity blastPack = getBlastPack(player);
 
         // Explode blast pack
@@ -78,7 +78,7 @@ public class BlastPack extends ChargedTalent {
 
         item.setPickupDelay(Integer.MAX_VALUE);
         item.setVelocity(vector);
-        item.setThrower(player.getUniqueId());
+        item.setThrower(player.getUUID());
 
         new GameTask() {
             private int maxAirTime = 300;
@@ -101,7 +101,7 @@ public class BlastPack extends ChargedTalent {
         return Response.AWAIT;
     }
 
-    public void explodeSatchel(Player player, Entity entity) {
+    public void explodeSatchel(GamePlayer player, Entity entity) {
         entity.remove();
         blastPackMap.remove(player);
 
@@ -109,7 +109,7 @@ public class BlastPack extends ChargedTalent {
 
         // Explosion
         Collect.nearbyEntities(location, explosionRadius).forEach(gameEntity -> {
-            if (gameEntity.is(player)) {
+            if (gameEntity.equals(player)) {
                 gameEntity.addEffect(GameEffectType.FALL_DAMAGE_RESISTANCE, 40);
             }
             else {
@@ -117,13 +117,12 @@ public class BlastPack extends ChargedTalent {
             }
 
             final Vector vector = gameEntity.getLocation().toVector().subtract(location.toVector()).normalize();
-            gameEntity.setVelocity(vector.multiply(gameEntity.is(player) ? 1.35d : 0.35d));
+            gameEntity.setVelocity(vector.multiply(gameEntity.equals(player) ? 1.35d : 0.35d));
         });
 
         // FX
         PlayerLib.playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 1.75f);
         Geometry.drawSphere(location, (explosionRadius * 2) + 1, explosionRadius, new WorldParticle(Particle.FIREWORKS_SPARK));
-
     }
 
 }

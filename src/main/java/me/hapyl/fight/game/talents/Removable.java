@@ -1,7 +1,10 @@
 package me.hapyl.fight.game.talents;
 
 import me.hapyl.fight.annotate.SelfCallable;
+import me.hapyl.fight.game.entity.GamePlayer;
 import org.bukkit.entity.Player;
+
+import javax.annotation.Nonnull;
 
 public interface Removable {
     /**
@@ -23,6 +26,6 @@ public interface Removable {
      *
      * @param player - Player.
      */
-    default void onReplace(Player player) {
+    default void onReplace(@Nonnull GamePlayer player) {
     }
 }

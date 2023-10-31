@@ -1,11 +1,14 @@
 package me.hapyl.fight.game.talents.archive.alchemist;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -16,20 +19,25 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
+import javax.annotation.Nonnull;
 import java.util.HashMap;
-import java.util.Map;
 
 public class CauldronAbility extends Talent implements Listener {
 
-    private final Map<Player, AlchemicalCauldron> cauldrons = new HashMap<>();
+    private final PlayerMap<AlchemicalCauldron> cauldrons = PlayerMap.newMap();
+    private final ItemStack missingStickItem = new ItemBuilder(Material.CLAY_BALL)
+            .setName("&cStick is Missing!")
+            .setSmartLore("Your stick is currently brewing a potion! Click the cauldron to get it back.")
+            .asIcon();
 
     public CauldronAbility() {
         super("Brewing Pot", """
                 Place a Brewing Cauldron to brew a Magic Potion. Put your Brewing Stick in it and wait!
                                 
-                Once ready, claim you potion and enhance yourself with following effects:
+                Once ready, claim you potion and enhance yourself with the following effects:
                                 
                 &a- &7Drinking a potion will grant double effects. &8(5 charges)
                                 
@@ -46,7 +54,12 @@ public class CauldronAbility extends Talent implements Listener {
             return;
         }
 
-        final Player player = ev.getPlayer();
+        final GamePlayer player = CF.getPlayer(ev.getPlayer());
+
+        if (player == null) {
+            return;
+        }
+
         final Block clickedBlock = ev.getClickedBlock();
 
         if (ev.getHand() == EquipmentSlot.OFF_HAND
@@ -61,7 +74,7 @@ public class CauldronAbility extends Talent implements Listener {
         }
 
         // Prevent wrong clicks by adding a tiny cooldown
-        if (player.hasCooldown(Heroes.ALCHEMIST.getHero().getWeapon().getType()) || player.hasCooldown(Material.CLAY_BALL)) {
+        if (player.hasCooldown(Heroes.ALCHEMIST.getHero().getWeapon().getType()) || player.hasCooldown(missingStickItem.getType())) {
             return;
         }
 
@@ -99,7 +112,7 @@ public class CauldronAbility extends Talent implements Listener {
     }
 
     @Override
-    public void onDeath(Player player) {
+    public void onDeath(@Nonnull GamePlayer player) {
         final AlchemicalCauldron cauldron = cauldrons.remove(player);
 
         if (cauldron != null) {
@@ -108,7 +121,7 @@ public class CauldronAbility extends Talent implements Listener {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final Block targetBlock = getTargetBlock(player);
 
         if (targetBlock == null) {
@@ -128,8 +141,9 @@ public class CauldronAbility extends Talent implements Listener {
 
     }
 
-    private void changeItem(Player player, boolean flag) {
+    private void changeItem(GamePlayer player, boolean flag) {
         final PlayerInventory inventory = player.getInventory();
+
         GameTask.runLater(() -> {
             if (flag) {
                 final Weapon weapon = Heroes.ALCHEMIST.getHero().getWeapon();
@@ -138,22 +152,15 @@ public class CauldronAbility extends Talent implements Listener {
                 player.setCooldown(weapon.getType(), 10);
             }
             else {
-                final Material missingStickItem = Material.CLAY_BALL;
-
-                inventory.setItem(
-                        0,
-                        new ItemBuilder(missingStickItem)
-                                .setName("&aStick is Missing")
-                                .setSmartLore("Your stick is currently brewing a potion! Click the cauldron to get it back.")
-                                .toItemStack()
-                );
-                player.setCooldown(missingStickItem, 10);
+                inventory.setItem(0, missingStickItem);
+                player.setCooldown(missingStickItem.getType(), 10);
             }
         }, 1);
     }
 
-    private Block getTargetBlock(Player player) {
+    private Block getTargetBlock(GamePlayer player) {
         final Block targetBlock = player.getTargetBlockExact(5);
+
         if (targetBlock == null) {
             return null;
         }

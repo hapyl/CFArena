@@ -1,12 +1,12 @@
 package me.hapyl.fight.game.heroes.archive.knight;
 
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.spigotutils.module.math.Numbers;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.block.Banner;
 import org.bukkit.block.banner.Pattern;
 import org.bukkit.block.banner.PatternType;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
@@ -120,7 +120,7 @@ public class Shield {
                 .build());
     }
 
-    public void updateTexture(Player player, int charge) {
+    public void updateTexture(GamePlayer player, int charge) {
         charge = Numbers.clamp(charge, 0, 9);
         final ItemStack offHand = player.getInventory().getItem(EquipmentSlot.OFF_HAND);
 

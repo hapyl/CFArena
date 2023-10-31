@@ -3,7 +3,6 @@ package me.hapyl.fight.command;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.command.extra.Acceptor;
-import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.database.rank.PlayerRank;
@@ -60,7 +59,13 @@ public class AdminCommand extends SimplePlayerAdminCommand {
                     return null;
                 }
 
-                return super.completerSort(map.get(args.length), args);
+                final List<String> list = map.get(args.length);
+
+                if (list == null) {
+                    return null;
+                }
+
+                return super.completerSort(list, args);
             }
         }
         return null;
@@ -123,8 +128,15 @@ public class AdminCommand extends SimplePlayerAdminCommand {
                     return;
                 }
 
-                GamePlayer.getPlayer(player).heal(value);
-                sendMessage(player, "&aHealed you for &l%s&a!", value);
+                final GamePlayer gamePlayer = CF.getPlayer(player);
+
+                if (gamePlayer == null) {
+                    player.sendMessage("&cNo handle!");
+                    return;
+                }
+
+                gamePlayer.heal(value);
+                gamePlayer.sendMessage("&aHealed you for &l%s&a!", value);
             }
         });
 
@@ -179,63 +191,65 @@ public class AdminCommand extends SimplePlayerAdminCommand {
             }
         });
 
-        acceptors.put("coins", new Acceptor() {
+        acceptors.put("currency", new Acceptor() {
             @Override
             public void execute(Player player, String[] args) {
-                // admin coins <set,add,remove|get> <player> <value>
-                if (checkLength(args, 2)) {
+                // admin currency <currency> <player> <set,add,remove,get> [value]
+                final Currency currency = getArgument(args, 0).toEnum(Currency.class);
+                final Player target = Bukkit.getPlayer(getArgument(args, 1).toString());
+                final String argument = getArgument(args, 2).toString();
+                final long value = getArgument(args, 3).toLong();
 
-                    final String action = args[0].toLowerCase();
-                    final Player target = Bukkit.getPlayer(args[1]);
+                if (currency == null) {
+                    Chat.sendMessage(player, "&cInvalid currency!");
+                    return;
+                }
 
-                    if (target == null) {
-                        sendError(player, "&cInvalid player!");
-                        return;
+                if (target == null) {
+                    Chat.sendMessage(player, "&cThis player is not online!");
+                    return;
+                }
+
+                final CurrencyEntry currencyEntry = CF.getDatabase(target).getCurrency();
+                final String currencyFormatted = currency.getFormatted();
+
+                if (argument.equalsIgnoreCase("get")) {
+                    final long targetValue = currencyEntry.get(currency);
+
+                    Chat.sendMessage(player, "&a%s has %,d %s.", target.getName(), targetValue, currencyFormatted);
+                    return;
+                }
+
+                switch (argument.toLowerCase()) {
+                    case "set" -> {
+                        currencyEntry.set(currency, value);
+                        sendMessage(player, "&aSet %s's %s to &l%s&a.", target.getName(), currencyFormatted, value);
+                        Chat.sendMessage(target, "&aAn admin set your %s to %s.", currencyFormatted, value);
                     }
 
-                    final CurrencyEntry currency = PlayerDatabase.getDatabase(target).getCurrency();
-
-                    if (action.equalsIgnoreCase("get")) {
-                        sendMessage(player, "&a%s has &l%s&a coins.", target.getName(), currency.get(Currency.COINS));
-                        return;
+                    case "add" -> {
+                        currencyEntry.add(currency, value);
+                        sendMessage(player, "&aAdded &l%s&a %s to %s.", value, currencyFormatted, target.getName());
+                        Chat.sendMessage(target, "&aAn admin gave you %s %s.", currencyFormatted, value);
                     }
 
-                    if (checkLength(args, 3)) {
-                        final long value = longValue(args, 2);
-
-                        if (value < 0) {
-                            sendError(player, "&cValue cannot be negative!");
-                            return;
-                        }
-
-                        switch (action) {
-                            case "set" -> {
-                                currency.set(Currency.COINS, value);
-                                sendMessage(player, "&aSet %s's coins to &l%s&a.", target.getName(), value);
-                            }
-
-                            case "add" -> {
-                                currency.set(Currency.COINS, 1);
-                                currency.add(Currency.COINS, value);
-                                sendMessage(player, "&aAdded &l%s&a coins to %s.", value, target.getName());
-                            }
-
-                            case "remove" -> {
-                                currency.subtract(Currency.COINS, value);
-                                sendMessage(player, "&aRemoved &l%s&a coins from %s.", value, target.getName());
-                            }
-
-                            // FIXME (hapyl): 019, Apr 19, 2023: add rubies
-                            default -> sendError(player, "&cInvalid action!");
-                        }
+                    case "remove" -> {
+                        currencyEntry.subtract(currency, value);
+                        sendMessage(player, "&aRemoved &l%s&a %s from %s.", value, currencyFormatted, target.getName());
+                        Chat.sendMessage(target, "&aAn admin removed %s %s from you.", value, currencyFormatted);
                     }
 
+                    default -> sendError(player, "&cInvalid arguments!");
                 }
             }
 
             @Override
             public void createAdditionalArguments() {
-                addArgument(2, "add", "set", "remove");
+                for (Currency currency : Currency.values()) {
+                    addArgument(2, currency.name().toLowerCase());
+                }
+
+                addArgument(4, "get", "set", "add", "remove");
             }
         });
 

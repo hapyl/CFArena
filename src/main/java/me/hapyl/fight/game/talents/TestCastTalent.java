@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents;
 
 import me.hapyl.fight.game.Response;
-import org.bukkit.entity.Player;
+import me.hapyl.fight.game.entity.GamePlayer;
 
 import javax.annotation.Nonnull;
 
@@ -11,7 +11,7 @@ public class TestCastTalent extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         return null;
     }
 

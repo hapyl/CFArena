@@ -1,12 +1,12 @@
 package me.hapyl.fight.game.heroes.archive.bounty_hunter;
 
-import me.hapyl.fight.CF;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
@@ -20,7 +20,6 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.ItemStacks;
-import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -28,7 +27,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -36,6 +34,7 @@ import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.potion.PotionEffectType;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class BountyHunter extends Hero {
@@ -92,7 +91,7 @@ public class BountyHunter extends Hero {
     }
 
     @Override
-    public void useUltimate(Player player) {
+    public void useUltimate(@Nonnull GamePlayer player) {
         final ShadowShift.TargetLocation targetOutput = getBackstabLocation(player);
 
         if (targetOutput.getError() != ShadowShift.ErrorCode.OK) {
@@ -101,16 +100,14 @@ public class BountyHunter extends Hero {
 
         final Location playerLocation = player.getLocation();
         final Location location = targetOutput.getLocation();
-        final LivingEntity target = targetOutput.getEntity();
+        final LivingGameEntity target = targetOutput.getEntity();
 
         player.teleport(location);
-        CF.getEntityOptional(target).ifPresent(entity -> {
-            entity.damage(30.0d, CF.getPlayer(player), EnumDamageCause.BACKSTAB);
-        });
+        target.damage(30, player, EnumDamageCause.BACKSTAB);
 
         // Fx
-        Chat.sendMessage(player, "&aBackstabbed &7%s&a!", target.getName());
-        Chat.sendMessage(target, "&cYou were backstabbed by &7%s&c!", player.getName());
+        player.sendMessage("&aBackstabbed &7%s&a!", target.getName());
+        target.sendMessage("&cYou were backstabbed by &7%s&c!", player.getName());
 
         PlayerLib.playSound(location, Sound.ENTITY_ENDER_DRAGON_FLAP, 0.0f);
         PlayerLib.playSound(location, Sound.ENTITY_IRON_GOLEM_REPAIR, 1.25f);
@@ -122,14 +119,14 @@ public class BountyHunter extends Hero {
     }
 
     @Override
-    public boolean predicateUltimate(Player player) {
+    public boolean predicateUltimate(@Nonnull GamePlayer player) {
         final ShadowShift.TargetLocation location = getBackstabLocation(player);
 
         return location.getError() == ShadowShift.ErrorCode.OK;
     }
 
     @Override
-    public String predicateMessage(Player player) {
+    public String predicateMessage(@Nonnull GamePlayer player) {
         final ShadowShift.TargetLocation location = getBackstabLocation(player);
         return location.getError().getErrorMessage();
     }
@@ -153,7 +150,7 @@ public class BountyHunter extends Hero {
         PlayerLib.spawnParticle(location, Particle.SQUID_INK, 20, 0.0d, 0.5d, 0.0d, 0.25f);
     }
 
-    private ShadowShift.TargetLocation getBackstabLocation(Player player) {
+    private ShadowShift.TargetLocation getBackstabLocation(GamePlayer player) {
         return ((ShadowShift) Talents.SHADOW_SHIFT.getTalent()).getLocationAndCheck0(player, 15.0d, 0.9d);
     }
 

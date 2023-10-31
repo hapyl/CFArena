@@ -14,8 +14,9 @@ import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
+
+import javax.annotation.Nonnull;
 
 public class LaserEye extends Talent {
 
@@ -30,12 +31,12 @@ public class LaserEye extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final int duration = getDuration();
 
-        GamePlayer.getPlayer(player).addEffect(GameEffectType.IMMOVABLE, duration, true);
-        PlayerLib.addEffect(player, PotionEffectType.JUMP, duration, 250);
-        PlayerLib.addEffect(player, PotionEffectType.SLOW, duration, 255);
+        player.addEffect(GameEffectType.IMMOVABLE, duration, true);
+        player.addPotionEffect(PotionEffectType.JUMP, duration, 250);
+        player.addPotionEffect(PotionEffectType.SLOW, duration, 255);
 
         GameTask.runTaskTimerTimes((task, tick) -> {
             CFUtils.rayTraceLine(player, 50, 0.5d, 0.0d, move -> {
@@ -55,7 +56,7 @@ public class LaserEye extends Talent {
         }, 1, duration);
 
         // Fx
-        PlayerLib.playSound(player.getLocation(), Sound.ENTITY_BEE_LOOP_AGGRESSIVE, 1.25f);
+        player.playWorldSound(Sound.ENTITY_BEE_LOOP_AGGRESSIVE, 1.25f);
 
         return Response.OK;
     }

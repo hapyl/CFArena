@@ -4,7 +4,7 @@ import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.task.RangeTask;
 import me.hapyl.fight.game.task.ShutdownAction;
-import me.hapyl.fight.util.ImmutableTuple;
+import me.hapyl.fight.util.collection.ImmutableTuple;
 import me.hapyl.spigotutils.module.hologram.Hologram;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.ChatColor;

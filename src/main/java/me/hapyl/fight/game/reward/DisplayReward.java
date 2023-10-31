@@ -6,14 +6,14 @@ import javax.annotation.Nonnull;
 
 public abstract class DisplayReward extends Reward {
     public DisplayReward(String name) {
-        super(name);
+        super();
     }
 
     @Override
-    public final void grantReward(@Nonnull Player player) {
+    public final void grant(@Nonnull Player player) {
     }
 
     @Override
-    public final void revokeReward(@Nonnull Player player) {
+    public final void revoke(@Nonnull Player player) {
     }
 }

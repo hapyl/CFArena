@@ -1,7 +1,9 @@
 package me.hapyl.fight.game.maps.gamepack;
 
+import me.hapyl.fight.game.entity.GamePlayer;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
+
+import javax.annotation.Nonnull;
 
 public class CritBoostPack extends GamePack {
     public CritBoostPack() {
@@ -9,7 +11,7 @@ public class CritBoostPack extends GamePack {
     }
 
     @Override
-    public void onPickup(Player player) {
+    public void onPickup(@Nonnull GamePlayer player) {
 
     }
 

@@ -116,7 +116,7 @@ public class ExperienceGUI extends StyledGUI {
             final List<Reward> rewards = experienceLevel.getRewards();
 
             for (Reward reward : rewards) {
-                reward.display(player, builder);
+                reward.formatBuilder(player, builder);
             }
 
         }

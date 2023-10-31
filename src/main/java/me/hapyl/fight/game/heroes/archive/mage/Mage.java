@@ -11,51 +11,23 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.ui.UIComponent;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.math.Numbers;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Mage extends Hero implements UIComponent {
 
-    private final double wyvernHealingAmount = 25.0d;
-    private final int wyvernHeartLength = 500;
-
-    private final int dragonSkinLength = 400;
-
     private final int maxSoulsAmount = 26;
 
-    private final ItemStack itemHeartOfWyvern = new ItemBuilder(Material.FERMENTED_SPIDER_EYE, "wyvern")
-            .addClickEvent(this::useWyvern)
-            .setName("&aHeart of Wyvern &7(Right Click)")
-            .addLore("")
-            .addLore("&a+ %s ❤".formatted(wyvernHealingAmount))
-            .addLore("&a+ Speed")
-            .addLore("&c+ Weakness")
-            .build();
+    public final MageSpell spellWyvernHeart = new WyvernHeartSpell();
+    public final MageSpell spellDragonSkin = new DragonSkinSpell();
 
-    private final ItemStack itemDragonSkin = new ItemBuilder(Material.PHANTOM_MEMBRANE, "dragon_skin")
-            .addClickEvent(this::useDragon)
-            .setName("&aDragon's Skin &7(Right Click)")
-            .addLore("")
-            .addLore("&a+ Strength")
-            .addLore("&c+ Slowness")
-            .build();
-
-    private final Map<Player, Integer> soulsCharge = new HashMap<>();
+    private final PlayerMap<Integer> soulsCharge = PlayerMap.newMap();
 
     public Mage() {
         super("Mage");
@@ -63,7 +35,7 @@ public class Mage extends Hero implements UIComponent {
         setArchetype(Archetype.MAGIC);
 
         setDescription("""
-                Amateur Necromancer with ability to absorb soul fragments upon hitting his foes to use them as fuel for his &e&lSoul &e&lEater&7.
+                Necromancer with the ability to absorb soul fragments upon hitting his foes to use them as fuel for his &e&lSoul &e&lEater&7.
                 """);
 
         setItem("f41e6e4bcd2667bb284fb0dde361894840ea782efbfb717f6244e06b951c2b3f");
@@ -77,30 +49,31 @@ public class Mage extends Hero implements UIComponent {
 
         setUltimate(new UltimateTalent(
                 "Magical Trainings",
-                String.format(
-                        "Retrieve two ancient spells and use one of them to your advantage!____&a- &7Heart of Wyvern heals you for &c%s&c❤&7, makes you fast but weak for &b%ss&7.____&a- &7Dragon's Skin makes you incredible strong but slow for &b%ss&7.____Only one of the spells can be used at the same time and you will &nnot&7 gain &b&l※ &7until spell is over.",
-                        wyvernHealingAmount,
-                        BukkitUtils.roundTick(wyvernHeartLength),
-                        BukkitUtils.roundTick(dragonSkinLength)
-                ),
-                40
+                """
+                        Retrieve two ancient spells and use one of them to your advantage!
+                                                
+                        %s
+                        %s
+                        Only one of the spells can be used at the same time, and you will &nnot&7 gain &b&l※ &7until spell is over.
+                        """.formatted(spellWyvernHeart.getFormatted(), spellDragonSkin.getFormatted()),
+                50
         ).setItem(Material.WRITABLE_BOOK).setCooldownSec(-1));
     }
 
     @Override
-    public void useUltimate(Player player) {
+    public void useUltimate(@Nonnull GamePlayer player) {
         final PlayerInventory inventory = player.getInventory();
         setUsingUltimate(player, true);
 
-        inventory.setItem(3, itemHeartOfWyvern);
-        inventory.setItem(5, itemDragonSkin);
+        inventory.setItem(3, spellWyvernHeart.getSpellItem());
+        inventory.setItem(5, spellDragonSkin.getSpellItem());
         inventory.setHeldItemSlot(4);
     }
 
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
         final LivingGameEntity victim = input.getEntity();
-        final Player player = input.getDamagerAsBukkitPlayer();
+        final GamePlayer player = input.getDamagerAsPlayer();
 
         if (!victim.hasTag("LastDamage=Soul")) {
             addSouls(player, 1);
@@ -111,53 +84,21 @@ public class Mage extends Hero implements UIComponent {
     }
 
     @Override
-    public void onDeath(Player player) {
+    public void onDeath(@Nonnull GamePlayer player) {
         soulsCharge.remove(player);
     }
 
-    public void addSouls(Player player, int amount) {
+    public void addSouls(GamePlayer player, int amount) {
         this.soulsCharge.put(player, Numbers.clamp(getSouls(player) + amount, 0, maxSoulsAmount));
     }
 
-    public int getSouls(Player player) {
+    public int getSouls(GamePlayer player) {
         return soulsCharge.getOrDefault(player, 0);
     }
 
     @Override
     public void onStop() {
         soulsCharge.clear();
-    }
-
-    private void useWyvern(Player player) {
-        this.setUsingUltimate(player, true, wyvernHeartLength);
-
-        PlayerLib.addEffect(player, PotionEffectType.SPEED, wyvernHeartLength, 2);
-        PlayerLib.addEffect(player, PotionEffectType.WEAKNESS, wyvernHeartLength, 1);
-        GamePlayer.getPlayer(player).heal(wyvernHealingAmount);
-
-        // fx
-        PlayerLib.spawnParticle(player.getLocation().add(0.0d, 1.0d, 0.0d), Particle.HEART, 7, 0.3d, 0.2d, 0.3d, 1);
-        Chat.sendMessage(player, "&aYou have used &lHeart of Wyvern&a!");
-        removeUltimateItems(player);
-    }
-
-    private void useDragon(Player player) {
-        this.setUsingUltimate(player, true, dragonSkinLength);
-
-        PlayerLib.addEffect(player, PotionEffectType.SLOW, dragonSkinLength, 2);
-        PlayerLib.addEffect(player, PotionEffectType.INCREASE_DAMAGE, dragonSkinLength, 4);
-        PlayerLib.addEffect(player, PotionEffectType.JUMP, dragonSkinLength, 250);
-
-        // fx
-        PlayerLib.spawnParticle(player.getLocation().add(0.0d, 1.0d, 0.0d), Particle.CRIT_MAGIC, 40, 0.1, 0.1, 0.1, 1);
-        Chat.sendMessage(player, "&aYou have used &lDragon's Skin&a!");
-        removeUltimateItems(player);
-    }
-
-    private void removeUltimateItems(Player player) {
-        final PlayerInventory inventory = player.getInventory();
-        inventory.remove(Material.PHANTOM_MEMBRANE);
-        inventory.remove(Material.FERMENTED_SPIDER_EYE);
     }
 
     @Override
@@ -176,8 +117,8 @@ public class Mage extends Hero implements UIComponent {
     }
 
     @Override
-    public @Nonnull String getString(Player player) {
+    public @Nonnull String getString(@Nonnull GamePlayer player) {
         final int souls = getSouls(player);
-        return "&e⦾ &l" + souls + (souls == maxSoulsAmount ? " FULL" : "");
+        return "&e⦾ &l" + souls + (souls == maxSoulsAmount ? " FULL!" : "");
     }
 }

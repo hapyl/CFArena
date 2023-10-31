@@ -1,9 +1,9 @@
 package me.hapyl.fight.game.talents.archive.engineer;
 
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.spigotutils.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 
@@ -12,7 +12,7 @@ public abstract class Construct {
     public static final int MAX_LEVEL = 3;
     public static final int MAX_DURATION_SEC = 5;
 
-    protected final Player player;
+    protected final GamePlayer player;
     protected final Location location;
     @Nonnull
     protected final ArmorStand stand;
@@ -20,7 +20,7 @@ public abstract class Construct {
     private int level;
     private int cost;
 
-    public Construct(@Nonnull Player player, @Nonnull Location location) {
+    public Construct(@Nonnull GamePlayer player, @Nonnull Location location) {
         this.player = player;
         this.location = location;
         this.level = 0;

@@ -6,6 +6,7 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.google.common.collect.Maps;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.spigotutils.module.reflect.protocol.ProtocolListener;
@@ -39,31 +40,35 @@ public class ConfusionPotionProtocol extends ProtocolListener {
             return;
         }
 
-        if (GamePlayer.getPlayer(player).hasEffect(GameEffectType.AMNESIA)) {
-            final long millis = System.currentTimeMillis();
+        final GamePlayer gamePlayer = CF.getPlayer(player);
 
-            if (lastAffected.containsKey(player.getUniqueId())) {
-                if (millis - lastAffected.get(player.getUniqueId()) < DELAY) {
-                    return;
-                }
-            }
-
-            final PacketContainer clone = packet.deepClone();
-            clone.setMeta("amnesia", true);
-
-            final StructureModifier<Double> doubles = clone.getDoubles();
-            doubles.write(0, randomDirection(doubles.read(0)));
-            doubles.write(2, randomDirection(doubles.read(2)));
-
-            ProtocolLibrary.getProtocolManager().receiveClientPacket(player, clone);
-            // actually sync player position for them
-            Runnables.runSync(() -> {
-                player.teleport(player.getLocation());
-            });
-            lastAffected.put(player.getUniqueId(), millis);
-
-            ev.setCancelled(true);
+        if (gamePlayer == null || !gamePlayer.hasEffect(GameEffectType.AMNESIA)) {
+            return;
         }
+
+        final long millis = System.currentTimeMillis();
+
+        if (lastAffected.containsKey(player.getUniqueId())) {
+            if (millis - lastAffected.get(player.getUniqueId()) < DELAY) {
+                return;
+            }
+        }
+
+        final PacketContainer clone = packet.deepClone();
+        clone.setMeta("amnesia", true);
+
+        final StructureModifier<Double> doubles = clone.getDoubles();
+        doubles.write(0, randomDirection(doubles.read(0)));
+        doubles.write(2, randomDirection(doubles.read(2)));
+
+        ProtocolLibrary.getProtocolManager().receiveClientPacket(player, clone);
+        // actually sync player position for them
+        Runnables.runSync(() -> {
+            player.teleport(player.getLocation());
+        });
+        lastAffected.put(player.getUniqueId(), millis);
+
+        ev.setCancelled(true);
     }
 
     private double randomDirection(double d) {

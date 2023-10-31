@@ -7,6 +7,7 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.Award;
 import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.*;
@@ -18,9 +19,11 @@ import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.entity.shield.Shield;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.setting.Setting;
@@ -36,6 +39,7 @@ import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.weapons.RangeWeapon;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.CFUtils;
+import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Numbers;
@@ -48,15 +52,23 @@ import me.hapyl.spigotutils.module.util.BukkitUtils;
 import net.minecraft.network.protocol.game.PacketPlayOutAnimation;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * This class controls all in-game player data.
@@ -82,6 +94,8 @@ public class GamePlayer extends LivingGameEntity {
     private InputTalent inputTalent;
     private double cdModifier;
 
+    private Shield shield;
+
     @SuppressWarnings("all")
     public GamePlayer(@Nonnull PlayerProfile profile) {
         super(profile.getPlayer());
@@ -94,6 +108,7 @@ public class GamePlayer extends LivingGameEntity {
         this.cdModifier = 1.0d;
         this.attributes = new EntityAttributes(this, profile.getHeroHandle().getAttributes());
         this.taskSet = Sets.newHashSet();
+        this.shield = null;
     }
 
     public double getCooldownModifier() {
@@ -123,6 +138,7 @@ public class GamePlayer extends LivingGameEntity {
         player.getInventory().clear();
         player.setMaxHealth(40.0d); // why deprecate
         player.setHealth(40.0d);
+        player.setAbsorptionAmount(0.0d);
         player.setFireTicks(0);
         player.setVisualFire(false);
         player.setFlying(false);
@@ -130,6 +146,7 @@ public class GamePlayer extends LivingGameEntity {
         player.setFoodLevel(20);
         player.setInvulnerable(false);
         player.setArrowsInBody(0);
+        player.setGlowing(false); // this persistent?
         player.setWalkSpeed((float) attributes.get(AttributeType.SPEED));
         player.setMaximumNoDamageTicks(20);
         player.getActivePotionEffects().forEach(effect -> this.entity.removePotionEffect(effect.getType()));
@@ -139,6 +156,8 @@ public class GamePlayer extends LivingGameEntity {
         resetAttribute(Attribute.GENERIC_ATTACK_SPEED, 4.0d);
         resetAttribute(Attribute.GENERIC_ATTACK_DAMAGE, 1.0d);
 
+        setAttributeValue(Attribute.GENERIC_ARMOR, 0.0d);
+
         getData().getGameEffects().values().forEach(ActiveGameEffect::forceStop);
 
         // Reset attributes
@@ -147,6 +166,7 @@ public class GamePlayer extends LivingGameEntity {
         getData().getDamageTaken().clear();
         wasHit = false;
         inputTalent = null;
+        shield = null;
 
         if (isNotIgnored(ignores, Ignore.GAME_MODE)) {
             player.setGameMode(GameMode.SURVIVAL);
@@ -215,6 +235,13 @@ public class GamePlayer extends LivingGameEntity {
 
     @Override
     public void onDeath() {
+        final GameEntity lastDamager = entityData.getLastDamager();
+
+        if (!(lastDamager instanceof GamePlayer lastPlayerDamager)) {
+            return;
+        }
+
+        lastPlayerDamager.heal(getMaxHealth() * 0.3d);
     }
 
     @Nullable
@@ -247,61 +274,61 @@ public class GamePlayer extends LivingGameEntity {
         final Player player = getEntity();
         player.setGameMode(GameMode.SPECTATOR);
 
-        PlayerLib.playSound(player, Sound.ENTITY_BLAZE_DEATH, 2.0f);
-        Chat.sendTitle(player, "&c&lYOU DIED", "", 5, 25, 10);
+        playSound(Sound.ENTITY_BLAZE_DEATH, 2.0f);
+        sendTitle("&c&lYOU DIED", "", 5, 25, 10);
 
         triggerOnDeath();
 
         // Award killer coins for kill
-        if (entityData.getLastDamager() != null) {
-            final Player killer = entityData.getLastDamager(Player.class);
+        final GameEntity lastDamager = entityData.getLastDamager();
+        if (lastDamager instanceof GamePlayer gameKiller) {
+            final Player killer = gameKiller.getPlayer();
 
-            if (killer != null) {
-                final GamePlayer gameKiller = GamePlayer.getExistingPlayer(killer);
-                if (gameKiller != null && entity != killer) {
-                    final IGameInstance gameInstance = Manager.current().getCurrentGame();
-                    final StatContainer killerStats = gameKiller.getStats();
+            if (entity != killer) {
+                final IGameInstance gameInstance = Manager.current().getCurrentGame();
+                final StatContainer killerStats = gameKiller.getStats();
 
-                    killerStats.addValue(StatType.KILLS, 1);
-                    gameKiller.getTeam().kills++;
+                killerStats.addValue(StatType.KILLS, 1);
+                gameKiller.getTeam().kills++;
 
-                    // Check for first blood
-                    if (gameInstance.getTotalKills() == 1) {
-                        Achievements.FIRST_BLOOD.complete(gameKiller.getTeam());
-                    }
+                // Check for first blood
+                if (gameInstance.getTotalKills() == 1) {
+                    Achievements.FIRST_BLOOD.complete(gameKiller.getTeam());
+                }
 
-                    // Add kill streak for killer
-                    gameKiller.killStreak++;
+                // Add kill streak for killer
+                gameKiller.killStreak++;
 
-                    // Award elimination to killer
-                    Award.PLAYER_ELIMINATION.award(killer);
+                // Award elimination to killer
+                Award.PLAYER_ELIMINATION.award(gameKiller);
 
-                    // Display cosmetics
-                    final Cosmetics killCosmetic = Cosmetics.getSelected(killer, Type.KILL);
-                    if (killCosmetic != null) {
-                        killCosmetic.getCosmetic().onDisplay0(new Display(killer, entity.getLocation()));
-                    }
+                // Display cosmetics
+                final Cosmetics killCosmetic = Cosmetics.getSelected(killer, Type.KILL);
+                if (killCosmetic != null) {
+                    killCosmetic.getCosmetic().onDisplay0(new Display(killer, entity.getLocation()));
                 }
             }
         }
 
-        final GameEntity lastDamager = entityData.getLastDamager();
-
         // Award assists
         entityData.getDamageTaken().forEach((damager, damage) -> {
-            if (lastDamager.is(damager) || damager == entity/*should not happen*/) {
+            if (lastDamager == null || lastDamager.is(damager) || damager == entity/*should not happen*/) {
                 return;
             }
 
             final double percentDamageDealt = damage / getMaxHealth();
-            final StatContainer damagerStats = CF.getOrCreatePlayer(damager).getStats();
+            final GamePlayer damagerPlayer = CF.getPlayer(damager);
 
-            if (percentDamageDealt < 0.5d) {
-                return;
+            if (damagerPlayer != null) {
+                final StatContainer damagerStats = damagerPlayer.getStats();
+
+                if (percentDamageDealt < 0.5d) {
+                    return;
+                }
+
+                Award.PLAYER_ASSISTED.award(this);
+                damagerStats.addValue(StatType.ASSISTS, 1);
             }
-
-            Award.PLAYER_ASSISTED.award(damager);
-            damagerStats.addValue(StatType.ASSISTS, 1);
         });
 
         stats.addValue(StatType.DEATHS, 1);
@@ -321,7 +348,7 @@ public class GamePlayer extends LivingGameEntity {
             gameInstance.checkWinCondition();
 
             // Handle respawn
-            if (mode.isAllowRespawn()) {
+            if (mode.isAllowRespawn() && mode.shouldRespawn(this)) {
                 respawnIn(mode.getRespawnTime() + 1);
             }
         }
@@ -389,17 +416,17 @@ public class GamePlayer extends LivingGameEntity {
     }
 
     public String getUltimateString(ChatColor readyColor) {
-        final Player player = getPlayer();
         final UltimateTalent ultimate = getUltimate();
         final String pointsString = "&b&l%s&b/&b&l%s".formatted(getUltPoints(), getUltPointsNeeded());
 
-        if (getHero().isUsingUltimate(player)) {
-            final long durationLeft = getHero().getUltimateDurationLeft(player);
+        if (getHero().isUsingUltimate(this)) {
+            final long durationLeft = getHero().getUltimateDurationLeft(this);
+
             return "&b&lIN USE &b(%s&b)".formatted(durationLeft == 0 ? "&lUSE" : BukkitUtils.roundTick(Tick.fromMillis(durationLeft)) + "s");
         }
 
-        if (ultimate.hasCd(player)) {
-            return "&7%s &b(%ss)".formatted(pointsString, BukkitUtils.roundTick(ultimate.getCdTimeLeft(player)));
+        if (ultimate.hasCd(this)) {
+            return "&7%s &b(%ss)".formatted(pointsString, BukkitUtils.roundTick(ultimate.getCdTimeLeft(this)));
         }
         else if (isUltimateReady()) {
             return readyColor + "&lREADY";
@@ -430,12 +457,36 @@ public class GamePlayer extends LivingGameEntity {
     }
 
     public void updateScoreboardTeams(boolean toLobby) {
-        profile.getScoreboardTeams().populate(toLobby);
+        profile.getLocalTeamManager().updateAll(toLobby);
     }
 
     @Override
-    public void decreaseHealth(double damage) {
-        super.decreaseHealth(damage);
+    public void decreaseHealth(@Nonnull DamageInstance instance) {
+        final Player player = getPlayer();
+
+        if (shield != null) {
+            final double capacity = shield.getCapacity();
+            double toAbsorb = shield.getStrength() * instance.damage;
+
+            if (toAbsorb - capacity > 0.0d) {
+                toAbsorb -= (toAbsorb - capacity);
+            }
+
+            instance.damage -= toAbsorb;
+            shield.takeDamage0(toAbsorb);
+
+            final double capacityAfterHit = shield.getCapacity();
+
+            // Shield broke
+            if (capacityAfterHit <= 0.0d) {
+                player.setAbsorptionAmount(0.0d);
+
+                shield.onBreak();
+                shield = null;
+            }
+        }
+
+        super.decreaseHealth(instance);
         updateHealth();
     }
 
@@ -458,8 +509,8 @@ public class GamePlayer extends LivingGameEntity {
         }, 1);
 
         // Fx
-        playPlayerSound(Sound.ENTITY_ELDER_GUARDIAN_CURSE, 2.0f);
-        playPlayerSound(Sound.ENCHANT_THORNS_HIT, 0.0f);
+        playSound(Sound.ENTITY_ELDER_GUARDIAN_CURSE, 2.0f);
+        playSound(Sound.ENCHANT_THORNS_HIT, 0.0f);
     }
 
     public void triggerOnDeath() {
@@ -468,14 +519,16 @@ public class GamePlayer extends LivingGameEntity {
         final Hero hero = getHero();
         final Weapon weapon = hero.getWeapon();
 
-        currentGame.getEnumMap().getMap().onDeath(player);
-        hero.onDeath(player);
-        attributes.onDeath(player);
+        currentGame.getEnumMap().getMap().onDeath(this);
+        hero.onDeath(this);
+        attributes.onDeath(this);
         executeTalentsOnDeath();
 
         if (weapon instanceof RangeWeapon rangeWeapon) {
-            rangeWeapon.onDeath(player);
+            rangeWeapon.onDeath(this);
         }
+
+        weapon.getAbilities().forEach(ability -> ability.stopCooldown(this));
 
         CF.getActiveHeroes().forEach(heroes -> {
             final EntityData data = getData();
@@ -498,7 +551,7 @@ public class GamePlayer extends LivingGameEntity {
     public void addUltimatePoints(int points) {
         final Player player = getEntity();
         // cannot give points if using ultimate or dead
-        if (getHero().isUsingUltimate(player) || !this.isAlive() || this.ultPoints >= this.getUltPointsNeeded()) {
+        if (getHero().isUsingUltimate(this) || !this.isAlive() || this.ultPoints >= this.getUltPointsNeeded()) {
             return;
         }
 
@@ -603,7 +656,7 @@ public class GamePlayer extends LivingGameEntity {
 
                 sendTitle("&e&lʀᴇsᴘᴀᴡɴɪɴɢ", "&b&l" + CFUtils.decimalFormatTick(tickBeforeRespawn), 0, 25, 0);
                 if (tickBeforeRespawn % 20 == 0) {
-                    playPlayerSound(Sound.BLOCK_NOTE_BLOCK_PLING, 2.0f - (0.2f * (tickBeforeRespawn / 20f)));
+                    playSound(Sound.BLOCK_NOTE_BLOCK_PLING, 2.0f - (0.2f * (tickBeforeRespawn / 20f)));
                 }
                 --tickBeforeRespawn;
             }
@@ -617,13 +670,13 @@ public class GamePlayer extends LivingGameEntity {
 
         state = EntityState.ALIVE;
         ultPoints = 0;
-        hero.setUsingUltimate(player, false);
+        hero.setUsingUltimate(this, false);
         setHealth(this.getMaxHealth());
 
         player.getInventory().clear();
-        Manager.current().equipPlayer(player, hero);
+        Manager.current().equipPlayer(this, hero);
 
-        hero.onRespawn(player);
+        hero.onRespawn(this);
 
         player.setGameMode(GameMode.SURVIVAL);
 
@@ -665,6 +718,7 @@ public class GamePlayer extends LivingGameEntity {
         return profile.getDatabase();
     }
 
+    @Nonnull
     public PlayerProfile getProfile() {
         return profile;
     }
@@ -684,14 +738,13 @@ public class GamePlayer extends LivingGameEntity {
         return GameTeam.isTeammate(this, player);
     }
 
+    public boolean isTeammate(GameEntity entity) {
+        return GameTeam.isTeammate(this, entity);
+    }
+
     public void setHandle(Player player) {
         this.entity = player;
         this.profile = Manager.current().getOrCreateProfile(player);
-    }
-
-    @Nonnull
-    public Location getEyeLocation() {
-        return entity.getEyeLocation();
     }
 
     public boolean hasCooldown(Material material) {
@@ -702,8 +755,8 @@ public class GamePlayer extends LivingGameEntity {
         return getEntity().getCooldown(material);
     }
 
-    public void setCooldown(Material material, int i) {
-        getEntity().setCooldown(material, (int) Math.max(i * cdModifier, 0)); // not calling static method for obvious reasons
+    public void setCooldown(Material material, int cd) {
+        getEntity().setCooldown(material, (int) Math.max(cd * cdModifier, 0)); // not calling static method for obvious reasons
     }
 
     public boolean hasMovedInLast(long millis) {
@@ -722,7 +775,8 @@ public class GamePlayer extends LivingGameEntity {
         ProtocolLibrary.getProtocolManager().sendServerPacket(getPlayer(), packet);
     }
 
-    public <T> void spawnParticle(Particle particle, Location location, int amount, double x, double y, double z, float speed, T data) {
+    public <T> void spawnParticle(Particle particle, Location location, int amount, double x, double y, double z, float speed, T
+            data) {
         getPlayer().spawnParticle(particle, location, amount, x, y, z, speed, data);
     }
 
@@ -741,6 +795,209 @@ public class GamePlayer extends LivingGameEntity {
     @Override
     public String toString() {
         return "GamePlayer{" + getName() + "}";
+    }
+
+    @Nullable
+    public Shield getShield() {
+        return shield;
+    }
+
+    public void setShield(@Nullable Shield shield) {
+        if (this.shield != null) {
+            this.shield.onRemove();
+        }
+
+        this.shield = shield;
+
+        if (shield != null) {
+            getPlayer().setAbsorptionAmount(20.0d);
+            shield.onCreate();
+        }
+    }
+
+    public void removeShield() {
+        this.shield = null;
+    }
+
+    @Nonnull
+    public String formatTeamName(@Nonnull String prefix, @Nonnull String suffix) {
+        final String firstLetterCaps = getTeam().getFirstLetterCaps();
+
+        return prefix + firstLetterCaps + " &f" + getName() + suffix;
+    }
+
+    @Nonnull
+    public String formatTeamNameScoreboardPosition(int position, @Nonnull String suffix) {
+        return formatTeamName(" &e#" + position + " ", suffix);
+    }
+
+    public void setAllowFlight(boolean b) {
+        getPlayer().setAllowFlight(b);
+    }
+
+    public void setFlying(boolean b) {
+        getPlayer().setFlying(b);
+    }
+
+    public void setFlySpeed(float v) {
+        getPlayer().setFlySpeed(v);
+    }
+
+    public float getFlySpeed() {
+        return getPlayer().getFlySpeed();
+    }
+
+    public boolean isOnGround() {
+        return getPlayer().isOnGround();
+    }
+
+    public void setGameMode(GameMode gameMode) {
+        getPlayer().setGameMode(gameMode);
+    }
+
+    public void swingMainHand() {
+        getPlayer().swingMainHand();
+    }
+
+    @Nullable
+    public EntityEquipment getEquipment() {
+        return getPlayer().getEquipment();
+    }
+
+    public boolean isSwimming() {
+        return getPlayer().isSwimming();
+    }
+
+    @Nullable
+    public Block getTargetBlockExact(int maxDistance) {
+        return getPlayer().getTargetBlockExact(maxDistance);
+    }
+
+    public void hide() {
+        CFUtils.hidePlayer(getPlayer());
+    }
+
+    public void show() {
+        CFUtils.showPlayer(getPlayer());
+    }
+
+    public void clearTitle() {
+        getPlayer().resetTitle();
+    }
+
+    public void setSneaking(boolean b) {
+        getPlayer().setSneaking(b);
+    }
+
+    @Nonnull
+    public Scoreboard getScoreboard() {
+        return getPlayer().getScoreboard();
+    }
+
+    public boolean isInWater() {
+        return getPlayer().isInWater();
+    }
+
+    public void stopCooldown(@Nonnull Material material) {
+        setCooldown(material, 0);
+    }
+
+    public boolean isAbleToUseAbilities() {
+        return Manager.current().isGameInProgress();
+    }
+
+    public void cancelInputTalent() {
+        if (inputTalent != null) {
+            inputTalent.onCancel(this);
+            inputTalent = null;
+        }
+    }
+
+    public void snapToWeapon() {
+        final int slot = profile.getHotbarLoadout().getInventorySlotBySlot(HotbarSlots.WEAPON);
+
+        if (slot < 0 || slot > 9) {
+            return;
+        }
+
+        getInventory().setHeldItemSlot(slot);
+    }
+
+    @Nullable
+    public ItemStack getItem(@Nonnull HotbarSlots hotbarSlots) {
+        final int slot = profile.getHotbarLoadout().getInventorySlotBySlot(hotbarSlots);
+
+        return getInventory().getItem(slot);
+    }
+
+    public void setItem(@Nonnull HotbarSlots slot, @Nullable ItemStack item) {
+        final int index = profile.getHotbarLoadout().getInventorySlotBySlot(slot);
+
+        if (index < 0 || index > 9) {
+            return;
+        }
+
+        profile.getPlayer().getInventory().setItem(index, item == null ? ItemStacks.AIR : item);
+    }
+
+    public void setCooldownIfNotAlreadyOnCooldown(Material material, int cooldown) {
+        if (hasCooldown(material)) {
+            return;
+        }
+
+        setCooldown(material, cooldown);
+    }
+
+    public boolean getAllowFlight() {
+        return getPlayer().getAllowFlight();
+    }
+
+    public boolean isHeldSlot(@Nonnull HotbarSlots hotbarSlots) {
+        final int inventorySlotBySlot = profile.getHotbarLoadout().getInventorySlotBySlot(hotbarSlots);
+
+        return getInventory().getHeldItemSlot() == inventorySlotBySlot;
+    }
+
+    @Nonnull
+    public List<Block> getLastTwoTargetBlocks(int maxDistance) {
+        return getPlayer().getLastTwoTargetBlocks(null, maxDistance);
+    }
+
+    @Nonnull
+    public <T extends Projectile> T launchProjectile(@Nonnull Class<T> clazz, @Nullable Consumer<T> consumer) {
+        final T projectile = getPlayer().launchProjectile(clazz);
+
+        if (consumer != null) {
+            consumer.accept(projectile);
+        }
+
+        return projectile;
+    }
+
+    @Nonnull
+    public <T extends Projectile> T launchProjectile(@Nonnull Class<T> clazz) {
+        return launchProjectile(clazz, null);
+    }
+
+    public void setGlowing(boolean b) {
+        getPlayer().setGlowing(b);
+    }
+
+    public void eject() {
+        getPlayer().eject();
+    }
+
+    @Nonnull
+    public Team getOrCreateScoreboardTeam(String name) {
+        final Scoreboard scoreboard = getScoreboard();
+        Team team = scoreboard.getTeam(name);
+
+        if (team == null) {
+            team = scoreboard.registerNewTeam(name);
+        }
+
+        return team;
+
     }
 
     private void resetAttribute(Attribute attribute, double value) {
@@ -774,7 +1031,7 @@ public class GamePlayer extends LivingGameEntity {
 
     private void executeOnDeathIfTalentIsNotNull(Talent talent) {
         if (talent != null) {
-            talent.onDeath(getEntity());
+            talent.onDeath(this);
         }
     }
 
@@ -786,6 +1043,7 @@ public class GamePlayer extends LivingGameEntity {
      * @param material - Material.
      * @param i        - New cooldown.
      */
+    @Deprecated(forRemoval = true)
     public static void setCooldown(@Nonnull Player player, @Nonnull Material material, int i) {
         final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
 
@@ -799,14 +1057,13 @@ public class GamePlayer extends LivingGameEntity {
     }
 
     /**
-     * Scaled the cooldown by cooldown modifier.
+     * Scales the cooldown with player's cooldown modifier.
      *
-     * @param player - Player.
-     * @param cd     - Cooldown.
-     * @return the scaled cooldown.
+     * @param cooldown - Cooldown.
+     * @return scaled cooldown.
      */
-    public static int scaleCooldown(Player player, int cd) {
-        return (int) Math.max(cd * getPlayer(player).getCooldownModifier(), 0);
+    public int scaleCooldown(int cooldown) {
+        return (int) Math.max(cooldown * getCooldownModifier(), 0);
     }
 
     /**
@@ -824,18 +1081,6 @@ public class GamePlayer extends LivingGameEntity {
         }
 
         return profile.getGamePlayer();
-    }
-
-    /**
-     * Returns either an actual GamePlayer instance if there is a GameInstance, otherwise AbstractGamePlayer.
-     *
-     * @param player bukkit player.
-     * @return either an actual GamePlayer instance if there is a GameInstance, otherwise AbstractGamePlayer.
-     */
-    @Nonnull
-    @Deprecated
-    public static GamePlayer getPlayer(Player player) {
-        return CF.getOrCreatePlayer(player);
     }
 
     @Nonnull

@@ -1,13 +1,12 @@
 package me.hapyl.fight.game.cosmetic.crate;
 
-import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.CosmeticCollection;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.cosmetic.WeightedDrop;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.EnumWrapper;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.WeightedCollection;
 import org.bukkit.Sound;
 
@@ -144,8 +143,8 @@ public enum Crates implements WeightedDrop, EnumWrapper<Crate> {
         // Display/Fx
         player.sendMessage(CrateChest.PREFIX + Color.SUCCESS + "Received " + crate.getName() + "!");
 
-        PlayerLib.playSound(Sound.ENTITY_VILLAGER_YES, 0.75f);
-        PlayerLib.playSound(Sound.BLOCK_WOOD_PLACE, 0.75f);
-        PlayerLib.playSound(Sound.BLOCK_CHEST_LOCKED, 1.25f);
+        player.playWorldSound(Sound.ENTITY_VILLAGER_YES, 0.75f);
+        player.playWorldSound(Sound.BLOCK_WOOD_PLACE, 0.75f);
+        player.playWorldSound(Sound.BLOCK_CHEST_LOCKED, 1.25f);
     }
 }

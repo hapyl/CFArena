@@ -1,43 +1,43 @@
 package me.hapyl.fight.game.talents.archive.healer;
 
-import com.google.common.collect.Maps;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Player;
 
-import java.util.Map;
+import javax.annotation.Nonnull;
 
 public class ReviveTotem extends Talent {
 
-    private final Map<Player, ArmorStand> playerCatalysts;
+    private final PlayerMap<ArmorStand> playerCatalysts;
 
     public ReviveTotem() {
         super("Revive Catalyst", "Place somewhere hidden for later use to revive yourself.");
 
         setItem(Material.TOTEM_OF_UNDYING); // fixme -> this might actually trigger totem, needs testing
 
-        this.playerCatalysts = Maps.newHashMap();
+        this.playerCatalysts = PlayerMap.newMap();
     }
 
     // Death is when a healer is actually dead and cannot revive.
     @Override
-    public void onDeath(Player player) {
+    public void onDeath(@Nonnull GamePlayer player) {
         final ArmorStand catalyst = getCatalyst(player);
         if (catalyst != null) {
             catalyst.remove();
         }
     }
 
-    public ArmorStand getCatalyst(Player player) {
+    public ArmorStand getCatalyst(GamePlayer player) {
         return this.playerCatalysts.get(player);
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final Block targetBlock = player.getTargetBlockExact(5);
 
         if (targetBlock == null) {

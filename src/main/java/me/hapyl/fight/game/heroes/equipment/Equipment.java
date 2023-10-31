@@ -1,7 +1,9 @@
 package me.hapyl.fight.game.heroes.equipment;
 
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.util.ItemStacks;
+import me.hapyl.spigotutils.module.annotate.Super;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -27,6 +29,7 @@ public class Equipment {
         this.items = new ItemStack[6];
     }
 
+    @Super
     public Equipment setItem(@Nonnull Slot slot, @Nullable ItemStack item) {
         items[slot.getId()] = item;
         return this;
@@ -175,6 +178,10 @@ public class Equipment {
         final ItemStack item = items[slot.getId()];
 
         return item == null ? ItemStacks.AIR : item;
+    }
+
+    public void equip(GamePlayer gamePlayer) {
+        equip(gamePlayer.getPlayer());
     }
 
     @Nonnull

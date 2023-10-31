@@ -1,6 +1,6 @@
 package me.hapyl.fight.game;
 
-import org.bukkit.ChatColor;
+import me.hapyl.fight.game.color.Color;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -10,17 +10,18 @@ import javax.annotation.Nullable;
  */
 public enum Named {
 
-    BERSERK("💢", "Berserk", ChatColor.DARK_RED),
+    BERSERK("💢", "Berserk", Color.DARK_RED),
+    CURSE_OF_GREED("\uD83E\uDDFF", "Curse of Greed", Color.GOLD),
     ;
 
     private final String character;
-    private final String value;
-    private final String color;
+    private final String name;
+    private final Color color;
 
-    Named(String character, String value, ChatColor... colors) {
+    Named(@Nonnull String character, @Nonnull String name, @Nonnull Color color) {
         this.character = character;
-        this.value = value;
-        this.color = getColor(colors);
+        this.color = color;
+        this.name = colorName(name);
     }
 
     @Nonnull
@@ -29,12 +30,12 @@ public enum Named {
     }
 
     @Nonnull
-    public String getValue() {
-        return value;
+    public String getName() {
+        return name;
     }
 
     @Nonnull
-    public String getColor() {
+    public Color getColor() {
         return color;
     }
 
@@ -45,20 +46,18 @@ public enum Named {
 
     @Override
     public String toString() {
-        return color + character + " " + color + value + "&7";
+        return color + character + " " + color + name + "&7";
     }
 
-    private static String getColor(ChatColor[] colors) {
-        if (colors == null || colors.length == 0) {
-            return "";
-        }
-
+    private String colorName(String name) {
+        final String[] strings = name.split(" ");
         final StringBuilder builder = new StringBuilder();
 
-        for (ChatColor color : colors) {
-            builder.append(color.toString());
+        for (String string : strings) {
+            builder.append(color).append(string).append(" ");
         }
 
-        return builder.toString();
+        return builder.toString().trim();
     }
+
 }

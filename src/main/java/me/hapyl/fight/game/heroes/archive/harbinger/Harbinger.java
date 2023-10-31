@@ -1,7 +1,5 @@
 package me.hapyl.fight.game.heroes.archive.harbinger;
 
-import com.google.common.collect.Maps;
-import me.hapyl.fight.CF;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
@@ -21,14 +19,13 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Arrow;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
@@ -36,12 +33,11 @@ import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Map;
 
 public class Harbinger extends Hero implements Listener, UIComponent {
 
     private final double ultimateRadius = 4.0d;
-    private final Map<Player, RiptideStatus> riptideStatus = Maps.newHashMap();
+    private final PlayerMap<RiptideStatus> riptideStatus = PlayerMap.newMap();
     //private final Map<Player, Set<LivingEntity>> riptideAffected = new HashMap<>();
 
     /**
@@ -78,11 +74,11 @@ public class Harbinger extends Hero implements Listener, UIComponent {
         final GamePlayer player = input.getDamagerAsPlayer();
         final LivingGameEntity entity = input.getEntity();
 
-        if (player == null || !Talents.STANCE.getTalent(MeleeStance.class).isActive(player.getPlayer())) {
+        if (player == null || !Talents.STANCE.getTalent(MeleeStance.class).isActive(player)) {
             return null;
         }
 
-        executeRiptideSlashIfPossible(player.getPlayer(), entity.getEntity());
+        executeRiptideSlashIfPossible(player, entity);
         return null;
     }
 
@@ -93,28 +89,28 @@ public class Harbinger extends Hero implements Listener, UIComponent {
             return null;
         }
 
-        final Player player = input.getDamagerAsBukkitPlayer();
+        final GamePlayer player = input.getDamagerAsPlayer();
         final LivingGameEntity entity = input.getEntity();
 
         if (player == null) {
             return DamageOutput.OK;
         }
 
-        executeRiptideSlashIfPossible(player, entity.getEntity());
-        addRiptide(player, entity.getEntity(), 150, false);
+        executeRiptideSlashIfPossible(player, entity);
+        addRiptide(player, entity, 150, false);
 
         return DamageOutput.OK;
     }
 
-    public void executeRiptideSlashIfPossible(Player player, LivingEntity entity) {
+    public void executeRiptideSlashIfPossible(GamePlayer player, LivingGameEntity entity) {
         getRiptideStatus(player).executeRiptideSlash(entity);
     }
 
-    public void addRiptide(Player player, LivingEntity entity, long amount, boolean force) {
+    public void addRiptide(GamePlayer player, LivingGameEntity entity, long amount, boolean force) {
         getRiptideStatus(player).setRiptide(entity, amount, force);
     }
 
-    public RiptideStatus getRiptideStatus(Player player) {
+    public RiptideStatus getRiptideStatus(GamePlayer player) {
         return this.riptideStatus.computeIfAbsent(player, r -> new RiptideStatus(player));
     }
 
@@ -124,22 +120,21 @@ public class Harbinger extends Hero implements Listener, UIComponent {
     }
 
     @Override
-    public void onDeath(Player player) {
+    public void onDeath(@Nonnull GamePlayer player) {
         riptideStatus.remove(player);
     }
 
     @Override
     public void onDeathGlobal(@Nonnull GamePlayer gamePlayer, @Nullable GameEntity killer, @Nullable EnumDamageCause cause) {
-        final Player player = gamePlayer.getPlayer();
         for (RiptideStatus value : riptideStatus.values()) {
-            if (value.isAffected(player)) {
-                value.stop(player);
+            if (value.isAffected(gamePlayer)) {
+                value.stop(gamePlayer);
             }
         }
     }
 
     @Override
-    public void onStart(Player player) {
+    public void onStart(@Nonnull GamePlayer player) {
         player.getInventory().setItem(9, new ItemStack(Material.ARROW));
     }
 
@@ -154,10 +149,10 @@ public class Harbinger extends Hero implements Listener, UIComponent {
     }
 
     @Override
-    public void useUltimate(Player player) {
+    public void useUltimate(@Nonnull GamePlayer player) {
         final Location playerLocation = player.getLocation();
-        PlayerLib.addEffect(player, PotionEffectType.SLOW, 20, 2);
-        PlayerLib.playSound(playerLocation, Sound.BLOCK_CONDUIT_AMBIENT, 2.0f);
+        player.addPotionEffect(PotionEffectType.SLOW, 20, 2);
+        player.playWorldSound(Sound.BLOCK_CONDUIT_AMBIENT, 2.0f);
 
         // Stance Check
         final boolean isMeleeStance = getFirstTalent().isActive(player);
@@ -181,11 +176,11 @@ public class Harbinger extends Hero implements Listener, UIComponent {
                                 location.add(x, 0, z);
 
                                 Collect.nearbyEntities(location, 2.0d).forEach(entity -> {
-                                    if (entity.is(player)) {
+                                    if (entity.equals(player)) {
                                         return;
                                     }
 
-                                    entity.damage(40.0d, CF.getPlayer(player), EnumDamageCause.RIPTIDE);
+                                    entity.damage(40.0d, player, EnumDamageCause.RIPTIDE);
                                 });
 
                                 PlayerLib.spawnParticle(location, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0);
@@ -213,7 +208,7 @@ public class Harbinger extends Hero implements Listener, UIComponent {
                         0
                 );
 
-        arrow.setShooter(player);
+        arrow.setShooter(player.getPlayer());
         arrow.setCritical(false);
         arrow.setColor(Color.AQUA);
 
@@ -221,15 +216,15 @@ public class Harbinger extends Hero implements Listener, UIComponent {
             @Override
             public void run() {
                 Collect.nearbyEntities(location, ultimateRadius).forEach(entity -> {
-                    if (entity.is(player)) {
+                    if (entity.equals(player)) {
                         return;
                     }
 
-                    entity.damage(25.0d, CF.getPlayer(player), EnumDamageCause.RIPTIDE);
-                    PlayerLib.playSound(entity.getLocation(), Sound.ENTITY_GENERIC_BIG_FALL, 0.75f);
-                    PlayerLib.playSound(entity.getLocation(), Sound.ENTITY_GENERIC_HURT, 1.25f);
+                    entity.damage(25.0d, player, EnumDamageCause.RIPTIDE);
+                    entity.playWorldSound(Sound.ENTITY_GENERIC_BIG_FALL, 0.75f);
+                    entity.playWorldSound(Sound.ENTITY_GENERIC_HURT, 1.25f);
 
-                    addRiptide(player, entity.getEntity(), 500, false);
+                    addRiptide(player, entity, 500, false);
                 });
 
                 // Fx
@@ -257,7 +252,7 @@ public class Harbinger extends Hero implements Listener, UIComponent {
 
     @Nonnull
     @Override
-    public String getString(Player player) {
+    public String getString(@Nonnull GamePlayer player) {
         final StanceData data = getFirstTalent().getData(player);
 
         if (data == null) {

@@ -3,41 +3,39 @@ package me.hapyl.fight.game.heroes.archive.bloodfield.impel;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend;
-import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
 import java.util.Set;
 
 public class ImpelInstance extends Instance<Bloodfiend> {
 
-    private final Player player;
+    private final GamePlayer player;
     private final Set<GamePlayer> enemyPlayers;
     private Impel impel;
     private int impelCount;
 
-    public ImpelInstance(Bloodfiend instance, Player player, Set<GamePlayer> targets) {
+    public ImpelInstance(Bloodfiend instance, GamePlayer player, Set<GamePlayer> targets) {
         super(instance);
         this.player = player;
         this.impelCount = 0;
         this.enemyPlayers = targets;
 
         if (targets.isEmpty()) {
-            Chat.sendMessage(player, "&cNo one to impel!");
+            player.sendMessage("&cNo one to impel!");
         }
         else {
-            Chat.sendMessage(player, "&eImpelled %s enemies!", targets.size());
+            player.sendMessage("&eImpelled %s enemies!", targets.size());
         }
     }
 
-    public boolean isPlayer(Player player) {
+    public boolean isPlayer(GamePlayer player) {
         if (impel == null) {
             return false;
         }
 
         for (GamePlayer gamePlayer : impel.getPlayers()) {
-            if (gamePlayer.is(player)) {
+            if (gamePlayer.equals(player)) {
                 return true;
             }
         }
@@ -66,9 +64,9 @@ public class ImpelInstance extends Instance<Bloodfiend> {
 
                 player.sendSubtitle("&eImpel: &4&lFAILED! &c-%s ❤".formatted((int) instance.impelDamage), 0, 20, 5);
 
-                player.playPlayerSound(Sound.ENTITY_BLAZE_HURT, 0.25f);
-                player.playPlayerSound(Sound.ENTITY_ZOMBIE_HURT, 0.25f);
-                player.playPlayerSound(Sound.ENTITY_PLAYER_BREATH, 1.0f);
+                player.playSound(Sound.ENTITY_BLAZE_HURT, 0.25f);
+                player.playSound(Sound.ENTITY_ZOMBIE_HURT, 0.25f);
+                player.playSound(Sound.ENTITY_PLAYER_BREATH, 1.0f);
             }
 
             @Override
@@ -93,7 +91,7 @@ public class ImpelInstance extends Instance<Bloodfiend> {
         impel = null;
     }
 
-    public Player getPlayer() {
+    public GamePlayer getPlayer() {
         return player;
     }
 

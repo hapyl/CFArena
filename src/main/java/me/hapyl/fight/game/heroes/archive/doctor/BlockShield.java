@@ -1,17 +1,16 @@
 package me.hapyl.fight.game.heroes.archive.doctor;
 
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.particle.ParticleBuilder;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 
 import java.util.Random;
 
@@ -19,14 +18,14 @@ public class BlockShield {
 
     private static final Location DEFAULT_BLOCK_LOCATION = BukkitUtils.defLocation(0, 48, 0);
 
-    private final Player player;
+    private final GamePlayer player;
 
     private Entity entity;
     private Material material;
     private ElementType type;
     private double theta;
 
-    public BlockShield(Player player) {
+    public BlockShield(GamePlayer player) {
         this.player = player;
     }
 
@@ -39,7 +38,7 @@ public class BlockShield {
         final Block block = randomBlock();
         setType(block.getType());
 
-        PlayerLib.playSound(player, Sound.ENTITY_CHICKEN_EGG, 0.0f);
+        player.playSound(Sound.ENTITY_CHICKEN_EGG, 0.0f);
     }
 
     private void setType(Material material) {

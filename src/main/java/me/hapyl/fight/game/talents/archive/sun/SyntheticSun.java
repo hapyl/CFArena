@@ -1,8 +1,10 @@
 package me.hapyl.fight.game.talents.archive.sun;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
-import org.bukkit.entity.Player;
+
+import javax.annotation.Nonnull;
 
 public class SyntheticSun extends Talent {
     public SyntheticSun() {
@@ -16,7 +18,7 @@ public class SyntheticSun extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         return null;
     }
 }

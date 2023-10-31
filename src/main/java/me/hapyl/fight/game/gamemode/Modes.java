@@ -2,10 +2,7 @@ package me.hapyl.fight.game.gamemode;
 
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.gamemode.modes.Deathmatch;
-import me.hapyl.fight.game.gamemode.modes.DeathmatchKills;
-import me.hapyl.fight.game.gamemode.modes.FreeForAll;
-import me.hapyl.fight.game.gamemode.modes.Rush;
+import me.hapyl.fight.game.gamemode.modes.*;
 import me.hapyl.spigotutils.module.util.Validate;
 
 import javax.annotation.Nonnull;
@@ -17,6 +14,7 @@ public enum Modes {
     DEATH_MATCH(new Deathmatch()),
     DEATH_MATCH_KILLS(new DeathmatchKills()),
 	RUSH(new Rush()),
+	FRENZY(new FrenzyMode()),
 	//TTT(new AmongUs()), todo
     ;
 

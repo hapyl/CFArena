@@ -112,12 +112,12 @@ public class Voidgloom extends GameEntityType<Enderman> implements Listener {
                     entity.setMaximumNoDamageTicks(NO_DAMAGE_TICKS);
 
                     // Fx
-                    playPlayerSound(location, Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 1.75f);
-                    spawnWorldParticle(location, Particle.EXPLOSION_LARGE, 3);
+                    playWorldSound(Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 1.75f);
+                    spawnWorldParticle(Particle.EXPLOSION_LARGE, 3);
                     return null;
                 }
 
-                playPlayerSound(location, Sound.ENTITY_ENDERMAN_TELEPORT, 2.0f - (1.0f / MAX_HITS * hitsLeft));
+                playWorldSound(location, Sound.ENTITY_ENDERMAN_TELEPORT, 2.0f - (1.0f / MAX_HITS * hitsLeft));
                 return DamageOutput.CANCEL;
             }
             else {
@@ -136,7 +136,7 @@ public class Voidgloom extends GameEntityType<Enderman> implements Listener {
         @Override
         public String getHealthFormatted() {
             if (hitPhase) {
-                return Color.DARK_PURPLE.lighten((float) MAX_HITS / hitsLeft) + "&l%s Hits".formatted(hitsLeft);
+                return Color.DEEP_PURPLE.lighten((float) MAX_HITS / hitsLeft) + "&l%s Hits".formatted(hitsLeft);
             }
             else {
                 return super.getHealthFormatted();

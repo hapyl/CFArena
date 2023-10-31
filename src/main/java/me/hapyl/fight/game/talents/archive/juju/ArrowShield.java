@@ -1,17 +1,16 @@
 package me.hapyl.fight.game.talents.archive.juju;
 
-import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
-import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -20,22 +19,19 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ArrowShield extends Talent implements Listener {
 
-    // should really be linkedlist
-    private final Map<Player, List<Arrow>> shieldMap = new HashMap<>();
+    private final PlayerMap<List<Arrow>> shieldMap = PlayerMap.newMap();
 
     @DisplayField private final short shieldCharges = 5;
     @DisplayField private final double explosionRadius = 2.0d;
@@ -68,16 +64,16 @@ public class ArrowShield extends Talent implements Listener {
         }
     }
 
-    public int getCharges(Player player) {
+    public int getCharges(GamePlayer player) {
         return getArrows(player).size();
     }
 
-    public void removeCharge(Player player) {
+    public void removeCharge(GamePlayer player) {
         final List<Arrow> list = getArrows(player);
         final int sizeMinusOne = list.size() - 1;
 
         if (sizeMinusOne <= 0) {
-            Chat.sendMessage(player, "&a🛡 Your shield has broke!");
+            player.sendMessage("&a🛡 Your shield has broke!");
             shieldMap.remove(player);
         }
 
@@ -87,13 +83,14 @@ public class ArrowShield extends Talent implements Listener {
         arrow.remove();
     }
 
-    public void createExplosion(Player player, Location location) {
-        final List<LivingGameEntity> livingEntities = Collect.nearbyEntities(location, explosionRadius, lv -> lv.isNot(player));
+    public void createExplosion(GamePlayer player, Location location) {
+        final List<LivingGameEntity> livingEntities = Collect.nearbyEntities(location, explosionRadius, lv -> !lv.equals(player));
 
         livingEntities.forEach(entity -> {
             Temper.POISON_IVY.temper(entity.getAttributes(), 0.2d, poisonDuration);
+
             entity.addPotionEffect(effect);
-            entity.damage(explosionDamage, CF.getPlayer(player), EnumDamageCause.POISON_IVY);
+            entity.damage(explosionDamage, player, EnumDamageCause.POISON_IVY);
         });
 
         // Fx
@@ -105,7 +102,7 @@ public class ArrowShield extends Talent implements Listener {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final List<Arrow> list = getArrows(player);
         removeArrows(player);
 
@@ -131,9 +128,9 @@ public class ArrowShield extends Talent implements Listener {
             public void run() {
                 final List<Arrow> arrows = getArrows(player);
 
-                if (tick-- <= 0 || arrows.isEmpty() || GamePlayer.getPlayer(player).isDead()) {
+                if (tick-- <= 0 || arrows.isEmpty() || player.isDead()) {
                     if (!arrows.isEmpty()) {
-                        Chat.sendMessage(player, "&a🛡 Your shield has run out!");
+                        player.sendMessage("&a🛡 Your shield has run out!");
                         removeArrows(player);
                     }
                     this.cancel();
@@ -172,7 +169,7 @@ public class ArrowShield extends Talent implements Listener {
     }
 
     @Override
-    public void onDeath(Player player) {
+    public void onDeath(@Nonnull GamePlayer player) {
         shieldMap.keySet().forEach(this::removeArrows);
         shieldMap.remove(player);
     }
@@ -183,12 +180,13 @@ public class ArrowShield extends Talent implements Listener {
         shieldMap.clear();
     }
 
-    private List<Arrow> getArrows(Player player) {
+    private List<Arrow> getArrows(GamePlayer player) {
         return this.shieldMap.getOrDefault(player, new ArrayList<>());
     }
 
-    private void removeArrows(Player player) {
+    private void removeArrows(GamePlayer player) {
         final List<Arrow> arrows = getArrows(player);
+
         arrows.forEach(entity -> {
             PlayerLib.spawnParticle(entity.getLocation(), Particle.EXPLOSION_NORMAL, 3, 0, 0, 0, 0.01f);
             entity.remove();

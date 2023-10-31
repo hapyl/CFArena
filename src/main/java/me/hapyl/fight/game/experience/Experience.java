@@ -12,7 +12,6 @@ import me.hapyl.fight.game.reward.*;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.chat.Gradient;
 import me.hapyl.spigotutils.module.chat.gradient.Interpolators;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.util.DependencyInjector;
 import org.bukkit.ChatColor;
@@ -104,7 +103,7 @@ public class Experience extends DependencyInjector<Main> {
                     continue;
                 }
 
-                reward.grantReward(player);
+                reward.grant(player);
             }
         }
 
@@ -150,7 +149,7 @@ public class Experience extends DependencyInjector<Main> {
         final List<Reward> rewards = getRewards(nextLevel);
         if (rewards != null) {
             for (Reward reward : rewards) {
-                reward.grantReward(player);
+                reward.grant(player);
             }
         }
 
@@ -239,6 +238,11 @@ public class Experience extends DependencyInjector<Main> {
     }
 
     @Nullable
+    public ExperienceLevel getPlayerLevel(Player player) {
+        return getLevel(getLevel(player));
+    }
+
+    @Nullable
     public ExperienceLevel getLevel(long index) {
         return experienceLevelMap.get(index);
     }
@@ -313,9 +317,10 @@ public class Experience extends DependencyInjector<Main> {
 
             if (isPrestige) {
                 experienceLevel.addReward(new DisplayReward("Prestige Color") {
+                    @Nonnull
                     @Override
-                    public void display(@Nonnull Player player, @Nonnull ItemBuilder builder) {
-                        builder.addLore(BULLET + color + " &7prestige color");
+                    public RewardDisplay getDisplay(@Nonnull Player player) {
+                        return RewardDisplay.of(color + " &7prestige color");
                     }
                 });
             }
@@ -327,7 +332,7 @@ public class Experience extends DependencyInjector<Main> {
     private void setupRewards() {
         // Coins rewards
         experienceLevelMap.forEach((lvl, level) -> {
-            final CurrencyReward reward = new CurrencyReward("Coins Reward Level " + lvl);
+            final CurrencyReward reward = new CurrencyReward();
 
             reward.with(CurrencyType.COINS, 1000 * lvl);
 

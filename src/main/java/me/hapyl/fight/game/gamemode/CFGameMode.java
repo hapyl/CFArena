@@ -4,6 +4,7 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EntityState;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.setting.Setting;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -117,7 +118,7 @@ public abstract class CFGameMode {
         }
 
         Chat.broadcast("");
-        Chat.broadcast("&c%s left while fighting and was removed from the game!");
+        Chat.broadcast("&c%s left while fighting and was removed from the game!", player.getName());
         Chat.broadcast("");
 
         gamePlayer.setState(EntityState.DEAD);
@@ -131,7 +132,8 @@ public abstract class CFGameMode {
      * @param player   - Player who left.
      */
     public void onJoin(@Nonnull GameInstance instance, @Nonnull Player player) {
-        final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
+        final PlayerProfile profile = PlayerProfile.getOrCreateProfile(player);
+        final GamePlayer gamePlayer = profile.getOrCreateGamePlayer();
 
         gamePlayer.setSpectator(true);
         Chat.broadcast("&a%s joined the game as a spectator!", player.getName());
@@ -142,8 +144,7 @@ public abstract class CFGameMode {
         }, 1);
     }
 
-    public boolean onStart(@Nonnull GameInstance instance) {
-        return false;
+    public void onStart(@Nonnull GameInstance instance) {
     }
 
     /**
@@ -154,5 +155,9 @@ public abstract class CFGameMode {
      */
     public boolean onStop(@Nonnull GameInstance instance) {
         return false;
+    }
+
+    public boolean shouldRespawn(@Nonnull GamePlayer gamePlayer) {
+        return true;
     }
 }

@@ -1,20 +1,19 @@
 package me.hapyl.fight.game.heroes.archive.ronin;
 
-import com.google.common.collect.Sets;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.game.weapons.ability.Ability;
 import me.hapyl.fight.game.weapons.ability.AbilityType;
+import me.hapyl.fight.util.collection.player.PlayerSet;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
-import java.util.Set;
 
 public class RoninWeapon extends Weapon {
 
-    private final Set<Player> blockingSet;
+    private final PlayerSet blockingSet;
 
     public RoninWeapon() {
         super(Material.IRON_SWORD);
@@ -24,7 +23,7 @@ public class RoninWeapon extends Weapon {
 
         setAbility(AbilityType.RIGHT_CLICK, new DeflectAbility());
 
-        blockingSet = Sets.newHashSet();
+        blockingSet = PlayerSet.newSet();
     }
 
     /**
@@ -43,7 +42,7 @@ public class RoninWeapon extends Weapon {
         }
 
         @Override
-        public Response execute(@Nonnull Player player, @Nonnull ItemStack item) {
+        public Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
             blockingSet.add(player);
             return Response.OK;
         }

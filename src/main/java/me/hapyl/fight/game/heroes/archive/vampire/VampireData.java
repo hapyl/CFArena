@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.vampire;
 
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.vampire.Vampire;
 import me.hapyl.spigotutils.module.math.Numbers;
@@ -8,7 +9,7 @@ import org.bukkit.entity.Player;
 
 public class VampireData {
 
-    private final Player player;
+    private final GamePlayer player;
 
     private double damageMultiplier;
 
@@ -16,7 +17,7 @@ public class VampireData {
     private long durationMillis;
     private long usedAt;
 
-    public VampireData(Player player) {
+    public VampireData(GamePlayer player) {
         this.player = player;
         this.damageMultiplier = 1.0d;
         this.usedAt = -1L;
@@ -41,7 +42,7 @@ public class VampireData {
         setBlood(getBlood() + i);
     }
 
-    public Player getPlayer() {
+    public GamePlayer getPlayer() {
         return player;
     }
 

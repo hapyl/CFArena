@@ -1,6 +1,8 @@
 package me.hapyl.fight.game;
 
-import org.bukkit.entity.Player;
+import me.hapyl.fight.game.entity.GamePlayer;
+
+import javax.annotation.Nonnull;
 
 /**
  * Indicates that this class a game element that process player actions.
@@ -12,7 +14,7 @@ public interface PlayerElement {
      *
      * @param player - Player.
      */
-    default void onStart(Player player) {
+    default void onStart(@Nonnull GamePlayer player) {
     }
 
     /**
@@ -20,7 +22,7 @@ public interface PlayerElement {
      *
      * @param player - Player.
      */
-    default void onStop(Player player) {
+    default void onStop(@Nonnull GamePlayer player) {
     }
 
     /**
@@ -28,7 +30,7 @@ public interface PlayerElement {
      *
      * @param player - Player.
      */
-    default void onDeath(Player player) {
+    default void onDeath(@Nonnull GamePlayer player) {
     }
 
 }

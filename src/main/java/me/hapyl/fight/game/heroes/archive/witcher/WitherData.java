@@ -1,7 +1,8 @@
 package me.hapyl.fight.game.heroes.archive.witcher;
 
-import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.dark_mage.AnimatedWither;
 import me.hapyl.fight.game.task.GameTask;
@@ -11,8 +12,6 @@ import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Sound;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.entity.Wither;
 
 import javax.annotation.Nonnull;
@@ -23,12 +22,12 @@ public class WitherData {
     public static final double ASSIST_DAMAGE_TOTAL = 10.0d;
     public static final int ASSIST_HITS = 3;
 
-    public final Player player;
+    public final GamePlayer player;
     public final AnimatedWither animatedWither;
     public final Wither wither;
     private long lastAssist;
 
-    public WitherData(Player player) {
+    public WitherData(GamePlayer player) {
         this.player = player;
         this.animatedWither = new AnimatedWither(getWitherLocation(player), 400) {
 
@@ -48,7 +47,7 @@ public class WitherData {
 
             @Override
             public void onStop() {
-                Chat.sendMessage(player, "&cYour %s is gone!", witherName());
+                player.sendMessage("&cYour %s is gone!", witherName());
                 wither.remove();
             }
 
@@ -83,7 +82,7 @@ public class WitherData {
         animatedWither.remove();
     }
 
-    public void assistAttack(@Nonnull LivingEntity entity) {
+    public void assistAttack(@Nonnull LivingGameEntity entity) {
         if (System.currentTimeMillis() - lastAssist < ASSIST_DELAY) {
             return;
         }
@@ -91,10 +90,7 @@ public class WitherData {
         lastAssist = System.currentTimeMillis();
 
         GameTask.runTaskTimerTimes(task -> {
-            entity.setNoDamageTicks(0);
-            CF.getEntityOptional(entity).ifPresent(gameEntity -> {
-                gameEntity.damageTick(ASSIST_DAMAGE_TOTAL / ASSIST_HITS, player, EnumDamageCause.WITHERBORN, ASSIST_HITS);
-            });
+            entity.damageTick(ASSIST_DAMAGE_TOTAL / ASSIST_HITS, player, EnumDamageCause.WITHERBORN, ASSIST_HITS);
 
             // Fx
             PlayerLib.playSound(wither.getLocation(), Sound.ENTITY_WITHER_SHOOT, 1.25f);
@@ -102,7 +98,7 @@ public class WitherData {
     }
 
 
-    private Location getWitherLocation(Player player) {
+    private Location getWitherLocation(GamePlayer player) {
         final Location location = player.getEyeLocation();
         return LocationHelper.getToTheRight(location, 1.5d);
     }

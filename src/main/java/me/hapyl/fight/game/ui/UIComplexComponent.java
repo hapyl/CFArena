@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.ui;
 
-import org.bukkit.entity.Player;
+import me.hapyl.fight.game.entity.GamePlayer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -12,10 +12,10 @@ import java.util.List;
 public interface UIComplexComponent extends UIComponent {
 
     @Nullable
-    List<String> getStrings(Player player);
+    List<String> getStrings(@Nonnull GamePlayer player);
 
     @Override
-    default @Nonnull String getString(Player player) {
+    default @Nonnull String getString(@Nonnull GamePlayer player) {
         final List<String> strings = getStrings(player);
         final StringBuilder builder = new StringBuilder();
 

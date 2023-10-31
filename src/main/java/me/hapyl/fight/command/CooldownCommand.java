@@ -1,5 +1,6 @@
 package me.hapyl.fight.command;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.ChargedTalent;
@@ -18,23 +19,23 @@ public class CooldownCommand extends SimplePlayerAdminCommand {
 
     @Override
     protected void execute(Player player, String[] args) {
-        final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
+        final GamePlayer gamePlayer = CF.getPlayer(player);
+
+        if (gamePlayer == null) {
+            Chat.sendMessage(player, "&cNo handle.");
+            return;
+        }
 
         if (!Manager.current().isDebug()) {
             Chat.sendMessage(player, "&cNot in debug mode!");
             return;
         }
 
-        if (gamePlayer == null) {
-            Chat.sendMessage(player, "&cCannot use this command outside a game!");
-            return;
-        }
-
         final Weapon weapon = gamePlayer.getHero().getWeapon();
-        GamePlayer.setCooldown(player, weapon.getMaterial(), 0);
+        gamePlayer.stopCooldown(weapon.getMaterial());
 
         weapon.getAbilities().forEach(ability -> {
-            ability.stopCooldown(player);
+            ability.stopCooldown(gamePlayer);
         });
 
         for (Talent talent : gamePlayer.getHero().getTalents()) {
@@ -46,14 +47,15 @@ public class CooldownCommand extends SimplePlayerAdminCommand {
                 continue;
             }
 
-            talent.stopCd(player);
+            talent.stopCd(gamePlayer);
             if (talent instanceof ChargedTalent chargedTalent) {
-                chargedTalent.grantAllCharges(player);
+                chargedTalent.grantAllCharges(gamePlayer);
             }
         }
 
-        gamePlayer.getUltimate().stopCd(player);
-        gamePlayer.getHero().setUsingUltimate(player, false);
-        Chat.sendMessage(player, "&aReset cooldowns.");
+        gamePlayer.getUltimate().stopCd(gamePlayer);
+        gamePlayer.getHero().setUsingUltimate(gamePlayer, false);
+
+        gamePlayer.sendMessage("&aReset cooldowns!");
     }
 }

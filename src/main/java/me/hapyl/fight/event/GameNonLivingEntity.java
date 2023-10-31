@@ -19,6 +19,7 @@ public class GameNonLivingEntity extends LivingGameEntity {
         throw error("attributes");
     }
 
+    @Nonnull
     @Override
     @Deprecated
     public EntityData getData() {

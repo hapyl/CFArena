@@ -22,7 +22,7 @@ public class DeathmatchKills extends CFGameMode {
     }
 
     public DeathmatchKills() {
-        this("K Deathmatch", 1800, 10);
+        this("Kills Deathmatch", 1800, 10);
 
         setDescription("""
                 Free for All death-match when everyone is fighting for kills.

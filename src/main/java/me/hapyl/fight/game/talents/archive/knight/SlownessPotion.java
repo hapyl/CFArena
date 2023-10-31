@@ -1,14 +1,16 @@
 package me.hapyl.fight.game.talents.archive.knight;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Color;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.entity.ThrownPotion;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
+
+import javax.annotation.Nonnull;
 
 public class SlownessPotion extends Talent {
 
@@ -28,11 +30,11 @@ public class SlownessPotion extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final ThrownPotion potion = player.launchProjectile(ThrownPotion.class);
 
         potion.setItem(potionItem);
-        potion.setShooter(player);
+        potion.setShooter(player.getPlayer());
 
         return Response.OK;
     }

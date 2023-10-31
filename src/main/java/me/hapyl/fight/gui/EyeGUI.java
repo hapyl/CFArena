@@ -1,6 +1,7 @@
 package me.hapyl.fight.gui;
 
 import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.database.entry.DailyRewardEntry;
 import me.hapyl.fight.game.collectible.relic.Type;
 import me.hapyl.fight.game.reward.DailyReward;
 import me.hapyl.fight.game.reward.Reward;
@@ -38,17 +39,32 @@ public class EyeGUI extends PlayerDynamicGUI {
                 .asIcon(), RelicHuntGUI::new);
 
         // Daily Reward
-        final boolean canClaimDaily = database.dailyRewardEntry.canClaim();
+        final DailyRewardEntry rewardEntry = database.dailyRewardEntry;
+        final boolean canClaimDaily = rewardEntry.canClaim();
         final Reward dailyReward = Rewards.DAILY.getReward();
         final ItemBuilder builder = ItemBuilder.of(canClaimDaily ? Material.CHEST_MINECART : Material.MINECART, "&aDaily Reward");
 
-        dailyReward.display(getPlayer(), builder);
+        builder.addLore(canClaimDaily ? "Today's Rewards:" : "Tomorrow's Rewards:");
+
+        dailyReward.formatBuilder(getPlayer(), builder);
+
+        builder.addLore();
+        builder.addLore("&7Current streak: &a%s &7days", rewardEntry.getStreak());
+        builder.addLore();
+
+        if (canClaimDaily) {
+            builder.addLore("&eClick to claim!");
+        }
+        else {
+            builder.addLore("&eAlready claimed today!");
+            builder.addLore("&eCome again in %s to claim.", DailyReward.formatDaily(player));
+        }
 
         setItem(31, builder.asIcon());
 
         if (canClaimDaily) {
             setClick(31, player -> {
-                dailyReward.grantReward(player);
+                dailyReward.grant(player);
                 update();
             });
         }

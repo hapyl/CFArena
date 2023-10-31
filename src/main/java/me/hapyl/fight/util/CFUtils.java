@@ -2,8 +2,10 @@ package me.hapyl.fight.util;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
+import me.hapyl.fight.annotate.ForceCloned;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
@@ -237,7 +239,7 @@ public class CFUtils {
 
     }
 
-    public static void rayTraceLine(Player shooter, double maxDistance, double shift, double damage, @Nullable EnumDamageCause cause, @Nullable Consumer<Location> onMove, @Nullable Consumer<LivingEntity> onHit) {
+    public static void rayTraceLine(GamePlayer shooter, double maxDistance, double shift, double damage, @Nullable EnumDamageCause cause, @Nullable Consumer<Location> onMove, @Nullable Consumer<LivingEntity> onHit) {
         final Location location = shooter.getLocation().add(0, 1.5, 0);
         final Vector vector = location.getDirection().normalize();
 
@@ -255,7 +257,7 @@ public class CFUtils {
             }
 
             for (final LivingGameEntity gameEntity : Collect.nearbyEntities(location, 1.0)) {
-                if (gameEntity.is(shooter)) {
+                if (gameEntity.equals(shooter)) {
                     continue;
                 }
 
@@ -264,7 +266,7 @@ public class CFUtils {
                 }
 
                 if (damage > 0.0d) {
-                    gameEntity.damage(damage, CF.getEntity(shooter), cause);
+                    gameEntity.damage(damage, shooter, cause);
                 }
 
                 break main;
@@ -298,7 +300,7 @@ public class CFUtils {
         return entity;
     }
 
-    public static void rayTraceLine(Player shooter, double maxDistance, double shift, double damage, @Nullable Consumer<Location> onMove, @Nullable Consumer<LivingEntity> onHit) {
+    public static void rayTraceLine(GamePlayer shooter, double maxDistance, double shift, double damage, @Nullable Consumer<Location> onMove, @Nullable Consumer<LivingEntity> onHit) {
         rayTraceLine(shooter, maxDistance, shift, damage, null, onMove, onHit);
     }
 
@@ -370,7 +372,7 @@ public class CFUtils {
      * @param player - Player if team check is needed.
      * @return true if entity is "valid," false otherwise.
      */
-    public static boolean isEntityValid(Entity entity, @Nullable Player player) {
+    public static boolean isEntityValid(Entity entity, @Nullable GamePlayer player) {
         if (!(entity instanceof LivingEntity livingEntity)) {
             return false;
         }
@@ -383,15 +385,15 @@ public class CFUtils {
         return gameEntity.isValid(player);
     }
 
-    public static void createExplosion(Location location, double range, double damage, Consumer<LivingEntity> consumer) {
+    public static void createExplosion(Location location, double range, double damage, Consumer<LivingGameEntity> consumer) {
         createExplosion(location, range, damage, null, null, consumer);
     }
 
-    public static void createExplosion(Location location, double range, double damage, @Nullable LivingEntity damager, @Nullable EnumDamageCause cause) {
+    public static void createExplosion(Location location, double range, double damage, @Nullable LivingGameEntity damager, @Nullable EnumDamageCause cause) {
         createExplosion(location, range, damage, damager, cause, null);
     }
 
-    public static void createExplosion(Location location, double range, double damage, @Nullable LivingEntity damager, @Nullable EnumDamageCause cause, @Nullable Consumer<LivingEntity> consumer) {
+    public static void createExplosion(Location location, double range, double damage, @Nullable LivingGameEntity damager, @Nullable EnumDamageCause cause, @Nullable Consumer<LivingGameEntity> consumer) {
         final World world = location.getWorld();
         if (world == null) {
             return;
@@ -399,10 +401,10 @@ public class CFUtils {
 
         Collect.nearbyEntities(location, range).forEach(entity -> {
             if (damage > 0.0d) {
-                entity.damage(damage, CF.getEntity(damager), cause);
+                entity.damage(damage, damager, cause);
             }
             if (consumer != null) {
-                consumer.accept(entity.getEntity());
+                consumer.accept(entity);
             }
         });
 
@@ -602,5 +604,25 @@ public class CFUtils {
         }
 
         instance.setBaseValue(value);
+    }
+
+    public static double dot(Location start, @ForceCloned Location end) {
+        final Vector vector = end.clone().subtract(start).toVector().normalize();
+
+        return start.getDirection().normalize().dot(vector);
+    }
+
+    public static double dot(Location start, @ForceCloned Location end, double distance) {
+        if (start.distance(end) < distance) {
+            return -1.0d;
+        }
+
+        return dot(start, end);
+    }
+
+    public static boolean dot(Location start, @ForceCloned Location end, float dot, double distance) {
+        final double theDot = dot(start, end, distance);
+
+        return theDot >= dot;
     }
 }

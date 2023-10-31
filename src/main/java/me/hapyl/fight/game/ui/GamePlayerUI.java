@@ -17,6 +17,7 @@ import me.hapyl.fight.game.setting.Setting;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.game.team.LocalTeamManager;
 import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -83,6 +84,12 @@ public class GamePlayerUI {
                 animateScoreboard();
                 updateScoreboard();
 
+                // Update above name
+                if (tick % 20 == 0) {
+                    final LocalTeamManager teamManager = profile.getLocalTeamManager();
+                    teamManager.tickAll();
+                }
+
                 final GamePlayer gamePlayer = profile.getGamePlayer();
 
                 if (gamePlayer != null) {
@@ -131,7 +138,6 @@ public class GamePlayerUI {
         if (gamePlayer.isAlive() && !gamePlayer.isSpectator()) {
             Chat.sendActionbar(player, format.format(gamePlayer, ultimateColor));
         }
-
     }
 
     public void updateScoreboard() {
@@ -142,6 +148,7 @@ public class GamePlayerUI {
         this.builder.addLines("");
         //        this.builder.addLines("", "Welcome %s to the".formatted(this.player.getName()), "&lClasses Fight &fArena!", "");
 
+        // TODO (hapyl): 023, Oct 23: Rework the bold colors are TRASH
         // FIXME (hapyl): 006, Aug 6: temp fix
         if (current.isGameInProgress()) {
             final IGameInstance game = current.getCurrentGame();
@@ -165,10 +172,10 @@ public class GamePlayerUI {
                 else {
                     // Default Game Lines
                     this.builder.addLines(
-                            "&6&lGame: &8" + game.hexCode(),
-                            " &e&lMap: &f%s".formatted(current.getCurrentMap().getMap().getName()),
-                            " &e&lTime Left: &f%s".formatted(getTimeLeftString(game)),
-                            " &e&lStatus: &f%s".formatted(gamePlayer.getStatusString())
+                            "&6Game: &8" + game.hexCode(),
+                            " &eMap: &f%s".formatted(current.getCurrentMap().getMap().getName()),
+                            " &eTime Left: &f%s".formatted(getTimeLeftString(game)),
+                            " &eStatus: &f%s".formatted(gamePlayer.getStatusString())
                     );
 
                     game.getMode().formatScoreboard(builder, (GameInstance) game, gamePlayer);
@@ -235,7 +242,7 @@ public class GamePlayerUI {
             else {
                 int i = 0;
                 for (GamePlayer teammate : team.getPlayers()) {
-                    final boolean usingUltimate = teammate.getHero().isUsingUltimate(teammate.getPlayer());
+                    final boolean usingUltimate = teammate.getHero().isUsingUltimate(teammate);
 
                     if (i != 0) {
                         builder.append("\n");

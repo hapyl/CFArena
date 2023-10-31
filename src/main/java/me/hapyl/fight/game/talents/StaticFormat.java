@@ -20,6 +20,9 @@ public final class StaticFormat<T> {
     public static final StaticFormat<Cooldown> COOLDOWN
             = create("{cooldown}", cooldown -> "&b" + BukkitUtils.roundTick(cooldown.getCooldown()) + "s&7");
 
+    public static final StaticFormat<UltimateTalent> ULTIMATE_CAST_DURATION
+            = create("{cast}", ultimate -> "&b" + BukkitUtils.roundTick(ultimate.getCastDuration()) + "s&7");
+
     private final String target;
     private final Function<T, String> function;
 
@@ -56,6 +59,10 @@ public final class StaticFormat<T> {
         string = NAME.format(string, talent);
         string = DURATION.format(string, talent);
         string = COOLDOWN.format(string, talent);
+
+        if (talent instanceof UltimateTalent ultimateTalent) {
+            string = ULTIMATE_CAST_DURATION.format(string, ultimateTalent);
+        }
 
         return string;
     }

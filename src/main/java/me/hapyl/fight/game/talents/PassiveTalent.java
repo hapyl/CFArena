@@ -1,8 +1,10 @@
 package me.hapyl.fight.game.talents;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
+
+import javax.annotation.Nonnull;
 
 public class PassiveTalent extends Talent {
 
@@ -17,7 +19,7 @@ public class PassiveTalent extends Talent {
     }
 
     @Override
-    public final Response execute(Player player) {
+    public final Response execute(@Nonnull GamePlayer player) {
         player.sendMessage("do not execute passive talents");
         return Response.OK;
     }

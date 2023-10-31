@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.archive.alchemist;
 
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.alchemist.Alchemist;
 import me.hapyl.fight.game.talents.Talents;
@@ -19,7 +20,6 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
@@ -27,7 +27,9 @@ import org.bukkit.util.EulerAngle;
 
 public class AlchemicalCauldron extends TickingGameTask {
 
-    private final Player owner;
+    private final double progressPerTick = 1.75d;
+
+    private final GamePlayer owner;
     private final Location location;
     private final ArmorStand standBar;
     private final ArmorStand standOwner;
@@ -37,7 +39,7 @@ public class AlchemicalCauldron extends TickingGameTask {
     private Status status;
     private Block cauldronBlock;
 
-    public AlchemicalCauldron(Player owner, Location location) {
+    public AlchemicalCauldron(GamePlayer owner, Location location) {
         this.owner = owner;
         this.location = location;
         this.createCauldron();
@@ -85,7 +87,7 @@ public class AlchemicalCauldron extends TickingGameTask {
                 return;
             }
 
-            progress += 1.5d;
+            progress += progressPerTick;
 
             if (progress % 15 == 0) {
                 playSound(Sound.AMBIENT_UNDERWATER_EXIT, 1.5f);
@@ -103,18 +105,15 @@ public class AlchemicalCauldron extends TickingGameTask {
             });
 
             // Damage players in zone
-            Collect.nearbyEntities(location, 4.5d)
-                    .forEach(entity -> {
-                        if (entity.is(owner)) {
-                            entity.sendSubtitle("&cIntoxication Warning!", 0, 20, 0);
-                            entity.asPlayer(player -> {
-                                ((Alchemist) Heroes.ALCHEMIST.getHero()).addToxin(player, 8);
-                            });
-                        }
-                        else {
-                            entity.addPotionEffect(PotionEffectType.POISON, 20, 5);
-                        }
-                    });
+            Collect.nearbyEntities(location, 4.5d).forEach(entity -> {
+                if (entity.equals(owner)) {
+                    entity.sendSubtitle("&cIntoxication Warning!", 0, 20, 0);
+                    ((Alchemist) Heroes.ALCHEMIST.getHero()).addToxin(owner, 8);
+                }
+                else {
+                    entity.addPotionEffect(PotionEffectType.POISON, 20, 5);
+                }
+            });
         }
     }
 
@@ -154,11 +153,13 @@ public class AlchemicalCauldron extends TickingGameTask {
     }
 
     public void finish() {
-        PlayerLib.addEffect(owner, PotionEffectType.SPEED, 30, 2);
-        PlayerLib.playSound(owner, Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 2.0f);
-        Chat.sendMessage(owner, "&aYou have gained the Cauldron Buff!");
         Talents.CAULDRON.getTalent().startCd(owner);
         ((Alchemist) Heroes.ALCHEMIST.getHero()).startCauldronBoost(owner);
+
+        owner.addPotionEffect(PotionEffectType.SPEED, 30, 2);
+        owner.playSound(Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 2.0f);
+        owner.sendMessage("&aYou have gained the Cauldron Buff!");
+
         clear();
     }
 

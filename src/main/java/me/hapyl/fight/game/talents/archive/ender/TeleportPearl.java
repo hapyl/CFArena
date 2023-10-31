@@ -1,34 +1,34 @@
 package me.hapyl.fight.game.talents.archive.ender;
 
-import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.EnderPearl;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.spigotmc.event.entity.EntityDismountEvent;
 
+import javax.annotation.Nonnull;
 import java.util.HashSet;
 import java.util.Set;
 
 public class TeleportPearl extends Talent implements Listener {
 
     private final Set<EnderPearl> enderPearls = new HashSet<>();
-    @DisplayField(suffix = "&f❤") private final double teleportationHealing = 3.0d;
 
     public TeleportPearl() {
         super("Rideable Pearl");
 
         setDescription("""
-                Throw an ender pearl and mount to ride it all the way! &e&lSNEAK &7to throw normally.
-                                
-                &7Heals &c{teleportationHealing} ❤ &7upon teleport.
+                Throw an ender pearl and mount to ride it all the way!
+                &6&lSNEAK &7to throw normally.
                 """);
 
         setCooldown(160);
@@ -41,15 +41,15 @@ public class TeleportPearl extends Talent implements Listener {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final EnderPearl pearl = player.launchProjectile(EnderPearl.class);
 
         enderPearls.add(pearl);
-        pearl.setShooter(player);
+        pearl.setShooter(player.getPlayer());
 
         if (!player.isSneaking()) {
-            PlayerLib.playSound(player, Sound.ENTITY_HORSE_SADDLE, 1.5f);
-            pearl.addPassenger(player);
+            player.playSound(Sound.ENTITY_HORSE_SADDLE, 1.5f);
+            pearl.addPassenger(player.getPlayer());
         }
 
         return Response.OK;
@@ -57,12 +57,31 @@ public class TeleportPearl extends Talent implements Listener {
 
     @EventHandler()
     public void handleProjectileHitEvent(ProjectileHitEvent ev) {
-        if (ev.getEntity() instanceof EnderPearl pearl && enderPearls.contains(pearl)) {
-            if (pearl.getShooter() instanceof Player player) {
-                GamePlayer.getPlayer(player).heal(teleportationHealing);
-                PlayerLib.spawnParticle(player.getEyeLocation().add(0.0d, 0.5d, 0.0d), Particle.HEART, 1, 0, 0, 0, 0);
-            }
-            enderPearls.remove(pearl);
+        final Projectile projectile = ev.getEntity();
+        if (!(projectile instanceof EnderPearl pearl) || !(projectile.getShooter() instanceof Player player)) {
+            return;
         }
+
+        enderPearls.remove(pearl);
     }
+
+    @EventHandler()
+    public void handleDismountEvent(EntityDismountEvent ev) {
+        final Entity entity = ev.getEntity();
+        final Entity dismounted = ev.getDismounted();
+
+        if (!(entity instanceof Player player) || !(dismounted instanceof EnderPearl enderPearl)) {
+            return;
+        }
+
+        if (!enderPearls.contains(enderPearl) || enderPearl.getShooter() != player) {
+            return;
+        }
+
+        enderPearls.remove(enderPearl);
+        enderPearl.remove();
+
+        Chat.sendMessage(player, "&aYour ender pearl has disappeared.");
+    }
+
 }

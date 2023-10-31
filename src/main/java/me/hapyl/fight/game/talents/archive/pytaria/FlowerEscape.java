@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.talents.archive.pytaria;
 
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.pytaria.Pytaria;
 import me.hapyl.fight.game.talents.Talent;
@@ -20,9 +20,10 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
+
+import javax.annotation.Nonnull;
 
 public class FlowerEscape extends Talent {
 
@@ -45,7 +46,7 @@ public class FlowerEscape extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocation();
         final Vector vector = player.getLocation().getDirection().normalize().multiply(-1.5d);
         player.setVelocity(vector.setY(0.5d));
@@ -57,14 +58,14 @@ public class FlowerEscape extends Talent {
             Nulls.runIfNotNull(me.getEquipment(), equipment -> equipment.setHelmet(new ItemStack(getMaterial())));
         });
 
-        final double finalDamage = Heroes.PYTARIA.getHero(Pytaria.class).calculateDamage(player, flowerDamage);
+        final double finalDamage = Heroes.PYTARIA.getHero(Pytaria.class).calculateDamage(player, flowerDamage, EnumDamageCause.FLOWER);
 
         new GameTask() {
             private int tick = getDuration();
 
             @Override
             public void run() {
-                if (GamePlayer.getPlayer(player).isDead()) {
+                if (player.isDead()) {
                     entity.remove();
                     cancel();
                     return;

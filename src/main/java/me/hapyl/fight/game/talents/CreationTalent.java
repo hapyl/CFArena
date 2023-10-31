@@ -1,11 +1,10 @@
 package me.hapyl.fight.game.talents;
 
-import com.google.common.collect.Maps;
-import org.bukkit.entity.Player;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Map;
 
 /**
  * Represents a talent, that creates something, be that entity or a pillar or anything really.
@@ -13,7 +12,7 @@ import java.util.Map;
  */
 public abstract class CreationTalent extends Talent {
 
-    private final Map<Player, CreationBuffer> mapped;
+    private final PlayerMap<CreationBuffer> mapped;
     private final int maxCreations;
     private boolean removeAtDeath;
 
@@ -32,7 +31,7 @@ public abstract class CreationTalent extends Talent {
     public CreationTalent(@Nonnull String name, @Nonnull String description, int maxCreations) {
         super(name, description);
 
-        this.mapped = Maps.newHashMap();
+        this.mapped = PlayerMap.newMap();
         this.removeAtDeath = true;
         this.maxCreations = maxCreations;
     }
@@ -66,11 +65,11 @@ public abstract class CreationTalent extends Talent {
         mapped.clear();
     }
 
-    public void uponDeath(@Nonnull Player player) {
+    public void uponDeath(@Nonnull GamePlayer player) {
     }
 
     @Override
-    public final void onDeath(@Nonnull Player player) {
+    public final void onDeath(@Nonnull GamePlayer player) {
         uponDeath(player);
 
         if (!removeAtDeath) {
@@ -87,7 +86,7 @@ public abstract class CreationTalent extends Talent {
      * @return the first creation if present; null otherwise.
      */
     @Nullable
-    public final Creation getCreation(@Nonnull Player player) {
+    public final Creation getCreation(@Nonnull GamePlayer player) {
         return getBuffer(player).peekFirst();
     }
 
@@ -99,7 +98,7 @@ public abstract class CreationTalent extends Talent {
      * @param creation - Creation.
      * @return the newly created creation.
      */
-    public final Creation newCreation(@Nonnull Player player, @Nonnull Creation creation) {
+    public final Creation newCreation(@Nonnull GamePlayer player, @Nonnull Creation creation) {
         getBuffer(player).add(creation);
         return creation;
     }
@@ -115,7 +114,7 @@ public abstract class CreationTalent extends Talent {
      * @return the removed value or null.
      */
     @Nullable
-    public final Creation removeFirstCreation(Player player) {
+    public final Creation removeFirstCreation(@Nonnull GamePlayer player) {
         final CreationBuffer buffer = getBuffer(player);
         final Creation first = buffer.first();
 
@@ -130,7 +129,7 @@ public abstract class CreationTalent extends Talent {
      * @param player - Player.
      * @return number of creations removed.
      */
-    public int removeAllCreations(Player player) {
+    public int removeAllCreations(GamePlayer player) {
         final CreationBuffer buffer = getBuffer(player);
         final int count = buffer.count();
 
@@ -149,7 +148,7 @@ public abstract class CreationTalent extends Talent {
      * @param player   - Player.
      * @param creation - Creation.
      */
-    public final void removeCreation(Player player, @Nonnull Creation creation) {
+    public final void removeCreation(@Nonnull GamePlayer player, @Nonnull Creation creation) {
         getBuffer(player).remove(creation);
     }
 
@@ -159,7 +158,7 @@ public abstract class CreationTalent extends Talent {
      * @param player - Player.
      * @return the number of creations' player has.
      */
-    public int countCreations(Player player) {
+    public int countCreations(@Nonnull GamePlayer player) {
         return getBuffer(player).count();
     }
 
@@ -169,12 +168,12 @@ public abstract class CreationTalent extends Talent {
      * @param player - Player.
      * @return true if a player has at least one creation; false otherwise.
      */
-    public boolean isExists(Player player) {
+    public boolean isExists(@Nonnull GamePlayer player) {
         return countCreations(player) >= 1;
     }
 
     @Nonnull
-    private CreationBuffer getBuffer(Player player) {
+    private CreationBuffer getBuffer(@Nonnull GamePlayer player) {
         return mapped.computeIfAbsent(player, v -> new CreationBuffer(player, maxCreations));
     }
 }

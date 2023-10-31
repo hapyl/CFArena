@@ -41,4 +41,11 @@ public @interface DisplayField {
     @Nonnull
     String extra() default "";
 
+    /**
+     * Annotates that this field is a percentage and should be scaled by 100, appended with "%" without a space.
+     *
+     * @return is percentage.
+     */
+    boolean percentage() default false;
+
 }

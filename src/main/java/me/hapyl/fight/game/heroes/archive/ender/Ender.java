@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.archive.ender;
 
-import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.event.custom.EnderPearlTeleportEvent;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -8,30 +9,17 @@ import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.archive.ender.EnderPassive;
 import me.hapyl.fight.game.talents.archive.ender.TransmissionBeacon;
-import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.CFUtils;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
-import me.hapyl.spigotutils.module.util.LinkedKeyValMap;
-import org.bukkit.Location;
+import me.hapyl.fight.game.task.TickingGameTask;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffectType;
+
+import javax.annotation.Nonnull;
 
 public class Ender extends Hero implements Listener {
-
-    private final LinkedKeyValMap<Player, Entity> beaconLocation = new LinkedKeyValMap<>();
-    private final double locationError = 1.3;
 
     public Ender() {
         super("Ender");
@@ -64,115 +52,47 @@ public class Ender extends Hero implements Listener {
     }
 
     @Override
-    public boolean predicateUltimate(Player player) {
-        return beaconLocation.containsKey(player);
+    public boolean predicateUltimate(@Nonnull GamePlayer player) {
+        return getSecondTalent().hasBeacon(player);
     }
 
     @Override
-    public String predicateMessage(Player player) {
+    public String predicateMessage(@Nonnull GamePlayer player) {
         return "Transmission Beacon is not placed!";
     }
 
     @Override
-    public void useUltimate(Player player) {
-        teleportToBeacon(player);
+    public void useUltimate(@Nonnull GamePlayer player) {
+        getSecondTalent().teleportToBeacon(player);
     }
 
     @EventHandler()
-    public void handleEntityDamage(EntityDamageByEntityEvent ev) {
-        final Manager current = Manager.current();
-        if (current.isGameInProgress()
-                && ev.getEntity() instanceof ArmorStand stand
-                && ev.getDamager() instanceof Player player
-                && current.isPlayerInGame(player)) {
+    public void handleTeleportEvent(EnderPearlTeleportEvent ev) {
+        final GamePlayer player = ev.getPlayer();
 
-            if (!beaconLocation.containsValue(stand)) {
-                return;
-            }
-
-            final Player owner = beaconLocation.getKey(stand);
-            if (owner == null) {
-                return;
-            }
-
-            stand.remove();
-            beaconLocation.remove(owner);
-
-            final TransmissionBeacon talent = Talents.TRANSMISSION_BEACON.getTalent(TransmissionBeacon.class);
-            talent.startCd(owner, talent.getDestroyCd());
-
-            // Fx
-            PlayerLib.playSound(stand.getLocation(), Sound.BLOCK_GLASS_BREAK, 0.0f);
-            Chat.sendMessage(player, "&aYou broke &l%s's &aTransmission Beacon!", owner.getName());
-            Chat.sendTitle(owner, "", "&aBeacon Destroyed!", 10, 20, 10);
-        }
-    }
-
-    @Override
-    public void onDeath(Player player) {
-        beaconLocation.useValueAndRemove(player, Entity::remove);
-    }
-
-    public void setBeaconLocation(Player player, Location location) {
-        if (hasBeacon(player)) {
+        if (!validatePlayer(player.getPlayer())) {
             return;
         }
 
-        beaconLocation.put(player, Entities.ARMOR_STAND.spawn(location.add(0.5d, -locationError, 0.5d), me -> {
-            me.setSilent(true);
-            me.setVisible(false);
-            me.setGravity(false);
-            me.setMaxHealth(2048.0d);
-            me.setHealth(2048.0d);
-            if (me.getEquipment() != null) {
-                me.getEquipment().setHelmet(new ItemStack(Material.BEACON));
-            }
-
-            CFUtils.lockArmorStand(me);
-        }));
-    }
-
-    public boolean hasBeacon(Player player) {
-        return beaconLocation.containsKey(player);
-    }
-
-    public void teleportToBeacon(Player player) {
-        final Entity entity = beaconLocation.getValue(player);
-        if (entity == null) {
-            return;
-        }
-
-        beaconLocation.remove(player);
-        entity.remove();
-
-        final Location location = entity.getLocation().add(0.0d, locationError, 0.0d);
-        BukkitUtils.mergePitchYaw(player.getLocation(), location);
-        player.teleport(location);
-        PlayerLib.addEffect(player, PotionEffectType.BLINDNESS, 20, 1);
-        PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.75f);
-    }
-
-    @Override
-    public void onStop() {
-        // Utils.clearCollection; modCheck
-        // beaconLocation is not a collection you dumbo
-        beaconLocation.values().forEach(Entity::remove);
-        beaconLocation.clear();
+        getPassiveTalent().handleTeleport(player);
     }
 
     @Override
     public void onStart() {
-        new GameTask() {
+        new TickingGameTask() {
             @Override
-            public void run() {
+            public void run(int tick) {
+                // Damage players in water
                 Heroes.ENDER.getAlivePlayers().forEach(player -> {
-                    if (player.getPlayer().isInWater()) {
-                        player.damage(2.0d);
-                        PlayerLib.playSound(player.getPlayer(), Sound.ENTITY_ENDERMAN_HURT, 1.2f);
+                    if (!player.getPlayer().isInWater()) {
+                        return;
                     }
+
+                    player.damage(2.0d);
+                    player.playWorldSound(Sound.ENTITY_ENDERMAN_HURT, 1.2f);
                 });
             }
-        }.runTaskTimer(0, 20);
+        }.runTaskTimer(0, 15);
     }
 
     @Override
@@ -181,12 +101,12 @@ public class Ender extends Hero implements Listener {
     }
 
     @Override
-    public Talent getSecondTalent() {
-        return Talents.TRANSMISSION_BEACON.getTalent();
+    public TransmissionBeacon getSecondTalent() {
+        return (TransmissionBeacon) Talents.TRANSMISSION_BEACON.getTalent();
     }
 
     @Override
-    public Talent getPassiveTalent() {
-        return Talents.ENDERMAN_FLESH.getTalent();
+    public EnderPassive getPassiveTalent() {
+        return (EnderPassive) Talents.ENDER_PASSIVE.getTalent();
     }
 }

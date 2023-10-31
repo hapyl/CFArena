@@ -4,6 +4,7 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.DisabledHero;
@@ -17,7 +18,6 @@ import me.hapyl.fight.game.talents.archive.tamer.Pack;
 import me.hapyl.fight.game.talents.archive.tamer.TamerPack;
 import me.hapyl.fight.game.talents.archive.tamer.TamerPacks;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -30,6 +30,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.EquipmentSlot;
+
+import javax.annotation.Nonnull;
 
 public class Tamer extends Hero implements Listener, DisabledHero {
 
@@ -90,20 +92,20 @@ public class Tamer extends Hero implements Listener, DisabledHero {
     }
 
     @Override
-    public boolean predicateUltimate(Player player) {
+    public boolean predicateUltimate(@Nonnull GamePlayer player) {
         final TamerPack pack = getPlayerPack(player);
         return pack != null && pack.isAlive();
     }
 
     @Override
-    public String predicateMessage(Player player) {
+    public String predicateMessage(@Nonnull GamePlayer player) {
         final TamerPack pack = getPlayerPack(player);
 
         return pack == null ? "You don't have a pack!" : "Your pack is dead!";
     }
 
     @Override
-    public void useUltimate(Player player) {
+    public void useUltimate(@Nonnull GamePlayer player) {
         final TamerPack playerPack = getPlayerPack(player);
 
         if (playerPack == null) {
@@ -114,17 +116,17 @@ public class Tamer extends Hero implements Listener, DisabledHero {
     }
 
     @Override
-    public void onUltimateEnd(Player player) {
+    public void onUltimateEnd(@Nonnull GamePlayer player) {
         executeTamerPackOnUltimateEnd(player);
     }
 
     @Override
-    public void onDeath(Player player) {
+    public void onDeath(@Nonnull GamePlayer player) {
         executeTamerPackOnUltimateEnd(player);
     }
 
     // Cleaned up the code a little
-    public void executeTamerPackOnUltimateEnd(Player player) {
+    public void executeTamerPackOnUltimateEnd(GamePlayer player) {
         final TamerPack pack = getPlayerPack(player);
 
         if (pack == null) {
@@ -135,13 +137,13 @@ public class Tamer extends Hero implements Listener, DisabledHero {
         pack.removeAll();
     }
 
-    public TamerPack getPlayerPack(Player player) {
+    public TamerPack getPlayerPack(GamePlayer player) {
         return getFirstTalent().getPack(player);
     }
 
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final Player player = input.getDamagerAsBukkitPlayer();
+        final GamePlayer player = input.getDamagerAsPlayer();
         final LivingGameEntity entity = input.getEntity();
 
         if (player == null) {
@@ -149,7 +151,7 @@ public class Tamer extends Hero implements Listener, DisabledHero {
         }
 
         if (getFirstTalent().isPackEntity(player, entity.getEntity())) {
-            Chat.sendMessage(player, "&cYou cannot damage your own minion!");
+            player.sendMessage("&cYou cannot damage your own minion!");
             return DamageOutput.CANCEL;
         }
 

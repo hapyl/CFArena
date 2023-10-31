@@ -3,14 +3,16 @@ package me.hapyl.fight.game.talents.archive.librarian;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+
+import javax.annotation.Nonnull;
 
 public class EntityDarkness extends LibrarianTalent {
     public EntityDarkness() {
@@ -22,7 +24,7 @@ public class EntityDarkness extends LibrarianTalent {
     }
 
     @Override
-    public Response executeGrimoire(Player player) {
+    public Response executeGrimoire(@Nonnull GamePlayer player) {
         final Location location = player.getEyeLocation();
         final Vector direction = location.getDirection();
 
@@ -39,7 +41,7 @@ public class EntityDarkness extends LibrarianTalent {
 
             PlayerLib.spawnParticle(location, Particle.SQUID_INK, 1, 0.1, 0.05, 0.1, 0);
             Collect.nearbyEntities(location, 1.25d).forEach(victim -> {
-                if (victim.is(player)) {
+                if (victim.equals(player)) {
                     return;
                 }
 

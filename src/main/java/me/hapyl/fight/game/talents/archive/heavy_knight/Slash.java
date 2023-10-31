@@ -20,6 +20,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class Slash extends Talent {
@@ -41,7 +42,7 @@ public class Slash extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocation();
         final Vector direction = location.getDirection().normalize().setY(0.0d);
 
@@ -75,9 +76,9 @@ public class Slash extends Talent {
         return Response.OK;
     }
 
-    private boolean checkTalentOrder(Player player) {
+    private boolean checkTalentOrder(GamePlayer player) {
         final Hero hero = Heroes.SWORD_MASTER.getHero(SwordMaster.class);
-        final TalentQueue talentQueue = GamePlayer.getPlayer(player).getTalentQueue();
+        final TalentQueue talentQueue = player.getTalentQueue();
 
         // have to check for 2 talents, since talent is added AFTER it's executed
         // but since last 2 talents are a and b, this is the third one

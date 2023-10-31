@@ -1,11 +1,13 @@
 package me.hapyl.fight.game.talents.archive.engineer;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.engineer.Engineer;
 import me.hapyl.fight.game.talents.Talent;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
+
+import javax.annotation.Nonnull;
 
 public class EngineerRecall extends Talent {
     public EngineerRecall() {
@@ -20,7 +22,7 @@ public class EngineerRecall extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final Construct construct = Heroes.ENGINEER.getHero(Engineer.class).getConstruct(player);
 
         if (construct == null) {

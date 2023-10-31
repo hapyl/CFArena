@@ -1,11 +1,13 @@
 package me.hapyl.fight.game.maps.features;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.BlockLocation;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,94 +15,62 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 public class BoosterController implements Listener {
 
-	private final Map<Player, Entity> boosterMap = new ConcurrentHashMap<>();
+    private final PlayerMap<Entity> boosterMap = PlayerMap.newConcurrentMap();
 
-	public BoosterController(Main main) {
-		main.getServer().getPluginManager().registerEvents(this, main);
+    public BoosterController(Main main) {
+        main.getServer().getPluginManager().registerEvents(this, main);
 
-		new BukkitRunnable() {
-			@Override
-			public void run() {
-				if (boosterMap.isEmpty()) {
-					return;
-				}
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (boosterMap.isEmpty()) {
+                    return;
+                }
 
-				boosterMap.forEach((player, entity) -> {
-					if (entity.isDead() || entity.isOnGround()) {
-						boosterMap.remove(player);
-						entity.getPassengers().forEach(Entity::eject);
-						entity.remove();
-					}
-				});
-			}
-		}.runTaskTimer(Main.getPlugin(), 0, 2);
-	}
+                boosterMap.forEach((player, entity) -> {
+                    if (entity.isDead() || entity.isOnGround()) {
+                        boosterMap.remove(player);
+                        entity.getPassengers().forEach(Entity::eject);
+                        entity.remove();
+                    }
+                });
+            }
+        }.runTaskTimer(Main.getPlugin(), 0, 2);
+    }
 
-	@EventHandler()
-	public void handleBoosterLaunch(PlayerInteractEvent ev) {
-		final Player player = ev.getPlayer();
-		final Action action = ev.getAction();
-		final Block block = ev.getClickedBlock();
+    @EventHandler()
+    public void handleBoosterLaunch(PlayerInteractEvent ev) {
+        final GamePlayer player = CF.getPlayer(ev.getPlayer());
 
-		if (action != Action.PHYSICAL
-				|| block == null
-				|| block.getType() != Material.HEAVY_WEIGHTED_PRESSURE_PLATE
-				|| boosterMap.containsKey(player)) {
-			return;
-		}
+        if (player == null) {
+            return;
+        }
 
-		final Booster booster = Booster.byLocation(new BlockLocation(block.getLocation()));
-		if (booster == null || isOnBooster(player)) {
-			return;
-		}
+        final Action action = ev.getAction();
+        final Block block = ev.getClickedBlock();
 
-		ev.setUseInteractedBlock(Event.Result.DENY);
+        if (action != Action.PHYSICAL
+                || block == null
+                || block.getType() != Material.HEAVY_WEIGHTED_PRESSURE_PLATE
+                || boosterMap.containsKey(player)) {
+            return;
+        }
 
-		final Entity entity = booster.launchAndRide(player, false);
-		boosterMap.put(player, entity);
-	}
+        final Booster booster = Booster.byLocation(new BlockLocation(block.getLocation()));
+        if (booster == null || isOnBooster(player)) {
+            return;
+        }
 
-	public boolean isOnBooster(Player player) {
-		return boosterMap.containsKey(player);
-	}
+        ev.setUseInteractedBlock(Event.Result.DENY);
 
-	//@EventHandler()
-	//public void handleDismount(EntityDismountEvent ev) {
-	//	final Entity dismounted = ev.getDismounted();
-	//	final Entity entity = ev.getEntity();
-	//
-	//	checkMountAndCancel(ev, dismounted, entity);
-	//}
-	//
-	//@EventHandler()
-	//public void handleDismount0(VehicleExitEvent ev) {
-	//	final LivingEntity dismounted = ev.getExited();
-	//	final Vehicle entity = ev.getVehicle();
-	//
-	//	checkMountAndCancel(ev, entity, dismounted);
-	//}
-	//
-	//private void checkMountAndCancel(Cancellable event, @Nonnull Entity dismounted, @Nonnull Entity entity) {
-	//	if (!(entity instanceof Player player) || !boosterMap.containsKey(player)) {
-	//		return;
-	//	}
-	//
-	//	if (dismounted.isDead()) {
-	//		boosterMap.remove(player);
-	//		return;
-	//	}
-	//
-	//	dismounted.addPassenger(entity);
-	//	event.setCancelled(true);
-	//
-	//	// FX
-	//	Chat.sendTitle(player, "", "&cCannot dismount booster!", 0, 10, 0);
-	//	PlayerLib.villagerNo(player);
-	//}
+        final Entity entity = booster.launchAndRide(player, false);
+        boosterMap.put(player, entity);
+    }
+
+    public boolean isOnBooster(GamePlayer player) {
+        return boosterMap.containsKey(player);
+    }
 
 }

@@ -29,6 +29,10 @@ public abstract class Cosmetic extends CollectionItem implements Formatted, Enum
         }
     }
 
+    public Cosmetic(String name, Type type, Rarity rarity) {
+        this(name, null, type, rarity, Material.BARRIER);
+    }
+
     public Cosmetic(String name, String description, Type type, Rarity rarity) {
         this(name, description, type, rarity, Material.BARRIER);
     }
@@ -55,15 +59,22 @@ public abstract class Cosmetic extends CollectionItem implements Formatted, Enum
     }
 
     @Override
+    public Cosmetic setTexture(String texture) {
+        super.setTexture(texture);
+        return this;
+    }
+
+    @Nonnull
+    @Override
     public ItemBuilder createItem(Player player) {
         final ItemBuilder builder = super.createItem(player).removeLore();
 
         final Rarity rarity = getRarity();
 
         // Rarity Type Cosmetic
-        builder.addLore(rarity.toString());
+        builder.addLore(rarity + rarity.getColor().color(" " + type.toSmallCaps()));
         builder.addLore("");
-        builder.addSmartLore("&7" + getDescription());
+        builder.addTextBlockLore(getDescription());
 
         addExtraLore(builder, player);
         return builder;
@@ -81,8 +92,6 @@ public abstract class Cosmetic extends CollectionItem implements Formatted, Enum
         return this;
     }
 
-    protected abstract void onDisplay(Display display);
-
     public final void onDisplay0(Display display) {
         final Player player = display.getPlayer();
 
@@ -96,6 +105,12 @@ public abstract class Cosmetic extends CollectionItem implements Formatted, Enum
         onDisplay(display);
     }
 
+    public void onEquip(Player player) {
+    }
+
+    public void onUnequip(Player player) {
+    }
+
     @Nonnull
     @Override
     public String getFormatted() {
@@ -106,5 +121,7 @@ public abstract class Cosmetic extends CollectionItem implements Formatted, Enum
     public Type getType() {
         return type;
     }
+
+    protected abstract void onDisplay(Display display);
 
 }

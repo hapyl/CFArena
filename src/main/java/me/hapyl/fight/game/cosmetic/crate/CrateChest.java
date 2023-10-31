@@ -20,11 +20,12 @@ import javax.annotation.Nullable;
 public class CrateChest extends Location {
 
     public static final String PREFIX = Color.BUTTON.color("&lCRATE! ") + Color.DEFAULT;
+
     public final PlayerHologram hologram;
     private Player occupiedBy;
 
     public CrateChest(int x, int y, int z) {
-        super(BukkitUtils.defWorld(), x + 0.5d, y, z + 0.5);
+        super(BukkitUtils.defWorld(), x + 0.5d, y, z + 0.5d);
 
         this.hologram = new PlayerHologram(this.addAsNew(0.0d, 1.0d, 0.0d));
     }

@@ -8,6 +8,7 @@ import org.joml.Vector3f;
 
 import javax.annotation.Nonnull;
 
+// FIXME (hapyl): 020, Oct 20: Fix this
 public class DamageDisplay extends StringDisplay {
 
     public static final String FORMAT = "&b&l%.1f";

@@ -36,7 +36,7 @@ public class GamePackListener implements Listener {
                 continue;
             }
 
-            collisionPack.pickup0(player);
+            collisionPack.pickup0(gamePlayer);
             break;
         }
 

@@ -2,6 +2,7 @@ package me.hapyl.fight.game.weapons.ability;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Cooldown;
 import me.hapyl.fight.game.talents.Timed;
 import me.hapyl.fight.game.weapons.LeftClickable;
@@ -9,12 +10,9 @@ import me.hapyl.fight.game.weapons.RightClickable;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Described;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -44,10 +42,14 @@ public abstract class Ability implements Described, Timed, Cooldown, DisplayFiel
         this(name, description.formatted(format));
     }
 
-    @Nullable
-    public abstract Response execute(@Nonnull Player player, @Nonnull ItemStack item);
+    public void setCooldownMaterial(@Nullable Material cooldownMaterial) {
+        this.cooldownMaterial = cooldownMaterial;
+    }
 
-    public final void execute0(Player player, ItemStack item) {
+    @Nullable
+    public abstract Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item);
+
+    public final void execute0(GamePlayer player, ItemStack item) {
         if (hasCooldown(player)) {
             sendError(player, "&cThis ability is on cooldown for %s!", getCooldownTimeLeftFormatted(player));
             return;
@@ -59,16 +61,13 @@ public abstract class Ability implements Described, Timed, Cooldown, DisplayFiel
             return;
         }
 
-        if (cooldown > 0) {
+        if (cooldown > 0 && (response != null && response.isOk())) {
             startCooldown(player, cooldown);
-            if (cooldownMaterial != null) {
-                player.setCooldown(cooldownMaterial, cooldown);
-            }
         }
     }
 
-    public int getCooldownTimeLeft(Player player) {
-        final AbilityCooldown abilityCooldown = cooldownMap.get(player.getUniqueId());
+    public int getCooldownTimeLeft(GamePlayer player) {
+        final AbilityCooldown abilityCooldown = cooldownMap.get(player.getUUID());
 
         if (abilityCooldown == null) {
             return 0;
@@ -78,35 +77,38 @@ public abstract class Ability implements Described, Timed, Cooldown, DisplayFiel
     }
 
     @Nonnull
-    public String getCooldownTimeLeftFormatted(Player player) {
+    public String getCooldownTimeLeftFormatted(GamePlayer player) {
         return CFUtils.decimalFormatTick(getCooldownTimeLeft(player));
     }
 
-    public void stopCooldown(Player player) {
-        cooldownMap.remove(player.getUniqueId());
+    public void stopCooldown(GamePlayer player) {
+        cooldownMap.remove(player.getUUID());
     }
 
     public void clearCooldowns() {
         cooldownMap.clear();
     }
 
-    public void startCooldown(Player player) {
+    public void startCooldown(GamePlayer player) {
         startCooldown(player, cooldown);
     }
 
-    public void startCooldown(Player player, int cooldown) {
-        cooldownMap.put(player.getUniqueId(), new AbilityCooldown(System.currentTimeMillis(), cooldown * 50L));
+    public void startCooldown(GamePlayer player, int cooldown) {
+        cooldownMap.put(player.getUUID(), new AbilityCooldown(System.currentTimeMillis(), cooldown * 50L));
+        if (cooldownMaterial != null) {
+            player.setCooldown(cooldownMaterial, cooldown);
+        }
     }
 
-    public boolean hasCooldown(Player player) {
-        final AbilityCooldown abilityCooldown = cooldownMap.get(player.getUniqueId());
+    public boolean hasCooldown(GamePlayer player) {
+        final AbilityCooldown abilityCooldown = cooldownMap.get(player.getUUID());
 
         if (abilityCooldown == null) {
             return false;
         }
 
         if (abilityCooldown.isOver()) {
-            cooldownMap.remove(player.getUniqueId());
+            cooldownMap.remove(player.getUUID());
             return false;
         }
 
@@ -151,23 +153,23 @@ public abstract class Ability implements Described, Timed, Cooldown, DisplayFiel
         this.description = description;
     }
 
-    private void sendError(Player player, String error, Object... format) {
-        Chat.sendMessage(player, ChatColor.RED + error, format);
-        PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
+    private void sendError(GamePlayer player, String error, Object... format) {
+        player.sendMessage(ChatColor.RED + error, format);
+        player.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
     }
 
     public static Ability of(String name, String description, LeftClickable event) {
-        return of(name, description, (BiConsumer<Player, ItemStack>) event::onLeftClick);
+        return of(name, description, (BiConsumer<GamePlayer, ItemStack>) event::onLeftClick);
     }
 
     public static Ability of(String name, String description, RightClickable event) {
-        return of(name, description, (BiConsumer<Player, ItemStack>) event::onRightClick);
+        return of(name, description, (BiConsumer<GamePlayer, ItemStack>) event::onRightClick);
     }
 
-    public static Ability of(String name, String description, BiConsumer<Player, ItemStack> consumer) {
+    public static Ability of(String name, String description, BiConsumer<GamePlayer, ItemStack> consumer) {
         return new Ability(name, description) {
             @Override
-            public Response execute(@Nonnull Player player, @Nonnull ItemStack item) {
+            public Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
                 consumer.accept(player, item);
                 return Response.OK;
             }

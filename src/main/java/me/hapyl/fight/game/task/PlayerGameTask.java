@@ -13,12 +13,7 @@ public abstract class PlayerGameTask extends GameTask {
 
     private final GamePlayer player;
 
-    public PlayerGameTask(Player player) {
-        this(GamePlayer.getExistingPlayer(player));
-    }
-
-    public PlayerGameTask(GamePlayer player) {
-        Validate.isTrue(player != null, "must be an existing player");
+    public PlayerGameTask(@Nonnull GamePlayer player) {
         this.player = player;
         this.player.addTask(this);
     }

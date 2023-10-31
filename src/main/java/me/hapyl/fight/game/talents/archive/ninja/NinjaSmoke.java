@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.talents.archive.ninja;
 
-import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
@@ -11,8 +11,9 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
+
+import javax.annotation.Nonnull;
 
 public class NinjaSmoke extends Talent {
     public NinjaSmoke() {
@@ -27,16 +28,16 @@ public class NinjaSmoke extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocation();
-        CF.getOrCreatePlayer(player).addEffect(GameEffectType.INVISIBILITY, getDuration());
+        player.addEffect(GameEffectType.INVISIBILITY, getDuration());
 
         GameTask.runDuration(this, i -> {
             PlayerLib.spawnParticle(location, Particle.EXPLOSION_NORMAL, 20, 1, 0, 1, 0.0f);
             Collect.nearbyPlayers(location, 2).forEach(range -> range.addPotionEffect(PotionEffectType.BLINDNESS, 30, 1));
         }, 20);
 
-        PlayerLib.playSound(player, Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.0f);
+        player.playSound(Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.0f);
         return Response.OK;
     }
 }

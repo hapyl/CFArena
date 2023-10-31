@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.archive.nightmare;
 
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.Collect;
@@ -11,8 +12,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerLeashEntityEvent;
@@ -29,7 +28,7 @@ public class ShadowShift extends Talent implements Listener {
         super("Shadow Shift", """
                 Instantly teleport behind player you're looking at to strike from behind.
                                         
-                You will lose ability to move for a short duration.
+                You will lose the ability to move for a short duration.
                 """, Type.COMBAT);
 
         setItem(Material.LEAD);
@@ -37,11 +36,11 @@ public class ShadowShift extends Talent implements Listener {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final TargetLocation targetLocation = getLocationAndCheck0(player, 50.0d, 0.95d);
 
         if (targetLocation.getError() != ErrorCode.OK) {
-            PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
+            player.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
             return Response.error(targetLocation.getError().getErrorMessage());
         }
 
@@ -57,7 +56,7 @@ public class ShadowShift extends Talent implements Listener {
         return Response.OK;
     }
 
-    public TargetLocation getLocationAndCheck0(Player player, double maxDistance, double dot) {
+    public TargetLocation getLocationAndCheck0(GamePlayer player, double maxDistance, double dot) {
         final LivingGameEntity target = Collect.targetEntity(player, maxDistance, dot, e -> e.hasLineOfSight(player));
 
         if (target == null) {
@@ -72,7 +71,7 @@ public class ShadowShift extends Talent implements Listener {
             return new TargetLocation(null, null, ErrorCode.OCCLUDING);
         }
         else {
-            return new TargetLocation(target.getEntity(), behind, ErrorCode.OK);
+            return new TargetLocation(target, behind, ErrorCode.OK);
         }
     }
 
@@ -85,18 +84,18 @@ public class ShadowShift extends Talent implements Listener {
 
     public static class TargetLocation {
 
-        private final LivingEntity entity;
+        private final LivingGameEntity entity;
         private final Location location;
         private final ErrorCode error;
 
-        TargetLocation(LivingEntity entity, Location location, ErrorCode error) {
+        TargetLocation(LivingGameEntity entity, Location location, ErrorCode error) {
             this.entity = entity;
             this.location = location;
             this.error = error;
         }
 
         @Nonnull
-        public LivingEntity getEntity() {
+        public LivingGameEntity getEntity() {
             if (error != ErrorCode.OK) {
                 throw new IllegalStateException("check for error before getting entity!");
             }

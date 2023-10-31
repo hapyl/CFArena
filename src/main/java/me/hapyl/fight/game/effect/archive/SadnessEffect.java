@@ -30,7 +30,7 @@ public class SadnessEffect extends GameEffect {
         attributes.subtract(AttributeType.ATTACK, attackDecrease);
 
         entity.sendMessage("&5&l➰ &dYou feel sad and lonely!");
-        entity.playSound(Sound.ENTITY_CAT_AMBIENT, 0.0f);
+        entity.playWorldSound(Sound.ENTITY_CAT_AMBIENT, 0.0f);
     }
 
     @Override
@@ -41,8 +41,8 @@ public class SadnessEffect extends GameEffect {
         attributes.add(AttributeType.ATTACK, attackDecrease);
 
         entity.sendMessage("&5&l➰ &dThe loneliness is gone!");
-        entity.playSound(Sound.ENTITY_CAT_AMBIENT, 1.75f);
-        entity.playSound(Sound.ENTITY_CAT_PURREOW, 1.25f);
+        entity.playWorldSound(Sound.ENTITY_CAT_AMBIENT, 1.75f);
+        entity.playWorldSound(Sound.ENTITY_CAT_PURREOW, 1.25f);
     }
 
     @Override

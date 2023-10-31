@@ -65,7 +65,7 @@ public class VoidAbomination extends GameEntityType<Enderman> {
         public DamageOutput onDamageTaken(@Nonnull DamageInput input) {
             input.getDamagerOptional().ifPresent(damager -> {
                 damager.sendMessage("&5&l&k1 &cThis creature is immune to this kind of damage! &5&l&k1");
-                damager.playPlayerSound(Sound.ENTITY_IRON_GOLEM_HURT, 1.25f);
+                damager.playSound(Sound.ENTITY_IRON_GOLEM_HURT, 1.25f);
             });
 
             return DamageOutput.CANCEL;

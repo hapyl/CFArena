@@ -9,6 +9,7 @@ import me.hapyl.fight.game.EntityElement;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.StaticServerEvent;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.maps.gamepack.ChangePack;
 import me.hapyl.fight.game.maps.gamepack.GamePack;
@@ -18,7 +19,6 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
 import org.bukkit.*;
-import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -75,7 +75,7 @@ public class GameMap implements GameElement, PlayerElement, EntityElement {
     }
 
     @Override
-    public void onDeath(Player player) {
+    public void onDeath(@Nonnull GamePlayer player) {
         for (MapFeature feature : getFeatures()) {
             feature.onDeath(player);
         }
@@ -302,13 +302,13 @@ public class GameMap implements GameElement, PlayerElement, EntityElement {
     }
 
     @Override
-    public final void onStop() {
+    public void onStop() {
         gamePacks.values().forEach(GamePack::onStop);
         features.forEach(MapFeature::onStop);
     }
 
     @Override
-    public final void onPlayersReveal() {
+    public void onPlayersReveal() {
         gamePacks.values().forEach(GamePack::onPlayersReveal);
         features.forEach(MapFeature::onPlayersReveal);
     }

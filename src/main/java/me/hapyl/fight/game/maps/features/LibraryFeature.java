@@ -3,29 +3,26 @@ package me.hapyl.fight.game.maps.features;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.maps.MapFeature;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.HashMap;
-import java.util.Map;
+import javax.annotation.Nonnull;
 
 public class LibraryFeature extends MapFeature implements Listener {
 
     private final LibraryKeyport portals;
-    private final Map<Player, Integer> voidMap = new HashMap<>();
+    private final PlayerMap<Integer> voidMap = PlayerMap.newMap();
     private final char[] chars = { 'ᛈ', 'ᚢ', 'ᛋ', 'ᛏ', 'ᛟ', 'ᛏ', 'ᚨ' };
 
     public LibraryFeature() {
@@ -37,7 +34,7 @@ public class LibraryFeature extends MapFeature implements Listener {
     }
 
     @Override
-    public void onDeath(Player player) {
+    public void onDeath(@Nonnull GamePlayer player) {
         voidMap.remove(player);
     }
 
@@ -56,8 +53,8 @@ public class LibraryFeature extends MapFeature implements Listener {
                 portals.getEntrances().forEach(blockLoc -> {
                     final Location location = blockLoc.toLocation().add(0.0d, 1.0d, 0.0d);
 
-                    PlayerLib.spawnParticle(location, Particle.PORTAL, 20, 0.1d, 0.5d, 0.1d, 1.0f);
-                    PlayerLib.spawnParticle(location, Particle.ENCHANTMENT_TABLE, 10, 0.1d, 0.5d, 0.1d, 1.0f);
+                    PlayerLib.spawnParticle(location, Particle.PORTAL, 20, 0.1d, 1.5d, 0.1d, 1.0f);
+                    PlayerLib.spawnParticle(location, Particle.ENCHANTMENT_TABLE, 10, 0.1d, 1.5d, 0.1d, 1.0f);
                 });
 
                 if (tick % 200 == 0) {
@@ -69,8 +66,7 @@ public class LibraryFeature extends MapFeature implements Listener {
         }.runTaskTimer(5, 5);
     }
 
-    private void removeVoidValue(GamePlayer gamePlayer) {
-        final Player player = gamePlayer.getPlayer();
+    private void removeVoidValue(GamePlayer player) {
         voidMap.computeIfPresent(player, (pl, a) -> Numbers.clamp(a - 1, 0, 7));
         displayVoidValues(player);
     }
@@ -81,9 +77,13 @@ public class LibraryFeature extends MapFeature implements Listener {
             return;
         }
 
-        final Player player = ev.getPlayer();
-        final boolean success = this.portals.testPlayer(player);
-        if (!success) {
+        final GamePlayer player = CF.getPlayer(ev.getPlayer());
+
+        if (player == null) {
+            return;
+        }
+
+        if (!portals.testPlayer(player)) {
             return;
         }
 
@@ -91,7 +91,7 @@ public class LibraryFeature extends MapFeature implements Listener {
         displayVoidValues(player);
     }
 
-    private void displayVoidValues(Player player) {
+    private void displayVoidValues(GamePlayer player) {
         final int current = voidMap.getOrDefault(player, 0);
         if (current <= 0) {
             return;
@@ -107,18 +107,17 @@ public class LibraryFeature extends MapFeature implements Listener {
             case 6 -> subtitle = "Vulnerable to Void";
             case 7 -> {
                 subtitle = "Void Consuming You";
-                GamePlayer.getPlayer(player).damage(30, EnumDamageCause.LIBRARY_VOID);
-                PlayerLib.addEffect(player, PotionEffectType.WITHER, 20, 0);
+                player.damage(30, EnumDamageCause.LIBRARY_VOID);
+                player.addPotionEffect(PotionEffectType.WITHER, 20, 0);
             }
         }
 
-        Chat.sendTitle(player, builder.toString(), "&6" + subtitle, 0, 20, 5);
-        PlayerLib.playSound(player, Sound.AMBIENT_SOUL_SAND_VALLEY_MOOD, 2.0f);
+        player.sendTitle(builder.toString(), "&6" + subtitle, 0, 20, 5);
+        player.playSound(Sound.AMBIENT_SOUL_SAND_VALLEY_MOOD, 2.0f);
     }
 
     @Override
-    public void tick(int tickMod20) {
-
+    public void tick(int tick) {
     }
 
 }

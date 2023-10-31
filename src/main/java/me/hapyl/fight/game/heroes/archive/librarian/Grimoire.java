@@ -1,44 +1,46 @@
 package me.hapyl.fight.game.heroes.archive.librarian;
 
+import me.hapyl.fight.game.entity.GamePlayer;
 import org.bukkit.entity.Player;
 
 public class Grimoire {
 
-	private final Player player;
-	private int usedAtLevel;
-	private GrimoireBook currentBook;
+    private final GamePlayer player;
+    private int usedAtLevel;
 
-	public Grimoire(Player player) {
-		this.player = player;
-		this.usedAtLevel = 1;
-		this.currentBook = GrimoireBook.NORMAL;
-	}
+    private GrimoireBook currentBook;
 
-	public void nextBook() {
-		if (isMaxed()) {
-			return;
-		}
-		currentBook = currentBook.next();
-	}
+    public Grimoire(GamePlayer player) {
+        this.player = player;
+        this.usedAtLevel = 1;
+        this.currentBook = GrimoireBook.NORMAL;
+    }
 
-	public void markUsedNow() {
-		usedAtLevel = currentBook.getBookLevel();
-	}
+    public void nextBook() {
+        if (isMaxed()) {
+            return;
+        }
+        currentBook = currentBook.next();
+    }
 
-	public boolean isMaxed() {
-		return currentBook != null && currentBook.isMaxed();
-	}
+    public void markUsedNow() {
+        usedAtLevel = currentBook.getBookLevel();
+    }
 
-	public int getUsedAtLevel() {
-		return usedAtLevel;
-	}
+    public boolean isMaxed() {
+        return currentBook != null && currentBook.isMaxed();
+    }
 
-	public Player getPlayer() {
-		return player;
-	}
+    public int getUsedAtLevel() {
+        return usedAtLevel;
+    }
 
-	public GrimoireBook getCurrentBook() {
-		return currentBook;
-	}
+    public GamePlayer getPlayer() {
+        return player;
+    }
+
+    public GrimoireBook getCurrentBook() {
+        return currentBook;
+    }
 
 }

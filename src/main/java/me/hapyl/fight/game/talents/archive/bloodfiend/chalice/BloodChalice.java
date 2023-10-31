@@ -13,7 +13,6 @@ import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -29,7 +28,7 @@ public class BloodChalice extends Taunt implements TalentReference<BloodChaliceT
     private final ArmorStand[] stand;
     private int health;
 
-    public BloodChalice(BloodChaliceTalent reference, Player player, GamePlayer target) {
+    public BloodChalice(BloodChaliceTalent reference, GamePlayer player, GamePlayer target) {
         super(player, target);
         final Location location = player.getLocation();
 
@@ -68,7 +67,7 @@ public class BloodChalice extends Taunt implements TalentReference<BloodChaliceT
             self.setSilent(true);
             self.setHelmet(BLOOD_TEXTURE);
 
-            CFUtils.setGlowing(player, self, "chalice", ChatColor.GREEN);
+            CFUtils.setGlowing(player.getPlayer(), self, "chalice", ChatColor.GREEN);
             CFUtils.setGlowing(target.getPlayer(), self, "chalice", ChatColor.RED);
 
             self.setGlowing(true);
@@ -85,7 +84,7 @@ public class BloodChalice extends Taunt implements TalentReference<BloodChaliceT
         if (player.getLocation().distance(baseLocation) >= reference.maxDistance) {
             remove();
 
-            Chat.sendMessage(player, "&4&l🍷 &cThe Chalice broke because you strayed too far away!");
+            player.sendMessage("&4&l🍷 &cThe Chalice broke because you strayed too far away!");
             return;
         }
 

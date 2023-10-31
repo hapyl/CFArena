@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.talents;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.annotate.ExecuteOrder;
@@ -210,7 +209,7 @@ public abstract class Talent extends NonNullItemCreator
      *
      * @param player - Player that died.
      */
-    public void onDeath(Player player) {
+    public void onDeath(@Nonnull GamePlayer player) {
     }
 
     public void displayDuration(Player player, int duration, byte b) {
@@ -357,11 +356,11 @@ public abstract class Talent extends NonNullItemCreator
         return this;
     }
 
-    public abstract Response execute(Player player);
+    public abstract Response execute(@Nonnull GamePlayer player);
 
     @Super
     @Nonnull
-    public final Response execute0(Player player) {
+    public final Response execute0(@Nonnull GamePlayer player) {
         final Response precondition = preconditionTalent(player);
 
         if (precondition.isError()) {
@@ -371,7 +370,7 @@ public abstract class Talent extends NonNullItemCreator
         final Response response = execute(player);
 
         if (castMessage != null) {
-            Chat.sendMessage(player, castMessage);
+            player.sendMessage(castMessage);
         }
 
         // If error, don't progress talent
@@ -385,9 +384,9 @@ public abstract class Talent extends NonNullItemCreator
     }
 
     // Performs post-process for a talent, such as storing stats, progressing achievements etc.
-    public final void postProcessTalent(Player player) {
+    public final void postProcessTalent(@Nonnull GamePlayer player) {
         // Progress ability usage
-        final StatContainer stats = GamePlayer.getPlayer(player).getStats();
+        final StatContainer stats = player.getStats();
         final Talents enumTalent = Talents.fromTalent(this);
         final DebugData debug = Manager.current().getDebug();
 
@@ -404,17 +403,17 @@ public abstract class Talent extends NonNullItemCreator
         });
     }
 
-    public final void startMaxCd(Player player) {
+    public final void startMaxCd(GamePlayer player) {
         startCd(player, 99999);
     }
 
-    public final void startCd(Player player, int cooldown) {
+    public final void startCd(GamePlayer player, int cooldown) {
         if (cooldown <= 0) {
             return;
         }
 
         // If a player has slowing aura, modify cooldown
-        if (GamePlayer.getPlayer(player).hasEffect(GameEffectType.SLOWING_AURA)) {
+        if (player.hasEffect(GameEffectType.SLOWING_AURA)) {
             cooldown *= ((SlowingAuraEffect) GameEffectType.SLOWING_AURA.getGameEffect()).COOLDOWN_MODIFIER;
         }
 
@@ -424,22 +423,22 @@ public abstract class Talent extends NonNullItemCreator
             return;
         }
 
-        GamePlayer.setCooldown(player, material, cooldown);
+        player.setCooldown(material, cooldown);
     }
 
-    public void startCd(Player player) {
+    public void startCd(@Nonnull GamePlayer player) {
         startCd(player, cd);
     }
 
-    public final void stopCd(@Nonnull Player player) {
+    public final void stopCd(@Nonnull GamePlayer player) {
         player.setCooldown(getMaterial(), 0);
     }
 
-    public final boolean hasCd(Player player) {
+    public final boolean hasCd(@Nonnull GamePlayer player) {
         return getCdTimeLeft(player) > 0L;
     }
 
-    public final int getCdTimeLeft(Player player) {
+    public final int getCdTimeLeft(GamePlayer player) {
         return player.getCooldown(this.material);
     }
 
@@ -507,9 +506,9 @@ public abstract class Talent extends NonNullItemCreator
         return Numbers.clamp(cd / 200, 1, 100);
     }
 
-    public static Condition<Player, Response> preconditionTalentAnd(@Nonnull Player player) {
+    public static Condition<GamePlayer, Response> preconditionTalentAnd(@Nonnull GamePlayer player) {
         final Response response = preconditionTalent(player);
-        final Condition<Player, Response> condition = new Condition<>(player, response);
+        final Condition<GamePlayer, Response> condition = new Condition<>(player, response);
 
         if (response.isError()) {
             return condition.setStatus(false);
@@ -520,17 +519,15 @@ public abstract class Talent extends NonNullItemCreator
 
     // Precondition player talent (and weapon) if it can be used.
     // Returns the error with a name of the blocking talent or OK.
-    public static Response preconditionTalent(Player player) {
-        final GamePlayer gamePlayer = CF.getPlayer(player);
-
-        if (gamePlayer == null) {
+    public static Response preconditionTalent(GamePlayer player) {
+        if (player == null) {
             return Response.ERROR;
         }
 
         for (GameEffectType type : GameEffectType.values()) {
             final GameEffect gameEffect = type.getGameEffect();
 
-            if (gameEffect.isTalentBlocking() && gamePlayer.hasEffect(type)) {
+            if (gameEffect.isTalentBlocking() && player.hasEffect(type)) {
                 return Response.error(gameEffect.getName());
             }
         }
@@ -575,4 +572,5 @@ public abstract class Talent extends NonNullItemCreator
     public synchronized void nullifyItem() {
         item = null;
     }
+
 }

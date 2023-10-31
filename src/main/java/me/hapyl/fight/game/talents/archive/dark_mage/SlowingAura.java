@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.archive.dark_mage;
 
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.dark_mage.DarkMageSpell;
 import me.hapyl.fight.game.task.GameTask;
@@ -17,7 +18,6 @@ import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
@@ -61,7 +61,7 @@ public class SlowingAura extends DarkMageTalent {
     }
 
     @Override
-    public Response executeSpell(Player player) {
+    public Response executeSpell(@Nonnull GamePlayer player) {
         final Block targetBlock = player.getTargetBlockExact(maxDistance);
 
         if (targetBlock == null) {
@@ -100,7 +100,7 @@ public class SlowingAura extends DarkMageTalent {
 
                 PlayerLib.playSound(location, BLOCK_HONEY_BLOCK_SLIDE, 0.0f);
                 Collect.nearbyPlayers(location, radius).forEach(entity -> {
-                    if (entity.is(player)) {
+                    if (entity.equals(player)) {
                         return; // Don't slow Dark Mage
                     }
 

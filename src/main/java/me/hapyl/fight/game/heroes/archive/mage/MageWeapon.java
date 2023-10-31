@@ -3,6 +3,7 @@ package me.hapyl.fight.game.heroes.archive.mage;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.HeroReference;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.weapons.RightClickable;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.game.weapons.ability.Ability;
@@ -14,7 +15,6 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -28,7 +28,7 @@ public class MageWeapon extends Weapon implements RightClickable, HeroReference<
 
         this.hero = hero;
 
-        setDamage(10.0d);
+        setDamage(8.0d);
         setName("Soul Eater");
         setDescription("""
                 A weapon capable of absorbing soul fragments and convert them into fuel.
@@ -47,7 +47,7 @@ public class MageWeapon extends Weapon implements RightClickable, HeroReference<
     }
 
     @Override
-    public void onRightClick(@Nonnull Player player, @Nonnull ItemStack item) {
+    public void onRightClick(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
         if (player.hasCooldown(Material.IRON_HOE)) {
             return;
         }
@@ -56,13 +56,13 @@ public class MageWeapon extends Weapon implements RightClickable, HeroReference<
         final int souls = hero.getSouls(player);
 
         if (souls <= 0) {
-            PlayerLib.playSound(player, Sound.ENTITY_PLAYER_BURP, 2.0f);
+            player.playSound(Sound.ENTITY_PLAYER_BURP, 2.0f);
             return;
         }
 
         hero.addSouls(player, -1);
         player.setCooldown(Material.IRON_HOE, 10);
-        PlayerLib.playSound(player, Sound.BLOCK_SOUL_SAND_BREAK, 0.75f);
+        player.playSound(Sound.BLOCK_SOUL_SAND_BREAK, 0.75f);
         CFUtils.rayTraceLine(player, 50, 0.5, -1.0d, this::spawnParticles, entity -> hitEnemy(entity, player));
     }
 
@@ -70,12 +70,12 @@ public class MageWeapon extends Weapon implements RightClickable, HeroReference<
         PlayerLib.spawnParticle(location, Particle.SOUL, 1, 0.1d, 0.0d, 0.1d, 0.035f);
     }
 
-    private void hitEnemy(LivingEntity livingEntity, Player player) {
+    private void hitEnemy(LivingEntity livingEntity, GamePlayer player) {
         final Location location = livingEntity.getLocation();
         livingEntity.addScoreboardTag("LastDamage=Soul");
 
         CF.getEntityOptional(livingEntity).ifPresent(entity -> {
-            entity.damage(getDamage(), CF.getPlayer(player), EnumDamageCause.SOUL_WHISPER);
+            entity.damage(getDamage() / 2, player, EnumDamageCause.SOUL_WHISPER);
         });
 
         PlayerLib.spawnParticle(location, Particle.SOUL, 8, 0, 0, 0, 0.10f);

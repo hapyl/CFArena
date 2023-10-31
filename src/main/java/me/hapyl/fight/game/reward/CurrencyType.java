@@ -21,7 +21,9 @@ public enum CurrencyType {
                 return;
             }
 
-            CF.getDatabase(player).getExperienceEntry().add(ExperienceEntry.Type.EXP, value);
+            final ExperienceEntry experienceEntry = CF.getDatabase(player).getExperienceEntry();
+            experienceEntry.add(ExperienceEntry.Type.EXP, value);
+            experienceEntry.update();
         }
 
         @Override
@@ -30,13 +32,15 @@ public enum CurrencyType {
                 return;
             }
 
-            CF.getDatabase(player).getExperienceEntry().remove(ExperienceEntry.Type.EXP, value);
+            final ExperienceEntry experienceEntry = CF.getDatabase(player).getExperienceEntry();
+            experienceEntry.remove(ExperienceEntry.Type.EXP, value);
+            experienceEntry.update();
         }
 
         @Nonnull
         @Override
         public String format(long value) {
-            return "&9 %,d Experience".formatted(value);
+            return "&9%,d Experience".formatted(value);
         }
     };
 
@@ -50,10 +54,6 @@ public enum CurrencyType {
         if (value <= 0) {
             return;
         }
-
-        Debug.info("increment call");
-        Debug.info("currency =" + currency);
-        Debug.info("value =" + value);
 
         CF.getDatabase(player).getCurrency().add(currency, value);
     }

@@ -3,6 +3,7 @@ package me.hapyl.fight.game.talents.archive.vampire;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
@@ -12,9 +13,9 @@ import me.hapyl.spigotutils.module.util.ThreadRandom;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Bat;
-import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
+import javax.annotation.Nonnull;
 import java.util.Set;
 
 public class BatSwarm extends Talent {
@@ -30,7 +31,7 @@ public class BatSwarm extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final Set<Bat> bats = Sets.newConcurrentHashSet();
 
         for (int i = 0; i < batCount; i++) {
@@ -58,7 +59,7 @@ public class BatSwarm extends Talent {
                     }
 
                     Collect.nearbyEntities(bat.getLocation(), 1.0d).forEach(entity -> {
-                        if (entity.is(player) || entity instanceof Bat || entity.getNoDamageTicks() > 0) {
+                        if (entity.equals(player) || entity instanceof Bat || entity.getNoDamageTicks() > 0) {
                             return;
                         }
 
@@ -77,7 +78,7 @@ public class BatSwarm extends Talent {
         return Response.OK;
     }
 
-    public Bat createBat(Player player) {
+    public Bat createBat(GamePlayer player) {
         final Location location = player.getLocation().add(0.0d, 0.5d, 0.0d);
         location.add(location.getDirection().setY(0.0d).multiply(2.0d));
 

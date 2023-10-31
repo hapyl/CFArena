@@ -1,27 +1,26 @@
 package me.hapyl.fight.game.talents.archive.bounty_hunter;
 
-import com.google.common.collect.Maps;
-import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.ChargedTalent;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.SlimeSplitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Map;
 
 public class GrappleHookTalent extends ChargedTalent implements Listener {
 
     @DisplayField(suffix = "blocks") protected final double maxDistance = 30.0d;
     @DisplayField private final int cooldown = 200;
 
-    private final Map<Player, GrappleHook> playerHooks = Maps.newHashMap();
+    private final PlayerMap<GrappleHook> playerHooks = PlayerMap.newMap();
 
     public GrappleHookTalent() {
         super("Grappling Hook", 3);
@@ -39,9 +38,9 @@ public class GrappleHookTalent extends ChargedTalent implements Listener {
     }
 
     @Override
-    public void onLastCharge(Player player) {
+    public void onLastCharge(@Nonnull GamePlayer player) {
         grantAllCharges(player, cooldown);
-        GamePlayer.setCooldown(player, getNoChargedMaterial(), cooldown);
+        player.setCooldown(getNoChargedMaterial(), cooldown);
     }
 
     @EventHandler()
@@ -52,7 +51,12 @@ public class GrappleHookTalent extends ChargedTalent implements Listener {
 
     @EventHandler()
     public void handleHookRemove(PlayerToggleSneakEvent ev) {
-        final Player player = ev.getPlayer();
+        final GamePlayer player = CF.getPlayer(ev.getPlayer());
+
+        if (player == null) {
+            return;
+        }
+
         final GrappleHook hook = getHook(player);
 
         if (hook == null || hook.isHookBroken()) {
@@ -62,11 +66,11 @@ public class GrappleHookTalent extends ChargedTalent implements Listener {
         hook.remove();
 
         // Fx
-        Chat.sendTitle(player, "&6∞", "&eHook rope cut!", 0, 10, 10);
+        player.sendTitle("&6∞", "&eHook rope cut!", 0, 10, 10);
     }
 
     @Override
-    public void onDeathCharged(Player player) {
+    public void onDeathCharged(@Nonnull GamePlayer player) {
         final GrappleHook hook = getHook(player);
 
         if (hook != null) {
@@ -81,16 +85,16 @@ public class GrappleHookTalent extends ChargedTalent implements Listener {
     }
 
     @Nullable
-    public GrappleHook getHook(Player player) {
+    public GrappleHook getHook(GamePlayer player) {
         return playerHooks.get(player);
     }
 
-    public boolean hasHook(Player player) {
+    public boolean hasHook(GamePlayer player) {
         return getHook(player) != null;
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final GrappleHook oldHook = getHook(player);
 
         if (oldHook != null) {

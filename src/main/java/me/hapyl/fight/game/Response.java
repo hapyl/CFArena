@@ -1,7 +1,6 @@
 package me.hapyl.fight.game;
 
-import me.hapyl.spigotutils.module.chat.Chat;
-import org.bukkit.entity.Player;
+import me.hapyl.fight.game.entity.GamePlayer;
 
 import javax.annotation.Nullable;
 
@@ -37,9 +36,9 @@ public class Response {
         return this.type == Type.AWAIT;
     }
 
-    public void sendError(Player player) {
+    public void sendError(GamePlayer player) {
         if (this.isError() && getReason() != null) {
-            Chat.sendMessage(player, "&cCannot use this! &l" + getReason());
+            player.sendMessage("&cCannot use this! &l" + getReason());
         }
     }
 

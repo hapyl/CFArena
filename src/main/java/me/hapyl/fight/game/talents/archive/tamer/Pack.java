@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.archive.tamer;
 
+import me.hapyl.fight.game.entity.GamePlayer;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 
 /**
  * Represents a blueprint for a pack of entities.
@@ -38,27 +38,27 @@ public abstract class Pack {
         return 1;
     }
 
-    public abstract void spawnEntity(Player player, Location location, TamerPack pack);
+    public abstract void spawnEntity(GamePlayer player, Location location, TamerPack pack);
 
     /**
      * Ticks every tick, duh.
      *
-     * @param player - Player who owns the pack
+     * @param player - Player, who owns the pack
      * @param pack   - Pack that is being ticked.
      */
-    public void onTick(Player player, TamerPack pack) {
+    public void onTick(GamePlayer player, TamerPack pack) {
     }
 
     /**
      * Called whenever player used their ultimate.
      *
-     * @param player - Player who used the ultimate
+     * @param player - Player, who used the ultimate
      * @param pack   - Pack that was used with.
      */
-    public void onUltimate(Player player, TamerPack pack) {
+    public void onUltimate(GamePlayer player, TamerPack pack) {
     }
 
-    public void onUltimateEnd(Player player, TamerPack pack) {
+    public void onUltimateEnd(GamePlayer player, TamerPack pack) {
     }
 
 }

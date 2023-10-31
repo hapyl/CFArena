@@ -39,7 +39,7 @@ public class TurbineFeature extends MapFeature {
     }
 
     @Override
-    public void tick(int tickMod20) {
+    public void tick(int tick) {
         turbines.forEach(turbine -> {
             final BoundingBoxCollector boundingBox = turbine.getBoundingBox();
             final BoundingBoxCollector killTrigger = turbine.getKillTrigger();
@@ -63,7 +63,7 @@ public class TurbineFeature extends MapFeature {
             // Display Fx
             final Location fxLocation = turbine.getFxLocation();
 
-            if (tickMod20 != 0) {
+            if (tick % 20 != 0) {
                 return;
             }
 

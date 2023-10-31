@@ -1,14 +1,14 @@
 package me.hapyl.fight.game.talents.archive.tamer;
 
-import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -24,12 +24,13 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
 public class MineOBall extends Talent implements Listener {
 
-    private final Map<Player, TamerPack> tamerPackMap = Maps.newConcurrentMap();
+    private final PlayerMap<TamerPack> tamerPackMap = PlayerMap.newConcurrentMap();
 
     public MineOBall() {
         super("Mine 'o Ball", """
@@ -56,7 +57,13 @@ public class MineOBall extends Talent implements Listener {
                 && target instanceof Player player
                 && Heroes.TAMER.getHero().validatePlayer(player)) {
 
-            final TamerPack pack = getPack(player);
+            final GamePlayer gamePlayer = CF.getPlayer(player);
+
+            if (gamePlayer == null) {
+                return;
+            }
+
+            final TamerPack pack = getPack(gamePlayer);
             if (pack != null && pack.isInPack(living)) {
                 ev.setTarget(null);
                 ev.setCancelled(true);
@@ -77,7 +84,7 @@ public class MineOBall extends Talent implements Listener {
     }
 
     @Override
-    public void onDeath(Player player) {
+    public void onDeath(@Nonnull GamePlayer player) {
         Nulls.runIfNotNull(tamerPackMap.get(player), TamerPack::recall);
     }
 
@@ -97,7 +104,7 @@ public class MineOBall extends Talent implements Listener {
         return false;
     }
 
-    public boolean isPackEntity(Player player, LivingEntity entity) {
+    public boolean isPackEntity(GamePlayer player, LivingEntity entity) {
         final TamerPack pack = getPack(player);
         return entity != null && pack != null && pack.isInPack(entity);
     }
@@ -113,8 +120,8 @@ public class MineOBall extends Talent implements Listener {
     }
 
     @Nullable
-    public TamerPack getPack(Player player) {
-        return tamerPackMap.get(player);
+    public TamerPack getPack(GamePlayer player) {
+        return player == null ? null : tamerPackMap.get(player);
     }
 
     @Override
@@ -123,8 +130,7 @@ public class MineOBall extends Talent implements Listener {
         new GameTask() {
             @Override
             public void run() {
-                CF.getAlivePlayers().forEach(gp -> {
-                    final Player player = gp.getPlayer();
+                CF.getAlivePlayers().forEach(player -> {
                     final TamerPack pack = getPack(player);
 
                     if (pack == null) {
@@ -137,7 +143,7 @@ public class MineOBall extends Talent implements Listener {
 
                         // Teleport to the owner if too far away
                         if (location.distance(player.getLocation()) >= 50.0d) {
-                            entity.teleport(player);
+                            entity.teleport(player.getLocation());
                         }
 
                         if (!(entity instanceof Creature creature) || !entity.hasAI()) {
@@ -176,7 +182,7 @@ public class MineOBall extends Talent implements Listener {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final TamerPack oldPack = getPack(player);
         if (Heroes.TAMER.getHero().isUsingUltimate(player)) {
             return Response.error("Can't summon during Ultimate");
@@ -192,7 +198,7 @@ public class MineOBall extends Talent implements Listener {
         tamerPackMap.put(player, pack);
 
         // Fx
-        Chat.sendMessage(player, "&a☀ You just summoned &e%s&a!", pack.getName());
+        player.sendMessage("&a☀ You just summoned &e%s&a!", pack.getName());
 
         return Response.OK;
     }
@@ -203,7 +209,7 @@ public class MineOBall extends Talent implements Listener {
         }
 
         if (livingEntity instanceof Player player) {
-            final TamerPack pack = getPack(player);
+            final TamerPack pack = getPack(CF.getPlayer(player));
             if (pack == null) {
                 return false;
             }
@@ -215,8 +221,8 @@ public class MineOBall extends Talent implements Listener {
     }
 
     @Nullable
-    public Player getOwner(LivingEntity entity) {
-        for (Map.Entry<Player, TamerPack> entry : tamerPackMap.entrySet()) {
+    public GamePlayer getOwner(LivingEntity entity) {
+        for (Map.Entry<GamePlayer, TamerPack> entry : tamerPackMap.entrySet()) {
             if (entry.getValue().isInPack(entity)) {
                 return entry.getKey();
             }

@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.archive.heavy_knight;
 
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
@@ -9,9 +10,10 @@ import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
+
+import javax.annotation.Nonnull;
 
 public class Updraft extends Talent {
 
@@ -25,7 +27,7 @@ public class Updraft extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final Vector velocity = player.getVelocity();
 
         player.setVelocity(BukkitUtils.vector3Y(3.0d).setX(velocity.getX()).setZ(velocity.getZ()));

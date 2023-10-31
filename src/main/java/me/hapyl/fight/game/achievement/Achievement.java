@@ -8,7 +8,7 @@ import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.trigger.EntityTrigger;
 import me.hapyl.fight.trigger.Subscribe;
-import me.hapyl.fight.util.PatternId;
+import me.hapyl.fight.registry.PatternId;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.chat.Gradient;
 import me.hapyl.spigotutils.module.chat.gradient.Interpolators;

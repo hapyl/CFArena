@@ -1,16 +1,14 @@
 package me.hapyl.fight.game.heroes.archive.harbinger;
 
-import me.hapyl.fight.game.entity.GamePlayer;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 
 public class RiptideData {
 
-    private final LivingEntity entity;
-    private long affectTick;    // how many ticks effect is active for
+    private final LivingGameEntity entity;
+    private long affectTick;    // how many ticks effects are active for
     private long lastHitMillis; // how many millis since last hit
 
-    public RiptideData(LivingEntity entity) {
+    public RiptideData(LivingGameEntity entity) {
         this.entity = entity;
         this.affectTick = 0L;
         this.lastHitMillis = 0L;
@@ -27,10 +25,6 @@ public class RiptideData {
     public void tick() {
         boolean isDead = entity.isDead();
 
-        if (entity instanceof Player player) {
-            isDead = GamePlayer.getPlayer(player).isDead();
-        }
-
         if (isDead) {
             this.affectTick = 0;
         }
@@ -39,7 +33,7 @@ public class RiptideData {
         }
     }
 
-    public LivingEntity getEntity() {
+    public LivingGameEntity getEntity() {
         return entity;
     }
 

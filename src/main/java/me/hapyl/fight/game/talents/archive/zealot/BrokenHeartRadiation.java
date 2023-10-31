@@ -6,6 +6,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -13,7 +14,6 @@ import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 
@@ -45,12 +45,12 @@ public class BrokenHeartRadiation extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocation();
         final Quadrant quadrant = new Quadrant(player.getLocation()) {
             @Override
             public void onTouch(@Nonnull LivingGameEntity entity) {
-                if (entity.is(player)) {
+                if (entity.equals(player)) {
                     return;
                 }
                 final EntityAttributes attributes = entity.getAttributes();

@@ -1,17 +1,17 @@
 package me.hapyl.fight.game.talents;
 
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.Buffer;
-import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public final class CreationBuffer {
 
-    private final Player player;
+    private final GamePlayer player;
     private final Buffer<Creation> buffer;
 
-    public CreationBuffer(@Nonnull Player player, int bufferSize) {
+    public CreationBuffer(@Nonnull GamePlayer player, int bufferSize) {
         this.player = player;
         this.buffer = new Buffer<>(bufferSize) {
             @Override
@@ -22,7 +22,7 @@ public final class CreationBuffer {
         };
     }
 
-    public Player getPlayer() {
+    public GamePlayer getPlayer() {
         return player;
     }
 

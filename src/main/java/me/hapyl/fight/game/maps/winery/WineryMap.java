@@ -1,10 +1,13 @@
 package me.hapyl.fight.game.maps.winery;
 
+import me.hapyl.fight.game.achievement.Achievements;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.maps.GameMap;
 import me.hapyl.fight.game.maps.HiddenMapFeature;
 import me.hapyl.fight.game.maps.features.WinerySteamFeature;
 import me.hapyl.fight.game.maps.gamepack.PackType;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
@@ -15,6 +18,12 @@ public class WineryMap extends GameMap {
 
     private final int howlPeriod = Tick.fromMinute(3);
     private final double howlRange = 42.0d;
+    private final WineryOwl[] owls = new WineryOwl[] {
+            new WineryOwl(233, 80, 178),
+            new WineryOwl(186, 76, 167),
+            new WineryOwl(156, 76, 247),
+            new WineryOwl(264, 77, 211),
+    };
 
     public WineryMap() {
         super("Winery \"Drunk Cat\"");
@@ -40,6 +49,9 @@ public class WineryMap extends GameMap {
         addPackLocation(PackType.CHARGE, 223.5, 84.0, 227.5);
         addPackLocation(PackType.CHARGE, 190.5, 60.0, 215.5);
 
+        setWeather(WeatherType.DOWNFALL);
+        setTime(18000);
+
         addFeature(new HiddenMapFeature() {
 
             @Override
@@ -60,14 +72,55 @@ public class WineryMap extends GameMap {
             }
 
             @Override
-            public void tick(int tickMod20) {
+            public void tick(int tick) {
 
             }
         });
 
         addFeature(new WinerySteamFeature());
 
-        setWeather(WeatherType.DOWNFALL);
-        setTime(18000);
+        addFeature(new HiddenMapFeature() {
+            @Override
+            public void tick(int tick) {
+                if (tick % 5 != 0) {
+                    return;
+                }
+
+                // Tick owls
+                for (WineryOwl owl : owls) {
+                    owl.tick();
+                }
+
+                for (GamePlayer player : Collect.aliveGamePlayers()) {
+                    if (Achievements.OWL_SPY.hasCompletedAtLeastOnce(player)) {
+                        continue;
+                    }
+
+                    int owlCount = 0;
+                    for (WineryOwl owl : owls) {
+                        if (owl.hasLookedAt(player)) {
+                            owlCount++;
+                            continue;
+                        }
+
+                        owl.isLookingAtTheTick(player);
+                    }
+
+                    if (owlCount == owls.length) {
+                        Achievements.OWL_SPY.complete(player);
+                    }
+                }
+            }
+        });
+
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        for (WineryOwl owl : owls) {
+            owl.reset();
+        }
     }
 }

@@ -1,15 +1,16 @@
 package me.hapyl.fight.game.talents.archive.troll;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+
+import javax.annotation.Nonnull;
 
 public class Repulsor extends Talent {
 
@@ -23,17 +24,17 @@ public class Repulsor extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
-        PlayerLib.playSound(player.getLocation(), Sound.ENTITY_WITHER_SHOOT, 1.8f);
-
+    public Response execute(@Nonnull GamePlayer player) {
         Collect.nearbyPlayers(player.getLocation(), radius).forEach(victim -> {
-            if (victim.is(player) || GameTeam.isTeammate(player, victim.getPlayer())) {
+            if (victim.equals(player) || GameTeam.isTeammate(player, victim)) {
                 return;
             }
 
             victim.sendMessage("&aWhoosh!");
             victim.setVelocity(new Vector(0.0d, 1.0d, 0.0d));
         });
+
+        player.playWorldSound(Sound.ENTITY_WITHER_SHOOT, 1.8f);
 
         return Response.OK;
     }

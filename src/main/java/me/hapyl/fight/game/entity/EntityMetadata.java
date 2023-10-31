@@ -18,7 +18,7 @@ public class EntityMetadata {
         @Override
         public void notify(@Nonnull GameEntity entity) {
             entity.sendMessage("&cThis creature is immune to crowd control abilities!");
-            entity.playPlayerSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
+            entity.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
         }
     };
 

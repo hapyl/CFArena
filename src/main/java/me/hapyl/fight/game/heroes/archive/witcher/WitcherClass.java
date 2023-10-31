@@ -17,19 +17,16 @@ import me.hapyl.fight.game.talents.archive.witcher.Kven;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.Map;
 
 public class WitcherClass extends Hero implements ComplexHero, UIComponent, PlayerElement {
 
-    private final Map<Player, Combo> combos = new HashMap<>();
+    private final PlayerMap<Combo> combos = PlayerMap.newMap();
 
     public WitcherClass() {
         super("The Witcher");
@@ -58,11 +55,11 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
     }
 
     @Override
-    public void useUltimate(Player player) {
+    public void useUltimate(@Nonnull GamePlayer player) {
         Talents.KVEN.startCd(player);
         Talents.IRDEN.startCd(player);
 
-        PlayerLib.addEffect(player, PotionEffectType.DAMAGE_RESISTANCE, getUltimateDuration(), 1);
+        player.addPotionEffect(PotionEffectType.DAMAGE_RESISTANCE, getUltimateDuration(), 1);
 
         new GameTask() {
             private int tick = getUltimateDuration();
@@ -81,7 +78,7 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
     }
 
     @Override
-    public void onStart(Player player) {
+    public void onStart(@Nonnull GamePlayer player) {
         combos.put(player, new Combo(player));
     }
 
@@ -90,7 +87,7 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
         combos.clear();
     }
 
-    public Combo getCombo(Player player) {
+    public Combo getCombo(GamePlayer player) {
         return combos.computeIfAbsent(player, Combo::new);
     }
 
@@ -103,7 +100,7 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
             return null;
         }
 
-        final Combo combo = getCombo(player.getPlayer());
+        final Combo combo = getCombo(player);
         double damage = input.getDamage();
 
         if (combo.getEntity() == null && entity != player) {
@@ -126,11 +123,11 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
 
         // combo starts at 2 hits
         if (comboHits > 2) {
-            damage += damage * ((comboHits - 2) * 0.15);
+            damage = Math.max(damage, damage * (1 + (comboHits - 2) * 0.1d));
 
             // Fx
-            player.playPlayerSound(Sound.ITEM_SHIELD_BREAK, 1.75f);
-            player.sendTitle("        &6Combo", "          &4&lx" + (comboHits - 2), 0, 25, 25);
+            player.sendTitle("    &6&lCOMBO!", "     &4&lx" + (comboHits - 2), 0, 25, 25);
+            player.playSound(Sound.ITEM_SHIELD_BREAK, 1.75f);
         }
 
         return new DamageOutput(damage);
@@ -139,7 +136,7 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
     @Override
     public DamageOutput processDamageAsVictim(DamageInput input) {
         final Kven kven = getThirdTalent();
-        final Player player = input.getBukkitPlayer();
+        final GamePlayer player = input.getEntityAsPlayer();
 
         if (kven.getShieldCharge(player) > 0) {
             kven.removeShieldCharge(player);
@@ -181,7 +178,7 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
     }
 
     @Override
-    public @Nonnull String getString(Player player) {
+    public @Nonnull String getString(@Nonnull GamePlayer player) {
         final int shieldLevel = getThirdTalent().getShieldCharge(player);
         return shieldLevel > 0 ? "&2🛡 &l" + shieldLevel : "";
     }

@@ -13,6 +13,7 @@ import java.util.Optional;
 /**
  * Represents wrapped damage input.
  */
+// FIXME (hapyl): 031, Oct 31: Delete all bukkit player casts!
 public class DamageInput {
 
     private final LivingGameEntity entity;

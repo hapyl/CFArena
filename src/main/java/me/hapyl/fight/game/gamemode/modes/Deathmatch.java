@@ -10,6 +10,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.util.collection.LinkedValue2IntegerReverseMap;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.nn.IntInt;
 import me.hapyl.spigotutils.module.scoreboard.Scoreboarder;
@@ -20,10 +21,8 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class Deathmatch extends CFGameMode {
 
@@ -88,7 +87,7 @@ public class Deathmatch extends CFGameMode {
             map.put(team, team.kills);
         }
 
-        return sortByValue(map, limit);
+        return LinkedValue2IntegerReverseMap.of(map, limit);
     }
 
     @Override
@@ -156,14 +155,6 @@ public class Deathmatch extends CFGameMode {
         }
 
         return true;
-    }
-
-    private <K> LinkedHashMap<K, Integer> sortByValue(Map<K, Integer> map, int limit) {
-        return map.entrySet()
-                .stream()
-                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                .limit(limit)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     }
 
 }

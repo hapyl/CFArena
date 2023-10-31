@@ -1,23 +1,21 @@
 package me.hapyl.fight.game.talents.archive.dark_mage;
 
-import com.google.common.collect.Maps;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.dark_mage.DarkMage;
 import me.hapyl.fight.game.heroes.archive.dark_mage.DarkMageSpell;
 import me.hapyl.fight.game.heroes.archive.witcher.WitherData;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.reflect.Reflect;
 import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.entity.Wither;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Map;
 
 public class ShadowClone extends DarkMageTalent {
 
@@ -26,7 +24,7 @@ public class ShadowClone extends DarkMageTalent {
     @DisplayField
     protected final double damage = 3.0d;
 
-    private final Map<Player, ShadowCloneNPC> clones;
+    private final PlayerMap<ShadowCloneNPC> clones;
 
     public ShadowClone() {
         super("Shadow Clone", """
@@ -35,7 +33,7 @@ public class ShadowClone extends DarkMageTalent {
                 After a brief delay or whenever an enemy hits the clone, it explodes, stunning, blinding and dealing damage to nearby players.
                 """, Material.NETHERITE_SCRAP);
 
-        clones = Maps.newHashMap();
+        clones = PlayerMap.newMap();
 
         setDuration(60);
         setCooldown(300);
@@ -60,18 +58,18 @@ public class ShadowClone extends DarkMageTalent {
     }
 
     @Nullable
-    public ShadowCloneNPC getClone(Player player) {
+    public ShadowCloneNPC getClone(GamePlayer player) {
         return clones.get(player);
     }
 
     @Override
-    public Response executeSpell(Player player) {
+    public Response executeSpell(@Nonnull GamePlayer player) {
         final WitherData witherData = Heroes.DARK_MAGE.getHero(DarkMage.class).getWither(player);
         final HumanNPC previousClone = getClone(player);
 
         if (previousClone != null) {
             previousClone.remove();
-            Chat.sendMessage(player, "&aYour previous clone was removed!");
+            player.sendMessage("&aYour previous clone was removed!");
         }
 
         final ShadowCloneNPC shadowClone = new ShadowCloneNPC(player);

@@ -1,9 +1,11 @@
 package me.hapyl.fight.game.talents.archive;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
+
+import javax.annotation.Nonnull;
 
 public class TestChargeTalent extends ChargedTalent {
 	public TestChargeTalent() {
@@ -14,7 +16,7 @@ public class TestChargeTalent extends ChargedTalent {
 	}
 
 	@Override
-	public Response execute(Player player) {
+	public Response execute(@Nonnull GamePlayer player) {
 		player.sendMessage("executed");
 		return Response.OK;
 	}

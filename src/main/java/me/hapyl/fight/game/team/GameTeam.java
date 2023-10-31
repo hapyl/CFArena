@@ -3,9 +3,10 @@ package me.hapyl.fight.game.team;
 import com.google.common.collect.Lists;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Debug;
-import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.IGameInstance;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.SmallCaps;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.reflect.glow.Glowing;
@@ -43,7 +44,7 @@ public enum GameTeam {
     private final ChatColor color;
     private final Material material;
     private final int maxPlayers;
-    private final List<UUID> members;   // represents lobby players
+    private final List<UUID> members; // represents lobby players
 
     public int kills;
     public int deaths;
@@ -86,17 +87,21 @@ public enum GameTeam {
      */
     public List<GamePlayer> getPlayers() {
         final List<GamePlayer> players = Lists.newArrayList();
-        final IGameInstance instance = Manager.current().getCurrentGame();
+        final GameInstance instance = Manager.current().getGameInstance();
 
-        if (!instance.isReal()) {
+        if (instance == null) {
             return players;
         }
 
-        for (GamePlayer gamePlayer : CF.getPlayers()) {
-            if (members.contains(gamePlayer.getUUID())) {
-                players.add(gamePlayer);
+        members.forEach(uuid -> {
+            final GamePlayer gamePlayer = CF.getPlayer(uuid);
+
+            if (gamePlayer == null) {
+                return;
             }
-        }
+
+            players.add(gamePlayer);
+        });
 
         return players;
     }
@@ -157,6 +162,7 @@ public enum GameTeam {
         }
     }
 
+    @Nonnull
     public Material getMaterial() {
         return material;
     }
@@ -210,8 +216,6 @@ public enum GameTeam {
         return list;
     }
 
-    // static members
-
     /**
      * Returns team with the least number of players.
      *
@@ -256,6 +260,7 @@ public enum GameTeam {
      *
      * @return list of populated teams.
      */
+    @Nonnull
     public static List<GameTeam> getPopulatedTeams() {
         final List<GameTeam> populatedTeams = Lists.newArrayList();
 
@@ -278,6 +283,14 @@ public enum GameTeam {
         }
 
         return isTeammate(CF.getPlayer(player), CF.getPlayer(otherPlayer));
+    }
+
+    public static boolean isTeammate(GamePlayer gamePlayer, GameEntity entity) {
+        if (!(entity instanceof GamePlayer otherPlayer)) {
+            return false;
+        }
+
+        return isTeammate(gamePlayer, otherPlayer);
     }
 
     public static boolean isSelfOrTeammate(Player player, LivingEntity other) {
@@ -353,5 +366,4 @@ public enum GameTeam {
             getSmallestTeam().addMember(player);
         }
     }
-
 }

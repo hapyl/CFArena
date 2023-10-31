@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.archive.spark;
 
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
@@ -15,10 +16,11 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Item;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
+
+import javax.annotation.Nonnull;
 
 public class Molotov extends Talent implements Listener {
 
@@ -41,7 +43,7 @@ public class Molotov extends Talent implements Listener {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getEyeLocation();
         final Vector vector = location.getDirection().add(new Vector(0.0d, 0.25, 0.0d));
 
@@ -82,7 +84,7 @@ public class Molotov extends Talent implements Listener {
         return Response.OK;
     }
 
-    private void startMolotovTask(Location location, Player player) {
+    private void startMolotovTask(Location location, GamePlayer player) {
         new GameTask() {
             private int molotovTime = fireDuration / fireInterval;
 
@@ -94,7 +96,7 @@ public class Molotov extends Talent implements Listener {
                 }
 
                 Collect.nearbyEntities(location, fireRadius).forEach(entity -> {
-                    if (entity.is(player)) {
+                    if (entity.equals(player)) {
                         entity.heal(fireHealing);
                     }
                     else {
@@ -102,11 +104,10 @@ public class Molotov extends Talent implements Listener {
                     }
                 });
 
-                // fx
+                // Fx
                 PlayerLib.playSound(location, Sound.BLOCK_FIRE_AMBIENT, 2.0f);
                 PlayerLib.spawnParticle(location, Particle.FLAME, 15, fireRadius / 2.0d, 0.1d, fireRadius / 2.0f, 0.05f);
                 Geometry.drawCircle(location, fireRadius, Quality.HIGH, new WorldParticle(Particle.FLAME));
-
             }
         }.runTaskTimer(0, fireInterval);
     }

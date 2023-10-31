@@ -50,7 +50,7 @@ public class Candlebane extends Taunt implements TalentReference<CandlebaneTalen
     private ArmorStand display;
     private long lastClick;
 
-    public Candlebane(CandlebaneTalent reference, Player player, GamePlayer target) {
+    public Candlebane(CandlebaneTalent reference, GamePlayer player, GamePlayer target) {
         super(player, target);
 
         final Location location = player.getLocation();
@@ -133,9 +133,9 @@ public class Candlebane extends Taunt implements TalentReference<CandlebaneTalen
                 gamePlayer.damage(1, this.player);
                 gamePlayer.sendSubtitle("&c&lWRONG CLICK!", 0, 10, 10);
 
-                gamePlayer.playPlayerSound(initialLocation, Sound.ENTITY_CHICKEN_EGG, 0.0f);
-                gamePlayer.playPlayerSound(initialLocation, Sound.BLOCK_LAVA_POP, 0.0f);
-                gamePlayer.playPlayerSound(initialLocation, Sound.ENTITY_CAT_HISS, 1.0f);
+                gamePlayer.playSound(initialLocation, Sound.ENTITY_CHICKEN_EGG, 0.0f);
+                gamePlayer.playSound(initialLocation, Sound.BLOCK_LAVA_POP, 0.0f);
+                gamePlayer.playSound(initialLocation, Sound.ENTITY_CAT_HISS, 1.0f);
             });
             return;
         }

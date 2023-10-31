@@ -1,7 +1,5 @@
 package me.hapyl.fight.game.weapons;
 
-import com.google.common.collect.Maps;
-import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.PlayerElement;
@@ -13,13 +11,11 @@ import me.hapyl.fight.game.weapons.ability.Ability;
 import me.hapyl.fight.game.weapons.ability.AbilityType;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -28,12 +24,11 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Map;
 
 public abstract class RangeWeapon extends Weapon
         implements GameElement, PlayerElement, UIComponent, LeftClickable, RightClickable {
 
-    private final Map<Player, Integer> playerAmmo;
+    private final PlayerMap<Integer> playerAmmo;
 
     private int reloadTime;
     private int maxAmmo;
@@ -54,7 +49,7 @@ public abstract class RangeWeapon extends Weapon
         this.maxDistance = 40.0d;
         this.setId(id);
 
-        this.playerAmmo = Maps.newHashMap();
+        this.playerAmmo = PlayerMap.newMap();
         this.maxAmmo = 8;
         this.reloadTime = 100;
 
@@ -63,7 +58,7 @@ public abstract class RangeWeapon extends Weapon
     }
 
     @Override
-    public void onLeftClick(@Nonnull Player player, @Nonnull ItemStack item) {
+    public void onLeftClick(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
         if (hasCooldown(player) || getPlayerAmmo(player) >= maxAmmo) {
             return;
         }
@@ -72,7 +67,7 @@ public abstract class RangeWeapon extends Weapon
     }
 
     @Override
-    public void onRightClick(@Nonnull Player player, @Nonnull ItemStack item) {
+    public void onRightClick(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
         if (hasCooldown(player)) {
             return;
         }
@@ -82,8 +77,8 @@ public abstract class RangeWeapon extends Weapon
 
         onShoot(player);
 
-        Nulls.runIfNotNull(sound, s -> {
-            PlayerLib.playSound(player.getLocation(), s, pitch);
+        Nulls.runIfNotNull(sound, sound -> {
+            player.playWorldSound(sound, pitch);
         });
 
         final Location location = player.getLocation().add(0, 1.5, 0);
@@ -115,18 +110,17 @@ public abstract class RangeWeapon extends Weapon
             }
 
             for (final LivingGameEntity target : Collect.nearbyEntities(location, 1.0d)) {
-                final LivingEntity targetEntity = target.getEntity();
-                if (target.is(player) || !predicateEntity(targetEntity)) {
+                if (target == null || target.equals(player) || !predicateEntity(target)) {
                     continue;
                 }
 
                 final double distanceToHead = location.distance(target.getEyeLocation());
                 final boolean isHeadShot = distanceToHead <= HEADSHOT_THRESHOLD;
 
-                onHit(player, targetEntity, isHeadShot);
+                onHit(player, target, isHeadShot);
 
                 target.modifyKnockback(0.5d, d -> {
-                    d.damage(getDamage(player, false), CF.getPlayer(player), getDamageCause(player));
+                    d.damage(getDamage(player, false), player, getDamageCause(player));
                 });
 
                 Nulls.runIfNotNull(particleHit, p -> {
@@ -158,13 +152,13 @@ public abstract class RangeWeapon extends Weapon
     }
 
     @Override
-    public void onDeath(Player player) {
+    public void onDeath(@Nonnull GamePlayer player) {
         playerAmmo.clear();
     }
 
     @Nonnull
     @Override
-    public String getString(Player player) {
+    public String getString(@Nonnull GamePlayer player) {
         final int ammo = getPlayerAmmo(player);
         return "&3⁍ &b&l" + (ammo <= 0 ? "RELOADING" : ammo + "&b/&b&l" + maxAmmo);
     }
@@ -213,7 +207,7 @@ public abstract class RangeWeapon extends Weapon
     }
 
     // override for custom per-player cooldown
-    public int getWeaponCooldown(Player player) {
+    public int getWeaponCooldown(@Nonnull GamePlayer player) {
         return cooldown;
     }
 
@@ -226,7 +220,7 @@ public abstract class RangeWeapon extends Weapon
     }
 
     // override for custom per-player max distance
-    public double getMaxDistance(Player player) {
+    public double getMaxDistance(@Nonnull GamePlayer player) {
         return maxDistance;
     }
 
@@ -240,12 +234,12 @@ public abstract class RangeWeapon extends Weapon
     }
 
     // override for custom per-player damage
-    public double getDamage(Player player, boolean headshot) {
+    public double getDamage(@Nonnull GamePlayer player, boolean headshot) {
         return getDamage();
     }
 
     @Nullable
-    public EnumDamageCause getDamageCause(Player player) {
+    public EnumDamageCause getDamageCause(@Nonnull GamePlayer player) {
         return null;
     }
 
@@ -256,7 +250,7 @@ public abstract class RangeWeapon extends Weapon
      * @param entity   - Hit entity.
      * @param headshot - Whenever the hit was a headshot or not.
      */
-    public void onHit(Player player, LivingEntity entity, boolean headshot) {
+    public void onHit(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity, boolean headshot) {
     }
 
     /**
@@ -265,7 +259,7 @@ public abstract class RangeWeapon extends Weapon
      * @param player   - Player.
      * @param location - Current path location.
      */
-    public void onMove(Player player, Location location) {
+    public void onMove(@Nonnull GamePlayer player, Location location) {
     }
 
     /**
@@ -273,32 +267,32 @@ public abstract class RangeWeapon extends Weapon
      *
      * @param player - Player.
      */
-    public void onShoot(Player player) {
+    public void onShoot(@Nonnull GamePlayer player) {
     }
 
     public boolean predicateBlock(Block block) {
         return !block.getType().isOccluding();
     }
 
-    public boolean predicateEntity(LivingEntity entity) {
+    public boolean predicateEntity(LivingGameEntity entity) {
         return true;
     }
 
-    public int getCooldown(Player player) {
+    public int getCooldown(GamePlayer player) {
         return player.getCooldown(getMaterial());
     }
 
-    public void startCooldown(Player player) {
+    public void startCooldown(GamePlayer player) {
         if (this.cooldown > 0) {
             startCooldown(player, this.cooldown);
         }
     }
 
-    public void startCooldown(Player player, int cd) {
-        GamePlayer.setCooldown(player, getMaterial(), cd);
+    public void startCooldown(GamePlayer player, int cd) {
+        player.setCooldown(getMaterial(), cd);
     }
 
-    public boolean hasCooldown(Player player) {
+    public boolean hasCooldown(GamePlayer player) {
         return getCooldown(player) > 0;
     }
 
@@ -308,7 +302,7 @@ public abstract class RangeWeapon extends Weapon
         return this;
     }
 
-    public void reload(Player player) {
+    public void reload(@Nonnull GamePlayer player) {
         final ItemStack item = player.getInventory().getItem(0);
 
         // force reload
@@ -326,8 +320,8 @@ public abstract class RangeWeapon extends Weapon
 
                 // Fx
                 if (tick % 40 == 0) {
-                    PlayerLib.playSound(player.getLocation(), Sound.BLOCK_IRON_TRAPDOOR_CLOSE, 0.75f);
-                    PlayerLib.playSound(player.getLocation(), Sound.BLOCK_IRON_TRAPDOOR_OPEN, 1.25f);
+                    player.playWorldSound(Sound.BLOCK_IRON_TRAPDOOR_CLOSE, 0.75f);
+                    player.playWorldSound(Sound.BLOCK_IRON_TRAPDOOR_OPEN, 1.25f);
                 }
 
                 // This just adds a reload durability animation because it looks kinda cool
@@ -353,11 +347,11 @@ public abstract class RangeWeapon extends Weapon
 
     public static final double HEADSHOT_THRESHOLD = 0.75d;
 
-    public int getPlayerAmmo(Player player) {
+    public int getPlayerAmmo(GamePlayer player) {
         return playerAmmo.computeIfAbsent(player, fn -> maxAmmo);
     }
 
-    private int subtractAmmo(Player player) {
+    private int subtractAmmo(GamePlayer player) {
         return playerAmmo.compute(player, (p, i) -> i == null ? maxAmmo - 1 : i - 1);
     }
 

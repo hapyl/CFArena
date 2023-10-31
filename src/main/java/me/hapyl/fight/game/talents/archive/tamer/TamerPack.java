@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.archive.tamer;
 
 import com.google.common.collect.Sets;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
@@ -14,7 +15,6 @@ import org.bukkit.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.util.Consumer;
 
 import javax.annotation.Nonnull;
@@ -41,11 +41,11 @@ public class TamerPack {
             { -1.0d, -1.0d }
     };
 
-    protected final Player player;
+    protected final GamePlayer player;
     private final Pack pack;
     private final Set<LivingEntity> entities;
 
-    public TamerPack(Pack pack, Player player) {
+    public TamerPack(Pack pack, GamePlayer player) {
         this.player = player;
         this.pack = pack;
         this.entities = Sets.newConcurrentHashSet();
@@ -109,7 +109,7 @@ public class TamerPack {
         return entities.contains(entity);
     }
 
-    public final void updateEntitiesNames(Player player) {
+    public final void updateEntitiesNames(GamePlayer player) {
         entities.forEach(entity -> {
             if (entity.isDead()) {
                 return;
@@ -211,7 +211,7 @@ public class TamerPack {
         final LivingGameEntity nearest = Collect.nearestEntityPrioritizePlayers(
                 getLocation(),
                 maxDistance,
-                e -> !isInPack(e.getEntity()) && e.isNot(player)
+                e -> !isInPack(e.getEntity()) && !e.equals(player)
         );
 
         return nearest == null ? null : nearest.getEntity();

@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.archive.troll;
 
 import com.google.common.collect.Sets;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -8,16 +9,15 @@ import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
 
 import java.util.Set;
 
 public class StickyCobweb extends GameTask {
 
-    private final Player player;
+    private final GamePlayer player;
     private final Set<Block> blocks;
 
-    public StickyCobweb(Player player) {
+    public StickyCobweb(GamePlayer player) {
         this.player = player;
         this.blocks = Sets.newHashSet();
 
@@ -38,7 +38,7 @@ public class StickyCobweb extends GameTask {
         }
 
         Bukkit.getOnlinePlayers().forEach(target -> {
-            if (target == player) {
+            if (player.is(target)) {
                 return;
             }
 
@@ -59,8 +59,8 @@ public class StickyCobweb extends GameTask {
         });
     }
 
-    public void clear(Player player, Block block) {
-        if (player == this.player) {
+    public void clear(GamePlayer player, Block block) {
+        if (player.equals(this.player)) {
             return;
         }
 

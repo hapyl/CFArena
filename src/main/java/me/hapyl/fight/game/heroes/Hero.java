@@ -13,8 +13,6 @@ import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.archive.ender.Ender;
-import me.hapyl.fight.game.heroes.archive.moonwalker.Moonwalker;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.heroes.equipment.Slot;
 import me.hapyl.fight.game.heroes.friendship.HeroFriendship;
@@ -52,8 +50,8 @@ public abstract class Hero implements GameElement, PlayerElement {
     private final HeroAttributes attributes;
     private final Equipment equipment;
     private final String name;
-    private final Map<Player, Long> usedUltimateAt;
-    private final Map<Player, GameTask> reverseTasks;
+    private final Map<GamePlayer, Long> usedUltimateAt;
+    private final Map<GamePlayer, GameTask> reverseTasks;
     private final CachedHeroItem cachedHeroItem;
     private final HeroFriendship friendship;
     private Origin origin;
@@ -215,7 +213,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      * @param player - Player.
      * @param flag   - New flag.
      */
-    public final void setUsingUltimate(Player player, boolean flag) {
+    public final void setUsingUltimate(GamePlayer player, boolean flag) {
         if (flag) {
             usedUltimateAt.put(player, System.currentTimeMillis());
         }
@@ -232,7 +230,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      * @param player - Player.
      * @return ticks when player used their ultimate. Or -1 if they haven't used yet.
      */
-    public long getUsedUltimateAt(Player player) {
+    public long getUsedUltimateAt(GamePlayer player) {
         return usedUltimateAt.getOrDefault(player, -1L);
     }
 
@@ -242,7 +240,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      * @param player - Player.
      * @return millis left until player can use their ultimate again.
      */
-    public long getUltimateDurationLeft(Player player) {
+    public long getUltimateDurationLeft(GamePlayer player) {
         final int duration = getUltimateDuration() * 50;
 
         if (duration == 0) {
@@ -262,7 +260,7 @@ public abstract class Hero implements GameElement, PlayerElement {
     /**
      * Sets if player is currently using their ultimate, then removes them after duration.
      */
-    public final void setUsingUltimate(Player player, boolean flag, int reverseAfter) {
+    public final void setUsingUltimate(GamePlayer player, boolean flag, int reverseAfter) {
         setUsingUltimate(player, flag);
 
         cancelOldReverseTask(player);
@@ -279,8 +277,8 @@ public abstract class Hero implements GameElement, PlayerElement {
      * @param player - Player.
      * @return true if player is currently using their ultimate.
      */
-    public final boolean isUsingUltimate(Player player) {
-        return usedUltimateAt.containsKey(player);
+    public final boolean isUsingUltimate(@Nullable GamePlayer player) {
+        return player != null && usedUltimateAt.containsKey(player);
     }
 
     /**
@@ -367,16 +365,16 @@ public abstract class Hero implements GameElement, PlayerElement {
      * Unleashes this hero's ultimate.
      * If ultimate has castDuration, the ultimate will be delayed with that duration.
      */
-    public abstract void useUltimate(Player player);
+    public abstract void useUltimate(@Nonnull GamePlayer player);
 
     /**
      * Called whenever player casts an ultimate.
-     * No matter the castDuration of the ultimate, this is instant cast.
+     * No matter the castDuration of the ultimate, this is instantly called.
      *
      * @param player - Player, who cast ultimate.
      */
     @Nullable
-    public UltimateCallback castUltimate(Player player) {
+    public UltimateCallback castUltimate(@Nonnull GamePlayer player) {
         return null;
     }
 
@@ -521,7 +519,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      *
      * @param player - Player.
      */
-    public void onDeath(Player player) {
+    public void onDeath(@Nonnull GamePlayer player) {
     }
 
     /**
@@ -553,7 +551,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      *
      * @param player - Player.
      */
-    public void onUltimateEnd(Player player) {
+    public void onUltimateEnd(@Nonnull GamePlayer player) {
     }
 
     /**
@@ -561,21 +559,19 @@ public abstract class Hero implements GameElement, PlayerElement {
      *
      * @param player - Player, who is trying to use ultimate.
      * @return true if a player is able to use their ultimate, false otherwise.
-     * @see Ender#predicateUltimate(Player)
-     * @see Moonwalker#predicateUltimate(Player)
      */
-    public boolean predicateUltimate(Player player) {
+    public boolean predicateUltimate(@Nonnull GamePlayer player) {
         return true;
     }
 
     /**
-     * Return the message that will be displayed if player CANNOT use their ultimate, aka {@link #predicateUltimate(Player)} returns false.
+     * Return the message that will be displayed if player CANNOT use their ultimate, aka {@link #predicateUltimate(GamePlayer)} returns false.
      *
-     * @param player - Player who is trying to use ultimate.
+     * @param player - Player, who is trying to use ultimate.
      * @return the message that will be displayed if player CANNOT use their ultimate.
      */
 
-    public String predicateMessage(Player player) {
+    public String predicateMessage(@Nonnull GamePlayer player) {
         return "Unable to use now.";
     }
 
@@ -584,7 +580,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      *
      * @param player - Player.
      */
-    public void onRespawn(Player player) {
+    public void onRespawn(@Nonnull GamePlayer player) {
     }
 
     /**
@@ -605,7 +601,7 @@ public abstract class Hero implements GameElement, PlayerElement {
         this.ultimate = ultimate;
     }
 
-    public final void useUltimate0(Player player) {
+    public final void useUltimate0(GamePlayer player) {
         final int castDuration = ultimate.getCastDuration();
         final UltimateCallback callback = castUltimate(player);
 
@@ -686,14 +682,20 @@ public abstract class Hero implements GameElement, PlayerElement {
     }
 
     /**
-     * Returns true if there is a game in progress and player is in game, and player's selected hero is the same as the one provided.
+     * Returns true if there is a game in progress and the player is in game, and the player's selected hero is the same as the one provided.
      *
      * @param player - Player.
      * @return true, if there is a game in progress and player is in game, and player's selected hero is the same as the one provided.
      */
-    public final boolean validatePlayer(Player player) {
+    public final boolean validatePlayer(@Nullable GamePlayer player) {
         final Manager current = Manager.current();
-        return validPlayerInGame(player) && current.getCurrentHero(player) == this;
+        return player != null && validPlayerInGame(player) && current.getCurrentHero(player) == this;
+    }
+
+    public final boolean validatePlayer(Player player) {
+        final GamePlayer gamePlayer = CF.getPlayer(player);
+
+        return gamePlayer != null && validatePlayer(gamePlayer);
     }
 
     @Nullable
@@ -786,14 +788,12 @@ public abstract class Hero implements GameElement, PlayerElement {
         andThen.accept(ultimate);
     }
 
-    private void cancelOldReverseTask(Player player) {
-        final GameTask oldTask = reverseTasks.get(player);
+    private void cancelOldReverseTask(GamePlayer player) {
+        final GameTask oldTask = reverseTasks.remove(player);
 
         if (oldTask != null && !oldTask.isCancelled()) {
             oldTask.cancel();
         }
-
-        reverseTasks.remove(player);
     }
 
     /**
@@ -802,7 +802,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      * @param player - Player.
      * @return true, if there is a game in progress and player is in game.
      */
-    private boolean validPlayerInGame(Player player) {
+    private boolean validPlayerInGame(GamePlayer player) {
         final Manager current = Manager.current();
         return current.isGameInProgress() && current.isPlayerInGame(player);
     }

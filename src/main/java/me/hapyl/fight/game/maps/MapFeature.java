@@ -39,10 +39,7 @@ public abstract class MapFeature implements GameElement, PlayerElement {
         return info;
     }
 
-    /**
-     * @param tickMod20 a modulo value of 20 of the runnable.
-     */
-    public abstract void tick(int tickMod20);
+    public abstract void tick(int tick);
 
     protected final boolean validateCurrentMap(GameMaps maps) {
         return Manager.current().getCurrentMap() == maps;

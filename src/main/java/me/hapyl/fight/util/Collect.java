@@ -25,10 +25,10 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-// A utility class that allows special case collecting of living entities
+/**
+ * A utility class that allows special case collecting of game entities.
+ */
 public final class Collect {
-
-    // TODO (hapyl): 031, Jul 31: Convert to collect game entities?
 
     /**
      * Gets the list with game players that are considered enemies to a given player.
@@ -40,10 +40,6 @@ public final class Collect {
         return CF.getAlivePlayers(predicate -> {
             return !predicate.isSpectator() && !predicate.compare(player) && !predicate.isTeammate(player);
         });
-    }
-
-    public static List<GamePlayer> enemyPlayers(@Nonnull Player player) {
-        return enemyPlayers(CF.getOrCreatePlayer(player));
     }
 
     /**
@@ -58,7 +54,7 @@ public final class Collect {
      */
     @ExplicitEntityValidation
     @Nullable
-    public static LivingGameEntity targetEntity(@Nonnull Player player, double radius, double dot, @Nullable Predicate<LivingGameEntity> predicate) {
+    public static LivingGameEntity targetEntity(@Nonnull GamePlayer player, double radius, double dot, @Nullable Predicate<LivingGameEntity> predicate) {
         final List<LivingGameEntity> nearbyEntities = nearbyEntities(player.getLocation(), radius);
         final Vector casterDirection = player.getLocation().getDirection().normalize();
 
@@ -92,16 +88,15 @@ public final class Collect {
      * @param player      - Player.
      * @param maxDistance - Max distance to check.
      * @return a target living entity; or null if none.
-     * @deprecated {@link #targetEntity(Player, double, double, Predicate)} is better.
      */
     @ExplicitEntityValidation
     @Nullable
     @Deprecated
-    public static Player targetPlayer(@Nonnull Player player, double maxDistance) {
+    public static Player targetPlayer(@Nonnull GamePlayer player, double maxDistance) {
         return (Player) targetEntity(
                 player,
                 maxDistance,
-                entity -> entity.is(player)
+                entity -> entity.equals(player)
         );
     }
 
@@ -113,11 +108,10 @@ public final class Collect {
      * @param maxDistance - Max distance to check.
      * @param predicate   - Predicate.
      * @return a target living entity; or null if none.
-     * @deprecated {@link #targetEntity(Player, double, double, Predicate)} is better.
      */
     @ExplicitEntityValidation
     @Nullable
-    public static LivingGameEntity targetEntity(@Nonnull Player player, double maxDistance, @Nonnull Predicate<LivingGameEntity> predicate) {
+    public static LivingGameEntity targetEntity(@Nonnull GamePlayer player, double maxDistance, @Nonnull Predicate<LivingGameEntity> predicate) {
         final Location location = player.getLocation().add(0, 1.5, 0);
         final Vector vector = location.getDirection().normalize();
         final float radius = 1.25f;
@@ -171,9 +165,9 @@ public final class Collect {
         return (Player) nearestEntityRaw(
                 location,
                 radius,
-                entity -> entity.is(Player.class)
+                entity -> entity instanceof GamePlayer
                         && entity.isNot(exclude)
-                        && Manager.current().isPlayerInGame((Player) entity)
+                        && Manager.current().isPlayerInGame((GamePlayer) entity)
                         && !GameTeam.isTeammate(exclude, (Player) entity)
         );
     }
@@ -188,7 +182,7 @@ public final class Collect {
      */
     @ExplicitEntityValidation
     @Nullable
-    public static LivingGameEntity nearestEntity(@Nonnull Location location, double radius, @Nonnull Player player) {
+    public static LivingGameEntity nearestEntity(@Nonnull Location location, double radius, @Nonnull GamePlayer player) {
         return nearestEntityRaw(location, radius, entity -> {
             if (entity == null) {
                 return false;
@@ -231,9 +225,9 @@ public final class Collect {
      */
     @ExplicitEntityValidation
     @Nonnull
-    public static List<LivingGameEntity> nearbyEntities(@Nonnull Player player, double radius) {
+    public static List<LivingGameEntity> nearbyEntities(@Nonnull GamePlayer player, double radius) {
         return nearbyEntities(player.getLocation(), radius).stream()
-                .filter(entity -> !entity.is(player) && entity.isValid(player))
+                .filter(entity -> !entity.equals(player) && entity.isValid(player))
                 .collect(Collectors.toList());
     }
 
@@ -380,17 +374,30 @@ public final class Collect {
             return players;
         }
 
-        world.getNearbyEntities(location, radius, radius, radius)
-                .stream()
-                .filter(entity -> {
-                    return entity instanceof Player
-                            && Manager.current().isPlayerInGame((Player) entity)
-                            && validateRadius(entity, location, radius);
-                })
-                .forEach(player -> players.add(CF.getOrCreatePlayer((Player) player)));
+        world.getNearbyEntities(location, radius, radius, radius).forEach(entity -> {
+            if (!(entity instanceof LivingEntity livingEntity)) {
+                return;
+            }
+
+            final LivingGameEntity gameEntity = CF.getEntity(livingEntity);
+            if (!(gameEntity instanceof GamePlayer player)) {
+                return;
+            }
+
+            if (Manager.current().isPlayerInGame(player) && validateRadius(player, location, radius)) {
+                players.add(player);
+            }
+
+        });
 
         return players;
 
+    }
+
+    @Nonnull
+    public static List<GamePlayer> aliveGamePlayers() {
+        final Manager manager = Manager.current();
+        return manager.getAlivePlayers();
     }
 
     /**
@@ -440,7 +447,7 @@ public final class Collect {
         return CF.getEntity(nearest);
     }
 
-    private static boolean validateRadius(Entity entity, Location location, double radius) {
+    private static boolean validateRadius(GamePlayer entity, Location location, double radius) {
         if (entity == null || location == null || radius <= 0.0d) {
             return false;
         }

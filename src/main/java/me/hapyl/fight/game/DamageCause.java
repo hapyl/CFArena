@@ -2,6 +2,7 @@ package me.hapyl.fight.game;
 
 import com.google.common.collect.Lists;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class DamageCause {
@@ -21,6 +22,7 @@ public class DamageCause {
         this.custom = true;
         this.isProjectile = false;
         this.isTrueDamage = false;
+        this.damageFormat = DamageFormat.DEFAULT;
     }
 
     private DamageCause(String string, String suffix) {
@@ -28,12 +30,24 @@ public class DamageCause {
         deathMessages.add(new DeathMessage(string, suffix));
     }
 
+    @Nonnull
     public List<DeathMessage> getDeathMessages() {
         return deathMessages;
     }
 
+    @Nonnull
     public DamageFormat getDamageFormat() {
         return damageFormat;
+    }
+
+    public DamageCause setDamageFormat(DamageFormat damageFormat) {
+        this.damageFormat = damageFormat;
+        return this;
+    }
+
+    public DamageCause setTrueDamage() {
+        isTrueDamage = true;
+        return this;
     }
 
     public boolean isCustom() {
@@ -42,11 +56,6 @@ public class DamageCause {
 
     public DamageCause setCustom(boolean custom) {
         this.custom = custom;
-        return this;
-    }
-
-    public DamageCause setTrueDamage() {
-        isTrueDamage = true;
         return this;
     }
 

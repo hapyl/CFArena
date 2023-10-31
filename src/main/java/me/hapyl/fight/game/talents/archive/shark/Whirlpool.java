@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.archive.shark;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
@@ -13,17 +14,18 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
+
+import javax.annotation.Nonnull;
 
 public class Whirlpool extends Talent {
 
     private final double range = 4.0d;
 
     public Whirlpool() {
-        super("Whirlpool", "Create a whirlpool at your current location that pulls nearby enemies towards center.");
+        super("Whirlpool", "Create a whirlpool at your current location that pulls nearby enemies towards the center.");
 
         setItem(Material.HEART_OF_THE_SEA);
 
@@ -32,7 +34,7 @@ public class Whirlpool extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocation();
 
         new GameTask() {
@@ -53,7 +55,7 @@ public class Whirlpool extends Talent {
 
                     // Pull enemies towards the center
                     Collect.nearbyEntities(location, range).forEach(entity -> {
-                        if (entity.is(player) || GameTeam.isTeammate(player, entity.getEntity())) {
+                        if (entity.equals(player) || GameTeam.isTeammate(player, entity)) {
                             return;
                         }
 

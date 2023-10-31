@@ -3,8 +3,12 @@ package me.hapyl.fight.game.cosmetic;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.database.entry.CosmeticEntry;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.archive.*;
+import me.hapyl.fight.game.cosmetic.archive.gadget.FireworkGadget;
+import me.hapyl.fight.game.cosmetic.archive.gadget.dice.DiceGadget;
+import me.hapyl.fight.game.cosmetic.archive.gadget.dice.HighClassDice;
 import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.*;
 import org.bukkit.entity.Item;
@@ -191,6 +195,14 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
             Rarity.EPIC
     ).setIcon(Material.DRAGON_HEAD)),
 
+    DICE_STATUS(
+            new PrefixCosmetic(
+                    "High Class",
+                    "Straight from Kickback City!",
+                    Color.BLACK + "🎲",
+                    Rarity.LEGENDARY
+            ).setIcon(Material.MUSIC_DISC_STAL).setExclusive(true)
+    ),
 
     // Win Effects
 
@@ -199,8 +211,16 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
      */
     @Deprecated
     FIREWORKS(new FireworksWinEffect(), true),
+
     AVALANCHE(new AvalancheWinEffect()),
+
     TWERK(new TwerkWinEffect()),
+
+    // Gadgets
+    FIREWORK(new FireworkGadget()),
+    DICE(new DiceGadget()),
+    DICE_HIGH_CLASS(new HighClassDice()),
+
     ;
 
     private final static Map<Type, List<Cosmetics>> byType = Maps.newHashMap();
@@ -242,6 +262,18 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
 
     public boolean isUnlocked(Player player) {
         return PlayerDatabase.getDatabase(player).getCosmetics().hasCosmetic(this);
+    }
+
+    public void setUnlocked(Player player, boolean flag) {
+        final CosmeticEntry cosmeticEntry = PlayerDatabase.getDatabase(player).getCosmetics();
+
+        if (flag) {
+            cosmeticEntry.addOwned(this);
+        }
+        else {
+            cosmeticEntry.unsetSelected(getType());
+            cosmeticEntry.removeOwned(this);
+        }
     }
 
     public boolean isSelected(Player player) {

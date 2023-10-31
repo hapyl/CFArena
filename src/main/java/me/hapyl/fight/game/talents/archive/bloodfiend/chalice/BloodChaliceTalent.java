@@ -7,7 +7,6 @@ import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -59,7 +58,7 @@ public class BloodChaliceTalent extends TauntTalent<BloodChalice> implements Lis
     }
 
     @Override
-    public BloodChalice createTaunt(Player player, GamePlayer target) {
+    public BloodChalice createTaunt(GamePlayer player, GamePlayer target) {
         return new BloodChalice(this, player, target);
     }
 

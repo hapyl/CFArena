@@ -7,20 +7,19 @@ import me.hapyl.fight.game.talents.archive.bloodfiend.BloodfiendPassive;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.WorldBorder;
-import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 
 public class BiteData implements TalentReference<BloodfiendPassive> {
 
     private final BloodfiendPassive reference;
-    private final Player vampire;
+    private final GamePlayer vampire;
     private final GamePlayer player;
     private long lastBite;
 
     protected int tick;
 
-    public BiteData(BloodfiendPassive reference, Player vampire, GamePlayer player) {
+    public BiteData(BloodfiendPassive reference, GamePlayer vampire, GamePlayer player) {
         this.reference = reference;
         this.vampire = vampire;
         this.player = player;
@@ -55,8 +54,8 @@ public class BiteData implements TalentReference<BloodfiendPassive> {
 
         player.getPlayer().setWorldBorder(worldBorder);
         player.sendMessage("&6&l🦇 &e%s has bitten you! &c-%s ❤", this.vampire.getName(), reference.healthDeduction);
-        player.playPlayerSound(Sound.ENTITY_BAT_DEATH, 0.75f);
-        player.playPlayerSound(Sound.ENTITY_ZOMBIE_HURT, 0.75f);
+        player.playSound(Sound.ENTITY_BAT_DEATH, 0.75f);
+        player.playSound(Sound.ENTITY_ZOMBIE_HURT, 0.75f);
     }
 
     public void remove() {
@@ -66,8 +65,8 @@ public class BiteData implements TalentReference<BloodfiendPassive> {
         // Fx
         player.getPlayer().setWorldBorder(null);
         player.sendMessage("&6&l🦇 &e&oMuch better! &a+%s ❤", reference.healthDeduction);
-        player.playPlayerSound(Sound.ENTITY_HORSE_SADDLE, 0.75f);
-        player.playPlayerSound(Sound.ENTITY_WARDEN_HEARTBEAT, 0.0f);
+        player.playSound(Sound.ENTITY_HORSE_SADDLE, 0.75f);
+        player.playSound(Sound.ENTITY_WARDEN_HEARTBEAT, 0.0f);
     }
 
     @Nonnull

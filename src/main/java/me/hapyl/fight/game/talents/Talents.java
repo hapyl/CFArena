@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.archive.TestChargeTalent;
 import me.hapyl.fight.game.talents.archive.alchemist.CauldronAbility;
 import me.hapyl.fight.game.talents.archive.alchemist.RandomPotion;
@@ -22,6 +23,7 @@ import me.hapyl.fight.game.talents.archive.dark_mage.ShadowClone;
 import me.hapyl.fight.game.talents.archive.dark_mage.SlowingAura;
 import me.hapyl.fight.game.talents.archive.doctor.ConfusionPotion;
 import me.hapyl.fight.game.talents.archive.doctor.HarvestBlocks;
+import me.hapyl.fight.game.talents.archive.ender.EnderPassive;
 import me.hapyl.fight.game.talents.archive.ender.TeleportPearl;
 import me.hapyl.fight.game.talents.archive.ender.TransmissionBeacon;
 import me.hapyl.fight.game.talents.archive.engineer.EngineerRecall;
@@ -87,11 +89,11 @@ import me.hapyl.fight.game.talents.archive.vortex.StarAligner;
 import me.hapyl.fight.game.talents.archive.vortex.VortexStar;
 import me.hapyl.fight.game.talents.archive.witcher.*;
 import me.hapyl.fight.game.talents.archive.zealot.BrokenHeartRadiation;
+import me.hapyl.fight.game.talents.archive.zealot.MaledictionVeil;
 import me.hapyl.fight.game.talents.archive.zealot.MalevolentHitshield;
 import me.hapyl.spigotutils.module.util.BFormat;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
@@ -121,7 +123,7 @@ public enum Talents {
     SHOCK_DARK(new ShockDark()),
     HAWKEYE_ARROW(new PassiveTalent(
             "Hawkeye Arrow",
-            "Fully charged shots while sneaking have &b25%&7 chance to fire hawkeye arrow that homes to nearby enemies.",
+            "Fully charged shots while sneaking have &b25%&7 chance to fire a hawkeye arrow that homes to nearby enemies.",
             Material.ENDER_EYE
     )),
 
@@ -129,8 +131,11 @@ public enum Talents {
     POTION(new RandomPotion()),
     CAULDRON(new CauldronAbility()),
     INTOXICATION(new PassiveTalent(
-            "Intoxication",
-            "Drinking potions will increase &eIntoxication &7level that will decrease constantly.____Keeping an eye on &eIntoxication &7level is a good idea, who knows what might happen...",
+            "Intoxication", """
+            Drinking potions will increase &eIntoxication &7level that will decrease constantly.
+                        
+            Having high &eIntoxication&7 levels isn't good for your body!
+            """,
             Material.DRAGON_BREATH
     )),
 
@@ -199,7 +204,7 @@ public enum Talents {
     // Ender
     TELEPORT_PEARL(new TeleportPearl()),
     TRANSMISSION_BEACON(new TransmissionBeacon()),
-    ENDERMAN_FLESH(new PassiveTalent("Fears of Enderman", "While in water, you will constantly take damage.", Material.WATER_BUCKET)),
+    ENDER_PASSIVE(new EnderPassive()),
 
     // Spark
     SPARK_MOLOTOV(new Molotov()),
@@ -405,9 +410,9 @@ public enum Talents {
     // Zealot
     BROKEN_HEART_RADIATION(new BrokenHeartRadiation()),
     MALEVOLENT_HITSHIELD(new MalevolentHitshield()),
+    MALEDICTION_VEIL(new MaledictionVeil()),
 
-
-    // ???
+    // ???,
     SYNTHETIC_SUN(new SyntheticSun()),
 
     // test (keep last),
@@ -435,7 +440,7 @@ public enum Talents {
         }
     }
 
-    public void startCd(Player player) {
+    public void startCd(GamePlayer player) {
         getTalent().startCd(player);
     }
 

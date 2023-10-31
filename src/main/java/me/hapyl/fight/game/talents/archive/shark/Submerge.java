@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.archive.shark;
 
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
@@ -13,11 +14,11 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
 import java.util.Locale;
 
 public class Submerge extends Talent {
@@ -38,7 +39,7 @@ public class Submerge extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         player.setGameMode(GameMode.SPECTATOR);
 
         final Location location = player.getLocation();
@@ -116,7 +117,7 @@ public class Submerge extends Talent {
 
                 // Hit detection
                 Collect.nearbyEntities(fixedLocation, 1.0d).forEach(victim -> {
-                    if (victim.is(player)) {
+                    if (victim.equals(player)) {
                         return;
                     }
 

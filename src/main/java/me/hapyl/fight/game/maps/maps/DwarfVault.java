@@ -42,8 +42,8 @@ public class DwarfVault extends GameMap {
 
         addFeature(new MapFeature("Bouncy Lava", "Hot but bouncy lava that allows you to get back to the platform.") {
             @Override
-            public void tick(int tickMod20) {
-                if (tickMod20 == 0) {
+            public void tick(int tick) {
+                if (tick % 20 == 0) {
                     LAVA_BOUNDING_BOX.collect(getWorld(), null).forEach(DwarfVault.this::launchUp);
                 }
             }
@@ -59,7 +59,7 @@ public class DwarfVault extends GameMap {
         if (cause == EnumDamageCause.DWARF_LAVA) {
             return DamageOutput.OK;
         }
-        
+
         if (LAVA_BOUNDING_BOX.isWithin(gameEntity)) {
             launchUp(gameEntity);
             return DamageOutput.CANCEL;
@@ -78,8 +78,8 @@ public class DwarfVault extends GameMap {
         entity.startCooldown(Cooldown.DWARF_LAVA);
 
         // Fx
-        entity.playPlayerSound(Sound.BLOCK_LAVA_POP, 0.0f);
-        entity.playPlayerSound(Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.0f);
-        entity.playPlayerSound(Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 0.75f);
+        entity.playSound(Sound.BLOCK_LAVA_POP, 0.0f);
+        entity.playSound(Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.0f);
+        entity.playSound(Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 0.75f);
     }
 }

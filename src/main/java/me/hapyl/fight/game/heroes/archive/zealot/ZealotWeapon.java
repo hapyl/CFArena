@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.heroes.archive.zealot;
 
-import me.hapyl.fight.CF;
 import me.hapyl.fight.game.HeroReference;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -13,7 +12,6 @@ import me.hapyl.fight.game.weapons.ability.AbilityType;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -27,7 +25,7 @@ public class ZealotWeapon extends Weapon implements HeroReference<Zealot> {
         this.zealot = zealot;
 
         setId("zealot_weapon");
-        setDamage(5);
+        setDamage(3.0d);
 
         setName("Psionic Blade");
         setDescription("""
@@ -56,20 +54,19 @@ public class ZealotWeapon extends Weapon implements HeroReference<Zealot> {
         }
 
         @Override
-        public Response execute(@Nonnull Player player, @Nonnull ItemStack item) {
+        public Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
             if (item.getType() == Material.GOLDEN_SWORD) {
                 return Response.OK;
             }
 
-            final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
-            final EntityAttributes attributes = gamePlayer.getAttributes();
+            final EntityAttributes attributes = player.getAttributes();
 
             attributes.add(AttributeType.FEROCITY, ferocityIncrease);
 
             zealot.abilityEquipment.equip(player);
             item.setType(Material.GOLDEN_SWORD);
 
-            new PlayerGameTask(gamePlayer) {
+            new PlayerGameTask(player) {
                 @Override
                 public void run() {
                     attributes.subtract(AttributeType.FEROCITY, ferocityIncrease);
@@ -77,12 +74,12 @@ public class ZealotWeapon extends Weapon implements HeroReference<Zealot> {
                     item.setType(Material.DIAMOND_SWORD);
 
                     // Fx
-                    gamePlayer.playSound(Sound.ENTITY_ELDER_GUARDIAN_AMBIENT_LAND, 1.0f);
+                    player.playSound(Sound.ENTITY_ELDER_GUARDIAN_AMBIENT_LAND, 1.0f);
                 }
             }.runTaskLater(getDuration());
 
             // Fx
-            gamePlayer.playSound(Sound.ENTITY_ELDER_GUARDIAN_AMBIENT_LAND, 0.0f);
+            player.playSound(Sound.ENTITY_ELDER_GUARDIAN_AMBIENT_LAND, 0.0f);
 
             return Response.OK;
         }

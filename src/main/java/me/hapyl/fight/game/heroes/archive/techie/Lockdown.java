@@ -91,7 +91,7 @@ public class Lockdown {
                     int lockdownRadius = Heroes.TECHIE.getHero(Techie.class).LOCKDOWN_RADIUS;
 
                     Collect.nearbyPlayers(Lockdown.this.location, lockdownRadius).forEach(target -> {
-                        target.playPlayerSound(Sound.BLOCK_BEACON_AMBIENT, 2.0f);
+                        target.playSound(Sound.BLOCK_BEACON_AMBIENT, 2.0f);
                         target.sendWarning("Lockdown Warning!", 5);
                     });
 

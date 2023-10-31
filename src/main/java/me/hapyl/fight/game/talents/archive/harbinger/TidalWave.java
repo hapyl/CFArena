@@ -14,7 +14,6 @@ import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.util.Set;
@@ -23,7 +22,7 @@ public class TidalWave {
 
     private final int period = 3;
 
-    private final Player player;
+    private final GamePlayer player;
     private final int duration;
     private final Set<Block> affectedBlocks;
 
@@ -32,7 +31,7 @@ public class TidalWave {
 
     private final TidalWaveTalent talent;
 
-    public TidalWave(Player player, int duration) {
+    public TidalWave(GamePlayer player, int duration) {
         this.player = player;
         this.duration = duration;
         this.affectedBlocks = Sets.newHashSet();
@@ -118,7 +117,7 @@ public class TidalWave {
             Collect.nearbyEntities(location, 1.0d, entity -> entity.isValid(player))
                     .forEach(entity -> {
                         entity.setVelocity(pushVector);
-                        Heroes.HARBINGER.getHero(Harbinger.class).addRiptide(player, entity.getEntity(), talent.riptideDuration, false);
+                        Heroes.HARBINGER.getHero(Harbinger.class).addRiptide(player, entity, talent.riptideDuration, false);
                     });
 
             affectedBlocks.add(block);

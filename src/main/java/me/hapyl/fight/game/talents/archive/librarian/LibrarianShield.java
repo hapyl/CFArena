@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.talents.archive.librarian;
 
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.fight.game.entity.GamePlayer;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
+
+import javax.annotation.Nonnull;
 
 public class LibrarianShield extends LibrarianTalent {
     public LibrarianShield() {
@@ -15,13 +15,13 @@ public class LibrarianShield extends LibrarianTalent {
     }
 
     @Override
-    public Response executeGrimoire(Player player) {
+    public Response executeGrimoire(@Nonnull GamePlayer player) {
         final int value = (int) (getCurrentValue(player) * 20);
 
         player.setInvulnerable(true);
-        GameTask.runLater(() -> player.setInvulnerable(false), value);
+        player.schedule(() -> player.setInvulnerable(false), value);
 
-        Chat.sendMessage(player, "&aApplied shield for %ss!", getCurrentValue(player));
+        player.sendMessage("&aApplied shield for %ss!", getCurrentValue(player));
 
         return Response.OK;
     }

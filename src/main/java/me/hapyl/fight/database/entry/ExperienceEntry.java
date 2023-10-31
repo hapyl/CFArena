@@ -50,6 +50,10 @@ public class ExperienceEntry extends PlayerDatabaseEntry {
         set(type, get(type) + value);
     }
 
+    public void update() {
+        Main.getPlugin().getExperience().triggerUpdate(getPlayer());
+    }
+
     public enum Type {
 
         EXP("Total amount of experience.", 0),

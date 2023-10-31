@@ -1,12 +1,12 @@
 package me.hapyl.fight.game.talents.archive.librarian;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.librarian.Librarian;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Numbers;
-import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 
@@ -21,10 +21,10 @@ public abstract class LibrarianTalent extends Talent {
         setAltUsage("You must use your grimoire to cast this spell!");
     }
 
-    public abstract Response executeGrimoire(Player player);
+    public abstract Response executeGrimoire(@Nonnull GamePlayer player);
 
     @Override
-    public final Response execute(Player player) {
+    public final Response execute(@Nonnull GamePlayer player) {
         if (Heroes.LIBRARIAN.getHero(Librarian.class).hasICD(player)) {
             return ERROR; // should never happen
         }
@@ -33,7 +33,7 @@ public abstract class LibrarianTalent extends Talent {
 
         if (response.isOk()) {
             Heroes.LIBRARIAN.getHero(Librarian.class).removeSpellItems(player, this);
-            Chat.sendMessage(player, "&aUsed %s!", this.getName());
+            player.sendMessage("&aUsed %s!", this.getName());
         }
 
         return response;
@@ -68,7 +68,7 @@ public abstract class LibrarianTalent extends Talent {
         return getValues()[Numbers.clamp(level, 0, 3)];
     }
 
-    public double getCurrentValue(Player player) {
+    public double getCurrentValue(GamePlayer player) {
         return getCurrentValue(Heroes.LIBRARIAN.getHero(Librarian.class).getGrimoireLevel(player));
     }
 }

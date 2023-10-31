@@ -1,6 +1,9 @@
 package me.hapyl.fight.command;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
@@ -11,7 +14,7 @@ public class CastSpellCommand extends SimplePlayerAdminCommand {
     public CastSpellCommand(String name) {
         super(name);
 
-        setDescription("Allows to cast a spell for debug purposes.");
+        setDescription("Allows casting a spell for debug purposes.");
         setUsage("/cast <spell> [-f]");
 
         addCompleterValues(1, Talents.values());
@@ -44,6 +47,13 @@ public class CastSpellCommand extends SimplePlayerAdminCommand {
             return;
         }
 
+        final GamePlayer gamePlayer = CF.getPlayer(player);
+
+        if (gamePlayer == null) {
+            Chat.sendMessage(player, "&cNo handle.");
+            return;
+        }
+
         final Talents talent = Validate.getEnumValue(Talents.class, args[0]);
         final boolean force = args.length > 1 && args[1].equalsIgnoreCase("-f");
 
@@ -52,7 +62,8 @@ public class CastSpellCommand extends SimplePlayerAdminCommand {
             return;
         }
 
-        final Response response = force ? talent.getTalent().execute(player) : talent.getTalent().execute0(player);
+        final Talent talentHandle = talent.getTalent();
+        final Response response = force ? talentHandle.execute(gamePlayer) : talentHandle.execute0(gamePlayer);
 
         if (!response.isOk()) {
             Chat.sendMessage(player, "&c" + response.getReason());

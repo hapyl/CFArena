@@ -1,36 +1,42 @@
 package me.hapyl.fight.game.talents.archive.moonwalker;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.CFUtils;
+import me.hapyl.fight.util.Compute;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.util.Consumer;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
-import java.util.Collection;
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class GravityZone extends Talent {
 
     @DisplayField private final double radius = 3.0d;
     @DisplayField private final double radiusY = 7.0d;
+    @DisplayField private final double damagePerTick = 0.4d;
 
     public GravityZone() {
         super("Gravity Pull", """
-                Create a gravity zone at your &etarget&7 location that will charge over time.
-                While charging, pull all enemies in range up and slow them.
+                Create a gravity zone at the &etarget&7 location that will charge over time.
                                 
-                When charged, slam all enemies down, dealing damage.
+                While charging, pull all enemies within range up and slow them down.
                                 
-                &b;;Moonwalker is immune to his own {name}.
+                When charged, slam all enemies within range down and deal damage to them.
+                &8;;The damage is scaled with how long an enemy was in the gravity pull.
                 """, Material.PURPLE_DYE);
 
         setCooldownSec(20);
@@ -38,7 +44,7 @@ public class GravityZone extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final Block block = player.getTargetBlockExact(10);
 
         if (block == null) {
@@ -49,6 +55,7 @@ public class GravityZone extends Talent {
         final Location location = center.clone();
 
         new GameTask() {
+            private final Map<LivingGameEntity, Integer> ticksInPull = Maps.newHashMap();
             private int tick = getDuration();
             private double theta = 0.0d;
             private double y = 0.0d;
@@ -56,31 +63,38 @@ public class GravityZone extends Talent {
             @Override
             public void run() {
                 if (tick-- < 0) {
-                    this.cancel();
+                    cancel();
 
                     // Push down
                     getInRange(center, 1.0d).forEach(entity -> {
-                        if (entity == player) {
+                        if (entity.equals(player)) {
                             return;
                         }
 
                         final Vector velocity = entity.getVelocity();
 
                         entity.setVelocity(new Vector(velocity.getX() / 2, -2.0d, velocity.getZ() / 2));
+                        entity.addEffect(GameEffectType.FALL_DAMAGE_RESISTANCE, 60, true);
+
+                        // Damage
+                        final int ticksInPull = this.ticksInPull.getOrDefault(entity, 1);
+                        entity.damage(ticksInPull * damagePerTick, player, EnumDamageCause.GRAVITY);
                     });
 
+                    ticksInPull.clear();
                     return;
                 }
 
                 // Pull Up
                 getInRange(center).forEach(entity -> {
-                    if (entity == player) {
+                    if (entity.equals(player)) {
                         return;
                     }
 
                     final Vector velocity = entity.getVelocity();
 
                     entity.setVelocity(new Vector(velocity.getX() / 2, 0.3d, velocity.getZ() / 2));
+                    ticksInPull.compute(entity, Compute.intAdd());
                 });
 
                 // Fx
@@ -113,25 +127,32 @@ public class GravityZone extends Talent {
     }
 
     @Nonnull
-    public Collection<LivingEntity> getInRange(@Nonnull Location location) {
+    public Set<LivingGameEntity> getInRange(@Nonnull Location location) {
         return getInRange(location, 0.0d);
     }
 
-    public Collection<LivingEntity> getInRange(@Nonnull Location location, double y) {
+    public Set<LivingGameEntity> getInRange(@Nonnull Location location, double y) {
         final World world = location.getWorld();
-        final List<LivingEntity> list = Lists.newArrayList();
+        final Set<LivingGameEntity> hashSet = Sets.newHashSet();
 
         if (world == null) {
-            return list;
+            return hashSet;
         }
 
         world.getNearbyEntities(location, radius, radiusY + y, radius).forEach(entity -> {
-            if (CFUtils.isEntityValid(entity) && entity instanceof LivingEntity living) {
-                list.add(living);
+            if (!(entity instanceof LivingEntity living)) {
+                return;
             }
+
+            final LivingGameEntity gameEntity = CF.getEntity(living);
+            if (gameEntity == null || !gameEntity.isValid()) {
+                return;
+            }
+
+            hashSet.add(gameEntity);
         });
 
-        return list;
+        return hashSet;
     }
 
 }

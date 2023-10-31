@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.maps.features;
 
 import me.hapyl.fight.game.maps.MapFeature;
+import me.hapyl.fight.garbage.CFGarbageCollector;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -57,15 +58,16 @@ public class LibraryCat extends MapFeature implements Listener {
             return;
         }
 
-        cat = Entities.CAT.spawn(catLocations[0], me -> {
-            me.setGravity(false);
-            me.setSitting(true);
-            me.setOwner(null);
-            me.setCatType(Cat.Type.ALL_BLACK);
-            me.setAdult();
+        cat = Entities.CAT.spawn(catLocations[0], self -> {
+            self.setGravity(false);
+            self.setSitting(true);
+            self.setOwner(null);
+            self.setCatType(Cat.Type.ALL_BLACK);
+            self.setAdult();
+            CFGarbageCollector.add(self);
 
-            Nulls.runIfNotNull(me.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE), attr -> attr.setBaseValue(1.0f));
-            Nulls.runIfNotNull(me.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED), attr -> attr.setBaseValue(0.0f));
+            Nulls.runIfNotNull(self.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE), attr -> attr.setBaseValue(1.0f));
+            Nulls.runIfNotNull(self.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED), attr -> attr.setBaseValue(0.0f));
         });
 
         currentCatPos = 0;
@@ -95,7 +97,7 @@ public class LibraryCat extends MapFeature implements Listener {
     }
 
     @Override
-    public void tick(int tickMod20) {
+    public void tick(int tick) {
         if (!catExists()) {
             return;
         }

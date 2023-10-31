@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.talents.archive.bounty_hunter;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -15,11 +15,11 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
 import java.util.Random;
 import java.util.Set;
 
@@ -32,7 +32,7 @@ public class ShortyShotgun extends Talent {
     @DisplayField private final double spread = 0.5d;
     @DisplayField(suffix = "blocks") private final double maxDistance = 3.0d;
 
-    private final Set<Player> hasShotFirst = Sets.newHashSet();
+    private final Set<GamePlayer> hasShotFirst = Sets.newHashSet();
 
     public ShortyShotgun() {
         super("Shorty");
@@ -51,13 +51,13 @@ public class ShortyShotgun extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         for (int i = 0; i < pellets; i++) {
             raycastPellet(player);
         }
 
         // Fx
-        PlayerLib.playSound(player.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1.75f);
+        player.playWorldSound(Sound.ENTITY_GENERIC_EXPLODE, 1.75f);
 
         if (hasShotFirst.contains(player)) {
             hasShotFirst.remove(player);
@@ -73,7 +73,7 @@ public class ShortyShotgun extends Talent {
         return Response.AWAIT;
     }
 
-    private void fixAmount(Player player) {
+    private void fixAmount(GamePlayer player) {
         final PlayerInventory inventory = player.getInventory();
         final int indexOfTalent = inventory.first(getMaterial());
 
@@ -95,7 +95,7 @@ public class ShortyShotgun extends Talent {
         }
     }
 
-    private void raycastPellet(Player player) {
+    private void raycastPellet(GamePlayer player) {
         final Location playerEyeLocation = player.getEyeLocation().subtract(0.0d, 0.2d, 0.0d);
         final Vector direction = playerEyeLocation.getDirection().normalize().add(getRandomVector());
 
@@ -109,7 +109,7 @@ public class ShortyShotgun extends Talent {
             if (entity != null) {
                 // Check for bleed
                 if (entity.getLocation().distance(player.getLocation()) <= bleedThreshold) {
-                    entity.setLastDamager(CF.getPlayer(player));
+                    entity.setLastDamager(player);
                     entity.addEffect(GameEffectType.BLEED, bleedDuration, true);
                     entity.addEffect(GameEffectType.VULNERABLE, bleedDuration, true);
                 }

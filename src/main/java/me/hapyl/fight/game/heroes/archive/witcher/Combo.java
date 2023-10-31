@@ -1,21 +1,22 @@
 package me.hapyl.fight.game.heroes.archive.witcher;
 
+import me.hapyl.fight.game.entity.GamePlayer;
+import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
 
 public class Combo {
 
-	private final long delayBetweenHits = 2500;
+	private static final long DELAY_BETWEEN_HITS = 2500;
 
-	private final Player player;
+	private final GamePlayer player;
 
 	private LivingEntity entity;
 	private int combo;
 	private long lastHit;
 
-	public Combo(Player player) {
+	public Combo(GamePlayer player) {
 		this.player = player;
 	}
 
@@ -23,6 +24,10 @@ public class Combo {
 		this.combo = 0;
 		this.lastHit = 0;
 		this.entity = null;
+
+		// Fx
+		player.sendMessage("&eYou combo has reset!");
+		player.playSound(Sound.ITEM_SHIELD_BREAK, 0.0f);
 	}
 
 	public void incrementCombo() {
@@ -31,14 +36,14 @@ public class Combo {
 	}
 
 	public boolean validateCanCombo() {
-		return this.lastHit == 0 || (System.currentTimeMillis() - this.lastHit) < delayBetweenHits;
+		return this.lastHit == 0 || (System.currentTimeMillis() - this.lastHit) < DELAY_BETWEEN_HITS;
 	}
 
 	public boolean validateSameEntity(LivingEntity entity) {
 		return entity != null && getEntity() != null && getEntity() == entity;
 	}
 
-	public Player getPlayer() {
+	public GamePlayer getPlayer() {
 		return player;
 	}
 

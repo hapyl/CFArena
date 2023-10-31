@@ -1,14 +1,16 @@
 package me.hapyl.fight.game.talents.archive.juju;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.juju.ArrowType;
 import me.hapyl.fight.game.heroes.archive.juju.JuJu;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
+
+import javax.annotation.Nonnull;
 
 public class TricksOfTheJungle extends Talent implements Listener {
 
@@ -28,7 +30,7 @@ public class TricksOfTheJungle extends Talent implements Listener {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         Heroes.JUJU.getHero(JuJu.class).setArrowType(player, ArrowType.ELUSIVE, getDuration());
 
         return Response.OK;

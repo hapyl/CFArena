@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.talents.archive.bloodfiend;
 
-import me.hapyl.fight.CF;
 import me.hapyl.fight.game.HeroReference;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend;
 import me.hapyl.fight.game.heroes.archive.bloodfield.BloodfiendData;
@@ -10,7 +10,6 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -45,14 +44,14 @@ public class BloodCup extends Talent implements HeroReference<Bloodfiend> {
     }
 
     public void updateTexture(BloodfiendData data) {
-        final Player player = data.getPlayer();
+        final GamePlayer player = data.getPlayer();
         final int blood = data.getBlood();
 
         player.getInventory().setItem(Bloodfiend.BLOOD_SLOT, getTexture(blood));
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final Bloodfiend bloodfiend = getHero();
         final BloodfiendData data = bloodfiend.getData(player);
         final int blood = data.getBlood();
@@ -63,11 +62,9 @@ public class BloodCup extends Talent implements HeroReference<Bloodfiend> {
 
         final double healing = healingPerBottle * blood;
 
-        CF.getPlayerOptional(player).ifPresent(gamePlayer -> {
-            gamePlayer.heal(healing);
-            gamePlayer.sendMessage("&4&l🩸 &aHealed for &c%s &c❤&a!", healing);
-            gamePlayer.playPlayerSound(Sound.BLOCK_BREWING_STAND_BREW, 0.0f);
-        });
+        player.heal(healing);
+        player.sendMessage("&4&l🩸 &aHealed for &c%s &c❤&a!", healing);
+        player.playSound(Sound.BLOCK_BREWING_STAND_BREW, 0.0f);
 
         data.clearBlood();
         updateTexture(data);

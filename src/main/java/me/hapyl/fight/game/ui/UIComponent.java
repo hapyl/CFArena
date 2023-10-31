@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.ui;
 
-import org.bukkit.entity.Player;
+import me.hapyl.fight.game.entity.GamePlayer;
 
 import javax.annotation.Nonnull;
 
@@ -10,6 +10,6 @@ import javax.annotation.Nonnull;
 public interface UIComponent {
 
     @Nonnull
-    String getString(Player player);
+    String getString(@Nonnull GamePlayer player);
 
 }

@@ -1,22 +1,20 @@
 package me.hapyl.fight.game.talents.archive.techie;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 
+import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -46,9 +44,9 @@ public class TrapCage extends ChargedTalent implements Listener {
     }
 
     @Override
-    public void onDeathCharged(Player player) {
-        getCages(player).forEach(CyberCage::remove);
-        cageMap.remove(player);
+    public void onDeathCharged(@Nonnull GamePlayer player) {
+        //getCages(player).forEach(CyberCage::remove);
+        //cageMap.remove(player);
     }
 
     @Override
@@ -61,30 +59,30 @@ public class TrapCage extends ChargedTalent implements Listener {
     }
 
     @Override
-    public Response execute(Player player) {
-        getCages(player).add(new CyberCage(player));
+    public Response execute(@Nonnull GamePlayer player) {
+        //getCages(player).add(new CyberCage(player));
         return Response.OK;
     }
 
     @EventHandler()
     public void handleMovement(PlayerMoveEvent ev) {
-        final Player player = ev.getPlayer();
-        if (!Manager.current().isPlayerInGame(player)) {
-            return;
-        }
-
-        getNearbyCages(player, cageRadius)
-                .forEach(cage -> {
-                    if (cage.isOwner(player)) {
-                        return;
-                    }
-
-                    cage.activate(player);
-
-                    // Remove cage and grant charge
-                    removeCage(cage);
-                    grantCharge(cage.getPlayer(), rechargeCd);
-                });
+        //final Player player = ev.getPlayer();
+        //if (!Manager.current().isPlayerInGame(player)) {
+        //    return;
+        //}
+        //
+        //getNearbyCages(player, cageRadius)
+        //        .forEach(cage -> {
+        //            if (cage.isOwner(player)) {
+        //                return;
+        //            }
+        //
+        //            cage.activate(player);
+        //
+        //            // Remove cage and grant charge
+        //            removeCage(cage);
+        //            grantCharge(cage.getPlayer(), rechargeCd);
+        //        });
     }
 
     @Override
@@ -99,23 +97,23 @@ public class TrapCage extends ChargedTalent implements Listener {
 
     @EventHandler()
     public void handleSneaking(PlayerToggleSneakEvent ev) {
-        final Player player = ev.getPlayer();
-        if (!Manager.current().isPlayerInGame(player)) {
-            return;
-        }
-
-        final Set<CyberCage> cages = getCages(player);
-
-        cages.forEach(cage -> {
-            if (cage.compareDistance(player.getLocation(), cageRadius)) {
-                removeCage(cage);
-
-                // Fx
-                Chat.sendMessage(player, "&aPicked up cage.");
-                PlayerLib.playSound(player, Sound.BLOCK_IRON_TRAPDOOR_CLOSE, 0.5f);
-                grantCharge(player, rechargeCd);
-            }
-        });
+        //final Player player = ev.getPlayer();
+        //if (!Manager.current().isPlayerInGame(player)) {
+        //    return;
+        //}
+        //
+        //final Set<CyberCage> cages = getCages(player);
+        //
+        //cages.forEach(cage -> {
+        //    if (cage.compareDistance(player.getLocation(), cageRadius)) {
+        //        removeCage(cage);
+        //
+        //        // Fx
+        //        Chat.sendMessage(player, "&aPicked up cage.");
+        //        PlayerLib.playSound(player, Sound.BLOCK_IRON_TRAPDOOR_CLOSE, 0.5f);
+        //        grantCharge(player, rechargeCd);
+        //    }
+        //});
     }
 
     private void removeCage(CyberCage cage) {

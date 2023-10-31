@@ -1,0 +1,322 @@
+Troll:
+
+- Repulsor is now has a range restriction of 10 blocks. (As it should be)
+
+####################################################################
+
+You really gotta migrate to using GamePlayer everywhere.
+Yes, it will be painful and buggy, but IS a good idea.
+
+- [!] The lobby game player bug STILL happens.
+- [✔] COOLDOWN ABILITY DOES NOT RESET YOU STUPID
+- [✔] Update tab names faster
+
+- Spark health reborn wrong
+- [✔] Ender cd wrong?
+- [✔] Change passive to any teleport == heal
+- [✔] Make invisible player not valid
+- Update map and mode GUI
+- Backstab does not worK?????
+- Poison Ivy TOO fast
+
+* Nightmare
+- Make omen work like monass' omen
+
+* Frenzy
+- Make last life have a red outline
+
+* Zealot
+- Add guardian effect when hit by beam
+- Make ferocity only work on melee
+
+####################################################################
+
+Bugs:
+
+- [✔] Dracula keeps shooting when the game is over
+- [✔] Vampire lightning strike does not work
+- [✔] Fall death did not count.
+- [✔] Alchemist's cauldron does not remove
+- [✔] Alchemist cauldron effect does not reset
+- [✔] Don't display contrail while invisibility or yes
+- [✔] Invis dont work!!!!
+- [✔] Random class does not work in deathmatch, actually change how random class works
+- Fix random class in tab and chat
+
+- [✔] Custom damage statisticType does not reset when hit using vanilla
+- librabi door broken
+
+####################################################################
+
+- [✔] Shark dash broken
+- [✔, Fixed concurrent (well, removed) glowing] Techie glowing STILL bro
+- [✔] Mage souls don't reset ond death
+- [✔] Mage speed boost is broken
+- [✔, Holy Hologram did NOT work properly.] Parkour leader board not loading for all players (return instead of break)
+- [✔] SA tp in wall
+- [✔] Shaman totems visible sometimes
+- [✔] Parkour leader board not working?
+- [✔] Fix suicide giving score
+- [✔] Phoenix don't work
+- [✔] DA can phys action staff
+- [✔] ED can pickup blocks during shh
+- [✔] Troll last laugh not formatted
+- [Fucking KM (Definitely not my+mojang shitty code)] Glowing for KM broken (blinks)
+- [✔] Ninja invisibility don't go at dmg
+- [✖] Ninja takes fall dmg
+- [✔] void doesn't reset ond death
+- [✔] Parkour record breaks
+- [✔] Wrong amount of bones flying
+- [✔] Joining the game while it's in progress doesn't add player as spectators
+- [✔] Black hole works with grimoire
+- [✔] Store class wins
+- [✔] Fix techie trips
+- [✔] Stop paintings from breaking
+- [It's not] harbinger riptide not going away?
+- [✔] weakness level matters for client
+- [✔] deathmath when die who dead keeps yes
+- [✔] me.hapyl.fight.game.heroes.storage.extra.BlockShield.randomBlock(BlockShield.java:132) ~[ClassesFightArena.jar:?]
+- [✔] spark does not take dmg?
+- [✔] Kill DM
+- [✔] Blast knight horse
+- [✔] wolf howl 201.5 64.0 217.5 rand
+- [✔] patch notes type the the
+- [✔] Parkour button actual pressing remove this wtf
+- [✔] leaving breaks the game
+- [✔] tripwire does not refresh on caught?
+- [✔] At me.hapyl.fight.game.heroes.storage.Techie$1.run(Techie.java:101) ~[ClassesFightArena.jar:?]
+- [✔] Traps don't regen
+- [✔] Database save called twice in rejoin
+- [✔] GameTeam uses gameplayer and does not reset after rejoin
+- [✔] Remove effects at death
+- [✔] Player profile is not removed on leave?
+- [✔] Fix talent descriptions, use addDescription() not '__'
+- [✔] Improve harbinger wave
+- [✔] ':' wrong in harbinger melee mark
+- [✔] Fix minion AI targeting invisible players
+- [✔] at me.hapyl.fight.game.GamePlayer.die(GamePlayer.java:490)
+- [✔] UI still does NOT update while rejoin
+- [✔] Moonwalker does not have cd on new ability
+- [✔] Make wither disappear whe cloning
+- [✔] 'Target is null' WARN
+- [✔] slow aura should NOT slow DARK MAGE
+- [✔] Slow falling when in zone
+- [✔] wither assist wrong?
+- [✔] Add parkour GUI to see jumps etc
+- [✔] Missing health pack on arena
+- [✔] DM can use spell with a FIST
+- [✔] Maybe don't remove player from team on leave?
+- [✔] DM should damage with blinding curse; rename to darkness spell or something
+- [✔] DM slowing aura should interrupt and block using talents
+- [✔] Spectators can pickup game packs
+- [✔] fall damage custom
+- [✔] add /ram
+- [✔] Melee stance does not reset properly?
+- [✔] juju shield breaks all at once
+- [✔] Tamer broken
+- [✔] Does not use custom cause?
+- [✔] Axe does not reset on death
+- [✔] Offset throwing axe to the left
+- [✔] Circle does not remover on death
+- [✔] Don't show dummy (< 1 damage) in display
+- [✔] eula nether -> iron remove from hand faster eula don't start eula if no axe
+- [✔] Display stays
+- [✔] Add distance on shots
+- [✔, It's not] Pretty sure witcher combo and zone ability don't work
+- [✔] Repackage heroes, storage -> archive
+- [✔] Add npc to parkour that counts fails (check for specific fall NOT on slime)
+- [✔] Can push in lobby (joined player not updated?)
+- [✔] Lamp game
+- [✔] BUFF GRAV ZONE
+- [✔] Fail checks for talent wrong? When using build in ones (game not started, stunned etc)
+- [✔] Rework achievement GUI to use top as category and contents as, well, fucking contents
+- [✔] Alchemist poison/wither damage does not change damager
+- [✔] Don't show damage when invisible
+- [✔] Wither is BIG
+- [✔] Fix snake parkour quit location
+- [✔] ADD TRIM COMMAND
+- [✔] Fix description from GRAY to DARK_GRAY
+
+### System Rework Notes: ###
+
+- Spawned mobs should *always* have a game entity
+associated with them; if spawned naturally, create
+default game entity.
+
+- Clone hero attribute to modify them.
+
+- "entity instanceof Player" is gonna throw a lot of errors...
+
+- Rejoining seems to be broken (ult does not recharge)
+
+############################
+
+### System Rework TEST Notes: ###
+
+- [✔] Bounty Hunter cannot SUCK
+- [✔] Return start item when cancelled
+- [✔] Witcher axii
+- [✔] Aard can affect self (and many more)?
+- [✔] Witcher combo shows to victim
+- [✔] Some entities should not be converted to GameEntity (ArmorStands)
+- [✔] Cauldron does not apply effect
+
+- !!! Improve custom AI, include invisibility, target the most damager ETC!!!
+- [✔] Show kill distance for projectiles only
+- [✔] Shark does not have bleed
+- [✔] Dwarf lava
+- [✔] Do something with non game entities, IDK what but do something!!!
+
+- [✔] Ninja takes fall damage
+- [✔] Ninja stars don't deal damage
+
+- [✔] HP shows in lobby (Parkour calls creation!)
+- [✔, Fixed using a work-around, need a better patch] Game PLayer is not removed after the game
+--  at ClassesFightArena.jar//me.hapyl.fight.game.ui.GamePlayerUI.updateScoreboard(GamePlayerUI.java:147)
+
+- Display damage boost for nightmare
+- [✔] Taker scythe (1) does not work
+- [✔] Range weapons does not work
+- [✔] Mage cannot damage range
+- [✔] Don't set GamePlayer set 1 HP!
+
+-- Super complex but worth a try:
+-- Custom player (Human) AI
+
+############################
+- [Could not reproduce, neither in local nor in building server] Chalice laggs server?
+- [✔] Remove all SUCC at death
+- [✔] Batransfer multiple reset cancel task
+- [✔] Batransfer fly when flying should cancel bat early
+- [✔] Replace air check with occluding for twinclaws
+- [✔] Add glowing to chalice
+- [✔] All players can hear taunt sound
+- [✔] Change twinclaws to fly toward direction.
+- [✔] Anchor candlebane properly
+- [✔] Chalice does not kill (getting OWNER hp?)
+- [✔] Remove chalice if way away
+- [✔] Add message who is impelled
+- [✔] Maybe add life steal/vampirism?
+- [✔] Add rotating animation to candlebane?
+- [✔] Add FX that someone is bitten
+- [✔] Change Spectral Form FX to be swarm of bats like a cloud?
+- [✔] 200 CD candle too much, maybe remove cd since there is now a FUCK
+- [✔] Reduce weapon damage
+- [✔] Display chalice/pillar to vampire
+- [✔] Vault lava does not bounce
+- [✔] Offset location if inside a slab/stair by 1
+- [✔] Fix anchor and offset location
+- [✔] Limit pillar to 1 player?
+- [✔] Invulnerable entities are valid
+- [✔] Armor is not given (BRUH)
+- [✔] Harbinger damages self
+- [✔] Change respawning DecimalFormat
+- [✔] Update inventory after skin apply
+- [✔] to the taunted "playerS"
+- [✔] Buff impel?
+- [✔] Achievement: Hit 2 players with Twinclaws
+- [✔] DONT ALLOW TO REMOVE TAUNT BEFORE THE ANIMATION IS OVER
+- [✔] FAKE PLAYER WHEN BLOODFIEND ULT = REAL IS ONE OF THE BATS KEKW!!
+- [✔] Get LOS target debug REMOVE IT
+- [✔] Armor stands are valid?
+- [✔] Chalice is TOO easy to break
+- [✔] GameProfile is messed up for skins
+- [✔] Dying while taunt animation throws error and places the taunt anyways
+- [✔] Disallow creating game player in lobby
+- [✔] Remove knockback on vampire
+- [✔] Achievement: SPAM CANCEL GAME LIKE 10 TIMES OR SOMETHING
+- [✔] dumpColor gives lower case shit and SUGGEST not COPY
+- [✔] Rifle does not reload on death
+- [✔] Reduce knockback from range weapons
+- [✔] Start vote does not work using item
+- [✔] Can die from fell world
+- [✔] Jump japan dont work
+- [✔] Spark not cause
+- [✔] Add global cobweb for troll
+- [✔] Add damage boost to shorty while in hook
+- [✔] Lower defense
+- [✔] Test DM since reworked spell casting
+- [✔] Improve DM dark spell
+- [✔] TAUNT DEAD MESSAGE IS BOLD
+
+- Add bleed FX with bloodfiend one.
+- Add remove FX to a pillar.
+- Add hypixel-like server restart
+- Limit taunt to 1 player (then ability becomes kinda useless with 1v1)
+- Add bleed FX, add bleed to BH
+- [Could not reproduce] Swooper weapon disappeared???
+- [✔] Add "time before spawn" for HP/enegry
+- Wrong taunt? 2 players, huh, how!
+- Bleed does not have damager?
+- Spectral Form has too big CD?
+- [✔] Maybe randomize candle clicks?
+- Nightmare had 80 hp? (Random class issue I think)
+- Maybe just damage with grav, not BUB DOWN BOOB BOOBA?
+- When rejoining a game, a selected class instead of random is given (I don't think this is fixable, just fucking remove rejoining who the fuck cares)
+
+############################
+
+- ACHIEVEMENT: Look at all owls in winery.
+
+- Maybe genshin slowing aura for freazly
+- Maybe add glowing for self traps
+- rework TECHIE and TAKER ult
+- add glowing on death for teammates
+- Maybe add buff when JUJU uses climb
+- make juju shot work when hit enemies
+- Possible stackoverflow when calculating wave
+- "Flying is not enabled on this server"
+
+== 1.20 ==
+- /2 CD when DM has ULT
+- Lover damage in darkness nightmare
+- Add patterns to TECHIE
+- TECHIE ult should lockdown or break linked opponents
+- Maybe rework passive to be "If have paranoia, take more damage" though it would be hard to detect who applied without using a map
+- UPGRADES PEOPLE UPGRADES not removed on death
+- Anchor dr ed particles
+
+- Input talent does not reset when predicate false?
+
+- Check for melee damage
+- Some death messages show damager when they shouldn't
+- Ender TP should give attack
+- DEAD GIFT TECHIE
+
+- !!! Allow console to use stop
+- Orc dash is very long
+- cauldron zone is not removed
+- shield does not reset on death
+- apply riptide on CRITS (might be too OP and wil have to nerf riptide slash)
+- [✔] pillar is not removed when bottom block is air since it only check for it
+
+- Rework techie a bit, add delay to traps and ult is useless :|
+
+#################
+
+- [✔] ferocity -150?
+- [✔] heal anim is weird (THEY ARE FAST WTF)
+- [✔] Shark drowning kekw
+
+- Skin messes up with effects? entity status thing glowing
+- Backstab does not work?
+
+##################
+
+- Repackage talent/hero handles?
+- Cleanup Code
+- Add friends, idk why?
+- [It's not, I do 🐥] Maybe remove re-join ability, it kinda sucks and breaks the game
+- [✔] Add /colorItem command or something
+
+- Add talents for:
+    - [✔] Troll (Passive✔)
+    - [✔] Dr. Ed (Second✔, Passive)
+    - Freazly (Second, Passive)
+    - [✔] Dark Mage (Passive)
+    - [✔] Swooper (Second✔)
+    - Tamer (First, Second, Passive)
+    - Shark (Second)
+    - Librarian (Passive)
+    - KM (Passive)
+    - Harbinger (Second)

@@ -1,7 +1,5 @@
 package me.hapyl.fight.game.heroes.archive.taker;
 
-import com.google.common.collect.Maps;
-import me.hapyl.fight.CF;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
@@ -17,12 +15,10 @@ import me.hapyl.fight.game.talents.archive.taker.FatalReap;
 import me.hapyl.fight.game.talents.archive.taker.SpiritualBonesPassive;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
-import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.displayfield.DisplayField;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.fight.util.displayfield.DisplayFieldSerializer;
-import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
@@ -30,26 +26,17 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldProvider {
 
-    private final Map<Player, SpiritualBones> playerBones = Maps.newHashMap();
-
-    @DisplayField private final double ultimateProjectileSpeed = 0.5d;
-    @DisplayField private final double ultimateProjectileDistance = 10.0d;
-    @DisplayField private final int shotsPerBone = 3;
-    @DisplayField private final double healingPerBone = 5d;
+    private final PlayerMap<SpiritualBones> playerBones = PlayerMap.newMap();
 
     public Taker() {
         super("Taker", "Will take your life away!");
@@ -72,7 +59,7 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
                 While cloaked, become invulnerable.
                                         
                 The darkness force will constantly rush forward, dealing damage and blinding anyone who dare to stay in the way.
-                Also recover health every time enemy is hit.
+                Also recover health every time an enemy is hit.
                                         
                 Hold &e&lSNEAK&7 to rush slower.
                                 
@@ -86,17 +73,17 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
     }
 
     @Override
-    public boolean predicateUltimate(Player player) {
+    public boolean predicateUltimate(@Nonnull GamePlayer player) {
         return getBones(player).getBones() > 0;
     }
 
     @Override
-    public String predicateMessage(Player player) {
+    public String predicateMessage(@Nonnull GamePlayer player) {
         return "Not enough &l%s&c!".formatted(getPassiveTalent().getName());
     }
 
     @Nonnull
-    public SpiritualBones getBones(Player player) {
+    public SpiritualBones getBones(GamePlayer player) {
         return playerBones.computeIfAbsent(player, SpiritualBones::new);
     }
 
@@ -107,7 +94,7 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
     }
 
     @Override
-    public void onDeath(Player player) {
+    public void onDeath(@Nonnull GamePlayer player) {
         getBones(player).reset();
         getBones(player).clearArmorStands();
     }
@@ -123,12 +110,12 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
     }
 
     @Override
-    public void onUltimateEnd(Player player) {
+    public void onUltimateEnd(@Nonnull GamePlayer player) {
         player.setInvulnerable(false);
     }
 
     @Override
-    public void useUltimate(Player player) {
+    public void useUltimate(@Nonnull GamePlayer player) {
         player.setInvulnerable(true);
 
         final SpiritualBones bones = getBones(player);
@@ -161,7 +148,7 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
                         living -> living.isValid(player)
                 ).forEach(entity -> {
                     entity.damageTick(damage, player, EnumDamageCause.EMBODIMENT_OF_DEATH, hitDelay);
-                    CF.getOrCreatePlayer(player).heal(healing);
+                    player.heal(healing);
                 });
 
                 // Hit Fx
@@ -180,90 +167,18 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
         }, 0, 1);
 
         // Outer Fx
-        Chat.sendMessage(player, "&0☠ &7The darkness will aid you with %s damage and %s healing per enemy hit.", damage, healing);
-    }
-
-    public void useUltimateOld(Player player) {
-        final SpiritualBones bones = getBones(player);
-        final UltimateTalent ultimate = getUltimate();
-        final int playerBones = bones.getBones();
-        final int duration = ultimate.getDuration();
-
-        final double healing = healingPerBone * playerBones;
-        final double healingPerTick = healing / duration;
-        final int firePeriod = getUltimateDuration() / (playerBones * shotsPerBone);
-
-        PlayerLib.addEffect(player, PotionEffectType.SLOW, duration, 4);
-        PlayerLib.addEffect(player, PotionEffectType.DAMAGE_RESISTANCE, duration, 4);
-
-        GameTask.runDuration(ultimate, (task, i) -> {
-            GamePlayer.getPlayer(player).heal(healingPerTick);
-
-            if (i > 0 && i % firePeriod == 0) {
-                launchUltimateProjectile(player);
-            }
-
-            final double particleOffset = CFUtils.scaleParticleOffset(0.5d);
-
-            PlayerLib.spawnParticle(player.getLocation(), Particle.SQUID_INK, 5, particleOffset, 0.6d, particleOffset, 0.01f);
-            // Fx
-            PlayerLib.spawnParticle(player.getLocation(), Particle.LAVA, 2, particleOffset, 0.6d, particleOffset, 0.01f);
-        }, 0, 1);
-
-        bones.reset();
-        bones.clearArmorStands();
-    }
-
-
-    public void launchUltimateProjectile(Player player) {
-        final Location location = player.getEyeLocation();
-        final Vector vector = location.getDirection().normalize();
-
-        vector.setY(0.0d);
-        vector.setX(new Random().nextDouble(-1.0d, 1.0d));
-        vector.setZ(new Random().nextDouble(-1.0d, 1.0d));
-
-        new GameTask() {
-            private double distance = 0.0d;
-
-            @Override
-            public void run() {
-                if (distance >= (ultimateProjectileDistance * ultimateProjectileSpeed)) {
-                    cancel();
-                    return;
-                }
-
-                final double x = vector.getX() * distance;
-                final double y = vector.getY() * distance;
-                final double z = vector.getZ() * distance;
-
-                location.add(x, y, z);
-
-                Collect.nearbyEntities(location, 1.0d, entity -> entity.isNot(player))
-                        .forEach(entity -> entity.damage(10.0d, player, EnumDamageCause.DEATH_RAY));
-
-                // Fx
-                PlayerLib.spawnParticle(location, Particle.SQUID_INK, 1, 0.0d, 0.0d, 0.0d, 0.0f);
-                PlayerLib.spawnParticle(location, Particle.LAVA, 1, 0.0d, 0.0d, 0.0d, 0.0f);
-
-                distance += ultimateProjectileSpeed;
-            }
-        }.runTaskTimer(0, 1);
-
-        // Fx
-        PlayerLib.playSound(location, Sound.ENTITY_BLAZE_SHOOT, 0.0f);
+        player.sendMessage("&0☠ &7The darkness will aid you with %s damage and %s healing per enemy hit.", damage, healing);
     }
 
     @Nullable
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final GamePlayer gamePlayer = input.getDamagerAsPlayer();
+        final GamePlayer player = input.getDamagerAsPlayer();
 
-        if (gamePlayer == null) {
+        if (player == null) {
             return null;
         }
 
-        final Player player = gamePlayer.getPlayer();
         final SpiritualBones bones = getBones(player);
 
         if (bones.getBones() == 0) {
@@ -274,7 +189,7 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
         final double damage = input.getDamage();
 
         final double healingScaled = damage * healing / 100.0d;
-        gamePlayer.heal(healingScaled);
+        player.heal(healingScaled);
 
         return new DamageOutput(damage + (damage / 10 * bones.getDamageMultiplier()));
     }
@@ -282,7 +197,7 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
     @Nullable
     @Override
     public DamageOutput processDamageAsVictim(DamageInput input) {
-        final Player player = input.getBukkitPlayer();
+        final GamePlayer player = input.getEntityAsPlayer();
         final SpiritualBones bones = getBones(player);
 
         if (bones.getBones() == 0) {
@@ -311,7 +226,7 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
 
     @Nonnull
     @Override
-    public String getString(Player player) {
+    public String getString(@Nonnull GamePlayer player) {
         return "&f☠: &l" + getBones(player).getBones();
     }
 

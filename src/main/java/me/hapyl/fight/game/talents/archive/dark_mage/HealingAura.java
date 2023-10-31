@@ -12,7 +12,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 
@@ -38,7 +37,7 @@ public class HealingAura extends DarkMageTalent {
 
     @Override
     public void assist(WitherData data) {
-        GamePlayer.getPlayer(data.player).heal(assistHealing);
+        data.player.heal(assistHealing);
     }
 
     @Nonnull
@@ -54,7 +53,7 @@ public class HealingAura extends DarkMageTalent {
     }
 
     @Override
-    public Response executeSpell(Player player) {
+    public Response executeSpell(@Nonnull GamePlayer player) {
         final Location location = player.getLocation();
 
         new GameTask() {
@@ -75,7 +74,7 @@ public class HealingAura extends DarkMageTalent {
                 if ((tick % 20) == 0) {
                     Collect.nearbyPlayers(location, radius).forEach(target -> {
                         target.heal(2.0d);
-                        target.playPlayerSound(Sound.BLOCK_GRASS_HIT, 1.0f);
+                        target.playSound(Sound.BLOCK_GRASS_HIT, 1.0f);
                     });
                     PlayerLib.spawnParticle(location, Particle.HEART, 5, 1, 0.2, 1, 0.01f);
                 }

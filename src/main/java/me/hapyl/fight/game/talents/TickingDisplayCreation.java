@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.talents;
 
 import me.hapyl.fight.annotate.MustCallSuper;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.spigotutils.module.block.display.DisplayData;
 import me.hapyl.spigotutils.module.block.display.DisplayEntity;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 
@@ -22,7 +22,7 @@ public abstract class TickingDisplayCreation extends TickingCreation {
 
     @MustCallSuper
     @Override
-    public void create(Player player) {
+    public void create(@Nonnull GamePlayer player) {
         entity = displayData.spawn(getLocation());
     }
 

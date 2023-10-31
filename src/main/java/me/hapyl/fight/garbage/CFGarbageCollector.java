@@ -64,7 +64,7 @@ public class CFGarbageCollector implements Listener {
         return Manager.current().isGameInProgress();
     }
 
-    private static boolean isGarbageEntity(Entity entity) {
+    public static boolean isGarbageEntity(Entity entity) {
         return entity.getScoreboardTags().contains(GARBAGE_TAG);
     }
 

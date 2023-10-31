@@ -5,7 +5,6 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.archive.bloodfiend.taunt.TauntTalent;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
@@ -32,7 +31,7 @@ public class CandlebaneTalent extends TauntTalent<Candlebane> {
     @Override
     public String getDescription() {
         return """
-                &bTaunted&7 player will suffer &c{damagePerInterval} damage every &b{interval}&7.
+                &bTaunted&7 player will suffer &c{damagePerInterval}&7 damage every &b{interval}&7.
                 """;
     }
 
@@ -57,7 +56,7 @@ public class CandlebaneTalent extends TauntTalent<Candlebane> {
     }
 
     @Override
-    public Candlebane createTaunt(Player player, GamePlayer target) {
+    public Candlebane createTaunt(GamePlayer player, GamePlayer target) {
         return new Candlebane(this, player, target);
     }
 

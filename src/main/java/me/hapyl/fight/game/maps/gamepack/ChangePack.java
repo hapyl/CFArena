@@ -1,13 +1,10 @@
 package me.hapyl.fight.game.maps.gamepack;
 
-import me.hapyl.fight.CF;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import me.hapyl.spigotutils.module.math.Tick;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
-import org.bukkit.entity.Player;
 
 public class ChangePack extends GamePack {
 
@@ -23,14 +20,11 @@ public class ChangePack extends GamePack {
     }
 
     @Override
-    public void onPickup(Player player) {
-        final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
+    public void onPickup(GamePlayer player) {
+        player.addUltimatePoints(CHARGE_POINTS);
 
-        gamePlayer.addUltimatePoints(CHARGE_POINTS);
-        //gamePlayer.sendMessage("&3&lCHARGE PACK &7⁑ &b&l+%s &b※ Ultimate Points", CHARGE_POINTS);
-        gamePlayer.sendTitle("&b※&9&l※&b※", "&a+&l%s".formatted(CHARGE_POINTS), 0, 15, 5);
-
-        PlayerLib.playSound(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.5f);
+        player.sendTitle("&b※&9&l※&b※", "&a+&l%s".formatted(CHARGE_POINTS), 0, 15, 5);
+        player.playWorldSound(Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.5f);
     }
 
     @Override

@@ -8,7 +8,6 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.ThreadRandom;
@@ -25,13 +24,13 @@ import java.util.function.Consumer;
 public abstract class Taunt extends GameTask {
 
     public final GamePlayer target;
-    protected final Player player;
+    protected final GamePlayer player;
     private final SwiftTeleportAnimation animation;
     protected Location initialLocation;
     private int tick;
     private boolean isAnimation;
 
-    public Taunt(Player player, GamePlayer target) {
+    public Taunt(GamePlayer player, GamePlayer target) {
         this.player = player;
         this.target = target;
         this.initialLocation = pickRandomLocation(5);
@@ -49,7 +48,7 @@ public abstract class Taunt extends GameTask {
                 isAnimation = false;
                 Taunt.this.onAnimationEnd();
                 target.sendWarning(getName() + " is taunting you!", 30);
-                Chat.sendMessage(player, "%s&a is taunting &c%s&a!", getNameWithCharacter(), target.getName());
+                player.sendMessage("%s&a is taunting &c%s&a!", getNameWithCharacter(), target.getName());
             }
         };
 
@@ -91,7 +90,7 @@ public abstract class Taunt extends GameTask {
         // Remove taunt if taunt has died
         if (target.isDeadOrRespawning()) {
             remove();
-            Chat.sendMessage(player, "%s %s &ewas removed because %s has died!", getCharacter(), getName(), target.getName());
+            player.sendMessage("%s %s &ewas removed because %s has died!", getCharacter(), getName(), target.getName());
             return;
         }
 
@@ -99,13 +98,13 @@ public abstract class Taunt extends GameTask {
 
         // Fx
         if (tick % 10 == 0) {
-            target.playPlayerSound(initialLocation, Sound.ENTITY_ZOMBIE_VILLAGER_CONVERTED, 0.0f);
+            target.playSound(initialLocation, Sound.ENTITY_ZOMBIE_VILLAGER_CONVERTED, 0.0f);
         }
 
         // Warn about taunt!
         if (tick <= 100 && (tick % 2 == 0)) {
             target.sendWarning("&c%s is about to explode!".formatted(getName()), 20);
-            target.playPlayerSound(Sound.BLOCK_NOTE_BLOCK_PLING, 2f - (1.5f / 100 * tick));
+            target.playSound(Sound.BLOCK_NOTE_BLOCK_PLING, 2f - (1.5f / 100 * tick));
         }
 
         if (tick <= 0) {
@@ -135,8 +134,8 @@ public abstract class Taunt extends GameTask {
 
         // Fx
         target.sendMessage("%s &c%s's %s exploded on you! &7-%s ❤", getCharacter(), player.getName(), getName(), damage);
-        target.playPlayerSound(Sound.ENTITY_PLAYER_DEATH, 1.0f);
-        target.playPlayerSound(Sound.ENTITY_HUSK_DEATH, 0.0f);
+        target.playSound(Sound.ENTITY_PLAYER_DEATH, 1.0f);
+        target.playSound(Sound.ENTITY_HUSK_DEATH, 0.0f);
 
         remove();
     }
@@ -158,7 +157,7 @@ public abstract class Taunt extends GameTask {
     }
 
     protected void asPlayers(@Nonnull Consumer<Player> consumer) {
-        consumer.accept(player);
+        consumer.accept(player.getPlayer());
         consumer.accept(target.getPlayer());
     }
 
@@ -177,7 +176,7 @@ public abstract class Taunt extends GameTask {
             consumer.accept(self);
         });
 
-        player.showEntity(plugin, entity);
+        player.showEntity(entity);
         target.showEntity(entity);
 
         return entity;

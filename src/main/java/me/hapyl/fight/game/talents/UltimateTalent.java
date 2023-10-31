@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents;
 
 import com.google.common.collect.Lists;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.displayfield.DisplayFieldData;
 import me.hapyl.fight.util.displayfield.DisplayFieldDataProvider;
 import org.bukkit.Material;
@@ -115,17 +116,9 @@ public class UltimateTalent extends Talent implements DisplayFieldDataProvider {
         return this;
     }
 
-    /**
-     * @deprecated Hero is the one who executes the ultimate.
-     */
-    @Deprecated
-    public void useUltimate(Player player) {
-    }
-
-    @Deprecated
     @Override
-    public final Response execute(Player player) {
-        throw new IllegalStateException("use Hero#useUltimate");
+    public Response execute(@Nonnull GamePlayer player) throws IllegalStateException {
+        throw new IllegalStateException("Ultimate not implemented");
     }
 
     /**
@@ -160,12 +153,12 @@ public class UltimateTalent extends Talent implements DisplayFieldDataProvider {
         return dataFields;
     }
 
+    public int getCastDuration() {
+        return castDuration;
+    }
+
     public UltimateTalent setCastDuration(int duration) {
         this.castDuration = duration;
         return this;
-    }
-
-    public int getCastDuration() {
-        return castDuration;
     }
 }

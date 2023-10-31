@@ -14,7 +14,6 @@ import me.hapyl.fight.game.talents.archive.shaman.Totem;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 
@@ -38,8 +37,6 @@ public class Shaman extends Hero implements ComplexHero, DisabledHero {
             @Override
             public void run() {
                 CF.getAlivePlayers(Heroes.SHAMAN)
-                        .stream()
-                        .map(GamePlayer::getPlayer)
                         .forEach(player -> {
                             final Totem totemTalent = getFirstTalent();
                             final ActiveTotem totem = totemTalent.getTargetTotem(player);
@@ -56,7 +53,7 @@ public class Shaman extends Hero implements ComplexHero, DisabledHero {
     }
 
     @Override
-    public void useUltimate(Player player) {
+    public void useUltimate(@Nonnull GamePlayer player) {
     }
 
     @Override

@@ -7,6 +7,7 @@ import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.crate.*;
+import me.hapyl.fight.game.cosmetic.crate.convert.CrateConvertGUI;
 import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.PlayerPageGUI;
@@ -75,7 +76,7 @@ public class CrateGUI extends PlayerPageGUI<Crates> {
                 }))
                 .addLore()
                 .addLore(Color.BUTTON + "Click to craft! &6&lSOON!&6™")
-                .asIcon());
+                .asIcon(), CrateConvertGUI::new);
     }
 
     @Nonnull

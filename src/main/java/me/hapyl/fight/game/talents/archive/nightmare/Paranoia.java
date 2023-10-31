@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.archive.nightmare;
 
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
@@ -12,7 +13,8 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Player;
+
+import javax.annotation.Nonnull;
 
 public class Paranoia extends Talent {
 
@@ -28,7 +30,7 @@ public class Paranoia extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocation();
         final ArmorStand stand = Entities.ARMOR_STAND.spawn(location.clone().add(0.0d, 1.0d, 0.0d), me -> {
             me.setInvulnerable(true);
@@ -62,7 +64,7 @@ public class Paranoia extends Talent {
 
                 // Apply blindness
                 Collect.nearbyPlayers(standLocation, 2.0d).forEach(target -> {
-                    if (target.is(player)) {
+                    if (target.equals(player)) {
                         return;
                     }
 

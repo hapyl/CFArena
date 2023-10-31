@@ -15,14 +15,13 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Player;
 import org.bukkit.util.EulerAngle;
 
 import java.util.LinkedList;
 
 public class SpiritualBones implements Ticking {
 
-    private final Player player;
+    private final GamePlayer player;
     private int bones;
 
     private float theta = 0.0f;
@@ -30,13 +29,13 @@ public class SpiritualBones implements Ticking {
 
     private final LinkedList<ArmorStand> armorStands;
 
-    public SpiritualBones(Player player) {
+    public SpiritualBones(GamePlayer player) {
         this.player = player;
         this.bones = 0;
         this.armorStands = Lists.newLinkedList();
     }
 
-    public Player getPlayer() {
+    public GamePlayer getPlayer() {
         return player;
     }
 
@@ -53,7 +52,7 @@ public class SpiritualBones implements Ticking {
         createBoneEntity(amount);
 
         if (playFx) {
-            PlayerLib.playSound(player, Sound.ENTITY_SKELETON_AMBIENT, 0.0f);
+            player.playSound(Sound.ENTITY_SKELETON_AMBIENT, 0.0f);
         }
     }
 
@@ -77,7 +76,7 @@ public class SpiritualBones implements Ticking {
 
     @Override
     public void tick() {
-        if (bones == 0 || !GamePlayer.getPlayer(player).isAlive() || armorStands.isEmpty()) {
+        if (bones == 0 || !player.isAlive() || armorStands.isEmpty()) {
             return;
         }
 

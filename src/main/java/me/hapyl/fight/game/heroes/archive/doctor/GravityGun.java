@@ -1,25 +1,22 @@
 package me.hapyl.fight.game.heroes.archive.doctor;
 
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.RightClickable;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.game.weapons.ability.Ability;
 import me.hapyl.fight.game.weapons.ability.AbilityType;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
 
 public class GravityGun extends Weapon implements RightClickable {
 
-    private final Map<Player, ActiveElement> elements = new HashMap<>();
+    private final PlayerMap<ActiveElement> elements = PlayerMap.newMap();
 
     public GravityGun() {
         super(Material.IRON_HORSE_ARMOR);
@@ -43,15 +40,15 @@ public class GravityGun extends Weapon implements RightClickable {
         });
     }
 
-    private ActiveElement getElement(Player player) {
+    private ActiveElement getElement(GamePlayer player) {
         return elements.getOrDefault(player, null);
     }
 
-    private boolean hasElement(Player player) {
+    private boolean hasElement(GamePlayer player) {
         return this.getElement(player) != null;
     }
 
-    public void setElement(Player player, @Nullable ActiveElement element) {
+    public void setElement(GamePlayer player, @Nullable ActiveElement element) {
         if (element == null) {
             this.elements.remove(player);
             return;
@@ -59,8 +56,9 @@ public class GravityGun extends Weapon implements RightClickable {
         this.elements.put(player, element);
     }
 
-    public void remove(Player player) {
+    public void remove(GamePlayer player) {
         final ActiveElement element = getElement(player);
+
         if (element != null) {
             element.stopTask();
             element.remove();
@@ -70,7 +68,7 @@ public class GravityGun extends Weapon implements RightClickable {
     }
 
     @Override
-    public void onRightClick(@Nonnull Player player, @Nonnull ItemStack item) {
+    public void onRightClick(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
         if (player.hasCooldown(getMaterial())) {
             return;
         }
@@ -88,17 +86,17 @@ public class GravityGun extends Weapon implements RightClickable {
 
         // pick up
         if (targetBlock == null) {
-            Chat.sendMessage(player, "&cNo valid block in sight!");
+            player.sendMessage("&cNo valid block in sight!");
             return;
         }
 
         if (ElementType.getElement(targetBlock.getType()) == ElementType.NULL) {
-            Chat.sendMessage(player, "&cTarget block does not have any valid elements...");
+            player.sendMessage("&cTarget block does not have any valid elements...");
             return;
         }
 
         if (!targetBlock.getType().isBlock()) {
-            Chat.sendMessage(player, "&cTarget block is not a block?");
+            player.sendMessage("&cTarget block is not a block?");
             return;
         }
 
@@ -108,8 +106,6 @@ public class GravityGun extends Weapon implements RightClickable {
         setElement(player, element);
 
         // This spams chat like a lot, changed to a block pickup sound instead.
-        PlayerLib.playSound(player, targetBlock.getBlockData().getSoundGroup().getPlaceSound(), 1.0f);
-
-        //Chat.sendMessage(player, "&aPicked up element of %s!", Chat.capitalize(targetBlock.getType()));
+        player.playSound(targetBlock.getBlockData().getSoundGroup().getPlaceSound(), 1.0f);
     }
 }

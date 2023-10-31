@@ -2,10 +2,10 @@ package me.hapyl.fight.game.talents.archive.engineer;
 
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Particle;
-import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 
@@ -20,7 +20,8 @@ public class EngineerSentry extends EngineerTalent {
     }
 
     @Override
-    public Construct create(Player player, Location location) {
+    @Nonnull
+    public Construct create(@Nonnull GamePlayer player, @Nonnull Location location) {
         return new Construct(player, location) {
             @Override
             public void onCreate() {
@@ -51,7 +52,7 @@ public class EngineerSentry extends EngineerTalent {
 
     @Nonnull
     @Override
-    public Response predicate(Player player, Location location) {
+    public Response predicate(@Nonnull GamePlayer player, @Nonnull Location location) {
         return Response.OK;
     }
 }

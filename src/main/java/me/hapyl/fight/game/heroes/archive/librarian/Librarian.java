@@ -2,6 +2,7 @@ package me.hapyl.fight.game.heroes.archive.librarian;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.KeepNull;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.ComplexHero;
 import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
@@ -16,6 +17,7 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.chat.Gradient;
 import me.hapyl.spigotutils.module.chat.gradient.Interpolators;
@@ -37,6 +39,7 @@ import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,7 +50,7 @@ import java.util.Map;
 public class Librarian extends Hero implements ComplexHero, Listener, DisabledHero {
 
     private final Map<Integer, LibrarianTalent> talentMap = new HashMap<>();
-    private final Map<Player, Grimoire> grimoireMap = new HashMap<>();
+    private final PlayerMap<Grimoire> grimoireMap = PlayerMap.newMap();
     private final String grimoireLevelUpGradient = new Gradient("Grimoire Level Up!")
             .makeBold()
             .rgb(ChatColor.RED.getColor(), ChatColor.BLUE.getColor(), Interpolators.LINEAR);
@@ -80,13 +83,9 @@ public class Librarian extends Hero implements ComplexHero, Listener, DisabledHe
     }
 
     @Override
-    public void onStart(Player player) {
+    public void onStart(@Nonnull GamePlayer player) {
         grimoireMap.put(player, new Grimoire(player));
         giveGrimoireBook(player);
-    }
-
-    @Override
-    public void onDeath(Player player) {
     }
 
     @Override
@@ -98,7 +97,7 @@ public class Librarian extends Hero implements ComplexHero, Listener, DisabledHe
             public void run() {
                 CF.getAlivePlayers(Heroes.LIBRARIAN).forEach(player -> {
                     final Player playerPlayer = player.getPlayer();
-                    final Grimoire grimoire = grimoireMap.get(playerPlayer);
+                    final Grimoire grimoire = grimoireMap.get(player);
 
                     if (grimoire.isMaxed()) {
                         return;
@@ -128,12 +127,12 @@ public class Librarian extends Hero implements ComplexHero, Listener, DisabledHe
         }.runTaskTimer(grimoireLevelUpDelay, grimoireLevelUpDelay);
     }
 
-    public int getGrimoireLevel(Player player) {
+    public int getGrimoireLevel(GamePlayer player) {
         return grimoireMap.getOrDefault(player, new Grimoire(player)).getUsedAtLevel();
     }
 
     @Override
-    public void useUltimate(Player player) {
+    public void useUltimate(@Nonnull GamePlayer player) {
         final Location castLocation = player.getLocation().add(0.0d, 0.5d, 0.0d);
         PlayerLib.playSound(castLocation, Sound.ENTITY_SQUID_SQUIRT, 0.0f);
 
@@ -151,9 +150,9 @@ public class Librarian extends Hero implements ComplexHero, Listener, DisabledHe
                 PlayerLib.spawnParticle(castLocation, Particle.SQUID_INK, 10, 5, 1.5, 5, 2.0f);
 
                 Collect.nearbyEntities(castLocation, 20).forEach(entity -> {
-                    if (entity.is(player)) {
-                        PlayerLib.addEffect(player, EffectType.SPEED, 20, 1);
-                        PlayerLib.addEffect(player, EffectType.STRENGTH, 20, 0);
+                    if (entity.equals(player)) {
+                        player.addPotionEffect(EffectType.SPEED, 20, 1);
+                        player.addPotionEffect(EffectType.STRENGTH, 20, 0);
                     }
                     else {
                         entity.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 30, 1));
@@ -196,7 +195,7 @@ public class Librarian extends Hero implements ComplexHero, Listener, DisabledHe
         return null;
     }
 
-    public void grantSpellItems(Player player) {
+    public void grantSpellItems(GamePlayer player) {
         final PlayerInventory inventory = player.getInventory();
         applyICD(player);
 
@@ -208,19 +207,19 @@ public class Librarian extends Hero implements ComplexHero, Listener, DisabledHe
         });
 
         // Fx
-        PlayerLib.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 0.75f);
-        PlayerLib.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1.25f);
+        player.playSound(Sound.ENTITY_PLAYER_LEVELUP, 0.75f);
+        player.playSound(Sound.ENTITY_PLAYER_LEVELUP, 1.25f);
     }
 
-    public boolean hasICD(Player player) {
+    public boolean hasICD(GamePlayer player) {
         return player.hasCooldown(getItem().getType());
     }
 
-    public void applyICD(Player player) {
+    public void applyICD(GamePlayer player) {
         player.setCooldown(getItem().getType(), 10);
     }
 
-    public void removeSpellItems(Player player, LibrarianTalent talent) {
+    public void removeSpellItems(GamePlayer player, LibrarianTalent talent) {
         final PlayerInventory inventory = player.getInventory();
 
         for (int i = 1; i <= 4; i++) {
@@ -239,7 +238,7 @@ public class Librarian extends Hero implements ComplexHero, Listener, DisabledHe
         giveGrimoireBook(player);
     }
 
-    public void giveGrimoireBook(Player player) {
+    public void giveGrimoireBook(GamePlayer player) {
         final PlayerInventory inventory = player.getInventory();
         final Grimoire grimoire = grimoireMap.get(player);
 
@@ -259,22 +258,21 @@ public class Librarian extends Hero implements ComplexHero, Listener, DisabledHe
 
     @EventHandler()
     public void handlePlayerInteract(PlayerItemHeldEvent ev) {
-        final Player player = ev.getPlayer();
-        if (!validatePlayer(player) || ev.getNewSlot() != 1) {
+        final GamePlayer player = CF.getPlayer(ev.getPlayer());
+
+        if (player == null || !validatePlayer(player) || ev.getNewSlot() != 1) {
             return;
         }
 
         final ItemStack item = player.getInventory().getItem(ev.getNewSlot());
+
         if (!GrimoireBook.isGrimmoreItem(item)) {
             return;
         }
 
         final Grimoire grimoire = grimoireMap.get(player);
         if (GrimoireBook.hasCooldown(player) || grimoire == null) {
-            Chat.sendMessage(
-                    player,
-                    "&cCannot use Grimoire now! On cooldown for %ss.".formatted(GrimoireBook.getCooldownString(player))
-            );
+            player.sendMessage("&cCannot use Grimoire now! On cooldown for %ss.".formatted(GrimoireBook.getCooldownString(player)));
             return;
         }
 

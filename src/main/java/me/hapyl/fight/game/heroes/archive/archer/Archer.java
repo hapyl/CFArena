@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.archer;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
@@ -18,10 +19,7 @@ import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.ThreadRandom;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -33,6 +31,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -44,6 +43,7 @@ public class Archer extends Hero implements Listener {
     private final double explosionRadius = 5.0d;
     private final double explosionDamage = 30.0d;
     private final int boomBowPerShotCd = 10;
+    private final Color hawkeyeArrowColors = Color.fromRGB(19, 81, 143);
 
     public Archer() {
         super("Archer");
@@ -79,12 +79,12 @@ public class Archer extends Hero implements Listener {
     }
 
     @Override
-    public void useUltimate(Player player) {
+    public void useUltimate(@Nonnull GamePlayer player) {
         final PlayerInventory inventory = player.getInventory();
         inventory.setItem(4, boomBow.getItem());
         inventory.setHeldItemSlot(4);
 
-        GamePlayer.setCooldown(player, boomBow.getMaterial(), boomBowPerShotCd);
+        player.setCooldown(boomBow.getMaterial(), boomBowPerShotCd);
 
         GameTask.runLater(() -> {
             inventory.setItem(4, ItemStacks.AIR);
@@ -101,7 +101,11 @@ public class Archer extends Hero implements Listener {
                     if (arrow.isDead()) {
                         return;
                     }
-                    PlayerLib.spawnParticle(arrow.getLocation(), Particle.FLAME, 2, 0, 0, 0, 0.015f);
+
+                    final Location location = arrow.getLocation();
+
+                    PlayerLib.spawnParticle(location, Particle.FLAME, 2, 0, 0, 0, 0.015f);
+                    PlayerLib.playSound(location, Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 2.0f);
                 });
             }
         }.runTaskTimer(0, 2);
@@ -118,11 +122,17 @@ public class Archer extends Hero implements Listener {
             final ProjectileSource shooter = arrow.getShooter();
 
             if (shooter instanceof Player player) {
+                final GamePlayer gamePlayer = CF.getPlayer(player);
+
+                if (gamePlayer == null) {
+                    return;
+                }
+
                 CFUtils.createExplosion(
                         arrow.getLocation(),
                         explosionRadius,
                         explosionDamage,
-                        player,
+                        gamePlayer,
                         EnumDamageCause.BOOM_BOW,
                         null
                 );
@@ -134,53 +144,60 @@ public class Archer extends Hero implements Listener {
     public void handleProjectileLaunchEvent(ProjectileLaunchEvent ev) {
         if (ev.getEntity() instanceof Arrow arrow && arrow.getShooter() instanceof Player player) {
             final int selectedSlot = player.getInventory().getHeldItemSlot();
+            final GamePlayer gamePlayer = CF.getPlayer(player);
+
+            if (gamePlayer == null) {
+                return;
+            }
 
             // Handle ultimate arrows
-            if (isUsingUltimate(player) && selectedSlot == 4) {
+            if (isUsingUltimate(gamePlayer) && selectedSlot == 4) {
                 boomArrows.add(arrow);
-                GamePlayer.setCooldown(player, boomBow.getMaterial(), boomBowPerShotCd);
+
+                gamePlayer.setCooldown(boomBow.getMaterial(), boomBowPerShotCd);
                 return;
             }
 
             // Handle hawkeye arrows
-            if (validatePlayer(player) && selectedSlot == 0 && arrow.isCritical() && player.isSneaking()) {
-                if (!ThreadRandom.nextFloatAndCheckBetween(0.75f, 1.0f)) {
-                    return;
-                }
-                PlayerLib.playSound(player, Sound.ENCHANT_THORNS_HIT, 2.0f);
-
-                new GameTask() {
-                    @Override
-                    public void run() {
-                        if (arrow.isDead()) {
-                            this.cancel();
-                            return;
-                        }
-
-                        PlayerLib.spawnParticle(arrow.getLocation(), Particle.CRIT_MAGIC, 1, 0, 0, 0, 0);
-                        final Entity target = findNearestTarget(player, arrow.getLocation());
-
-                        if (target == null) {
-                            return;
-                        }
-
-                        final Vector vector = target.getLocation()
-                                .clone()
-                                .add(0d, 0.5d, 0.0d)
-                                .toVector()
-                                .subtract(arrow.getLocation().toVector())
-                                .normalize()
-                                .multiply(0.7);
-                        arrow.setVelocity(vector);
-                    }
-                }.runTaskTimer(0, 1);
+            if (!validatePlayer(player) || selectedSlot != 0 || !arrow.isCritical() || !player.isSneaking()) {
+                return;
             }
-        }
-    }
 
-    private Entity findNearestTarget(Player shooter, Location location) {
-        final LivingGameEntity gameEntity = Collect.nearestEntity(location, 3.0d, shooter);
-        return gameEntity == null ? null : gameEntity.getEntity();
+            if (!ThreadRandom.nextFloatAndCheckBetween(0.75f, 1.0f)) {
+                return;
+            }
+
+            arrow.setColor(hawkeyeArrowColors);
+
+            new GameTask() {
+                @Override
+                public void run() {
+                    if (arrow.isDead()) {
+                        this.cancel();
+                        return;
+                    }
+
+                    PlayerLib.spawnParticle(arrow.getLocation(), Particle.CRIT_MAGIC, 5, 0, 0, 0, 0);
+                    final Entity target = findNearestTarget(gamePlayer, arrow.getLocation());
+
+                    if (target == null) {
+                        return;
+                    }
+
+                    final Vector vector = target.getLocation()
+                            .add(0.0d, 0.5d, 0.0d)
+                            .toVector()
+                            .subtract(arrow.getLocation().toVector())
+                            .normalize()
+                            .multiply(0.7d);
+                    arrow.setVelocity(vector);
+                }
+            }.runTaskTimer(0, 1);
+
+            // Fx
+            PlayerLib.playSound(player, Sound.ENCHANT_THORNS_HIT, 2.0f);
+            PlayerLib.playSound(player, Sound.ENTITY_ELDER_GUARDIAN_DEATH_LAND, 1.25f);
+        }
     }
 
     @Override
@@ -196,6 +213,11 @@ public class Archer extends Hero implements Listener {
     @Override
     public Talent getPassiveTalent() {
         return Talents.HAWKEYE_ARROW.getTalent();
+    }
+
+    private Entity findNearestTarget(GamePlayer shooter, Location location) {
+        final LivingGameEntity gameEntity = Collect.nearestEntity(location, 3.0d, shooter);
+        return gameEntity == null ? null : gameEntity.getEntity();
     }
 
 }

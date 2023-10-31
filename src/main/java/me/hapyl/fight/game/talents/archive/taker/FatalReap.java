@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.archive.taker;
 
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.taker.Taker;
 import me.hapyl.fight.game.talents.Talent;
@@ -13,8 +14,9 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+
+import javax.annotation.Nonnull;
 
 public class FatalReap extends Talent {
 
@@ -36,12 +38,12 @@ public class FatalReap extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         for (double d = length; d >= -length; d -= 0.2d) {
             final Location location = calculateLocation(player.getEyeLocation(), d);
 
             Collect.nearbyEntities(location, 1.0d).forEach(victim -> {
-                if (GameTeam.isSelfOrTeammate(player, victim.getEntity())) {
+                if (GameTeam.isSelfOrTeammate(player.getPlayer(), victim.getEntity())) {
                     return;
                 }
 
@@ -56,19 +58,19 @@ public class FatalReap extends Talent {
         Heroes.TAKER.getHero(Taker.class).getBones(player).add(spiritualBoneGeneration, true);
 
         // Fx
-        PlayerLib.playSound(player.getLocation(), Sound.ENTITY_CAT_HISS, 2.0f);
+        player.playWorldSound(Sound.ENTITY_CAT_HISS, 2.0f);
 
         return Response.OK;
     }
 
     private Location calculateLocation(Location location, double d) {
-        location.setPitch(0.0f); // Don't calculate pitch
+        location.setPitch(0.0f);
 
         final Vector vector = location.getDirection().normalize();
 
-        location.add(0.0d, d / 2.0d, 0.0d); // Calculate y offset
-        location.add(new Vector(-vector.getZ(), 0.0d, vector.getX()).multiply(Math.sin(d) * 1.5d)); // calculate x and z offset
-        location.add(vector.multiply(length + (d / 2.0d))); // calculate direction
+        location.add(0.0d, d / 2.0d, 0.0d);
+        location.add(new Vector(-vector.getZ(), 0.0d, vector.getX()).multiply(Math.sin(d) * 1.5d));
+        location.add(vector.multiply(length + (d / 2.0d)));
 
         return location;
     }

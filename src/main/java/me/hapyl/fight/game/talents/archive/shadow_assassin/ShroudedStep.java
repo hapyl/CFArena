@@ -22,6 +22,8 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
+
 public class ShroudedStep extends Talent {
 
     @DisplayField private final short maxDistance = 100;
@@ -33,7 +35,7 @@ public class ShroudedStep extends Talent {
         super("Shrouded Step", """
                 While in Dark Cover, deploy a decoy footprints that travel in a straight line.
 
-                Leave Dark Cover to create a decoy that explodes after being hit or after short duration damaging nearby enemies.
+                Leave Dark Cover to create a decoy that explodes after being hit or after a short duration damaging nearby enemies.
                 """);
 
         setCooldown(600);
@@ -41,7 +43,7 @@ public class ShroudedStep extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         if (!player.isSneaking()) {
             return Response.error("You must be in &lDark Cover &cto use this!");
         }
@@ -67,7 +69,7 @@ public class ShroudedStep extends Talent {
 
                 decoy.remove();
                 Collect.nearbyEntities(decoyLocation, decoyExplosionRadius).forEach(entity -> {
-                    if (entity.is(player)) {
+                    if (entity.equals(player)) {
                         return;
                     }
 
@@ -101,7 +103,7 @@ public class ShroudedStep extends Talent {
                 }
 
                 // Travel finished
-                if (distance < 0 || entity.isDead() || GamePlayer.getPlayer(player).isDead()) {
+                if (distance < 0 || entity.isDead() || player.isDead()) {
                     if (distance < 0) {
                         PlayerLib.spawnParticle(entityLocation, Particle.CRIT_MAGIC, 10, 0, 0, 0, 0.5f);
                         entity.remove();

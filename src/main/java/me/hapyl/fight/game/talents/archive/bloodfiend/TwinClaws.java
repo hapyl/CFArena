@@ -1,14 +1,16 @@
 package me.hapyl.fight.game.talents.archive.bloodfiend;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.util.Vector;
+
+import javax.annotation.Nonnull;
 
 public class TwinClaws extends Talent implements Listener {
 
@@ -30,7 +32,7 @@ public class TwinClaws extends Talent implements Listener {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocation().add(0.0d, 0.5d, 0.0d);
         final World world = location.getWorld();
 

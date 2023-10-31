@@ -40,7 +40,7 @@ public class Inquisitor extends OverlayGameEntityType {
 
     @Override
     public void onSpawn(@Nonnull NamedGameEntity<Zombie> entity) {
-        entity.playSound(Sound.ENTITY_WITHER_SPAWN, 2.0f);
+        entity.playWorldSound(Sound.ENTITY_WITHER_SPAWN, 2.0f);
     }
 
     @Nonnull
@@ -70,7 +70,7 @@ public class Inquisitor extends OverlayGameEntityType {
             if (attributes.get(AttributeType.ATTACK) >= 6.0d) {
                 forceRemove();
                 getNpc().remove();
-                spawnWorldParticle(getLocation(), Particle.EXPLOSION_LARGE, 1);
+                spawnWorldParticle(Particle.EXPLOSION_LARGE, 1);
                 return;
             }
         }

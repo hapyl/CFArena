@@ -6,7 +6,7 @@ import org.bukkit.entity.Player;
 
 public class ChargedTalentData {
 
-    private final Player player;
+    private final GamePlayer player;
     private final ChargedTalent talent;
 
     private GameTask currentTask;
@@ -14,7 +14,7 @@ public class ChargedTalentData {
     private int lastKnownSlot;
     private int chargedAvailable;
 
-    public ChargedTalentData(Player player, ChargedTalent talent) {
+    public ChargedTalentData(GamePlayer player, ChargedTalent talent) {
         this.player = player;
         this.talent = talent;
         this.chargedAvailable = talent.getMaxCharges();
@@ -94,7 +94,7 @@ public class ChargedTalentData {
 
                 talent.grantCharge(player);
             }
-        }.runTaskLater(GamePlayer.scaleCooldown(player, talent.getRechargeTime()));
+        }.runTaskLater(player.scaleCooldown(talent.getRechargeTime()));
     }
 
 }

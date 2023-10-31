@@ -2,8 +2,10 @@ package me.hapyl.fight.game.heroes.archive.juju;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroPlaque;
@@ -17,7 +19,7 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComplexComponent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Iterators;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -48,7 +50,7 @@ import java.util.Set;
 
 public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaque {
 
-    private final Map<Player, ArrowData> playerArrows = Maps.newHashMap();
+    private final PlayerMap<ArrowData> playerArrows = PlayerMap.newMap();
     private final Map<Arrow, ArrowType> arrowType = Maps.newHashMap();
 
     private final Set<Player> climbing = Sets.newHashSet();
@@ -82,11 +84,11 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
         );
     }
 
-    public void setArrowType(Player player, ArrowType type, int duration) {
+    public void setArrowType(GamePlayer player, ArrowType type, int duration) {
         final ArrowData arrowData = playerArrows.get(player);
 
         if (arrowData != null) {
-            Message.error(player, "Cannot change now!");
+            player.sendMessage("Cannot change now!");
             return;
         }
 
@@ -100,7 +102,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
         type.onEquip(player);
     }
 
-    public void unequipArrow(Player player, ArrowType type) {
+    public void unequipArrow(GamePlayer player, ArrowType type) {
         final ArrowData data = playerArrows.remove(player);
 
         if (data == null || data.type != type) {
@@ -167,17 +169,17 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
     }
 
     @Override
-    public boolean predicateUltimate(Player player) {
+    public boolean predicateUltimate(@Nonnull GamePlayer player) {
         return getArrowType(player) == null;
     }
 
     @Override
-    public String predicateMessage(Player player) {
+    public String predicateMessage(@Nonnull GamePlayer player) {
         return "Cannot use while " + getSecondTalent().getName() + " is active!";
     }
 
     @Override
-    public void useUltimate(Player player) {
+    public void useUltimate(@Nonnull GamePlayer player) {
         setArrowType(player, ArrowType.POISON_IVY, getUltimateDuration());
     }
 
@@ -190,13 +192,19 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
             return;
         }
 
-        final ArrowData arrowData = playerArrows.get(player);
+        final GamePlayer gamePlayer = CF.getPlayer(player);
+
+        if (gamePlayer == null) {
+            return;
+        }
+
+        final ArrowData arrowData = playerArrows.get(gamePlayer);
 
         if (arrowData == null) {
             return;
         }
 
-        arrowData.type.onShoot(player, arrow);
+        arrowData.type.onShoot(gamePlayer, arrow);
         arrowType.put(arrow, arrowData.type);
     }
 
@@ -208,16 +216,17 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
             return;
         }
 
+        final GamePlayer gamePlayer = CF.getPlayer(player);
         final ArrowType arrowType = this.arrowType.get(arrow);
 
-        if (arrowType != null) {
-            arrowType.onHit(player, arrow);
+        if (gamePlayer == null || arrowType != null) {
+            arrowType.onHit(gamePlayer, arrow);
         }
     }
 
     @Override
-    public void onDeath(Player player) {
-        climbing.remove(player);
+    public void onDeath(@Nonnull GamePlayer player) {
+        climbing.remove(player.getPlayer());
         final ArrowData data = playerArrows.remove(player);
 
         if (data != null) {
@@ -240,13 +249,13 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
     }
 
     @Override
-    public void onStart(Player player) {
+    public void onStart(@Nonnull GamePlayer player) {
         player.getInventory().setItem(9, new ItemStack(Material.ARROW));
     }
 
     @Nullable
     @Override
-    public List<String> getStrings(Player player) {
+    public List<String> getStrings(@Nonnull GamePlayer player) {
         final ArrowType type = getArrowType(player);
         final int climbCooldown = player.getCooldown(getPassiveTalent().getMaterial());
 
@@ -277,7 +286,12 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
                 arrowType.forEach((arrow, type) -> {
                     // should never ever happen but just in case
                     if (arrow.getShooter() instanceof Player player) {
-                        type.onTick(player, arrow);
+                        final GamePlayer gamePlayer = CF.getPlayer(player);
+                        if (gamePlayer == null) {
+                            return;
+                        }
+
+                        type.onTick(gamePlayer, arrow);
                     }
                 });
             }
@@ -287,7 +301,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
     @Override
     public DamageOutput processDamageAsVictim(DamageInput input) {
         final ArrowShield shield = getFirstTalent();
-        final Player player = input.getBukkitPlayer();
+        final GamePlayer player = input.getEntityAsPlayer();
 
         if (shield.getCharges(player) > 0) {
             shield.removeCharge(player);
@@ -322,12 +336,12 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
     }
 
     @Nullable
-    public ArrowData getArrowData(Player player) {
+    public ArrowData getArrowData(GamePlayer player) {
         return playerArrows.get(player);
     }
 
     @Nullable
-    public ArrowType getArrowType(Player player) {
+    public ArrowType getArrowType(GamePlayer player) {
         final ArrowData data = getArrowData(player);
         return data != null ? data.type : null;
     }

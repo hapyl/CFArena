@@ -234,6 +234,12 @@ public final class Manager extends DependencyInjector<Main> {
         return gameEntity;
     }
 
+    @Nonnull
+    public GamePlayer registerGamePlayer(GamePlayer gamePlayer) {
+        entities.put(gamePlayer.getUUID(), gamePlayer);
+        return gamePlayer;
+    }
+
     @Nullable
     public <T extends GameEntity> T getEntity(@Nonnull UUID uuid, @Nonnull Class<T> clazz) {
         final GameEntity entity = entities.get(uuid);
@@ -248,29 +254,6 @@ public final class Manager extends DependencyInjector<Main> {
     @Nullable
     public LivingGameEntity getEntity(UUID uuid) {
         return getEntity(uuid, LivingGameEntity.class);
-    }
-
-    public GamePlayer getOrCreatePlayer(Player player) {
-        final UUID uuid = player.getUniqueId();
-        final GamePlayer entity = getEntity(uuid, GamePlayer.class);
-
-        if (entity != null) {
-            return entity;
-        }
-
-        // FIXME (hapyl): 030, Aug 30: Can create while in lobby??
-
-        final PlayerProfile profile = PlayerProfile.getProfile(player);
-
-        if (profile == null) {
-            throw new IllegalArgumentException("Cannot create game player for offline player!");
-        }
-
-        final GamePlayer gamePlayer = profile.createGamePlayer();
-        gamePlayer.updateScoreboardTeams(false);
-
-        entities.put(uuid, gamePlayer);
-        return gamePlayer;
     }
 
     public void allProfiles(Consumer<PlayerProfile> consumer) {
@@ -488,8 +471,8 @@ public final class Manager extends DependencyInjector<Main> {
 
             // Equip and hide players
             if (!gamePlayer.isSpectator()) {
-                equipPlayer(player, gamePlayer.getHero());
-                CFUtils.hidePlayer(player);
+                equipPlayer(gamePlayer, gamePlayer.getHero());
+                gamePlayer.hide();
 
                 // Apply player skin if exists
                 final PlayerSkin skin = gamePlayer.getHero().getSkin();
@@ -638,7 +621,7 @@ public final class Manager extends DependencyInjector<Main> {
         gameInstance.executeWinCosmetic();
     }
 
-    public void equipPlayer(Player player, Hero hero) {
+    public void equipPlayer(GamePlayer player, Hero hero) {
         final PlayerInventory inventory = player.getInventory();
         inventory.setHeldItemSlot(0);
         player.setGameMode(GameMode.SURVIVAL);
@@ -650,7 +633,7 @@ public final class Manager extends DependencyInjector<Main> {
         if (skin == null) {
             equipment.equip(player);
         }
-        else if (Setting.USE_SKINS_INSTEAD_OF_ARMOR.isDisabled(player)) {
+        else if (Setting.USE_SKINS_INSTEAD_OF_ARMOR.isDisabled(player.getPlayer())) {
             equipment.equip(player);
         }
 
@@ -662,11 +645,9 @@ public final class Manager extends DependencyInjector<Main> {
         giveTalentItem(player, hero, 3);
         giveTalentItem(player, hero, 4);
         giveTalentItem(player, hero, 5);
-
-        //player.updateInventory();
     }
 
-    public void equipPlayer(Player player) {
+    public void equipPlayer(GamePlayer player) {
         equipPlayer(player, getCurrentHero(player));
     }
 
@@ -756,26 +737,26 @@ public final class Manager extends DependencyInjector<Main> {
      * @return actual hero player is using right now, trial, lobby or game.
      */
     @Nonnull
-    public Hero getCurrentHero(Player player) {
+    public Hero getCurrentHero(GamePlayer player) {
         return getCurrentEnumHero(player).getHero();
     }
 
+    // I'm so confused why this is here, it called the same thing
     @Nonnull
-    public Heroes getCurrentEnumHero(Player player) {
+    public Heroes getCurrentEnumHero(GamePlayer player) {
         if (isPlayerInGame(player)) {
-            final GamePlayer gamePlayer = CF.getPlayer(player);
-            if (gamePlayer == null) {
+            if (player == null) {
                 return Heroes.ARCHER;
             }
-            return gamePlayer.getEnumHero();
+
+            return player.getEnumHero();
         }
 
-        return getSelectedLobbyHero(player);
+        return getSelectedLobbyHero(player.getPlayer());
     }
 
-    public boolean isPlayerInGame(Player player) {
-        final GamePlayer gamePlayer = CF.getPlayer(player);
-        return gameInstance != null && gamePlayer != null && gamePlayer.isAlive();
+    public boolean isPlayerInGame(GamePlayer player) {
+        return gameInstance != null && player != null && player.isAlive();
     }
 
     public void removeProfile(Player player) {
@@ -895,8 +876,15 @@ public final class Manager extends DependencyInjector<Main> {
         return null;
     }
 
+    @Nullable
+    public GamePlayer getPlayer(UUID uuid) {
+        return getEntity(uuid, GamePlayer.class);
+    }
+
+    @Nonnull
     private Heroes getSelectedLobbyHero(Player player) {
-        final PlayerProfile profile = getProfile(player);
+        final PlayerProfile profile = PlayerProfile.getProfile(player);
+
         if (profile == null) {
             return Heroes.ARCHER;
         }
@@ -917,7 +905,7 @@ public final class Manager extends DependencyInjector<Main> {
                 .collect(Collectors.toSet());
     }
 
-    private void giveTalentItem(Player player, Hero hero, int slot) {
+    private void giveTalentItem(GamePlayer player, Hero hero, int slot) {
         final PlayerInventory inventory = player.getInventory();
         final Talent talent = hero.getTalent(slot);
         final ItemStack talentItem = talent == null ? new ItemStack(Material.AIR) : talent.getItem();
@@ -930,7 +918,7 @@ public final class Manager extends DependencyInjector<Main> {
         fixTalentItemAmount(player, slot, talent);
     }
 
-    private void fixTalentItemAmount(Player player, int slot, Talent talent) {
+    private void fixTalentItemAmount(GamePlayer player, int slot, Talent talent) {
         if (!(talent instanceof ChargedTalent chargedTalent)) {
             return;
         }

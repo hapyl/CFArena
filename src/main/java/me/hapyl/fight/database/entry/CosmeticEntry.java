@@ -27,6 +27,7 @@ public class CosmeticEntry extends PlayerDatabaseEntry {
     }
 
     public void unsetSelected(Type type) {
+        final Cosmetics selectedCosmetic = Cosmetics.getSelected(getPlayer(), type);
         final Document cosmetics = getDocument().get("cosmetics", new Document());
         final Document selected = cosmetics.get("selected", new Document());
 
@@ -34,6 +35,11 @@ public class CosmeticEntry extends PlayerDatabaseEntry {
         cosmetics.put("selected", selected);
 
         getDocument().put("cosmetics", cosmetics);
+
+        // Call event
+        if (selectedCosmetic != null) {
+            selectedCosmetic.getCosmetic().onUnequip(getPlayer());
+        }
     }
 
     public void setSelected(Type type, Cosmetics cosmetic) {
@@ -44,6 +50,9 @@ public class CosmeticEntry extends PlayerDatabaseEntry {
         cosmetics.put("selected", selected);
 
         getDocument().put("cosmetics", cosmetics);
+
+        // Call event
+        cosmetic.getCosmetic().onEquip(getPlayer());
     }
 
     public boolean hasCosmetic(Cosmetics cosmetic) {

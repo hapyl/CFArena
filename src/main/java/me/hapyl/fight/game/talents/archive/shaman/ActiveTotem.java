@@ -1,11 +1,8 @@
 package me.hapyl.fight.game.talents.archive.shaman;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.Main;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.talents.archive.shaman.ResonanceType;
-import me.hapyl.fight.game.talents.archive.shaman.Totem;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Geometry;
@@ -19,7 +16,6 @@ import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import org.bukkit.entity.Shulker;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
@@ -31,7 +27,7 @@ import java.util.function.Consumer;
 
 public class ActiveTotem {
 
-    private final Player player;
+    private final GamePlayer player;
     private final Location location;
     private final Team shulkerTeam;
     private final Set<Shulker> shulkers; // shulkers are used for glowing effect and target detection
@@ -44,8 +40,8 @@ public class ActiveTotem {
         self.setVisibleByDefault(false);
     };
 
-    public ActiveTotem(Player owner, Location location) {
-        this.player = owner;
+    public ActiveTotem(GamePlayer player, Location location) {
+        this.player = player;
         this.location = location;
         this.shulkers = Sets.newHashSet();
         this.resonanceType = ResonanceType.STANDBY;
@@ -67,7 +63,7 @@ public class ActiveTotem {
             shulker.setGlowing(true);
 
             // show shulker to owner
-            player.showEntity(Main.getPlugin(), shulker);
+            player.showEntity(shulker);
         }
     }
 
@@ -97,7 +93,7 @@ public class ActiveTotem {
         this.resonanceType = resonanceType;
     }
 
-    public Player getPlayer() {
+    public GamePlayer getPlayer() {
         return player;
     }
 

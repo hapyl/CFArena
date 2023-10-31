@@ -3,13 +3,13 @@ package me.hapyl.fight.game.attribute;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.attribute.temper.AttributeTemperTable;
 import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.ui.display.AttributeDisplay;
 import me.hapyl.fight.trigger.Triggers;
 import me.hapyl.fight.trigger.subscribe.AttributeChangeTrigger;
-import me.hapyl.fight.util.ImmutableTuple;
+import me.hapyl.fight.util.collection.ImmutableTuple;
 import me.hapyl.spigotutils.module.annotate.Super;
-import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import java.util.Random;
@@ -38,7 +38,7 @@ public class EntityAttributes extends Attributes implements PlayerElement {
     }
 
     @Override
-    public void onDeath(Player player) {
+    public void onDeath(@Nonnull GamePlayer player) {
         tempers.cancelAll();
     }
 

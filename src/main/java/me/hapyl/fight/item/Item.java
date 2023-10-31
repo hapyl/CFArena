@@ -1,20 +1,17 @@
 package me.hapyl.fight.item;
 
-import me.hapyl.fight.util.PatternId;
+import me.hapyl.fight.registry.EnumId;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
-import java.util.regex.Pattern;
 
-public class Item extends PatternId {
-
-    public static final Pattern ID_PATTERN = Pattern.compile("^[A-Z0-9_]+$");
+public class Item extends EnumId {
 
     private final Material material;
     private String name;
 
     public Item(@Nonnull String string, Material material) {
-        super(ID_PATTERN, string);
+        super(string);
         this.material = material;
     }
 

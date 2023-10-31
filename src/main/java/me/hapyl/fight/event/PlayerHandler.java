@@ -1,5 +1,6 @@
 package me.hapyl.fight.event;
 
+import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.event.custom.GameDamageEvent;
@@ -13,6 +14,9 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.loadout.HotbarLoadout;
+import me.hapyl.fight.game.loadout.HotbarSlot;
+import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.parkour.CFParkour;
 import me.hapyl.fight.game.profile.PlayerProfile;
@@ -22,8 +26,8 @@ import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.team.LocalTeamManager;
 import me.hapyl.fight.game.tutorial.Tutorial;
-import me.hapyl.fight.game.ui.display.DamageDisplay;
 import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.parkour.Data;
@@ -47,7 +51,6 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
@@ -57,14 +60,23 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Locale;
 import java.util.Random;
+import java.util.Set;
 
 /**
  * Handles all player related events.
  */
 public class PlayerHandler implements Listener {
 
-    public static final double RANGE_SCALE = 8.933d;
-    public static final double DAMAGE_LIMIT = Integer.MAX_VALUE;
+    public final double RANGE_SCALE = 8.933d;
+    public final double DAMAGE_LIMIT = Integer.MAX_VALUE;
+    public final double HEALING_AT_KILL = 0.3d;
+
+    private final Set<PotionEffectType> disabledEffects;
+
+    public PlayerHandler() {
+        disabledEffects = Sets.newHashSet();
+        disabledEffects.add(PotionEffectType.WEAKNESS);
+    }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handlePlayerJoin(PlayerJoinEvent ev) {
@@ -72,7 +84,7 @@ public class PlayerHandler implements Listener {
         final Manager manager = Manager.current();
 
         manager.handlePlayer(player);
-        ScoreboardTeams.updateAll();
+        LocalTeamManager.updateAll(player);
 
         if (manager.isGameInProgress()) {
             final GameInstance gameInstance = (GameInstance) manager.getCurrentGame();
@@ -89,6 +101,27 @@ public class PlayerHandler implements Listener {
             // Game instance should modify and broadcast the join message.
             ev.setJoinMessage(Chat.format("&7[&a+&7] %s%s &ewants to fight!", player.isOp() ? "&c" : "", player.getName()));
         }
+    }
+
+    @EventHandler()
+    public void handleDisabledEffect(EntityPotionEffectEvent ev) {
+        final Entity entity = ev.getEntity();
+        final PotionEffect newEffect = ev.getNewEffect();
+        final EntityPotionEffectEvent.Action action = ev.getAction();
+
+        if (newEffect == null || action != EntityPotionEffectEvent.Action.ADDED) {
+            return;
+        }
+
+        final PotionEffectType type = newEffect.getType();
+
+        if (!disabledEffects.contains(type)) {
+            return;
+        }
+
+        Debug.warn("A disabled effect was applied to an entity, canceled!");
+        Debug.warn(" Effect: " + type.getName());
+        Debug.warn(" Entity: " + entity.getName());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -178,65 +211,74 @@ public class PlayerHandler implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handlePlayerSwapEvent(PlayerSwapHandItemsEvent ev) {
-        ev.setCancelled(true);
+        final GamePlayer gamePlayer = CF.getPlayer(ev.getPlayer());
 
-        final Player player = ev.getPlayer();
-        final Hero hero = Manager.current().getCurrentHero(player);
-
-        if (!Manager.current().isAbleToUse(player)) {
-            return;
-        }
-
-        final GamePlayer gamePlayer = getAlivePlayer(player);
         if (gamePlayer == null) {
             return;
         }
 
-        if (gamePlayer.isUltimateReady()) {
-            final UltimateTalent ultimate = hero.getUltimate();
+        ev.setCancelled(true);
 
-            if (ultimate.hasCd(player)) {
-                sendUltimateFailureMessage(player, "&cUltimate on cooldown for %ss.", BukkitUtils.roundTick(ultimate.getCdTimeLeft(player)));
-                return;
-            }
-
-            if (!hero.predicateUltimate(player)) {
-                sendUltimateFailureMessage(player, "&cUnable to use ultimate! " + hero.predicateMessage(player));
-                return;
-            }
-
-            if (hero.isUsingUltimate(player)) {
-                sendUltimateFailureMessage(player, "&cAlready using ultimate!");
-                return;
-            }
-
-            hero.useUltimate0(player);
-            ultimate.startCd(player);
-            gamePlayer.setUltPoints(0);
-
-            // Stats
-            gamePlayer.getStats().addValue(StatType.ULTIMATE_USED, 1);
-
-            if (hero.getUltimateDuration() > 0) {
-                hero.setUsingUltimate(player, true, hero.getUltimateDuration());
-            }
-
-            // Achievement
-            Achievements.USE_ULTIMATES.complete(player);
-
-            for (final Player online : Bukkit.getOnlinePlayers()) {
-                Chat.sendMessage(
-                        online,
-                        "&b&l※ &b%s used &l%s&7!".formatted(online == player ? "You" : player.getName(), ultimate.getName())
-                );
-                PlayerLib.playSound(online, ultimate.getSound(), ultimate.getPitch());
-            }
+        if (!gamePlayer.isAbleToUseAbilities()) {
+            return;
         }
-        else if (!hero.isUsingUltimate(player)) {
-            Chat.sendTitle(player, "&4&l※", "&cYour ultimate isn't ready!", 5, 15, 5);
-            sendUltimateFailureMessage(player, "&cYour ultimate isn't ready!");
+
+        // Ultimate is not ready
+        if (!gamePlayer.isUltimateReady()) {
+            gamePlayer.sendTitle("&b&l※", "&cYour ultimate isn't ready!", 5, 15, 5);
+            gamePlayer.sendMessage("&b&l※ &cYour ultimate isn't ready!");
+            return;
         }
-        // ignore if using ultimate
+
+        final Hero hero = gamePlayer.getHero();
+        final UltimateTalent ultimate = hero.getUltimate();
+
+        // Ultimate is on cooldown
+        if (ultimate.hasCd(gamePlayer)) {
+            gamePlayer.sendMessage(
+                    "&b&l※ &cYour ultimate is on cooldown for %ss!",
+                    BukkitUtils.roundTick(ultimate.getCdTimeLeft(gamePlayer))
+            );
+            return;
+        }
+
+        // Predicate fails
+        if (!hero.predicateUltimate(gamePlayer)) {
+            gamePlayer.sendMessage(
+                    "&b&l※ &cCannot use ultimate! %s",
+                    hero.predicateMessage(gamePlayer)
+            );
+            return;
+        }
+
+        // Already using ultimate
+        if (hero.isUsingUltimate(gamePlayer)) {
+            gamePlayer.sendMessage("&b&l※ &cYou are already using ultimate!");
+            return;
+        }
+
+        // Ultimate used
+        hero.useUltimate0(gamePlayer);
+        ultimate.startCd(gamePlayer);
+        gamePlayer.setUltPoints(0);
+
+        // Stats
+        gamePlayer.getStats().addValue(StatType.ULTIMATE_USED, 1);
+
+        if (hero.getUltimateDuration() > 0) {
+            hero.setUsingUltimate(gamePlayer, true, hero.getUltimateDuration());
+        }
+
+        // Achievement
+        Achievements.USE_ULTIMATES.complete(gamePlayer);
+
+        for (final Player online : Bukkit.getOnlinePlayers()) {
+            Chat.sendMessage(
+                    online,
+                    "&b&l※ &b%s used &l%s&7!".formatted((gamePlayer.is(online) ? "You" : gamePlayer.getName()), ultimate.getName())
+            );
+            PlayerLib.playSound(online, ultimate.getSound(), ultimate.getPitch());
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -461,7 +503,8 @@ public class PlayerHandler implements Listener {
         }
 
         // Ferocity
-        if (lastDamager != null && instance.cause != EnumDamageCause.FEROCIY && !gameEntity.hasCooldown(Cooldown.FEROCITY)) {
+        if (lastDamager != null && (instance.cause != null && instance.cause.isAllowedForFerocity()) &&
+                !gameEntity.hasCooldown(Cooldown.FEROCITY)) {
             final EntityAttributes damagerAttributes = lastDamager.getAttributes();
             final int ferocityStrikes = damagerAttributes.getFerocityStrikes();
 
@@ -534,12 +577,6 @@ public class PlayerHandler implements Listener {
             data.setLastDamage(DAMAGE_LIMIT);
         }
 
-        // Show damage indicator if dealt more
-        // than 1 damage to remove clutter
-        if (instance.damage >= 1.0d && !(entity instanceof ArmorStand) && !livingEntity.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
-            new DamageDisplay(instance.damage, instance.isCrit).display(livingEntity.getEyeLocation());
-        }
-
         // Progress stats for damager
         if (lastDamager instanceof GamePlayer player) {
             player.getStats().addValue(StatType.DAMAGE_DEALT, instance.damage);
@@ -549,12 +586,8 @@ public class PlayerHandler implements Listener {
             }
         }
 
-        final double health = gameEntity.getHealth();
-        gameEntity.decreaseHealth(instance.damage);
-        //
-        //if (instance.damage >= health) {
-        //    ev.setCancelled(true);
-        //}
+        // Decrease entity's health
+        gameEntity.decreaseHealth(instance);
 
         // Make sure not to kill players but instead
         // put them in spectator mode
@@ -631,45 +664,31 @@ public class PlayerHandler implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handlePlayerClick(PlayerItemHeldEvent ev) {
         final Player player = ev.getPlayer();
+        final PlayerProfile profile = PlayerProfile.getProfile(player);
 
-        if (!Manager.current().isAbleToUse(player)) {
+        if (profile == null || !Manager.current().isAbleToUse(player)) {
             return;
         }
 
-        cancelInputTalent(player);
+        final GamePlayer gamePlayer = profile.getGamePlayer();
 
-        // 1-2 -> Simple Abilities, 3-5 -> Complex Abilities (Extra)
-        // 0 -> Weapon Slot
+        if (gamePlayer == null) {
+            return;
+        }
+
+        gamePlayer.cancelInputTalent();
 
         final int newSlot = ev.getNewSlot();
-        if (newSlot <= 0 || newSlot > 5) {
+
+        final HotbarLoadout hotbarLoadout = profile.getHotbarLoadout();
+        final HotbarSlot hotbarSlot = hotbarLoadout.bySlot(newSlot);
+
+        if (hotbarSlot == null) {
             return;
         }
 
-        final Hero hero = Manager.current().getCurrentHero(player);
-        final PlayerInventory inventory = player.getInventory();
-
-        // don't care if talent is null, either not a talent or not complete
-        // null or air item means this skill should be ignored for now (not active)
-        final Talent talent = hero.getTalent(newSlot);
-        final ItemStack itemOnNewSlot = inventory.getItem(newSlot);
-
-        if (talent == null || !isValidItem(talent, itemOnNewSlot)) {
-            return;
-        }
-
-        // Execute talent
-        checkAndExecuteTalent(player, talent, newSlot);
-        final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
-
-        if (talent instanceof InputTalent inputTalent) {
-            gamePlayer.setInputTalent(inputTalent);
-        }
-        else {
-            ev.setCancelled(true);
-            inventory.setHeldItemSlot(0);
-            cancelInputTalent(player);
-        }
+        hotbarSlot.handle(gamePlayer, newSlot);
+        ev.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -758,23 +777,25 @@ public class PlayerHandler implements Listener {
     }
 
     /**
-     * Handles Input Talent.
+     * Handles Input Talent for left and right clicks.
      */
     @EventHandler()
     public void handleInputTalent(PlayerInteractEvent ev) {
-        final Player player = ev.getPlayer();
         final Action action = ev.getAction();
         final boolean isLeftClick = action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK;
 
-        handleInputTalent(player, isLeftClick);
+        handleInputTalent(CF.getPlayer(ev.getPlayer()), isLeftClick);
     }
 
+    /**
+     * Handles Input Talent for left click. (Entity damage)
+     */
     @EventHandler()
     public void handleEntityInteract(EntityDamageByEntityEvent ev) {
         final Entity damager = ev.getDamager();
 
         if (damager instanceof Player player) {
-            handleInputTalent(player, true);
+            handleInputTalent(CF.getPlayer(player), true);
         }
     }
 
@@ -840,23 +861,12 @@ public class PlayerHandler implements Listener {
         parkour.onDamage(player, cause);
     }
 
-    private void cancelInputTalent(Player player) {
-        final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
-        final InputTalent inputTalent = gamePlayer.getInputTalent();
-
-        if (inputTalent != null) {
-            inputTalent.onCancel(player);
-            gamePlayer.setInputTalent(null);
-        }
-    }
-
-    private void handleInputTalent(Player player, boolean isLeftClick) {
-        final GamePlayer gamePlayer = CF.getPlayer(player);
-        if (gamePlayer == null) {
+    private void handleInputTalent(GamePlayer player, boolean isLeftClick) {
+        if (player == null) {
             return;
         }
 
-        final InputTalent talent = gamePlayer.getInputTalent();
+        final InputTalent talent = player.getInputTalent();
 
         if (talent == null || !checkTalent(player, talent)) {
             return;
@@ -866,7 +876,7 @@ public class PlayerHandler implements Listener {
         final String usage = talent.getUsage(isLeftClick);
 
         if (response.isError()) {
-            gamePlayer.setInputTalent(null);
+            player.setInputTalent(null);
             player.getInventory().setHeldItemSlot(0);
         }
 
@@ -875,7 +885,7 @@ public class PlayerHandler implements Listener {
         }
 
         // \/ Talent executed \/
-        gamePlayer.setInputTalent(null); // keep this above CD and slot changes!
+        player.setInputTalent(null); // keep this above CD and slot changes!
 
         if (isLeftClick) {
             talent.startCdLeft(player);
@@ -887,35 +897,13 @@ public class PlayerHandler implements Listener {
         talent.addPoint(player, isLeftClick);
 
         // Add 1 tick cooldown to a weapon to prevent accidental use
-        final PlayerInventory inventory = player.getInventory();
-        final ItemStack item = inventory.getItem(0);
+        final ItemStack item = player.getItem(HotbarSlots.WEAPON);
 
         if (item != null) {
-            final Material type = item.getType();
-            if (!player.hasCooldown(type)) {
-                player.setCooldown(type, 1);
-            }
+            player.setCooldownIfNotAlreadyOnCooldown(item.getType(), 1);
         }
 
-        inventory.setHeldItemSlot(0);
-    }
-
-    private GamePlayer getAlivePlayer(Player player) {
-        return GamePlayer.getExistingPlayer(player);
-    }
-
-    private void sendUltimateSuccessMessage(Player player, String str, Object... objects) {
-        Chat.sendMessage(player, "&b&l※ &a" + Chat.format(str, objects));
-    }
-
-    private void sendUltimateFailureMessage(Player player, String str, Object... objects) {
-        Chat.sendMessage(player, "&4&l※ &c" + Chat.format(str, objects));
-        PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
-    }
-
-    private boolean isValidItem(Talent talent, ItemStack stack) {
-        return stack != null && !stack.getType().isAir();
-        //return talent.getMaterial() == stack.getType();
+        player.snapToWeapon();
     }
 
     private boolean isIntractable(ItemStack stack) {
@@ -940,24 +928,24 @@ public class PlayerHandler implements Listener {
      * @param talent - Talent.
      * @return true if valid, false otherwise.
      */
-    private boolean checkTalent(Player player, Talent talent) {
+    public static boolean checkTalent(GamePlayer player, Talent talent) {
         // null check
         if (talent == null) {
-            Chat.sendMessage(player, "&cNullPointerException: talent is null");
+            player.sendMessage("&cNullPointerException: talent is null");
             return false;
         }
 
         // cooldown check
         if (talent.hasCd(player)) {
-            Chat.sendMessage(player, "&cTalent on cooldown for %ss.", BukkitUtils.roundTick(talent.getCdTimeLeft(player)));
-            player.getInventory().setHeldItemSlot(0); // work-around for InputTalent
+            player.sendMessage("&cTalent on cooldown for %ss.", BukkitUtils.roundTick(talent.getCdTimeLeft(player)));
+            player.snapToWeapon();
             return false;
         }
 
         // charge check
         if (talent instanceof ChargedTalent chargedTalent) {
             if (chargedTalent.getChargedAvailable(player) <= 0) {
-                Chat.sendMessage(player, "&cOut of charges!");
+                player.sendMessage("&cOut of charges!");
                 return false;
             }
         }
@@ -972,7 +960,7 @@ public class PlayerHandler implements Listener {
      * @param response - Response.
      * @return true if valid, false otherwise.
      */
-    private boolean checkResponse(Player player, Response response) {
+    public static boolean checkResponse(GamePlayer player, Response response) {
         if (response.isError()) {
             response.sendError(player);
             return false;
@@ -987,44 +975,5 @@ public class PlayerHandler implements Listener {
         return true;
     }
 
-    private void checkAndExecuteTalent(Player player, Talent talent, int slot) {
-        if (!checkTalent(player, talent)) {
-            return;
-        }
 
-        // Make sure the talent item is still in the slot
-        final ItemStack itemInSlot = player.getInventory().getItem(slot);
-        if (itemInSlot == null || itemInSlot.getType() != talent.getMaterial()) {
-            return;
-        }
-
-        // Execute talent and get response
-        final Response response = talent.execute0(player);
-        final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
-
-        // If not error, add to the queue
-        // Yeah I know two of the 'same' checks, but I'll
-        // make it look good later maybe or not or I don't care
-        if (!response.isError()) {
-            gamePlayer.getTalentQueue().add(talent);
-        }
-
-        if (!checkResponse(player, response)) {
-            return;
-        }
-
-        // \/ Talent executed \/
-        if (talent instanceof ChargedTalent chargedTalent) {
-            chargedTalent.setLastKnownSlot(player, slot);
-            chargedTalent.removeChargeAndStartCooldown(player);
-        }
-
-        final int point = talent.getPoint();
-
-        if (point > 0) {
-            gamePlayer.addUltimatePoints(point);
-        }
-
-        talent.startCd(player);
-    }
 }

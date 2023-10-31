@@ -1,24 +1,23 @@
 package me.hapyl.fight.protocol;
 
-import com.google.common.collect.Maps;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
-import java.util.Map;
 
 public class PlayerMount {
 
     // I'm to lazy so just static
-    protected static final Map<Player, PlayerMount> MOUNTS = Maps.newHashMap();
+    protected static final PlayerMap<PlayerMount> MOUNTS = PlayerMap.newMap();
 
-    public final Player player;
+    public final GamePlayer player;
     public final Location location;
     private ArmorStand stand;
 
-    private PlayerMount(Player player, Location location) {
+    private PlayerMount(GamePlayer player, Location location) {
         this.player = player;
         this.location = location;
     }
@@ -31,7 +30,7 @@ public class PlayerMount {
             self.setSmall(true);
             self.setSilent(true);
             self.setInvisible(true);
-            self.addPassenger(player);
+            self.addPassenger(player.getPlayer());
         });
     }
 
@@ -42,7 +41,7 @@ public class PlayerMount {
     }
 
     @Nullable
-    public static PlayerMount getMount(Player player) {
+    public static PlayerMount getMount(GamePlayer player) {
         return MOUNTS.get(player);
     }
 
@@ -52,7 +51,7 @@ public class PlayerMount {
      * @param player   - Player to mount.
      * @param location - Location.
      */
-    public static PlayerMount mount(Player player, Location location) {
+    public static PlayerMount mount(GamePlayer player, Location location) {
         final PlayerMount playerMount = new PlayerMount(player, location);
         playerMount.mount();
 
@@ -62,7 +61,7 @@ public class PlayerMount {
     /**
      * Dismounts player from the current mount if present, does nothing otherwise.
      */
-    public static void dismount(Player player) {
+    public static void dismount(GamePlayer player) {
         final PlayerMount playerMount = MOUNTS.get(player);
 
         if (playerMount != null) {

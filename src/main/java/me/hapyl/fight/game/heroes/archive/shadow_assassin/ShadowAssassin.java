@@ -15,9 +15,7 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.particle.ParticleBuilder;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
@@ -72,68 +70,50 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
     }
 
     @Override
-    public void useUltimate(Player player) {
+    public void useUltimate(@Nonnull GamePlayer player) {
         player.setCooldown(getWeapon().getMaterial(), 0);
 
-        // fx
-        PlayerLib.playSound(player.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 1.75f);
-        PlayerLib.playSound(player.getLocation(), Sound.BLOCK_BEACON_AMBIENT, 1.75f);
-        PlayerLib.addEffect(player, PotionEffectType.SLOW, getUltimateDuration(), 0);
+        // Fx
+        player.playWorldSound(Sound.BLOCK_BEACON_ACTIVATE, 1.75f);
+        player.playWorldSound(Sound.BLOCK_BEACON_AMBIENT, 1.75f);
+        player.addPotionEffect(PotionEffectType.SLOW, getUltimateDuration(), 0);
 
-        GameTask.runLater(() -> PlayerLib.playSound(Sound.BLOCK_BEACON_DEACTIVATE, 1.85f), getUltimateDuration());
+        GameTask.runLater(() -> player.playWorldSound(Sound.BLOCK_BEACON_DEACTIVATE, 1.85f), getUltimateDuration());
     }
 
     @EventHandler()
     public void handleUltimate(PlayerInteractEvent ev) {
-        final Player player = ev.getPlayer();
-        if (ev.getHand() == EquipmentSlot.OFF_HAND || ev.getAction() == Action.PHYSICAL || !validatePlayer(player) ||
-                !isUsingUltimate(player) || player.hasCooldown(getWeapon().getMaterial())) {
+        final GamePlayer player = CF.getPlayer(ev.getPlayer());
+
+        if (player == null
+                || ev.getHand() == EquipmentSlot.OFF_HAND
+                || ev.getAction() == Action.PHYSICAL
+                || !validatePlayer(player)
+                || !isUsingUltimate(player)
+                || player.hasCooldown(getWeapon().getMaterial())) {
             return;
         }
 
-        final LivingEntity livingEntity = getNearestEntity(player);
+        final LivingGameEntity livingEntity = getNearestEntity(player);
 
         if (livingEntity == null) {
-            Chat.sendMessage(player, "&cNo valid opponent!");
+            player.sendMessage("&cNo valid opponent!");
             return;
         }
 
-        CF.getEntityOptional(livingEntity).ifPresent(gameEntity -> {
-            gameEntity.damage(getWeapon().getDamage(), player, EnumDamageCause.NEVERMISS);
-        });
+        livingEntity.damage(getWeapon().getDamage(), player, EnumDamageCause.NEVERMISS);
 
-        GamePlayer.setCooldown(player, getWeapon().getMaterial(), NEVERMISS_CD);
+        player.setCooldown(getWeapon().getMaterial(), NEVERMISS_CD);
 
-        // fx
+        // Fx
         PlayerLib.playSound(player.getLocation(), Sound.BLOCK_NETHER_ORE_BREAK, 1.75f);
-    }
-
-    @Nullable
-    private LivingEntity getNearestEntity(Player player) {
-        final LivingGameEntity gameEntity = Collect.targetEntity(player, 10, 0.5d, t -> t.hasLineOfSight(player));
-        return gameEntity == null ? null : gameEntity.getEntity();
-
-        //final Location location = player.getLocation();
-        //LivingEntity closest = null;
-        //double distance = 0.0d;
-        //for (final LivingEntity living : Utils.getEntitiesInRange(location, 10)) {
-        //    if (player == living) {
-        //        continue;
-        //    }
-        //    final double currentDistance = living.getLocation().distance(location);
-        //    if (closest == null || currentDistance < distance) {
-        //        closest = living;
-        //        distance = currentDistance;
-        //    }
-        //}
-        //return closest;
     }
 
     @Override
     public boolean processInvisibilityDamage(GamePlayer player, LivingGameEntity entity, double damage) {
         if (player.isSneaking()) {
             player.sendMessage("&cCannot deal damage while in &lDark Cover&c!");
-            player.playPlayerSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
+            player.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
             return true;
         }
 
@@ -142,11 +122,13 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
 
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final Player player = input.getDamagerAsBukkitPlayer();
+        final GamePlayer player = input.getDamagerAsPlayer();
 
         if (player == null || input.getDamageCause() != EnumDamageCause.ENTITY_ATTACK) {
             return DamageOutput.OK;
         }
+
+        // FIXME (hapyl): 030, Oct 30: Backstab does not work?
 
         // Calculate back stab
         final LivingGameEntity gameEntity = input.getDamagerAsLiving();
@@ -158,7 +140,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
 
         if (validateCanBackStab(player, entity)) {
             if (player.getLocation().getDirection().dot(gameEntity.getLocation().getDirection()) > 0) {
-                performBackStab(player, entity);
+                performBackStab(player, gameEntity);
             }
         }
 
@@ -167,7 +149,8 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
 
     @Override
     public DamageOutput processDamageAsVictim(DamageInput input) {
-        final Player player = input.getBukkitPlayer();
+        final GamePlayer player = input.getEntityAsPlayer();
+
         if (!canHide(player)) {
             return null;
         }
@@ -183,26 +166,26 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
         return null;
     }
 
-    public void setDarkCoverCd(Player player, int cd) {
-        GamePlayer.setCooldown(player, Talents.SECRET_SHADOW_WARRIOR_TECHNIQUE.getTalent().getMaterial(), cd);
+    public void setDarkCoverCd(GamePlayer player, int cd) {
+        player.setCooldown(Talents.SECRET_SHADOW_WARRIOR_TECHNIQUE.getTalent().getMaterial(), cd);
     }
 
-    public int getDarkCoverCd(Player player) {
+    public int getDarkCoverCd(GamePlayer player) {
         return player.getCooldown(Talents.SECRET_SHADOW_WARRIOR_TECHNIQUE.getTalent().getMaterial());
     }
 
-    public void setDarkCover(Player player, boolean flag) {
+    public void setDarkCover(GamePlayer player, boolean flag) {
         // Enter
         if (flag) {
-            PlayerLib.addEffect(player, PotionEffectType.INVISIBILITY, 999999, 5);
-            CFUtils.hidePlayer(player);
+            player.addPotionEffect(PotionEffectType.INVISIBILITY, 99999, 5);
+            player.hide();
 
             playDarkCoverFx(player, true);
         }
 
         else {
-            PlayerLib.removeEffect(player, PotionEffectType.INVISIBILITY);
-            CFUtils.showPlayer(player);
+            player.removePotionEffect(PotionEffectType.INVISIBILITY);
+            player.show();
 
             playDarkCoverFx(player, false);
         }
@@ -217,72 +200,64 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
                 .display(location);
     }
 
-    public void playDarkCoverFx(Player player, boolean flag) {
+    public void playDarkCoverFx(GamePlayer player, boolean flag) {
         final Location location = player.getEyeLocation();
-        if (flag) {
-            PlayerLib.spawnParticle(location, Particle.CRIT, 20, 0, 0.2, 0, 1.0f);
-            PlayerLib.spawnParticle(location, Particle.CRIT_MAGIC, 20, 0, 0.2, 0, 0.5f);
-            PlayerLib.spawnParticle(location, Particle.WARPED_SPORE, 10, 0, 0.5, 0, 0);
-            PlayerLib.playSound(location, Sound.ENTITY_ENDERMAN_TELEPORT, 1.75f);
 
-            Chat.sendTitle(player, "&8&l\uD83E\uDEA3", "&7In Dark Cover", 0, 200000, 0);
+        if (flag) {
+            player.spawnWorldParticle(Particle.CRIT, 20, 0, 0.2, 0, 1.0f);
+            player.spawnWorldParticle(Particle.CRIT_MAGIC, 20, 0, 0.2, 0, 0.5f);
+            player.spawnWorldParticle(Particle.WARPED_SPORE, 10, 0, 0.5, 0, 0);
+            player.playWorldSound(Sound.ENTITY_ENDERMAN_TELEPORT, 1.75f);
+
+            player.sendTitle("&8&l\uD83E\uDEA3", "&7In Dark Cover", 0, 200000, 0);
         }
         else {
-            PlayerLib.spawnParticle(location, Particle.ENCHANTMENT_TABLE, 10, 0, 0, 0, 2);
-            PlayerLib.playSound(location, Sound.ENTITY_ENDERMAN_TELEPORT, 1.25f);
+            player.spawnWorldParticle(Particle.ENCHANTMENT_TABLE, 10, 0, 0, 0, 2);
+            player.playWorldSound(Sound.ENTITY_ENDERMAN_TELEPORT, 1.25f);
 
-            Chat.clearTitle(player);
+            player.clearTitle();
         }
     }
 
-    public boolean canHide(Player player) {
+    public boolean canHide(GamePlayer player) {
         return getDarkCoverCd(player) == 0;
     }
 
-    public void kickFromDarkCover(Player player) {
+    public void kickFromDarkCover(GamePlayer player) {
         final Location location = player.getEyeLocation();
+
         setDarkCoverCd(player, 200);
         setDarkCover(player, false);
 
-        // fx
-        Chat.sendMessage(player, "&cYou took damage and lost your &lDark Cover&c!");
-        PlayerLib.spawnParticle(location, Particle.DRAGON_BREATH, 30, 0, 0, 0, 0.5f);
-        PlayerLib.spawnParticle(location, Particle.LAVA, 35, 0, 0, 0, 0);
-        PlayerLib.playSound(location, Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 1.75f);
-        PlayerLib.playSound(location, Sound.ENTITY_ENDERMAN_SCREAM, 1.25f);
+        // Fx
+        player.sendMessage("&cYou took damage and lost your &lDark Cover&c!");
+
+        player.spawnWorldParticle(Particle.DRAGON_BREATH, 30, 0, 0, 0, 0.5f);
+        player.spawnWorldParticle(Particle.LAVA, 35, 0, 0, 0, 0);
+        player.playWorldSound(Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 1.75f);
+        player.playWorldSound(Sound.ENTITY_ENDERMAN_SCREAM, 1.25f);
     }
 
-    private boolean validateCanBackStab(Player player, LivingEntity entity) {
-        return entity != null
-                && !isUsingUltimate(player)
-                && player != entity
-                && !player.hasCooldown(getWeapon().getMaterial()) && player.getInventory().getHeldItemSlot() == 0;
-    }
-
-    // FIXME (hapyl): 028, Sep 28: Pretty sure this does not work
-    // TODO (hapyl): 006, Aug 6: replace with game entity?
-    public void performBackStab(Player player, @Nonnull LivingEntity entity) {
+    public void performBackStab(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity) {
         final Location location = entity.getLocation();
         final Vector vector = location.getDirection();
-        entity.setVelocity(new Vector(vector.getX(), 0.1d, vector.getZ()).multiply(2.13f));
 
+        entity.setVelocity(new Vector(vector.getX(), 0.1d, vector.getZ()).multiply(2.13f));
         entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 40, 5));
         entity.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 40, 5));
 
-        if (entity instanceof Player playerEntity) {
-            Chat.sendMessage(playerEntity, "&a%s stabbed you!", player.getName());
-        }
+        entity.sendMessage("&a%s stabbed you!", player.getName());
+        player.setCooldown(getWeapon().getMaterial(), BACK_STAB_CD);
 
-        GamePlayer.setCooldown(player, getWeapon().getMaterial(), BACK_STAB_CD);
-
-        // fx
-        PlayerLib.playSound(location, Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 0.65f);
-        PlayerLib.spawnParticle(location, Particle.CRIT, 10, 0.25d, 0.0d, 0.25d, 0.076f);
+        // Fx
+        entity.playWorldSound(Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 0.65f);
+        entity.spawnWorldParticle(Particle.CRIT, 10, 0.25d, 0.0d, 0.25d, 0.076f);
     }
 
     @EventHandler()
     public void handlePlayerToggleSneakEvent(PlayerToggleSneakEvent ev) {
-        final Player player = ev.getPlayer();
+        final GamePlayer player = CF.getPlayer(ev.getPlayer());
+
         if (!validatePlayer(player) || !canHide(player)) {
             return;
         }
@@ -324,9 +299,21 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
 
     @Nonnull
     @Override
-    public String getString(Player player) {
+    public String getString(@Nonnull GamePlayer player) {
         final int cooldown = getDarkCoverCd(player);
         return cooldown > 0 ? "&f&l\uD83E\uDEA3 &f%ss".formatted(BukkitUtils.roundTick(cooldown)) : "";
+    }
+
+    @Nullable
+    private LivingGameEntity getNearestEntity(GamePlayer player) {
+        return Collect.targetEntity(player, 10, 0.5d, t -> t.hasLineOfSight(player));
+    }
+
+    private boolean validateCanBackStab(GamePlayer player, LivingEntity entity) {
+        return entity != null
+                && !isUsingUltimate(player)
+                && player != entity
+                && !player.hasCooldown(getWeapon().getMaterial()) && player.getInventory().getHeldItemSlot() == 0;
     }
 
 }

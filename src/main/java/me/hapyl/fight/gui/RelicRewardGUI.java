@@ -60,7 +60,7 @@ public class RelicRewardGUI extends PlayerDynamicGUI {
                     continue;
                 }
 
-                final ItemBuilder builder = reward.displayGet(
+                final ItemBuilder builder = reward.formatBuilder(
                         player,
                         ItemBuilder.of(
                                 hasClaimed ? Material.MINECART : Material.CHEST_MINECART,
@@ -102,7 +102,7 @@ public class RelicRewardGUI extends PlayerDynamicGUI {
 
                     if (canClaim) {
                         setItem(rewardSlot, builder.glow().addLore("&aClick to claim!").asIcon(), ref -> {
-                            reward.grantReward(player);
+                            reward.grant(player);
                             entry.setClaimed(type, finalI, true);
 
                             Chat.sendMessage(player, "&aClaimed!");
@@ -137,7 +137,7 @@ public class RelicRewardGUI extends PlayerDynamicGUI {
         exchangeBuilder.addLore("Current Exchange Tier &f&l" + RomanNumber.toRoman(tier));
         exchangeBuilder.addLore();
         exchangeBuilder.addLore("Rewards:");
-        reward.display(player, exchangeBuilder);
+        reward.formatBuilder(player, exchangeBuilder);
         exchangeBuilder.addLore();
 
         if (canExchange < PERMANENT_EXCHANGE_RATE) {
@@ -148,7 +148,7 @@ public class RelicRewardGUI extends PlayerDynamicGUI {
         }
         else {
             setItem(34, exchangeBuilder.addLore("&aClick to exchange").asIcon(), ref -> {
-                reward.grantReward(player);
+                reward.grant(player);
                 entry.incrementPermanentExchangeCount(PERMANENT_EXCHANGE_RATE);
 
                 Chat.sendMessage(player, "&aExchanged!");

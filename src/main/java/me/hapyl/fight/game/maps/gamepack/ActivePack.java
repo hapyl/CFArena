@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.maps.gamepack;
 
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.garbage.CFGarbageCollector;
@@ -10,7 +11,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nullable;
@@ -81,7 +81,7 @@ public class ActivePack extends TickingGameTask {
         pack.displayParticle(entityLocation);
     }
 
-    public final void pickup0(Player player) {
+    public final void pickup0(GamePlayer player) {
         pack.onPickup(player);
 
         remove();

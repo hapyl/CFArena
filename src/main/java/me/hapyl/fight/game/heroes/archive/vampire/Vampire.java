@@ -1,10 +1,8 @@
 package me.hapyl.fight.game.heroes.archive.vampire;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Main;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
@@ -19,19 +17,16 @@ import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComplexComponent;
-import me.hapyl.fight.util.CFUtils;
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.GUI;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Bat;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -39,8 +34,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.PlayerInventory;
 
+import javax.annotation.Nonnull;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class Vampire extends Hero implements Listener, UIComplexComponent, DisabledHero {
@@ -61,7 +56,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
      * ULTIMATE -> {}
      */
 
-    private final Map<Player, VampireData> vampireData;
+    private final PlayerMap<VampireData> vampireData;
     private final int BLOOD_POOL_COOLDOWN = 30;
     private final double HEALTH_PENALTY = 0.5d;
 
@@ -76,7 +71,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
     public Vampire() {
         super("Vampire");
 
-        vampireData = Maps.newHashMap();
+        vampireData = PlayerMap.newMap();
 
         setItem("8d44756e0b4ece8d746296a3d5e297e1415f4ba17647ffe228385383d161a9");
 
@@ -103,7 +98,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
     }
 
     @Override
-    public void useUltimate(Player player) {
+    public void useUltimate(@Nonnull GamePlayer player) {
         final VampireData data = vampireData.get(player);
         final int bloodAtUse = data.getBlood();
         final int bloodAfterUse = MAX_BLOOD_STACKS - bloodAtUse;
@@ -111,7 +106,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
         getFirstTalent().startCd(player, 99999);
         getSecondTalent().startCd(player, 99999);
 
-        CFUtils.hidePlayer(player);
+        player.hide();
 
         final Bat bat = Entities.BAT.spawn(player.getLocation(), self -> {
             self.setCustomName(player.getCustomName());
@@ -120,7 +115,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
             self.setAI(false);
 
             // Hide for player
-            player.hideEntity(Main.getPlugin(), self);
+            player.hideEntity(self);
         });
 
         player.setAllowFlight(true);
@@ -137,7 +132,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
                     player.setFlying(false);
                     player.setAllowFlight(false);
 
-                    CFUtils.showPlayer(player);
+                    player.show();
                     bat.remove();
 
                     data.setBlood(bloodAfterUse);
@@ -147,7 +142,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
                     getFirstTalent().stopCd(player);
                     getSecondTalent().stopCd(player);
 
-                    Chat.sendMessage(player, "&4&l❧ &4Blood Pool refreshed &c%s &4%s &c%s&4!", bloodAtUse, GUI.ARROW_FORWARD, bloodAfterUse);
+                    player.sendMessage("&4&l❧ &4Blood Pool refreshed &c%s &4%s &c%s&4!", bloodAtUse, GUI.ARROW_FORWARD, bloodAfterUse);
 
                     hitEntities.clear();
                     this.cancel();
@@ -155,7 +150,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
                 }
 
                 // Sync bat
-                bat.teleport(player);
+                bat.teleport(player.getLocation());
 
                 //Utils.getEntitiesInRange(player, 5.0d)
                 //        .stream()
@@ -187,27 +182,31 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
     }
 
     @Override
-    public void onDeath(Player player) {
+    public void onDeath(@Nonnull GamePlayer player) {
         vampireData.remove(player);
     }
 
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final Player player = input.getDamagerAsBukkitPlayer();
+        final GamePlayer player = input.getDamagerAsPlayer();
         final VampireData data = getData(player);
+
+        if (player == null) {
+            return null;
+        }
 
         if (isUsingUltimate(player)) {
             if (input.getDamageCause() == EnumDamageCause.LIGHTNING) {
                 return null;
             }
 
-            Chat.sendMessage(player, "&4&l❧ &cCannot deal while in ultimate form!");
+            player.sendMessage("&4&l❧ &cCannot deal while in ultimate form!");
             return DamageOutput.CANCEL;
         }
 
         if (!player.hasCooldown(BLOOD_MATERIAL) && data.getBlood() < MAX_BLOOD_STACKS) {
             data.addBlood(1);
-            GamePlayer.setCooldown(player, BLOOD_MATERIAL, BLOOD_POOL_COOLDOWN);
+            player.setCooldown(BLOOD_MATERIAL, BLOOD_POOL_COOLDOWN);
             updateBloodPool(player);
         }
 
@@ -223,7 +222,12 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
 
     @EventHandler()
     public void handleHandleBloodDrinking(PlayerInteractEvent ev) {
-        final Player player = ev.getPlayer();
+        final GamePlayer player = CF.getPlayer(ev.getPlayer());
+
+        if (player == null) {
+            return;
+        }
+
         final PlayerInventory inventory = ev.getPlayer().getInventory();
 
         if (ev.getHand() == EquipmentSlot.OFF_HAND ||
@@ -242,16 +246,15 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
         final int duration = getDuration(data.getBlood());
 
         data.setDamageMultiplier(damageMultiplier, duration);
-        Chat.sendMessage(
-                player,
+        player.sendMessage(
                 "&c&lBLOOD! &a+&l%s &a❤ &7and &4+&l%s%% &4Damage &7for %ss!",
                 health,
                 damageMultiplier,
                 BukkitUtils.roundTick(duration)
         );
 
-        GamePlayer.setCooldown(player, Material.REDSTONE, duration + 80);
-        GamePlayer.getPlayer(player).heal(health);
+        player.setCooldown(Material.REDSTONE, duration + 80);
+        player.heal(health);
 
         data.setBlood(0);
         updateBloodPool(player);
@@ -259,8 +262,8 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
         inventory.setHeldItemSlot(0);
 
         // Fx
-        PlayerLib.playSound(player, Sound.ENTITY_WITCH_DRINK, 0.0f);
-        PlayerLib.playSound(player, Sound.ITEM_HONEY_BOTTLE_DRINK, 0.0f);
+        player.playSound(Sound.ENTITY_WITCH_DRINK, 0.0f);
+        player.playSound(Sound.ITEM_HONEY_BOTTLE_DRINK, 0.0f);
     }
 
     public int getDuration(int blood) {
@@ -273,7 +276,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
             @Override
             public void run() {
                 CF.getAlivePlayers(Heroes.VAMPIRE).forEach(player -> {
-                    if (!Manager.current().isGameInProgress() || isUsingUltimate(player.getPlayer())) {
+                    if (!Manager.current().isGameInProgress() || isUsingUltimate(player)) {
                         return;
                     }
 
@@ -286,12 +289,12 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
         }.runTaskTimer(0, 20);
     }
 
-    public VampireData getData(Player player) {
+    public VampireData getData(GamePlayer player) {
         return vampireData.computeIfAbsent(player, key -> new VampireData(player));
     }
 
     @Override
-    public List<String> getStrings(Player player) {
+    public List<String> getStrings(GamePlayer player) {
         final int bloodCd = player.getCooldown(BLOOD_MATERIAL);
         final VampireData data = getData(player);
         final List<String> strings = Lists.newArrayList();
@@ -309,7 +312,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
         return strings;
     }
 
-    private void updateBloodPool(Player player) {
+    private void updateBloodPool(GamePlayer player) {
         final PlayerInventory inventory = player.getInventory();
         final int bloodStacks = getData(player).getBlood();
 

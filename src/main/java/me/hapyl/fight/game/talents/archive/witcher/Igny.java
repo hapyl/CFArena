@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.archive.witcher;
 
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -10,7 +11,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
+
+import javax.annotation.Nonnull;
 
 public class Igny extends Talent {
 
@@ -35,12 +37,12 @@ public class Igny extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocation();
         final Location targetLocation = location.add(player.getLocation().getDirection().multiply(3));
 
         Collect.nearbyEntities(targetLocation, maximumDistance).forEach(target -> {
-            if (target.is(player)) {
+            if (target.equals(player)) {
                 return;
             }
 

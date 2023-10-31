@@ -1,26 +1,25 @@
 package me.hapyl.fight.game.talents.archive.alchemist;
 
-import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.alchemist.Alchemist;
 import me.hapyl.fight.game.heroes.archive.alchemist.CauldronEffect;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.util.RandomTable;
+import me.hapyl.fight.util.collection.RandomTable;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
+
+import javax.annotation.Nonnull;
 
 import static org.bukkit.potion.PotionEffectType.*;
 
 public class RandomPotion extends Talent {
 
     private final RandomTable<Effect> effects = new RandomTable<>();
-    @DisplayField private final short toxinAccumulation = 10;
+    @DisplayField private final short toxinAccumulation = 12;
 
     public RandomPotion() {
         super("Abyssal Bottle", """
@@ -37,21 +36,21 @@ public class RandomPotion extends Talent {
                 .add(new Effect("&6🛡", "Resistance", DAMAGE_RESISTANCE, 80, 1))
                 .add(new Effect("&9⁘⁙", "Invisibility") {
                     @Override
-                    public void affect(Player player) {
-                        GamePlayer.getPlayer(player).addEffect(GameEffectType.INVISIBILITY, 60, true);
+                    public void affect(GamePlayer player) {
+                        player.addEffect(GameEffectType.INVISIBILITY, 60, true);
                     }
                 })
                 .add(new Effect("&c❤", "Healing") {
                     @Override
-                    public void affect(Player player) {
-                        GamePlayer.getPlayer(player).heal(10);
+                    public void affect(GamePlayer player) {
+                        player.heal(10);
                     }
                 });
 
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final Alchemist hero = (Alchemist) Heroes.ALCHEMIST.getHero();
         final CauldronEffect effect = hero.getEffect(player);
 
@@ -60,13 +59,14 @@ public class RandomPotion extends Talent {
         if (effect != null && effect.getDoublePotion() > 0) {
             effect.decrementDoublePotions();
             final Effect firstEffect = effects.getRandomElement();
-            final Effect secondEffect = effects.getRandomElement();
+            final Effect secondEffect = effects.getRandomElementNot(firstEffect);
+
             firstEffect.applyEffectsIgnoreFx(player);
             secondEffect.applyEffectsIgnoreFx(player);
+
             // Display Improved
-            Chat.sendMessage(player, "&e☕ &a&lDouble Potion has %s changes left", effect.getDoublePotion());
-            Chat.sendMessage(
-                    player,
+            player.sendMessage("&e☕ &a&lDouble Potion has %s changes left", effect.getDoublePotion());
+            player.sendMessage(
                     " &aGained %s &a%s &aand %s &a%s",
                     firstEffect.getEffectChar(),
                     firstEffect.getEffectName(),
@@ -74,8 +74,7 @@ public class RandomPotion extends Talent {
                     secondEffect.getEffectName()
             );
 
-            Chat.sendTitle(
-                    player,
+            player.sendTitle(
                     "&a%s      &a%s".formatted(firstEffect.getEffectChar(), secondEffect.getEffectChar()),
                     "&6%s    &6%s".formatted(firstEffect.getEffectName(), secondEffect.getEffectName()),
                     5,
@@ -83,7 +82,7 @@ public class RandomPotion extends Talent {
                     5
             );
 
-            PlayerLib.playSound(player, Sound.ITEM_BOTTLE_FILL, 1.25f);
+            player.playSound(Sound.ITEM_BOTTLE_FILL, 1.25f);
             return Response.OK;
         }
 

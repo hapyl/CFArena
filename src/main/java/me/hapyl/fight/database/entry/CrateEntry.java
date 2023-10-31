@@ -19,7 +19,7 @@ public class CrateEntry extends PlayerDatabaseEntry {
     }
 
     public boolean hasCrate(@Nonnull Crates crate) {
-        return getCrates(crate) > 0;
+        return getCrates(crate) > 0L;
     }
 
     public void setCrate(@Nonnull Crates crate, long amount) {
@@ -30,12 +30,16 @@ public class CrateEntry extends PlayerDatabaseEntry {
         addCrate(crate, 1);
     }
 
-    public void addCrate(@Nonnull Crates crate, int amount) {
+    public void addCrate(@Nonnull Crates crate, long amount) {
         setCrate(crate, getCrates(crate) + amount);
     }
 
     public void removeCrate(@Nonnull Crates crate) {
-        setCrate(crate, getCrates(crate) - 1);
+        removeCrate(crate, 1);
+    }
+
+    public void removeCrate(@Nonnull Crates crate, long amount) {
+        setCrate(crate, getCrates(crate) - amount);
     }
 
     @Nonnull

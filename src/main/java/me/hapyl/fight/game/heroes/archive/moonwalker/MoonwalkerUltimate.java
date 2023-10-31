@@ -1,8 +1,9 @@
 package me.hapyl.fight.game.heroes.archive.moonwalker;
 
-import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
@@ -16,8 +17,8 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,11 +27,16 @@ public class MoonwalkerUltimate extends UltimateTalent {
     @DisplayField private final int corrosionTime = 130;
     @DisplayField private final double meteoriteRadius = 8.5d;
     @DisplayField private final double meteoriteDamage = 50.0d;
+    @DisplayField(suffix = "blocks") private final double distanceFromLanding = 15;
 
     public MoonwalkerUltimate() {
         super(
                 "Moonteorite",
-                "Summons meteorite at the &etarget &7location. Upon landing, it creates a huge explosion dealing with massive damage and applying &6&lCorrosion &7for &b{corrosionTime}s&7.",
+                """
+                        Summon a huge meteorite at the &etarget&7 location.
+                                                
+                        Upon landing, it creates a huge explosion, dealing massive damage and applying &6&lCorrosion&7 for &b{corrosionTime}&7.
+                        """,
                 80
         );
 
@@ -38,20 +44,21 @@ public class MoonwalkerUltimate extends UltimateTalent {
         setItem(Material.END_STONE_BRICKS);
     }
 
-    public void useUltimate(Player player) {
-        final int distanceFromLanding = 15;
+    @Override
+    public Response execute(@Nonnull GamePlayer player) {
         final Block targetBlock = Heroes.MOONWALKER.getHero(Moonwalker.class).getTargetBlock(player);
+
         if (targetBlock == null) {
-            return;
+            return Response.error("Invalid block!");
         }
 
-        final Location playerLocation = targetBlock.getRelative(BlockFace.UP).getLocation().clone().add(0.5d, 0.0d, 0.5d);
-        final Location startLocation = playerLocation.clone().add(distanceFromLanding, distanceFromLanding, distanceFromLanding);
+        final Location targetLocation = targetBlock.getRelative(BlockFace.UP).getLocation().add(0.5d, 0.0d, 0.5d);
+        final Location startLocation = targetLocation.clone().add(distanceFromLanding, distanceFromLanding, distanceFromLanding);
 
-        PlayerLib.playSound(player, Sound.ENTITY_WITHER_DEATH, 0.0f);
+        player.playSound(Sound.ENTITY_WITHER_DEATH, 0.0f);
 
         new GameTask() {
-            private int tick = -distanceFromLanding;
+            private double tick = -distanceFromLanding;
 
             @Override
             public void run() {
@@ -67,30 +74,32 @@ public class MoonwalkerUltimate extends UltimateTalent {
                 // Last tick (explode and stop sound)
                 if (tick >= (distanceFromLanding + 1)) {
                     Bukkit.getOnlinePlayers().forEach(player -> player.stopSound(Sound.ENTITY_WITHER_DEATH, PlayerLib.SOUND_CATEGORY));
-                    explode(player, playerLocation);
-                    this.cancel();
+                    explode(player, targetLocation);
+                    cancel();
                     return;
                 }
 
                 // Notify players in range that they're in danger
-                Collect.nearbyPlayers(playerLocation, meteoriteRadius).forEach(target -> {
+                Collect.nearbyPlayers(targetLocation, meteoriteRadius).forEach(target -> {
                     target.sendWarning("Meteorite Warning!", 5);
                 });
 
-                Geometry.drawCircle(playerLocation, meteoriteRadius, Quality.NORMAL, new WorldParticle(Particle.CRIT));
-                Geometry.drawCircle(playerLocation, meteoriteRadius + 0.25d, Quality.VERY_HIGH, new WorldParticle(Particle.SNOW_SHOVEL));
+                Geometry.drawCircle(targetLocation, meteoriteRadius, Quality.NORMAL, new WorldParticle(Particle.CRIT));
+                Geometry.drawCircle(targetLocation, meteoriteRadius + 0.25d, Quality.VERY_HIGH, new WorldParticle(Particle.SNOW_SHOVEL));
 
                 ++tick;
             }
 
         }.runTaskTimer(0, 1);
+
+        return Response.OK;
     }
 
     public void createBlob(Location center, boolean last) {
         PlayerLib.spawnParticle(center, Particle.LAVA, 10, 1, 1, 1, 0);
 
         // Clear previous blob
-        this.clearTrash(center.clone());
+        clearTrash(center.clone());
 
         // Move location to the next step
         center.subtract(1, 0, 1);
@@ -152,7 +161,7 @@ public class MoonwalkerUltimate extends UltimateTalent {
                 if ((i == 0 || i == 2) && j != 1) {
                     continue;
                 }
-                center.clone().subtract(i, 0, j).getBlock().getState().update(false, false);
+                center.clone().subtract(i, 0, j).getBlock().getState().update(true, false);
             }
         }
 
@@ -162,16 +171,16 @@ public class MoonwalkerUltimate extends UltimateTalent {
                 if (((i == 1 || i == 2) && j == 2) || (i == 2 && j == 1)) {
                     continue;
                 }
-                center.clone().subtract(i, 0, j).getBlock().getState().update(false, false);
+                center.clone().subtract(i, 0, j).getBlock().getState().update(true, false);
             }
         }
 
         center.subtract(0, 1, 0);
-        center.clone().subtract(1, 0, 0).getBlock().getState().update(false, false);
-        center.clone().subtract(0, 0, 1).getBlock().getState().update(false, false);
+        center.clone().subtract(1, 0, 0).getBlock().getState().update(true, false);
+        center.clone().subtract(0, 0, 1).getBlock().getState().update(true, false);
     }
 
-    private void explode(Player executor, Location location) {
+    private void explode(GamePlayer executor, Location location) {
         final World world = location.getWorld();
 
         if (world == null) {
@@ -179,7 +188,7 @@ public class MoonwalkerUltimate extends UltimateTalent {
         }
 
         Collect.nearbyEntities(location, meteoriteRadius).forEach(entity -> {
-            entity.damage(meteoriteDamage, CF.getEntity(executor), EnumDamageCause.METEORITE);
+            entity.damage(meteoriteDamage, executor, EnumDamageCause.METEORITE);
             entity.addEffect(GameEffectType.CORROSION, corrosionTime, true);
         });
 

@@ -1,11 +1,12 @@
 package me.hapyl.fight.game.talents.archive.shaman;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
-import org.bukkit.entity.Player;
+
+import javax.annotation.Nonnull;
 
 public class TotemTalent extends Talent {
 
@@ -34,14 +35,14 @@ public class TotemTalent extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final ActiveTotem totem = Talents.TOTEM.getTalent(Totem.class).getTargetTotem(player);
         if (totem == null) {
             return Response.error("Not targeting totem.");
         }
 
         totem.setResonanceType(type);
-        Chat.sendMessage(player, "Switched totem to %s.", type.getName());
+        player.sendMessage("Switched totem to %s.", type.getName());
 
         return Response.OK;
     }

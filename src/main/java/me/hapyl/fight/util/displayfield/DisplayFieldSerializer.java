@@ -62,9 +62,15 @@ public final class DisplayFieldSerializer {
     }
 
     public static String formatField(Field field, Object instance, DisplayField display) {
-        final double scale = display.scaleFactor();
-        final String suffix = display.suffix();
-        final boolean suffixSpace = display.suffixSpace();
+        double scale = display.scaleFactor();
+        String suffix = display.suffix();
+        boolean suffixSpace = display.suffixSpace();
+
+        if (display.percentage()) {
+            scale = 100;
+            suffix = "%";
+            suffixSpace = false;
+        }
 
         try {
             field.setAccessible(true);

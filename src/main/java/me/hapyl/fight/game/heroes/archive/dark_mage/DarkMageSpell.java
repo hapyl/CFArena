@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.dark_mage;
 
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.witcher.WitherData;
 import me.hapyl.fight.game.talents.Talent;
@@ -13,19 +14,19 @@ import javax.annotation.Nullable;
 
 public class DarkMageSpell {
 
-    private final Player player;
+    private final GamePlayer player;
     private SpellButton first;
     private SpellButton second;
     private long lastUsed;
 
-    public DarkMageSpell(Player player) {
+    public DarkMageSpell(GamePlayer player) {
         this.player = player;
         this.first = null;
         this.second = null;
         this.lastUsed = 0L;
     }
 
-    public Player getPlayer() {
+    public GamePlayer getPlayer() {
         return this.player;
     }
 
@@ -43,13 +44,13 @@ public class DarkMageSpell {
     }
 
     public void display() {
-        Chat.sendTitle(player, "", "%s %s".formatted(nonnullButton(first), nonnullButton(second)), 0, 40, 5);
+        player.sendSubtitle("%s %s".formatted(nonnullButton(first), nonnullButton(second)), 0, 40, 5);
 
         if (first == null) {
-            PlayerLib.playSound(player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.25f);
+            player.playSound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.25f);
         }
         else {
-            PlayerLib.playSound(player, Sound.BLOCK_LEVER_CLICK, 1.0f);
+            player.playSound(Sound.BLOCK_LEVER_CLICK, 1.0f);
         }
     }
 

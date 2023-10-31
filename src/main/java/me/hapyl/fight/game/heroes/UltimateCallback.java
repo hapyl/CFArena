@@ -1,11 +1,11 @@
 package me.hapyl.fight.game.heroes;
 
-import org.bukkit.entity.Player;
+import me.hapyl.fight.game.entity.GamePlayer;
 
 import javax.annotation.Nonnull;
 
 /**
- * Use this callback at {@link Hero#castUltimate(Player)} to execute code
+ * Use this callback at {@link Hero#castUltimate(GamePlayer)} to execute code
  * after the casting is done. Used to remove local instances of entities, blocks etc.
  */
 public interface UltimateCallback {
@@ -15,6 +15,6 @@ public interface UltimateCallback {
      *
      * @param player - Player, who uses the ultimate.
      */
-    void callback(@Nonnull Player player);
+    void callback(@Nonnull GamePlayer player);
 
 }

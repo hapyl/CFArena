@@ -2,10 +2,13 @@ package me.hapyl.fight.game.entity;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.garbage.CFGarbageCollector;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.GameMode;
@@ -46,8 +49,12 @@ public class GameEntity {
         return this;
     }
 
-    public void teleport(Location location) {
+    public void teleport(@Nonnull Location location) {
         entity.teleport(location);
+    }
+
+    public void teleport(@Nonnull GameEntity entity) {
+        teleport(entity.getLocation());
     }
 
     @Nonnull
@@ -121,14 +128,19 @@ public class GameEntity {
         return isValid(null);
     }
 
-    public boolean isValid(Player player) {
+    public boolean isValid(GamePlayer player) {
         // null entities, self or armor stands are not valid
-        if (is(player) || entity instanceof ArmorStand) {
+        if (equals(player) || entity instanceof ArmorStand) {
             return false;
         }
 
         // dead or base entities are not valid
         if (entity.isDead() || base) { // entity.isInvisible()
+            return false;
+        }
+
+        // garbage entities are not valid
+        if (CFGarbageCollector.isGarbageEntity(entity)) {
             return false;
         }
 
@@ -139,10 +151,17 @@ public class GameEntity {
                 return false;
             }
 
-            if (Manager.current().isGameInProgress() && !CF.getOrCreatePlayer(targetPlayer).isAlive()) {
+            final GamePlayer gamePlayer = CF.getPlayer(targetPlayer);
+
+            if (gamePlayer == null || !gamePlayer.isAlive()) {
                 return false;
             }
-            return !GameTeam.isTeammate(player, targetPlayer);
+
+            if (gamePlayer.hasEffect(GameEffectType.INVISIBILITY)) {
+                return false;
+            }
+
+            return !GameTeam.isTeammate(player, gamePlayer);
         }
 
         // Dummy check
@@ -153,7 +172,11 @@ public class GameEntity {
         return entity.hasAI() && !entity.isInvulnerable();
     }
 
-    public boolean hasLineOfSight(@Nonnull LivingEntity entity) {
+    public boolean hasLineOfSight(@Nonnull GameEntity entity) {
+        return this.entity.hasLineOfSight(entity.getEntity());
+    }
+
+    public boolean hasLineOfSight(@Nonnull Entity entity) {
         return this.entity.hasLineOfSight(entity);
     }
 
@@ -161,12 +184,16 @@ public class GameEntity {
         entity.setVelocity(vector);
     }
 
-    public boolean hasTag(String s) {
-        return entity.getScoreboardTags().contains(s);
+    public void addTag(@Nonnull String tag) {
+        entity.addScoreboardTag(tag);
     }
 
-    public void removeTag(String s) {
-        entity.getScoreboardTags().remove(s);
+    public boolean hasTag(@Nonnull String tag) {
+        return entity.getScoreboardTags().contains(tag);
+    }
+
+    public void removeTag(@Nonnull String tag) {
+        entity.removeScoreboardTag(tag);
     }
 
     public void setInvulnerable(boolean b) {
@@ -246,16 +273,20 @@ public class GameEntity {
         asPlayer(player -> Chat.sendActionbar(player, text, objects));
     }
 
-    public void playPlayerSound(Sound sound, final float pitch) {
+    public void playSound(Sound sound, final float pitch) {
         asPlayer(player -> PlayerLib.playSound(player, sound, Numbers.clamp(pitch, 0.0f, 2.0f)));
     }
 
-    public void playPlayerSound(Location location, Sound sound, float pitch) {
+    public void playSound(Location location, Sound sound, float pitch) {
         asPlayer(player -> PlayerLib.playSound(player, location, sound, pitch));
     }
 
-    public void playSound(Sound sound, float pitch) {
-        PlayerLib.playSound(getLocation(), sound, pitch);
+    public void playWorldSound(Location location, Sound sound, float pitch) {
+        PlayerLib.playSound(location, sound, pitch);
+    }
+
+    public void playWorldSound(Sound sound, float pitch) {
+        playWorldSound(getLocation(), sound, pitch);
     }
 
     @Override
@@ -320,4 +351,31 @@ public class GameEntity {
         return entity.getVelocity();
     }
 
+    @Nonnull
+    public Vector getVectorOffsetLeft(double multiply) {
+        final Vector direction = getLocation().getDirection().normalize();
+
+        return new Vector(direction.getZ(), 0.0, -direction.getX()).normalize().multiply(multiply);
+    }
+
+    @Nonnull
+    public Vector getVectorOffsetRight(double multiply) {
+        final Vector direction = getLocation().getDirection().normalize();
+
+        return new Vector(-direction.getZ(), 0.0, direction.getX()).normalize().multiply(multiply);
+    }
+
+    @Nonnull
+    public Location getLocationInFront(double multiply) {
+        return LocationHelper.getInFront(getLocation(), multiply);
+    }
+
+    @Nonnull
+    public Location getLocationBehind(double multiply) {
+        return LocationHelper.getBehind(getLocation(), multiply);
+    }
+
+    public void schedule(Runnable run, int delay) {
+        GameTask.runLater(run, delay);
+    }
 }

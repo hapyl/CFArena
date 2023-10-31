@@ -1,17 +1,15 @@
 package me.hapyl.fight.game.maps.features;
 
-import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.BlockLocation;
 import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
@@ -74,12 +72,12 @@ public class Booster {
         return booster;
     }
 
-    public Entity launchAndRide(Player player, boolean flag) {
+    public Entity launchAndRide(GamePlayer player, boolean flag) {
         final Entity piggy = launch(flag);
-        piggy.addPassenger(player);
+        piggy.addPassenger(player.getPlayer());
 
-        GamePlayer.getPlayer(player).addEffect(GameEffectType.FALL_DAMAGE_RESISTANCE, 200);
-        PlayerLib.playSound(player.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 2.0f);
+        player.addEffect(GameEffectType.FALL_DAMAGE_RESISTANCE, 200);
+        player.playWorldSound(Sound.ENTITY_GENERIC_EXPLODE, 2.0f);
         return piggy;
     }
 

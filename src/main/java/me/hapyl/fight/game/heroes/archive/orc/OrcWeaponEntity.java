@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.orc;
 
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.CFUtils;
@@ -13,7 +14,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
@@ -30,14 +30,14 @@ public abstract class OrcWeaponEntity extends GameTask {
             Material.LIGHT_BLUE_CONCRETE_POWDER.createBlockData()
     };
 
-    private final Player player;
+    private final GamePlayer player;
     private final ArmorStand entity;
     private final Vector vector;
     private int aliveTicks;
 
     private LivingEntity hitEntity;
 
-    public OrcWeaponEntity(Player player) {
+    public OrcWeaponEntity(GamePlayer player) {
         final Location startLocation = LocationHelper.getToTheLeft(player.getLocation(), 0.25d);
 
         vector = startLocation.getDirection();
@@ -64,7 +64,7 @@ public abstract class OrcWeaponEntity extends GameTask {
     public void onHit(@Nonnull Block block) {
     }
 
-    public void onReturn(@Nonnull Player player) {
+    public void onReturn(@Nonnull GamePlayer player) {
     }
 
     @Override
@@ -147,7 +147,7 @@ public abstract class OrcWeaponEntity extends GameTask {
         }
 
         // Check for entity hit
-        final LivingGameEntity nearestEntity = Collect.nearestEntity(hitLocation, 0.2d, predicate -> predicate.isNot(player));
+        final LivingGameEntity nearestEntity = Collect.nearestEntity(hitLocation, 0.2d, predicate -> !predicate.equals(player));
 
         if (nearestEntity != null) {
             hitEntity = nearestEntity.getEntity();

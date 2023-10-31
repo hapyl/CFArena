@@ -3,6 +3,7 @@ package me.hapyl.fight.game.talents.archive.moonwalker;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.CFUtils;
@@ -14,16 +15,13 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 
 public class MoonSliteBomb extends Talent implements Listener {
@@ -50,14 +48,16 @@ public class MoonSliteBomb extends Talent implements Listener {
     }
 
     @Override
-    public void onDeath(Player player) {
-        final UUID uniqueId = player.getUniqueId();
+    public void onDeath(@Nonnull GamePlayer player) {
+        final UUID uniqueId = player.getUUID();
+
         Nulls.runIfNotNull(bombs.get(uniqueId), set -> {
             if (set.isEmpty()) {
                 return;
             }
             set.forEach(Entity::remove);
         });
+
         bombs.remove(uniqueId);
     }
 
@@ -68,7 +68,7 @@ public class MoonSliteBomb extends Talent implements Listener {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final Set<Item> playerBombs = getBombs(player);
         if (playerBombs.size() >= bombLimit) {
             return Response.error("Limit reached!");
@@ -77,7 +77,7 @@ public class MoonSliteBomb extends Talent implements Listener {
         final Item item = player.getWorld().dropItem(player.getLocation(), new ItemStack(this.getItem().getType()));
         item.setPickupDelay(20);
         item.setTicksLived(6000 - explosionDuration);
-        item.setOwner(player.getUniqueId());
+        item.setOwner(player.getUUID());
         playerBombs.add(item);
 
         // Fx
@@ -97,12 +97,12 @@ public class MoonSliteBomb extends Talent implements Listener {
         return Response.OK;
     }
 
-    public int getBombsSize(Player player) {
+    public int getBombSize(GamePlayer player) {
         return getBombs(player).size();
     }
 
-    private Set<Item> getBombs(Player player) {
-        return getBombs(player.getUniqueId());
+    private Set<Item> getBombs(GamePlayer player) {
+        return getBombs(player.getUUID());
     }
 
     private Set<Item> getBombs(UUID uuid) {
@@ -138,16 +138,8 @@ public class MoonSliteBomb extends Talent implements Listener {
         item.remove();
     }
 
-    private void applyCorrosion(LivingEntity entity) {
-        if (entity instanceof Player player) {
-            GamePlayer.getPlayer(player).addEffect(GameEffectType.CORROSION, corrosionDuration);
-            return;
-        }
-
-        // Keeping this for entity damage
-        entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, corrosionDuration, 4));
-        entity.addPotionEffect(new PotionEffect(PotionEffectType.POISON, corrosionDuration, 4));
-        entity.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, corrosionDuration, 4));
+    private void applyCorrosion(LivingGameEntity entity) {
+        entity.addEffect(GameEffectType.CORROSION, corrosionDuration);
     }
 
     private boolean isBombItem(Item item) {

@@ -1,14 +1,13 @@
 package me.hapyl.fight.game.talents.archive.techie;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
@@ -16,10 +15,10 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
@@ -59,9 +58,9 @@ public class TrapWire extends ChargedTalent implements Listener {
     }
 
     @Override
-    public void onDeathCharged(Player player) {
-        getTraps(player).forEach(Tripwire::clearBlocks);
-        trapMap.remove(player);
+    public void onDeathCharged(@Nonnull GamePlayer player) {
+        //getTraps(player).forEach(Tripwire::clearBlocks);
+        //trapMap.remove(player);
     }
 
     @Override
@@ -81,17 +80,17 @@ public class TrapWire extends ChargedTalent implements Listener {
     }
 
     @Override
-    public Response execute(Player player) {
-        final Set<Block> blocks = getTargetBlock(player);
-        final Set<Tripwire> traps = getTraps(player);
-
-        if (blocks == null) {
-            return Response.ERROR;
-        }
-
-        final Tripwire trap = new Tripwire(player, blocks);
-        trap.setBlocks();
-        traps.add(trap);
+    public Response execute(@Nonnull GamePlayer player) {
+        //final Set<Block> blocks = getTargetBlock(player);
+        //final Set<Tripwire> traps = getTraps(player);
+        //
+        //if (blocks == null) {
+        //    return Response.ERROR;
+        //}
+        //
+        //final Tripwire trap = new Tripwire(player, blocks);
+        //trap.setBlocks();
+        //traps.add(trap);
 
         return Response.OK;
     }
@@ -107,18 +106,18 @@ public class TrapWire extends ChargedTalent implements Listener {
 
     @EventHandler()
     public void handleMoveEvent(PlayerMoveEvent ev) {
-        final Player player = ev.getPlayer();
-        final Location location = player.getLocation();
-
-        if (!Manager.current().isGameInProgress()
-                || trapMap.isEmpty()
-                || !Manager.current().isPlayerInGame(player)) {
-            return;
-        }
-
-        if (!checkBlock(player, location.getBlock())) {
-            checkBlock(player, location.getBlock().getRelative(BlockFace.UP));
-        }
+        //final Player player = ev.getPlayer();
+        //final Location location = player.getLocation();
+        //
+        //if (!Manager.current().isGameInProgress()
+        //        || trapMap.isEmpty()
+        //        || !Manager.current().isPlayerInGame(player)) {
+        //    return;
+        //}
+        //
+        //if (!checkBlock(player, location.getBlock())) {
+        //    checkBlock(player, location.getBlock().getRelative(BlockFace.UP));
+        //}
     }
 
     private boolean checkBlock(Player player, Block block) {
@@ -132,55 +131,54 @@ public class TrapWire extends ChargedTalent implements Listener {
             return false;
         }
 
-        tripwire.affectPlayer(player);
+        //tripwire.affectPlayer(player);
 
         // remove trap and grant charge
         removeTrap(tripwire);
-        grantCharge(tripwire.getPlayer(), rechargeCd);
+        //grantCharge(tripwire.getPlayer(), rechargeCd);
 
         return true;
     }
 
     @EventHandler()
     public void handleInteract(PlayerInteractEvent ev) {
-        final Player player = ev.getPlayer();
-        if (!Manager.current().isGameInProgress() || ev.getAction() != Action.LEFT_CLICK_BLOCK) {
-            return;
-        }
-
-        final Block block = ev.getClickedBlock();
-        if (block == null || block.getType() != Material.TRIPWIRE) {
-            return;
-        }
-
-        ev.setCancelled(true);
-        final Tripwire tripwire = byBlock(block);
-
-        if (tripwire == null || !tripwire.isActive()) {
-            return;
-        }
-
-        removeTrap(tripwire);
-
-        final Player trapOwner = tripwire.getPlayer();
-
-        if (trapOwner == player) {
-            grantCharge(player, pickupDelay);
-            //startCd(player, pickupDelay);
-
-            // Fx
-            Chat.sendMessage(player, "&aPicked up tripwire.");
-            PlayerLib.playSound(player, Sound.ENTITY_SPIDER_AMBIENT, 1.75f);
-        }
-        else {
-            removeTrap(tripwire);
-            grantCharge(trapOwner, destroyedCd);
-
-            // Fx
-            Chat.sendMessage(player, "&cYou destroyed %s's tripwire.", trapOwner.getName());
-            PlayerLib.playSound(player, Sound.ITEM_SHIELD_BREAK, 1.25f);
-        }
-
+        //final Player player = ev.getPlayer();
+        //if (!Manager.current().isGameInProgress() || ev.getAction() != Action.LEFT_CLICK_BLOCK) {
+        //    return;
+        //}
+        //
+        //final Block block = ev.getClickedBlock();
+        //if (block == null || block.getType() != Material.TRIPWIRE) {
+        //    return;
+        //}
+        //
+        //ev.setCancelled(true);
+        //final Tripwire tripwire = byBlock(block);
+        //
+        //if (tripwire == null || !tripwire.isActive()) {
+        //    return;
+        //}
+        //
+        //removeTrap(tripwire);
+        //
+        //final Player trapOwner = tripwire.getPlayer();
+        //
+        //if (trapOwner == player) {
+        //    grantCharge(player, pickupDelay);
+        //    //startCd(player, pickupDelay);
+        //
+        //    // Fx
+        //    Chat.sendMessage(player, "&aPicked up tripwire.");
+        //    PlayerLib.playSound(player, Sound.ENTITY_SPIDER_AMBIENT, 1.75f);
+        //}
+        //else {
+        //    removeTrap(tripwire);
+        //    grantCharge(trapOwner, destroyedCd);
+        //
+        //    // Fx
+        //    Chat.sendMessage(player, "&cYou destroyed %s's tripwire.", trapOwner.getName());
+        //    PlayerLib.playSound(player, Sound.ITEM_SHIELD_BREAK, 1.25f);
+        //}
     }
 
     @Nullable

@@ -1,6 +1,9 @@
 package me.hapyl.fight.game.lobby;
 
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.cosmetic.Cosmetics;
+import me.hapyl.fight.game.cosmetic.Type;
+import me.hapyl.fight.game.cosmetic.gadget.Gadget;
 import me.hapyl.fight.gui.HeroSelectGUI;
 import me.hapyl.fight.gui.MapSelectGUI;
 import me.hapyl.fight.gui.styled.profile.PlayerProfileGUI;
@@ -70,12 +73,6 @@ public enum LobbyItems {
         this.lobbyItem = lobbyItem;
     }
 
-    public static void giveAll(Player player) {
-        for (LobbyItems value : values()) {
-            value.give(player);
-        }
-    }
-
     public void give(Player player) {
         lobbyItem.give(player);
     }
@@ -83,5 +80,22 @@ public enum LobbyItems {
     @Nonnull
     public LobbyItem getItem() {
         return lobbyItem;
+    }
+
+    public static void giveAll(Player player) {
+        for (LobbyItems value : values()) {
+            value.give(player);
+        }
+
+        // Give gadget
+        final Cosmetics selectedGadget = Cosmetics.getSelected(player, Type.GADGET);
+
+        if (selectedGadget == null) {
+            return;
+        }
+
+        if (selectedGadget.getCosmetic() instanceof Gadget gadget) {
+            gadget.give(player);
+        }
     }
 }

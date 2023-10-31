@@ -1,13 +1,15 @@
 package me.hapyl.fight.game.talents.archive.ninja;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+
+import javax.annotation.Nonnull;
 
 public class NinjaDash extends Talent {
 
@@ -21,7 +23,7 @@ public class NinjaDash extends Talent {
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         final Vector vector = player.getLocation().getDirection();
 
         player.setVelocity(new Vector(vector.getX(), 0, vector.getZ()).normalize().multiply(magnitude));

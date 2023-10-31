@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.heroes.archive.vortex;
 
-import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
@@ -19,7 +18,6 @@ import me.hapyl.spigotutils.module.math.geometry.Quality;
 import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
-import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -59,20 +57,20 @@ public class Vortex extends Hero implements UIComponent {
     }
 
     @Override
-    public void onStart(Player player) {
+    public void onStart(@Nonnull GamePlayer player) {
         startInitWeaponCooldown(player);
     }
 
     @Override
-    public void onRespawn(Player player) {
+    public void onRespawn(@Nonnull GamePlayer player) {
         startInitWeaponCooldown(player);
     }
 
-    public void startInitWeaponCooldown(Player player) {
-        GamePlayer.setCooldown(player, getWeapon().getMaterial(), sotsCooldown / 2);
+    public void startInitWeaponCooldown(GamePlayer player) {
+        player.setCooldown(getWeapon().getMaterial(), sotsCooldown / 2);
     }
 
-    private void performFinalSlash(Location location, Player player) {
+    private void performFinalSlash(Location location, GamePlayer player) {
         final World world = location.getWorld();
         if (world == null) {
             return;
@@ -83,19 +81,19 @@ public class Vortex extends Hero implements UIComponent {
             double z = (5.5 * Math.cos(i));
             location.add(x, 0, z);
 
-            // fx
-            world.spawnParticle(Particle.SWEEP_ATTACK, location, 1, 0, 0, 0, 0);
-            world.playSound(location, Sound.ITEM_FLINTANDSTEEL_USE, 10, 0.75f);
-
-            // damage
+            // Damage
             Collect.nearbyEntities(location, 2.0d).forEach(entity -> {
-                if (entity.is(player)) {
+                if (entity.equals(player)) {
                     return;
                 }
 
-                entity.damage(1.0d, CF.getPlayer(player), EnumDamageCause.ENTITY_ATTACK);
+                entity.damage(1.0d, player, EnumDamageCause.ENTITY_ATTACK);
                 entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 80, 2));
             });
+
+            // Fx
+            world.spawnParticle(Particle.SWEEP_ATTACK, location, 1, 0, 0, 0, 0);
+            world.playSound(location, Sound.ITEM_FLINTANDSTEEL_USE, 10, 0.75f);
 
             location.subtract(x, 0, z);
         }
@@ -103,7 +101,7 @@ public class Vortex extends Hero implements UIComponent {
     }
 
     @Override
-    public void useUltimate(Player player) {
+    public void useUltimate(@Nonnull GamePlayer player) {
         final double spreadDistance = 5.5d;
         final double halfSpreadDistance = spreadDistance / 2.0d;
         final Location location = player.getLocation();
@@ -148,14 +146,14 @@ public class Vortex extends Hero implements UIComponent {
         }.runTaskTimer(0, 1);
     }
 
-    public void performStarSlash(Location start, Location finish, Player player) {
+    public void performStarSlash(Location start, Location finish, GamePlayer player) {
         // ray-trace string
         CFUtils.rayTracePath(start, finish, 1.0d, 2.0d, living -> {
-            if (living.is(player)) {
+            if (living.equals(player)) {
                 return;
             }
 
-            living.damage(starDamage, CF.getPlayer(player), EnumDamageCause.STAR_SLASH);
+            living.damage(starDamage, player, EnumDamageCause.STAR_SLASH);
         }, loc -> {
             PlayerLib.spawnParticle(loc, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0);
             PlayerLib.playSound(loc, Sound.ITEM_FLINTANDSTEEL_USE, 0.75f);
@@ -179,7 +177,7 @@ public class Vortex extends Hero implements UIComponent {
     }
 
     @Override
-    public @Nonnull String getString(Player player) {
-        return "&6⭐ &l" + getFirstTalent().getStarsAmount(player);
+    public @Nonnull String getString(@Nonnull GamePlayer player) {
+        return "&6⭐ &l" + getFirstTalent().getStarAmount(player);
     }
 }

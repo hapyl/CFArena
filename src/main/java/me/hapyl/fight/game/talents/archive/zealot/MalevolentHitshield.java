@@ -1,20 +1,18 @@
 package me.hapyl.fight.game.talents.archive.zealot;
 
-import com.google.common.collect.Maps;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.Compute;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Tick;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 
-import java.util.Map;
+import javax.annotation.Nonnull;
 
 public class MalevolentHitshield extends Talent {
 
@@ -23,7 +21,7 @@ public class MalevolentHitshield extends Talent {
     @DisplayField private final short shieldStrength = 10;
     @DisplayField private final int cooldown = Tick.fromSecond(30);
 
-    private final Map<Player, Integer> playerShield;
+    private final PlayerMap<Integer> playerShield;
 
     public MalevolentHitshield() {
         super("Malevolent Hitshield");
@@ -34,7 +32,7 @@ public class MalevolentHitshield extends Talent {
                 &b;;The shield has infinite duration and the cooldown stars after the shield is broken.
                 """);
 
-        playerShield = Maps.newHashMap();
+        playerShield = PlayerMap.newMap();
 
         setItem(Material.ENDER_EYE);
     }
@@ -45,28 +43,28 @@ public class MalevolentHitshield extends Talent {
     }
 
     @Override
-    public void onDeath(Player player) {
+    public void onDeath(@Nonnull GamePlayer player) {
         playerShield.remove(player);
     }
 
     @Override
-    public Response execute(Player player) {
+    public Response execute(@Nonnull GamePlayer player) {
         playerShield.put(player, (int) shieldStrength);
+        startCd(player, 10000);
 
         // Fx
         player.setGlowing(true);
-        PlayerLib.playSound(player, Sound.ENTITY_ENDER_DRAGON_HURT, 0.0f);
-        Chat.sendMessage(player, "&5🛡 &dShield activated!");
-        startCd(player, 10000);
+        player.playSound(Sound.ENTITY_ENDER_DRAGON_HURT, 0.0f);
+        player.sendMessage("&5🛡 &dShield activated!");
 
         return Response.OK;
     }
 
-    public boolean hasCharge(Player player) {
+    public boolean hasCharge(GamePlayer player) {
         return playerShield.containsKey(player);
     }
 
-    public void reduce(Player player) {
+    public void reduce(GamePlayer player) {
         final int shield = playerShield.compute(player, Compute.intSubtract());
         final Location location = player.getLocation();
 
@@ -74,9 +72,9 @@ public class MalevolentHitshield extends Talent {
             player.setCooldown(cooldownItem, 2); // internal cooldown
 
             // Fx
-            PlayerLib.playSound(location, Sound.ENTITY_ENDERMAN_TELEPORT, (2.0f - (1.5f / shieldStrength * shield)));
-            PlayerLib.spawnParticle(location, Particle.PORTAL, 10, 0, 0, 0, 1.0f);
-            PlayerLib.spawnParticle(location, Particle.REVERSE_PORTAL, 10, 0, 0, 0, 1.0f);
+            player.playWorldSound(Sound.ENTITY_ENDERMAN_TELEPORT, (2.0f - (1.5f / shieldStrength * shield)));
+            player.spawnWorldParticle(Particle.PORTAL, 10, 0, 0, 0, 1.0f);
+            player.spawnWorldParticle(Particle.REVERSE_PORTAL, 10, 0, 0, 0, 1.0f);
 
             return;
         }
@@ -88,10 +86,10 @@ public class MalevolentHitshield extends Talent {
         startCd(player, cooldown);
 
         // Fx
-        PlayerLib.playSound(location, Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 0.75f);
-        PlayerLib.playSound(location, Sound.ENTITY_ENDERMAN_HURT, 0.25f);
-        PlayerLib.spawnParticle(location, Particle.SPELL_WITCH, 25, 0.5d, 0.5d, 0.5d, 1.0f);
+        player.playWorldSound(Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 0.75f);
+        player.playWorldSound(Sound.ENTITY_ENDERMAN_HURT, 0.25f);
+        player.spawnWorldParticle(Particle.SPELL_WITCH, 25, 0.5d, 0.5d, 0.5d, 1.0f);
 
-        Chat.sendMessage(player, "&5🛡 &dYour shield broke!");
+        player.sendMessage("&5🛡 &dYour shield broke!");
     }
 }
