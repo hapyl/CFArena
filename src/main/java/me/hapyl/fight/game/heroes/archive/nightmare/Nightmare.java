@@ -11,6 +11,7 @@ import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -22,15 +23,18 @@ import javax.annotation.Nonnull;
 
 public class Nightmare extends Hero {
 
+    private final PlayerMap<OmenDebuff> omenDebuffMap = PlayerMap.newMap();
+
     public Nightmare() {
         super("Nightmare");
 
         setArchetype(Archetype.DAMAGE);
 
-        setDescription("A spirit from the worst dreams and nightmares, blinds enemies and strikes from behind!");
+        setDescription("A spirit from the worst nightmares, blinds enemies and strikes from behind!");
         setItem("79c55e0e4af71824e8da68cde87de717b214f92e9949c4b16da22b357f97b1fc");
 
-        setWeapon(new Weapon(Material.NETHERITE_SWORD).setName("Omen")
+        setWeapon(new Weapon(Material.NETHERITE_SWORD)
+                .setName("Omen")
                 .setDescription("A sword that is capable of splitting dreams in half.")
                 .setDamage(7.0d));
 
@@ -48,6 +52,15 @@ public class Nightmare extends Hero {
                 .setItem(Material.BLACK_DYE)
                 .setSound(Sound.ENTITY_WITCH_CELEBRATE, 0.0f));
 
+    }
+
+    @Override
+    public void onStart(@Nonnull GamePlayer player) {
+        new GameTask() {
+            @Override
+            public void run() {
+            }
+        }.runTaskTimer(0, 1);
     }
 
     // Moved light level test in runnable

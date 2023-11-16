@@ -3,7 +3,6 @@ package me.hapyl.fight;
 import me.hapyl.fight.chat.ChatHandler;
 import me.hapyl.fight.command.CommandRegistry;
 import me.hapyl.fight.database.Database;
-import me.hapyl.fight.enumclass.EnumClass;
 import me.hapyl.fight.event.*;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.achievement.AchievementRegistry;
@@ -17,7 +16,6 @@ import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.maps.features.BoosterController;
 import me.hapyl.fight.game.maps.gamepack.GamePackListener;
 import me.hapyl.fight.game.parkour.CFParkourManager;
-import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.talents.archive.bloodfiend.candlebane.CandlebaneProtocol;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TaskList;
@@ -69,8 +67,6 @@ public class Main extends JavaPlugin {
         plugin = this;
         CF.plugin = this;
         start = System.currentTimeMillis();
-
-        EnumClass.instantiate(new Settings());
 
         // Initiate API
         new EternaAPI(this);

@@ -12,7 +12,6 @@ import me.hapyl.fight.game.loadout.HotbarLoadout;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.profile.data.PlayerData;
 import me.hapyl.fight.game.profile.relationship.PlayerRelationship;
-import me.hapyl.fight.game.setting.EnumBool;
 import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
@@ -250,7 +249,7 @@ public class PlayerProfile {
     }
 
     public String getSelectedHeroString() {
-        final boolean randomHeroEnabled = Settings.RANDOM_HERO.getValue(player) == EnumBool.ENABLED;
+        final boolean randomHeroEnabled = Settings.RANDOM_HERO.isEnabled(player);
         return randomHeroEnabled ? "&l❓&f ʀᴀɴᴅᴏᴍ" : selectedHero.getFormatted();
     }
 

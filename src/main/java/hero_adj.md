@@ -121,6 +121,12 @@ Troll
 * Add sound FX.
 
 ---
+
+Nightmare
+===
+
+
+---
 <<>>
 
 Ender

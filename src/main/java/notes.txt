@@ -19,9 +19,6 @@ Yes, it will be painful and buggy, but IS a good idea.
 - Backstab does not worK?????
 - Poison Ivy TOO fast
 
-* Range
-- Add spread inaccuracy while in the air
-
 * Nightmare
 - Make omen work like monass' omen
 

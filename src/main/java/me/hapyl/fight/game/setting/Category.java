@@ -41,6 +41,6 @@ public enum Category implements Described, PlayerItemCreator {
     @Nonnull
     @Override
     public ItemBuilder create(@Nonnull Player player) {
-        return new ItemBuilder(material).setName(name).addLore().addTextBlockLore(description);
+        return new ItemBuilder(material).setName(name).addLore("&8Category").addLore().addTextBlockLore(description);
     }
 }

@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.cosmetic;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.game.setting.EnumBool;
 import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.entity.Entities;
@@ -153,7 +152,7 @@ public class Display {
         }
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (player == this.player || Settings.SEE_OTHERS_CONTRAIL.getValue(player) == EnumBool.ENABLED) {
+            if (player == this.player || Settings.SEE_OTHERS_CONTRAIL.isEnabled(player)) {
                 list.add(player);
             }
         }

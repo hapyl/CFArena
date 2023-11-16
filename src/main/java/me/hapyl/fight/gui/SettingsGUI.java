@@ -2,7 +2,6 @@ package me.hapyl.fight.gui;
 
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.setting.Category;
-import me.hapyl.fight.game.setting.Setting;
 import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
@@ -79,10 +78,10 @@ public class SettingsGUI extends StyledGUI {
         component.apply(this, SlotPattern.DEFAULT, 0);
 
         // Update Settings
-        final List<Setting<?>> settings = Settings.byCategory(selectedCategory);
+        final List<Settings> settings = Settings.byCategory(selectedCategory);
 
         for (int i = 0; i < settings.size(); i++) {
-            final Setting<?> setting = settings.get(i);
+            final Settings setting = settings.get(i);
             final boolean isEnabled = setting.isEnabled(player);
 
             if (i >= settingsSlots.length) {
