@@ -1,6 +1,11 @@
 package me.hapyl.fight.gui.styled;
 
+import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.gui.StrictlyLobbyGUI;
+import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.gui.PlayerGUI;
+import me.hapyl.spigotutils.module.player.PlayerLib;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -26,6 +31,12 @@ public abstract class StyledGUI extends PlayerGUI implements Styled {
 
     @Override
     public final void openInventory() {
+        if (this instanceof StrictlyLobbyGUI && Manager.current().isGameInProgress()) {
+            Chat.sendMessage(player, "&cYou can only open this GUI in the lobby!");
+            PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
+            return;
+        }
+
         clearItems();
         clearClickEvents();
 

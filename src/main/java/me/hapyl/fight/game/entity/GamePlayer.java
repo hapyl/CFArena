@@ -26,7 +26,7 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.game.setting.Setting;
+import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.InputTalent;
@@ -205,11 +205,11 @@ public class GamePlayer extends LivingGameEntity {
         // Reset skin if was applied
         final PlayerSkin skin = hero.getHero().getSkin();
 
-        if (Setting.USE_SKINS_INSTEAD_OF_ARMOR.isEnabled(player) && skin != null) {
+        if (Settings.USE_SKINS_INSTEAD_OF_ARMOR.isEnabled(player) && skin != null) {
             PlayerSkin.reset(player);
         }
 
-        CFUtils.showPlayer(player.getPlayer());
+        show();
 
         // Keep winner in survival, so it's clear for them that they have won
         final boolean isWinner = instance.isWinner(player.getPlayer());
@@ -422,7 +422,7 @@ public class GamePlayer extends LivingGameEntity {
         if (getHero().isUsingUltimate(this)) {
             final long durationLeft = getHero().getUltimateDurationLeft(this);
 
-            return "&b&lIN USE &b(%s&b)".formatted(durationLeft == 0 ? "&lUSE" : BukkitUtils.roundTick(Tick.fromMillis(durationLeft)) + "s");
+            return "&b&lIN USE &b(%s&b)".formatted(BukkitUtils.roundTick(Tick.fromMillis(durationLeft)) + "s");
         }
 
         if (ultimate.hasCd(this)) {
@@ -998,6 +998,10 @@ public class GamePlayer extends LivingGameEntity {
 
         return team;
 
+    }
+
+    public boolean isSelfOrTeammate(LivingGameEntity victim) {
+        return equals(victim) || isTeammate(victim);
     }
 
     private void resetAttribute(Attribute attribute, double value) {

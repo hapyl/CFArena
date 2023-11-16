@@ -24,7 +24,7 @@ public class FrenzyMode extends CFGameMode {
         setDescription("""
                 A free for all with limited lives!
                                 
-                &aMax Lives: &b%s
+                Max Lives: &a%s
                 """.formatted(maxLives));
 
         setMaterial(Material.RED_DYE);
@@ -46,7 +46,7 @@ public class FrenzyMode extends CFGameMode {
         final LinkedValue2IntegerReverseMap<GamePlayer> reverse = LinkedValue2IntegerReverseMap.of(playerLivesMap);
 
         builder.addLines("");
-        builder.addLine("&6Frenzy: &8%s ❤", playerLives);
+        builder.addLine("&4⚠ &c&lFrenzy: &8(&c3 ❤&8)", playerLives);
 
         reverse.forEach(3, (index, gamePlayer, live) -> {
             if (gamePlayer == null) {

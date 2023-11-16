@@ -15,9 +15,12 @@ Yes, it will be painful and buggy, but IS a good idea.
 - [✔] Ender cd wrong?
 - [✔] Change passive to any teleport == heal
 - [✔] Make invisible player not valid
-- Update map and mode GUI
+- [✔] Update map and mode GUI
 - Backstab does not worK?????
 - Poison Ivy TOO fast
+
+* Range
+- Add spread inaccuracy while in the air
 
 * Nightmare
 - Make omen work like monass' omen

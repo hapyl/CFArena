@@ -6,7 +6,7 @@ import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.profile.data.PlayerData;
 import me.hapyl.fight.game.profile.relationship.PlayerRelationship;
 import me.hapyl.fight.game.profile.relationship.Relationship;
-import me.hapyl.fight.game.setting.Setting;
+import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.infraction.InfractionType;
 import me.hapyl.fight.infraction.PlayerInfraction;
 import me.hapyl.fight.ux.Message;
@@ -90,7 +90,7 @@ public class ChatHandler implements Listener {
         final String atReceiverName = ("@" + receiver.getName()).toLowerCase(Locale.ROOT);
         final String lowerCaseName = message.toLowerCase();
 
-        if (lowerCaseName.contains(atReceiverName) && Setting.CHAT_PING.isEnabled(receiver)) {
+        if (lowerCaseName.contains(atReceiverName) && Settings.CHAT_PING.isEnabled(receiver)) {
             message = message.replace(atReceiverName, (ChatColor.YELLOW + "%s" + ChatColor.RESET).formatted(atReceiverName));
             PlayerLib.playSound(receiver, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f);
         }

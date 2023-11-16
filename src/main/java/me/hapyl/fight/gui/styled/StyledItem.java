@@ -38,6 +38,30 @@ public class StyledItem implements StyledBuilder {
             "These achievements can be completed multiple times!"
     );
 
+    public static final StyledItem ICON_SETTINGS = new StyledItem(
+            Material.COMPARATOR,
+            "Settings",
+            "Customize the personal experience as you like it."
+    );
+
+    public static final StyledItem ICON_MAP_SELECT = new StyledItem(
+            Material.MAP,
+            "Selected Map",
+            "Select the battleground."
+    );
+
+    public static final StyledItem ICON_MODE_SELECT = new StyledItem(
+            Material.ITEM_FRAME,
+            "Selected Mode",
+            "Select the rules."
+    );
+
+    public static final StyledItem ICON_TEAM_SELECT = new StyledItem(
+            Material.ITEM_FRAME,
+            "Selected Mode",
+            "Select the rules."
+    );
+
     public static final StyledItem LOCKED_HERO = new StyledItem(
             "46ba63344f49dd1c4f5488e926bf3d9e2b29916a6c50d610bb40a5273dc8c82",
             "&c???",

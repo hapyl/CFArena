@@ -3,10 +3,12 @@ package me.hapyl.fight;
 import me.hapyl.fight.chat.ChatHandler;
 import me.hapyl.fight.command.CommandRegistry;
 import me.hapyl.fight.database.Database;
+import me.hapyl.fight.enumclass.EnumClass;
 import me.hapyl.fight.event.*;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.achievement.AchievementRegistry;
 import me.hapyl.fight.game.collectible.Collectibles;
+import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.CosmeticsListener;
 import me.hapyl.fight.game.cosmetic.crate.CrateManager;
 import me.hapyl.fight.game.entity.event.EntityEventHandler;
@@ -15,6 +17,7 @@ import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.maps.features.BoosterController;
 import me.hapyl.fight.game.maps.gamepack.GamePackListener;
 import me.hapyl.fight.game.parkour.CFParkourManager;
+import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.talents.archive.bloodfiend.candlebane.CandlebaneProtocol;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TaskList;
@@ -41,9 +44,9 @@ import javax.annotation.Nullable;
 
 public class Main extends JavaPlugin {
 
-    public static final String GAME_NAME_HEADER = "&e&lCLASSES FIGHT";
-    public static final String GAME_NAME_FOOTER = "&c&lᴀʀᴇɴᴀ";
-    public static final String GAME_NAME = GAME_NAME_HEADER + " " + GAME_NAME_FOOTER;
+    public static final String GAME_NAME_HEADER = Color.GOLD.bold() +
+            "\uD835\uDE72\uD835\uDE95\uD835\uDE8A\uD835\uDE9C\uD835\uDE9C\uD835\uDE8E\uD835\uDE9C \uD835\uDE75\uD835\uDE92\uD835\uDE90\uD835\uDE91\uD835\uDE9D";
+    public static final String GAME_NAME = GAME_NAME_HEADER;
 
     private static long start;
     private static Main plugin;
@@ -66,6 +69,8 @@ public class Main extends JavaPlugin {
         plugin = this;
         CF.plugin = this;
         start = System.currentTimeMillis();
+
+        EnumClass.instantiate(new Settings());
 
         // Initiate API
         new EternaAPI(this);

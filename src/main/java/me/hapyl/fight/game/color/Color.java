@@ -85,8 +85,8 @@ public class Color {
      * @return the formatted string.
      */
     @Nonnull
-    public String color(@Nonnull String string, @Nullable Object... format) {
-        return this + BFormat.format(string, format);
+    public String color(@Nonnull Object string, @Nullable Object... format) {
+        return this + BFormat.format(String.valueOf(string), format);
     }
 
     /**

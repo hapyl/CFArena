@@ -12,6 +12,14 @@ public enum Terms {
             "True Damage",
             "True Damage ignores target defense and always deals the same amount of damage."
     )),
+
+    SNAPSHOT(new Term(
+            Material.YELLOW_DYE,
+            Category.SYSTEM,
+            "Snapshot",
+            "The damage calculations for snapshot damage are calculated once, instead of every time the damage is dealt."
+    )),
+
     ;
 
     private final Term term;

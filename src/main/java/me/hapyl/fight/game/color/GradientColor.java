@@ -24,15 +24,18 @@ public class GradientColor extends Color {
 
     @Nonnull
     @Override
-    public String color(@Nonnull String string, @Nullable Object... format) {
+    public String color(@Nonnull Object string, @Nullable Object... format) {
         return color(string, Interpolators.LINEAR);
     }
 
-    public String color(@Nonnull String string, @Nonnull Interpolator interpolator, @Nullable Object... format) {
-        final Gradient gradient = new Gradient(BFormat.format(string, format));
+    public String color(@Nonnull Object string, @Nonnull Interpolator interpolator, @Nullable Object... format) {
+        final Gradient gradient = new Gradient(BFormat.format(String.valueOf(string), format));
 
-        for (ColorFlag flag : getFlags()) {
-            flag.gradient(gradient);
+        final ColorFlag[] flags = getFlags();
+        if (flags != null) {
+            for (ColorFlag flag : flags) {
+                flag.gradient(gradient);
+            }
         }
 
         return gradient.rgb(color.getColor(), to.getColor(), interpolator);

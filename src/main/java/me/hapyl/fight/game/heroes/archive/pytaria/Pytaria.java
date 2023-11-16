@@ -22,11 +22,9 @@ import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
 import org.bukkit.entity.Bee;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.util.Vector;
@@ -39,14 +37,6 @@ public class Pytaria extends Hero {
     private final int healthRegenPercent = 40;
     private final double CRIT_MULTIPLIER = 8.0d;
     private final double ATTACK_MULTIPLIER = 6.5d;
-
-    private final ItemStack[] armorColors = {
-            createChestplate(255, 128, 128), // 1
-            createChestplate(255, 77, 77),   // 2
-            createChestplate(255, 26, 26),   // 3
-            createChestplate(179, 0, 0),     // 4
-            createChestplate(102, 0, 0)      // 5
-    };
 
     public Pytaria() {
         super("Pytaria");
@@ -158,6 +148,7 @@ public class Pytaria extends Hero {
 
     @Override
     public void useUltimate(@Nonnull GamePlayer player) {
+        // Yep, the new rework allows for 'castUltimate()' to handle the ultimate.
     }
 
     @Override
@@ -239,11 +230,4 @@ public class Pytaria extends Hero {
         }
     }
 
-    private ItemStack createChestplate(int red, int green, int blue) {
-        return ItemBuilder.leatherTunic(Color.fromRGB(red, green, blue)).cleanToItemSack();
-    }
-
-    private boolean isBetween(double value, double min, double max) {
-        return value >= min && value < max;
-    }
 }

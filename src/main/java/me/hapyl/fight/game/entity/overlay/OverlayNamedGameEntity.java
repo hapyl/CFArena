@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.entity.overlay;
 
-import me.hapyl.fight.game.entity.Event;
+import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.entity.NamedGameEntity;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.task.GameTask;

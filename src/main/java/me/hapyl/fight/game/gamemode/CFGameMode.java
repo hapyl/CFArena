@@ -5,7 +5,7 @@ import me.hapyl.fight.game.EntityState;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.game.setting.Setting;
+import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.scoreboard.Scoreboarder;
@@ -14,6 +14,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
+import java.text.SimpleDateFormat;
 import java.util.stream.Collectors;
 
 public abstract class CFGameMode {
@@ -80,13 +81,18 @@ public abstract class CFGameMode {
     public boolean isPlayerRequirementsMet() {
         return Bukkit.getOnlinePlayers()
                 .stream()
-                .filter(player -> !Setting.SPECTATE.isEnabled(player))
+                .filter(player -> !Settings.SPECTATE.isEnabled(player))
                 .collect(Collectors.toSet())
                 .size() >= getPlayerRequirements();
     }
 
     public int getTimeLimit() {
         return timeLimit;
+    }
+
+    @Nonnull
+    public String getTimeLimitFormatted() {
+        return new SimpleDateFormat("mm:ss").format(timeLimit * 1000);
     }
 
     public String getName() {

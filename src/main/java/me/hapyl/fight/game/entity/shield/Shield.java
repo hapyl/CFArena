@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.entity.shield;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.entity.Event;
+import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.Rangef;
 import me.hapyl.spigotutils.module.math.Numbers;
@@ -16,6 +16,8 @@ public class Shield {
     private final float strength;
 
     protected double capacity;
+
+    // FIXME (hapyl): 007, Nov 7: Maybe drop the strength?
 
     public Shield(@Nonnull GamePlayer player, double maxCapacity, @Rangef(max = 1.0f) float strength) {
         this.gamePlayer = player;

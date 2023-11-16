@@ -31,7 +31,11 @@ public class Deathmatch extends CFGameMode {
     public Deathmatch() {
         super("Deathmatch", 300);
 
-        setDescription("Free for All death-match when everyone is fighting for kills.__Player with most kills in time limit wins.");
+        setDescription("""
+                Free for All death-match when everyone is fighting for kills.
+                                
+                Player with most kills in time limit wins.
+                """);
         setPlayerRequirements(2);
         setMaterial(Material.SKELETON_SKULL);
 
@@ -50,7 +54,7 @@ public class Deathmatch extends CFGameMode {
         final GameTeam playerTeam = gamePlayer.getTeam();
         final Map<GameTeam, Integer> topKills = getTopTeamKills(instance, SCOREBOARD_DISPLAY_LIMIT);
 
-        builder.addLines("", "&6&l%s: &f(&b🗡 &l%s&f)".formatted(getName(), playerTeam.kills));
+        builder.addLines("", "&6⚔ &l%s: &8(&b🗡 &l%s&8)".formatted(getName(), playerTeam.kills));
 
         final IntInt i = new IntInt(1);
         topKills.forEach((team, kills) -> {

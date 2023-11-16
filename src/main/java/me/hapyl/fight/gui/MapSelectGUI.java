@@ -1,68 +1,58 @@
 package me.hapyl.fight.gui;
 
-import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.maps.GameMap;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.maps.HiddenMapFeature;
 import me.hapyl.fight.game.maps.MapFeature;
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.fight.gui.styled.Size;
+import me.hapyl.fight.gui.styled.StyledItem;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.inventory.gui.GUI;
-import me.hapyl.spigotutils.module.inventory.gui.PlayerAutoGUI;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Locale;
+import javax.annotation.Nonnull;
+import java.util.List;
 
-public class MapSelectGUI extends PlayerAutoGUI {
+public class MapSelectGUI extends GameManagementSubGUI<GameMaps> {
 
     public MapSelectGUI(Player player) {
-        super(player, "Map Selection", Math.min(GUI.getSmartMenuSize(GameMaps.getPlayableMaps()) + 2, 6));
-        this.createItems();
+        super(player, "Map Selection", Size.FOUR, GameMaps.getPlayableMaps());
     }
 
-    private void createItems() {
-        for (final GameMaps value : GameMaps.getPlayableMaps()) {
-            final GameMap map = value.getMap();
+    @Nonnull
+    @Override
+    public ItemStack getHeaderItem() {
+        return StyledItem.ICON_MAP_SELECT.asIcon();
+    }
 
-            final ItemBuilder builder = new ItemBuilder(map.getMaterial())
-                    .setName("&a" + map.getName())
-                    .addLore("&8/map " + value.name().toLowerCase(Locale.ROOT), " &7&o")
-                    .addLore("")
-                    .addSmartLore(map.getDescription());
+    @Nonnull
+    @Override
+    public ItemBuilder createItem(@Nonnull GameMaps enumMap, boolean isSelected) {
+        final GameMap map = enumMap.getMap();
 
-            if (map.hasFeatures()) {
-                builder.addLore().addLore("&aMap Features:").addLore();
+        final ItemBuilder builder = new ItemBuilder(map.getMaterial())
+                .setName(map.getName())
+                .addLore("&8/map " + enumMap.name().toLowerCase())
+                .addLore()
+                .addTextBlockLore(map.getDescription());
 
-                for (MapFeature feature : map.getFeatures()) {
-                    if (feature instanceof HiddenMapFeature) {
-                        continue;
-                    }
+        final List<MapFeature> mapFeatures = map.getNonHiddenFeatures();
 
-                    builder.addLore(" &b" + feature.getName());
-                    builder.addSmartLore(feature.getInfo(), "  &7&o");
+        if (mapFeatures.size() > 0) {
+            builder.addLore();
+            builder.addLore(mapFeatures.size() == 1 ? "&6&lMap Feature:" : "&6&lMap Features:");
+
+            for (MapFeature feature : mapFeatures) {
+                if (feature instanceof HiddenMapFeature) {
+                    continue;
                 }
+
+                builder.addLore(" &a" + feature.getName());
+                builder.addSmartLore(feature.getInfo(), "&7&o  ");
             }
-
-            final GameMaps currentMap = Manager.current().getCurrentMap();
-            final boolean isCurrentMapSelected = currentMap == value;
-
-            final ItemStack item = builder.addLore("")
-                    .addLoreIf("&eClick to select", !isCurrentMapSelected)
-                    .addLoreIf("&aCurrently selected!", isCurrentMapSelected)
-                    .build();
-
-            addItem(item, player -> {
-                if (isCurrentMapSelected) {
-                    Chat.sendMessage(player, "&cAlready selected!");
-                    return;
-                }
-
-                Manager.current().setCurrentMap(value, player);
-            });
         }
 
-        openInventory();
+        return builder;
     }
 
 }

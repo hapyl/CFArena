@@ -26,6 +26,7 @@ public class DeathmatchKills extends CFGameMode {
 
         setDescription("""
                 Free for All death-match when everyone is fighting for kills.
+                
                 First player to reach &a%s&7 kills wins!
                  """.formatted(killsGoal));
 

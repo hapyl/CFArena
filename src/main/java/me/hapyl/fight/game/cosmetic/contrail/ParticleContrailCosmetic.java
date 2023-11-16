@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.cosmetic.contrail;
 
 import me.hapyl.fight.game.cosmetic.Display;
-import me.hapyl.fight.game.setting.Setting;
+import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Particle;
@@ -31,6 +31,6 @@ public class ParticleContrailCosmetic extends ContrailCosmetic {
 
     @Override
     public void onMove(Display display) {
-        display.particle0(display.getLocation(), particle, 1, 0.0d, 0.0d, 0.0d, 0.0f, Setting.SEE_OTHERS_CONTRAIL::isDisabled, null);
+        display.particle0(display.getLocation(), particle, 1, 0.0d, 0.0d, 0.0d, 0.0f, Settings.SEE_OTHERS_CONTRAIL::isDisabled, null);
     }
 }

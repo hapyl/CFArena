@@ -8,6 +8,7 @@ import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EntityState;
 import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.Attributes;
 import me.hapyl.fight.game.attribute.EntityAttributes;

@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.entity;
 
 import me.hapyl.fight.CF;
+import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.task.GameTask;

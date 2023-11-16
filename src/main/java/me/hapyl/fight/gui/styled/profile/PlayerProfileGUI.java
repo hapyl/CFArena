@@ -2,6 +2,7 @@ package me.hapyl.fight.gui.styled.profile;
 
 import me.hapyl.fight.game.cosmetic.gui.CollectionGUI;
 import me.hapyl.fight.game.experience.ExperienceGUI;
+import me.hapyl.fight.gui.SettingsGUI;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
 import me.hapyl.fight.gui.styled.StyledItem;
@@ -47,6 +48,11 @@ public class PlayerProfileGUI extends StyledGUI {
                 24,
                 StyledItem.ICON_ACHIEVEMENTS.asButton("browse achievements!"),
                 AchievementGUI::new
+        );
+
+        // Settings
+        setPanelItem(6, StyledItem.ICON_SETTINGS.asButton("modify settings"),
+                SettingsGUI::new
         );
     }
 

@@ -15,7 +15,7 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.report.GameReport;
-import me.hapyl.fight.game.setting.Setting;
+import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.packet.StaticPacket;
@@ -310,11 +310,11 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
             final GamePlayer gamePlayer = profile.createGamePlayer();
 
             // Spectate Setting
-            if (Setting.SPECTATE.isEnabled(player)) {
+            if (Settings.SPECTATE.isEnabled(player)) {
                 gamePlayer.setSpectator(true);
             }
             else {
-                if (Setting.RANDOM_HERO.isEnabled(player)) {
+                if (Settings.RANDOM_HERO.isEnabled(player)) {
                     profile.setSelectedHero(Heroes.randomHero());
 
                     gamePlayer.sendMessage("");
@@ -328,7 +328,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
                 gamePlayer.resetPlayer();
             }
 
-            if (Setting.HIDE_UI.isEnabled(player)) {
+            if (Settings.HIDE_UI.isEnabled(player)) {
                 gamePlayer.sendMessage("&6Your UI is hidden!");
                 gamePlayer.sendMessage("&6Use &e/settings &76 to turn enable the UI!");
             }
@@ -338,7 +338,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
     }
 
     private Heroes getHero(GamePlayer player) {
-        return Setting.RANDOM_HERO.isEnabled(player.getPlayer()) ? Heroes.randomHero() : Manager.current().getCurrentEnumHero(player);
+        return Settings.RANDOM_HERO.isEnabled(player.getPlayer()) ? Heroes.randomHero() : Manager.current().getCurrentEnumHero(player);
     }
 
     private String generateHexCode() {

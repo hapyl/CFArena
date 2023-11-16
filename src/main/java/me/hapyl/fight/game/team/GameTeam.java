@@ -7,6 +7,7 @@ import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.maps.Selectable;
 import me.hapyl.fight.util.SmallCaps;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.reflect.glow.Glowing;
@@ -24,16 +25,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
-public enum GameTeam {
+public enum GameTeam implements Selectable {
 
-    RED(ChatColor.RED, Material.RED_WOOL),
-    GREEN(ChatColor.GREEN, Material.GREEN_WOOL),
-    BLUE(ChatColor.BLUE, Material.BLUE_WOOL),
-    YELLOW(ChatColor.YELLOW, Material.YELLOW_WOOL),
-    GOLD(ChatColor.GOLD, Material.ORANGE_WOOL),
-    AQUA(ChatColor.AQUA, Material.CYAN_WOOL),
-    PINK(ChatColor.LIGHT_PURPLE, Material.PURPLE_WOOL),
-    WHITE(ChatColor.WHITE, Material.WHITE_WOOL);
+    RED(ChatColor.RED, Material.RED_BANNER),
+    GREEN(ChatColor.GREEN, Material.GREEN_BANNER),
+    BLUE(ChatColor.BLUE, Material.BLUE_BANNER),
+    YELLOW(ChatColor.YELLOW, Material.YELLOW_BANNER),
+    GOLD(ChatColor.GOLD, Material.ORANGE_BANNER),
+    AQUA(ChatColor.AQUA, Material.CYAN_BANNER),
+    PINK(ChatColor.LIGHT_PURPLE, Material.PURPLE_BANNER),
+    WHITE(ChatColor.WHITE, Material.WHITE_BANNER);
 
     private static final List<GameTeam> TEAMS = Lists.newArrayList();
 
@@ -68,6 +69,7 @@ public enum GameTeam {
      */
     public boolean addMember(Player player) {
         if (isFull()) {
+            Chat.sendMessage(player, "&cCould not join the team because it's full!");
             return false;
         }
 
@@ -76,7 +78,8 @@ public enum GameTeam {
             oldTeam.removeMember(player);
         }
 
-        this.members.add(player.getUniqueId());
+        members.add(player.getUniqueId());
+        Chat.sendMessage(player, "&aJoined %s &ateam!", color + getName());
         return true;
     }
 
@@ -214,6 +217,16 @@ public enum GameTeam {
         }
 
         return list;
+    }
+
+    @Override
+    public boolean isSelected(@Nonnull Player player) {
+        return members.contains(player.getUniqueId());
+    }
+
+    @Override
+    public void select(@Nonnull Player player) {
+        addMember(player);
     }
 
     /**

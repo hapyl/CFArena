@@ -1,7 +1,7 @@
 package me.hapyl.fight.npc;
 
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.entity.Event;
+import me.hapyl.fight.game.Event;
 import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Bukkit;

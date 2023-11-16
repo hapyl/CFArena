@@ -5,9 +5,8 @@ import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.cosmetic.gadget.Gadget;
 import me.hapyl.fight.gui.HeroSelectGUI;
-import me.hapyl.fight.gui.MapSelectGUI;
+import me.hapyl.fight.gui.GameManagementGUI;
 import me.hapyl.fight.gui.styled.profile.PlayerProfileGUI;
-import me.hapyl.fight.gui.SettingsGUI;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -23,10 +22,10 @@ public enum LobbyItems {
         }
     }),
 
-    MAP_SELECT(new LobbyItem(Material.MAP, 2, "Map Selector", "Select one of the beautiful maps.") {
+    GAME_MANAGEMENT(new LobbyItem(Material.BOOK, 2, "Game Management", "Manage game settings such as selecting maps, modes etc.") {
         @Override
         public void onClick(Player player) {
-            new MapSelectGUI(player);
+            new GameManagementGUI(player);
         }
     }),
 
@@ -39,13 +38,6 @@ public enum LobbyItems {
         @Override
         public void modifyItem(Player player, ItemBuilder builder) {
             builder.setSkullOwner(player.getName());
-        }
-    }),
-
-    SETTING(new LobbyItem(Material.COMPARATOR, 6, "Settings", "Click to browse and change your settings!") {
-        @Override
-        public void onClick(Player player) {
-            new SettingsGUI(player);
         }
     }),
 
@@ -64,7 +56,6 @@ public enum LobbyItems {
             manager.createStartCountdown();
         }
     }),
-
     ;
 
     private final LobbyItem lobbyItem;

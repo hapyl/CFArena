@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.entity;
 
 import me.hapyl.fight.CF;
+import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.attribute.Attributes;
 import me.hapyl.fight.game.attribute.LowAttributes;

@@ -133,8 +133,24 @@ public class GameMap implements GameElement, PlayerElement, EntityElement {
         return this;
     }
 
+    @Nonnull
     public List<MapFeature> getFeatures() {
         return features;
+    }
+
+    @Nonnull
+    public List<MapFeature> getNonHiddenFeatures() {
+        final List<MapFeature> list = Lists.newArrayList();
+
+        for (MapFeature feature : features) {
+            if (feature instanceof HiddenMapFeature) {
+                continue;
+            }
+
+            list.add(feature);
+        }
+
+        return list;
     }
 
     public boolean hasFeatures() {

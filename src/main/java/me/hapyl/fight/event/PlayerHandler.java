@@ -20,7 +20,7 @@ import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.parkour.CFParkour;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.game.setting.Setting;
+import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.InputTalent;
@@ -581,7 +581,7 @@ public class PlayerHandler implements Listener {
         if (lastDamager instanceof GamePlayer player) {
             player.getStats().addValue(StatType.DAMAGE_DEALT, instance.damage);
 
-            if (Setting.SHOW_DAMAGE_IN_CHAT.isEnabled(player.getPlayer())) {
+            if (Settings.SHOW_DAMAGE_IN_CHAT.isEnabled(player.getPlayer())) {
                 data.notifyChatOutgoing(player);
             }
         }
@@ -598,7 +598,7 @@ public class PlayerHandler implements Listener {
             // Progress stats for a victim
             player.getStats().addValue(StatType.DAMAGE_TAKEN, instance.damage);
 
-            if (Setting.SHOW_DAMAGE_IN_CHAT.isEnabled(player.getPlayer())) {
+            if (Settings.SHOW_DAMAGE_IN_CHAT.isEnabled(player.getPlayer())) {
                 data.notifyChatIncoming(player);
             }
 
@@ -687,8 +687,10 @@ public class PlayerHandler implements Listener {
             return;
         }
 
-        hotbarSlot.handle(gamePlayer, newSlot);
-        ev.setCancelled(true);
+        final boolean shouldCancel = hotbarSlot.handle(gamePlayer, newSlot);
+        if (shouldCancel) {
+            ev.setCancelled(true);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

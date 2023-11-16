@@ -2,7 +2,8 @@ package me.hapyl.fight.database.entry;
 
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.entity.Event;
+import me.hapyl.fight.game.Event;
+import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.util.FormattedEnum;
 import org.bukkit.entity.Player;
 
@@ -72,5 +73,19 @@ public enum Currency implements FormattedEnum {
     @Override
     public String getPrefix() {
         return prefix;
+    }
+
+    @Nonnull
+    public String getFormatted(Player player) {
+        final PlayerProfile profile = PlayerProfile.getProfile(player);
+
+        if (profile == null) {
+            return "null";
+        }
+
+        final CurrencyEntry currency = profile.getDatabase().getCurrency();
+        final String formatted = currency.getFormatted(this);
+
+        return getPrefixColored() + " " + getColor() + formatted;
     }
 }

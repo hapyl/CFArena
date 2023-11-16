@@ -94,16 +94,41 @@ Pytaria
 * Damage increased 30 >> 50.
     * There has been a damage calculation change, so the damage might be adjusted later.
 
+### Flower Escape
+
+* Updated visuals.
+* Pytaria is no longer damaged by her own flower.
+
+### Flower Breeze
+
+* Updated FX.
+
 ### Miscellaneous
 
-* Fix using the wrong equipment.
+* Update equipment.
+
+---
+
+Troll
+===
+
+### Repulsor
+
+* Added a range restriction. (<i>30 blocks</i>)
+
+### Spin
+
+* Add sound FX.
+
+---
+<<>>
 
 Ender
 ===
 
 ### Weapon
 
-* Fixed ability not cancelling.
+* Fixed ability not canceling.
 * Updated FX.
 
 ### Rideable Pearl

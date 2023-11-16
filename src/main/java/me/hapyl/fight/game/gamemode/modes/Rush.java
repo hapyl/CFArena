@@ -13,6 +13,7 @@ public class Rush extends DeathmatchKills {
 
         setDescription("""
                 A faster version of kills death-match with lower cooldowns and accelerated ultimates!
+                
                 First player to reach &a%s&7 kills wins!
                  """.formatted(killsGoal));
 

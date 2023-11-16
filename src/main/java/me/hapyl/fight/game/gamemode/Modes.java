@@ -3,19 +3,22 @@ package me.hapyl.fight.game.gamemode;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.gamemode.modes.*;
+import me.hapyl.fight.game.maps.Selectable;
+import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.util.Validate;
+import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public enum Modes {
+public enum Modes implements Selectable {
 
     FFA(new FreeForAll()),
     DEATH_MATCH(new Deathmatch()),
     DEATH_MATCH_KILLS(new DeathmatchKills()),
-	RUSH(new Rush()),
-	FRENZY(new FrenzyMode()),
-	//TTT(new AmongUs()), todo
+    RUSH(new Rush()),
+    FRENZY(new FrenzyMode()),
+    //TTT(new AmongUs()), todo
     ;
 
     private final CFGameMode mode;
@@ -26,32 +29,42 @@ public enum Modes {
 
     public CFGameMode getMode() {
         return mode;
-	}
+    }
 
-	public boolean isSelected() {
-		return Manager.current().getCurrentMode() == this;
-	}
+    @Override
+    public boolean isSelected(@Nonnull Player player) {
+        return Manager.current().getCurrentMode() == this;
+    }
 
-	public void select() {
-		if (isSelected()) {
-			return;
-		}
+    @Override
+    public void select(@Nonnull Player player) {
+        Manager.current().setCurrentMode(this);
 
-		Manager.current().setCurrentMode(this);
-	}
+        Chat.broadcast("&6&lMODE! &e%s selected &l%s&e!", player.getName(), getName());
+    }
 
-	public boolean testWinCondition(@Nonnull GameInstance instance) {
-		return this.mode.testWinCondition(instance);
-	}
+    public boolean testWinCondition(@Nonnull GameInstance instance) {
+        return this.mode.testWinCondition(instance);
+    }
 
-	public boolean onStop(@Nonnull GameInstance instance) {
-		return this.mode.onStop(instance);
-	}
+    public boolean onStop(@Nonnull GameInstance instance) {
+        return this.mode.onStop(instance);
+    }
 
-	@Nullable
-	public static Modes byName(String name, @Nullable Modes def) {
-		final Modes value = Validate.getEnumValue(Modes.class, name == null ? FFA.name() : name);
-		return value == null ? def : value;
-	}
+    @Nonnull
+    public String getName() {
+        return mode.getName();
+    }
+
+    @Nonnull
+    public String getDescription() {
+        return mode.getDescription();
+    }
+
+    @Nullable
+    public static Modes byName(String name, @Nullable Modes def) {
+        final Modes value = Validate.getEnumValue(Modes.class, name == null ? FFA.name() : name);
+        return value == null ? def : value;
+    }
 
 }

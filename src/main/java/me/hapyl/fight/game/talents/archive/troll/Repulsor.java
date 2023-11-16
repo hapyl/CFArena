@@ -3,7 +3,6 @@ package me.hapyl.fight.game.talents.archive.troll;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
@@ -25,8 +24,8 @@ public class Repulsor extends Talent {
 
     @Override
     public Response execute(@Nonnull GamePlayer player) {
-        Collect.nearbyPlayers(player.getLocation(), radius).forEach(victim -> {
-            if (victim.equals(player) || GameTeam.isTeammate(player, victim)) {
+        Collect.nearbyEntities(player.getLocation(), radius).forEach(victim -> {
+            if (player.isSelfOrTeammate(victim)) {
                 return;
             }
 

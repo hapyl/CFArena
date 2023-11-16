@@ -10,10 +10,11 @@ import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.attribute.Attributes;
 import me.hapyl.fight.game.attribute.EntityAttributes;
+import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.effect.GameEffect;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.game.setting.Setting;
+import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.game.team.GameTeam;
@@ -38,12 +39,18 @@ import java.text.SimpleDateFormat;
 /**
  * This controls all UI-based elements such as scoreboard, tab-list, and actionbar (while in game).
  */
-public class GamePlayerUI {
+public class GamePlayerUI extends GameTask {
 
     private final PlayerProfile profile;
     private final Player player;
     private final Scoreboarder builder;
     private final UIFormat format = UIFormat.DEFAULT;
+    private final String[] clocks = {
+            "🕛", "🕐", "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕚"
+    };
+
+    private int tick;
+    private int clock;
 
     public GamePlayerUI(PlayerProfile profile) {
         this.profile = profile;
@@ -51,61 +58,66 @@ public class GamePlayerUI {
         this.builder = new Scoreboarder(Main.GAME_NAME);
         this.updateScoreboard();
 
-        if (Setting.HIDE_UI.isEnabled(player)) {
+        if (Settings.HIDE_UI.isEnabled(player)) {
             hideScoreboard();
         }
 
-        new GameTask() {
-            private int tick;
+        setShutdownAction(ShutdownAction.IGNORE);
+        runTaskTimer(0, 5);
+    }
 
-            @Override
-            public void run() {
-                if (player == null || !player.isOnline()) {
-                    this.cancel();
-                    return;
-                }
+    @Override
+    public void run() {
+        final boolean isMod20 = tick > 0 && tick % 20 == 0;
 
-                tick = (tick >= 40) ? 0 : tick + 5;
+        if (player == null || !player.isOnline()) {
+            cancel();
+            return;
+        }
 
-                // update a player list and scoreboard
-                final String[] headerFooter = formatHeaderFooter();
-                player.setPlayerListHeaderFooter(Chat.format(headerFooter[0]), Chat.format(headerFooter[1]));
-                player.setPlayerListName(profile.getDisplay().getDisplayNameTab());
+        tick = (tick >= 40) ? 0 : tick + 5;
 
-                if (Setting.HIDE_UI.isEnabled(player)) {
-                    return;
-                }
+        if (isMod20) {
+            clock = (clock + 1 >= clocks.length) ? 0 : clock + 1;
+        }
 
-                // Yes, I know it's not really a UI thing,
-                // but I ain't making another ticker just for
-                // debugging items.
-                updateDebug();
+        // update a player list and scoreboard
+        final String[] headerFooter = formatHeaderFooter();
+        player.setPlayerListHeaderFooter(Chat.format(headerFooter[0]), Chat.format(headerFooter[1]));
+        player.setPlayerListName(profile.getDisplay().getDisplayNameTab());
 
-                animateScoreboard();
-                updateScoreboard();
+        if (Settings.HIDE_UI.isEnabled(player)) {
+            return;
+        }
 
-                // Update above name
-                if (tick % 20 == 0) {
-                    final LocalTeamManager teamManager = profile.getLocalTeamManager();
-                    teamManager.tickAll();
-                }
+        // Yes, I know it's not really a UI thing,
+        // but I ain't making another ticker just for
+        // debugging items.
+        updateDebug();
 
-                final GamePlayer gamePlayer = profile.getGamePlayer();
+        animateScoreboard();
+        updateScoreboard();
 
-                if (gamePlayer != null) {
-                    sendInGameUI(tick <= 20 ? ChatColor.AQUA : ChatColor.DARK_AQUA);
-                }
+        // Update above name
+        if (isMod20) {
+            final LocalTeamManager teamManager = profile.getLocalTeamManager();
+            teamManager.tickAll();
+        }
 
-                if (Setting.SPECTATE.isEnabled(player)) {
-                    Chat.sendActionbar(
-                            player,
-                            gamePlayer == null
-                                    ? "&aYou will spectate when the game starts."
-                                    : "&aYou are currently spectating."
-                    );
-                }
-            }
-        }.runTaskTimer(0, 5).setShutdownAction(ShutdownAction.IGNORE);
+        final GamePlayer gamePlayer = profile.getGamePlayer();
+
+        if (gamePlayer != null) {
+            sendInGameUI(tick <= 20 ? ChatColor.AQUA : ChatColor.DARK_AQUA);
+        }
+
+        if (Settings.SPECTATE.isEnabled(player)) {
+            Chat.sendActionbar(
+                    player,
+                    gamePlayer == null
+                            ? "&aYou will spectate when the game starts."
+                            : "&aYou are currently spectating."
+            );
+        }
     }
 
     public void updateDebug() {
@@ -142,74 +154,82 @@ public class GamePlayerUI {
 
     public void updateScoreboard() {
         final PlayerDatabase playerDatabase = profile.getDatabase();
-        final Manager current = Manager.current();
+        final Manager manager = Manager.current();
 
-        this.builder.getLines().clear();
-        this.builder.addLines("");
-        //        this.builder.addLines("", "Welcome %s to the".formatted(this.player.getName()), "&lClasses Fight &fArena!", "");
+        builder.getLines().clear();
+        builder.addLines("");
 
-        // TODO (hapyl): 023, Oct 23: Rework the bold colors are TRASH
-        // FIXME (hapyl): 006, Aug 6: temp fix
-        if (current.isGameInProgress()) {
-            final IGameInstance game = current.getCurrentGame();
-            final GamePlayer gamePlayer = CF.getPlayer(this.player);
+        final String mapName = manager.getCurrentMap().getName();
+
+        // Lobby
+        if (!manager.isGameInProgress()) {
+            final CurrencyEntry currency = playerDatabase.getCurrency();
+            final String currentClock = getClock(clock);
+
+            builder.addLines(
+                    "&b&l" + currentClock + " Lobby:",
+                    " &7ᴍᴀᴘ: &f" + mapName,
+                    " &7ᴍᴏᴅᴇ: &f" + manager.getCurrentMode().getName()
+            );
+
+            builder.addLine("");
+            builder.addLine("&2🧑 &a&lYou, %s:", player.getName());
+            builder.addLines(
+                    " &7ʜᴇʀᴏ: " + profile.getSelectedHeroString(),
+                    " &7ᴄᴏɪɴs: " + Currency.COINS.getFormatted(player)
+            );
+
+            final long rubyCount = currency.get(Currency.RUBIES);
+            if (rubyCount > 0) {
+                final String rubyCountFormatted = Currency.RUBIES.getFormatted(player);
+                builder.addLine(rubyCount == 1 ? "ʀᴜʙʏ" : " &7ʀᴜʙɪᴇs: " + rubyCountFormatted);
+            }
+        }
+        // In Game
+        else {
+            final IGameInstance game = manager.getCurrentGame();
+            final GamePlayer gamePlayer = CF.getPlayer(player);
 
             if (gamePlayer != null) {
-                // Have to reduce this so everything fits
+                // Spectator
                 if (!gamePlayer.isAlive() && !gamePlayer.isRespawning()) {
-                    this.builder.addLines("&6&lSpectator: &f%s".formatted(getTimeLeftString(game)));
-                    for (final GamePlayer alive : CF.getAlivePlayers()) {
-                        this.builder.addLine(
-                                " &6%s &e%s %s &c%.1f ❤",
-                                alive.getHero().getName(),
-                                alive.getPlayer().getName(),
+                    builder.addLine(
+                            Color.SPECTATOR.bold() + "🕶 " + Color.SPECTATOR + "Spectator:"
+                    );
+
+                    for (GamePlayer alivePlayer : CF.getAlivePlayers()) {
+                        builder.addLine(
+                                " &6%s %s &f%s %s &c.1f ❤",
+                                alivePlayer.getHero().getNameSmallCaps(),
+                                alivePlayer.getTeam().getFirstLetterCaps(),
+                                alivePlayer.getName(),
                                 UIFormat.DIV,
-                                alive.getHealth()
+                                alivePlayer.getHealth()
                         );
                     }
                 }
-
+                // In Game
                 else {
-                    // Default Game Lines
-                    this.builder.addLines(
-                            "&6Game: &8" + game.hexCode(),
-                            " &eMap: &f%s".formatted(current.getCurrentMap().getMap().getName()),
-                            " &eTime Left: &f%s".formatted(getTimeLeftString(game)),
-                            " &eStatus: &f%s".formatted(gamePlayer.getStatusString())
+                    // Default game lines
+                    builder.addLines(
+                            "&6&l🎮 Game: &8" + game.hexCode(),
+                            " &7ᴍᴀᴘ: &f" + mapName,
+                            " &7ᴛɪᴍᴇ ʟᴇғᴛ: &f" + getTimeLeftString(game),
+                            " &7sᴛᴀᴛᴜs: &f" + gamePlayer.getStatusString()
                     );
 
+                    // Per mode lines
                     game.getMode().formatScoreboard(builder, (GameInstance) game, gamePlayer);
                 }
             }
         }
-        // Trial
-        else if (Manager.current().getTrial().isInTrial(player)) {
-            this.builder.addLines(
-                    "&6&lTrial:",
-                    " &e&lHero: &f%s &cTrial".formatted(profile.getHero().getName())
-            );
-        }
-        else {
-            final CurrencyEntry currency = playerDatabase.getCurrency();
-            this.builder.addLines(
-                    "&6&lLobby:",
-                    " &e&lMap: &f%s".formatted(current.getCurrentMap().getMap().getName()),
-                    " &e&lMode: &f%s".formatted(current.getCurrentMode().getMode().getName()),
-                    " &e&lCoins: &f%s".formatted(currency.getFormatted(Currency.COINS))
-            );
 
-            if (currency.get(Currency.RUBIES) > 0) {
-                this.builder.addLine(" &e&lRubies: &f%s", currency.getFormatted(Currency.RUBIES));
-            }
-
-            this.builder.addLine(" &e&lHero: &f%s", profile.getSelectedHeroString());
-        }
-
-        this.builder.addLine("");
-        this.builder.updateLines();
-        this.builder.addPlayer(player);
+        builder.addLine("");
+        builder.updateLines();
+        builder.addPlayer(player);
     }
 
+    @Nonnull
     public Player getPlayer() {
         return player;
     }
@@ -220,6 +240,12 @@ public class GamePlayerUI {
 
     public void showScoreboard() {
         this.builder.getObjective().setDisplaySlot(DisplaySlot.SIDEBAR);
+    }
+
+    private String getClock(int tick) {
+        int wrappedIndex = Math.min(tick % clocks.length, clocks.length);
+
+        return clocks[wrappedIndex];
     }
 
     private void animateScoreboard() {
@@ -236,7 +262,7 @@ public class GamePlayerUI {
         // Display teammate information:
         if (team != null) {
             builder.append("\n&e&lTeammates:\n");
-            if ((team.getPlayers().size() == 1) && (Setting.SHOW_YOURSELF_AS_TEAMMATE.isDisabled(player))) {
+            if ((team.getPlayers().size() == 1) && (Settings.SHOW_YOURSELF_AS_TEAMMATE.isDisabled(player))) {
                 builder.append("&8None!");
             }
             else {
@@ -271,6 +297,7 @@ public class GamePlayerUI {
         else {
             // {Positive}{Name} - {Time}
             final IntInt i = new IntInt(0);
+
             gp.getActiveEffects().forEach((type, active) -> {
                 final GameEffect gameEffect = type.getGameEffect();
                 builder.append(gameEffect.isPositive() ? "&a" : "&c");
@@ -319,15 +346,18 @@ public class GamePlayerUI {
 
         footer.append("\n&ehapyl.github.io/classes_fight");
 
-        //"\n&e&lCLASSES FIGHT\n&c&lᴀʀᴇɴᴀ\n\n&fTotal Players: &l" + Bukkit.getOnlinePlayers().size()
         return new String[] {
                 """
                                        
-                        &e&lCLASSES FIGHT
-                        &c&lᴀʀᴇɴᴀ
+                        %s
                                                 
                         &fPlayers: &l%s&f, TPS: &l%.1f
-                        """.formatted(Bukkit.getOnlinePlayers().size(), MinecraftServer.getServer().recentTps[0]), footer.toString()
+                        """.formatted(
+                        Main.GAME_NAME,
+                        Bukkit.getOnlinePlayers().size(),
+                        MinecraftServer.getServer().recentTps[0]
+                ),
+                footer.toString()
         };
     }
 }

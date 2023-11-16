@@ -54,9 +54,11 @@ public class Troll extends Hero implements Listener {
                 .addEnchant(Enchantment.KNOCKBACK, 1));
 
         setUltimate(new UltimateTalent(
-                "Sticky Situation",
-                "Spawns a batch of cobweb at your position that is only visible for your opponents.__Only one batch can exist at the same time.",
-                40
+                "Sticky Situation", """
+                Spawns a batch of cobwebs at your position that is only visible for your opponents.
+                                
+                &8;;Only one batch can exist at the same time.
+                """, 40
         ).setSound(Sound.ENTITY_SPIDER_AMBIENT, 1.0f)
                 .setItem(Material.COBWEB)
                 .setCooldownSec(20));

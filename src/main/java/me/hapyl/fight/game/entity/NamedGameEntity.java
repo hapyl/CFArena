@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.entity;
 
 import com.google.common.collect.Maps;
+import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.entity.event.EntityEventListener;
 import me.hapyl.fight.game.entity.event.EventType;
 import me.hapyl.fight.game.task.GameTask;

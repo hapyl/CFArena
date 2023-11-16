@@ -1,58 +1,60 @@
 package me.hapyl.fight.gui;
 
+import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.gamemode.Modes;
+import me.hapyl.fight.gui.styled.Size;
+import me.hapyl.fight.gui.styled.StyledItem;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.inventory.gui.GUI;
-import me.hapyl.spigotutils.module.inventory.gui.PlayerGUI;
-import me.hapyl.spigotutils.module.inventory.gui.SlotPattern;
-import me.hapyl.spigotutils.module.inventory.gui.SmartComponent;
-import me.hapyl.spigotutils.module.player.PlayerLib;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
-import java.text.SimpleDateFormat;
+import javax.annotation.Nonnull;
 
-public class ModeSelectGUI extends PlayerGUI {
+public class ModeSelectGUI extends GameManagementSubGUI<Modes> {
     public ModeSelectGUI(Player player) {
-        super(player, "Mode Selection", Math.min(6, GUI.getSmartMenuSize(Modes.values()) + 2));
-        createItems();
+        super(player, "Mode Selection", Size.FOUR, Modes.values());
     }
 
-    private void createItems() {
-        final SmartComponent component = this.newSmartComponent();
+    @Nonnull
+    @Override
+    public ItemStack getHeaderItem() {
+        return StyledItem.ICON_MODE_SELECT.asIcon();
+    }
 
-        for (final Modes value : Modes.values()) {
-            final CFGameMode mode = value.getMode();
-            component.add(
-                    new ItemBuilder(mode.getMaterial())
-                            .setName((value.isSelected() ? "&a" : "&c") + mode.getName())
-                            .addLore()
-                            .addTextBlockLore(mode.getDescription())
-                            .addLore()
-                            .addLore(
-                                    "%s Players Required: &f%s",
-                                    mode.isPlayerRequirementsMet() ? "&a✔" : "&c❌",
-                                    mode.getPlayerRequirements()
-                            )
-                            .addLore("Time Limit: &f%s", new SimpleDateFormat("mm:ss").format(mode.getTimeLimit() * 1000))
-                            .addLore()
-                            .hideFlags()
-                            .addLore(value.isSelected() ? "&eAlready selected" : "&eClick to select")
-                            .build(),
-                    player -> {
-                        if (value.isSelected()) {
-                            PlayerLib.villagerNo(player, "&cAlready selected!");
-                        }
-                        else {
-                            value.select();
-                            PlayerLib.villagerYes(player);
-                        }
-                    }
-            );
-        }
+    @Override
+    public int getStartIndex() {
+        return 2;
+    }
 
-        component.apply(this, SlotPattern.DEFAULT, 1);
-        this.openInventory();
+    @Nonnull
+    @Override
+    public ItemBuilder createItem(@Nonnull Modes enumMode, boolean isSelected) {
+        final CFGameMode mode = enumMode.getMode();
+
+        final ItemBuilder builder = new ItemBuilder(mode.getMaterial())
+                .setName(mode.getName())
+                .addLore()
+                .addTextBlockLore(mode.getDescription())
+                .addLore();
+
+        final int onlinePlayers = Bukkit.getOnlinePlayers().size();
+        final int playerRequirements = mode.getPlayerRequirements();
+        final boolean requirementsMet = mode.isPlayerRequirementsMet();
+        final Color color = (requirementsMet ? Color.GREEN : Color.RED);
+        final String minimumPlayersSuffix = color +
+                "%s&7/%s %s".formatted(
+                        color.color(onlinePlayers),
+                        color.color(playerRequirements),
+                        color.color(requirementsMet ? "✔" : "❌")
+                );
+
+        builder.addLore("&f&lMode Info:");
+        builder.addLore(" Minimum Players: %s", minimumPlayersSuffix);
+        builder.addLore(" Time Limit: &a%s", mode.getTimeLimitFormatted());
+
+        return builder;
     }
 
 }

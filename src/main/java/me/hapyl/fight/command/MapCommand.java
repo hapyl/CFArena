@@ -28,14 +28,13 @@ public class MapCommand extends SimplePlayerCommand {
         }
         // Map [MapName]
         if (args.length >= 1) {
-
             final GameMaps value = Validate.getEnumValue(GameMaps.class, args[0]);
             if (value == null) {
                 PlayerLib.villagerNo(player, "&cInvalid map!");
                 return;
             }
 
-            Manager.current().setCurrentMap(value, player);
+            value.select(player);
             return;
         }
 

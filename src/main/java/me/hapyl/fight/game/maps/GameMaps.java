@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.maps;
 
+import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.maps.features.CloudFeatures;
 import me.hapyl.fight.game.maps.features.JapanFeature;
 import me.hapyl.fight.game.maps.features.LibraryCat;
@@ -9,13 +10,16 @@ import me.hapyl.fight.game.maps.maps.DragonsGorge;
 import me.hapyl.fight.game.maps.maps.DwarfVault;
 import me.hapyl.fight.game.maps.maps.MoonBase;
 import me.hapyl.fight.game.maps.winery.WineryMap;
+import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum GameMaps {
+public enum GameMaps implements Selectable {
 
     // non-playable map, storing here for easy coordinate grab and consistency
     TRAINING_GROUNDS(new NonPlayableGameMap("Training Grounds", "Test heroes abilities here!", 100, 64, 100)),
@@ -156,6 +160,18 @@ public enum GameMaps {
         return map;
     }
 
+    @Override
+    public boolean isSelected(@Nonnull Player player) {
+        return Manager.current().getCurrentMap() == this;
+    }
+
+    @Override
+    public void select(@Nonnull Player player) {
+        Manager.current().setCurrentMap(this);
+
+        Chat.broadcast("&2&lMAP! &a%s selected &l%s&a!", player.getName(), getName());
+    }
+
     public static List<GameMaps> getPlayableMaps() {
         final List<GameMaps> maps = new ArrayList<>();
 
@@ -168,6 +184,7 @@ public enum GameMaps {
         return maps;
     }
 
+    @Nonnull
     public String getName() {
         return map.getName();
     }

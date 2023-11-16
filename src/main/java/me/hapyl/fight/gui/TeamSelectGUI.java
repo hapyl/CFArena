@@ -1,69 +1,78 @@
 package me.hapyl.fight.gui;
 
+import me.hapyl.fight.game.color.Color;
+import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.inventory.gui.PlayerGUI;
-import me.hapyl.spigotutils.module.inventory.gui.SlotPattern;
-import me.hapyl.spigotutils.module.inventory.gui.SmartComponent;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
-public class TeamSelectGUI extends PlayerGUI {
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+public class TeamSelectGUI extends GameManagementSubGUI<GameTeam> {
     public TeamSelectGUI(Player player) {
-        super(player, "Select Team", 4);
-        updateMenu();
-        openInventory();
+        super(player, "Select Team", Size.FIVE, GameTeam.values());
     }
 
-    public void updateMenu() {
-        clearEverything();
-        final Player owner = getPlayer();
-        int slot = 10;
+    @Override
+    public int getStartIndex() {
+        return 2;
+    }
 
-        final SmartComponent smartComponent = newSmartComponent();
+    @Nonnull
+    @Override
+    public String getButton(@Nonnull GameTeam team, boolean isSelected) {
+        return isSelected
+                ? Color.SUCCESS.color("Already in this team!") : team.isFull()
+                ? Color.ERROR.color("This team is full!") : Color.BUTTON.color("Click to join!");
+    }
 
-        for (GameTeam team : GameTeam.values()) {
-            final ItemBuilder builder = new ItemBuilder(team.getMaterial()).setName(team.getColor() + team.getName());
+    @Nonnull
+    @Override
+    public ItemStack getHeaderItem() {
+        final GameTeam team = getPlayerTeam();
 
-            builder.addLore();
-            builder.addLore("&7Members:");
+        return new ItemBuilder(team == null ? Material.BLACK_BANNER : team.getMaterial())
+                .setName("Team")
+                .addLore("Select your team!")
+                .asIcon();
+    }
 
-            for (int i = 0; i < team.getMaxPlayers(); i++) {
-                final Player player = team.getLobbyPlayer(i);
-                builder.addLore("- %s", player == null ? "&8Empty!" : (player == owner ? "&a&l" : "&a") + (player.getName()));
+    @Nonnull
+    @Override
+    public ItemBuilder createItem(@Nonnull GameTeam team, boolean isSelected) {
+        final ItemBuilder builder = new ItemBuilder(team.getMaterial()).setName(team.getColor() + team.getName());
+
+        builder.addLore();
+        builder.addLore("Members:");
+
+        for (int i = 0; i < team.getMaxPlayers(); i++) {
+            final Player lobbyPlayer = team.getLobbyPlayer(i);
+
+            if (lobbyPlayer == null) {
+                builder.addLore("&8- Empty!");
+                continue;
             }
 
-            builder.addLore();
+            final PlayerProfile profile = PlayerProfile.getProfile(lobbyPlayer);
 
-            if (team.isMember(owner)) {
-                builder.addLore("&eClick to leave");
-            }
-            else if (team.isFull()) {
-                builder.addLore("&cTeam is full!");
-            }
-            else {
-                builder.addLore("&eClick to join");
+            if (profile == null) {
+                builder.addLore("&8- &cInvalid Player (" + lobbyPlayer.getName() + ")");
+                continue;
             }
 
-            smartComponent.add(builder.predicate(team.isMember(owner), ItemBuilder::glow).build(), player -> {
-                if (team.isMember(owner)) { // is in team
-                    team.removeMember(owner);
-                    Chat.sendMessage(player, "&aLeft %s team.", team.getName());
-                }
-                else {
-                    if (team.addMember(player)) {
-                        Chat.sendMessage(player, "&aJoined %s team.", team.getName());
-                    }
-                    else {
-                        Chat.sendMessage(player, "&cThis team is full!");
-                    }
-                }
-
-                updateMenu();
-            });
+            builder.addLore("&8- " + profile.getDisplay());
         }
 
-        smartComponent.fillItems(this, SlotPattern.DEFAULT);
+        return builder;
+    }
+
+    @Nullable
+    private GameTeam getPlayerTeam() {
+        return GameTeam.getPlayerTeam(player);
     }
 
 }

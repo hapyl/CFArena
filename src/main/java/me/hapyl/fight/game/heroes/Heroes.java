@@ -208,6 +208,7 @@ public enum Heroes implements Formatted {
      *
      * @return list of players that have this hero selected.
      */
+    @Nonnull
     public List<GamePlayer> getPlayers() {
         final Set<GamePlayer> players = CF.getPlayers();
         players.removeIf(player -> !isSelected(player));
@@ -220,6 +221,7 @@ public enum Heroes implements Formatted {
      *
      * @return list of alive players that have this hero selected.
      */
+    @Nonnull
     public List<GamePlayer> getAlivePlayers() {
         final List<GamePlayer> players = getPlayers();
         players.removeIf(filter -> !filter.isAlive());

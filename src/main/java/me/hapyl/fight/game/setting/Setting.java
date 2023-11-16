@@ -1,157 +1,145 @@
 package me.hapyl.fight.game.setting;
 
-import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.game.ui.GamePlayerUI;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.display.Display;
+import me.hapyl.fight.display.Displayed;
+import me.hapyl.fight.enumclass.EnumItem;
+import me.hapyl.fight.game.Event;
+import me.hapyl.fight.game.color.Color;
+import me.hapyl.fight.registry.PatternId;
 import me.hapyl.fight.util.PlayerItemCreator;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
+import me.hapyl.spigotutils.module.util.Enums;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
+import java.util.regex.Pattern;
 
-public enum Setting implements PlayerItemCreator {
+public class Setting<E extends Enum<E> & EnumSetting> extends PatternId implements Displayed, EnumItem, PlayerItemCreator {
 
-    SPECTATE(10, Material.ENDER_EYE, "Spectate", "Whenever you will spectate the game instead of playing it."),
-    CHAT_PING(11, Material.GOLD_INGOT, "Chat Notification", "Whenever you will hear a ping in chat if someone mentions you.", true),
-    RANDOM_HERO(12, Material.TOTEM_OF_UNDYING, "Always Random Hero", "Whenever you start the game with a random hero every time."),
+    private static final Pattern PATTERN = Pattern.compile("^[A-Z_]+$");
 
-    SEE_OTHERS_CONTRAIL(14, Material.FIREWORK_ROCKET, "See Others Contrail", "Whenever you will see other players contrails.", true),
-    SEE_NOTIFICATIONS(15, Material.PAPER, "See Notifications", "Whenever you will see notifications.", true),
-    SHOW_DAMAGE_IN_CHAT(
-            16,
-            Material.SWEET_BERRIES,
-            "Show Damage in Chat",
-            "Whenever to show the damage dealt and taken in chat.____&9Nerds special!"
-    ),
+    private final Display display;
+    private final Category category;
+    private final Class<E> clazz;
+    private final E defaultValue;
+    private final int ordinal;
 
-    SHOW_YOURSELF_AS_TEAMMATE(
-            28,
-            Material.PLAYER_HEAD,
-            "Show Yourself as a Teammate",
-            "Whenever you will see yourself as a teammate in a tab list."
-    ),
-
-    HIDE_UI(
-            29,
-            Material.GLASS_PANE,
-            "Hide Game UI",
-            "Whenever to hide most of the game UI elements, such as actionbar, scoreboard, damage indicators, etc."
-    ) {
-        @Override
-        public void onEnable(Player player) {
-            final GamePlayerUI ui = PlayerProfile.getOrCreateProfile(player).getPlayerUI();
-
-            ui.hideScoreboard();
-        }
-
-        @Override
-        public void onDisabled(Player player) {
-            final GamePlayerUI ui = PlayerProfile.getOrCreateProfile(player).getPlayerUI();
-
-            ui.showScoreboard();
-        }
-    },
-
-    USE_SKINS_INSTEAD_OF_ARMOR(
-            30,
-            Material.LEATHER_CHESTPLATE,
-            "Use Hero Skins",
-            "Whenever to use hero skins instead of custom head and armor if supported.",
-            true
-    ),
-
-    ;
-
-    private final Material material;
-    private final String name;
-    private final String description;
-    private final boolean def;
-    private final int slot;
-
-    Setting(int slot, Material material, String name, String description, boolean def) {
-        this.slot = slot;
-        this.name = name;
-        this.material = material;
-        this.description = description;
-        this.def = def;
+    public Setting(String id, Display display, Category category, Class<E> clazz) {
+        this(id, display, category, clazz, clazz.getEnumConstants()[0]);
     }
 
-    Setting(int slot, Material material, String name, String description) {
-        this(slot, material, name, description, false);
-    }
+    public Setting(String id, Display display, Category category, Class<E> clazz, E defaultValue) {
+        super(PATTERN, id);
+        this.display = display;
+        this.category = category;
+        this.clazz = clazz;
+        this.defaultValue = defaultValue;
 
-    public int getSlot() {
-        return slot;
-    }
-
-    public Material getMaterial() {
-        return material;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public boolean getDefaultValue() {
-        return def;
-    }
-
-    public String getPath() {
-        return name();
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void onEnable(Player player) {
-    }
-
-    public void onDisabled(Player player) {
+        // register
+        this.ordinal = Settings.register(this);
     }
 
     @Nonnull
-    public ItemBuilder create(@Nonnull Player player) {
-        final boolean isEnabled = isEnabled(player);
-
-        return new ItemBuilder(material)
-                .setName((isEnabled ? ChatColor.GREEN : ChatColor.RED) + name)
-                .addLore("&8This setting is currently " + (isEnabled ? "enabled" : "disabled"))
-                .addLore()
-                .addSmartLore(description)
-                .addLore()
-                .addLore("&eClick to " + (isEnabled ? "disable" : "enable"));
+    public Class<E> getClazz() {
+        return clazz;
     }
 
-    public final void setEnabled(Player player, boolean flag) {
-        if (isEnabled(player) == flag) {
-            Chat.sendMessage(player, "&c%s is already %s!", this.getName(), flag ? "enabled" : "disabled");
-            return;
-        }
+    @Nonnull
+    @Override
+    public ItemBuilder create(@Nonnull Player player) {
+        final boolean isEnabled = true;
 
-        Manager.current().getOrCreateProfile(player).getDatabase().getSettings().setValue(this, flag);
-        Chat.sendMessage(player, "%s%s is now %s.", flag ? "&a" : "&c", this.getName(), flag ? "enabled" : "disabled");
+        final ItemBuilder builder = new ItemBuilder(getMaterial())
+                .setName((isEnabled ? Color.SUCCESS : Color.ERROR) + getName())
+                .addLore("&8%s Setting", Chat.capitalize(getCategory()))
+                .addLore()
+                .addTextBlockLore(getDescription())
+                .addLore();
 
-        if (flag) {
-            onEnable(player);
+        if (isEnabled) {
+            builder.addLore("&a&lCURRENTLY ENABLED!");
+            builder.addLore(Color.BUTTON + "Click to disable!");
         }
         else {
-            onDisabled(player);
+            builder.addLore("&c&lCURRENTLY DISABLED!");
+            builder.addLore(Color.BUTTON + "Click to enable!");
         }
+
+        return builder.predicate(isEnabled, ItemBuilder::glow);
     }
 
+    @Nonnull
+    public E getValue(@Nonnull Player player) {
+        final PlayerDatabase database = CF.getDatabase(player);
+        final E value = Enums.byName(clazz, database.getSettings().getValue(this));
+
+        if (value != null) {
+            return value;
+        }
+
+        return defaultValue;
+    }
+
+    public void setValue(@Nonnull Player player, @Nonnull E value) {
+        final PlayerDatabase database = CF.getDatabase(player);
+
+        database.getSettings().setValue(this, value);
+    }
+
+    public boolean isValue(@Nonnull Player player, @Nonnull E enumBool) {
+        return getValue(player) == enumBool;
+    }
+
+    @Deprecated
     public boolean isEnabled(Player player) {
-        return PlayerProfile.getOrCreateProfile(player).getDatabase().getSettings().getValue(this);
+        if (!(defaultValue instanceof EnumBool)) {
+            throw new UnsupportedOperationException("not supported");
+        }
+
+        return getValue(player) == EnumBool.ENABLED;
     }
 
+    @Deprecated
     public boolean isDisabled(Player player) {
-        return !isEnabled(player);
+        if (!(defaultValue instanceof EnumBool)) {
+            throw new UnsupportedOperationException("deprecated");
+        }
+
+        return getValue(player) == EnumBool.DISABLED;
     }
 
-    public String getPathLegacy() {
-        return "setting." + getPath();
+    @Nonnull
+    @Override
+    public String name() {
+        return getId();
     }
+
+    @Override
+    public int ordinal() {
+        return ordinal;
+    }
+
+    @Nonnull
+    @Override
+    public Display getDisplay() {
+        return display;
+    }
+
+    @Nonnull
+    public Category getCategory() {
+        return category;
+    }
+
+    @Nonnull
+    public E getDefaultValue() {
+        return defaultValue;
+    }
+
+    @Event
+    public void onValueSet(@Nonnull Player player, @Nonnull E newValue) {
+    }
+
 }

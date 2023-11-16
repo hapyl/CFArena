@@ -11,6 +11,16 @@ import me.hapyl.fight.util.Described;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+/**
+ * The implementation is a little weird, but lemme explain to myself:
+ * <p>
+ * Temper can have an {@link #affect(EntityAttributes, double, int)} implemented, which means the temper is
+ * <b>static</b>, and every affection tempers the hard-coded attribute.
+ * <p>
+ * If {@link #affect(EntityAttributes, double, int)} is not implemented, the temper is used just for the caching purpose.
+ *
+ * @implNote To be completely honest, I don't like the static implementation. :\
+ */
 public enum Temper implements Described {
 
     COMMAND("command", "command temper", true) {

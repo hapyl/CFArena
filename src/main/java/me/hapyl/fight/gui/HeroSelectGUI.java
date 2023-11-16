@@ -6,7 +6,7 @@ import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.lobby.LobbyItems;
-import me.hapyl.fight.game.setting.Setting;
+import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledItem;
 import me.hapyl.fight.gui.styled.StyledPageGUI;
@@ -53,7 +53,7 @@ public class HeroSelectGUI extends StyledPageGUI<Heroes> {
         });
 
         // Shortcut for random hero setting (DiDen special)
-        final Setting settingRandomHero = Setting.RANDOM_HERO;
+        final Settings settingRandomHero = Settings.RANDOM_HERO;
         final boolean enabled = settingRandomHero.isEnabled(player);
 
         setItem(41, settingRandomHero.create(player).setType(enabled ? Material.LIME_DYE : Material.GRAY_DYE).asIcon(), player -> {

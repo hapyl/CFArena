@@ -14,7 +14,11 @@ public class FreeForAll extends CFGameMode {
     public FreeForAll() {
         super("Free for All", 600);
 
-        setDescription("One life, one chance to win. Last man standing wins.");
+        setDescription("""
+                One life, one chance to win.
+                                
+                Last man standing wins.
+                """);
         setPlayerRequirements(2);
         setMaterial(Material.IRON_SWORD);
     }

@@ -20,7 +20,7 @@ import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.profile.data.AchievementData;
 import me.hapyl.fight.game.profile.data.PlayerData;
 import me.hapyl.fight.game.profile.data.Type;
-import me.hapyl.fight.game.setting.Setting;
+import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -339,7 +339,6 @@ public final class Manager extends DependencyInjector<Main> {
         Main.getPlugin().setConfigValue("current-map", maps.name().toLowerCase(Locale.ROOT));
     }
 
-    @Deprecated
     public boolean isDebug() {
         return debugData.is(DebugData.Flag.DEBUG);
     }
@@ -371,23 +370,6 @@ public final class Manager extends DependencyInjector<Main> {
 
         // save to config
         Main.getPlugin().setConfigValue("current-mode", mode.name().toLowerCase(Locale.ROOT));
-    }
-
-    public void setCurrentMap(@Nonnull GameMaps maps, @Nullable Player player) {
-        if (getCurrentMap() == maps && player != null) {
-            PlayerLib.villagerNo(player, "&cAlready selected!");
-            return;
-        }
-
-        setCurrentMap(maps);
-
-        final String mapName = maps.getMap().getName();
-        if (player == null) {
-            Chat.broadcast("&aCurrent map is now &l%s&a.", mapName);
-        }
-        else {
-            Chat.broadcast("&a%s selected &l%s &aas current map!", player.getName(), mapName);
-        }
     }
 
     public void createNewGameInstance() {
@@ -477,7 +459,7 @@ public final class Manager extends DependencyInjector<Main> {
                 // Apply player skin if exists
                 final PlayerSkin skin = gamePlayer.getHero().getSkin();
 
-                if (Setting.USE_SKINS_INSTEAD_OF_ARMOR.isEnabled(player) && skin != null) {
+                if (Settings.USE_SKINS_INSTEAD_OF_ARMOR.isEnabled(player) && skin != null) {
                     skin.apply(player);
                 }
             }
@@ -633,7 +615,7 @@ public final class Manager extends DependencyInjector<Main> {
         if (skin == null) {
             equipment.equip(player);
         }
-        else if (Setting.USE_SKINS_INSTEAD_OF_ARMOR.isDisabled(player.getPlayer())) {
+        else if (Settings.USE_SKINS_INSTEAD_OF_ARMOR.isDisabled(player.getPlayer())) {
             equipment.equip(player);
         }
 
@@ -722,9 +704,9 @@ public final class Manager extends DependencyInjector<Main> {
         PlayerLib.villagerYes(player);
         Chat.sendMessage(player, "&aSelected %s!", heroes.getHero().getName());
 
-        if (Setting.RANDOM_HERO.isEnabled(player)) {
+        if (Settings.RANDOM_HERO.isEnabled(player)) {
             Chat.sendMessage(player, "");
-            Chat.sendMessage(player, "&aKeep in mind &l%s &ais enabled! Use &e/setting", Setting.RANDOM_HERO.getName());
+            Chat.sendMessage(player, "&aKeep in mind &l%s &ais enabled! Use &e/setting", Settings.RANDOM_HERO.getName());
             Chat.sendMessage(player, "&aturn the feature off and play as %s!", heroes.getHero().getName());
             Chat.sendMessage(player, "");
         }
@@ -901,7 +883,7 @@ public final class Manager extends DependencyInjector<Main> {
     }
 
     private Collection<Player> getNonSpectatorPlayers() {
-        return Bukkit.getOnlinePlayers().stream().filter(player -> !Setting.SPECTATE.isEnabled(player))
+        return Bukkit.getOnlinePlayers().stream().filter(player -> !Settings.SPECTATE.isEnabled(player))
                 .collect(Collectors.toSet());
     }
 

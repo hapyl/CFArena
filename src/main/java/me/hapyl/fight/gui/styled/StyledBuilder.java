@@ -15,6 +15,17 @@ public interface StyledBuilder {
     }
 
     @Nonnull
+    default ItemStack asIconWithLore(@Nonnull String... lore) {
+        final ItemBuilder builder = toBuilder();
+
+        for (String s : lore) {
+            builder.addLore(s);
+        }
+
+        return builder.asIcon();
+    }
+
+    @Nonnull
     default ItemStack asIcon() {
         return toBuilder().asIcon();
     }
