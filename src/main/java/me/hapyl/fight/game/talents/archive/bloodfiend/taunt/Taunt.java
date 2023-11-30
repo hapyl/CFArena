@@ -75,8 +75,8 @@ public abstract class Taunt extends GameTask {
     }
 
     public void remove() {
-        animation.cancelIfActive();
-        cancelIfActive();
+        animation.cancel();
+        cancel();
     }
 
     public int getTimeLeft() {

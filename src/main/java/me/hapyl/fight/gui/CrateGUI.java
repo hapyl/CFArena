@@ -8,11 +8,12 @@ import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.crate.*;
 import me.hapyl.fight.game.cosmetic.crate.convert.CrateConvertGUI;
+import me.hapyl.fight.gui.styled.Size;
+import me.hapyl.fight.gui.styled.StyledPageGUI;
+import me.hapyl.fight.gui.styled.StyledTexture;
 import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.inventory.gui.PlayerPageGUI;
 import me.hapyl.spigotutils.module.player.PlayerLib;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -21,7 +22,7 @@ import org.bukkit.inventory.ItemStack;
 import javax.annotation.Nonnull;
 import java.util.Map;
 
-public class CrateGUI extends PlayerPageGUI<Crates> {
+public class CrateGUI extends StyledPageGUI<Crates> {
 
     private final int MAX_ITEMS_PREVIEW = 3;
     private final ItemStack NO_CRATES_ITEMS = new ItemBuilder(ItemStacks.OAK_QUESTION)
@@ -35,48 +36,26 @@ public class CrateGUI extends PlayerPageGUI<Crates> {
             .asIcon();
 
     private final PlayerDatabase database;
-    private final CrateEntry crates;
+    private final CrateEntry entry;
     private final CrateChest location;
 
     public CrateGUI(Player player, CrateChest location) {
-        super(player, "Crates", 5);
+        super(player, "Crates", Size.FOUR);
 
         this.database = PlayerDatabase.getDatabase(player);
-        this.crates = database.crateEntry;
+        this.entry = database.crateEntry;
         this.location = location;
 
-        final Map<Crates, Long> crates = this.crates.getCrates();
-        setContents(Lists.newArrayList(crates.keySet()));
+        final Map<Crates, Long> crates = this.entry.mapped();
 
+        setContents(Lists.newLinkedList(crates.keySet()));
         setEmptyContentsItem(NO_CRATES_ITEMS);
 
-        openInventory(0);
+        update();
 
         // Fx
         PlayerLib.playSound(player, Sound.BLOCK_CHEST_OPEN, 0.75f);
         PlayerLib.playSound(player, Sound.BLOCK_ENDER_CHEST_CLOSE, 0.75f);
-    }
-
-    @Override
-    public void postProcessInventory(@Nonnull Player player, int page) {
-        final Currency dust = Currency.CHEST_DUST;
-
-        setCloseMenuItem(40);
-        setItem(39, ItemBuilder.of(Material.CREEPER_BANNER_PATTERN, dust.getName(), "")
-                .addSmartLore("Duplicate cosmetics will be converted into %s&7 and %s&7."
-                        .formatted(
-                                Currency.COINS.getFormatted(),
-                                dust.getFormatted()
-                        ), 40)
-                .addLore()
-                .addSmartLore("&bSpend %s&b to craft custom crates!".formatted(dust.getFormatted()))
-                .addLore()
-                .addLore("You have: %s", dust.format(format -> {
-                    return format.getColor() + "%,d".formatted(database.currencyEntry.get(dust)) + format.getPrefixColored();
-                }))
-                .addLore()
-                .addLore(Color.BUTTON + "Click to craft! &6&lSOON!&6™")
-                .asIcon(), CrateConvertGUI::new);
     }
 
     @Nonnull
@@ -84,7 +63,7 @@ public class CrateGUI extends PlayerPageGUI<Crates> {
     public ItemStack asItem(Player player, Crates enumCrate, int index, int page) {
         final Crate crate = enumCrate.getCrate();
         final RandomLootSchema<Cosmetics> schema = crate.getSchema();
-        final int crateCount = (int) crates.getCrates(enumCrate);
+        final int crateCount = (int) entry.getCrates(enumCrate);
 
         final ItemBuilder builder = ItemBuilder.of(crate.getMaterial(), crate.getName(), crate.getDescription());
 
@@ -152,5 +131,34 @@ public class CrateGUI extends PlayerPageGUI<Crates> {
                 new CrateLoot(player, enumCrate, location);
             }
         }
+    }
+
+    @Override
+    public void onUpdate() {
+        final Currency dust = Currency.CHEST_DUST;
+
+        setCloseMenuItem(40);
+        setPanelItem(
+                3,
+                StyledTexture.CRATE_CONVERT.toBuilder()
+                        .setName("Crate Conversion")
+                        .addTextBlockLore(
+                                """
+                                        Duplicate cosmetics will be converted into %1$s&7 and %2$s&7.
+                                                          
+                                        Spend %2$s&7 to convert and craft crates!
+                                        """,
+                                Currency.COINS.getFormatted(),
+                                dust.getFormatted()
+                        )
+                        .addLore()
+                        .addLore("You have: %s", dust.format(format -> {
+                            return format.getColor() + "%,d".formatted(database.currencyEntry.get(dust)) + format.getPrefixColored();
+                        }))
+                        .addLore()
+                        .addLore(Color.BUTTON + "Click to convert!")
+                        .asIcon(),
+                fn -> new CrateConvertGUI(player, location)
+        );
     }
 }

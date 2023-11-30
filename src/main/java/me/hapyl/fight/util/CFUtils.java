@@ -3,6 +3,7 @@ package me.hapyl.fight.util;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.annotate.ForceCloned;
+import me.hapyl.fight.fastaccess.FastAccess;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -12,6 +13,7 @@ import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.spigotutils.module.annotate.TestedOn;
 import me.hapyl.spigotutils.module.annotate.Version;
 import me.hapyl.spigotutils.module.math.Geometry;
+import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.math.geometry.Quality;
 import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -26,8 +28,11 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
+import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 import org.joml.Matrix4f;
 
@@ -50,7 +55,8 @@ public class CFUtils {
     public static final Pattern STRIP_COLOR_PATTERN = Pattern.compile("(?i)" + '&' + "[0-9A-FK-ORX]");
     public static final Object[] DISAMBIGUATE = new Object[] {};
     private static final DecimalFormat TICK_FORMAT = new DecimalFormat("0.0");
-
+    private static final Random RANDOM = new Random();
+    public static double ANGLE_IN_RAD = 6.283185307179586d;
     private static String SERVER_IP;
 
     public static String stripColor(String message) {
@@ -224,7 +230,7 @@ public class CFUtils {
             @Override
             public void run() {
                 if (tick < 0) {
-                    this.cancel();
+                    cancel();
                     return;
                 }
 
@@ -239,7 +245,7 @@ public class CFUtils {
 
     }
 
-    public static void rayTraceLine(GamePlayer shooter, double maxDistance, double shift, double damage, @Nullable EnumDamageCause cause, @Nullable Consumer<Location> onMove, @Nullable Consumer<LivingEntity> onHit) {
+    public static void rayTraceLine(GamePlayer shooter, double maxDistance, double shift, double damage, @Nullable EnumDamageCause cause, @Nullable Consumer<Location> onMove, @Nullable Consumer<LivingGameEntity> onHit) {
         final Location location = shooter.getLocation().add(0, 1.5, 0);
         final Vector vector = location.getDirection().normalize();
 
@@ -262,7 +268,7 @@ public class CFUtils {
                 }
 
                 if (onHit != null) {
-                    onHit.accept(gameEntity.getEntity());
+                    onHit.accept(gameEntity);
                 }
 
                 if (damage > 0.0d) {
@@ -300,7 +306,7 @@ public class CFUtils {
         return entity;
     }
 
-    public static void rayTraceLine(GamePlayer shooter, double maxDistance, double shift, double damage, @Nullable Consumer<Location> onMove, @Nullable Consumer<LivingEntity> onHit) {
+    public static void rayTraceLine(GamePlayer shooter, double maxDistance, double shift, double damage, @Nullable Consumer<Location> onMove, @Nullable Consumer<LivingGameEntity> onHit) {
         rayTraceLine(shooter, maxDistance, shift, damage, null, onMove, onHit);
     }
 
@@ -311,17 +317,15 @@ public class CFUtils {
      */
     public static <E> void clearCollection(Collection<E> collection) {
         for (final E entry : collection) {
-            if (entry == null) {
-                continue;
-            }
-            if (entry instanceof Entity entity) {
-                entity.remove();
-            }
-            if (entry instanceof Block block) {
-                block.getState().update(true, false);
-            }
+            doClearEntry(entry);
         }
         collection.clear();
+    }
+
+    public static <E> void clearArray(E[] array) {
+        for (E t : array) {
+            doClearEntry(t);
+        }
     }
 
     @Nonnull
@@ -528,7 +532,7 @@ public class CFUtils {
 
     @Nonnull
     public static String decimalFormatTick(int tick) {
-        return TICK_FORMAT.format(tick / 20.0d) + "s";
+        return tick > 9999 ? "indefinitely" : Tick.round(tick) + "s";
     }
 
     @Nonnull
@@ -624,5 +628,63 @@ public class CFUtils {
         final double theDot = dot(start, end, distance);
 
         return theDot >= dot;
+    }
+
+    @Nonnull
+    public static String getItemName(ItemStack item) {
+        final ItemMeta itemMeta = item.getItemMeta();
+
+        if (itemMeta == null) {
+            return "";
+        }
+
+        return ChatColor.stripColor(itemMeta.getDisplayName());
+    }
+
+    public static double randomAxis(double origin, double bound) {
+        final double d = random(origin, bound);
+        return RANDOM.nextBoolean() ? d : -d;
+    }
+
+    public static double random(double origin, double bound) {
+        return RANDOM.nextDouble(origin, bound);
+    }
+
+    @Nonnull
+    public static EulerAngle randomEulerAngle() {
+        return new EulerAngle(random(0.0d, ANGLE_IN_RAD), random(0.0d, ANGLE_IN_RAD), random(0.0d, ANGLE_IN_RAD));
+    }
+
+    @Nonnull
+    public static String checkmark(@Nullable Boolean condition) {
+        return condition == null ? "" : condition ? "&a✔" : "&c❌";
+    }
+
+    public static Location centerLocation(@Nonnull Location location) {
+        return new Location(location.getWorld(), location.getBlockX() + 0.5d, location.getY(), location.getBlockZ() + 0.5d);
+    }
+
+    @Nonnull
+    public static <T> List<T> copyList(List<T> list) {
+        final ArrayList<T> newList = new ArrayList<>();
+
+        if (list != null) {
+            newList.addAll(list);
+        }
+
+        return newList;
+    }
+
+    private static <E> void doClearEntry(E e) {
+        if (e == null) {
+            return;
+        }
+
+        if (e instanceof Entity entity) {
+            entity.remove();
+        }
+        else if (e instanceof Block block) {
+            block.getState().update(true, false);
+        }
     }
 }

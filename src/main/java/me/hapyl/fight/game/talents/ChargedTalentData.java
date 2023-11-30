@@ -12,12 +12,12 @@ public class ChargedTalentData {
     private GameTask currentTask;
     private int queueTask;
     private int lastKnownSlot;
-    private int chargedAvailable;
+    private int chargesAvailable;
 
     public ChargedTalentData(GamePlayer player, ChargedTalent talent) {
         this.player = player;
         this.talent = talent;
-        this.chargedAvailable = talent.getMaxCharges();
+        this.chargesAvailable = talent.getMaxCharges();
         this.lastKnownSlot = -1;
     }
 
@@ -41,8 +41,8 @@ public class ChargedTalentData {
         this.lastKnownSlot = lastKnownSlot;
     }
 
-    public int getChargedAvailable() {
-        return chargedAvailable;
+    public int getChargesAvailable() {
+        return chargesAvailable;
     }
 
     public void reset() {
@@ -52,16 +52,16 @@ public class ChargedTalentData {
         }
 
         queueTask = 0;
-        chargedAvailable = talent.getMaxCharges();
+        chargesAvailable = talent.getMaxCharges();
         lastKnownSlot = -1;
     }
 
     public void removeCharge() {
-        chargedAvailable--;
+        chargesAvailable--;
     }
 
     public void addCharge() {
-        chargedAvailable++;
+        chargesAvailable++;
     }
 
     public void workTask() {
@@ -74,7 +74,7 @@ public class ChargedTalentData {
     }
 
     public void maxCharge() {
-        chargedAvailable = talent.getMaxCharges();
+        chargesAvailable = talent.getMaxCharges();
     }
 
     private void createTask() {

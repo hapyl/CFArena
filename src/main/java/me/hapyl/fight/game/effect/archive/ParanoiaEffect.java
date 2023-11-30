@@ -36,7 +36,7 @@ public class ParanoiaEffect extends GameEffect {
         if (tick == 0 || Math.random() >= 0.9d) {
             // Display paranoia for all players but the viewer
             final Location spawnLocation = entity.getLocation().clone().add(0, 1.7d, 0);
-            this.displayParticles(spawnLocation, entity.getEntity());
+            //this.displayParticles(spawnLocation, entity.getEntity()); Moved to omen debuff to only show the particles for the player
 
             // Get a random location to play decoy sound
             Location location = entity.getLocation();
@@ -44,17 +44,11 @@ public class ParanoiaEffect extends GameEffect {
 
             if (ThreadRandom.nextFloatAndCheckBetween(0.6f, 1.0f) && !location.getBlock().getType().isAir()) {
                 final SoundGroup soundGroup = location.getBlock().getBlockData().getSoundGroup();
-
-                entity.asPlayer(player -> {
-                    player.playSound(location, soundGroup.getStepSound(), SoundCategory.MASTER, 1, 1);
-                });
+                entity.playSound(location, soundGroup.getStepSound(), 1);
             }
             else {
                 final Sound sound = CollectionUtils.randomElement(decoySounds, decoySounds[0]);
-
-                entity.asPlayer(player -> {
-                    player.playSound(location, sound, SoundCategory.MASTER, 1, sound == Sound.AMBIENT_CAVE ? 2 : 1);
-                });
+                entity.playSound(location, sound, sound == Sound.AMBIENT_CAVE ? 2 : 1);
             }
         }
     }

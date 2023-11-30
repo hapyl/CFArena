@@ -7,6 +7,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.NewHero;
+import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -115,7 +116,7 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
     }
 
     @Override
-    public void useUltimate(@Nonnull GamePlayer player) {
+    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
         player.setInvulnerable(true);
 
         final SpiritualBones bones = getBones(player);
@@ -168,6 +169,8 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
 
         // Outer Fx
         player.sendMessage("&0☠ &7The darkness will aid you with %s damage and %s healing per enemy hit.", damage, healing);
+
+        return UltimateCallback.OK;
     }
 
     @Nullable

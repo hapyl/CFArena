@@ -11,6 +11,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -98,7 +99,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
     }
 
     @Override
-    public void useUltimate(@Nonnull GamePlayer player) {
+    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
         final VampireData data = vampireData.get(player);
         final int bloodAtUse = data.getBlood();
         final int bloodAfterUse = MAX_BLOOD_STACKS - bloodAtUse;
@@ -164,6 +165,8 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
 
             }
         }.runTaskTimer(0, 1);
+
+        return UltimateCallback.OK;
     }
 
     @Override
@@ -259,7 +262,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
         data.setBlood(0);
         updateBloodPool(player);
 
-        inventory.setHeldItemSlot(0);
+        player.snapToWeapon();
 
         // Fx
         player.playSound(Sound.ENTITY_WITCH_DRINK, 0.0f);
@@ -294,7 +297,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
     }
 
     @Override
-    public List<String> getStrings(GamePlayer player) {
+    public List<String> getStrings(@Nonnull GamePlayer player) {
         final int bloodCd = player.getCooldown(BLOOD_MATERIAL);
         final VampireData data = getData(player);
         final List<String> strings = Lists.newArrayList();

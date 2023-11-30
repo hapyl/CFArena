@@ -210,7 +210,7 @@ public class BloodChalice extends Taunt implements TalentReference<BloodChaliceT
                 final ArmorStand stand = BloodChalice.this.stand[0];
 
                 if (stand.isDead()) {
-                    cancelIfActive();
+                    cancel();
                     return;
                 }
 

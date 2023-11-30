@@ -8,12 +8,17 @@ import javax.annotation.Nonnull;
 
 public class PassiveTalent extends Talent {
 
-    public PassiveTalent(String name, Material material) {
+    public PassiveTalent(@Nonnull String name, @Nonnull Material material) {
         this(name, "", material);
     }
 
-    public PassiveTalent(String name, String description, Material item) {
-        super(name, description, Type.PASSIVE);
+    public PassiveTalent(@Nonnull String name, @Nonnull String description, @Nonnull Material material) {
+        this(name, description, material, Type.ENHANCE);
+    }
+
+    public PassiveTalent(@Nonnull String name, @Nonnull String description, @Nonnull Material item, @Nonnull Type type) {
+        super(name, description, type);
+
         setItem(item);
         setPoint(0);
     }
@@ -27,5 +32,11 @@ public class PassiveTalent extends Talent {
     @Override
     public boolean isDisplayAttributes() {
         return false;
+    }
+
+    @Nonnull
+    @Override
+    public String getTalentClassType() {
+        return "Passive";
     }
 }

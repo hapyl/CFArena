@@ -12,7 +12,7 @@ public enum Archetype implements Described {
     MAGIC("&5🌌", "Magic", "Experts in casting magic spells."),
     DEFENSE("&3🛡", "Defense", "Provides defense for self and allies."),
     MOBILITY("&d👣", "Mobility", "Fast and mobile, they zip around the battlefield."),
-    STRATEGY("&e💡", "Strategy", "Strategists rely on their abilities, rather than combat to win."),
+    STRATEGY("&e💡", "Strategy", "Strategists rely on their abilities, rather than strength to win."),
     SUPPORT("&2🍀", "Support", "Provide buffs to self and allies."),
     HEXBANE(
             new Color("#5C3D2E") + "🕷",

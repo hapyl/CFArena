@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.cosmetic.crate;
 
+import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.*;
 import me.hapyl.fight.util.Described;
 import org.bukkit.Material;
@@ -47,6 +48,22 @@ public class Crate extends RandomLoot<Cosmetics> implements Described {
     @Override
     public String getDescription() {
         return description;
+    }
+
+    @Nullable
+    public Cosmetics firstItem() {
+        return getContents().firstItem();
+    }
+
+    @Nonnull
+    public Color firstItemColor() {
+        final Cosmetics item = firstItem();
+
+        if (item == null) {
+            return Color.GRAY;
+        }
+
+        return item.getRarity().getColor();
     }
 
     /**

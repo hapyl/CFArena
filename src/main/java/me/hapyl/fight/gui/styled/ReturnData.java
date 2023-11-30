@@ -13,6 +13,7 @@ public interface ReturnData {
     @Nonnull
     Action<Player> getAction();
 
+    @Nonnull
     static ReturnData of(String name, Action<Player> action) {
         return new ReturnData() {
             @Nonnull

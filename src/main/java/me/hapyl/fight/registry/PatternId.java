@@ -51,7 +51,7 @@ public class PatternId {
         Validate.notNull(id.get(), "Id cannot be null");
         Validate.isTrue(
                 pattern.matcher(id.get()).matches(),
-                "Id %s in %s does not match the pattern: %s".formatted(id, getClass().getSimpleName(), pattern)
+                "Id '%s' in %s does not match the pattern: %s".formatted(id.get(), getClass().getSimpleName(), pattern)
         );
     }
 }

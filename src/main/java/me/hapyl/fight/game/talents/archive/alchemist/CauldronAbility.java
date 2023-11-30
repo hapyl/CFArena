@@ -13,7 +13,6 @@ import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -23,7 +22,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
 
 public class CauldronAbility extends Talent implements Listener {
 
@@ -42,8 +40,10 @@ public class CauldronAbility extends Talent implements Listener {
                 &a- &7Drinking a potion will grant double effects. &8(5 charges)
                                 
                 &a- &7Hitting an enemy will apply random effect. &8(10 charges)
-                """);
+                """
+        );
 
+        setType(Type.CREATABLE);
         setItem(Material.CAULDRON);
         setCooldownSec(120);
     }

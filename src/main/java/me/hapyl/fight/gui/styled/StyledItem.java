@@ -62,6 +62,12 @@ public class StyledItem implements StyledBuilder {
             "Select the rules."
     );
 
+    public static final StyledItem ICON_LOADOUT = new StyledItem(
+            Material.LADDER,
+            "Customize Hotbar",
+            "Customize the hotbar to your liking."
+    );
+
     public static final StyledItem LOCKED_HERO = new StyledItem(
             "46ba63344f49dd1c4f5488e926bf3d9e2b29916a6c50d610bb40a5273dc8c82",
             "&c???",

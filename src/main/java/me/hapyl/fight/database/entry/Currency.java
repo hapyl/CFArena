@@ -1,15 +1,17 @@
 package me.hapyl.fight.database.entry;
 
+import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.Event;
+import me.hapyl.fight.game.cosmetic.crate.convert.Product;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.util.FormattedEnum;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 
-public enum Currency implements FormattedEnum {
+public enum Currency implements FormattedEnum, Product<Long> {
 
     COINS(new Color("#FFD700"), "🪙", "Coins") {
         @Override
@@ -53,6 +55,23 @@ public enum Currency implements FormattedEnum {
     public void onDecrease(Player player, long value) {
     }
 
+    @Override
+    public void subtractProduct(@Nonnull PlayerDatabase database, @Nonnull Long value) {
+        database.currencyEntry.subtract(this, value);
+    }
+
+    @Nonnull
+    @Override
+    public Long getProduct(@Nonnull PlayerDatabase database) {
+        return database.currencyEntry.get(this);
+    }
+
+    @Nonnull
+    @Override
+    public String formatProduct(@Nonnull Long amount) {
+        return getFormatted() + " %,d".formatted(amount);
+    }
+
     public String getPath() {
         return name().toLowerCase();
     }
@@ -67,6 +86,12 @@ public enum Currency implements FormattedEnum {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Nonnull
+    @Override
+    public String getDescription() {
+        return prefix;
     }
 
     @Nonnull

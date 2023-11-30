@@ -165,7 +165,7 @@ public class AlchemicalCauldron extends TickingGameTask {
 
     public void clear() {
         //this.location.getBlock().setType(Material.AIR, false);
-        cancelIfActive();
+        cancel();
         cauldronBlock.setType(Material.AIR, false);
         standOwner.remove();
         standBar.remove();

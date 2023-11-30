@@ -39,7 +39,8 @@ public abstract class MapFeature implements GameElement, PlayerElement {
         return info;
     }
 
-    public abstract void tick(int tick);
+    public void tick(int tick) {
+    }
 
     protected final boolean validateCurrentMap(GameMaps maps) {
         return Manager.current().getCurrentMap() == maps;

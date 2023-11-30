@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.task;
 
 import me.hapyl.fight.Main;
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.talents.Timed;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -10,16 +11,142 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
- * Represents a task that is automatically canceled when the game ends.
+ * Represents a task automatically canceled when the game ends.
  */
 public abstract class GameTask implements Runnable {
 
     private ShutdownAction shutdownAction;
-    private BukkitTask task;
+    private BukkitTask bukkitTask;
     private BukkitRunnable atCancel;
 
     public GameTask() {
         this.shutdownAction = ShutdownAction.CANCEL;
+    }
+
+    public ShutdownAction getShutdownAction() {
+        return shutdownAction;
+    }
+
+    public void setShutdownAction(ShutdownAction shutdownAction) {
+        this.shutdownAction = shutdownAction;
+    }
+
+    public GameTask addCancelEvent(BukkitRunnable task) {
+        this.atCancel = task;
+        return this;
+    }
+
+    public GameTask addCancelEvent(Runnable runnable) {
+        return this.addCancelEvent(new BukkitRunnable() {
+            @Override
+            public void run() {
+                runnable.run();
+            }
+        });
+    }
+
+    public synchronized GameTask runTaskAtCancel() {
+        this.addCancelEvent(new BukkitRunnable() {
+            @Override
+            public void run() {
+                GameTask.this.run();
+            }
+        });
+        return this;
+    }
+
+    public synchronized GameTask runTaskLater(long later) {
+        if (!canExecute()) {
+            return this;
+        }
+
+        validateDoesNotExists();
+        return setupTask(Bukkit.getScheduler().runTaskLater(Main.getPlugin(), this, later));
+    }
+
+    public synchronized GameTask runTaskTimer(long delay, long period) {
+        if (!canExecute()) {
+            return this;
+        }
+        this.validateDoesNotExists();
+        return this.setupTask(Bukkit.getScheduler().runTaskTimer(Main.getPlugin(), this, delay, period));
+    }
+
+    public synchronized GameTask runTask() {
+        if (!canExecute()) {
+            return this;
+        }
+        this.validateDoesNotExists();
+        return this.setupTask(Bukkit.getScheduler().runTask(Main.getPlugin(), this));
+    }
+
+    public synchronized void deepCancel() {
+        if (atCancel != null) {
+            atCancel.runTask(Main.getPlugin());
+        }
+        this.cancel();
+    }
+
+    public synchronized int getId() {
+        return bukkitTask == null ? -1 : bukkitTask.getTaskId();
+    }
+
+    // called before the task is scheduled
+    public void onTaskStart() {
+    }
+
+    // Called when the task is stopped (canceled)
+    public void onTaskStop() {
+    }
+
+    public synchronized void cancel() {
+        if (bukkitTask == null || bukkitTask.isCancelled()) {
+            return;
+        }
+
+        onTaskStop();
+        cancel0();
+    }
+
+    public synchronized boolean isCancelled() {
+        if (bukkitTask == null) {
+            return false;
+        }
+
+        return bukkitTask.isCancelled();
+    }
+
+    protected void cancel0() {
+        if (bukkitTask == null) {
+            Debug.warn("Tried to cancel an inactive task!");
+            return;
+        }
+
+        Bukkit.getScheduler().cancelTask(getId());
+    }
+
+    private void validateDoesNotExists() {
+        if (bukkitTask != null) {
+            throw new IllegalStateException("Tried to register already registered task! Id = " + getId());
+        }
+    }
+
+    private synchronized GameTask setupTask(BukkitTask task) {
+        final Main plugin = Main.getPlugin();
+
+        if (!plugin.isEnabled()) {
+            Debug.severe("Cannot schedule a task while the plugin is disabled!");
+            return this;
+        }
+
+        this.bukkitTask = task;
+        onTaskStart();
+        plugin.getTaskList().register(this);
+        return this;
+    }
+
+    private boolean canExecute() {
+        return Main.getPlugin().isEnabled();
     }
 
     /**
@@ -162,130 +289,6 @@ public abstract class GameTask implements Runnable {
                 d += increment;
             }
         }.runTaskTimer(0, 1);
-    }
-
-    public void setShutdownAction(ShutdownAction shutdownAction) {
-        this.shutdownAction = shutdownAction;
-    }
-
-    public ShutdownAction getShutdownAction() {
-        return shutdownAction;
-    }
-
-    public GameTask addCancelEvent(BukkitRunnable task) {
-        this.atCancel = task;
-        return this;
-    }
-
-    public GameTask addCancelEvent(Runnable runnable) {
-        return this.addCancelEvent(new BukkitRunnable() {
-            @Override
-            public void run() {
-                runnable.run();
-            }
-        });
-    }
-
-    public synchronized GameTask runTaskAtCancel() {
-        this.addCancelEvent(new BukkitRunnable() {
-            @Override
-            public void run() {
-                GameTask.this.run();
-            }
-        });
-        return this;
-    }
-
-    public synchronized GameTask runTaskLater(long later) {
-        if (!canExecute()) {
-            return this;
-        }
-        this.validateDoesNotExists();
-        return this.setupTask(Bukkit.getScheduler().runTaskLater(Main.getPlugin(), this, later));
-    }
-
-    public synchronized GameTask runTaskTimer(long delay, long period) {
-        if (!canExecute()) {
-            return this;
-        }
-        this.validateDoesNotExists();
-        return this.setupTask(Bukkit.getScheduler().runTaskTimer(Main.getPlugin(), this, delay, period));
-    }
-
-    public synchronized GameTask runTask() {
-        if (!canExecute()) {
-            return this;
-        }
-        this.validateDoesNotExists();
-        return this.setupTask(Bukkit.getScheduler().runTask(Main.getPlugin(), this));
-    }
-
-    public synchronized void deepCancel() {
-        if (atCancel != null) {
-            atCancel.runTask(Main.getPlugin());
-        }
-        this.cancel();
-    }
-
-    public synchronized int getId() {
-        this.validateExists();
-        return this.task.getTaskId();
-    }
-
-    // called before the task is scheduled
-    public void onTaskStart() {
-    }
-
-    // Called when the task is stopped (canceled)
-    public void onTaskStop() {
-    }
-
-    public synchronized void cancelIfActive() {
-        if (task == null) {
-            return;
-        }
-
-        onTaskStop();
-        Bukkit.getScheduler().cancelTask(this.task.getTaskId());
-    }
-
-    public synchronized void cancel() {
-        this.validateExists();
-
-        onTaskStop();
-        Bukkit.getScheduler().cancelTask(this.task.getTaskId());
-    }
-
-    public synchronized boolean isCancelled() {
-        this.validateExists();
-        return this.task.isCancelled();
-    }
-
-    private void validateExists() {
-        if (this.task == null) {
-            throw new IllegalStateException("Could not validate task being active");
-        }
-    }
-
-    private void validateDoesNotExists() {
-        if (this.task != null) {
-            throw new IllegalStateException(String.format("Cannot run task since it's already running as %s!", this.getId()));
-        }
-    }
-
-    public synchronized GameTask setupTask(BukkitTask task) {
-        if (!Main.getPlugin().isEnabled()) {
-            return this;
-        }
-
-        onTaskStart();
-        this.task = task;
-        Main.getPlugin().getTaskList().register(this);
-        return this;
-    }
-
-    private boolean canExecute() {
-        return Main.getPlugin().isEnabled();
     }
 
 }

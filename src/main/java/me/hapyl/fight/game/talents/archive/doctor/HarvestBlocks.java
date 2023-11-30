@@ -10,13 +10,10 @@ import me.hapyl.fight.game.heroes.archive.doctor.ElementType;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.math.Cuboid;
 import me.hapyl.spigotutils.module.math.nn.DoubleDouble;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.ThreadRandom;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -25,6 +22,7 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
@@ -37,22 +35,26 @@ import java.util.stream.Collectors;
 public class HarvestBlocks extends Talent {
 
     private final int TASK_PERIOD = 2;
+
     @DisplayField private final short maximumBlocks = 10;
+    @DisplayField private final double maxDistance = 20.0d;
     @DisplayField private final int collectDelay = 30;
 
     public HarvestBlocks() {
-        super("Block Harvest");
-
-        setDescription("""
-                Quickly gather resources from up to {maximumBlocks} nearby blocks, then combine them in one big pile before throwing it at your enemies.
-                                        
-                &b;;The damage is based on the number of blocks gathered.
-                """);
-
-        setCooldownSec(30);
-        setPoint(5);
+        super(
+                "Block Harvest",
+                """
+                        Quickly gather resources from up to &b{maximumBlocks}&7 nearby blocks.
+                                                
+                        Then combine them in one big pile before throwing it at your enemies.
+                                                
+                        &8;;The damage is based on the number of blocks gathered.
+                        """
+        );
 
         setItem(Material.IRON_PICKAXE);
+        setCooldownSec(30);
+        setPoint(5);
     }
 
     @Override
@@ -80,17 +82,16 @@ public class HarvestBlocks extends Talent {
         final Set<Entity> entities = Sets.newHashSet();
         final DoubleDouble damage = new DoubleDouble(0.0d);
 
-        blockMap.forEach((b, e) -> {
-            entities.add(Entities.ARMOR_STAND_MARKER.spawn(b.getLocation().add(0.5, 0.5, 0.5), entity -> {
+        blockMap.forEach((block, elementType) -> {
+            entities.add(Entities.ARMOR_STAND_MARKER.spawn(block.getLocation().add(0.5, 0.5, 0.5), entity -> {
                 entity.setMarker(true);
                 entity.setGravity(false);
                 entity.setInvulnerable(true);
-                //entity.setGlowing(true);
                 entity.setInvisible(true);
-                Nulls.runIfNotNull(entity.getEquipment(), eq -> eq.setHelmet(ItemBuilder.of(b.getType()).asIcon()));
+                entity.setHelmet(new ItemStack(block.getType()));
             }));
 
-            damage.addAndGet(e.getElement().getDamage() / 2.0d);
+            damage.addAndGet(elementType.getElement().getDamage() / 2.0d);
         });
 
         for (Entity entity : entities) {
@@ -104,7 +105,7 @@ public class HarvestBlocks extends Talent {
                 public void run() {
                     if (tick >= collectDelay) {
                         entities.forEach(Entity::remove);
-                        this.cancel();
+                        cancel();
                         return;
                     }
 
@@ -145,11 +146,11 @@ public class HarvestBlocks extends Talent {
             @Override
             public void run() {
                 if (tick <= 0) {
-                    this.cancel();
+                    cancel();
                     return;
                 }
 
-                PlayerLib.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f + (tick * (1.8f / collectDelay)));
+                player.playWorldSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f + (tick * (1.8f / collectDelay)));
                 tick -= TASK_PERIOD;
             }
         }.runTaskTimer(0, 2);
@@ -163,22 +164,17 @@ public class HarvestBlocks extends Talent {
     public void launchProjectile(GamePlayer player, double damage) {
         final Location location = getPlayerLocation(player);
         final ArmorStand entity = Entities.ARMOR_STAND_MARKER.spawn(location, self -> {
-            Nulls.runIfNotNull(self.getEquipment(), eq -> {
-                eq.setHelmet(ItemBuilder.of(Material.MAGMA_BLOCK).asIcon());
-            });
-
+            self.setHelmet(new ItemStack(Material.MAGMA_BLOCK));
             self.setInvisible(true);
         });
 
         new GameTask() {
-            private final double maxDistance = 20.0d;
             private double distanceTravelled = 0.0d;
 
             @Override
             public void run() {
                 if (entity.isDead() || distanceTravelled >= maxDistance) {
-                    entity.remove();
-                    this.cancel();
+                    removeCancelAndPlayFx();
                     return;
                 }
 
@@ -186,23 +182,31 @@ public class HarvestBlocks extends Talent {
                 final Location fixedLocation = entity.getLocation().add(0.0d, 1.5d, 0.0d);
 
                 if (fixedLocation.getBlock().getType().isOccluding()) {
-                    entity.remove();
-                    this.cancel();
+                    removeCancelAndPlayFx();
                     return;
                 }
 
                 if (nearestEntity != null) {
                     nearestEntity.damage(damage, player, EnumDamageCause.GRAVITY_GUN);
-                    entity.remove();
-                    this.cancel();
+                    removeCancelAndPlayFx();
                     return;
                 }
 
                 // Move
                 entity.teleport(location.add(location.getDirection().multiply(1)));
-                PlayerLib.spawnParticle(location, Particle.LAVA, 10, 0.2d, 0.2d, 0.2d, 0.01f);
+                player.spawnWorldParticle(location, Particle.LAVA, 10, 0.2d, 0.2d, 0.2d, 0.01f);
 
                 distanceTravelled += 1.0d;
+            }
+
+            private void removeCancelAndPlayFx() {
+                final Location location = entity.getLocation();
+
+                entity.remove();
+                cancel();
+
+                player.spawnWorldParticle(location, Particle.EXPLOSION_HUGE, 1);
+                player.playWorldSound(location, Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 0.0f);
             }
         }.runTaskTimer(0, 1);
 

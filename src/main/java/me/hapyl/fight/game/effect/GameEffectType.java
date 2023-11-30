@@ -23,6 +23,7 @@ public enum GameEffectType {
     WITHER_BLOOD(new WitherBlood()),
     POISON_IVY(new PoisonIvy()),
     SADNESS(new SadnessEffect()),
+    CHILL_AURA(new ChillAuraEffect()),
 
     ;
 

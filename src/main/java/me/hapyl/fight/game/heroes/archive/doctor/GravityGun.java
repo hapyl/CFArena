@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.heroes.archive.doctor;
 
+import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.game.weapons.RightClickable;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.game.weapons.ability.Ability;
 import me.hapyl.fight.game.weapons.ability.AbilityType;
@@ -14,7 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class GravityGun extends Weapon implements RightClickable {
+public class GravityGun extends Weapon {
 
     private final PlayerMap<ActiveElement> elements = PlayerMap.newMap();
 
@@ -26,26 +26,12 @@ public class GravityGun extends Weapon implements RightClickable {
         setName("Dr. Ed's Gravity Energy Capacitor Mk. 3");
         setDescription("A tool that is capable of absorbing block elements.");
 
-        setAbility(AbilityType.RIGHT_CLICK, Ability.of("Block Harvest", """
-                Right-click on a block to harvest an element from it.
-                                
-                Right-click again with an element equipped to launch it forward, damaging up to &bone &7opponents on its way.
-                                
-                &a;;The damage and cooldown are based on the element.
-                """, this));
+        setAbility(AbilityType.RIGHT_CLICK, new BlockHarvest());
 
         GameTask.scheduleCancelTask(() -> {
             elements.values().forEach(ActiveElement::remove);
             elements.clear();
         });
-    }
-
-    private ActiveElement getElement(GamePlayer player) {
-        return elements.getOrDefault(player, null);
-    }
-
-    private boolean hasElement(GamePlayer player) {
-        return this.getElement(player) != null;
     }
 
     public void setElement(GamePlayer player, @Nullable ActiveElement element) {
@@ -67,45 +53,66 @@ public class GravityGun extends Weapon implements RightClickable {
         this.elements.remove(player);
     }
 
-    @Override
-    public void onRightClick(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
-        if (player.hasCooldown(getMaterial())) {
-            return;
-        }
-
-        final Block targetBlock = player.getTargetBlockExact(7);
-
-        // throw
-        if (hasElement(player)) {
-            final ActiveElement element = getElement(player);
-            element.stopTask();
-            element.throwEntity();
-            this.setElement(player, null);
-            return;
-        }
-
-        // pick up
-        if (targetBlock == null) {
-            player.sendMessage("&cNo valid block in sight!");
-            return;
-        }
-
-        if (ElementType.getElement(targetBlock.getType()) == ElementType.NULL) {
-            player.sendMessage("&cTarget block does not have any valid elements...");
-            return;
-        }
-
-        if (!targetBlock.getType().isBlock()) {
-            player.sendMessage("&cTarget block is not a block?");
-            return;
-        }
-
-        final ActiveElement element = new ActiveElement(player, targetBlock);
-        player.setCooldown(getType(), 2); // fix instant throw
-        element.startTask();
-        setElement(player, element);
-
-        // This spams chat like a lot, changed to a block pickup sound instead.
-        player.playSound(targetBlock.getBlockData().getSoundGroup().getPlaceSound(), 1.0f);
+    private ActiveElement getElement(GamePlayer player) {
+        return elements.getOrDefault(player, null);
     }
+
+    private boolean hasElement(GamePlayer player) {
+        return this.getElement(player) != null;
+    }
+
+    public class BlockHarvest extends Ability {
+
+        public BlockHarvest() {
+            super("Block Harvest", """
+                    Right-click on a block to harvest an element from it.
+                                    
+                    Right-click again with an element equipped to launch it forward, damaging up to &bone &7opponents on its way.
+                                    
+                    &8;;The damage and cooldown are based on the element.
+                    """);
+        }
+
+        @Nullable
+        @Override
+        public Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
+            final Block targetBlock = player.getTargetBlockExact(7);
+
+            // Throw
+            if (hasElement(player)) {
+                final ActiveElement element = getElement(player);
+
+                element.stopTask();
+                element.throwEntity();
+
+                setElement(player, null);
+                startCooldown(player, element.getCooldown());
+
+                return Response.AWAIT;
+            }
+
+            // Pick Up
+            if (targetBlock == null) {
+                return Response.error("&cNo valid block in sight!");
+            }
+
+            if (ElementType.getElement(targetBlock.getType()) == ElementType.NULL) {
+                return Response.error("&cTarget block does not have any valid elements...");
+            }
+
+            if (!targetBlock.getType().isBlock()) {
+                return Response.error("&cTarget block is not a block?");
+            }
+
+            final ActiveElement element = new ActiveElement(player, targetBlock);
+            startCooldown(player, 2); // fix instant throw
+            element.startTask();
+            setElement(player, element);
+
+            // This spamming chat like a lot, changed to a block pickup sound instead.
+            player.playSound(targetBlock.getBlockData().getSoundGroup().getPlaceSound(), 1.0f);
+            return Response.AWAIT;
+        }
+    }
+
 }

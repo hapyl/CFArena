@@ -1,8 +1,7 @@
 package me.hapyl.fight.game.task;
 
+import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.spigotutils.module.util.Validate;
-import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 
@@ -21,5 +20,14 @@ public abstract class PlayerGameTask extends GameTask {
     @Nonnull
     public GamePlayer getPlayer() {
         return player;
+    }
+
+    @Event
+    public void onTaskStopBecauseOfDeath() {
+    }
+
+    public void cancelBecauseOfDeath() {
+        cancel0();
+        onTaskStopBecauseOfDeath();
     }
 }

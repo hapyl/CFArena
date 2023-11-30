@@ -20,6 +20,7 @@ public class TrollSpin extends Talent {
                 Rotates all nearby opponents head 180 degrees.
                 """);
 
+        setType(Type.IMPAIR);
         setItem(Material.NAUTILUS_SHELL);
         setCooldown(300);
     }

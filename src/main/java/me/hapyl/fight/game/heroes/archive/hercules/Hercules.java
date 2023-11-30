@@ -10,6 +10,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -63,7 +64,7 @@ public class Hercules extends Hero implements Listener, PlayerElement, DisabledH
     }
 
     @Override
-    public void useUltimate(@Nonnull GamePlayer player) {
+    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
         // Fx
         new GameTask() {
             private int tick = 0;
@@ -83,6 +84,8 @@ public class Hercules extends Hero implements Listener, PlayerElement, DisabledH
                 ++tick;
             }
         }.runTaskTimer(0, 1);
+
+        return UltimateCallback.OK;
     }
 
     @Override
@@ -140,7 +143,7 @@ public class Hercules extends Hero implements Listener, PlayerElement, DisabledH
         final Trident trident = fragileTrident.get(player);
         trident.remove();
 
-        GamePlayer.setCooldown(player, Material.TRIDENT, lessCooldown ? tridentCooldown / 3 : tridentCooldown);
+        player.setCooldown(Material.TRIDENT, lessCooldown ? tridentCooldown / 3 : tridentCooldown);
         player.getInventory().setItem(0, this.getWeapon().getItem());
         player.updateInventory();
 

@@ -20,11 +20,21 @@ public abstract class InputTalent extends Talent {
     }
 
     public InputTalent(@Nonnull String name, @Nonnull Material material) {
-        super(name, "null", Type.COMBAT_INPUT);
+        this(name, material, Type.DAMAGE);
+    }
+
+    public InputTalent(@Nonnull String name, @Nonnull Material material, @Nonnull Type type) {
+        super(name, "null", type);
         setItem(material);
 
         leftData = new InputTalentData(true);
         rightData = new InputTalentData(false);
+    }
+
+    @Nonnull
+    @Override
+    public String getTalentClassType() {
+        return "Input Talent";
     }
 
     @Override

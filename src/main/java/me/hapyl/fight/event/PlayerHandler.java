@@ -15,7 +15,6 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.loadout.HotbarLoadout;
-import me.hapyl.fight.game.loadout.HotbarSlot;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.parkour.CFParkour;
@@ -28,12 +27,12 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.team.LocalTeamManager;
 import me.hapyl.fight.game.tutorial.Tutorial;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.parkour.Data;
 import me.hapyl.spigotutils.module.parkour.ParkourManager;
 import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -225,8 +224,8 @@ public class PlayerHandler implements Listener {
 
         // Ultimate is not ready
         if (!gamePlayer.isUltimateReady()) {
-            gamePlayer.sendTitle("&b&l※", "&cYour ultimate isn't ready!", 5, 15, 5);
-            gamePlayer.sendMessage("&b&l※ &cYour ultimate isn't ready!");
+            gamePlayer.sendTitle("&4&l※", "&cYour ultimate isn't ready!", 5, 15, 5);
+            gamePlayer.sendMessage("&4&l※ &cYour ultimate isn't ready!");
             return;
         }
 
@@ -235,17 +234,19 @@ public class PlayerHandler implements Listener {
 
         // Ultimate is on cooldown
         if (ultimate.hasCd(gamePlayer)) {
-            gamePlayer.sendMessage(
-                    "&b&l※ &cYour ultimate is on cooldown for %ss!",
-                    BukkitUtils.roundTick(ultimate.getCdTimeLeft(gamePlayer))
-            );
+            if (gamePlayer.isSettingEnable(Settings.SHOW_COOLDOWN_MESSAGE)) {
+                gamePlayer.sendMessage(
+                        "&4&l※ &cYour ultimate is on cooldown for %s!",
+                        CFUtils.decimalFormatTick(ultimate.getCdTimeLeft(gamePlayer))
+                );
+            }
             return;
         }
 
         // Predicate fails
         if (!hero.predicateUltimate(gamePlayer)) {
             gamePlayer.sendMessage(
-                    "&b&l※ &cCannot use ultimate! %s",
+                    "&4&l※ &cCannot use ultimate! %s",
                     hero.predicateMessage(gamePlayer)
             );
             return;
@@ -253,7 +254,7 @@ public class PlayerHandler implements Listener {
 
         // Already using ultimate
         if (hero.isUsingUltimate(gamePlayer)) {
-            gamePlayer.sendMessage("&b&l※ &cYou are already using ultimate!");
+            gamePlayer.sendMessage("&4&l※ &cYou are already using ultimate!");
             return;
         }
 
@@ -502,9 +503,18 @@ public class PlayerHandler implements Listener {
             instance.damage = 0.0d;
         }
 
+        // Dodge
+        if (instance.damage > 0 && attributes.calculateDodge()) {
+            ev.setCancelled(true);
+            gameEntity.playDodgeFx();
+            return;
+        }
+
         // Ferocity
-        if (lastDamager != null && (instance.cause != null && instance.cause.isAllowedForFerocity()) &&
-                !gameEntity.hasCooldown(Cooldown.FEROCITY)) {
+        if (lastDamager != null
+                && (instance.cause != null
+                && instance.cause.isAllowedForFerocity())
+                && !gameEntity.hasCooldown(Cooldown.FEROCITY)) {
             final EntityAttributes damagerAttributes = lastDamager.getAttributes();
             final int ferocityStrikes = damagerAttributes.getFerocityStrikes();
 
@@ -666,7 +676,7 @@ public class PlayerHandler implements Listener {
         final Player player = ev.getPlayer();
         final PlayerProfile profile = PlayerProfile.getProfile(player);
 
-        if (profile == null || !Manager.current().isAbleToUse(player)) {
+        if (profile == null) {
             return;
         }
 
@@ -676,18 +686,24 @@ public class PlayerHandler implements Listener {
             return;
         }
 
+        // This means the game has not yet started, aka "pre-game"
+        if (!Manager.current().isAbleToUse(player)) {
+            gamePlayer.snapToWeapon();
+            return;
+        }
+
         gamePlayer.cancelInputTalent();
 
         final int newSlot = ev.getNewSlot();
 
         final HotbarLoadout hotbarLoadout = profile.getHotbarLoadout();
-        final HotbarSlot hotbarSlot = hotbarLoadout.bySlot(newSlot);
+        final HotbarSlots hotbarSlot = hotbarLoadout.bySlot(newSlot);
 
         if (hotbarSlot == null) {
             return;
         }
 
-        final boolean shouldCancel = hotbarSlot.handle(gamePlayer, newSlot);
+        final boolean shouldCancel = hotbarSlot.get().handle(gamePlayer, newSlot);
         if (shouldCancel) {
             ev.setCancelled(true);
         }
@@ -879,7 +895,7 @@ public class PlayerHandler implements Listener {
 
         if (response.isError()) {
             player.setInputTalent(null);
-            player.getInventory().setHeldItemSlot(0);
+            player.snapToWeapon();
         }
 
         if (!checkResponse(player, response)) {
@@ -930,23 +946,25 @@ public class PlayerHandler implements Listener {
      * @param talent - Talent.
      * @return true if valid, false otherwise.
      */
-    public static boolean checkTalent(GamePlayer player, Talent talent) {
+    public static boolean checkTalent(@Nonnull GamePlayer player, @Nullable Talent talent) {
         // null check
         if (talent == null) {
-            player.sendMessage("&cNullPointerException: talent is null");
+            player.sendMessage("&4Talent is null! Report this.");
             return false;
         }
 
         // cooldown check
         if (talent.hasCd(player)) {
-            player.sendMessage("&cTalent on cooldown for %ss.", BukkitUtils.roundTick(talent.getCdTimeLeft(player)));
+            if (player.isSettingEnable(Settings.SHOW_COOLDOWN_MESSAGE)) {
+                player.sendMessage("&cTalent on cooldown for %s.", CFUtils.decimalFormatTick(talent.getCdTimeLeft(player)));
+            }
             player.snapToWeapon();
             return false;
         }
 
         // charge check
         if (talent instanceof ChargedTalent chargedTalent) {
-            if (chargedTalent.getChargedAvailable(player) <= 0) {
+            if (chargedTalent.getChargesAvailable(player) <= 0) {
                 player.sendMessage("&cOut of charges!");
                 return false;
             }

@@ -33,4 +33,12 @@ public interface PlayerElement {
     default void onDeath(@Nonnull GamePlayer player) {
     }
 
+    /**
+     * Called once for each player whenever players are revealed.
+     *
+     * @param player - Player.
+     */
+    default void onPlayersReveal(@Nonnull GamePlayer player) {
+    }
+
 }

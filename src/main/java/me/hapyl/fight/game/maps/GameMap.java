@@ -309,9 +309,7 @@ public class GameMap implements GameElement, PlayerElement, EntityElement {
 
             @Override
             public void run() {
-                final int tickMod20 = tick % 20;
-
-                features.forEach(feature -> feature.tick(tickMod20));
+                features.forEach(feature -> feature.tick(tick));
                 ++tick;
             }
         }.runTaskTimer(0, 1);

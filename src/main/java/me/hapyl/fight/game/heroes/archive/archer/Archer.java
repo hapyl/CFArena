@@ -8,7 +8,9 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -16,7 +18,6 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.ThreadRandom;
 import org.bukkit.*;
@@ -27,7 +28,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
 
@@ -79,17 +79,16 @@ public class Archer extends Hero implements Listener {
     }
 
     @Override
-    public void useUltimate(@Nonnull GamePlayer player) {
-        final PlayerInventory inventory = player.getInventory();
-        inventory.setItem(4, boomBow.getItem());
-        inventory.setHeldItemSlot(4);
-
+    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
+        player.setItemAndSnap(HotbarSlots.HERO_ITEM, boomBow.getItem());
         player.setCooldown(boomBow.getMaterial(), boomBowPerShotCd);
 
         GameTask.runLater(() -> {
-            inventory.setItem(4, ItemStacks.AIR);
-            inventory.setHeldItemSlot(0);
+            player.setItem(HotbarSlots.HERO_ITEM, null);
+            player.snapToWeapon();
         }, getUltimateDuration());
+
+        return UltimateCallback.OK;
     }
 
     @Override

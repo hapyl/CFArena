@@ -1,15 +1,14 @@
 package me.hapyl.fight.database.entry;
 
-import com.google.common.collect.Maps;
+import me.hapyl.fight.database.EnumMappedEntry;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.PlayerDatabaseEntry;
 import me.hapyl.fight.game.cosmetic.crate.Crates;
 
 import javax.annotation.Nonnull;
-import java.util.Map;
 import java.util.Set;
 
-public class CrateEntry extends PlayerDatabaseEntry {
+public class CrateEntry extends PlayerDatabaseEntry implements EnumMappedEntry<Crates, Long> {
     public CrateEntry(PlayerDatabase playerDatabase) {
         super(playerDatabase);
     }
@@ -43,18 +42,15 @@ public class CrateEntry extends PlayerDatabaseEntry {
     }
 
     @Nonnull
-    public Map<Crates, Long> getCrates() {
-        final Map<Crates, Long> crates = Maps.newLinkedHashMap();
+    @Override
+    public Crates[] enumValues() {
+        return Crates.values();
+    }
 
-        for (Crates crate : Crates.values()) {
-            final long amount = getCrates(crate);
-
-            if (amount > 0) {
-                crates.put(crate, amount);
-            }
-        }
-
-        return crates;
+    @Nonnull
+    @Override
+    public Long getMappedValue(@Nonnull Crates crates) {
+        return getCrates(crates);
     }
 
     public long getTotalCrates() {
@@ -72,4 +68,5 @@ public class CrateEntry extends PlayerDatabaseEntry {
             addCrate(crate, 1);
         }
     }
+
 }

@@ -125,9 +125,53 @@ Troll
 Nightmare
 ===
 
+### Weapon
+
+* Renamed "Omen" >> "Oathbreaker"
+
+### Your Worst Nightmare (Ultimate)
+
+* Changed to apply Omen.
+
+### Paranoia
+
+* Changed to apply Omen.
+
+### Shadow Shift
+
+* Now applies Omen to the target for short duration.
+
+### In the Shadows (Passive)
+
+* Now gives Attack and Speed as attributes.
+    * 25 and 5 respectfully.
+
+#### Omen
+
+* New ability that extends Paranoia functionality.
+* Enemies affected by Omen:
+    * Take 25% more damage from you.
+    * Affected by Paranoia.
 
 ---
-<<>>
+
+Dr Ed
+===
+
+### Upgrades People, Upgrades! (Ultimate)
+
+* Add 2s cooldown.
+* Fix being able to use ultimate while dead.
+
+### Block Harvest
+
+* Update FX.
+
+### Miscellaneous
+
+* Update equipment.
+
+---
 
 Ender
 ===
@@ -155,3 +199,122 @@ Ender
     * Grants a 20% attack boost for a short duration.
 
 ---
+
+Spark
+===
+
+### Run it Back (Ultimate)
+
+* Reduced duration 10s >> 6s.
+* Your weapon automatically reloads upon rebirth.
+* Fixed ultimate not working properly.
+
+### Blinding Curve
+
+* Renamed "Blinding Fire" >> "Blinding Curve."
+* Windup time reduced 1s >> 0.75s.
+* Now deals damage to enemies.
+* Fixed item not being removed.
+
+---
+
+Shadow Assassin
+===
+
+## Reworked!
+
+### Extreme Focus (Ultimate)
+
+* Stays the same.
+
+### Shadow Switch
+
+* Switch between Stealth and Fury.
+
+### Dark Cover
+
+* In Stealth:
+    * Enter dark cover. Attack an enemy to create explosion.
+
+* In Fury:
+    * Create an explosion in front of you.
+
+### Shadow Clone
+
+* In Stealth:
+    * Summon a clone that will attack and impair enemies.
+
+* In Fury:
+    * Summon three clones that debuff and deal damage in fixed AoE.
+
+### Shadow Energy (Passive)
+
+* Accumulate Shadow Energy in Stealth mode to spend it in Fury mode.
+
+---
+
+The Witcher
+===
+
+TODO WAITING FOR CAT TO MEOW
+
+---
+
+Vortex
+===
+
+### All the Stars (Ultimate)
+
+* Increased range 5.5 >> 10 blocks.
+* Add 0.75s delay before cast.
+* Improve blink locations.
+
+### Astral Slash
+
+* It is now its own ability, not linked to the weapon.
+
+### Astral Star
+
+* The stars can now be targeted by looking at them:
+    * Use the target star to execute other abilities.
+
+### Star Aligner
+
+* Now teleports to the target star.
+
+### Like a Dream (Passive)
+
+* Upon using Star Aligner, gain one stack of Astral Spark, which increases Astral Slash damage by 15% per stack.
+* Lose one stack after not gaining a stack for 5s.
+
+### Weapon
+
+#### Astral Despair (New Ability)
+
+* Explode the target star, dealing AoE damage.
+
+---
+
+Frostbite
+===
+
+## Reworked!
+
+### Eternal Freeze (Ultimate)
+
+* Summon massive snow field zone, where enemies are slowed and impaired, their cooldowns are also increased.
+
+### Frostfall
+
+* Summon icicles above your target enemy. After a short delay, icicles fall, dealing damage and impairing the enemy.
+    * If there are no enemies, the icicles will spawn in front of you.
+
+### Ice Cage
+
+* Throw a snowball in front of you.
+    * Upon hitting an enemy, imprison them in ice.
+    * Click the ice to remove it.
+
+### Chill Aura (Passive)
+
+* Emit chill aura in small AoE that slows enemies.

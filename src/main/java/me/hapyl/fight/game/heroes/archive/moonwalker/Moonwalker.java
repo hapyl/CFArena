@@ -5,6 +5,7 @@ import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -55,8 +56,10 @@ public class Moonwalker extends Hero implements PlayerElement {
     }
 
     @Override
-    public void useUltimate(@Nonnull GamePlayer player) {
+    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
         getUltimate().execute(player);
+
+        return UltimateCallback.OK;
     }
 
     @Override

@@ -14,14 +14,14 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
- * There are 2 ways of doing this:
+ * There are two ways of doing this:
  *
  * <ul>
  *     <li>Reworking the whole system to not use enums but instead registries.</li>
  *     <li>Limiting crates to cosmetics only (which realistically it will always be).</li>
  * </ul>
  * <p>
- * The better way is, of course, to remove enums and use registries; but it is also the longer way.
+ * The better way is to remove enums and use registries; but it is also the longer way.
  * So for now I'm just limiting crates to cosmetics only.
  */
 public class ItemContents<T extends RareItem> {
@@ -59,6 +59,19 @@ public class ItemContents<T extends RareItem> {
     @Nullable
     public T randomItem(@Nonnull Rarity rarity) {
         return CollectionUtils.randomElement(getItems(rarity));
+    }
+
+    @Nullable
+    public T firstItem() {
+        for (List<T> list : contents.values()) {
+            if (list == null) {
+                return null;
+            }
+
+            return list.get(0);
+        }
+
+        return null;
     }
 
     /**

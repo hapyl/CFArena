@@ -4,6 +4,8 @@ import com.google.common.collect.Maps;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class SimpleRegistry<T extends EnumId> implements Registry<T> {
@@ -37,5 +39,11 @@ public class SimpleRegistry<T extends EnumId> implements Registry<T> {
             throw new IllegalStateException("Unregister in a locked registry.");
         }
         return registered.remove(t.getId()) != null;
+    }
+
+    @Nonnull
+    @Override
+    public List<T> values() {
+        return new ArrayList<>(registered.values());
     }
 }

@@ -16,22 +16,22 @@ import java.util.List;
 import java.util.function.BiConsumer;
 
 /**
- * Allows sorting elements by an Enum constants.
+ * Allows filtering elements by an {@link Enum} constants.
  *
- * @param <E> - Elements to sort.
- * @param <S> - Sorting enum.
+ * @param <E> - Elements to filter.
+ * @param <S> - Filtering enum.
  */
-public abstract class Sortable<E, S extends Enum<S>> {
+public abstract class Filter<E, S extends Enum<S>> {
 
     private final Class<S> clazz;
     private final List<S> values;
-    private S sort;
+    private S current;
 
     @SafeVarargs
-    public Sortable(@Nonnull Class<S> clazz, @Nonnull S... excludes) {
+    public Filter(@Nonnull Class<S> clazz, @Nonnull S... excludes) {
         this.clazz = clazz;
         this.values = Lists.newArrayList();
-        this.sort = null;
+        this.current = null;
 
         // init constants
         setValues(excludes);
@@ -43,19 +43,20 @@ public abstract class Sortable<E, S extends Enum<S>> {
 
     public abstract boolean isKeep(@Nonnull E e, @Nonnull S s);
 
-    public List<E> sort(@Nonnull List<E> contents) {
-        contents.removeIf(e -> sort != null && !isKeep(e, sort));
+    @Nonnull
+    public List<E> filter(@Nonnull List<E> contents) {
+        contents.removeIf(e -> current != null && !isKeep(e, current));
         return contents;
     }
 
-    public void setSortItem(@Nonnull PlayerGUI gui, int slot, @Nonnull BiConsumer<PlayerGUI, S> onClick) {
-        final ItemBuilder item = ItemBuilder.of(Material.NAME_TAG, "Sort", "&8Sort by " + clazz.getSimpleName()).addLore();
+    public void setFilterItem(@Nonnull PlayerGUI gui, int slot, @Nonnull BiConsumer<PlayerGUI, S> onClick) {
+        final ItemBuilder item = ItemBuilder.of(Material.NAME_TAG, "Filter", "&8Filter by " + clazz.getSimpleName()).addLore();
 
-        item.addLoreIf("&a➥ &nNone", sort == null);
-        item.addLoreIf(" &8None", sort != null);
+        item.addLoreIf("&a➥ &nNone", current == null);
+        item.addLoreIf(" &8None", current != null);
 
         for (S value : values) {
-            final boolean currentValue = sort == value;
+            final boolean currentValue = current == value;
 
             item.addLore((currentValue ? "&a➥ " : "&8 ") + value.toString());
             if (currentValue && value instanceof Described described) {
@@ -81,13 +82,13 @@ public abstract class Sortable<E, S extends Enum<S>> {
     }
 
     /**
-     * Gets the current sort element, null if set to "none."
+     * Gets the current sort element, null if set to "None."
      *
      * @return the current sort element, null if set to "None."
      */
     @Nullable
     public S current() {
-        return sort;
+        return current;
     }
 
     /**
@@ -97,49 +98,49 @@ public abstract class Sortable<E, S extends Enum<S>> {
      */
     @Nullable
     public S next() {
-        if (sort == null) {
-            sort = values.get(0);
+        if (current == null) {
+            current = values.get(0);
         }
         else {
             final int nextOrdinal = ordinal() + 1;
 
             if (nextOrdinal >= values.size()) {
-                sort = null;
+                current = null;
             }
             else {
-                sort = values.get(nextOrdinal);
+                current = values.get(nextOrdinal);
             }
         }
 
-        return sort;
+        return current;
     }
 
     /**
      * Switches to the previous element and get it, or null if it is "None."
      *
-     * @return the previous element and get it, or null if it is "none."
+     * @return the previous element and get it, or null if it is "None."
      */
     @Nullable
     public S previous() {
-        if (sort == null) {
-            sort = values.get(values.size() - 1);
+        if (current == null) {
+            current = values.get(values.size() - 1);
         }
         else {
             final int previousOrdinal = ordinal() - 1;
 
             if (previousOrdinal < 0) {
-                sort = null;
+                current = null;
             }
             else {
-                sort = values.get(previousOrdinal);
+                current = values.get(previousOrdinal);
             }
         }
 
-        return sort;
+        return current;
     }
 
     private int ordinal() {
-        return ordinal(sort);
+        return ordinal(current);
     }
 
     @SafeVarargs

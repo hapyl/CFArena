@@ -2,7 +2,7 @@ package me.hapyl.fight.database.rank;
 
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.color.Color;
-import org.bukkit.ChatColor;
+import me.hapyl.fight.util.SmallCaps;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
@@ -12,12 +12,13 @@ import javax.annotation.Nonnull;
 public enum PlayerRank {
 
     // Default
-    DEFAULT(0, RankFormatter.of("", ChatColor.YELLOW)),
-    PREMIUM(1, RankFormatter.of("&b&l⭐", ChatColor.DARK_BLUE)),
+    DEFAULT(0, RankFormatter.of("", Color.YELLOW)),
+    VIP(1, RankFormatter.of(Color.VIP + "ᴠɪᴘ", Color.VIP_NAME)),
+    PREMIUM(2, RankFormatter.of(Color.PREMIUM + "ᴘʀᴇᴍɪᴜᴍ", Color.PREMIUM_NAME)),
 
     // Administrators
-    MODERATOR(100, RankFormatter.of(Color.MODERATOR.bold() + "ᴍᴏᴅ", ChatColor.DARK_GREEN, "&f")),
-    ADMIN(101, RankFormatter.of(Color.ADMIN.bold() + "ᴀᴅᴍɪɴ", ChatColor.RED, "&f", true)),
+    MODERATOR(100, RankFormatter.of(Color.MODERATOR.bold() + "ᴍᴏᴅ", Color.DARK_GREEN, Color.WHITE)),
+    ADMIN(101, RankFormatter.of(Color.ADMIN.bold() + "ᴀᴅᴍɪɴ", Color.RED, Color.WHITE, true)),
     CONSOLE(102, RankFormatter.of("[CONSOLE]")),
 
     ;
@@ -25,10 +26,12 @@ public enum PlayerRank {
     private static final int STAFF_LEVEL = 100;
     private static final int ADMIN_LEVEL = 101;
 
+    private final String fallbackName;
     private final int permissionLevel;
     private final RankFormatter format;
 
     PlayerRank(int permissionLevel, @Nonnull RankFormatter format) {
+        this.fallbackName = SmallCaps.format(name());
         this.permissionLevel = permissionLevel;
         this.format = format;
     }
@@ -37,10 +40,19 @@ public enum PlayerRank {
         return permissionLevel;
     }
 
+    @Nonnull
     public String getPrefix() {
         return format.prefix();
     }
 
+    @Nonnull
+    public String getPrefixWithFallback() {
+        final String prefix = format.prefix();
+
+        return !prefix.isEmpty() ? prefix : fallbackName;
+    }
+
+    @Nonnull
     public RankFormatter getFormat() {
         return format;
     }

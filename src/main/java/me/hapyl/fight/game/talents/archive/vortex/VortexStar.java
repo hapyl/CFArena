@@ -8,24 +8,28 @@ import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.LivingEntity;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 
 public class VortexStar extends Talent {
 
     @DisplayField private final short maximumStars = 5;
+    @DisplayField private final int pickupCooldown = 30;
+    @DisplayField private final int summonCooldown = 200;
+
     private final PlayerMap<AstralStars> stars = PlayerMap.newMap();
 
     public VortexStar() {
         super("Astral Star");
+
         setDescription("""
-                Summons an Astral Star at your current location. If used nearby placed Astral Star, the star will be picked up.
-                      
-                You may have maximum of &b{maximumStars} &7stars at the same time.
+                Summon an &eAstral Star&7 at your current location.
+                &8&o;;If used nearby a star, it will be picked up.
+                                
+                &7&o;;The stars are your guide! But only &b{maximumStars}&7&o can exist at the same time.
                 """);
 
+        setType(Type.CREATABLE);
         setItem(Material.NETHER_STAR);
         setCooldown(DYNAMIC);
     }
@@ -43,9 +47,10 @@ public class VortexStar extends Talent {
     }
 
     public int getStarAmount(GamePlayer player) {
-        return getStars(player).getStarsAmount();
+        return getStars(player).getStarAmount();
     }
 
+    @Nonnull
     public AstralStars getStars(GamePlayer player) {
         return stars.computeIfAbsent(player, AstralStars::new);
     }
@@ -55,31 +60,26 @@ public class VortexStar extends Talent {
         new GameTask() {
             @Override
             public void run() {
-                stars.values().forEach(as -> {
-                    as.tickStars();
-                    as.updateColors();
-                });
+                stars.values().forEach(AstralStars::tick);
             }
-        }.runTaskTimer(0, 10);
+        }.runTaskTimer(0, 5);
     }
 
     @Override
     public Response execute(@Nonnull GamePlayer player) {
         final int starsAmount = getStarAmount(player);
         final AstralStars stars = getStars(player);
-        final List<LivingEntity> twoStars = stars.getLastTwoStars();
+        final AstralStar nearestStar = stars.getFirstStarToPickup();
 
-        if (twoStars.size() >= 1) {
-            final LivingEntity lastStar = twoStars.get(0);
-            if (lastStar.getLocation().distance(player.getLocation()) <= stars.getPickupDistance()) {
-                stars.removeStar(lastStar);
-                startCd(player, 80);
+        if (nearestStar != null) {
+            stars.removeStar(nearestStar);
+            startCd(player, pickupCooldown);
 
-                player.playSound(Sound.BLOCK_BELL_RESONATE, 1.95f);
-                player.sendMessage("&aPick up an Astral Star.");
+            // Fx
+            player.playSound(Sound.BLOCK_BELL_RESONATE, 1.95f);
+            player.sendMessage("&e⭐ &aPicked up an Astral Star.");
 
-                return Response.OK;
-            }
+            return Response.AWAIT;
         }
 
         if (starsAmount >= maximumStars) {
@@ -87,11 +87,12 @@ public class VortexStar extends Talent {
             return Response.error("Out of Astral Stars!");
         }
 
-        startCd(player, 200);
         stars.summonStar(player.getEyeLocation());
+        startCd(player, summonCooldown);
 
+        // Fx
         player.playSound(Sound.BLOCK_BELL_USE, 1.75f);
-        player.sendMessage("&aCreated new Astral Star.");
+        player.sendMessage("&e⭐ &aCreated new Astral Star.");
 
         return Response.OK;
     }

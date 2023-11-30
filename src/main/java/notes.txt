@@ -1,23 +1,37 @@
-Troll:
-
-- Repulsor is now has a range restriction of 10 blocks. (As it should be)
-
 ####################################################################
 
-You really gotta migrate to using GamePlayer everywhere.
-Yes, it will be painful and buggy, but IS a good idea.
+└
+
+####################################################################
 
 - [!] The lobby game player bug STILL happens.
 - [✔] COOLDOWN ABILITY DOES NOT RESET YOU STUPID
 - [✔] Update tab names faster
 
-- Spark health reborn wrong
+- [✔] Spark health reborn wrong
 - [✔] Ender cd wrong?
 - [✔] Change passive to any teleport == heal
 - [✔] Make invisible player not valid
 - [✔] Update map and mode GUI
-- Backstab does not worK?????
+- [✔] Backstab does not worK?????
 - Poison Ivy TOO fast
+
+- [✔] Berserk seem to end multiple times
+- [✔] Add lightning to drunk cat
+- [✔] Bloodfiend can fly sometimes
+- Frenzy bugged
+- Frenzy death after health <= 0 resets health
+- [✔] Change flight to onReveal() not onStart() OR force flight on when setting to spectator
+
+* Bloodfiend
+- Change bloodfiend to use hp%
+- Change bloodfiend pillar to left/right
+- Fix bloodfiend blood tps to player not nearby
+
+- [✔] I BELIEVE I CAN FLY, I BELIEVE I CAN TOUCH THE SKY
+-- Should be fixed for all characters, though needs testing.
+
+- [✔] Remove durability from weapons it BREAKS LOL
 
 * Nightmare
 - Make omen work like monass' omen
@@ -28,6 +42,12 @@ Yes, it will be painful and buggy, but IS a good idea.
 * Zealot
 - Add guardian effect when hit by beam
 - Make ferocity only work on melee
+
+* New feature
+- DoT? Thoughts?
+
+* Passive idea for tank or support maybe
+- When hit and damage is NOT leathal but under like 5% of health = heal. Cd ofc
 
 ####################################################################
 

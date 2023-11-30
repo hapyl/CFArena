@@ -14,11 +14,11 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.util.Condition;
+import me.hapyl.fight.util.Described;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.fight.util.displayfield.DisplayFieldSerializer;
 import me.hapyl.spigotutils.module.annotate.Super;
-import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.math.Tick;
@@ -41,9 +41,8 @@ public abstract class Talent extends NonNullItemCreator
 
     public static final Talent NULL = null;
     public static int DYNAMIC = -1;
-
-    private final Type type;
     private final List<String> attributeDescription;
+    private Type type;
     private String name;
     @Nonnull
     private String description;
@@ -61,11 +60,11 @@ public abstract class Talent extends NonNullItemCreator
     private boolean autoAdd;
 
     public Talent(@Nonnull String name) {
-        this(name, "", Type.COMBAT);
+        this(name, "", Type.DAMAGE);
     }
 
     public Talent(@Nonnull String name, @Nonnull String description) {
-        this(name, description, Type.COMBAT);
+        this(name, description, Type.DAMAGE);
     }
 
     public Talent(@Nonnull String name, @Nonnull String description, @Nonnull Material material) {
@@ -73,6 +72,13 @@ public abstract class Talent extends NonNullItemCreator
         setItem(material);
     }
 
+    /**
+     * Note on creating a talent:
+     * <ul>
+     *     <li>Keep to builder methods, like setItem(), setType() etc.</li>
+     *     <li>Preserve order of such builder methods, start with enums, end with primitives.</li>
+     * </ul>
+     */
     public Talent(@Nonnull String name, @Nonnull String description, @Nonnull Type type) {
         this.name = name;
         this.description = description;
@@ -216,14 +222,15 @@ public abstract class Talent extends NonNullItemCreator
         // TODO: 010, Mar 10, 2023 -> this
     }
 
-    @Override
-    public void appendLore(@Nonnull ItemBuilder builder) {
+    @Nonnull
+    public String getTalentClassType() {
+        return "Talent";
     }
 
     public void createItem() {
         final ItemBuilder builderItem = ItemBuilder.of(material)
                 .setName(name)
-                .addLore("&8%s %s", Chat.capitalize(type), type == Type.ULTIMATE ? "" : "Talent")
+                .addLore("&8" + type.getName() + " " + getTalentClassType())
                 .addLore();
 
         builderItem.setAmount(startAmount);
@@ -262,7 +269,7 @@ public abstract class Talent extends NonNullItemCreator
         // Is ability having alternative usage, tell how to use it
         if (!autoAdd) {
             builderItem.addLore("");
-            builderItem.addSmartLore(altUsage, "&8&o", 35);
+            builderItem.addSmartLore(altUsage, "&8&o");
         }
 
         if (this instanceof UltimateTalent) {
@@ -275,9 +282,14 @@ public abstract class Talent extends NonNullItemCreator
         final ItemBuilder builderAttributes = new ItemBuilder(getItemUnsafe());
 
         builderAttributes.removeLore();
-        builderAttributes.setName(name).addLore("&8Attributes").addLore();
+        builderAttributes.setName(name).addLore("&8Details").addLore();
 
-        // Cooldown a
+        //
+        builderAttributes.addLore("&f&l" + type.getName());
+        builderAttributes.addSmartLore(type.getDescription());
+        builderAttributes.addLore();
+
+        // Cooldown
         if (cd > 0) {
             builderAttributes.addLore("Cooldown%s: &f&l%ss".formatted(
                     this instanceof ChargedTalent ? " between charges" : "",
@@ -447,6 +459,11 @@ public abstract class Talent extends NonNullItemCreator
         return cd;
     }
 
+    @Nonnull
+    public String getCooldownFormatted() {
+        return Tick.round(cd) + "s";
+    }
+
     @Override
     @ExecuteOrder(before = { "setPoint(int)" })
     public Talent setCooldown(int cd) {
@@ -472,8 +489,14 @@ public abstract class Talent extends NonNullItemCreator
         this.name = name;
     }
 
+    @Nonnull
     public Type getType() {
         return type;
+    }
+
+    public Talent setType(@Nonnull Type type) {
+        this.type = type;
+        return this;
     }
 
     @Nonnull
@@ -488,6 +511,16 @@ public abstract class Talent extends NonNullItemCreator
 
     public boolean isDisplayAttributes() {
         return true;
+    }
+
+    @SuppressWarnings("all")
+    @Deprecated
+    public synchronized void nullifyItem() {
+        item = null;
+    }
+
+    public void startCdInferentially(@Nonnull GamePlayer player) {
+        startCd(player, 100000);
     }
 
     private String formatIfPossible(@Nonnull String toFormat, @Nullable Object... format) {
@@ -542,35 +575,34 @@ public abstract class Talent extends NonNullItemCreator
         return Response.OK;
     }
 
-    public enum Type {
-        /**
-         * Normal talent.
-         * Most heroes use this.
-         */
-        COMBAT,
-        /**
-         * Talent with multiple charges.
-         */
-        COMBAT_CHARGED,
-        /**
-         * Talent that requires input to execute.
-         */
-        COMBAT_INPUT,
-        /**
-         * Passive talent.
-         */
-        PASSIVE,
-        /**
-         * Ultimate.
-         * Yes, ultimates are considered talents.
-         */
-        ULTIMATE
-    }
+    public enum Type implements Described {
+        DAMAGE("Damage", "Deals damage to enemies."),
+        ENHANCE("Enhance", "Strengthen yourself for the battle."),
+        CREATABLE("Creatable", "This ability appears in the world as a physical entity."),
+        SUPPORT("Support", "Provide buffs to teammates."),
+        IMPAIR("Impair", "Weaken enemies by debuffing them."),
+        MOVEMENT("Movement", "Provides a way to swiftly flee the battlefield or enter the battle. Or just to have fun."),
+        DEFENSE("Defense", "Provide shields for yourself or allies.");
 
-    @SuppressWarnings("all")
-    @Deprecated
-    public synchronized void nullifyItem() {
-        item = null;
+        private final String name;
+        private final String description;
+
+        Type(String name, String description) {
+            this.name = name;
+            this.description = description;
+        }
+
+        @Nonnull
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        @Nonnull
+        @Override
+        public String getDescription() {
+            return description;
+        }
     }
 
 }

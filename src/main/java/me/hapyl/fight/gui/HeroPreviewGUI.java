@@ -1,6 +1,7 @@
 package me.hapyl.fight.gui;
 
 import com.google.common.collect.Sets;
+import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
@@ -66,7 +67,20 @@ public class HeroPreviewGUI extends PlayerGUI {
         );
 
         setItem(11, hero.getCachedHeroItem().getDetailsItem());
-        setItem(29, hero.getWeapon().getItem());
+
+        final Weapon weapon = hero.getWeapon();
+        setItem(29, weapon.getItem());
+
+        if (weapon.hasAbilities()) {
+            setItem(
+                    38,
+                    new ItemBuilder(Material.LIME_STAINED_GLASS_PANE)
+                            .setName(Color.GREEN + "This weapon has abilities!")
+                            .addLore()
+                            .addSmartLore("Remember to check the weapon! It has some unique abilities.")
+                            .asIcon()
+            );
+        }
 
         final PlayerSkin skin = hero.getSkin();
         if (skin != null) {
@@ -174,7 +188,7 @@ public class HeroPreviewGUI extends PlayerGUI {
 
         return new ItemBuilder(talent.getItemAttributes())
                 .addLore()
-                .addLore("&eClick to hide attributes")
+                .addLore("&eClick to hide details")
                 .asIcon();
     }
 
@@ -187,7 +201,7 @@ public class HeroPreviewGUI extends PlayerGUI {
         final boolean isDisplayAttributes = talent.isDisplayAttributes();
         return new ItemBuilder(talent.getItem())
                 .addLoreIf("", isDisplayAttributes)
-                .addLoreIf("&eClick to show attributes", isDisplayAttributes)
+                .addLoreIf("&eClick for details", isDisplayAttributes)
                 .asIcon();
     }
 

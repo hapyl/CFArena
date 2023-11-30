@@ -7,6 +7,8 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.dot.DotInstanceList;
+import me.hapyl.fight.game.dot.Dots;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -25,6 +27,7 @@ import java.util.Map;
 public final class EntityData {
 
     private final Map<GameEffectType, ActiveGameEffect> gameEffects;
+    private final Map<Dots, DotInstanceList> dotMap;
     private final Map<Player, Double> damageTaken;
 
     private final LivingGameEntity entity;
@@ -38,10 +41,16 @@ public final class EntityData {
     @Important("Notifies the event that the damage is custom, not vanilla.")
     boolean wasHit;
 
-    public EntityData(LivingGameEntity entity) {
+    public EntityData(@Nonnull LivingGameEntity entity) {
         this.entity = entity;
         this.damageTaken = Maps.newHashMap();
         this.gameEffects = Maps.newConcurrentMap();
+        this.dotMap = Maps.newConcurrentMap();
+    }
+
+    @Nonnull
+    public Map<Dots, DotInstanceList> getDotMap() {
+        return dotMap;
     }
 
     /**
@@ -127,7 +136,7 @@ public final class EntityData {
     }
 
     /**
-     * Sets the cause of the last taken damage.
+     * Sets the cause of the last-taken damage.
      *
      * @param cause - Cause.
      */

@@ -4,6 +4,7 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.cosmetic.gadget.Gadget;
+import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.gui.HeroSelectGUI;
 import me.hapyl.fight.gui.GameManagementGUI;
 import me.hapyl.fight.gui.styled.profile.PlayerProfileGUI;
@@ -64,16 +65,16 @@ public enum LobbyItems {
         this.lobbyItem = lobbyItem;
     }
 
-    public void give(Player player) {
-        lobbyItem.give(player);
-    }
-
     @Nonnull
     public LobbyItem getItem() {
         return lobbyItem;
     }
 
-    public static void giveAll(Player player) {
+    public void give(@Nonnull Player player) {
+        lobbyItem.give(player);
+    }
+
+    public static void giveAll(@Nonnull Player player) {
         for (LobbyItems value : values()) {
             value.give(player);
         }
@@ -81,12 +82,16 @@ public enum LobbyItems {
         // Give gadget
         final Cosmetics selectedGadget = Cosmetics.getSelected(player, Type.GADGET);
 
-        if (selectedGadget == null) {
-            return;
+        if (selectedGadget != null) {
+            if (selectedGadget.getCosmetic() instanceof Gadget gadget) {
+                gadget.give(player);
+            }
         }
 
-        if (selectedGadget.getCosmetic() instanceof Gadget gadget) {
-            gadget.give(player);
-        }
+        // Give fast access items
+        PlayerProfile.getProfileOptional(player).ifPresent(profile -> {
+            profile.getFastAccess().update();
+        });
+
     }
 }

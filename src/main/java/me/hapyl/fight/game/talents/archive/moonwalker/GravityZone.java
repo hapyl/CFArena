@@ -27,7 +27,7 @@ public class GravityZone extends Talent {
 
     @DisplayField private final double radius = 3.0d;
     @DisplayField private final double radiusY = 7.0d;
-    @DisplayField private final double damagePerTick = 0.4d;
+    @DisplayField private final double damagePerTick = 2.0d;
 
     public GravityZone() {
         super("Gravity Pull", """
@@ -37,10 +37,12 @@ public class GravityZone extends Talent {
                                 
                 When charged, slam all enemies within range down and deal damage to them.
                 &8;;The damage is scaled with how long an enemy was in the gravity pull.
-                """, Material.PURPLE_DYE);
+                """);
 
-        setCooldownSec(20);
+        setType(Type.IMPAIR);
+        setItem(Material.PURPLE_DYE);
         setDuration(80);
+        setCooldownSec(20);
     }
 
     @Override
@@ -71,14 +73,13 @@ public class GravityZone extends Talent {
                             return;
                         }
 
-                        final Vector velocity = entity.getVelocity();
-
-                        entity.setVelocity(new Vector(velocity.getX() / 2, -2.0d, velocity.getZ() / 2));
-                        entity.addEffect(GameEffectType.FALL_DAMAGE_RESISTANCE, 60, true);
-
                         // Damage
                         final int ticksInPull = this.ticksInPull.getOrDefault(entity, 1);
                         entity.damage(ticksInPull * damagePerTick, player, EnumDamageCause.GRAVITY);
+
+                        final Vector velocity = entity.getVelocity();
+                        entity.setVelocity(new Vector(velocity.getX() / 2, -2.0d, velocity.getZ() / 2));
+                        entity.addEffect(GameEffectType.FALL_DAMAGE_RESISTANCE, 60, true);
                     });
 
                     ticksInPull.clear();

@@ -12,12 +12,15 @@ public class DragonSkinSpell extends MageSpell {
     public DragonSkinSpell() {
         super("Dragon's Skin");
 
-        setItem(Material.PHANTOM_MEMBRANE);
 
         setDescription(
                 "Consume to gain &cincredible strength&7, but suffer %s reduction.",
                 AttributeType.SPEED
         );
+
+        setType(Type.ENHANCE);
+        setItem(Material.PHANTOM_MEMBRANE);
+        setDurationSec(10);
     }
 
     @Override
@@ -29,6 +32,6 @@ public class DragonSkinSpell extends MageSpell {
         player.addPotionEffect(PotionEffectType.JUMP, duration, 250);
 
         // Fx
-        player.spawnParticle(player.getLocation().add(0.0d, 1.0d, 0.0d), Particle.CRIT_MAGIC, 40, 0.1, 0.1, 0.1, 1);
+        player.spawnWorldParticle(player.getLocation().add(0.0d, 1.0d, 0.0d), Particle.CRIT_MAGIC, 40, 0.1, 0.1, 0.1, 1);
     }
 }

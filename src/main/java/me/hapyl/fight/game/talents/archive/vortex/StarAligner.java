@@ -6,51 +6,46 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.vortex.Vortex;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.LivingEntity;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 
 public class StarAligner extends Talent {
 
-    @DisplayField private final short minimumStars = 2;
-
     public StarAligner() {
-        super("Star Aligner", "Align two nearby starts to teleport and launch an Astral Slash between them.");
+        super(
+                "Star Aligner", """
+                        Align with your target &eAstral Star&7, &bteleporting&7 to it and launching an &6Astral Slash&7.
+                                                
+                        &8;;The star is consumed on teleport.
+                        """);
 
+        setType(Type.DAMAGE);
         setItem(Material.BEETROOT_SEEDS);
-        setCooldown(20);
+        setCooldownSec(1);
     }
 
     @Override
     public Response execute(@Nonnull GamePlayer player) {
         final AstralStars stars = Talents.VORTEX_STAR.getTalent(VortexStar.class).getStars(player);
-        final List<LivingEntity> lastTwo = stars.getLastTwoStars();
+        final AstralStar targetStar = stars.getTargetStar();
 
-        if (lastTwo.size() < minimumStars) {
-            return Response.error("There must be at least 2 stars!");
+        if (targetStar == null) {
+            return Response.error("Not targeting any astral stars!");
         }
 
-        final LivingEntity starStart = lastTwo.get(0);
-        final LivingEntity starEnd = lastTwo.get(1);
+        final Location previousLocation = player.getEyeLocation();
 
-        if (starStart.getLocation().distance(player.getLocation()) > 3.5d) {
-            return Response.error("You are too far away from an Astral Star!");
-        }
+        stars.removeStar(targetStar);
+        targetStar.teleport(player);
 
-        stars.removeStar(starStart);
+        final Vortex hero = Heroes.VORTEX.getHero(Vortex.class);
 
-        final Location location = starEnd.getLocation().clone();
-        location.setYaw(player.getLocation().getYaw());
-        location.setPitch(player.getLocation().getPitch());
-        player.teleport(location);
-
-        Heroes.VORTEX.getHero(Vortex.class).performStarSlash(starStart.getEyeLocation(), starEnd.getEyeLocation(), player);
+        hero.performStarSlash(previousLocation, targetStar.getLocation(), player);
+        hero.addDreamStack(player);
 
         PlayerLib.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 1.75f);
         return Response.OK;

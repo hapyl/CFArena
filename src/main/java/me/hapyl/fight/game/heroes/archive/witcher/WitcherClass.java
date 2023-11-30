@@ -8,6 +8,7 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.ComplexHero;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -55,7 +56,7 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
     }
 
     @Override
-    public void useUltimate(@Nonnull GamePlayer player) {
+    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
         Talents.KVEN.startCd(player);
         Talents.IRDEN.startCd(player);
 
@@ -75,6 +76,7 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
             }
         }.runTaskTimer(0, 1);
 
+        return UltimateCallback.OK;
     }
 
     @Override

@@ -3,10 +3,9 @@ package me.hapyl.fight.game.weapons.ability;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.talents.Cooldown;
 import me.hapyl.fight.game.talents.Timed;
-import me.hapyl.fight.game.weapons.LeftClickable;
-import me.hapyl.fight.game.weapons.RightClickable;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Described;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
@@ -19,7 +18,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.BiConsumer;
 
 public abstract class Ability implements Described, Timed, Cooldown, DisplayFieldProvider {
 
@@ -51,7 +49,9 @@ public abstract class Ability implements Described, Timed, Cooldown, DisplayFiel
 
     public final void execute0(GamePlayer player, ItemStack item) {
         if (hasCooldown(player)) {
-            sendError(player, "&cThis ability is on cooldown for %s!", getCooldownTimeLeftFormatted(player));
+            if (player.isSettingEnable(Settings.SHOW_COOLDOWN_MESSAGE)) {
+                sendError(player, "&cThis ability is on cooldown for %s!", getCooldownTimeLeftFormatted(player));
+            }
             return;
         }
 
@@ -156,24 +156,6 @@ public abstract class Ability implements Described, Timed, Cooldown, DisplayFiel
     private void sendError(GamePlayer player, String error, Object... format) {
         player.sendMessage(ChatColor.RED + error, format);
         player.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
-    }
-
-    public static Ability of(String name, String description, LeftClickable event) {
-        return of(name, description, (BiConsumer<GamePlayer, ItemStack>) event::onLeftClick);
-    }
-
-    public static Ability of(String name, String description, RightClickable event) {
-        return of(name, description, (BiConsumer<GamePlayer, ItemStack>) event::onRightClick);
-    }
-
-    public static Ability of(String name, String description, BiConsumer<GamePlayer, ItemStack> consumer) {
-        return new Ability(name, description) {
-            @Override
-            public Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
-                consumer.accept(player, item);
-                return Response.OK;
-            }
-        };
     }
 
 }

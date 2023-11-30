@@ -3,8 +3,10 @@ package me.hapyl.fight.game.weapons;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.PlayerElement;
+import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.ability.Ability;
@@ -17,7 +19,6 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Consumer;
 import org.bukkit.util.Vector;
@@ -25,20 +26,17 @@ import org.bukkit.util.Vector;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public abstract class RangeWeapon extends Weapon
-        implements GameElement, PlayerElement, UIComponent, LeftClickable, RightClickable {
+public abstract class RangeWeapon extends Weapon implements GameElement, PlayerElement, UIComponent {
 
+    public static final double HEADSHOT_THRESHOLD = 0.75d;
     private final PlayerMap<Integer> playerAmmo;
-
     private int reloadTime;
     private int maxAmmo;
     private int cooldown;
     private double shift;
     private double maxDistance;
-
     private PackedParticle particleTick;
     private PackedParticle particleHit;
-
     private Sound sound;
     private float pitch;
 
@@ -53,93 +51,8 @@ public abstract class RangeWeapon extends Weapon
         this.maxAmmo = 8;
         this.reloadTime = 100;
 
-        setAbility(AbilityType.RIGHT_CLICK, Ability.of("Shoot!", "Shoot your weapon.", (RightClickable) this));
-        setAbility(AbilityType.LEFT_CLICK, Ability.of("Reload!", "Reload your weapon manually.", (LeftClickable) this));
-    }
-
-    @Override
-    public void onLeftClick(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
-        if (hasCooldown(player) || getPlayerAmmo(player) >= maxAmmo) {
-            return;
-        }
-
-        reload(player);
-    }
-
-    @Override
-    public void onRightClick(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
-        if (hasCooldown(player)) {
-            return;
-        }
-
-        final double maxDistance = getMaxDistance(player);
-        final int weaponCooldown = getWeaponCooldown(player);
-
-        onShoot(player);
-
-        Nulls.runIfNotNull(sound, sound -> {
-            player.playWorldSound(sound, pitch);
-        });
-
-        final Location location = player.getLocation().add(0, 1.5, 0);
-        final Vector vector = location.getDirection().normalize();
-
-        // Cooldown and Ammunition
-        final int ammo = subtractAmmo(player);
-
-        if (ammo <= 0) {
-            reload(player);
-        }
-        else {
-            startCooldown(player, weaponCooldown);
-        }
-
-        for (double i = 0; i < maxDistance; i += shift) {
-            final double x = vector.getX() * i;
-            final double y = vector.getY() * i;
-            final double z = vector.getZ() * i;
-
-            location.add(x, y, z);
-
-            // check for block predicate
-            if (!predicateBlock(location.getBlock())) {
-                Nulls.runIfNotNull(particleHit, p -> {
-                    p.display(location);
-                });
-                break;
-            }
-
-            for (final LivingGameEntity target : Collect.nearbyEntities(location, 1.0d)) {
-                if (target == null || target.equals(player) || !predicateEntity(target)) {
-                    continue;
-                }
-
-                final double distanceToHead = location.distance(target.getEyeLocation());
-                final boolean isHeadShot = distanceToHead <= HEADSHOT_THRESHOLD;
-
-                onHit(player, target, isHeadShot);
-
-                target.modifyKnockback(0.5d, d -> {
-                    d.damage(getDamage(player, false), player, getDamageCause(player));
-                });
-
-                Nulls.runIfNotNull(particleHit, p -> {
-                    p.display(location);
-                });
-
-                return;
-            }
-
-            if (i > 1.0) {
-                Nulls.runIfNotNull(particleTick, p -> {
-                    p.display(location);
-                });
-
-                onMove(player, location);
-            }
-
-            location.subtract(x, y, z);
-        }
+        setAbility(AbilityType.RIGHT_CLICK, new AbilityShoot());
+        setAbility(AbilityType.LEFT_CLICK, new AbilityReload());
     }
 
     @Override
@@ -193,11 +106,6 @@ public abstract class RangeWeapon extends Weapon
         return this;
     }
 
-    public RangeWeapon setReloadTime(int reloadTime) {
-        this.reloadTime = reloadTime;
-        return this;
-    }
-
     public RangeWeapon setReloadTimeSec(int reloadTimeSec) {
         return setReloadTime(reloadTimeSec * 20);
     }
@@ -217,6 +125,11 @@ public abstract class RangeWeapon extends Weapon
 
     public int getReloadTime() {
         return reloadTime;
+    }
+
+    public RangeWeapon setReloadTime(int reloadTime) {
+        this.reloadTime = reloadTime;
+        return this;
     }
 
     // override for custom per-player max distance
@@ -244,7 +157,7 @@ public abstract class RangeWeapon extends Weapon
     }
 
     /**
-     * Called whenever entity was hit by the path.
+     * Called whenever the path hit entity.
      *
      * @param player   - Shooter.
      * @param entity   - Hit entity.
@@ -302,8 +215,12 @@ public abstract class RangeWeapon extends Weapon
         return this;
     }
 
+    public void forceReload(@Nonnull GamePlayer player) {
+        playerAmmo.put(player, getMaxAmmo());
+    }
+
     public void reload(@Nonnull GamePlayer player) {
-        final ItemStack item = player.getInventory().getItem(0);
+        final ItemStack item = player.getItem(HotbarSlots.WEAPON);
 
         // force reload
         playerAmmo.put(player, 0);
@@ -333,19 +250,18 @@ public abstract class RangeWeapon extends Weapon
 
                 final short maxDurability = getMaterial().getMaxDurability();
 
-                modifyMeta(item, meta -> {
-                    if (meta instanceof Damageable damageable) {
-                        damageable.setDamage(maxDurability - (int) (progress * maxDurability));
-                        damageable.setUnbreakable(false);
-                    }
-                });
+                // This can actually break the item :/
+                //modifyMeta(item, meta -> {
+                //    if (meta instanceof Damageable damageable) {
+                //        damageable.setDamage(maxDurability - (int) (progress * maxDurability));
+                //        damageable.setUnbreakable(false);
+                //    }
+                //});
             }
         }.runTaskTimer(0, 1);
 
         startCooldown(player, reloadTime);
     }
-
-    public static final double HEADSHOT_THRESHOLD = 0.75d;
 
     public int getPlayerAmmo(GamePlayer player) {
         return playerAmmo.computeIfAbsent(player, fn -> maxAmmo);
@@ -368,6 +284,109 @@ public abstract class RangeWeapon extends Weapon
 
         consumer.accept(meta);
         item.setItemMeta(meta);
+    }
+
+    public class AbilityReload extends Ability {
+
+        public AbilityReload() {
+            super("Reload!", "Reload your weapon manually.");
+        }
+
+        @Nullable
+        @Override
+        public Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
+            if (player.hasCooldown(getType()) || getPlayerAmmo(player) >= maxAmmo) {
+                return null;
+            }
+
+            reload(player);
+            return Response.AWAIT;
+        }
+    }
+
+    public class AbilityShoot extends Ability {
+        public AbilityShoot() {
+            super("Shoot!", "Shoot your weapon.");
+        }
+
+        @Nullable
+        @Override
+        public Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
+            if (player.hasCooldown(getType())) {
+                return null;
+            }
+
+            final double maxDistance = getMaxDistance(player);
+            final int weaponCooldown = getWeaponCooldown(player);
+
+            onShoot(player);
+
+            Nulls.runIfNotNull(sound, sound -> {
+                player.playWorldSound(sound, pitch);
+            });
+
+            final Location location = player.getLocation().add(0, 1.5, 0);
+            final Vector vector = location.getDirection().normalize();
+
+            // Cooldown and Ammunition
+            final int ammo = subtractAmmo(player);
+
+            if (ammo <= 0) {
+                reload(player);
+            }
+            else {
+                RangeWeapon.this.startCooldown(player, weaponCooldown);
+            }
+
+            for (double i = 0; i < maxDistance; i += shift) {
+                final double x = vector.getX() * i;
+                final double y = vector.getY() * i;
+                final double z = vector.getZ() * i;
+
+                location.add(x, y, z);
+
+                // check for block predicate
+                if (!predicateBlock(location.getBlock())) {
+                    Nulls.runIfNotNull(particleHit, p -> {
+                        p.display(location);
+                    });
+                    break;
+                }
+
+                for (final LivingGameEntity target : Collect.nearbyEntities(location, 1.0d)) {
+                    if (target == null || target.equals(player) || !predicateEntity(target)) {
+                        continue;
+                    }
+
+                    final double distanceToHead = location.distance(target.getEyeLocation());
+                    final boolean isHeadShot = distanceToHead <= HEADSHOT_THRESHOLD;
+
+                    onHit(player, target, isHeadShot);
+
+                    target.modifyKnockback(0.5d, d -> {
+                        d.damage(getDamage(player, false), player, getDamageCause(player));
+                    });
+
+                    Nulls.runIfNotNull(particleHit, p -> {
+                        p.display(location);
+                    });
+
+                    return Response.OK;
+                }
+
+                if (i > 1.0) {
+                    Nulls.runIfNotNull(particleTick, p -> {
+                        p.display(location);
+                    });
+
+                    onMove(player, location);
+                }
+
+                location.subtract(x, y, z);
+            }
+
+            return Response.OK;
+        }
     }
 
 }

@@ -6,7 +6,7 @@ import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.cosmetic.crate.Crate;
 import me.hapyl.fight.game.cosmetic.crate.CrateChest;
-import me.hapyl.fight.util.Sortable;
+import me.hapyl.fight.util.Filter;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.PlayerPageGUI;
 import org.bukkit.entity.Player;
@@ -18,14 +18,14 @@ public class CrateDetailsGUI extends PlayerPageGUI<Cosmetics> {
 
     private final Crate crate;
     private final CrateChest location;
-    private final Sortable<Cosmetics, Rarity> sortable;
+    private final Filter<Cosmetics, Rarity> filter;
 
     public CrateDetailsGUI(Player player, Crate crate, CrateChest location) {
         super(player, crate.getName(), 5);
 
         this.crate = crate;
         this.location = location;
-        this.sortable = new Sortable<>(Rarity.class) {
+        this.filter = new Filter<>(Rarity.class) {
             @Override
             public boolean isKeep(@Nonnull Cosmetics cosmetics, @Nonnull Rarity rarity) {
                 return cosmetics.getRarity() == rarity;
@@ -36,7 +36,7 @@ public class CrateDetailsGUI extends PlayerPageGUI<Cosmetics> {
     }
 
     private void update() {
-        setContents(sortable.sort(crate.getContents().listAll()));
+        setContents(filter.filter(crate.getContents().listAll()));
         openInventory(1);
     }
 
@@ -44,7 +44,7 @@ public class CrateDetailsGUI extends PlayerPageGUI<Cosmetics> {
     public void postProcessInventory(@Nonnull Player player, int page) {
         setArrowBack(40, "Crates", cl -> new CrateGUI(player, location));
 
-        sortable.setSortItem(this, 39, (onClick, rarity) -> update());
+        filter.setFilterItem(this, 39, (onClick, rarity) -> update());
     }
 
     @Nonnull

@@ -39,7 +39,7 @@ public class FlowerEscape extends Talent implements Terminology {
                 The flower will continuously pulse and deal damage to nearby players.
                                         
                 After the duration is over, it will explode dealing &bdouble&7 the damage.
-                """, Type.COMBAT);
+                """);
 
         setItem(Material.RED_TULIP);
         setDurationSec(6);

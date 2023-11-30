@@ -6,12 +6,12 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.task.GeometryTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
@@ -42,7 +42,7 @@ public class OrcAxe extends InputTalent {
 
         rightData.setAction("Dash")
                 .setDescription("""
-                        Dash forward up to 6 blocks, damaging the first enemy hit.
+                        Dash forward up to six blocks, damaging the first enemy hit.
                         """)
                 .setCooldownSec(15);
 
@@ -53,7 +53,7 @@ public class OrcAxe extends InputTalent {
     @Override
     public Response onLeftClick(@Nonnull GamePlayer player) {
         final PlayerInventory inventory = player.getInventory();
-        final ItemStack item = inventory.getItem(0);
+        final ItemStack item = player.getItem(HotbarSlots.WEAPON);
 
         // Don't allow spin if no axe
         if (item == null || item.getType() != Material.IRON_AXE) {
@@ -69,7 +69,7 @@ public class OrcAxe extends InputTalent {
                 equipment.setItemInMainHand(new ItemStack(Material.IRON_AXE));
             });
 
-            inventory.setItem(0, ItemStacks.AIR);
+            player.setItem(HotbarSlots.WEAPON, null);
         });
 
         new GeometryTask() {

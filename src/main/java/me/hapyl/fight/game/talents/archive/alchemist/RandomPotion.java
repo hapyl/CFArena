@@ -22,11 +22,14 @@ public class RandomPotion extends Talent {
     @DisplayField private final short toxinAccumulation = 12;
 
     public RandomPotion() {
-        super("Abyssal Bottle", """
-                A bottle that is capable of creating potions from the &0&lvoid &7itself.
-                Drink to gain random positive effect.
-                """);
+        super(
+                "Abyssal Bottle", """
+                        A bottle that is capable of creating potions from the &0&lvoid &7itself.
+                        Drink to gain random positive effect.
+                        """
+        );
 
+        setType(Type.ENHANCE);
         setItem(Material.POTION);
         setCooldown(50);
 

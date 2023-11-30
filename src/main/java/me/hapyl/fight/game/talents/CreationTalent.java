@@ -29,11 +29,23 @@ public abstract class CreationTalent extends Talent {
     }
 
     public CreationTalent(@Nonnull String name, @Nonnull String description, int maxCreations) {
-        super(name, description);
+        super(name, description, Type.CREATABLE);
 
         this.mapped = PlayerMap.newMap();
         this.removeAtDeath = true;
         this.maxCreations = maxCreations;
+    }
+
+    @Override
+    @Deprecated
+    public Talent setType(@Nonnull Type type) {
+        return super.setType(Type.CREATABLE);
+    }
+
+    @Nonnull
+    @Override
+    public Type getType() {
+        return Type.CREATABLE;
     }
 
     /**

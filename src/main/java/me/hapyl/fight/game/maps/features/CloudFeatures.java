@@ -56,8 +56,4 @@ public class CloudFeatures extends MapFeature implements Listener {
         }
     }
 
-    @Override
-    public void tick(int tick) {
-
-    }
 }

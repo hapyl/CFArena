@@ -9,6 +9,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroPlaque;
+import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -95,7 +96,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
         final ArrowData previous = playerArrows.put(player, new ArrowData(player, type, duration));
 
         if (previous != null) {
-            previous.cancelIfActive();
+            previous.cancel();
             previous.type.onUnequip(player);
         }
 
@@ -179,16 +180,17 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
     }
 
     @Override
-    public void useUltimate(@Nonnull GamePlayer player) {
+    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
         setArrowType(player, ArrowType.POISON_IVY, getUltimateDuration());
+
+        return UltimateCallback.OK;
     }
 
     @EventHandler()
     public void handleBowShoot(ProjectileLaunchEvent ev) {
         final Projectile projectile = ev.getEntity();
 
-        if (!(projectile instanceof Arrow arrow)
-                || !(arrow.getShooter() instanceof Player player)) {
+        if (!(projectile instanceof Arrow arrow) || !(arrow.getShooter() instanceof Player player)) {
             return;
         }
 
@@ -230,7 +232,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
         final ArrowData data = playerArrows.remove(player);
 
         if (data != null) {
-            data.cancelIfActive();
+            data.cancel();
         }
 
         // Remove all player-owned arrows

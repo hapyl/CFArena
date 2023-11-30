@@ -11,6 +11,7 @@ import java.util.List;
 
 public enum AttributeType { // implements Placeholder2
 
+    // FIXME (hapyl): 017, Nov 17: Yeah I fucking hate that this uses 100 and other things use 0.1 fucking fix it
     MAX_HEALTH(
             new Attribute("Health", "Maximum health hero has.")
                     .setChar("❤")
@@ -47,12 +48,7 @@ public enum AttributeType { // implements Placeholder2
                 }
             }.setChar("🌊")
                     .setColor(ChatColor.AQUA)
-                    .setToString(value -> {
-                        final double proportion = (value - 0.2d) / (1.0d - 0.2d);
-                        final double increase = (proportion * 400.0d) + 100;
-
-                        return "%.1f%%".formatted(increase);
-                    }),
+                    .setToString(value -> "%.1f%%".formatted(value / 0.002d)),
             0.2d
     ) {
         @Override
@@ -61,14 +57,14 @@ public enum AttributeType { // implements Placeholder2
         }
     },
     CRIT_CHANCE(
-            new Attribute("CRIT Chance", "Chance for attack to deal critical hit.")
+            new Attribute("Crit Chance", "Chance for attack to deal critical hit.")
                     .setChar("☣")
                     .setColor(ChatColor.BLUE)
                     .setToString(AttributeType::doubleFormat),
             0.1d
     ),
     CRIT_DAMAGE(
-            new Attribute("CRIT Damage", "The damage increase modifier for critical hit.")
+            new Attribute("Crit Damage", "The damage increase modifier for critical hit.")
                     .setChar("☠")
                     .setColor(ChatColor.BLUE)
                     .setToString(AttributeType::doubleFormat),
@@ -96,7 +92,7 @@ public enum AttributeType { // implements Placeholder2
     // todo -> impl me LOSER
     DODGE(
             new Attribute("Dodge", "Chance to dodge and nullity an attack.")
-                    .setChar("")
+                    .setChar("\uD83D\uDC65")
                     .setColor(ChatColor.GOLD)
                     .setToString(AttributeType::doubleFormat),
             0.0d
@@ -106,6 +102,14 @@ public enum AttributeType { // implements Placeholder2
             return 0.8d;
         }
     },
+
+    COOLDOWN_MODIFIER(
+            new Attribute("Cooldown Modifier", "The modifier of your cooldown abilities.")
+                    .setChar("\uD83D\uDD02")
+                    .setColor(ChatColor.DARK_GREEN)
+                    .setToString(AttributeType::doubleFormat),
+            1.0
+    ),
 
     ;
 

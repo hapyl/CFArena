@@ -3,10 +3,7 @@ package me.hapyl.fight.game.heroes.archive.librarian;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.KeepNull;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.ComplexHero;
-import me.hapyl.fight.game.heroes.DisabledHero;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -132,7 +129,7 @@ public class Librarian extends Hero implements ComplexHero, Listener, DisabledHe
     }
 
     @Override
-    public void useUltimate(@Nonnull GamePlayer player) {
+    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
         final Location castLocation = player.getLocation().add(0.0d, 0.5d, 0.0d);
         PlayerLib.playSound(castLocation, Sound.ENTITY_SQUID_SQUIRT, 0.0f);
 
@@ -162,6 +159,8 @@ public class Librarian extends Hero implements ComplexHero, Listener, DisabledHe
 
             }
         }.runTaskTimer(0, 10);
+
+        return UltimateCallback.OK;
     }
 
     @Override
@@ -278,6 +277,6 @@ public class Librarian extends Hero implements ComplexHero, Listener, DisabledHe
 
         grimoire.markUsedNow();
         grantSpellItems(player);
-        player.getInventory().setHeldItemSlot(0);
+        player.snapToWeapon();
     }
 }

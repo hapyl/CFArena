@@ -5,6 +5,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -40,14 +41,15 @@ public class Ender extends Hero implements Listener {
 
         setWeapon(new EnderWeapon());
 
-        // Instantly teleports you to a placed transmission beacon and gives it back.
-        // Instantly teleport to your &bTransmission Beacon &7and collect it for further use.
-
         setUltimate(new UltimateTalent(
                 "Transmission!",
                 "Instantly teleport to your &b&lTransmission &b&lBeacon &7and collect it for further use.",
                 50
-        ).setItem(Material.SHULKER_SHELL).setCooldownSec(20).setSound(Sound.ENTITY_GUARDIAN_HURT_LAND, 0.75f));
+        )
+                .setType(Talent.Type.MOVEMENT)
+                .setItem(Material.SHULKER_SHELL)
+                .setCooldownSec(20)
+                .setSound(Sound.ENTITY_GUARDIAN_HURT_LAND, 0.75f));
 
     }
 
@@ -62,8 +64,9 @@ public class Ender extends Hero implements Listener {
     }
 
     @Override
-    public void useUltimate(@Nonnull GamePlayer player) {
+    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
         getSecondTalent().teleportToBeacon(player);
+        return UltimateCallback.OK;
     }
 
     @EventHandler()

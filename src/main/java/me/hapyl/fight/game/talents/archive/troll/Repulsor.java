@@ -16,8 +16,12 @@ public class Repulsor extends Talent {
     @DisplayField(suffix = "blocks") private final double radius = 10.0d;
 
     public Repulsor() {
-        super("Repulsor", "Propels all nearby opponents high up into the sky!", Type.COMBAT);
+        super(
+                "Repulsor",
+                "Propels all nearby opponents high up into the sky!"
+        );
 
+        setType(Type.IMPAIR);
         setItem(Material.IRON_BOOTS);
         setCooldown(200);
     }

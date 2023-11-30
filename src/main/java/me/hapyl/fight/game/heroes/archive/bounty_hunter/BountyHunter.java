@@ -9,6 +9,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -91,11 +92,11 @@ public class BountyHunter extends Hero {
     }
 
     @Override
-    public void useUltimate(@Nonnull GamePlayer player) {
+    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
         final ShadowShift.TargetLocation targetOutput = getBackstabLocation(player);
 
         if (targetOutput.getError() != ShadowShift.ErrorCode.OK) {
-            return; // should never happen
+            return UltimateCallback.OK; // should never happen
         }
 
         final Location playerLocation = player.getLocation();
@@ -116,6 +117,8 @@ public class BountyHunter extends Hero {
 
         spawnPoofParticle(playerLocation);
         spawnPoofParticle(location);
+
+        return UltimateCallback.OK;
     }
 
     @Override

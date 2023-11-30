@@ -7,7 +7,9 @@ import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.spigotutils.module.math.Tick;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
@@ -22,11 +24,14 @@ public class HotbarTalentSlot extends HotbarSlot {
         this.talentIndex = talentIndex;
     }
 
+    public int getTalentIndex() {
+        return talentIndex;
+    }
+
     @Override
     public boolean handle(@Nonnull GamePlayer player, int slot) {
         final Hero hero = player.getHero();
         final PlayerInventory inventory = player.getInventory();
-
         final Talent talent = hero.getTalent(talentIndex);
         final ItemStack itemOnNewSlot = inventory.getItem(slot);
 
@@ -34,14 +39,27 @@ public class HotbarTalentSlot extends HotbarSlot {
             return false;
         }
 
+        // Check talent lock
+        final int lock = player.getTalentLock(getHandle());
+
+        if (lock > 0) {
+            player.sendMessage("&cTalent is locked for %ss!", Tick.round(lock));
+            player.playSound(Sound.ENTITY_ENDERMAN_SCREAM, 0.0f);
+            player.snapToWeapon();
+            return false;
+        }
+
         // Execute talent
-        checkAndExecuteTalent(player, talent, slot);
+        if (!checkAndExecuteTalent(player, talent, slot)) {
+            player.snapToWeapon();
+            return false;
+        }
 
         if (talent instanceof InputTalent inputTalent) {
             player.setInputTalent(inputTalent);
         }
         else {
-            inventory.setHeldItemSlot(0);
+            player.snapToWeapon();
             player.cancelInputTalent();
             return true;
         }
@@ -53,15 +71,15 @@ public class HotbarTalentSlot extends HotbarSlot {
         return stack != null && !stack.getType().isAir();
     }
 
-    private void checkAndExecuteTalent(GamePlayer player, Talent talent, int slot) {
+    private boolean checkAndExecuteTalent(GamePlayer player, Talent talent, int slot) {
         if (!PlayerHandler.checkTalent(player, talent)) {
-            return;
+            return false;
         }
 
         // Make sure the talent item is still in the slot
         final ItemStack itemInSlot = player.getInventory().getItem(slot);
         if (itemInSlot == null || itemInSlot.getType() != talent.getMaterial()) {
-            return;
+            return false;
         }
 
         // Execute talent and get response
@@ -75,7 +93,7 @@ public class HotbarTalentSlot extends HotbarSlot {
         }
 
         if (!PlayerHandler.checkResponse(player, response)) {
-            return;
+            return false;
         }
 
         // \/ Talent executed \/
@@ -91,5 +109,6 @@ public class HotbarTalentSlot extends HotbarSlot {
         }
 
         talent.startCd(player);
+        return true;
     }
 }

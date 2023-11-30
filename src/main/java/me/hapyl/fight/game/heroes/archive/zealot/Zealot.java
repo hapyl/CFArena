@@ -6,6 +6,7 @@ import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -87,7 +88,7 @@ public class Zealot extends Hero {
     }
 
     @Override
-    public void useUltimate(@Nonnull GamePlayer player) {
+    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
         final Location location = player.getLocation();
         final Vector vector = location.getDirection().normalize().setY(0.0d).multiply(5);
         final UltimateTalent ultimate = getUltimate();
@@ -111,6 +112,8 @@ public class Zealot extends Hero {
 
             entity.teleport(location);
         }, 0, 1);
+
+        return UltimateCallback.OK;
     }
 
     @Override

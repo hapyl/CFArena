@@ -130,8 +130,9 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
         }.runTaskTimer(1, 1);
     }
 
+
     @Override
-    public void onStart(@Nonnull GamePlayer player) {
+    public void onPlayersReveal(@Nonnull GamePlayer player) {
         getData(player).cooldownFlight(true);
     }
 
@@ -193,7 +194,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
     }
 
     @Override
-    public UltimateCallback castUltimate(@Nonnull GamePlayer player) {
+    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
         final BloodfiendData data = getData(player);
         final Set<GamePlayer> succulencePlayers = data.getSucculencePlayers();
         final Location location = player.getLocation().add(0.0d, 0.5d, 0.0d);
@@ -260,6 +261,8 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
         return new UltimateCallback() {
             @Override
             public void callback(@Nonnull GamePlayer player) {
+                getData(player).newImpelInstance(Bloodfiend.this, player).nextImpel(0);
+
                 fxBats.forEach(Bat::remove);
                 fxBats.clear();
 
@@ -273,14 +276,9 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
 
                 npc.remove();
                 playerBat.remove();
-                batTask.cancelIfActive();
+                batTask.cancel();
             }
         };
-    }
-
-    @Override
-    public void useUltimate(@Nonnull GamePlayer player) {
-        getData(player).newImpelInstance(this, player).nextImpel(0);
     }
 
     @Override

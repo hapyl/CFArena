@@ -5,7 +5,9 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -13,7 +15,6 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Tick;
@@ -21,7 +22,8 @@ import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
-import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.trim.TrimMaterial;
+import org.bukkit.inventory.meta.trim.TrimPattern;
 
 import javax.annotation.Nonnull;
 
@@ -39,18 +41,19 @@ public class DrEd extends Hero implements UIComponent {
         setItem("3b51e96bddd177992d68278c9d5f1e685b60fbb94aaa709259e9f2781c76f8");
 
         final Equipment equipment = getEquipment();
-        equipment.setChestPlate(179, 204, 204);
-        equipment.setLeggings(148, 184, 184);
+        equipment.setChestPlate(237, 235, 235, TrimPattern.VEX, TrimMaterial.IRON);
+        equipment.setLeggings(Material.IRON_LEGGINGS, TrimPattern.VEX, TrimMaterial.IRON);
         equipment.setBoots(71, 107, 107);
 
         setWeapon(new GravityGun());
 
         setUltimate(new UltimateTalent("Upgrades People, Upgrades!", 70)
                 .appendDescription("""
-                        Grants Dr. Ed an upgraded version of &a%s&7 for {duration} that is capable of capturing entities' flesh and energy, allowing to manipulate them.
+                        Grants Dr. Ed an upgraded version of &a%s&7 for {duration} that is capable of capturing entities' flesh and energy, allowing manipulating them.
                         """, getWeapon().getName())
-                .setDuration(200)
-                .setItem(Material.GOLDEN_HORSE_ARMOR));
+                .setType(Talent.Type.IMPAIR)
+                .setItem(Material.GOLDEN_HORSE_ARMOR)
+                .setDuration(200));
 
         playerShield = PlayerMap.newMap();
     }
@@ -125,15 +128,15 @@ public class DrEd extends Hero implements UIComponent {
     }
 
     @Override
-    public void useUltimate(@Nonnull GamePlayer player) {
-        final PlayerInventory inventory = player.getInventory();
-        inventory.setItem(4, ultimateWeapon.getItem());
-        inventory.setHeldItemSlot(4);
+    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
+        player.setItemAndSnap(HotbarSlots.HERO_ITEM, ultimateWeapon.getItem());
 
         GameTask.runLater(() -> {
-            inventory.setItem(4, ItemStacks.AIR);
-            inventory.setHeldItemSlot(0);
+            player.setItem(HotbarSlots.HERO_ITEM, null);
+            player.snapToWeapon();
         }, getUltimateDuration());
+
+        return UltimateCallback.OK;
     }
 
     @Override

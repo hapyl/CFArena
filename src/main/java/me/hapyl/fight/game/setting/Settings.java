@@ -102,6 +102,15 @@ public enum Settings implements EnumWrapper<Setting>, PlayerItemCreator {
             Category.CHAT
     )),
 
+    SHOW_COOLDOWN_MESSAGE(new Setting(
+            Material.CLOCK,
+            "Show Cooldown Messages & Sound", """
+            Whenever you'll see and hear ability cooldown messages.
+            """,
+            Category.CHAT,
+            true
+    )),
+
     // Other
     SEE_OTHERS_CONTRAIL(new Setting(
             Material.FIREWORK_ROCKET,
@@ -115,6 +124,14 @@ public enum Settings implements EnumWrapper<Setting>, PlayerItemCreator {
             Material.LEATHER_CHESTPLATE,
             "Use Hero Skins",
             "Whenever to use hero skins instead of custom head and armor if supported.",
+            Category.OTHER,
+            true
+    )),
+
+    SHOW_CRATE_CONVERT_ANIMATION(new Setting(
+            Material.TRAPPED_CHEST,
+            "See Crate Convert Animation",
+            "Whenever you will see the crate conversion animation.",
             Category.OTHER,
             true
     )),
@@ -195,7 +212,9 @@ public enum Settings implements EnumWrapper<Setting>, PlayerItemCreator {
     }
 
     public boolean isEnabled(Player player) {
-        return PlayerProfile.getOrCreateProfile(player).getDatabase().getSettings().getValue(this);
+        final PlayerProfile profile = PlayerProfile.getProfile(player);
+
+        return profile != null && profile.getDatabase().getSettings().getValue(this);
     }
 
     public boolean isDisabled(Player player) {

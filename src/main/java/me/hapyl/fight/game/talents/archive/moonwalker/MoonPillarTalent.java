@@ -43,7 +43,7 @@ public class MoonPillarTalent extends CreationTalent {
         super("Moonslite Pillar", """
                 Raise a pillar at the &etarget &7location for {duration} &7that pulses in set intervals, damaging enemies and healing yourself.
                                         
-                &6;;You can only have 1 pillar at a time.
+                &6;;You can only have one pillar at a time.
                 """
         );
 
@@ -96,7 +96,7 @@ public class MoonPillarTalent extends CreationTalent {
                 PlayerLib.playSound(location, Sound.ENTITY_IRON_GOLEM_DAMAGE, 0.75f);
                 CFUtils.getWorld(location).spawnParticle(Particle.SPIT, location.clone().add(0, 2, 0), 15, 0, 1, 0, 0.05);
 
-                cancelIfActive();
+                cancel();
             }
 
             @Override

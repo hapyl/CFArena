@@ -1,4 +1,4 @@
-package me.hapyl.fight.game.talents.archive.freazly;
+package me.hapyl.fight.game.talents.archive.frostbite;
 
 import com.google.common.collect.Lists;
 import me.hapyl.fight.game.Response;

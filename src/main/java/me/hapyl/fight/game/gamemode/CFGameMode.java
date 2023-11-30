@@ -135,10 +135,15 @@ public abstract class CFGameMode {
      * Called upon player joining while the game is in progress.
      *
      * @param instance - Game Instance player joined to.
-     * @param player   - Player who left.
+     * @param player   - Player, who left.
      */
     public void onJoin(@Nonnull GameInstance instance, @Nonnull Player player) {
-        final PlayerProfile profile = PlayerProfile.getOrCreateProfile(player);
+        final PlayerProfile profile = PlayerProfile.getProfile(player);
+
+        if (profile == null) {
+            return;
+        }
+
         final GamePlayer gamePlayer = profile.getOrCreateGamePlayer();
 
         gamePlayer.setSpectator(true);

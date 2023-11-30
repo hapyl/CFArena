@@ -1,9 +1,14 @@
 package me.hapyl.fight.database.entry;
 
+import com.google.common.collect.Maps;
+import me.hapyl.fight.database.EnumMappedEntry;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.PlayerDatabaseEntry;
 
-public class CurrencyEntry extends PlayerDatabaseEntry {
+import javax.annotation.Nonnull;
+import java.util.Map;
+
+public class CurrencyEntry extends PlayerDatabaseEntry implements EnumMappedEntry<Currency, Long> {
 
     public CurrencyEntry(PlayerDatabase playerDatabase) {
         super(playerDatabase);
@@ -34,5 +39,33 @@ public class CurrencyEntry extends PlayerDatabaseEntry {
 
     public boolean has(Currency currency, long value) {
         return get(currency) >= value;
+    }
+
+    @Nonnull
+    @Override
+    public Currency[] enumValues() {
+        return Currency.values();
+    }
+
+    @Nonnull
+    @Override
+    public Long getMappedValue(@Nonnull Currency currency) {
+        return get(currency);
+    }
+
+    @Nonnull
+    @Override
+    public Map<Currency, Long> mapped() {
+        final Map<Currency, Long> map = Maps.newLinkedHashMap();
+
+        for (Currency currency : Currency.values()) {
+            final long amount = get(currency);
+
+            if (amount > 0) {
+                map.put(currency, amount);
+            }
+        }
+
+        return map;
     }
 }

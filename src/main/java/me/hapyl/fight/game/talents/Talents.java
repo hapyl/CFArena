@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.Named;
@@ -28,8 +29,9 @@ import me.hapyl.fight.game.talents.archive.ender.TeleportPearl;
 import me.hapyl.fight.game.talents.archive.ender.TransmissionBeacon;
 import me.hapyl.fight.game.talents.archive.engineer.EngineerRecall;
 import me.hapyl.fight.game.talents.archive.engineer.EngineerSentry;
-import me.hapyl.fight.game.talents.archive.freazly.IceBarrier;
-import me.hapyl.fight.game.talents.archive.freazly.IceCone;
+import me.hapyl.fight.game.talents.archive.frostbite.IceBarrier;
+import me.hapyl.fight.game.talents.archive.frostbite.Icicles;
+import me.hapyl.fight.game.talents.archive.frostbite.IceCageTalent;
 import me.hapyl.fight.game.talents.archive.harbinger.MeleeStance;
 import me.hapyl.fight.game.talents.archive.harbinger.TidalWaveTalent;
 import me.hapyl.fight.game.talents.archive.healer.HealingOrb;
@@ -63,8 +65,7 @@ import me.hapyl.fight.game.talents.archive.orc.OrcAxe;
 import me.hapyl.fight.game.talents.archive.orc.OrcGrowl;
 import me.hapyl.fight.game.talents.archive.pytaria.FlowerBreeze;
 import me.hapyl.fight.game.talents.archive.pytaria.FlowerEscape;
-import me.hapyl.fight.game.talents.archive.shadow_assassin.ShadowPrism;
-import me.hapyl.fight.game.talents.archive.shadow_assassin.ShroudedStep;
+import me.hapyl.fight.game.talents.archive.shadow_assassin.*;
 import me.hapyl.fight.game.talents.archive.shaman.ResonanceType;
 import me.hapyl.fight.game.talents.archive.shaman.Totem;
 import me.hapyl.fight.game.talents.archive.shaman.TotemTalent;
@@ -86,11 +87,13 @@ import me.hapyl.fight.game.talents.archive.troll.TrollSpin;
 import me.hapyl.fight.game.talents.archive.vampire.BatSwarm;
 import me.hapyl.fight.game.talents.archive.vampire.VampirePet;
 import me.hapyl.fight.game.talents.archive.vortex.StarAligner;
+import me.hapyl.fight.game.talents.archive.vortex.VortexSlash;
 import me.hapyl.fight.game.talents.archive.vortex.VortexStar;
 import me.hapyl.fight.game.talents.archive.witcher.*;
 import me.hapyl.fight.game.talents.archive.zealot.BrokenHeartRadiation;
 import me.hapyl.fight.game.talents.archive.zealot.MaledictionVeil;
 import me.hapyl.fight.game.talents.archive.zealot.MalevolentHitshield;
+import me.hapyl.fight.util.Compute;
 import me.hapyl.spigotutils.module.util.BFormat;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -98,6 +101,7 @@ import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -118,16 +122,21 @@ import java.util.Map;
  */
 public enum Talents {
 
-    // Archer
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.archer.Archer}
+     */
     TRIPLE_SHOT(new TripleShot()),
     SHOCK_DARK(new ShockDark()),
     HAWKEYE_ARROW(new PassiveTalent(
             "Hawkeye Arrow",
             "Fully charged shots while sneaking have &b25%&7 chance to fire a hawkeye arrow that homes to nearby enemies.",
-            Material.ENDER_EYE
+            Material.ENDER_EYE,
+            Talent.Type.DAMAGE
     )),
 
-    // Alchemist
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.alchemist.Alchemist}
+     */
     POTION(new RandomPotion()),
     CAULDRON(new CauldronAbility()),
     INTOXICATION(new PassiveTalent(
@@ -136,34 +145,45 @@ public enum Talents {
                         
             Having high &eIntoxication&7 levels isn't good for your body!
             """,
-            Material.DRAGON_BREATH
+            Material.DRAGON_BREATH,
+            Talent.Type.ENHANCE
     )),
 
-    // Moonwalker
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.moonwalker.Moonwalker}
+     */
     MOONSLITE_PILLAR(new MoonPillarTalent()),
     @Deprecated MOONSLITE_BOMB(new MoonSliteBomb()),
     MOON_GRAVITY(new GravityZone()),
-    TARGET(new PassiveTalent("Space Suit", "Your suit grants you slow falling ability.", Material.FEATHER)),
+    TARGET(new PassiveTalent("Space Suit", "Your suit grants you slow falling ability.", Material.FEATHER, Talent.Type.ENHANCE)),
 
-    // Hercules
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.hercules.Hercules}
+     */
     HERCULES_DASH(new HerculesShift()),
     HERCULES_UPDRAFT(new HerculesJump()),
     PLUNGE(new PassiveTalent(
             "Plunge",
             "While airborne, &e&lSNEAK &7to perform plunging attack, dealing damage to nearby enemies.",
-            Material.COARSE_DIRT
+            Material.COARSE_DIRT,
+            Talent.Type.ENHANCE
     )),
 
-    // Mage
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.mage.Mage}
+     */
     MAGE_TRANSMISSION(new MageTransmission()),
     ARCANE_MUTE(new ArcaneMute()),
     SOUL_HARVEST(new PassiveTalent(
             "Soul Harvest",
             "Deal &bmelee &7damage to gain soul fragment as fuel for your &e&lSoul &e&lEater&7's range attacks.",
-            Material.SKELETON_SPAWN_EGG
+            Material.SKELETON_SPAWN_EGG,
+            Talent.Type.IMPAIR
     )),
 
-    // Pytaria
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.pytaria.Pytaria}
+     */
     FLOWER_ESCAPE(new FlowerEscape()),
     FLOWER_BREEZE(new FlowerBreeze()),
     EXCELLENCY(new PassiveTalent(
@@ -172,52 +192,85 @@ public enum Talents {
                     AttributeType.ATTACK,
                     AttributeType.CRIT_CHANCE,
                     AttributeType.DEFENSE
-            ), Material.ROSE_BUSH
+            ), Material.ROSE_BUSH,
+            Talent.Type.ENHANCE
     )),
 
-    // Troll
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.troll.Troll}
+     */
     TROLL_SPIN(new TrollSpin()),
     REPULSOR(new Repulsor()),
-    TROLL_PASSIVE(new PassiveTalent("Last Laugh", "Your hits have &b0.1% &7chance to instantly kill enemy.", Material.BLAZE_POWDER)),
+    TROLL_PASSIVE(new PassiveTalent(
+            "Last Laugh",
+            "Your hits have &b0.1% &7chance to instantly kill enemy.",
+            Material.BLAZE_POWDER,
+            Talent.Type.ENHANCE
+    )),
 
     // Tamer
     MINE_O_BALL(new MineOBall()),
 
-    // Nightmare
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.nightmare.Nightmare}
+     */
     PARANOIA(new Paranoia()),
     SHADOW_SHIFT(new ShadowShift()),
     IN_THE_SHADOWS(new PassiveTalent(
             "In the Shadows",
-            "While in moody light, your &b&lSpeed &7and &c&lDamage &7is increased.",
-            Material.DRIED_KELP
+            "While in moody light, your %s&7 and %s&7 increases.".formatted(AttributeType.ATTACK, AttributeType.SPEED),
+            Material.DRIED_KELP,
+            Talent.Type.ENHANCE
     )),
 
-    // Dr. Ed
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.doctor.DrEd}
+     */
     CONFUSION_POTION(new ConfusionPotion()),
     HARVEST(new HarvestBlocks()),
     BLOCK_SHIELD(new PassiveTalent(
             "Block Maelstrom",
             "Creates a block that orbits around you, dealing damage based on the element upon contact with opponents.____&7Refreshes every &b10s&7.",
-            Material.BRICK
+            Material.BRICK,
+            Talent.Type.DEFENSE
     )),
 
-    // Ender
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.ender.Ender}
+     */
     TELEPORT_PEARL(new TeleportPearl()),
     TRANSMISSION_BEACON(new TransmissionBeacon()),
     ENDER_PASSIVE(new EnderPassive()),
 
-    // Spark
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.spark.Spark}
+     */
     SPARK_MOLOTOV(new Molotov()),
     SPARK_FLASH(new SparkFlash()),
     FIRE_GUY(new PassiveTalent("Fire Guy", "You're completely immune to &clava &7and &cfire &7damage.", Material.LAVA_BUCKET)),
 
-    // Shadow Assassin
-    SHADOW_PRISM(new ShadowPrism()),
-    SHROUDED_STEP(new ShroudedStep()),
-    SECRET_SHADOW_WARRIOR_TECHNIQUE(new PassiveTalent(
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.shadow_assassin.ShadowAssassin}
+     */
+    @Deprecated SHADOW_PRISM(new ShadowPrism()),
+    @Deprecated SHROUDED_STEP(new ShroudedStep()),
+    @Deprecated SECRET_SHADOW_WARRIOR_TECHNIQUE(new PassiveTalent(
             "Dark Cover",
             "As an assassin, you have mastered the ability to stay in the shadows.____While &e&lSNEAKING&7, you become completely invisible, but cannot deal damage and your footsteps are visible.",
             Material.NETHERITE_CHESTPLATE
+    )),
+
+    SHADOW_SWITCH(new ShadowSwitch()),
+    DARK_COVER(new DarkCover()),
+    SHADOW_ASSASSIN_CLONE(new ShadowAssassinClone()),
+    SHADOW_ENERGY(new PassiveTalent(
+            "Shadow Energy", """
+            Accumulate %1$s while using abilities in &9Stealth&7 mode.
+                        
+            Spend %1$s to use empowered abilities in &cFury&7 mode.
+            """.formatted(Named.SHADOW_ENERGY),
+            Material.CHORUS_FRUIT,
+            Talent.Type.ENHANCE
     )),
 
     // Witcher
@@ -232,18 +285,38 @@ public enum Talents {
             Material.SKELETON_SKULL
     )),
 
-    // Vortex
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.vortex.Vortex}
+     */
+    VORTEX_SLASH(new VortexSlash()),
     VORTEX_STAR(new VortexStar()),
     STAR_ALIGNER(new StarAligner()),
-    EYES_OF_THE_GALAXY(new PassiveTalent(
+    LIKE_A_DREAM(new PassiveTalent(
+            "Like a Dream", """
+            Using %1$s grants you one stack of %2$s&7.
+                        
+            Each %2$s&7 stack increases &6Astral Slash&7 DMG by &b15%%&7.
+                        
+            &8;;Lose one stack after not gaining a stack for 5s.
+            """.formatted(Talents.STAR_ALIGNER.getName(), Named.ASTRAL_SPARK),
+            Material.RED_BED
+    )),
+
+    @Deprecated EYES_OF_THE_GALAXY(new PassiveTalent(
             "Eyes of the Galaxy",
             "Astral Stars you place will glow different colors:____&eYellow &7indicates a placed star.____&bAqua &7indicates closest star that will be consumed upon teleport.____&aGreen &7indicates star you will blink to upon teleport.",
             Material.ENDER_EYE
     )),
 
-    // Freazly
-    ICE_CONE(new IceCone()),
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.frostbite.Freazly}
+     */
+    ICICLES(new Icicles()),
+    ICE_CAGE(new IceCageTalent()),
     ICE_BARRIER(new IceBarrier()),
+    CHILL_AURA(new PassiveTalent("Chill Aura", """
+            You emmit a &bchill aura&7, that &bslows&7 enemies in small AoE.
+            """, Material.LIGHT_BLUE_DYE)),
 
     // Dark Mage
     BLINDING_CURSE(new BlindingCurse()),
@@ -263,7 +336,9 @@ public enum Talents {
             Material.SHIELD
     )),
 
-    // Ninja
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.ninja.Ninja}
+     */
     NINJA_DASH(new NinjaDash()),
     NINJA_SMOKE(new NinjaSmoke()),
     FLEET_FOOT(new PassiveTalent(
@@ -419,12 +494,21 @@ public enum Talents {
     TestChargeTalent(new TestChargeTalent());
 
     private final static Map<Talent, Talents> HANDLE_TO_ENUM;
+    private final static Map<Talent.Type, List<Talents>> BY_TYPE;
 
     static {
         HANDLE_TO_ENUM = Maps.newHashMap();
+        BY_TYPE = Maps.newHashMap();
 
-        for (Talents value : values()) {
-            HANDLE_TO_ENUM.put(value.getTalent(), value);
+        for (Talents enumTalent : values()) {
+            final Talent talent = enumTalent.talent;
+
+            if (talent == null) {
+                continue;
+            }
+
+            HANDLE_TO_ENUM.put(talent, enumTalent);
+            BY_TYPE.compute(talent.getType(), Compute.listAdd(enumTalent));
         }
     }
 
@@ -492,6 +576,11 @@ public enum Talents {
         }
 
         return HANDLE_TO_ENUM.get(talent);
+    }
+
+    @Nonnull
+    public static List<Talents> byType(@Nonnull Talent.Type type) {
+        return BY_TYPE.getOrDefault(type, Lists.newArrayList());
     }
 
     private static String format(String textBlock, @Nullable Object... format) {

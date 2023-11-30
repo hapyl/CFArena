@@ -38,7 +38,7 @@ public class MapSelectGUI extends GameManagementSubGUI<GameMaps> {
 
         final List<MapFeature> mapFeatures = map.getNonHiddenFeatures();
 
-        if (mapFeatures.size() > 0) {
+        if (!mapFeatures.isEmpty()) {
             builder.addLore();
             builder.addLore(mapFeatures.size() == 1 ? "&6&lMap Feature:" : "&6&lMap Features:");
 

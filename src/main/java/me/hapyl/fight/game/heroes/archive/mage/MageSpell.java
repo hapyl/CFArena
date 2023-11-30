@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.archive.mage;
 
 import me.hapyl.fight.CF;
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -34,7 +35,7 @@ public abstract class MageSpell extends Talent implements Formatted {
                         return;
                     }
 
-                    useSpell(gamePlayer);
+                    execute(gamePlayer);
                 })
                 .setName(getName() + (Color.BUTTON.bold() + " RIGHT CLICK"))
                 .build();
@@ -55,6 +56,8 @@ public abstract class MageSpell extends Talent implements Formatted {
 
         mage.setUsingUltimate(player, true, getDuration());
         useSpell(player);
+
+        player.snapToWeapon();
 
         // Remove items
         mage.spellWyvernHeart.removeItem(player);

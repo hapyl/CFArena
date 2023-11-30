@@ -33,29 +33,30 @@ public class ConfusionPotion extends Talent {
                                                 
                         Amnesia will affect opponents within range; This effect will persist for additional &b1s &7after player leaves the aura.
                                                 
-                        Dr. Ed is immune to his own amnesia
-                        """,
-                Type.COMBAT
+                        &8;;Dr. Ed is immune to his own amnesia
+                        """
         );
 
-        setDuration(200);
+        setType(Type.IMPAIR);
         setItem(Material.POTION);
+        setDuration(200);
         setCooldownSec(30);
     }
 
     @Override
     public Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocation();
-        final ArmorStand entity = Entities.ARMOR_STAND.spawn(location.add(0.0d, 1.0d, 0.0d), me -> {
-            me.setSilent(true);
-            me.setMarker(true);
-            me.setVisible(false);
-            if (me.getEquipment() != null) {
-                me.getEquipment().setHelmet(new ItemStack(Material.POTION));
-            }
-        });
+        final ArmorStand entity = Entities.ARMOR_STAND.spawn(
+                location.add(0.0d, 1.0d, 0.0d),
+                self -> {
+                    self.setSilent(true);
+                    self.setMarker(true);
+                    self.setVisible(false);
+                    self.setHelmet(new ItemStack(Material.POTION));
+                }
+        );
 
-        PlayerLib.playSound(location, Sound.ENTITY_CHICKEN_EGG, 0.0f);
+        player.playWorldSound(location, Sound.ENTITY_CHICKEN_EGG, 0.0f);
 
         // Fx
         new GameTask() {
@@ -76,12 +77,10 @@ public class ConfusionPotion extends Talent {
 
                 entity.teleport(location.clone().add(0.0d, (0.18d / (tick / Math.PI)), 0.0d));
                 entity.setHeadPose(entity.getHeadPose().add(0.15d, 0.0d, 0.0d));
-
             }
         }.runTaskTimer(0, 1);
 
         GameTask.runDuration(this, i -> {
-            Geometry.drawCircle(location, 3.5d, Quality.HIGH, new WorldParticle(Particle.END_ROD, 0.0d, 0.0d, 0.0d, 0.01f));
             Collect.nearbyPlayers(location, 3.5d).forEach(target -> {
                 if (target.equals(player)) {
                     return;
@@ -89,6 +88,8 @@ public class ConfusionPotion extends Talent {
 
                 target.addEffect(GameEffectType.AMNESIA, 20, true);
             });
+
+            Geometry.drawCircleAnchored(location, 3.5d, Quality.HIGH, new WorldParticle(Particle.END_ROD, 0.0d, 0.0d, 0.0d, 0.01f));
         }, explosionDelay, 1);
 
         return Response.OK;

@@ -24,15 +24,17 @@ public class TeleportPearl extends Talent implements Listener {
     private final Set<EnderPearl> enderPearls = new HashSet<>();
 
     public TeleportPearl() {
-        super("Rideable Pearl");
+        super(
+                "Rideable Pearl",
+                """
+                        Throw an ender pearl and mount to ride it all the way!
+                        &6&lSNEAK &7to throw normally.
+                        """
+        );
 
-        setDescription("""
-                Throw an ender pearl and mount to ride it all the way!
-                &6&lSNEAK &7to throw normally.
-                """);
-
-        setCooldown(160);
+        setType(Type.MOVEMENT);
         setItem(Material.ENDER_PEARL);
+        setCooldown(160);
     }
 
     @Override

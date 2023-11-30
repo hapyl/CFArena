@@ -18,14 +18,13 @@ import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.fx.GiantItem;
 import me.hapyl.fight.fx.beam.Quadrant;
 import me.hapyl.fight.game.*;
+import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.cosmetic.CosmeticCollection;
 import me.hapyl.fight.game.cosmetic.crate.Crates;
+import me.hapyl.fight.game.cosmetic.crate.convert.CrateConvert;
 import me.hapyl.fight.game.cosmetic.crate.convert.CrateConverts;
-import me.hapyl.fight.game.entity.GameEntities;
-import me.hapyl.fight.game.entity.GameEntity;
-import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.entity.*;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
 import me.hapyl.fight.game.entity.cooldown.CooldownData;
 import me.hapyl.fight.game.entity.shield.Shield;
@@ -36,6 +35,7 @@ import me.hapyl.fight.game.heroes.archive.bloodfield.BloodfiendData;
 import me.hapyl.fight.game.heroes.archive.dark_mage.AnimatedWither;
 import me.hapyl.fight.game.heroes.archive.doctor.ElementType;
 import me.hapyl.fight.game.heroes.archive.engineer.Engineer;
+import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.lobby.StartCountdown;
 import me.hapyl.fight.game.maps.gamepack.GamePack;
@@ -51,10 +51,14 @@ import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.display.DamageDisplay;
 import me.hapyl.fight.game.ui.splash.SplashText;
+import me.hapyl.fight.gui.HeroPreviewGUI;
 import me.hapyl.fight.gui.LegacyAchievementGUI;
 import me.hapyl.fight.gui.styled.profile.DeliveryGUI;
+import me.hapyl.fight.gui.styled.profile.achievement.AchievementGUI;
 import me.hapyl.fight.util.CFUtils;
+import me.hapyl.fight.util.ChatUtils;
 import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.Compute;
 import me.hapyl.fight.ux.Message;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.chat.Gradient;
@@ -78,6 +82,7 @@ import me.hapyl.spigotutils.module.reflect.npc.Human;
 import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
 import me.hapyl.spigotutils.module.reflect.npc.NPCPose;
 import me.hapyl.spigotutils.module.util.*;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.world.entity.Entity;
 import org.apache.commons.lang.reflect.FieldUtils;
 import org.bson.Document;
@@ -182,6 +187,34 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
+        register(new SimplePlayerAdminCommand("ph") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                final Heroes enumHero = getArgument(args, 0).toEnum(Heroes.class);
+
+                if (enumHero == null) {
+                    Chat.sendMessage(player, "&cInvalid hero!");
+                    return;
+                }
+
+                new HeroPreviewGUI(player, enumHero, 0);
+            }
+        });
+
+        register(new SimplePlayerAdminCommand("countTalentTypes") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                final Map<Talent.Type, Integer> typeCount = Maps.newHashMap();
+
+                for (Talent.Type type : Talent.Type.values()) {
+                    typeCount.compute(type, Compute.intAdd());
+                }
+
+                Chat.sendMessage(player, "&aHere's a total of talent counts:");
+                typeCount.forEach((type, count) -> Chat.sendMessage(player, " &2%s: %s", type.getName(), count));
+            }
+        });
+
         register(new SimplePlayerAdminCommand("testShield") {
             @Override
             protected void execute(Player player, String[] args) {
@@ -193,30 +226,35 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 }
 
                 final double capacity = getArgument(args, 0).toDouble(20);
-                final float strength = getArgument(args, 1).toFloat(0.5f);
 
-                gamePlayer.setShield(new Shield(gamePlayer, capacity, strength));
-                Chat.sendMessage(player, "&aApplied shield with %s capacity and %s strength.", capacity, strength);
+                gamePlayer.setShield(new Shield(gamePlayer, capacity));
+                Chat.sendMessage(player, "&aApplied shield with %s capacity.", capacity);
             }
         });
 
         register(new SimplePlayerCommand("canConvertCrate") {
             @Override
             protected void execute(Player player, String[] args) {
-                final CrateConverts convert = getArgument(args, 0).toEnum(CrateConverts.class);
+                final CrateConverts enumConvert = getArgument(args, 0).toEnum(CrateConverts.class);
 
-                if (convert == null) {
+                if (enumConvert == null) {
                     Chat.sendMessage(player, "&cInvalid convert!");
                     return;
                 }
 
-                final boolean canConvert = convert.get().canConvert(player);
+                final CrateConvert convert = enumConvert.get();
+                final int canConvertTimes = convert.canConvertTimes(player);
 
-                if (canConvert) {
-                    Chat.sendMessage(player, "&aYou have enough items to convert!");
+                if (canConvertTimes > 0) {
+                    Chat.sendMessage(player, "&aYou can convert %s times!", canConvertTimes);
                 }
                 else {
                     Chat.sendMessage(player, "&cYou don't have enough items to convert!");
+                }
+
+                if (player.isOp()) {
+                    Chat.sendMessage(player, "&7Convert Data:");
+                    Chat.sendMessage(player, convert.toString());
                 }
             }
         });
@@ -236,6 +274,73 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
+        register(new SimplePlayerAdminCommand("testBlocksCirclingAround") {
+            GameTask task;
+            List<ArmorStand> blocks = Lists.newArrayList();
+
+            @Override
+            protected void execute(Player player, String[] args) {
+                if (task != null) {
+                    task.cancel();
+                    task = null;
+
+                    blocks.forEach(ArmorStand::remove);
+                    blocks.clear();
+
+                    Chat.sendMessage(player, "&cCancelled!");
+                    return;
+                }
+
+                final Location location = player.getLocation();
+
+                final int blockCount = getArgument(args, 0).toInt(10);
+                final double distance = getArgument(args, 1).toDouble(5);
+
+                for (int i = 0; i < blockCount; i++) {
+                    boolean glow = i % 2 == 0;
+                    blocks.add(Entities.ARMOR_STAND_MARKER.spawn(location, self -> {
+                        self.setSilent(true);
+                        self.setInvisible(true);
+                        self.setGravity(false);
+                        self.setHelmet(new ItemStack(Material.STONE));
+                        if (glow) {
+                            self.setGlowing(true);
+                        }
+                    }));
+                }
+
+                final double spread = Math.PI * 2 / Math.max(blockCount, 1);
+
+                task = new TickingGameTask() {
+                    private double theta = 0.0d;
+
+                    @Override
+                    public void run(int tick) {
+                        int index = 1;
+
+                        for (ArmorStand block : blocks) {
+                            final double x = Math.sin(theta + spread * index) * distance;
+                            final double y = Math.sin(theta + spread * index) * 0.5d;
+                            final double z = Math.cos(theta + spread * index) * distance;
+
+                            location.add(x, y, z);
+                            block.teleport(location);
+                            location.subtract(x, y, z);
+                            index++;
+                        }
+
+                        if (theta >= Math.PI * 2) {
+                            theta = 0.0d;
+                        }
+
+                        theta += Math.PI / 16;
+                    }
+                }.runTaskTimer(0, 2);
+
+                Chat.sendMessage(player, "&aStarted!");
+            }
+        });
+
         register("clearCachedTalentItems", (player, args) -> {
             for (Talents enumTalent : Talents.values()) {
                 final Talent talent = enumTalent.getTalent();
@@ -246,6 +351,36 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
 
             Chat.sendMessage(player, "&aDone!");
+        });
+
+        register(new SimplePlayerAdminCommand("testTalentLock") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                final int i = getArgument(args, 0).toInt();
+                final int lock = getArgument(args, 1).toInt();
+                final GamePlayer gamePlayer = CF.getPlayer(player);
+
+                if (gamePlayer == null) {
+                    Chat.sendMessage(player, "&cCannot lock talent outside a game!");
+                    return;
+                }
+
+                final TalentLock talentLock = gamePlayer.getTalentLock();
+                final HotbarSlots slot = gamePlayer.getProfile().getHotbarLoadout().bySlot(i);
+
+                if (slot == null) {
+                    Chat.sendMessage(player, "&cInvalid talent!");
+                    return;
+                }
+
+                final boolean isLock = talentLock.setLock(slot, lock);
+                if (!isLock) {
+                    Chat.sendMessage(player, "&cCannot lock '%s'!", slot.getName());
+                    return;
+                }
+
+                Chat.sendMessage(player, "&aLocked '%s' for %s!", slot.getName(), CFUtils.decimalFormatTick(lock));
+            }
         });
 
         register(new SimplePlayerAdminCommand("testGiantItem") {
@@ -442,9 +577,12 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         });
 
         register("deleteGamePlayer", (player, args) -> {
-            final PlayerProfile profile = PlayerProfile.getOrCreateProfile(player);
-            profile.resetGamePlayer();
+            final PlayerProfile profile = PlayerProfile.getProfile(player);
+            if (profile == null) {
+                return;
+            }
 
+            profile.resetGamePlayer();
             Chat.sendMessage(player, "&aDone!");
         });
 
@@ -458,11 +596,13 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 final int green = color.getGreen();
                 final int blue = color.getBlue();
 
+                final me.hapyl.fight.game.color.Color stringColor = new me.hapyl.fight.game.color.Color(color);
+
                 Chat.sendClickableHoverableMessage(
                         player,
                         LazyEvent.suggestCommand(red + ", " + green + ", " + blue),
                         LazyEvent.showText("&eClick to copy color!"),
-                        "&aColor: " + color + " &6&lCLICK TO COPY RGB"
+                        "&aColor: " + stringColor + "∎∎∎ &6&lCLICK TO COPY RGB"
                 );
             }
 
@@ -791,18 +931,32 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             Chat.sendMessage(player, "&aSpawned!");
         });
 
-        register("setCdMultiplier", (player, args) -> {
-            final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
+        register("testHoverText", (player, args) -> {
+            final TextComponent text = new TextComponent("Hover me");
 
-            if (gamePlayer == null) {
-                Chat.sendMessage(player, "&cNot in a game.");
+            text.setHoverEvent(ChatUtils.showText("first line", "second line", "&ccolor"));
+            player.spigot().sendMessage(text);
+        });
+
+        register("spawnEntityWithMaxDodgeToTestTheDodgeAttributeBecauseIHaveNoFriendsToTestItWith", (player, args) -> {
+            final Pig pig = Entities.PIG.spawn(player.getLocation());
+            final LivingGameEntity entity = CF.getEntity(pig);
+
+            if (entity == null) {
+                Chat.sendMessage(player, "&1Entity handle is null!");
                 return;
             }
 
-            final double modifier = Validate.getDouble(args[0]);
-            gamePlayer.setCooldownModifier(modifier);
+            entity.getAttributes().set(AttributeType.DODGE, AttributeType.DODGE.maxValue());
 
-            Chat.sendMessage(player, "&aSet cooldown modifier to " + modifier);
+            Chat.sendMessage(player, "&1There you go!");
+        });
+
+        register(new SimplePlayerCommand("viewAchievementGUI") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                new AchievementGUI(player);
+            }
         });
 
         register(new SimplePlayerAdminCommand("simulateDeathMessage") {
@@ -1873,31 +2027,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 }
 
                 Chat.sendMessage(player, "&cInvalid usage, idiot.");
-            }
-        });
-
-        register(new SimplePlayerAdminCommand("dropDatabase") {
-            @Override
-            protected void execute(Player player, String[] strings) {
-                final Database database = Main.getPlugin().getDatabase();
-
-                if (!database.isDevelopment()) {
-                    Chat.sendMessage(player, "&cCannot drop PROD database!");
-                    return;
-                }
-
-                final MongoDatabase mongoDatabase = database.getDatabase();
-
-                for (String string : mongoDatabase.listCollectionNames()) {
-                    mongoDatabase.getCollection(string).deleteMany(new Document());
-                }
-
-                Chat.sendMessage(player, "&aDropped database!");
-
-                // Reload player database
-                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                    PlayerDatabase.getDatabase(onlinePlayer).load();
-                }
             }
         });
 

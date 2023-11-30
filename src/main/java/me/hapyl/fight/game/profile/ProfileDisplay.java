@@ -100,7 +100,7 @@ public class ProfileDisplay {
     }
 
     @Nonnull
-    public ChatColor getColor() {
+    public Color getColor() {
         return rank.nameColor();
     }
 

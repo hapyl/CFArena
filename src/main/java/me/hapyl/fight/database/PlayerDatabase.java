@@ -41,6 +41,8 @@ public class PlayerDatabase {
     public final DailyRewardEntry dailyRewardEntry;
     public final CrateEntry crateEntry;
     public final DeliveryEntry deliveryEntry;
+    public final HotbarLoadoutEntry hotbarEntry;
+    public final FastAccessEntry fastAccessEntry;
     /////////////////
     // ENTRIES END //
     /////////////////
@@ -69,6 +71,8 @@ public class PlayerDatabase {
         this.dailyRewardEntry = new DailyRewardEntry(this);
         this.crateEntry = new CrateEntry(this);
         this.deliveryEntry = new DeliveryEntry(this);
+        this.hotbarEntry = new HotbarLoadoutEntry(this);
+        this.fastAccessEntry = new FastAccessEntry(this);
 
         UUID_DATABASE_MAP.put(uuid, this);
     }
@@ -212,7 +216,7 @@ public class PlayerDatabase {
             getLogger().info("Successfully loaded database for %s.".formatted(playerName));
         } catch (Exception error) {
             error.printStackTrace();
-            getLogger().severe("An error occurred whilst trying to load database for %s.".formatted(playerName));
+            getLogger().severe("An error occurred whilst trying to load a database for %s.".formatted(playerName));
         }
     }
 

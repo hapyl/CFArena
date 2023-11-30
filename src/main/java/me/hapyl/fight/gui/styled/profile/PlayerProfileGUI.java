@@ -2,6 +2,7 @@ package me.hapyl.fight.gui.styled.profile;
 
 import me.hapyl.fight.game.cosmetic.gui.CollectionGUI;
 import me.hapyl.fight.game.experience.ExperienceGUI;
+import me.hapyl.fight.gui.styled.hotbar.HotbarLoadoutGUI;
 import me.hapyl.fight.gui.SettingsGUI;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
@@ -51,8 +52,17 @@ public class PlayerProfileGUI extends StyledGUI {
         );
 
         // Settings
-        setPanelItem(6, StyledItem.ICON_SETTINGS.asButton("modify settings"),
+        setPanelItem(
+                6,
+                StyledItem.ICON_SETTINGS.asButton("modify settings"),
                 SettingsGUI::new
+        );
+
+        // Loadout
+        setPanelItem(
+                7,
+                StyledItem.ICON_LOADOUT.asButton("customize hotbar"),
+                HotbarLoadoutGUI::new
         );
     }
 

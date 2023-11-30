@@ -12,17 +12,16 @@ import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.orc.OrcAxe;
 import me.hapyl.fight.game.talents.archive.orc.OrcGrowl;
-import me.hapyl.fight.game.task.PlayerTask;
+import me.hapyl.fight.game.task.PlayerGameTask;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.math.Tick;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -150,8 +149,10 @@ public class Orc extends Hero implements Listener {
     }
 
     @Override
-    public void useUltimate(@Nonnull GamePlayer player) {
+    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
         enterBerserk(player, getUltimateDuration());
+
+        return UltimateCallback.OK;
     }
 
     @Override
@@ -170,34 +171,33 @@ public class Orc extends Hero implements Listener {
         Temper.BERSERK_MODE.temper(attributes, duration);
 
         // Fx
-        new PlayerTask(player) {
+        new PlayerGameTask(player) {
             private int tick = 0;
+
+            @Override
+            public void run() {
+                if (tick++ >= duration) {
+                    cancel();
+                    return;
+                }
+
+                // Sound FX
+                if (tick % 20 == 0) {
+                    player.playWorldSound(Sound.ENTITY_PIGLIN_AMBIENT, 0.75f);
+                    player.playWorldSound(Sound.ENTITY_PIGLIN_ANGRY, 1.25f);
+                }
+
+                // Particle FX
+                if (tick % 5 == 0) {
+                    player.spawnWorldParticle(Particle.LAVA, 2, 0.1, 0.2, 0.1, 0.1f);
+                }
+            }
 
             @Override
             public void onTaskStop() {
                 player.sendMessage(Named.BERSERK + " &ais over!");
             }
 
-            @Override
-            public void run(@Nonnull GamePlayer player) {
-                if (tick++ >= duration) {
-                    cancel();
-                    return;
-                }
-
-                final Location location = player.getEyeLocation();
-
-                // Sound FX
-                if (tick % 20 == 0) {
-                    PlayerLib.playSound(location, Sound.ENTITY_PIGLIN_AMBIENT, 0.75f);
-                    PlayerLib.playSound(location, Sound.ENTITY_PIGLIN_ANGRY, 1.25f);
-                }
-
-                // Particle FX
-                if (tick % 5 == 0) {
-                    PlayerLib.spawnParticle(location, Particle.LAVA, 2, 0.1, 0.2, 0.1, 0.1f);
-                }
-            }
         }.runTaskTimer(0, 1);
     }
 

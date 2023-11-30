@@ -85,7 +85,7 @@ public enum EnumDamageCause {
     NEVERMISS(DamageCause.of("couldn't dodge {damager}'s attack, what a noob..")),
     FEET_ATTACK(DamageCause.of("probably lost their toe")),
     SUBMERGE(DamageCause.of("didn't know that Sharks bite")),
-    SOTS(DamageCause.of("couldn't hide from the stars", "of")),
+    SOTS(DamageCause.nonCrit("couldn't hide from the stars", "of")),
     STAR_SLASH(DamageCause.of("was slashed in half", "by")),
     RAINFIRE(DamageCause.of("thought it's raining, but in reality it was {damager}'s arrows..")),
     SWEEP(DamageCause.of("was swept to death", "by")),
@@ -127,6 +127,10 @@ public enum EnumDamageCause {
     SOULS_REBOUND(DamageCause.nonCrit("had their soul rebounded", "by").setTrueDamage()),
     GRAVITY(DamageCause.nonCrit("felt the gravity of {damager}'s planet")),
     ENDER_TELEPORT(DamageCause.nonCrit("was too scared of {damager}'s threatening aura")),
+    STEAM(DamageCause.nonCrit("was steamed to death", "with help from")),
+    DARK_ENERGY(DamageCause.nonCrit("was annihilated to death", "by")),
+    SHADOW_CLONE(DamageCause.nonCrit("was killed by {damager}'s shadow")),
+    
     ;
 
     private final DamageCause damageCause;

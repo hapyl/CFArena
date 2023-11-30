@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.archive.harbinger;
 
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.collection.player.PlayerMap;
@@ -93,8 +94,7 @@ public class MeleeStance extends Talent {
         final PlayerInventory inventory = player.getInventory();
         dataMap.put(player, new StanceData(player, inventory.getItem(0)));
 
-        inventory.setItem(0, abilityItem.getItem());
-        inventory.setHeldItemSlot(0);
+        player.setItemAndSnap(HotbarSlots.WEAPON, abilityItem.getItem());
 
         startCd(player, 20);
 
@@ -116,8 +116,7 @@ public class MeleeStance extends Talent {
         startCd(player, cooldown);
         player.sendMessage("&aMelee Stance is on cooldown for &l%ss&a!", BukkitUtils.roundTick(cooldown));
 
-        player.getInventory().setItem(0, data.getOriginalWeapon());
-        player.getInventory().setHeldItemSlot(0);
+        player.setItemAndSnap(HotbarSlots.WEAPON, data.getOriginalWeapon());
         dataMap.remove(player);
 
         player.playSound(Sound.ENTITY_ARROW_SHOOT, 0.75f);

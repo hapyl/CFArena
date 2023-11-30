@@ -72,6 +72,11 @@ public enum Achievements {
             new HiddenAchievement("That's Not Fair!", "Get killed by Troll's passive ability.")
     ),
 
+    // Frostbite
+    CAGE_SELF(
+            new HiddenAchievement("Ice Cold", "Cage yourself with your own snowball.")
+    ),
+
     ////////////////////////
     // OTHER ACHIEVEMENTS //
     ////////////////////////

@@ -90,7 +90,7 @@ public class PlayerDatabaseEntry {
     /**
      * Returns a a document in this (root) document.
      * <p>
-     * <code>getInDocument("string);</code> will return the following:
+     * <code>getInDocument("string");</code> will return the following:
      * </p>
      * <pre>
      *     {

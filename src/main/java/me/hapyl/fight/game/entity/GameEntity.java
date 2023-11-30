@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.entity;
 
+import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.GameInstance;
@@ -12,31 +13,35 @@ import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.spigotutils.module.reflect.Reflect;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
 public class GameEntity {
 
     public final UUID uuid;
+    private final Set<String> tags;
     @Nonnull
     protected LivingEntity entity;
-
     // By default, GameEntity is a 'base' class, which allows for
     // faster and better checks for if entity is valid.
     protected boolean base = false;
 
     public GameEntity(@Nonnull LivingEntity entity) {
         this.uuid = entity.getUniqueId();
+        this.tags = Sets.newHashSet();
         this.entity = entity;
     }
 
@@ -181,20 +186,16 @@ public class GameEntity {
         return this.entity.hasLineOfSight(entity);
     }
 
-    public void setVelocity(Vector vector) {
-        entity.setVelocity(vector);
-    }
-
     public void addTag(@Nonnull String tag) {
-        entity.addScoreboardTag(tag);
+        tags.add(tag);
     }
 
     public boolean hasTag(@Nonnull String tag) {
-        return entity.getScoreboardTags().contains(tag);
+        return tags.contains(tag);
     }
 
     public void removeTag(@Nonnull String tag) {
-        entity.removeScoreboardTag(tag);
+        tags.remove(tag);
     }
 
     public void setInvulnerable(boolean b) {
@@ -316,10 +317,6 @@ public class GameEntity {
         return entity.getEntityId();
     }
 
-    public void setCustomName(@Nullable String name) {
-        this.entity.setCustomName(name);
-    }
-
     public void setCustomNameVisible(boolean visible) {
         this.entity.setCustomNameVisible(visible);
     }
@@ -327,6 +324,10 @@ public class GameEntity {
     @Nullable
     public String getCustomName() {
         return this.entity.getCustomName();
+    }
+
+    public void setCustomName(@Nullable String name) {
+        this.entity.setCustomName(name);
     }
 
     public void flip() {
@@ -350,6 +351,10 @@ public class GameEntity {
     @Nonnull
     public Vector getVelocity() {
         return entity.getVelocity();
+    }
+
+    public void setVelocity(Vector vector) {
+        entity.setVelocity(vector);
     }
 
     @Nonnull
@@ -378,5 +383,39 @@ public class GameEntity {
 
     public void schedule(Runnable run, int delay) {
         GameTask.runLater(run, delay);
+    }
+
+    @Nonnull
+    public Block getBlock() {
+        return getLocation().getBlock();
+    }
+
+    public int getBlockLight() {
+        return getBlock().getLightLevel();
+    }
+
+    public float getYaw() {
+        return getLocation().getYaw();
+    }
+
+    public float getPitch() {
+        return getLocation().getPitch();
+    }
+
+    public double getY() {
+        return getLocation().getY();
+    }
+
+    public int getBlockY() {
+        return (int) getY();
+    }
+
+    @Nonnull
+    public Vector getDirection() {
+        return getLocation().getDirection();
+    }
+
+    public net.minecraft.world.entity.Entity getNMSEntity() {
+        return Reflect.getMinecraftEntity(entity);
     }
 }

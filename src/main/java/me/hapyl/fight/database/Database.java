@@ -11,6 +11,8 @@ import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 
+import javax.annotation.Nonnull;
+
 /**
  * I really don't know how a database works or should work;
  * it's my first time working with mongodb.
@@ -98,8 +100,14 @@ public class Database extends DependencyInjector<Main> {
         return globalConfig;
     }
 
+    @Nonnull
     public String getDatabaseString() {
         return "&a&lMONGO &fConnected Database: &6&l" + namedDatabase.name();
+    }
+
+    @Nonnull
+    public String getDatabaseName() {
+        return database.getName();
     }
 
     public MongoDatabase getDatabase() {

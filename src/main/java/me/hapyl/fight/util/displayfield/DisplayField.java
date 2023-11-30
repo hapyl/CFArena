@@ -26,7 +26,7 @@ public @interface DisplayField {
     String suffix() default "";
 
     /**
-     * Whenever suffix should be prepended by a space.
+     * Whenever a space should prepend suffix.
      */
     boolean suffixSpace() default true;
 
@@ -42,7 +42,7 @@ public @interface DisplayField {
     String extra() default "";
 
     /**
-     * Annotates that this field is a percentage and should be scaled by 100, appended with "%" without a space.
+     * Annotates that this field is a percentage and will be scaled by 100 and appended with "%" without a space.
      *
      * @return is percentage.
      */

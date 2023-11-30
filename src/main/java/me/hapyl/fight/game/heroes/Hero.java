@@ -3,12 +3,11 @@ package me.hapyl.fight.game.heroes;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.annotate.PreferredReturnValue;
+import me.hapyl.fight.annotate.PreprocessingMethod;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
-import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GameElement;
-import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.PlayerElement;
+import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -16,6 +15,7 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.heroes.equipment.Slot;
 import me.hapyl.fight.game.heroes.friendship.HeroFriendship;
+import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -40,7 +40,7 @@ import java.util.function.Consumer;
  * Base Hero class.
  * <p>
  * A hero <b>must</b> contains {@link #getFirstTalent()}, {@link #getSecondTalent()} and {@link #getPassiveTalent()},
- * but may or may not have up to 3 extra talents if needed.
+ * but may or may not have up to three extra talents if needed.
  *
  * @see GameElement
  * @see PlayerElement
@@ -54,6 +54,7 @@ public abstract class Hero implements GameElement, PlayerElement {
     private final Map<GamePlayer, GameTask> reverseTasks;
     private final CachedHeroItem cachedHeroItem;
     private final HeroFriendship friendship;
+
     private Origin origin;
     private Archetype archetype;
     private String description;
@@ -358,25 +359,18 @@ public abstract class Hero implements GameElement, PlayerElement {
     /**
      * Called whenever a player presses the ultimate, no matter if it's ready or not.
      */
-    public void onUltimate(Player player, UltimateStatus status) {
+    @Event
+    public void onUltimateKeyPressed(@Nonnull GamePlayer player, @Nonnull UltimateStatus status) {
     }
 
     /**
      * Unleashes this hero's ultimate.
-     * If ultimate has castDuration, the ultimate will be delayed with that duration.
-     */
-    public abstract void useUltimate(@Nonnull GamePlayer player);
-
-    /**
-     * Called whenever player casts an ultimate.
-     * No matter the castDuration of the ultimate, this is instantly called.
      *
-     * @param player - Player, who cast ultimate.
+     * @return the ultimate callback. The callback will be executed if, and only if the ultimate has a cast duration.
      */
     @Nullable
-    public UltimateCallback castUltimate(@Nonnull GamePlayer player) {
-        return null;
-    }
+    @PreferredReturnValue("UltimateCallback#OK")
+    public abstract UltimateCallback useUltimate(@Nonnull GamePlayer player);
 
     /**
      * Returns this hero a talent.
@@ -402,16 +396,31 @@ public abstract class Hero implements GameElement, PlayerElement {
     @ReturnValueMustBeAConstant
     public abstract Talent getPassiveTalent();
 
+    /**
+     * Gets this hero third talent, if exists.
+     *
+     * @return this hero third talent, if exists.
+     */
     @ReturnValueMustBeAConstant
     public Talent getThirdTalent() {
         return null;
     }
 
+    /**
+     * Gets this hero fourth talent, if exists.
+     *
+     * @return this hero fourth talent, if exists.
+     */
     @ReturnValueMustBeAConstant
     public Talent getFourthTalent() {
         return null;
     }
 
+    /**
+     * Gets this hero fifth talent, if exists.
+     *
+     * @return this hero fifth talent, if exists.
+     */
     @ReturnValueMustBeAConstant
     public Talent getFifthTalent() {
         return null;
@@ -419,7 +428,7 @@ public abstract class Hero implements GameElement, PlayerElement {
 
     /**
      * Called when player DAMAGES something.
-     *
+     * <p>
      * <h2>Examples:</h2>
      * <blockquote>
      * Increase OUTGOING damage by 50%:
@@ -449,10 +458,10 @@ public abstract class Hero implements GameElement, PlayerElement {
 
     /**
      * Called when player TAKES DAMAGE something.
-     *
+     * <p>
      * <h2>Examples:</h2>
      * <blockquote>
-     * Increase REDUCE damage by 50%:
+     * Reduce INCOMING damage by 50%:
      * <pre>
      *      return new DamageOutput(input.getDamage() / 1.5d);
      * </pre>
@@ -474,8 +483,8 @@ public abstract class Hero implements GameElement, PlayerElement {
     }
 
     /**
-     * Called when player DAMAGES something.
-     *
+     * Called when player DAMAGES something via projectile.
+     * <p>
      * <h2>Examples:</h2>
      * <blockquote>
      * Increase OUTGOING damage by 50%:
@@ -519,6 +528,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      *
      * @param player - Player.
      */
+    @Event
     public void onDeath(@Nonnull GamePlayer player) {
     }
 
@@ -529,6 +539,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      * @param killer - Killer.
      * @param cause  - Cause.
      */
+    @Event
     public void onDeathGlobal(@Nonnull GamePlayer player, @Nullable GameEntity killer, @Nullable EnumDamageCause cause) {
     }
 
@@ -588,6 +599,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      *
      * @return this hero ultimate.
      */
+    @Nonnull
     public UltimateTalent getUltimate() {
         return this.ultimate;
     }
@@ -601,20 +613,19 @@ public abstract class Hero implements GameElement, PlayerElement {
         this.ultimate = ultimate;
     }
 
+    @PreprocessingMethod
     public final void useUltimate0(GamePlayer player) {
         final int castDuration = ultimate.getCastDuration();
-        final UltimateCallback callback = castUltimate(player);
+        final UltimateCallback callback = useUltimate(player);
 
-        new GameTask() {
-            @Override
-            public void run() {
-                if (callback != null) { // execute call before using the ultimate
+        if (castDuration > 0 && callback != null) {
+            new GameTask() {
+                @Override
+                public void run() {
                     callback.callback(player);
                 }
-
-                useUltimate(player);
-            }
-        }.runTaskLater(Math.max(castDuration, 0));
+            }.runTaskLater(castDuration);
+        }
     }
 
     /**
@@ -699,6 +710,18 @@ public abstract class Hero implements GameElement, PlayerElement {
     }
 
     @Nullable
+    public Talent getTalent(@Nonnull HotbarSlots slot) {
+        return switch (slot) {
+            case TALENT_1 -> getFirstTalent();
+            case TALENT_2 -> getSecondTalent();
+            case TALENT_3 -> getThirdTalent();
+            case TALENT_4 -> getFourthTalent();
+            case TALENT_5 -> getFifthTalent();
+            default -> null;
+        };
+    }
+
+    @Nullable
     public Talent getTalent(int slot) {
         return switch (slot) {
             case 1 -> getFirstTalent();
@@ -709,8 +732,6 @@ public abstract class Hero implements GameElement, PlayerElement {
             default -> null;
         };
     }
-
-    // Utilities for checks, etc.
 
     /**
      * Returns all talents of this hero, including nullable.
@@ -745,6 +766,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      *
      * @return all talents of this hero, excluding nullable, sorted.
      */
+    @Nonnull
     public List<Talent> getTalentsSorted() {
         final List<Talent> talents = Lists.newArrayList();
         talents.add(getFirstTalent());
@@ -756,6 +778,19 @@ public abstract class Hero implements GameElement, PlayerElement {
         talents.add(getFifthTalent());
 
         talents.add(getPassiveTalent());
+
+        return talents;
+    }
+
+    @Nonnull
+    public List<Talent> getActiveTalents() {
+        final List<Talent> talents = Lists.newArrayList();
+
+        talents.add(getFirstTalent());
+        talents.add(getSecondTalent());
+        talents.add(getThirdTalent());
+        talents.add(getFourthTalent());
+        talents.add(getFifthTalent());
 
         return talents;
     }
@@ -786,6 +821,11 @@ public abstract class Hero implements GameElement, PlayerElement {
     protected void setUltimate(UltimateTalent ultimate, Consumer<UltimateTalent> andThen) {
         setUltimate(ultimate);
         andThen.accept(ultimate);
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        throw new CloneNotSupportedException("Heroes cannot be cloned.");
     }
 
     private void cancelOldReverseTask(GamePlayer player) {

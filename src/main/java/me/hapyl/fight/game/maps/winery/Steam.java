@@ -1,8 +1,9 @@
 package me.hapyl.fight.game.maps.winery;
 
+import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.maps.features.Geyser;
 import me.hapyl.fight.util.Direction;
-import org.bukkit.entity.LivingEntity;
 
 import javax.annotation.Nonnull;
 
@@ -14,7 +15,11 @@ public class Steam extends Geyser {
     }
 
     @Override
-    public void affectEntityTick(@Nonnull LivingEntity entity, int tick) {
+    public void affectEntityTick(@Nonnull LivingGameEntity entity, int tick) {
+        if (tick % 10 != 0) {
+            return;
+        }
 
+        entity.damage(1, EnumDamageCause.STEAM);
     }
 }

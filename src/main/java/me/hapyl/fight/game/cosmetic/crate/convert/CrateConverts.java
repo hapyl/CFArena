@@ -10,18 +10,18 @@ import javax.annotation.Nonnull;
 public enum CrateConverts implements EnumWrapper<CrateConvert> {
 
     COMMON_TO_UNCOMMON(
-            new CrateConvert(Rarity.UNCOMMON + "Uncommon Convert", "Convert your common crates into uncommon!")
-                    .setCrateToConvert(Crates.COMMON, 9)
-                    .setCurrencyToConvert(Currency.CHEST_DUST, 5)
-                    .setCurrencyToConvert(Currency.COINS, 500)
+            new CrateConvert(Rarity.UNCOMMON.getColor() + "Uncommon Convert", "Convert your common crates into uncommon!")
+                    .setToConvert(Crates.COMMON, 9)
+                    .setToConvert(Currency.CHEST_DUST, 5)
+                    .setToConvert(Currency.COINS, 500)
                     .setConvertProduct(Crates.UNCOMMON)
     ),
 
     UNCOMMON_TO_RARE(
-            new CrateConvert(Rarity.RARE + "Rare Convert", "Convert your uncommon crates into rare!")
-                    .setCrateToConvert(Crates.UNCOMMON, 9)
-                    .setCurrencyToConvert(Currency.CHEST_DUST, 10)
-                    .setCurrencyToConvert(Currency.COINS, 1000)
+            new CrateConvert(Rarity.RARE.getColor() + "Rare Convert", "Convert your uncommon crates into rare!")
+                    .setToConvert(Crates.UNCOMMON, 9)
+                    .setToConvert(Currency.CHEST_DUST, 10)
+                    .setToConvert(Currency.COINS, 1000)
                     .setConvertProduct(Crates.RARE)
     ),
 

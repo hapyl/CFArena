@@ -4,6 +4,7 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
@@ -90,8 +91,7 @@ public enum TamerPacks {
             );
             final PlayerInventory inventory = player.getInventory();
 
-            inventory.setItem(4, boneSword);
-            inventory.setHeldItemSlot(4);
+            player.setItemAndSnap(HotbarSlots.HERO_ITEM, boneSword);
 
             player.addPotionEffect(PotionEffectType.SPEED, Heroes.TAMER.getHero().getUltimateDuration(), 1);
 
@@ -113,10 +113,8 @@ public enum TamerPacks {
 
         @Override
         public void onUltimateEnd(GamePlayer player, TamerPack pack) {
-            final PlayerInventory inventory = player.getInventory();
-            inventory.setItem(4, new ItemStack(Material.AIR));
-            inventory.setHeldItemSlot(0);
-            //pack.remove(); impl in Tamer#onUltimateEnd
+            player.setItem(HotbarSlots.HERO_ITEM, null);
+            player.snapToWeapon();
         }
 
         @Override

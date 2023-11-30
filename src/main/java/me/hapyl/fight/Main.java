@@ -4,6 +4,7 @@ import me.hapyl.fight.chat.ChatHandler;
 import me.hapyl.fight.command.CommandRegistry;
 import me.hapyl.fight.database.Database;
 import me.hapyl.fight.event.*;
+import me.hapyl.fight.fastaccess.FastAccessListener;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.achievement.AchievementRegistry;
 import me.hapyl.fight.game.collectible.Collectibles;
@@ -223,6 +224,7 @@ public class Main extends JavaPlugin {
         pluginManager.registerEvents(new ServerHandler(), this);
         pluginManager.registerEvents(new OverlayListener(), this);
         pluginManager.registerEvents(new CFGarbageCollector(), this);
+        pluginManager.registerEvents(new FastAccessListener(), this);
     }
 
     private void runSafe(Runnable runnable, String handler) {

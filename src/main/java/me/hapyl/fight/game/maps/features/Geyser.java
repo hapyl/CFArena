@@ -17,7 +17,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.LivingEntity;
 
 import javax.annotation.Nonnull;
 import java.util.Random;
@@ -120,19 +119,21 @@ public class Geyser {
 
     public void createEntities() {
         Entities.ARMOR_STAND_MARKER.spawn(spawnLocation, self -> {
-            CFUtils.setEquipment(self, equipment -> equipment.setHelmet(ItemBuilder.playerHeadUrl(texture).asIcon()));
+            self.setHelmet(ItemBuilder.playerHeadUrl(texture).asIcon());
             self.setHeadPose(direction.toEulerAngle());
+            self.setInvisible(true);
+            self.setInvulnerable(true);
         });
     }
 
-    public void affectEntityTick(@Nonnull LivingEntity entity, int tick) {
+    public void affectEntityTick(@Nonnull LivingGameEntity entity, int tick) {
     }
 
     public void affectLocationTick(@Nonnull Location location, int tick) {
         PlayerLib.spawnParticle(location, Particle.EXPLOSION_NORMAL, 1, 0.1, 0.1, 0.1, 0.05f);
         PlayerLib.spawnParticle(location, Particle.SMOKE_NORMAL, 1, 0.1, 0.1, 0.1, 0.05f);
 
-        if (tick % 15 == 0) {
+        if (tick % 30 == 0) {
             PlayerLib.playSound(location, Sound.BLOCK_REDSTONE_TORCH_BURNOUT, new Random().nextFloat(0.5f, 0.85f));
         }
     }
@@ -148,7 +149,7 @@ public class Geyser {
         }
 
         for (LivingGameEntity living : affectedEntities) {
-            affectEntityTick(living.getEntity(), tick);
+            affectEntityTick(living, tick);
         }
 
         affectedEntities.clear();

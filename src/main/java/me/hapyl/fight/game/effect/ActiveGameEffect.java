@@ -95,7 +95,6 @@ public class ActiveGameEffect {
 
                 // actually tick down
                 --remainingTicks;
-
             }
         }.runTaskTimer(0, 1);
     }

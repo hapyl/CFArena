@@ -1,5 +1,7 @@
 package me.hapyl.fight.game.maps.winery;
 
+import me.hapyl.fight.CF;
+import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.maps.GameMap;
@@ -11,7 +13,9 @@ import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
+import org.bukkit.block.Block;
 
+import java.util.List;
 import java.util.Random;
 
 public class WineryMap extends GameMap {
@@ -52,8 +56,8 @@ public class WineryMap extends GameMap {
         setWeather(WeatherType.DOWNFALL);
         setTime(18000);
 
+        // Howl
         addFeature(new HiddenMapFeature() {
-
             @Override
             public void onStart() {
                 GameTask.runTaskTimer(task -> {
@@ -70,15 +74,12 @@ public class WineryMap extends GameMap {
                     world.playSound(location, Sound.ENTITY_WOLF_HOWL, SoundCategory.RECORDS, 4.0f, new Random().nextFloat(0.0f, 1.0f));
                 }, howlPeriod, howlPeriod);
             }
-
-            @Override
-            public void tick(int tick) {
-
-            }
         });
 
+        // Steam
         addFeature(new WinerySteamFeature());
 
+        // Owl Spy Achievement
         addFeature(new HiddenMapFeature() {
             @Override
             public void tick(int tick) {
@@ -110,6 +111,38 @@ public class WineryMap extends GameMap {
                         Achievements.OWL_SPY.complete(player);
                     }
                 }
+            }
+        });
+
+        // Lightning
+        addFeature(new HiddenMapFeature() {
+
+            private final double minHeight = 77;
+
+            @Override
+            public void tick(int tick) {
+                final List<GamePlayer> players = CF.getAlivePlayers();
+
+                players.forEach(player -> {
+                    final int y = player.getBlockY();
+
+                    if (y < minHeight) {
+                        return;
+                    }
+
+                    final Block block = player.getBlock();
+
+                    if (block.getType() != Material.STRUCTURE_VOID) {
+                        return;
+                    }
+
+                    final int frequency = Math.max(137 - y, 2);
+
+                    if (tick > 0 && tick % frequency == 0) {
+                        player.getWorld().strikeLightningEffect(player.getEyeLocation());
+                        player.damageTick(2, EnumDamageCause.LIGHTNING, 1);
+                    }
+                });
             }
         });
 

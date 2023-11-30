@@ -116,8 +116,4 @@ public class LibraryFeature extends MapFeature implements Listener {
         player.playSound(Sound.AMBIENT_SOUL_SAND_VALLEY_MOOD, 2.0f);
     }
 
-    @Override
-    public void tick(int tick) {
-    }
-
 }

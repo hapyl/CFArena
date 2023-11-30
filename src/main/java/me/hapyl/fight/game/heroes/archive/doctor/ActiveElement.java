@@ -6,6 +6,7 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -30,7 +31,7 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.List;
 
-// represents an active element that is currently held by the doctor
+// represents an active element currently held by the doctor
 public class ActiveElement {
 
     private final GamePlayer player;
@@ -63,26 +64,12 @@ public class ActiveElement {
         this.entity = spawnBlockEntity(location.add(location.getDirection().multiply(2)));
     }
 
-    public void remove() {
-        this.entity.remove();
+    public int getCooldown() {
+        return type.getElement().getCd();
     }
 
-    private String getHeadTexture(Block block) {
-        final Skull skull = (Skull) block.getState();
-        try {
-            final Field field = skull.getClass().getDeclaredField("profile");
-            field.setAccessible(true);
-            final GameProfile profile = (GameProfile) field.get(skull);
-            final Collection<Property> textures = profile.getProperties().get("textures");
-            for (Property texture : textures) {
-                return texture.getValue();
-            }
-            field.setAccessible(false);
-
-        } catch (Exception exception) {
-            return null;
-        }
-        return null;
+    public void remove() {
+        this.entity.remove();
     }
 
     public void throwEntity() {
@@ -100,7 +87,6 @@ public class ActiveElement {
                     name.contains("STAIRS") ? AnimationType.STAIRS : AnimationType.FULL_BLOCK;
 
             final Element element = type.getElement();
-            player.setCooldown(Heroes.DR_ED.getHero().getWeapon().getMaterial(), element.getCd());
 
             new GameTask() {
                 private int distance = 0;
@@ -152,19 +138,12 @@ public class ActiveElement {
         }
     }
 
-    private void entityPoof() {
-        final Location fixedLocation = entity.getLocation().add(0.0d, 1.5d, 0.0d);
-        PlayerLib.playSound(fixedLocation, this.material.createBlockData().getSoundGroup().getBreakSound(), 0.75f);
-        PlayerLib.spawnParticle(fixedLocation, Particle.EXPLOSION_NORMAL, 3, 0.1d, 0.05d, 0.1d, 0.02f);
-        entity.remove();
-    }
-
     public void startTask() {
         stopTask();
         this.task = new GameTask() {
             @Override
             public void run() {
-                if (player.getInventory().getHeldItemSlot() != 0) {
+                if (!player.isHeldSlot(HotbarSlots.WEAPON)) {
                     entityPoof();
                     PlayerLib.playSound(Sound.ITEM_SHIELD_BREAK, 0.75f);
                     ((GravityGun) Heroes.DR_ED.getHero().getWeapon()).setElement(player, null);
@@ -186,6 +165,35 @@ public class ActiveElement {
         }
     }
 
+    public Entity getEntity() {
+        return entity;
+    }
+
+    private String getHeadTexture(Block block) {
+        final Skull skull = (Skull) block.getState();
+        try {
+            final Field field = skull.getClass().getDeclaredField("profile");
+            field.setAccessible(true);
+            final GameProfile profile = (GameProfile) field.get(skull);
+            final Collection<Property> textures = profile.getProperties().get("textures");
+            for (Property texture : textures) {
+                return texture.getValue();
+            }
+            field.setAccessible(false);
+
+        } catch (Exception exception) {
+            return null;
+        }
+        return null;
+    }
+
+    private void entityPoof() {
+        final Location fixedLocation = entity.getLocation().add(0.0d, 1.5d, 0.0d);
+        PlayerLib.playSound(fixedLocation, this.material.createBlockData().getSoundGroup().getBreakSound(), 0.75f);
+        PlayerLib.spawnParticle(fixedLocation, Particle.EXPLOSION_NORMAL, 3, 0.1d, 0.05d, 0.1d, 0.02f);
+        entity.remove();
+    }
+
     private Entity spawnBlockEntity(Location location) {
         return Entities.ARMOR_STAND.spawn(location, me -> {
             me.setMarker(true);
@@ -194,10 +202,6 @@ public class ActiveElement {
                 me.getEquipment().setHelmet(this.stack);
             }
         });
-    }
-
-    public Entity getEntity() {
-        return entity;
     }
 
     private enum AnimationType {

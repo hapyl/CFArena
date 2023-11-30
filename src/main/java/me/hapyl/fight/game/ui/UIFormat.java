@@ -52,7 +52,6 @@ public class UIFormat {
 
     private String sew(String sew, UIComponent component, GamePlayer player) {
         final StringBuilder builder = new StringBuilder(sew);
-
         final String string = component.getString(player);
 
         if (!string.isEmpty()) {

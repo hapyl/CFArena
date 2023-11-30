@@ -175,6 +175,7 @@ public class GamePlayerUI extends GameTask {
             builder.addLine("");
             builder.addLine("&2🧑 &a&lYou, %s:", player.getName());
             builder.addLines(
+                    " &7ʀᴀɴᴋ: " + profile.getRank().getPrefixWithFallback(),
                     " &7ʜᴇʀᴏ: " + profile.getSelectedHeroString(),
                     " &7ᴄᴏɪɴs: " + Currency.COINS.getFormatted(player)
             );

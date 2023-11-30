@@ -4,6 +4,7 @@ import me.hapyl.fight.util.EnumWrapper;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public enum HotbarSlots implements EnumWrapper<HotbarSlot> {
 
@@ -13,18 +14,42 @@ public enum HotbarSlots implements EnumWrapper<HotbarSlot> {
     TALENT_3(new HotbarTalentSlot("Third Talent", "Your third talent will be here.", 3)),
     TALENT_4(new HotbarTalentSlot("Fourth Talent", "Your fourth talent will be here.", 4)),
     TALENT_5(new HotbarTalentSlot("Fifth Talent", "Your fifth talent will be here.", 5)),
-    HERO_ITEM(new HotbarSlot(Material.PLAYER_HEAD, "Hero-Specific Item", "Some heroes will use this slot for an item.")),
-    MAP_ITEM(new HotbarSlot(Material.FILLED_MAP, "Extra Item", "Some maps will use this slot for an item. This cannot be modified.", false));
+    HERO_ITEM(new HotbarSlot(
+            Material.PLAYER_HEAD,
+            "Hero-Specific Item", """
+            Some heroes will use this slot for an item.
+                        
+            &aAs example:
+            - Archer's BOOM BOW.
+            - Ninja's Throwing Stars.
+            - Dr. Ed's Gravity Gun, etc.
+            """
+    )),
+    MAP_ITEM(new HotbarSlot(Material.FILLED_MAP, "Extra Item", "Some maps will use this slot for an item.", false));
+
+    public static final HotbarSlots[] TALENT_SLOTS = {
+            HotbarSlots.TALENT_1,
+            HotbarSlots.TALENT_2,
+            HotbarSlots.TALENT_3,
+            HotbarSlots.TALENT_4,
+            HotbarSlots.TALENT_5
+    };
 
     private final HotbarSlot item;
 
     HotbarSlots(HotbarSlot item) {
         this.item = item;
+        this.item.setHandle(this);
     }
 
     @Nonnull
     @Override
     public HotbarSlot get() {
         return item;
+    }
+
+    @Nullable
+    public static HotbarSlots byIndex(int index) {
+        return values()[index];
     }
 }

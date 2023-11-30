@@ -229,6 +229,11 @@ public enum GameTeam implements Selectable {
         addMember(player);
     }
 
+    @Nonnull
+    public String getNameSmallCapsColorized() {
+        return color + getNameSmallCaps();
+    }
+
     /**
      * Returns team with the least number of players.
      *

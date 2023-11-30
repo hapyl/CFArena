@@ -10,6 +10,7 @@ import me.hapyl.fight.trigger.Triggers;
 import me.hapyl.fight.trigger.subscribe.AttributeChangeTrigger;
 import me.hapyl.fight.util.collection.ImmutableTuple;
 import me.hapyl.spigotutils.module.annotate.Super;
+import me.hapyl.spigotutils.module.math.Numbers;
 
 import javax.annotation.Nonnull;
 import java.util.Random;
@@ -50,7 +51,11 @@ public class EntityAttributes extends Attributes implements PlayerElement {
      */
     @Override
     public double get(AttributeType type) {
-        return Math.min(getBase(type) + super.get(type) + tempers.get(type), type.maxValue());
+        return Numbers.clamp(
+                getBase(type) + super.get(type) + tempers.get(type),
+                type.minValue(),
+                type.maxValue()
+        );
     }
 
     public final int getFerocityStrikes() {
@@ -86,7 +91,7 @@ public class EntityAttributes extends Attributes implements PlayerElement {
         tempers.add(temper, type, value, duration);
 
         // do not spawn if player already has this temper
-        if (newTemper) {
+        if (temper.isDisplay() && newTemper) {
             display(type, value > -value);
         }
 

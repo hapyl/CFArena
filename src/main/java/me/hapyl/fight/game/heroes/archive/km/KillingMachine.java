@@ -3,6 +3,7 @@ package me.hapyl.fight.game.heroes.archive.km;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -51,7 +52,7 @@ public class KillingMachine extends Hero implements DisabledHero {
     }
 
     @Override
-    public void useUltimate(@Nonnull GamePlayer player) {
+    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
         // Glow Self
         //final Glowing glowing = new Glowing(player, ChatColor.RED, getUltimateDuration());
         //final List<GamePlayer> alivePlayers = Manager.current().getCurrentGame().getAlivePlayers();
@@ -74,6 +75,8 @@ public class KillingMachine extends Hero implements DisabledHero {
         //});
         //
         //glowing.glow();
+
+        return UltimateCallback.OK;
     }
 
     @Override

@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.talents.archive.km;
 
-import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
@@ -44,9 +43,7 @@ public class LaserEye extends Talent {
                     ParticleBuilder.redstoneDust(Color.RED).display(move);
                 }
             }, entity -> {
-                CF.getEntityOptional(entity).ifPresent(gameEntity -> {
-                    gameEntity.damageTick(1.0d, player, EnumDamageCause.LASER, 10);
-                });
+                entity.damageTick(1.0d, player, EnumDamageCause.LASER, 10);
                 PlayerLib.spawnParticle(entity.getLocation(), Particle.LAVA, 2, 0, 0, 0, 0);
             });
 

@@ -3,6 +3,7 @@ package me.hapyl.fight.game.heroes.archive.healer;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.archive.healer.HealingOrb;
@@ -18,7 +19,8 @@ public class Healer extends Hero implements DisabledHero {
     }
 
     @Override
-    public void useUltimate(@Nonnull GamePlayer player) {
+    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
+        return UltimateCallback.OK;
     }
 
     @Override

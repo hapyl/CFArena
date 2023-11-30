@@ -3,7 +3,6 @@ package me.hapyl.fight.game.entity.shield;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.util.Rangef;
 import me.hapyl.spigotutils.module.math.Numbers;
 import org.bukkit.entity.Player;
 
@@ -13,16 +12,12 @@ public class Shield {
 
     private final GamePlayer gamePlayer;
     private final double maxCapacity;
-    private final float strength;
 
     protected double capacity;
 
-    // FIXME (hapyl): 007, Nov 7: Maybe drop the strength?
-
-    public Shield(@Nonnull GamePlayer player, double maxCapacity, @Rangef(max = 1.0f) float strength) {
+    public Shield(@Nonnull GamePlayer player, double maxCapacity) {
         this.gamePlayer = player;
         this.maxCapacity = maxCapacity;
-        this.strength = Numbers.clamp(strength, 0.0f, 1.0f);
         this.capacity = maxCapacity;
     }
 
@@ -56,10 +51,6 @@ public class Shield {
 
     public double getCapacity() {
         return capacity;
-    }
-
-    public float getStrength() {
-        return 1.0f - strength;
     }
 
     /**

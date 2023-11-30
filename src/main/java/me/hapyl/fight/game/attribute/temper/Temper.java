@@ -90,7 +90,17 @@ public enum Temper implements Described {
     RADIATION("Radiation", "Reduces mending.", false),
     WYVERN_HEART("Wyvern Heart", "", false),
     ENDER_TELEPORT("Ender Teleport", "", false),
-
+    NIGHTMARE_BUFF("Nightmare buff", "Increases attributes while in moody light.", true),
+    DARK_COVER,
+    SHADOW_CLONE,
+    BACKSTAB,
+    ICE_CAGE,
+    ETERNAL_FREEZE {
+        @Override
+        public boolean isDisplay() {
+            return false;
+        }
+    },
     ;
 
     public static final String PREFIX = "&d🌶 &7";
@@ -99,10 +109,18 @@ public enum Temper implements Described {
     private final String description;
     private final boolean isBuff;
 
+    Temper() {
+        this("Unnamed", "Unnamed", true);
+    }
+
     Temper(@Nonnull String name, @Nonnull String description, boolean isBuff) {
         this.name = name;
         this.description = description;
         this.isBuff = isBuff;
+    }
+
+    public boolean isDisplay() {
+        return true;
     }
 
     public boolean isBuff() {

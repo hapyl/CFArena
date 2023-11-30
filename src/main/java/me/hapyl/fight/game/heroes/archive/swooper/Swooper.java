@@ -7,7 +7,9 @@ import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -148,16 +150,14 @@ public class Swooper extends Hero implements Listener, UIComponent {
         //dataMap.removeBuffer(player);
     }
 
-    public void useUltimate(@Nonnull GamePlayer player) {
+    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
         setUsingUltimate(player, true);
 
         final PlayerInventory inventory = player.getInventory();
 
         // Add delay before shooting but increase time
         player.setCooldown(ROCKET_LAUNCHER.getType(), SHOWSTOPPER_DELAY);
-
-        inventory.setItem(4, ROCKET_LAUNCHER);
-        inventory.setHeldItemSlot(4);
+        player.setItemAndSnap(HotbarSlots.HERO_ITEM, ROCKET_LAUNCHER);
 
         new GameTask() {
             private final int DURATION = getUltimateDuration() + SHOWSTOPPER_DELAY;
@@ -186,6 +186,8 @@ public class Swooper extends Hero implements Listener, UIComponent {
                 cancel();
             }
         }.runTaskTimer(0, 1);
+
+        return UltimateCallback.OK;
     }
 
     @Nonnull

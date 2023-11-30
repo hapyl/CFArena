@@ -245,9 +245,9 @@ public class GrappleHook {
         anchor.remove();
         hook.remove();
 
-        Nulls.runIfNotNull(extendTask, GameTask::cancelIfActive);
-        Nulls.runIfNotNull(retractTask, GameTask::cancelIfActive);
-        Nulls.runIfNotNull(syncTask, GameTask::cancelIfActive);
+        Nulls.runIfNotNull(extendTask, GameTask::cancel);
+        Nulls.runIfNotNull(retractTask, GameTask::cancel);
+        Nulls.runIfNotNull(syncTask, GameTask::cancel);
     }
 
     private LivingEntity createEntity() {

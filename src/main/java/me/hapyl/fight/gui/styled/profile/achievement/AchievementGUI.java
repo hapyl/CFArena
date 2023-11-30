@@ -4,11 +4,13 @@ import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.profile.PlayerProfile;
+import me.hapyl.fight.gui.StrictlyLobbyGUI;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
 import me.hapyl.fight.gui.styled.StyledItem;
 import me.hapyl.fight.gui.styled.profile.PlayerProfileGUI;
+import me.hapyl.fight.util.NoProfileException;
 import me.hapyl.fight.ux.Message;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -16,9 +18,18 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
 
-public class AchievementGUI extends StyledGUI {
+public class AchievementGUI extends StyledGUI implements StrictlyLobbyGUI {
+
+    private final PlayerProfile profile;
+
     public AchievementGUI(Player player) {
         super(player, "Achievements", Size.FOUR);
+
+        profile = PlayerProfile.getProfile(player);
+
+        if (profile == null) {
+            throw new NoProfileException(player);
+        }
 
         openInventory();
     }
@@ -31,7 +42,6 @@ public class AchievementGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
-        final PlayerProfile profile = PlayerProfile.getOrCreateProfile(player);
         final Heroes hero = profile.getHero();
 
         setHeader(StyledItem.ICON_ACHIEVEMENTS.asIcon());

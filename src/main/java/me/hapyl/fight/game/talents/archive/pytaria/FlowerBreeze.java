@@ -44,8 +44,9 @@ public class FlowerBreeze extends Talent {
                 &8;;This ability cannot kill.
                 """.formatted(AttributeType.ATTACK, AttributeType.DEFENSE));
 
-        setDuration(80);
+        setType(Type.ENHANCE);
         setItem(Material.RED_DYE);
+        setDuration(80);
         setCooldown(getDuration() * 4);
     }
 

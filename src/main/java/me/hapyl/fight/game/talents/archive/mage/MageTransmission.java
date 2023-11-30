@@ -19,8 +19,12 @@ public class MageTransmission extends Talent {
     @DisplayField(suffix = "blocks") private final double maxDistance = 30.0d;
 
     public MageTransmission() {
-        super("Transmission", "Instantly teleport to your target block, but lose ability to move for a short duration.", Type.COMBAT);
+        super(
+                "Transmission",
+                "Instantly teleport to your target block, but lose the ability to move for a short duration."
+        );
 
+        setType(Type.MOVEMENT);
         setItem(Material.ENDER_PEARL);
         setCooldownSec(30);
     }

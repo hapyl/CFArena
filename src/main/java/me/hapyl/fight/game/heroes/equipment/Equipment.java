@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.heroes.equipment;
 
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.spigotutils.module.annotate.Super;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -55,10 +54,6 @@ public class Equipment {
         return setItem(Slot.BOOTS, new ItemBuilder(material).setArmorTrim(pattern, trimMaterial).cleanToItemSack());
     }
 
-    /**
-     * @deprecated Use {@link Hero#setItem(String)}
-     */
-    @Deprecated
     public void setTexture(@Nonnull String texture64) {
         setHelmet(ItemBuilder.playerHeadUrl(texture64).cleanToItemSack());
     }

@@ -4,10 +4,12 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.archive.nightmare.Nightmare;
+import me.hapyl.fight.game.heroes.archive.nightmare.OmenDebuff;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -15,7 +17,6 @@ import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerLeashEntityEvent;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
@@ -23,14 +24,16 @@ import javax.annotation.Nonnull;
 public class ShadowShift extends Talent implements Listener {
 
     @DisplayField private final int immobilizationDuration = 20;
+    @DisplayField private final int omenDuration = 60;
 
     public ShadowShift() {
         super("Shadow Shift", """
-                Instantly teleport behind player you're looking at to strike from behind.
+                Instantly teleport behind your target entity to scare them from behind, applying &cOmen&7.
                                         
                 You will lose the ability to move for a short duration.
-                """, Type.COMBAT);
+                """);
 
+        setType(Type.IMPAIR);
         setItem(Material.LEAD);
         setCooldown(200);
     }
@@ -44,18 +47,25 @@ public class ShadowShift extends Talent implements Listener {
             return Response.error(targetLocation.getError().getErrorMessage());
         }
 
-        player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, immobilizationDuration, 20));
-        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, immobilizationDuration, 20));
-        player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, immobilizationDuration, 250));
+        player.addPotionEffect(PotionEffectType.BLINDNESS, immobilizationDuration, 20);
+        player.addPotionEffect(PotionEffectType.SLOW, immobilizationDuration, 20);
+        player.addPotionEffect(PotionEffectType.JUMP, immobilizationDuration, 250);
 
         final Location location = targetLocation.getLocation();
+        final LivingGameEntity entity = targetLocation.getEntity();
+        final OmenDebuff debuff = Heroes.NIGHTMARE.getHero(Nightmare.class).getDebuff(player);
+
         player.teleport(location);
-        PlayerLib.playSound(location, Sound.ENTITY_ENDERMAN_SCREAM, 1.0f);
-        PlayerLib.spawnParticle(location, Particle.EXPLOSION_NORMAL, 3, 0.1d, 0.1d, 0.1d, 0.04f);
+        debuff.setOmen(entity, omenDuration);
+
+        // Fx
+        player.playWorldSound(location, Sound.ENTITY_ENDERMAN_SCREAM, 1.0f);
+        player.spawnParticle(location, Particle.EXPLOSION_NORMAL, 3, 0.1d, 0.1d, 0.1d, 0.04f);
 
         return Response.OK;
     }
 
+    @Nonnull
     public TargetLocation getLocationAndCheck0(GamePlayer player, double maxDistance, double dot) {
         final LivingGameEntity target = Collect.targetEntity(player, maxDistance, dot, e -> e.hasLineOfSight(player));
 
@@ -70,15 +80,32 @@ public class ShadowShift extends Talent implements Listener {
         if (behind.getBlock().getType().isOccluding()) {
             return new TargetLocation(null, null, ErrorCode.OCCLUDING);
         }
-        else {
-            return new TargetLocation(target, behind, ErrorCode.OK);
-        }
+
+        return new TargetLocation(target, behind, ErrorCode.OK);
     }
 
     @EventHandler()
     public void handleEntityLeash(PlayerLeashEntityEvent ev) {
         if (Manager.current().isGameInProgress()) {
             ev.setCancelled(true);
+        }
+    }
+
+    public enum ErrorCode {
+
+        NO_TARGET("No valid target!"),
+        NO_LOS("No line of sight with target!"),
+        OCCLUDING("Location is not safe!"),
+        OK("");
+
+        private final String errorMessage;
+
+        ErrorCode(String s) {
+            this.errorMessage = s;
+        }
+
+        public String getErrorMessage() {
+            return errorMessage;
         }
     }
 
@@ -109,30 +136,13 @@ public class ShadowShift extends Talent implements Listener {
                 throw new IllegalStateException("check for error before getting location!");
             }
 
+            location.setPitch(0.0f);
             return location;
         }
 
         @Nonnull
         public ErrorCode getError() {
             return error;
-        }
-    }
-
-    public enum ErrorCode {
-
-        NO_TARGET("No valid target!"),
-        NO_LOS("No line of sight with target!"),
-        OCCLUDING("Location is not safe!"),
-        OK("");
-
-        private final String errorMessage;
-
-        ErrorCode(String s) {
-            this.errorMessage = s;
-        }
-
-        public String getErrorMessage() {
-            return errorMessage;
         }
     }
 

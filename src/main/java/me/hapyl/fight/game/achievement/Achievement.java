@@ -6,14 +6,19 @@ import me.hapyl.fight.database.entry.AchievementEntry;
 import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.registry.PatternId;
 import me.hapyl.fight.trigger.EntityTrigger;
 import me.hapyl.fight.trigger.Subscribe;
-import me.hapyl.fight.registry.PatternId;
+import me.hapyl.fight.util.ChatUtils;
+import me.hapyl.spigotutils.module.chat.CenterChat;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.chat.Gradient;
+import me.hapyl.spigotutils.module.chat.LazyEvent;
 import me.hapyl.spigotutils.module.chat.gradient.Interpolators;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.player.PlayerLib;
+import net.md_5.bungee.api.chat.HoverEvent;
+import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -126,11 +131,31 @@ public class Achievement extends PatternId {
     public void displayComplete(Player player) {
         Chat.sendMessage(player, "");
         Chat.sendCenterMessage(player, GRADIENT);
-        Chat.sendCenterMessage(player, me.hapyl.fight.game.color.Color.DARK_ORANGE + getName());
+
+        CenterChat.sendCenteredClickableMessage(
+                player,
+                ChatColor.GOLD + getName(),
+                getShowTextHoverEvent(),
+                LazyEvent.runCommand("/viewachievementgui")
+        );
+
         Chat.sendMessage(player, "");
 
         PlayerLib.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1.25f);
         PlayerLib.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 0.75f);
+    }
+
+    @Nonnull
+    public HoverEvent getShowTextHoverEvent() {
+        return ChatUtils.showText(
+                ChatColor.GOLD + getName(),
+                ChatColor.DARK_GRAY + getType(),
+                "",
+                getDescription(),
+                "",
+                "Reward:",
+                getPointRewardFormatted()
+        );
     }
 
     /**

@@ -17,7 +17,7 @@ public abstract class AttributeTemper implements Runnable {
     }
 
     protected void cancel() {
-        task.cancelIfActive();
+        task.cancel();
     }
 
 }

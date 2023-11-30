@@ -6,7 +6,9 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -14,7 +16,6 @@ import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.math.Numbers;
 import org.bukkit.Material;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 
@@ -57,17 +58,20 @@ public class Mage extends Hero implements UIComponent {
                         Only one of the spells can be used at the same time, and you will &nnot&7 gain &b&l※ &7until spell is over.
                         """.formatted(spellWyvernHeart.getFormatted(), spellDragonSkin.getFormatted()),
                 50
-        ).setItem(Material.WRITABLE_BOOK).setCooldownSec(-1));
+        ).setItem(Material.WRITABLE_BOOK)
+                .setType(Talent.Type.ENHANCE)
+                .setCooldownSec(-1));
     }
 
     @Override
-    public void useUltimate(@Nonnull GamePlayer player) {
-        final PlayerInventory inventory = player.getInventory();
+    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
         setUsingUltimate(player, true);
 
-        inventory.setItem(3, spellWyvernHeart.getSpellItem());
-        inventory.setItem(5, spellDragonSkin.getSpellItem());
-        inventory.setHeldItemSlot(4);
+        player.setItem(HotbarSlots.TALENT_3, spellWyvernHeart.getSpellItem());
+        player.setItem(HotbarSlots.TALENT_5, spellDragonSkin.getSpellItem());
+        player.snapTo(HotbarSlots.TALENT_4);
+
+        return UltimateCallback.OK;
     }
 
     @Override

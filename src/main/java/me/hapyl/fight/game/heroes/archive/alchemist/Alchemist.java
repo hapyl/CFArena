@@ -13,6 +13,7 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -57,7 +58,8 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
         );
         setItem("661691fb01825b9d9ec1b8f04199443146aa7d5627aa745962c0704b6a236027");
 
-        setWeapon(new Weapon(Material.STICK).addEnchant(Enchantment.KNOCKBACK, 1)
+        setWeapon(new Weapon(Material.STICK)
+                .addEnchant(Enchantment.KNOCKBACK, 1)
                 .setName("Stick")
                 .setDamage(8.0d)
                 .setDescription("Turns out that a stick used in brewing can also be used in battle."));
@@ -104,16 +106,21 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
                 "Alchemical Madness",
                 "Call upon the darkest spells to cast random &c&lNegative &7effect on your foes for &b15s &7and random &a&lPositive &7effect on yourself for &b30s&7.",
                 50
-        ).setCooldownSec(30).setItem(Material.FERMENTED_SPIDER_EYE).setSound(ENTITY_WITCH_AMBIENT, 0.5f));
+        ).setCooldownSec(30)
+                .setType(Talent.Type.ENHANCE)
+                .setItem(Material.FERMENTED_SPIDER_EYE)
+                .setSound(ENTITY_WITCH_AMBIENT, 0.5f));
     }
 
     @Override
-    public void useUltimate(@Nonnull GamePlayer player) {
+    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
         final Effect positiveEffect = positiveEffects.getRandomElement();
         final Effect negativeEffect = negativeEffects.getRandomElement();
 
         positiveEffect.applyEffects(player, player);
         Collect.enemyPlayers(player).forEach(alivePlayer -> negativeEffect.applyEffects(player, alivePlayer));
+
+        return UltimateCallback.OK;
     }
 
     @Override

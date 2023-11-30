@@ -11,7 +11,6 @@ import me.hapyl.fight.game.entity.*;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.lobby.StartCountdown;
 import me.hapyl.fight.game.maps.GameMaps;
@@ -21,7 +20,6 @@ import me.hapyl.fight.game.profile.data.AchievementData;
 import me.hapyl.fight.game.profile.data.PlayerData;
 import me.hapyl.fight.game.profile.data.Type;
 import me.hapyl.fight.game.setting.Settings;
-import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.task.GameTask;
@@ -32,7 +30,6 @@ import me.hapyl.fight.game.weapons.RangeWeapon;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.game.weapons.ability.Ability;
 import me.hapyl.fight.garbage.CFGarbageCollector;
-import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.annotate.Super;
@@ -47,7 +44,6 @@ import org.bukkit.*;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
 import javax.annotation.Nonnull;
@@ -131,7 +127,7 @@ public final class Manager extends DependencyInjector<Main> {
 
     public void stopStartCountdown(@Nonnull Player player) {
         if (startCountdown != null) {
-            startCountdown.cancelIfActive();
+            startCountdown.cancel();
             startCountdown = null;
         }
 
@@ -453,7 +449,7 @@ public final class Manager extends DependencyInjector<Main> {
 
             // Equip and hide players
             if (!gamePlayer.isSpectator()) {
-                equipPlayer(gamePlayer, gamePlayer.getHero());
+                gamePlayer.equipPlayer(gamePlayer.getHero());
                 gamePlayer.hide();
 
                 // Apply player skin if exists
@@ -464,6 +460,13 @@ public final class Manager extends DependencyInjector<Main> {
                 }
             }
 
+            // Set ultimate item
+            final Hero hero = gamePlayer.getHero();
+            final PlayerInventory inventory = player.getInventory();
+
+            inventory.setItem(22, hero.getUltimate().getItem());
+
+            // Teleport to the map
             player.teleport(currentMap.getMap().getLocation());
         }
 
@@ -502,19 +505,19 @@ public final class Manager extends DependencyInjector<Main> {
             }
 
             CF.getAlivePlayers().forEach(target -> {
-                final Player player = target.getPlayer();
-                final World world = player.getLocation().getWorld();
+                final World world = target.getWorld();
 
-                CFUtils.showPlayer(player);
-                Nulls.runIfNotNull(GameTeam.getPlayerTeam(player), GameTeam::glowTeammates);
+                target.getHero().onPlayersReveal(target);
+                target.show();
+                target.getTeam().glowTeammates();
 
-                if (world != null && !debug.is(DebugData.Flag.DEBUG)) {
-                    world.strikeLightningEffect(player.getLocation().add(0.0d, 2.0d, 0.0d));
+                if (!debug.is(DebugData.Flag.DEBUG)) {
+                    world.strikeLightningEffect(target.getLocation().add(0, 2, 0));
                 }
             });
 
             playAnimation();
-        }, debug.any() ? 1 : currentMap.getMap().getTimeBeforeReveal());
+        }, debug.or(DebugData.Flag.DEBUG) ? 1 : currentMap.getMap().getTimeBeforeReveal());
 
     }
 
@@ -601,36 +604,6 @@ public final class Manager extends DependencyInjector<Main> {
 
         // Spawn Fireworks
         gameInstance.executeWinCosmetic();
-    }
-
-    public void equipPlayer(GamePlayer player, Hero hero) {
-        final PlayerInventory inventory = player.getInventory();
-        inventory.setHeldItemSlot(0);
-        player.setGameMode(GameMode.SURVIVAL);
-
-        final PlayerSkin skin = hero.getSkin();
-        final Equipment equipment = hero.getEquipment();
-
-        // Apply equipment
-        if (skin == null) {
-            equipment.equip(player);
-        }
-        else if (Settings.USE_SKINS_INSTEAD_OF_ARMOR.isDisabled(player.getPlayer())) {
-            equipment.equip(player);
-        }
-
-        hero.onStart(player);
-
-        inventory.setItem(0, hero.getWeapon().getItem());
-        giveTalentItem(player, hero, 1);
-        giveTalentItem(player, hero, 2);
-        giveTalentItem(player, hero, 3);
-        giveTalentItem(player, hero, 4);
-        giveTalentItem(player, hero, 5);
-    }
-
-    public void equipPlayer(GamePlayer player) {
-        equipPlayer(player, getCurrentHero(player));
     }
 
     /**
@@ -885,34 +858,6 @@ public final class Manager extends DependencyInjector<Main> {
     private Collection<Player> getNonSpectatorPlayers() {
         return Bukkit.getOnlinePlayers().stream().filter(player -> !Settings.SPECTATE.isEnabled(player))
                 .collect(Collectors.toSet());
-    }
-
-    private void giveTalentItem(GamePlayer player, Hero hero, int slot) {
-        final PlayerInventory inventory = player.getInventory();
-        final Talent talent = hero.getTalent(slot);
-        final ItemStack talentItem = talent == null ? new ItemStack(Material.AIR) : talent.getItem();
-
-        if (talent != null && !talent.isAutoAdd()) {
-            return;
-        }
-
-        inventory.setItem(slot, talentItem);
-        fixTalentItemAmount(player, slot, talent);
-    }
-
-    private void fixTalentItemAmount(GamePlayer player, int slot, Talent talent) {
-        if (!(talent instanceof ChargedTalent chargedTalent)) {
-            return;
-        }
-
-        final PlayerInventory inventory = player.getInventory();
-        final ItemStack item = inventory.getItem(slot);
-
-        if (item == null) {
-            return;
-        }
-
-        item.setAmount(chargedTalent.getMaxCharges());
     }
 
     /**

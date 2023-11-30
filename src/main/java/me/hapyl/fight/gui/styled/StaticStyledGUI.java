@@ -3,7 +3,6 @@ package me.hapyl.fight.gui.styled;
 import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.PlayerGUI;
-import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.Action;
 import org.bukkit.Material;
@@ -71,8 +70,9 @@ public final class StaticStyledGUI {
     }
 
     public static <T extends PlayerGUI & Styled> void fillRow(T gui, int row, ItemStack item) {
-        row = Numbers.clamp((row + 1) * 9, 0, 8);
-        gui.fillItem(Math.max(row - 9, 0), Math.min(row, gui.getSize() - 1), item);
+        final int rowSize = row * 9;
+
+        gui.fillItem(rowSize, rowSize + 8, item);
     }
 
     public static <T extends PlayerGUI & Styled> void openFx(T gui) {

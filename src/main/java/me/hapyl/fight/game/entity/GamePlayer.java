@@ -2,6 +2,7 @@ package me.hapyl.fight.game.entity;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
@@ -23,16 +24,15 @@ import me.hapyl.fight.game.entity.shield.Shield;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.loadout.HotbarLoadout;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.game.stats.StatType;
-import me.hapyl.fight.game.talents.InputTalent;
-import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.TalentQueue;
-import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.*;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.PlayerGameTask;
 import me.hapyl.fight.game.team.GameTeam;
@@ -53,6 +53,7 @@ import net.minecraft.network.protocol.game.PacketPlayOutAnimation;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -68,6 +69,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 /**
@@ -75,13 +77,14 @@ import java.util.function.Consumer;
  * <p>
  * <b>A single instance should exist per game bases and cleared after the game ends.</b>
  */
-public class GamePlayer extends LivingGameEntity {
+public class GamePlayer extends LivingGameEntity implements Ticking {
 
     public static final long COMBAT_TAG_DURATION = 5000L;
 
     private final StatContainer stats;
     private final TalentQueue talentQueue;
-    private final Set<GameTask> taskSet;
+    private final Set<PlayerGameTask> taskSet;
+    private final TalentLock talentLock;
 
     public boolean blockDismount;
     @Nonnull
@@ -92,37 +95,48 @@ public class GamePlayer extends LivingGameEntity {
     private long combatTag;
     private int killStreak;
     private InputTalent inputTalent;
-    private double cdModifier;
 
     private Shield shield;
 
     @SuppressWarnings("all")
     public GamePlayer(@Nonnull PlayerProfile profile) {
         super(profile.getPlayer());
+
         this.profile = profile;
         this.ultimateModifier = 1.0d;
         this.talentQueue = new TalentQueue(this);
         this.stats = new StatContainer(this);
         this.lastMoved = System.currentTimeMillis();
         this.combatTag = 0L;
-        this.cdModifier = 1.0d;
         this.attributes = new EntityAttributes(this, profile.getHeroHandle().getAttributes());
         this.taskSet = Sets.newHashSet();
         this.shield = null;
+        this.talentLock = new TalentLock(this, profile.getHeroHandle());
+
+        startTicking();
     }
 
-    public double getCooldownModifier() {
-        return cdModifier;
+    public int getTalentLock(@Nonnull HotbarSlots slot) {
+        return talentLock.getLock(slot);
     }
 
-    public void setCooldownModifier(double cdModifier) {
-        this.cdModifier = cdModifier;
+    @Nonnull
+    public TalentLock getTalentLock() {
+        return talentLock;
+    }
+
+    @Override
+    public void tick() {
+        if (isDeadOrRespawning()) {
+            return;
+        }
+
+        talentLock.tick();
     }
 
     @Override
     public void setState(@Nonnull EntityState state) {
         super.setState(state);
-
     }
 
     public void resetPlayer(Ignore... ignores) {
@@ -130,6 +144,7 @@ public class GamePlayer extends LivingGameEntity {
 
         killStreak = 0;
         combatTag = 0;
+        talentLock.reset();
 
         markLastMoved();
         setHealth(getMaxHealth());
@@ -141,12 +156,13 @@ public class GamePlayer extends LivingGameEntity {
         player.setAbsorptionAmount(0.0d);
         player.setFireTicks(0);
         player.setVisualFire(false);
+        player.setAllowFlight(false);
         player.setFlying(false);
         player.setSaturation(0.0f);
         player.setFoodLevel(20);
         player.setInvulnerable(false);
         player.setArrowsInBody(0);
-        player.setGlowing(false); // this persistent?
+        player.setGlowing(false);
         player.setWalkSpeed((float) attributes.get(AttributeType.SPEED));
         player.setMaximumNoDamageTicks(20);
         player.getActivePotionEffects().forEach(effect -> this.entity.removePotionEffect(effect.getType()));
@@ -163,6 +179,8 @@ public class GamePlayer extends LivingGameEntity {
         // Reset attributes
         attributes.reset();
 
+        setOutline(Outline.CLEAR);
+
         getData().getDamageTaken().clear();
         wasHit = false;
         inputTalent = null;
@@ -170,6 +188,12 @@ public class GamePlayer extends LivingGameEntity {
 
         if (isNotIgnored(ignores, Ignore.GAME_MODE)) {
             player.setGameMode(GameMode.SURVIVAL);
+        }
+
+        // If a player is in spectator - forcefully enable flight
+        if (player.getGameMode() == GameMode.SPECTATOR) {
+            player.setAllowFlight(true);
+            player.setFlying(true);
         }
 
         // reset all cooldowns as well
@@ -275,7 +299,7 @@ public class GamePlayer extends LivingGameEntity {
         player.setGameMode(GameMode.SPECTATOR);
 
         playSound(Sound.ENTITY_BLAZE_DEATH, 2.0f);
-        sendTitle("&c&lYOU DIED", "", 5, 25, 10);
+        sendTitle("&c&lʏᴏᴜ ᴅɪᴇᴅ", "", 5, 25, 10);
 
         triggerOnDeath();
 
@@ -360,7 +384,7 @@ public class GamePlayer extends LivingGameEntity {
         }
 
         // Clear tasks
-        taskSet.forEach(GameTask::cancelIfActive);
+        taskSet.forEach(PlayerGameTask::cancelBecauseOfDeath);
         taskSet.clear();
 
         // KEEP LAST
@@ -374,6 +398,15 @@ public class GamePlayer extends LivingGameEntity {
         updateHealth();
     }
 
+    /**
+     * Gets player's inventory.
+     *
+     * @return player's inventory.
+     * @see #setItem(HotbarSlots, ItemStack)
+     * @see #snapTo(HotbarSlots)
+     * @deprecated Not deprecated, just a hands up that setting items should be done using {@link HotbarSlots}.
+     */
+    @Deprecated
     @Nonnull
     public PlayerInventory getInventory() {
         return getEntity().getInventory();
@@ -466,7 +499,7 @@ public class GamePlayer extends LivingGameEntity {
 
         if (shield != null) {
             final double capacity = shield.getCapacity();
-            double toAbsorb = shield.getStrength() * instance.damage;
+            double toAbsorb = instance.damage;
 
             if (toAbsorb - capacity > 0.0d) {
                 toAbsorb -= (toAbsorb - capacity);
@@ -504,9 +537,7 @@ public class GamePlayer extends LivingGameEntity {
 
         ReflectPacket.wrapAndSend(new PacketPlayOutAnimation(Reflect.getMinecraftPlayer(player), 1), player);
 
-        GameTask.runLater(() -> {
-            inventory.setHeldItemSlot(0);
-        }, 1);
+        GameTask.runLater(this::snapToWeapon, 1);
 
         // Fx
         playSound(Sound.ENTITY_ELDER_GUARDIAN_CURSE, 2.0f);
@@ -573,6 +604,12 @@ public class GamePlayer extends LivingGameEntity {
     @Nonnull
     public Hero getHero() {
         return profile.getHeroHandle();
+    }
+
+    @Nonnull
+    @Override
+    public String getScoreboardName() {
+        return getName();
     }
 
     @Nonnull
@@ -674,7 +711,7 @@ public class GamePlayer extends LivingGameEntity {
         setHealth(this.getMaxHealth());
 
         player.getInventory().clear();
-        Manager.current().equipPlayer(this, hero);
+        equipPlayer(hero);
 
         hero.onRespawn(this);
 
@@ -756,7 +793,13 @@ public class GamePlayer extends LivingGameEntity {
     }
 
     public void setCooldown(Material material, int cd) {
-        getEntity().setCooldown(material, (int) Math.max(cd * cdModifier, 0)); // not calling static method for obvious reasons
+        final double cdModifier = attributes.get(AttributeType.COOLDOWN_MODIFIER);
+
+        getEntity().setCooldown(material, (int) Math.max(cd * cdModifier, 0));
+    }
+
+    public void setCooldownIgnoreModifier(Material material, int cd) {
+        getEntity().setCooldown(material, cd);
     }
 
     public boolean hasMovedInLast(long millis) {
@@ -771,20 +814,23 @@ public class GamePlayer extends LivingGameEntity {
         return getPlayer().isSneaking();
     }
 
+    public void setSneaking(boolean b) {
+        getPlayer().setSneaking(b);
+    }
+
     public void sendPacket(@Nonnull PacketContainer packet) {
         ProtocolLibrary.getProtocolManager().sendServerPacket(getPlayer(), packet);
     }
 
-    public <T> void spawnParticle(Particle particle, Location location, int amount, double x, double y, double z, float speed, T
-            data) {
+    public <T> void spawnParticle(Particle particle, Location location, int amount, double x, double y, double z, float speed, T data) {
         getPlayer().spawnParticle(particle, location, amount, x, y, z, speed, data);
     }
 
-    public void hideEntity(Entity entity) {
+    public void hideEntity(@Nonnull Entity entity) {
         getPlayer().hideEntity(Main.getPlugin(), entity);
     }
 
-    public void showEntity(Entity entity) {
+    public void showEntity(@Nonnull Entity entity) {
         getPlayer().showEntity(Main.getPlugin(), entity);
     }
 
@@ -831,20 +877,16 @@ public class GamePlayer extends LivingGameEntity {
         return formatTeamName(" &e#" + position + " ", suffix);
     }
 
-    public void setAllowFlight(boolean b) {
-        getPlayer().setAllowFlight(b);
-    }
-
     public void setFlying(boolean b) {
         getPlayer().setFlying(b);
     }
 
-    public void setFlySpeed(float v) {
-        getPlayer().setFlySpeed(v);
-    }
-
     public float getFlySpeed() {
         return getPlayer().getFlySpeed();
+    }
+
+    public void setFlySpeed(float v) {
+        getPlayer().setFlySpeed(v);
     }
 
     public boolean isOnGround() {
@@ -885,10 +927,6 @@ public class GamePlayer extends LivingGameEntity {
         getPlayer().resetTitle();
     }
 
-    public void setSneaking(boolean b) {
-        getPlayer().setSneaking(b);
-    }
-
     @Nonnull
     public Scoreboard getScoreboard() {
         return getPlayer().getScoreboard();
@@ -899,7 +937,7 @@ public class GamePlayer extends LivingGameEntity {
     }
 
     public void stopCooldown(@Nonnull Material material) {
-        setCooldown(material, 0);
+        getEntity().setCooldown(material, 0);
     }
 
     public boolean isAbleToUseAbilities() {
@@ -907,10 +945,14 @@ public class GamePlayer extends LivingGameEntity {
     }
 
     public void cancelInputTalent() {
-        if (inputTalent != null) {
+        if (inputTalent != null && !inputTalent.hasCd(this)) {
+            sendTitle("&cCancelled", inputTalent.getName(), 0, 10, 5);
+            playSound(Sound.ENTITY_HORSE_SADDLE, 0.75f);
+
             inputTalent.onCancel(this);
-            inputTalent = null;
         }
+
+        inputTalent = null;
     }
 
     public void snapToWeapon() {
@@ -952,10 +994,8 @@ public class GamePlayer extends LivingGameEntity {
         return getPlayer().getAllowFlight();
     }
 
-    public boolean isHeldSlot(@Nonnull HotbarSlots hotbarSlots) {
-        final int inventorySlotBySlot = profile.getHotbarLoadout().getInventorySlotBySlot(hotbarSlots);
-
-        return getInventory().getHeldItemSlot() == inventorySlotBySlot;
+    public void setAllowFlight(boolean b) {
+        getPlayer().setAllowFlight(b);
     }
 
     @Nonnull
@@ -1004,6 +1044,175 @@ public class GamePlayer extends LivingGameEntity {
         return equals(victim) || isTeammate(victim);
     }
 
+    /**
+     * Scales the cooldown with player's cooldown modifier.
+     *
+     * @param cooldown - Cooldown.
+     * @return scaled cooldown.
+     */
+    public int scaleCooldown(int cooldown) {
+        final double cdModifier = attributes.get(AttributeType.COOLDOWN_MODIFIER);
+
+        return (int) Math.max(cooldown * cdModifier, 0);
+    }
+
+    public void equipPlayer(@Nonnull Hero hero) {
+        final PlayerInventory inventory = getInventory();
+        final HotbarLoadout loadout = getProfile().getHotbarLoadout();
+        final int weaponSlot = loadout.getInventorySlotBySlot(HotbarSlots.WEAPON);
+
+        inventory.setHeldItemSlot(weaponSlot);
+        setGameMode(GameMode.SURVIVAL);
+
+        final PlayerSkin skin = hero.getSkin();
+        final Equipment equipment = hero.getEquipment();
+
+        // Apply equipment
+        if (skin == null) {
+            equipment.equip(this);
+        }
+        else if (Settings.USE_SKINS_INSTEAD_OF_ARMOR.isDisabled(getPlayer())) {
+            equipment.equip(this);
+        }
+
+        hero.onStart(this);
+
+        inventory.setItem(weaponSlot, hero.getWeapon().getItem());
+        giveTalentItems();
+    }
+
+    public void giveTalentItem(@Nonnull HotbarSlots slot) {
+        final Hero hero = getHero();
+        final Talent talent = hero.getTalent(slot);
+
+        if (talent == null) {
+            return;
+        }
+
+        giveTalentItem(slot, talent);
+    }
+
+    public void giveTalentItem(@Nonnull HotbarSlots slot, @Nonnull Talent talent) {
+        final PlayerInventory inventory = getInventory();
+        final ItemStack talentItem = talent.getItem();
+
+        if (!talent.isAutoAdd()) {
+            return;
+        }
+
+        final HotbarLoadout loadout = profile.getHotbarLoadout();
+        final int index = loadout.getInventorySlotBySlot(slot);
+
+        inventory.setItem(index, talentItem);
+        fixTalentItemAmount(index, talent);
+    }
+
+    public void giveTalentItems() {
+        final HotbarLoadout loadout = profile.getHotbarLoadout();
+        final Hero hero = getHero();
+
+        loadout.forEachTalentSlot((slot, i) -> {
+            final Talent talent = hero.getTalent(i + 1);
+
+            if (talent == null) {
+                return;
+            }
+
+            giveTalentItem(slot, talent);
+        });
+    }
+
+    public void setItemAndSnap(@Nonnull HotbarSlots slot, @Nonnull ItemStack item) {
+        setItem(slot, item);
+        snapTo(slot);
+    }
+
+    public void snapTo(@Nonnull HotbarSlots slot) {
+        final HotbarLoadout loadout = profile.getHotbarLoadout();
+
+        getInventory().setHeldItemSlot(loadout.getInventorySlotBySlot(slot));
+    }
+
+    @Nullable
+    public HotbarSlots getHeldSlot() {
+        final HotbarLoadout loadout = profile.getHotbarLoadout();
+
+        return loadout.bySlot(getInventory().getHeldItemSlot());
+    }
+
+    public boolean isHeldSlot(@Nullable HotbarSlots slot) {
+        return getHeldSlot() == slot;
+    }
+
+    public boolean isSettingEnable(@Nonnull Settings settings) {
+        return settings.isEnabled(getPlayer());
+    }
+
+    public boolean isSettingDisabled(@Nonnull Settings setting) {
+        return setting.isDisabled(getPlayer());
+    }
+
+    public boolean hasBlocksAbove() {
+        return !getBlocksAbove().isEmpty();
+    }
+
+    public boolean hasBlocksBelow() {
+        return !getBlocksBelow().isEmpty();
+    }
+
+    @Nonnull
+    public List<Block> getBlocksAbove() {
+        return getBlocksRelative((location, world) -> location.getY() < world.getMaxHeight(), location -> location.add(0, 1, 0));
+    }
+
+    @Nonnull
+    public List<Block> getBlocksBelow() {
+        return getBlocksRelative((location, world) -> location.getY() > world.getMinHeight(), location -> location.subtract(0, 1, 0));
+    }
+
+    public void setOutline(@Nonnull Outline outline) {
+        outline.set(getPlayer());
+    }
+
+    @Nonnull
+    public Location getLocationAnchored() {
+        final Location location = getLocation();
+        return anchorLocation(location);
+    }
+
+    private List<Block> getBlocksRelative(BiFunction<Location, World, Boolean> fn, Consumer<Location> consumer) {
+        final List<Block> blocks = Lists.newArrayList();
+        final Location location = getEyeLocation();
+        final World world = getWorld();
+
+        while (fn.apply(location, world)) {
+            final Block block = location.getBlock();
+
+            if (!block.isEmpty()) {
+                blocks.add(block);
+            }
+
+            consumer.accept(location);
+        }
+
+        return blocks;
+    }
+
+    private void fixTalentItemAmount(int slot, Talent talent) {
+        if (!(talent instanceof ChargedTalent chargedTalent)) {
+            return;
+        }
+
+        final PlayerInventory inventory = getInventory();
+        final ItemStack item = inventory.getItem(slot);
+
+        if (item == null) {
+            return;
+        }
+
+        item.setAmount(chargedTalent.getMaxCharges());
+    }
+
     private void resetAttribute(Attribute attribute, double value) {
         Nulls.runIfNotNull(entity.getAttribute(attribute), t -> t.setBaseValue(value));
     }
@@ -1026,8 +1235,6 @@ public class GamePlayer extends LivingGameEntity {
 
         executeOnDeathIfTalentIsNotNull(hero.getFirstTalent());
         executeOnDeathIfTalentIsNotNull(hero.getSecondTalent());
-
-        // complex
         executeOnDeathIfTalentIsNotNull(hero.getThirdTalent());
         executeOnDeathIfTalentIsNotNull(hero.getFourthTalent());
         executeOnDeathIfTalentIsNotNull(hero.getFifthTalent());
@@ -1039,35 +1246,34 @@ public class GamePlayer extends LivingGameEntity {
         }
     }
 
-    /**
-     * Sets player's material cooldown with support of {@link GamePlayer#cdModifier}.
-     * If there is no game player for a given player, the native {@link Player#setCooldown(Material, int)} will be used.
-     *
-     * @param player   - Player.
-     * @param material - Material.
-     * @param i        - New cooldown.
-     */
-    @Deprecated(forRemoval = true)
-    public static void setCooldown(@Nonnull Player player, @Nonnull Material material, int i) {
-        final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
+    @Nonnull
+    public static Location anchorLocation(@Nonnull Location location) {
+        final World world = location.getWorld();
 
-        // if no player, use native set method
-        if (gamePlayer == null) {
-            player.setCooldown(material, i);
-            return;
+        if (world == null) {
+            return location;
         }
 
-        gamePlayer.setCooldown(material, i);
-    }
+        while (true) {
+            final Block block = location.getBlock();
+            final Block blockBelow = block.getRelative(BlockFace.DOWN);
 
-    /**
-     * Scales the cooldown with player's cooldown modifier.
-     *
-     * @param cooldown - Cooldown.
-     * @return scaled cooldown.
-     */
-    public int scaleCooldown(int cooldown) {
-        return (int) Math.max(cooldown * getCooldownModifier(), 0);
+            if (block.getY() <= world.getMinHeight()) {
+                break;
+            }
+
+            if (!blockBelow.isEmpty()) {
+                if (isBlockSlab(blockBelow.getType())) {
+                    location.subtract(0, 0.5, 0);
+                }
+
+                break;
+            }
+
+            location.subtract(0, 1, 0);
+        }
+
+        return location;
     }
 
     /**
@@ -1091,6 +1297,14 @@ public class GamePlayer extends LivingGameEntity {
     public static Optional<GamePlayer> getPlayerOptional(Player player) {
         final GamePlayer gamePlayer = getExistingPlayer(player);
         return gamePlayer == null ? Optional.empty() : Optional.of(gamePlayer);
+    }
+
+    private static boolean isBlockSlab(Material material) {
+        if (!material.isBlock()) {
+            return false;
+        }
+
+        return material.name().endsWith("_SLAB");
     }
 
     public enum Ignore {

@@ -1,5 +1,7 @@
 package me.hapyl.fight.util;
 
+import org.bukkit.ChatColor;
+
 import javax.annotation.Nonnull;
 import java.util.function.Function;
 
@@ -16,6 +18,11 @@ public interface EnumWrapper<E> {
     @Nonnull
     default String getName() {
         return cast(Described.class, Described::getName, "");
+    }
+
+    @Nonnull
+    default String getNameStripColor() {
+        return ChatColor.stripColor(getName());
     }
 
     @Nonnull

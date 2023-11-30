@@ -8,26 +8,25 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.game.weapons.PackedParticle;
 import me.hapyl.fight.game.weapons.RangeWeapon;
-import me.hapyl.fight.util.MetadataValue;
 import me.hapyl.fight.util.collection.player.PlayerMap;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.entity.Entities;
 import org.bukkit.*;
-import org.bukkit.entity.ArmorStand;
+import org.bukkit.block.BlockFace;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 
 public class Spark extends Hero implements PlayerElement {
 
-    private final PlayerMap<ArmorStand> markerLocation = PlayerMap.newMap();
+    private final PlayerMap<RunInBackData> markerLocation = PlayerMap.newMap();
 
     public Spark() {
         super("Spark");
@@ -62,68 +61,57 @@ public class Spark extends Hero implements PlayerElement {
                 .setDescription("A long range weapon that can shoot fire lasers in front of you! How cool is that..."));
 
         setUltimate(new UltimateTalent(
-                "Run it Back",
-                "Instantly place a marker at your current location for {duration}.____Upon death or after duration ends, safely teleport to the marked location with health you had upon activating the ability.",
+                "Run it Back", """
+                Instantly place a marker at your current location for {duration}.
+                                        
+                Upon death or after duration ends, safely teleport to the marked location with health you had upon activating the ability.
+                """,
                 80
-        ).setDuration(200).setItem(Material.TOTEM_OF_UNDYING).setCooldownSec(40));
+        )
+                .setType(Talent.Type.ENHANCE)
+                .setItem(Material.TOTEM_OF_UNDYING)
+                .setDurationSec(6)
+                .setCooldownSec(40));
 
     }
 
     @Override
-    public void useUltimate(@Nonnull GamePlayer player) {
+    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
         final Location location = getSafeLocation(player.getLocation());
         final double health = player.getHealth();
 
         setUsingUltimate(player, true);
 
-        final ArmorStand marker = Entities.ARMOR_STAND.spawn(location, me -> {
-            me.setInvulnerable(true);
-            me.setGravity(false);
-            me.setInvisible(true);
-            me.setVisible(false);
-            me.setFireTicks(getUltimateDuration());
-            me.setMetadata("Health", new MetadataValue(health));
-        });
+        markerLocation.put(player, new RunInBackData(player, location, health));
+        player.setVisualFire(true);
 
-        markerLocation.put(player, marker);
-
-        new GameTask() {
-            private int tick = getUltimateDuration();
-
+        new TimedGameTask(getUltimateDuration()) {
             @Override
-            public void run() {
-                // if already on rebirth, can happen when damage is called rebirth
+            public void run(int tick) {
                 if (getMarker(player) == null) {
+                    player.setVisualFire(false);
                     cancel();
                     return;
                 }
 
-                if (tick < 0) {
-                    rebirthPlayer(player);
-                    cancel();
-                    return;
-                }
-
-                // display how much time left
-                // symbols => ■□
-                final StringBuilder builder = new StringBuilder();
-                for (int i = 0; i < 20; i++) {
-                    builder.append(Chat.format(i >= (tick / 10) ? "&c|" : "&a|"));
-                }
-
-                player.sendSubtitle(builder.toString(), 0, 10, 0);
-
-                --tick;
+                final int percent = tick * 10 / maxTick;
+                player.sendSubtitle("&6🔥".repeat(percent) + "&8🔥".repeat(10 - percent), 0, 10, 0);
 
                 // Fx
-                player.spawnWorldParticle(player.getEyeLocation(), Particle.FLAME, 1, 0.5d, 0.0d, 0.5d, 0.01f);
+                player.spawnWorldParticle(player.getLocation().add(0.0d, 0.5d, 0.0d), Particle.FLAME, 1, 1.0d, 0.5d, 1.0d, 0.05f);
 
                 // Fx at marker
                 player.spawnWorldParticle(location, Particle.LANDING_LAVA, 1, 0.2d, 0.2, 0.2d, 0.05f);
                 player.spawnWorldParticle(location, Particle.DRIP_LAVA, 1, 0.2d, 0.2, 0.2d, 0.05f);
             }
+
+            @Override
+            public void onLastTick() {
+                rebirthPlayer(player);
+            }
         }.runTaskTimer(0, 1);
 
+        return UltimateCallback.OK;
     }
 
     @Override
@@ -136,44 +124,29 @@ public class Spark extends Hero implements PlayerElement {
         return "Location is not safe!";
     }
 
-    private ArmorStand getMarker(GamePlayer player) {
-        return markerLocation.get(player);
-    }
+    public void rebirthPlayer(@Nonnull GamePlayer player) {
+        final RunInBackData data = markerLocation.remove(player);
 
-    private boolean isSafeLocation(Location location) {
-        return getSafeLocation(location) != null;
-    }
-
-    private Location getSafeLocation(Location location) {
-        // start with a bit of Y offset
-        location.add(0, 2, 0);
-        for (int i = 0; i < 10; i++) {
-            location.subtract(0, 1, 0);
-            if (!location.getBlock().getType().isAir()) {
-                return location;
-            }
-        }
-        return null;
-    }
-
-    public void rebirthPlayer(GamePlayer player) {
-        final ArmorStand stand = markerLocation.get(player);
-
-        if (stand == null) {
+        if (data == null) {
             return;
         }
 
-        final double health = Math.max(stand.getMetadata("Health").get(0).asDouble(), player.getMinHealth());
+        final double health = data.health();
 
+        player.setVisualFire(false);
         player.setInvulnerable(true);
         player.setHealth(health);
 
-        final Location teleportLocation = stand.getLocation().add(0.0d, 1.0d, 0.0d);
-
-        markerLocation.remove(player);
-        stand.remove();
+        final Location teleportLocation = data.location();
+        teleportLocation.setYaw(player.getYaw());
+        teleportLocation.setPitch(player.getPitch());
 
         player.teleport(teleportLocation);
+
+        // Reload
+        if (getWeapon() instanceof RangeWeapon rangeWeapon) {
+            rangeWeapon.forceReload(player);
+        }
 
         // Fx
         player.addPotionEffect(PotionEffectType.SLOW, 20, 50);
@@ -194,11 +167,6 @@ public class Spark extends Hero implements PlayerElement {
             return null;
         }
 
-        boolean validCause = switch (cause) {
-            case FIRE, FIRE_TICK, LAVA -> true;
-            default -> false;
-        };
-
         // Check for ultimate death
         if (isUsingUltimate(player) && input.getDamage() >= player.getHealth()) {
             rebirthPlayer(player);
@@ -208,11 +176,10 @@ public class Spark extends Hero implements PlayerElement {
         }
 
         // Cancel any fire damage
-        if (validCause) {
-            player.setFireTicks(0);
-            return DamageOutput.CANCEL;
-        }
-        return null;
+        return switch (cause) {
+            case FIRE, FIRE_TICK, LAVA -> DamageOutput.CANCEL;
+            default -> null;
+        };
     }
 
     @Override
@@ -233,5 +200,31 @@ public class Spark extends Hero implements PlayerElement {
     @Override
     public Talent getPassiveTalent() {
         return Talents.FIRE_GUY.getTalent();
+    }
+
+    private RunInBackData getMarker(GamePlayer player) {
+        return markerLocation.get(player);
+    }
+
+    private boolean isSafeLocation(Location location) {
+        return getSafeLocation(location) != null;
+    }
+
+    private Location getSafeLocation(Location location) {
+        final World world = location.getWorld();
+
+        if (world == null) {
+            return null;
+        }
+
+        for (int i = 10; i > 0; i--) {
+            if (location.getBlock().getRelative(BlockFace.DOWN).getType().isOccluding()) {
+                break;
+            }
+
+            location.subtract(0, 1, 0);
+        }
+
+        return location;
     }
 }

@@ -9,6 +9,11 @@ public abstract class TimedGameTask extends TickingGameTask {
     protected final int maxTick;
 
     public TimedGameTask(int maxTick) {
+        this(maxTick, 0);
+    }
+
+    public TimedGameTask(int maxTick, int initTick) {
+        super(initTick);
         this.maxTick = maxTick;
     }
 

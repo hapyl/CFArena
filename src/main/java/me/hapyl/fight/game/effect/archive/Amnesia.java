@@ -14,7 +14,6 @@ public class Amnesia extends GameEffect {
 
     @Override
     public void onTick(LivingGameEntity entity, int tick) {
-
     }
 
     @Override

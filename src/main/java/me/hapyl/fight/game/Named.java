@@ -12,6 +12,9 @@ public enum Named {
 
     BERSERK("💢", "Berserk", Color.DARK_RED),
     CURSE_OF_GREED("\uD83E\uDDFF", "Curse of Greed", Color.GOLD),
+    SHADOW_ENERGY("🕳", "Shadow Energy", Color.PURPLE_SHADOW),
+    ASTRAL_SPARK("⚡", "Astral Spark", Color.YELLOW),
+    SHADOWSTRIKE("\uD83D\uDCA5", "Shadowstrike", Color.MEDIUM_STALE_BLUE),
     ;
 
     private final String character;

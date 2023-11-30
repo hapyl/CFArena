@@ -43,4 +43,15 @@ public abstract class TickingGameTask extends GameTask {
     public int getTick() {
         return tick;
     }
+
+    /**
+     * Returns true if the current tick value is greater than 0, and it's modulo is equals the given value.
+     *
+     * @param mod - modulo operator.
+     * @return true, if the current tick value is greater than 0, and it's modulo is equals the given value.
+     */
+    protected boolean modulo(int mod) {
+        return tick > 0 && tick % mod == 0;
+    }
+
 }

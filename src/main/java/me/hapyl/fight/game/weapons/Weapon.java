@@ -7,6 +7,7 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.game.NonNullItemCreator;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.StaticFormat;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.weapons.ability.Ability;
@@ -21,7 +22,6 @@ import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.inventory.EquipmentSlot;
 
@@ -64,7 +64,9 @@ public class Weapon extends NonNullItemCreator implements Cloneable, Described, 
             return;
         }
 
-        ability.setCooldownMaterial(material); // I guess this is fine?
+        // I guess this is fine?
+        // FIXME (hapyl): 020, Nov 20: Might break cooldown for weapons that have multiple abilities
+        ability.setCooldownMaterial(material);
         this.abilities.put(type, ability);
     }
 
@@ -117,7 +119,7 @@ public class Weapon extends NonNullItemCreator implements Cloneable, Described, 
     }
 
     /**
-     * ID is required to use functions.
+     * ID is required to use abilities.
      */
     public Weapon setId(String id) {
         this.id = id.toUpperCase(Locale.ROOT);
@@ -179,7 +181,7 @@ public class Weapon extends NonNullItemCreator implements Cloneable, Described, 
     }
 
     public void give(GamePlayer player) {
-        player.getInventory().setItem(0, getItem());
+        player.setItem(HotbarSlots.WEAPON, getItem());
     }
 
     public void createItem() {
@@ -310,6 +312,10 @@ public class Weapon extends NonNullItemCreator implements Cloneable, Described, 
     @Nonnull
     public Set<Ability> getAbilities() {
         return Sets.newHashSet(abilities.values());
+    }
+
+    public boolean hasAbilities() {
+        return !abilities.isEmpty();
     }
 
     private void addDynamicLore(@Nonnull ItemBuilder builder, @Nonnull String string, @Nonnull Number number, Function<Number, String> function) {

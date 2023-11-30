@@ -16,7 +16,7 @@ public enum Modes implements Selectable {
     FFA(new FreeForAll()),
     DEATH_MATCH(new Deathmatch()),
     DEATH_MATCH_KILLS(new DeathmatchKills()),
-    RUSH(new Rush()),
+    //RUSH(new Rush()),
     FRENZY(new FrenzyMode()),
     //TTT(new AmongUs()), todo
     ;

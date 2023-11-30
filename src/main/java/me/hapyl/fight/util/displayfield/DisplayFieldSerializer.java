@@ -20,7 +20,14 @@ public final class DisplayFieldSerializer {
     };
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.0");
 
-    public static void serialize(ItemBuilder builder, DisplayFieldProvider provider, DisplayFieldFormatter formatter) {
+    /**
+     * Serializes the display fields from the provider to the given item builder as lore.
+     *
+     * @param builder   - Builder.
+     * @param provider  - Provider.
+     * @param formatter - Formatter.
+     */
+    public static void serialize(@Nonnull ItemBuilder builder, @Nonnull DisplayFieldProvider provider, @Nonnull DisplayFieldFormatter formatter) {
         for (Field field : provider.getClass().getDeclaredFields()) {
             if (!field.isAnnotationPresent(DisplayField.class)) {
                 continue;
@@ -57,11 +64,26 @@ public final class DisplayFieldSerializer {
         }
     }
 
-    public static void serialize(ItemBuilder builder, DisplayFieldProvider provider) {
+    /**
+     * Serializes the display fields from the provider to the given item builder as lore.
+     *
+     * @param builder  - Builder.
+     * @param provider - Provider.
+     */
+    public static void serialize(@Nonnull ItemBuilder builder, @Nonnull DisplayFieldProvider provider) {
         serialize(builder, provider, DEFAULT_FORMATTER);
     }
 
-    public static String formatField(Field field, Object instance, DisplayField display) {
+    /**
+     * Performs a field format with a given display field.
+     *
+     * @param field    - Field to format.
+     * @param instance - Object instance.
+     * @param display  - Display field.
+     * @return the formatted string.
+     */
+    @Nonnull
+    public static String formatField(@Nonnull Field field, @Nonnull Object instance, @Nonnull DisplayField display) {
         double scale = display.scaleFactor();
         String suffix = display.suffix();
         boolean suffixSpace = display.suffixSpace();
@@ -97,11 +119,17 @@ public final class DisplayFieldSerializer {
             return stringValue + (suffix.isBlank() || suffix.isEmpty() ? "" : (suffixSpace ? " " : "") + suffix);
         } catch (Exception e) {
             e.printStackTrace();
-            return "ERROR!";
+            return "Error whilst formatting DisplayField, see console!";
         }
     }
 
-    public static void forEachDisplayField(DisplayFieldProvider provider, BiConsumer<Field, DisplayField> consumer) {
+    /**
+     * Performs a for each iteration for each field in the provider.
+     *
+     * @param provider - Provider.
+     * @param consumer - Consumer.
+     */
+    public static void forEachDisplayField(@Nonnull DisplayFieldProvider provider, @Nonnull BiConsumer<Field, DisplayField> consumer) {
         for (Field field : provider.getClass().getDeclaredFields()) {
             if (!field.isAnnotationPresent(DisplayField.class)) {
                 continue;
@@ -117,11 +145,14 @@ public final class DisplayFieldSerializer {
         }
     }
 
-    public static void copy(DisplayFieldProvider from, DisplayFieldDataProvider to) {
-        if (from == null || to == null) {
-            throw new NullPointerException("Cannot copy from/to null!");
-        }
-
+    /**
+     * Copies fields from the provider to a data provider.
+     * Usually done to copy fields from a hero class to an ultimate or other talents.
+     *
+     * @param from - Provider.
+     * @param to   - Data provider.
+     */
+    public static void copy(@Nonnull DisplayFieldProvider from, @Nonnull DisplayFieldDataProvider to) {
         forEachDisplayField(from, (f, df) -> {
             to.getDisplayFieldData().add(new DisplayFieldData(f, df, from));
         });

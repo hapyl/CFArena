@@ -39,10 +39,10 @@ public class ShockDark extends Talent implements Listener {
     public ShockDark() {
         super(
                 "Shock Dart",
-                "Shoots an arrow infused with &oshocking &7power. Upon hit, charges and explodes dealing damage based on distance.",
-                Type.COMBAT
+                "Shoots an arrow infused with &oshocking &7power. Upon hit, charges and explodes dealing damage based on distance."
         );
 
+        setType(Type.DAMAGE);
         setItem(Material.LIGHT_BLUE_DYE);
         setCooldown(120);
 

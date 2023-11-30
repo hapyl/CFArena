@@ -33,13 +33,19 @@ public class UltimateTalent extends Talent implements DisplayFieldDataProvider {
     }
 
     public UltimateTalent(String name, String info, int pointCost) {
-        super(name, info, Type.ULTIMATE);
+        super(name, info, Type.DAMAGE);
         cost = pointCost;
         sound = Sound.ENTITY_ENDER_DRAGON_GROWL;
         pitch = 2.0f;
         dataFields = Lists.newArrayList();
 
         setDuration(0);
+    }
+
+    @Override
+    public UltimateTalent setType(@Nonnull Type type) {
+        super.setType(type);
+        return this;
     }
 
     public UltimateTalent appendDescription(String description, Object... format) {
@@ -160,5 +166,11 @@ public class UltimateTalent extends Talent implements DisplayFieldDataProvider {
     public UltimateTalent setCastDuration(int duration) {
         this.castDuration = duration;
         return this;
+    }
+
+    @Nonnull
+    @Override
+    public String getTalentClassType() {
+        return "Ultimate";
     }
 }

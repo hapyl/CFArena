@@ -9,6 +9,7 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -105,14 +106,14 @@ public class Tamer extends Hero implements Listener, DisabledHero {
     }
 
     @Override
-    public void useUltimate(@Nonnull GamePlayer player) {
+    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
         final TamerPack playerPack = getPlayerPack(player);
 
-        if (playerPack == null) {
-            return;
+        if (playerPack != null) {
+            playerPack.getPack().onUltimate(player, playerPack);
         }
 
-        playerPack.getPack().onUltimate(player, playerPack);
+        return UltimateCallback.OK;
     }
 
     @Override

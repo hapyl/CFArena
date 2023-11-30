@@ -18,7 +18,7 @@ public class GradientColor extends Color {
     }
 
     public GradientColor(@Nonnull ChatColor from, @Nonnull ChatColor to) {
-        super(from);
+        super(from, org.bukkit.ChatColor.WHITE);
         this.to = validateColor(to);
     }
 

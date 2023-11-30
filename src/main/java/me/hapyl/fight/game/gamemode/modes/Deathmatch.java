@@ -113,9 +113,14 @@ public class Deathmatch extends CFGameMode {
 
     @Override
     public void onJoin(@Nonnull GameInstance instance, @Nonnull Player player) {
-        GamePlayer gamePlayer = CF.getPlayer(player);
-        final PlayerProfile profile = PlayerProfile.getOrCreateProfile(player);
+        final PlayerProfile profile = PlayerProfile.getProfile(player);
         final String playerName = player.getName();
+
+        if (profile == null) {
+            return;
+        }
+
+        GamePlayer gamePlayer = CF.getPlayer(player);
 
         // Player joined while the game is in progress
         if (gamePlayer == null) {

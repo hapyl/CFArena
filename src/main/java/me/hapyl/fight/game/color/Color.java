@@ -1,8 +1,10 @@
 package me.hapyl.fight.game.color;
 
 import me.hapyl.fight.util.Range;
+import me.hapyl.spigotutils.module.annotate.Super;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.util.BFormat;
+import me.hapyl.spigotutils.module.util.Validate;
 import net.md_5.bungee.api.ChatColor;
 
 import javax.annotation.Nonnull;
@@ -15,7 +17,6 @@ import javax.annotation.Nullable;
 public class Color {
 
     // Bukkit colors start
-
     public static final Color BLACK = bukkit(ChatColor.BLACK);
     public static final Color DARK_BLUE = bukkit(ChatColor.DARK_BLUE);
     public static final Color DARK_GREEN = bukkit(ChatColor.DARK_GREEN);
@@ -32,7 +33,6 @@ public class Color {
     public static final Color LIGHT_PURPLE = bukkit(ChatColor.LIGHT_PURPLE);
     public static final Color YELLOW = bukkit(ChatColor.YELLOW);
     public static final Color WHITE = bukkit(ChatColor.WHITE);
-
     // Bukkit colors end
 
     public static final Color DEFAULT = new Color("#aabbcc");
@@ -45,9 +45,13 @@ public class Color {
 
     public static final Color BUTTON = new Color("#F6A623");
 
-    public static final Color SPECTATOR = new Color("#87B6F5");
-    public static final Color MODERATOR = new Color("#119905");
-    public static final Color ADMIN = new Color("#CC0826");
+    public static final Color SPECTATOR = new Color("#87B6F5", org.bukkit.ChatColor.GRAY);
+    public static final Color MODERATOR = new Color("#119905", org.bukkit.ChatColor.DARK_GREEN);
+    public static final Color ADMIN = new Color("#CC0826", org.bukkit.ChatColor.RED);
+    public static final Color PREMIUM = new Color("#1E90FF", org.bukkit.ChatColor.AQUA);
+    public static final Color PREMIUM_NAME = new Color("#4169E1", org.bukkit.ChatColor.AQUA);
+    public static final Color VIP = new Color("#00FF7F", org.bukkit.ChatColor.GREEN);
+    public static final Color VIP_NAME = new Color("#00E66B", org.bukkit.ChatColor.GREEN);
 
     public static final Color DEEP_PURPLE = new Color("#6A0DAD");
 
@@ -56,25 +60,53 @@ public class Color {
     public static final Color DARK_ORANGE = new Color("#FF8C00");
     public static final Color ROYAL_BLUE = new Color("#4169E1");
     public static final Color MAROON = new Color("#800000");
+    public static final Color PURPLE_SHADOW = new Color("#800080");
+    public static final Color NAVY_BLUE = new Color("#001F3F");
+    public static final Color MEDIUM_STALE_BLUE = new Color("#7B68EE");
 
     public final ChatColor color;
+    // Backing 'bukkitChatColor' is needed for teams;
+    // since they cannot have custom colors for
+    // some reason, maybe mojang just forgot about it,
+    // just like they did with the actionbar ¯\_(ツ)_/¯
+    public final org.bukkit.ChatColor bukkitChatColor;
+    public final org.bukkit.Color bukkitColor;
     private ColorFlag[] flags;
 
     public Color(int red, int green, int blue) {
-        this.color = validateColor(ChatColor.of(new java.awt.Color(
+        this(red, green, blue, org.bukkit.ChatColor.WHITE);
+    }
+
+    public Color(int red, int green, int blue, org.bukkit.ChatColor backingColor) {
+        this(validateColor(ChatColor.of(new java.awt.Color(
                         Numbers.clamp(red, 0, 255),
                         Numbers.clamp(green, 0, 255),
                         Numbers.clamp(blue, 0, 255)
                 )
-        ));
+        )), backingColor);
     }
 
     public Color(@Nonnull String hex) {
-        this(parseHex(hex));
+        this(hex, org.bukkit.ChatColor.WHITE);
     }
 
-    public Color(@Nonnull ChatColor color) {
+    public Color(@Nonnull String hex, org.bukkit.ChatColor backingColor) {
+        this(parseHex(hex), backingColor);
+    }
+
+    public Color(@Nonnull org.bukkit.Color color) {
+        this(parseHex("%02X%02X%02X".formatted(color.getRed(), color.getGreen(), color.getBlue())), org.bukkit.ChatColor.WHITE);
+    }
+
+    @Super
+    public Color(@Nonnull ChatColor color, @Nonnull org.bukkit.ChatColor backingColor) {
+        Validate.isTrue(backingColor.isColor(), "Backing color must be a color, not formatter!");
+
         this.color = validateColor(color);
+        this.bukkitChatColor = backingColor;
+
+        final java.awt.Color javaColor = color.getColor();
+        this.bukkitColor = org.bukkit.Color.fromRGB(javaColor.getRed(), javaColor.getGreen(), javaColor.getBlue());
     }
 
     /**
@@ -217,9 +249,13 @@ public class Color {
      * @return the bukkit color.
      */
     @Nonnull
-    public org.bukkit.Color toBukkitColor() {
-        final java.awt.Color javaColor = color.getColor();
-        return org.bukkit.Color.fromRGB(javaColor.getRed(), javaColor.getGreen(), javaColor.getBlue());
+    public org.bukkit.Color getBukkitColor() {
+        return bukkitColor;
+    }
+
+    @Nonnull
+    public org.bukkit.ChatColor getBukkitChatColor() {
+        return bukkitChatColor;
     }
 
     /**
@@ -259,7 +295,17 @@ public class Color {
     @Nonnull
     private static Color bukkit(ChatColor chatColor) {
         final java.awt.Color javaColor = chatColor.getColor();
+        return new Color(javaColor.getRed(), javaColor.getGreen(), javaColor.getBlue(), bungeeToBukkitColor(chatColor));
+    }
 
-        return new Color(javaColor.getRed(), javaColor.getGreen(), javaColor.getBlue());
+    @Nonnull
+    private static org.bukkit.ChatColor bungeeToBukkitColor(ChatColor color) {
+        for (org.bukkit.ChatColor chatColor : org.bukkit.ChatColor.values()) {
+            if (chatColor.asBungee() == color) {
+                return chatColor;
+            }
+        }
+
+        return org.bukkit.ChatColor.WHITE;
     }
 }

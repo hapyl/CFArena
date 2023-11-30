@@ -69,7 +69,7 @@ public class LocalTeamManager {
             final String displayName = display.getFormat();
 
             team.setPrefix(displayName.substring(0, Math.min(displayName.length(), 64)));
-            team.setColor(display.getColor());
+            team.setColor(display.getColor().bukkitChatColor);
         });
     }
 

@@ -3,6 +3,7 @@ package me.hapyl.fight.game.profile;
 import com.google.common.collect.Queues;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
+import me.hapyl.fight.fastaccess.PlayerFastAccess;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.delivery.Deliveries;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -26,6 +27,7 @@ import org.bukkit.entity.Player;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Deque;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -45,6 +47,7 @@ public class PlayerProfile {
     private final PlayerInfraction infractions;
     private final PlayerRelationship relationship;
     private final HotbarLoadout hotbarLoadout;
+    private final PlayerFastAccess fastAccess;
 
     @Nullable
     private GamePlayer gamePlayer; // current game player
@@ -70,6 +73,12 @@ public class PlayerProfile {
         this.playerData = new PlayerData(this);
         this.originalSkin = PlayerSkin.of(player);
         this.hotbarLoadout = new HotbarLoadout(this);
+        this.fastAccess = new PlayerFastAccess(this);
+    }
+
+    @Nonnull
+    public PlayerFastAccess getFastAccess() {
+        return fastAccess;
     }
 
     @Nonnull
@@ -143,10 +152,12 @@ public class PlayerProfile {
         }, 20);
     }
 
+    @Nonnull
     public Player getPlayer() {
         return player;
     }
 
+    @Nonnull
     public PlayerDatabase getDatabase() {
         return playerDatabase;
     }
@@ -295,14 +306,14 @@ public class PlayerProfile {
         return playerDatabase.getRank();
     }
 
-    @Nonnull
-    public static PlayerProfile getOrCreateProfile(Player player) {
-        return Manager.current().getOrCreateProfile(player);
-    }
-
     @Nullable
     public static PlayerProfile getProfile(Player player) {
         return Manager.current().getProfile(player);
+    }
+
+    @Nonnull
+    public static Optional<PlayerProfile> getProfileOptional(Player player) {
+        return Optional.ofNullable(getProfile(player));
     }
 
 }

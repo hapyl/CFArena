@@ -1,10 +1,12 @@
 package me.hapyl.fight.game.cosmetic.crate;
 
+import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.CosmeticCollection;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.cosmetic.WeightedDrop;
+import me.hapyl.fight.game.cosmetic.crate.convert.Product;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.EnumWrapper;
 import me.hapyl.spigotutils.module.util.WeightedCollection;
@@ -13,7 +15,7 @@ import org.bukkit.Sound;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public enum Crates implements WeightedDrop, EnumWrapper<Crate> {
+public enum Crates implements WeightedDrop, EnumWrapper<Crate>, Product<Long> {
 
     NOVICE(
             new Crate("Novice Crate")
@@ -33,6 +35,12 @@ public enum Crates implements WeightedDrop, EnumWrapper<Crate> {
         public int getWeight() {
             return 70;
         }
+
+        @Nonnull
+        @Override
+        public String formatProduct(@Nonnull Long amount) {
+            return Rarity.COMMON.getColor() + super.formatProduct(amount);
+        }
     },
 
     UNCOMMON(
@@ -43,6 +51,12 @@ public enum Crates implements WeightedDrop, EnumWrapper<Crate> {
         public int getWeight() {
             return 40;
         }
+
+        @Nonnull
+        @Override
+        public String formatProduct(@Nonnull Long amount) {
+            return Rarity.UNCOMMON.getColor() + super.formatProduct(amount);
+        }
     },
 
     RARE(
@@ -52,6 +66,12 @@ public enum Crates implements WeightedDrop, EnumWrapper<Crate> {
         @Override
         public int getWeight() {
             return 30;
+        }
+
+        @Nonnull
+        @Override
+        public String formatProduct(@Nonnull Long amount) {
+            return Rarity.RARE.getColor() + super.formatProduct(amount);
         }
     },
 
@@ -119,8 +139,31 @@ public enum Crates implements WeightedDrop, EnumWrapper<Crate> {
         return getCrate();
     }
 
+    @Nonnull
+    @Override
+    public String getName() {
+        return crate.getName();
+    }
+
+    @Nonnull
+    @Override
+    public String getDescription() {
+        return EnumWrapper.super.getDescription();
+    }
+
     public Crate getCrate() {
         return crate;
+    }
+
+    @Override
+    public void subtractProduct(@Nonnull PlayerDatabase database, @Nonnull Long value) {
+        database.crateEntry.removeCrate(this, value);
+    }
+
+    @Nonnull
+    @Override
+    public Long getProduct(@Nonnull PlayerDatabase database) {
+        return database.crateEntry.getCrates(this);
     }
 
     @Override

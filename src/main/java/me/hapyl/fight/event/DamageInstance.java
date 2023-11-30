@@ -15,7 +15,7 @@ public class DamageInstance {
     protected final LivingGameEntity entity;
     public double damage;
 
-    @Nullable protected GameEntity damager;
+    @Nullable public GameEntity damager;
     @Nullable protected EnumDamageCause cause;
     protected boolean isCrit;
 

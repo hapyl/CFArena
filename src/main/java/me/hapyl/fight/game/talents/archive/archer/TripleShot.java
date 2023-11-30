@@ -15,11 +15,14 @@ public class TripleShot extends Talent {
     private final Color arrowColor = Color.fromRGB(186, 177, 153);
 
     public TripleShot() {
-        super("Triple Shot", "Shoots three arrows in front of you. Two additional arrows deal &b50%&7 of normal damage.", Type.COMBAT);
+        super(
+                "Triple Shot",
+                "Shoots three arrows in front of you. Two additional arrows deal &b50%&7 of normal damage."
+        );
 
-        setCooldown(75);
+        setType(Type.DAMAGE);
         setItem(Material.ARROW);
-
+        setCooldown(75);
         setPoint(0);
     }
 

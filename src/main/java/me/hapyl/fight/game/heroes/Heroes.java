@@ -18,11 +18,12 @@ import me.hapyl.fight.game.heroes.archive.dark_mage.DarkMage;
 import me.hapyl.fight.game.heroes.archive.doctor.DrEd;
 import me.hapyl.fight.game.heroes.archive.ender.Ender;
 import me.hapyl.fight.game.heroes.archive.engineer.Engineer;
+import me.hapyl.fight.game.heroes.archive.frostbite.Freazly;
 import me.hapyl.fight.game.heroes.archive.harbinger.Harbinger;
 import me.hapyl.fight.game.heroes.archive.healer.Healer;
 import me.hapyl.fight.game.heroes.archive.heavy_knight.SwordMaster;
 import me.hapyl.fight.game.heroes.archive.hercules.Hercules;
-import me.hapyl.fight.game.heroes.archive.iceologer.Freazly;
+import me.hapyl.fight.game.heroes.archive.jester.Jester;
 import me.hapyl.fight.game.heroes.archive.juju.JuJu;
 import me.hapyl.fight.game.heroes.archive.km.KillingMachine;
 import me.hapyl.fight.game.heroes.archive.knight.BlastKnight;
@@ -73,7 +74,7 @@ public enum Heroes implements Formatted {
     ARCHER(new Archer()),
     ALCHEMIST(new Alchemist()),
     MOONWALKER(new Moonwalker()),
-    HERCULES(new Hercules()),
+    @OnReworkIgnoreForNow HERCULES(new Hercules()),
     MAGE(new Mage()),
     PYTARIA(new Pytaria()),
     TROLL(new Troll()),
@@ -113,6 +114,7 @@ public enum Heroes implements Formatted {
     BLOODFIEND(new Bloodfiend()),
     ZEALOT(new Zealot()),
     RONIN(new Ronin()),
+    JESTER(new Jester()),
 
     ;
 
@@ -246,7 +248,8 @@ public enum Heroes implements Formatted {
      * @return true if player has this hero favourite.
      */
     public boolean isFavourite(Player player) {
-        return PlayerProfile.getOrCreateProfile(player).getDatabase().getHeroEntry().isFavourite(this);
+        final PlayerProfile profile = PlayerProfile.getProfile(player);
+        return profile != null && profile.getDatabase().getHeroEntry().isFavourite(this);
     }
 
     /**
@@ -256,7 +259,12 @@ public enum Heroes implements Formatted {
      * @param flag   - True if favourite, false if not.
      */
     public void setFavourite(Player player, boolean flag) {
-        PlayerProfile.getOrCreateProfile(player).getDatabase().getHeroEntry().setFavourite(this, flag);
+        final PlayerProfile profile = PlayerProfile.getProfile(player);
+        if (profile == null) {
+            return;
+        }
+
+        profile.getDatabase().getHeroEntry().setFavourite(this, flag);
     }
 
     /**
@@ -320,9 +328,15 @@ public enum Heroes implements Formatted {
      * @return all playable heroes sorted by favourites.
      */
     public static List<Heroes> playableRespectFavourites(Player player) {
+        final PlayerProfile profile = PlayerProfile.getProfile(player);
         final List<Heroes> playable = playable();
+
+        if (profile == null) {
+            return playable;
+        }
+
         playable.sort((a, b) -> {
-            final HeroEntry heroEntry = PlayerProfile.getOrCreateProfile(player).getDatabase().getHeroEntry();
+            final HeroEntry heroEntry = profile.getDatabase().getHeroEntry();
             return (heroEntry.isFavourite(b) ? 1 : 0) - (heroEntry.isFavourite(a) ? 1 : 0);
         });
         return playable;

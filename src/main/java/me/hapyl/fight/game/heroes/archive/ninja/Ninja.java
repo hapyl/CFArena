@@ -9,7 +9,9 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -26,7 +28,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
@@ -56,14 +57,13 @@ public class Ninja extends Hero implements Listener, UIComponent {
     public Ninja() {
         super(
                 "Ninja",
-                "An extremely well-trained fighter with a gift from the wind, that allows him to Dash, Double Jump and take no fall damage."
+                "An extremely well-trained fighter with a gift from the wind."
         );
 
         setArchetype(Archetype.MOBILITY);
-
         setItem("1413159cfab50aba283e68c1659d74412392fbcb1f7d663d1bd2a2a6430c2743");
 
-        final Equipment equipment = this.getEquipment();
+        final Equipment equipment = getEquipment();
         equipment.setChestPlate(Color.WHITE);
         equipment.setLeggings(Material.CHAINMAIL_LEGGINGS);
         equipment.setBoots(Material.CHAINMAIL_BOOTS);
@@ -91,13 +91,13 @@ public class Ninja extends Hero implements Listener, UIComponent {
     }
 
     @Override
-    public void useUltimate(@Nonnull GamePlayer player) {
-        final PlayerInventory inventory = player.getInventory();
-
+    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
         setUsingUltimate(player, true);
-        inventory.setItem(4, throwingStar);
-        inventory.setHeldItemSlot(4);
+
+        player.setItemAndSnap(HotbarSlots.HERO_ITEM, throwingStar);
         player.setCooldown(throwingStar.getType(), 20);
+
+        return UltimateCallback.OK;
     }
 
     private void shootStar(GamePlayer player) {
@@ -121,8 +121,12 @@ public class Ninja extends Hero implements Listener, UIComponent {
     }
 
     @Override
-    public void onStart(@Nonnull GamePlayer player) {
+    public void onPlayersReveal(@Nonnull GamePlayer player) {
         player.setAllowFlight(true);
+    }
+
+    @Override
+    public void onStart(@Nonnull GamePlayer player) {
         player.addPotionEffect(PotionEffectType.SPEED, 999999, 0);
     }
 

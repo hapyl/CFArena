@@ -8,6 +8,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -149,7 +150,7 @@ public class Harbinger extends Hero implements Listener, UIComponent {
     }
 
     @Override
-    public void useUltimate(@Nonnull GamePlayer player) {
+    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
         final Location playerLocation = player.getLocation();
         player.addPotionEffect(PotionEffectType.SLOW, 20, 2);
         player.playWorldSound(Sound.BLOCK_CONDUIT_AMBIENT, 2.0f);
@@ -195,44 +196,46 @@ public class Harbinger extends Hero implements Listener, UIComponent {
                     }.runTaskTimer(0, 1);
                 }
             }.runTaskLater(15);
-            return;
+        }
+        // Ranged Stance
+        else {
+            final Location location = playerLocation.add(playerLocation.getDirection().setY(0.0d).multiply(1.5d));
+            final Arrow arrow = player.getWorld()
+                    .spawnArrow(
+                            location.clone().add(0.0d, 3.0d, 0.0d),
+                            playerLocation.getDirection().normalize().multiply(0.75d).setY(-0.25d),
+                            0,
+                            0
+                    );
+
+            arrow.setShooter(player.getPlayer());
+            arrow.setCritical(false);
+            arrow.setColor(Color.AQUA);
+
+            new GameTask() {
+                @Override
+                public void run() {
+                    Collect.nearbyEntities(location, ultimateRadius).forEach(entity -> {
+                        if (entity.equals(player)) {
+                            return;
+                        }
+
+                        entity.damage(25.0d, player, EnumDamageCause.RIPTIDE);
+                        entity.playWorldSound(Sound.ENTITY_GENERIC_BIG_FALL, 0.75f);
+                        entity.playWorldSound(Sound.ENTITY_GENERIC_HURT, 1.25f);
+
+                        addRiptide(player, entity, 500, false);
+                    });
+
+                    // Fx
+                    Geometry.drawSphere(location, 10, ultimateRadius, new WorldParticle(Particle.BUBBLE_POP));
+                    PlayerLib.playSound(location, Sound.AMBIENT_UNDERWATER_EXIT, 0.0f);
+
+                }
+            }.runTaskLater(10);
         }
 
-        // Ranged Stance
-        final Location location = playerLocation.add(playerLocation.getDirection().setY(0.0d).multiply(1.5d));
-        final Arrow arrow = player.getWorld()
-                .spawnArrow(
-                        location.clone().add(0.0d, 3.0d, 0.0d),
-                        playerLocation.getDirection().normalize().multiply(0.75d).setY(-0.25d),
-                        0,
-                        0
-                );
-
-        arrow.setShooter(player.getPlayer());
-        arrow.setCritical(false);
-        arrow.setColor(Color.AQUA);
-
-        new GameTask() {
-            @Override
-            public void run() {
-                Collect.nearbyEntities(location, ultimateRadius).forEach(entity -> {
-                    if (entity.equals(player)) {
-                        return;
-                    }
-
-                    entity.damage(25.0d, player, EnumDamageCause.RIPTIDE);
-                    entity.playWorldSound(Sound.ENTITY_GENERIC_BIG_FALL, 0.75f);
-                    entity.playWorldSound(Sound.ENTITY_GENERIC_HURT, 1.25f);
-
-                    addRiptide(player, entity, 500, false);
-                });
-
-                // Fx
-                Geometry.drawSphere(location, 10, ultimateRadius, new WorldParticle(Particle.BUBBLE_POP));
-                PlayerLib.playSound(location, Sound.AMBIENT_UNDERWATER_EXIT, 0.0f);
-
-            }
-        }.runTaskLater(10);
+        return UltimateCallback.OK;
     }
 
     @Override

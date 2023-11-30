@@ -8,12 +8,12 @@ import org.bukkit.entity.LivingEntity;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
-import java.util.Random;
 import java.util.function.BiConsumer;
 
 public class Attributes {
 
     protected final Map<AttributeType, Double> mapped;
+    private final AttributeRandom random;
 
     public Attributes(LivingEntity entity) {
         this();
@@ -22,6 +22,7 @@ public class Attributes {
 
     public Attributes() {
         mapped = Maps.newHashMap();
+        random = new AttributeRandom(this);
 
         // write defaults
         for (AttributeType value : AttributeType.values()) {
@@ -54,13 +55,16 @@ public class Attributes {
         return new CriticalResponse(scaledCritical, isCritical);
     }
 
-    public final double scaleCritical(double damage, boolean isCritical) {
-        return isCritical ? damage + (damage * AttributeType.CRIT_DAMAGE.get(this)) : damage;
+    public final boolean calculateDodge() {
+        return random.checkBound(AttributeType.DODGE);
     }
 
     public final boolean isCritical() {
-        final double chance = AttributeType.CRIT_CHANCE.get(this);
-        return chance >= 1.0d || new Random().nextDouble(0.0d, 1.0d) < chance;
+        return random.checkBound(AttributeType.CRIT_CHANCE);
+    }
+
+    public final double scaleCritical(double damage, boolean isCritical) {
+        return isCritical ? damage + (damage * AttributeType.CRIT_DAMAGE.get(this)) : damage;
     }
 
     public void setHealth(double value) {

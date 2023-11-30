@@ -102,6 +102,14 @@ public abstract class GeometryTask extends GameTask {
         offsetXZ(location, distance, 0, callback);
     }
 
+    public void offsetXZCos(@Nonnull Location location, double distance, @Nonnull Callback<Location> callback) {
+        final double[] cos2sin = cos2sin(distance);
+
+        location.add(cos2sin[0], 0, cos2sin[1]);
+        callback.callback(location);
+        location.subtract(cos2sin[0], 0, cos2sin[1]);
+    }
+
     public void offsetXZ(@Nonnull Location location, double distance, double y, @Nonnull Callback<Location> callback) {
         final double[] sin2cos = sin2cos(distance);
 
@@ -197,7 +205,7 @@ public abstract class GeometryTask extends GameTask {
 
     private boolean run0() {
         if (shouldCancel()) {
-            cancelIfActive();
+            cancel();
             return true;
         }
 

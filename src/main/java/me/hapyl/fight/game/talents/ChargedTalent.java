@@ -22,12 +22,17 @@ public class ChargedTalent extends Talent {
     private int rechargeTime;
     private Material noChargedMaterial;
 
-    public ChargedTalent(String name, int maxCharges) {
+    public ChargedTalent(@Nonnull String name, int maxCharges) {
         this(name, "", maxCharges);
     }
 
-    public ChargedTalent(String name, String description, int maxCharges) {
-        super(name, description, Type.COMBAT_CHARGED);
+    public ChargedTalent(@Nonnull String name, @Nonnull String description, int maxCharges) {
+        this(name, description, maxCharges, Type.DAMAGE);
+    }
+
+    public ChargedTalent(@Nonnull String name, @Nonnull String description, int maxCharges, @Nonnull Type type) {
+        super(name, description, type);
+
         this.maxCharges = maxCharges;
         this.data = PlayerMap.newMap();
         this.rechargeTime = -1; // -1 = does not recharge (manual)
@@ -115,8 +120,8 @@ public class ChargedTalent extends Talent {
         this.rechargeTime = i;
     }
 
-    public int getChargedAvailable(GamePlayer player) {
-        return getData(player).getChargedAvailable();
+    public int getChargesAvailable(GamePlayer player) {
+        return getData(player).getChargesAvailable();
     }
 
     public void removeChargeAndStartCooldown(GamePlayer player) {
@@ -221,9 +226,15 @@ public class ChargedTalent extends Talent {
         return Response.AWAIT;
     }
 
-    private ItemStack noChargesItem() {
+    @Nonnull
+    public ItemStack noChargesItem() {
         return ItemBuilder.of(noChargedMaterial, "&cOut of Charged!").build();
     }
 
+    @Nonnull
+    @Override
+    public String getTalentClassType() {
+        return "Charged Talent";
+    }
 }
 

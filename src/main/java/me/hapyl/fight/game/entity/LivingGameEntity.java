@@ -16,6 +16,7 @@ import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
 import me.hapyl.fight.game.entity.cooldown.EntityCooldown;
+import me.hapyl.fight.game.entity.packet.EntityPacketFactory;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.display.BuffDisplay;
 import me.hapyl.fight.game.ui.display.DamageDisplay;
@@ -28,10 +29,8 @@ import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.math.geometry.Draw;
 import me.hapyl.spigotutils.module.player.EffectType;
 import me.hapyl.spigotutils.module.player.PlayerLib;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import net.minecraft.network.protocol.Packet;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.ArmorStand;
@@ -39,6 +38,7 @@ import org.bukkit.entity.Creature;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -55,9 +55,11 @@ public class LivingGameEntity extends GameEntity {
     private static final int FEROCITY_HIT_CD = 9;
 
     protected final EntityData entityData;
+
     private final Set<EnumDamageCause> immunityCauses = Sets.newHashSet();
     private final EntityMetadata metadata;
     private final EntityCooldown cooldown;
+    private final EntityPacketFactory packetFactory;
     private final Random random;
     @Nonnull
     protected EntityAttributes attributes;
@@ -78,6 +80,7 @@ public class LivingGameEntity extends GameEntity {
         this.state = EntityState.ALIVE;
         this.metadata = new EntityMetadata();
         this.cooldown = new EntityCooldown(this);
+        this.packetFactory = new EntityPacketFactory(this);
         this.random = new Random();
         super.base = false;
 
@@ -282,7 +285,7 @@ public class LivingGameEntity extends GameEntity {
     }
 
     public void addPotionEffect(PotionEffectType type, int duration, int amplifier) {
-        entity.addPotionEffect(type.createEffect(duration, amplifier));
+        entity.addPotionEffect(new PotionEffect(type, duration, amplifier, false, false));
     }
 
     public void dieBy(@Nonnull EnumDamageCause cause) {
@@ -457,6 +460,7 @@ public class LivingGameEntity extends GameEntity {
         return entity.getPotionEffect(type);
     }
 
+    @Deprecated/*I hate this*/
     public void addPotionEffect(PotionEffect effect) {
         entity.addPotionEffect(effect);
     }
@@ -505,18 +509,69 @@ public class LivingGameEntity extends GameEntity {
         setTarget(entity == null ? null : entity.getEntity());
     }
 
-    public void spawnWorldParticle(Particle particle, int amount, double x, double y, double z, float speed) {
-        spawnWorldParticle(getLocation(), particle, amount, x, y, z, speed);
-    }
-
-    public void spawnWorldParticle(Location location, Particle particle, int amount, double x, double y, double z, float speed) {
-        PlayerLib.spawnParticle(location, particle, amount, x, y, z, speed);
-    }
-
+    /**
+     * Spawns a particle at this entity location for everyone to see.
+     *
+     * @param particle - Particle.
+     * @param amount   - Amount.
+     */
     public void spawnWorldParticle(Particle particle, int amount) {
         spawnWorldParticle(particle, amount, 0, 0, 0, 0);
     }
 
+    /**
+     * Spawns a particle at this entity location for everyone to see.
+     *
+     * @param particle - Particle.
+     * @param amount   - Amount.
+     * @param x        - X offset.
+     * @param y        - Y offset.
+     * @param z        - Z offset.
+     * @param speed    - Speed.
+     */
+    public void spawnWorldParticle(Particle particle, int amount, double x, double y, double z, float speed) {
+        spawnWorldParticle(getLocation(), particle, amount, x, y, z, speed);
+    }
+
+    /**
+     * Spawns a particle at the given location for everyone to see.
+     *
+     * @param location - Location.
+     * @param particle - Particle.
+     * @param amount   - Amount.
+     * @param x        - X offset.
+     * @param y        - Y offset.
+     * @param z        - Z offset.
+     * @param speed    - Speed.
+     */
+    public void spawnWorldParticle(Location location, Particle particle, int amount, double x, double y, double z, float speed) {
+        PlayerLib.spawnParticle(location, particle, amount, x, y, z, speed);
+    }
+
+    public <T> void spawnWorldParticle(Location location, Particle particle, int amount, double x, double y, double z, T data) {
+        final World world = location.getWorld();
+        if (world == null || particle.getDataType() != data.getClass()) {
+            return;
+        }
+
+        world.spawnParticle(particle, location, amount, x, y, z, data);
+    }
+
+    public void spawnWorldParticle(Location location, Particle particle, int amount) {
+        PlayerLib.spawnParticle(location, particle, amount);
+    }
+
+    /**
+     * Spawns the particle for this entity at the given location.
+     *
+     * @param location - Location.
+     * @param particle - Particle.
+     * @param amount   - Amount.
+     * @param x        - X offset.
+     * @param y        - Y offset.
+     * @param z        - Z offset.
+     * @param speed    - Speed.
+     */
     public void spawnParticle(Location location, Particle particle, int amount, double x, double y, double z, float speed) {
         asPlayer(player -> {
             PlayerLib.spawnParticle(player, location, particle, amount, x, y, z, speed);
@@ -619,8 +674,73 @@ public class LivingGameEntity extends GameEntity {
         getEntity().setMaximumNoDamageTicks(i);
     }
 
+    public void setVisualFire(boolean b) {
+        entity.setVisualFire(b);
+    }
+
+    public void playSoundAndCut(@Nonnull Sound sound, float pitch, int cut) {
+        asPlayer(player -> PlayerLib.playSoundAndCut(player, sound, pitch, cut));
+    }
+
+    public void playHurtSound() {
+        final Sound hurtSound = getEntity().getHurtSound();
+
+        if (hurtSound == null) {
+            return;
+        }
+
+        playWorldSound(hurtSound, 1.0f);
+    }
+
+    public double dot(@Nonnull Location other) {
+        final Vector vector = other.subtract(getLocation()).toVector().normalize();
+
+        return getDirection().normalize().dot(vector);
+    }
+
+    public int getMaxFreezeTicks() {
+        return entity.getMaxFreezeTicks();
+    }
+
+    @Nonnull
+    public Location getMidpointLocation() {
+        return getLocation().add(0, getEyeHeight() / 2, 0);
+    }
+
+    public void playDodgeFx() {
+        final Location location = getLocation();
+
+        final short x = randomShort();
+        final short z = randomShort();
+        final float yaw = location.getYaw();
+        final float pitch = location.getPitch();
+
+        final Packet<?> packet = packetFactory.createRelMovePacket(x, (short) 0, z, yaw, pitch);
+        final Packet<?> syncPacket = packetFactory.createRelMovePacket((short) -x, (short) 0, (short) -z, yaw, pitch);
+
+        packetFactory.sendPacket(packet);
+        packetFactory.sendPacketDelayed(packetFactory.createTeleportPacket(), 2);
+
+        final Location fxLocation = getMidpointLocation();
+
+        // Fx
+        playWorldSound(fxLocation, Sound.ENTITY_ENDER_DRAGON_FLAP, 1.75f);
+        playWorldSound(fxLocation, Sound.ENTITY_WARDEN_LISTENING, 1.75f);
+
+        spawnWorldParticle(fxLocation, Particle.CRIT, 10, 0.25d, 0.25d, 0.25d, 0.25f);
+    }
+
+    @Nonnull
+    public String getScoreboardName() {
+        return uuid.toString();
+    }
+
     private double randomDouble(double origin, double bound) {
         final double value = random.nextDouble(origin, bound);
         return random.nextBoolean() ? value : -value;
+    }
+
+    private short randomShort() {
+        return (short) (randomDouble(0.0d, 1.0d) * 4096);
     }
 }

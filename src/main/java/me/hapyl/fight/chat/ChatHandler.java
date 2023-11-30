@@ -2,6 +2,7 @@ package me.hapyl.fight.chat;
 
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.database.rank.RankFormatter;
+import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.profile.data.PlayerData;
 import me.hapyl.fight.game.profile.relationship.PlayerRelationship;
@@ -28,10 +29,16 @@ public class ChatHandler implements Listener {
     public void handleChat(AsyncPlayerChatEvent ev) {
         final Player player = ev.getPlayer();
         final String message = ev.getMessage();
-        final PlayerProfile profile = PlayerProfile.getOrCreateProfile(player);
+        final PlayerProfile profile = PlayerProfile.getProfile(player);
+
+        if (profile == null) {
+            ev.setCancelled(true);
+            return;
+        }
+
         final PlayerInfraction infractions = profile.getInfractions();
 
-        // Don't actually send the message
+        // Don't send the message
         ev.setCancelled(true);
 
         if (infractions.hasActive(InfractionType.CHAT_MUTE)) {
@@ -53,7 +60,11 @@ public class ChatHandler implements Listener {
         playerData.lastMessage = message;
 
         Bukkit.getOnlinePlayers().forEach(online -> {
-            final PlayerProfile otherProfile = PlayerProfile.getOrCreateProfile(online);
+            final PlayerProfile otherProfile = PlayerProfile.getProfile(online);
+            if (otherProfile == null) {
+                return;
+            }
+
             final PlayerRelationship playerRelationship = otherProfile.getPlayerRelationship();
             final Relationship relationship = playerRelationship.getRelationship(player);
 
@@ -83,7 +94,11 @@ public class ChatHandler implements Listener {
 
     private void formatAndSendMessage(Player sender, String message, Player receiver) {
         // [Dead/Spec] [Class] [Color](Name): Message
-        final PlayerProfile profile = PlayerProfile.getOrCreateProfile(sender);
+        final PlayerProfile profile = PlayerProfile.getProfile(sender);
+        if (profile == null) {
+            return;
+        }
+
         final StringBuilder builder = new StringBuilder(profile.getDisplay().getDisplayName());
 
         // Tag receiver
@@ -102,8 +117,9 @@ public class ChatHandler implements Listener {
             message = Chat.format(message);
         }
 
-        builder.append("&f: ").append(format.textColor()).append(message);
-        Chat.sendMessage(receiver, builder.toString());
+        builder.append(Color.WHITE).append(": ").append(format.textColor()).append(message);
+        receiver.sendMessage(builder.toString());
+        //Chat.sendMessage(receiver, builder.toString());
     }
 
 }

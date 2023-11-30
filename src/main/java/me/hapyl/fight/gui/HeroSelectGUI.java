@@ -10,7 +10,7 @@ import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledItem;
 import me.hapyl.fight.gui.styled.StyledPageGUI;
-import me.hapyl.fight.util.Sortable;
+import me.hapyl.fight.util.Filter;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -20,7 +20,7 @@ import javax.annotation.Nonnull;
 
 public class HeroSelectGUI extends StyledPageGUI<Heroes> {
 
-    private final Sortable<Heroes, Archetype> archetypeSort;
+    private final Filter<Heroes, Archetype> archetypeSort;
 
     public HeroSelectGUI(Player player) {
         this(player, 1);
@@ -29,7 +29,7 @@ public class HeroSelectGUI extends StyledPageGUI<Heroes> {
     public HeroSelectGUI(Player player, int startPage) {
         super(player, "Hero Selection", Size.FOUR);
 
-        this.archetypeSort = new Sortable<>(Archetype.class, Archetype.NOT_SET) {
+        this.archetypeSort = new Filter<>(Archetype.class, Archetype.NOT_SET) {
             @Override
             public boolean isKeep(@Nonnull Heroes heroes, @Nonnull Archetype archetype) {
                 return heroes.getHero().getArchetype() == archetype;
@@ -47,7 +47,7 @@ public class HeroSelectGUI extends StyledPageGUI<Heroes> {
         setHeader(LobbyItems.HERO_SELECT.getItem().getItemStack());
 
         // Add sort button
-        archetypeSort.setSortItem(this, 39, (onClick, sort) -> {
+        archetypeSort.setFilterItem(this, 39, (onClick, sort) -> {
             updateContents();
             update();
         });
@@ -95,7 +95,7 @@ public class HeroSelectGUI extends StyledPageGUI<Heroes> {
     }
 
     private void updateContents() {
-        setContents(archetypeSort.sort(Heroes.playableRespectLockedFavourites(player)));
+        setContents(archetypeSort.filter(Heroes.playableRespectLockedFavourites(player)));
     }
 
 }

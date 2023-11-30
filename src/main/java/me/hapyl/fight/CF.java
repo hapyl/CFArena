@@ -14,6 +14,7 @@ import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.entity.Entities;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -87,7 +88,7 @@ public final class CF {
     }
 
     @Nullable
-    public static LivingGameEntity getEntity(@Nullable LivingEntity entity) {
+    public static LivingGameEntity getEntity(@Nullable Entity entity) {
         if (entity == null) {
             return null;
         }

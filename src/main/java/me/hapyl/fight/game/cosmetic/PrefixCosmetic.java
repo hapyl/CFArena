@@ -34,7 +34,8 @@ public class PrefixCosmetic extends Cosmetic {
     }
 
     public String getPrefixPreview(Player player) {
-        return PlayerProfile.getOrCreateProfile(player).getDisplay().getPrefixPreview(this);
+        final PlayerProfile profile = PlayerProfile.getProfile(player);
+        return profile != null ? profile.getDisplay().getPrefixPreview(this) : "NO_PROFILE";
     }
 
     @Override

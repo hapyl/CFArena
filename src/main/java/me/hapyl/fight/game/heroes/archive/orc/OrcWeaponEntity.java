@@ -189,7 +189,7 @@ public abstract class OrcWeaponEntity extends GameTask {
     }
 
     public void remove() {
-        cancelIfActive();
+        cancel();
         entity.remove();
         aliveTicks = -1;
     }

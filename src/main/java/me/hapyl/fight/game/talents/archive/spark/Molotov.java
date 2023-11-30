@@ -33,11 +33,14 @@ public class Molotov extends Talent implements Listener {
 
     public Molotov() {
         super(
-                "Hot Hands",
-                "Throw a fireball of fire in front of you. Sets ground on fire upon landing, damaging enemies and healing yourself.",
-                Type.COMBAT
+                "Hot Hands", """
+                        Throw a fireball in front of you that flies for maximum of &b{maximumAirTime}&7.
+                                                
+                        Upon landing, set the ground of &efire&7, &cdamaging&7 enemies and &ahealing&7 yourself.
+                        """
         );
 
+        setType(Type.DAMAGE);
         setItem(Material.FIRE_CHARGE);
         setCooldown(700);
     }
@@ -47,26 +50,23 @@ public class Molotov extends Talent implements Listener {
         final Location location = player.getEyeLocation();
         final Vector vector = location.getDirection().add(new Vector(0.0d, 0.25, 0.0d));
 
-        if (location.getWorld() == null) {
-            return Response.error("world is null");
-        }
-
-        final Item item = location.getWorld().dropItem(location, new ItemStack(Material.HONEYCOMB));
-        item.setPickupDelay(5000);
-        item.setTicksLived(5800);
-        item.setVelocity(vector.multiply(1.5d));
+        final Item item = player.getWorld().dropItem(location, new ItemStack(Material.HONEYCOMB), self -> {
+            self.setPickupDelay(5000);
+            self.setTicksLived(5800);
+            self.setVelocity(vector.multiply(1.5d));
+        });
 
         new GameTask() {
             private int flightTick = maximumAirTime;
 
             @Override
             public void run() {
-                // fly down if in the air for 3s or more
+                // Fly down if in the air for 3s or more
                 if (flightTick-- <= 0) {
                     item.setVelocity(new Vector(0.0d, -0.25d, 0.0d));
                 }
 
-                // spawn molotov
+                // Spawn molotov
                 if (item.isDead() || item.isOnGround()) {
                     item.remove();
                     startMolotovTask(item.getLocation(), player);
@@ -74,7 +74,7 @@ public class Molotov extends Talent implements Listener {
                     return;
                 }
 
-                // fx
+                // Fx
                 PlayerLib.spawnParticle(item.getLocation(), Particle.FLAME, 1, 0, 0, 0, 0);
             }
         }.runTaskTimer(0, 1);
@@ -91,7 +91,7 @@ public class Molotov extends Talent implements Listener {
             @Override
             public void run() {
                 if (molotovTime-- < 0) {
-                    this.cancel();
+                    cancel();
                     return;
                 }
 

@@ -4,12 +4,13 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.HeroReference;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.talents.archive.vortex.AstralStar;
+import me.hapyl.fight.game.talents.archive.vortex.AstralStars;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.game.weapons.ability.Ability;
 import me.hapyl.fight.game.weapons.ability.AbilityType;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -21,6 +22,9 @@ import javax.annotation.Nullable;
 
 public class VortexWeapon extends Weapon implements HeroReference<Vortex> {
 
+    @DisplayField private final double explosionDistance = 5.0d;
+    @DisplayField private final double explosionDamage = 15.0d;
+
     private final Vortex hero;
 
     public VortexWeapon(Vortex vortex) {
@@ -29,67 +33,64 @@ public class VortexWeapon extends Weapon implements HeroReference<Vortex> {
         this.hero = vortex;
 
         setName("Sword of Thousands Stars");
+        setDescription("A sword with an astral link to the stars.");
         setId("sots_weapon");
-        setDescription("""
-                A sword with the ability to summon thousands of stars.
-                """);
         setDamage(6.5d);
 
-        setAbility(AbilityType.RIGHT_CLICK, new VortexSlash());
-    }
-
-    public class VortexSlash extends Ability {
-        public VortexSlash() {
-            super(
-                    "Vortex Slash",
-                    "Launch vortex energy forward that &bfollows your crosshair&7 and rapidly damages and knock enemies back."
-            );
-            setCooldown(hero.sotsCooldown);
-        }
-
-        @Nullable
-        @Override
-        public Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
-            final Location location = player.getEyeLocation();
-            startCooldown(player, 100000);
-
-            new GameTask() {
-                private final double distanceShift = 0.5d;
-                private final double maxDistance = 100;
-                private double distanceFlew = 0.0d;
-
-                @Override
-                public void run() {
-                    final Location nextLocation = location.add(player.getEyeLocation().getDirection().multiply(distanceShift));
-                    PlayerLib.spawnParticle(nextLocation, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0);
-
-                    if ((distanceFlew % 5) == 0) {
-                        PlayerLib.playSound(nextLocation, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.25f);
-                    }
-
-                    Collect.nearbyEntities(nextLocation, 2.0d).forEach(entity -> {
-                        if (entity.equals(player)) {
-                            return;
-                        }
-
-                        entity.damageTick(hero.sotsDamage, player, EnumDamageCause.SOTS, 0);
-                    });
-
-                    if (((distanceFlew += distanceShift) >= maxDistance) || nextLocation.getBlock().getType().isOccluding()) {
-                        startCooldown(player);
-                        cancel();
-                    }
-
-                }
-            }.runTaskTimer(0, 1);
-
-            return Response.AWAIT;
-        }
+        setAbility(AbilityType.RIGHT_CLICK, new SotsAbility());
     }
 
     @Nonnull
     @Override
     public Vortex getHero() {
         return hero;
+    }
+
+    public class SotsAbility extends Ability {
+        public SotsAbility() {
+            super(
+                    "Astral Despair", """
+                            Focus on the target &eAstral Star&7 and explode it, dealing &cAoE damage&7.
+                            """
+            );
+
+            setCooldownSec(6);
+        }
+
+        @Nullable
+        @Override
+        public Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
+            final AstralStars stars = hero.getSecondTalent().getStars(player);
+            final AstralStar targetStar = stars.getTargetStar();
+
+            if (targetStar == null) {
+                return Response.error("Not targeting a star!");
+            }
+
+            final Location location = targetStar.getLocation();
+
+            stars.removeStar(targetStar);
+            Collect.nearbyEntities(location, explosionDistance).forEach(entity -> {
+                entity.damage(explosionDamage, player, EnumDamageCause.SOTS);
+            });
+
+            // Fx
+            player.spawnWorldParticle(location, Particle.EXPLOSION_LARGE, 10, 0, 0, 0, 1);
+            player.spawnWorldParticle(location, Particle.CRIT, 10, 0.5d, 0.5d, 0.5d, 0.025f);
+            player.spawnWorldParticle(
+                    location,
+                    Particle.SWEEP_ATTACK,
+                    10,
+                    0.5d,
+                    0.5d,
+                    0.5d,
+                    2f/* I think speed is size for SWEEP_ATTACK */
+            );
+
+            player.playWorldSound(location, Sound.ENTITY_BLAZE_HURT, 0.0f);
+            player.playWorldSound(location, Sound.BLOCK_BELL_USE, 0.75f);
+
+            return Response.OK;
+        }
     }
 }
