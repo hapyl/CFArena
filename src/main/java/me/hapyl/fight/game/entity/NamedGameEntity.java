@@ -152,6 +152,10 @@ public class NamedGameEntity<T extends LivingEntity> extends LivingGameEntity {
         return tick;
     }
 
+    public void schedule(Runnable run, int delay) {
+        GameTask.runLater(run, delay);
+    }
+
     /**
      * Allows listening to event for this specific entity.
      *

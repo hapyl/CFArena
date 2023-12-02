@@ -10,7 +10,6 @@ import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -49,7 +48,7 @@ public class TakerHook {
         final Vector vector = location.getDirection().normalize();
 
         player.addPotionEffect(PotionEffectType.SLOW, 10000, 10);
-        player.getMetadata().CAN_MOVE.setValue(false);
+        player.getMetadata().canMove.setValue(false);
 
         taskExtend = new GameTask() {
             private double step = 0.0d;
@@ -78,7 +77,7 @@ public class TakerHook {
 
                 location.add(x, y, z);
 
-                if (!location.getBlock().getType().isAir()) {
+                if (location.getBlock().getType().isOccluding()) {
                     contract();
                     return;
                 }
@@ -86,7 +85,7 @@ public class TakerHook {
                 final LivingGameEntity nearest = Collect.nearestEntity(location, 1.5d, player);
 
                 if (nearest != null) {
-                    if (nearest.getMetadata().CC_AFFECT.isFalseAndNotify(player)) {
+                    if (nearest.getMetadata().ccAffect.isFalseAndNotify(player)) {
                         contract();
                         return;
                     }
@@ -95,7 +94,7 @@ public class TakerHook {
                     double health = hooked.getHealth();
 
                     nearest.sendMessage(
-                            "&4☠ &cOuch! %s hooked you and you lost &e%s%%&c of you health!",
+                            "&4☠ &cOuch! %s hooked you, and you lost &e%s%%&c of your health!",
                             player.getName(),
                             talent().damagePercent
                     );
@@ -130,7 +129,7 @@ public class TakerHook {
         player.removePotionEffect(PotionEffectType.SLOW);
         player.removePotionEffect(PotionEffectType.JUMP);
 
-        player.getMetadata().CAN_MOVE.setValue(true);
+        player.getMetadata().canMove.setValue(true);
     }
 
     private void contract() {
@@ -142,7 +141,7 @@ public class TakerHook {
             public void run() {
                 if (chains.isEmpty()) {
                     player.removePotionEffect(PotionEffectType.SLOW);
-                    player.getMetadata().CAN_MOVE.setValue(true);
+                    player.getMetadata().canMove.setValue(true);
 
                     chains.clear();
                     cancel();
@@ -174,10 +173,10 @@ public class TakerHook {
                     hooked.teleport(teleportLocation);
                 }
 
-                //PlayerLib.spawnParticle(location, Particle.CRIT, 1);
-                PlayerLib.playSound(location, Sound.BLOCK_CHAIN_BREAK, 1.0f);
-
                 last.remove();
+
+                // Fx
+                player.playWorldSound(location, Sound.BLOCK_CHAIN_BREAK, 1.0f);
             }
         }.runTaskTimer(0, 1);
 
@@ -198,6 +197,6 @@ public class TakerHook {
             });
         }));
 
-        PlayerLib.playSound(location, Sound.BLOCK_CHAIN_PLACE, 1.0f);
+        player.playWorldSound(location, Sound.BLOCK_CHAIN_PLACE, 1.0f);
     }
 }

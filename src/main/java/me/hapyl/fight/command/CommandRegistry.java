@@ -1328,15 +1328,21 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 }
 
                 final Temper temper = getArgument(args, 0).toEnum(Temper.class);
-                final double value = getArgument(args, 1).toDouble(0.2d);
-                final int duration = getArgument(args, 2).toInt(100);
+                final AttributeType attributeType = getArgument(args, 1).toEnum(AttributeType.class);
+                final double value = getArgument(args, 2).toDouble(0.2d);
+                final int duration = getArgument(args, 3).toInt(100);
+
+                if (attributeType == null) {
+                    Message.error(player, "Invalid type!");
+                    return;
+                }
 
                 if (temper == null) {
                     Message.error(player, "Invalid temper!");
                     return;
                 }
 
-                temper.temper(gamePlayer, value, duration);
+                temper.temper(gamePlayer, attributeType, value, duration);
                 Chat.sendMessage(player, "&aDone!");
             }
 

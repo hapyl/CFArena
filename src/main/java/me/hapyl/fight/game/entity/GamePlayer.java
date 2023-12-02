@@ -1180,6 +1180,30 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         return anchorLocation(location);
     }
 
+    /**
+     * Schedules a delayed {@link PlayerGameTask}.
+     *
+     * @param consumer - Consumer.
+     * @param delay    - Delay in ticks.
+     */
+    public void schedule(@Nonnull Consumer<GamePlayer> consumer, int delay) {
+        schedule(() -> consumer.accept(GamePlayer.this), delay);
+    }
+
+    public void schedule(@Nonnull Runnable runnable, int delay) {
+        new PlayerGameTask(this) {
+            @Override
+            public void run() {
+                runnable.run();
+            }
+        }.runTaskLater(delay);
+    }
+
+    @Nonnull
+    public ItemStack getHeldItem() {
+        return getInventory().getItemInMainHand();
+    }
+
     private List<Block> getBlocksRelative(BiFunction<Location, World, Boolean> fn, Consumer<Location> consumer) {
         final List<Block> blocks = Lists.newArrayList();
         final Location location = getEyeLocation();

@@ -3,6 +3,7 @@ package me.hapyl.fight.game.talents.archive.pytaria;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.TimedGameTask;
@@ -36,6 +37,10 @@ public class FlowerBreeze extends Talent {
             Material.CORNFLOWER,
             Material.AZURE_BLUET
     };
+    private final TemperInstance temper =
+            Temper.FLOWER_BREEZE.newInstance("Flower Breeze")
+                    .increase(AttributeType.ATTACK, attackIncrease)
+                    .increase(AttributeType.DEFENSE, defenseIncrease);
 
     public FlowerBreeze() {
         super("Flower Breeze", """
@@ -60,7 +65,7 @@ public class FlowerBreeze extends Talent {
 
         // can't go lower than 1 heart
         player.setHealth(Math.max(2, player.getHealth() - healthSacrifice));
-        Temper.FLOWER_BREEZE.temper(player.getAttributes());
+        temper.temper(player, getDuration());
 
         // Fx
         new TimedGameTask(20) {

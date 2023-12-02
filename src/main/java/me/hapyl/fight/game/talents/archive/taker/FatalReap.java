@@ -1,15 +1,14 @@
 package me.hapyl.fight.game.talents.archive.taker;
 
 import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.taker.Taker;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -28,10 +27,10 @@ public class FatalReap extends Talent {
         super("Fatal Reap");
 
         setDescription("""
-                Instantly charge opponents' bones with a powerful scythe swipe and unleash a devastating attack that shatters their bones, dealing &c{damagePercent}&7 of their current health as damage.
+                Instantly swipe your scythe to unleash a &8devastating attack&7 that shatters your opponents' &fbones&7, dealing &c{damagePercent}&7 of their &c&ncurrent health&7 as &4damage&7.
                                 
-                &6;;Convert &b{spiritualBoneGeneration}&6 broken bones directly into &eSpiritual Bones&6.
-                """);
+                Convert &b{spiritualBoneGeneration}&7 broken bones directly into %s.
+                """, Named.SPIRITUAL_BONES);
 
         setItem(Material.NETHERITE_HOE);
         setCooldownSec(12);
@@ -43,16 +42,16 @@ public class FatalReap extends Talent {
             final Location location = calculateLocation(player.getEyeLocation(), d);
 
             Collect.nearbyEntities(location, 1.0d).forEach(victim -> {
-                if (GameTeam.isSelfOrTeammate(player.getPlayer(), victim.getEntity())) {
+                if (player.isSelfOrTeammate(victim)) {
                     return;
                 }
 
                 final double health = victim.getHealth();
-                final double damage = Math.min(health * 0.2d, 100.0d);
+                final double damage = Math.min(health * (damagePercent / 100), victim.getMaxHealth() / 2);
                 victim.damage(damage, player, EnumDamageCause.RIP_BONES);
             });
 
-            PlayerLib.spawnParticle(location, Particle.SWEEP_ATTACK, 1, 0.0f, 0.0f, 0.0f, 0.0f);
+            player.spawnWorldParticle(location, Particle.SWEEP_ATTACK, 1, 0.0f, 0.0f, 0.0f, 0.0f);
         }
 
         Heroes.TAKER.getHero(Taker.class).getBones(player).add(spiritualBoneGeneration, true);

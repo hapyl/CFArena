@@ -5,7 +5,6 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.effect.GameEffectType;
-import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.garbage.CFGarbageCollector;
 import me.hapyl.fight.util.CFUtils;
@@ -377,12 +376,18 @@ public class GameEntity {
     }
 
     @Nonnull
+    public Location getLocationInFrontFromEyes(double offset) {
+        return LocationHelper.getInFront(getEyeLocation(), offset);
+    }
+
+    @Nonnull
     public Location getLocationBehind(double multiply) {
         return LocationHelper.getBehind(getLocation(), multiply);
     }
 
-    public void schedule(Runnable run, int delay) {
-        GameTask.runLater(run, delay);
+    @Nonnull
+    public Location getLocationBehindFromEyes(double offset) {
+        return LocationHelper.getBehind(getEyeLocation(), offset);
     }
 
     @Nonnull

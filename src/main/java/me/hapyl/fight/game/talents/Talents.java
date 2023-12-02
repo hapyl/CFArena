@@ -318,7 +318,9 @@ public enum Talents {
             You emmit a &bchill aura&7, that &bslows&7 enemies in small AoE.
             """, Material.LIGHT_BLUE_DYE)),
 
-    // Dark Mage
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.dark_mage.DarkMage}
+     */
     BLINDING_CURSE(new BlindingCurse()),
     SLOWING_AURA(new SlowingAura()),
     HEALING_AURA(new HealingAura()),
@@ -342,12 +344,16 @@ public enum Talents {
     NINJA_DASH(new NinjaDash()),
     NINJA_SMOKE(new NinjaSmoke()),
     FLEET_FOOT(new PassiveTalent(
-            "Fleet Foot",
-            "Ninjas are fast and fragile.____You gain &bSpeed &7boost and don't take fall damage.",
-            Material.ELYTRA
+            "Ninja Style", """
+            Ninjas are fast and agile.
+                        
+            You gain %s &7boost, can &bdouble jump&7 and don't take &3fall&7 damage!
+            """.formatted(AttributeType.SPEED), Material.ELYTRA
     )),
 
-    // Taker
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.taker.Taker}
+     */
     FATAL_REAP(new FatalReap()),
     DEATH_SWAP(new DeathSwap()),
     SPIRITUAL_BONES(new SpiritualBonesPassive()),

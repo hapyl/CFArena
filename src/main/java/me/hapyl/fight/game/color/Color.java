@@ -63,6 +63,13 @@ public class Color {
     public static final Color PURPLE_SHADOW = new Color("#800080");
     public static final Color NAVY_BLUE = new Color("#001F3F");
     public static final Color MEDIUM_STALE_BLUE = new Color("#7B68EE");
+    public static final Color ICY_BLUE = new Color("#a6e3e9");
+    public static final Color FROSTY_GRAY = new Color("#d3d3d3");
+    public static final Color SILVER = new Color("#c0c0c0");
+    public static final Color ARCTIC_TEAL = new Color("#00ced1");
+    public static final Color WHITE_BLUE_GRAY = new Color("#a1b5d6").setFlags(ColorFlag.BOLD);
+
+    // *-----------------------------------------------------*
 
     public final ChatColor color;
     // Backing 'bukkitChatColor' is needed for teams;
@@ -107,6 +114,13 @@ public class Color {
 
         final java.awt.Color javaColor = color.getColor();
         this.bukkitColor = org.bukkit.Color.fromRGB(javaColor.getRed(), javaColor.getGreen(), javaColor.getBlue());
+    }
+
+    private Color(Color color) {
+        this.color = color.color;
+        this.flags = color.flags;
+        this.bukkitColor = color.bukkitColor;
+        this.bukkitChatColor = color.bukkitChatColor;
     }
 
     /**

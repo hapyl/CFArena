@@ -2,6 +2,7 @@ package me.hapyl.fight.game.entity;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.entity.Entities;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
@@ -80,6 +81,10 @@ public class MultiPartLivingGameEntity<T extends LivingEntity> extends NamedGame
         @Deprecated
         public LivingGameEntity getGameEntity() {
             return MultiPartLivingGameEntity.this;
+        }
+
+        public void schedule(Runnable run, int delay) {
+            GameTask.runLater(run, delay);
         }
     }
 }

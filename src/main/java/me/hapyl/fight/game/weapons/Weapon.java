@@ -13,6 +13,7 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.weapons.ability.Ability;
 import me.hapyl.fight.game.weapons.ability.AbilityType;
 import me.hapyl.fight.util.CFUtils;
+import me.hapyl.fight.util.Copyable;
 import me.hapyl.fight.util.Described;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -30,7 +31,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
 
-public class Weapon extends NonNullItemCreator implements Cloneable, Described, DisplayFieldProvider {
+public class Weapon extends NonNullItemCreator implements Described, DisplayFieldProvider, Copyable {
 
     private final Map<AbilityType, Ability> abilities;
     private final List<Enchant> enchants;
@@ -155,17 +156,6 @@ public class Weapon extends NonNullItemCreator implements Cloneable, Described, 
         return this;
     }
 
-    @Override
-    public Weapon clone() {
-        try {
-            super.clone();
-            return new Weapon(this.material).setName(this.name).setDescription(this.description).setDamage(this.damage)
-                    .setId(this.id);
-        } catch (Exception ignored) {
-        }
-        return new Weapon(Material.BEDROCK);
-    }
-
     @Nonnull
     public Material getType() {
         return item == null ? Material.AIR : item.getType();
@@ -204,49 +194,52 @@ public class Weapon extends NonNullItemCreator implements Cloneable, Described, 
             builder.addLore().addSmartLore(lore, "&8&o");
         }
 
-        // Add click events
-        if (id != null) {
-            for (AbilityType type : AbilityType.values()) {
-                final Ability ability = abilities.get(type);
-                if (ability == null) {
-                    continue;
-                }
+        // Display abilities
+        // Note that RIGHT CLICK and LEFT CLICK abilities REQUIRE id's
+        for (AbilityType type : AbilityType.values()) {
+            final Ability ability = abilities.get(type);
+            if (ability == null) {
+                continue;
+            }
 
+            builder.addLore();
+            builder.addLore("&eAbility: " + ability.getName() + Color.BUTTON.bold() + " " + type.toString());
+
+            String description = ability.getDescription();
+
+            description = StaticFormat.COOLDOWN.format(description, ability);
+            description = StaticFormat.DURATION.format(description, ability);
+            description = description.replace("%", "%%"); // YEP KOK
+
+            builder.addTextBlockLore(description);
+
+            final int duration = ability.getDuration();
+            final int cooldown = ability.getCooldown();
+
+            if (duration > 0 || cooldown > 0) {
                 builder.addLore();
-                builder.addLore("&eAbility: " + ability.getName() + Color.BUTTON.bold() + " " + type.toString());
+            }
 
-                String description = ability.getDescription();
+            builder.addLoreIf("&f&m•&f &7Cooldown: &f&l" + CFUtils.decimalFormatTick(cooldown), cooldown > 0);
+            builder.addLoreIf("&f&m•&f &7Duration: &f&l" + CFUtils.decimalFormatTick(duration), duration > 0);
 
-                description = StaticFormat.COOLDOWN.format(description, ability);
-                description = StaticFormat.DURATION.format(description, ability);
-                description = description.replace("%", "%%"); // YEP KOK
-
-                builder.addTextBlockLore(description);
-
-                final int duration = ability.getDuration();
-                final int cooldown = ability.getCooldown();
-
-                if (duration > 0 || cooldown > 0) {
-                    builder.addLore();
+            final Action[] clickTypes = type.getClickTypes();
+            if (clickTypes != null) {
+                if (id == null) {
+                    throw new IllegalArgumentException("Ability for weapon '%s' is set, but the weapon is missing Id!".formatted(getName()));
                 }
 
-                builder.addLoreIf("&f&m•&f &7Cooldown: &f&l" + CFUtils.decimalFormatTick(cooldown), cooldown > 0);
-                builder.addLoreIf("&f&m•&f &7Duration: &f&l" + CFUtils.decimalFormatTick(duration), duration > 0);
+                builder.addClickEvent(player -> {
+                    final GamePlayer gamePlayer = CF.getPlayer(player);
 
-                final Action[] clickTypes = type.getClickTypes();
-                if (clickTypes != null) {
-                    builder.addClickEvent(player -> {
-                        final GamePlayer gamePlayer = CF.getPlayer(player);
+                    if (gamePlayer == null) {
+                        return;
+                    }
 
-                        if (gamePlayer == null) {
-                            return;
-                        }
-
-                        Talent.preconditionTalentAnd(gamePlayer)
-                                .ifTrue((pl, rs) -> ability.execute0(pl, pl.getInventory().getItemInMainHand()))
-                                .ifFalse((pl, rs) -> rs.sendError(pl));
-                    }, clickTypes);
-                }
+                    Talent.preconditionTalentAnd(gamePlayer)
+                            .ifTrue((pl, rs) -> ability.execute0(pl, pl.getInventory().getItemInMainHand()))
+                            .ifFalse((pl, rs) -> rs.sendError(pl));
+                }, clickTypes);
             }
         }
 
@@ -316,6 +309,24 @@ public class Weapon extends NonNullItemCreator implements Cloneable, Described, 
 
     public boolean hasAbilities() {
         return !abilities.isEmpty();
+    }
+
+    public void clearAbilities() {
+        abilities.clear();
+    }
+
+    /**
+     * Create a copy of this weapon.
+     * <p>
+     * {@link #id} and {@link #abilities} are <b>not</b> copied!
+     */
+    @Nonnull
+    public Weapon createCopy() {
+        return new Weapon(material)
+                .setName(name)
+                .setDescription(description)
+                .setDamage(damage)
+                .setAttackSpeed(attackSpeed);
     }
 
     private void addDynamicLore(@Nonnull ItemBuilder builder, @Nonnull String string, @Nonnull Number number, Function<Number, String> function) {

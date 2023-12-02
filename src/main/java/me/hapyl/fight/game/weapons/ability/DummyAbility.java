@@ -8,13 +8,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class DummyAbility extends Ability {
-    public DummyAbility(@Nonnull String name, @Nonnull String description) {
-        super(name, description);
+    public DummyAbility(@Nonnull String name, @Nonnull String description, @Nullable Object... format) {
+        super(name, description, format);
     }
 
-    @Nullable
     @Override
-    public Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
+    public final Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
         return Response.OK;
     }
 

@@ -38,7 +38,7 @@ public final class EntityData {
     private double lastDamage;
     private boolean isCrit;
 
-    @Important("Notifies the event that the damage is custom, not vanilla.")
+    @Important(why = "Notifies the event that the damage is custom, not vanilla.")
     boolean wasHit;
 
     public EntityData(@Nonnull LivingGameEntity entity) {

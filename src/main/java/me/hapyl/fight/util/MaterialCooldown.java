@@ -1,6 +1,7 @@
 package me.hapyl.fight.util;
 
 import me.hapyl.fight.game.Debug;
+import me.hapyl.fight.game.entity.GamePlayer;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -17,12 +18,34 @@ public interface MaterialCooldown {
         player.setCooldown(getCooldownMaterial0(), getCooldown0());
     }
 
+    default void startCooldown(@Nonnull GamePlayer player) {
+        startCooldown(player.getPlayer());
+    }
+
     default boolean hasCooldown(@Nonnull Player player) {
         return player.hasCooldown(getCooldownMaterial0());
     }
 
+    default boolean hasCooldown(@Nonnull GamePlayer player) {
+        return hasCooldown(player.getPlayer());
+    }
+
     default int getCooldown(@Nonnull Player player) {
         return player.getCooldown(getCooldownMaterial0());
+    }
+
+    default int getCooldown(@Nonnull GamePlayer player) {
+        return getCooldown(player.getPlayer());
+    }
+
+    @Nonnull
+    default String getCooldownFormatted(@Nonnull Player player) {
+        return CFUtils.decimalFormatTick(getCooldown(player));
+    }
+
+    @Nonnull
+    default String getCooldownFormatted(@Nonnull GamePlayer player) {
+        return getCooldownFormatted(player.getPlayer());
     }
 
     private Material getCooldownMaterial0() {

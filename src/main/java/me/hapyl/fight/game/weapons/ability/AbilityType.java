@@ -25,11 +25,21 @@ public enum AbilityType {
             return clicks;
         }
     },
-    @Deprecated HELD;
+
+    @Deprecated HELD,
+    BACK_STAB,
+    ATTACK,
+    ;
+
+    private final String name;
+
+    AbilityType() {
+        name = Chat.capitalize(this).toUpperCase();
+    }
 
     @Override
     public String toString() {
-        return Chat.capitalize(this).toUpperCase();
+        return name;
     }
 
     @Nullable

@@ -26,8 +26,6 @@ import me.hapyl.spigotutils.module.math.nn.IntInt;
 import me.hapyl.spigotutils.module.player.song.Song;
 import me.hapyl.spigotutils.module.player.song.SongPlayer;
 import me.hapyl.spigotutils.module.scoreboard.Scoreboarder;
-import net.minecraft.server.MinecraftServer;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -35,11 +33,15 @@ import org.bukkit.scoreboard.DisplaySlot;
 
 import javax.annotation.Nonnull;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 /**
  * This controls all UI-based elements such as scoreboard, tab-list, and actionbar (while in game).
  */
 public class GamePlayerUI extends GameTask {
+
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yy");
 
     private final PlayerProfile profile;
     private final Player player;
@@ -48,7 +50,6 @@ public class GamePlayerUI extends GameTask {
     private final String[] clocks = {
             "🕛", "🕐", "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕚"
     };
-
     private int tick;
     private int clock;
 
@@ -231,6 +232,11 @@ public class GamePlayerUI extends GameTask {
     }
 
     @Nonnull
+    public String getDateFormatted() {
+        return DATE_FORMAT.format(LocalDate.now());
+    }
+
+    @Nonnull
     public Player getPlayer() {
         return player;
     }
@@ -345,20 +351,59 @@ public class GamePlayerUI extends GameTask {
             ));
         }
 
-        footer.append("\n&ehapyl.github.io/classes_fight");
+        footer.append("\n");
+        footer.append(Season.WINTER.format(Color.ICY_BLUE, Color.FROSTY_GRAY, Color.ARCTIC_TEAL, Color.SILVER))
+                .append(" ")
+                .append(Season.WINTER.format(Color.SILVER, Color.ARCTIC_TEAL, Color.FROSTY_GRAY, Color.ICY_BLUE));
 
         return new String[] {
                 """
                                        
                         %s
+                        &8%s
                                                 
-                        &fPlayers: &l%s&f, TPS: &l%.1f
+                        &7ᴘʟᴀʏᴇʀs: &f%s&7, ᴛᴘs: &f%.0f
                         """.formatted(
-                        Main.GAME_NAME,
-                        Bukkit.getOnlinePlayers().size(),
-                        MinecraftServer.getServer().recentTps[0]
+                        CF.getName(),
+                        CF.getVersion(),
+                        CF.getOnlinePlayerCount(),
+                        CF.getTps()
                 ),
                 footer.toString()
         };
     }
+
+    private enum Season {
+        WINTER("❄");
+
+        private final String string;
+
+        Season(String string) {
+            this.string = string;
+        }
+
+        @Nonnull
+        public String format(@Nonnull Color... colors) {
+            final StringBuilder builder = new StringBuilder();
+            for (Color color : colors) {
+                builder.append(color).append(string);
+            }
+
+            return builder.toString();
+        }
+
+        @Nonnull
+        public String formatBackAndForth(@Nonnull Color... colors) {
+            final StringBuilder builder = new StringBuilder();
+            builder.append(format(colors));
+
+            for (int i = colors.length - 1; i >= 0; i--) {
+                builder.append(colors[i]).append(string);
+            }
+
+            return builder.toString();
+        }
+
+    }
+
 }

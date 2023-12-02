@@ -47,7 +47,7 @@ public final class AttributeTemperTable {
             @Override
             public void run() {
                 remove(temper, type);
-                type.attribute.update(attributes.getGameEntity(), attributes.get(type));
+                type.attribute.update(attributes.getEntity(), attributes.get(type));
             }
         });
     }
@@ -97,6 +97,10 @@ public final class AttributeTemperTable {
 
     public boolean has(Temper temper) {
         return tempers.containsRow(temper);
+    }
+
+    public boolean has(Temper temper, AttributeType type) {
+        return tempers.contains(temper, type);
     }
 
     public void cancelAll() {

@@ -193,6 +193,10 @@ public class PlayerProfile {
         return gamePlayer;
     }
 
+    public boolean isHidden() {
+        return false;
+    }
+
     private void createTraceDump(RuntimeException exception) {
         final StackTraceElement[] stackTrace = exception.getStackTrace();
         final Deque<String> deque = Queues.newArrayDeque();

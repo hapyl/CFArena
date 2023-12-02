@@ -517,7 +517,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      * @param damage - Damage dealt.
      * @return true to cancel damage, false to allow.
      */
-    public boolean processInvisibilityDamage(GamePlayer player, LivingGameEntity entity, double damage) {
+    public boolean processInvisibilityDamage(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity, double damage) {
         player.sendMessage("&cCannot deal damage while invisible!");
         return true;
     }

@@ -2,7 +2,7 @@ package me.hapyl.fight.game.entity;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.annotate.PreconditionMethod;
+import me.hapyl.fight.annotate.PreprocessingMethod;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
@@ -128,12 +128,12 @@ public class LivingGameEntity extends GameEntity {
      */
     @Deprecated
     public boolean canMove() {
-        return metadata.CAN_MOVE.getValue();
+        return metadata.canMove.getValue();
     }
 
     @Deprecated
     public void setCanMove(boolean canMove) {
-        metadata.CAN_MOVE.setValue(canMove);
+        metadata.canMove.setValue(canMove);
     }
 
     @Nonnull
@@ -327,7 +327,7 @@ public class LivingGameEntity extends GameEntity {
         }
     }
 
-    @PreconditionMethod
+    @PreprocessingMethod
     @Nullable
     public final DamageOutput onDamageTaken0(@Nonnull DamageInput input) {
         final EnumDamageCause cause = input.getDamageCause();
@@ -350,7 +350,7 @@ public class LivingGameEntity extends GameEntity {
         return null;
     }
 
-    @PreconditionMethod
+    @PreprocessingMethod
     @Nullable
     public final DamageOutput onDamageDealt0(DamageInput input) {
         return onDamageDealt(input);

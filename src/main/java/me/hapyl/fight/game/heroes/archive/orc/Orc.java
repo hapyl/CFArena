@@ -9,6 +9,7 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
@@ -45,6 +46,13 @@ public class Orc extends Hero implements Listener {
     private final PlayerMap<DamageData> damageMap = PlayerMap.newMap();
     private final Set<PotionEffectType> negativeEffects = Sets.newHashSet();
     private final Set<Player> awaitEffectChange = Sets.newHashSet();
+    private final TemperInstance berserk =
+            Temper.BERSERK_MODE.newInstance(Named.BERSERK.toString())
+                    .increase(AttributeType.ATTACK, 0.5d)
+                    .increase(AttributeType.SPEED, 0.05d)
+                    .increase(AttributeType.CRIT_CHANCE, 0.4d)
+                    .decrease(AttributeType.DEFENSE, 0.7d)
+                    .message(Named.BERSERK.getCharacter() + " &aYou're berserk!");
 
     public Orc() {
         super("Pakarat Rakab");
@@ -167,8 +175,7 @@ public class Orc extends Hero implements Listener {
 
     public void enterBerserk(GamePlayer player, int duration) {
         final EntityAttributes attributes = player.getAttributes();
-
-        Temper.BERSERK_MODE.temper(attributes, duration);
+        berserk.temper(attributes, duration);
 
         // Fx
         new PlayerGameTask(player) {

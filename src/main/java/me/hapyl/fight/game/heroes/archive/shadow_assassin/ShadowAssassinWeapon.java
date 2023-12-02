@@ -3,12 +3,13 @@ package me.hapyl.fight.game.heroes.archive.shadow_assassin;
 import me.hapyl.fight.game.HeroReference;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
-import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.util.CFUtils;
+import me.hapyl.fight.game.weapons.ability.AbilityType;
+import me.hapyl.fight.game.weapons.ability.DummyAbility;
 import me.hapyl.fight.util.displayfield.DisplayField;
+import me.hapyl.spigotutils.module.math.Tick;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -20,7 +21,7 @@ import javax.annotation.Nonnull;
 
 public class ShadowAssassinWeapon extends Weapon implements HeroReference<ShadowAssassin> {
 
-    @DisplayField private final int backstabCooldown = 400;
+    @DisplayField private final int cooldown = Tick.fromSecond(20);
     @DisplayField private final double defenseReduction = 0.1d;
     @DisplayField private final int defenseReductionDuration = 60;
 
@@ -32,16 +33,24 @@ public class ShadowAssassinWeapon extends Weapon implements HeroReference<Shadow
         setName("Livid Dagger");
         setDescription("""
                 A dagger made of bad memories.
-                                
-                &eAbility: Shadow Stab %sBack Stab
-                Hit an enemy from behind to perform a shadow stab attack, reducing their %s and stunning them for a short time.
-                                
-                &f&m•&f &7Cooldown: &f&l%s
-                """, Color.BUTTON.bold(), AttributeType.DEFENSE, CFUtils.decimalFormatTick(backstabCooldown));
+                """);
 
         setDamage(8.0d);
+        setAbility(AbilityType.BACK_STAB, new Backstab());
 
         this.hero = hero;
+    }
+
+    private class Backstab extends DummyAbility {
+
+        public Backstab() {
+            super("Shadow Stab", """
+                    Hit an enemy from behind to perform a shadow stab attack, reducing their %s and stunning them for a short time.
+                    """, AttributeType.DEFENSE);
+
+            setCooldown(cooldown);
+        }
+
     }
 
     public void performBackStab(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity) {
@@ -54,7 +63,7 @@ public class ShadowAssassinWeapon extends Weapon implements HeroReference<Shadow
         entity.getAttributes().decreaseTemporary(Temper.BACKSTAB, AttributeType.DEFENSE, defenseReduction, defenseReductionDuration);
 
         entity.sendMessage("&a%s stabbed you!", player.getName());
-        player.setCooldown(getMaterial(), backstabCooldown);
+        player.setCooldown(getMaterial(), cooldown);
 
         // Fx
         entity.playWorldSound(Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 0.65f);

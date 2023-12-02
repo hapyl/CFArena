@@ -15,7 +15,7 @@ public enum Named {
     SHADOW_ENERGY("🕳", "Shadow Energy", Color.PURPLE_SHADOW),
     ASTRAL_SPARK("⚡", "Astral Spark", Color.YELLOW),
     SHADOWSTRIKE("\uD83D\uDCA5", "Shadowstrike", Color.MEDIUM_STALE_BLUE),
-    ;
+    SPIRITUAL_BONES("🦴", "Spiritual Bones", Color.WHITE_BLUE_GRAY);
 
     private final String character;
     private final String name;
@@ -24,7 +24,7 @@ public enum Named {
     Named(@Nonnull String character, @Nonnull String name, @Nonnull Color color) {
         this.character = character;
         this.color = color;
-        this.name = colorName(name);
+        this.name = name;
     }
 
     @Nonnull
@@ -52,15 +52,9 @@ public enum Named {
         return color + character + " " + color + name + "&7";
     }
 
-    private String colorName(String name) {
-        final String[] strings = name.split(" ");
-        final StringBuilder builder = new StringBuilder();
-
-        for (String string : strings) {
-            builder.append(color).append(string).append(" ");
-        }
-
-        return builder.toString().trim();
+    @Nonnull
+    public String toStringRaw() {
+        return character + " " + name;
     }
 
 }

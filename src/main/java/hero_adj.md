@@ -317,4 +317,43 @@ Frostbite
 
 ### Chill Aura (Passive)
 
-* Emit chill aura in small AoE that slows enemies.
+* You emit a chill aura in small AoE that slows enemies.
+
+---
+
+Dark Mage
+===
+
+---
+
+Ninja
+===
+
+### Smoke Bomb
+
+* Hitting an enemy after using a smoke bomb now grants 50% Dodge.
+
+### Passive
+
+* Specified that Ninja can double-jump.
+
+### Throwing Stars
+
+* After using the last throwing star, your cursor now snaps to the weapon.
+
+---
+
+Taker
+===
+
+### Fatal Reap
+
+* Improve description.
+
+### Hook of Death
+
+* Fixed hook being blocked by transparent blocks like grass.
+
+### Embodiment of Death (Ultimate)
+
+* Add a short casting time.

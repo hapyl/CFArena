@@ -10,8 +10,10 @@ import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.entity.Entities;
+import net.minecraft.server.MinecraftServer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
@@ -39,31 +41,64 @@ public final class CF {
     private CF() {
     }
 
+    /**
+     * Gets the main class of the plugin.
+     *
+     * @return the main class of the plugin.
+     */
     @Nonnull
     public static Main getPlugin() {
         return plugin;
     }
 
+    /**
+     * Gets the {@link Database} singleton.
+     *
+     * @return the database.
+     */
     @Nonnull
     public static Database getDatabase() {
         return plugin.getDatabase();
     }
 
+    /**
+     * Gets player's {@link PlayerDatabase} instance.
+     *
+     * @param player - Player.
+     * @return player's database.
+     */
     @Nonnull
     public static PlayerDatabase getDatabase(@Nonnull Player player) {
         return getDatabase(player.getUniqueId());
     }
 
+    /**
+     * Gets player's {@link PlayerDatabase} instance.
+     *
+     * @param uuid - UUID of the player.
+     * @return player's database.
+     */
     @Nonnull
     public static PlayerDatabase getDatabase(@Nonnull UUID uuid) {
         return PlayerDatabase.getDatabase(uuid);
     }
 
+    /**
+     * Gets the {@link CrateManager} singleton.
+     *
+     * @return the crate manager.
+     */
     @Nonnull
     public static CrateManager getCrateManager() {
         return plugin.getCrateManager();
     }
 
+    /**
+     * Gets an optional {@link LivingGameEntity} from a bukkit entity.
+     *
+     * @param entity - Bukkit entity.
+     * @return an optional game entity.
+     */
     @Nonnull
     public static Optional<LivingGameEntity> getEntityOptional(@Nullable LivingEntity entity) {
         if (entity == null) {
@@ -73,6 +108,13 @@ public final class CF {
         return Optional.ofNullable(getEntity(entity.getUniqueId()));
     }
 
+    /**
+     * Gets an optional {@link LivingGameEntity} from a bukkit entity.
+     *
+     * @param entity - Bukkit entity.
+     * @param as     - Entity class.
+     * @return an optional of game entity.
+     */
     @Nonnull
     public static <T extends LivingGameEntity> Optional<T> getEntity(@Nullable LivingEntity entity, @Nonnull Class<T> as) {
         if (entity == null) {
@@ -87,6 +129,12 @@ public final class CF {
         return Optional.empty();
     }
 
+    /**
+     * Gets a {@link LivingGameEntity} from a bukkit entity.
+     *
+     * @param entity - Bukkit entity.
+     * @return a game entity; or null.
+     */
     @Nullable
     public static LivingGameEntity getEntity(@Nullable Entity entity) {
         if (entity == null) {
@@ -97,16 +145,36 @@ public final class CF {
         return gameEntity == null ? null : gameEntity.getGameEntity();
     }
 
+    /**
+     * Creates a {@link GameEntity}.
+     *
+     * @param location - Location to create at.
+     * @param type     - Type of the entity.
+     * @param consumer - Consumer function on how to create an entity.
+     * @return a newly created {@link GameEntity} instance.
+     */
     @Nonnull
     public static <T extends LivingEntity, E extends GameEntity> E createEntity(@Nonnull Location location, @Nonnull Entities<T> type, @Nonnull ConsumerFunction<T, E> consumer) {
         return Manager.current().createEntity(type.spawn(location, self -> Manager.current().addIgnored(self)), consumer);
     }
 
+    /**
+     * Gets a {@link LivingGameEntity} by its {@link UUID}.
+     *
+     * @param uuid - UUID.
+     * @return a living game entity; or null.
+     */
     @Nullable
     public static LivingGameEntity getEntity(@Nonnull UUID uuid) {
         return manager.getEntity(uuid);
     }
 
+    /**
+     * Gets a {@link GamePlayer} from a bukkit player.
+     *
+     * @param player - Bukkit player.
+     * @return a game player; or null.
+     */
     @Nullable
     public static GamePlayer getPlayer(@Nullable Player player) {
         if (player == null) {
@@ -116,62 +184,122 @@ public final class CF {
         return manager.getPlayer(player);
     }
 
+    /**
+     * Gets a {@link GamePlayer} by their {@link UUID}.
+     *
+     * @param uuid - UUID.
+     * @return a game player; or null.
+     */
     @Nullable
     public static GamePlayer getPlayer(@Nonnull UUID uuid) {
         return manager.getPlayer(uuid);
     }
 
+    /**
+     * Gets an optional of {@link GamePlayer}.
+     *
+     * @param player - Bukkit player.
+     * @return an optional of game player.
+     */
+    @Nonnull
+    public static Optional<GamePlayer> getPlayerOptional(@Nonnull Player player) {
+        return Optional.ofNullable(manager.getPlayer(player));
+    }
+
+    /**
+     * Gets a copy of existing {@link GamePlayer}s.
+     *
+     * @return a copy of existing game players.
+     */
     @Nonnull
     public static Set<GamePlayer> getPlayers() {
         return manager.getPlayers();
     }
 
+    /**
+     * Gets a copy of existing {@link GamePlayer}s who is {@link GamePlayer#isAlive()}.
+     *
+     * @return a copy of living players.
+     */
     @Nonnull
     public static List<GamePlayer> getAlivePlayers() {
         return manager.getAlivePlayers();
     }
 
+    /**
+     * Gets a copy of existing {@link GamePlayer}s who is {@link GamePlayer#isAlive()} and match the {@link Predicate}.
+     *
+     * @param predicate - Predicate to match.
+     * @return a copy of living players matching the predicate.
+     */
     @Nonnull
     public static List<GamePlayer> getAlivePlayers(@Nonnull Predicate<GamePlayer> predicate) {
         return manager.getAlivePlayers(predicate);
     }
 
+    /**
+     * Gets a copy of existing {@link GamePlayer}s who is {@link GamePlayer#isAlive()} and have a matching {@link Heroes} selected.
+     *
+     * @param enumHero - Selected hero.
+     * @return a copy of living player matching the hero.
+     */
     @Nonnull
-    public static List<GamePlayer> getAlivePlayers(Heroes enumHero) {
+    public static List<GamePlayer> getAlivePlayers(@Nonnull Heroes enumHero) {
         return manager.getAlivePlayers(enumHero);
     }
 
+    /**
+     * Gets a copy {@link Heroes} that are being used by at least one existing {@link GamePlayer}.
+     *
+     * @return a copy of active heroes.
+     */
     @Nonnull
     public static Set<Heroes> getActiveHeroes() {
         return manager.getActiveHeroes();
     }
 
+    /**
+     * Gets a copy of all existing {@link GameEntity}s.
+     *
+     * @return a copy of all existing game entities.
+     */
     @Nonnull
     public static Set<GameEntity> getEntities() {
         return manager.getEntities();
     }
 
+    /**
+     * Gets a copy of all existing {@link GameEntity}s that match a given class.
+     *
+     * @param clazz - Class to match.
+     * @return a copy of all existing game entities matching a given class.
+     */
     @Nonnull
-    public static <T extends GameEntity> Set<T> getEntities(Class<T> clazz) {
+    public static <T extends GameEntity> Set<T> getEntities(@Nonnull Class<T> clazz) {
         return manager.getEntities(clazz);
     }
 
+    /**
+     * Gets a copy of all existing {@link GameEntity} excluding {@link GamePlayer}s.
+     *
+     * @return a copy of all existing game entities excluding game players.
+     */
     @Nonnull
     public static Set<GameEntity> getEntitiesExcludePlayers() {
         return manager.getEntitiesExcludePlayers();
     }
 
-    @Nonnull
-    public static Optional<GamePlayer> getPlayerOptional(Player player) {
-        final GamePlayer gamePlayer = manager.getPlayer(player);
-
-        if (gamePlayer == null) {
-            return Optional.empty();
-        }
-
-        return Optional.of(gamePlayer);
-    }
-
+    /**
+     * Create an AoE explosion at the given location.
+     *
+     * @param location  - Location; the center of the explosion.
+     * @param damage    - Explosion damage.
+     * @param radius    - Explosion radius.
+     * @param damager   - Damager, if needed.
+     * @param cause     - Cause, if needed.
+     * @param predicate - Predicate for entity to damage.
+     * @return list of affected entities.
+     */
     @Nonnull
     public static List<LivingGameEntity> damageAoE(@Nonnull Location location, double damage, double radius, @Nullable LivingGameEntity damager, @Nullable EnumDamageCause cause, @Nonnull Predicate<LivingGameEntity> predicate) {
         final List<LivingGameEntity> entities = Collect.nearbyEntities(location, radius).stream().filter(predicate).toList();
@@ -183,22 +311,109 @@ public final class CF {
         return entities;
     }
 
+    /**
+     * Create an AoE explosion at the given location.
+     *
+     * @param location  - Location; the center of the explosion.
+     * @param damage    - Explosion damage.
+     * @param radius    - Explosion radius.
+     * @param damager   - Damager, if needed.
+     * @param cause     - Cause, if needed.
+     * @param predicate - Predicate for entity to damage.
+     * @return list of affected entities.
+     */
     @Nonnull
     public static List<LivingGameEntity> damageAoE(Location location, double damage, double radius, @Nullable LivingEntity damager, @Nullable EnumDamageCause cause, @Nonnull Predicate<LivingGameEntity> predicate) {
         return damageAoE(location, damage, radius, CF.getEntity(damager), cause, predicate);
     }
 
+    /**
+     * Gets the logger for the plugin.
+     *
+     * @return the logger for the plugin.
+     */
     @Nonnull
     public static Logger getLogger() {
         return plugin.getLogger();
     }
 
+    /**
+     * Registers the given {@link Listener} to the plugin.
+     *
+     * @param listener - Listener.
+     */
     public static void registerEvents(@Nonnull Listener listener) {
         Bukkit.getPluginManager().registerEvents(listener, plugin);
     }
 
+    /**
+     * Gets an {@link GameEntity} by its entity Id.
+     *
+     * @param entityId - Entity Id.
+     * @return a game entity; or null.
+     */
     @Nullable
     public static GameEntity getEntityById(int entityId) {
         return manager.getEntityById(entityId);
+    }
+
+    /**
+     * Gets the string version of the game.
+     *
+     * @return string version of the game.
+     */
+    @Nonnull
+    public static String getVersion() {
+        return plugin.getDescription().getVersion();
+    }
+
+    /**
+     * Gets the string version of the game without '-SNAPSHOT'.
+     *
+     * @return the string version of the game without '-SNAPSHOT'.
+     */
+    @Nonnull
+    public static String getVersionNoSnapshot() {
+        return getVersion().replace("-SNAPSHOT", "");
+    }
+
+    /**
+     * Gets the server's most recent tps.
+     *
+     * @return the server's most recent tps.
+     */
+    public static double getTps() {
+        return Math.min(MinecraftServer.getServer().recentTps[0], 20);
+    }
+
+    /**
+     * Gets online player count, respecting player's hidden status.
+     *
+     * @return online player count.
+     */
+    public static int getOnlinePlayerCount() {
+        int onlineCount = 0;
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            final PlayerProfile profile = PlayerProfile.getProfile(player);
+
+            if (profile == null || profile.isHidden()) {
+                continue;
+            }
+
+            onlineCount++;
+        }
+
+        return onlineCount;
+    }
+
+    /**
+     * Gets the name of the game.
+     *
+     * @return the name of the game.
+     */
+    @Nonnull
+    public static String getName() {
+        return Main.GAME_NAME;
     }
 }

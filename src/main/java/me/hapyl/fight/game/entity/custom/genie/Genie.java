@@ -6,6 +6,7 @@ import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.attribute.Attributes;
 import me.hapyl.fight.game.entity.*;
 import me.hapyl.fight.game.entity.EntityMetadata;
+import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.reflect.npc.Human;
@@ -56,7 +57,7 @@ public class Genie extends GameEntityType<Husk> {
             super(Genie.this, entity);
 
             final EntityMetadata metadata = getMetadata();
-            metadata.CC_AFFECT.setValue(false);
+            metadata.ccAffect.setValue(false);
 
             final Location location = entity.getLocation();
 
@@ -70,6 +71,10 @@ public class Genie extends GameEntityType<Husk> {
                     husk.setSilent(true);
 
                     return new LivingGameEntity(husk) {
+                        public void schedule(Runnable run, int delay) {
+                            GameTask.runLater(run, delay);
+                        }
+
                         @Override
                         public DamageOutput onDamageDealt(@Nonnull DamageInput input) {
                             return DamageOutput.CANCEL;

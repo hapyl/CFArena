@@ -9,12 +9,12 @@ public class EntityMetadata {
     /**
      * Whenever an entity can move.
      */
-    public final Metadata<Boolean> CAN_MOVE = new Metadata<>(true);
+    public final Metadata<Boolean> canMove = new Metadata<>(true);
 
     /**
      * Whenever the entity can be controller by crowd abilities.
      */
-    public final Metadata<Boolean> CC_AFFECT = new Metadata<>(true) {
+    public final Metadata<Boolean> ccAffect = new Metadata<>(true) {
         @Override
         public void notify(@Nonnull GameEntity entity) {
             entity.sendMessage("&cThis creature is immune to crowd control abilities!");

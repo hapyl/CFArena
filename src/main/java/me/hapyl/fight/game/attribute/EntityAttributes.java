@@ -87,11 +87,15 @@ public class EntityAttributes extends Attributes implements PlayerElement {
      * @param duration - Duration of increase.
      */
     public void increaseTemporary(@Nonnull Temper temper, @Nonnull AttributeType type, double value, int duration) {
-        final boolean newTemper = !tempers.has(temper);
+        increaseTemporary(temper, type, value, duration, false);
+    }
+
+    public void increaseTemporary(@Nonnull Temper temper, @Nonnull AttributeType type, double value, int duration, boolean silent) {
+        final boolean newTemper = !tempers.has(temper, type);
         tempers.add(temper, type, value, duration);
 
         // do not spawn if player already has this temper
-        if (temper.isDisplay() && newTemper) {
+        if (!silent && temper.isDisplay() && newTemper) {
             display(type, value > -value);
         }
 
@@ -199,7 +203,7 @@ public class EntityAttributes extends Attributes implements PlayerElement {
      * @return the game player.
      */
     @Nonnull
-    public LivingGameEntity getGameEntity() {
+    public LivingGameEntity getEntity() {
         return gameEntity;
     }
 

@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.archive.taker;
 
+import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -25,15 +26,16 @@ public class DeathSwap extends Talent {
         super("Hook of Death");
 
         setDescription("""
-                Instantly consume {spiritualBoneCost} &eSpiritual Bone&7 to launch a chain that travels in straight line up to &b{maxDistance}&7 blocks or until opponent is hit.
+                Instantly consume &b{spiritualBoneCost}&7 of your %s to launch a &4chain&7 that travels in a straight line.
                                 
-                After, retracts back to you.
+                If traveled &b{maxDistance}&7 or a block or an enemy is hit, the &4chain&7 retracts.
                                 
-                If opponent is hit, they will be retracted with chains, take &c{damagePercent}&7 of their current health as damage will be slowed and withered for short duration.
-                                
-                Additionally, the cooldown is reduced by &b50%%&7.
-                """);
+                If an opponent is hit, they will be retracted &nwith the chain&7, take &c{damagePercent}&7 of their &c&ncurrent health&7 as &4damage&7, will be &3slowed&7 and &8withered&7 for short duration.
+                
+                &8;;Additionally, the cooldown is reduced by 50%%.
+                """, Named.SPIRITUAL_BONES);
 
+        setType(Type.IMPAIR);
         setItem(Material.CHAIN);
         setCooldownSec(16);
     }

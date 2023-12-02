@@ -3,10 +3,10 @@ package me.hapyl.fight.game.heroes.archive.taker;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.NewHero;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talents;
@@ -15,13 +15,14 @@ import me.hapyl.fight.game.talents.archive.taker.DeathSwap;
 import me.hapyl.fight.game.talents.archive.taker.FatalReap;
 import me.hapyl.fight.game.talents.archive.taker.SpiritualBonesPassive;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerMap;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.fight.util.displayfield.DisplayFieldSerializer;
-import me.hapyl.spigotutils.module.locaiton.LocationHelper;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -29,13 +30,16 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.concurrent.TimeUnit;
 
-public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldProvider {
+public class Taker extends Hero implements UIComponent, DisplayFieldProvider {
+
+    @DisplayField private final double ultimateSpeed = 0.45d;
+    @DisplayField private final int hitDelay = 10;
 
     private final PlayerMap<SpiritualBones> playerBones = PlayerMap.newMap();
 
@@ -51,25 +55,31 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
         equipment.setLeggings(0, 0, 0, TrimPattern.SILENCE, TrimMaterial.QUARTZ);
         equipment.setBoots(28, 28, 28, TrimPattern.SILENCE, TrimMaterial.QUARTZ);
 
-        setWeapon(Material.IRON_HOE, "Reaper Scythe", 6.66d);
+        setWeapon(Material.IRON_HOE, "Reaper Scythe", """
+                The sharpest of them all!
+                """, 6.66d);
 
         final UltimateTalent ultimate = new UltimateTalent(
                 "Embodiment of Death", """
-                Instantly consume all &eSpiritual Bones&7 and cloak yourself in darkness for {duration}.
+                Instantly consume all %s to cloak yourself in the &8darkness&7 for {duration}.
                                         
-                While cloaked, become invulnerable.
+                After a short delay, embrace the death and become &binvulnerable&7.
                                         
-                The darkness force will constantly rush forward, dealing damage and blinding anyone who dare to stay in the way.
-                Also recover health every time an enemy is hit.
+                The &8darkness&7 force will constantly &brush forward&7, dealing &cAoE damage&7 and &eimpairing&7 anyone who dares to stay in the way.
+                &8;;Also recover health every time an enemy is hit.
                                         
-                Hold &e&lSNEAK&7 to rush slower.
+                Hold &6&lSNEAK&7 to rush slower.
                                 
-                &6;;The damage and healing is scaled with &eSpiritual Bones&6 consumed.
-                """, 70
-        ).setDurationSec(4).setSound(Sound.ENTITY_HORSE_DEATH, 0.0f).setItem(Material.WITHER_SKELETON_SKULL).setCdFromCost(2);
+                &8;;The damage and healing is scaled with %s consumed.
+                """.formatted(Named.SPIRITUAL_BONES, Named.SPIRITUAL_BONES.toStringRaw()),
+                70
+        ).setDurationSec(4)
+                .setSound(Sound.ENTITY_HORSE_DEATH, 0.0f)
+                .setItem(Material.WITHER_SKELETON_SKULL)
+                .setCastDuration(20)
+                .setCdFromCost(2);
 
         DisplayFieldSerializer.copy(this, ultimate);
-
         setUltimate(ultimate);
     }
 
@@ -117,12 +127,11 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
 
     @Override
     public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        player.setInvulnerable(true);
+        final Location location = player.getLocation();
+        final int castDuration = getUltimate().getCastDuration();
 
         final SpiritualBones bones = getBones(player);
         final int bonesAmount = bones.getBones();
-        final double speed = 0.45d;
-        final int hitDelay = 10;
 
         final double damage = 5.0d + bonesAmount;
         final double healing = 1.0d + bonesAmount;
@@ -130,47 +139,80 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
         bones.reset();
         bones.clearArmorStands();
 
-        GameTask.runDuration(getUltimate(), (task, i) -> {
-            final boolean sneaking = player.isSneaking();
+        player.addPotionEffect(PotionEffectType.SLOW, castDuration, 255);
 
-            player.setVelocity(player.getLocation()
-                    .getDirection()
-                    .normalize()
-                    .multiply(sneaking ? speed / 2 : speed)
-                    .add(new Vector(0.0d, BukkitUtils.GRAVITY, 0.0d)));
+        new TickingGameTask() {
+            @Override
+            public void run(int tick) {
+                if (tick >= castDuration) {
+                    cancel();
+                    return;
+                }
 
-            // Damage
-            if (i % hitDelay == 0) {
-                final Location hitLocation = LocationHelper.getInFront(player.getEyeLocation(), 1.5d);
+                final double distance = Math.sin(tick * 0.1 + 0.5d);
 
-                Collect.nearbyEntities(
-                        hitLocation,
-                        2.0d,
-                        living -> living.isValid(player)
-                ).forEach(entity -> {
-                    entity.damageTick(damage, player, EnumDamageCause.EMBODIMENT_OF_DEATH, hitDelay);
-                    player.heal(healing);
-                });
+                for (double d = 0.0d; d < Math.PI * 2; d += Math.PI / 16) {
+                    final double x = Math.sin(d) * distance;
+                    final double y = player.getEyeHeight() - (2.0d / castDuration * tick);
+                    final double z = Math.cos(d) * distance;
 
-                // Hit Fx
-                PlayerLib.spawnParticle(hitLocation, Particle.SWEEP_ATTACK, 20, 1, 1, 1, 0.0f);
-                PlayerLib.spawnParticle(hitLocation, Particle.ASH, 20, 1, 1, 1, 0.0f);
-                PlayerLib.spawnParticle(hitLocation, Particle.SPELL_MOB, 20, 1, 1, 1, 0.0f);
+                    location.add(x, y, z);
 
-                PlayerLib.playSound(hitLocation, Sound.ITEM_TRIDENT_THROW, 0.0f);
-                PlayerLib.playSound(hitLocation, Sound.ENTITY_WITHER_HURT, 0.75f);
+                    player.spawnWorldParticle(location, Particle.SMOKE_LARGE, 1);
+                    player.spawnWorldParticle(location, Particle.SMOKE_NORMAL, 1);
+
+                    location.subtract(x, y, z);
+                }
+
+                // SFX
+                if (modulo(2)) {
+                    player.playWorldSound(Sound.ENTITY_ENDER_DRAGON_FLAP, 2.0f / castDuration * tick);
+                }
             }
+        }.runTaskTimer(0, 1);
 
-            // Instant Fx
-            PlayerLib.spawnParticle(player.getEyeLocation(), Particle.SQUID_INK, 5, 0.03125d, 0.6d, 0.03125d, 0.01f);
-            PlayerLib.spawnParticle(player.getEyeLocation(), Particle.LAVA, 2, 0.03125d, 0.6d, 0.03125d, 0.01f);
+        return new UltimateCallback() {
+            @Override
+            public void callback(@Nonnull GamePlayer player) {
+                player.setInvulnerable(true);
 
-        }, 0, 1);
+                new TimedGameTask(getUltimateDuration()) {
+                    @Override
+                    public void run(int tick) {
+                        final boolean sneaking = player.isSneaking();
 
-        // Outer Fx
-        player.sendMessage("&0☠ &7The darkness will aid you with %s damage and %s healing per enemy hit.", damage, healing);
+                        player.setVelocity(player.getLocation()
+                                .getDirection()
+                                .normalize()
+                                .multiply(sneaking ? ultimateSpeed / 2 : ultimateSpeed)
+                                .add(new Vector(0.0d, BukkitUtils.GRAVITY, 0.0d)));
 
-        return UltimateCallback.OK;
+                        // Damage
+                        if (modulo(hitDelay)) {
+                            final Location hitLocation = player.getLocationInFrontFromEyes(1.5d);
+
+                            Collect.nearbyEntities(hitLocation, 2.0d, living -> living.isValid(player))
+                                    .forEach(entity -> {
+                                        entity.damageTick(damage, player, EnumDamageCause.EMBODIMENT_OF_DEATH, hitDelay);
+                                        player.heal(healing);
+                                    });
+
+                            // Hit Fx
+                            player.spawnWorldParticle(hitLocation, Particle.SWEEP_ATTACK, 20, 1, 1, 1, 0.0f);
+                            player.spawnWorldParticle(hitLocation, Particle.SMOKE_LARGE, 20, 1, 1, 1, 0.0f);
+                            player.spawnWorldParticle(hitLocation, Particle.SPELL_MOB, 20, 1, 1, 1, 0.0f);
+
+                            player.playWorldSound(hitLocation, Sound.ITEM_TRIDENT_THROW, 0.0f);
+                            player.playWorldSound(hitLocation, Sound.ENTITY_WITHER_HURT, 0.75f);
+                        }
+
+                        // Instant Fx
+                        player.spawnWorldParticle(player.getEyeLocation(), Particle.SQUID_INK, 5, 0.03125d, 0.6d, 0.03125d, 0.01f);
+                        player.spawnWorldParticle(player.getEyeLocation(), Particle.LAVA, 2, 0.03125d, 0.6d, 0.03125d, 0.01f);
+                    }
+                }.runTaskTimer(0, 1);
+            }
+        };
     }
 
     @Nullable
@@ -233,8 +275,4 @@ public class Taker extends Hero implements UIComponent, NewHero, DisplayFieldPro
         return "&f☠: &l" + getBones(player).getBones();
     }
 
-    @Override
-    public long until() {
-        return 1680207036792L + (TimeUnit.DAYS.toMillis(10));
-    }
 }

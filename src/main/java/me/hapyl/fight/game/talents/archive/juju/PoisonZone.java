@@ -49,7 +49,7 @@ public class PoisonZone extends Talent {
         GameTask.runDuration(this, (task, tick) -> {
             Collect.nearbyEntities(location, radius).forEach(living -> {
                 living.damageTick(damagePerTick, player, EnumDamageCause.POISON_IVY, damageTick);
-                Temper.POISON_IVY.temper(living.getAttributes(), defenseReduction, defenseReductionDuration);
+                Temper.POISON_IVY.temper(living.getAttributes(), AttributeType.DEFENSE, defenseReduction, defenseReductionDuration);
                 living.addPotionEffect(PotionEffectType.POISON.createEffect(defenseReductionDuration, 1));
             });
 
