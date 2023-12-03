@@ -1,27 +1,23 @@
 package me.hapyl.fight.game.achievement;
 
-import org.bukkit.Material;
-
 /**
  * Represents an achievement category.
  */
 public enum Category {
 
-    GAMEPLAY(Material.IRON_SWORD, "Gameplay", ""),
+    GAMEPLAY("Gameplay", "General gameplay achievements."),
+    TIERED("Tiered", "Tiered achievements can be completed multiple times."),
+    HERO_WIN("Hero Wins", "Win while playing as a hero to advance."),
+    HERO_PLAY("Hero Play", "Play as a hero to advance."),
+
     ;
 
-    private final Material material;
     private final String name;
     private final String description;
 
-    Category(Material material, String name, String description) {
-        this.material = material;
+    Category(String name, String description) {
         this.name = name;
         this.description = description;
-    }
-
-    public Material getMaterial() {
-        return material;
     }
 
     public String getName() {

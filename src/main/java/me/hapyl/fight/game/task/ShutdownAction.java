@@ -3,11 +3,11 @@ package me.hapyl.fight.game.task;
 public enum ShutdownAction {
 
 	/**
-	 * Will cancel this task upon game end.
+	 * Will cancel this task upon a game end.
 	 */
 	CANCEL,
 	/**
-	 * Will ignore this task upon game end.
+	 * Will ignore this task upon a game end.
 	 */
 	IGNORE
 

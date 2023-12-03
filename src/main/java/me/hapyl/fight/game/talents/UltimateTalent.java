@@ -25,6 +25,7 @@ public class UltimateTalent extends Talent implements DisplayFieldDataProvider {
     private final int cost;
     private Sound sound;
     private float pitch;
+    private int castDuration;
 
     public UltimateTalent(String name, int pointCost) {
         this(name, "", pointCost);
@@ -35,14 +36,18 @@ public class UltimateTalent extends Talent implements DisplayFieldDataProvider {
         cost = pointCost;
         sound = Sound.ENTITY_ENDER_DRAGON_GROWL;
         pitch = 2.0f;
-
         dataFields = Lists.newArrayList();
 
         setDuration(0);
     }
 
-    public UltimateTalent setDuration(int duration) {
-        super.setDuration(duration);
+    public UltimateTalent appendDescription(String description, Object... format) {
+        addDescription(description, format);
+        return this;
+    }
+
+    public UltimateTalent appendAttributeDescription(String key, Object value) {
+        addAttributeDescription(key, value);
         return this;
     }
 
@@ -51,11 +56,11 @@ public class UltimateTalent extends Talent implements DisplayFieldDataProvider {
     }
 
     public int getDuration() {
-        return super.getDuration();
+        return super.getDuration() + castDuration; // include cast duration
     }
 
-    public UltimateTalent setSound(Sound sound) {
-        this.sound = sound;
+    public UltimateTalent setDuration(int duration) {
+        super.setDuration(duration);
         return this;
     }
 
@@ -65,17 +70,22 @@ public class UltimateTalent extends Talent implements DisplayFieldDataProvider {
         return this;
     }
 
+    public float getPitch() {
+        return pitch;
+    }
+
     public UltimateTalent setPitch(float pitch) {
         this.pitch = pitch;
         return this;
     }
 
-    public float getPitch() {
-        return pitch;
-    }
-
     public Sound getSound() {
         return sound;
+    }
+
+    public UltimateTalent setSound(Sound sound) {
+        this.sound = sound;
+        return this;
     }
 
     public int getCost() {
@@ -88,26 +98,20 @@ public class UltimateTalent extends Talent implements DisplayFieldDataProvider {
     }
 
     @Override
-    public UltimateTalent setItem(String headTexture) {
-        super.setItem(headTexture);
-        return this;
-    }
-
-    @Override
     public UltimateTalent setTexture(String texture64) {
         super.setTexture(texture64);
         return this;
     }
 
     @Override
-    public UltimateTalent setCd(int cd) {
-        super.setCd(cd);
+    public UltimateTalent setCooldown(int cd) {
+        super.setCooldown(cd);
         return this;
     }
 
     @Override
-    public UltimateTalent setCdSec(int cd) {
-        super.setCdSec(cd);
+    public UltimateTalent setCooldownSec(int cd) {
+        super.setCooldownSec(cd);
         return this;
     }
 
@@ -125,7 +129,7 @@ public class UltimateTalent extends Talent implements DisplayFieldDataProvider {
     }
 
     /**
-     * Must return true in order for talent to execute. If returns false shows a message.
+     * Must return true in order for talent to execute. If returns false show a message.
      *
      * @param player - player to test.
      * @see UltimateTalent#predicateMessage()
@@ -146,7 +150,7 @@ public class UltimateTalent extends Talent implements DisplayFieldDataProvider {
     }
 
     public UltimateTalent setCdFromCost(int divide) {
-        setCd((getCost() / divide) * 20);
+        setCooldown((getCost() / divide) * 20);
         return this;
     }
 
@@ -154,5 +158,14 @@ public class UltimateTalent extends Talent implements DisplayFieldDataProvider {
     @Override
     public List<DisplayFieldData> getDisplayFieldData() {
         return dataFields;
+    }
+
+    public UltimateTalent setCastDuration(int duration) {
+        this.castDuration = duration;
+        return this;
+    }
+
+    public int getCastDuration() {
+        return castDuration;
     }
 }

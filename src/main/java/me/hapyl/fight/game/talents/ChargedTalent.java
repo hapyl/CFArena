@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents;
 
 import com.google.common.collect.Maps;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -19,10 +20,9 @@ import java.util.Map;
 public class ChargedTalent extends Talent {
 
     private final int maxCharges;
+    private final Map<Player, ChargedTalentData> data;
     private int rechargeTime;
     private Material noChargedMaterial;
-
-    private final Map<Player, ChargedTalentData> data;
 
     public ChargedTalent(String name, int maxCharges) {
         this(name, "", maxCharges);
@@ -41,12 +41,12 @@ public class ChargedTalent extends Talent {
         return data.computeIfAbsent(player, data -> new ChargedTalentData(player, this));
     }
 
-    public void setNoChargedMaterial(Material noChargedMaterial) {
-        this.noChargedMaterial = noChargedMaterial;
-    }
-
     public Material getNoChargedMaterial() {
         return noChargedMaterial;
+    }
+
+    public void setNoChargedMaterial(Material noChargedMaterial) {
+        this.noChargedMaterial = noChargedMaterial;
     }
 
     public void onStartCharged() {
@@ -82,10 +82,6 @@ public class ChargedTalent extends Talent {
     public void onLastCharge(Player player) {
     }
 
-    public void setRechargeTime(int i) {
-        this.rechargeTime = i;
-    }
-
     public void setRechargeTimeSec(int i) {
         setRechargeTime(i * 20);
     }
@@ -118,12 +114,12 @@ public class ChargedTalent extends Talent {
         return rechargeTime;
     }
 
-    public int getChargedAvailable(Player player) {
-        return getData(player).getChargedAvailable();
+    protected void setRechargeTime(int i) {
+        this.rechargeTime = i;
     }
 
-    private ItemStack noChargesItem() {
-        return ItemBuilder.of(noChargedMaterial, "&cOut of Charged!").build();
+    public int getChargedAvailable(Player player) {
+        return getData(player).getChargedAvailable();
     }
 
     public void removeChargeAndStartCooldown(Player player) {
@@ -142,7 +138,7 @@ public class ChargedTalent extends Talent {
         if (amount == 1) {
             inventory.setItem(slot, noChargesItem());
             if (getRechargeTime() >= 0) {
-                player.setCooldown(noChargedMaterial, getRechargeTime());
+                GamePlayer.setCooldown(player, noChargedMaterial, getRechargeTime());
             }
 
             onLastCharge(player);
@@ -160,7 +156,7 @@ public class ChargedTalent extends Talent {
     }
 
     public void grantAllCharges(Player player, int delay) {
-        GameTask.runLater(() -> grantAllCharges(player), delay);
+        GameTask.runLater(() -> grantAllCharges(player), GamePlayer.scaleCooldown(player, delay));
     }
 
     public void grantAllCharges(Player player) {
@@ -226,6 +222,10 @@ public class ChargedTalent extends Talent {
     @Override
     public Response execute(Player player) {
         return Response.AWAIT;
+    }
+
+    private ItemStack noChargesItem() {
+        return ItemBuilder.of(noChargedMaterial, "&cOut of Charged!").build();
     }
 
 }

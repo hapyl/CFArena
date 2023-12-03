@@ -18,6 +18,12 @@ public class PassiveTalent extends Talent {
 
     @Override
     public final Response execute(Player player) {
+        player.sendMessage("do not execute passive talents");
         return Response.OK;
+    }
+
+    @Override
+    public boolean isDisplayAttributes() {
+        return false;
     }
 }

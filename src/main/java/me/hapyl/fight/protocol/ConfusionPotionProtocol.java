@@ -6,7 +6,7 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.google.common.collect.Maps;
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.spigotutils.module.reflect.protocol.ProtocolListener;
 import me.hapyl.spigotutils.module.util.Runnables;

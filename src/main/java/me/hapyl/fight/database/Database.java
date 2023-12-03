@@ -5,6 +5,7 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import me.hapyl.fight.Main;
+import me.hapyl.fight.database.collection.GlobalConfigCollection;
 import me.hapyl.spigotutils.module.util.DependencyInjector;
 import org.bson.Document;
 import org.bukkit.Bukkit;
@@ -25,19 +26,19 @@ public class Database extends DependencyInjector<Main> {
 
     private final FileConfiguration config;
     private final NamedDatabase namedDatabase;
-
+    public MongoCollection<Document> friends;
+    protected MongoCollection<Document> players;
+    protected MongoCollection<Document> parkour;
+    protected MongoCollection<Document> heroStats;
+    protected MongoCollection<Document> global;
     private MongoClient client;
     private MongoDatabase database;
-    private MongoCollection<Document> players;
-    private MongoCollection<Document> parkour;
-    private MongoCollection<Document> heroStats;
+    private GlobalConfigCollection globalConfig;
 
     public Database(Main main) {
         super(main);
         this.config = main.getConfig();
         this.namedDatabase = NamedDatabase.byName(config.getString("database.type"));
-
-        // Suppress logging
     }
 
     public NamedDatabase getNamedDatabase() {
@@ -83,9 +84,18 @@ public class Database extends DependencyInjector<Main> {
             players = database.getCollection("players");
             parkour = database.getCollection("parkour");
             heroStats = database.getCollection("hero_stats");
+            friends = database.getCollection("friends");
+            global = database.getCollection("global");
+
+            // load async database
+            globalConfig = new GlobalConfigCollection(global);
         } catch (Exception e) {
             breakConnectionAndDisablePlugin("Failed to retrieve database collection!");
         }
+    }
+
+    public GlobalConfigCollection getGlobalConfig() {
+        return globalConfig;
     }
 
     public String getDatabaseString() {

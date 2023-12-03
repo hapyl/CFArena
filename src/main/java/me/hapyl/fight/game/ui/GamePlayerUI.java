@@ -1,31 +1,41 @@
 package me.hapyl.fight.game.ui;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.database.entry.CurrencyEntry;
-import me.hapyl.fight.game.*;
+import me.hapyl.fight.game.GameInstance;
+import me.hapyl.fight.game.IGameInstance;
+import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.attribute.Attributes;
+import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.effect.GameEffect;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.setting.Setting;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.fight.game.trial.Trial;
 import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.math.nn.IntInt;
 import me.hapyl.spigotutils.module.player.song.Song;
 import me.hapyl.spigotutils.module.player.song.SongPlayer;
 import me.hapyl.spigotutils.module.scoreboard.Scoreboarder;
+import net.minecraft.server.MinecraftServer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.DisplaySlot;
 
+import javax.annotation.Nonnull;
 import java.text.SimpleDateFormat;
 
 /**
- * This controls all UI based elements such as scoreboard, tab-list and actionbar (while in game).
+ * This controls all UI-based elements such as scoreboard, tab-list, and actionbar (while in game).
  */
 public class GamePlayerUI {
 
@@ -40,7 +50,13 @@ public class GamePlayerUI {
         this.builder = new Scoreboarder(Main.GAME_NAME);
         this.updateScoreboard();
 
+        if (Setting.HIDE_UI.isEnabled(player)) {
+            hideScoreboard();
+        }
+
         new GameTask() {
+            private int tick;
+
             @Override
             public void run() {
                 if (player == null || !player.isOnline()) {
@@ -48,32 +64,64 @@ public class GamePlayerUI {
                     return;
                 }
 
+                tick = (tick >= 40) ? 0 : tick + 5;
+
                 // update a player list and scoreboard
                 final String[] headerFooter = formatHeaderFooter();
                 player.setPlayerListHeaderFooter(Chat.format(headerFooter[0]), Chat.format(headerFooter[1]));
                 player.setPlayerListName(profile.getDisplay().getDisplayNameTab());
 
+                if (Setting.HIDE_UI.isEnabled(player)) {
+                    return;
+                }
+
+                // Yes, I know it's not really a UI thing,
+                // but I ain't making another ticker just for
+                // debugging items.
+                updateDebug();
+
                 animateScoreboard();
                 updateScoreboard();
-
-                if (Setting.SPECTATE.isEnabled(player)) {
-                    Chat.sendActionbar(player, "&aYou will spectate when the game starts.");
-                }
 
                 final GamePlayer gamePlayer = profile.getGamePlayer();
 
                 if (gamePlayer != null) {
-                    sendInGameUI();
+                    sendInGameUI(tick <= 20 ? ChatColor.AQUA : ChatColor.DARK_AQUA);
+                }
+
+                if (Setting.SPECTATE.isEnabled(player)) {
+                    Chat.sendActionbar(
+                            player,
+                            gamePlayer == null
+                                    ? "&aYou will spectate when the game starts."
+                                    : "&aYou are currently spectating."
+                    );
                 }
             }
         }.runTaskTimer(0, 5).setShutdownAction(ShutdownAction.IGNORE);
-
     }
 
-    private void animateScoreboard() {
+    public void updateDebug() {
+        final GamePlayer gamePlayer = profile.getGamePlayer();
+
+        if (gamePlayer == null) {
+            return;
+        }
+
+        final EntityAttributes attributes = gamePlayer.getAttributes();
+        final Attributes baseAttributes = attributes.getBaseAttributes();
+
+        final ItemBuilder baseBuilder = ItemBuilder.of(Material.COARSE_DIRT, "Base Attributes", "&8Debug").addLore();
+        baseAttributes.forEach((type, value) -> baseBuilder.addLore(type.getFormatted(baseAttributes)));
+
+        final ItemBuilder playerBuilder = ItemBuilder.of(Material.DIRT, "Player Attributes", "&8Debug").addLore();
+        attributes.forEach((type, value) -> playerBuilder.addLore(type.getFormatted(attributes)));
+
+        player.getInventory().setItem(21, baseBuilder.toItemStack());
+        player.getInventory().setItem(23, playerBuilder.toItemStack());
     }
 
-    public void sendInGameUI() {
+    public void sendInGameUI(@Nonnull ChatColor ultimateColor) {
         final GamePlayer gamePlayer = profile.getGamePlayer();
         if (gamePlayer == null) {
             return;
@@ -81,8 +129,9 @@ public class GamePlayerUI {
 
         // Send UI information
         if (gamePlayer.isAlive() && !gamePlayer.isSpectator()) {
-            Chat.sendActionbar(player, format.format(gamePlayer));
+            Chat.sendActionbar(player, format.format(gamePlayer, ultimateColor));
         }
+
     }
 
     public void updateScoreboard() {
@@ -93,44 +142,44 @@ public class GamePlayerUI {
         this.builder.addLines("");
         //        this.builder.addLines("", "Welcome %s to the".formatted(this.player.getName()), "&lClasses Fight &fArena!", "");
 
+        // FIXME (hapyl): 006, Aug 6: temp fix
         if (current.isGameInProgress()) {
             final IGameInstance game = current.getCurrentGame();
-            final IGamePlayer gamePlayer = GamePlayer.getPlayer(this.player);
+            final GamePlayer gamePlayer = CF.getPlayer(this.player);
 
-            // Have to reduce this so everything fits
-            if (!gamePlayer.isAlive() && !gamePlayer.isRespawning()) {
-                this.builder.addLines("&6&lSpectator: &f%s".formatted(getTimeLeftString(game)));
-                for (final GamePlayer alive : game.getPlayers().values()) {
-                    this.builder.addLine(
-                            " &6%s &e%s %s &c%s ❤",
-                            alive.getHero().getName(),
-                            alive.getPlayer().getName(),
-                            UIFormat.DIV,
-                            alive.getHealth()
+            if (gamePlayer != null) {
+                // Have to reduce this so everything fits
+                if (!gamePlayer.isAlive() && !gamePlayer.isRespawning()) {
+                    this.builder.addLines("&6&lSpectator: &f%s".formatted(getTimeLeftString(game)));
+                    for (final GamePlayer alive : CF.getAlivePlayers()) {
+                        this.builder.addLine(
+                                " &6%s &e%s %s &c%.1f ❤",
+                                alive.getHero().getName(),
+                                alive.getPlayer().getName(),
+                                UIFormat.DIV,
+                                alive.getHealth()
+                        );
+                    }
+                }
+
+                else {
+                    // Default Game Lines
+                    this.builder.addLines(
+                            "&6&lGame: &8" + game.hexCode(),
+                            " &e&lMap: &f%s".formatted(current.getCurrentMap().getMap().getName()),
+                            " &e&lTime Left: &f%s".formatted(getTimeLeftString(game)),
+                            " &e&lStatus: &f%s".formatted(gamePlayer.getStatusString())
                     );
+
+                    game.getMode().formatScoreboard(builder, (GameInstance) game, gamePlayer);
                 }
             }
-
-            else {
-                // Default Game Lines
-                this.builder.addLines(
-                        "&6&lGame: &8" + game.hexCode(),
-                        " &e&lMap: &f%s".formatted(current.getCurrentMap().getMap().getName()),
-                        " &e&lTime Left: &f%s".formatted(getTimeLeftString(game)),
-                        " &e&lStatus: &f%s".formatted(gamePlayer.getStatusString())
-                );
-
-                game.getMode().formatScoreboard(builder, (GameInstance) game, (GamePlayer) gamePlayer);
-            }
-
         }
         // Trial
-        else if (Manager.current().isTrialExistsAndIsOwner(player)) {
-            final Trial trial = Manager.current().getTrial();
+        else if (Manager.current().getTrial().isInTrial(player)) {
             this.builder.addLines(
                     "&6&lTrial:",
-                    " &e&lTime Left: &f%s".formatted(new SimpleDateFormat("mm:ss").format(trial.getTimeLeft())),
-                    " &e&lHero: &f%s &cTrial".formatted(trial.getHeroes().getHero().getName())
+                    " &e&lHero: &f%s &cTrial".formatted(profile.getHero().getName())
             );
         }
         else {
@@ -139,13 +188,14 @@ public class GamePlayerUI {
                     "&6&lLobby:",
                     " &e&lMap: &f%s".formatted(current.getCurrentMap().getMap().getName()),
                     " &e&lMode: &f%s".formatted(current.getCurrentMode().getMode().getName()),
-                    " &e&lCoins: &f%s".formatted(currency.getFormatted(Currency.COINS)),
-                    " &e&lRubies: &f%s".formatted(currency.getFormatted(Currency.RUBIES)),
-                    String.format(
-                            " &e&lHero: &f%s",
-                            Setting.RANDOM_HERO.isEnabled(player) ? "Random" : profile.getSelectedHero().getName()
-                    )
+                    " &e&lCoins: &f%s".formatted(currency.getFormatted(Currency.COINS))
             );
+
+            if (currency.get(Currency.RUBIES) > 0) {
+                this.builder.addLine(" &e&lRubies: &f%s", currency.getFormatted(Currency.RUBIES));
+            }
+
+            this.builder.addLine(" &e&lHero: &f%s", profile.getSelectedHeroString());
         }
 
         this.builder.addLine("");
@@ -153,8 +203,23 @@ public class GamePlayerUI {
         this.builder.addPlayer(player);
     }
 
+    public Player getPlayer() {
+        return player;
+    }
+
+    public void hideScoreboard() {
+        this.builder.getScoreboard().clearSlot(DisplaySlot.SIDEBAR);
+    }
+
+    public void showScoreboard() {
+        this.builder.getObjective().setDisplaySlot(DisplaySlot.SIDEBAR);
+    }
+
+    private void animateScoreboard() {
+    }
+
     private String getTimeLeftString(IGameInstance game) {
-        return new SimpleDateFormat("mm:ss").format(game.getTimeLeftRaw());
+        return Manager.current().isDebug() ? "∞" : new SimpleDateFormat("mm:ss").format(game.getTimeLeftRaw());
     }
 
     private StringBuilder buildGameFooter() {
@@ -247,12 +312,15 @@ public class GamePlayerUI {
 
         footer.append("\n&ehapyl.github.io/classes_fight");
 
+        //"\n&e&lCLASSES FIGHT\n&c&lᴀʀᴇɴᴀ\n\n&fTotal Players: &l" + Bukkit.getOnlinePlayers().size()
         return new String[] {
-                "\n&e&lCLASSES FIGHT\n&c&lᴀʀᴇɴᴀ\n\n&fTotal Players: &l" + Bukkit.getOnlinePlayers().size(), footer.toString()
+                """
+                                       
+                        &e&lCLASSES FIGHT
+                        &c&lᴀʀᴇɴᴀ
+                                                
+                        &fTotal Players: &l%s&f, Server TPS: &l%.1f
+                        """.formatted(Bukkit.getOnlinePlayers().size(), MinecraftServer.getServer().recentTps[0]), footer.toString()
         };
-    }
-
-    public Player getPlayer() {
-        return player;
     }
 }

@@ -2,8 +2,17 @@ package me.hapyl.fight.game.collectible;
 
 import org.bukkit.block.BlockFace;
 
+/**
+ * Converts minecraft magic number rotation into Spigot BlockFace.
+ */
 public final class BlockFaceInt {
 
+    /**
+     * Get BlockFace from minecraft magic number between 0-15.
+     *
+     * @param rotation - Magic number, 0-15.
+     * @return BlockFace.
+     */
     public static BlockFace get(int rotation) {
         return switch (rotation) {
             case 0 -> BlockFace.SOUTH;

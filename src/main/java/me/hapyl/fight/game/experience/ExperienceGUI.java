@@ -1,60 +1,69 @@
 package me.hapyl.fight.game.experience;
 
 import me.hapyl.fight.Main;
+import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.reward.Reward;
-import me.hapyl.fight.gui.PlayerProfileGUI;
+import me.hapyl.fight.gui.styled.profile.PlayerProfileGUI;
+import me.hapyl.fight.gui.styled.*;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.inventory.gui.PlayerGUI;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
-public class ExperienceGUI extends PlayerGUI {
+// Not using PageGUI because it's a custom pattern
+public class ExperienceGUI extends StyledGUI {
 
     private final int[] slots;
     private final Experience experience;
+    private int index;
 
     public ExperienceGUI(Player player) {
-        super(player, "Experience", 6);
+        super(player, "Experience", Size.FIVE);
 
-        this.experience = Main.getPlugin().getExperience();
-        this.slots = new int[] {
-                9, 10, 19, 28, 37, 46, 47, 48, 39, 30, 21, 12, 13, 14, 23, 32, 41, 50, 51, 52, 43, 34, 25, 16, 17
+        experience = Main.getPlugin().getExperience();
+        slots = new int[] {
+                //9, 10, 19, 28, 37, 46, 47, 48, 39, 30, 21, 12, 13, 14, 23, 32, 41, 50, 51, 52, 43, 34, 25, 16, 17
+                0, 1, 10, 19, 28, 37, 38, 39, 30, 21, 12, 3, 4, 5, 14, 23, 32, 41, 42, 43, 34, 25, 16, 7, 8
         };
 
-        update(1);
+        index = 1;
+        openInventory();
     }
 
-    public void update(int index) {
-        clearEverything();
+    @Nullable
+    @Override
+    public ReturnData getReturnData() {
+        return ReturnData.of("Profile", PlayerProfileGUI::new);
+    }
 
-        // valida index is min 1 or throw error
-        if (index < 1) {
-            throw new IllegalArgumentException("Index must be greater than 0!");
-        }
+    @Override
+    public void onUpdate() {
+        //setHeader(StyledItem.ICON_LEVELLING.asIcon());
+        //setReturnItem(1);
 
-        // Add button for the previous page if index > 0
+        // Add button for the previous page if index is > 0
         if (index > 1) {
-            setItem(1, ItemBuilder.of(Material.ARROW, "Previous Page").asIcon(), e -> update(index - slots.length));
+            setItem(47, StyledTexture.ARROW_LEFT.asIcon("Previous Page (1-25)", Color.BUTTON + "Click to browse levels from 1 to 25."),
+                    e -> {
+                        index -= slots.length;
+                        update();
+                    }
+            );
         }
 
         // Add button for the next page if index < max experience level
         if (index + slots.length < experience.MAX_LEVEL) {
-            setItem(7, ItemBuilder.of(Material.ARROW, "Next Page").asIcon(), e -> update(index + slots.length));
+            setItem(51, StyledTexture.ARROW_RIGHT.asIcon("Next Page (26-50)", Color.BUTTON + "Click to browse levels from 26 to 50."),
+                    e -> {
+                        index += slots.length;
+                        update();
+                    }
+            );
         }
-
-        // Set back button at slot 18
-        setArrowBack(18, new PlayerProfileGUI(getPlayer()));
-        //setItem(18, ItemBuilder.of(Material.ARROW, "Go Back").asIcon(), CollectionGUI::new);
-
-        // put emerald icon in the middle
-        // add a lore to the icon
-        setItem(
-                4,
-                ItemBuilder.of(Material.EMERALD, "Experience").addSmartLore("&7Earn experience in game and unlock unique rewards!").asIcon()
-        );
 
         for (int i = index; i < index + slots.length; i++) {
             final int slot = slots[i - index];
@@ -66,11 +75,10 @@ public class ExperienceGUI extends PlayerGUI {
 
             setItem(slot, createItem(level));
         }
-
-        openInventory();
     }
 
-    public ItemStack createItem(ExperienceLevel level) {
+    @Nonnull
+    public ItemStack createItem(@Nonnull ExperienceLevel level) {
         final Player player = getPlayer();
         final ItemBuilder builder = new ItemBuilder(Material.PAPER);
         final boolean levelReached = level.getLevel() <= experience.getLevel(player);
@@ -80,7 +88,7 @@ public class ExperienceGUI extends PlayerGUI {
         }
         else {
             if (levelReached) {
-                builder.setType(Material.GREEN_STAINED_GLASS_PANE);
+                builder.setType(Material.LIME_STAINED_GLASS_PANE);
             }
             else {
                 builder.setType(Material.RED_STAINED_GLASS_PANE);
@@ -106,14 +114,6 @@ public class ExperienceGUI extends PlayerGUI {
                 reward.display(player, builder);
             }
 
-            //if (!heroesUnlock.isEmpty()) {
-            //    builder.addSmartLore("&7- &6" + heroesUnlock.stream()
-            //            .map(Heroes::getName)
-            //            .collect(Collectors.joining("&7, &6"))
-            //            .replaceFirst(",([^,]*)$", " &7and$1") + " &7" + (heroesUnlock.size() == 1 ? "hero" : "heroes") + " &7" +
-            //            rewards.get(rewards.size() - 1).display(), "  ");
-            //}
-
         }
         else {
             builder.addLore("&cNo rewards!");
@@ -121,5 +121,10 @@ public class ExperienceGUI extends PlayerGUI {
 
         return builder.build();
     }
+
+    protected void setReturnItem(int slot) {
+        StaticStyledGUI.setReturn(this, slot);
+    }
+
 
 }

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>me.hapyl</groupId>
     <artifactId>ClassesFightArena</artifactId>
     <description>A PvP mini-game plugin.</description>
-    <version>1.6.0-SNAPSHOT</version>
+    <version>2.2-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -53,28 +53,6 @@
                 </executions>
             </plugin>
 
-            <!-- Copy Plugin -->
-            <!--            <plugin>-->
-            <!--                <groupId>org.apache.maven.plugins</groupId>-->
-            <!--                <artifactId>maven-antrun-plugin</artifactId>-->
-            <!--                <version>1.8</version>-->
-            <!--                <executions>-->
-            <!--                    &lt;!&ndash; Copy to server &ndash;&gt;-->
-            <!--                    <execution>-->
-            <!--                        <phase>install</phase>-->
-            <!--                        <configuration>-->
-            <!--                            <target>-->
-            <!--                                <copy file="${project.build.directory}/${project.build.finalName}.jar"-->
-            <!--                                      todir="E:/_ServerCF/plugins"/>-->
-            <!--                            </target>-->
-            <!--                        </configuration>-->
-            <!--                        <goals>-->
-            <!--                            <goal>run</goal>-->
-            <!--                        </goals>-->
-            <!--                    </execution>-->
-            <!--                </executions>-->
-            <!--            </plugin>-->
-
         </plugins>
         <resources>
             <resource>
@@ -90,27 +68,29 @@
     <!--    Repos-->
     <repositories>
         <repository>
+            <id>dmulloy2-repo</id>
+            <url>https://repo.dmulloy2.net/repository/public/</url>
+        </repository>
+
+        <repository>
             <id>spigotmc-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
+
         <repository>
             <id>sonatype</id>
             <url>https://oss.sonatype.org/content/groups/public/</url>
         </repository>
+
         <repository>
             <id>minecraft-repo</id>
             <url>https://libraries.minecraft.net/</url>
-        </repository>
-        <repository>
-            <id>dmulloy2-repo</id>
-            <url>https://repo.dmulloy2.net/repository/public/</url>
         </repository>
 
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
-
     </repositories>
 
     <!--    Dependencies-->
@@ -118,7 +98,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.19.4-R0.1-SNAPSHOT</version>
+            <version>1.20-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -146,13 +126,21 @@
         <dependency>
             <groupId>com.comphenix.protocol</groupId>
             <artifactId>ProtocolLib</artifactId>
-            <version>5.0.0-SNAPSHOT</version>
+            <version>5.0.0</version>
+            <scope>provided</scope>
         </dependency>
+
+        <!--         LOCAL REPO FOR TESTING -->
+        <!--        <dependency>-->
+        <!--            <groupId>me.hapyl</groupId>-->
+        <!--            <artifactId>EternaAPI</artifactId>-->
+        <!--            <version>2.34.4-SNAPSHOT</version>-->
+        <!--        </dependency>-->
 
         <dependency>
             <groupId>com.github.hapyl</groupId>
             <artifactId>EternaAPI</artifactId>
-            <version>2.12.0-SNAPSHOT</version>
+            <version>2.35.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>

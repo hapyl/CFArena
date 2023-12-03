@@ -1,13 +1,13 @@
 package me.hapyl.fight.game.maps.features;
 
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.maps.MapFeature;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Direction;
-import me.hapyl.fight.util.Utils;
-import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import net.md_5.bungee.api.ChatColor;
@@ -37,25 +37,28 @@ public class JapanFeature extends MapFeature implements Listener {
     private final Map<Player, Long> lastMovedAt = new HashMap<>();
 
     public JapanFeature() {
-        super("Healing Sakura", "Stand inside &eSakura's &7&orange to feel it's healing petals!");
+        super("Healing Sakura", "Stand inside &eSakura's &7&orange to feel its healing petals!");
     }
 
     @Override
-    public void tick(int tick) {
-        if (tick != 0) {
+    public void tick(int tickMod20) {
+        if (tickMod20 != 0) {
             return;
         }
 
         for (final Location location : healingSakuraLocations) {
-            Utils.getPlayersInRange(location, 6.5d).forEach(player -> {
+            Collect.nearbyPlayers(location, 6.5d).forEach(gamePlayer -> {
+                final Player player = gamePlayer.getPlayer();
+
                 if (!canBeHealed(player)) {
                     return;
                 }
-                GamePlayer.getPlayer(player).heal(0.5d);
+
+                gamePlayer.heal(1.0d); // 0.5 -> 1.0
 
                 // fx
-                Chat.sendTitle(player, "", ChatColor.of("#ffccff") + "You feel sakura's petals on your head", 0, 20, 5);
-                PlayerLib.spawnParticle(player.getEyeLocation().add(0.0d, 0.5d, 0.0d), Particle.HEART, 1, 0, 0, 0, 0);
+                gamePlayer.sendSubtitle(ChatColor.of("#ffccff") + "You feel sakura's petals on your head", 0, 20, 5);
+                gamePlayer.spawnWorldParticle(gamePlayer.getEyeLocation().add(0.0d, 0.5d, 0.0d), Particle.HEART, 1, 0, 0, 0, 0);
             });
         }
 
@@ -103,9 +106,12 @@ public class JapanFeature extends MapFeature implements Listener {
     @EventHandler()
     public void handlePlayerMove(PlayerMoveEvent ev) {
         final Player player = ev.getPlayer();
-        if (!validateGameAndMap(GameMaps.JAPAN) && GamePlayer.getPlayer(player).isAlive()) {
+        final GamePlayer gamePlayer = CF.getPlayer(player);
+
+        if (!validateGameAndMap(GameMaps.JAPAN) || gamePlayer == null) {
             return;
         }
+
 
         final Location from = ev.getFrom();
         final Location to = ev.getTo();
@@ -127,9 +133,11 @@ public class JapanFeature extends MapFeature implements Listener {
         final Action action = ev.getAction();
         final Block block = ev.getClickedBlock();
 
-        if (action == Action.PHYSICAL && block != null && block.getType() == Material.LIGHT_WEIGHTED_PRESSURE_PLATE) {
-            final Direction direction = Direction.getDirection(player);
+        if (action == Action.PHYSICAL
+                && block != null
+                && block.getType() == Material.LIGHT_WEIGHTED_PRESSURE_PLATE) {
 
+            final Direction direction = Direction.getDirection(player.getLocation());
             final Vector vector = new Vector(0.0d, 2.0d, 0.0d);
             final double trueDoubleValue = 1.15d;
 

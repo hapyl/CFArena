@@ -1,10 +1,8 @@
 package me.hapyl.fight.game.cosmetic;
 
-import me.hapyl.fight.game.shop.Rarity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.ShutdownAction;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 
 public abstract class WinCosmetic extends Cosmetic {
 
@@ -12,8 +10,8 @@ public abstract class WinCosmetic extends Cosmetic {
     private int maxTimes;
     private int step;
 
-    public WinCosmetic(String name, String description, long cost, Rarity rarity) {
-        super(name, description, cost, Type.WIN, rarity);
+    public WinCosmetic(String name, String description, Rarity rarity) {
+        super(name, description, Type.WIN, rarity);
 
         this.delay = 10;
         this.maxTimes = 1;
@@ -69,16 +67,6 @@ public abstract class WinCosmetic extends Cosmetic {
 
     public int getStep() {
         return step;
-    }
-
-    @Override
-    public final void onDisplay(Location location) {
-        throw new IllegalArgumentException("Use onDisplay(Display) instead!");
-    }
-
-    @Override
-    public final void onDisplay(Player player) {
-        throw new IllegalArgumentException("Use onDisplay(Display) instead!");
     }
 
     public void setAdditionalDelay(int delay) {

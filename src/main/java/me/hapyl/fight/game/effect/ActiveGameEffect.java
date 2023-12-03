@@ -1,32 +1,44 @@
 package me.hapyl.fight.game.effect;
 
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
-import org.bukkit.entity.Player;
+import me.hapyl.fight.game.ui.display.StringDisplay;
+import org.bukkit.event.player.PlayerEvent;
 
 public class ActiveGameEffect {
 
-    private final Player player;
+    private final LivingGameEntity entity;
     private final GameEffectType type;
+    private int level;
     private int remainingTicks;
 
-    public ActiveGameEffect(Player owner, GameEffectType type, int initTicks) {
-        this.player = owner;
+    public ActiveGameEffect(LivingGameEntity entity, GameEffectType type, int initTicks) {
+        this.entity = entity;
         this.type = type;
         this.remainingTicks = initTicks;
+        this.level = 0;
+
         startTicking();
     }
 
-    public Player getPlayer() {
-        return player;
+    public LivingGameEntity getEntity() {
+        return entity;
     }
 
     public GameEffectType getType() {
         return type;
     }
 
+    public int getLevel() {
+        return level;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
     public void triggerUpdate() {
-        this.type.getGameEffect().onUpdate(player);
+        this.type.getGameEffect().onUpdate(entity);
     }
 
     public void setRemainingTicks(int ticks) {
@@ -47,16 +59,23 @@ public class ActiveGameEffect {
 
     public void forceStop() {
         remainingTicks = 0;
-        type.getGameEffect().onStop(player);
+        type.getGameEffect().onStop(entity);
+        entity.getData().clearEffect(type);
+    }
 
-        final GamePlayer gp = GamePlayer.getExistingPlayer(player);
-        if (gp != null) {
-            gp.clearEffect(type);
-        }
+    public <T extends PlayerEvent> void processEvent(T ev) {
     }
 
     private void startTicking() {
-        type.getGameEffect().onStart(player);
+        final GameEffect effect = type.getGameEffect();
+        final StringDisplay display = effect.getDisplay();
+
+        effect.onStart(entity);
+
+        if (display != null) {
+            display.display(entity.getEyeLocation());
+        }
+
         new GameTask() {
             @Override
             public void run() {
@@ -68,7 +87,7 @@ public class ActiveGameEffect {
                     return;
                 }
 
-                type.getGameEffect().onTick(player, remainingTicks % 20);
+                effect.onTick(entity, remainingTicks % 20);
 
                 // actually tick down
                 --remainingTicks;

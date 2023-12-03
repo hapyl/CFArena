@@ -1,11 +1,14 @@
 package me.hapyl.fight.game.maps;
 
 import me.hapyl.fight.Main;
+import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.PlayerElement;
+import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 
+@AutoRegisteredListener
 public abstract class MapFeature implements GameElement, PlayerElement {
 
     private final String name;
@@ -16,8 +19,16 @@ public abstract class MapFeature implements GameElement, PlayerElement {
         this.info = info;
 
         if (this instanceof Listener listener) {
-            Main.getPlugin().addEvent(listener);
+            Bukkit.getPluginManager().registerEvents(listener, Main.getPlugin());
         }
+    }
+
+    @Override
+    public void onStart() {
+    }
+
+    @Override
+    public void onStop() {
     }
 
     public String getName() {
@@ -28,15 +39,10 @@ public abstract class MapFeature implements GameElement, PlayerElement {
         return info;
     }
 
-    @Override
-    public void onStart() {
-
-    }
-
-    @Override
-    public void onStop() {
-
-    }
+    /**
+     * @param tickMod20 a modulo value of 20 of the runnable.
+     */
+    public abstract void tick(int tickMod20);
 
     protected final boolean validateCurrentMap(GameMaps maps) {
         return Manager.current().getCurrentMap() == maps;
@@ -45,10 +51,5 @@ public abstract class MapFeature implements GameElement, PlayerElement {
     protected final boolean validateGameAndMap(GameMaps map) {
         return validateCurrentMap(map) && Manager.current().isGameInProgress();
     }
-
-    /**
-     * @param tick a modulo value of 20 of the runnable.
-     */
-    public abstract void tick(int tick);
 
 }

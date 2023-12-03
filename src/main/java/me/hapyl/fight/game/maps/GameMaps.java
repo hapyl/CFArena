@@ -4,9 +4,11 @@ import me.hapyl.fight.game.maps.features.CloudFeatures;
 import me.hapyl.fight.game.maps.features.JapanFeature;
 import me.hapyl.fight.game.maps.features.LibraryCat;
 import me.hapyl.fight.game.maps.features.LibraryFeature;
-import me.hapyl.fight.game.maps.healthpack.PackType;
+import me.hapyl.fight.game.maps.gamepack.PackType;
 import me.hapyl.fight.game.maps.maps.DragonsGorge;
-import me.hapyl.fight.game.maps.maps.WineryMap;
+import me.hapyl.fight.game.maps.maps.DwarfVault;
+import me.hapyl.fight.game.maps.maps.MoonBase;
+import me.hapyl.fight.game.maps.winery.WineryMap;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.Material;
 
@@ -34,6 +36,7 @@ public enum GameMaps {
                     .addLocation(100, 64, 0)
                     .addPackLocation(PackType.HEALTH, 79.5, 77.0, 22.5)
                     .addPackLocation(PackType.HEALTH, 100.5, 63.0, 13.5)
+                    .addPackLocation(PackType.HEALTH, 89.5, 66.0, -24.5)
                     .addPackLocation(PackType.CHARGE, 116.5, 63.0, 8.5)
                     .addPackLocation(PackType.CHARGE, 87.5, 65.0, -4.5)
                     .addPackLocation(PackType.CHARGE, 112.5, 72.0, -29.5)
@@ -76,9 +79,9 @@ public enum GameMaps {
                     .setMaterial(Material.CRIMSON_NYLIUM)
                     .setSize(Size.MEDIUM)
                     .setTicksBeforeReveal(100)
-                    .addLocation(306, 66.0, -200)
-                    .addLocation(319, 73.0, -200)
-                    .addLocation(273, 75.0, -200)
+                    .addLocation(306, 66, -200)
+                    .addLocation(319, 73, -200)
+                    .addLocation(273, 75, -200)
     ),
 
     RAILWAY_STATION(
@@ -135,6 +138,10 @@ public enum GameMaps {
     DRAGONS_GORGE(new DragonsGorge()), // complex map, stored in separate file
 
     WINERY(new WineryMap()), // complex map, stored in separate file
+
+    MOON_BASE(new MoonBase()), // complex map, stored in separate file
+
+    DWARF_VAULT(new DwarfVault()),
 
     ;
 

@@ -29,7 +29,7 @@ public class Test {
         test();
     }
 
-    public void test() {
+    private void test() {
         if (b) {
             throw new ClassesFightTestHasBeenAlreadyInitiatedYouDumbassException();
         }

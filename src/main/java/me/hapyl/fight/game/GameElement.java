@@ -6,12 +6,12 @@ package me.hapyl.fight.game;
 public interface GameElement {
 
     /**
-     * Called once whenever game starts.
+     * Called once whenever the game starts.
      */
     void onStart();
 
     /**
-     * Called once whenever game stops.
+     * Called once whenever the game stops.
      */
     void onStop();
 

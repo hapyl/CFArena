@@ -11,6 +11,6 @@ public class JapanGod extends MapFeature implements Listener {
     }
 
     @Override
-    public void tick(int tick) {
+    public void tick(int tickMod20) {
     }
 }

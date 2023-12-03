@@ -1,5 +1,6 @@
 package me.hapyl.fight.game;
 
+import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.spigotutils.module.util.Action;
 import org.bukkit.Bukkit;
@@ -18,6 +19,31 @@ public class ScoreboardTeams {
         this.player = player;
     }
 
+    public static void updateAll() {
+        final boolean gameInProgress = Manager.current().isGameInProgress();
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            final PlayerProfile profile = PlayerProfile.getProfile(player);
+
+            if (profile == null) {
+                continue;
+            }
+
+            profile.getScoreboardTeams().populate(!gameInProgress, false);
+        }
+    }
+
+    private static Team getOrCreateTeam(Player player, String name) {
+        final Scoreboard scoreboard = player.getScoreboard();
+        Team team = scoreboard.getTeam("%" + name);
+
+        if (team == null) {
+            team = scoreboard.registerNewTeam("%" + name);
+        }
+
+        return team;
+    }
+
     public void populateInGame(Player other) {
         if (GameTeam.isTeammate(other, player)) {
             LocalTeam.GAME_ALLY.fetchTeam(player, false).addEntry(other.getName());
@@ -27,17 +53,18 @@ public class ScoreboardTeams {
         }
     }
 
-    public void populate(boolean lobby) {
-        if (lobby) {
+    public void populate(boolean toLobby, boolean clean) {
+        if (toLobby) {
             final Team team = LocalTeam.LOBBY.fetchTeam(player);
 
-            for (Player online : Bukkit.getOnlinePlayers()) {
-                team.addEntry(online.getName());
+            for (Player other : Bukkit.getOnlinePlayers()) {
+                team.addEntry(other.getName());
             }
+
         }
         else {
-            final Team teamAlly = LocalTeam.GAME_ALLY.fetchTeam(player);
-            final Team teamEnemy = LocalTeam.GAME_ENEMY.fetchTeam(player);
+            final Team teamAlly = LocalTeam.GAME_ALLY.fetchTeam(player, clean);
+            final Team teamEnemy = LocalTeam.GAME_ENEMY.fetchTeam(player, clean);
 
             for (Player other : Bukkit.getOnlinePlayers()) {
                 final String name = other.getName();
@@ -52,15 +79,8 @@ public class ScoreboardTeams {
         }
     }
 
-    private static Team getOrCreateTeam(Player player, String name) {
-        final Scoreboard scoreboard = player.getScoreboard();
-        Team team = scoreboard.getTeam("%" + name);
-
-        if (team == null) {
-            team = scoreboard.registerNewTeam("%" + name);
-        }
-
-        return team;
+    public void populate(boolean toLobby) {
+        populate(toLobby, true);
     }
 
     private enum LocalTeam {

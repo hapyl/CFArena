@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.maps.maps;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.maps.GameMap;
 import me.hapyl.fight.game.maps.MapFeature;
 import me.hapyl.fight.game.maps.Size;
@@ -39,14 +39,14 @@ public class DragonsGorge extends GameMap {
             }
 
             @Override
-            public void tick(int tick) {
-                final Collection<GamePlayer> players = Manager.current().getCurrentGame().getAllPlayers();
+            public void tick(int tickMod20) {
+                final Collection<GamePlayer> players = CF.getPlayers();
 
-                players.forEach(gp -> {
-                    final Player player = gp.getPlayer();
+                players.forEach(gamePlayer -> {
+                    final Player player = gamePlayer.getPlayer();
 
                     // Reset dead player
-                    if (!gp.isAlive() && coldMeter.containsKey(player)) {
+                    if (!gamePlayer.isAlive() && coldMeter.containsKey(player)) {
                         coldMeter.remove(player);
                         return;
                     }
@@ -59,23 +59,26 @@ public class DragonsGorge extends GameMap {
                     }
 
                     // Punish
-                    if (tick == 0) {
+                    if (tickMod20 == 0) {
                         // Display cold meter
                         if (newValue > 0) {
-                            gp.sendTitle("", ProgressBarBuilder.of("❄", ChatColor.AQUA, newValue, maxColdValue), 0, 25, 5);
+                            gamePlayer.sendTitle("", ProgressBarBuilder.of("❄", ChatColor.AQUA, newValue, maxColdValue), 0, 25, 5);
                         }
 
                         // For FX
                         player.setFreezeTicks((int) Math.min(player.getMaxFreezeTicks(), newValue));
 
                         if (isBetween(newValue, 25, 50)) { // Low hitting ticks
-                            GamePlayer.damageEntity(player, 4.0d, null, EnumDamageCause.COLD);
+                            gamePlayer.damage(4.0d, EnumDamageCause.COLD);
                         }
                         else if (isBetween(newValue, 50, 100)) { // High hitting ticks and warning
-                            GamePlayer.damageEntity(player, 6.0d, null, EnumDamageCause.COLD);
+                            gamePlayer.damage(6.0d, EnumDamageCause.COLD);
                         }
                         else if (newValue >= maxColdValue) { // Instant Death
-                            GamePlayer.damageEntity(player, 1000.0d, null, EnumDamageCause.COLD);
+                            //GamePlayer.damageEntity(player, 1000.0d, null, EnumDamageCause.COLD);
+                            // Replace 1000 damage to prevent achievement abuse
+                            gamePlayer.setLastDamageCause(EnumDamageCause.COLD);
+                            gamePlayer.die(true);
                         }
 
                         // Fx

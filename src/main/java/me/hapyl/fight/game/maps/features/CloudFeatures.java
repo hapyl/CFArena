@@ -1,7 +1,8 @@
 package me.hapyl.fight.game.maps.features;
 
-import me.hapyl.fight.game.GamePlayer;
-import me.hapyl.fight.game.IGamePlayer;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.maps.MapFeature;
 import org.bukkit.Location;
@@ -44,15 +45,17 @@ public class CloudFeatures extends MapFeature implements Listener {
         final Location location = player.getLocation();
 
         if (location.getY() < 0) {
-            final IGamePlayer gamePlayer = GamePlayer.getPlayer(player);
+            final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
+
             if (gamePlayer.isAlive()) {
                 gamePlayer.die(true);
+                Achievements.BEYOND_CLOUDS.complete(player);
             }
         }
     }
 
     @Override
-    public void tick(int tick) {
+    public void tick(int tickMod20) {
 
     }
 }

@@ -1,130 +1,128 @@
 package me.hapyl.fight.game.achievement;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import me.hapyl.fight.database.PlayerDatabase;
-import me.hapyl.fight.database.entry.AchievementEntry;
-import me.hapyl.fight.game.reward.CurrencyReward;
-import me.hapyl.fight.game.reward.Reward;
-import me.hapyl.fight.game.reward.Rewards;
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.trigger.Triggers;
 import org.bukkit.entity.Player;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import javax.annotation.Nonnull;
 
 public enum Achievements {
 
-    //
-    // READ BEFORE ADDING ACHIEVEMENT
-    // 1. Make a good ENUM name, it should not be changed in the future.
-    // 2. Make a good achievement name, something that is not too long.
-    // 3. Make a good achievement description, how to get the achievement usually is advised.
-    // 4. Use proper achievement class, Achievement for normal, ProgressAchievement for
-    //    achievements that can be completed multiple times, HiddenAchievement for, well, hidden achievements.
-    //
+    PLAY_FIRST_GAME("So That's How It Is", "Play your very first game."),
+    FIRST_BLOOD("First Blood", "Cause first blood in a game.__&8You or your team."),
 
-    PLAY_FIRST_GAME(new Achievement("So That's How It Is", "Play your first game.")
-            .setReward(new CurrencyReward("").withCoins(500).withRubies(1))),
+    /////////////////////////
+    // TIERED ACHIEVEMENTS //
+    /////////////////////////
+    USE_TALENTS(
+            new TieredAchievement(
+                    "Talent Mastery",
+                    "Use any talent {} times.",
+                    10, 100, 1000, 5000, 10000
+            )
+    ),
 
-    TEST_PROGRESS_ACHIEVEMENT(new ProgressAchievement("Test Progress Achievement", "")
-            .setReward(1, Rewards.EMPTY.getReward())
-            .setReward(5, Rewards.EMPTY.getReward())
-            .setReward(10, Rewards.EMPTY.getReward())),
+    USE_ULTIMATES(
+            new TieredAchievement(
+                    "Ultimate Showdown",
+                    "Use your ultimate {} times.",
+                    5, 50, 100, 500, 1000
+            )
+    ),
 
-    TEST_HIDDEN_ACHIEVEMENT(new HiddenAchievement("WHAT", "HOW")),
+    TEST_TIERED_ACHIEVEMENT(
+            new TieredAchievement(
+                    "test test blah blah blah",
+                    "remove me {} times",
+                    1, 5, 10, 15, 20
+            )
+    ),
+
+    ///////////////////////////////
+    // HERO RELATED ACHIEVEMENTS //
+    ///////////////////////////////
+
+    // Troll
+    LAUGHING_OUT_LOUD(
+            new HiddenAchievement(
+                    "LOL!",
+                    "Perform a special troll technique to instantly annihilate your opponent!"
+            )
+    ),
+
+    LAUGHING_OUT_LOUD_VICTIM(
+            new HiddenAchievement("That's Not Fair!", "Get killed by Troll's passive ability.")
+    ),
+
+    ////////////////////////
+    // OTHER ACHIEVEMENTS //
+    ////////////////////////
+
+    SHREDDING_TIME(
+            new HiddenAchievement("Shredding Time!", "Get tear to shred by a certain turbine.")
+    ),
+
+    DEFENSELESS(
+            new HiddenAchievement("Defenseless", "Get 0 and less defense.")
+                    .setTrigger(Triggers.ATTRIBUTE_CHANGE, trigger -> {
+                        return trigger.type == AttributeType.DEFENSE && trigger.newValue <= 0.0d;
+                    })
+    ),
+
+    COMPLETE_LAMP_PUZZLE(
+            new Achievement("Light Them Up!", "Complete the lamp puzzle in the lobby.")
+    ),
+
+    BEYOND_CLOUDS(
+            new HiddenAchievement("Beyond Clouds", "Die from falling out of a certain kingdom in the clouds.")
+    ),
+
+    THEY_ARE_TWINS_ALRIGHT(
+            new Achievement("They're Twins Alright!", "Hit two enemies with Twin Claws at the same time.")
+                    .setPointReward(20)
+    ),
+
+    RULES_ARE_NOT_FOR_ME(
+            new HiddenAchievement("Rules Aren't For Me", "Use any other than explained click in hero selection.")
+    ),
+
+    AFK(
+            new HiddenAchievement("Be Right Back!", "Go AFK in the middle of the game.")
+    ),
+
+    I_DONT_WANT_TO_PLAY(
+            new HiddenAchievement("I DONT WANT TO PLAY!!!", "Let everyone know that you don't want to play right now.")
+    ),
+
     ;
 
-    private static final Map<Category, List<Achievements>> BY_CATEGORY;
+    public final Achievement achievement;
 
-    static {
-        BY_CATEGORY = Maps.newHashMap();
-
-        for (Achievements value : values()) {
-            BY_CATEGORY.compute(value.getAchievement().getCategory(), (category, list) -> {
-                if (list == null) {
-                    list = Lists.newArrayList();
-                }
-
-                list.add(value);
-                return list;
-            });
-        }
-    }
-
-    private final Achievement achievement;
-
-    Achievements(Achievement achievement) {
+    Achievements(@Nonnull Achievement achievement) {
         this.achievement = achievement;
+        this.achievement.setId(name());
     }
 
-    public Achievement getAchievement() {
-        return achievement;
+    Achievements(@Nonnull String name, @Nonnull String description) {
+        this(new Achievement(name, description));
     }
 
-    /**
-     * Tries to complete achievement for player.
-     *
-     * @param player - Player to complete achievement for.
-     * @return true if completed, false if already completed.
-     */
+    public boolean hasCompletedAtLeastOnce(Player player) {
+        return achievement.hasCompletedAtLeastOnce(player);
+    }
+
+    public boolean complete(GamePlayer player) {
+        return complete(player.getPlayer());
+    }
+
     public boolean complete(Player player) {
-        final PlayerDatabase database = PlayerDatabase.getDatabase(player);
-        final AchievementEntry entry = database.getAchievementEntry();
-        final int completeCount = entry.getCompleteCount(this);
-        final int nextComplete = completeCount + 1;
-
-        // If already completed, check if progress achievement
-        if (completeCount > 0 && completeCount >= achievement.getMaxCompleteCount()) {
-            return false;
-        }
-
-        entry.addCompleteCount(this);
-
-        final Reward nextReward = achievement.getReward(nextComplete);
-
-        if (nextReward == null) {
-            return true;
-        }
-
-        entry.setCompletedAt(this, System.currentTimeMillis());
-
-        achievement.onComplete(player);
-        achievement.displayComplete(player);
-        nextReward.grantReward(player);
-
-        return true;
+        return achievement.complete(player);
     }
 
-    /**
-     * Tries to complete achievement for all players.
-     *
-     * @param players - Players to complete achievement for.
-     */
-    public void completeAll(Collection<Player> players) {
-        players.forEach(this::complete);
+    public void complete(GameTeam team) {
+        achievement.completeAll(team);
     }
 
-    public boolean isCompleted(Player player) {
-        return PlayerDatabase.getDatabase(player).getAchievementEntry().isCompleted(this);
-    }
-
-    public int getCompleteCount(Player player) {
-        return PlayerDatabase.getDatabase(player).getAchievementEntry().getCompleteCount(this);
-    }
-
-    public boolean isHidden() {
-        return achievement instanceof HiddenAchievement;
-    }
-
-    /**
-     * Returns copy of all achievements in a category.
-     *
-     * @param category - Category to get achievements from.
-     * @return List of achievements in category.
-     */
-    public static LinkedList<Achievements> byCategory(Category category) {
-        return Lists.newLinkedList(BY_CATEGORY.getOrDefault(category, Lists.newArrayList()));
-    }
 }

@@ -1,6 +1,6 @@
 package me.hapyl.fight.cmds;
 
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.PassiveTalent;
@@ -29,7 +29,13 @@ public class CooldownCommand extends SimplePlayerAdminCommand {
             return;
         }
 
+        GamePlayer.setCooldown(player, gamePlayer.getHero().getWeapon().getMaterial(), 0);
+
         for (Talent talent : gamePlayer.getHero().getTalents()) {
+            if (talent == null) {
+                continue;
+            }
+
             if (talent instanceof PassiveTalent) {
                 continue;
             }
@@ -41,6 +47,7 @@ public class CooldownCommand extends SimplePlayerAdminCommand {
         }
 
         gamePlayer.getUltimate().stopCd(player);
+        gamePlayer.getHero().setUsingUltimate(player, false);
         Chat.sendMessage(player, "&aReset cooldowns.");
     }
 }

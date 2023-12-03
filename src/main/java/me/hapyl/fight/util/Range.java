@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
  * Indicates that the parameter, or it's length should be between min and max.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.PARAMETER })
+@Target({ ElementType.METHOD, ElementType.PARAMETER })
 public @interface Range {
 
     /**

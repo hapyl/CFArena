@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.ui.indicators;
 
 import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.util.Nulls;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
@@ -40,9 +39,6 @@ public class HealthIndicator implements Indicator {
 
 	@Override
 	public void create() {
-		for (final GamePlayer player : game.getAlivePlayers()) {
-
-		}
 	}
 
 }

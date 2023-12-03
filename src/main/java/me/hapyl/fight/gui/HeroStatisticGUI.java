@@ -1,6 +1,6 @@
 package me.hapyl.fight.gui;
 
-import me.hapyl.fight.database.collection.HeroStats;
+import me.hapyl.fight.database.collection.HeroStatsCollection;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.PassiveTalent;
@@ -33,7 +33,7 @@ public class HeroStatisticGUI extends PlayerGUI {
     }
 
     private void update() {
-        final HeroStats stats = heroes.getStats();
+        final HeroStatsCollection stats = heroes.getStats();
         final String name = heroes.getName();
         final SmartComponent component = newSmartComponent();
         final SmartComponent abilityComponent = newSmartComponent();

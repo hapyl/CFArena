@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents;
 
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GamePlayer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -32,10 +32,10 @@ public class TalentQueue {
     }
 
     /**
-     * Returns a copy of linked list with last N talents.
+     * Returns a copy of the linked list with last N talents.
      *
      * @param n - Number of talents to return.
-     * @return copy of linked list with last N talents.
+     * @return copy of a linked list with last N talents.
      */
     @Nonnull
     public LinkedList<Talent> getLast(int n) {
@@ -46,6 +46,28 @@ public class TalentQueue {
         return new LinkedList<>(this.queue.subList(Math.max(0, this.queue.size() - n), this.queue.size()));
     }
 
+    public boolean checkTalents(Talent... talents) {
+        if (talents == null || talents.length == 0) {
+            return false;
+        }
+
+        final LinkedList<Talent> lastTalents = getLast(talents.length);
+        int matches = 0;
+
+        for (Talent talent : talents) {
+            final Talent next = lastTalents.poll();
+            if (next == null) {
+                break;
+            }
+
+            if (next.equals(talent)) {
+                matches++;
+            }
+        }
+
+        return matches >= talents.length;
+    }
+
     @Nullable
     public Talent getLastUsedTalent() {
         return queue.peekLast();
@@ -54,5 +76,9 @@ public class TalentQueue {
     @Nonnull
     public GamePlayer getPlayer() {
         return player;
+    }
+
+    public void clear() {
+        queue.clear();
     }
 }

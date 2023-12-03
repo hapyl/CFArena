@@ -1,17 +1,26 @@
 package me.hapyl.fight.game;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
+import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.cosmetic.skin.SkinEffectManager;
+import me.hapyl.fight.game.entity.*;
 import me.hapyl.fight.game.gamemode.Modes;
-import me.hapyl.fight.game.heroes.ComplexHero;
+import me.hapyl.fight.game.heroes.Equipment;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.lobby.LobbyItems;
+import me.hapyl.fight.game.lobby.StartCountdown;
 import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.profile.PlayerProfile;
+import me.hapyl.fight.game.profile.data.AchievementData;
+import me.hapyl.fight.game.profile.data.PlayerData;
+import me.hapyl.fight.game.profile.data.Type;
 import me.hapyl.fight.game.setting.Setting;
-import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -19,21 +28,21 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.trial.Trial;
 import me.hapyl.fight.game.ui.GamePlayerUI;
-import me.hapyl.fight.util.NonNullableElementHolder;
+import me.hapyl.fight.game.weapons.RangeWeapon;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.fight.util.ParamFunction;
 import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.EternaPlugin;
+import me.hapyl.spigotutils.module.annotate.Super;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.parkour.ParkourManager;
 import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.reflect.glow.Glowing;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import me.hapyl.spigotutils.module.util.DependencyInjector;
 import org.bukkit.*;
-import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -42,47 +51,112 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class Manager extends DependencyInjector<Main> {
+public final class Manager extends DependencyInjector<Main> {
 
-    protected final NonNullableElementHolder<GameMaps> currentMap = new NonNullableElementHolder<>(GameMaps.ARENA);
-    protected final NonNullableElementHolder<Modes> currentMode = new NonNullableElementHolder<>(Modes.FFA);
+    public final Set<UUID> ignoredEntities;
+    private final Set<EntityType> ignoredTypes = Sets.newHashSet(
+            //EntityType.ARMOR_STAND,
+            EntityType.MARKER,
+            EntityType.TEXT_DISPLAY,
+            EntityType.BLOCK_DISPLAY,
+            EntityType.ITEM_DISPLAY
+    );
+    private final Map<UUID, GameEntity> entities;
     private final Map<UUID, PlayerProfile> profiles;
-
-    // I really don't know why this is needed, but would I risk removing it? Hell nah. -h
-    private final Map<Integer, ParamFunction<Talent, Hero>> slotPerTalent = new HashMap<>();
-    private final Map<Integer, ParamFunction<Talent, ComplexHero>> slotPerComplexTalent = new HashMap<>();
-
     private final SkinEffectManager skinEffectManager;
     private final AutoSync autoSave;
-    private boolean isDebug = true;
+    private final Trial trial;
+
+    @Nonnull private GameMaps currentMap;
+    @Nonnull private Modes currentMode;
+    private StartCountdown startCountdown;
     private GameInstance gameInstance; // @implNote: For now, only one game instance can be active at a time.
-    private Trial trial;
+    private DebugData debugData;
 
     public Manager(Main main) {
         super(main);
+
+        ignoredEntities = Sets.newHashSet();
+        entities = Maps.newConcurrentMap();
         profiles = Maps.newConcurrentMap();
 
-        slotPerTalent.put(1, Hero::getFirstTalent);
-        slotPerTalent.put(2, Hero::getSecondTalent);
-        slotPerComplexTalent.put(3, ComplexHero::getThirdTalent);
-        slotPerComplexTalent.put(4, ComplexHero::getFourthTalent);
-        slotPerComplexTalent.put(5, ComplexHero::getFifthTalent);
-
-        // load map
-        final FileConfiguration config = Main.getPlugin().getConfig();
-        currentMap.set(GameMaps.byName(config.getString("current-map"), GameMaps.ARENA));
-
-        // load mode
-        currentMode.set(Modes.byName(config.getString("current-mode"), Modes.FFA));
+        // load config data
+        currentMap = Main.getPlugin().getConfigEnumValue("current-map", GameMaps.class, GameMaps.ARENA);
+        currentMode = Main.getPlugin().getConfigEnumValue("current-mode", Modes.class, Modes.FFA);
 
         // init skin effect manager
         skinEffectManager = new SkinEffectManager(getPlugin());
 
         // start auto save timer
-        this.autoSave = new AutoSync(Tick.fromMinute(10));
+        autoSave = new AutoSync(Tick.fromMinute(10));
+
+        trial = new Trial(main);
+        debugData = DebugData.EMPTY;
+    }
+
+
+    public void createStartCountdown() {
+        createStartCountdown(DebugData.EMPTY);
+    }
+
+    public void createStartCountdown(DebugData debug) {
+        if (!canStartGame(debug)) {
+            return;
+        }
+
+        if (startCountdown != null) {
+            startCountdown.cancel();
+        }
+
+        startCountdown = new StartCountdown() {
+            @Override
+            public void onTaskStop() {
+                startCountdown = null;
+            }
+
+            @Override
+            public void onCountdownFinish() {
+                startCountdown = null;
+                createNewGameInstance();
+            }
+        };
+    }
+
+    public void stopStartCountdown(@Nonnull Player player) {
+        if (startCountdown != null) {
+            startCountdown.cancelIfActive();
+            startCountdown = null;
+        }
+
+        final PlayerData playerData = getOrCreateProfile(player).getPlayerData();
+        final AchievementData data = playerData.getAchievementData(Achievements.I_DONT_WANT_TO_PLAY);
+
+        final int useTime = data.checkExpire(10000).increment(Type.USE_TIME, 1);
+
+        if (useTime >= 10) {
+            data.completeAchievement();
+        }
+    }
+
+    public void addIgnored(LivingEntity entity) {
+        ignoredEntities.add(entity.getUniqueId());
+    }
+
+    public void removeIgnored(LivingEntity entity) {
+        ignoredEntities.remove(entity.getUniqueId());
+    }
+
+    public boolean isIgnored(@Nonnull LivingEntity entity) {
+        return ignoredTypes.contains(entity.getType()) || ignoredEntities.contains(entity.getUniqueId());
+    }
+
+    @Nullable
+    public StartCountdown getStartCountdown() {
+        return startCountdown;
     }
 
     /**
@@ -118,7 +192,82 @@ public class Manager extends DependencyInjector<Main> {
 
         profile.loadData();
         getPlugin().getExperience().triggerUpdate(player);
+        Main.getPlugin().getCrateManager().createHologram(player);
         return profile;
+    }
+
+    /**
+     * Creates an entity based on the living entity type.
+     * <p>
+     * For some entities such as arrows, there is no need for
+     * damage and entity data to be present, and only the base is needed.
+     *
+     * @param entity - Entity.
+     */
+    @Nonnull
+    public GameEntity createEntity(@Nonnull LivingEntity entity) {
+        final EntityType type = entity.getType();
+
+        return switch (type) {
+            case ARROW, SPECTRAL_ARROW -> createEntity(entity, GameEntity::new);
+            default -> createEntity(entity, LivingGameEntity::new);
+        };
+    }
+
+    @Nonnull
+    @Super
+    public <E extends LivingEntity, T extends GameEntity> T createEntity(@Nonnull E entity, @Nonnull ConsumerFunction<E, T> consumer) {
+        final UUID uuid = entity.getUniqueId();
+
+        if (entities.containsKey(uuid)) {
+            throw new IllegalArgumentException("duplicate entity creation");
+        }
+
+        final T gameEntity = consumer.apply(entity);
+        consumer.andThen(gameEntity);
+
+        entities.put(uuid, gameEntity);
+        ignoredEntities.remove(uuid);
+        return gameEntity;
+    }
+
+    @Nullable
+    public <T extends GameEntity> T getEntity(@Nonnull UUID uuid, @Nonnull Class<T> clazz) {
+        final GameEntity entity = entities.get(uuid);
+
+        if (!clazz.isInstance(entity)) {
+            return null;
+        }
+
+        return clazz.cast(entity);
+    }
+
+    @Nullable
+    public LivingGameEntity getEntity(UUID uuid) {
+        return getEntity(uuid, LivingGameEntity.class);
+    }
+
+    public GamePlayer getOrCreatePlayer(Player player) {
+        final UUID uuid = player.getUniqueId();
+        final GamePlayer entity = getEntity(uuid, GamePlayer.class);
+
+        if (entity != null) {
+            return entity;
+        }
+
+        // FIXME (hapyl): 030, Aug 30: Can create while in lobby??
+
+        final PlayerProfile profile = PlayerProfile.getProfile(player);
+
+        if (profile == null) {
+            throw new IllegalArgumentException("Cannot create game player for offline player!");
+        }
+
+        final GamePlayer gamePlayer = profile.createGamePlayer();
+        gamePlayer.updateScoreboardTeams(false);
+
+        entities.put(uuid, gamePlayer);
+        return gamePlayer;
     }
 
     public void allProfiles(Consumer<PlayerProfile> consumer) {
@@ -134,12 +283,42 @@ public class Manager extends DependencyInjector<Main> {
         return getOrCreateProfile(player).getPlayerUI();
     }
 
+    /**
+     * Returns if player is able to use an ability.
+     * Checks for the game to exist and being in progress.
+     *
+     * @param player - Player to check.
+     * @return true if a player is able to use an ability; false otherwise.
+     */
     public boolean isAbleToUse(Player player) {
-        return isGameInProgress() || isTrialExistsAndIsOwner(player);
+        return isGameInProgress() || trial.isInTrial(player);
     }
 
     public boolean isGameInProgress() {
-        return gameInstance != null && !gameInstance.isTimeIsUp();
+        return gameInstance != null && gameInstance.getGameState() == State.IN_GAME;
+    }
+
+    public void handlePlayer(Player player) {
+        createProfile(player);
+
+        // teleport either to spawn or the map if there is a game in progress
+        final IGameInstance game = getCurrentGame();
+        if (!game.isReal()) {
+            final GameMode gameMode = player.getGameMode();
+
+            if (gameMode != GameMode.CREATIVE && gameMode != GameMode.SPECTATOR) {
+                player.teleport(GameMaps.SPAWN.getMap().getLocation());
+                LobbyItems.giveAll(player);
+            }
+        }
+        else {
+            player.teleport(game.getMap().getMap().getLocation());
+        }
+
+        // Notify operators
+        if (player.isOp()) {
+            Chat.sendMessage(player, getPlugin().database.getDatabaseString());
+        }
     }
 
     /**
@@ -155,7 +334,7 @@ public class Manager extends DependencyInjector<Main> {
     }
 
     /**
-     * @return game instance is present, else abstract version.
+     * @return game instance if present, else an abstract version.
      */
     @Nonnull
     public IGameInstance getCurrentGame() {
@@ -163,17 +342,24 @@ public class Manager extends DependencyInjector<Main> {
     }
 
     public GameMaps getCurrentMap() {
-        return currentMap.getElement();
+        return currentMap;
     }
 
-    public void setCurrentMap(GameMaps maps) {
-        currentMap.set(maps);
+    public void setCurrentMap(@Nonnull GameMaps maps) {
+        currentMap = maps;
+
         // save to config
-        Main.getPlugin().getConfig().set("current-map", maps.name().toLowerCase(Locale.ROOT));
+        Main.getPlugin().setConfigValue("current-map", maps.name().toLowerCase(Locale.ROOT));
     }
 
+    @Deprecated
     public boolean isDebug() {
-        return isDebug;
+        return debugData.is(DebugData.Flag.DEBUG);
+    }
+
+    @Nonnull
+    public DebugData getDebug() {
+        return debugData;
     }
 
     public Trial getTrial() {
@@ -184,47 +370,23 @@ public class Manager extends DependencyInjector<Main> {
         return getTrial() != null;
     }
 
-    public boolean isTrialExistsAndIsOwner(Player player) {
-        return hasTrial() && getTrial().getPlayer() == player;
-    }
-
-    public void startTrial(Player player, Heroes heroes) {
-        if (hasTrial()) {
-            return;
-        }
-
-        trial = new Trial(getOrCreateProfile(player), heroes);
-        trial.onStart();
-        trial.onPlayersReveal();
-        trial.broadcastMessage("&a%s started a trial of %s.", player.getName(), heroes.getHero().getName());
-    }
-
-    public void stopTrial() {
-        if (!hasTrial()) {
-            return;
-        }
-
-        trial.broadcastMessage("&a%s has stopped trial challenge.", trial.getPlayer().getName());
-        trial.onStop();
-        trial = null;
-    }
-
     public Modes getCurrentMode() {
-        return currentMode.getElement();
+        return currentMode;
     }
 
-    public void setCurrentMode(Modes mode) {
+    public void setCurrentMode(@Nonnull Modes mode) {
         if (mode == getCurrentMode()) {
             return;
         }
-        currentMode.set(mode);
+
+        currentMode = mode;
         Chat.broadcast("&aChanged current game mode to %s.", mode.getMode().getName());
 
         // save to config
-        Main.getPlugin().getConfig().set("current-mode", mode.name().toLowerCase(Locale.ROOT));
+        Main.getPlugin().setConfigValue("current-mode", mode.name().toLowerCase(Locale.ROOT));
     }
 
-    public void setCurrentMap(GameMaps maps, @Nullable Player player) {
+    public void setCurrentMap(@Nonnull GameMaps maps, @Nullable Player player) {
         if (getCurrentMap() == maps && player != null) {
             PlayerLib.villagerNo(player, "&cAlready selected!");
             return;
@@ -242,43 +404,46 @@ public class Manager extends DependencyInjector<Main> {
     }
 
     public void createNewGameInstance() {
-        createNewGameInstance(false);
+        createNewGameInstance(DebugData.EMPTY);
     }
 
-    /**
-     * Creates a new game instance.
-     * <p>
-     * Only one game instance can be active at a time. (for now?)
-     */
-    public void createNewGameInstance(boolean debug) {
-        // Pre game start checks
-        final GameMaps currentMap = this.currentMap.getElement();
-
-        if ((!currentMap.isPlayable() || !currentMap.getMap().hasLocation()) && !debug) {
+    public boolean canStartGame(DebugData debug) {
+        // Pre-game start checks
+        if ((!currentMap.isPlayable() || !currentMap.getMap().hasLocation()) && !debug.is(DebugData.Flag.DEBUG)) {
             displayError("Invalid map!");
-            return;
+            return false;
         }
-
-        // Stop trial
-        if (hasTrial()) {
-            stopTrial();
-        }
-
-        isDebug = debug;
 
         final int playerRequirements = getCurrentMode().getMode().getPlayerRequirements();
         final Collection<Player> nonSpectatorPlayers = getNonSpectatorPlayers();
 
         // Check for minimum players
         // fixme -> Check for teams, not players
-        if (nonSpectatorPlayers.size() < playerRequirements && !isDebug) {
+        if (nonSpectatorPlayers.size() < playerRequirements && !debug.is(DebugData.Flag.DEBUG) && debug.not(DebugData.Flag.FORCE)) {
             displayError("Not enough players! &l(%s/%s)", nonSpectatorPlayers.size(), playerRequirements);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Creates a new game instance.
+     * <p>
+     * Only one game instance can be active at a time.
+     */
+    public void createNewGameInstance(DebugData debug) {
+        if (!canStartGame(debug)) {
             return;
         }
 
+        this.debugData = debug;
+
         // Check for team balance
         // todo -> Maybe add config support for unbalanced teams
+        GameTeam.removeOfflinePlayers(); // Make sure to remove offline players
         final List<GameTeam> populatedTeams = GameTeam.getPopulatedTeams();
+
         int teamPlayers = 0;
         for (GameTeam populatedTeam : populatedTeams) {
             final int size = populatedTeam.getPlayers().size();
@@ -314,19 +479,26 @@ public class Manager extends DependencyInjector<Main> {
 
         gameInstance.getMap().getMap().onStart();
 
-        for (final GamePlayer gamePlayer : gameInstance.getPlayers().values()) {
+        for (final GamePlayer gamePlayer : CF.getPlayers()) {
             final Player player = gamePlayer.getPlayer();
 
             // Equip and hide players
             if (!gamePlayer.isSpectator()) {
                 equipPlayer(player, gamePlayer.getHero());
                 Utils.hidePlayer(player);
+
+                // Apply player skin if exists
+                final PlayerSkin skin = gamePlayer.getHero().getSkin();
+
+                if (Setting.USE_SKINS_INSTEAD_OF_ARMOR.isEnabled(player) && skin != null) {
+                    skin.apply(player);
+                }
             }
 
             player.teleport(currentMap.getMap().getLocation());
         }
 
-        if (!isDebug) {
+        if (!debug.is(DebugData.Flag.DEBUG)) {
             Chat.broadcast("&a&l➺ &aAll players have been hidden!");
             Chat.broadcast(
                     "&a&l➺ &aThey have &e%ss &ato spread before being revealed.",
@@ -355,26 +527,25 @@ public class Manager extends DependencyInjector<Main> {
 
             gameInstance.getMap().getMap().onPlayersReveal();
 
-            if (debug) {
-                Chat.broadcast("&4Running in debug mode!");
-                Chat.broadcast("&cRunning in debug mode!");
-                Chat.broadcast("&6Running in debug mode!");
+            if (debug.any()) {
+                Chat.broadcast("&c&lDEBUG &fRunning in debug instance.");
+                Chat.broadcast("&c&lDEBUG &fDebugging: " + debug.list());
             }
 
-            gameInstance.getAlivePlayers().forEach(target -> {
+            CF.getAlivePlayers().forEach(target -> {
                 final Player player = target.getPlayer();
                 final World world = player.getLocation().getWorld();
 
                 Utils.showPlayer(player);
                 Nulls.runIfNotNull(GameTeam.getPlayerTeam(player), GameTeam::glowTeammates);
 
-                if (world != null && !debug) {
+                if (world != null && !debug.is(DebugData.Flag.DEBUG)) {
                     world.strikeLightningEffect(player.getLocation().add(0.0d, 2.0d, 0.0d));
                 }
             });
 
             playAnimation();
-        }, isDebug ? 1 : currentMap.getMap().getTimeBeforeReveal());
+        }, debug.any() ? 1 : currentMap.getMap().getTimeBeforeReveal());
 
     }
 
@@ -389,46 +560,19 @@ public class Manager extends DependencyInjector<Main> {
         // Call mode onStop to clear player and assign winners
         final boolean response = gameInstance.getMode().onStop(this.gameInstance);
 
-        if (!response) { // if returns false means mode will add their own winners
+        if (!response) { // if returns false means mode adds their own winners
             gameInstance.getGameResult().supplyDefaultWinners();
         }
 
         gameInstance.calculateEverything();
 
-        // Reset player before clearing the instance
-        this.gameInstance.getPlayers().values().forEach(player -> {
-            final Heroes hero = player.getEnumHero();
-            final StatContainer stats = player.getStats();
-
-            Glowing.stopGlowing(player.getPlayer());
-            player.updateScoreboard(true);
-            player.resetPlayer();
-            player.setValid(false);
-
-            Utils.showPlayer(player.getPlayer());
-
-            // Keep winner in survival, so it's clear for them that they have won
-            final boolean isWinner = this.gameInstance.isWinner(player.getPlayer());
-            if (!isWinner) {
-                player.getPlayer().setGameMode(GameMode.SPECTATOR);
-            }
-            else {
-                stats.markAsWinner();
-            }
-
-            // Reset game player
-            player.getProfile().resetGamePlayer();
-
-            // Save stats
-            player.getDatabase().getStatistics().fromPlayerStatistic(hero, stats);
-            hero.getStats().fromPlayerStatistic(stats);
-        });
-
         this.gameInstance.onStop();
         this.gameInstance.setGameState(State.POST_GAME);
 
+        EntityData.resetDamageData(); // clear damage handler
+
         // Save stats
-        this.gameInstance.getActiveHeroes().forEach(hero -> hero.getStats().saveAsync());
+        // this.gameInstance.getActiveHeroes().forEach(hero -> hero.getStats().saveAsync());
 
         // reset all cooldowns
         for (final Material value : Material.values()) {
@@ -447,11 +591,15 @@ public class Manager extends DependencyInjector<Main> {
             Nulls.runIfNotNull(value.getHero(), hero -> {
                 hero.onStop();
                 hero.clearUsingUltimate();
+
+                if (hero.getWeapon() instanceof RangeWeapon rangeWeapon) {
+                    rangeWeapon.onStop();
+                }
             });
         }
 
         // call maps onStop
-        currentMap.getElement().getMap().onStop();
+        currentMap.getMap().onStop();
 
         // stop all game tasks
         Main.getPlugin().getTaskList().onStop();
@@ -461,10 +609,13 @@ public class Manager extends DependencyInjector<Main> {
             value.onStop();
         }
 
-        // remove temp entities
+        // remove entities
         Entities.killSpawned();
 
-        if (isDebug) {
+        entities.forEach((uuid, entity) -> entity.onStop(this.gameInstance));
+        entities.clear();
+
+        if (debugData.any()) {
             onStop();
             return;
         }
@@ -478,38 +629,31 @@ public class Manager extends DependencyInjector<Main> {
         inventory.setHeldItemSlot(0);
         player.setGameMode(GameMode.SURVIVAL);
 
+        final PlayerSkin skin = hero.getSkin();
+        final Equipment equipment = hero.getEquipment();
+
         // Apply equipment
-        hero.getEquipment().equip(player);
+        if (skin == null) {
+            equipment.equip(player);
+        }
+        else if (Setting.USE_SKINS_INSTEAD_OF_ARMOR.isDisabled(player)) {
+            equipment.equip(player);
+        }
+
         hero.onStart(player);
 
         inventory.setItem(0, hero.getWeapon().getItem());
         giveTalentItem(player, hero, 1);
         giveTalentItem(player, hero, 2);
+        giveTalentItem(player, hero, 3);
+        giveTalentItem(player, hero, 4);
+        giveTalentItem(player, hero, 5);
 
-        if (hero instanceof ComplexHero) {
-            giveTalentItem(player, hero, 3);
-            giveTalentItem(player, hero, 4);
-            giveTalentItem(player, hero, 5);
-        }
-
-        player.updateInventory();
+        //player.updateInventory();
     }
 
     public void equipPlayer(Player player) {
         equipPlayer(player, getCurrentHero(player));
-    }
-
-    public Talent getTalent(Hero hero, int slot) {
-        if (slot >= 1 && slot < 3) {
-            final ParamFunction<Talent, Hero> function = slotPerTalent.get(slot);
-            return function == null ? null : function.execute(hero);
-        }
-
-        else if (hero instanceof ComplexHero complexHero) {
-            final ParamFunction<Talent, ComplexHero> function = slotPerComplexTalent.get(slot);
-            return function == null ? null : function.execute(complexHero);
-        }
-        return null;
     }
 
     /**
@@ -527,6 +671,9 @@ public class Manager extends DependencyInjector<Main> {
             player.setGameMode(GameMode.SURVIVAL);
             player.teleport(GameMaps.SPAWN.getMap().getLocation());
 
+            // Progress achievement
+            Achievements.PLAY_FIRST_GAME.complete(player);
+
             LobbyItems.giveAll(player);
         }
 
@@ -541,8 +688,13 @@ public class Manager extends DependencyInjector<Main> {
 
     public void setSelectedHero(Player player, Heroes heroes, boolean force) {
         if (Manager.current().isGameInProgress()) {
-            Chat.sendMessage(player, "&cUnable to change hero during the game!");
+            Chat.sendMessage(player, "&cUnable to change a hero during the game!");
             PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
+            return;
+        }
+
+        if (heroes.isLocked(player) && !force) {
+            Chat.sendMessage(player, "&cThis hero is locked!");
             return;
         }
 
@@ -554,7 +706,7 @@ public class Manager extends DependencyInjector<Main> {
             }
 
             if (!force) {
-                Chat.sendMessage(player, "&cNot selecting disabled hero without &e-IKnowItsDisabledHeroAndWillBreakTheGame&c argument!");
+                Chat.sendMessage(player, "&cNot selecting a disabled hero without &e-IKnowItsDisabledHeroAndWillBreakTheGame&c argument!");
                 PlayerLib.villagerNo(player);
                 return;
             }
@@ -582,7 +734,7 @@ public class Manager extends DependencyInjector<Main> {
             Chat.sendMessage(player, "");
         }
 
-        // save to database
+        // save to the database
         getOrCreateProfile(player).getDatabase().getHeroEntry().setSelectedHero(heroes);
     }
 
@@ -596,12 +748,8 @@ public class Manager extends DependencyInjector<Main> {
 
     @Nonnull
     public Heroes getCurrentEnumHero(Player player) {
-        if (isTrialExistsAndIsOwner(player)) {
-            return getTrial().getHeroes();
-        }
-
-        else if (isPlayerInGame(player)) {
-            final GamePlayer gamePlayer = getCurrentGame().getPlayer(player);
+        if (isPlayerInGame(player)) {
+            final GamePlayer gamePlayer = CF.getPlayer(player);
             if (gamePlayer == null) {
                 return Heroes.ARCHER;
             }
@@ -612,11 +760,18 @@ public class Manager extends DependencyInjector<Main> {
     }
 
     public boolean isPlayerInGame(Player player) {
-        return gameInstance != null && gameInstance.getPlayer(player) != null && GamePlayer.getPlayer(player).isAlive();
+        final GamePlayer gamePlayer = CF.getPlayer(player);
+        return gameInstance != null && gamePlayer != null && gamePlayer.isAlive();
     }
 
     public void removeProfile(Player player) {
-        profiles.remove(player.getUniqueId());
+        final PlayerProfile profile = profiles.remove(player.getUniqueId());
+
+        if (profile == null) {
+            return;
+        }
+
+        Main.getPlugin().getCrateManager().removeHologram(player);
     }
 
     public boolean anyProfiles() {
@@ -628,6 +783,102 @@ public class Manager extends DependencyInjector<Main> {
 
         logger.info("Listing all profiles:");
         logger.info(profiles.values().stream().map(PlayerProfile::toString).collect(Collectors.joining("\n")));
+    }
+
+    public GamePlayer getPlayer(@Nonnull Player player) {
+        return getEntity(player.getUniqueId(), GamePlayer.class);
+    }
+
+    @Nonnull
+    public Set<GamePlayer> getPlayers() {
+        final Set<GamePlayer> players = Sets.newHashSet();
+        for (GameEntity entity : entities.values()) {
+            if (entity instanceof GamePlayer player) {
+                players.add(player);
+            }
+        }
+
+        return players;
+    }
+
+    @Nonnull
+    public List<GamePlayer> getAlivePlayers() {
+        return getAlivePlayers(player -> true);
+    }
+
+    @Nonnull
+    public Collection<GamePlayer> getAllPlayers() {
+        return getPlayers();
+    }
+
+    @Nonnull
+    public List<GamePlayer> getAlivePlayers(Predicate<GamePlayer> predicate) {
+        final Set<GamePlayer> players = getPlayers();
+        players.removeIf(player -> !player.isAlive() || !predicate.test(player));
+
+        return Lists.newArrayList(players);
+    }
+
+    @Nonnull
+    public List<GamePlayer> getAlivePlayers(Heroes enumHero) {
+        return getAlivePlayers(player -> player.getEnumHero() == enumHero);
+    }
+
+    @Nonnull
+    public Set<Heroes> getActiveHeroes() {
+        final Set<Heroes> heroes = Sets.newHashSet();
+        getPlayers().forEach(player -> heroes.add(player.getEnumHero()));
+
+        return heroes;
+    }
+
+    public void removeEntity(LivingEntity entity) {
+        final GameEntity gameEntity = entities.remove(entity.getUniqueId());
+
+        if (gameEntity == null) {
+            return;
+        }
+
+        //gameEntity.remove();
+    }
+
+    public Set<GameEntity> getEntities() {
+        return Sets.newHashSet(entities.values());
+    }
+
+    @Nonnull
+    public <T extends GameEntity> Set<T> getEntities(Class<T> clazz) {
+        final Set<T> entities = Sets.newHashSet();
+
+        this.entities.forEach((uuid, entity) -> {
+            if (clazz.isInstance(entity)) {
+                entities.add(clazz.cast(entity));
+            }
+        });
+
+        return entities;
+    }
+
+    public Set<GameEntity> getEntitiesExcludePlayers() {
+        final Set<GameEntity> entities = getEntities();
+        entities.removeIf(entity -> entities instanceof GamePlayer);
+
+        return entities;
+    }
+
+    public boolean isEntity(LivingEntity living) {
+        return entities.containsKey(living.getUniqueId());
+    }
+
+    @Nullable
+    public GameEntity getEntityById(int entityId) {
+        for (GameEntity value : entities.values()) {
+            if (value.getId() == entityId) {
+                return value;
+            }
+        }
+
+        return null;
     }
 
     private Heroes getSelectedLobbyHero(Player player) {
@@ -654,7 +905,7 @@ public class Manager extends DependencyInjector<Main> {
 
     private void giveTalentItem(Player player, Hero hero, int slot) {
         final PlayerInventory inventory = player.getInventory();
-        final Talent talent = getTalent(hero, slot);
+        final Talent talent = hero.getTalent(slot);
         final ItemStack talentItem = talent == null ? new ItemStack(Material.AIR) : talent.getItem();
 
         if (talent != null && !talent.isAutoAdd()) {

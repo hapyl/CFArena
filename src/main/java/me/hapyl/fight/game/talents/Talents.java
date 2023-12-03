@@ -2,73 +2,92 @@ package me.hapyl.fight.game.talents;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
-import me.hapyl.fight.game.talents.storage.TestChargeTalent;
-import me.hapyl.fight.game.talents.storage.alchemist.CauldronAbility;
-import me.hapyl.fight.game.talents.storage.alchemist.RandomPotion;
-import me.hapyl.fight.game.talents.storage.archer.ShockDark;
-import me.hapyl.fight.game.talents.storage.archer.TripleShot;
-import me.hapyl.fight.game.talents.storage.bountyhunter.GrappleHookTalent;
-import me.hapyl.fight.game.talents.storage.bountyhunter.ShortyShotgun;
-import me.hapyl.fight.game.talents.storage.darkmage.BlindingCurse;
-import me.hapyl.fight.game.talents.storage.darkmage.ShadowClone;
-import me.hapyl.fight.game.talents.storage.darkmage.SlowingAura;
-import me.hapyl.fight.game.talents.storage.doctor.ConfusionPotion;
-import me.hapyl.fight.game.talents.storage.doctor.HarvestBlocks;
-import me.hapyl.fight.game.talents.storage.ender.TeleportPearl;
-import me.hapyl.fight.game.talents.storage.ender.TransmissionBeacon;
-import me.hapyl.fight.game.talents.storage.freazly.IceCone;
-import me.hapyl.fight.game.talents.storage.harbinger.MeleeStance;
-import me.hapyl.fight.game.talents.storage.harbinger.TidalWaveTalent;
-import me.hapyl.fight.game.talents.storage.healer.HealingOrb;
-import me.hapyl.fight.game.talents.storage.healer.ReviveTotem;
-import me.hapyl.fight.game.talents.storage.heavy_knight.Updraft;
-import me.hapyl.fight.game.talents.storage.heavy_knight.Uppercut;
-import me.hapyl.fight.game.talents.storage.hercules.HerculesJump;
-import me.hapyl.fight.game.talents.storage.hercules.HerculesShift;
-import me.hapyl.fight.game.talents.storage.juju.ArrowShield;
-import me.hapyl.fight.game.talents.storage.juju.Climb;
-import me.hapyl.fight.game.talents.storage.km.LaserEye;
-import me.hapyl.fight.game.talents.storage.km.ShellGrande;
-import me.hapyl.fight.game.talents.storage.knight.SlownessPotion;
-import me.hapyl.fight.game.talents.storage.knight.Spear;
-import me.hapyl.fight.game.talents.storage.librarian.BlackHole;
-import me.hapyl.fight.game.talents.storage.librarian.EntityDarkness;
-import me.hapyl.fight.game.talents.storage.librarian.LibrarianShield;
-import me.hapyl.fight.game.talents.storage.librarian.WeaponDarkness;
-import me.hapyl.fight.game.talents.storage.mage.ArcaneMute;
-import me.hapyl.fight.game.talents.storage.mage.MageTransmission;
-import me.hapyl.fight.game.talents.storage.moonwalker.MoonSliteBomb;
-import me.hapyl.fight.game.talents.storage.moonwalker.MoonslitePillar;
-import me.hapyl.fight.game.talents.storage.nightmare.Paranoia;
-import me.hapyl.fight.game.talents.storage.nightmare.ShadowShift;
-import me.hapyl.fight.game.talents.storage.ninja.NinjaDash;
-import me.hapyl.fight.game.talents.storage.ninja.NinjaSmoke;
-import me.hapyl.fight.game.talents.storage.pytaria.FlowerBreeze;
-import me.hapyl.fight.game.talents.storage.pytaria.FlowerEscape;
-import me.hapyl.fight.game.talents.storage.shadowassassin.ShadowPrism;
-import me.hapyl.fight.game.talents.storage.shadowassassin.ShroudedStep;
-import me.hapyl.fight.game.talents.storage.shaman.ResonanceType;
-import me.hapyl.fight.game.talents.storage.shaman.Totem;
-import me.hapyl.fight.game.talents.storage.shaman.TotemTalent;
-import me.hapyl.fight.game.talents.storage.shark.Submerge;
-import me.hapyl.fight.game.talents.storage.shark.Whirlpool;
-import me.hapyl.fight.game.talents.storage.spark.Molotov;
-import me.hapyl.fight.game.talents.storage.spark.SparkFlash;
-import me.hapyl.fight.game.talents.storage.swooper.BlastPack;
-import me.hapyl.fight.game.talents.storage.swooper.Blink;
-import me.hapyl.fight.game.talents.storage.taker.DeathSwap;
-import me.hapyl.fight.game.talents.storage.taker.FatalReap;
-import me.hapyl.fight.game.talents.storage.taker.SpiritualBonesPassive;
-import me.hapyl.fight.game.talents.storage.tamer.MineOBall;
-import me.hapyl.fight.game.talents.storage.techie.TrapCage;
-import me.hapyl.fight.game.talents.storage.techie.TrapWire;
-import me.hapyl.fight.game.talents.storage.troll.Repulsor;
-import me.hapyl.fight.game.talents.storage.troll.TrollSpin;
-import me.hapyl.fight.game.talents.storage.vampire.BatSwarm;
-import me.hapyl.fight.game.talents.storage.vampire.VampirePet;
-import me.hapyl.fight.game.talents.storage.vortex.StarAligner;
-import me.hapyl.fight.game.talents.storage.vortex.VortexStar;
-import me.hapyl.fight.game.talents.storage.witcher.*;
+import me.hapyl.fight.game.Named;
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.talents.archive.TestChargeTalent;
+import me.hapyl.fight.game.talents.archive.alchemist.CauldronAbility;
+import me.hapyl.fight.game.talents.archive.alchemist.RandomPotion;
+import me.hapyl.fight.game.talents.archive.archer.ShockDark;
+import me.hapyl.fight.game.talents.archive.archer.TripleShot;
+import me.hapyl.fight.game.talents.archive.bloodfiend.chalice.BloodChaliceTalent;
+import me.hapyl.fight.game.talents.archive.bloodfiend.BloodCup;
+import me.hapyl.fight.game.talents.archive.bloodfiend.BloodfiendPassive;
+import me.hapyl.fight.game.talents.archive.bloodfiend.TwinClaws;
+import me.hapyl.fight.game.talents.archive.bloodfiend.candlebane.CandlebaneTalent;
+import me.hapyl.fight.game.talents.archive.bounty_hunter.GrappleHookTalent;
+import me.hapyl.fight.game.talents.archive.bounty_hunter.ShortyShotgun;
+import me.hapyl.fight.game.talents.archive.dark_mage.BlindingCurse;
+import me.hapyl.fight.game.talents.archive.dark_mage.HealingAura;
+import me.hapyl.fight.game.talents.archive.dark_mage.ShadowClone;
+import me.hapyl.fight.game.talents.archive.dark_mage.SlowingAura;
+import me.hapyl.fight.game.talents.archive.doctor.ConfusionPotion;
+import me.hapyl.fight.game.talents.archive.doctor.HarvestBlocks;
+import me.hapyl.fight.game.talents.archive.ender.TeleportPearl;
+import me.hapyl.fight.game.talents.archive.ender.TransmissionBeacon;
+import me.hapyl.fight.game.talents.archive.engineer.EngineerRecall;
+import me.hapyl.fight.game.talents.archive.engineer.EngineerSentry;
+import me.hapyl.fight.game.talents.archive.freazly.IceBarrier;
+import me.hapyl.fight.game.talents.archive.freazly.IceCone;
+import me.hapyl.fight.game.talents.archive.harbinger.MeleeStance;
+import me.hapyl.fight.game.talents.archive.harbinger.TidalWaveTalent;
+import me.hapyl.fight.game.talents.archive.healer.HealingOrb;
+import me.hapyl.fight.game.talents.archive.healer.ReviveTotem;
+import me.hapyl.fight.game.talents.archive.heavy_knight.Slash;
+import me.hapyl.fight.game.talents.archive.heavy_knight.Updraft;
+import me.hapyl.fight.game.talents.archive.heavy_knight.Uppercut;
+import me.hapyl.fight.game.talents.archive.hercules.HerculesJump;
+import me.hapyl.fight.game.talents.archive.hercules.HerculesShift;
+import me.hapyl.fight.game.talents.archive.juju.ArrowShield;
+import me.hapyl.fight.game.talents.archive.juju.Climb;
+import me.hapyl.fight.game.talents.archive.juju.PoisonZone;
+import me.hapyl.fight.game.talents.archive.juju.TricksOfTheJungle;
+import me.hapyl.fight.game.talents.archive.km.LaserEye;
+import me.hapyl.fight.game.talents.archive.knight.SlownessPotion;
+import me.hapyl.fight.game.talents.archive.knight.Spear;
+import me.hapyl.fight.game.talents.archive.librarian.BlackHole;
+import me.hapyl.fight.game.talents.archive.librarian.EntityDarkness;
+import me.hapyl.fight.game.talents.archive.librarian.LibrarianShield;
+import me.hapyl.fight.game.talents.archive.librarian.WeaponDarkness;
+import me.hapyl.fight.game.talents.archive.mage.ArcaneMute;
+import me.hapyl.fight.game.talents.archive.mage.MageTransmission;
+import me.hapyl.fight.game.talents.archive.moonwalker.GravityZone;
+import me.hapyl.fight.game.talents.archive.moonwalker.MoonPillarTalent;
+import me.hapyl.fight.game.talents.archive.moonwalker.MoonSliteBomb;
+import me.hapyl.fight.game.talents.archive.nightmare.Paranoia;
+import me.hapyl.fight.game.talents.archive.nightmare.ShadowShift;
+import me.hapyl.fight.game.talents.archive.ninja.NinjaDash;
+import me.hapyl.fight.game.talents.archive.ninja.NinjaSmoke;
+import me.hapyl.fight.game.talents.archive.orc.OrcAxe;
+import me.hapyl.fight.game.talents.archive.orc.OrcGrowl;
+import me.hapyl.fight.game.talents.archive.pytaria.FlowerBreeze;
+import me.hapyl.fight.game.talents.archive.pytaria.FlowerEscape;
+import me.hapyl.fight.game.talents.archive.shadow_assassin.ShadowPrism;
+import me.hapyl.fight.game.talents.archive.shadow_assassin.ShroudedStep;
+import me.hapyl.fight.game.talents.archive.shaman.ResonanceType;
+import me.hapyl.fight.game.talents.archive.shaman.Totem;
+import me.hapyl.fight.game.talents.archive.shaman.TotemTalent;
+import me.hapyl.fight.game.talents.archive.shark.Submerge;
+import me.hapyl.fight.game.talents.archive.shark.Whirlpool;
+import me.hapyl.fight.game.talents.archive.spark.Molotov;
+import me.hapyl.fight.game.talents.archive.spark.SparkFlash;
+import me.hapyl.fight.game.talents.archive.sun.SyntheticSun;
+import me.hapyl.fight.game.talents.archive.swooper.BlastPack;
+import me.hapyl.fight.game.talents.archive.swooper.Blink;
+import me.hapyl.fight.game.talents.archive.taker.DeathSwap;
+import me.hapyl.fight.game.talents.archive.taker.FatalReap;
+import me.hapyl.fight.game.talents.archive.taker.SpiritualBonesPassive;
+import me.hapyl.fight.game.talents.archive.tamer.MineOBall;
+import me.hapyl.fight.game.talents.archive.techie.TrapCage;
+import me.hapyl.fight.game.talents.archive.techie.TrapWire;
+import me.hapyl.fight.game.talents.archive.troll.Repulsor;
+import me.hapyl.fight.game.talents.archive.troll.TrollSpin;
+import me.hapyl.fight.game.talents.archive.vampire.BatSwarm;
+import me.hapyl.fight.game.talents.archive.vampire.VampirePet;
+import me.hapyl.fight.game.talents.archive.vortex.StarAligner;
+import me.hapyl.fight.game.talents.archive.vortex.VortexStar;
+import me.hapyl.fight.game.talents.archive.witcher.*;
+import me.hapyl.spigotutils.module.util.BFormat;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -114,9 +133,10 @@ public enum Talents {
     )),
 
     // Moonwalker
-    MOONSLITE_PILLAR(new MoonslitePillar()),
-    MOONSLITE_BOMB(new MoonSliteBomb()),
-    TARGET(new PassiveTalent("Space Suit", "You suit grants you slow falling ability.", Material.FEATHER)),
+    MOONSLITE_PILLAR(new MoonPillarTalent()),
+    @Deprecated MOONSLITE_BOMB(new MoonSliteBomb()),
+    MOON_GRAVITY(new GravityZone()),
+    TARGET(new PassiveTalent("Space Suit", "Your suit grants you slow falling ability.", Material.FEATHER)),
 
     // Hercules
     HERCULES_DASH(new HerculesShift()),
@@ -141,7 +161,11 @@ public enum Talents {
     FLOWER_BREEZE(new FlowerBreeze()),
     EXCELLENCY(new PassiveTalent(
             "Excellency",
-            "When Pytaria's &chealth &7is lower or equal to &c50%&7, her damage is increased by &b50%&7.", Material.ROSE_BUSH
+            "The less &chealth&7 Pytaria has, the more her %s and %s increases. But her %s significantly decreases.".formatted(
+                    AttributeType.ATTACK,
+                    AttributeType.CRIT_CHANCE,
+                    AttributeType.DEFENSE
+            ), Material.ROSE_BUSH
     )),
 
     // Troll
@@ -185,7 +209,7 @@ public enum Talents {
     SHROUDED_STEP(new ShroudedStep()),
     SECRET_SHADOW_WARRIOR_TECHNIQUE(new PassiveTalent(
             "Dark Cover",
-            "As a assassin, you have mastered ability to stay in the shadows.____While &e&lSNEAKING&7, you become completely invisible, but cannot deal damage and your footsteps are visible.",
+            "As an assassin, you have mastered the ability to stay in the shadows.____While &e&lSNEAKING&7, you become completely invisible, but cannot deal damage and your footsteps are visible.",
             Material.NETHERITE_CHESTPLATE
     )),
 
@@ -212,13 +236,16 @@ public enum Talents {
 
     // Freazly
     ICE_CONE(new IceCone()),
+    ICE_BARRIER(new IceBarrier()),
 
     // Dark Mage
     BLINDING_CURSE(new BlindingCurse()),
     SLOWING_AURA(new SlowingAura()),
-    HEALING_AURA(new me.hapyl.fight.game.talents.storage.darkmage.HealingAura()),
+    HEALING_AURA(new HealingAura()),
     SHADOW_CLONE(new ShadowClone()),
-    DARK_MAGE_PASSIVE(new PassiveTalent("unnamed", "", Material.BEDROCK)),
+    DARK_MAGE_PASSIVE(new PassiveTalent("Wither Blood", """
+            Whenever you take damage, there is small chance to poison attackers blood, blinding and withering them.
+            """, Material.WITHER_ROSE)),
 
     // Blast Knight
     SPEAR(new Spear()),
@@ -243,22 +270,27 @@ public enum Talents {
     DEATH_SWAP(new DeathSwap()),
     SPIRITUAL_BONES(new SpiritualBonesPassive()),
 
-    // JuJu
+    // Juju
     ARROW_SHIELD(new ArrowShield()),
-    CLIMB(new Climb()),
-    ELUSIVE_BURST(new PassiveTalent(
-            "Elusive Burst",
-            "Fully charged shots while sneaking will infuse your arrow.____Infused arrows exploded into small clusters dealing big damage upon hit.",
-            Material.PEONY
+    @Deprecated CLIMB(new Climb()),
+    TRICKS_OF_THE_JUNGLE(new TricksOfTheJungle()),
+    POISON_ZONE(new PoisonZone()),
+    JUJU_PASSIVE(new PassiveTalent(
+            "Climb", """
+            Raised by the jungle, Juju mastered the ability to climb anything.
+                        
+            &e&lJUMP &7near the wall to grab onto it.
+            &e&lSNEAK &7to climb higher.
+            """, Material.LEATHER_BOOTS
     )),
 
     // Swooper
     BLAST_PACK(new BlastPack()),
     BLINK(new Blink()),
     SNIPER_SCOPE(new PassiveTalent(
-            "Sniper Scope",
-            "&e&lSNEAK &7to activate sniper scope and increase your rifle's damage and distance.",
-            Material.SPYGLASS
+            "Path Writer",
+            "Your last &b5&7 seconds of life are stored in the path writer.",
+            Material.STRING
     )),
 
     // Shark
@@ -266,7 +298,7 @@ public enum Talents {
     WHIRLPOOL(new Whirlpool()),
     CLAW_CRITICAL(new PassiveTalent(
             "Oceanborn/Sturdy Claws",
-            "&b&lOceanborn:__While in water, your speed and damage is drastically increased.____&b&lSturdy Claws:__&7Your hits have &b10% &7chance to &ccrit&7!__Critical hits summons an ancient creature from beneath that deals extra damage and heals you!",
+            "&b&lOceanborn:__While in water, your speed and damage is drastically increased.____&b&lSturdy Claws:__Critical hits summons an ancient creature from beneath that deals extra damage and heals you!",
             Material.MILK_BUCKET
     )),
 
@@ -296,7 +328,7 @@ public enum Talents {
 
     // Killing Machine
     LASER_EYE(new LaserEye()),
-    GRENADE(new ShellGrande()),
+    //GRENADE(new ShellGrande()),
 
     // Shaman
     TOTEM(new Totem()),
@@ -317,28 +349,59 @@ public enum Talents {
     // Vampire
     VAMPIRE_PET(new VampirePet()),
     BAT_SWARM(new BatSwarm()),
-    BLOOD_THIRST(new Reference<>(new PassiveTalent(
-            "Blood Thirst",
+    BLOOD_THIRST(new PassiveTalent(
+            "Blood Thirst", """
+            &c;;Your health is constantly drained.
+                        
+            Whenever you or your bats hit an opponent, you will gain a stack of &bblood&7, up to &b10&7 stacks.
+                        
+            Drink the blood to &cincrease your damage&7 and &cheal yourself&7.
+                        
+            &6;;Healing, damage boost, duration and cooldown are based on the number of stacks consumed.
+            """,
             Material.REDSTONE
-    )).get(talent -> {
-        talent.addDescription("&cYour health is constantly drained.");
-        talent.addNlDescription("&7Whenever you or your bats hit an opponent, you will gain a stack of &bblood&7, up to &b10&7 stacks.");
-        talent.addNlDescription("&7Drink the blood to &cincrease your damage&7 and &cheal yourself&7.");
-        talent.addNlDescription("&6Healing, damage boost, duration and cooldown is based on the amount of stacks consumed.");
-    })),
+    )),
 
     // Bounty Hunter
     SHORTY(new ShortyShotgun()),
     GRAPPLE(new GrappleHookTalent()),
-    SMOKE_BOMB(new PassiveTalent(
-            "Smoke Bomb",
-            "Whenever your health falls below &c50%&7, you gain a &eSmoke Bomb&7.____Throw it to create a smoke field that &bblinds&7 everyone inside it and grant you a &bspeed boost&7.",
-            Material.ENDERMAN_SPAWN_EGG
+    SMOKE_BOMB(new PassiveTalent("Smoke Bomb", """
+            Whenever your health falls below &c50%&7, you gain a &eSmoke Bomb&7.
+            Throw it to create a smoke field that &bblinds&7 everyone inside it and grant you a &bspeed boost&7.
+            """, Material.ENDERMAN_SPAWN_EGG
     )),
 
     // Heavy Knight
     UPPERCUT(new Uppercut()),
     UPDRAFT(new Updraft()),
+    SLASH(new Slash()),
+
+    // Orc
+    ORC_GROWN(new OrcGrowl()),
+    ORC_AXE(new OrcAxe()),
+    ORC_PASSIVE(new PassiveTalent("Don't Anger Me/Orc's Blood", format("""
+            &b&lDon't Anger Me
+            Taking continuous damage within the set time window will trigger {} for &b3s&7.
+                        
+            &b&lOrc's Blood
+            Negative effects deal 50% less damage.
+            """, Named.BERSERK), Material.FERMENTED_SPIDER_EYE)),
+
+    // Engineer
+    ENGINEER_SENTRY(new EngineerSentry()),
+    ENGINEER_TURRET(null),
+    ENGINEER_RECALL(new EngineerRecall()),
+    ENGINEER_PASSIVE(null),
+
+    // Bloodfiend
+    TWIN_CLAWS(new TwinClaws()),
+    CANDLEBANE(new CandlebaneTalent()),
+    BLOOD_CHALICE(new BloodChaliceTalent()),
+    BLOOD_CUP(new BloodCup()),
+    SUCCULENCE(new BloodfiendPassive()),
+
+    // ???
+    SYNTHETIC_SUN(new SyntheticSun()),
 
     // test (keep last)
     TestChargeTalent(new TestChargeTalent());
@@ -361,7 +424,7 @@ public enum Talents {
         }
         this.talent = talent;
         if (talent instanceof Listener listener) {
-            Main.getPlugin().addEvent(listener);
+            Bukkit.getPluginManager().registerEvents(listener, Main.getPlugin());
         }
     }
 
@@ -404,13 +467,28 @@ public enum Talents {
         }
     }
 
+    /**
+     * Gets the enum from a talent handle.
+     *
+     * @param talent - Talent handle.
+     * @return the enum if present, or null.
+     */
     @Nullable
-    public static Talents fromTalent(Talent talent) {
+    public static Talents fromTalent(@Nullable Talent talent) {
         if (talent == null) {
             return null;
         }
 
         return HANDLE_TO_ENUM.get(talent);
     }
+
+    private static String format(String textBlock, @Nullable Object... format) {
+        if (format == null || format.length == 0) {
+            return textBlock;
+        }
+
+        return BFormat.format(textBlock, format);
+    }
+
 
 }

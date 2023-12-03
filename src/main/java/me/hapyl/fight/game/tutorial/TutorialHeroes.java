@@ -21,7 +21,7 @@ public class TutorialHeroes extends TutorialGUI {
         final SmartComponent component = newSmartComponent();
 
         component.add(ItemBuilder.of(Material.STICK, "Weapon")
-                .addSmartLore("Every hero has a weapon to fight with!__It is &f&lalways&7 located to your first slot.")
+                .addSmartLore("Every hero has a weapon to fight with!__It is &f&lalways&7 located to your a slot.")
                 .asIcon());
 
         component.add(ItemBuilder.of(Material.GOLDEN_CARROT, "Talents")
@@ -35,7 +35,7 @@ public class TutorialHeroes extends TutorialGUI {
                 )
                 .addLore()
                 .addSmartLore("They are located in the hotbar and activated by pressing the corresponding number key.", SPLIT_WIDTH)
-                .addSmartLore("As example: To activate your first talent, press 2.", "&8", SPLIT_WIDTH)
+                .addSmartLore("As example: To activate your a talent, press 2.", "&8", SPLIT_WIDTH)
                 .addSmartLore("You can rebind your hotbar keys to make it easier to use your talents.", "&8", SPLIT_WIDTH)
                 .addLore()
                 .addSmartLore(

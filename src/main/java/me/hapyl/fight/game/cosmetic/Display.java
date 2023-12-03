@@ -22,7 +22,7 @@ public class Display {
     private final Player player;
     private final Location location;
 
-    public Display(Player player, Location location) {
+    public Display(@Nullable Player player, @Nonnull Location location) {
         this.player = player;
         this.location = location.clone();
         this.location.add(0.0d, player == null ? 0.5d : player.getEyeHeight() / 2, 0.0d);
@@ -35,6 +35,7 @@ public class Display {
         return player;
     }
 
+    @Nonnull
     public Location getLocation() {
         return new Location(location.getWorld(), location.getX(), location.getY(), location.getZ());
     }
@@ -53,7 +54,7 @@ public class Display {
 
     public <T> void particle0(Location location, Particle particle, int amount, double offsetX, double offsetY, double offsetZ, float speed, @Nullable Predicate<Player> filter, @Nullable T data, @Nullable Player... force) {
         // Force players are NOT checked for visibility
-        if (force != null && force.length > 0) {
+        if (force != null) {
             for (Player player : force) {
                 if (data != null) {
                     player.spawnParticle(particle, location, amount, offsetX, offsetY, offsetZ, speed, data);
@@ -126,11 +127,11 @@ public class Display {
         }
 
         final Item item = location.getWorld()
-                .dropItemNaturally(location, new ItemBuilder(material).setName(ThreadRandom.nextFloat() + "").toItemStack());
+                .dropItemNaturally(location, new ItemBuilder(material).setName(String.valueOf(ThreadRandom.nextFloat())).toItemStack());
 
         Entities.getEntities().add(item);
 
-        item.setPickupDelay(32767);
+        item.setPickupDelay(Short.MAX_VALUE);
         item.setTicksLived(Math.max(6000 - lifeTicks, 1));
 
         return item;

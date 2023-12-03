@@ -5,7 +5,7 @@ import com.mongodb.client.MongoCollection;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.entry.*;
 import me.hapyl.fight.database.rank.PlayerRank;
-import me.hapyl.fight.game.profile.PlayerProfile;
+import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -17,7 +17,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-// TODO (hapyl): 003, Apr 3, 2023: Maybe database should be independent of Profile? and profile should just have a ref to it?
 public class PlayerDatabase {
 
     private static final Map<UUID, PlayerDatabase> UUID_DATABASE_MAP = Maps.newConcurrentMap();
@@ -40,6 +39,8 @@ public class PlayerDatabase {
     public final FriendsEntry friendsEntry;
     public final CollectibleEntry collectibleEntry;
     public final DailyRewardEntry dailyRewardEntry;
+    public final CrateEntry crateEntry;
+    public final DeliveryEntry deliveryEntry;
     /////////////////
     // ENTRIES END //
     /////////////////
@@ -66,6 +67,10 @@ public class PlayerDatabase {
         this.collectibleEntry = new CollectibleEntry(this);
         this.heroEntry = new HeroEntry(this);
         this.dailyRewardEntry = new DailyRewardEntry(this);
+        this.crateEntry = new CrateEntry(this);
+        this.deliveryEntry = new DeliveryEntry(this);
+
+        UUID_DATABASE_MAP.put(uuid, this);
     }
 
     public PlayerDatabase(Player player) {
@@ -147,13 +152,27 @@ public class PlayerDatabase {
         MongoUtils.set(document, path, object);
     }
 
+    public long getLastOnline() {
+        return document.get("lastOnline", 0L);
+    }
+
+    @Nonnull
+    public String getLastOnlineServer() {
+        return document.get("lastOnlineServer", "None");
+    }
+
     public final void sync() {
         save();
         load();
     }
 
     public void save() {
+        checkWriteAccess();
+
         final String playerName = player == null ? uuid.toString() : player.getName();
+
+        document.append("lastOnline", System.currentTimeMillis());
+        document.append("lastOnlineServer", Utils.getServerIp());
 
         try {
             //Bukkit.getScheduler().runTaskAsynchronously(Main.getPlugin(), () -> {
@@ -165,10 +184,6 @@ public class PlayerDatabase {
             e.printStackTrace();
             getLogger().severe("An error occurred whilst trying to save database for %s.".formatted(playerName));
         }
-    }
-
-    public void update(Bson set) {
-        this.mongo.getPlayers().updateOne(this.filter, set);
     }
 
     public void load() {
@@ -189,8 +204,10 @@ public class PlayerDatabase {
                 players.insertOne(document);
             }
 
-            // Already update player name
-            document.put("player_name", playerName);
+            // Update player name
+            if (player != null) {
+                document.put("player_name", playerName);
+            }
 
             getLogger().info("Successfully loaded database for %s.".formatted(playerName));
         } catch (Exception error) {
@@ -199,11 +216,41 @@ public class PlayerDatabase {
         }
     }
 
+    public void update(Bson set) {
+        this.mongo.getPlayers().updateOne(this.filter, set);
+    }
+
     private Logger getLogger() {
         return Main.getPlugin().getLogger();
     }
 
-    public static PlayerDatabase getDatabase(Player player) {
-        return PlayerProfile.getOrCreateProfile(player).getDatabase();
+    @Nonnull
+    public static PlayerDatabase getDatabase(@Nonnull Player player) {
+        return getDatabase(player.getUniqueId());
     }
+
+    @Nonnull
+    public static PlayerDatabase getDatabase(@Nonnull UUID uuid) {
+        return Utils.getElementOrThrowErrorIfNull(UUID_DATABASE_MAP, uuid, "database does not exist for " + uuid);
+    }
+
+    public static boolean removeDatabase(@Nonnull UUID uuid) {
+        return UUID_DATABASE_MAP.remove(uuid) != null;
+    }
+
+    public static void dumpDatabaseInstanceInConsoleToConfirmThatThereIsNoMoreInstancesAfterRemoveIsCalledButThisIsTemporaryShouldRemoveOnProd() {
+        final Logger logger = Main.getPlugin().getLogger();
+
+        logger.info("Dumping database instances:");
+        UUID_DATABASE_MAP.forEach((uuid, db) -> {
+            logger.info("%s = %s".formatted(uuid, db));
+        });
+    }
+
+    protected void checkWriteAccess() throws IllegalStateException {
+        if (this instanceof ReadOnlyPlayerDatabase) {
+            throw new IllegalStateException("Write in read only instance!");
+        }
+    }
+
 }

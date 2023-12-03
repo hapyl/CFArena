@@ -3,7 +3,7 @@ package me.hapyl.fight.database;
 import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.database.entry.ExperienceEntry;
-import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.game.stats.StatType;
@@ -46,7 +46,7 @@ public enum Award {
     }
 
     public void award(@Nonnull GamePlayer player) {
-        if (!player.isReal() || Manager.current().isDebug()) {
+        if (Manager.current().isDebug()) {
             return;
         }
 

@@ -1,82 +1,98 @@
 package me.hapyl.fight;
 
 import me.hapyl.fight.database.Database;
-import me.hapyl.fight.event.EnderPearlHandler;
-import me.hapyl.fight.event.PlayerHandler;
-import me.hapyl.fight.event.SnowFormHandler;
+import me.hapyl.fight.event.*;
 import me.hapyl.fight.game.ChatController;
-import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.achievement.AchievementRegistry;
 import me.hapyl.fight.game.collectible.Collectibles;
 import me.hapyl.fight.game.cosmetic.CosmeticsListener;
+import me.hapyl.fight.game.cosmetic.crate.CrateManager;
+import me.hapyl.fight.game.entity.event.EntityEventHandler;
 import me.hapyl.fight.game.experience.Experience;
-import me.hapyl.fight.game.lobby.LobbyItems;
-import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.maps.features.BoosterController;
-import me.hapyl.fight.game.maps.healthpack.HealthPackListener;
+import me.hapyl.fight.game.maps.gamepack.HealthPackListener;
 import me.hapyl.fight.game.parkour.CFParkourManager;
+import me.hapyl.fight.game.talents.archive.bloodfiend.candlebane.CandlebaneProtocol;
 import me.hapyl.fight.game.task.TaskList;
+import me.hapyl.fight.mini.lampgame.LampGame;
 import me.hapyl.fight.notifier.Notifier;
 import me.hapyl.fight.npc.HumanManager;
 import me.hapyl.fight.protocol.ArcaneMuteProtocol;
+import me.hapyl.fight.protocol.CameraProtocol;
 import me.hapyl.fight.protocol.DismountProtocol;
-import me.hapyl.fight.util.Utils;
 import me.hapyl.spigotutils.EternaAPI;
-import me.hapyl.spigotutils.module.chat.CenterChat;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.util.Runnables;
-import org.bukkit.*;
+import me.hapyl.spigotutils.module.util.Validate;
+import org.bukkit.Bukkit;
+import org.bukkit.GameRule;
+import org.bukkit.Registry;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import test.Test;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
 
 public class Main extends JavaPlugin {
 
-    public static final String GAME_NAME = "&e&lCLASSES FIGHT &c&lᴀʀᴇɴᴀ";
+    public static final String GAME_NAME_HEADER = "&e&lCLASSES FIGHT";
+    public static final String GAME_NAME_FOOTER = "&c&lᴀʀᴇɴᴀ";
+    public static final String GAME_NAME = GAME_NAME_HEADER + " " + GAME_NAME_FOOTER;
+
+    private static long start;
     private static Main plugin;
 
-    private Manager manager;
-    private HumanManager humanManager;
-    private TaskList taskList;
-    private BoosterController boosters;
-    private Experience experience;
-    private Database database;
-    private Notifier notifier;
-    private CFParkourManager parkourManager;
-    private Collectibles collectibles;
-
-    public static Main getPlugin() {
-        return plugin;
-    }
+    public Manager manager;
+    public HumanManager humanManager;
+    public TaskList taskList;
+    public BoosterController boosters;
+    public Experience experience;
+    public Database database;
+    public Notifier notifier;
+    public CFParkourManager parkourManager;
+    public Collectibles collectibles;
+    public AchievementRegistry achievementRegistry;
+    private CrateManager crateManager;
 
     @Override
     public void onEnable() {
+        // Assign singleton & start time
         plugin = this;
+        CF.plugin = this;
+        start = System.currentTimeMillis();
 
-        // Init config
+        // Initiate API
+        new EternaAPI(this);
+
+        // Write default config
         getConfig().options().copyDefaults(true);
         saveConfig();
 
-        // Register commands
-        new CommandRegistry(this);
+        // Create database connection
+        database = new Database(this);
+        database.createConnection();
 
-        // Auth database
-        initDatabase();
+        // Register 'managers' 🤪
+        manager = new Manager(this);
+        CF.manager = manager;
 
+        taskList = new TaskList(this);
+        experience = new Experience(this);
+        boosters = new BoosterController(this);
+        notifier = new Notifier(this);
+        parkourManager = new CFParkourManager(this);
+        humanManager = new HumanManager(this);
+        collectibles = new Collectibles(this);
+        achievementRegistry = new AchievementRegistry(this);
+        crateManager = new CrateManager(this);
+
+        new LampGame(this);
+
+        // Register events and protocol listeners
         registerEvents();
-        regProtocol();
-
-        setNaggable(false);
-
-        // Init api
-        new EternaAPI(this);
+        registerProtocol();
 
         // Preset game rules
         for (final World world : Bukkit.getWorlds()) {
@@ -96,33 +112,21 @@ public class Main extends JavaPlugin {
 
         // Remove recipes and achievements
         Bukkit.clearRecipes();
-        //Bukkit.advancementIterator().forEachRemaining(advancement -> {
-        //    Bukkit.getUnsafe().removeAdvancement(advancement.getKey());
-        //});
-        //getServer().reloadData();
-        //
-        //System.out.println(Bukkit.advancementIterator());
+        Registry.ADVANCEMENT.iterator().forEachRemaining(advancement -> {
+        });
 
-        this.manager = new Manager(this);
-        this.taskList = new TaskList();
-        this.experience = new Experience();
-        this.boosters = new BoosterController(this);
-        this.notifier = new Notifier(this);
+        // Register Commands
+        new CommandRegistry(this);
 
-        this.parkourManager = new CFParkourManager(this);
-        this.collectibles = new Collectibles(this);
-
-        // update database
+        // Update database in case of /reload
         for (final Player player : Bukkit.getOnlinePlayers()) {
-            handlePlayer(player);
+            manager.handlePlayer(player);
         }
 
-        // Create NPCs
-        humanManager = new HumanManager(this);
+        // Check for reload
+        ReloadChecker.check(this, 20);
 
-        checkReload();
-
-        // Init runtime tests
+        // Initiate runtime tests
         new Test(this);
     }
 
@@ -132,27 +136,21 @@ public class Main extends JavaPlugin {
             for (final Player player : Bukkit.getOnlinePlayers()) {
                 Manager.current().getOrCreateProfile(player).getDatabase().save();
             }
-        }, "player database save");
+        }, "Player database save.");
+
+        runSafe(database::stopConnection, "Database connection stop.");
 
         runSafe(() -> {
-            database.stopConnection();
-        }, "mongodb connection stop");
+            //((SnakeParkour) ParkourCourse.SNAKE_PARKOUR.getParkour()).getSnake().stop();
+        }, "Snake removal");
 
         runSafe(() -> {
             if (this.manager.isGameInProgress()) {
                 this.manager.stopCurrentGame();
             }
-        }, "game instance stop");
+        }, "Game instance stop.");
 
-        runSafe(this::saveConfig, "config saving");
-    }
-
-    public HumanManager getHumanManager() {
-        return humanManager;
-    }
-
-    public Notifier getNotifier() {
-        return notifier;
+        runSafe(this::saveConfig, "Config save.");
     }
 
     public Database getDatabase() {
@@ -179,116 +177,68 @@ public class Main extends JavaPlugin {
         return collectibles;
     }
 
-    public void handlePlayer(Player player) {
-        this.manager.createProfile(player);
-
-        // teleport either to spawn or the map if there is a game in progress
-        final IGameInstance game = this.manager.getCurrentGame();
-        if (!game.isReal()) {
-            final GameMode gameMode = player.getGameMode();
-
-            if (gameMode != GameMode.CREATIVE && gameMode != GameMode.SPECTATOR) {
-                player.teleport(GameMaps.SPAWN.getMap().getLocation());
-                LobbyItems.giveAll(player);
-            }
-        }
-        else {
-            player.teleport(game.getMap().getMap().getLocation());
-        }
-
-        // Notify operators
-        if (player.isOp()) {
-            Chat.sendMessage(player, database.getDatabaseString());
-        }
+    public AchievementRegistry getAchievementRegistry() {
+        return achievementRegistry;
     }
 
-    public void addEvent(Listener listener) {
-        getServer().getPluginManager().registerEvents(listener, this);
+    public void setConfigValue(@Nonnull String path, @Nullable Object value) {
+        getConfig().set(path, value);
+        saveConfig();
     }
 
-    private void checkReload() {
-        Runnables.runLater(() -> {
-            try {
-                final Server server = getServer();
-                final int reloadCount = (int) server.getClass().getDeclaredField("reloadCount").get(server);
+    public <T extends Enum<T>> T getConfigEnumValue(String path, Class<T> clazz, T def) {
+        final String string = getConfig().getString(path, "");
+        final T enumValue = Validate.getEnumValue(clazz, string);
 
-                if (reloadCount > 0) {
-                    sendCenterMessageToOperatorsAndConsole("");
-                    sendCenterMessageToOperatorsAndConsole("&4&lWARNING");
-                    sendCenterMessageToOperatorsAndConsole("&cSever Reload Detected!");
-                    sendCenterMessageToOperatorsAndConsole("");
-
-                    sendCenterMessageToOperatorsAndConsole(
-                            "&cNote that %s does &nnot&c support &e/reload&c and it's &nshould only&c be used in development.",
-                            getDescription().getName()
-                    );
-
-                    sendCenterMessageToOperatorsAndConsole("");
-
-                    sendCenterMessageToOperatorsAndConsole("&cIf you are not a developer, please &lrestart&c the server instead.");
-                    sendCenterMessageToOperatorsAndConsole("");
-
-                    // sfx
-                    Bukkit.getOnlinePlayers()
-                            .stream()
-                            .filter(Player::isOp)
-                            .forEach(player -> {
-                                PlayerLib.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 0.0f);
-                                PlayerLib.playSound(player, Sound.BLOCK_NOTE_BLOCK_PLING, 0.0f);
-                            });
-                }
-            } catch (NoSuchFieldException | IllegalAccessException ignored) {
-            }
-        }, 20L);
-    }
-
-    private void sendCenterMessageToOperatorsAndConsole(String message, @Nullable Object... format) {
-        if (message.isEmpty() || message.isBlank()) {
-            Utils.getOnlineOperatorsAndConsole().forEach(sender -> {
-                Chat.sendMessage(sender, "", format);
-            });
-            return;
+        if (enumValue == null) {
+            return def;
         }
 
-        final List<String> strings = ItemBuilder.splitString("&c", Chat.format(message, format), 50);
-
-        for (String string : strings) {
-            final String centerString = CenterChat.makeString(string);
-
-            Utils.getOnlineOperatorsAndConsole().forEach(sender -> {
-                Chat.sendMessage(sender, centerString, format);
-            });
-        }
+        return enumValue;
     }
 
-    private void initDatabase() {
-        this.database = new Database(this);
-        this.database.createConnection();
+    public CrateManager getCrateManager() {
+        return crateManager;
     }
 
     private void registerEvents() {
         final PluginManager pluginManager = Bukkit.getServer().getPluginManager();
 
         pluginManager.registerEvents(new PlayerHandler(), this);
+        pluginManager.registerEvents(new EntityHandler(), this);
+        pluginManager.registerEvents(new EntityEventHandler(), this);
         pluginManager.registerEvents(new ChatController(), this);
         pluginManager.registerEvents(new EnderPearlHandler(), this);
         pluginManager.registerEvents(new CosmeticsListener(), this);
         pluginManager.registerEvents(new HealthPackListener(), this);
         pluginManager.registerEvents(new SnowFormHandler(), this);
+        pluginManager.registerEvents(new ServerHandler(), this);
     }
 
     private void runSafe(Runnable runnable, String handler) {
         try {
             runnable.run();
         } catch (Exception e) {
-            System.out.printf("§cCannot run %s onDisable()!%n", handler);
+            getLogger().severe("Cannot run %s onDisable()!".formatted(handler));
             e.printStackTrace();
         }
     }
 
-    private void regProtocol() {
+    private void registerProtocol() {
         new ArcaneMuteProtocol();
         new DismountProtocol();
+        new CandlebaneProtocol();
+        new CameraProtocol();
+        //new HandshakeProtocol();
         //new ConfusionPotionProtocol(); -> doesn't work as good as I thought :(
+    }
+
+
+    public static Main getPlugin() {
+        return plugin;
+    }
+
+    public static long getStartupTime() {
+        return start;
     }
 }

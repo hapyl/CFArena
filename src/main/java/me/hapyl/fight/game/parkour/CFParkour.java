@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.parkour;
 
+import me.hapyl.fight.game.Manager;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.parkour.*;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -7,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageEvent;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
@@ -14,7 +16,7 @@ import java.util.UUID;
 public class CFParkour extends Parkour implements ParkourHandler {
 
     private ParkourLeaderboard leaderboard;
-    private final ParkourDatabase database;
+    protected final ParkourDatabase database;
 
     public CFParkour(String name, int startX, int startY, int startZ, float yaw, float pitch, int finishX, int finishY, int finishZ) {
         super(
@@ -81,7 +83,7 @@ public class CFParkour extends Parkour implements ParkourHandler {
             }
 
             public void sendErrorParkourNotStarted(Player player, Parkour parkour) {
-                Chat.sendMessage(player, "&cYou must first start this parkour!");
+                Chat.sendMessage(player, "&cYou must a start this parkour!");
                 PlayerLib.Sounds.ENDERMAN_TELEPORT.play(player, 0.0F);
             }
 
@@ -97,10 +99,13 @@ public class CFParkour extends Parkour implements ParkourHandler {
         });
     }
 
-    protected void updateLeaderboardIfExists() {
+    public void updateLeaderboardIfExists() {
         if (leaderboard != null) {
             leaderboard.update();
         }
+    }
+
+    public void onDamage(Player player, EntityDamageEvent.DamageCause cause) {
     }
 
     @Nullable
@@ -131,6 +136,12 @@ public class CFParkour extends Parkour implements ParkourHandler {
     @Nullable
     @Override
     public Response onStart(Player player, Data data) {
+        if (Manager.current().isGameInProgress()) {
+            Chat.sendMessage(player, "&cCannot start parkour while a game is in progress!");
+            player.teleport(getQuitLocation());
+            return Response.CANCEL;
+        }
+
         if (!Bukkit.getOnlineMode()) {
             Chat.sendMessage(player, "&cParkour is unavailable in offline mode!");
             Chat.sendMessage(player, "&cSet &e'online-mode'&c to &etrue&c in your &eserver.properties&c!");
@@ -172,8 +183,6 @@ public class CFParkour extends Parkour implements ParkourHandler {
                 );
             }
         }
-
-        // TODO: 012, Mar 12, 2023 -> Test for world record
 
         return null;
     }

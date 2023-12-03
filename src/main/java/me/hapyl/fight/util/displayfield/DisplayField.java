@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 public @interface DisplayField {
 
     /**
-     * Name of the field. If not present field name will be formatted and used.
+     * Name of the field. If not, present, field name will be formatted and used.
      */
     @Nonnull
     String name() default "";
@@ -24,6 +24,16 @@ public @interface DisplayField {
      */
     @Nonnull
     String suffix() default "";
+
+    /**
+     * Whenever suffix should be prepended by a space.
+     */
+    boolean suffixSpace() default true;
+
+    /**
+     * Multiplier by which the numeral value will be scaled.
+     */
+    double scaleFactor() default 1.0d;
 
     /**
      * Extra line to add as a description. If not present, no extra line will be used.

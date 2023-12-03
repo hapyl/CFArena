@@ -2,8 +2,8 @@ package me.hapyl.fight.game.parkour;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.Main;
-import me.hapyl.fight.database.Database;
-import me.hapyl.fight.game.Debugger;
+import me.hapyl.fight.database.collection.AsynchronousDatabase;
+import me.hapyl.fight.game.Debug;
 import me.hapyl.spigotutils.module.parkour.Data;
 import me.hapyl.spigotutils.module.parkour.Stats;
 import org.bson.Document;
@@ -15,28 +15,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-public class ParkourDatabase {
+// This is handled async so whatever not putting using DatabaseCollection.
+public class ParkourDatabase extends AsynchronousDatabase {
 
-    private final Database mongo;
     private final CFParkour parkour;
-    private final Document filter;
-    private Document document;
 
     public ParkourDatabase(CFParkour parkour) {
-        this.mongo = Main.getPlugin().getDatabase();
+        super(Main.getPlugin().getDatabase().getParkour(), new Document("parkour", parkour.parkourPath()));
         this.parkour = parkour;
-        this.filter = new Document("parkour", parkour.parkourPath());
-
-        load();
-    }
-
-    private void load() {
-        document = mongo.getParkour().find(filter).first();
-
-        if (document == null) {
-            document = new Document(filter);
-            mongo.getParkour().insertOne(document);
-        }
 
         // Remove invalid entries
         final Document players = getPlayers();
@@ -47,10 +33,10 @@ public class ParkourDatabase {
                 final UUID uuid = UUID.fromString(key);
                 final OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
 
-                // If document has a valid uuid, but has player never played
+                // If a document has a valid uuid, but has player never played,
                 // it means that it was created in offline mode, delete it.
                 if (!offlinePlayer.hasPlayedBefore()) {
-                    Debugger.warn("Removing invalid entry: %s", key);
+                    Debug.warn("Removing invalid entry: %s", key);
                     invalidKeys.add(key);
                 }
             } catch (IllegalArgumentException ignored) {
@@ -61,7 +47,7 @@ public class ParkourDatabase {
             invalidKeys.forEach(players::remove);
         }
 
-        saveTo("players", players);
+        write("players", players);
     }
 
     public void syncData(Data data) {
@@ -74,6 +60,8 @@ public class ParkourDatabase {
         player.put("time", data.getCompletionTime());
         player.put("completed", true);
 
+        player.remove("is_dirty"); // force removes dirty tag if completed after modifications
+
         final Stats dataStats = data.getStats();
 
         for (Stats.Type value : Stats.Type.values()) {
@@ -81,16 +69,10 @@ public class ParkourDatabase {
         }
 
         player.put("stats", stats);
-
-        saveTo("players." + uuid, player);
-        load(); // reload
-
-        // Update leaderboard
-        parkour.updateLeaderboardIfExists();
-    }
-
-    public void saveTo(String path, Document document) {
-        mongo.getParkour().updateOne(filter, new Document("$set", new Document(path, document)));
+        write("players." + uuid, player, then -> {
+            // Update leaderboard
+            parkour.updateLeaderboardIfExists();
+        });
     }
 
     public long getBestTime(UUID uuid) {
@@ -113,6 +95,10 @@ public class ParkourDatabase {
         }
 
         return map;
+    }
+
+    public Document getDocument() {
+        return document;
     }
 
     public Document getPlayers() {

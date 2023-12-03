@@ -14,7 +14,9 @@ public class SettingCommand extends SimplePlayerCommand {
 
     public SettingCommand(String str) {
         super(str);
+
         setUsage("setting [Setting] (Value)");
+        setAliases("settings", "options");
     }
 
     @Override

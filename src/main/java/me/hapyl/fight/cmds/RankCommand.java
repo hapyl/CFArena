@@ -23,7 +23,7 @@ public class RankCommand extends SimpleAdminCommand {
 
     @Override
     protected void execute(CommandSender sender, String[] args) {
-        if (!PlayerRank.getRank(sender).isAdministrator()) {
+        if (!PlayerRank.getRank(sender).isOrHigher(PlayerRank.ADMIN)) {
             Chat.sendMessage(sender, "&cYou do not have permission to use this command.");
             return;
         }
@@ -51,7 +51,7 @@ public class RankCommand extends SimpleAdminCommand {
             return;
         }
 
-        if (rankToSet.isAdministrator() && !confirmSetAdmin) {
+        if (rankToSet.isStaff() && !confirmSetAdmin) {
             Chat.sendMessage(sender, "&cNot making &e%s&c administrator without &e%s&c argument!", target.getName(), ARGUMENT_SET_ADMIN);
             return;
         }
