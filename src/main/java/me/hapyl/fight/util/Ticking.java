@@ -1,4 +1,4 @@
-package me.hapyl.fight.game.entity;
+package me.hapyl.fight.util;
 
 import me.hapyl.fight.game.task.GameTask;
 

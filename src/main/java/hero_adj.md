@@ -144,7 +144,7 @@ Nightmare
 ### In the Shadows (Passive)
 
 * Now gives Attack and Speed as attributes.
-    * 25 and 5 respectfully.
+    * 25 and 5 respectively.
 
 #### Omen
 
@@ -324,6 +324,37 @@ Frostbite
 Dark Mage
 ===
 
+### Witherborn (Ultimate)
+
+* Spell cooldowns are reduced while Witherborn is active.
+* Reduced witherborn assist delay 2.5s >> 2.0s.
+* Add disappearing FX.
+
+### Darkness Curse
+
+* Fix SFX playing at the wrong location.
+
+### Healing Aura
+
+* Decrease healing interval 1s >> 0.75s
+
+### Shadow Clone
+
+* Anchored the clone spawn location.
+
+### Ancient Wand
+
+* Reworded ability description.
+
+### Miscellaneous
+
+* Assigned affiliation.
+
+---
+
+Blast Knight
+===
+
 ---
 
 Ninja
@@ -357,3 +388,16 @@ Taker
 ### Embodiment of Death (Ultimate)
 
 * Add a short casting time.
+
+---
+
+System Changes
+===
+
+* Defense formula changed:
+    * Old formula:
+    <p><code>DMG * (2 - DEF)</code></p>
+
+    * New formula:
+    <p><code>SCALE = 0.75</code></p>
+    <p><code>DMG / (DEF * SCALE + (1 - SCALE))</code></p>

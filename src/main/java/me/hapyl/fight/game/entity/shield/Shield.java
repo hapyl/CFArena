@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.entity.shield;
 
 import me.hapyl.fight.CF;
+import me.hapyl.fight.annotate.PreprocessingMethod;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.spigotutils.module.math.Numbers;
@@ -28,6 +29,7 @@ public class Shield {
         onRegenerate(regenerateAmount);
     }
 
+    @PreprocessingMethod
     public final void takeDamage0(double damage) {
         takeDamage(damage);
 

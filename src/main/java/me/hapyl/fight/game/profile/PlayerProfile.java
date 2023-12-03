@@ -11,7 +11,7 @@ import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.loadout.HotbarLoadout;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
-import me.hapyl.fight.game.profile.data.PlayerData;
+import me.hapyl.fight.game.profile.data.PlayerProfileData;
 import me.hapyl.fight.game.profile.relationship.PlayerRelationship;
 import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.task.GameTask;
@@ -43,7 +43,7 @@ public class PlayerProfile {
     private final PlayerDatabase playerDatabase;
     private final LocalTeamManager localTeamManager;
     private final PlayerSkin originalSkin;
-    private final PlayerData playerData;
+    private final PlayerProfileData playerData;
     private final PlayerInfraction infractions;
     private final PlayerRelationship relationship;
     private final HotbarLoadout hotbarLoadout;
@@ -70,7 +70,7 @@ public class PlayerProfile {
         this.buildMode = false;
         this.infractions = new PlayerInfraction(this);
         this.relationship = new PlayerRelationship(this);
-        this.playerData = new PlayerData(this);
+        this.playerData = new PlayerProfileData(this);
         this.originalSkin = PlayerSkin.of(player);
         this.hotbarLoadout = new HotbarLoadout(this);
         this.fastAccess = new PlayerFastAccess(this);
@@ -97,7 +97,7 @@ public class PlayerProfile {
     }
 
     @Nonnull
-    public PlayerData getPlayerData() {
+    public PlayerProfileData getPlayerData() {
         return playerData;
     }
 

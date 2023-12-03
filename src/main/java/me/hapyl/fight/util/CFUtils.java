@@ -3,7 +3,6 @@ package me.hapyl.fight.util;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.annotate.ForceCloned;
-import me.hapyl.fight.fastaccess.FastAccess;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -540,24 +539,38 @@ public class CFUtils {
         return TICK_FORMAT.format(number);
     }
 
-    // Anchors location to the ground
+    @Nonnull
     public static Location anchorLocation(@Nonnull Location location) {
         final World world = location.getWorld();
+
         if (world == null) {
             return location;
         }
 
-        final int minHeight = world.getMinHeight();
+        // in case standing on slab/non-full block
+        location.setY(location.getBlockY() + 1d);
 
         while (true) {
-            final double y = location.getY();
-            if (y <= minHeight || !location.getBlock().getType().isAir()) {
-                Debug.particle(location, Particle.VILLAGER_HAPPY);
-                return location;
+            final Block block = location.getBlock();
+
+            if (block.getY() <= world.getMinHeight()) {
+                break;
             }
 
-            location.subtract(0.0d, 0.1d, 0.0d);
+            if (!block.isEmpty()) {
+                if (isBlockSlab(block.getType())) {
+                    location.subtract(0, 0.5, 0);
+                }
+
+                // compensate
+                location.add(0, 0.15, 0);
+                break;
+            }
+
+            location.subtract(0, 0.1, 0);
         }
+
+        return location;
     }
 
     public static void setGlowing(@Nonnull Player player, @Nonnull Entity entity, @Nonnull String teamName, @Nonnull ChatColor color) {
@@ -673,6 +686,14 @@ public class CFUtils {
         }
 
         return newList;
+    }
+
+    private static boolean isBlockSlab(Material material) {
+        if (!material.isBlock()) {
+            return false;
+        }
+
+        return material.name().endsWith("_SLAB");
     }
 
     private static <E> void doClearEntry(E e) {

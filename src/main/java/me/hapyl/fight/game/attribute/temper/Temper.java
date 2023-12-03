@@ -27,6 +27,13 @@ public enum Temper {
         }
     },
     SHADOWSTRIKE,
+    WITHERBORN {
+        @Override
+        public boolean isDisplay() {
+            return false;
+        }
+    },
+    STONE_CASTLE,
     ;
 
     /**

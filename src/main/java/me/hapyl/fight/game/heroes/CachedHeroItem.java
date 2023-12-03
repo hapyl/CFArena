@@ -28,18 +28,14 @@ public class CachedHeroItem {
 
             builder.setName(hero.toString())
                     .addLore()
-                    //// Role
-                    //.addLore("&7Role: &b%s", hero.getRole().getName())
-                    //.addSmartLore(hero.getRole().getDescription(), "&8&o")
-                    // Archetype
-                    .addLore("&7Archetype: &b" + archetype)
+                    .addLore("&7Archetype: " + archetype)
                     .addSmartLore(archetype.getDescription(), "&8&o");
 
-            // Fraction
-            if (hero.getOrigin() != Origin.NOT_SET) {
+            // Affiliation
+            if (hero.getOrigin() != Affiliation.NOT_SET) {
                 builder.addLore();
-                builder.addLore("&7Origin: &b%s", hero.getOrigin().getName());
-                builder.addSmartLore(hero.getOrigin().getDescription(), "&8&0");
+                builder.addLore("&7Affiliation: " + hero.getOrigin());
+                builder.addSmartLore(hero.getOrigin().getDescription(), "&8&o");
             }
 
             // Attributes
@@ -66,9 +62,8 @@ public class CachedHeroItem {
                     .setName(hero.toString())
                     .addLore("&8/hero " + Heroes.byHandle(hero).name().toLowerCase(Locale.ROOT))
                     .addLore()
-                    //.addLore("&7Role: &b%s", hero.getRole().getName())
-                    .addLore("&7Archetype: &b" + hero.getArchetype())
-                    .addLoreIf("&7Origin: &b%s".formatted(hero.getOrigin().getName()), hero.getOrigin() != Origin.NOT_SET)
+                    .addLore("&7Archetype: " + hero.getArchetype())
+                    .addLoreIf("&7Affiliation: " + hero.getOrigin(), hero.getOrigin() != Affiliation.NOT_SET)
                     .addLore();
 
             final HeroAttributes attributes = hero.getAttributes();

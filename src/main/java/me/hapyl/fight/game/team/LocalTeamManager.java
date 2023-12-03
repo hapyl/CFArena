@@ -19,7 +19,7 @@ public class LocalTeamManager {
     public LocalTeamManager(@Nonnull Player player) {
         this.player = player;
 
-        for (Player other : getOnlinePlayer()) {
+        for (Player other : getOnlinePlayers()) {
             if (player == other) {
                 continue;
             }
@@ -36,20 +36,28 @@ public class LocalTeamManager {
             throw new IllegalArgumentException("Don't create teams for self!");
         }
 
-        final Team team = getOrCreateTeam(this.player.getScoreboard(), "!cf-" + player.getName());
-        team.addEntry(player.getName());
+        final Scoreboard scoreboard = this.player.getScoreboard();
+        final String teamName = "!cf-" + player.getName();
+
+        Team team = scoreboard.getTeam(teamName);
+
+        if (team == null) {
+            team = scoreboard.registerNewTeam(teamName);
+            team.addEntry(player.getName());
+            team.addEntry(this.player.getName()); // for name visibility
+        }
 
         return team;
     }
 
     public void updateAll(@Nonnull LocalTeamState state) {
-        getOnlinePlayer().forEach(player -> {
+        getOnlinePlayers().forEach(player -> {
             state.update(getTeam(player), player);
         });
     }
 
     @Nonnull
-    public Set<Player> getOnlinePlayer() {
+    public Set<Player> getOnlinePlayers() {
         final Set<Player> players = Sets.newHashSet(Bukkit.getOnlinePlayers());
         players.remove(this.player);
 
@@ -57,7 +65,11 @@ public class LocalTeamManager {
     }
 
     public void tickAll() {
-        getOnlinePlayer().forEach(player -> {
+        if (isGameInProgress()) {
+            return;
+        }
+
+        getOnlinePlayers().forEach(player -> {
             final Team team = getTeam(player);
             final PlayerProfile profile = PlayerProfile.getProfile(player);
 
@@ -69,6 +81,7 @@ public class LocalTeamManager {
             final String displayName = display.getFormat();
 
             team.setPrefix(displayName.substring(0, Math.min(displayName.length(), 64)));
+            team.setSuffix("");
             team.setColor(display.getColor().bukkitChatColor);
         });
     }
@@ -83,8 +96,9 @@ public class LocalTeamManager {
     }
 
     public void updateAllInGame() {
-        getOnlinePlayer().forEach(player -> {
+        getOnlinePlayers().forEach(player -> {
             final Team team = getTeam(player);
+
             if (GameTeam.isTeammate(this.player, player)) {
                 LocalTeamState.GAME_ALLY.update(team, player);
             }
@@ -92,6 +106,10 @@ public class LocalTeamManager {
                 LocalTeamState.GAME_ENEMY.update(team, player);
             }
         });
+    }
+
+    private boolean isGameInProgress() {
+        return Manager.current().getGameInstance() != null;
     }
 
     public static void updateAll(Player player) {
@@ -111,14 +129,4 @@ public class LocalTeamManager {
         }
     }
 
-    @Nonnull
-    public static Team getOrCreateTeam(@Nonnull Scoreboard scoreboard, @Nonnull String name) {
-        Team team = scoreboard.getTeam("!" + name);
-
-        if (team == null) {
-            team = scoreboard.registerNewTeam("!" + name);
-        }
-
-        return team;
-    }
 }

@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.dot;
 
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.entity.Ticking;
+import me.hapyl.fight.util.Ticking;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

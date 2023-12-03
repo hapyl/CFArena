@@ -1,5 +1,6 @@
 package me.hapyl.fight.event.custom;
 
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -14,43 +15,39 @@ public class GameDamageEvent extends Event implements Cancellable {
 
     private static final HandlerList HANDLERS = new HandlerList();
 
-    public final LivingGameEntity entity;
-    @Nullable public final GameEntity damager;
-    public final double damage;
-    @Nullable public final EnumDamageCause cause;
-    public final boolean isCrit;
-
+    private final DamageInstance instance;
     private boolean cancel;
 
-    public GameDamageEvent(LivingGameEntity entity, @Nullable GameEntity damager, double damage, @Nullable EnumDamageCause cause, boolean isCrit) {
-        this.entity = entity;
-        this.damager = damager;
-        this.damage = damage;
-        this.cause = cause;
-        this.isCrit = isCrit;
+    public GameDamageEvent(DamageInstance instance) {
+        this.instance = instance;
         this.cancel = false;
     }
 
+    @Nonnull
     public LivingGameEntity getEntity() {
-        return entity;
+        return instance.getEntity();
     }
 
     @Nullable
     public GameEntity getDamager() {
-        return damager;
+        return instance.getDamager();
     }
 
     public double getDamage() {
-        return damage;
+        return instance.getDamage();
+    }
+
+    public void setDamage(double damage) {
+        instance.damage = damage;
     }
 
     @Nullable
     public EnumDamageCause getCause() {
-        return cause;
+        return instance.getCause();
     }
 
     public boolean isCrit() {
-        return isCrit;
+        return instance.isCrit();
     }
 
     @Override

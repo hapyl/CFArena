@@ -81,6 +81,6 @@ public class DamageInstance {
 
     @Nonnull
     public GameDamageEvent toEvent() {
-        return new GameDamageEvent(entity, damager, damage, cause, isCrit);
+        return new GameDamageEvent(this);
     }
 }

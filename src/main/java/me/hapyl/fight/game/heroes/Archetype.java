@@ -1,11 +1,11 @@
 package me.hapyl.fight.game.heroes;
 
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.util.Described;
+import me.hapyl.fight.util.Prefixed;
 
 import javax.annotation.Nonnull;
 
-public enum Archetype implements Described {
+public enum Archetype implements Prefixed {
 
     DAMAGE("&4&l💢&4", "Damage", "Experts in dealing as much damage as possible."),
     RANGE("&b&l🎯&b", "Range", "Rangers are dead-eye shooters that can hold distance to strike."),
@@ -38,12 +38,14 @@ public enum Archetype implements Described {
 
     @Nonnull
     @Override
-    public String getName() {
-        return name;
-    }
-
     public String getPrefix() {
         return prefix;
+    }
+
+    @Nonnull
+    @Override
+    public String getName() {
+        return name;
     }
 
     @Nonnull

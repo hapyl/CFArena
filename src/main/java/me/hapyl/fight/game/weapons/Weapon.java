@@ -156,6 +156,10 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
         return this;
     }
 
+    /**
+     * @deprecated {@link Weapon#getMaterial}
+     */
+    @Deprecated
     @Nonnull
     public Material getType() {
         return item == null ? Material.AIR : item.getType();

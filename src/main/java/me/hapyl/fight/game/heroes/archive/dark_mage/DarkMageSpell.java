@@ -2,25 +2,32 @@ package me.hapyl.fight.game.heroes.archive.dark_mage;
 
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.PlayerData;
 import me.hapyl.fight.game.heroes.archive.witcher.WitherData;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.archive.dark_mage.DarkMageTalent;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class DarkMageSpell {
+public class DarkMageSpell extends PlayerData {
 
-    private final GamePlayer player;
+    private static final long TIMEOUT = 2000L;
+
     private SpellButton first;
     private SpellButton second;
     private long lastUsed;
 
     public DarkMageSpell(GamePlayer player) {
-        this.player = player;
+        super(player);
+        this.first = null;
+        this.second = null;
+        this.lastUsed = 0L;
+    }
+
+    @Override
+    public void remove() {
         this.first = null;
         this.second = null;
         this.lastUsed = 0L;
@@ -54,12 +61,8 @@ public class DarkMageSpell {
         }
     }
 
-    private String nonnullButton(SpellButton button) {
-        return button == null ? "&8_" : "&a&n" + button.getName() + "&r";
-    }
-
     public boolean isTimeout() {
-        return (System.currentTimeMillis() - this.lastUsed) >= 2000L;
+        return (System.currentTimeMillis() - this.lastUsed) >= TIMEOUT;
     }
 
     @Nullable
@@ -72,27 +75,27 @@ public class DarkMageSpell {
         return second;
     }
 
-    public void cast(@Nullable WitherData data) {
+    public void cast(@Nonnull DarkMageData data) {
         final DarkMageTalent talent = getTalent();
+        final WitherData witherData = data.getWitherData();
 
         if (talent == null) {
             return;
         }
 
-        if (talent.executeDarkMage(player).isOk() && data != null) {
-            talent.assist(data);
+        // Assist
+        if (talent.executeDarkMage(player).isOk() && witherData != null) {
+            talent.assist(witherData);
         }
 
-        clear();
+        remove();
     }
 
     @Nullable
     public DarkMageTalent getTalent() {
         for (Talent talent : Heroes.DARK_MAGE.getHero().getTalents()) {
-            if (talent instanceof DarkMageTalent darkMageTalent) {
-                if (darkMageTalent.test(this)) {
-                    return darkMageTalent;
-                }
+            if (talent instanceof DarkMageTalent darkMageTalent && darkMageTalent.test(this)) {
+                return darkMageTalent;
             }
         }
 
@@ -107,25 +110,13 @@ public class DarkMageSpell {
         return first == null && second == null && lastUsed == 0L;
     }
 
-    public void clear() {
-        this.first = null;
-        this.second = null;
-        this.lastUsed = 0L;
-    }
-
     public void markUsed() {
-        this.lastUsed = System.currentTimeMillis();
-        player.setCooldown(Heroes.DARK_MAGE.getHero().getWeapon().getType(), 1);
+        lastUsed = System.currentTimeMillis();
+        player.setCooldown(Heroes.DARK_MAGE.getHero().getWeapon().getMaterial(), 1);
     }
 
-    public enum SpellButton {
-        LEFT,
-        RIGHT;
-
-        public String getName() {
-            return this == LEFT ? "L" : "R";
-        }
-
+    private String nonnullButton(SpellButton button) {
+        return button == null ? "&8_" : "&a&n" + button + "&r";
     }
 
 }

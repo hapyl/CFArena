@@ -3,6 +3,7 @@ package me.hapyl.fight.command;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.gui.TeamSelectGUI;
+import me.hapyl.fight.ux.Message;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.command.SimplePlayerCommand;
 import org.bukkit.entity.Player;
@@ -36,17 +37,17 @@ public class TeamCommand extends SimplePlayerCommand {
         final GameTeam team = getArgument(args, 1).toEnum(GameTeam.class);
 
         if (team == null) {
-            Chat.sendMessage(player, "&cCould not find team '%s'!", args[1]);
+            Chat.sendMessage(player, "&cInvalid team!");
             return;
         }
 
         if (string.equalsIgnoreCase("join")) {
-            if (team.addMember(player)) {
-                Chat.sendMessage(player, "&aJoined %s team.", team.getName());
+            if (team.isFull()) {
+                Message.error(player, "Cannot join {} team because it's full!", team.getName());
+                return;
             }
-            else {
-                Chat.sendMessage(player, "&cCannot join %s team because it's full!", team.getName());
-            }
+
+            team.addMember(player);
         }
     }
 

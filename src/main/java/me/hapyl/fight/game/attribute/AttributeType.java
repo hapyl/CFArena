@@ -48,7 +48,7 @@ public enum AttributeType { // implements Placeholder2
                 }
             }.setChar("🌊")
                     .setColor(ChatColor.AQUA)
-                    .setToString(value -> "%.1f%%".formatted(value / 0.002d)),
+                    .setToString(value -> "%.0f%%".formatted(value / 0.002d)),
             0.2d
     ) {
         @Override
@@ -177,7 +177,7 @@ public enum AttributeType { // implements Placeholder2
     }
 
     private static String doubleFormat(double d) {
-        return "%.1f%%".formatted(d * 100.0d);
+        return "%.0f%%".formatted(d * 100.0d);
     }
 
 }

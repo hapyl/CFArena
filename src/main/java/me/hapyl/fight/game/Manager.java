@@ -17,7 +17,7 @@ import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.profile.data.AchievementData;
-import me.hapyl.fight.game.profile.data.PlayerData;
+import me.hapyl.fight.game.profile.data.PlayerProfileData;
 import me.hapyl.fight.game.profile.data.Type;
 import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.talents.Talent;
@@ -131,7 +131,7 @@ public final class Manager extends DependencyInjector<Main> {
             startCountdown = null;
         }
 
-        final PlayerData playerData = getOrCreateProfile(player).getPlayerData();
+        final PlayerProfileData playerData = getOrCreateProfile(player).getPlayerData();
         final AchievementData data = playerData.getAchievementData(Achievements.I_DONT_WANT_TO_PLAY);
 
         final int useTime = data.checkExpire(10000).increment(Type.USE_TIME, 1);

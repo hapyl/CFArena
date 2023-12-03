@@ -4,7 +4,7 @@ import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.database.rank.RankFormatter;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.game.profile.data.PlayerData;
+import me.hapyl.fight.game.profile.data.PlayerProfileData;
 import me.hapyl.fight.game.profile.relationship.PlayerRelationship;
 import me.hapyl.fight.game.profile.relationship.Relationship;
 import me.hapyl.fight.game.setting.Settings;
@@ -50,7 +50,7 @@ public class ChatHandler implements Listener {
         }
 
         final PlayerRank rank = profile.getRank();
-        final PlayerData playerData = profile.getPlayerData();
+        final PlayerProfileData playerData = profile.getPlayerData();
 
         if (!rank.isStaff() && playerData.isLastMessageSimilarTo(message)) {
             Message.error(player, "You cannot say the same message twice!");

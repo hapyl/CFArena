@@ -133,7 +133,7 @@ public class GameEntity {
         return isValid(null);
     }
 
-    public boolean isValid(GamePlayer player) {
+    public boolean isValid(@Nullable GamePlayer player) {
         // null entities, self or armor stands are not valid
         if (equals(player) || entity instanceof ArmorStand) {
             return false;
@@ -166,7 +166,11 @@ public class GameEntity {
                 return false;
             }
 
-            return !GameTeam.isTeammate(player, gamePlayer);
+            if (player != null) {
+                return !GameTeam.isTeammate(player, gamePlayer);
+            }
+
+            return true;
         }
 
         // Dummy check
@@ -262,8 +266,16 @@ public class GameEntity {
         Chat.sendMessage(entity, message, objects);
     }
 
-    public void sendTitle(String title, String subtitle, int fadeIn, int stay, int fadeOut) {
-        asPlayer(player -> Chat.sendTitle(player, title, subtitle, fadeIn, stay, fadeOut));
+    public void sendTitle(@Nullable String title, @Nullable String subtitle, int fadeIn, int stay, int fadeOut) {
+        asPlayer(player -> {
+            player.sendTitle(
+                    title != null ? Chat.format(title) : null,
+                    subtitle != null ? Chat.format(subtitle) : null,
+                    fadeIn,
+                    stay,
+                    fadeOut
+            );
+        });
     }
 
     public void sendSubtitle(String subtitle, int fadeIn, int stay, int fadeOut) {

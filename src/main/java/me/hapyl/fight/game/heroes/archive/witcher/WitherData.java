@@ -1,34 +1,35 @@
 package me.hapyl.fight.game.heroes.archive.witcher;
 
 import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.PlayerData;
 import me.hapyl.fight.game.heroes.archive.dark_mage.AnimatedWither;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.EntityUtils;
 import me.hapyl.spigotutils.module.locaiton.LocationHelper;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Wither;
 
 import javax.annotation.Nonnull;
 
-public class WitherData {
+public class WitherData extends PlayerData {
 
-    public static final long ASSIST_DELAY = 2500; // Increase from 1000 -> 2500
+    public static final long ASSIST_DELAY = 2000; // Increase from 1000 -> 2500
     public static final double ASSIST_DAMAGE_TOTAL = 10.0d;
     public static final int ASSIST_HITS = 3;
 
-    public final GamePlayer player;
     public final AnimatedWither animatedWither;
     public final Wither wither;
     private long lastAssist;
 
     public WitherData(GamePlayer player) {
-        this.player = player;
+        super(player);
         this.animatedWither = new AnimatedWither(getWitherLocation(player), 400) {
 
             @Override
@@ -47,26 +48,17 @@ public class WitherData {
 
             @Override
             public void onStop() {
-                player.sendMessage("&cYour %s is gone!", witherName());
+                player.sendMessage(Color.WITHERS + "Your %s is gone!", witherName());
+
+                final Location location = wither.getLocation();
+
+                player.spawnWorldParticle(location, Particle.SMOKE_LARGE, 5, 0.25d, 0.25d, 0.25d, 0.025f);
                 wither.remove();
             }
 
             @Override
             public void onTick(int tick) {
                 wither.teleport(getWitherLocation(player));
-
-                // Make wither always look at the target
-                //final LivingEntity target = Utils.getTargetEntity(player, 10.0d, 0.8d, living -> living != player && living != wither);
-                //
-                //if (target == null) {
-                //    return;
-                //}
-                //
-                //Utils.lookAt(wither, target.getLocation());
-                //
-                //wither.setTarget(target);
-                //wither.setTarget(Wither.Head.LEFT, target);
-                //wither.setTarget(Wither.Head.RIGHT, target);
             }
 
             private String witherName() {
@@ -77,6 +69,7 @@ public class WitherData {
         this.wither = animatedWither.wither;
     }
 
+    @Override
     public void remove() {
         animatedWither.stopAnimation();
         animatedWither.remove();
@@ -88,15 +81,18 @@ public class WitherData {
         }
 
         lastAssist = System.currentTimeMillis();
+        final double damage = ASSIST_DAMAGE_TOTAL / ASSIST_HITS;
 
         GameTask.runTaskTimerTimes(task -> {
-            entity.damageTick(ASSIST_DAMAGE_TOTAL / ASSIST_HITS, player, EnumDamageCause.WITHERBORN, ASSIST_HITS);
+            entity.damageTick(damage, player, EnumDamageCause.WITHERBORN, ASSIST_HITS);
 
             // Fx
-            PlayerLib.playSound(wither.getLocation(), Sound.ENTITY_WITHER_SHOOT, 1.25f);
+            final Location location = wither.getLocation();
+
+            player.playWorldSound(location, Sound.ENTITY_WITHER_SHOOT, 1.25f);
+            player.spawnWorldParticle(location, Particle.SWEEP_ATTACK, 1);
         }, 0, ASSIST_HITS, ASSIST_HITS);
     }
-
 
     private Location getWitherLocation(GamePlayer player) {
         final Location location = player.getEyeLocation();

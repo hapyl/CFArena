@@ -10,14 +10,14 @@ import java.util.Map;
 /**
  * This is used at a random collection for stuff, mostly achievements.
  */
-public class PlayerData {
+public class PlayerProfileData {
 
     private final PlayerProfile profile;
     private final Map<Achievements, AchievementData> achievementData;
 
     public String lastMessage;
 
-    public PlayerData(PlayerProfile profile) {
+    public PlayerProfileData(PlayerProfile profile) {
         this.profile = profile;
         this.achievementData = Maps.newHashMap();
     }

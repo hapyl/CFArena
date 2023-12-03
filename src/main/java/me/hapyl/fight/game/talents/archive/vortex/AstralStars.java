@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.archive.vortex;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.entity.Ticking;
+import me.hapyl.fight.util.Ticking;
 import me.hapyl.fight.util.Collect;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;

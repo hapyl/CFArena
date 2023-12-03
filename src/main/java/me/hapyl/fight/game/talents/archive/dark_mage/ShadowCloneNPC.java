@@ -1,9 +1,10 @@
 package me.hapyl.fight.game.talents.archive.dark_mage;
 
-import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.TalentReference;
 import me.hapyl.fight.game.effect.GameEffectType;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.npc.ClickType;
@@ -19,36 +20,37 @@ import javax.annotation.Nullable;
 
 import static org.bukkit.Sound.*;
 
-public class ShadowCloneNPC extends HumanNPC {
+public class ShadowCloneNPC extends HumanNPC implements TalentReference<ShadowClone> {
 
     public final GamePlayer player;
-    public boolean ultimate;
+    private final ShadowClone talent;
+    protected boolean ultimate;
 
     private boolean valid;
 
-    public ShadowCloneNPC(GamePlayer player) {
-        super(player.getLocation(), "", player.getName());
+    public ShadowCloneNPC(ShadowClone talent, GamePlayer player) {
+        super(CFUtils.anchorLocation(player.getLocation()), "", player.getName());
 
+        this.talent = talent;
         this.player = player;
 
         // Spawn
-        player.addEffect(GameEffectType.INVISIBILITY, getTalent().getDuration());
+        player.addEffect(GameEffectType.INVISIBILITY, talent.getDuration());
         showAll();
         setEquipment(player.getEquipment());
 
         if (player.isSwimming()) {
-            this.setPose(NPCPose.SWIMMING);
+            setPose(NPCPose.SWIMMING);
         }
         else if (player.isSneaking()) {
-            this.setPose(NPCPose.CROUCHING);
+            setPose(NPCPose.CROUCHING);
         }
 
         valid = true;
     }
 
-    @Nonnull
-    public ShadowClone getTalent() {
-        return Talents.SHADOW_CLONE.getTalent(ShadowClone.class);
+    public boolean isUltimate() {
+        return ultimate;
     }
 
     @Override
@@ -74,6 +76,11 @@ public class ShadowCloneNPC extends HumanNPC {
         GameTask.runLater(this::remove, delay);
     }
 
+    @Nonnull
+    public ShadowClone getTalent() {
+        return talent;
+    }
+
     @Override
     @Deprecated
     public void remove() {
@@ -81,14 +88,16 @@ public class ShadowCloneNPC extends HumanNPC {
     }
 
     public void blind(@Nonnull Player clicker) {
-        this.lookAt(clicker.getLocation());
+        lookAt(clicker.getLocation());
 
         // Fx
         PlayerLib.addEffect(clicker, PotionEffectType.SLOW, 60, 4);
         PlayerLib.addEffect(clicker, PotionEffectType.DARKNESS, 60, 4);
 
-        PlayerLib.playSound(ENTITY_WITCH_CELEBRATE, 2.0f);
-        PlayerLib.playSound(ENTITY_WITHER_SHOOT, 0.75f);
+        final Location location = getLocation();
+
+        player.playWorldSound(location, ENTITY_WITCH_CELEBRATE, 2.0f);
+        player.playWorldSound(location, ENTITY_WITHER_SHOOT, 0.75f);
     }
 
     public void explode(@Nullable Player clicker, int delay) {
@@ -110,7 +119,7 @@ public class ShadowCloneNPC extends HumanNPC {
         valid = false;
 
         final ShadowClone talent = getTalent();
-        final Location location = this.getLocation();
+        final Location location = getLocation();
 
         // Turn towards target
         if (clicker != null) {
@@ -123,10 +132,8 @@ public class ShadowCloneNPC extends HumanNPC {
             remove();
         }
 
-        PlayerLib.spawnParticle(location.add(0.0d, 0.5d, 0.0d), Particle.SQUID_INK, 30, 0.1, 0.5, 0.1, 0.05f);
-        PlayerLib.playSound(location, ENTITY_SQUID_SQUIRT, 0.25f);
-
-        Collect.nearbyPlayers(location, talent.damageRadius).forEach(target -> {
+        // Damage
+        Collect.nearbyEntities(location, talent.damageRadius).forEach(target -> {
             if (target.equals(player)) {
                 return; // don't damage self
             }
@@ -135,6 +142,10 @@ public class ShadowCloneNPC extends HumanNPC {
             target.addPotionEffect(PotionEffectType.SLOW, 60, 2);
             target.addPotionEffect(PotionEffectType.BLINDNESS, 60, 2);
         });
+
+        // Fx
+        player.spawnWorldParticle(location.add(0.0d, 1.0d, 0.0d), Particle.SMOKE_LARGE, 30, 0.25d, 0.5d, 0.25d, 0.05f);
+        player.playWorldSound(location, ENTITY_SQUID_SQUIRT, 0.25f);
     }
 
 

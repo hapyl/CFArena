@@ -15,8 +15,8 @@ import me.hapyl.fight.game.effect.GameEffect;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.setting.Settings;
-import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.ShutdownAction;
+import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.team.LocalTeamManager;
 import me.hapyl.spigotutils.EternaPlugin;
@@ -39,7 +39,7 @@ import java.time.format.DateTimeFormatter;
 /**
  * This controls all UI-based elements such as scoreboard, tab-list, and actionbar (while in game).
  */
-public class GamePlayerUI extends GameTask {
+public class GamePlayerUI extends TickingGameTask {
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yy");
 
@@ -50,7 +50,6 @@ public class GamePlayerUI extends GameTask {
     private final String[] clocks = {
             "🕛", "🕐", "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕚"
     };
-    private int tick;
     private int clock;
 
     public GamePlayerUI(PlayerProfile profile) {
@@ -64,21 +63,21 @@ public class GamePlayerUI extends GameTask {
         }
 
         setShutdownAction(ShutdownAction.IGNORE);
+
+        setIncrement(5);
         runTaskTimer(0, 5);
     }
 
     @Override
-    public void run() {
-        final boolean isMod20 = tick > 0 && tick % 20 == 0;
-
+    public void run(int tick) {
         if (player == null || !player.isOnline()) {
             cancel();
             return;
         }
 
-        tick = (tick >= 40) ? 0 : tick + 5;
+        final int mod40 = tick % 40;
 
-        if (isMod20) {
+        if (modulo(20)) {
             clock = (clock + 1 >= clocks.length) ? 0 : clock + 1;
         }
 
@@ -87,28 +86,27 @@ public class GamePlayerUI extends GameTask {
         player.setPlayerListHeaderFooter(Chat.format(headerFooter[0]), Chat.format(headerFooter[1]));
         player.setPlayerListName(profile.getDisplay().getDisplayNameTab());
 
-        if (Settings.HIDE_UI.isEnabled(player)) {
-            return;
-        }
-
         // Yes, I know it's not really a UI thing,
         // but I ain't making another ticker just for
         // debugging items.
         updateDebug();
 
-        animateScoreboard();
-        updateScoreboard();
-
         // Update above name
-        if (isMod20) {
+        if (modulo(10) && !Manager.current().isGameInProgress()) {
             final LocalTeamManager teamManager = profile.getLocalTeamManager();
             teamManager.tickAll();
         }
 
         final GamePlayer gamePlayer = profile.getGamePlayer();
 
-        if (gamePlayer != null) {
-            sendInGameUI(tick <= 20 ? ChatColor.AQUA : ChatColor.DARK_AQUA);
+        // Update UI if enabled
+        if (Settings.HIDE_UI.isDisabled(player)) {
+            animateScoreboard();
+            updateScoreboard();
+
+            if (gamePlayer != null) {
+                sendInGameUI(mod40 < 20 ? ChatColor.AQUA : ChatColor.DARK_AQUA);
+            }
         }
 
         if (Settings.SPECTATE.isEnabled(player)) {
@@ -362,12 +360,12 @@ public class GamePlayerUI extends GameTask {
                         %s
                         &8%s
                                                 
-                        &7ᴘʟᴀʏᴇʀs: &f%s&7, ᴛᴘs: &f%.0f
+                        &7ᴘʟᴀʏᴇʀs: &f%s&7, ᴛᴘs: %s
                         """.formatted(
                         CF.getName(),
                         CF.getVersion(),
                         CF.getOnlinePlayerCount(),
-                        CF.getTps()
+                        CF.getTpsFormatted()
                 ),
                 footer.toString()
         };

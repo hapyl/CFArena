@@ -41,6 +41,7 @@ import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.fight.util.Nulls;
+import me.hapyl.fight.util.Ticking;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.math.Tick;
@@ -53,7 +54,6 @@ import net.minecraft.network.protocol.game.PacketPlayOutAnimation;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -1272,32 +1272,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
     @Nonnull
     public static Location anchorLocation(@Nonnull Location location) {
-        final World world = location.getWorld();
-
-        if (world == null) {
-            return location;
-        }
-
-        while (true) {
-            final Block block = location.getBlock();
-            final Block blockBelow = block.getRelative(BlockFace.DOWN);
-
-            if (block.getY() <= world.getMinHeight()) {
-                break;
-            }
-
-            if (!blockBelow.isEmpty()) {
-                if (isBlockSlab(blockBelow.getType())) {
-                    location.subtract(0, 0.5, 0);
-                }
-
-                break;
-            }
-
-            location.subtract(0, 1, 0);
-        }
-
-        return location;
+        return CFUtils.anchorLocation(location);
     }
 
     /**
@@ -1321,14 +1296,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     public static Optional<GamePlayer> getPlayerOptional(Player player) {
         final GamePlayer gamePlayer = getExistingPlayer(player);
         return gamePlayer == null ? Optional.empty() : Optional.of(gamePlayer);
-    }
-
-    private static boolean isBlockSlab(Material material) {
-        if (!material.isBlock()) {
-            return false;
-        }
-
-        return material.name().endsWith("_SLAB");
     }
 
     public enum Ignore {

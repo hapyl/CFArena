@@ -12,6 +12,8 @@ import java.util.function.BiConsumer;
 
 public class Attributes {
 
+    private final static double DEFENSE_SCALING = 0.75d;
+
     protected final Map<AttributeType, Double> mapped;
     private final AttributeRandom random;
 
@@ -35,7 +37,9 @@ public class Attributes {
     }
 
     public final double calculateIncomingDamage(double damage) {
-        return damage * (2.0d - get(AttributeType.DEFENSE));
+        final double defense = get(AttributeType.DEFENSE);
+
+        return damage / (defense * DEFENSE_SCALING + (1 - DEFENSE_SCALING));
     }
 
     public final CriticalResponse calculateOutgoingDamage(double damage) {
@@ -67,10 +71,6 @@ public class Attributes {
         return isCritical ? damage + (damage * AttributeType.CRIT_DAMAGE.get(this)) : damage;
     }
 
-    public void setHealth(double value) {
-        setValue(AttributeType.MAX_HEALTH, value);
-    }
-
     public void setAttack(double value) {
         setValueScaled(AttributeType.ATTACK, value);
     }
@@ -80,7 +80,7 @@ public class Attributes {
     }
 
     public void setSpeed(double value) {
-        setValue(AttributeType.SPEED, (value / 400.0) * (1.0d - 0.2d));
+        setValue(AttributeType.SPEED, value * 0.002d);
     }
 
     public void setValue(AttributeType type, double value) {
@@ -164,6 +164,10 @@ public class Attributes {
 
     public double getHealth() {
         return get(AttributeType.MAX_HEALTH);
+    }
+
+    public void setHealth(double value) {
+        setValue(AttributeType.MAX_HEALTH, value);
     }
 
     private void checkValue(double value) {

@@ -68,6 +68,8 @@ public class Color {
     public static final Color SILVER = new Color("#c0c0c0");
     public static final Color ARCTIC_TEAL = new Color("#00ced1");
     public static final Color WHITE_BLUE_GRAY = new Color("#a1b5d6").setFlags(ColorFlag.BOLD);
+    public static final Color WITHERS = new Color("#444477");
+    public static final Color DARK_GOLDENROD = new Color("#B8860B");
 
     // *-----------------------------------------------------*
 

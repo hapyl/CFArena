@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.entity.Ticking;
+import me.hapyl.fight.util.Ticking;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 

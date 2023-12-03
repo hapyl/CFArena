@@ -5,10 +5,12 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.maps.Selectable;
 import me.hapyl.fight.util.SmallCaps;
+import me.hapyl.fight.ux.Message;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.reflect.glow.Glowing;
 import org.bukkit.Bukkit;
@@ -45,7 +47,7 @@ public enum GameTeam implements Selectable {
     private final ChatColor color;
     private final Material material;
     private final int maxPlayers;
-    private final List<UUID> members; // represents lobby players
+    private final List<UUID> members;
 
     public int kills;
     public int deaths;
@@ -67,19 +69,25 @@ public enum GameTeam implements Selectable {
      * @param player - Player to add.
      * @return true if the team is not full and player has been added, false otherwise
      */
-    public boolean addMember(Player player) {
+    public boolean addMember(@Nonnull Player player) {
         if (isFull()) {
-            Chat.sendMessage(player, "&cCould not join the team because it's full!");
+            Message.error(player, "Could not join the team because it's full!");
             return false;
         }
 
         final GameTeam oldTeam = getPlayerTeam(player);
+
+        if (oldTeam == this) {
+            Message.error(player, "You are already in this team!");
+            return false;
+        }
+
         if (oldTeam != null) {
-            oldTeam.removeMember(player);
+            oldTeam.removePlayer(player);
         }
 
         members.add(player.getUniqueId());
-        Chat.sendMessage(player, "&aJoined %s &ateam!", color + getName());
+        Message.success(player, "Joined {} team!", color + getName() + Color.SUCCESS);
         return true;
     }
 
@@ -88,6 +96,7 @@ public enum GameTeam implements Selectable {
      *
      * @return list of players in the team
      */
+    @Nonnull
     public List<GamePlayer> getPlayers() {
         final List<GamePlayer> players = Lists.newArrayList();
         final GameInstance instance = Manager.current().getGameInstance();
@@ -187,10 +196,6 @@ public enum GameTeam implements Selectable {
 
     public String getName() {
         return Chat.capitalize(name());
-    }
-
-    public void removeMember(Player player) {
-        members.remove(player.getUniqueId());
     }
 
     public String getNameSmallCaps() {
@@ -295,20 +300,27 @@ public enum GameTeam implements Selectable {
         return TEAMS;
     }
 
-    public static boolean isTeammate(Player player, Entity other) {
-        if (!(other instanceof Player otherPlayer)) {
-            return false;
-        }
-
-        return isTeammate(CF.getPlayer(player), CF.getPlayer(otherPlayer));
+    public static boolean isTeammate(@Nonnull Player player, @Nonnull Entity other) {
+        return isTeammate(player.getUniqueId(), other.getUniqueId());
     }
 
-    public static boolean isTeammate(GamePlayer gamePlayer, GameEntity entity) {
-        if (!(entity instanceof GamePlayer otherPlayer)) {
+    public static boolean isTeammate(@Nonnull GamePlayer gamePlayer, @Nonnull GameEntity entity) {
+        return isTeammate(gamePlayer.getUUID(), entity.getUUID());
+    }
+
+    public static boolean isTeammate(@Nonnull UUID player, @Nonnull UUID other) {
+        if (player == other) {
             return false;
         }
 
-        return isTeammate(gamePlayer, otherPlayer);
+        final GameTeam teamA = getPlayerTeam(player);
+        final GameTeam teamB = getPlayerTeam(other);
+
+        return (teamA != null && teamB != null) && (teamA == teamB);
+    }
+
+    public static boolean isTeammate(@Nonnull GamePlayer player, @Nonnull GamePlayer other) {
+        return isTeammate(player.getUUID(), other.getUUID());
     }
 
     public static boolean isSelfOrTeammate(Player player, LivingEntity other) {
@@ -317,18 +329,6 @@ public enum GameTeam implements Selectable {
         }
 
         return other instanceof Player otherPlayer && isTeammate(player, otherPlayer);
-    }
-
-    public static boolean isTeammate(GamePlayer player, GamePlayer other) {
-        // Must consider self-check as NOT teammate.
-        if ((player == null || other == null) || (player == other)) {
-            return false;
-        }
-
-        final GameTeam teamA = getPlayerTeam(player);
-        final GameTeam teamB = getPlayerTeam(other);
-
-        return (teamA != null && teamB != null) && (teamA == teamB);
     }
 
     @Nullable

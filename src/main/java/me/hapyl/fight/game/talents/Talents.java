@@ -2,10 +2,12 @@ package me.hapyl.fight.game.talents;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.sun.jna.platform.win32.OaIdl;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.talents.archive.Discharge;
 import me.hapyl.fight.game.talents.archive.TestChargeTalent;
 import me.hapyl.fight.game.talents.archive.alchemist.CauldronAbility;
 import me.hapyl.fight.game.talents.archive.alchemist.RandomPotion;
@@ -48,6 +50,7 @@ import me.hapyl.fight.game.talents.archive.juju.TricksOfTheJungle;
 import me.hapyl.fight.game.talents.archive.km.LaserEye;
 import me.hapyl.fight.game.talents.archive.knight.SlownessPotion;
 import me.hapyl.fight.game.talents.archive.knight.Spear;
+import me.hapyl.fight.game.talents.archive.knight.StoneCastle;
 import me.hapyl.fight.game.talents.archive.librarian.BlackHole;
 import me.hapyl.fight.game.talents.archive.librarian.EntityDarkness;
 import me.hapyl.fight.game.talents.archive.librarian.LibrarianShield;
@@ -326,12 +329,16 @@ public enum Talents {
     HEALING_AURA(new HealingAura()),
     SHADOW_CLONE(new ShadowClone()),
     DARK_MAGE_PASSIVE(new PassiveTalent("Wither Blood", """
-            Whenever you take damage, there is small chance to poison attackers blood, blinding and withering them.
-            """, Material.WITHER_ROSE)),
+            Upon taking &cdamage&7, there is a small chance to &8wither&7 the attacker.
+            """, Material.WITHER_ROSE, Talent.Type.IMPAIR)),
 
-    // Blast Knight
-    SPEAR(new Spear()),
-    SLOWNESS_POTION(new SlownessPotion()),
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.knight.BlastKnight}
+     */
+    STONE_CASTLE(new StoneCastle()),
+    DISCHARGE(new Discharge()),
+    @Deprecated SPEAR(new Spear()),
+    @Deprecated SLOWNESS_POTION(new SlownessPotion()),
     SHIELDED(new PassiveTalent(
             "Shielded",
             "Blocking damage using your shield will add a charge to it, up to &b10&7 charges.____Once charged, it will explode and create &bNova Explosion&7, dealing moderate damage and knocking back nearby opponents.",

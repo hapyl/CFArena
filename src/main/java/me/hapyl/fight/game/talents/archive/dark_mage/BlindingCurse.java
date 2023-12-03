@@ -4,12 +4,11 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.archive.dark_mage.DarkMageSpell;
+import me.hapyl.fight.game.heroes.archive.dark_mage.SpellButton;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.math.Geometry;
-import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
+import me.hapyl.spigotutils.module.math.geometry.Draw;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -26,31 +25,40 @@ public class BlindingCurse extends DarkMageTalent {
     @DisplayField private final double damage = 7.5d;
     @DisplayField private final int blindingDuration = 40;
     @DisplayField private final int slowingDuration = 40;
+    private final Draw curseDraw = new Draw(null) {
+        @Override
+        public void draw(Location location) {
+            PlayerLib.spawnParticle(location, Particle.SMOKE_LARGE, 1, 0.01d, 0.01d, 0.01d, 0.025f);
+            PlayerLib.spawnParticle(location, Particle.SMOKE_NORMAL, 2, 0.02d, 0.02d, 0.02d, 0.025f);
+        }
+    };
 
     public BlindingCurse() {
         super("Darkness Curse", """
-                Damages, slows and applies blinding curse to the target player.
-                """, Material.INK_SAC);
+                Impair the &etarget&7 enemy, dealing &cdamage&7, &8blinding&7 and &3slowing&7 them.
+                """);
 
+        setType(Type.DAMAGE);
+        setItem(Material.INK_SAC);
         setCooldownSec(10);
     }
 
     @Nonnull
     @Override
     public String getAssistDescription() {
-        return "The curse bounces to two additional targets.";
+        return "The curse &abounces&7 to two additional targets.";
     }
 
     @Nonnull
     @Override
-    public DarkMageSpell.SpellButton first() {
-        return DarkMageSpell.SpellButton.RIGHT;
+    public SpellButton first() {
+        return SpellButton.RIGHT;
     }
 
     @Nonnull
     @Override
-    public DarkMageSpell.SpellButton second() {
-        return DarkMageSpell.SpellButton.RIGHT;
+    public SpellButton second() {
+        return SpellButton.RIGHT;
     }
 
     @Override
@@ -69,13 +77,10 @@ public class BlindingCurse extends DarkMageTalent {
         execute0(player, player, target);
 
         // Have to use assist here since it's based on ability casting
-        if (!Heroes.DARK_MAGE.getHero().isUsingUltimate(player)) {
-            return Response.OK;
+        if (hasWither(player)) {
+            final LivingGameEntity bounce = bounce(player, target);
+            bounce(player, bounce, target);
         }
-
-        // Bounce
-        final LivingGameEntity bounce = bounce(player, target);
-        bounce(player, bounce, target);
 
         return Response.OK;
     }
@@ -114,21 +119,18 @@ public class BlindingCurse extends DarkMageTalent {
         Geometry.drawLine(
                 location.add(0, 1, 0),
                 to.getLocation().add(0, 1, 0),
-                0.5, new WorldParticle(Particle.SQUID_INK)
+                0.5, curseDraw
         );
 
-        PlayerLib.playSound(location, Sound.ENTITY_GLOW_SQUID_SQUIRT, 1.8f);
-        PlayerLib.spawnParticle(location, Particle.SQUID_INK, 1, 0.3d, 0.3d, 0.3, 3f);
+        player.playWorldSound(location, Sound.ENTITY_GLOW_SQUID_SQUIRT, 1.8f);
+        curseDraw.draw(location);
 
         to.sendTitle("&0&l☠", "&0&l☠", 0, blindingDuration - 10, 10);
 
-        to.addPotionEffect(PotionEffectType.BLINDNESS.createEffect(blindingDuration, 10));
-        to.addPotionEffect(PotionEffectType.SLOW.createEffect(slowingDuration, 1));
+        to.addPotionEffect(PotionEffectType.BLINDNESS, blindingDuration, 10);
+        to.addPotionEffect(PotionEffectType.SLOW, slowingDuration, 1);
 
         to.damage(damage, player, EnumDamageCause.DARKNESS_CURSE);
-
-        to.sendMessage("&c%s has cursed you with the Dark Magic!", player.getName());
-        player.sendMessage("&aYou have cursed %s with Dark Magic!", to.getName());
     }
 
 }

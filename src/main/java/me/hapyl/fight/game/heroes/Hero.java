@@ -55,7 +55,7 @@ public abstract class Hero implements GameElement, PlayerElement {
     private final CachedHeroItem cachedHeroItem;
     private final HeroFriendship friendship;
 
-    private Origin origin;
+    private Affiliation affiliation;
     private Archetype archetype;
     private String description;
     private ItemStack guiTexture;
@@ -74,7 +74,7 @@ public abstract class Hero implements GameElement, PlayerElement {
         this.reverseTasks = Maps.newConcurrentMap();
         this.equipment = new Equipment();
         this.attributes = new HeroAttributes(this);
-        this.origin = Origin.NOT_SET;
+        this.affiliation = Affiliation.NOT_SET;
         this.archetype = Archetype.NOT_SET;
         this.minimumLevel = 0;
         this.ultimate = new UltimateTalent("Unknown Ultimate", "This hero's ultimate talent is not yet implemented!", Integer.MAX_VALUE);
@@ -147,17 +147,17 @@ public abstract class Hero implements GameElement, PlayerElement {
      *
      * @return the origin of this hero.
      */
-    public Origin getOrigin() {
-        return origin;
+    public Affiliation getOrigin() {
+        return affiliation;
     }
 
     /**
      * Sets the origin for this hero.
      *
-     * @param origin - New origin.
+     * @param affiliation - New origin.
      */
-    public void setOrigin(Origin origin) {
-        this.origin = origin;
+    public void setAffiliation(Affiliation affiliation) {
+        this.affiliation = affiliation;
     }
 
     /**

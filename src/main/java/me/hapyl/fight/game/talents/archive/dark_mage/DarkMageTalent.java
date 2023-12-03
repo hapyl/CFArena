@@ -1,13 +1,18 @@
 package me.hapyl.fight.game.talents.archive.dark_mage;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.archive.dark_mage.DarkMage;
 import me.hapyl.fight.game.heroes.archive.dark_mage.DarkMageSpell;
+import me.hapyl.fight.game.heroes.archive.dark_mage.SpellButton;
 import me.hapyl.fight.game.heroes.archive.witcher.WitherData;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.SmallCaps;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
 
@@ -15,37 +20,43 @@ public abstract class DarkMageTalent extends Talent {
 
     private final String USAGE_REMINDER = SmallCaps.format("Usage Reminder");
 
+    public DarkMageTalent(String name, String description) {
+        this(name, description, Material.BEDROCK);
+    }
+
     public DarkMageTalent(String name, String description, Material material) {
         super(name, description, material);
 
         addDescription("""
                                 
-                &f&lWitherborn Assist
-                %s
-                
+                %sWitherborn Assist
                 %s
                                 
-                &8;;You must use your wand to cast this spell! Please read wand's description.
-                """, getAssistDescription(), getUsage());
+                %s
+                                
+                &8;;You must use your wand to cast this spell!
+                """, Color.WITHERS.bold(), getAssistDescription(), getUsage());
     }
 
     @Nonnull
     public abstract String getAssistDescription();
 
     @Nonnull
-    public abstract DarkMageSpell.SpellButton first();
+    public abstract SpellButton first();
 
     @Nonnull
-    public abstract DarkMageSpell.SpellButton second();
+    public abstract SpellButton second();
 
     public abstract Response executeSpell(@Nonnull GamePlayer player);
 
-    public void assist(WitherData data) {
+    public void assist(@Nonnull WitherData data) {
     }
 
     @Override
     public final Response execute(@Nonnull GamePlayer player) {
-        player.sendTitle(USAGE_REMINDER, getUsageRaw(), 10, 30, 10);
+        player.sendTitle(getUsageRaw(), null, 10, 30, 10);
+        player.playSound(Sound.ENTITY_GLOW_SQUID_DEATH, 0.75f);
+        player.playSound(Sound.ITEM_BOOK_PAGE_TURN, 0.0f);
         return Response.AWAIT;
     }
 
@@ -58,21 +69,21 @@ public abstract class DarkMageTalent extends Talent {
         final Response response = Talent.preconditionTalent(player);
 
         if (!response.isOk()) {
-            player.sendSubtitle("&c" + response.getReason(), 0, 20, 5);
+            player.sendTitle("&c" + response.getReason(), null, 0, 20, 5);
             return response;
         }
 
         final Response spellResponse = executeSpell(player);
 
         if (!spellResponse.isOk()) {
-            player.sendSubtitle("&c" + spellResponse.getReason(), 0, 20, 5);
+            player.sendTitle("&c" + spellResponse.getReason(), null, 0, 20, 5);
             return spellResponse;
         }
 
         startCd(player);
         postProcessTalent(player);
 
-        player.sendSubtitle("&aCasted: &l%s&a!".formatted(getName()), 0, 20, 5);
+        player.sendTitle("&aCasted: %s&a!".formatted(getName()), null, 0, 10, 5);
         return response;
     }
 
@@ -80,8 +91,16 @@ public abstract class DarkMageTalent extends Talent {
         return darkMageSpell.getFirst() == first() && darkMageSpell.getSecond() == second();
     }
 
+    protected boolean hasWither(GamePlayer player) {
+        return getWither(player) != null;
+    }
+
+    protected WitherData getWither(GamePlayer player) {
+        return Heroes.DARK_MAGE.getHero(DarkMage.class).getPlayerData(player).getWitherData();
+    }
+
     private String getUsageRaw() {
-        return "&e&l%s &f➠ &6&l%s".formatted(first().name(), second().name());
+        return "%s &7➠ %s".formatted(first(), second());
     }
 
     private String getUsage() {

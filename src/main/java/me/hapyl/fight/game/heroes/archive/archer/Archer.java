@@ -142,7 +142,6 @@ public class Archer extends Hero implements Listener {
     @EventHandler()
     public void handleProjectileLaunchEvent(ProjectileLaunchEvent ev) {
         if (ev.getEntity() instanceof Arrow arrow && arrow.getShooter() instanceof Player player) {
-            final int selectedSlot = player.getInventory().getHeldItemSlot();
             final GamePlayer gamePlayer = CF.getPlayer(player);
 
             if (gamePlayer == null) {
@@ -150,7 +149,7 @@ public class Archer extends Hero implements Listener {
             }
 
             // Handle ultimate arrows
-            if (isUsingUltimate(gamePlayer) && selectedSlot == 4) {
+            if (isUsingUltimate(gamePlayer) && gamePlayer.isHeldSlot(HotbarSlots.HERO_ITEM)) {
                 boomArrows.add(arrow);
 
                 gamePlayer.setCooldown(boomBow.getMaterial(), boomBowPerShotCd);
@@ -158,7 +157,7 @@ public class Archer extends Hero implements Listener {
             }
 
             // Handle hawkeye arrows
-            if (!validatePlayer(player) || selectedSlot != 0 || !arrow.isCritical() || !player.isSneaking()) {
+            if (!validatePlayer(player) || !gamePlayer.isHeldSlot(HotbarSlots.WEAPON) || !arrow.isCritical() || !player.isSneaking()) {
                 return;
             }
 

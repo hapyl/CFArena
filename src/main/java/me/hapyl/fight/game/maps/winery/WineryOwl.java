@@ -2,7 +2,7 @@ package me.hapyl.fight.game.maps.winery;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.entity.Ticking;
+import me.hapyl.fight.util.Ticking;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Compute;
 import me.hapyl.fight.util.Resettable;

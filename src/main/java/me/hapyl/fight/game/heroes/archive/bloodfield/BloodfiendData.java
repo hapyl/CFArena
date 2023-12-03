@@ -5,7 +5,7 @@ import com.google.common.collect.Sets;
 import me.hapyl.fight.game.TalentReference;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.entity.Ticking;
+import me.hapyl.fight.util.Ticking;
 import me.hapyl.fight.game.heroes.archive.bloodfield.impel.ImpelInstance;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.archive.bloodfiend.BloodCup;

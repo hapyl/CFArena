@@ -386,6 +386,36 @@ public final class CF {
         return Math.min(MinecraftServer.getServer().recentTps[0], 20);
     }
 
+    @Nonnull
+    public static String getTpsFormatted() {
+        String color;
+        final double tps = getTps();
+
+        if (tps >= 20) {
+            color = "&2&l";
+        }
+        else if (tps >= 19) {
+            color = "&a";
+        }
+        else if (tps >= 18) {
+            color = "&e";
+        }
+        else if (tps >= 15) {
+            color = "&6";
+        }
+        else if (tps >= 10) {
+            color = "&c";
+        }
+        else if (tps >= 5) {
+            color = "&4";
+        }
+        else {
+            color = "&4&l";
+        }
+
+        return color + "%.0f".formatted(tps);
+    }
+
     /**
      * Gets online player count, respecting player's hidden status.
      *

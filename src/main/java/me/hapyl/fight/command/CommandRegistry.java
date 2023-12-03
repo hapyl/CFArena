@@ -190,7 +190,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new SimplePlayerAdminCommand("ph") {
             @Override
             protected void execute(Player player, String[] args) {
-                final Heroes enumHero = getArgument(args, 0).toEnum(Heroes.class);
+                final PlayerProfile profile = PlayerProfile.getProfile(player);
+                final Heroes hero = profile.getHero();
+                final Heroes enumHero = getArgument(args, 0).toEnum(Heroes.class, hero);
 
                 if (enumHero == null) {
                     Chat.sendMessage(player, "&cInvalid hero!");
@@ -198,6 +200,24 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 }
 
                 new HeroPreviewGUI(player, enumHero, 0);
+            }
+        });
+
+        register(new SimplePlayerAdminCommand("hex") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                final String color = getArgument(args, 0).toString();
+                final String string = Chat.arrayToString(args, 1);
+
+                final me.hapyl.fight.game.color.Color theColor = new me.hapyl.fight.game.color.Color(color);
+
+                Chat.sendMessage(player, "&aOutput: ");
+                Chat.sendClickableHoverableMessage(
+                        player,
+                        LazyEvent.suggestCommand(color),
+                        LazyEvent.showText("&eClick to copy!"),
+                        theColor + string
+                );
             }
         });
 

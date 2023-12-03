@@ -1,35 +1,29 @@
 package me.hapyl.fight.game.heroes.archive.dark_mage;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.annotate.KeepNull;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.HeroAttributes;
+import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.ComplexHero;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.UltimateCallback;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.archive.witcher.WitherData;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.dark_mage.ShadowClone;
 import me.hapyl.fight.game.talents.archive.dark_mage.ShadowCloneNPC;
-import me.hapyl.fight.game.ui.UIFormat;
-import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.collection.player.PlayerMap;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Wither;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -44,17 +38,18 @@ import java.util.Random;
 
 import static org.bukkit.Sound.*;
 
-public class DarkMage extends Hero implements ComplexHero, Listener {
+public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataHandler {
 
-    private final double PASSIVE_CHANCE = 0.12d;
+    @DisplayField private final double passiveChance = 0.12d;
+    @DisplayField private final double ultimateCooldownBoost = 0.5d;
 
-    private final PlayerMap<DarkMageSpell> spellMap = PlayerMap.newMap();
-    private final PlayerMap<WitherData> withers = PlayerMap.newMap();
+    private final PlayerMap<DarkMageData> playerData = PlayerMap.newMap();
 
     public DarkMage() {
         super("Dark Mage");
 
         setArchetype(Archetype.MAGIC);
+        setAffiliation(Affiliation.THE_WITHERS);
 
         setDescription("A mage that was cursed by &8&lDark &8&lMagic&8&o. But even it couldn't kill him...");
         setItem("e6ca63569e8728722ecc4d12020e42f086830e34e82db55cf5c8ecd51c8c8c29");
@@ -62,61 +57,56 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         final HeroAttributes attributes = getAttributes();
         attributes.setValue(AttributeType.CRIT_CHANCE, 0.15d);
 
-        final Equipment equipment = this.getEquipment();
+        final Equipment equipment = getEquipment();
         equipment.setChestPlate(102, 255, 255);
         equipment.setLeggings(Material.IRON_LEGGINGS);
         equipment.setBoots(153, 51, 51);
 
-        setWeapon(new Weapon(Material.WOODEN_HOE)
-                .setName("Ancient Wand")
-                .setDamage(7.0d)
-                .setDescription("""
-                        An ancient item capable of casting the darkest of spells...
-                                                
-                        &e&lSpell Mode:
-                        &6&lRIGHT&7 click to enter spell mode.
-                                                
-                        Add buttons with &nright&7 or &nleft&7 clicks (R or L). Two buttons activate the corresponding spells.
-                                                
-                        &b;;Hover over the talents to see their usage.
-                        """));
-        //"A powerful wand, that's capable of casting multiple spells!____&e&lRIGHT CLICK &7to enter casting, then, combine &e&lRIGHT CLICK &7and/or &e&lLEFT CLICK &7to execute the spell!"
+        setWeapon(new DarkMageWeapon());
 
         setUltimate(new UltimateTalent("Witherborn", """
-                Summon a baby wither that will assist you in battle for {duration}.
+                Raised by the &8Withers&7, they will always assist you in battle.
                                 
-                While attacking, the wither will unleash a coordinated attack.
+                While &cattacking&7, the &8Wither&7 will unleash a &acoordinated&7 attack.
                                 
-                While casting a spell, the wither will improve the spell.
+                While &acastring&7 a spell, it will be &aimproved&7, and the cooldown is &breduced&7.
+                                
+                After {duration}, the &8Wither&7 will leave.
                 """, 70)
+                .setType(Talent.Type.ENHANCE)
                 .setItem(Material.WITHER_SKELETON_SKULL)
-                .setDuration(240)
+                .setDurationSec(12)
                 .setCooldownSec(30)
-                .setSound(Sound.ENTITY_WITHER_SPAWN, 2.0f));
+                .setSound(Sound.ENTITY_WITHER_SPAWN, 2.0f)
+                .appendAttributeDescription("Assist Delay", WitherData.ASSIST_DELAY)
+                .appendAttributeDescription("Assist Hits", WitherData.ASSIST_HITS)
+                .appendAttributeDescription("Assist Damage", WitherData.ASSIST_DAMAGE_TOTAL)
+        );
     }
 
     @Override
     public void onDeath(@Nonnull GamePlayer player) {
-        killWither(player);
+        getPlayerData(player).removeWither();
     }
 
     @Override
     public void onStop() {
-        withers.values().forEach(WitherData::remove);
-        withers.clear();
+        playerData.values().forEach(PlayerData::remove);
+        playerData.clear();
     }
 
     @Override
     public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        killWither(player);
-        withers.put(player, new WitherData(player));
+        final EntityAttributes attributes = player.getAttributes();
 
+        getPlayerData(player).newWither();
+        attributes.decreaseTemporary(Temper.WITHERBORN, AttributeType.COOLDOWN_MODIFIER, ultimateCooldownBoost, getUltimateDuration());
         return UltimateCallback.OK;
     }
 
     @Override
     public void onUltimateEnd(@Nonnull GamePlayer player) {
-        killWither(player);
+        getPlayerData(player).removeWither();
     }
 
     @Nullable
@@ -128,7 +118,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         final ShadowCloneNPC clone = talent.getClone(player);
 
         // Handle passive
-        if (entity != null && new Random().nextDouble() < PASSIVE_CHANCE) {
+        if (entity != null && new Random().nextDouble() < passiveChance) {
             entity.addEffect(GameEffectType.WITHER_BLOOD, 60, true);
 
             entity.sendMessage("&8☠ &c%s poisoned your blood!", player.getName());
@@ -136,7 +126,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         }
 
         // Handle clone
-        if (clone != null && clone.ultimate) {
+        if (clone != null && clone.isUltimate()) {
             player.teleport(clone.getLocation());
             talent.removeClone(clone);
 
@@ -162,7 +152,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         final LivingGameEntity entity = input.getEntity();
 
         // Skip witherboard damage
-        if (gamePlayer == null || input.getDamageCause() == EnumDamageCause.WITHERBORN) {
+        if (gamePlayer == null || input.getDamageCause() == EnumDamageCause.WITHERBORN || !input.isEntityAttack()) {
             return null;
         }
 
@@ -207,7 +197,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
 
     @Nullable
     public WitherData getWither(GamePlayer player) {
-        return withers.get(player);
+        return getPlayerData(player).getWitherData();
     }
 
     @Override
@@ -225,17 +215,6 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         return Talents.HEALING_AURA.getTalent();
     }
 
-    //@EventHandler()
-    //public void handleProjectileHit(ProjectileHitEvent ev) {
-    //    if (!(ev.getEntity() instanceof WitherSkull skull) || !(skull.getShooter() instanceof Player player)) {
-    //        return;
-    //    }
-    //
-    //    Utils.getPlayersInRange(skull.getLocation(), 3.0d).forEach(victim -> {
-    //        GamePlayer.damageEntity(victim, 10.0d, player, EnumDamageCause.WITHER_SKULLED);
-    //    });
-    //}
-
     @Override
     @Nonnull
     public ShadowClone getFourthTalent() {
@@ -247,10 +226,10 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
         return Talents.DARK_MAGE_PASSIVE.getTalent();
     }
 
+    @Nonnull
     @Override
-    @KeepNull
-    public Talent getFifthTalent() {
-        return null;
+    public DarkMageData getPlayerData(@Nonnull GamePlayer player) {
+        return playerData.computeIfAbsent(player, DarkMageData::new);
     }
 
     // [hapyl's rant about interaction detection]
@@ -262,13 +241,12 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
     // I'm clearly fucking interacting???
     // But of course, the event handles with 2 hands, even if I have nothing in my b hand, makes sense.
     private void processSpellClick(GamePlayer player, boolean isLeftClick) {
-        // Check for actual wand maybe?
-        if (player.getInventory().getItemInMainHand().getType() != getWeapon().getMaterial()) {
+        if (!player.isHeldSlot(HotbarSlots.WEAPON)) {
             return;
         }
 
-        // Handle wand
-        final DarkMageSpell spell = spellMap.computeIfAbsent(player, DarkMageSpell::new);
+        final DarkMageData data = getPlayerData(player);
+        final DarkMageSpell spell = data.getDarkMageSpell();
 
         // When empty:
         // - Right-clicking ONCE will enter the mode.
@@ -279,10 +257,8 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
 
         // Check for timeout
         if (spell.isTimeout()) {
-            spell.clear();
+            spell.remove();
         }
-
-        final WitherData data = getWither(player);
 
         if (!isLeftClick) {
             if (spell.isEmpty()) {
@@ -291,35 +267,15 @@ public class DarkMage extends Hero implements ComplexHero, Listener {
                 return;
             }
 
-            spell.addButton(DarkMageSpell.SpellButton.RIGHT);
+            spell.addButton(SpellButton.RIGHT);
         }
         else if (!spell.isEmpty()) {
-            spell.addButton(DarkMageSpell.SpellButton.LEFT);
+            spell.addButton(SpellButton.LEFT);
         }
 
-        final boolean usingUltimate = isUsingUltimate(player);
         if (spell.isFull()) {
-            spell.cast(data);
+            data.cast();
         }
-    }
-
-    private void killWither(GamePlayer player) {
-        final WitherData data = withers.get(player);
-
-        if (data != null) {
-            data.remove();
-        }
-
-        withers.remove(player);
-    }
-
-    private void updateWitherName(Player player, Wither wither) {
-        wither.setCustomName(Chat.format(
-                "&4&l☠ &c%s %s &a&l%s ❤",
-                player.getName(),
-                UIFormat.DIV,
-                BukkitUtils.decimalFormat(wither.getHealth())
-        ));
     }
 
 }

@@ -1,17 +1,17 @@
 package me.hapyl.fight.game.talents.archive.dark_mage;
 
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.EntityAttributes;
+import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.archive.dark_mage.DarkMageSpell;
-import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.heroes.archive.dark_mage.SpellButton;
+import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.Draw;
 import me.hapyl.spigotutils.module.math.geometry.Quality;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -28,36 +28,39 @@ public class SlowingAura extends DarkMageTalent {
 
     @DisplayField(suffix = "blocks") private final short maxDistance = 20;
     @DisplayField private final double radius = 4.0d;
+    @DisplayField private final double cdIncrease = 0.5d;
 
     private final int taskPeriod = 5;
 
     public SlowingAura() {
         super("Slowing Aura", """
-                Creates a slowness pool at your target block that slows anyone in range.
+                Creates a &fslowness pool&7 at your &etarget&7 block that slows enemies.
                                 
-                &e;;The aura does not slow its creator.
-                """, Material.BONE_MEAL);
+                &8;;The aura does not slow its creator.
+                """);
 
+        setType(Type.IMPAIR);
+        setItem(Material.BONE_MEAL);
         setDurationSec(4);
-        setCooldown(200);
+        setCooldownSec(10);
     }
 
     @Nonnull
     @Override
     public String getAssistDescription() {
-        return "The aura will also increase talent cooldowns and periodically interrupt actions.";
+        return "The aura will also increase %s and periodically &4interrupt&7 actions.".formatted(AttributeType.COOLDOWN_MODIFIER);
     }
 
     @Nonnull
     @Override
-    public DarkMageSpell.SpellButton first() {
-        return DarkMageSpell.SpellButton.RIGHT;
+    public SpellButton first() {
+        return SpellButton.RIGHT;
     }
 
     @Nonnull
     @Override
-    public DarkMageSpell.SpellButton second() {
-        return DarkMageSpell.SpellButton.LEFT;
+    public SpellButton second() {
+        return SpellButton.LEFT;
     }
 
     @Override
@@ -70,17 +73,31 @@ public class SlowingAura extends DarkMageTalent {
 
         final Location location = targetBlock.getRelative(BlockFace.UP).getLocation();
 
-        new GameTask() {
-            private int tick = getDuration();
-
+        new TimedGameTask(this) {
             @Override
-            public void run() {
-                if (tick <= 0) {
-                    cancel();
-                    return;
-                }
+            public void run(int tick) {
+                // Affect
+                Collect.nearbyPlayers(location, radius).forEach(entity -> {
+                    if (entity.equals(player)) {
+                        return; // Don't slow Dark Mage
+                    }
 
-                tick -= taskPeriod;
+                    entity.addPotionEffect(PotionEffectType.SLOW, 10, 3);
+
+                    // Witherborn assist
+                    if (hasWither(player)) {
+                        final EntityAttributes attributes = entity.getAttributes();
+                        attributes.increaseTemporary(Temper.WITHERBORN, AttributeType.COOLDOWN_MODIFIER, cdIncrease, 40);
+
+                        // Interrupt
+                        if (modulo(20)) {
+                            entity.interrupt();
+                        }
+                    }
+                });
+
+                // Fx
+                player.playWorldSound(location, BLOCK_HONEY_BLOCK_SLIDE, 0.0f);
 
                 Geometry.drawCircle(location, radius, Quality.HIGH, new Draw(Particle.SPELL) {
                     @Override
@@ -92,36 +109,14 @@ public class SlowingAura extends DarkMageTalent {
                                     location.getX(),
                                     location.getY(),
                                     location.getZ(),
-                                    1, 0, 0, 0, null
+                                    2, 0.1d, 0.1d, 0.1d, null
                             );
                         }
                     }
                 });
-
-                PlayerLib.playSound(location, BLOCK_HONEY_BLOCK_SLIDE, 0.0f);
-                Collect.nearbyPlayers(location, radius).forEach(entity -> {
-                    if (entity.equals(player)) {
-                        return; // Don't slow Dark Mage
-                    }
-
-                    entity.addPotionEffect(PotionEffectType.SLOW, 10, 3);
-
-                    // Witherborn assist
-                    if (!Heroes.DARK_MAGE.getHero().isUsingUltimate(player)) {
-                        return;
-                    }
-
-                    // Add stun effect
-                    entity.addEffect(GameEffectType.SLOWING_AURA, 40, true);
-
-                    // Interrupt
-                    if (tick % 20 == 0) {
-                        entity.interrupt();
-                    }
-                });
-
             }
-        }.runTaskTimer(0, taskPeriod);
+
+        }.setIncrement(taskPeriod).runTaskTimer(0, taskPeriod);
 
 
         return Response.OK;

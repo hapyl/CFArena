@@ -7,15 +7,14 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.heroes.Affiliation;
 import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.archive.knight.Spear;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.Collect;
@@ -43,7 +42,7 @@ import org.spigotmc.event.entity.EntityMountEvent;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class BlastKnight extends Hero implements DisabledHero, PlayerElement, UIComponent, Listener {
+public class BlastKnight extends Hero implements PlayerElement, UIComponent, Listener {
 
     private final ItemStack itemShield = new ItemBuilder(Material.SHIELD).setName("&aShield").setUnbreakable().build();
     private final PlayerMap<Integer> shieldCharge = PlayerMap.newMap();
@@ -52,12 +51,12 @@ public class BlastKnight extends Hero implements DisabledHero, PlayerElement, UI
     private final Shield shield = new Shield();
     private final Material shieldRechargeCdItem = Material.HORSE_SPAWN_EGG;
 
-    // FIXME (hapyl): 025, Jun 25: Rework add high end technology there is like one
-
     public BlastKnight() {
         super("Blast Knight");
 
         setArchetype(Archetype.DEFENSE);
+        setAffiliation(Affiliation.KINGDOM);
+
         setDescription("Royal Knight with high-end technology gadgets.");
         setItem("e2dfde6c2c8f0a7adf7ae4e949a804fedf95c6b9562767eae6c22a401cd02cbd");
 
@@ -66,7 +65,7 @@ public class BlastKnight extends Hero implements DisabledHero, PlayerElement, UI
         equipment.setLeggings(Material.CHAINMAIL_LEGGINGS);
         equipment.setBoots(Material.IRON_BOOTS);
 
-        setWeapon(Material.IRON_SWORD, "Sword", "", 10.0d);
+        setWeapon(Material.IRON_SWORD, "Royal Sword", "", 8.0d);
         setUltimate(new UltimateTalent(
                 "Royal Horse",
                 "Call upon the Royal Horse for {duration}. The horse is fast, strong and comfortable. So comfortable in fact that it doubles you damage while riding.",
@@ -275,8 +274,8 @@ public class BlastKnight extends Hero implements DisabledHero, PlayerElement, UI
     }
 
     @Override
-    public Spear getFirstTalent() {
-        return (Spear) Talents.SPEAR.getTalent();
+    public Talent getFirstTalent() {
+        return Talents.STONE_CASTLE.getTalent();
     }
 
     @Override

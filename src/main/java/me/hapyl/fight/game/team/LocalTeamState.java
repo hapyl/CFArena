@@ -19,9 +19,12 @@ public enum LocalTeamState {
     GAME_ALLY {
         @Override
         public void update(@Nonnull Team team, @Nonnull Player player) {
+            team.setPrefix("");
             team.setColor(ChatColor.GREEN);
             team.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.ALWAYS);
             team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.FOR_OWN_TEAM);
+            team.setCanSeeFriendlyInvisibles(true);
+            //team.setAllowFriendlyFire(false); messes with self-damage
         }
     },
 
