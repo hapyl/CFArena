@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.gamemode.modes;
 
 import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.GameResult;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.gamemode.Modes;
@@ -14,21 +14,13 @@ import javax.annotation.Nonnull;
 
 public class DeathmatchKills extends CFGameMode {
 
-    protected final int killsGoal;
-
-    public DeathmatchKills(String name, int timeLimit, int killsGoal) {
-        super(name, timeLimit);
-        this.killsGoal = killsGoal;
-    }
+    private final int killsGoal = 10;
 
     public DeathmatchKills() {
-        this("Kills Deathmatch", 1800, 10);
+        super("Kills Deathmatch", 1800);
 
-        setDescription("""
-                Free for All death-match when everyone is fighting for kills.
-                First player to reach &a%s&7 kills wins!
-                 """.formatted(killsGoal));
-
+        setDescription("Free for All death-match when everyone is fighting for kills.__First player to reach &a%s&7 kills wins!".formatted(
+                killsGoal));
         setPlayerRequirements(2);
         setMaterial(Material.WITHER_SKELETON_SKULL);
 

@@ -16,7 +16,7 @@ public interface PlayerElement {
     }
 
     /**
-     * Called once for each player whenever the game stops.
+     * Called once for each player whenever game stops.
      *
      * @param player - Player.
      */

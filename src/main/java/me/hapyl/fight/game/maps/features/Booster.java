@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.maps.features;
 
-import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.task.GameTask;

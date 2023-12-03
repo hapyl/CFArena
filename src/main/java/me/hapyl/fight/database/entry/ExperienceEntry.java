@@ -3,12 +3,10 @@ package me.hapyl.fight.database.entry;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.PlayerDatabaseEntry;
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Numbers;
 import org.bson.Document;
-import org.bukkit.entity.Player;
 
 public class ExperienceEntry extends PlayerDatabaseEntry {
     public ExperienceEntry(PlayerDatabase playerDatabase) {
@@ -18,19 +16,7 @@ public class ExperienceEntry extends PlayerDatabaseEntry {
     public enum Type {
 
         EXP("Total amount of experience.", 0),
-        LEVEL("Current level.", 1, 20) {
-            @Override
-            public void onSet(Player player, long value) {
-                final Experience experience = Main.getPlugin().getExperience();
-                final long expRequired = experience.getExpRequired(value);
-                final long exp = experience.getExp(player);
-
-                if (exp < expRequired) {
-                    Debug.info("fixed %s's exp", player.getName());
-                    PlayerDatabase.getDatabase(player).getExperienceEntry().set(EXP, expRequired);
-                }
-            }
-        },
+        LEVEL("Current level.", 1, 20),
         POINT("Points unspent.", 1);
 
         private final String description;
@@ -67,9 +53,6 @@ public class ExperienceEntry extends PlayerDatabaseEntry {
             return "exp." + name().toLowerCase();
         }
 
-        public void onSet(Player player, long value) {
-        }
-
     }
 
     public void reset(Type type) {
@@ -88,8 +71,6 @@ public class ExperienceEntry extends PlayerDatabaseEntry {
     public void set(Type type, long value) {
         final Document experience = getExperience();
         experience.put(type.name(), Numbers.clamp(value, type.getMinValue(), type.getMaxValue()));
-
-        type.onSet(getPlayer(), value);
 
         getDocument().put("experience", experience);
 

@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.effect;
 
-import me.hapyl.fight.game.effect.archive.*;
+import me.hapyl.fight.game.effect.storage.*;
 
 public enum GameEffectType {
 
@@ -18,10 +18,6 @@ public enum GameEffectType {
     ARCANE_MUTE(new ArcaneMuteEffect()),
     SLOWING_AURA(new SlowingAuraEffect()),
     BLEED(new BleedEffect()),
-
-    ORC_GROWL(new OrcGrowlEffect()),
-    WITHER_BLOOD(new WitherBlood()),
-    POISON_IVY(new PoisonIvy()),
 
     ;
 

@@ -2,60 +2,86 @@ package me.hapyl.fight.game.cosmetic.gui;
 
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CosmeticEntry;
-import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Type;
-import me.hapyl.fight.gui.styled.*;
-import me.hapyl.fight.gui.styled.profile.PlayerProfileGUI;
+import me.hapyl.fight.gui.PlayerProfileGUI;
+import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.spigotutils.module.inventory.gui.PlayerGUI;
 import me.hapyl.spigotutils.module.inventory.gui.SlotPattern;
 import me.hapyl.spigotutils.module.inventory.gui.SmartComponent;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
-import javax.annotation.Nullable;
+public class CollectionGUI extends PlayerGUI {
 
-public class CollectionGUI extends StyledGUI {
+    //public static final SlotPattern PATTERN = new SlotPattern(new byte[][] {
+    //        { 0, 0, 1, 0, 0, 0, 0, 0, 0 },
+    //        { 0, 1, 0, 1, 0, 0, 0, 0, 0 },
+    //        { 0, 1, 1, 1, 0, 0, 0, 0, 0 }
+    //});
+
+    //public static final int[] ANIMATION_SLOTS = new int[] {
+    //        15, 16, 17, 26, 35, 34, 33, 24
+    //};
 
     public CollectionGUI(Player player) {
-        super(player, "Collection", Size.FOUR);
+        super(player, "Collection", 3);
         setOpenEvent(e -> {
             PlayerLib.playSound(player, Sound.BLOCK_CHEST_OPEN, 1.0f);
         });
 
+        //setPeriod(5);
+        //setMaxTicks(ANIMATION_SLOTS.length);
+
+        update();
         openInventory();
     }
 
-    @Nullable
-    @Override
-    public ReturnData getReturnData() {
-        return ReturnData.of("Profile", PlayerProfileGUI::new);
-    }
+    //@Override
+    //public void onTick(long l) {
+    //    final int pixelSlot = ANIMATION_SLOTS[(int) l];
+    //
+    //    for (int slot : ANIMATION_SLOTS) {
+    //        setItem(slot, ItemBuilder.of(Material.GREEN_STAINED_GLASS_PANE).asIcon());
+    //    }
+    //
+    //    setItem(pixelSlot, ItemBuilder.of(Material.LIME_STAINED_GLASS_PANE).asIcon());
+    //}
 
-    @Override
-    public void onUpdate() {
-        final CosmeticEntry cosmetics = PlayerDatabase.getDatabase(getPlayer()).getCosmetics();
+    public void update() {
         final SmartComponent component = newSmartComponent();
+        final CosmeticEntry cosmetics = PlayerDatabase.getDatabase(getPlayer()).getCosmetics();
 
-        setHeader(StyledItem.ICON_COSMETICS.asIcon());
+        setArrowBack(18, new PlayerProfileGUI(getPlayer()));
+
+        //fillLine(0, ItemStacks.BLACK_BAR);
+        //fillLine(4, ItemStacks.BLACK_BAR);
 
         for (Type type : Type.values()) {
-            final String name = type.getName();
+            final String name = Chat.capitalize(type) + " Cosmetics";
             final Cosmetics selected = cosmetics.getSelected(type);
 
             component.add(ItemBuilder.of(type.getMaterial(), name)
                     .addSmartLore("&7" + type.getDescription())
                     .addLore()
-                    .addLore(Color.SUCCESS.color(
-                            "Selected: {Selected}",
-                            (selected == null ? Color.WARM_GRAY + "None!" : Color.MINT_GREEN + selected.getCosmetic().getName())
-                    ))
+                    .addLore("&aCurrently Selected: &e" + (selected == null ? "&8None!" : selected.getCosmetic().getName()))
                     .addLore()
-                    .addLore(Color.BUTTON + "Click to browse %s!", name)
+                    .addLore("&eClick to browse " + name + "!")
                     .asIcon(), player -> new CosmeticGUI(player, type));
         }
 
-        component.apply(this, SlotPattern.CHUNKY, 2);
+        //setItem(
+        //        25,
+        //        ItemBuilder.of(Material.EMERALD, "Experience")
+        //                .addSmartLore("Earn experience in game and unlock unique reward!")
+        //                .addLore()
+        //                .addLore("&eClick to open Experience Menu!")
+        //                .asIcon(),
+        //        ExperienceGUI::new
+        //);
+
+        component.apply(this, SlotPattern.CHUNKY, 1);
     }
 }

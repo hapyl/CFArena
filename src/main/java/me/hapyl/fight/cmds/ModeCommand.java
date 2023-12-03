@@ -3,7 +3,6 @@ package me.hapyl.fight.cmds;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.gui.ModeSelectGUI;
-import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.command.SimplePlayerCommand;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.command.CommandSender;
@@ -21,11 +20,6 @@ public class ModeCommand extends SimplePlayerCommand {
 
     @Override
     protected void execute(Player player, String[] args) {
-        if (Manager.current().isGameInProgress()) {
-            Chat.sendMessage(player, "&cCannot use now.");
-            return;
-        }
-
         if (args.length == 0) {
             new ModeSelectGUI(player);
             return;

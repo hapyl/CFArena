@@ -9,7 +9,7 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 
-// This tutorial is displayed when a player joins the server for the a time, or can be accessed via /tutorial
+// This tutorial is displayed when a player joins the server for the first time, or can be accessed via /tutorial
 public class Tutorial extends TutorialGUI {
 
     public Tutorial(Player player) {

@@ -2,12 +2,10 @@ package me.hapyl.fight.cmds;
 
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CosmeticEntry;
-import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.cosmetic.gui.CollectionGUI;
-import me.hapyl.fight.ux.Message;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.command.SimplePlayerCommand;
 import me.hapyl.spigotutils.module.util.Validate;
@@ -22,7 +20,7 @@ public class CosmeticCommand extends SimplePlayerCommand {
     public CosmeticCommand(String name) {
         super(name);
 
-        setDescription("Allows previewing cosmetics.");
+        setDescription("Allows to preview cosmetics.");
         addCompleterValues(1, "play", "set", "has", "give", "remove");
     }
 
@@ -42,59 +40,21 @@ public class CosmeticCommand extends SimplePlayerCommand {
             return;
         }
 
-        if (PlayerRank.getRank(player) != PlayerRank.ADMIN) {
+        if (!player.isOp()) {
             Chat.sendMessage(player, "&cYou do not have permission to use this command!");
             return;
         }
 
-        if (args.length == 2) {
-            switch (args[0].toLowerCase()) {
-                case "play" -> {
-                    // cosmetic play <cosmetic>
-                    final Cosmetics cosmetic = Validate.getEnumValue(Cosmetics.class, args[1]);
-                    if (cosmetic == null) {
-                        Chat.sendMessage(player, "&cInvalid cosmetic! &7Valid cosmetics: %s", Arrays.toString(Cosmetics.values()));
-                        return;
-                    }
-
-                    cosmetic.getCosmetic().onDisplay0(new Display(player, player.getLocation()));
-                    Chat.sendMessage(player, "&aDisplaying cosmetic %s", cosmetic.name());
-                }
-                case "giveall" -> {
-                    final Player target = Bukkit.getPlayer(args[1]);
-
-                    if (target == null) {
-                        Message.Error.PLAYER_NOT_ONLINE.send(player, args[1]);
-                        return;
-                    }
-
-                    final PlayerDatabase database = PlayerDatabase.getDatabase(target);
-                    final CosmeticEntry cosmetics = database.getCosmetics();
-
-                    for (Cosmetics value : Cosmetics.values()) {
-                        cosmetics.addOwned(value);
-                    }
-
-                    Message.success(player, "Gave all cosmetics to {}.", target.getName());
-                }
-                case "removeall" -> {
-                    final Player target = Bukkit.getPlayer(args[1]);
-
-                    if (target == null) {
-                        Message.Error.PLAYER_NOT_ONLINE.send(player, args[1]);
-                        return;
-                    }
-
-                    final PlayerDatabase database = PlayerDatabase.getDatabase(target);
-                    final CosmeticEntry cosmetics = database.getCosmetics();
-
-                    for (Cosmetics value : Cosmetics.values()) {
-                        cosmetics.removeOwned(value);
-                    }
-
-                    Message.success(player, "Removed all cosmetics from {}.", target.getName());
-                }
+        if (args.length == 2 && args[0].equalsIgnoreCase("play")) {
+            // cosmetic play <cosmetic>
+            final Cosmetics cosmetic = Validate.getEnumValue(Cosmetics.class, args[1]);
+            if (cosmetic == null) {
+                Chat.sendMessage(player, "&cInvalid cosmetic! &7Valid cosmetics: %s", Arrays.toString(Cosmetics.values()));
+                return;
             }
+
+            cosmetic.getCosmetic().onDisplay(new Display(player, player.getLocation()));
+            Chat.sendMessage(player, "&aDisplaying cosmetic %s", cosmetic.name());
         }
         else if (args.length == 3) {
 

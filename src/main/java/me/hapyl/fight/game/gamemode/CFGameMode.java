@@ -1,9 +1,7 @@
 package me.hapyl.fight.game.gamemode;
 
-import me.hapyl.fight.CF;
-import me.hapyl.fight.game.EntityState;
 import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.setting.Setting;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -95,17 +93,15 @@ public abstract class CFGameMode {
     public abstract boolean testWinCondition(@Nonnull GameInstance instance);
 
     public void formatScoreboard(Scoreboarder builder, GameInstance instance, GamePlayer player) {
+
     }
 
     public void onDeath(@Nonnull GameInstance instance, @Nonnull GamePlayer player) {
     }
 
-    public void tick(@Nonnull GameInstance instance, int tick) {
-    }
-
-    // Default impl, override if needed
+    // Default impl, override if used
     public void onLeave(@Nonnull GameInstance instance, @Nonnull Player player) {
-        final GamePlayer gamePlayer = CF.getPlayer(player);
+        final GamePlayer gamePlayer = instance.getPlayer(player);
         if (gamePlayer == null) {
             return;
         }
@@ -114,13 +110,13 @@ public abstract class CFGameMode {
         Chat.broadcast("&c%s left while fighting and was removed from the game!");
         Chat.broadcast("");
 
-        gamePlayer.setState(EntityState.DEAD);
+        gamePlayer.setDead(true);
         instance.checkWinCondition();
     }
 
     // Default impl, override if used
     public void onJoin(@Nonnull GameInstance instance, @Nonnull Player player) {
-        final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
+        final GamePlayer gamePlayer = instance.getOrCreateGamePlayer(player);
 
         gamePlayer.setSpectator(true);
 
@@ -137,7 +133,7 @@ public abstract class CFGameMode {
      * Use this to calculate winners if not default.
      *
      * @param instance - game instance.
-     * @return false to mark all living players as winners.
+     * @return false to mark all alive players as winners.
      */
     public boolean onStop(@Nonnull GameInstance instance) {
         return false;

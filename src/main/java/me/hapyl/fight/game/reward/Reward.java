@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.reward;
 
 import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.game.Manager;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.entity.Player;
 
@@ -8,28 +9,32 @@ import javax.annotation.Nonnull;
 
 public abstract class Reward {
 
-    public static Reward EMPTY = new Reward("Empty") {
-        @Override
-        public void display(@Nonnull Player player, @Nonnull ItemBuilder builder) {
-        }
-
-        @Override
-        public void grantReward(@Nonnull Player player) {
-        }
-
-        @Override
-        public void revokeReward(@Nonnull Player player) {
-        }
-    };
-
     private final String name;
 
     public Reward(String name) {
         this.name = name;
     }
 
+    public static Reward create(String name) {
+        return new Reward(name) {
+            @Override
+            public void grantReward(@Nonnull Player player) {
+
+            }
+
+            @Override
+            public void revokeReward(@Nonnull Player player) {
+
+            }
+
+            @Override
+            public void display(@Nonnull Player player, @Nonnull ItemBuilder builder) {
+            }
+        };
+    }
+
     public PlayerDatabase getDatabase(Player player) {
-        return PlayerDatabase.getDatabase(player);
+        return Manager.current().getOrCreateProfile(player).getDatabase();
     }
 
     public String getName() {
@@ -54,30 +59,5 @@ public abstract class Reward {
         return "Reward{name=%s}".formatted(name);
     }
 
-    // static members
-
-    @Nonnull
-    public static Reward create(String name) {
-        return new Reward(name) {
-            @Override
-            public void grantReward(@Nonnull Player player) {
-
-            }
-
-            @Override
-            public void revokeReward(@Nonnull Player player) {
-
-            }
-
-            @Override
-            public void display(@Nonnull Player player, @Nonnull ItemBuilder builder) {
-            }
-        };
-    }
-
-    @Nonnull
-    public static CurrencyReward currency() {
-        return CurrencyReward.create();
-    }
 
 }

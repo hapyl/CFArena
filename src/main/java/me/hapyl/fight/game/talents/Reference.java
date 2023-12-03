@@ -4,7 +4,7 @@ import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 
 /**
- * Allows passing an object as a reference.
+ * Allows to pass an object as a reference.
  */
 public class Reference<T> {
 

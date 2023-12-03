@@ -1,62 +1,38 @@
 package me.hapyl.fight.util;
 
-import me.hapyl.fight.CF;
+import com.google.common.collect.Lists;
 import me.hapyl.fight.Main;
-import me.hapyl.fight.game.Debug;
-import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.*;
+import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.spigotutils.module.annotate.TestedOn;
-import me.hapyl.spigotutils.module.annotate.Version;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.Quality;
 import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.Reflect;
-import net.minecraft.network.protocol.game.PacketPlayOutBlockAction;
-import net.minecraft.world.entity.boss.wither.EntityWither;
-import net.minecraft.world.level.block.Blocks;
+import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
-import org.joml.Matrix4f;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.net.Inet4Address;
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.text.DecimalFormat;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.regex.Pattern;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Utilities for the plugin
  */
 public class Utils {
-
-    public static final Pattern STRIP_COLOR_PATTERN = Pattern.compile("(?i)" + '&' + "[0-9A-FK-ORX]");
-    public static final Object[] DISAMBIGUATE = new Object[] {};
-    private static final DecimalFormat TICK_FORMAT = new DecimalFormat("0.0");
-
-    private static String SERVER_IP;
-
-    public static String stripColor(String message) {
-        message = ChatColor.stripColor(message);
-        message = STRIP_COLOR_PATTERN.matcher(message).replaceAll("");
-
-        return message;
-    }
 
     public static String colorString(String str, String defColor) {
         final StringBuilder builder = new StringBuilder();
@@ -76,20 +52,24 @@ public class Utils {
         return builder.toString().trim();
     }
 
-    public static void setEquipment(LivingEntity entity, /*@IjSg("equipment")*/ Consumer<EntityEquipment> consumer) {
-        Nulls.runIfNotNull(entity.getEquipment(), consumer);
+    /**
+     * Returns List of GamePlayers that are not:
+     * Spectator, Teammate nor player itself
+     */
+    public static List<GamePlayer> getEnemyPlayers(Player player) {
+        return Manager.current()
+                .getCurrentGame()
+                .getAlivePlayers(predicate -> !predicate.isSpectator() && !predicate.compare(player) && !predicate.isTeammate(player));
+    }
+
+    public static void setEquipment(LivingEntity entity, Consumer<EntityEquipment> consumer) {
+        Nulls.runIfNotNull(entity.getEquipment(), consumer::accept);
     }
 
     public static double scaleParticleOffset(double v) {
         return v * v / 8.0d;
     }
 
-    /**
-     * Gets a loaded world from location or throws an error if the world is null.
-     *
-     * @param location - Location.
-     * @return a loaded world from location or throws an error if the world is null.
-     */
     @Nonnull
     public static World getWorld(Location location) {
         final World world = location.getWorld();
@@ -98,6 +78,12 @@ public class Utils {
         }
 
         return world;
+    }
+
+    public static <E> List<String> collectionToStringList(Collection<E> e, java.util.function.Function<E, String> fn) {
+        final List<String> list = new ArrayList<>();
+        e.forEach(el -> list.add(fn.apply(el)));
+        return list;
     }
 
     @Nullable
@@ -117,7 +103,7 @@ public class Utils {
 
     public static void playSoundAndCut(Location location, Sound sound, float pitch, int cutAt) {
         final Set<Player> playingTo = new HashSet<>();
-        CF.getAlivePlayers().forEach(gp -> {
+        Manager.current().getCurrentGame().getAlivePlayers().forEach(gp -> {
             final Player player = gp.getPlayer();
             player.playSound(location, sound, SoundCategory.RECORDS, 20f, pitch);
             playingTo.add(player);
@@ -143,19 +129,6 @@ public class Utils {
         }.runTaskLater(cutAt);
     }
 
-    /**
-     * Compares 2 objects.
-     *
-     * <pre>
-     *     a && b == null -> TRUE
-     *     a || b == null -> FALSE
-     *     a == b         -> TRUE
-     * </pre>
-     *
-     * @param a - First object.
-     * @param b - Second object.
-     * @return if two objects either both null or equal, false otherwise.
-     */
     public static boolean compare(@Nullable Object a, @Nullable Object b) {
         // true if both objects are null
         if (a == null && b == null) {
@@ -165,7 +138,6 @@ public class Utils {
         if (a == null || b == null) {
             return false;
         }
-
         return a.equals(b);
     }
 
@@ -186,12 +158,8 @@ public class Utils {
         return result;
     }
 
-    /**
-     * @deprecated use {@link me.hapyl.fight.game.effect.GameEffectType#INVISIBILITY}
-     */
-    @Deprecated
     public static void hidePlayer(Player player) {
-        CF.getAlivePlayers().forEach(gp -> {
+        Manager.current().getCurrentGame().getAlivePlayers().forEach(gp -> {
             if (gp.getPlayer() == player || gp.isSpectator() || GameTeam.isTeammate(gp.getPlayer(), player)) {
                 return;
             }
@@ -200,19 +168,23 @@ public class Utils {
         });
     }
 
-    /**
-     * @deprecated use {@link me.hapyl.fight.game.effect.GameEffectType#INVISIBILITY}
-     */
-    @Deprecated
     public static void showPlayer(Player player) {
-        CF.getPlayers().forEach(gp -> {
-            if (gp.isNot(player)) {
+        Manager.current().getCurrentGame().getPlayers().forEach((uuid, gp) -> {
+            if (gp.getPlayer() != player) {
                 gp.getPlayer().showPlayer(Main.getPlugin(), player);
             }
         });
     }
 
-    public static void rayTracePath(@Nonnull Location start, @Nonnull Location end, double shift, double searchRange, @Nullable Consumer<LivingGameEntity> funcLiving, @Nullable Consumer<Location> funcLoc) {
+    public static void hideEntity(Entity entity, Player player) {
+        Reflect.hideEntity(entity, player);
+    }
+
+    public static void showEntity(Entity entity, Player player) {
+        Reflect.showEntity(entity, player);
+    }
+
+    public static void rayTracePath(Location start, Location end, double shift, double searchRange, Function<LivingEntity> funcLiving, Function<Location> funcLoc) {
         final double maxDistance = start.distance(end);
         final Vector vector = end.toVector().subtract(start.toVector()).normalize().multiply(shift);
 
@@ -228,10 +200,11 @@ public class Utils {
 
                 start.add(vector);
 
-                Nulls.runIfNotNull(funcLiving, f -> Collect.nearbyEntities(start, searchRange).forEach(f));
-                Nulls.runIfNotNull(funcLoc, f -> f.accept(start));
+                Nulls.runIfNotNull(funcLiving, f -> Utils.getEntitiesInRange(start, searchRange).forEach(f::execute));
+                Nulls.runIfNotNull(funcLoc, f -> f.execute(start));
 
                 tick -= shift;
+
             }
         }.runTaskTimer(0, 1);
 
@@ -254,19 +227,18 @@ public class Utils {
                 break;
             }
 
-            for (final LivingGameEntity gameEntity : Collect.nearbyEntities(location, 1.0)) {
-                if (gameEntity.is(shooter)) {
+            for (final LivingEntity living : getEntitiesInRange(location, 0.5)) {
+                if (living == shooter || living instanceof Player player && !Manager.current().isPlayerInGame(player)) {
                     continue;
                 }
 
                 if (onHit != null) {
-                    onHit.accept(gameEntity.getEntity());
+                    onHit.accept(living);
                 }
 
                 if (damage > 0.0d) {
-                    gameEntity.damage(damage, CF.getEntity(shooter), cause);
+                    GamePlayer.damageEntity(living, damage, shooter, cause);
                 }
-
                 break main;
             }
 
@@ -291,6 +263,7 @@ public class Utils {
         if (entity instanceof Projectile projectile && projectile.getShooter() instanceof LivingEntity livingEntity) {
             return livingEntity;
         }
+
         else if (entity instanceof Tameable tameable && tameable.getOwner() instanceof LivingEntity livingEntity) {
             return livingEntity;
         }
@@ -298,15 +271,104 @@ public class Utils {
         return entity;
     }
 
+    public static Location lerp(Location start, Location end, double percent) {
+        return BukkitUtils.newLocation(start).add(end.toVector().subtract(start.toVector()).multiply(percent));
+    }
+
+    public static Location lerpf(Location start, Location end, float f) {
+        double x = start.getX() + f * (end.getX() - start.getX());
+        double y = start.getY() + f * (end.getY() - start.getY());
+        double z = start.getZ() + f * (end.getZ() - start.getZ());
+
+        return new Location(start.getWorld(), x, y, z);
+    }
+
+    @Nullable
+    public static LivingEntity getTargetEntity(Player player, double range, double dot, @Nullable Predicate<LivingEntity> predicate) {
+        final List<LivingEntity> nearbyEntities = Utils.getEntitiesInRange(player.getLocation(), range);
+        Vector casterDirection = player.getLocation().getDirection().normalize();
+
+        for (LivingEntity entity : nearbyEntities) {
+            // Test Predicate
+            if ((!isEntityValid(entity, player)) || (predicate != null && !predicate.test(entity))) {
+                continue;
+            }
+
+            final Vector playerDirection = entity.getLocation().subtract(player.getLocation()).toVector().normalize();
+
+            final double dotProduct = casterDirection.dot(playerDirection);
+            final double distance = player.getLocation().distance(entity.getLocation());
+
+            if (dotProduct > dot && distance <= range) {
+                return entity;
+            }
+        }
+
+        return null;
+    }
+
     public static void rayTraceLine(Player shooter, double maxDistance, double shift, double damage, @Nullable Consumer<Location> onMove, @Nullable Consumer<LivingEntity> onHit) {
         rayTraceLine(shooter, maxDistance, shift, damage, null, onMove, onHit);
     }
 
-    /**
-     * Performs a "smart" collection clear, with removing entities and updating block states.
-     *
-     * @param collection - Collection.
-     */
+    public static Response playerCanUseAbility(Player player) {
+        final IGamePlayer gp = GamePlayer.getPlayer(player);
+
+        if (gp.hasEffect(GameEffectType.STUN)) {
+            return Response.error("Talent is locked!");
+        }
+
+        if (gp.hasEffect(GameEffectType.LOCK_DOWN)) {
+            return Response.error("Talent is locked! (Lockdown)");
+        }
+
+        if (gp.hasEffect(GameEffectType.ARCANE_MUTE)) {
+            return Response.error("Unable to use talent! (Arcane Mute)");
+        }
+
+        if (Manager.current().isGameInProgress()) {
+            final State state = Manager.current().getCurrentGame().getGameState();
+            if (state != State.IN_GAME) {
+                return Response.error("Game is not yet started!");
+            }
+        }
+
+        return Response.OK;
+    }
+
+    public static Player getTargetPlayer(Player player, double maxDistance) {
+        return (Player) getTargetEntity(
+                player,
+                maxDistance,
+                entity -> entity != player && entity instanceof Player p && Manager.current().isPlayerInGame(p)
+        );
+    }
+
+    @Nullable
+    public static LivingEntity getTargetEntity(Player player, double maxDistance, Predicate<LivingEntity> predicate) {
+        final Location location = player.getLocation().add(0, 1.5, 0);
+        final Vector vector = location.getDirection().normalize();
+        final float radius = 1.25f;
+
+        for (double i = 0; i < maxDistance; i += 0.5d) {
+            final double x = vector.getX() * i;
+            final double y = vector.getY() * i;
+            final double z = vector.getZ() * i;
+            location.add(x, y, z);
+
+            for (final LivingEntity entity : Utils.getEntitiesInRange(location, radius)) {
+                if (!entity.hasLineOfSight(player) || !predicate.test(entity)) {
+                    continue;
+                }
+                return entity;
+            }
+
+            location.subtract(x, y, z);
+        }
+
+        return null;
+    }
+
     public static <E> void clearCollection(Collection<E> collection) {
         for (final E entry : collection) {
             if (entry == null) {
@@ -322,65 +384,169 @@ public class Utils {
         collection.clear();
     }
 
-    @Nonnull
-    public static <K, V> V getElementOrThrowErrorIfNull(Map<K, V> map, K key, String errorMessage) {
-        final V v = map.get(key);
+    public static List<CommandSender> getOnlineOperatorsAndConsole() {
+        final List<CommandSender> list = Lists.newArrayList(Bukkit.getConsoleSender());
 
-        if (v != null) {
-            return v;
-        }
+        Bukkit.getOnlinePlayers().stream().filter(Player::isOp).forEach(list::add);
 
-        throw new IllegalArgumentException(errorMessage);
+        return list;
     }
 
-    @TestedOn(version = Version.V1_20)
-    public static void setWitherInvul(Wither wither, int invul) {
-        //Reflect.setDataWatcherValue(
-        //        Objects.requireNonNull(Reflect.getMinecraftEntity(wither)),
-        //        DataWatcherType.INT,
-        //        19,
-        //        invul,
-        //        Bukkit.getOnlinePlayers().toArray(new Player[] {})
-        //);
-        ((EntityWither) Objects.requireNonNull(Reflect.getMinecraftEntity(wither))).s(invul);
+    public static Player getNearestPlayer(Location location, double radius, Player exclude) {
+        return (Player) getNearestEntity(location, radius, entity -> {
+            return entity instanceof Player && entity != exclude && Manager.current().isPlayerInGame((Player) entity) &&
+                    !GameTeam.isTeammate(exclude, (Player) entity);
+        });
     }
 
-    /**
-     * Forces entity to look at provided location.
-     *
-     * @param entity - Entity.
-     * @param at     - Look at.
-     */
-    public static void lookAt(@Nonnull LivingEntity entity, @Nonnull Location at) {
-        final Vector dirBetweenLocations = at.toVector().subtract(entity.getLocation().toVector());
-        final Location location = entity.getLocation();
+    public static LivingEntity getNearestLivingEntity(Location location, double radius, Player player) {
+        return (LivingEntity) getNearestEntity(location, radius, entity -> {
+            if (!(entity instanceof LivingEntity)) {
+                return false;
+            }
 
-        location.setDirection(dirBetweenLocations);
-        entity.teleport(location);
+            return isEntityValid(entity, player);
+        });
     }
 
     public static boolean isEntityValid(Entity entity) {
         return isEntityValid(entity, null);
     }
 
-    /**
-     * Performs an entity check to validate if the entity is considered "valid."
-     *
-     * @param entity - Entity to check.
-     * @param player - Player if team check is needed.
-     * @return true if entity is "valid," false otherwise.
-     */
     public static boolean isEntityValid(Entity entity, @Nullable Player player) {
-        if (!(entity instanceof LivingEntity livingEntity)) {
+        // null entities, self or armor stands are not valid
+        if (entity == null || (player != null && entity == player) || entity instanceof ArmorStand) {
             return false;
         }
 
-        final LivingGameEntity gameEntity = CF.getEntity(livingEntity);
-        if (gameEntity == null) {
-            return false;
+        // dead or invisible entities are not valid
+        if (entity instanceof LivingEntity livingEntity) {
+            if (livingEntity.isDead() || livingEntity.isInvisible()) {
+                return false;
+            }
+
+            // players are only valid if they are alive and not on the same team
+            if (entity instanceof Player targetPlayer) {
+                if (Manager.current().isGameInProgress() && !GamePlayer.getPlayer(targetPlayer).isAlive()) {
+                    return false;
+                }
+                return !GameTeam.isTeammate(player, targetPlayer);
+            }
+
+            // Dummy check
+            if (livingEntity.getScoreboardTags().contains("dummy")) {
+                return true;
+            }
+
+            return livingEntity.hasAI();
         }
 
-        return gameEntity.isValid(player);
+        // other entities are valid
+        return true;
+    }
+
+    public static List<LivingEntity> getEntitiesInRange(Player player, double range) {
+        return getEntitiesInRange(player.getLocation(), range).stream()
+                .filter(entity -> entity != player && isEntityValid(entity, player))
+                .collect(Collectors.toList());
+    }
+
+    // This method gets entities in range but checks for distance to make sure
+    public static List<LivingEntity> getEntitiesInRangeValidateRange(Location location, double range) {
+        final List<LivingEntity> entities = getEntitiesInRange(location, range);
+        entities.removeIf(entity -> entity.getLocation().distance(location) > range);
+
+        return entities;
+    }
+
+    // This method gets entities in range but checks for distance to make sure
+    public static List<Player> getPlayersInRangeValidateRange(Location location, double range) {
+        return getEntitiesInRangeValidateRange(location, range).stream()
+                .filter(entity -> entity instanceof Player)
+                .map(entity -> (Player) entity)
+                .collect(Collectors.toList());
+    }
+
+    public static List<LivingEntity> getEntitiesInRange(Location location, double range, Predicate<LivingEntity> filter) {
+        return getEntitiesInRange(location, range).stream().filter(filter).collect(Collectors.toList());
+    }
+
+    public static List<LivingEntity> getEntitiesInRange(Location location, double range) {
+        final World world = location.getWorld();
+        final List<LivingEntity> entities = new ArrayList<>();
+
+        if (world == null) {
+            return entities;
+        }
+
+        world.getNearbyEntities(location, range, range, range)
+                .stream()
+                .filter(entity -> isEntityValid(entity, null) && entity instanceof LivingEntity)
+                .forEach(entity -> entities.add((LivingEntity) entity));
+
+        return entities;
+    }
+
+    public static LivingEntity getNearestLivingEntity(Location location, double radius, Predicate<LivingEntity> predicate) {
+        return (LivingEntity) getNearestEntity(location, radius, test -> {
+            if (!(test instanceof LivingEntity)) {
+                return false;
+            }
+
+            return predicate.test((LivingEntity) test) && isEntityValid(test, null);
+        });
+    }
+
+    @Warning(reason = "This does not do any checks")
+    public static Entity getNearestEntity(Location fromWhere, double radius, Predicate<Entity> predicate) {
+        if (fromWhere.getWorld() == null) {
+            throw new NullPointerException("Cannot find entity in null world!");
+        }
+
+        final List<Entity> list = fromWhere.getWorld()
+                .getNearbyEntities(fromWhere, radius, radius, radius)
+                .stream()
+                .filter(predicate)
+                .toList();
+
+        Entity nearest = null;
+        double dist = -1;
+        for (Entity entity : list) {
+            final double distance = entity.getLocation().distance(fromWhere);
+            // init
+            if (nearest == null) {
+                nearest = entity;
+                dist = distance;
+            }
+            else {
+                if (distance <= dist) {
+                    nearest = entity;
+                    dist = distance;
+                }
+            }
+        }
+        return nearest;
+    }
+
+    public static List<Player> getPlayersInRange(Location location, double range) {
+        final World world = location.getWorld();
+        final List<Player> players = new ArrayList<>();
+
+        if (world == null) {
+            return players;
+        }
+
+        world.getNearbyEntities(location, range, range, range)
+                .stream()
+                .filter(entity -> entity instanceof Player && Manager.current().isPlayerInGame((Player) entity))
+                .forEach(player -> players.add((Player) player));
+
+        return players;
+
+    }
+
+    public static void main(String[] args) {
+        System.out.println(colorString("Increased damage by 10% fo 30s.", "&7"));
     }
 
     public static void createExplosion(Location location, double range, double damage, Consumer<LivingEntity> consumer) {
@@ -397,12 +563,12 @@ public class Utils {
             return;
         }
 
-        Collect.nearbyEntities(location, range).forEach(entity -> {
+        Utils.getEntitiesInRange(location, range).forEach(entity -> {
             if (damage > 0.0d) {
-                entity.damage(damage, CF.getEntity(damager), cause);
+                GamePlayer.damageEntity(entity, damage, damager, cause);
             }
             if (consumer != null) {
-                consumer.accept(entity.getEntity());
+                consumer.accept(entity);
             }
         });
 
@@ -441,146 +607,4 @@ public class Utils {
         return def;
     }
 
-    public static <E> List<String> collectionToStringList(Collection<E> e, java.util.function.Function<E, String> fn) {
-        final List<String> list = new ArrayList<>();
-        e.forEach(el -> list.add(fn.apply(el)));
-        return list;
-    }
-
-    @Nonnull
-    public static String getServerIp() {
-        if (SERVER_IP == null) {
-            String ip = Bukkit.getIp();
-            final int port = Bukkit.getPort();
-
-            if (ip.isEmpty() || ip.isBlank()) {
-                try {
-                    ip = InetAddress.getLocalHost().getHostAddress();
-                } catch (Exception ignored0) {
-                    try {
-                        ip = Inet4Address.getLocalHost().getHostAddress();
-                    } catch (Exception ignored1) {
-                        try {
-                            ip = Inet6Address.getLocalHost().getHostAddress();
-                        } catch (Exception ignored2) {
-                            SERVER_IP = "Unavailable";
-                            return SERVER_IP;
-                        }
-                    }
-                }
-            }
-
-            SERVER_IP = ip + ":" + port;
-        }
-
-        return SERVER_IP;
-    }
-
-    public static void modifyKnockback(@Nonnull LivingEntity target, @Nonnull Function<Double, Double> fn, @Nonnull Consumer<LivingEntity> consumer) {
-        final AttributeInstance attribute = target.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
-
-        if (attribute == null) {
-            consumer.accept(target);
-            Debug.warn("%s does not have GENERIC_KNOCKBACK_RESISTANCE");
-            return;
-        }
-
-        final double base = attribute.getBaseValue();
-        final double newValue = fn.apply(base);
-
-        attribute.setBaseValue(newValue);
-        consumer.accept(target);
-        attribute.setBaseValue(base);
-    }
-
-    public static Matrix4f parseMatrix(@Range(min = 16, max = 16) float... matrix) {
-        if (matrix.length != 16) {
-            throw new IllegalArgumentException("matrix length must be 16, not " + matrix.length);
-        }
-
-        return new Matrix4f(
-                matrix[0], matrix[4], matrix[8], matrix[12],
-                matrix[1], matrix[5], matrix[9], matrix[13],
-                matrix[2], matrix[6], matrix[10], matrix[14],
-                matrix[3], matrix[7], matrix[11], matrix[15]
-        );
-    }
-
-    public static void playChestAnimation(Block block, boolean open) {
-        net.minecraft.world.level.block.Block nmsBlock = switch (block.getType()) {
-            case CHEST -> Blocks.cv;
-            case TRAPPED_CHEST -> Blocks.gV;
-            case ENDER_CHEST -> Blocks.fG;
-            default -> throw new IllegalArgumentException("invalid chest type: " + block.getType());
-        };
-
-        final PacketPlayOutBlockAction packet = new PacketPlayOutBlockAction(
-                Reflect.getBlockPosition(block),
-                nmsBlock,
-                1,
-                open ? 1 : 0
-        );
-
-        Bukkit.getOnlinePlayers().forEach(player -> Reflect.sendPacket(player, packet));
-    }
-
-    @Nonnull
-    public static String decimalFormatTick(int tick) {
-        return TICK_FORMAT.format(tick / 20.0d) + "s";
-    }
-
-    @Nonnull
-    public static String decimalFormat(double number) {
-        return TICK_FORMAT.format(number);
-    }
-
-    // Anchors location to the ground
-    public static Location anchorLocation(@Nonnull Location location) {
-        final World world = location.getWorld();
-        if (world == null) {
-            return location;
-        }
-
-        final int minHeight = world.getMinHeight();
-
-        while (true) {
-            final double y = location.getY();
-            if (y <= minHeight || !location.getBlock().getType().isAir()) {
-                Debug.particle(location, Particle.VILLAGER_HAPPY);
-                return location;
-            }
-
-            location.subtract(0.0d, 0.1d, 0.0d);
-        }
-    }
-
-    public static void setGlowing(@Nonnull Player player, @Nonnull Entity entity, @Nonnull String teamName, @Nonnull ChatColor color) {
-        final Scoreboard scoreboard = player.getScoreboard();
-        Team team = scoreboard.getTeam(teamName);
-
-        if (team == null) {
-            team = scoreboard.registerNewTeam(teamName);
-        }
-
-        team.setColor(color);
-        team.addEntry(entity instanceof Player playerEntity ? playerEntity.getName() : entity.getUniqueId().toString());
-    }
-
-    public static <T> void forEach(T[] array, Consumer<T> consumer) {
-        for (T t : array) {
-            if (t == null) {
-                continue;
-            }
-
-            consumer.accept(t);
-        }
-    }
-
-    public static void modifyAttribute(LivingEntity entity, Attribute attribute, Consumer<AttributeInstance> consumer) {
-        final AttributeInstance instance = entity.getAttribute(attribute);
-
-        if (instance != null) {
-            consumer.accept(instance);
-        }
-    }
 }

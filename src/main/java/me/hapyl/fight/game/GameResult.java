@@ -1,9 +1,7 @@
 package me.hapyl.fight.game;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.CF;
 import me.hapyl.fight.database.Award;
-import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.task.GameTask;
@@ -121,7 +119,7 @@ public class GameResult {
 
         // Show each player their game report
         GameTask.runLater(() -> {
-            for (GamePlayer gamePlayer : CF.getPlayers()) {
+            for (GamePlayer gamePlayer : gameInstance.getPlayers().values()) {
                 final Player player = gamePlayer.getPlayer();
                 final StatContainer stat = gamePlayer.getStats();
 
@@ -189,7 +187,7 @@ public class GameResult {
     }
 
     public void supplyDefaultWinners() {
-        winners.addAll(CF.getAlivePlayers());
+        winners.addAll(gameInstance.getAlivePlayers());
         for (GamePlayer winner : winners) {
             winningTeams.add(winner.getTeam());
         }

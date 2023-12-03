@@ -3,7 +3,6 @@ package me.hapyl.fight.gui;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.maps.GameMap;
 import me.hapyl.fight.game.maps.GameMaps;
-import me.hapyl.fight.game.maps.HiddenMapFeature;
 import me.hapyl.fight.game.maps.MapFeature;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -31,29 +30,18 @@ public class MapSelectGUI extends PlayerAutoGUI {
                     .addLore("")
                     .addSmartLore(map.getDescription());
 
-            if (map.hasFeatures()) {
+            if (!map.getFeatures().isEmpty()) {
                 builder.addLore().addLore("&aMap Features:").addLore();
-
-                for (MapFeature feature : map.getFeatures()) {
-                    if (feature instanceof HiddenMapFeature) {
-                        continue;
-                    }
-
+                for (final MapFeature feature : map.getFeatures()) {
                     builder.addLore(" &b" + feature.getName());
                     builder.addSmartLore(feature.getInfo(), "  &7&o");
                 }
             }
 
-            final GameMaps currentMap = Manager.current().getCurrentMap();
-            final boolean isCurrentMapSelected = currentMap == value;
-
-            final ItemStack item = builder.addLore("")
-                    .addLoreIf("&eClick to select", !isCurrentMapSelected)
-                    .addLoreIf("&aCurrently selected!", isCurrentMapSelected)
-                    .build();
-
+            final ItemStack item = builder.addLore("").addLore("&eClick to select").build();
             addItem(item, player -> {
-                if (isCurrentMapSelected) {
+                final GameMaps currentMap = Manager.current().getCurrentMap();
+                if (currentMap == value) {
                     Chat.sendMessage(player, "&cAlready selected!");
                     return;
                 }

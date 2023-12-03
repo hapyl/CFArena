@@ -1,7 +1,5 @@
 package me.hapyl.fight.cmds;
 
-import me.hapyl.fight.game.Debug;
-import me.hapyl.fight.game.DebugData;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.command.SimpleCommand;
@@ -23,6 +21,8 @@ public class GameCommand extends SimpleCommand {
         // game (start/stop/pause)
         if (args.length >= 1) {
             final Manager manager = Manager.current();
+            // TODO: 027, Mar 27, 2023 -> Add checks for admins or add votes
+
             switch (args[0].toLowerCase(Locale.ROOT)) {
                 case "start" -> {
                     if (manager.isGameInProgress()) {
@@ -30,25 +30,15 @@ public class GameCommand extends SimpleCommand {
                         return;
                     }
 
-                    final DebugData debug = DebugData.parse(args);
-                    manager.createNewGameInstance(debug);
+                    final boolean debug = args.length >= 2 && args[1].equalsIgnoreCase("-d");
 
-                    if (debug.any()) {
-                        Debug.info("Creating new debug instance.");
-                    }
-                    else {
-                        Debug.info("Creating new game instance.");
-                    }
+                    Chat.sendMessage(sender, "&aCreating new game instance%s...", debug ? " in debug mode " : "");
+                    manager.createNewGameInstance(debug);
                 }
 
                 case "stop" -> {
                     if (!manager.isGameInProgress()) {
                         Chat.sendMessage(sender, "&cCouldn't find any game instances in progress.");
-                        return;
-                    }
-
-                    if (!sender.isOp()) {
-                        Chat.sendMessage(sender, "&4No permissions.");
                         return;
                     }
 

@@ -3,7 +3,6 @@ package me.hapyl.fight.database;
 import com.mongodb.client.MongoCollection;
 import me.hapyl.fight.Main;
 import org.bson.Document;
-import org.bson.conversions.Bson;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
@@ -98,13 +97,4 @@ public final class MongoUtils {
         }
     }
 
-    public static void updateAsync(@Nonnull MongoCollection<Document> collection, @Nonnull Document filter, @Nonnull Bson update) {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                collection.updateOne(filter, update);
-            }
-        }.runTaskAsynchronously(Main.getPlugin());
-
-    }
 }

@@ -1,6 +1,6 @@
 package me.hapyl.fight.cmds;
 
-import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.spigotutils.module.chat.Chat;

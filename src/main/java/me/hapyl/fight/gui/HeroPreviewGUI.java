@@ -3,7 +3,7 @@ package me.hapyl.fight.gui;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.playerskin.PlayerSkin;
+import me.hapyl.fight.game.talents.PassiveTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -28,20 +28,18 @@ import java.util.Set;
 public class HeroPreviewGUI extends PlayerGUI {
 
     private final SlotPattern PATTERN = new SlotPattern(new byte[][] {
-            { 0, 0, 0, 0, 1, 1, 1, 0, 0 },
-            { 0, 0, 0, 0, 1, 0, 1, 0, 0 },
-            { 0, 0, 0, 0, 0, 1, 0, 0, 0 }
+            { 0, 0, 0, 0, 1, 1, 1, 0, 0 }, { 0, 0, 0, 0, 1, 0, 1, 0, 0 }, { 0, 0, 0, 0, 0, 1, 0, 0, 0 }
     });
 
     private final Heroes heroes;
     private final Set<Talent> attributeDisplay;
 
-    public HeroPreviewGUI(Player player, Heroes heroes, int returnPage) {
+    public HeroPreviewGUI(Player player, Heroes heroes, int selectIndex) {
         super(player, "Hero Preview - " + heroes.getHero().getName(), 5);
         this.heroes = heroes;
         this.attributeDisplay = Sets.newHashSet();
 
-        update(returnPage);
+        update(selectIndex);
     }
 
     public void update(int index) {
@@ -65,18 +63,18 @@ public class HeroPreviewGUI extends PlayerGUI {
                 player -> new HeroSelectGUI(player, index)
         );
 
-        setItem(11, hero.getCachedHeroItem().getDetailsItem());
-        setItem(29, hero.getWeapon().getItem());
+        setItem(
+                11,
+                new ItemBuilder(hero.getItem()).setName("&a%s", hero.getName())
+                        .addLore()
+                        .addLore("&7Role: &b%s", hero.getRole().getName())
+                        .addSmartLore(hero.getRole().getDescription(), "&8&o")
+                        .addLore()
+                        .addSmartLore(hero.getDescription(), " &7&o")
+                        .toItemStack()
+        );
 
-        final PlayerSkin skin = hero.getSkin();
-        if (skin != null) {
-            setItem(26, ItemBuilder.of(Material.LEATHER_CHESTPLATE, "&aAbout Player Skins").addTextBlockLore("""
-                    &8This hero uses custom skin!
-                                        
-                    Instead of armor, your skin will be changed.
-                    &e;;You can turn this off in &e/settings&e.
-                    """).asIcon());
-        }
+        setItem(29, hero.getWeapon().getItem());
 
         final UltimateTalent ultimate = hero.getUltimate();
         final boolean showingUltimateAttributes = attributeDisplay.contains(ultimate);
@@ -114,16 +112,15 @@ public class HeroPreviewGUI extends PlayerGUI {
                 return;
             }
 
-            // Display attributes if needed
-            if (talent.isDisplayAttributes()) {
+            if (talent instanceof PassiveTalent) {
+                component.add(abilityItemOrAir(talent));
+            }
+            else {
                 component.add(abilityItemOrAir(talent), player -> {
                     attributeDisplay.add(talent);
                     PlayerLib.plingNote(player, 2.0f);
                     update(index);
                 });
-            }
-            else {
-                component.add(abilityItemOrAir(talent));
             }
         });
 
@@ -162,6 +159,7 @@ public class HeroPreviewGUI extends PlayerGUI {
                 player -> new HeroStatisticGUI(player, heroes, index)
         );
 
+        formatDebug();
         fixAbilityItemsCount();
         openInventory();
     }
@@ -184,10 +182,10 @@ public class HeroPreviewGUI extends PlayerGUI {
             return ItemStacks.AIR;
         }
 
-        final boolean isDisplayAttributes = talent.isDisplayAttributes();
+        final boolean isPassive = talent instanceof PassiveTalent;
         return new ItemBuilder(talent.getItem())
-                .addLoreIf("", isDisplayAttributes)
-                .addLoreIf("&eClick to show attributes", isDisplayAttributes)
+                .addLoreIf("", !isPassive)
+                .addLoreIf("&eClick to show attributes", !isPassive)
                 .asIcon();
     }
 

@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.talents;
 
-import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.GameTask;
 import org.bukkit.entity.Player;
 
@@ -22,7 +21,7 @@ public class ChargedTalentData {
     }
 
     public Player getPlayer() {
-        return player.getPlayer();
+        return player;
     }
 
     public int getQueueTask() {
@@ -94,7 +93,7 @@ public class ChargedTalentData {
 
                 talent.grantCharge(player);
             }
-        }.runTaskLater(GamePlayer.scaleCooldown(player, talent.getRechargeTime()));
+        }.runTaskLater(talent.getRechargeTime());
     }
 
 }

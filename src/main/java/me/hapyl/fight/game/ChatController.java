@@ -1,7 +1,5 @@
 package me.hapyl.fight.game;
 
-import me.hapyl.fight.database.rank.PlayerRank;
-import me.hapyl.fight.database.rank.RankFormatter;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.setting.Setting;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -20,6 +18,7 @@ import java.util.Map;
 public class ChatController implements Listener {
 
     private final boolean chatStatus = true;
+    private final String format = "&4&l%s &6%s %s%s: &f%s";
     private final Map<Player, String> lastMessage = new HashMap<>();
 
     @EventHandler(ignoreCancelled = true)
@@ -52,6 +51,31 @@ public class ChatController implements Listener {
         });
     }
 
+    private void formatAndSendMessage(Player sender, String message, Player receiver) {
+        // [Dead/Spec] [Class] [Color](Name): Message
+        final StringBuilder builder = new StringBuilder(PlayerProfile.getOrCreateProfile(sender).getDisplay().getDisplayName());
+
+        // Tag receiver
+        final String atReceiverName = "@" + receiver.getName();
+        if (message.contains(atReceiverName) && Setting.CHAT_PING.isEnabled(receiver)) {
+            message = message.replace(atReceiverName, "&e%s&f".formatted(atReceiverName));
+            PlayerLib.playSound(receiver, Sound.BLOCK_NOTE_BLOCK_PLING, 2.0f);
+        }
+
+        message = colorize(message);
+
+        if (!sender.isOp()) {
+            message = ChatColor.stripColor(message);
+        }
+
+        builder.append(message);
+        receiver.sendMessage(colorize(builder.toString()));
+    }
+
+    private String colorize(String string) {
+        return ChatColor.translateAlternateColorCodes('&', string);
+    }
+
     public boolean isSameMessageAsLast(Player player, String string) {
         return lastMessage.containsKey(player) && lastMessage.get(player).contains(string);
     }
@@ -70,29 +94,6 @@ public class ChatController implements Listener {
         else {
             player.removeScoreboardTag("Muted");
         }
-    }
-
-    private void formatAndSendMessage(Player sender, String message, Player receiver) {
-        // [Dead/Spec] [Class] [Color](Name): Message
-        final StringBuilder builder = new StringBuilder(PlayerProfile.getOrCreateProfile(sender).getDisplay().getDisplayName());
-
-        // Tag receiver
-        final String atReceiverName = "@" + receiver.getName();
-        if (message.contains(atReceiverName) && Setting.CHAT_PING.isEnabled(receiver)) {
-            message = message.replace(atReceiverName, "&e%s&f".formatted(atReceiverName));
-            PlayerLib.playSound(receiver, Sound.BLOCK_NOTE_BLOCK_PLING, 2.0f);
-        }
-
-        message = Chat.format(message);
-        final PlayerRank rank = PlayerRank.getRank(sender);
-        final RankFormatter format = rank.getFormat();
-
-        if (!format.allowFormatting()) {
-            message = ChatColor.stripColor(message);
-        }
-
-        builder.append("&f: ").append(message);
-        Chat.sendMessage(receiver, builder.toString());
     }
 
 }

@@ -24,10 +24,9 @@ public class SettingsGUI extends PlayerGUI {
 			this.setItem(setting.getSlot(), this.buildMenuItem(setting));
 			this.setItem(
 					setting.getSlot() + 9,
-					new ItemBuilder(isEnabled ? Material.LIME_DYE : Material.GRAY_DYE)
-							.setName((isEnabled ? "&a" : "&c") + setting.getName())
+					new ItemBuilder(isEnabled ? Material.LIME_DYE : Material.GRAY_DYE).setName((isEnabled ? "&a" : "&c") + setting.getName())
 							.setLore("&7Click to " + (isEnabled ? "disable" : "enable"))
-							.asIcon()
+							.toItemStack()
 			);
 
 			final Action action = player -> {
@@ -53,6 +52,6 @@ public class SettingsGUI extends PlayerGUI {
 				.addSmartLore(setting.getInfo())
 				.addLore()
 				.addLore("&eClick to " + (isEnabled ? "disable" : "enable"))
-				.asIcon();
+				.toItemStack();
 	}
 }

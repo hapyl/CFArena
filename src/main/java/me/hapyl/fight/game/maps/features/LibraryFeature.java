@@ -1,8 +1,7 @@
 package me.hapyl.fight.game.maps.features;
 
-import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.maps.MapFeature;
@@ -53,6 +52,7 @@ public class LibraryFeature extends MapFeature implements Listener {
 
             @Override
             public void run() {
+
                 portals.getEntrances().forEach(blockLoc -> {
                     final Location location = blockLoc.toLocation().add(0.0d, 1.0d, 0.0d);
 
@@ -61,12 +61,20 @@ public class LibraryFeature extends MapFeature implements Listener {
                 });
 
                 if (tick % 200 == 0) {
-                    CF.getAlivePlayers().forEach(player -> removeVoidValue(player));
+                    Manager.current().getCurrentGame().getAlivePlayers().forEach(player -> removeVoidValue(player));
                 }
 
                 tick += 5;
             }
         }.runTaskTimer(5, 5);
+    }
+
+    private void spawnVoidCat() {
+
+    }
+
+    private void killVoidCat() {
+
     }
 
     private void removeVoidValue(GamePlayer gamePlayer) {
@@ -117,7 +125,7 @@ public class LibraryFeature extends MapFeature implements Listener {
     }
 
     @Override
-    public void tick(int tickMod20) {
+    public void tick(int tick) {
 
     }
 

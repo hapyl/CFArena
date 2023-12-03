@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.task;
 
 import me.hapyl.fight.Main;
-import me.hapyl.fight.game.talents.Timed;
+import me.hapyl.fight.game.talents.Talent;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -10,7 +10,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
- * Represents a task that is automatically canceled when the game ends.
+ * Represents a task that is automatically cancelled when the game ends.
  */
 public abstract class GameTask implements Runnable {
 
@@ -23,16 +23,16 @@ public abstract class GameTask implements Runnable {
     }
 
     /**
-     * Runs the task for the duration of the timed.
+     * Runs the task for the duration of the talent.
      *
-     * @param timed    - Timed.
+     * @param talent   - Talent.
      * @param runnable - BiConsumer of task runner and remaining tick.
      * @param delay    - Delay before starting.
      * @param period   - Period after each execution.
      * @return Running task.
      */
-    public static GameTask runDuration(Timed timed, BiConsumer<GameTask, Integer> runnable, int delay, int period) {
-        final int duration = timed.getDuration();
+    public static GameTask runDuration(Talent talent, BiConsumer<GameTask, Integer> runnable, int delay, int period) {
+        final int duration = talent.getDuration();
 
         return new GameTask() {
             private int tick = duration;
@@ -51,12 +51,12 @@ public abstract class GameTask implements Runnable {
     }
 
     // see above
-    public static void runDuration(Timed talent, Consumer<Integer> runnable, int period) {
+    public static void runDuration(Talent talent, Consumer<Integer> runnable, int period) {
         runDuration(talent, (task, i) -> runnable.accept(i), 0, period);
     }
 
     // see above
-    public static void runDuration(Timed talent, Consumer<Integer> runnable, int delay, int period) {
+    public static void runDuration(Talent talent, Consumer<Integer> runnable, int delay, int period) {
         runDuration(talent, (task, i) -> runnable.accept(i), delay, period);
     }
 
@@ -232,12 +232,8 @@ public abstract class GameTask implements Runnable {
         return this.task.getTaskId();
     }
 
-    // called before the task is scheduled
-    public void onTaskStart() {
-    }
-
-    // Called when the task is stopped (canceled)
-    public void onTaskStop() {
+    // Called when the task is cancelled
+    public void onCancel() {
     }
 
     public synchronized void cancelIfActive() {
@@ -245,14 +241,14 @@ public abstract class GameTask implements Runnable {
             return;
         }
 
-        onTaskStop();
+        onCancel();
         Bukkit.getScheduler().cancelTask(this.task.getTaskId());
     }
 
     public synchronized void cancel() {
         this.validateExists();
 
-        onTaskStop();
+        onCancel();
         Bukkit.getScheduler().cancelTask(this.task.getTaskId());
     }
 
@@ -277,8 +273,6 @@ public abstract class GameTask implements Runnable {
         if (!Main.getPlugin().isEnabled()) {
             return this;
         }
-
-        onTaskStart();
         this.task = task;
         Main.getPlugin().getTaskList().register(this);
         return this;

@@ -20,19 +20,19 @@ public interface RankFormatter {
 
     boolean allowFormatting();
 
-    static RankFormatter of(@Nonnull String prefix) {
+    static RankFormatter of(String prefix) {
         return of(prefix, prefix, "&f", false);
     }
 
-    static RankFormatter of(@Nonnull String prefix, @Nonnull String nameColor) {
+    static RankFormatter of(String prefix, String nameColor) {
         return of(prefix, nameColor, "&f", false);
     }
 
-    static RankFormatter of(@Nonnull String prefix, @Nonnull String nameColor, @Nonnull String textColor) {
+    static RankFormatter of(String prefix, String nameColor, String textColor) {
         return of(prefix, nameColor, textColor, false);
     }
 
-    static RankFormatter of(@Nonnull String prefix, @Nonnull String nameColor, @Nonnull String textColor, boolean allowFormat) {
+    static RankFormatter of(String prefix, String nameColor, String textColor, boolean allowFormat) {
         return new RankFormatter() {
             @Nonnull
             @Override

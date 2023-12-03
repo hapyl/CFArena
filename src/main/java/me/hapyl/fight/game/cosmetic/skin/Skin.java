@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.cosmetic.skin;
 
-import me.hapyl.fight.game.heroes.Equipment;
+import me.hapyl.fight.game.heroes.HeroEquipment;
 import me.hapyl.fight.game.heroes.Heroes;
 import org.bukkit.entity.Player;
 
@@ -8,14 +8,14 @@ public abstract class Skin implements EffectHandler {
 
     private final Heroes hero;
     private final String name;
-    private final Equipment equipment;
+    private final HeroEquipment equipment;
 
     private String description;
 
     public Skin(Heroes hero, String name) {
         this.hero = hero;
         this.name = name;
-        this.equipment = new Equipment();
+        this.equipment = new HeroEquipment();
     }
 
     public String getName() {
@@ -30,7 +30,7 @@ public abstract class Skin implements EffectHandler {
         return description;
     }
 
-    public Equipment getEquipment() {
+    public HeroEquipment getEquipment() {
         return equipment;
     }
 

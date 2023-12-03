@@ -15,7 +15,6 @@ public class Entry<E> {
         return String.valueOf(e);
     }
 
-    @SuppressWarnings("unchecked")
     public final String format(Object e) {
         return this.format + display((E) e);
     }

@@ -5,7 +5,6 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.gamemode.modes.Deathmatch;
 import me.hapyl.fight.game.gamemode.modes.DeathmatchKills;
 import me.hapyl.fight.game.gamemode.modes.FreeForAll;
-import me.hapyl.fight.game.gamemode.modes.Rush;
 import me.hapyl.spigotutils.module.util.Validate;
 
 import javax.annotation.Nonnull;
@@ -16,7 +15,7 @@ public enum Modes {
     FFA(new FreeForAll()),
     DEATH_MATCH(new Deathmatch()),
     DEATH_MATCH_KILLS(new DeathmatchKills()),
-	RUSH(new Rush()),
+	//RUSH(new Rush()),
 	//TTT(new AmongUs()), todo
     ;
 

@@ -95,7 +95,7 @@ public class LibraryCat extends MapFeature implements Listener {
     }
 
     @Override
-    public void tick(int tickMod20) {
+    public void tick(int tick) {
         if (!catExists()) {
             return;
         }

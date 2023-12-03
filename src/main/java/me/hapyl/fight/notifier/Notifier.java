@@ -23,7 +23,7 @@ public class Notifier implements Runnable, Debuggable {
         this.notifications.addAll(Arrays.asList(Notification.values()));
         this.iterator = notifications.iterator();
 
-        //Bukkit.getScheduler().runTaskTimer(main, this, isDebug() ? 100L : 36000L, isDebug() ? 100L : 36000L);
+        Bukkit.getScheduler().runTaskTimer(main, this, isDebug() ? 100L : 36000L, isDebug() ? 100L : 36000L);
     }
 
     public Notification next() {

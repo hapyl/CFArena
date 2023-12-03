@@ -53,17 +53,14 @@ public class RelicHuntGUI extends PlayerDynamicGUI {
                 builder.addSmartLore("You haven't found any relics in this area!", "&c");
             }
             else if (foundSize == relics.size()) {
-                builder.addSmartLore("You have found all the relics in this area!", "&a");
+                builder.addSmartLore("You have found all the relics in this are!", "&a");
             }
             else {
                 builder.addSmartLore("You found &b%s&a relics in this area.".formatted(foundSize), "&a");
             }
 
             builder.addLore();
-            builder.addLore("&7Progress%s&a%s%%".formatted(
-                    percent >= 100 ? " ".repeat(12) : percent >= 10 ? " ".repeat(13) : " ".repeat(15),
-                    percent
-            ));
+            builder.addLore("&aProgress               %s%%", percent);
             builder.addLore(ProgressBarBuilder.of("■", foundSize, relics.size()));
             component.add(builder.asIcon());
         }

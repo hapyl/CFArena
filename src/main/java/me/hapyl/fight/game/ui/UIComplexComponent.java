@@ -25,10 +25,6 @@ public interface UIComplexComponent extends UIComponent {
 
         int i = 0;
         for (String string : strings) {
-            if (string == null || string.isEmpty()) {
-                continue;
-            }
-
             if (i++ != 0) {
                 builder.append(" %s ".formatted(UIFormat.DIV));
             }

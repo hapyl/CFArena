@@ -20,7 +20,7 @@ public class LobbyParkour extends CFParkour {
         addCheckpoint(-11, 73, 11, -135.0f, 0.0f);
         addCheckpoint(18, 68, 18, -153.0f, 27.0f);
 
-        setLeaderboard(new ParkourLeaderboard(this, 25.5, 66.0, 11.5));
+        setLeaderboard(new ParkourLeaderboard(this, 25.5d, 62.5d, 11.5d));
 
         final Location quitLocation = BukkitUtils.defLocation(4.5d, 62.0d, 0.5d);
         quitLocation.setYaw(-180.0f);

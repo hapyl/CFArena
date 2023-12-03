@@ -20,24 +20,6 @@ public class HeroEntry extends PlayerDatabaseEntry {
         return Validate.getEnumValue(Heroes.class, getInDocument("heroes").get("selected", Heroes.ARCHER.name()), Heroes.ARCHER);
     }
 
-    public boolean isPurchased(Heroes hero) {
-        return fetchFromDocument("heroes", document -> {
-            return document.get("purchased", Lists.newArrayList()).contains(hero.name());
-        });
-    }
-
-    public void addPurchased(Heroes hero) {
-        fetchDocument("heroes", document -> {
-            document.get("purchased", Lists.newArrayList()).add(hero.name());
-        });
-    }
-
-    public void removePurchased(Heroes hero) {
-        fetchDocument("heroes", document -> {
-            document.get("purchased", Lists.newArrayList()).remove(hero.getName());
-        });
-    }
-
     public void setSelectedHero(Heroes hero) {
         fetchDocument("heroes", heroes -> heroes.put("selected", hero.name()));
     }

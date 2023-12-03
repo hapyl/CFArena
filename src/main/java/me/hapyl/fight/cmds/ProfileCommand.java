@@ -1,12 +1,11 @@
 package me.hapyl.fight.cmds;
 
-import me.hapyl.fight.gui.styled.profile.PlayerProfileGUI;
+import me.hapyl.fight.gui.PlayerProfileGUI;
 import org.bukkit.entity.Player;
 
 public class ProfileCommand extends LobbyPlayerCommand {
     public ProfileCommand(String name) {
         super(name);
-        setAliases("pf");
     }
 
     @Override

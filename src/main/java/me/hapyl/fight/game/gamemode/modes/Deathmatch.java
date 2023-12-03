@@ -1,19 +1,17 @@
 package me.hapyl.fight.game.gamemode.modes;
 
 import com.google.common.collect.Maps;
-import me.hapyl.fight.CF;
-import me.hapyl.fight.game.EntityState;
 import me.hapyl.fight.game.GameInstance;
+import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.GameResult;
 import me.hapyl.fight.game.IGameInstance;
-import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.gamemode.CFGameMode;
-import me.hapyl.fight.game.profile.PlayerProfile;
+import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.nn.IntInt;
 import me.hapyl.spigotutils.module.scoreboard.Scoreboarder;
-import me.hapyl.spigotutils.module.util.BFormat;
+import me.hapyl.spigotutils.module.util.Placeholder;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -51,11 +49,11 @@ public class Deathmatch extends CFGameMode {
         final GameTeam playerTeam = gamePlayer.getTeam();
         final Map<GameTeam, Integer> topKills = getTopTeamKills(instance, SCOREBOARD_DISPLAY_LIMIT);
 
-        builder.addLines("", "&6&lDeathmatch: &f(&b🗡 &l%s&f)".formatted(playerTeam.kills));
+        builder.addLines("", "&6&lDeathmatch: &f(&b🗡 &l%s&f)".formatted(gamePlayer.getStats().getValue(StatType.KILLS)));
 
         final IntInt i = new IntInt(1);
         topKills.forEach((team, kills) -> {
-            builder.addLines(BFormat.format(" &e#&l{Position} &f{Name} &b🗡 &l{Kills}", i.get(), formatTeamName(team), kills));
+            builder.addLines(Placeholder.format(" &e#&l{Position} &f{Name} &b🗡 &l{Kills}", i.get(), formatTeamName(team), kills));
             i.increment();
         });
 
@@ -93,32 +91,25 @@ public class Deathmatch extends CFGameMode {
 
     @Override
     public void onLeave(@Nonnull GameInstance instance, @Nonnull Player player) {
-        final GamePlayer gamePlayer = CF.getPlayer(player);
-
+        final GamePlayer gamePlayer = instance.getPlayer(player);
         if (gamePlayer == null || gamePlayer.isSpectator()) {
             return;
         }
 
         player.setGameMode(GameMode.SPECTATOR);
-        gamePlayer.setState(EntityState.DEAD);
+        gamePlayer.setDead(true);
 
         Chat.broadcast("");
-        Chat.broadcast("&c%s left the game. They may rejoin and continue playing!", player.getName());
+        Chat.broadcast("&c%s left the game. Them may rejoin and continue playing!", player.getName());
         Chat.broadcast("");
     }
 
     @Override
     public void onJoin(@Nonnull GameInstance instance, @Nonnull Player player) {
-        final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
+        final GamePlayer gamePlayer = instance.getOrCreateGamePlayer(player);
 
         // If player was spectator, don't respawn them
         if (!gamePlayer.isSpectator()) {
-            // supply to profile
-            final PlayerProfile profile = PlayerProfile.getProfile(player);
-            if (profile != null) {
-                profile.createGamePlayer();
-            }
-
             gamePlayer.setHandle(player);
             gamePlayer.respawnIn(60);
         }

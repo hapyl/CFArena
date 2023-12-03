@@ -1,9 +1,8 @@
 package me.hapyl.fight.game.talents;
 
-import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -14,43 +13,32 @@ import javax.annotation.Nonnull;
  */
 public abstract class InputTalent extends Talent {
 
-    protected final InputTalentData leftData;
-    protected final InputTalentData rightData;
+    private String leftClick;
+    private String rightClick;
+
+    private int cdLeft;
+    private int cdRight;
+
+    private int pointLeft;
+    private int pointRight;
 
     public InputTalent(@Nonnull String name) {
-        this(name, Material.DIAMOND_SWORD);
+        this(name, "No description provided.");
     }
 
-    public InputTalent(@Nonnull String name, @Nonnull Material material) {
-        super(name, "null", Type.COMBAT_INPUT);
+    public InputTalent(@Nonnull String name, @Nonnull String description) {
+        this(name, description, Material.DIAMOND_SWORD);
+    }
+
+    public InputTalent(@Nonnull String name, @Nonnull String description, @Nonnull Material material) {
+        super(name, description, Type.COMBAT_INPUT);
         setItem(material);
 
-        leftData = new InputTalentData(true);
-        rightData = new InputTalentData(false);
-    }
+        leftClick = "do nothing";
+        rightClick = "do NOTHING";
 
-    @Override
-    public void appendLore(@Nonnull ItemBuilder builder) {
-        builder.addTextBlockLore("""
-                                                
-                        &e&lLEFT CLICK&e to %s
-                        %s
-                        &6&lRIGHT CLICK&6 to %s
-                        %s
-                        """,
-                leftData.getAction(), format(leftData.getDescription(), leftData),
-                rightData.getAction(), format(rightData.getDescription(), rightData)
-        );
-    }
-
-    @Nonnull
-    public final InputTalentData getLeftData() {
-        return leftData;
-    }
-
-    @Nonnull
-    public final InputTalentData getRightData() {
-        return rightData;
+        cdLeft = 0;
+        cdRight = 0;
     }
 
     /**
@@ -72,7 +60,7 @@ public abstract class InputTalent extends Talent {
     /**
      * Called whenever player equips talent. Would be {@link #execute(Player)} for normal talents.
      *
-     * @param player - Player, who equipped talent.
+     * @param player - Player who equipped talent.
      */
     @Nonnull
     public Response onEquip(Player player) {
@@ -80,22 +68,38 @@ public abstract class InputTalent extends Talent {
     }
 
     /**
-     * Called whenever a player cancels the talent.
+     * Called whenever player cancels the talent.
      */
     public void onCancel(Player player) {
     }
 
-    @Deprecated
+    public void setLeftClick(String leftClick) {
+        this.leftClick = leftClick;
+    }
+
+    public String getLeftClick() {
+        return leftClick;
+    }
+
+    public void setRightClick(String rightClick) {
+        this.rightClick = rightClick;
+    }
+
+    public String getRightClick() {
+        return rightClick;
+    }
+
+    @Deprecated()
     @Override
-    public final InputTalent setCooldown(int cd) {
-        leftData.setCooldown(cd);
+    public final InputTalent setCd(int cd) {
+        setCdLeft(cd);
         return this;
     }
 
     @Deprecated
     @Override
-    public final Talent setCooldownSec(int cd) {
-        return setCooldown(cd * 20);
+    public final Talent setCdSec(int cd) {
+        return setCd(cd * 20);
     }
 
     @Deprecated
@@ -113,12 +117,52 @@ public abstract class InputTalent extends Talent {
     public void setPoint(int point) {
     }
 
+    public int getPointLeft() {
+        return pointLeft;
+    }
+
+    public void setPointLeft(int pointLeft) {
+        this.pointLeft = pointLeft;
+    }
+
+    public int getPointRight() {
+        return pointRight;
+    }
+
+    public void setPointRight(int pointRight) {
+        this.pointRight = pointRight;
+    }
+
     public void startCdLeft(Player player) {
-        super.startCd(player, leftData.getCooldown());
+        super.startCd(player, cdLeft);
     }
 
     public void startCdRight(Player player) {
-        super.startCd(player, rightData.getCooldown());
+        super.startCd(player, cdRight);
+    }
+
+    public void setCdLeft(int cdLeft) {
+        this.cdLeft = cdLeft;
+    }
+
+    public void setCdLeftSec(int cdLeft) {
+        setCdLeft(cdLeft * 20);
+    }
+
+    public void setCdRight(int cdRight) {
+        this.cdRight = cdRight;
+    }
+
+    public void setCdRightSec(int cdRight) {
+        setCdRight(cdRight * 20);
+    }
+
+    public int getCdLeft() {
+        return cdLeft;
+    }
+
+    public int getCdRight() {
+        return cdRight;
     }
 
     @Override
@@ -128,8 +172,10 @@ public abstract class InputTalent extends Talent {
         Chat.sendTitle(
                 player,
                 "&6&lL&e&lCLICK     &6&lR&e&lCLICK",
-                ("&ato " + trim(leftData.action) + "         &ato " + trim(rightData.action)),
-                1, 10000, 1
+                ("&ato " + trim(leftClick) + "         &ato " + trim(rightClick)),
+                5,
+                10000,
+                5
         );
 
         return response;
@@ -145,25 +191,17 @@ public abstract class InputTalent extends Talent {
 
     public String getUsage(boolean isLeftClick) {
         if (isLeftClick) {
-            return leftData.action;
+            return leftClick;
         }
 
-        return rightData.action;
+        return rightClick;
     }
 
     public final void addPoint(Player player, boolean isLeftClick) {
-        int point = isLeftClick ? leftData.pointGeneration : rightData.pointGeneration;
+        int point = isLeftClick ? pointLeft : pointRight;
 
         if (point > 0) {
             GamePlayer.getPlayer(player).addUltimatePoints(point);
         }
-    }
-
-    private String format(@Nonnull String string, @Nonnull InputTalentData data) {
-        string = TalentFormat.NAME.format(string, this);
-        string = TalentFormat.DURATION.format(string, data);
-        string = TalentFormat.COOLDOWN.format(string, data);
-
-        return string;
     }
 }

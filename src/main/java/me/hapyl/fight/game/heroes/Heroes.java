@@ -2,70 +2,30 @@ package me.hapyl.fight.game.heroes;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
-import me.hapyl.fight.database.PlayerDatabase;
-import me.hapyl.fight.database.collection.HeroStatsCollection;
-import me.hapyl.fight.database.entry.ExperienceEntry;
+import me.hapyl.fight.database.collection.HeroStats;
 import me.hapyl.fight.database.entry.HeroEntry;
+import me.hapyl.fight.game.GameInstance;
+import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.archive.alchemist.Alchemist;
-import me.hapyl.fight.game.heroes.archive.archer.Archer;
-import me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend;
-import me.hapyl.fight.game.heroes.archive.bounty_hunter.BountyHunter;
-import me.hapyl.fight.game.heroes.archive.dark_mage.DarkMage;
-import me.hapyl.fight.game.heroes.archive.doctor.DrEd;
-import me.hapyl.fight.game.heroes.archive.ender.Ender;
-import me.hapyl.fight.game.heroes.archive.engineer.Engineer;
-import me.hapyl.fight.game.heroes.archive.harbinger.Harbinger;
-import me.hapyl.fight.game.heroes.archive.healer.Healer;
-import me.hapyl.fight.game.heroes.archive.heavy_knight.SwordMaster;
-import me.hapyl.fight.game.heroes.archive.hercules.Hercules;
-import me.hapyl.fight.game.heroes.archive.iceologer.Freazly;
-import me.hapyl.fight.game.heroes.archive.juju.JuJu;
-import me.hapyl.fight.game.heroes.archive.km.KillingMachine;
-import me.hapyl.fight.game.heroes.archive.knight.BlastKnight;
-import me.hapyl.fight.game.heroes.archive.librarian.Librarian;
-import me.hapyl.fight.game.heroes.archive.mage.Mage;
-import me.hapyl.fight.game.heroes.archive.moonwalker.Moonwalker;
-import me.hapyl.fight.game.heroes.archive.nightmare.Nightmare;
-import me.hapyl.fight.game.heroes.archive.ninja.Ninja;
-import me.hapyl.fight.game.heroes.archive.orc.Orc;
-import me.hapyl.fight.game.heroes.archive.pytaria.Pytaria;
-import me.hapyl.fight.game.heroes.archive.shadow_assassin.ShadowAssassin;
-import me.hapyl.fight.game.heroes.archive.shaman.Shaman;
-import me.hapyl.fight.game.heroes.archive.shark.Shark;
-import me.hapyl.fight.game.heroes.archive.spark.Spark;
-import me.hapyl.fight.game.heroes.archive.swooper.Swooper;
-import me.hapyl.fight.game.heroes.archive.taker.Taker;
-import me.hapyl.fight.game.heroes.archive.tamer.Tamer;
-import me.hapyl.fight.game.heroes.archive.techie.Techie;
-import me.hapyl.fight.game.heroes.archive.troll.Troll;
-import me.hapyl.fight.game.heroes.archive.vampire.Vampire;
-import me.hapyl.fight.game.heroes.archive.vortex.Vortex;
-import me.hapyl.fight.game.heroes.archive.witcher.WitcherClass;
-import me.hapyl.fight.game.heroes.archive.zealot.Zealot;
+import me.hapyl.fight.game.heroes.storage.*;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.util.Formatted;
 import me.hapyl.fight.util.SmallCaps;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
-import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Registry for Heroes.
- * <p>
+ *
  * Make sure not to change names, as it will break the database.
  */
-public enum Heroes implements Formatted {
+public enum Heroes {
 
     // New Hero -> Halloween
 
@@ -95,6 +55,7 @@ public enum Heroes implements Formatted {
     LIBRARIAN(new Librarian()),
     TECHIE(new Techie()),
     WAR_MACHINE(new KillingMachine()),
+
     HARBINGER(new Harbinger()),
     SHAMAN(new Shaman()),
 
@@ -106,56 +67,42 @@ public enum Heroes implements Formatted {
     ZEALOT(new Zealot()),
     ENGINEER(new Engineer()),
 
-    // 1.6
-    ORC(new Orc()),
-
-    // 2.0
-    BLOODFIEND(new Bloodfiend()),
-
     ;
 
-    public static final Heroes DEFAULT_HERO = ARCHER;
-
     private final static List<Heroes> PLAYABLE = Lists.newArrayList();
-    private final static Map<Archetype, List<Heroes>> BY_ARCHETYPE = Maps.newHashMap();
-    private final static Map<Hero, Heroes> BY_HANDLE = Maps.newHashMap();
+    private final static Map<Role, List<Heroes>> BY_ROLE = Maps.newHashMap();
 
     static {
-        for (Heroes hero : values()) {
-            // save handles either way
-            if (hero.hero != null) {
-                BY_HANDLE.put(hero.hero, hero);
-            }
-
-            if (!hero.isValidHero()) {
+        for (Heroes value : values()) {
+            if (!value.isValidHero()) {
                 continue;
             }
 
-            // Store archetype for easier grab
-            final Archetype archetype = hero.hero.getArchetype();
+            // by role
+            final Role role = value.getHero().getRole();
+            final List<Heroes> byRole = byRole(role);
 
-            final List<Heroes> byArchetype = BY_ARCHETYPE.computeIfAbsent(archetype, l -> Lists.newArrayList());
+            byRole.add(value);
+            BY_ROLE.put(role, byRole);
 
-            byArchetype.add(hero);
-
-            // Add playable
-            PLAYABLE.add(hero);
+            // playable
+            PLAYABLE.add(value);
         }
     }
 
     private final Hero hero;
-    private final HeroStatsCollection stats; // can't store in a hero object because requires enum
+    private final HeroStats stats; // can't store in hero object because requires enum
 
     Heroes(Hero hero) {
         this.hero = hero;
-        this.stats = new HeroStatsCollection(this);
+        this.stats = new HeroStats(this);
 
         if (hero instanceof Listener listener) {
-            Bukkit.getPluginManager().registerEvents(listener, Main.getPlugin());
+            Main.getPlugin().addEvent(listener);
         }
     }
 
-    public HeroStatsCollection getStats() {
+    public HeroStats getStats() {
         return stats;
     }
 
@@ -165,7 +112,7 @@ public enum Heroes implements Formatted {
 
     /**
      * Returns a handle of a hero.
-     * <p>
+     *
      * Note that this method only returns a base handle,
      * for specific hero handles, use {@link #getHero(Class)}.
      *
@@ -181,7 +128,7 @@ public enum Heroes implements Formatted {
 
     /**
      * Returns a handle of a hero.
-     * <p>
+     *
      * This method tries to cast the handle to the specified class.
      *
      * @param cast - Cast to.
@@ -207,21 +154,30 @@ public enum Heroes implements Formatted {
      * @return list of players that have this hero selected.
      */
     public List<GamePlayer> getPlayers() {
-        final Set<GamePlayer> players = CF.getPlayers();
-        players.removeIf(player -> !isSelected(player.getPlayer()));
+        final List<GamePlayer> players = new ArrayList<>();
+        final GameInstance gameInstance = Manager.current().getGameInstance();
 
-        return Lists.newArrayList(players);
+        if (gameInstance == null) {
+            return players;
+        }
+
+        gameInstance.getPlayers().forEach((uuid, gp) -> {
+            if (isSelected(gp.getPlayer())) {
+                players.add(gp);
+            }
+        });
+
+        return players;
     }
 
     /**
-     * Returns list of living payers that have this hero selected.
+     * Returns list of alive payers that have this hero selected.
      *
      * @return list of alive players that have this hero selected.
      */
     public List<GamePlayer> getAlivePlayers() {
         final List<GamePlayer> players = getPlayers();
         players.removeIf(filter -> !filter.isAlive());
-
         return players;
     }
 
@@ -262,12 +218,7 @@ public enum Heroes implements Formatted {
      * @return true if this hero is locked for player.
      */
     public boolean isLocked(Player player) {
-        final PlayerDatabase database = PlayerDatabase.getDatabase(player);
-
-        final boolean purchased = database.getHeroEntry().isPurchased(this);
-        final boolean hasLevel = database.getExperienceEntry().get(ExperienceEntry.Type.LEVEL) >= hero.getMinimumLevel();
-
-        return !purchased && !hasLevel;
+        return false;
     }
 
     /**
@@ -275,13 +226,12 @@ public enum Heroes implements Formatted {
      *
      * @return actual name of the hero, not enum.
      */
-    @Nonnull
     public String getName() {
         return hero.getName();
     }
 
     /**
-     * Returns the name of the hero in small caps.
+     * Returns name of the hero in small caps.
      *
      * @return name of the hero in small caps.
      * @see SmallCaps
@@ -290,17 +240,11 @@ public enum Heroes implements Formatted {
         return hero.getNameSmallCaps();
     }
 
-    @Nonnull
-    @Override
-    public String getFormatted() {
-        return hero.getArchetype().getPrefix() + " &f" + hero.getNameSmallCaps();
-    }
-
     /**
      * Returns all playable heroes.
      *
      * <p>
-     * Note that <b>admins</b> can still select non-playable hero using <i>'-IKnowItsDisabledHeroAndWillBreakTheGame'</i> argument.
+     * Note that players can still select non-playable hero using <i>'-IKnowItsDisabledHeroAndWillBreakTheGame'</i> argument.
      * </p>
      *
      * @return all playable heroes.
@@ -308,6 +252,8 @@ public enum Heroes implements Formatted {
     public static List<Heroes> playable() {
         return Lists.newArrayList(PLAYABLE);
     }
+
+    // static members
 
     /**
      * Returns all playable heroes sorted by favourites.
@@ -324,13 +270,6 @@ public enum Heroes implements Formatted {
         return playable;
     }
 
-    public static List<Heroes> playableRespectLockedFavourites(Player player) {
-        final List<Heroes> heroes = playableRespectFavourites(player);
-        heroes.sort(Comparator.comparingInt(a -> (a.isLocked(player) ? 1 : 0)));
-
-        return heroes;
-    }
-
     /**
      * Returns playable heroes names by their Enum name.
      *
@@ -341,29 +280,27 @@ public enum Heroes implements Formatted {
     }
 
     /**
-     * Gets a copy of heroes with a given archetype.
+     * Returns list of heroes by role.
      *
-     * @param archetype - Archetype.
-     * @return a copy of heroes with a given archetype.
+     * @param role - Role to get heroes by.
+     * @return list of heroes by role.
      */
-    @Nonnull
-    public static List<Heroes> byArchetype(@Nonnull Archetype archetype) {
-        return Lists.newArrayList(BY_ARCHETYPE.computeIfAbsent(archetype, (s) -> Lists.newArrayList()));
+    public static List<Heroes> byRole(Role role) {
+        return Lists.newArrayList(BY_ROLE.computeIfAbsent(role, (s) -> Lists.newArrayList()));
     }
 
     /**
-     * Returns a random playable hero.
+     * Returns random playable hero.
      *
      * @return random playable hero.
      */
-    @Nonnull
     public static Heroes randomHero() {
-        return CollectionUtils.randomElement(playable(), DEFAULT_HERO);
+        return CollectionUtils.randomElement(playable());
     }
 
-    @Nonnull
-    public static Heroes byHandle(Hero hero) {
-        return BY_HANDLE.getOrDefault(hero, DEFAULT_HERO);
+    public static void saveStatsAsync() {
+        for (Heroes hero : values()) {
+            hero.getStats().saveAsync();
+        }
     }
-
 }

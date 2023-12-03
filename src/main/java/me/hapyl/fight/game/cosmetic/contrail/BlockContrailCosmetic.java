@@ -5,9 +5,8 @@ import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.State;
 import me.hapyl.fight.game.cosmetic.Display;
-import me.hapyl.fight.game.cosmetic.Rarity;
+import me.hapyl.fight.game.shop.Rarity;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -15,7 +14,6 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
@@ -24,18 +22,11 @@ public class BlockContrailCosmetic extends ContrailCosmetic {
     private final List<Material> materials;
     private int stay;
 
-    public BlockContrailCosmetic(String name, String description, Rarity rarity) {
-        super(name, description, rarity);
+    public BlockContrailCosmetic(String name, String description, long cost, Rarity rarity) {
+        super(name, description, cost, rarity);
 
         this.materials = Lists.newArrayList();
         this.stay = 20;
-    }
-
-    @Override
-    public void addExtraLore(@Nonnull ItemBuilder builder, @Nonnull Player player) {
-        builder.addLore();
-        builder.addLore("&6This is a block contrail!");
-        builder.addSmartLore("It will convert blocks you're walking on.", "&e");
     }
 
     public void addMaterials(Material... materials) {

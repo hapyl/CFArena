@@ -3,37 +3,30 @@ package me.hapyl.fight.game.maps;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
-import me.hapyl.fight.game.EntityElement;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.PlayerElement;
-import me.hapyl.fight.game.StaticServerEvent;
+import me.hapyl.fight.game.ServerEvent;
 import me.hapyl.fight.game.gamemode.Modes;
-import me.hapyl.fight.game.maps.gamepack.ChangePack;
-import me.hapyl.fight.game.maps.gamepack.GamePack;
-import me.hapyl.fight.game.maps.gamepack.HealthPack;
-import me.hapyl.fight.game.maps.gamepack.PackType;
+import me.hapyl.fight.game.maps.healthpack.ChangePack;
+import me.hapyl.fight.game.maps.healthpack.GamePack;
+import me.hapyl.fight.game.maps.healthpack.HealthPack;
+import me.hapyl.fight.game.maps.healthpack.PackType;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Predicate;
 
-public class GameMap implements GameElement, PlayerElement, EntityElement {
+public class GameMap implements GameElement, PlayerElement {
 
     private final String name;
-
-    private final List<PredicateLocation> locations;
-
+    private final List<Location> locations;
+    private final List<Location> hordeSpawnLocations;
     private final Map<PackType, GamePack> gamePacks;
     private final List<MapFeature> features;
     private final Set<Modes> allowedModes;
@@ -64,6 +57,7 @@ public class GameMap implements GameElement, PlayerElement, EntityElement {
         this.locations = Lists.newArrayList();
         this.features = Lists.newArrayList();
         this.allowedModes = Sets.newHashSet();
+        this.hordeSpawnLocations = Lists.newArrayList();
         this.size = Size.SMALL;
         this.ticksBeforeReveal = ticksBeforeReveal;
         this.isPlayable = true;
@@ -120,6 +114,10 @@ public class GameMap implements GameElement, PlayerElement, EntityElement {
         return this.allowedModes.isEmpty() || this.allowedModes.contains(mode);
     }
 
+    public List<Location> getHordeSpawnLocations() {
+        return hordeSpawnLocations;
+    }
+
     public int getTimeBeforeReveal() {
         return ticksBeforeReveal;
     }
@@ -133,25 +131,12 @@ public class GameMap implements GameElement, PlayerElement, EntityElement {
         return this;
     }
 
-    public List<MapFeature> getFeatures() {
-        return features;
+    public List<Location> getLocations() {
+        return locations;
     }
 
-    public boolean hasFeatures() {
-        if (features.isEmpty()) {
-            return false;
-        }
-
-        int notHiddenCount = 0;
-        for (MapFeature feature : features) {
-            if (feature instanceof HiddenMapFeature) {
-                continue;
-            }
-
-            notHiddenCount++;
-        }
-
-        return notHiddenCount > 0;
+    public List<MapFeature> getFeatures() {
+        return features;
     }
 
     public GameMap addFeature(MapFeature feature) {
@@ -182,30 +167,26 @@ public class GameMap implements GameElement, PlayerElement, EntityElement {
         return this;
     }
 
+    public GameMap addHordeLocation(double x, double y, double z) {
+        hordeSpawnLocations.add(new Location(Bukkit.getWorlds().get(0), x + 0.5d, y, z + 0.5d));
+        return this;
+    }
+
     public GameMap addLocation(double x, double y, double z) {
         return addLocation(x, y, z, 0.0f, 0.0f);
     }
 
-    public GameMap addLocation(double x, double y, double z, float yaw, float pitch) {
-        return addLocation(createLocation(x, y, z, yaw, pitch));
-    }
-
-    public <T extends GameMap> GameMap addLocation(double x, double y, double z, float yaw, float pitch, Predicate<T> predicate) {
-        this.locations.add(new PredicateLocation<>(createLocation(x, y, z, yaw, pitch), predicate));
-        return this;
-    }
-
-    public <T extends GameMap> GameMap addLocation(double x, double y, double z, Predicate<T> predicate) {
-        return addLocation(x, y, z, 0.0f, 0.0f, predicate);
+    public GameMap addLocation(double x, double y, double z, float a, float b) {
+        return addLocation(new Location(Bukkit.getWorlds().get(0), x + 0.5d, y, z + 0.5d, a, b));
     }
 
     public GameMap addLocation(Location location) {
-        this.locations.add(new PredicateLocation<>(location));
+        this.locations.add(location);
         return this;
     }
 
-    public GameMap addLocation(Location location, Predicate<GameMap> predicate) {
-        this.locations.add(new PredicateLocation<>(location, predicate));
+    public GameMap addLocation(Collection<Location> location) {
+        this.locations.addAll(location);
         return this;
     }
 
@@ -223,15 +204,13 @@ public class GameMap implements GameElement, PlayerElement, EntityElement {
     }
 
     /**
-     * Returns a random location.
+     * Returns first or random location.
      *
-     * @return a random location.
+     * @return first or random location.
      */
-    @SuppressWarnings("unchecked")
-    @Nonnull
-    public final Location getLocation() {
+    public Location getLocation() {
         // FIXME (hapyl): 005, Apr 5, 2023: Hardcoding for now, because don't want to rework the whole system for a joke
-        if (StaticServerEvent.isAprilFools()) {
+        if (ServerEvent.isAprilFools()) {
             if (name.equalsIgnoreCase("arena")) {
                 return GameMaps.ARENA_APRIL_FOOLS.getMap().getLocation();
             }
@@ -240,31 +219,7 @@ public class GameMap implements GameElement, PlayerElement, EntityElement {
             }
         }
 
-        int tries = 0;
-        while (tries++ < Byte.MAX_VALUE) {
-            final PredicateLocation<GameMap> predicateLocation = CollectionUtils.randomElement(locations, locations.get(0));
-
-            if (predicateLocation.predicate(this)) {
-                return predicateLocation.getLocation();
-            }
-        }
-
-        return BukkitUtils.defLocation(0, 0, 0);
-    }
-
-    @Nonnull
-    public World getWorld() {
-        final PredicateLocation<?> location = locations.get(0);
-        final World world = location.getLocation().getWorld();
-
-        if (world == null) {
-            throw new IllegalStateException("perhaps loading the world would help");
-        }
-
-        return world;
-    }
-
-    public void onStartOnce() {
+        return CollectionUtils.randomElement(locations, locations.get(0));
     }
 
     @Override
@@ -279,9 +234,7 @@ public class GameMap implements GameElement, PlayerElement, EntityElement {
 
         gamePacks.values().forEach(GamePack::onStart);
 
-        onStartOnce();
-
-        // Features \/
+        // Feature \/
         if (features.isEmpty()) {
             return;
         }
@@ -315,7 +268,7 @@ public class GameMap implements GameElement, PlayerElement, EntityElement {
 
     public GameMap addPackLocation(PackType type, double x, double y, double z) {
         if (!gamePacks.containsKey(type)) {
-            throw new IllegalStateException("game pack %s not initiated?".formatted(type.name()));
+            throw new IllegalStateException("game pack %s no initiated?".formatted(type.name()));
         }
 
         gamePacks.get(type).addLocation(BukkitUtils.defLocation(x, y, z));
@@ -324,21 +277,5 @@ public class GameMap implements GameElement, PlayerElement, EntityElement {
 
     public Collection<GamePack> getGamePacks() {
         return gamePacks.values();
-    }
-
-    @Nullable
-    @Override
-    public DamageOutput onDamageTaken(@Nonnull DamageInput input) {
-        return null;
-    }
-
-    @Nullable
-    @Override
-    public DamageOutput onDamageDealt(@Nonnull DamageInput input) {
-        return null;
-    }
-
-    private Location createLocation(double x, double y, double z, float yaw, float pitch) {
-        return new Location(Bukkit.getWorlds().get(0), Math.floor(x) + 0.5d, y, Math.floor(z) + 0.5d, yaw, pitch);
     }
 }

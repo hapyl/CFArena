@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.stats;
 
 import com.google.common.collect.Maps;
-import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.util.NonNullableElementHolder;
 import org.bukkit.entity.Player;

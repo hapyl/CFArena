@@ -1,14 +1,13 @@
 package me.hapyl.fight.game;
 
-import me.hapyl.fight.CF;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import me.hapyl.fight.database.Award;
-import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.cosmetic.WinCosmetic;
-import me.hapyl.fight.game.cosmetic.crate.Crates;
-import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -17,7 +16,6 @@ import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.report.GameReport;
 import me.hapyl.fight.game.setting.Setting;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Bukkit;
@@ -27,35 +25,32 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
-import java.util.Set;
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.function.Predicate;
 
-public class GameInstance extends TickingGameTask implements IGameInstance, GameElement {
+public class GameInstance implements IGameInstance, GameElement {
 
     private final Cosmetics DEFAULT_WIN_COSMETIC = Cosmetics.FIREWORKS;
 
     private final String hexCode;
+
     private final long startedAt;
-    //private final Map<UUID, GamePlayer> players;
-    //private final Map<LivingEntity, EntityData> entityData;
+    private final Map<UUID, GamePlayer> players;
     private final GameMaps currentMap;
-    private final CFGameMode mode;
+    private final GameTask gameTask;
+    private final Modes mode;
     private final GameReport gameReport;
     private final GameResult gameResult;
-
-    private long timeLimitInTicks;
+    private long timeLimit;
     private State gameState;
     private Set<Heroes> activeHeroes;
 
-    public GameInstance(@Nonnull CFGameMode mode, @Nonnull GameMaps map) {
+    public GameInstance(Modes mode, GameMaps map) {
         this.startedAt = System.currentTimeMillis();
         this.mode = mode;
-
-        final int modeLimit = mode.getTimeLimit();
-        this.timeLimitInTicks = modeLimit == -1 ? modeLimit : modeLimit * 20L;
-
+        this.timeLimit = mode.getMode().getTimeLimit() * 1000L;
+        this.players = Maps.newHashMap();
         this.createGamePlayers();
 
         this.gameResult = new GameResult(this);
@@ -65,15 +60,11 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
         this.currentMap = map;
 
         // This is a main ticker of the game.
-        runTaskTimer(0, 1);
+        this.gameTask = startTask();
     }
 
-    public GameInstance(@Nonnull Modes mode, @Nonnull GameMaps map) {
-        this(mode.getMode(), map);
-    }
-
-    public void increaseTimeLimit(int increase) {
-        this.timeLimitInTicks += increase;
+    public void increaseTimeLimit(long limit) {
+        this.timeLimit += limit;
     }
 
     @Nonnull
@@ -130,7 +121,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
         }
 
         final int delay = winCosmetic.getDelay();
-        winCosmetic.onDisplay0(new Display(winner, location));
+        winCosmetic.onDisplay(new Display(winner, location));
 
         final Location finalLocation = location;
         GameTask.runLater(() -> {
@@ -139,13 +130,9 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
         }, delay);
     }
 
-    public long getTimeLimitMillis() {
-        return timeLimitInTicks == -1 ? -1 : timeLimitInTicks * 50L;
-    }
-
     @Override
     public long getTimeLeftRaw() {
-        return (getTimeLimitMillis() - (System.currentTimeMillis() - startedAt));
+        return (timeLimit - (System.currentTimeMillis() - startedAt));
     }
 
     @Override
@@ -154,12 +141,112 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
     }
 
     public void setTimeLeft(long timeLeft) {
-        this.timeLimitInTicks = timeLeft;
+        this.timeLimit = timeLeft;
     }
 
     @Override
     public boolean isTimeIsUp() {
-        return System.currentTimeMillis() >= startedAt + getTimeLimitMillis();
+        return System.currentTimeMillis() >= startedAt + timeLimit;
+    }
+
+    @Override
+    @Nullable
+    public GamePlayer getPlayer(Player player) {
+        return getPlayer(player.getUniqueId());
+    }
+
+    @Override
+    @Nullable
+    public GamePlayer getPlayer(UUID uuid) {
+        return players.get(uuid);
+    }
+
+    @Nonnull
+    @Override
+    public Map<UUID, GamePlayer> getPlayers() {
+        return players;
+    }
+
+    @Nonnull
+    @Override
+    public Collection<GamePlayer> getAllPlayers() {
+        return players.values();
+    }
+
+    @Nonnull
+    @Override
+    public List<GamePlayer> getAlivePlayers(Heroes heroes) {
+        return getAlivePlayers(gp -> gp.getHero() == heroes.getHero());
+    }
+
+    @Nonnull
+    @Override
+    public List<GamePlayer> getAlivePlayers() {
+        return getAlivePlayers(gp -> gp.getPlayer().isOnline());
+    }
+
+    @Nonnull
+    @Override
+    public List<GamePlayer> getAlivePlayers(Predicate<GamePlayer> predicate) {
+        final List<GamePlayer> players = new ArrayList<>();
+        this.players.forEach((uuid, gp) -> {
+            if (gp.isAlive() && predicate.test(gp)) {
+                players.add(gp);
+            }
+        });
+        return players;
+    }
+
+    @Nonnull
+    @Override
+    public List<Player> getAlivePlayersAsPlayers() {
+        final List<Player> list = Lists.newArrayList();
+        getAlivePlayers().forEach(player -> list.add(player.getPlayer()));
+        return list;
+    }
+
+    @Nonnull
+    @Override
+    public List<Player> getAlivePlayersAsPlayers(Predicate<GamePlayer> predicate) {
+        final List<GamePlayer> players = getAlivePlayers(predicate);
+        final List<Player> list = Lists.newArrayList();
+        for (GamePlayer player : players) {
+            list.add(player.getPlayer());
+        }
+        return list;
+    }
+
+    @Nonnull
+    @Override
+    public Set<Heroes> getActiveHeroes() {
+        if (activeHeroes == null) {
+            activeHeroes = Sets.newHashSet();
+
+            for (GamePlayer value : getPlayers().values()) {
+                activeHeroes.add(value.getEnumHero());
+            }
+        }
+
+        return activeHeroes;
+    }
+
+    @Nonnull
+    public GamePlayer getOrCreateGamePlayer(Player player) {
+        GamePlayer gamePlayer = getPlayer(player);
+
+        // If player joined after the game started, create new
+        if (gamePlayer == null) {
+            gamePlayer = new GamePlayer(PlayerProfile.getOrCreateProfile(player), getHero(player));
+            players.put(player.getUniqueId(), gamePlayer);
+        }
+
+        // If player re-joined, change their handle and update it
+        if (!gamePlayer.compare(player)) {
+            gamePlayer.setHandle(player);
+            gamePlayer.updateScoreboard(false);
+        }
+
+        return gamePlayer;
     }
 
     @Override
@@ -176,6 +263,12 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
     @Nonnull
     @Override
     public CFGameMode getMode() {
+        return mode.getMode();
+    }
+
+    @Nonnull
+    @Override
+    public Modes getCurrentMode() {
         return mode;
     }
 
@@ -186,23 +279,12 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
 
     @Override
     public void onStart() {
+        //Chat.broadcast("&7&oStarting game instance #%s...", this.hexCode());
     }
 
     @Override
     public void onStop() {
-        // Generate crates
-        if (Manager.current().isDebug()) {
-            //return;
-        }
-
-        // Give crates to players
-        CF.getPlayers().forEach(player -> {
-            if (player.isSpectator()) {
-                return;
-            }
-
-            Crates.grant(player, Crates.randomCrate());
-        });
+        //Chat.broadcast("&7&oStopping game instance #%s...".formatted(this.hexCode()));
     }
 
     @Nonnull
@@ -217,6 +299,11 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
     }
 
     @Override
+    public GameTask getGameTask() {
+        return gameTask;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -224,14 +311,13 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         final GameInstance that = (GameInstance) o;
-        return Objects.equals(hexCode, that.hexCode);
+        return startedAt == that.startedAt && timeLimit == that.timeLimit && Objects.equals(players, that.players);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(hexCode);
+        return Objects.hash(startedAt, timeLimit, players);
     }
 
     public long getStartedAt() {
@@ -240,10 +326,8 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
 
     @Nonnull
     public Location getRandomPlayerLocationOrMapLocationIfThereAreNoPlayers() {
-        final Set<GamePlayer> players = CF.getPlayers();
-
         if (players.size() != 0) {
-            for (GamePlayer value : players) {
+            for (GamePlayer value : players.values()) {
                 return value.getPlayer().getLocation();
             }
         }
@@ -252,66 +336,16 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
     }
 
     public void populateScoreboard(Player player) {
-        CF.getPlayers().forEach(gamePlayer -> {
+        players.values().forEach(gamePlayer -> {
             gamePlayer.getProfile().getScoreboardTeams().populateInGame(player);
         });
     }
 
-    @Override
-    public void run(final int tick) {
-        mode.tick(this, tick);
-
-        final List<GamePlayer> alivePlayers = CF.getAlivePlayers();
-
-        if (Manager.current().isDebug()) {
-            alivePlayers.forEach(player -> {
-                player.setUltPoints(player.getUltPointsNeeded());
-            });
-            return;
-        }
-
-        // AFK detection
-        alivePlayers.forEach(player -> {
-            if (player.hasMovedInLast(15000)) { // 15s afk detection
-                return;
-            }
-
-            player.addPotionEffect(PotionEffectType.GLOWING, 20, 1);
-            player.sendTitle("&c&lYOU'RE AFK", "&aMove to return from afk!", 0, 10, 0);
-            if (tick % 10 == 0) {
-                player.playSound(Sound.BLOCK_NOTE_BLOCK_HAT, 1.0f);
-            }
-
-            Achievements.AFK.complete(player);
-        });
-
-        if (timeLimitInTicks == -1) {
-            return;
-        }
-
-        // Auto-Points
-        if (tick % 20 == 0) {
-            alivePlayers.forEach(player -> {
-                player.addUltimatePoints(1);
-            });
-        }
-
-        // Award coins for minute played
-        if (tick % 1200 == 0 && tick >= 60 * 50) {
-            alivePlayers.forEach(Award.MINUTE_PLAYED::award);
-        }
-
-        if (tick >= timeLimitInTicks) {
-            Chat.broadcast("&a&lTime is Up! &aGame Over.");
-            Manager.current().stopCurrentGame();
-            cancel();
-        }
-    }
-
     private void createGamePlayers() {
         Bukkit.getOnlinePlayers().forEach(player -> {
+            final Heroes hero = getHero(player);
             final PlayerProfile profile = PlayerProfile.getOrCreateProfile(player);
-            final GamePlayer gamePlayer = CF.getOrCreatePlayer(player);
+            final GamePlayer gamePlayer = new GamePlayer(profile, hero);
 
             // Spectate Setting
             if (Setting.SPECTATE.isEnabled(player)) {
@@ -319,8 +353,6 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
             }
             else {
                 if (Setting.RANDOM_HERO.isEnabled(player)) {
-                    profile.setSelectedHero(Heroes.randomHero());
-
                     gamePlayer.sendMessage("");
                     gamePlayer.sendMessage(
                             "&a&l%s &awas randomly selected as your hero!",
@@ -332,12 +364,8 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
                 gamePlayer.resetPlayer();
             }
 
-            if (Setting.HIDE_UI.isEnabled(player)) {
-                gamePlayer.sendMessage("&6Your UI is hidden!");
-                gamePlayer.sendMessage("&6Use &e/settings &76 to turn enable the UI!");
-            }
-
-            gamePlayer.updateScoreboardTeams(false);
+            gamePlayer.updateScoreboard(false);
+            players.put(player.getUniqueId(), gamePlayer);
         });
     }
 
@@ -349,4 +377,56 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
         return Integer.toHexString(new Random().nextInt());
     }
 
+    private GameTask startTask() {
+        return new GameTask() {
+            private int tick = (int) (timeLimit / 50);
+
+            @Override
+            public void run() {
+                if (Manager.current().isDebug()) {
+                    getAlivePlayers().forEach(player -> {
+                        player.setUltPoints(player.getUltPointsNeeded());
+                    });
+
+                    return;
+                }
+
+                // AFK detection
+                getAlivePlayers().forEach(player -> {
+                    if (player.hasMovedInLast(15000)) { // 15s afk detection
+                        return;
+                    }
+
+                    player.addPotionEffect(PotionEffectType.GLOWING, 20, 1);
+                    player.sendTitle("&c&lYOU'RE AFK", "&aMove to return from afk!", 0, 10, 0);
+                    if (tick % 10 == 0) {
+                        player.playSound(Sound.BLOCK_NOTE_BLOCK_HAT, 1.0f);
+                    }
+
+                });
+
+                // Auto-Points
+                if (tick % 20 == 0) {
+                    getAlivePlayers().forEach(player -> {
+                        player.addUltimatePoints(1);
+                    });
+                }
+
+                // Award coins for minute played
+                if (tick % 1200 == 0 && tick < (timeLimit / 50)) {
+                    getAlivePlayers().forEach(Award.MINUTE_PLAYED::award);
+                }
+
+                // Game UI -> Moved to GamePlayerUI
+
+                if (tick < 0) {
+                    Chat.broadcast("&a&lTime is Up! &aGame Over.");
+                    Manager.current().stopCurrentGame();
+                    this.cancel();
+                }
+
+                --tick;
+            }
+        }.runTaskTimer(0, 1);
+    }
 }

@@ -11,25 +11,16 @@ import java.util.Random;
 /**
  * A damage indicator.
  */
-@Deprecated
 public class DamageIndicator {
 
     private final Hologram hologram;
     private final Location location;
 
-    public DamageIndicator(Location location, double damage, boolean isCrit) {
+    public DamageIndicator(Location location, double damage) {
         this.location = location;
 
-        final String damageString = BukkitUtils.decimalFormat(damage);
-
         hologram = new Hologram();
-
-        if (isCrit) {
-            hologram.addLine("&e&l" + damageString + "&c&l✷");
-        }
-        else {
-            hologram.addLine("&a&l" + damageString);
-        }
+        hologram.addLine("&a&l" + BukkitUtils.decimalFormat(damage));
     }
 
     public void setExtra(Collection<String> extra) {

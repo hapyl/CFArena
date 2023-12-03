@@ -2,29 +2,25 @@ package me.hapyl.fight.game.heroes;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import me.hapyl.fight.CF;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.event.DamageInput;
+import me.hapyl.fight.event.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.PlayerElement;
-import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.entity.GameEntity;
-import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.archive.ender.Ender;
-import me.hapyl.fight.game.heroes.archive.moonwalker.Moonwalker;
-import me.hapyl.fight.game.playerskin.PlayerSkin;
+import me.hapyl.fight.game.heroes.storage.Ender;
+import me.hapyl.fight.game.heroes.storage.Moonwalker;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.SmallCaps;
 import me.hapyl.spigotutils.module.annotate.Super;
+import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Material;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.inventory.ItemStack;
@@ -33,33 +29,31 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 /**
  * Base Hero class.
- * <p>
- * A hero <b>must</b> contains {@link #getFirstTalent()}, {@link #getSecondTalent()} and {@link #getPassiveTalent()},
- * but may or may not have up to 3 extra talents if needed.
  *
  * @see GameElement
  * @see PlayerElement
+ * @see ComplexHero
  */
 public abstract class Hero implements GameElement, PlayerElement {
 
-    private final HeroAttributes attributes;
-    private final Equipment equipment;
+    private final HeroEquipment equipment;
     private final String name;
-    private final Map<Player, Long> usedUltimateAt;
-    private final Map<Player, GameTask> reverseTasks;
-    private final CachedHeroItem cachedHeroItem;
+
     private Origin origin;
-    private Archetype archetype;
+    private Role role;
     private String description;
     private ItemStack guiTexture;
     private Weapon weapon;
+
+    private final Map<Player, Long> usedUltimateAt;
+    private final Map<Player, GameTask> reverseTasks;
+
     private long minimumLevel;
+
     private UltimateTalent ultimate;
-    private PlayerSkin skin;
 
     @Super
     public Hero(String name) {
@@ -69,41 +63,22 @@ public abstract class Hero implements GameElement, PlayerElement {
         this.weapon = new Weapon(Material.WOODEN_SWORD);
         this.usedUltimateAt = Maps.newHashMap();
         this.reverseTasks = Maps.newConcurrentMap();
-        this.equipment = new Equipment();
-        this.attributes = new HeroAttributes(this);
+        this.equipment = new HeroEquipment();
         this.origin = Origin.NOT_SET;
-        this.archetype = Archetype.NOT_SET;
+        this.role = Role.NONE;
         this.minimumLevel = 0;
         this.ultimate = new UltimateTalent("Unknown Ultimate", "This hero's ultimate talent is not yet implemented!", Integer.MAX_VALUE);
-        this.cachedHeroItem = new CachedHeroItem(this);
-        this.skin = null;
-
-        setItem("null"); // default to null because I don't like exceptions
     }
 
     public Hero(String name, String lore) {
         this(name);
-        this.setDescription(lore);
+        this.setInfo(lore);
     }
 
     public Hero(String name, String lore, Material material) {
         this(name);
-        setDescription(lore);
+        setInfo(lore);
         setItem(material);
-    }
-
-    public void setSkin(@Nullable PlayerSkin skin) {
-        this.skin = skin;
-    }
-
-    @Nullable
-    public PlayerSkin getSkin() {
-        return skin;
-    }
-
-    @Nonnull
-    public CachedHeroItem getCachedHeroItem() {
-        return cachedHeroItem;
     }
 
     /**
@@ -124,41 +99,22 @@ public abstract class Hero implements GameElement, PlayerElement {
         this.minimumLevel = minimumLevel;
     }
 
-    @Nonnull
-    public Archetype getArchetype() {
-        return archetype;
-    }
-
-    public void setArchetype(@Nonnull Archetype archetype) {
-        this.archetype = archetype;
+    /**
+     * Sets this hero role.
+     *
+     * @param role - New role.
+     */
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     /**
-     * Returns the origin of this hero.
+     * Returns this hero's role.
      *
-     * @return the origin of this hero.
+     * @return this hero's role.
      */
-    public Origin getOrigin() {
-        return origin;
-    }
-
-    /**
-     * Sets the origin for this hero.
-     *
-     * @param origin - New origin.
-     */
-    public void setOrigin(Origin origin) {
-        this.origin = origin;
-    }
-
-    /**
-     * Gets hero's attributes.
-     *
-     * @return hero attributes.
-     */
-    @Nonnull
-    public HeroAttributes getAttributes() {
-        return attributes;
+    public Role getRole() {
+        return role;
     }
 
     /**
@@ -166,18 +122,8 @@ public abstract class Hero implements GameElement, PlayerElement {
      *
      * @return this hero's weapon.
      */
-    @Nonnull
-    public Equipment getEquipment() {
+    public HeroEquipment getEquipment() {
         return equipment;
-    }
-
-    /**
-     * Returns this hero's ultimate duration.
-     *
-     * @return this hero's ultimate duration.
-     */
-    public int getUltimateDuration() {
-        return ultimate.getDuration();
     }
 
     /**
@@ -190,12 +136,30 @@ public abstract class Hero implements GameElement, PlayerElement {
     }
 
     /**
+     * Returns this hero's ultimate duration.
+     *
+     * @return this hero's ultimate duration.
+     */
+    public int getUltimateDuration() {
+        return ultimate.getDuration();
+    }
+
+    /**
      * Returns this hero's ultimate duration formatted to string.
      *
      * @return this hero's ultimate duration formatted to string.
      */
     public String getUltimateDurationString() {
         return BukkitUtils.roundTick(getUltimateDuration());
+    }
+
+    /**
+     * Sets this hero's weapon.
+     *
+     * @param ultimate - New weapon.
+     */
+    protected void setUltimate(UltimateTalent ultimate) {
+        this.ultimate = ultimate;
     }
 
     /**
@@ -263,6 +227,16 @@ public abstract class Hero implements GameElement, PlayerElement {
         );
     }
 
+    private void cancelOldReverseTask(Player player) {
+        final GameTask oldTask = reverseTasks.get(player);
+
+        if (oldTask != null && !oldTask.isCancelled()) {
+            oldTask.cancel();
+        }
+
+        reverseTasks.remove(player);
+    }
+
     /**
      * Returns true if player is currently using their ultimate.
      *
@@ -274,11 +248,10 @@ public abstract class Hero implements GameElement, PlayerElement {
     }
 
     /**
-     * Returns the name of this hero.
+     * Returns name of this hero.
      *
      * @return name of this hero.
      */
-    @Nonnull
     public String getName() {
         return name;
     }
@@ -288,7 +261,6 @@ public abstract class Hero implements GameElement, PlayerElement {
      *
      * @return description of this hero.
      */
-    @Nonnull
     public String getDescription() {
         return description;
     }
@@ -298,7 +270,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      *
      * @param about - New description.
      */
-    public void setDescription(String about) {
+    public void setInfo(String about) {
         this.description = about;
     }
 
@@ -333,7 +305,7 @@ public abstract class Hero implements GameElement, PlayerElement {
 
     /**
      * Sets this hero's GUI item from a texture link.
-     * <p>
+     *
      * <b>
      * This link must be 'Minecraft-URL' from <a href="https://minecraft-heads.com/custom-heads">here</a>.
      * <br>
@@ -348,40 +320,22 @@ public abstract class Hero implements GameElement, PlayerElement {
     }
 
     /**
-     * Called whenever a player presses the ultimate, no matter if it's ready or not.
-     */
-    public void onUltimate(Player player, UltimateStatus status) {
-    }
-
-    /**
      * Unleashes this hero's ultimate.
-     * If ultimate has castDuration, the ultimate will be delayed with that duration.
      */
     public abstract void useUltimate(Player player);
 
     /**
-     * Called whenever player casts an ultimate.
-     * No matter the castDuration of the ultimate, this is instant cast.
+     * Returns this hero first talent.
      *
-     * @param player - Player, who cast ultimate.
-     */
-    @Nullable
-    public UltimateCallback castUltimate(Player player) {
-        return null;
-    }
-
-    /**
-     * Returns this hero a talent.
-     *
-     * @return this hero a talent.
+     * @return this hero first talent.
      */
     @ReturnValueMustBeAConstant
     public abstract Talent getFirstTalent();
 
     /**
-     * Returns this hero b talent.
+     * Returns this hero second talent.
      *
-     * @return this hero b talent.
+     * @return this hero second talent.
      */
     @ReturnValueMustBeAConstant
     public abstract Talent getSecondTalent();
@@ -393,21 +347,6 @@ public abstract class Hero implements GameElement, PlayerElement {
      */
     @ReturnValueMustBeAConstant
     public abstract Talent getPassiveTalent();
-
-    @ReturnValueMustBeAConstant
-    public Talent getThirdTalent() {
-        return null;
-    }
-
-    @ReturnValueMustBeAConstant
-    public Talent getFourthTalent() {
-        return null;
-    }
-
-    @ReturnValueMustBeAConstant
-    public Talent getFifthTalent() {
-        return null;
-    }
 
     /**
      * Called when player DAMAGES something.
@@ -426,10 +365,6 @@ public abstract class Hero implements GameElement, PlayerElement {
      *      return DamageOutput.CANCEL;
      * </pre>
      * </blockquote>
-     *
-     * <b>
-     * Keep in mind the player who damaged is a damager in the input, not the entity!
-     * </b>
      *
      * @param input - Initial damage input.
      * @return new damage output, or null to skip.
@@ -495,13 +430,13 @@ public abstract class Hero implements GameElement, PlayerElement {
     /**
      * Called whenever invisible player dealt damage.
      *
-     * @param player - Player, who dealt damage. Always invisible.
+     * @param player - Player who dealt damage. Always invisible.
      * @param entity - Entity that took damage.
      * @param damage - Damage dealt.
      * @return true to cancel damage, false to allow.
      */
-    public boolean processInvisibilityDamage(GamePlayer player, LivingGameEntity entity, double damage) {
-        player.sendMessage("&cCannot deal damage while invisible!");
+    public boolean processInvisibilityDamage(Player player, LivingEntity entity, double damage) {
+        Chat.sendMessage(player, "&cCannot deal damage while invisible!");
         return true;
     }
 
@@ -521,7 +456,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      * @param killer - Killer.
      * @param cause  - Cause.
      */
-    public void onDeathGlobal(@Nonnull GamePlayer player, @Nullable GameEntity killer, @Nullable EnumDamageCause cause) {
+    public void onDeathGlobal(@Nonnull Player player, @Nullable LivingEntity killer, @Nullable EnumDamageCause cause) {
     }
 
     /**
@@ -532,7 +467,7 @@ public abstract class Hero implements GameElement, PlayerElement {
     }
 
     /**
-     * @see GameElement#onStop()
+     * @see GameElement#onStop() ()
      */
     @Override
     public void onStop() {
@@ -547,10 +482,10 @@ public abstract class Hero implements GameElement, PlayerElement {
     }
 
     /**
-     * Predicate for ultimate. Return true if a player is able to use their ultimate, false otherwise.
+     * Predicate for ultimate. Return true if player is able to use their ultimate, false otherwise.
      *
-     * @param player - Player, who is trying to use ultimate.
-     * @return true if a player is able to use their ultimate, false otherwise.
+     * @param player - Player who is trying to use ultimate.
+     * @return true if player is able to use their ultimate, false otherwise.
      * @see Ender#predicateUltimate(Player)
      * @see Moonwalker#predicateUltimate(Player)
      */
@@ -586,36 +521,6 @@ public abstract class Hero implements GameElement, PlayerElement {
         return this.ultimate;
     }
 
-    public final void useUltimate0(Player player) {
-        final int castDuration = ultimate.getCastDuration();
-        final UltimateCallback callback = castUltimate(player);
-
-        new GameTask() {
-            @Override
-            public void run() {
-                if (callback != null) { // execute call before using the ultimate
-                    callback.callback(player);
-                }
-
-                useUltimate(player);
-            }
-        }.runTaskLater(Math.max(castDuration, 0));
-    }
-
-    /**
-     * Sets this hero's weapon.
-     *
-     * @param ultimate - New weapon.
-     */
-    protected void setUltimate(UltimateTalent ultimate) {
-        this.ultimate = ultimate;
-    }
-
-    protected void setUltimate(UltimateTalent ultimate, Consumer<UltimateTalent> andThen) {
-        setUltimate(ultimate);
-        andThen.accept(ultimate);
-    }
-
     /**
      * Sets this hero weapon.
      *
@@ -640,15 +545,6 @@ public abstract class Hero implements GameElement, PlayerElement {
     }
 
     /**
-     * Returns this hero weapon.
-     *
-     * @return this hero weapon.
-     */
-    public Weapon getWeapon() {
-        return weapon;
-    }
-
-    /**
      * Sets this hero weapon.
      *
      * @param weapon - Weapon.
@@ -658,51 +554,36 @@ public abstract class Hero implements GameElement, PlayerElement {
     }
 
     /**
-     * Gets all players that are using this hero.
+     * Returns this hero weapon.
      *
-     * @return list of player using this hero.
+     * @return this hero weapon.
      */
-    @Nonnull
-    public List<GamePlayer> getPlayers() {
-        return CF.getAlivePlayers(predicate -> predicate.getHero() == this);
+    public Weapon getWeapon() {
+        return weapon;
     }
 
-    /**
-     * Gets all players that are using this hero who is alive.
-     *
-     * @return list of living player using this hero.
-     */
-    @Nonnull
-    public List<GamePlayer> getAlivePlayers() {
-        final List<GamePlayer> players = getPlayers();
-        players.removeIf(player -> !player.isAlive());
-
-        return players;
-    }
+    // Utilities for checks etc.
 
     /**
      * Returns true if there is a game in progress and player is in game, and player's selected hero is the same as the one provided.
      *
      * @param player - Player.
-     * @return true, if there is a game in progress and player is in game, and player's selected hero is the same as the one provided.
+     * @return true if there is a game in progress and player is in game, and player's selected hero is the same as the one provided.
      */
     public final boolean validatePlayer(Player player) {
         final Manager current = Manager.current();
         return validPlayerInGame(player) && current.getCurrentHero(player) == this;
     }
 
-    // Utilities for checks, etc.
-
-    @Nullable
-    public Talent getTalent(int slot) {
-        return switch (slot) {
-            case 1 -> getFirstTalent();
-            case 2 -> getSecondTalent();
-            case 3 -> getThirdTalent();
-            case 4 -> getFourthTalent();
-            case 5 -> getFifthTalent();
-            default -> null;
-        };
+    /**
+     * Returns true if there is a game in progress and player is in game.
+     *
+     * @param player - Player.
+     * @return true if there is a game in progress and player is in game.
+     */
+    private boolean validPlayerInGame(Player player) {
+        final Manager current = Manager.current();
+        return current.isGameInProgress() && current.isPlayerInGame(player);
     }
 
     /**
@@ -717,10 +598,11 @@ public abstract class Hero implements GameElement, PlayerElement {
         talents.add(getSecondTalent());
         talents.add(getPassiveTalent());
 
-        // extra talents
-        talents.add(getThirdTalent());
-        talents.add(getFourthTalent());
-        talents.add(getFifthTalent());
+        if (this instanceof ComplexHero complex) {
+            talents.add(complex.getThirdTalent());
+            talents.add(complex.getFourthTalent());
+            talents.add(complex.getFifthTalent());
+        }
 
         return talents;
     }
@@ -743,10 +625,11 @@ public abstract class Hero implements GameElement, PlayerElement {
         talents.add(getFirstTalent());
         talents.add(getSecondTalent());
 
-        // Extra talents
-        talents.add(getThirdTalent());
-        talents.add(getFourthTalent());
-        talents.add(getFifthTalent());
+        if (this instanceof ComplexHero complex) {
+            talents.add(complex.getThirdTalent());
+            talents.add(complex.getFourthTalent());
+            talents.add(complex.getFifthTalent());
+        }
 
         talents.add(getPassiveTalent());
 
@@ -763,37 +646,4 @@ public abstract class Hero implements GameElement, PlayerElement {
         return SmallCaps.format(getName());
     }
 
-    @Override
-    public String toString() {
-        if (this instanceof HeroPlaque plaque) {
-            final long until = plaque.until();
-
-            if (until == -1L || System.currentTimeMillis() <= until) {
-                return "&a" + getName() + " " + plaque.text();
-            }
-        }
-
-        return "&a" + getName();
-    }
-
-    private void cancelOldReverseTask(Player player) {
-        final GameTask oldTask = reverseTasks.get(player);
-
-        if (oldTask != null && !oldTask.isCancelled()) {
-            oldTask.cancel();
-        }
-
-        reverseTasks.remove(player);
-    }
-
-    /**
-     * Returns true if there is a game in progress and player is in game.
-     *
-     * @param player - Player.
-     * @return true, if there is a game in progress and player is in game.
-     */
-    private boolean validPlayerInGame(Player player) {
-        final Manager current = Manager.current();
-        return current.isGameInProgress() && current.isPlayerInGame(player);
-    }
 }

@@ -1,112 +1,132 @@
 package me.hapyl.fight.game.profile;
 
-import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.Main;
 import me.hapyl.fight.database.entry.CosmeticEntry;
-import me.hapyl.fight.database.entry.ExperienceEntry;
-import me.hapyl.fight.database.rank.RankFormatter;
-import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.color.Color;
+import me.hapyl.fight.game.GamePlayer;
+import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.PrefixCosmetic;
 import me.hapyl.fight.game.cosmetic.Type;
+import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.setting.Setting;
+import me.hapyl.fight.game.ui.UIFormat;
 import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import javax.annotation.Nonnull;
-
 public class ProfileDisplay {
-
-    private static final String FORMAT = "&b[{Level}] {Prefix}{Rank}{Name}";
 
     private final PlayerProfile profile;
     private final CosmeticEntry cosmetics;
+    private String customName;
 
-    private final Player player;
-    private final long level;
-    private final String customName;
-    private final String prefix;
-    private final RankFormatter rank;
-
-    public ProfileDisplay(@Nonnull PlayerProfile profile) {
+    public ProfileDisplay(PlayerProfile profile) {
         this.profile = profile;
-        this.player = profile.getPlayer();
-        this.customName = player.getDisplayName();
-
-        final PlayerDatabase database = profile.getDatabase();
-        this.cosmetics = database.getCosmetics();
-        this.level = database.getExperienceEntry().get(ExperienceEntry.Type.LEVEL);
-        this.rank = database.getRank().getFormat();
-        this.prefix = getPrefix();
+        this.customName = profile.getPlayer().getName();
+        this.cosmetics = profile.getDatabase().getCosmetics();
     }
 
-    @Override
-    public String toString() {
+    public String getDisplayName() {
         final StringBuilder builder = new StringBuilder();
+        final Player player = profile.getPlayer();
 
-        builder.append("&b[").append(level).append("&b] ");
-
+        // nullable player if game does not exist
         final GamePlayer gamePlayer = profile.getGamePlayer();
-
-        // If gamePlayer is not null, it means player in game (Or in trial)
         if (gamePlayer != null) {
             if (gamePlayer.isDead()) {
                 builder.append("&4☠☠☠ ");
             }
-            else if (gamePlayer.isSpectator()) {
-                builder.append(Color.SPECTATOR.bold()).append("🕶 ");
-            }
-            else {
-                builder.append(ChatColor.GOLD).append(profile.getHero().getNameSmallCaps()).append(" ");
+            if (gamePlayer.isSpectator()) {
+                builder.append("&7&lSpectator ");
             }
         }
 
+        // Append level
+        final long playerLevel = Main.getPlugin().getExperience().getLevel(player);
+        builder.append("&b[%s] ".formatted(playerLevel));
+
+        // Append hero
+        builder.append(ChatColor.GOLD).append(profile.getSelectedHero().getHero().getName()).append(" ");
+
         // Append prefix if present
+        final String prefix = getPrefix();
         if (!prefix.isEmpty()) {
             builder.append(prefix).append(" ");
         }
 
-        final String rankPrefix = rank.prefix();
+        // Change color to red if operator and append name
+        builder.append(player.isOp() ? ChatColor.RED : ChatColor.YELLOW);
+        builder.append(customName).append("&f: ");
 
-        if (!rankPrefix.isEmpty()) {
-            builder.append(rankPrefix).append(" ");
-        }
-
-        builder.append(rank.nameColor()).append(customName);
-
-        return Chat.format(builder);
+        return builder.toString();
     }
 
-    public String getDisplayName() {
-        return toString();
+    public String getPrefix() {
+        final Cosmetics cosmetic = cosmetics.getSelected(Type.PREFIX);
+        return cosmetic == null ? "" : ((PrefixCosmetic) cosmetic.getCosmetic()).getPrefix();
+    }
+
+    public String getPrefixPreview(PrefixCosmetic prefix) {
+        return "&6&l" + profile.getSelectedHero().getHero().getName() + " " + prefix.getPrefix() + " &e" + profile.getPlayer().getName();
     }
 
     public String getDisplayNameTab() {
-        return Chat.format("%s %s", this, formatPing());
+        final Player player = profile.getPlayer();
+        final StringBuilder builder = new StringBuilder();
+        final Heroes hero = Manager.current().getCurrentEnumHero(player);
+        final boolean isSpectator = Setting.SPECTATE.isEnabled(player);
+
+        // Append player level
+        final long playerLevel = Main.getPlugin().getExperience().getLevel(player);
+        builder.append("&b[%s]&f ".formatted(playerLevel));
+
+        builder.append(isSpectator ? "&7&o" : "&6&l");
+        builder.append(hero.getHero().getName()).append(" ");
+
+        final String prefix = getPrefix();
+        if (!prefix.isEmpty()) {
+            builder.append(prefix).append(" ");
+        }
+
+        builder.append(player.isOp() ? (isSpectator ? "&7🛡 " : "&c🛡 ") : isSpectator ? "" : "&e");
+        builder.append(player.getName());
+
+        // append players ping colored depending on their ping
+        builder.append(" ").append(formatPing());
+
+        final GamePlayer gamePlayer = profile.getGamePlayer();
+        if (gamePlayer != null && !gamePlayer.isAlive()) {
+            builder.append(UIFormat.DIV);
+
+            if (gamePlayer.isSpectator()) {
+                builder.append("&7&lSpectator");
+            }
+            else if (gamePlayer.isDead()) {
+                builder.append("&4☠☠☠");
+            }
+        }
+
+        return Chat.format(builder.toString());
     }
 
-    public String getPrefixPreview(@Nonnull PrefixCosmetic prefix) {
-        final RankFormatter format = profile.getRank().getFormat();
-
-        return prefix.getPrefix() + " " + format.prefix() + format.nameColor() + " " + profile.getPlayer().getName();
+    public String getCustomName() {
+        return customName;
     }
 
-    @Nonnull
-    private String getPrefix() {
-        final Cosmetics cosmetic = cosmetics.getSelected(Type.PREFIX);
-        return cosmetic == null ? "" : ((PrefixCosmetic) cosmetic.getCosmetic()).getPrefix();
+    public void setCustomName(String customName) {
+        this.customName = customName;
     }
 
     private String formatPing() {
         final int ping = profile.getPlayer().getPing();
 
-        if (ping <= 100) {
+        if (ping < 100) {
             return "&a" + ping + "ms";
         }
-        else if (ping <= 150) {
+        else if (ping < 150) {
             return "&e" + ping + "ms";
         }
-        else if (ping <= 200) {
+        else if (ping < 200) {
             return "&c" + ping + "ms";
         }
         else {

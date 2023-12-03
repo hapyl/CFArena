@@ -7,7 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Indicates that this method returns a certain value instead of null, which should be considered as null or empty value.
+ * Indicates that this method returns null value that is not null but still should be considered as it.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD, ElementType.PARAMETER })

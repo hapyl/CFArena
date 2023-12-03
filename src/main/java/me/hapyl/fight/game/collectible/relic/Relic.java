@@ -84,7 +84,7 @@ public class Relic {
         PlayerDatabase.getDatabase(player).collectibleEntry.addFound(this);
 
         // Fx
-        Chat.sendMessage(player, "&d&l%s RELIC &aYou have found a relic!", getType().getName());
+        Chat.sendMessage(player, "&d&l%s RELIC &aYou have found a relic!", getType().name().toUpperCase());
         PlayerLib.playSound(player, Sound.AMBIENT_CAVE, 2.0f);
     }
 

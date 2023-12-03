@@ -2,7 +2,7 @@ package me.hapyl.fight.game.gamemode.modes;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.team.GameTeam;
 import org.bukkit.Material;

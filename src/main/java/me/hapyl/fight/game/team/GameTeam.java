@@ -1,9 +1,7 @@
 package me.hapyl.fight.game.team;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.CF;
-import me.hapyl.fight.game.Debug;
-import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.GamePlayer;
 import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.util.SmallCaps;
@@ -80,7 +78,7 @@ public enum GameTeam {
     }
 
     /**
-     * Returns list with players from that are in the team; or an empty list is no players or no game instance.
+     * Returns PLAYER from current game instance that are in the team; or empty list is no players or no game instance.
      *
      * @return list of players in the team
      */
@@ -92,7 +90,7 @@ public enum GameTeam {
             return players;
         }
 
-        for (GamePlayer gamePlayer : CF.getPlayers()) {
+        for (GamePlayer gamePlayer : instance.getPlayers().values()) {
             if (members.contains(gamePlayer.getUUID())) {
                 players.add(gamePlayer);
             }
@@ -196,26 +194,10 @@ public enum GameTeam {
         return color + "&l" + getName().toUpperCase(Locale.ROOT).charAt(0);
     }
 
-    public boolean isEmpty() {
-        return members.isEmpty();
-    }
-
-    public List<String> listMembers() {
-        final List<String> list = Lists.newArrayList();
-
-        for (UUID member : members) {
-            list.add(member.toString());
-        }
-
-        return list;
-    }
-
-    // static members
-
     /**
-     * Returns team with the least number of players.
+     * Returns team with the least amount of players.
      *
-     * @return team with the least number of players.
+     * @return team with the least amount of players.
      * @throws IllegalArgumentException if all teams are full
      */
     @Nonnull
@@ -232,36 +214,17 @@ public enum GameTeam {
         }
 
         if (smallestTeam == null) {
-            throw new IllegalArgumentException("Couldn't find the smallest team.");
+            throw new IllegalArgumentException("Couldn't find smallest team.");
         }
         return smallestTeam;
     }
 
-    public static void removeOfflinePlayers() {
-        for (GameTeam team : values()) {
-            team.members.removeIf(uuid -> {
-                final boolean tempRemove = Bukkit.getPlayer(uuid) == null;
-
-                if (tempRemove) {
-                    Debug.info("removed %s from a team because they are no longer online", uuid);
-                }
-
-                return tempRemove;
-            });
-        }
-    }
-
-    /**
-     * Gets a list of teams where there is at least one player.
-     *
-     * @return list of populated teams.
-     */
     public static List<GameTeam> getPopulatedTeams() {
         final List<GameTeam> populatedTeams = Lists.newArrayList();
 
-        for (GameTeam team : values()) {
-            if (team.getPlayersAsPlayers().size() > 0) {
-                populatedTeams.add(team);
+        for (GameTeam value : values()) {
+            if (value.getPlayersAsPlayers().size() > 0) {
+                populatedTeams.add(value);
             }
         }
 
@@ -277,7 +240,7 @@ public enum GameTeam {
             return false;
         }
 
-        return isTeammate(CF.getPlayer(player), CF.getPlayer(otherPlayer));
+        return isTeammate(player, otherPlayer);
     }
 
     public static boolean isSelfOrTeammate(Player player, LivingEntity other) {
@@ -288,8 +251,8 @@ public enum GameTeam {
         return other instanceof Player otherPlayer && isTeammate(player, otherPlayer);
     }
 
-    public static boolean isTeammate(GamePlayer player, GamePlayer other) {
-        // Must consider self-check as NOT teammate.
+    public static boolean isTeammate(Player player, Player other) {
+        // Must consider self check as NOT teammate.
         if ((player == null || other == null) || (player == other)) {
             return false;
         }
@@ -300,6 +263,7 @@ public enum GameTeam {
         return (teamA != null && teamB != null) && (teamA == teamB);
     }
 
+    // static members
     @Nullable
     public static GameTeam getPlayerTeam(@Nullable GamePlayer player) {
         if (player == null) {
@@ -340,6 +304,12 @@ public enum GameTeam {
         return null;
     }
 
+    public static void clearAll() {
+        for (GameTeam value : values()) {
+            value.members.clear();
+        }
+    }
+
     public static String[] valuesStrings() {
         String[] strings = new String[values().length];
         for (int i = 0; i < values().length; i++) {
@@ -353,5 +323,4 @@ public enum GameTeam {
             getSmallestTeam().addMember(player);
         }
     }
-
 }
