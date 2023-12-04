@@ -435,4 +435,10 @@ public class GameEntity {
     public net.minecraft.world.entity.Entity getNMSEntity() {
         return Reflect.getMinecraftEntity(entity);
     }
+
+    public double dot(@Nonnull Location other) {
+        final Vector vector = other.subtract(getLocation()).toVector().normalize();
+
+        return getDirection().normalize().dot(vector);
+    }
 }

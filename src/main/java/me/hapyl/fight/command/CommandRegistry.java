@@ -6,13 +6,11 @@ import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Updates;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.GVar;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.build.NamedSignReader;
-import me.hapyl.fight.database.Database;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.fx.GiantItem;
@@ -410,13 +408,16 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             @Override
             protected void execute(Player player, String[] args) {
                 if (item == null) {
-                    item = new GiantItem(player.getTargetBlockExact(50).getLocation(), Material.GOLDEN_SWORD);
+                    item = new GiantItem(
+                            player.getLocation(),
+                            ItemBuilder.playerHeadUrl("d81fcffb53acbc7c00c53bc7121ca259371b5b76c001dc52139e1804c287e54").asIcon()
+                    );
                     Chat.sendMessage(player, "&aSpawned!");
                     return;
                 }
 
                 final TypeConverter argument = getArgument(args, 0);
-                final double degree = argument.toDouble(-1);
+                final float degree = argument.toFloat(-1);
 
                 if (degree != -1) {
                     item.rotate(degree);
@@ -430,12 +431,13 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     item.remove();
                     item = null;
                     Chat.sendMessage(player, "&cRemoved!");
+                    return;
                 }
 
                 if (string.equalsIgnoreCase("dance")) {
                     new TickingGameTask() {
 
-                        double d;
+                        float d;
 
                         @Override
                         public void run(int tick) {
@@ -445,9 +447,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                                 return;
                             }
 
-                            d++;
-                            item.rotate(tick);
+                            item.rotate(d);
 
+                            d += (float) 360 / GVar.get("deg", 30);
                             Debug.info("degree = " + d);
                         }
                     }.runTaskTimer(2, 1);

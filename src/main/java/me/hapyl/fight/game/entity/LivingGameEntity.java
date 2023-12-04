@@ -38,7 +38,6 @@ import org.bukkit.entity.Creature;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -690,12 +689,6 @@ public class LivingGameEntity extends GameEntity {
         }
 
         playWorldSound(hurtSound, 1.0f);
-    }
-
-    public double dot(@Nonnull Location other) {
-        final Vector vector = other.subtract(getLocation()).toVector().normalize();
-
-        return getDirection().normalize().dot(vector);
     }
 
     public int getMaxFreezeTicks() {

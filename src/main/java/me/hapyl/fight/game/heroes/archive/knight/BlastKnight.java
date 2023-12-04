@@ -1,36 +1,28 @@
 package me.hapyl.fight.game.heroes.archive.knight;
 
-import me.hapyl.fight.CF;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.PlayerElement;
+import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.Affiliation;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.UltimateCallback;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.archive.Discharge;
+import me.hapyl.fight.game.talents.archive.knight.StoneCastle;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.ItemStacks;
-import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.collection.player.PlayerMap;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.fight.util.shield.PatternTypes;
+import me.hapyl.fight.util.shield.ShieldBuilder;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Horse;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -40,15 +32,19 @@ import org.bukkit.inventory.PlayerInventory;
 import org.spigotmc.event.entity.EntityMountEvent;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
-public class BlastKnight extends Hero implements PlayerElement, UIComponent, Listener {
+public class BlastKnight extends Hero implements DisabledHero, PlayerElement, UIComponent, Listener, PlayerDataHandler {
 
-    private final ItemStack itemShield = new ItemBuilder(Material.SHIELD).setName("&aShield").setUnbreakable().build();
-    private final PlayerMap<Integer> shieldCharge = PlayerMap.newMap();
-    private final PlayerMap<Horse> horseMap = PlayerMap.newMap();
+    private final PlayerMap<BlastKnightData> dataMap = PlayerMap.newMap();
 
-    private final Shield shield = new Shield();
+    private final ItemStack shieldItem = new ShieldBuilder(DyeColor.BLACK)
+            .with(DyeColor.WHITE, PatternTypes.DLS)
+            .with(DyeColor.PURPLE, PatternTypes.MR)
+            .with(DyeColor.BLACK, PatternTypes.DLS)
+            .with(DyeColor.PINK, PatternTypes.MC)
+            .with(DyeColor.BLACK, PatternTypes.FLO)
+            .build();
+
     private final Material shieldRechargeCdItem = Material.HORSE_SPAWN_EGG;
 
     public BlastKnight() {
@@ -76,164 +72,160 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Lis
 
     @Override
     public void onDeath(@Nonnull GamePlayer player) {
-        shieldCharge.remove(player);
+        dataMap.removeAnd(player, PlayerData::remove);
+    }
+
+    @Override
+    public void onStop() {
+        dataMap.forEachAndClear(PlayerData::remove);
     }
 
     @Override
     public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        // Summon Horse
-        final Horse oldHorse = horseMap.get(player);
-        if (oldHorse != null) {
-            oldHorse.remove();
-        }
-
-        final Horse horse = Entities.HORSE.spawn(player.getLocation(), me -> {
-            Nulls.runIfNotNull(me.getAttribute(Attribute.GENERIC_MAX_HEALTH), at -> at.setBaseValue(100.0d));
-            Nulls.runIfNotNull(me.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED), at -> at.setBaseValue(0.25d));
-            me.setJumpStrength(1.2d);
-            me.setHealth(me.getMaxHealth());
-
-            me.setColor(Horse.Color.WHITE);
-            me.setStyle(Horse.Style.WHITE);
-
-            me.setOwner(player.getPlayer());
-            me.setTamed(true);
-            me.getInventory().setSaddle(new ItemStack(Material.SADDLE));
-            me.setAdult();
-
-            horseMap.put(player, me);
-        });
-
-        // Controller
-        new GameTask() {
-            private int timeLeft = getUltimateDuration() / 20;
-
-            @Override
-            public void run() {
-                if (timeLeft < 0 || horse.isDead()) {
-                    if (timeLeft < 0) {
-                        horse.getPassengers().forEach(Entity::eject);
-
-                        // Fx
-                        final Location location = horse.getEyeLocation();
-                        player.sendMessage("&aRoyal Horse is gone!");
-
-                        PlayerLib.spawnParticle(location, Particle.SPELL_MOB, 20, 0.5d, 0.5d, 0.5d, 0.1f);
-                        PlayerLib.spawnParticle(location, Particle.EXPLOSION_NORMAL, 10, 0.5d, 0.5d, 0.5d, 0.2f);
-                        PlayerLib.playSound(location, Sound.ENTITY_HORSE_GALLOP, 0.75f);
-                        horse.remove();
-                    }
-                    this.cancel();
-                    return;
-                }
-
-                --timeLeft;
-
-                horse.setCustomName(Chat.format(
-                        "&6%s's Royal Horse &8(&c&l%s &c❤&8, &e&l%s&es&8)",
-                        player.getName(),
-                        BukkitUtils.decimalFormat(horse.getHealth()),
-                        timeLeft
-                ));
-                horse.setCustomNameVisible(true);
-            }
-        }.runTaskTimer(20, 20);
 
         return UltimateCallback.OK;
     }
 
     @EventHandler()
     public void handleEntityDeath(EntityDeathEvent ev) {
-        final Entity entity = ev.getEntity();
-        if (entity instanceof Horse horse && horseMap.containsValue(horse)) {
-            ev.getDrops().clear();
-            horseMap.values().remove(horse);
-        }
+        //final Entity entity = ev.getEntity();
+        //if (entity instanceof Horse horse && horseMap.containsValue(horse)) {
+        //    ev.getDrops().clear();
+        //    horseMap.values().remove(horse);
+        //}
     }
 
     @EventHandler()
     public void handleHorseInteract(EntityMountEvent ev) {
-        if (ev.getMount() instanceof Horse horse && ev.getEntity() instanceof Player player && horseMap.containsValue(horse)) {
-            final GamePlayer gamePlayer = CF.getPlayer(player);
-
-            if (gamePlayer == null || horseMap.get(gamePlayer) == horse) {
-                return;
-            }
-
-            ev.setCancelled(true);
-            gamePlayer.sendMessage("&cThis is not your Horse!");
-            gamePlayer.playSound(Sound.ENTITY_HORSE_ANGRY, 1.0f);
-        }
+        //if (ev.getMount() instanceof Horse horse && ev.getEntity() instanceof Player player && horseMap.containsValue(horse)) {
+        //    final GamePlayer gamePlayer = CF.getPlayer(player);
+        //
+        //    if (gamePlayer == null || horseMap.get(gamePlayer) == horse) {
+        //        return;
+        //    }
+        //
+        //    ev.setCancelled(true);
+        //    gamePlayer.sendMessage("&cThis is not your Horse!");
+        //    gamePlayer.playSound(Sound.ENTITY_HORSE_ANGRY, 1.0f);
+        //}
     }
 
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
         final GamePlayer player = input.getDamagerAsPlayer();
 
-        if (player == null) {
-            return null;
-        }
-
-        final Horse playerHorse = getPlayerHorse(player);
-        final LivingGameEntity victim = input.getEntity();
-
-        if (!isUsingUltimate(player) || playerHorse == null || victim == player) {
-            return null;
-        }
-
-        if (victim.is(playerHorse)) {
-            return DamageOutput.CANCEL;
-        }
-
-        if (playerHorse.getPassengers().contains(player.getPlayer())) {
-            victim.setVelocity(victim.getLocation().getDirection().normalize().multiply(-1.0d));
-
-            return new DamageOutput(input.getDamage() * 1.5d);
-        }
+        //if (player == null) {
+        //    return null;
+        //}
+        //
+        //final Horse playerHorse = getPlayerHorse(player);
+        //final LivingGameEntity victim = input.getEntity();
+        //
+        //if (!isUsingUltimate(player) || playerHorse == null || victim == player) {
+        //    return null;
+        //}
+        //
+        //if (victim.is(playerHorse)) {
+        //    return DamageOutput.CANCEL;
+        //}
+        //
+        //if (playerHorse.getPassengers().contains(player.getPlayer())) {
+        //    victim.setVelocity(victim.getLocation().getDirection().normalize().multiply(-1.0d));
+        //
+        //    return new DamageOutput(input.getDamage() * 1.5d);
+        //}
 
         return null;
     }
 
     @Override
     public DamageOutput processDamageAsVictim(DamageInput input) {
-        final GamePlayer gamePlayer = input.getEntityAsPlayer();
+        final GamePlayer player = input.getEntityAsPlayer();
+        final GameEntity damager = input.getDamager();
+        final double damage = input.getDamage();
 
-        if (gamePlayer.isBlocking()) {
-            if (gamePlayer.hasCooldown(Material.SHIELD)) {
-                return null;
-            }
-
-            shieldCharge.compute(gamePlayer, (pl, i) -> i == null ? 1 : i + 1);
-            final int charge = getShieldCharge(gamePlayer); // updated
-
-            PlayerLib.playSound(gamePlayer.getLocation(), Sound.ITEM_SHIELD_BLOCK, 1.0f);
-            gamePlayer.setCooldown(Material.SHIELD, 10);
-            shield.updateTexture(gamePlayer, charge);
-
-            if (charge >= 10) {
-                explodeShield(gamePlayer);
-            }
-
-            return DamageOutput.CANCEL;
+        if (!player.isBlocking() || damager == null || damage > 0.0d) {
+            return DamageOutput.OK;
         }
-        return null;
+
+        final double dot = player.dot(damager.getLocation());
+
+        if (dot <= 0.6d) {
+            return DamageOutput.OK;
+        }
+
+        final BlastKnightData data = getPlayerData(player);
+
+        if (data.isShieldOnCooldown()) {
+            return DamageOutput.OK;
+        }
+
+        data.incrementShieldCharge();
+
+        // Interrupt shield
+        player.setItem(EquipmentSlot.OFF_HAND, null);
+        player.schedule(() -> player.setItem(EquipmentSlot.OFF_HAND, shieldItem), 1);
+
+        // Fx
+        player.playSound(Sound.ITEM_SHIELD_BREAK, 1.0f);
+
+        return new DamageOutput(0.0d, false);
     }
 
-    @Nullable
-    public Horse getPlayerHorse(GamePlayer player) {
-        return horseMap.get(player);
+    @Nonnull
+    @Override
+    public BlastKnightData getPlayerData(@Nonnull GamePlayer player) {
+        return dataMap.computeIfAbsent(player, BlastKnightData::new);
+    }
+
+    public int getShieldCharge(GamePlayer player) {
+        return getPlayerData(player).getShieldCharge();
+    }
+
+    @Override
+    public void onStart(@Nonnull GamePlayer player) {
+        player.setItem(EquipmentSlot.OFF_HAND, shieldItem);
+    }
+
+    @Override
+    public void onRespawn(@Nonnull GamePlayer player) {
+        onStart(player);
+    }
+
+    @Override
+    public StoneCastle getFirstTalent() {
+        return (StoneCastle) Talents.STONE_CASTLE.getTalent();
+    }
+
+    @Override
+    public Discharge getSecondTalent() {
+        return (Discharge) Talents.DISCHARGE.getTalent();
+    }
+
+    @Override
+    public Talent getPassiveTalent() {
+        return Talents.SHIELDED.getTalent();
+    }
+
+    @Override
+    public @Nonnull String getString(@Nonnull GamePlayer player) {
+        if (player.hasCooldown(shieldRechargeCdItem)) {
+            return "&7🛡 &l" + BukkitUtils.roundTick(player.getCooldown(shieldRechargeCdItem)) + "s";
+        }
+
+        return "&f🛡 &l" + getShieldCharge(player);
     }
 
     private void explodeShield(GamePlayer player) {
         final PlayerInventory inventory = player.getInventory();
         inventory.setItem(EquipmentSlot.OFF_HAND, ItemStacks.AIR);
-        shieldCharge.put(player, 0);
+        //shieldCharge.put(player, 0);
 
         player.setCooldown(shieldRechargeCdItem, 200);
 
         GameTask.runLater(() -> {
-            inventory.setItem(EquipmentSlot.OFF_HAND, itemShield);
-            shield.updateTexture(player, 0);
+            //inventory.setItem(EquipmentSlot.OFF_HAND, itemShield);
+            //shield.updateTexture(player, 0);
         }, 200);
 
         // Explode
@@ -254,46 +246,5 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Lis
 
         PlayerLib.playSound(location, Sound.ITEM_SHIELD_BREAK, 0.0f);
         PlayerLib.playSound(location, Sound.ENTITY_BLAZE_HURT, 0.0f);
-    }
-
-    public int getShieldCharge(GamePlayer player) {
-        return shieldCharge.getOrDefault(player, 0);
-    }
-
-    @Override
-    public void onStart(@Nonnull GamePlayer player) {
-        player.getInventory().setItem(EquipmentSlot.OFF_HAND, itemShield);
-        shield.updateTexture(player, 0);
-    }
-
-    @Override
-    public void onStop() {
-        shieldCharge.clear();
-        horseMap.values().forEach(Entity::remove);
-        horseMap.clear();
-    }
-
-    @Override
-    public Talent getFirstTalent() {
-        return Talents.STONE_CASTLE.getTalent();
-    }
-
-    @Override
-    public Talent getSecondTalent() {
-        return Talents.SLOWNESS_POTION.getTalent();
-    }
-
-    @Override
-    public Talent getPassiveTalent() {
-        return Talents.SHIELDED.getTalent();
-    }
-
-    @Override
-    public @Nonnull String getString(@Nonnull GamePlayer player) {
-        if (player.hasCooldown(shieldRechargeCdItem)) {
-            return "&7🛡 &l" + BukkitUtils.roundTick(player.getCooldown(shieldRechargeCdItem)) + "s";
-        }
-
-        return "&f🛡 &l" + getShieldCharge(player);
     }
 }

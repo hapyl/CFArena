@@ -1,112 +1,77 @@
 package me.hapyl.fight.fx;
 
-import me.hapyl.fight.Main;
+import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.entity.EntityUtils;
-import me.hapyl.spigotutils.module.util.Validate;
+import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Giant;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Vector;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+public class GiantItem implements Removable {
 
-public class GiantItem {
-
-    private static final double[] centerOffset = { 2.0d, -7.5d, -3.2d };
+    private final Entity marker;
     private final Giant giant;
-    private Location location;
 
-    public GiantItem(@Nonnull Location location, @Nonnull Material material) {
-        this.location = location;
+    public GiantItem(Location location, ItemStack item) {
+        location.setYaw(0.0f);
+        location.setPitch(0.0f);
 
-        giant = Entities.GIANT.spawn(location.clone().add(centerOffset[0], centerOffset[1], centerOffset[2]), self -> {
-            self.setInvisible(true);
-            self.setInvulnerable(true);
+        this.marker = Entities.MARKER.spawn(location, self -> {
             self.setSilent(true);
-            self.setAI(false);
+            self.setGravity(false);
         });
 
-        setItem(material);
-        removeCollision();
-    }
+        this.giant = Entities.GIANT.spawn(getGiantLocation(), self -> {
+            self.setInvisible(true);
+            self.setSilent(true);
+            self.setGravity(false);
+            self.setAI(false);
+            self.getEquipment().setItemInMainHand(item);
 
-    public void remove() {
-        giant.remove();
-    }
+            EntityUtils.setCollision(self, EntityUtils.Collision.DENY);
+        });
 
-    public void hide(Player player) {
-        player.hideEntity(Main.getPlugin(), giant);
-    }
-
-    public void show(Player player) {
-        player.showEntity(Main.getPlugin(), giant);
-    }
-
-    public void setFlipped(boolean flipped) {
-        giant.setCustomName(flipped ? "Dinnerbone" : null);
-    }
-
-    public void removeCollision() {
-        EntityUtils.setCollision(giant, EntityUtils.Collision.DENY);
+        rotate(0);
     }
 
     public void teleport(Location location) {
-        this.location = location;
-        this.location.add(centerOffset[0], centerOffset[1], centerOffset[2]);
-
-        giant.teleport(this.location);
+        marker.teleport(location);
+        syncGiant();
     }
 
-    @Nullable
-    public ItemStack getItem() {
-        return getEquipment().getItemInMainHand();
+    public void rotate(float degrees) {
+        final Location location = marker.getLocation();
+
+        location.setYaw(degrees);
+        marker.teleport(location);
+
+        syncGiant();
     }
 
-    public void setItem(@Nonnull Material material) {
-        Validate.isTrue(material.isItem(), "material must be an item");
-        setItem(new ItemStack(material));
+    @Override
+    public void remove() {
+        marker.remove();
+        giant.remove();
     }
 
-    public void setItem(@Nullable ItemStack item) {
-        getEquipment().setItemInMainHand(item);
+    public void setY(double y) {
+        teleport(marker.getLocation().add(0, y, 0));
     }
 
-    @Nonnull
-    public Location getLocation() {
-        return new Location(location.getWorld(), location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
+    private void syncGiant() {
+        giant.teleport(getGiantLocation());
     }
 
-    public void rotate(double degrees) {
-        final Location location = getLocation();
+    private Location getGiantLocation() {
+        Location location = marker.getLocation();
 
-        final double radians = Math.toRadians(degrees);
+        location = LocationHelper.getBehind(location, 4.5d);
+        location = LocationHelper.getToTheLeft(location, 1.85d);
+        location.subtract(0, 9, 0);
 
-        final double x = Math.sin(radians) * 3;
-        final double z = Math.cos(radians) * 3;
-
-        location.add(x, 0, z);
-
-        // Look at the center
-        final Vector vector = this.location.toVector().subtract(location.toVector());
-        location.setDirection(vector);
-
-        giant.teleport(location);
-    }
-
-    @Nonnull
-    private EntityEquipment getEquipment() {
-        final EntityEquipment equipment = giant.getEquipment();
-
-        if (equipment == null) {
-            throw new NullPointerException("equipment is null somehow");
-        }
-
-        return equipment;
+        return location;
     }
 
 }
