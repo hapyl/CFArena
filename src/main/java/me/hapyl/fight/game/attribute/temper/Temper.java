@@ -34,7 +34,8 @@ public enum Temper {
         }
     },
     STONE_CASTLE,
-    ;
+
+    MECHA_INDUSTRY;
 
     /**
      * Gets if a display should be spawned upon tempering.

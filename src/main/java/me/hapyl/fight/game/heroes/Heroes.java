@@ -116,6 +116,7 @@ public enum Heroes implements Formatted {
     RONIN(new Ronin()),
     JESTER(new Jester()),
 
+
     ;
 
     public static final Heroes DEFAULT_HERO = ARCHER;

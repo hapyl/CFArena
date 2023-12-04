@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.archive.engineer;
 
+import com.mojang.datafixers.kinds.Const;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -19,6 +20,8 @@ public abstract class EngineerTalent extends Talent {
         super(name);
 
         this.ironCost = Math.max(1, ironCost);
+
+        setType(Type.CREATABLE);
     }
 
     @Nonnull
@@ -52,6 +55,11 @@ public abstract class EngineerTalent extends Talent {
 
         if (response.isError()) {
             return response;
+        }
+
+        Construct construct = hero.getConstruct(player);
+        if(construct != null){
+            return Response.error("%s already exists!", construct.getName());
         }
 
         hero.removeConstruct(player);

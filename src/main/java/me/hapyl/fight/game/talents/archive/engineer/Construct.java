@@ -1,6 +1,8 @@
 package me.hapyl.fight.game.talents.archive.engineer;
 
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.archive.engineer.Engineer;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.spigotutils.module.entity.Entities;
 import org.bukkit.Location;
@@ -17,14 +19,16 @@ public abstract class Construct extends TickingGameTask {
     protected final Location location;
     @Nonnull
     protected final ArmorStand stand;
+    private final EngineerTalent talent;
 
     private int level;
     private int cost;
 
-    public Construct(@Nonnull GamePlayer player, @Nonnull Location location) {
+    public Construct(@Nonnull GamePlayer player, @Nonnull Location location, @Nonnull EngineerTalent talent) {
         this.player = player;
         this.location = location;
         this.level = 0;
+        this.talent = talent;
 
         stand = Entities.ARMOR_STAND.spawn(location, self -> {
             final double health = healthScaled().get(0, 10.0d);
@@ -36,12 +40,17 @@ public abstract class Construct extends TickingGameTask {
         onCreate();
     }
 
+    public String getName(){
+        return talent.getName();
+    }
+
     @Override
     public void run(int tick) {
         final int duration = durationScaled().get(getLevel(), Construct.MAX_DURATION_SEC) * 20;
 
-        if (tick > duration) {
+        if (tick > duration || stand.isDead()) {
             remove();
+            Heroes.ENGINEER.getHero(Engineer.class).constructs.remove(player);
             return;
         }
 
