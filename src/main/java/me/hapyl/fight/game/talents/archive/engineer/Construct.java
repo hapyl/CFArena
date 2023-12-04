@@ -1,13 +1,14 @@
 package me.hapyl.fight.game.talents.archive.engineer;
 
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.spigotutils.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
 
 import javax.annotation.Nonnull;
 
-public abstract class Construct {
+public abstract class Construct extends TickingGameTask {
 
     public static final int MAX_LEVEL = 3;
     public static final int MAX_DURATION_SEC = 5;
@@ -35,6 +36,18 @@ public abstract class Construct {
         onCreate();
     }
 
+    @Override
+    public void run(int tick) {
+        final int duration = durationScaled().get(getLevel(), Construct.MAX_DURATION_SEC) * 20;
+
+        if (tick > duration) {
+            remove();
+            return;
+        }
+
+        onTick();
+    }
+
     public ImmutableArray<Integer> durationScaled() {
         return ImmutableArray.empty();
     }
@@ -53,6 +66,7 @@ public abstract class Construct {
     }
 
     public void remove() {
+        cancel();
         onDestroy();
         stand.remove();
     }

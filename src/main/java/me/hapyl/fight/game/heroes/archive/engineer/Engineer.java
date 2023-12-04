@@ -6,7 +6,6 @@ import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.archive.engineer.Construct;
-import me.hapyl.fight.game.talents.archive.engineer.ImmutableArray;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.collection.player.PlayerMap;
@@ -128,34 +127,12 @@ public class Engineer extends Hero implements DisabledHero {
         }
 
         construct.remove();
-
+        player.sendMessage("&aYour previous %s was removed!", getName());
         return construct;
     }
 
     public void setConstruct(GamePlayer player, Construct construct) {
         constructs.put(player, construct);
-
-        final ImmutableArray<Integer> duration = construct.durationScaled();
-
-        new GameTask() {
-            private int tick = 0;
-
-            private void remove() {
-                removeConstruct(player);
-                cancel();
-            }
-
-            @Override
-            public void run() {
-                final int dTick = duration.get(construct.getLevel(), Construct.MAX_DURATION_SEC) * 20;
-
-                if (construct.getStand().isDead() || (tick++ >= dTick)) {
-                    remove();
-                    return;
-                }
-
-                construct.onTick();
-            }
-        }.runTaskTimer(0, 1);
+        construct.runTaskTimer(0, 1);
     }
 }

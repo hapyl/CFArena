@@ -54,13 +54,7 @@ public abstract class EngineerTalent extends Talent {
             return response;
         }
 
-        final Construct oldConstruct = hero.removeConstruct(player);
-
-        if (oldConstruct != null) {
-            oldConstruct.remove();
-            player.sendMessage("&aYour previous %s was removed!", getName());
-        }
-
+        hero.removeConstruct(player);
         hero.subtractIron(player, ironCost);
         hero.setConstruct(player, create(player, location).setCost(ironCost));
 

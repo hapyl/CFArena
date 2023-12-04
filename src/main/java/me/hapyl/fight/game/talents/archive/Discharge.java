@@ -70,7 +70,7 @@ public class Discharge extends Talent implements Listener, HeroReference<BlastKn
                 }
 
                 final Location location = stand.getLocation();
-                final double y = Math.sin(Math.toRadians(tick) / 8) * 0.5d;
+                final double y = Math.sin(Math.toRadians(tick * 8)) / 8d;
 
                 location.add(0, y, 0);
                 location.setYaw(location.getYaw() + 5);
