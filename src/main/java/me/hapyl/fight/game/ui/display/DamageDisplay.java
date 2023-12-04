@@ -1,7 +1,5 @@
 package me.hapyl.fight.game.ui.display;
 
-import me.hapyl.spigotutils.module.util.BukkitUtils;
-import org.bukkit.Location;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.util.Transformation;
 import org.joml.Vector3f;
@@ -14,28 +12,13 @@ public class DamageDisplay extends StringDisplay {
     public static final String FORMAT = "&b&l%.1f";
     public static final String FORMAT_CRIT = "&e&l%.1f&c&l✷";
 
-    public static final DisplayAnimation ANIMATION = (display, tick, max) -> {
-        final Location displayLocation = display.getLocation();
-
-        // FIXME (hapyl): 008, Sep 8: Maybe use sin
-        if (tick < max / 2) {
-            displayLocation.add(0.0d, BukkitUtils.GRAVITY / 2, 0.0d);
-        }
-        else {
-            displayLocation.subtract(0.0d, BukkitUtils.GRAVITY, 0.0d);
-        }
-
-        display.teleport(displayLocation);
-        return false;
-    };
-
     private final boolean isCrit;
 
     public DamageDisplay(double damage, boolean isCrit) {
         super(isCrit ? FORMAT_CRIT.formatted(damage) : FORMAT.formatted(damage), isCrit ? 30 : 20);
 
         this.isCrit = isCrit;
-        this.animation = ANIMATION;
+        this.animation = AscendingDisplay.ANIMATION;
         this.initTransformation = transformationScale(0.0f);
     }
 

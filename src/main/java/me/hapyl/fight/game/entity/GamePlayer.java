@@ -36,6 +36,7 @@ import me.hapyl.fight.game.talents.*;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.PlayerGameTask;
 import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.game.ui.display.AscendingDisplay;
 import me.hapyl.fight.game.weapons.RangeWeapon;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.CFUtils;
@@ -518,17 +519,30 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
                 shield.onBreak();
                 shield = null;
             }
+            // Display absorbed damage
+            else {
+                new AscendingDisplay("&e🛡 &6%.0f".formatted(toAbsorb), 20).display(player.getEyeLocation());
+            }
         }
 
         super.decreaseHealth(instance);
         updateHealth();
     }
 
+    // Update player visual health
     public void updateHealth() {
-        // update player visual health
         entity.setMaxHealth(40.d);
         entity.setHealth(Numbers.clamp(40.0d * health / getMaxHealth(), getMinHealth(), getMaxHealth()));
-        //player.setHealth(Math.max(0.5d, 40.0d * health / maxHealth));
+    }
+
+    @Nonnull
+    @Override
+    public String getHealthFormatted() {
+        if (shield != null) {
+            return "&e&l%.0f".formatted(health + shield.getCapacity());
+        }
+
+        return super.getHealthFormatted();
     }
 
     public void interrupt() {
@@ -1207,6 +1221,11 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     @Nonnull
     public ItemStack getHeldItem() {
         return getInventory().getItemInMainHand();
+    }
+
+    @Nonnull
+    public String getCooldownFormatted(@Nonnull Material material) {
+        return CFUtils.decimalFormatTick(getCooldown(material));
     }
 
     private List<Block> getBlocksRelative(BiFunction<Location, World, Boolean> fn, Consumer<Location> consumer) {

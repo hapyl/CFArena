@@ -134,7 +134,7 @@ public class Voidgloom extends GameEntityType<Enderman> implements Listener {
         }
 
         @Override
-        public String getHealthFormatted() {
+        public @Nonnull String getHealthFormatted() {
             if (hitPhase) {
                 return Color.DEEP_PURPLE.lighten((float) MAX_HITS / hitsLeft) + "&l%s Hits".formatted(hitsLeft);
             }

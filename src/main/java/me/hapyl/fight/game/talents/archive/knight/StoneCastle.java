@@ -42,7 +42,7 @@ public class StoneCastle extends Talent implements Listener {
         addAttributeDescription("Damage Split", "%.0f%%/%.0f%%".formatted(damageSplitSelf * 100, damageSplitOther * 100));
 
         setType(Type.DEFENSE);
-        setItem(Material.COBBLESTONE);
+        setItem(Material.PURPUR_PILLAR);
         setDurationSec(12);
         setCooldownSec(10);
     }

@@ -17,7 +17,7 @@ public class BlastKnightData extends PlayerData implements MaterialCooldown {
     public BlastKnightData(GamePlayer player) {
         super(player);
 
-        this.shieldCharge = MAX_CHARGE;
+        this.shieldCharge = 0;
     }
 
     @Override
@@ -53,5 +53,9 @@ public class BlastKnightData extends PlayerData implements MaterialCooldown {
     @Override
     public int getCooldown() {
         return 20;
+    }
+
+    public void resetShieldCharge() {
+        shieldCharge = 0;
     }
 }

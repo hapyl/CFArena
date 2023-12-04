@@ -29,7 +29,7 @@ public abstract class TickingGameTask extends GameTask {
     public void run() {
         if (!ticked) {
             ticked = true;
-            onTickOnce();
+            onFirstTick();
         }
 
         run(tick);
@@ -37,7 +37,7 @@ public abstract class TickingGameTask extends GameTask {
     }
 
     @Event
-    public void onTickOnce() {
+    public void onFirstTick() {
     }
 
     public int getTick() {

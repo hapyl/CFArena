@@ -2,7 +2,6 @@ package me.hapyl.fight.game.talents;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.sun.jna.platform.win32.OaIdl;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -32,8 +31,8 @@ import me.hapyl.fight.game.talents.archive.ender.TransmissionBeacon;
 import me.hapyl.fight.game.talents.archive.engineer.EngineerRecall;
 import me.hapyl.fight.game.talents.archive.engineer.EngineerSentry;
 import me.hapyl.fight.game.talents.archive.frostbite.IceBarrier;
-import me.hapyl.fight.game.talents.archive.frostbite.Icicles;
 import me.hapyl.fight.game.talents.archive.frostbite.IceCageTalent;
+import me.hapyl.fight.game.talents.archive.frostbite.Icicles;
 import me.hapyl.fight.game.talents.archive.harbinger.MeleeStance;
 import me.hapyl.fight.game.talents.archive.harbinger.TidalWaveTalent;
 import me.hapyl.fight.game.talents.archive.healer.HealingOrb;
@@ -340,8 +339,11 @@ public enum Talents {
     @Deprecated SPEAR(new Spear()),
     @Deprecated SLOWNESS_POTION(new SlownessPotion()),
     SHIELDED(new PassiveTalent(
-            "Shielded",
-            "Blocking damage using your shield will add a charge to it, up to &b10&7 charges.____Once charged, it will explode and create &bNova Explosion&7, dealing moderate damage and knocking back nearby opponents.",
+            "Quantum Energy", """
+            &8Blocking&7 damage with your &bshield&7 will accumulate &dQuantum Energy&7.
+                        
+            Using &a%s&7 can manipulate the energy to create &fNova Explosion&7.
+            """.formatted(DISCHARGE.talent.getName()),
             Material.SHIELD
     )),
 

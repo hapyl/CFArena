@@ -374,6 +374,7 @@ public class LivingGameEntity extends GameEntity {
         entityData.setLastDamageCause(lastDamageCause);
     }
 
+    @Nonnull
     public String getHealthFormatted() {
         return String.valueOf(Math.ceil(health));
     }

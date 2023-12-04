@@ -55,7 +55,7 @@ public class Impel extends TickingGameTask {
     }
 
     @Override
-    public void onTickOnce() {
+    public void onFirstTick() {
         // Fx
         targetPlayers.forEach(player -> {
             player.playSound(Sound.ENTITY_BAT_TAKEOFF, 0.0f);

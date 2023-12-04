@@ -2,10 +2,10 @@ package me.hapyl.fight.game.heroes.archive.knight;
 
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
-import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.shield.Shield;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
@@ -13,39 +13,35 @@ import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.Discharge;
 import me.hapyl.fight.game.talents.archive.knight.StoneCastle;
-import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.fight.util.collection.player.PlayerMap;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.fight.util.shield.PatternTypes;
 import me.hapyl.fight.util.shield.ShieldBuilder;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
-import org.spigotmc.event.entity.EntityMountEvent;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
-public class BlastKnight extends Hero implements DisabledHero, PlayerElement, UIComponent, Listener, PlayerDataHandler {
+public class BlastKnight extends Hero implements PlayerElement, UIComponent, PlayerDataHandler {
 
-    private final PlayerMap<BlastKnightData> dataMap = PlayerMap.newMap();
-
-    private final ItemStack shieldItem = new ShieldBuilder(DyeColor.BLACK)
+    public final ItemStack shieldItem = new ShieldBuilder(DyeColor.BLACK)
             .with(DyeColor.WHITE, PatternTypes.DLS)
             .with(DyeColor.PURPLE, PatternTypes.MR)
             .with(DyeColor.BLACK, PatternTypes.DLS)
             .with(DyeColor.PINK, PatternTypes.MC)
             .with(DyeColor.BLACK, PatternTypes.FLO)
             .build();
-
+    private final PlayerMap<BlastKnightData> dataMap = PlayerMap.newMap();
     private final Material shieldRechargeCdItem = Material.HORSE_SPAWN_EGG;
+
+    @DisplayField private final double ultimateRadius = 7.0d;
+    @DisplayField private final double healingTotal = 50;
+    @DisplayField private final double shieldCapacity = 25;
 
     public BlastKnight() {
         super("Blast Knight");
@@ -54,19 +50,23 @@ public class BlastKnight extends Hero implements DisabledHero, PlayerElement, UI
         setAffiliation(Affiliation.KINGDOM);
 
         setDescription("Royal Knight with high-end technology gadgets.");
-        setItem("e2dfde6c2c8f0a7adf7ae4e949a804fedf95c6b9562767eae6c22a401cd02cbd");
+        setItem("f6eaa1fd9d2d49d06a894798d3b145d3ae4dcca038b7da718c7b83a66ef264f0");
 
         final Equipment equipment = getEquipment();
-        equipment.setChestPlate(Color.BLUE);
-        equipment.setLeggings(Material.CHAINMAIL_LEGGINGS);
-        equipment.setBoots(Material.IRON_BOOTS);
+        equipment.setChestPlate(20, 5, 43);
+        equipment.setLeggings(170, 55, 204);
+        equipment.setBoots(Material.NETHERITE_BOOTS);
 
         setWeapon(Material.IRON_SWORD, "Royal Sword", "", 8.0d);
         setUltimate(new UltimateTalent(
-                "Royal Horse",
-                "Call upon the Royal Horse for {duration}. The horse is fast, strong and comfortable. So comfortable in fact that it doubles you damage while riding.",
-                60
-        ).setCooldownSec(60).setDuration(1200).setItem(Material.SADDLE));
+                "Nanite Rush", """
+                Instantly release a &dNanite Swarm&7 that &brushes&6 upwards, rapidly &ahealing&7 all nearby &ateammates&7 and granting them a &eshield&7.
+                """, 60
+        )
+                .setType(Talent.Type.SUPPORT)
+                .setItem(Material.PURPLE_DYE)
+                .setCooldownSec(30)
+                .setDuration(30));
 
     }
 
@@ -82,60 +82,43 @@ public class BlastKnight extends Hero implements DisabledHero, PlayerElement, UI
 
     @Override
     public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
+        final double healingPerTick = healingTotal / getUltimateDuration();
+        final Location location = player.getLocation();
+
+        new TimedGameTask(getUltimate()) {
+            @Override
+            public void run(int tick) {
+                nearbyPlayers().forEach(player -> {
+                    player.heal(healingPerTick);
+                });
+
+                // Fx
+                final float pitch = 0.5f + (1.5f / maxTick * tick);
+
+                player.spawnWorldParticle(location, Particle.SPELL_WITCH, 50, ultimateRadius / 4, 0.1d, ultimateRadius / 4, 1f);
+
+                player.playWorldSound(location, Sound.ITEM_FLINTANDSTEEL_USE, pitch);
+                player.playWorldSound(location, Sound.ENTITY_ENDER_DRAGON_FLAP, pitch);
+            }
+
+            @Override
+            public void onFirstTick() {
+                nearbyPlayers().forEach(player -> {
+                    player.setShield(new Shield(player, shieldCapacity));
+                });
+            }
+
+            private List<GamePlayer> nearbyPlayers() {
+                final List<GamePlayer> players = Collect.nearbyPlayers(location, ultimateRadius);
+                players.removeIf(other -> {
+                    return !player.equals(other) && !player.isTeammate(other);
+                });
+
+                return players;
+            }
+        }.runTaskTimer(0, 1);
 
         return UltimateCallback.OK;
-    }
-
-    @EventHandler()
-    public void handleEntityDeath(EntityDeathEvent ev) {
-        //final Entity entity = ev.getEntity();
-        //if (entity instanceof Horse horse && horseMap.containsValue(horse)) {
-        //    ev.getDrops().clear();
-        //    horseMap.values().remove(horse);
-        //}
-    }
-
-    @EventHandler()
-    public void handleHorseInteract(EntityMountEvent ev) {
-        //if (ev.getMount() instanceof Horse horse && ev.getEntity() instanceof Player player && horseMap.containsValue(horse)) {
-        //    final GamePlayer gamePlayer = CF.getPlayer(player);
-        //
-        //    if (gamePlayer == null || horseMap.get(gamePlayer) == horse) {
-        //        return;
-        //    }
-        //
-        //    ev.setCancelled(true);
-        //    gamePlayer.sendMessage("&cThis is not your Horse!");
-        //    gamePlayer.playSound(Sound.ENTITY_HORSE_ANGRY, 1.0f);
-        //}
-    }
-
-    @Override
-    public DamageOutput processDamageAsDamager(DamageInput input) {
-        final GamePlayer player = input.getDamagerAsPlayer();
-
-        //if (player == null) {
-        //    return null;
-        //}
-        //
-        //final Horse playerHorse = getPlayerHorse(player);
-        //final LivingGameEntity victim = input.getEntity();
-        //
-        //if (!isUsingUltimate(player) || playerHorse == null || victim == player) {
-        //    return null;
-        //}
-        //
-        //if (victim.is(playerHorse)) {
-        //    return DamageOutput.CANCEL;
-        //}
-        //
-        //if (playerHorse.getPassengers().contains(player.getPlayer())) {
-        //    victim.setVelocity(victim.getLocation().getDirection().normalize().multiply(-1.0d));
-        //
-        //    return new DamageOutput(input.getDamage() * 1.5d);
-        //}
-
-        return null;
     }
 
     @Override
@@ -207,44 +190,13 @@ public class BlastKnight extends Hero implements DisabledHero, PlayerElement, UI
         return Talents.SHIELDED.getTalent();
     }
 
+    @Nonnull
     @Override
-    public @Nonnull String getString(@Nonnull GamePlayer player) {
+    public String getString(@Nonnull GamePlayer player) {
         if (player.hasCooldown(shieldRechargeCdItem)) {
-            return "&7🛡 &l" + BukkitUtils.roundTick(player.getCooldown(shieldRechargeCdItem)) + "s";
+            return "&7🛡 &l" + player.getCooldownFormatted(shieldRechargeCdItem);
         }
 
-        return "&f🛡 &l" + getShieldCharge(player);
-    }
-
-    private void explodeShield(GamePlayer player) {
-        final PlayerInventory inventory = player.getInventory();
-        inventory.setItem(EquipmentSlot.OFF_HAND, ItemStacks.AIR);
-        //shieldCharge.put(player, 0);
-
-        player.setCooldown(shieldRechargeCdItem, 200);
-
-        GameTask.runLater(() -> {
-            //inventory.setItem(EquipmentSlot.OFF_HAND, itemShield);
-            //shield.updateTexture(player, 0);
-        }, 200);
-
-        // Explode
-        Collect.nearbyEntities(player.getLocation(), 10.0d).forEach(entity -> {
-            if (entity.equals(player)) {
-                return;
-            }
-
-            entity.damage(30.0d, player, EnumDamageCause.NOVA_EXPLOSION);
-            entity.setVelocity(entity.getLocation().getDirection().multiply(-2.0d));
-        });
-
-        // Fx
-        final Location location = player.getEyeLocation();
-        PlayerLib.spawnParticle(location, Particle.SMOKE_NORMAL, 50, 10.0d, 0.5d, 10.0d, 0.5f);
-        PlayerLib.spawnParticle(location, Particle.FIREWORKS_SPARK, 50, 10.0d, 0.5d, 10.0d, 0.5f);
-        PlayerLib.spawnParticle(location, Particle.EXPLOSION_LARGE, 1, 0.0d, 0.5d, 0.0d, 0.0f);
-
-        PlayerLib.playSound(location, Sound.ITEM_SHIELD_BREAK, 0.0f);
-        PlayerLib.playSound(location, Sound.ENTITY_BLAZE_HURT, 0.0f);
+        return "&5&l✨ &l" + getShieldCharge(player);
     }
 }

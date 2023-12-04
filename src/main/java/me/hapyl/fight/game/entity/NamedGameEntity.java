@@ -114,7 +114,7 @@ public class NamedGameEntity<T extends LivingEntity> extends LivingGameEntity {
     }
 
     @Override
-    public String getHealthFormatted() {
+    public @Nonnull String getHealthFormatted() {
         return type.getType().formatHealth(this) + " &c❤";
     }
 

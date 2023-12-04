@@ -401,6 +401,37 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
+        register(new SimplePlayerAdminCommand("testDisplayEntity") {
+
+            private Display display;
+
+            @Override
+            protected void execute(Player player, String[] args) {
+                if (display != null) {
+                    display.remove();
+                    display = null;
+                    Chat.sendMessage(player, "&cRemoved!");
+                    return;
+                }
+
+                display = Entities.BLOCK_DISPLAY.spawn(player.getLocation(), self -> {
+                    self.setBlock(Material.STONE.createBlockData());
+                    //self.setItemStack(ItemBuilder.playerHeadUrl("f4cabec18394f48191526d9059e458e0116fe84b79c645ca54649377b68f543b")
+                    //        .asIcon());
+                });
+
+                display.setInterpolationDuration(100);
+                display.setInterpolationDelay(0);
+
+                final Transformation transformation = display.getTransformation();
+                transformation.getScale().set(2.0d);
+
+                display.setTransformation(transformation);
+
+                Chat.sendMessage(player, "&aSpawned!");
+            }
+        });
+
         register(new SimplePlayerAdminCommand("testGiantItem") {
 
             private GiantItem item;
