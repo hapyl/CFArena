@@ -53,6 +53,16 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Pla
         setItem("f6eaa1fd9d2d49d06a894798d3b145d3ae4dcca038b7da718c7b83a66ef264f0");
 
         final Equipment equipment = getEquipment();
+
+        equipment.setName("Quantum Suit");
+        equipment.setDescription("""
+                A suit that is capable of channeling &dQuantum Energy&7.
+                """);
+        equipment.setFlavorText("""
+                A carefully crafted suit, made from unknown materials.
+                It emits a purplish glow, and very warm energy.
+                """);
+
         equipment.setChestPlate(20, 5, 43);
         equipment.setLeggings(170, 55, 204);
         equipment.setBoots(Material.NETHERITE_BOOTS);
@@ -60,7 +70,7 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Pla
         setWeapon(Material.IRON_SWORD, "Royal Sword", "", 8.0d);
         setUltimate(new UltimateTalent(
                 "Nanite Rush", """
-                Instantly release a &dNanite Swarm&7 that &brushes&6 upwards, rapidly &ahealing&7 all nearby &ateammates&7 and granting them a &eshield&7.
+                Instantly release a &dNanite Swarm&7 that &brushes&7 upwards, rapidly &ahealing&7 all nearby &ateammates&7 and granting them a &eshield&7.
                 """, 60
         )
                 .setType(Talent.Type.SUPPORT)

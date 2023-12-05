@@ -1,6 +1,8 @@
 package me.hapyl.fight.game.heroes.equipment;
 
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.story.lore.Lore;
+import me.hapyl.fight.util.Described;
 import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.spigotutils.module.annotate.Super;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -20,12 +22,47 @@ import javax.annotation.Nullable;
  * Represents armor equipment that can be equipped to entities.
  * Weapons can only be applied to entities, not players.
  */
-public class Equipment {
+public class Equipment implements Described, Lore {
 
     private final ItemStack[] items;
+    private String name;
+    private String description;
+    private String flavorText;
 
     public Equipment() {
         this.items = new ItemStack[6];
+        this.name = "";
+        this.description = "";
+    }
+
+    @Nonnull
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Nonnull
+    @Override
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    @Nonnull
+    @Override
+    public String getFlavorText() {
+        return flavorText;
+    }
+
+    public void setFlavorText(String flavorText) {
+        this.flavorText = flavorText;
     }
 
     @Super

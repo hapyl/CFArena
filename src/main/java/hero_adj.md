@@ -355,6 +355,26 @@ Dark Mage
 Blast Knight
 ===
 
+## Reworked!
+
+### Nanite Rush (Ultimate)
+
+* Instantly releash nanite to heal nearby teammates and grant them a shield.
+
+### Castle of Stone
+
+* Create a stone castle at your current location.
+* Teammates who take damage inside the castle will have their damage split between you.
+* Also gain a DEF boost.
+
+### Quantum Energy
+
+* Accumulate energy by blocking damage with your shield.
+
+### Quantum Discharge
+
+* Spend all Quantum Energy to create a Nova Explosion.
+
 ---
 
 Ninja

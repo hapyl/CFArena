@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.attribute;
 
 import com.google.common.collect.Lists;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.module.math.Numbers;
@@ -13,7 +14,23 @@ public enum AttributeType { // implements Placeholder2
 
     // FIXME (hapyl): 017, Nov 17: Yeah I fucking hate that this uses 100 and other things use 0.1 fucking fix it
     MAX_HEALTH(
-            new Attribute("Health", "Maximum health hero has.")
+            new Attribute("Health", "Maximum health hero has.") {
+                @Override
+                public void update(LivingGameEntity entity, double value) {
+                    final double health = entity.getHealth();
+
+                    if (health > value) {
+                        entity.setHealth(value);
+                    }
+                    else {
+                        if (!(entity instanceof GamePlayer player)) {
+                            return;
+                        }
+
+                        player.updateHealth();
+                    }
+                }
+            }
                     .setChar("❤")
                     .setColor(ChatColor.RED)
                     .setToString(String::valueOf),

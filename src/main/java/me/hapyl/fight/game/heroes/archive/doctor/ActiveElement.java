@@ -176,9 +176,11 @@ public class ActiveElement {
             field.setAccessible(true);
             final GameProfile profile = (GameProfile) field.get(skull);
             final Collection<Property> textures = profile.getProperties().get("textures");
+
             for (Property texture : textures) {
-                return texture.getValue();
+                return texture.value();
             }
+
             field.setAccessible(false);
 
         } catch (Exception exception) {

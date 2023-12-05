@@ -67,7 +67,7 @@ public class PacketEntity<T extends Entity> implements PacketEntityBase {
         players.forEach(player -> {
             final TeamHelper fakeEntity = TeamHelper.FAKE_ENTITY;
             final Team team = fakeEntity.getTeam(player.getScoreboard());
-            final String uuid = entity.cu();
+            final String uuid = entity.cx(); // getScoreboardName()
 
             if (collision) {
                 team.removeEntry(uuid);

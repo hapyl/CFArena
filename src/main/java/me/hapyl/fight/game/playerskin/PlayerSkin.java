@@ -50,8 +50,7 @@ public class PlayerSkin {
     }
 
     public void apply(Player player) {
-        final EntityPlayer nmsPlayer = Reflect.getMinecraftPlayer(player);
-        final GameProfile gameProfile = nmsPlayer.fM();
+        final GameProfile gameProfile = Reflect.getGameProfile(player);
         final PropertyMap properties = gameProfile.getProperties();
 
         removePlayer(player);
@@ -90,15 +89,15 @@ public class PlayerSkin {
         final ResourceKey<net.minecraft.world.level.World> rkWorld = mcWorld.ac(); // dimension()
 
         final PacketPlayOutRespawn respawnPacket = new PacketPlayOutRespawn(
-                rkDimension,
-                rkWorld,
-                playerWorld.getSeed(),
-                getNmsGameMode(player.getGameMode()),
-                getNmsGameMode(player.getPreviousGameMode()),
-                false,
-                false,
-                PacketPlayOutRespawn.c, // KEEP_ALL_DATA
-                Optional.empty(), 0
+                new CommonPlayerSpawnInfo(
+                        rkDimension, rkWorld, playerWorld.getSeed(),
+                        getNmsGameMode(player.getGameMode()),
+                        getNmsGameMode(player.getPreviousGameMode()),
+                        false,
+                        false,
+                        Optional.empty(),
+                        0
+                ), (byte) 0
         );
 
         sendPacket(player, respawnPacket);
@@ -122,7 +121,7 @@ public class PlayerSkin {
         );
 
         // Update effects
-        final Collection<MobEffect> activeEffects = mcPlayer.eo(); // getActiveEffects()
+        final Collection<MobEffect> activeEffects = mcPlayer.er(); // getActiveEffects()
         activeEffects.forEach(effect -> {
             final PacketPlayOutEntityEffect packetEffect = new PacketPlayOutEntityEffect(player.getEntityId(), effect);
             sendPacket(player, packetEffect);
@@ -180,12 +179,11 @@ public class PlayerSkin {
 
     @Nonnull
     public static PlayerSkin of(Player player) {
-        final EntityPlayer mcPlayer = Reflect.getMinecraftPlayer(player);
-        final GameProfile gameProfile = mcPlayer.fM();
-        final Collection<Property> textures = gameProfile.getProperties().get("textures");
+        final GameProfile profile = Reflect.getGameProfile(player);
+        final Collection<Property> textures = profile.getProperties().get("textures");
 
         for (Property property : textures) {
-            return new PlayerSkin(property.getValue(), property.getSignature());
+            return new PlayerSkin(property.value(), property.signature());
         }
 
         Debug.warn("Could not get %s's textures, using default. (Offline mode?)", player.getName());
