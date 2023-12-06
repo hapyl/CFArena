@@ -131,6 +131,7 @@ public enum EnumDamageCause {
     DARK_ENERGY(DamageCause.nonCrit("was annihilated to death", "by")),
     SHADOW_CLONE(DamageCause.nonCrit("was killed by {damager}'s shadow")),
     STONE_CASTLE(DamageCause.nonCrit("died while protecting their teammates")),
+    SENTRY_SHOT(DamageCause.nonCrit("was shot to death", "by {damager}'s sentry")),
     ;
 
     private final DamageCause damageCause;

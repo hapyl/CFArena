@@ -10,25 +10,34 @@ import org.bukkit.Material;
 import javax.annotation.Nonnull;
 
 public class EngineerRecall extends Talent {
+    private final int cdIfNoConst = 5*20;
     public EngineerRecall() {
         super("Recall");
 
         setDescription("""
                 Destroy the current construct and regain 25%% of its original cost.
                 """);
-
+        setType(Type.ENHANCE);
         setItem(Material.IRON_PICKAXE);
         setCooldownSec(30);
     }
 
     @Override
     public Response execute(@Nonnull GamePlayer player) {
-        final Construct construct = Heroes.ENGINEER.getHero(Engineer.class).getConstruct(player);
+        Engineer hero = Heroes.ENGINEER.getHero(Engineer.class);
+        final Construct construct = hero.getConstruct(player);
 
         if (construct == null) {
-            return Response.error("No construct present!");
+            startCd(player,cdIfNoConst);
+            player.sendMessage("&cNo constructions to recall!");
+            return Response.AWAIT;
         }
 
+
+        hero.removeConstruct(player);
+        int cost = construct.getCost();
+
+        hero.addIron(player, (int) (cost * 0.25));
         return Response.OK;
     }
 }
