@@ -48,11 +48,11 @@ public class Engineer extends Hero implements Listener {
                 A Prototype Wrench for all the needs.
                 It.. Probably hurts to be hit with it.""").setDamage(5.0d));
 
-        //    final Equipment equipment = getEquipment();
-        //      equipment.setChestPlate(86, 86, 87);
-        //     equipment.setLeggings(75, 75, 87);
-        //     equipment.setBoots(51, 51, 51);
-        // To-Do
+            final Equipment equipment = getEquipment();
+              equipment.setChestPlate(255, 0, 0);
+             equipment.setLeggings(0, 0, 0);
+             equipment.setBoots(0, 0, 0);
+
 
 
         setUltimate(new UltimateTalent(
@@ -189,7 +189,7 @@ public class Engineer extends Hero implements Listener {
         }
 
         construct.remove();
-        player.sendMessage("&aYour previous %s was removed!", construct.getName());
+     //   player.sendMessage("&aYour previous %s was removed!", construct.getName());
         return construct;
     }
 

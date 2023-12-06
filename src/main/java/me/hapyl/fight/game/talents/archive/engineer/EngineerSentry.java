@@ -48,7 +48,7 @@ public class EngineerSentry extends EngineerTalent {
 
             @Override
             public void onDestroy() {
-
+                player.sendMessage("&cYour previous &lSpotter &cwas destroyed!");
             }
 
             @Override

@@ -22,7 +22,7 @@ import javax.annotation.Nonnull;
 
 public class EngineerTurret extends EngineerTalent {
     @DisplayField
-    private final double sDamage = 8;
+    private final double sDamage = 7.2;
     public EngineerTurret() {
         super("Sentry", 6);
 
@@ -60,14 +60,14 @@ public class EngineerTurret extends EngineerTalent {
 
             @Override
             public void onDestroy() {
-
+                player.sendMessage("&cYour previous &lSentry &cwas destroyed!");
             }
 
             @Override
             public void onTick() {
                 if(modulo(20)) {
 
-                    LivingGameEntity nearestEntity = Collect.nearestEntity(location, 25, livingGameEntity -> {
+                    LivingGameEntity nearestEntity = Collect.nearestEntity(location, 16, livingGameEntity -> {
                         if (livingGameEntity.equals(player)) {
                             return false;
                         }
