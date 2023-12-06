@@ -1,37 +1,74 @@
 package me.hapyl.fight.game.heroes.archive.engineer;
 
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.EntityAttributes;
+import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.engineer.Construct;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.math.Numbers;
 import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.PlayerInventory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.net.http.WebSocket;
 
-public class Engineer extends Hero implements DisabledHero {
+public class Engineer extends Hero implements Listener {
 
-    public final int IRON_RECHARGE_RATE = 1;
+    public final int IRON_RECHARGE_RATE = 40;
     public final int MAX_IRON = 10;
 
-    private final PlayerMap<Construct> constructs = PlayerMap.newMap();
+    private final Weapon ironFist = new Weapon(Material.IRON_BLOCK).setDamage(10.0d).setName("&6&lIron Fist");
+    private final int Hitcd = 5;
+    public final PlayerMap<Construct> constructs = PlayerMap.newMap();
     private final PlayerMap<Integer> playerIron = PlayerMap.newMap();
 
     public Engineer() {
-        super("Engineer");
+        super("Engineer",
+                "Once the timer reaches zero, the target locks in. ____&oWhile the target remains locked, the sentry engages. ____&oWhile the sentry engages, the target flees.");
 
         setArchetype(Archetype.STRATEGY);
 
         setItem("55f0bfea3071a0eb37bcc2ca6126a8bdd79b79947734d86e26e4d4f4c7aa9");
+        setWeapon(new Weapon(Material.IRON_HOE).setName("Prototype Wrench").setDescription("""
+                A Prototype Wrench for all the needs.
+                It.. Probably hurts to be hit with it.""").setDamage(5.0d));
+
+            final Equipment equipment = getEquipment();
+              equipment.setChestPlate(255, 0, 0);
+             equipment.setLeggings(0, 0, 0);
+             equipment.setBoots(0, 0, 0);
+
+
+
+        setUltimate(new UltimateTalent(
+                "Mecha-Industries",
+                """
+                        Create a Big Boss and get ready for a fight!
+                         &lBig Boss &7 has more HP and more Attack Stats. 
+                         However, it doesn't really like water..""",
+                70
+        ).setItem(Material.IRON_SWORD)
+                .setDurationSec(25)
+                .setCooldownSec(35)
+                .setSound(Sound.BLOCK_ANVIL_USE, 0.25f));
+
     }
+
 
     @Override
     public void onDeath(@Nonnull GamePlayer player) {
@@ -61,6 +98,21 @@ public class Engineer extends Hero implements DisabledHero {
 
     @Override
     public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
+        player.setItemAndSnap(HotbarSlots.TALENT_4, ironFist.getItem());
+        player.setCooldown(ironFist.getMaterial(), Hitcd);
+
+        int ultimateDuration = getUltimateDuration();
+
+        EntityAttributes ultAttributes = player.getAttributes();
+        ultAttributes.increaseTemporary(Temper.MECHA_INDUSTRY, AttributeType.MAX_HEALTH, 120.0d, ultimateDuration);
+        ultAttributes.decreaseTemporary(Temper.MECHA_INDUSTRY, AttributeType.SPEED, 0.05d, ultimateDuration);
+        ultAttributes.increaseTemporary(Temper.MECHA_INDUSTRY, AttributeType.DEFENSE, 1.0d, ultimateDuration);
+
+
+        GameTask.runLater(() -> {
+            player.setItem(HotbarSlots.TALENT_4, null);
+            player.snapToWeapon();
+        }, ultimateDuration);
         return UltimateCallback.OK;
     }
 
@@ -80,7 +132,7 @@ public class Engineer extends Hero implements DisabledHero {
     public void updateIron(GamePlayer player) {
         final PlayerInventory inventory = player.getInventory();
 
-        player.setItem(HotbarSlots.HERO_ITEM, ItemBuilder.of(Material.IRON_INGOT, "&aIron", "You iron to build your structures!")
+        player.setItem(HotbarSlots.HERO_ITEM, ItemBuilder.of(Material.IRON_INGOT, "&aIron", "Your iron to build your structures!")
                 .setAmount(playerIron.getOrDefault(player, 1))
                 .asIcon());
     }
@@ -92,6 +144,16 @@ public class Engineer extends Hero implements DisabledHero {
             public void run() {
                 Heroes.ENGINEER.getAlivePlayers().forEach(player -> {
                     addIron(player, 1);
+
+                    if (!player.getPlayer().isInWater()) {
+                        return;
+                    }
+
+
+                    if(!isUsingUltimate(player)){
+                        return;
+                    }
+                    player.damage(11.0d);
                 });
             }
         }.runTaskTimer(IRON_RECHARGE_RATE, IRON_RECHARGE_RATE);
@@ -127,7 +189,7 @@ public class Engineer extends Hero implements DisabledHero {
         }
 
         construct.remove();
-        player.sendMessage("&aYour previous %s was removed!", getName());
+     //   player.sendMessage("&aYour previous %s was removed!", construct.getName());
         return construct;
     }
 

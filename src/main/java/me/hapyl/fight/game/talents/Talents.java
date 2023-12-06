@@ -31,6 +31,7 @@ import me.hapyl.fight.game.talents.archive.ender.TeleportPearl;
 import me.hapyl.fight.game.talents.archive.ender.TransmissionBeacon;
 import me.hapyl.fight.game.talents.archive.engineer.EngineerRecall;
 import me.hapyl.fight.game.talents.archive.engineer.EngineerSentry;
+import me.hapyl.fight.game.talents.archive.engineer.EngineerTurret;
 import me.hapyl.fight.game.talents.archive.frostbite.IceBarrier;
 import me.hapyl.fight.game.talents.archive.frostbite.Icicles;
 import me.hapyl.fight.game.talents.archive.frostbite.IceCageTalent;
@@ -484,9 +485,11 @@ public enum Talents {
 
     // Engineer
     ENGINEER_SENTRY(new EngineerSentry()),
-    ENGINEER_TURRET(null),
+    ENGINEER_TURRET(new EngineerTurret()),
     ENGINEER_RECALL(new EngineerRecall()),
-    ENGINEER_PASSIVE(null),
+    ENGINEER_PASSIVE(new PassiveTalent("Magnetic Attraction", """
+            Every few seconds you'll receive an Iron Ingot. 
+            Use it to build stuff!""", Material.IRON_INGOT)),
 
     // Bloodfiend
     TWIN_CLAWS(new TwinClaws()),
