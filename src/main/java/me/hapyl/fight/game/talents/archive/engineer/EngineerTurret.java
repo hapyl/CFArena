@@ -22,7 +22,7 @@ import javax.annotation.Nonnull;
 
 public class EngineerTurret extends EngineerTalent {
     @DisplayField
-    private final double sDamage = 7.2;
+    private final double sDamage = 5;
     public EngineerTurret() {
         super("Sentry", 6);
 
@@ -100,7 +100,7 @@ public class EngineerTurret extends EngineerTalent {
                         public boolean step(@Nonnull Location location) {
                             PlayerLib.spawnParticle(location, Particle.CRIT_MAGIC, 1);
 
-                            LivingGameEntity targetEntity = Collect.nearestEntity(location, 2, livingGameEntity -> {
+                            LivingGameEntity targetEntity = Collect.nearestEntity(location, 1, livingGameEntity -> {
                                 if (livingGameEntity.equals(player)) {
                                     return false;
                                 }

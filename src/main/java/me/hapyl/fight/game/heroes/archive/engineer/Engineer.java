@@ -29,7 +29,7 @@ import java.net.http.WebSocket;
 
 public class Engineer extends Hero implements Listener {
 
-    public final int IRON_RECHARGE_RATE = 40;
+    public final int IRON_RECHARGE_RATE = 60;
     public final int MAX_IRON = 10;
 
     private final Weapon ironFist = new Weapon(Material.IRON_BLOCK).setDamage(10.0d).setName("&6&lIron Fist");
