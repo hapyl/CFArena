@@ -39,7 +39,9 @@ public class Engineer extends Hero implements Listener {
 
     public Engineer() {
         super("Engineer",
-                "Once the timer reaches zero, the target locks in. ____&oWhile the target remains locked, the sentry engages. ____&oWhile the sentry engages, the target flees.");
+                """
+            A Genius with 12 PHDs. All of his buildings were made by himself. Though, he uses just 2 of those.
+            And your best hope - Not pointed at you.""", Material.IRON_INGOT);
 
         setArchetype(Archetype.STRATEGY);
 
@@ -153,7 +155,7 @@ public class Engineer extends Hero implements Listener {
                     if(!isUsingUltimate(player)){
                         return;
                     }
-                    player.damage(11.0d);
+                    player.damage(10.0d);
                 });
             }
         }.runTaskTimer(IRON_RECHARGE_RATE, IRON_RECHARGE_RATE);
