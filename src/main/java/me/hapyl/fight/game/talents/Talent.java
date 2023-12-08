@@ -4,14 +4,13 @@ import com.google.common.collect.Lists;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.annotate.ExecuteOrder;
+import me.hapyl.fight.event.custom.TalentUseEvent;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.effect.GameEffect;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.effect.archive.SlowingAuraEffect;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.util.Condition;
 import me.hapyl.fight.util.Described;
@@ -227,10 +226,15 @@ public abstract class Talent extends NonNullItemCreator
         return "Talent";
     }
 
+    @Nonnull
+    public String getTypeFormattedWithClassType() {
+        return type.getName() + " " + getTalentClassType();
+    }
+
     public void createItem() {
         final ItemBuilder builderItem = ItemBuilder.of(material)
                 .setName(name)
-                .addLore("&8" + type.getName() + " " + getTalentClassType())
+                .addLore("&8" + getTypeFormattedWithClassType())
                 .addLore();
 
         builderItem.setAmount(startAmount);
@@ -390,12 +394,14 @@ public abstract class Talent extends NonNullItemCreator
             return response == null ? Response.ERROR_DEFAULT : response;
         }
 
-        postProcessTalent(player);
+        if (!response.isError()) {
+            postProcessTalent(player);
+        }
 
         return response;
     }
 
-    // Performs post-process for a talent, such as storing stats, progressing achievements etc.
+    // Performs post-process for a talent, such as storing stats, progressing achievements, etc.
     public final void postProcessTalent(@Nonnull GamePlayer player) {
         // Progress ability usage
         final StatContainer stats = player.getStats();
@@ -409,10 +415,7 @@ public abstract class Talent extends NonNullItemCreator
         // Progress achievement
         Achievements.USE_TALENTS.complete(player);
 
-        // FIXME (hapyl): 026, Aug 26: There should really be an event system, YEP
-        Heroes.BLOODFIEND.getHero(Bloodfiend.class).workImpel(player, (impel, gamePlayer) -> {
-            impel.complete(gamePlayer, me.hapyl.fight.game.heroes.archive.bloodfield.impel.Type.USE_ABILITY);
-        });
+        new TalentUseEvent(player, this).call();
     }
 
     public final void startMaxCd(GamePlayer player) {

@@ -7,7 +7,10 @@ public enum Cooldown {
 
     DWARF_LAVA(1000),
     BEAM_TOUCH(500),
-    FEROCITY(100);
+    FEROCITY(100),
+    NO_DAMAGE(0),
+    PLAYER_PING(500),
+    ;
 
     public final long duration;
 

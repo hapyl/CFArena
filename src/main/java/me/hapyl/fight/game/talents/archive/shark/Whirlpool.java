@@ -55,7 +55,7 @@ public class Whirlpool extends Talent {
 
                     // Pull enemies towards the center
                     Collect.nearbyEntities(location, range).forEach(entity -> {
-                        if (entity.equals(player) || GameTeam.isTeammate(player, entity)) {
+                        if (player.isSelfOrTeammate(entity)) {
                             return;
                         }
 

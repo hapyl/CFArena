@@ -83,6 +83,9 @@ import me.hapyl.fight.game.talents.archive.taker.DeathSwap;
 import me.hapyl.fight.game.talents.archive.taker.FatalReap;
 import me.hapyl.fight.game.talents.archive.taker.SpiritualBonesPassive;
 import me.hapyl.fight.game.talents.archive.tamer.MineOBall;
+import me.hapyl.fight.game.talents.archive.tamer.TamingTheEarth;
+import me.hapyl.fight.game.talents.archive.tamer.TamingTheTime;
+import me.hapyl.fight.game.talents.archive.tamer.TamingTheWind;
 import me.hapyl.fight.game.talents.archive.techie.TrapCage;
 import me.hapyl.fight.game.talents.archive.techie.TrapWire;
 import me.hapyl.fight.game.talents.archive.troll.Repulsor;
@@ -96,8 +99,8 @@ import me.hapyl.fight.game.talents.archive.witcher.*;
 import me.hapyl.fight.game.talents.archive.zealot.BrokenHeartRadiation;
 import me.hapyl.fight.game.talents.archive.zealot.MaledictionVeil;
 import me.hapyl.fight.game.talents.archive.zealot.MalevolentHitshield;
-import me.hapyl.fight.util.Compute;
 import me.hapyl.spigotutils.module.util.BFormat;
+import me.hapyl.spigotutils.module.util.Compute;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.Listener;
@@ -211,8 +214,13 @@ public enum Talents {
             Talent.Type.ENHANCE
     )),
 
-    // Tamer
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.tamer.Tamer}
+     */
     MINE_O_BALL(new MineOBall()),
+    TAMING_THE_WIND(new TamingTheWind()),
+    TAMING_THE_EARTH(new TamingTheEarth()),
+    TAMING_THE_TIME(new TamingTheTime()),
 
     /**
      * {@link me.hapyl.fight.game.heroes.archive.nightmare.Nightmare}
@@ -368,17 +376,19 @@ public enum Talents {
     DEATH_SWAP(new DeathSwap()),
     SPIRITUAL_BONES(new SpiritualBonesPassive()),
 
-    // Juju
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.juju.JuJu}
+     */
     ARROW_SHIELD(new ArrowShield()),
     @Deprecated CLIMB(new Climb()),
     TRICKS_OF_THE_JUNGLE(new TricksOfTheJungle()),
     POISON_ZONE(new PoisonZone()),
     JUJU_PASSIVE(new PassiveTalent(
             "Climb", """
-            Raised by the jungle, Juju mastered the ability to climb anything.
-                        
-            &e&lJUMP &7near the wall to grab onto it.
-            &e&lSNEAK &7to climb higher.
+            Raised by the &ajungle&7, Juju mastered the ability to &2climb&7 &nanything&7.
+
+            &6&lJUMP&7 no the wall to gran onto it and &bdescend&7 slowly.
+            &6&lSNEAK&7 to climb upwards.
             """, Material.LEATHER_BOOTS
     )),
 
@@ -391,7 +401,9 @@ public enum Talents {
             Material.STRING
     )),
 
-    // Shark
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.shark.Shark}
+     */
     SUBMERGE(new Submerge()),
     WHIRLPOOL(new Whirlpool()),
     CLAW_CRITICAL(new PassiveTalent(

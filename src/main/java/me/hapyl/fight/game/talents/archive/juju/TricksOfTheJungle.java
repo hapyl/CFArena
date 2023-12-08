@@ -25,7 +25,10 @@ public class TricksOfTheJungle extends Talent implements Listener {
         setDurationSec(8);
         setCooldownSec(20);
 
+        setType(Type.ENHANCE);
         setItem(Material.OAK_SAPLING);
+
+        // Have to keep the description last
         setDescription(ArrowType.ELUSIVE.getTalentDescription(this));
     }
 

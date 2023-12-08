@@ -5,13 +5,18 @@ import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 
 public interface StyledBuilder {
 
     @Nonnull
     default ItemStack asIcon(@Nonnull String name, @Nonnull String... lore) {
-        return toBuilder().setName(name).setLore(List.of(lore)).asIcon();
+        final ItemBuilder builder = toBuilder().setName(name);
+
+        for (String string : lore) {
+            builder.addLore(string);
+        }
+
+        return builder.asIcon();
     }
 
     @Nonnull

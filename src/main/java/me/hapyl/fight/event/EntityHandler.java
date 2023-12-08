@@ -1,6 +1,8 @@
 package me.hapyl.fight.event;
 
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.team.Entry;
+import me.hapyl.fight.game.team.GameTeam;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -8,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.entity.EntityTargetEvent;
 
 public class EntityHandler implements Listener {
 
@@ -39,6 +42,30 @@ public class EntityHandler implements Listener {
         }
 
         Manager.current().removeEntity(entity);
+    }
+
+    @EventHandler()
+    public void handleTargetEvent(EntityTargetEvent ev) {
+        final Entity entity = ev.getEntity();
+        final Entity target = ev.getTarget();
+
+        if (target == null) {
+            return;
+        }
+
+        final GameTeam team = GameTeam.getEntryTeam(Entry.of(entity));
+
+        if (team == null) {
+            return;
+        }
+
+        if (!team.isEntry(Entry.of(target))) {
+            return;
+        }
+
+        // Cancel targeting teammates
+        ev.setTarget(null);
+        ev.setCancelled(true);
     }
 
 

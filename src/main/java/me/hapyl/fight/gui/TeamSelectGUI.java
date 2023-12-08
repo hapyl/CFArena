@@ -2,6 +2,7 @@ package me.hapyl.fight.gui;
 
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.profile.PlayerProfile;
+import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -14,7 +15,7 @@ import javax.annotation.Nullable;
 
 public class TeamSelectGUI extends GameManagementSubGUI<GameTeam> {
     public TeamSelectGUI(Player player) {
-        super(player, "Select Team", Size.FIVE, GameTeam.values());
+        super(player, "Select Team", Size.FIVE, GameTeam.getTeams());
     }
 
     @Override
@@ -50,7 +51,7 @@ public class TeamSelectGUI extends GameManagementSubGUI<GameTeam> {
         builder.addLore("Members:");
 
         for (int i = 0; i < team.getMaxPlayers(); i++) {
-            final Player lobbyPlayer = team.getLobbyPlayer(i);
+            final Player lobbyPlayer = team.getBukkitPlayer(i);
 
             if (lobbyPlayer == null) {
                 builder.addLore("&8- Empty!");
@@ -72,7 +73,7 @@ public class TeamSelectGUI extends GameManagementSubGUI<GameTeam> {
 
     @Nullable
     private GameTeam getPlayerTeam() {
-        return GameTeam.getPlayerTeam(player);
+        return GameTeam.getEntryTeam(Entry.of(player));
     }
 
 }

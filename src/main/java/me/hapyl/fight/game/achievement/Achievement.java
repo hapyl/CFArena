@@ -219,7 +219,7 @@ public class Achievement extends PatternId {
             return;
         }
 
-        completeAll(team.getPlayersAsPlayers());
+        completeAll(team.getBukkitPlayers());
     }
 
     /**

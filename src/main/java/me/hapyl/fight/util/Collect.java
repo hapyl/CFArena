@@ -7,6 +7,7 @@ import me.hapyl.fight.annotate.ExplicitEntityValidation;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -168,7 +169,7 @@ public final class Collect {
                 entity -> entity instanceof GamePlayer
                         && entity.isNot(exclude)
                         && Manager.current().isPlayerInGame((GamePlayer) entity)
-                        && !GameTeam.isTeammate(exclude, (Player) entity)
+                        && !GameTeam.isTeammate(Entry.of(exclude), Entry.of(entity))
         );
     }
 

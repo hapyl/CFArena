@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.entry.ExperienceEntry;
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
@@ -22,10 +23,12 @@ import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class Experience extends DependencyInjector<Main> {
 
-    private final Map<Long, ExperienceLevel> experienceLevelMap;
+    private final TreeMap<Long, ExperienceLevel> experienceLevelMap;
+
     private final Color GRADIENT_COLOR_1 = new Color(253, 29, 29);
     private final Color GRADIENT_COLOR_2 = new Color(252, 210, 69);
     private final String LEVEL_UP_GRADIENT = new Gradient("LEVEL UP!")
@@ -35,13 +38,15 @@ public class Experience extends DependencyInjector<Main> {
                     GRADIENT_COLOR_2,
                     Interpolators.LINEAR
             );
+
     private final int progressBarCount = 40;
 
     public Experience(Main main) {
         super(main);
-        this.experienceLevelMap = Maps.newLinkedHashMap();
-        this.setupMap();
-        this.setupRewards();
+
+        experienceLevelMap = Maps.newTreeMap();
+        setupMap();
+        setupRewards();
     }
 
     /**
@@ -133,23 +138,24 @@ public class Experience extends DependencyInjector<Main> {
             return false;
         }
 
-        final ExperienceEntry exp = getDatabaseEntry(player);
+        final ExperienceEntry entry = getDatabaseEntry(player);
+        final long currentLevel = entry.get(ExperienceEntry.Type.LEVEL);
+        final long toLevel = getLevelEnoughExp(entry.get(ExperienceEntry.Type.EXP));
 
-        final long currentLevel = exp.get(ExperienceEntry.Type.LEVEL);
-        final long nextLevel = Math.min(currentLevel + 1, getMaxLevel());
-
-        if (nextLevel <= 1) {
-            // don't level to lvl 1
+        if (currentLevel >= toLevel) {
             return false;
         }
 
-        exp.set(ExperienceEntry.Type.LEVEL, nextLevel);
+        entry.set(ExperienceEntry.Type.LEVEL, toLevel);
 
         // Grant rewards
-        final List<Reward> rewards = getRewards(nextLevel);
-        if (rewards != null) {
-            for (Reward reward : rewards) {
-                reward.grant(player);
+        for (long level = currentLevel + 1; level <= toLevel; level++) {
+            final List<Reward> rewards = getRewards(level);
+
+            if (rewards != null) {
+                for (Reward reward : rewards) {
+                    reward.grant(player);
+                }
             }
         }
 
@@ -157,8 +163,27 @@ public class Experience extends DependencyInjector<Main> {
         fixRewards(player);
 
         // Display reward message and sound
-        displayRewardMessage(player, nextLevel);
+        // Don't display if leveling up to level 1
+        if (toLevel <= 1) {
+            return false;
+        }
+
+        displayRewardMessage(player, toLevel);
         return true;
+    }
+
+    public long getLevelEnoughExp(long exp) {
+        final TreeMap<Long, ExperienceLevel> treeMap = new TreeMap<>(experienceLevelMap);
+
+        for (Long level : treeMap.descendingKeySet()) {
+            final ExperienceLevel experienceLevel = treeMap.get(level);
+
+            if (exp >= experienceLevel.getExpRequired()) {
+                return experienceLevel.getLevel();
+            }
+        }
+
+        return 1;
     }
 
     public void displayRewardMessage(Player player, long level) {

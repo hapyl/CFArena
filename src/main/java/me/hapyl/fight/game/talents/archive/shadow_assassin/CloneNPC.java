@@ -13,11 +13,9 @@ import me.hapyl.spigotutils.module.player.EffectType;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
 import me.hapyl.spigotutils.module.reflect.npc.ItemSlot;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scoreboard.Team;
 
 import javax.annotation.Nonnull;
 
@@ -82,6 +80,14 @@ public class CloneNPC extends HumanNPC implements Ticking {
     public void attack(@Nonnull LivingGameEntity entity) {
         final ShadowAssassinClone talent = cloneList.getTalent();
         cloneList.attackingMap.put(this, entity);
+
+        // Glow the clone
+        final Team team = getTeamOrCreate(player.getScoreboard());
+
+        team.setColor(ChatColor.BLACK);
+
+        setDataWatcherByteValue(0, (byte) (getDataWatcherByteValue(0) | 0x40));
+        updateDataWatcher();
 
         lookAt(entity.getLocation());
         swingMainHand();

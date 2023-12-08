@@ -26,9 +26,9 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.trial.Trial;
 import me.hapyl.fight.game.ui.GamePlayerUI;
-import me.hapyl.fight.game.weapons.RangeWeapon;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.game.weapons.ability.Ability;
+import me.hapyl.fight.game.weapons.range.RangeWeapon;
 import me.hapyl.fight.garbage.CFGarbageCollector;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.spigotutils.EternaPlugin;
@@ -44,7 +44,6 @@ import org.bukkit.*;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.PlayerInventory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -187,11 +186,14 @@ public final class Manager extends DependencyInjector<Main> {
     @Nonnull
     public PlayerProfile createProfile(Player player) {
         final PlayerProfile profile = new PlayerProfile(player);
+        final Main plugin = getPlugin();
+
         profiles.put(player.getUniqueId(), profile);
 
         profile.loadData();
-        getPlugin().getExperience().triggerUpdate(player);
-        Main.getPlugin().getCrateManager().createHologram(player);
+
+        plugin.getExperience().triggerUpdate(player);
+        plugin.getCrateManager().createHologram(player);
         return profile;
     }
 
@@ -460,12 +462,6 @@ public final class Manager extends DependencyInjector<Main> {
                 }
             }
 
-            // Set ultimate item
-            final Hero hero = gamePlayer.getHero();
-            final PlayerInventory inventory = player.getInventory();
-
-            inventory.setItem(22, hero.getUltimate().getItem());
-
             // Teleport to the map
             player.teleport(currentMap.getMap().getLocation());
         }
@@ -584,8 +580,8 @@ public final class Manager extends DependencyInjector<Main> {
         Main.getPlugin().getTaskList().onStop();
 
         // clean-up teams
-        for (GameTeam value : GameTeam.values()) {
-            value.onStop();
+        for (GameTeam team : GameTeam.values()) {
+            team.onStop();
         }
 
         // Remove entities

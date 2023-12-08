@@ -8,7 +8,6 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -68,8 +67,9 @@ public class Paranoia extends Talent {
                 stand.teleport(standLocation.add(standLocation.getDirection()).multiply(1));
 
                 // Fx
-                PlayerLib.spawnParticle(standLocation, Particle.SQUID_INK, 2, 0.1d, 0.1d, 0.1d, 0.1f);
-                PlayerLib.playSound(standLocation, Sound.BLOCK_ANVIL_STEP, 1.5f);
+                player.spawnParticle(standLocation, Particle.SMOKE_LARGE, 2, 0.175d, 0.175d, 0.175d, 0.02f);
+                player.spawnParticle(standLocation, Particle.SPELL_WITCH, 2, 0.175d, 0.175d, 0.175d, 0.02f);
+                player.playWorldSound(standLocation, Sound.BLOCK_ANVIL_STEP, 1.5f);
 
                 // Apply blindness
                 Collect.nearbyEntities(standLocation, 2.0d).forEach(target -> {

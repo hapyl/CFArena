@@ -29,7 +29,7 @@ public class CachedHeroItem {
             builder.setName(hero.toString())
                     .addLore()
                     .addLore("&7Archetype: " + archetype)
-                    .addSmartLore(archetype.getDescription(), "&8&o");
+                    .addTextBlockLore(archetype.getDescription(), "&8&o");
 
             // Affiliation
             if (hero.getOrigin() != Affiliation.NOT_SET) {
@@ -42,12 +42,12 @@ public class CachedHeroItem {
             builder.addLore().addLore("&e&lAttributes:");
             final HeroAttributes attributes = hero.getAttributes();
 
-            attributes.forEachNonZero((type, value) -> {
+            attributes.forEachMandatoryAndNonDefault((type, value) -> {
                 builder.addLore(" &7%s: &b%s", type.getName(), type.getFormatted(attributes));
             });
 
             builder.addLore();
-            builder.addSmartLore(hero.getDescription(), "&8&o");
+            builder.addTextBlockLore(hero.getDescription(), "&8&o", 35, CFUtils.DISAMBIGUATE);
 
             detailsItem = builder.asIcon();
         }
@@ -74,7 +74,6 @@ public class CachedHeroItem {
             builder.addLore(attributes.getLore(AttributeType.SPEED));
 
             builder.addLore();
-
             builder.addTextBlockLore(hero.getDescription(), "&8&o", 35, CFUtils.DISAMBIGUATE);
 
             if (hero instanceof ComplexHero) {

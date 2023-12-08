@@ -3,6 +3,7 @@ package me.hapyl.fight.game.heroes.archive.bloodfield;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.event.custom.TalentUseEvent;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
@@ -10,10 +11,7 @@ import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.ComplexHero;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.UltimateCallback;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.archive.bloodfield.impel.Impel;
 import me.hapyl.fight.game.heroes.archive.bloodfield.impel.ImpelInstance;
 import me.hapyl.fight.game.heroes.archive.bloodfield.impel.Type;
@@ -139,6 +137,15 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
     @Override
     public void onRespawn(@Nonnull GamePlayer player) {
         getData(player).cooldownFlight(true);
+    }
+
+    @EventHandler()
+    public void handleTalentUse(TalentUseEvent ev) {
+        final GamePlayer player = ev.getPlayer();
+        
+        workImpel(player, (impel, gp) -> {
+            impel.complete(player, Type.USE_ABILITY);
+        });
     }
 
     @Nullable

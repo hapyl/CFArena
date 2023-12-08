@@ -49,8 +49,13 @@ public class ExperienceCommand extends SimplePlayerAdminCommand {
                     database.reset(ExperienceEntry.Type.EXP);
                     database.reset(ExperienceEntry.Type.LEVEL);
                     database.reset(ExperienceEntry.Type.POINT);
-                    experience.triggerUpdate(player);
+                    experience.triggerUpdate(target);
                     Chat.sendMessage(player, "&aReset player.");
+                }
+
+                case "levelup" -> {
+                    experience.levelUp(target, false);
+                    Chat.sendMessage(player, "&aLevelling up %s...", target.getName());
                 }
             }
 

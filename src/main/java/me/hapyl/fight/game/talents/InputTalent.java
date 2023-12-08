@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents;
 
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Material;
 
@@ -31,23 +32,42 @@ public abstract class InputTalent extends Talent {
         rightData = new InputTalentData(false);
     }
 
+    /**
+     * @deprecated {@link InputTalentData#setType(Type)}
+     */
+    @Deprecated
+    @Override
+    public Talent setType(@Nonnull Type type) {
+        return this;
+    }
+
     @Nonnull
     @Override
     public String getTalentClassType() {
         return "Input Talent";
     }
 
+    @Nonnull
+    @Override
+    public String getTypeFormattedWithClassType() {
+        return getTalentClassType();
+    }
+
     @Override
     public void appendLore(@Nonnull ItemBuilder builder) {
-        builder.addTextBlockLore("""
-                                                
-                        &e&lLEFT CLICK&e to %s
-                        %s
-                        &6&lRIGHT CLICK&6 to %s
-                        %s
-                        """,
-                leftData.getAction(), format(leftData.getDescription(), leftData),
-                rightData.getAction(), format(rightData.getDescription(), rightData)
+        builder.addTextBlockLore(
+                Chat.bformat("""
+                                                        
+                                &e&lLEFT CLICK&e to {LeftName}
+                                &8{LeftType}
+                                {LeftDescription}
+                                &6&lRIGHT CLICK&6 to {RightName}
+                                &8{RightType}
+                                {RightDescription}
+                                """,
+                        leftData.getAction(), leftData.getType().getName(), format(leftData.getDescription(), leftData),
+                        rightData.getAction(), rightData.getType().getName(), format(rightData.getDescription(), rightData)
+                )
         );
     }
 

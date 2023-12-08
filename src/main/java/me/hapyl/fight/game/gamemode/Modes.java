@@ -38,6 +38,11 @@ public enum Modes implements Selectable {
 
     @Override
     public void select(@Nonnull Player player) {
+        if (isSelected(player)) {
+            Chat.sendMessage(player, "&6&lMODE! &cAlready selected!");
+            return;
+        }
+
         Manager.current().setCurrentMode(this);
 
         Chat.broadcast("&6&lMODE! &e%s selected &l%s&e!", player.getName(), getName());

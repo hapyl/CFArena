@@ -3,10 +3,11 @@ package me.hapyl.fight.game.attribute.temper;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.util.SmallCapsDescriber;
 
 import javax.annotation.Nonnull;
 
-public enum Temper {
+public enum Temper implements SmallCapsDescriber {
 
     COMMAND, // for testing
     FLOWER_BREEZE,
@@ -34,8 +35,26 @@ public enum Temper {
         }
     },
     STONE_CASTLE,
+    MECHA_INDUSTRY,
+    TAMING_THE_TIME {
+        @Override
+        public boolean isDisplay() {
+            return false;
+        }
+    },
+    ;
 
-    MECHA_INDUSTRY;
+    private final String smallCaps;
+
+    Temper() {
+        smallCaps = toSmallCaps(this);
+    }
+
+    @Nonnull
+    @Override
+    public String getNameSmallCaps() {
+        return smallCaps;
+    }
 
     /**
      * Gets if a display should be spawned upon tempering.
@@ -44,6 +63,11 @@ public enum Temper {
      */
     public boolean isDisplay() {
         return true;
+    }
+
+    @Nonnull
+    public TemperInstance newInstance() {
+        return newInstance(smallCaps);
     }
 
     @Nonnull

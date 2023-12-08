@@ -13,7 +13,6 @@ import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Tick;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -22,7 +21,6 @@ import org.bukkit.entity.Arrow;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
@@ -37,20 +35,19 @@ public class ArrowShield extends Talent implements Listener {
     @DisplayField private final double explosionRadius = 2.0d;
     @DisplayField private final double explosionDamage = 5.0d;
     @DisplayField private final int poisonDuration = Tick.fromSecond(3);
-
-    private final PotionEffect effect = PotionEffectType.POISON.createEffect(poisonDuration, 2);
+    @DisplayField private final short poisonStrength = 2;
 
     public ArrowShield() {
         super("Arrow Shield");
 
-        setItem(Material.STRING);
-
         setDescription("""
-                Creates a shield of arrows for {duration} that blocks any damage.
+                Creates a &eshield&7 of arrows for {duration} that blocks &nany&7 damage.
                                 
-                When hit, an arrow triggers a rapid explosion in small AoE, dealing damage, applying poison, and reducing %s.
+                When hit, an arrow triggers a rapid &4explosion&7 in small &cAoE&7, dealing &cdamage&7, applying &2poison&7, and reducing %s.
                 """, AttributeType.DEFENSE);
 
+        setType(Type.DEFENSE);
+        setItem(Material.STRING);
         setDurationSec(15);
         setCooldownSec(40);
     }
@@ -89,16 +86,16 @@ public class ArrowShield extends Talent implements Listener {
         livingEntities.forEach(entity -> {
             Temper.POISON_IVY.temper(entity.getAttributes(), AttributeType.DEFENSE, -0.2d, poisonDuration);
 
-            entity.addPotionEffect(effect);
             entity.damage(explosionDamage, player, EnumDamageCause.POISON_IVY);
+            entity.addPotionEffect(PotionEffectType.POISON, poisonDuration, poisonStrength);
         });
 
         // Fx
-        PlayerLib.spawnParticle(location, Particle.TOTEM, 25, 0, 0, 0, 0.75f);
-        PlayerLib.spawnParticle(location, Particle.VILLAGER_HAPPY, 5, 0.25d, 0.25d, 0.25d, 0.0f);
+        player.spawnWorldParticle(location, Particle.TOTEM, 25, 0, 0, 0, 0.75f);
+        player.spawnWorldParticle(location, Particle.VILLAGER_HAPPY, 5, 0.25d, 0.25d, 0.25d, 0.0f);
 
-        PlayerLib.playSound(location, Sound.ENCHANT_THORNS_HIT, 0.75f);
-        PlayerLib.playSound(location, Sound.ENCHANT_THORNS_HIT, 1.25f);
+        player.playWorldSound(location, Sound.ENCHANT_THORNS_HIT, 0.75f);
+        player.playWorldSound(location, Sound.ENCHANT_THORNS_HIT, 1.25f);
     }
 
     @Override
@@ -116,8 +113,9 @@ public class ArrowShield extends Talent implements Listener {
             }));
         }
 
-        PlayerLib.playSound(player.getLocation(), Sound.ITEM_CROSSBOW_SHOOT, 0.75f);
-        PlayerLib.playSound(player.getLocation(), Sound.ITEM_SHIELD_BLOCK, 1.25f);
+        player.playWorldSound(Sound.ITEM_CROSSBOW_SHOOT, 0.75f);
+        player.playWorldSound(Sound.ITEM_SHIELD_BLOCK, 1.25f);
+
         shieldMap.put(player, list);
 
         new GameTask() {
@@ -133,26 +131,27 @@ public class ArrowShield extends Talent implements Listener {
                         player.sendMessage("&a🛡 Your shield has run out!");
                         removeArrows(player);
                     }
-                    this.cancel();
+
+                    cancel();
                     return;
                 }
 
                 final Location location = player.getLocation();
                 location.setYaw(0.0f);
                 location.setPitch(-90.0f);
+
                 final double offset = ((Math.PI * 2) / Math.max(arrows.size(), 1));
 
                 int pos = 1;
                 for (final Arrow arrow : arrows) {
                     final double x = 1.25d * Math.sin(theta + offset * pos);
                     final double z = 1.25d * Math.cos(theta + offset * pos);
-                    location.add(x, 1, z);
 
-                    //arrow.setVelocity(new Vector(0.0d, 0.1d, 0.0d));
+                    location.add(x, 1, z);
                     arrow.teleport(location);
 
                     // Fx
-                    PlayerLib.spawnParticle(location, Particle.TOTEM, 1, 0, 0, 0, 0.05f);
+                    player.spawnWorldParticle(location, Particle.TOTEM, 1, 0, 0, 0, 0.05f);
 
                     location.subtract(x, 1, z);
                     ++pos;
@@ -188,9 +187,10 @@ public class ArrowShield extends Talent implements Listener {
         final List<Arrow> arrows = getArrows(player);
 
         arrows.forEach(entity -> {
-            PlayerLib.spawnParticle(entity.getLocation(), Particle.EXPLOSION_NORMAL, 3, 0, 0, 0, 0.01f);
+            player.spawnWorldParticle(entity.getLocation(), Particle.EXPLOSION_NORMAL, 3, 0, 0, 0, 0.01f);
             entity.remove();
         });
+
         arrows.clear();
     }
 

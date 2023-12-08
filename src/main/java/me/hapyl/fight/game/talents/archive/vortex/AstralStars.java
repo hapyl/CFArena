@@ -2,8 +2,8 @@ package me.hapyl.fight.game.talents.archive.vortex;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.util.Ticking;
 import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.Ticking;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -85,9 +85,13 @@ public class AstralStars implements Ticking {
         }
     }
 
-    public void removeStar(AstralStar entity) {
-        stars.remove(entity);
-        entity.remove();
+    public void removeStar(AstralStar star) {
+        if (targetStar == star) {
+            targetStar = null;
+        }
+
+        stars.remove(star);
+        star.remove();
     }
 
     public void clear() {

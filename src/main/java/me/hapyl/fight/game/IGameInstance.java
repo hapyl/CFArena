@@ -120,7 +120,7 @@ public interface IGameInstance {
         int kills = 0;
 
         for (GameTeam team : GameTeam.values()) {
-            kills += team.kills;
+            kills += team.data.kills;
         }
 
         return kills;
@@ -135,7 +135,7 @@ public interface IGameInstance {
         int deaths = 0;
 
         for (GameTeam team : GameTeam.values()) {
-            deaths += team.deaths;
+            deaths += team.data.deaths;
         }
 
         return deaths;

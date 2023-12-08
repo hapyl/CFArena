@@ -1,44 +1,47 @@
-package me.hapyl.fight.game.weapons;
+package me.hapyl.fight.game.weapons.range;
 
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
+import me.hapyl.fight.game.weapons.PackedParticle;
+import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.game.weapons.ability.Ability;
 import me.hapyl.fight.game.weapons.ability.AbilityType;
-import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.collection.player.PlayerMap;
+import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.util.Consumer;
-import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.function.Consumer;
 
-public abstract class RangeWeapon extends Weapon implements GameElement, PlayerElement, UIComponent {
+public abstract class RangeWeapon extends Weapon implements GameElement, PlayerElement, UIComponent, WeaponRaycastable {
 
     public static final double HEADSHOT_THRESHOLD = 0.75d;
+    public static final double HEADSHOT_MULTIPLIER = 1.5d;
+    public static final double RANGE_KNOCKBACK = 0.5d;
+
     private final PlayerMap<Integer> playerAmmo;
+    protected double shift;
     private int reloadTime;
     private int maxAmmo;
     private int cooldown;
-    private double shift;
     private double maxDistance;
     private PackedParticle particleTick;
     private PackedParticle particleHit;
     private Sound sound;
     private float pitch;
+    @Nonnull
+    protected WeaponRaycast raycast;
 
     public RangeWeapon(Material material, String id) {
         super(material);
@@ -50,23 +53,24 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
         this.playerAmmo = PlayerMap.newMap();
         this.maxAmmo = 8;
         this.reloadTime = 100;
+        this.raycast = new WeaponRaycast(this);
 
         setAbility(AbilityType.RIGHT_CLICK, new AbilityShoot());
         setAbility(AbilityType.LEFT_CLICK, new AbilityReload());
     }
 
     @Override
-    public void onStart() {
+    public final void onStart() {
     }
 
     @Override
-    public void onStop() {
+    public final void onStop() {
         playerAmmo.clear();
     }
 
     @Override
-    public void onDeath(@Nonnull GamePlayer player) {
-        playerAmmo.clear();
+    public final void onDeath(@Nonnull GamePlayer player) {
+        playerAmmo.remove(player);
     }
 
     @Nonnull
@@ -114,7 +118,6 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
         return setCooldown(cd * 20);
     }
 
-    // override for custom per-player cooldown
     public int getWeaponCooldown(@Nonnull GamePlayer player) {
         return cooldown;
     }
@@ -127,16 +130,22 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
         return reloadTime;
     }
 
+    @Override
+    public double getShift() {
+        return shift;
+    }
+
     public RangeWeapon setReloadTime(int reloadTime) {
         this.reloadTime = reloadTime;
         return this;
     }
 
-    // override for custom per-player max distance
+    @Override
     public double getMaxDistance(@Nonnull GamePlayer player) {
         return maxDistance;
     }
 
+    @Override
     public final double getMaxDistance() {
         return maxDistance;
     }
@@ -146,49 +155,15 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
         return this;
     }
 
-    // override for custom per-player damage
-    public double getDamage(@Nonnull GamePlayer player, boolean headshot) {
-        return getDamage();
+    @Override
+    public double getDamage(@Nonnull GamePlayer player, boolean isHeadShot) {
+        return isHeadShot ? getDamage() * HEADSHOT_MULTIPLIER : getDamage();
     }
 
+    @Override
     @Nullable
     public EnumDamageCause getDamageCause(@Nonnull GamePlayer player) {
         return null;
-    }
-
-    /**
-     * Called whenever the path hit entity.
-     *
-     * @param player   - Shooter.
-     * @param entity   - Hit entity.
-     * @param headshot - Whenever the hit was a headshot or not.
-     */
-    public void onHit(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity, boolean headshot) {
-    }
-
-    /**
-     * Called every move of the path.
-     *
-     * @param player   - Player.
-     * @param location - Current path location.
-     */
-    public void onMove(@Nonnull GamePlayer player, Location location) {
-    }
-
-    /**
-     * Called once upon player "pulling the trigger."
-     *
-     * @param player - Player.
-     */
-    public void onShoot(@Nonnull GamePlayer player) {
-    }
-
-    public boolean predicateBlock(Block block) {
-        return !block.getType().isOccluding();
-    }
-
-    public boolean predicateEntity(LivingGameEntity entity) {
-        return true;
     }
 
     public int getCooldown(GamePlayer player) {
@@ -221,6 +196,7 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
 
     public void reload(@Nonnull GamePlayer player) {
         final ItemStack item = player.getItem(HotbarSlots.WEAPON);
+        final int reloadTimeScaled = player.scaleCooldown(reloadTime);
 
         // force reload
         playerAmmo.put(player, 0);
@@ -228,8 +204,7 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
         new TickingGameTask() {
             @Override
             public void run(int tick) {
-                if (tick >= reloadTime) {
-                    modifyMeta(item, meta -> meta.setUnbreakable(true));
+                if (tick >= reloadTimeScaled) {
                     playerAmmo.put(player, maxAmmo);
                     cancel();
                     return;
@@ -263,8 +238,32 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
         startCooldown(player, reloadTime);
     }
 
+    @Override
+    @Nullable
+    public PackedParticle getParticleHit() {
+        return particleHit;
+    }
+
+    @Override
+    @Nullable
+    public PackedParticle getParticleTick() {
+        return particleTick;
+    }
+
     public int getPlayerAmmo(GamePlayer player) {
         return playerAmmo.computeIfAbsent(player, fn -> maxAmmo);
+    }
+
+    public void spawnParticleHit(Location location) {
+        if (particleHit != null) {
+            particleHit.display(location);
+        }
+    }
+
+    public void spawnParticleTick(Location location) {
+        if (particleTick != null) {
+            particleHit.display(location);
+        }
     }
 
     private int subtractAmmo(GamePlayer player) {
@@ -295,7 +294,7 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
         @Nullable
         @Override
         public Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
-            if (player.hasCooldown(getType()) || getPlayerAmmo(player) >= maxAmmo) {
+            if (player.hasCooldown(getMaterial()) || getPlayerAmmo(player) >= maxAmmo) {
                 return null;
             }
 
@@ -312,80 +311,31 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
         @Nullable
         @Override
         public Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
-            if (player.hasCooldown(getType())) {
+            if (player.hasCooldown(getMaterial())) {
                 return null;
             }
 
-            final double maxDistance = getMaxDistance(player);
-            final int weaponCooldown = getWeaponCooldown(player);
-
-            onShoot(player);
-
-            Nulls.runIfNotNull(sound, sound -> {
-                player.playWorldSound(sound, pitch);
-            });
-
-            final Location location = player.getLocation().add(0, 1.5, 0);
-            final Vector vector = location.getDirection().normalize();
+            playShootSound(player.getLocation());
 
             // Cooldown and Ammunition
             final int ammo = subtractAmmo(player);
+
+            raycast.cast(player);
 
             if (ammo <= 0) {
                 reload(player);
             }
             else {
-                RangeWeapon.this.startCooldown(player, weaponCooldown);
-            }
-
-            for (double i = 0; i < maxDistance; i += shift) {
-                final double x = vector.getX() * i;
-                final double y = vector.getY() * i;
-                final double z = vector.getZ() * i;
-
-                location.add(x, y, z);
-
-                // check for block predicate
-                if (!predicateBlock(location.getBlock())) {
-                    Nulls.runIfNotNull(particleHit, p -> {
-                        p.display(location);
-                    });
-                    break;
-                }
-
-                for (final LivingGameEntity target : Collect.nearbyEntities(location, 1.0d)) {
-                    if (target == null || target.equals(player) || !predicateEntity(target)) {
-                        continue;
-                    }
-
-                    final double distanceToHead = location.distance(target.getEyeLocation());
-                    final boolean isHeadShot = distanceToHead <= HEADSHOT_THRESHOLD;
-
-                    onHit(player, target, isHeadShot);
-
-                    target.modifyKnockback(0.5d, d -> {
-                        d.damage(getDamage(player, false), player, getDamageCause(player));
-                    });
-
-                    Nulls.runIfNotNull(particleHit, p -> {
-                        p.display(location);
-                    });
-
-                    return Response.OK;
-                }
-
-                if (i > 1.0) {
-                    Nulls.runIfNotNull(particleTick, p -> {
-                        p.display(location);
-                    });
-
-                    onMove(player, location);
-                }
-
-                location.subtract(x, y, z);
+                RangeWeapon.this.startCooldown(player, getWeaponCooldown(player));
             }
 
             return Response.OK;
+        }
+    }
+
+    private void playShootSound(Location location) {
+        if (sound != null) {
+            PlayerLib.playSound(location, sound, pitch);
         }
     }
 

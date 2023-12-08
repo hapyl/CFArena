@@ -16,7 +16,7 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.game.weapons.PackedParticle;
-import me.hapyl.fight.game.weapons.RangeWeapon;
+import me.hapyl.fight.game.weapons.range.RangeWeapon;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
@@ -41,24 +41,7 @@ public class Spark extends Hero implements PlayerElement {
         equipment.setLeggings(Color.RED);
         equipment.setBoots(Color.ORANGE);
 
-        setWeapon(new RangeWeapon(Material.STICK, "fire_weapon") {
-            @Override
-            public void onHit(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity, boolean headshot) {
-                entity.setFireTicks(10);
-            }
-
-            @Nonnull
-            @Override
-            public EnumDamageCause getDamageCause(@Nonnull GamePlayer player) {
-                return EnumDamageCause.FIRE_SPRAY;
-            }
-        }.setCooldown(30)
-                .setSound(Sound.ENTITY_BLAZE_SHOOT, 1.75f)
-                .setParticleHit(new PackedParticle(Particle.LAVA).setAmount(3).setSpeed(0.2f))
-                .setParticleTick(new PackedParticle(Particle.FLAME).setSpeed(0.001f))
-                .setDamage(8.0d)
-                .setName("Fire Sprayer")
-                .setDescription("A long range weapon that can shoot fire lasers in front of you! How cool is that..."));
+        setWeapon(new SparkWeapon());
 
         setUltimate(new UltimateTalent(
                 "Run it Back", """

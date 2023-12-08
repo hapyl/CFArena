@@ -5,6 +5,7 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.garbage.CFGarbageCollector;
 import me.hapyl.fight.util.CFUtils;
@@ -149,10 +150,15 @@ public class GameEntity {
             return false;
         }
 
+        // Teammate check
+        if (player != null && GameTeam.isTeammate(Entry.of(this), Entry.of(player))) {
+            return false;
+        }
+
         // players are only valid if they are alive and not on the same team
         if (entity instanceof Player targetPlayer) {
-            // creative players should not be valid!
-            if (targetPlayer.getGameMode() == GameMode.CREATIVE) {
+            // Only survival players are valid
+            if (targetPlayer.getGameMode() != GameMode.SURVIVAL) {
                 return false;
             }
 
@@ -164,10 +170,6 @@ public class GameEntity {
 
             if (gamePlayer.hasEffect(GameEffectType.INVISIBILITY)) {
                 return false;
-            }
-
-            if (player != null) {
-                return !GameTeam.isTeammate(player, gamePlayer);
             }
 
             return true;
@@ -440,5 +442,9 @@ public class GameEntity {
         final Vector vector = other.subtract(getLocation()).toVector().normalize();
 
         return getDirection().normalize().dot(vector);
+    }
+
+    public void addToTeam(@Nonnull GameTeam team) {
+        team.addEntry(Entry.of(this));
     }
 }

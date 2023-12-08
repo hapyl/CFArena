@@ -53,16 +53,19 @@ public class Buffer<E> implements List<E> {
         return linkedList.contains(o);
     }
 
+    @Nonnull
     @Override
     public Iterator<E> iterator() {
         return linkedList.iterator();
     }
 
+    @Nonnull
     @Override
     public Object[] toArray() {
         return linkedList.toArray();
     }
 
+    @Nonnull
     @Override
     public <T> T[] toArray(@Nonnull T[] a) {
         return linkedList.toArray(a);

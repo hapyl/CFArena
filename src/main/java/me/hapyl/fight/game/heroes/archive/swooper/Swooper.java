@@ -16,7 +16,7 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.PackedParticle;
-import me.hapyl.fight.game.weapons.RangeWeapon;
+import me.hapyl.fight.game.weapons.range.RangeWeapon;
 import me.hapyl.fight.util.Buffer;
 import me.hapyl.fight.util.BufferMap;
 import me.hapyl.fight.util.Collect;
@@ -69,7 +69,7 @@ public class Swooper extends Hero implements Listener, UIComponent {
         setWeapon(new RangeWeapon(Material.WOODEN_HOE, "swooper_weapon") {
 
             @Override
-            public double getDamage(@Nonnull GamePlayer player, boolean headshot) {
+            public double getDamage(@Nonnull GamePlayer player, boolean isHeadShot) {
                 return player.isSneaking() ? 10.0d : 5.0d;
             }
 
@@ -83,14 +83,10 @@ public class Swooper extends Hero implements Listener, UIComponent {
                 return EnumDamageCause.RIFLE;
             }
 
-            @Override
-            public void onShoot(@Nonnull GamePlayer player) {
-                player.playWorldSound(Sound.ENTITY_GENERIC_EXPLODE, 2.0f);
-            }
-
         }.setCooldown(45)
                 .setMaxAmmo(5)
                 .setParticleTick(new PackedParticle(Particle.FIREWORKS_SPARK))
+                .setSound(Sound.ENTITY_GENERIC_EXPLODE, 2.0f)
                 .setMaxDistance(-1)
                 .setDamage(-1)
                 .setName("Sniper Rifle")

@@ -13,7 +13,7 @@ import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import java.text.SimpleDateFormat;
 import java.util.Set;
 
@@ -173,13 +173,14 @@ public class GameResult {
         return false;
     }
 
+    @Nonnull
     public String formatWinnerName(GamePlayer winner) {
         final StatContainer stats = winner.getStats();
-        @Nullable final GameTeam winnerTeam = winner.getTeam();
+        final GameTeam winnerTeam = winner.getTeam();
 
         return Chat.bformat(
-                "{Team} &7⁑ &6{Hero} &e&l{Name} &7⁑ &c&l{Health} &c❤  &b&l{Kills} &b🗡  &c&l{Deaths} &c☠",
-                (winnerTeam == null ? "" : winnerTeam.getFirstLetterCaps()),
+                "{Team} &7⁑ &6{Hero} &e&l{Name} &7⁑ &c&l{Health}  &b&l{Kills} &b🗡  &c&l{Deaths} &c☠",
+                winnerTeam.getFirstLetterCaps(),
                 winner.getHero().getNameSmallCaps(),
                 winner.getName(),
                 winner.getHealthFormatted(),

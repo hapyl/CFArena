@@ -1,9 +1,13 @@
 package me.hapyl.fight.game.team;
 
 import com.google.common.collect.Sets;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.profile.ProfileDisplay;
+import me.hapyl.fight.game.ui.UIFormat;
+import me.hapyl.fight.util.Ticking;
+import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
@@ -12,7 +16,7 @@ import org.bukkit.scoreboard.Team;
 import javax.annotation.Nonnull;
 import java.util.Set;
 
-public class LocalTeamManager {
+public class LocalTeamManager implements Ticking {
 
     private final Player player;
 
@@ -64,11 +68,8 @@ public class LocalTeamManager {
         return players;
     }
 
-    public void tickAll() {
-        if (isGameInProgress()) {
-            return;
-        }
-
+    @Override
+    public void tick() {
         getOnlinePlayers().forEach(player -> {
             final Team team = getTeam(player);
             final PlayerProfile profile = PlayerProfile.getProfile(player);
@@ -77,12 +78,19 @@ public class LocalTeamManager {
                 return;
             }
 
-            final ProfileDisplay display = profile.getDisplay();
-            final String displayName = display.getFormat();
+            if (isGameInProgress()) {
+                CF.getPlayerOptional(player).ifPresent(gamePlayer -> {
+                    team.setSuffix(Chat.format(UIFormat.DIV + gamePlayer.getHealthFormatted()));
+                });
+            }
+            else {
+                final ProfileDisplay display = profile.getDisplay();
+                final String displayName = display.getFormat();
 
-            team.setPrefix(displayName.substring(0, Math.min(displayName.length(), 64)));
-            team.setSuffix("");
-            team.setColor(display.getColor().bukkitChatColor);
+                team.setPrefix(displayName.substring(0, Math.min(displayName.length(), 64)));
+                team.setSuffix("");
+                team.setColor(display.getColor().bukkitChatColor);
+            }
         });
     }
 
@@ -99,7 +107,7 @@ public class LocalTeamManager {
         getOnlinePlayers().forEach(player -> {
             final Team team = getTeam(player);
 
-            if (GameTeam.isTeammate(this.player, player)) {
+            if (GameTeam.isTeammate(Entry.of(this.player), Entry.of(player))) {
                 LocalTeamState.GAME_ALLY.update(team, player);
             }
             else {

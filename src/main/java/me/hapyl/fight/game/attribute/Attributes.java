@@ -88,7 +88,7 @@ public class Attributes {
     }
 
     public void setValueScaled(AttributeType type, double value) {
-        setValue(type, value / 100);
+        setValue(type, type.scale(value));
     }
 
     /**
@@ -125,6 +125,15 @@ public class Attributes {
     public void forEachNonZero(@Nonnull BiConsumer<AttributeType, Double> consumer) {
         forEach((type, value) -> {
             if (value > 0.0d) {
+                consumer.accept(type, value);
+            }
+        });
+    }
+
+    public void forEachMandatoryAndNonDefault(@Nonnull BiConsumer<AttributeType, Double> consumer) {
+        forEach((type, value) -> {
+            final double defaultValue = type.getDefaultValue();
+            if (type.isMandatory() || value != defaultValue) {
                 consumer.accept(type, value);
             }
         });
@@ -169,6 +178,7 @@ public class Attributes {
     public void setHealth(double value) {
         setValue(AttributeType.MAX_HEALTH, value);
     }
+
 
     private void checkValue(double value) {
         if (value < 1.0) {

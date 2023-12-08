@@ -96,7 +96,7 @@ public class EntityAttributes extends Attributes implements PlayerElement {
 
         // do not spawn if player already has this temper
         if (!silent && temper.isDisplay() && newTemper) {
-            display(type, value > -value);
+            display(type, type.getDisplayType(value, -value));
         }
 
         type.attribute.update(gameEntity, get(type));
@@ -126,7 +126,7 @@ public class EntityAttributes extends Attributes implements PlayerElement {
         final double oldValue = tuple.getA();
         final double newValue = tuple.getB();
 
-        display(type, newValue > oldValue);
+        display(type, type.getDisplayType(newValue, oldValue));
         return oldValue;
     }
 

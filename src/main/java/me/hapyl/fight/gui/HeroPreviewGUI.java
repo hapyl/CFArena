@@ -8,6 +8,7 @@ import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.gui.styled.StyledTexture;
 import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -57,12 +58,7 @@ public class HeroPreviewGUI extends PlayerGUI {
 
         setItem(
                 18,
-                ItemBuilder.playerHead(
-                                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmQ2OWUwNmU1ZGFkZmQ4NGU1ZjNkMWMyMTA2M2YyNTUzYjJmYTk0NWVlMWQ0ZDcxNTJmZGM1NDI1YmMxMmE5In19fQ=="
-                        )
-                        .setName("&aGo Back")
-                        .setLore("&7To Hero Selection")
-                        .toItemStack(),
+                StyledTexture.ARROW_LEFT.asIcon("Go Back", "To Hero Selection"),
                 player -> new HeroSelectGUI(player, index)
         );
 

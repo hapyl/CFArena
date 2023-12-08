@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.tutorial;
 
-import me.hapyl.fight.util.ItemStacks;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.fight.gui.styled.StyledTexture;
 import me.hapyl.spigotutils.module.inventory.gui.PlayerGUI;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -25,7 +24,7 @@ public abstract class TutorialGUI extends PlayerGUI {
 
     @Nonnull
     public ItemStack getButtonIcon() {
-        return new ItemBuilder(ItemStacks.ARROW_PREV_PAGE).setName("&aGo Back").setLore("&7To tutorials.").asIcon();
+        return StyledTexture.ARROW_LEFT.asIcon("Go Back", "To Tutorials");
     }
 
     public abstract void updateInventory();

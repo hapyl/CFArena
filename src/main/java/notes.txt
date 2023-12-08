@@ -2,6 +2,8 @@
 
 └
 
+bn should be in range to take dmg
+
 ####################################################################
 
 - [!] The lobby game player bug STILL happens.
@@ -14,7 +16,7 @@
 - [✔] Make invisible player not valid
 - [✔] Update map and mode GUI
 - [✔] Backstab does not worK?????
-- Poison Ivy TOO fast
+- [✔] Poison Ivy TOO fast
 
 - [✔] Berserk seem to end multiple times
 - [✔] Add lightning to drunk cat

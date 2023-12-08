@@ -533,13 +533,10 @@ public abstract class Hero implements GameElement, PlayerElement {
     }
 
     /**
-     * Executes upon ANY player death.
-     *
-     * @param player - Player.
-     * @param killer - Killer.
-     * @param cause  - Cause.
+     * @deprecated {@link me.hapyl.fight.event.custom.GameDeathEvent}
      */
     @Event
+    @Deprecated(forRemoval = true)
     public void onDeathGlobal(@Nonnull GamePlayer player, @Nullable GameEntity killer, @Nullable EnumDamageCause cause) {
     }
 

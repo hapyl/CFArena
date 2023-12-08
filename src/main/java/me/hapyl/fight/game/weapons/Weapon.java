@@ -12,6 +12,7 @@ import me.hapyl.fight.game.talents.StaticFormat;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.weapons.ability.Ability;
 import me.hapyl.fight.game.weapons.ability.AbilityType;
+import me.hapyl.fight.game.weapons.range.RangeWeapon;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Copyable;
 import me.hapyl.fight.util.Described;
@@ -25,6 +26,7 @@ import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.block.Action;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -256,7 +258,7 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
             builder.addLore("&e&lAttributes:");
 
             addDynamicLore(builder, " Fire Rate: &f&l%s", reloadTime, t -> Tick.round(t.intValue()) + "s");
-            addDynamicLore(builder, " Max Distance: &f&l%s", maxDistance, t -> t + "s");
+            addDynamicLore(builder, " Max Distance: &f&l%s", maxDistance, Object::toString);
             addDynamicLore(builder, " Damage: &f&l%s", weaponDamage, Object::toString);
 
             builder.addLore(" Max Ammo: &f&l%s", rangeWeapon.getMaxAmmo());
@@ -276,6 +278,24 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
                     AttributeModifier.Operation.ADD_NUMBER,
                     EquipmentSlot.HAND
             );
+        }
+
+        // Set attack speed
+        final ItemMeta meta = builder.getMeta();
+
+        // The attack speed is not generalized,
+        // meaning all weapons work the same with
+        // the same attack speed regardless of vanilla attack speed
+        if (meta != null) {
+            meta.removeAttributeModifier(Attribute.GENERIC_ATTACK_SPEED);
+            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(
+                    UUID.randomUUID(),
+                    "AttackSpeed",
+                    attackSpeed,
+                    AttributeModifier.Operation.ADD_NUMBER,
+                    EquipmentSlot.HAND
+            ));
+            builder.setItemMeta(meta);
         }
 
         if (attackSpeed != 0.0d) {

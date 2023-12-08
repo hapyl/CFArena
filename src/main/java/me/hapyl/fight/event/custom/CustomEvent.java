@@ -10,6 +10,11 @@ public abstract class CustomEvent extends Event {
         Bukkit.getPluginManager().callEvent(this);
     }
 
+    /**
+     * Returns true if the event was cancelled.
+     *
+     * @return true if the event was cancelled.
+     */
     public final boolean callAndCheck() {
         call();
 

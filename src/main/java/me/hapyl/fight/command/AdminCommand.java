@@ -8,6 +8,7 @@ import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
@@ -154,14 +155,14 @@ public class AdminCommand extends SimplePlayerAdminCommand {
                     return;
                 }
 
-                final GameTeam team = GameTeam.getPlayerTeam(player);
+                final GameTeam team = GameTeam.getEntryTeam(Entry.of(player));
 
                 if (team == null) {
                     sendError(player, "Nowhere to set kills! No game instance?");
                     return;
                 }
 
-                team.kills = newKills;
+                team.data.kills = newKills;
                 sendMessage(player, "&aSet your team kills to &l%s&a.", newKills);
             }
         });

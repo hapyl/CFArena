@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Stores input talent left/right click data.
@@ -15,6 +16,8 @@ public class InputTalentData implements Timed, Cooldown {
 
     protected int duration;
     protected int pointGeneration;
+    protected Talent.Type type;
+
     private int cooldown;
 
     public InputTalentData(boolean isLeft) {
@@ -24,6 +27,7 @@ public class InputTalentData implements Timed, Cooldown {
     public InputTalentData(@Nonnull String action) {
         this.action = action;
         this.description = action;
+        this.type = Talent.Type.DAMAGE;
     }
 
     public InputTalentData setCooldownSec(int sec) {
@@ -32,6 +36,15 @@ public class InputTalentData implements Timed, Cooldown {
 
     public InputTalentData setDurationSec(int sec) {
         return setDuration(sec * 20);
+    }
+
+    public void setType(@Nonnull Talent.Type type) {
+        this.type = type;
+    }
+
+    @Nonnull
+    public Talent.Type getType() {
+        return type;
     }
 
     @Nonnull
@@ -49,8 +62,8 @@ public class InputTalentData implements Timed, Cooldown {
         return description;
     }
 
-    public InputTalentData setDescription(@Nonnull String description) {
-        this.description = description;
+    public InputTalentData setDescription(@Nonnull String description, @Nullable Object... format) {
+        this.description = description.formatted(format);
         return this;
     }
 
@@ -80,5 +93,10 @@ public class InputTalentData implements Timed, Cooldown {
     public InputTalentData setPointGeneration(int pointGeneration) {
         this.pointGeneration = pointGeneration;
         return this;
+    }
+
+    public void copyDurationAndCooldownFrom(@Nonnull InputTalentData other) {
+        this.duration = other.duration;
+        this.cooldown = other.cooldown;
     }
 }

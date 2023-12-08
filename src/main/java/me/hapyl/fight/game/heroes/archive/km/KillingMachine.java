@@ -9,7 +9,7 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.weapons.PackedParticle;
-import me.hapyl.fight.game.weapons.RangeWeapon;
+import me.hapyl.fight.game.weapons.range.RangeWeapon;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -32,10 +32,6 @@ public class KillingMachine extends Hero implements DisabledHero {
         equipment.setBoots(Material.CHAINMAIL_BOOTS);
 
         this.setWeapon(new RangeWeapon(Material.IRON_HORSE_ARMOR, "km_weapon") {
-            @Override
-            public void onShoot(@Nonnull GamePlayer player) {
-                startCooldown(player, isUsingUltimate(player) ? (weaponCd / 2) : weaponCd);
-            }
 
         }.setSound(Sound.BLOCK_IRON_TRAPDOOR_OPEN, 1.4f)
                 .setParticleTick(new PackedParticle(Particle.END_ROD))

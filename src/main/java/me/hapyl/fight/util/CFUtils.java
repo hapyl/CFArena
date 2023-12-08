@@ -8,7 +8,6 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.spigotutils.module.annotate.TestedOn;
 import me.hapyl.spigotutils.module.annotate.Version;
 import me.hapyl.spigotutils.module.math.Geometry;
@@ -199,7 +198,7 @@ public class CFUtils {
     @Deprecated
     public static void hidePlayer(Player player) {
         CF.getAlivePlayers().forEach(gp -> {
-            if (gp.getPlayer() == player || gp.isSpectator() || GameTeam.isTeammate(gp.getPlayer(), player)) {
+            if (gp.getPlayer() == player || gp.isSpectator() || gp.isTeammate(CF.getPlayer(player))) {
                 return;
             }
 
@@ -356,7 +355,7 @@ public class CFUtils {
      * @param entity - Entity.
      * @param at     - Look at.
      */
-    public static void lookAt(@Nonnull LivingEntity entity, @Nonnull Location at) {
+    public static void lookAt(@Nonnull Entity entity, @Nonnull Location at) {
         final Vector dirBetweenLocations = at.toVector().subtract(entity.getLocation().toVector());
         final Location location = entity.getLocation();
 

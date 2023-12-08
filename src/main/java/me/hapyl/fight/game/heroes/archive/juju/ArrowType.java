@@ -24,7 +24,7 @@ import javax.annotation.Nonnull;
 
 public enum ArrowType implements Described {
 
-    ELUSIVE("Elusive Arrows", "Bloom upon impact into multiple arrows, dealing AoE damage.") {
+    ELUSIVE("Elusive Arrows", "Bloom upon impact into &a&omultiple&7&o arrows, dealing &c&oAoE &c&odamage&7&o.") {
         @Override
         public void onShoot(GamePlayer player, Arrow arrow) {
             player.setCooldown(Material.BOW, getTalent().cdBetweenShots);
@@ -75,9 +75,9 @@ public enum ArrowType implements Described {
     },
     POISON_IVY(
             "Poison Ivy Arrow",
-            Chat.bformat(
-                    "Creates a toxic zone upon impact, that reduces {}&7&o and deals damage.",
-                    AttributeType.DEFENSE
+            Chat.bformat("""
+                    Creates a &a&otoxic zone&7&o upon impact that reduces {}&7&o and deals &brapid&7&o damage.
+                    """, AttributeType.DEFENSE
             )
     ) {
         @Override
@@ -96,10 +96,12 @@ public enum ArrowType implements Described {
 
     private final String name;
     private final String description;
+    private final String smallCaps;
 
     ArrowType(String name, String description) {
         this.name = name;
         this.description = description;
+        this.smallCaps = SmallCaps.format(this.name());
     }
 
     public void onShoot(GamePlayer player, Arrow arrow) {
@@ -114,21 +116,21 @@ public enum ArrowType implements Described {
     public void onEquip(GamePlayer player) {
         final Location location = player.getLocation();
 
-        player.sendTitle("&aEquipped", SmallCaps.format(this.name()), 5, 15, 10);
+        player.sendTitle("&aEquipped", smallCaps, 5, 15, 10);
 
-        PlayerLib.playSound(location, Sound.ITEM_BONE_MEAL_USE, 0.0f);
-        PlayerLib.playSound(location, Sound.BLOCK_GRASS_PLACE, 0.0f);
-        PlayerLib.playSound(location, Sound.ENTITY_HORSE_SADDLE, 0.75f);
+        player.playWorldSound(location, Sound.ITEM_BONE_MEAL_USE, 0.0f);
+        player.playWorldSound(location, Sound.BLOCK_GRASS_PLACE, 0.0f);
+        player.playWorldSound(location, Sound.ENTITY_HORSE_SADDLE, 0.75f);
     }
 
     public void onUnequip(GamePlayer player) {
         final Location location = player.getLocation();
 
-        player.sendTitle("&cUnequipped", SmallCaps.format(this.name()), 5, 15, 10);
+        player.sendTitle("&cUnequipped", smallCaps, 5, 15, 10);
 
-        PlayerLib.playSound(location, Sound.ITEM_BONE_MEAL_USE, 0.0f);
-        PlayerLib.playSound(location, Sound.BLOCK_GRASS_PLACE, 0.0f);
-        PlayerLib.playSound(location, Sound.ENTITY_HORSE_SADDLE, 0.75f);
+        player.playWorldSound(location, Sound.ITEM_BONE_MEAL_USE, 0.0f);
+        player.playWorldSound(location, Sound.BLOCK_GRASS_PLACE, 0.0f);
+        player.playWorldSound(location, Sound.ENTITY_HORSE_SADDLE, 0.75f);
     }
 
     @Nonnull

@@ -17,13 +17,6 @@ import javax.annotation.Nonnull;
 
 public class Freazly extends Hero implements HeroPlaque {
 
-    /**
-     * <h1>REDESIGNED</h1>
-     *
-     * <b>Weapon</b>
-     * Frozen Staff: A slow firing and slow projectile weapon that slows enemies upon hit.
-     */
-
     public Freazly() {
         super("Frostbite");
 
@@ -62,11 +55,6 @@ public class Freazly extends Hero implements HeroPlaque {
     @Override
     public FrostbiteUltimate getUltimate() {
         return (FrostbiteUltimate) super.getUltimate();
-    }
-
-    @Override
-    public String predicateMessage(@Nonnull GamePlayer player) {
-        return "No valid block in sight!";
     }
 
     @Override

@@ -1,98 +1,76 @@
 package me.hapyl.fight.game.heroes.archive.frostbite;
 
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.task.RaycastTask;
-import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.game.weapons.ability.Ability;
-import me.hapyl.fight.game.weapons.ability.AbilityType;
+import me.hapyl.fight.game.weapons.range.RangeWeapon;
+import me.hapyl.fight.game.weapons.range.WeaponRaycastInstance;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
-import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class FrostbiteWeapon extends Weapon {
+public class FrostbiteWeapon extends RangeWeapon {
 
     @DisplayField private final int slowingAuraDuration = 60;
-    @DisplayField private final double weaponDamage = 5.0d;
 
     public FrostbiteWeapon() {
-        super(Material.IRON_SHOVEL);
+        super(Material.IRON_SHOVEL, "FrostbiteWeapon");
 
         setName("Snow Shovel");
-        setId("FrostbiteWeapon");
 
         setDescription("""
                 An ordinary shovel used for shoveling the snow.
                 """);
 
-        setDamage(1.0d);
-        setAbility(AbilityType.RIGHT_CLICK, new FrostbiteAbility());
-    }
+        setDamage(5.0d);
+        setCooldown(15);
 
-    public class FrostbiteAbility extends Ability {
+        raycast = new ProjectileRaycast(this, 0.8d, 2) {
+            @Nonnull
+            @Override
+            public WeaponRaycastInstance newInstance(@Nonnull GamePlayer player) {
+                final FrostbiteBullet bullet = new FrostbiteBullet(player) {
+                    @Override
+                    public void onContact(@Nonnull ArmorStand armorStand, @Nonnull LivingGameEntity entity, @Nonnull Location location) {
+                        remove();
+                    }
+                };
 
-        public FrostbiteAbility() {
-            super("Shoot!", """
-                    Shoot a slow projectile that deals damage.
-                    """);
+                return new WeaponRaycastInstance(player, FrostbiteWeapon.this) {
+                    @Override
+                    public void onMove(@Nonnull Location location) {
+                        super.onMove(location);
 
-            setCooldown(15);
-        }
-
-        @Nullable
-        @Override
-        public Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
-            final Location location = player.getEyeLocation();
-            final FrostbiteBullet bullet = new FrostbiteBullet(player) {
-                @Override
-                public void onContact(@Nonnull ArmorStand armorStand, @Nonnull LivingGameEntity entity, @Nonnull Location location) {
-                    entity.damage(weaponDamage, player, EnumDamageCause.FROSTBITE);
-                    entity.addEffect(GameEffectType.SLOWING_AURA, slowingAuraDuration, true);
-                    remove();
-                }
-            };
-
-            new RaycastTask(location) {
-                @Override
-                public boolean step(@Nonnull Location location) {
-                    bullet.teleport(location);
-
-                    PlayerLib.spawnParticle(location, Particle.SNOWFLAKE, 1);
-                    PlayerLib.spawnParticle(location, Particle.SNOWBALL, 1, 0.05d, 0.05d, 0.05d, 0.025f);
-                    return false;
-                }
-
-                @Override
-                public boolean predicate(@Nonnull Location location) {
-                    final Block block = location.getBlock();
-                    final Material type = block.getType();
-
-                    if (type.isOccluding()) {
-                        return type == Material.ICE || type == Material.PACKED_ICE || type == Material.BLUE_ICE;
+                        bullet.teleport(location);
+                        player.spawnWorldParticle(location, Particle.SNOWFLAKE, 1);
+                        player.spawnWorldParticle(location, Particle.SNOWBALL, 1, 0.05d, 0.05d, 0.05d, 0.025f);
                     }
 
-                    return true;
-                }
+                    @Override
+                    public void onHit(@Nonnull LivingGameEntity entity, boolean isHeadShot) {
+                        super.onHit(entity, isHeadShot);
 
-                @Override
-                public void onTaskStop() {
-                    bullet.remove();
-                }
-            }.setMax(25).setIterations(2).runTaskTimer(0, 1);
+                        entity.addEffect(GameEffectType.SLOWING_AURA, slowingAuraDuration, true);
+                    }
 
-            return Response.OK;
-        }
+                    @Override
+                    public void onStop() {
+                        bullet.remove();
+                    }
+                };
+            }
+        };
     }
 
+    @Nullable
+    @Override
+    public EnumDamageCause getDamageCause(@Nonnull GamePlayer player) {
+        return EnumDamageCause.FROSTBITE;
+    }
 }

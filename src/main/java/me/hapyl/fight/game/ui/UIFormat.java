@@ -14,7 +14,7 @@ public class UIFormat {
 
     public static final String DIV_RAW = "⁑";
     public static final String DIV = " &8⁑&r ";
-    public static final UIFormat DEFAULT = new UIFormat("&c&l{Health} &c❤ {Div} {Ultimate} &b※");
+    public static final UIFormat DEFAULT = new UIFormat("{Health} {Div} {Ultimate} &b※");
 
     private final String format;
 

@@ -36,15 +36,11 @@ public class Color {
     // Bukkit colors end
 
     public static final Color DEFAULT = new Color("#aabbcc");
-
     public static final Color SUCCESS = new Color("#05e30c");
     public static final Color SUCCESS_DARKER = SUCCESS.adjust(0.75f);
-
     public static final Color ERROR = new Color("#ed0000");
     public static final Color ERROR_DARKER = ERROR.adjust(0.75f);
-
     public static final Color BUTTON = new Color("#F6A623");
-
     public static final Color SPECTATOR = new Color("#87B6F5", org.bukkit.ChatColor.GRAY);
     public static final Color MODERATOR = new Color("#119905", org.bukkit.ChatColor.DARK_GREEN);
     public static final Color ADMIN = new Color("#CC0826", org.bukkit.ChatColor.RED);
@@ -52,9 +48,7 @@ public class Color {
     public static final Color PREMIUM_NAME = new Color("#4169E1", org.bukkit.ChatColor.AQUA);
     public static final Color VIP = new Color("#00FF7F", org.bukkit.ChatColor.GREEN);
     public static final Color VIP_NAME = new Color("#00E66B", org.bukkit.ChatColor.GREEN);
-
     public static final Color DEEP_PURPLE = new Color("#6A0DAD");
-
     public static final Color WARM_GRAY = new Color("#808080");
     public static final Color MINT_GREEN = new Color("#00FF7F");
     public static final Color DARK_ORANGE = new Color("#FF8C00");
@@ -70,6 +64,7 @@ public class Color {
     public static final Color WHITE_BLUE_GRAY = new Color("#a1b5d6").setFlags(ColorFlag.BOLD);
     public static final Color WITHERS = new Color("#444477");
     public static final Color DARK_GOLDENROD = new Color("#B8860B");
+    public static final Color FOREST_GREEN = new Color("#228B22");
 
     // *-----------------------------------------------------*
 

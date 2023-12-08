@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.talents.archive.frostbite;
 
 import com.google.common.collect.Sets;
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Removable;
-import me.hapyl.fight.util.CFUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -74,7 +74,7 @@ public class IceCage implements Removable {
         }
 
         // Fix player position
-        entity.teleport(CFUtils.centerLocation(location));
+        entity.teleport(location);
     }
 
     private void sendChange(Location location, double[] offset, BlockData data) {
@@ -84,6 +84,7 @@ public class IceCage implements Removable {
 
         location.add(x, y, z);
         entity.getPlayer().sendBlockChange(location, data);
+        affectedBlocks.add(location.getBlock());
         location.subtract(x, y, z);
     }
 }

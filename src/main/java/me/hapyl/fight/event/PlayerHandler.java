@@ -13,6 +13,7 @@ import me.hapyl.fight.game.entity.EntityData;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
+import me.hapyl.fight.game.entity.ping.PlayerPing;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.loadout.HotbarLoadout;
 import me.hapyl.fight.game.loadout.HotbarSlots;
@@ -25,6 +26,8 @@ import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.team.Entry;
+import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.team.LocalTeamManager;
 import me.hapyl.fight.game.tutorial.Tutorial;
 import me.hapyl.fight.util.CFUtils;
@@ -170,6 +173,19 @@ public class PlayerHandler implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handleItemDropPlayer(PlayerDropItemEvent ev) {
         ev.setCancelled(true);
+
+        final GamePlayer player = CF.getPlayer(ev.getPlayer());
+
+        if (player == null) {
+            return;
+        }
+
+        final PlayerPing ping = player.getPlayerPing();
+        if (ping.isOnCooldown()) {
+            return;
+        }
+
+        ping.requestedPing();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -325,6 +341,12 @@ public class PlayerHandler implements Listener {
             return;
         }
 
+        // Don't allow damaging non-alive entities!
+        if (gameEntity.getState() != EntityState.ALIVE) {
+            ev.setCancelled(true);
+            return;
+        }
+
         final double initialDamage = ev.getDamage();
         final DamageInstance instance = new DamageInstance(gameEntity, ev.getDamage());
         final EntityData data = gameEntity.getData();
@@ -408,14 +430,14 @@ public class PlayerHandler implements Listener {
                 }
             }
 
-            // Process player to player checks
-            if (gameEntity instanceof GamePlayer player && lastDamager instanceof GamePlayer playerDamager) {
-                if (player.getTeam().isTeamMembers(player, playerDamager)) {
-                    playerDamager.sendMessage("&cCannot damage teammates!");
-                    ev.setDamage(0.0d);
-                    ev.setCancelled(true);
-                    return;
-                }
+            final GameTeam entityTeam = gameEntity.getTeam();
+
+            // Teammate check
+            if (entityTeam != null && lastDamager != null && entityTeam.isEntry(Entry.of(lastDamager))) {
+                lastDamager.sendMessage("&cCannot damage teammates!");
+                ev.setCancelled(true);
+                ev.setDamage(0.0d);
+                return;
             }
 
             // Apply effects and modifiers for the damager
@@ -558,7 +580,7 @@ public class PlayerHandler implements Listener {
             return;
         }
 
-        // Don't actually damage anything, only visually
+        // Don't damage anything, only visually
         ev.setDamage(0.0d);
 
         // Store data in DamageData

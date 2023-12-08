@@ -5,12 +5,14 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.displayfield.DisplayFieldData;
 import me.hapyl.fight.util.displayfield.DisplayFieldDataProvider;
+import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Represents an ultimate talent.
@@ -101,6 +103,12 @@ public class UltimateTalent extends Talent implements DisplayFieldDataProvider {
 
     public UltimateTalent setItem(Material material) {
         super.setItem(material);
+        return this;
+    }
+
+    @Override
+    public UltimateTalent setItem(Material material, Consumer<ItemBuilder> function) {
+        super.setItem(material, function);
         return this;
     }
 

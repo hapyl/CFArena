@@ -40,7 +40,7 @@ public class DeathmatchKills extends CFGameMode {
     @Override
     public boolean testWinCondition(@Nonnull GameInstance instance) {
         for (GameTeam team : GameTeam.getPopulatedTeams()) {
-            if (team.kills >= killsGoal) {
+            if (team.data.kills >= killsGoal) {
                 final GameResult gameResult = instance.getGameResult();
 
                 for (GamePlayer player : team.getPlayers()) {

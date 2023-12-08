@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.gamemode.modes;
 
-import com.google.common.collect.Sets;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.gamemode.CFGameMode;
@@ -8,7 +7,7 @@ import me.hapyl.fight.game.team.GameTeam;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
-import java.util.Set;
+import java.util.List;
 
 public class FreeForAll extends CFGameMode {
     public FreeForAll() {
@@ -25,16 +24,18 @@ public class FreeForAll extends CFGameMode {
 
     @Override
     public boolean testWinCondition(@Nonnull GameInstance instance) {
-        final Set<GameTeam> teams = Sets.newHashSet();
+        final List<GameTeam> teams = GameTeam.getTeams();
+        teams.removeIf(team -> {
+            final List<GamePlayer> players = team.getPlayers();
 
-        for (GameTeam team : GameTeam.getTeams()) {
-            for (GamePlayer player : team.getPlayers()) {
+            for (GamePlayer player : players) {
                 if (player.isAlive()) {
-                    teams.add(team);
-                    break;
+                    return false;
                 }
             }
-        }
+
+            return true;
+        });
 
         return teams.size() <= 1;
     }

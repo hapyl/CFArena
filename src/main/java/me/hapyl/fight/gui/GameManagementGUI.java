@@ -5,6 +5,7 @@ import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
@@ -25,7 +26,7 @@ public class GameManagementGUI extends StyledGUI implements StrictlyLobbyGUI {
         final Manager manager = Manager.current();
         final GameMaps currentMap = manager.getCurrentMap();
         final Modes currentMode = manager.getCurrentMode();
-        final GameTeam playerTeam = GameTeam.getPlayerTeam(player.getUniqueId());
+        final GameTeam playerTeam = GameTeam.getEntryTeam(Entry.of(player));
 
         setHeader(LobbyItems.GAME_MANAGEMENT.getItem().getItemStack());
 

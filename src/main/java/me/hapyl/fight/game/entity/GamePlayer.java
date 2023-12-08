@@ -20,6 +20,7 @@ import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.entity.ping.PlayerPing;
 import me.hapyl.fight.game.entity.shield.Shield;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.heroes.Hero;
@@ -35,15 +36,16 @@ import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.*;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.PlayerGameTask;
+import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.display.AscendingDisplay;
-import me.hapyl.fight.game.weapons.RangeWeapon;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.game.weapons.range.RangeWeapon;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.ItemStacks;
-import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Ticking;
 import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -53,13 +55,12 @@ import me.hapyl.spigotutils.module.reflect.glow.Glowing;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import net.minecraft.network.protocol.game.PacketPlayOutAnimation;
 import org.bukkit.*;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffectType;
@@ -87,7 +88,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     private final TalentQueue talentQueue;
     private final Set<PlayerGameTask> taskSet;
     private final TalentLock talentLock;
-
+    private final PlayerPing playerPing;
     public boolean blockDismount;
     @Nonnull
     private PlayerProfile profile;
@@ -97,7 +98,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     private long combatTag;
     private int killStreak;
     private InputTalent inputTalent;
-
     private Shield shield;
 
     @SuppressWarnings("all")
@@ -114,6 +114,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         this.taskSet = Sets.newHashSet();
         this.shield = null;
         this.talentLock = new TalentLock(this, profile.getHeroHandle());
+        this.playerPing = new PlayerPing(this);
 
         startTicking();
     }
@@ -170,11 +171,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         player.getActivePotionEffects().forEach(effect -> this.entity.removePotionEffect(effect.getType()));
 
         // Reset attributes
-        resetAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE, 0.0d);
-        resetAttribute(Attribute.GENERIC_ATTACK_SPEED, 4.0d);
-        resetAttribute(Attribute.GENERIC_ATTACK_DAMAGE, 1.0d);
-
-        setAttributeValue(Attribute.GENERIC_ARMOR, 0.0d);
+        defaultVanillaAttributes();
 
         getData().getGameEffects().values().forEach(ActiveGameEffect::forceStop);
 
@@ -253,6 +250,9 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         getDatabase().getStatistics().fromPlayerStatistic(hero, stats);
         hero.getStats().fromPlayerStatistic(stats);
 
+        // Reset pings
+        playerPing.reset();
+
         // Update scoreboard
         GameTask.runLater(() -> {
             updateScoreboardTeams(true);
@@ -315,7 +315,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
                 final StatContainer killerStats = gameKiller.getStats();
 
                 killerStats.addValue(StatType.KILLS, 1);
-                gameKiller.getTeam().kills++;
+                gameKiller.getTeam().data.kills++;
 
                 // Check for first blood
                 if (gameInstance.getTotalKills() == 1) {
@@ -433,6 +433,19 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         updateHealth();
     }
 
+    @Nonnull
+    @Override
+    public GameTeam getTeam() {
+        final GameTeam team = super.getTeam();
+
+        if (team == null) {
+            Debug.severe(this + " has no team somehow!");
+            return GameTeam.WHITE;
+        }
+
+        return team;
+    }
+
     public double getUltimateAccelerationModifier() {
         return ultimateModifier;
     }
@@ -539,7 +552,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     @Override
     public String getHealthFormatted() {
         if (shield != null) {
-            return "&e&l%.0f".formatted(health + shield.getCapacity());
+            return "&e&l%.0f &e🛡".formatted(health + shield.getCapacity());
         }
 
         return super.getHealthFormatted();
@@ -575,11 +588,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         }
 
         weapon.getAbilities().forEach(ability -> ability.stopCooldown(this));
-
-        CF.getActiveHeroes().forEach(heroes -> {
-            final EntityData data = getData();
-            heroes.getHero().onDeathGlobal(this, data.getLastDamager(), data.getLastDamageCause());
-        });
     }
 
     public DeathMessage getRandomDeathMessage() {
@@ -776,22 +784,22 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     }
 
     @Nonnull
-    public GameTeam getTeam() {
-        final GameTeam team = GameTeam.getPlayerTeam(getPlayer());
+    public <T extends LivingEntity> LivingGameEntity spawnAlliedEntity(@Nonnull Location location, @Nonnull Entities<T> type, @Nonnull Consumer<LivingGameEntity> consumer) {
+        final GameTeam team = getTeam();
+        final LivingGameEntity entity = CF.createEntity(location, type, LivingGameEntity::new);
 
-        if (team == null) {
-            throw new IllegalStateException("game has no team?");
-        }
+        entity.addToTeam(team);
+        consumer.accept(entity);
 
-        return team;
+        return entity;
     }
 
-    public boolean isTeammate(GamePlayer player) {
-        return GameTeam.isTeammate(this, player);
+    public boolean isTeammate(@Nullable GamePlayer player) {
+        return player != null && GameTeam.isTeammate(Entry.of(this), Entry.of(player));
     }
 
-    public boolean isTeammate(GameEntity entity) {
-        return GameTeam.isTeammate(this, entity);
+    public boolean isTeammate(@Nullable GameEntity entity) {
+        return entity != null && GameTeam.isTeammate(Entry.of(this), Entry.of(entity));
     }
 
     public void setHandle(Player player) {
@@ -998,6 +1006,10 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     }
 
     public void setItem(@Nonnull EquipmentSlot slot, @Nullable ItemStack item) {
+        slot.setItem(getInventory(), item);
+    }
+
+    public void setItem(@Nonnull org.bukkit.inventory.EquipmentSlot slot, @Nullable ItemStack item) {
         getInventory().setItem(slot, item);
     }
 
@@ -1193,12 +1205,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         outline.set(getPlayer());
     }
 
-    @Nonnull
-    public Location getLocationAnchored() {
-        final Location location = getLocation();
-        return anchorLocation(location);
-    }
-
     /**
      * Schedules a delayed {@link PlayerGameTask}.
      *
@@ -1226,6 +1232,15 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     @Nonnull
     public String getCooldownFormatted(@Nonnull Material material) {
         return CFUtils.decimalFormatTick(getCooldown(material));
+    }
+
+    @Nonnull
+    public PlayerPing getPlayerPing() {
+        return playerPing;
+    }
+
+    public int getPing() {
+        return getPlayer().getPing();
     }
 
     private List<Block> getBlocksRelative(BiFunction<Location, World, Boolean> fn, Consumer<Location> consumer) {
@@ -1259,10 +1274,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         }
 
         item.setAmount(chargedTalent.getMaxCharges());
-    }
-
-    private void resetAttribute(Attribute attribute, double value) {
-        Nulls.runIfNotNull(entity.getAttribute(attribute), t -> t.setBaseValue(value));
     }
 
     private String replaceColor(String string, ChatColor color) {

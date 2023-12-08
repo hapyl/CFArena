@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.PreprocessingMethod;
 import me.hapyl.fight.event.DamageInstance;
+import me.hapyl.fight.event.custom.GameDeathEvent;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EntityState;
@@ -15,20 +16,25 @@ import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
+import me.hapyl.fight.game.entity.cooldown.CooldownData;
 import me.hapyl.fight.game.entity.cooldown.EntityCooldown;
 import me.hapyl.fight.game.entity.packet.EntityPacketFactory;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.team.Entry;
+import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.display.BuffDisplay;
 import me.hapyl.fight.game.ui.display.DamageDisplay;
 import me.hapyl.fight.game.ui.display.DebuffDisplay;
 import me.hapyl.fight.game.ui.display.StringDisplay;
 import me.hapyl.fight.util.Collect;
+import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.annotate.Super;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.math.geometry.Draw;
 import me.hapyl.spigotutils.module.player.EffectType;
 import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.spigotutils.module.reflect.glow.Glowing;
 import net.minecraft.network.protocol.Packet;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -36,11 +42,13 @@ import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Random;
@@ -89,13 +97,8 @@ public class LivingGameEntity extends GameEntity {
         // but I'm pretty sure the max health is 2048, which is wack
         entity.setHealth(0.1d);
 
+        defaultVanillaAttributes();
         updateAttributes();
-    }
-
-    public void updateAttributes() {
-        attributes.forEach((type, d) -> {
-            type.attribute.update(this, d);
-        });
     }
 
     /**
@@ -205,12 +208,90 @@ public class LivingGameEntity extends GameEntity {
      */
     public void damageTick(double damage, @Nullable GameEntity damager, @Nullable EnumDamageCause cause, int tick) {
         final int maximumNoDamageTicks = entity.getMaximumNoDamageTicks();
+        final int noDamageTicks = entity.getNoDamageTicks();
+
         tick = Numbers.clamp(tick, 0, maximumNoDamageTicks);
 
+        if (getInternalNoDamageTicks() > 0) { // noDamageTicks > 0 ||
+            return;
+        }
+
+        setInternalNoDamageTicks(tick);
+
         entity.setNoDamageTicks(0);
-        entity.setMaximumNoDamageTicks(tick);
+        entity.setMaximumNoDamageTicks(0);
+
         damage(damage, damager, cause == null ? EnumDamageCause.ENTITY_ATTACK : cause);
+
         entity.setMaximumNoDamageTicks(maximumNoDamageTicks);
+    }
+
+    public long getInternalNoDamageTicks() {
+        final CooldownData data = cooldown.getData(Cooldown.NO_DAMAGE);
+        return data != null ? data.getTimeLeft() : 0;
+    }
+
+    private void setInternalNoDamageTicks(int ticks) {
+        cooldown.startCooldown(Cooldown.NO_DAMAGE, ticks * 50L);
+    }
+
+    /**
+     * Gets the distance to the ground from the feet with ~0.05 error.
+     *
+     * @return the distance to the ground.
+     */
+    public double getDistanceToGround() {
+        final Location location = getLocation();
+        final World world = getWorld();
+        final double y = location.getY();
+
+        while (true) {
+            if (location.getY() <= world.getMinHeight()) {
+                break;
+            }
+
+            if (!location.getBlock().isEmpty()) {
+                break;
+            }
+
+            location.subtract(0.0d, 0.05d, 0.0d);
+        }
+
+        return y - location.getY();
+    }
+
+    @Nullable
+    public GameTeam getTeam() {
+        return GameTeam.getEntryTeam(Entry.of(this));
+    }
+
+    public void setGlowing(@Nonnull Player player, @Nonnull ChatColor color, int duration) {
+        Glowing.glow(entity, color, duration, player);
+    }
+
+    public void setGlowing(@Nonnull Player player, @Nonnull ChatColor color) {
+        Glowing.glowInfinitly(entity, color, player);
+    }
+
+    public void setGlowingColor(@Nonnull Player player, @Nonnull ChatColor color) {
+        final Glowing glowing = EternaPlugin.getPlugin().getRegistry().glowingManager.getGlowing(player, entity);
+
+        if (glowing != null) {
+            glowing.setColor(color);
+        }
+        else {
+            setGlowing(player, color);
+        }
+    }
+
+    public void stopGlowing(@Nonnull Player player) {
+        Glowing.stopGlowing(player, entity);
+    }
+
+    @Nonnull
+    public Location getLocationAnchored() {
+        final Location location = getLocation();
+        return GamePlayer.anchorLocation(location);
     }
 
     public void damageTick(double damage, @Nullable LivingEntity damager, @Nullable EnumDamageCause cause, int tick) {
@@ -235,13 +316,20 @@ public class LivingGameEntity extends GameEntity {
     /**
      * This should only be called in the calculations, do not call it otherwise.
      */
+    @OverridingMethodsMustInvokeSuper
     public void decreaseHealth(@Nonnull DamageInstance instance) {
         final double damage = instance.getDamage();
+        final boolean willDie = health - damage <= 0.0d;
+
+        // GameDeathEvent here to not decrease health below lethal
+        if (willDie && new GameDeathEvent(instance).callAndCheck()) {
+            return;
+        }
+
         this.health -= damage;
 
-        if (this.health <= 0.0d) {
-            this.die(true);
-            return;
+        if (willDie) {
+            die(true);
         }
 
         // Damage indicator
@@ -292,6 +380,7 @@ public class LivingGameEntity extends GameEntity {
         die(true);
     }
 
+    @OverridingMethodsMustInvokeSuper
     public void die(boolean force) {
         if (this.health > 0.0d && !force) {
             return;
@@ -376,7 +465,7 @@ public class LivingGameEntity extends GameEntity {
 
     @Nonnull
     public String getHealthFormatted() {
-        return String.valueOf(Math.ceil(health));
+        return "&c&l%.0f".formatted(Math.ceil(health)) + " &c❤";
     }
 
     @Nullable
@@ -404,7 +493,7 @@ public class LivingGameEntity extends GameEntity {
 
     @Override
     public String toString() {
-        return "LivingGameEntity{" + entity.getUniqueId() + "}";
+        return "LivingGameEntity{" + entity.getType() + "@" + entity.getUniqueId() + "}";
     }
 
     public void addEffect(GameEffectType type, int ticks, boolean override) {
@@ -423,7 +512,7 @@ public class LivingGameEntity extends GameEntity {
         setAttributeValue(Attribute.GENERIC_MOVEMENT_SPEED, value);
     }
 
-    public void setAttributeValue(Attribute attribute, double value) {
+    public void setAttributeValue(@Nonnull Attribute attribute, double value) {
         final AttributeInstance instance = entity.getAttribute(attribute);
 
         if (instance == null) {
@@ -433,7 +522,11 @@ public class LivingGameEntity extends GameEntity {
         instance.setBaseValue(value);
     }
 
-    public double getAttributeValue(Attribute attribute) {
+    public void modifyAttributeValue(@Nonnull Attribute attribute, double value) {
+        setAttributeValue(attribute, getAttributeValue(attribute) + value);
+    }
+
+    public double getAttributeValue(@Nonnull Attribute attribute) {
         final AttributeInstance instance = entity.getAttribute(attribute);
 
         if (instance == null) {
@@ -497,7 +590,6 @@ public class LivingGameEntity extends GameEntity {
 
         return null;
     }
-    // this spawns globally
 
     public void setTarget(@Nullable LivingEntity entity) {
         if (this.entity instanceof Creature creature) {
@@ -508,6 +600,7 @@ public class LivingGameEntity extends GameEntity {
     public void setTarget(@Nullable LivingGameEntity entity) {
         setTarget(entity == null ? null : entity.getEntity());
     }
+    // this spawns globally
 
     /**
      * Spawns a particle at this entity location for everyone to see.
@@ -710,7 +803,6 @@ public class LivingGameEntity extends GameEntity {
         final float pitch = location.getPitch();
 
         final Packet<?> packet = packetFactory.createRelMovePacket(x, (short) 0, z, yaw, pitch);
-        final Packet<?> syncPacket = packetFactory.createRelMovePacket((short) -x, (short) 0, (short) -z, yaw, pitch);
 
         packetFactory.sendPacket(packet);
         packetFactory.sendPacketDelayed(packetFactory.createTeleportPacket(), 2);
@@ -721,12 +813,27 @@ public class LivingGameEntity extends GameEntity {
         playWorldSound(fxLocation, Sound.ENTITY_ENDER_DRAGON_FLAP, 1.75f);
         playWorldSound(fxLocation, Sound.ENTITY_WARDEN_LISTENING, 1.75f);
 
-        spawnWorldParticle(fxLocation, Particle.CRIT, 10, 0.25d, 0.25d, 0.25d, 0.25f);
+        spawnWorldParticle(fxLocation, Particle.CRIT, 10, 0.25d, 0.5d, 0.25d, 0.25f);
+
+        new BuffDisplay("DODGED", 5).display(fxLocation);
     }
 
     @Nonnull
     public String getScoreboardName() {
         return uuid.toString();
+    }
+
+    protected void defaultVanillaAttributes() {
+        setAttributeValue(Attribute.GENERIC_KNOCKBACK_RESISTANCE, 0.0d);
+        setAttributeValue(Attribute.GENERIC_ATTACK_SPEED, 2.0d);
+        setAttributeValue(Attribute.GENERIC_ATTACK_DAMAGE, 1.0d);
+        setAttributeValue(Attribute.GENERIC_ARMOR, -100.0d); // Remove armor bars
+    }
+
+    private void updateAttributes() {
+        attributes.forEach((type, d) -> {
+            type.attribute.update(this, d);
+        });
     }
 
     private double randomDouble(double origin, double bound) {
@@ -735,6 +842,6 @@ public class LivingGameEntity extends GameEntity {
     }
 
     private short randomShort() {
-        return (short) (randomDouble(0.0d, 1.0d) * 4096);
+        return (short) (randomDouble(0.0d, 1.0d) * 8192);
     }
 }

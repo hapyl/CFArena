@@ -15,6 +15,7 @@ import me.hapyl.fight.game.profile.data.PlayerProfileData;
 import me.hapyl.fight.game.profile.relationship.PlayerRelationship;
 import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.team.LocalTeamManager;
 import me.hapyl.fight.game.ui.GamePlayerUI;
@@ -61,9 +62,8 @@ public class PlayerProfile {
     public PlayerProfile(@Nonnull Player player) {
         this.player = player;
 
-        // Init player database first before loading everything else
+        // Init database before anything else
         this.playerDatabase = new PlayerDatabase(player);
-
         this.localTeamManager = new LocalTeamManager(player);
         this.loaded = false;
         this.resourcePack = false;
@@ -136,11 +136,13 @@ public class PlayerProfile {
         if (loaded) {
             return;
         }
+
+        // Check for fullness to not create anything
         loaded = true;
 
-        // load some data after init method
+        // Load some data after init method
         selectedHero = playerDatabase.getHeroEntry().getSelectedHero();
-        GameTeam.addMemberIfNotInTeam(player);
+        GameTeam.addMemberIfNotInTeam(this);
         playerUI = new GamePlayerUI(this);
 
         // Prompt Resource Pack
@@ -195,6 +197,13 @@ public class PlayerProfile {
 
     public boolean isHidden() {
         return false;
+    }
+
+    @Nonnull
+    public String getTeamFlag() {
+        final GameTeam team = GameTeam.getEntryTeam(Entry.of(player));
+
+        return team != null ? team.getFlagColored() + " " + team.getNameSmallCapsColorized() : "&8None!";
     }
 
     private void createTraceDump(RuntimeException exception) {

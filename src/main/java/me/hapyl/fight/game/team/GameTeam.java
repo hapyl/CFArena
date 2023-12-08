@@ -1,33 +1,37 @@
 package me.hapyl.fight.game.team;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Debug;
+import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.maps.Selectable;
-import me.hapyl.fight.util.SmallCaps;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.game.profile.PlayerProfile;
+import me.hapyl.fight.util.Described;
+import me.hapyl.fight.util.SmallCapsDescriber;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.reflect.glow.Glowing;
-import org.bukkit.Bukkit;
+import me.hapyl.spigotutils.module.util.CollectionUtils;
+import me.hapyl.spigotutils.module.util.Compute;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.Set;
+import java.util.TreeMap;
 
-public enum GameTeam implements Selectable {
+/**
+ * Teams are capable of holding members, such as {@link Player} and {@link me.hapyl.fight.game.entity.LivingGameEntity}.
+ * <p>
+ * The players are limited to {@link #maxPlayers}, but the entities are unlimited.
+ * The entities will also be cleared upon {@link #onStop()}
+ */
+public enum GameTeam implements Described, SmallCapsDescriber, Selectable, GameElement {
 
     RED(ChatColor.RED, Material.RED_BANNER),
     GREEN(ChatColor.GREEN, Material.GREEN_BANNER),
@@ -36,66 +40,93 @@ public enum GameTeam implements Selectable {
     GOLD(ChatColor.GOLD, Material.ORANGE_BANNER),
     AQUA(ChatColor.AQUA, Material.CYAN_BANNER),
     PINK(ChatColor.LIGHT_PURPLE, Material.PURPLE_BANNER),
-    WHITE(ChatColor.WHITE, Material.WHITE_BANNER);
+    WHITE(ChatColor.WHITE, Material.WHITE_BANNER),
 
-    private static final List<GameTeam> TEAMS = Lists.newArrayList();
+    // Black team is used as a last resort if all other teams are full
+    @Deprecated
+    BLACK(ChatColor.BLACK, Material.BLACK_BANNER) {
+        @Override
+        public boolean isFull() {
+            return false;
+        }
+
+        @Override
+        public boolean isAllowJoin() {
+            return false;
+        }
+    };
+
+    private static final List<GameTeam> validTeams = Lists.newArrayList();
+    private static String[] strings;
 
     static {
-        TEAMS.addAll(Arrays.asList(values()));
+        for (GameTeam team : values()) {
+            if (team == BLACK) {
+                continue;
+            }
+
+            validTeams.add(team);
+        }
     }
 
+    public final TeamData data;
     private final ChatColor color;
     private final Material material;
     private final int maxPlayers;
-    private final List<UUID> members;
-
-    public int kills;
-    public int deaths;
+    private final List<Entry> members;
+    private final String name;
+    private final String flag;
+    private final String smallCaps;
+    private int playerCount;
 
     GameTeam(ChatColor color, Material material) {
         this.color = color;
         this.material = material;
         this.maxPlayers = 4;
         this.members = Lists.newArrayList();
+        this.name = Chat.capitalize(this);
+        this.flag = color + "&l🏴";
+        this.smallCaps = toSmallCaps(this);
+        this.data = new TeamData(this);
     }
 
-    public void removePlayer(Player player) {
-        members.remove(player.getUniqueId());
+    public void addEntry(@Nonnull Entry entry) {
+        if (entry.isPlayer()) {
+            if (isFull()) {
+                sendMessage(entry, Color.ERROR + "Could not join the team because it's full!");
+                return;
+            }
+
+            if (members.contains(entry)) {
+                sendMessage(entry, Color.ERROR + "You are already in this team!");
+                return;
+            }
+
+            final GameTeam entryTeam = getEntryTeam(entry);
+
+            if (entryTeam != null) {
+                entryTeam.removeEntry(entry);
+            }
+
+            sendMessage(entry, Color.SUCCESS + "Joined {} team!", getNameCaps() + Color.SUCCESS);
+            playerCount++;
+        }
+
+        members.add(entry);
     }
 
-    /**
-     * Adds player to the team if it's not empty.
-     *
-     * @param player - Player to add.
-     * @return true if the team is not full and player has been added, false otherwise
-     */
-    public boolean addMember(@Nonnull Player player) {
-        if (isFull()) {
-            Message.error(player, "Could not join the team because it's full!");
-            return false;
+    public void removeEntry(@Nonnull Entry entry) {
+        members.remove(entry);
+
+        if (entry.isPlayer()) {
+            playerCount--;
         }
-
-        final GameTeam oldTeam = getPlayerTeam(player);
-
-        if (oldTeam == this) {
-            Message.error(player, "You are already in this team!");
-            return false;
-        }
-
-        if (oldTeam != null) {
-            oldTeam.removePlayer(player);
-        }
-
-        members.add(player.getUniqueId());
-        Message.success(player, "Joined {} team!", color + getName() + Color.SUCCESS);
-        return true;
     }
 
-    /**
-     * Returns list with players from that are in the team; or an empty list is no players or no game instance.
-     *
-     * @return list of players in the team
-     */
+    public boolean isEntry(@Nonnull Entry entry) {
+        return members.contains(entry);
+    }
+
     @Nonnull
     public List<GamePlayer> getPlayers() {
         final List<GamePlayer> players = Lists.newArrayList();
@@ -105,8 +136,8 @@ public enum GameTeam implements Selectable {
             return players;
         }
 
-        members.forEach(uuid -> {
-            final GamePlayer gamePlayer = CF.getPlayer(uuid);
+        members.forEach(entry -> {
+            final GamePlayer gamePlayer = entry.getGamePlayer();
 
             if (gamePlayer == null) {
                 return;
@@ -118,16 +149,13 @@ public enum GameTeam implements Selectable {
         return players;
     }
 
-    public boolean isTeamMembers(GamePlayer player, GamePlayer another) {
-        return members.contains(player.getUUID()) && members.contains(another.getUUID());
+    @Nonnull
+    public String getFlagColored() {
+        return flag;
     }
 
-    public boolean isMember(GamePlayer player) {
-        return members.contains(player.getUUID());
-    }
-
-    public boolean isMember(Player player) {
-        return members.contains(player.getUniqueId());
+    public boolean isTeammates(@Nonnull Entry entry, @Nonnull Entry other) {
+        return isEntry(entry) && isEntry(other);
     }
 
     public boolean isTeamAlive() {
@@ -145,30 +173,39 @@ public enum GameTeam implements Selectable {
     }
 
     public boolean isFull() {
-        return members.size() >= maxPlayers;
+        return playerCount >= maxPlayers;
     }
 
     public int getMaxPlayers() {
         return maxPlayers;
     }
 
+    @Nonnull
     public ChatColor getColor() {
         return color;
     }
 
+    @Override
+    public void onStart() {
+    }
+
+    @Override
     public void onStop() {
-        kills = 0;
-        deaths = 0;
+        data.reset();
+
+        // Remove non-player entities from the team
+        members.removeIf(Entry::isNotPlayer);
     }
 
     public void glowTeammates() {
-        final List<Player> players = getPlayersAsPlayers();
+        final List<Player> players = getBukkitPlayers();
 
         for (Player player : players) {
             for (Player other : players) {
                 if (other == player) {
                     continue;
                 }
+
                 Glowing.glowInfinitly(other, ChatColor.GREEN, player);
             }
         }
@@ -180,58 +217,55 @@ public enum GameTeam implements Selectable {
     }
 
     @Nonnull
-    public List<Player> getPlayersAsPlayers() {
+    public List<Player> getBukkitPlayers() {
         final List<Player> list = Lists.newArrayList();
-        for (UUID uuid : members) {
-            list.add(Bukkit.getPlayer(uuid));
-        }
+
+        members.forEach(entry -> {
+            final Player player = entry.getPlayer();
+
+            if (player == null) {
+                return;
+            }
+
+            list.add(player);
+        });
+
         return list;
     }
 
     @Nullable
-    public Player getLobbyPlayer(int index) {
-        final List<Player> list = getPlayersAsPlayers();
+    public Player getBukkitPlayer(int index) {
+        final List<Player> list = getBukkitPlayers();
+
         return index >= list.size() ? null : list.get(index);
     }
 
+    @Nonnull
+    @Override
     public String getName() {
-        return Chat.capitalize(name());
+        return name;
     }
 
+    @Nonnull
+    @Override
+    public String getDescription() {
+        return "A team.";
+    }
+
+    @Nonnull
+    @Override
     public String getNameSmallCaps() {
-        return SmallCaps.format(getName());
+        return smallCaps;
     }
 
+    @Nonnull
     public String getNameCaps() {
-        return color + "&l" + getName().toUpperCase(Locale.ROOT);
+        return color + "&l" + getName().toUpperCase();
     }
 
+    @Nonnull
     public String getFirstLetterCaps() {
-        return color + "&l" + getName().toUpperCase(Locale.ROOT).charAt(0);
-    }
-
-    public boolean isEmpty() {
-        return members.isEmpty();
-    }
-
-    public List<String> listMembers() {
-        final List<String> list = Lists.newArrayList();
-
-        for (UUID member : members) {
-            list.add(member.toString());
-        }
-
-        return list;
-    }
-
-    @Override
-    public boolean isSelected(@Nonnull Player player) {
-        return members.contains(player.getUniqueId());
-    }
-
-    @Override
-    public void select(@Nonnull Player player) {
-        addMember(player);
+        return color + "&l" + getName().toUpperCase().charAt(0);
     }
 
     @Nonnull
@@ -239,41 +273,98 @@ public enum GameTeam implements Selectable {
         return color + getNameSmallCaps();
     }
 
-    /**
-     * Returns team with the least number of players.
-     *
-     * @return team with the least number of players.
-     * @throws IllegalArgumentException if all teams are full
-     */
-    @Nonnull
-    public static GameTeam getSmallestTeam() {
-        int minPlayers = 0;
-        GameTeam smallestTeam = null;
+    public boolean isEmpty() {
+        return members.isEmpty();
+    }
 
-        for (GameTeam value : values()) {
-            final int size = value.getPlayersAsPlayers().size();
-            if (size <= minPlayers || smallestTeam == null) {
-                minPlayers = size;
-                smallestTeam = value;
+    @Nonnull
+    public List<Entry> listEntries() {
+        return Lists.newArrayList(members);
+    }
+
+    @Override
+    public boolean isSelected(@Nonnull Player player) {
+        return isEntry(Entry.of(player));
+    }
+
+    @Override
+    public void select(@Nonnull Player player) {
+        addEntry(Entry.of(player));
+    }
+
+    @Override
+    public String toString() {
+        return name() + "(" + playerCount + ") " + members;
+    }
+
+    public boolean isAllowJoin() {
+        return true;
+    }
+
+    private void sendMessage(Entry entry, String string, Object... format) {
+        final Player player = entry.getPlayer();
+
+        if (player == null) {
+            return;
+        }
+
+        Chat.sendMessage(player, getFlagColored() + " " + Chat.bformat(string, format));
+    }
+
+    /**
+     * Gets the team that this entry is in.
+     *
+     * @param entry - Entry.
+     * @return the team this entry is in.
+     */
+    @Nullable
+    public static GameTeam getEntryTeam(@Nonnull Entry entry) {
+        for (GameTeam team : values()) {
+            if (team.isEntry(entry)) {
+                return team;
             }
         }
 
-        if (smallestTeam == null) {
-            throw new IllegalArgumentException("Couldn't find the smallest team.");
+        return null;
+    }
+
+    /**
+     * Returns team with the least number of players or null if all teams are full.
+     *
+     * @return team with the least number of players or null if all teams are full.
+     */
+    @Nonnull
+    public static GameTeam getSmallestTeam() {
+        TreeMap<Integer, Set<GameTeam>> teamsBySize = new TreeMap<>();
+
+        for (GameTeam team : validTeams) {
+            teamsBySize.compute(team.playerCount, Compute.setAdd(team));
         }
-        return smallestTeam;
+
+        for (Integer size : teamsBySize.keySet()) {
+            final GameTeam randomTeam = CollectionUtils.randomElement(teamsBySize.get(size));
+
+            if (randomTeam != null && !randomTeam.isFull()) {
+                return randomTeam;
+            }
+
+            break;
+        }
+
+        return BLACK;
     }
 
     public static void removeOfflinePlayers() {
         for (GameTeam team : values()) {
-            team.members.removeIf(uuid -> {
-                final boolean tempRemove = Bukkit.getPlayer(uuid) == null;
+            team.members.removeIf(entry -> {
+                boolean isRemove = entry.isPlayer() && entry.getPlayer() == null;
 
-                if (tempRemove) {
-                    Debug.info("removed %s from a team because they are no longer online", uuid);
+                if (isRemove) {
+                    Debug.info("Removed %s from a team because they're offline!", entry.getUuid().toString());
+                    team.playerCount--;
                 }
 
-                return tempRemove;
+                return isRemove;
             });
         }
     }
@@ -288,7 +379,7 @@ public enum GameTeam implements Selectable {
         final List<GameTeam> populatedTeams = Lists.newArrayList();
 
         for (GameTeam team : values()) {
-            if (team.getPlayersAsPlayers().size() > 0) {
+            if (!team.getBukkitPlayers().isEmpty()) {
                 populatedTeams.add(team);
             }
         }
@@ -296,92 +387,77 @@ public enum GameTeam implements Selectable {
         return populatedTeams;
     }
 
+    /**
+     * Gets a copy of all teams.
+     *
+     * @return a copy of all teams.
+     */
+    @Nonnull
     public static List<GameTeam> getTeams() {
-        return TEAMS;
+        return Lists.newArrayList(validTeams);
     }
 
-    public static boolean isTeammate(@Nonnull Player player, @Nonnull Entity other) {
-        return isTeammate(player.getUniqueId(), other.getUniqueId());
-    }
-
-    public static boolean isTeammate(@Nonnull GamePlayer gamePlayer, @Nonnull GameEntity entity) {
-        return isTeammate(gamePlayer.getUUID(), entity.getUUID());
-    }
-
-    public static boolean isTeammate(@Nonnull UUID player, @Nonnull UUID other) {
-        if (player == other) {
+    /**
+     * Checks whenever two entries are teammates.
+     * <p>
+     * Special cases:
+     * <ul>
+     *     <li>Checking for itself considered as not teammate.</li>
+     * </ul>
+     *
+     * @param entry - First entry.
+     * @param other - Second entry.
+     * @return true if two entries are teammates.
+     */
+    public static boolean isTeammate(@Nonnull Entry entry, @Nonnull Entry other) {
+        if (entry.equals(other)) {
             return false;
         }
 
-        final GameTeam teamA = getPlayerTeam(player);
-        final GameTeam teamB = getPlayerTeam(other);
+        final GameTeam teamA = getEntryTeam(entry);
+        final GameTeam teamB = getEntryTeam(other);
 
         return (teamA != null && teamB != null) && (teamA == teamB);
     }
 
-    public static boolean isTeammate(@Nonnull GamePlayer player, @Nonnull GamePlayer other) {
-        return isTeammate(player.getUUID(), other.getUUID());
-    }
-
-    public static boolean isSelfOrTeammate(Player player, LivingEntity other) {
-        if (player == other) {
-            return true;
-        }
-
-        return other instanceof Player otherPlayer && isTeammate(player, otherPlayer);
-    }
-
-    @Nullable
-    public static GameTeam getPlayerTeam(@Nullable GamePlayer player) {
-        if (player == null) {
-            return null;
-        }
-
-        for (GameTeam team : values()) {
-            if (team.isMember(player)) {
-                return team;
-            }
-        }
-        return null;
-    }
-
-    @Nullable
-    public static GameTeam getPlayerTeam(Player player) {
-        return getPlayerTeam(player.getUniqueId());
-    }
-
-    @Nullable
-    public static GameTeam getPlayerTeam(UUID uuid) {
-        for (GameTeam team : values()) {
-            if (team.members.contains(uuid)) {
-                return team;
-            }
-        }
-
-        return null;
-    }
-
-    @Nullable
-    public static GameTeam getPlayerLobbyTeam(Player player) {
-        for (GameTeam team : values()) {
-            if (team.members.contains(player.getUniqueId())) {
-                return team;
-            }
-        }
-        return null;
+    /**
+     * Checks whenever two entries are the same or are teammates.
+     *
+     * @param entry - First entry.
+     * @param other - Second entry.
+     * @return true if two entries are the same or are teammates.
+     */
+    public static boolean isSelfOrTeammate(@Nonnull Entry entry, @Nonnull Entry other) {
+        return entry.equals(other) || isTeammate(entry, other);
     }
 
     public static String[] valuesStrings() {
-        String[] strings = new String[values().length];
-        for (int i = 0; i < values().length; i++) {
-            strings[i] = values()[i].name().toLowerCase();
+        if (strings == null) {
+            strings = new String[validTeams.size()];
+
+            for (int i = 0; i < validTeams.size(); i++) {
+                strings[i] = validTeams.get(i).name().toLowerCase();
+            }
         }
+
         return strings;
     }
 
-    public static void addMemberIfNotInTeam(Player player) {
-        if (getPlayerTeam(player) == null) {
-            getSmallestTeam().addMember(player);
+    /**
+     * Adds a member to the smallest {@link GameTeam} if they're not already in a team.
+     *
+     * @param profile - Profile.
+     */
+    public static void addMemberIfNotInTeam(@Nonnull PlayerProfile profile) {
+        final Player player = profile.getPlayer();
+        final Entry entry = Entry.of(player);
+        final GameTeam entryTeam = getEntryTeam(entry);
+
+        // Player already has team, OK!
+        if (entryTeam != null) {
+            return;
         }
+
+        getSmallestTeam().addEntry(entry);
     }
 }

@@ -89,7 +89,6 @@ public class ShadowAssassinClone extends ShadowAssassinTalent {
             playerClones.createClone(player.getLocationAnchored()).startTicking();
             return Response.OK;
         }
-
     }
 
     private class Fury extends FuryTalent {

@@ -10,18 +10,18 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.Compute;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.spigotutils.module.util.Compute;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.util.Consumer;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class GravityZone extends Talent {
 

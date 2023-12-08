@@ -13,12 +13,13 @@ import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.effect.GameEffect;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.fight.game.team.LocalTeamManager;
 import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -29,6 +30,7 @@ import me.hapyl.spigotutils.module.scoreboard.Scoreboarder;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scoreboard.DisplaySlot;
 
 import javax.annotation.Nonnull;
@@ -92,9 +94,8 @@ public class GamePlayerUI extends TickingGameTask {
         updateDebug();
 
         // Update above name
-        if (modulo(10) && !Manager.current().isGameInProgress()) {
-            final LocalTeamManager teamManager = profile.getLocalTeamManager();
-            teamManager.tickAll();
+        if (modulo(10)) {
+            profile.getLocalTeamManager().tick();
         }
 
         final GamePlayer gamePlayer = profile.getGamePlayer();
@@ -137,6 +138,12 @@ public class GamePlayerUI extends TickingGameTask {
 
         player.getInventory().setItem(21, baseBuilder.toItemStack());
         player.getInventory().setItem(23, playerBuilder.toItemStack());
+
+        // Set ultimate item
+        final Hero hero = gamePlayer.getHero();
+        final PlayerInventory inventory = player.getInventory();
+
+        inventory.setItem(22, hero.getUltimate().getItem());
     }
 
     public void sendInGameUI(@Nonnull ChatColor ultimateColor) {
@@ -176,13 +183,14 @@ public class GamePlayerUI extends TickingGameTask {
             builder.addLines(
                     " &7ʀᴀɴᴋ: " + profile.getRank().getPrefixWithFallback(),
                     " &7ʜᴇʀᴏ: " + profile.getSelectedHeroString(),
+                    " &7ᴛᴇᴀᴍ: " + profile.getTeamFlag(),
                     " &7ᴄᴏɪɴs: " + Currency.COINS.getFormatted(player)
             );
 
             final long rubyCount = currency.get(Currency.RUBIES);
             if (rubyCount > 0) {
                 final String rubyCountFormatted = Currency.RUBIES.getFormatted(player);
-                builder.addLine(rubyCount == 1 ? "ʀᴜʙʏ" : " &7ʀᴜʙɪᴇs: " + rubyCountFormatted);
+                builder.addLine((rubyCount == 1 ? " &7ʀᴜʙʏ: " : " &7ʀᴜʙɪᴇs: ") + rubyCountFormatted);
             }
         }
         // In Game
@@ -261,7 +269,7 @@ public class GamePlayerUI extends TickingGameTask {
     }
 
     private StringBuilder buildGameFooter() {
-        final GameTeam team = GameTeam.getPlayerTeam(player);
+        final GameTeam team = GameTeam.getEntryTeam(Entry.of(player));
         final StringBuilder builder = new StringBuilder();
 
         // Display teammate information:
@@ -279,7 +287,7 @@ public class GamePlayerUI extends TickingGameTask {
                         builder.append("\n");
                     }
 
-                    builder.append("&a%s &7⁑ &c&l%s &c❤  &b%s".formatted(
+                    builder.append("&a%s &7⁑ &c&l%s  &b%s".formatted(
                             teammate.getName(),
                             teammate.getHealthFormatted(),
                             usingUltimate ? "&b&lIN USE" : teammate.isUltimateReady() ? "&b&lREADY" : ("&b%s/%s &l※".formatted(

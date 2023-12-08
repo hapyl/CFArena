@@ -11,11 +11,12 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.setting.Settings;
+import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.registry.SimpleRegistry;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.util.Compute;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.spigotutils.module.util.Compute;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -108,13 +109,13 @@ public class FastAccessRegistry extends SimpleRegistry<FastAccess> {
             register(new FastAccess("join_team_" + enumTeam.name(), Category.JOIN_TEAM) {
                 @Override
                 public void onClick(@Nonnull Player player) {
-                    enumTeam.addMember(player);
+                    enumTeam.addEntry(Entry.of(player));
                 }
 
                 @Nonnull
                 @Override
                 public ItemBuilder create(@Nonnull Player player) {
-                    final GameTeam playerTeam = GameTeam.getPlayerTeam(player);
+                    final GameTeam playerTeam = GameTeam.getEntryTeam(Entry.of(player));
 
                     return new ItemBuilder(enumTeam.getMaterial())
                             .setName("Join " + enumTeam.getName() + " Team")

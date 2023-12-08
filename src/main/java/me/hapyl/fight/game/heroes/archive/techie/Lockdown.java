@@ -5,6 +5,7 @@ import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
@@ -99,7 +100,7 @@ public class Lockdown {
                         @Override
                         public void draw(Location location) {
                             Bukkit.getOnlinePlayers().forEach(player -> {
-                                if (GameTeam.isSelfOrTeammate(Lockdown.this.player, player)) {
+                                if (GameTeam.isSelfOrTeammate(Entry.of(Lockdown.this.player), Entry.of(player))) {
                                     particleSelf.display(location, player);
                                 }
                                 else {
@@ -124,7 +125,7 @@ public class Lockdown {
     public void displayLockdownMessage(String allyTitle, String allySub, String enemyTitle, String enemySub, int length) {
         CF.getAlivePlayers().forEach(gamePlayer -> {
             final Player other = gamePlayer.getPlayer();
-            if (GameTeam.isSelfOrTeammate(player, other)) {
+            if (false) { // self check
                 gamePlayer.sendTitle(allyTitle + emptyStringTitle, allySub + emptyString, 0, length, 0);
             }
             else {

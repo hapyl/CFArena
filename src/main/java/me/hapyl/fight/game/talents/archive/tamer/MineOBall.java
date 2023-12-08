@@ -28,7 +28,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
-public class MineOBall extends Talent implements Listener {
+public class MineOBall extends Talent implements Listener, TamerTalent {
 
     private final PlayerMap<TamerPack> tamerPackMap = PlayerMap.newConcurrentMap();
 

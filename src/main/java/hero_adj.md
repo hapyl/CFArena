@@ -43,6 +43,10 @@ Alchemist
 Moonwalker
 ===
 
+### Moonteorite
+
+* Updated FX.
+
 ### Gravity Pull
 
 * Damage is now scaled with how long an enemy was in the gravity pull.
@@ -411,8 +415,24 @@ Taker
 
 ---
 
+Juju
+===
+
+### Poison Ivy (Ultimate)
+
+* Fix rapid damage being too _rapid_.
+
+### Climb (Passive)
+
+* Adjusted wall detection.
+* Finishing climbing now grants tiny boots to make it easier to climb higher places.
+
+---
+
 System Changes
 ===
+
+### Defense Changes
 
 * Defense formula changed:
     * Old formula:
@@ -421,3 +441,7 @@ System Changes
     * New formula:
     <p><code>SCALE = 0.75</code></p>
     <p><code>DMG / (DEF * SCALE + (1 - SCALE))</code></p>
+
+### Weapon Changes
+
+* Reload speed is now affected by Cooldown Modifier.

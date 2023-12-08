@@ -33,6 +33,14 @@ public enum Settings implements EnumWrapper<Setting>, PlayerItemCreator {
             Category.GAMEPLAY
     )),
 
+    PLAYER_PINGS(new Setting(
+            Material.ARROW,
+            "Player Pings",
+            "Whenever player pinging feature is enabled.",
+            Category.GAMEPLAY,
+            true
+    )),
+
     // Chat
     CHAT_PING(new Setting(
             Material.GOLD_INGOT,

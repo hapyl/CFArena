@@ -5,11 +5,9 @@ import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.game.entity.EquipmentSlot;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.HeroPlaque;
-import me.hapyl.fight.game.heroes.UltimateCallback;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -60,6 +58,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
     public JuJu() {
         super("Juju");
 
+        setAffiliation(Affiliation.THE_JUNGLE);
         setArchetype(Archetype.HEXBANE);
 
         setMinimumLevel(5);
@@ -79,9 +78,13 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
 
         setUltimate(
                 new UltimateTalent(ArrowType.POISON_IVY.getName(), 60)
+                        .setType(Talent.Type.IMPAIR)
                         .setItem(Material.SPIDER_EYE)
                         .setDurationSec(4),
-                then -> then.setDescription(ArrowType.POISON_IVY.getTalentDescription(then))
+                then -> {
+                    then.copyDisplayFieldsFrom(Talents.POISON_ZONE.getTalent());
+                    then.setDescription(ArrowType.POISON_IVY.getTalentDescription(then));
+                }
         );
     }
 
@@ -182,6 +185,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
     @Override
     public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
         setArrowType(player, ArrowType.POISON_IVY, getUltimateDuration());
+        player.snapToWeapon();
 
         return UltimateCallback.OK;
     }
@@ -252,7 +256,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
 
     @Override
     public void onStart(@Nonnull GamePlayer player) {
-        player.getInventory().setItem(9, new ItemStack(Material.ARROW));
+        player.setItem(EquipmentSlot.ARROW, new ItemStack(Material.ARROW));
     }
 
     @Nullable
@@ -277,6 +281,16 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
                     if (!isHuggingWall(player)) {
                         remover.remove();
                         player.setCooldown(getPassiveTalent().getMaterial(), CLIMB_COOLDOWN);
+
+                        // Add a little boost
+                        final Location location = player.getLocation();
+                        final Vector vector = location.getDirection().normalize().multiply(0.8d).add(new Vector(0.0d, 0.25d, 0.0d));
+
+                        player.setVelocity(vector);
+                        player.addPotionEffect(PotionEffectType.SLOW_FALLING.createEffect(10, 1));
+
+                        // Fx
+                        PlayerLib.playSound(location, Sound.ENTITY_HORSE_SADDLE, 0.75f);
                         return;
                     }
 
@@ -366,13 +380,13 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
 
     private boolean isHuggingWall(Location location) {
         final Vector direction = location.getDirection();
-        final Location inFront = location.add(direction.normalize().setY(0.0d).multiply(1.0d));
+        final Location inFront = location.add(direction.normalize().setY(0.0d));
 
         return inFront.getBlock().getType().isOccluding();
     }
 
     private boolean isHuggingWall(Player player) {
-        return isHuggingWall(player.getLocation());
+        return isHuggingWall(player.getLocation().add(0, player.getEyeHeight() / 2, 0));
     }
 
 }

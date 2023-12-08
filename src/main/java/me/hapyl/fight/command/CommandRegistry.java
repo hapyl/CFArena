@@ -14,6 +14,7 @@ import me.hapyl.fight.build.NamedSignReader;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.fx.GiantItem;
+import me.hapyl.fight.fx.Riptide;
 import me.hapyl.fight.fx.beam.Quadrant;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -26,6 +27,7 @@ import me.hapyl.fight.game.entity.*;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
 import me.hapyl.fight.game.entity.cooldown.CooldownData;
 import me.hapyl.fight.game.entity.shield.Shield;
+import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.bloodfield.BatCloud;
 import me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend;
@@ -33,6 +35,7 @@ import me.hapyl.fight.game.heroes.archive.bloodfield.BloodfiendData;
 import me.hapyl.fight.game.heroes.archive.dark_mage.AnimatedWither;
 import me.hapyl.fight.game.heroes.archive.doctor.ElementType;
 import me.hapyl.fight.game.heroes.archive.engineer.Engineer;
+import me.hapyl.fight.game.heroes.archive.moonwalker.Moonwalker;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.lobby.StartCountdown;
@@ -46,6 +49,7 @@ import me.hapyl.fight.game.talents.archive.engineer.Construct;
 import me.hapyl.fight.game.talents.archive.juju.Orbiting;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.display.DamageDisplay;
 import me.hapyl.fight.game.ui.splash.SplashText;
@@ -56,7 +60,6 @@ import me.hapyl.fight.gui.styled.profile.achievement.AchievementGUI;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.ChatUtils;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.Compute;
 import me.hapyl.fight.ux.Message;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.chat.Gradient;
@@ -66,7 +69,9 @@ import me.hapyl.spigotutils.module.command.*;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.hologram.Hologram;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.spigotutils.module.inventory.gui.EventListener;
 import me.hapyl.spigotutils.module.inventory.gui.GUI;
+import me.hapyl.spigotutils.module.inventory.gui.PlayerGUI;
 import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import me.hapyl.spigotutils.module.math.Cuboid;
 import me.hapyl.spigotutils.module.math.Numbers;
@@ -86,6 +91,7 @@ import org.apache.commons.lang.reflect.FieldUtils;
 import org.bson.Document;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -97,6 +103,7 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.*;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -185,6 +192,40 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
+        register(new SimplePlayerAdminCommand("testWindLev") {
+
+            private Riptide riptide;
+
+            @Override
+            protected void execute(Player player, String[] args) {
+                if (riptide != null) {
+                    riptide.remove();
+                    riptide = null;
+                    player.removePotionEffect(PotionEffectType.LEVITATION);
+
+                    Chat.sendMessage(player, "&cRemoved!");
+                    return;
+                }
+
+                final Location location = player.getLocation();
+                riptide = new Riptide(location);
+
+                final int level = getArgument(args, 0).toInt();
+                final int tick = getArgument(args, 1).toInt();
+
+                player.addPotionEffect(PotionEffectType.LEVITATION.createEffect(1000, level));
+
+                new GameTask() {
+                    @Override
+                    public void run() {
+                        player.addPotionEffect(PotionEffectType.LEVITATION.createEffect(1000, 255));
+                    }
+                }.runTaskLater(tick);
+
+                Chat.sendMessage(player, "&aCreated with level %s and %s delay.", level, tick);
+            }
+        });
+
         register(new SimplePlayerAdminCommand("ph") {
             @Override
             protected void execute(Player player, String[] args) {
@@ -201,6 +242,10 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
+        register("spawnMoonwalkerBlob", (player, args) -> {
+            Heroes.MOONWALKER.getHero(Moonwalker.class).getUltimate().createBlob(player.getLocation(), false);
+        });
+
         register(new SimplePlayerAdminCommand("hex") {
             @Override
             protected void execute(Player player, String[] args) {
@@ -210,12 +255,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 final me.hapyl.fight.game.color.Color theColor = new me.hapyl.fight.game.color.Color(color);
 
                 Chat.sendMessage(player, "&aOutput: ");
-                Chat.sendClickableHoverableMessage(
-                        player,
-                        LazyEvent.suggestCommand(color),
-                        LazyEvent.showText("&eClick to copy!"),
-                        theColor + string
-                );
+                Chat.sendMessage(player, theColor + string);
             }
         });
 
@@ -706,6 +746,12 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
 
             Message.info(player, collection.getItems().toString());
+        });
+
+        register("debugExpTreeMap", (player, args) -> {
+            final Experience experience = Main.getPlugin().getExperience();
+
+            experience.getLevelEnoughExp(10000);
         });
 
         register(new SimplePlayerAdminCommand("skin") {
@@ -1788,6 +1834,46 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             Chat.sendMessage(player, "&aDone!");
         });
 
+        register(new SimplePlayerAdminCommand("testAttackSpeed") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                final double newValue = getArgument(args, 0).toDouble(-999);
+                final AttributeInstance attribute = player.getAttribute(Attribute.GENERIC_ATTACK_SPEED);
+
+                if (newValue == -999) {
+                    Chat.sendMessage(
+                            player,
+                            "&aCurrent attack speed: %s",
+                            attribute.getBaseValue()
+                    );
+                    return;
+                }
+
+                attribute.setBaseValue(newValue);
+                Chat.sendMessage(player, "&aSet value to %s!", newValue);
+            }
+        });
+
+        register("testTradeGUi", ((player, strings) -> {
+            final PlayerGUI gui = new PlayerGUI(player, 6);
+
+            gui.fillColumn(4, ItemBuilder.of(Material.BLACK_WOOL).asIcon());
+            gui.setEventListener(new EventListener() {
+                @Override
+                public void listen(Player player, GUI gui, InventoryClickEvent event) {
+                    final int clickedSlot = event.getRawSlot();
+                    final int module = clickedSlot % 9;
+
+                    boolean leftSide = module < 4;
+                    boolean rightSide = module > 4;
+
+                    Chat.sendMessage(player, "&aSide: " + (leftSide ? "LEFT" : rightSide ? "RIGHT" : "MIDDLE"));
+                }
+            });
+
+            gui.openInventory();
+        }));
+
         register(new PluginsCommandOverride());
 
         register(new SimplePlayerAdminCommand("riptide") {
@@ -1872,13 +1958,60 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
+        register("commitSuicideButDontTriggerModeWinCondition", (player, args) -> {
+            final GamePlayer gamePlayer = CF.getPlayer(player);
+
+            if (gamePlayer == null) {
+                Chat.sendMessage(player, "&cI'm actually tired of typing this, but you must be in THE FUCKING GAME TO USE THIS!");
+                return;
+            }
+
+            gamePlayer.setState(EntityState.DEAD);
+        });
+
         register(new SimpleAdminCommand("debugTeams") {
             @Override
             protected void execute(CommandSender sender, String[] args) {
                 for (GameTeam team : GameTeam.values()) {
-                    Debug.info("%s = %s", team.getName(), team.listMembers());
+                    Debug.info(team.toString());
                 }
             }
+        });
+
+        register("leaveTeam", (player, args) -> {
+            final Entry entry = Entry.of(player);
+            final GameTeam team = GameTeam.getEntryTeam(entry);
+
+            if (team == null) {
+                Chat.sendMessage(player, "&cNot in a team!!!");
+                GameTeam.getSmallestTeam();
+                return;
+            }
+
+            team.removeEntry(entry);
+            Chat.sendMessage(player, "&aRemoved you from the team!");
+            Chat.sendMessage(
+                    player,
+                    "&e&lKeep in mind that having no team is not intentional and errors might appear! Use this for testing only!!!"
+            );
+        });
+
+        register("spawnAlliedEntity", (player, args) -> {
+            final GamePlayer gamePlayer = CF.getPlayer(player);
+
+            if (gamePlayer == null) {
+                Chat.sendMessage(player, "&cCannot spawn outside a game!");
+                return;
+            }
+
+            gamePlayer.spawnAlliedEntity(player.getLocation(), Entities.HUSK, self -> {
+                self.setGlowing(player, ChatColor.GREEN, 60);
+                gamePlayer.schedule(() -> {
+                    self.setGlowingColor(player, ChatColor.BLUE);
+                }, 20);
+            });
+
+            gamePlayer.sendMessage("&aSpawned!");
         });
 
         register(new SimplePlayerAdminCommand("dumpBlockHardness") {
@@ -1933,11 +2066,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             protected void execute(Player player, String[] args) {
                 final double value = getArgument(args, 0).toDouble();
 
-                if (value == 0.0d) {
-                    Chat.sendMessage(player, "&cInvalid value.");
-                    return;
-                }
-
                 final ItemStack item = player.getInventory().getItemInMainHand();
                 final ItemMeta meta = item.getItemMeta();
 
@@ -1946,10 +2074,18 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     return;
                 }
 
+                final Collection<AttributeModifier> modifiers = meta.getAttributeModifiers(Attribute.GENERIC_ATTACK_SPEED);
+
                 meta.removeAttributeModifier(Attribute.GENERIC_ATTACK_SPEED);
                 meta.addAttributeModifier(
                         Attribute.GENERIC_ATTACK_SPEED,
-                        new AttributeModifier("SPEED", value, AttributeModifier.Operation.ADD_NUMBER)
+                        new AttributeModifier(
+                                UUID.randomUUID(),
+                                "AttackSpeed",
+                                value,
+                                AttributeModifier.Operation.ADD_NUMBER,
+                                EquipmentSlot.HAND
+                        )
                 );
 
                 item.setItemMeta(meta);

@@ -4,7 +4,6 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Contact;
 import me.hapyl.spigotutils.module.entity.Entities;
 import org.bukkit.Location;
@@ -55,14 +54,6 @@ public class FrostbiteBullet implements Removable, Contact<ArmorStand, LivingGam
 
             if (offsetLocation(location, SHIFT * i, loc -> {
                 stand.teleport(loc);
-
-                final LivingGameEntity hitEntity = Collect.nearestEntity(loc, 1.0, entity -> !entity.equals(player));
-
-                if (hitEntity != null) {
-                    onContact(stand, hitEntity, loc);
-                    return true;
-                }
-
                 return false;
             })) {
                 break;

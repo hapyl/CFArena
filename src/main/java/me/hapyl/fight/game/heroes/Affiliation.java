@@ -14,8 +14,8 @@ public enum Affiliation implements Prefixed {
 
     KINGDOM(Color.DARK_GOLDENROD + "🏰", "Kingdom", "A royal kingdom."),
     THE_WITHERS(Color.WITHERS + "👾", "The Withers", "An ancient race of withers, who bear hatred towards humanity."),
-    UNKNOWN(Color.DEFAULT + "❓", "Unknown", "The origin of this hero is a mystery..."),
-    ;
+    THE_JUNGLE(Color.FOREST_GREEN + "\uD83C\uDF3A", "The Jungle", "A massive jungle filled with trees and bandits."),
+    UNKNOWN(Color.DEFAULT + "❓", "Unknown", "The origin of this hero is a mystery...");
 
     private final String prefix;
     private final String name;

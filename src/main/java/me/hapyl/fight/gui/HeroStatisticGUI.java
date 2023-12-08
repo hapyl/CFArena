@@ -6,7 +6,7 @@ import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.PassiveTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.util.ItemStacks;
+import me.hapyl.fight.gui.styled.StyledTexture;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.PlayerGUI;
 import me.hapyl.spigotutils.module.inventory.gui.SlotPattern;
@@ -80,7 +80,7 @@ public class HeroStatisticGUI extends PlayerGUI {
         // Add arrow to go back to the hero preview GUI
         setItem(
                 31,
-                new ItemBuilder(ItemStacks.ARROW_PREV_PAGE).setName("&aGo Back").asIcon(),
+                StyledTexture.ARROW_LEFT.asIcon("Go Back"),
                 pl -> new HeroPreviewGUI(getPlayer(), heroes, index).openInventory()
         );
 

@@ -40,6 +40,12 @@ public class Moonwalker extends Hero implements PlayerElement {
         setUltimate(new MoonwalkerUltimate());
     }
 
+    @Nonnull
+    @Override
+    public MoonwalkerUltimate getUltimate() {
+        return (MoonwalkerUltimate) super.getUltimate();
+    }
+
     @Nullable
     public Block getTargetBlock(GamePlayer player) {
         return player.getTargetBlockExact(25);

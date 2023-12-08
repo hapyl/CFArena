@@ -54,7 +54,7 @@ public class Deathmatch extends CFGameMode {
         final GameTeam playerTeam = gamePlayer.getTeam();
         final Map<GameTeam, Integer> topKills = getTopTeamKills(instance, SCOREBOARD_DISPLAY_LIMIT);
 
-        builder.addLines("", "&6⚔ &l%s: &8(&b🗡 &l%s&8)".formatted(getName(), playerTeam.kills));
+        builder.addLines("", "&6⚔ &l%s: &8(&b🗡 &l%s&8)".formatted(getName(), playerTeam.data.kills));
 
         final IntInt i = new IntInt(1);
         topKills.forEach((team, kills) -> {
@@ -88,7 +88,7 @@ public class Deathmatch extends CFGameMode {
         final Map<GameTeam, Integer> map = Maps.newHashMap();
 
         for (GameTeam team : GameTeam.getPopulatedTeams()) {
-            map.put(team, team.kills);
+            map.put(team, team.data.kills);
         }
 
         return LinkedValue2IntegerReverseMap.of(map, limit);

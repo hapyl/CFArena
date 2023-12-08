@@ -21,7 +21,7 @@ public class Attribute {
         this.description = description;
         this.character = "|";
         this.color = ChatColor.GREEN;
-        this.toString = d -> "%.1f".formatted(d * 100.0d);
+        this.toString = AttributeType::doubleFormatPercent;
     }
 
     public String getName() {

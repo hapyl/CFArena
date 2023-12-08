@@ -1,6 +1,7 @@
 package me.hapyl.fight.command;
 
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.gui.TeamSelectGUI;
 import me.hapyl.fight.ux.Message;
@@ -18,11 +19,6 @@ public class TeamCommand extends SimplePlayerCommand {
 
     @Override
     protected void execute(Player player, String[] args) {
-        // team - opens GUI
-        // team toggle - toggles team mode
-        // team join (team) - join certain team
-        // team leave (team) - leave certain team
-
         if (Manager.current().isGameInProgress()) {
             Chat.sendMessage(player, "&cCannot modify team during a game!");
             return;
@@ -33,7 +29,7 @@ public class TeamCommand extends SimplePlayerCommand {
             return;
         }
 
-        final String string = getArgument(args, 0).toString();
+        final String string = getArgument(args, 0).toString().toLowerCase();
         final GameTeam team = getArgument(args, 1).toEnum(GameTeam.class);
 
         if (team == null) {
@@ -47,7 +43,12 @@ public class TeamCommand extends SimplePlayerCommand {
                 return;
             }
 
-            team.addMember(player);
+            if (!team.isAllowJoin()) {
+                Message.error(player, "You cannot join this team directly!");
+                return;
+            }
+
+            team.addEntry(Entry.of(player));
         }
     }
 
