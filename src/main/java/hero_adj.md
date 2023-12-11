@@ -126,6 +126,21 @@ Troll
 
 ---
 
+Tamer
+===
+
+### Mine 'o Ball
+
+* Summon a random pack of creatures that will aid you in battle:
+    * Dr. Witch
+        * Splashes a healing potion once in a while.
+    * The Wolf Pack
+        * Each living wolf grants you an ATK boost.
+    * Pigman Rusher
+        * Rushes towards enemies.
+
+---
+
 Nightmare
 ===
 

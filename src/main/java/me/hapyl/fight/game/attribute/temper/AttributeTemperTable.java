@@ -47,7 +47,7 @@ public final class AttributeTemperTable {
             @Override
             public void run() {
                 remove(temper, type);
-                type.attribute.update(attributes.getEntity(), attributes.get(type));
+                attributes.triggerUpdate(type);
             }
         });
     }

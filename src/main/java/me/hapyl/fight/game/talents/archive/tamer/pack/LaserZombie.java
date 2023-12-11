@@ -18,7 +18,7 @@ import javax.annotation.Nonnull;
 public class LaserZombie extends TamerPack {
 
     @DisplayField private final int laserPeriod = 60;
-    @DisplayField private final double laserBaseDefenseReduction = 0.2d;
+    @DisplayField(percentage = true) private final double laserBaseDefenseReduction = 0.2d;
     @DisplayField private final int laserDefenseReductionDuration = 100;
     @DisplayField private final int laserHitDelay = 10;
 
@@ -98,6 +98,12 @@ public class LaserZombie extends TamerPack {
         @Override
         public void kill() {
             super.kill();
+            guardian.remove();
+        }
+
+        @Override
+        public void remove() {
+            super.remove();
             guardian.remove();
         }
     }

@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.attribute;
 
+import me.hapyl.fight.annotate.Trigger;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.attribute.temper.AttributeTemperTable;
 import me.hapyl.fight.game.attribute.temper.Temper;
@@ -62,7 +63,12 @@ public class EntityAttributes extends Attributes implements PlayerElement {
     public void set(@Nonnull AttributeType type, double value) {
         super.set(type, value);
 
-        type.attribute.update(gameEntity, value);
+        triggerUpdate(type);
+    }
+
+    @Trigger
+    public void triggerUpdate(@Nonnull AttributeType type) {
+        type.attribute.update(gameEntity, get(type));
     }
 
     public final int getFerocityStrikes() {
@@ -106,7 +112,7 @@ public class EntityAttributes extends Attributes implements PlayerElement {
             display(type, type.getDisplayType(value, -value));
         }
 
-        type.attribute.update(gameEntity, get(type));
+        triggerUpdate(type);
     }
 
     /**
@@ -157,7 +163,7 @@ public class EntityAttributes extends Attributes implements PlayerElement {
         Triggers.call(new AttributeChangeTrigger(gameEntity, type, oldBaseValue, newBaseValue));
 
         // Call update
-        type.attribute.update(gameEntity, newBaseValue);
+        triggerUpdate(type);
 
         return ImmutableTuple.of(original, newValue);
     }

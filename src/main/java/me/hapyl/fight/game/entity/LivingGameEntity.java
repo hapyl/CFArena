@@ -908,9 +908,7 @@ public class LivingGameEntity extends GameEntity {
     }
 
     private void updateAttributes() {
-        attributes.forEach((type, d) -> {
-            type.attribute.update(this, d);
-        });
+        attributes.forEach((type, d) -> attributes.triggerUpdate(type));
     }
 
     private double randomDouble(double origin, double bound) {

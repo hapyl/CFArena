@@ -14,7 +14,7 @@ import javax.annotation.Nonnull;
 
 public class TheWolfPack extends TamerPack {
 
-    @DisplayField private final double wolfBaseAttackBoostPerWold = 0.1d;
+    @DisplayField(percentage = true) private final double wolfBaseAttackBoostPerWold = 0.1d;
     @DisplayField private final int wolfAttackBoostDuration = 20;
 
     public TheWolfPack() {
