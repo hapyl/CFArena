@@ -63,10 +63,10 @@ public class Attribute implements Described {
     }
 
     /**
-     * Called every time {@link EntityAttributes} calls {@link EntityAttributes#get(AttributeType)} method.
+     * Called every time an attribute updates.
      *
      * @param entity - Player.
-     * @param value  - The actual value.
+     * @param value  - The new value.
      */
     public void update(LivingGameEntity entity, double value) {
     }

@@ -716,7 +716,8 @@ public class LivingGameEntity extends GameEntity {
 
     public <T> void spawnWorldParticle(Location location, Particle particle, int amount, double x, double y, double z, T data) {
         final World world = location.getWorld();
-        if (world == null || particle.getDataType() != data.getClass()) {
+
+        if (world == null || !particle.getDataType().isInstance(data)) {
             return;
         }
 

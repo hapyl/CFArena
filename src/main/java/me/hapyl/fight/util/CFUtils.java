@@ -671,8 +671,16 @@ public class CFUtils {
         return condition == null ? "" : condition ? "&a✔" : "&c❌";
     }
 
+    @Nonnull
     public static Location centerLocation(@Nonnull Location location) {
-        return new Location(location.getWorld(), location.getBlockX() + 0.5d, location.getY(), location.getBlockZ() + 0.5d);
+        return new Location(
+                location.getWorld(),
+                location.getBlockX() + 0.5d,
+                location.getY(),
+                location.getBlockZ() + 0.5d,
+                location.getYaw(),
+                location.getPitch()
+        );
     }
 
     @Nonnull

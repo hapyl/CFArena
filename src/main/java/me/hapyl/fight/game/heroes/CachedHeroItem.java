@@ -29,7 +29,7 @@ public class CachedHeroItem {
             builder.setName(hero.toString())
                     .addLore()
                     .addLore("&7Archetype: " + archetype)
-                    .addTextBlockLore(archetype.getDescription(), "&8&o");
+                    .addSmartLore(archetype.getDescription(), "&8&o");
 
             // Affiliation
             if (hero.getOrigin() != Affiliation.NOT_SET) {

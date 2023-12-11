@@ -3,11 +3,11 @@ package me.hapyl.fight.game.talents.archive.frostbite;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
@@ -18,19 +18,19 @@ import javax.annotation.Nonnull;
 
 public class IceCageTalent extends Talent implements Listener {
 
+    protected final PlayerMap<IceCage> iceCageMap = PlayerMap.newMap();
     private final PlayerMap<Snowball> snowballMap = PlayerMap.newMap();
-    private final PlayerMap<IceCage> iceCageMap = PlayerMap.newMap();
 
     public IceCageTalent() {
         super("Ice Cage", """
                 Launch a &bsnowball&7 in front of you.
                                      
-                Upon hitting a player, immobilize and cage them in ice.
-                &8;;The ice is only visible to the hit player.
+                Upon hitting an entity, immobilize and cage them in ice.
                 """);
 
         setType(Type.IMPAIR);
         setItem(Material.SNOWBALL);
+        setDurationSec(6);
         setCooldownSec(20);
     }
 
@@ -49,13 +49,9 @@ public class IceCageTalent extends Talent implements Listener {
             return;
         }
 
-        final Entity hitEntity = ev.getHitEntity();
-        if (!(hitEntity instanceof Player hitPlayer)) {
-            return;
-        }
+        final LivingGameEntity hitEntity = CF.getEntity(ev.getHitEntity());
 
-        final GamePlayer hitGamePlayer = CF.getPlayer(hitPlayer);
-        if (hitGamePlayer == null) {
+        if (hitEntity == null) {
             return;
         }
 
@@ -63,9 +59,13 @@ public class IceCageTalent extends Talent implements Listener {
 
         if (oldCage != null) {
             oldCage.remove();
+            oldCage.cancel();
         }
 
-        iceCageMap.put(gamePlayer, new IceCage(gamePlayer, hitGamePlayer));
+        ev.setCancelled(true);
+        snowball.remove();
+
+        iceCageMap.put(gamePlayer, new IceCage(this, gamePlayer, hitEntity));
     }
 
     @Override

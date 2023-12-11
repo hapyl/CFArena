@@ -132,12 +132,32 @@ Tamer
 ### Mine 'o Ball
 
 * Summon a random pack of creatures that will aid you in battle:
-    * Dr. Witch
+    * Dr. Witch (Support)
         * Splashes a healing potion once in a while.
-    * The Wolf Pack
+    * The Wolf Pack (Enhance)
         * Each living wolf grants you an ATK boost.
-    * Pigman Rusher
+    * Pigman Rusher (Damage)
         * Rushes towards enemies.
+    * Laser Zombie (Impair)
+        * Lasers target enemy, reducing their DEF.
+
+### Taming the Wind
+
+* LEFT CLICK to lift enemies in the sky, impairing their movement.
+* RIGHT CLICK to lift yourself in the sky and swiftly traverse the map terrain.
+
+### Taming the Earth
+
+* Lower nearby enemies below the baseboard, impairing their movement.
+
+### Taming the Time
+
+* LEFT CLICK to hinder all enemies, impairing their SPEED and ATTACK SPEED.
+* RIGHT CLICK to increase your SPEED and ATTACK SPEED.
+
+### Improve! Overcome! (Ultimate)
+
+* Improve the duration and effectiveness of your beasts and talents.
 
 ---
 

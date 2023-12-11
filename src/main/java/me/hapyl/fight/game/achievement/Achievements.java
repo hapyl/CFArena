@@ -74,7 +74,11 @@ public enum Achievements {
 
     // Frostbite
     CAGE_SELF(
-            new HiddenAchievement("Ice Cold", "Cage yourself with your own snowball.")
+            new HiddenAchievement("Ice Cold", "Cage yourself or your teammate with your own snowball.")
+    ),
+
+    CAGE_SELF_OTHER(
+            new HiddenAchievement("Bing Chilling", "Get caged by your own teammate.")
     ),
 
     ////////////////////////
