@@ -7,6 +7,8 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.potion.PotionEffectType;
 
+import javax.annotation.Nonnull;
+
 public class LockdownEffect extends GameEffect {
 
     public LockdownEffect() {
@@ -19,7 +21,7 @@ public class LockdownEffect extends GameEffect {
     }
 
     @Override
-    public void onStart(LivingGameEntity entity) {
+    public void onStart(@Nonnull LivingGameEntity entity) {
         entity.setCanMove(false);
 
         // Force set slot to 7 so abilities cannot be used.
@@ -36,7 +38,7 @@ public class LockdownEffect extends GameEffect {
     }
 
     @Override
-    public void onStop(LivingGameEntity entity) {
+    public void onStop(@Nonnull LivingGameEntity entity) {
         entity.setCanMove(true);
         entity.removePotionEffect(PotionEffectType.SLOW);
         entity.removePotionEffect(PotionEffectType.WEAKNESS);
@@ -46,9 +48,9 @@ public class LockdownEffect extends GameEffect {
     }
 
     @Override
-    public void onTick(LivingGameEntity entity, int tick) {
+    public void onTick(@Nonnull LivingGameEntity entity, int tick) {
         if (tick == 0) {
-            displayParticles(entity.getLocation().add(0.0d, 2.0d, 0.0d), entity.getEntity());
+            displayParticles(entity.getLocation().add(0.0d, 2.0d, 0.0d), entity);
         }
     }
 }

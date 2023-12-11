@@ -68,5 +68,4 @@ public class EntityHandler implements Listener {
         ev.setCancelled(true);
     }
 
-
 }

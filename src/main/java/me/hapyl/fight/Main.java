@@ -80,11 +80,13 @@ public class Main extends JavaPlugin {
         database = new Database(this);
         database.createConnection();
 
-        // Register 'managers' 🤪
+        // Register a task list before manager
+        taskList = new TaskList(this);
+
+        // Register the main manager
         manager = new Manager(this);
         CF.manager = manager;
 
-        taskList = new TaskList(this);
         experience = new Experience(this);
         boosters = new BoosterController(this);
         notifier = new Notifier(this);

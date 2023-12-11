@@ -1,45 +1,68 @@
 package me.hapyl.fight.game.effect.archive;
 
+import me.hapyl.fight.event.custom.GameDamageEvent;
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.effect.EffectParticle;
 import me.hapyl.fight.game.effect.GameEffect;
+import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.Particle;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.potion.PotionEffectType;
+import org.bukkit.Sound;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 
-import java.util.HashMap;
-import java.util.Map;
+import javax.annotation.Nonnull;
 
-public class Stun extends GameEffect {
-
-    private final Map<LivingEntity, Float> oldSpeed = new HashMap<>();
+public class Stun extends GameEffect implements Listener {
 
     public Stun() {
         super("Stun");
-        setDescription("Stunned players cannot move or use their abilities. Effect will be cleared upon taking damage.");
+
+        setDescription("""
+                Stunned players cannot move or use their abilities.
+                The effect will be cleared upon taking damage.
+                """);
         setPositive(false);
         setTalentBlocking(true);
         setEffectParticle(new EffectParticle(Particle.VILLAGER_ANGRY, 1));
     }
 
-    @Override
-    public void onTick(LivingGameEntity entity, int tick) {
-        displayParticles(entity.getLocation().add(0.0d, 1.0d, 0.0d), entity.getEntity());
+    @EventHandler()
+    public void handleGameDamageEvent(GameDamageEvent ev) {
+        final LivingGameEntity entity = ev.getEntity();
+
+        if (entity.hasEffect(GameEffectType.STUN)) {
+            entity.removeEffect(GameEffectType.STUN);
+        }
     }
 
     @Override
-    public void onStart(LivingGameEntity entity) {
-        oldSpeed.put(entity.getEntity(), entity.getWalkSpeed());
-
-        entity.setWalkSpeed(0.0f);
-        entity.addPotionEffect(PotionEffectType.WEAKNESS.createEffect(999999, 250));
-        entity.setCanMove(false);
+    public void onTick(@Nonnull LivingGameEntity entity, int tick) {
+        if (tick % 10 == 0) {
+            displayParticles(entity.getEyeLocation().add(0, 0.5, 0), entity);
+        }
     }
 
     @Override
-    public void onStop(LivingGameEntity entity) {
-        entity.setWalkSpeed(oldSpeed.getOrDefault(entity.getEntity(), 0.1f));
-        entity.removePotionEffect(PotionEffectType.WEAKNESS);
-        entity.setCanMove(true);
+    public void onStart(@Nonnull LivingGameEntity entity) {
+        final EntityAttributes attributes = entity.getAttributes();
+
+        attributes.subtractSilent(AttributeType.SPEED, AttributeType.SPEED.maxValue());
+        entity.getMetadata().canMove.setValue(false);
+
+        // Fx
+        entity.playWorldSound(Sound.BLOCK_ANVIL_LAND, 1.25f);
+        entity.sendTitle("&7&lsᴛᴜɴɴᴇᴅ", null, 5, 1000000, 5);
+    }
+
+    @Override
+    public void onStop(@Nonnull LivingGameEntity entity) {
+        final EntityAttributes attributes = entity.getAttributes();
+
+        attributes.addSilent(AttributeType.SPEED, AttributeType.SPEED.maxValue());
+        entity.getMetadata().canMove.setValue(true);
+
+        entity.clearTitle();
     }
 }

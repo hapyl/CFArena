@@ -18,7 +18,7 @@ public class WitherBlood extends PotionGameEffect {
     }
 
     @Override
-    public void onTick(LivingGameEntity entity, int tick) {
+    public void onTick(@Nonnull LivingGameEntity entity, int tick) {
     }
 
     @Override

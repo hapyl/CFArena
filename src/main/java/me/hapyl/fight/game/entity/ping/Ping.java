@@ -87,7 +87,7 @@ public class Ping extends GameTask implements Removable {
         location.setYaw(0.0f);
         location.setPitch(0.0f);
 
-        return location;
+        return location.add(0.0d, 1.0d, 0.0d);
         //return location.add(-0.5d, -0.8d, 0.25d);
     }
 }

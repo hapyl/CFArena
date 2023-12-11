@@ -1,11 +1,12 @@
 package me.hapyl.fight.event;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.achievement.Achievements;
+import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.CriticalResponse;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.effect.GameEffectType;
@@ -61,8 +62,9 @@ import org.bukkit.util.Vector;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
-import java.util.Set;
 
 /**
  * Handles all player related events.
@@ -73,11 +75,14 @@ public class PlayerHandler implements Listener {
     public final double DAMAGE_LIMIT = Integer.MAX_VALUE;
     public final double HEALING_AT_KILL = 0.3d;
 
-    private final Set<PotionEffectType> disabledEffects;
+    private final Map<PotionEffectType, AttributeType> disabledEffects;
 
     public PlayerHandler() {
-        disabledEffects = Sets.newHashSet();
-        disabledEffects.add(PotionEffectType.WEAKNESS);
+        disabledEffects = Maps.newHashMap();
+
+        disabledEffects.put(PotionEffectType.WEAKNESS, AttributeType.DEFENSE);
+        disabledEffects.put(PotionEffectType.INCREASE_DAMAGE, AttributeType.ATTACK);
+        disabledEffects.put(PotionEffectType.DAMAGE_RESISTANCE, AttributeType.DEFENSE);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -116,14 +121,17 @@ public class PlayerHandler implements Listener {
         }
 
         final PotionEffectType type = newEffect.getType();
+        final AttributeType attributeReplacement = disabledEffects.get(type);
 
-        if (!disabledEffects.contains(type)) {
+        if (attributeReplacement == null) {
             return;
         }
 
-        Debug.warn("A disabled effect was applied to an entity, canceled!");
-        Debug.warn(" Effect: " + type.getName());
-        Debug.warn(" Entity: " + entity.getName());
+        Chat.broadcastOp("&4&lADMIN&c A disabled effect is used, canceled!");
+        Chat.broadcastOp("&4&lADMIN&c Do &nnot&c use &e&l%s&c!", Chat.capitalize(type.getKey().getKey()));
+        Chat.broadcastOp("&4&lADMIN&c Replace it with &e&l%s&c attribute!", attributeReplacement.getName());
+
+        ev.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -361,6 +369,7 @@ public class PlayerHandler implements Listener {
         instance.cause = data.getLastDamageCauseNonNull();
 
         // PRE-EVENTS TESTS, SUCH AS GAME EFFECT, ETC.
+
         // Test for fall damage resistance
         if (data.getLastDamageCauseNonNull() == EnumDamageCause.FALL && gameEntity.hasEffect(GameEffectType.FALL_DAMAGE_RESISTANCE)) {
             ev.setCancelled(true);
@@ -440,61 +449,12 @@ public class PlayerHandler implements Listener {
                 return;
             }
 
-            // Apply effects and modifiers for the damager
-            if (lastDamager != null) {
-                final PotionEffect effectStrength = lastDamager.getPotionEffect(PotionEffectType.INCREASE_DAMAGE);
-                final PotionEffect effectWeakness = lastDamager.getPotionEffect(PotionEffectType.WEAKNESS);
-
-                // Strength
-                // The current formula is +50% damage per strength lvl
-                if (effectStrength != null) {
-                    final int amplifier = effectStrength.getAmplifier() + 1;
-
-                    instance.damage -= (3.0d * amplifier); // Remove vanilla strength
-                    instance.damage += (instance.damage * 0.5d * amplifier);
-                }
-
-                // Weakness
-                // The current formula reduces damage by half
-                if (effectWeakness != null) {
-                    instance.damage -= (4.0d * effectWeakness.getAmplifier() + 1);
-                    instance.damage /= 2.0d;
-                    // FIXME (hapyl): 027, May 27, 2023: Player's cannot damage with weakness, convert to GameEffect or use something like UNLUCK
-                }
-
-                // Check for stun and nullify the damage
-                if (lastDamager.hasEffect(GameEffectType.STUN)) {
-                    instance.damage = 0.0d;
-                }
-
-                // Check for lockdown and cancel the event
-                if (lastDamager.hasEffect(GameEffectType.LOCK_DOWN)) {
-                    ev.setCancelled(true);
-                    lastDamager.sendTitle("&c&lLOCKDOWN", "&cCannot deal damage.", 0, 20, 0);
-                    return;
-                }
-            }
-
-            // Apply modifiers for a victim
-            final PotionEffect effectResistance = livingEntity.getPotionEffect(PotionEffectType.DAMAGE_RESISTANCE);
-
-            // Reduce damage by 85%
-            if (effectResistance != null) {
-                instance.damage *= 0.15d;
-            }
-
             // Player victim checks
             if (livingEntity instanceof Player player) {
                 // Negate damage if blocking
                 if (player.isBlocking()) {
                     instance.damage = 0.0;
                 }
-            }
-
-            // Check for GameEffects
-            // Remove stun once damaged
-            if (gameEntity.hasEffect(GameEffectType.STUN)) {
-                gameEntity.removeEffect(GameEffectType.STUN);
             }
 
             // Increase damage taken by 2 if vulnerable
@@ -792,8 +752,6 @@ public class PlayerHandler implements Listener {
                 return;
             }
 
-            gamePlayer.getActiveEffects().values().forEach(effect -> effect.processEvent(ev));
-
             // Amnesia
             if (gamePlayer.hasEffect(GameEffectType.AMNESIA)) {
                 final double pushSpeed = player.isSneaking() ? 0.05d : 0.1d;
@@ -1015,6 +973,30 @@ public class PlayerHandler implements Listener {
         }
 
         return true;
+    }
+
+    private record DisabledEffect(PotionEffectType type, AttributeType attribute) {
+        public DisabledEffect(PotionEffectType type) {
+            this(type, null);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            final DisabledEffect that = (DisabledEffect) o;
+            return Objects.equals(type, that.type);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(type);
+        }
     }
 
 

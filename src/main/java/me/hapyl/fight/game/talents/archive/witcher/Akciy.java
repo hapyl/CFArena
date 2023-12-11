@@ -33,8 +33,8 @@ public class Akciy extends Talent {
         }
 
         target.addEffect(GameEffectType.STUN, getDuration());
-        target.sendMessage("&c%s stunned you!", player.getName());
 
+        target.sendMessage("&c%s stunned you!", player.getName());
         player.sendMessage("&aStunned %s!", target.getName());
         return Response.OK;
     }

@@ -379,6 +379,11 @@ Blast Knight
 
 * Spend all Quantum Energy to create a Nova Explosion.
 
+### Balance changes
+
+* Healing reduced 50 >> 30.
+* Shield strength reduced 25 >> 20.
+
 ---
 
 Ninja
@@ -439,7 +444,7 @@ System Changes
     <p><code>DMG * (2 - DEF)</code></p>
 
     * New formula:
-    <p><code>SCALE = 0.75</code></p>
+    <p><code>SCALE = 0.5</code></p>
     <p><code>DMG / (DEF * SCALE + (1 - SCALE))</code></p>
 
 ### Weapon Changes

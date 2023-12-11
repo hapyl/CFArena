@@ -28,7 +28,7 @@ public abstract class PotionGameEffect extends GameEffect {
     public abstract void onStopAfter(@Nonnull LivingEntity entity);
 
     @Override
-    public final void onStart(LivingGameEntity entity) {
+    public final void onStart(@Nonnull LivingGameEntity entity) {
         dataMap.forEach((type, level) -> {
             entity.addPotionEffect(type.createEffect(999999/* Pretty sure Integer.MAX_VALUE is too big. */, level));
         });
@@ -37,7 +37,7 @@ public abstract class PotionGameEffect extends GameEffect {
     }
 
     @Override
-    public final void onStop(LivingGameEntity entity) {
+    public final void onStop(@Nonnull LivingGameEntity entity) {
         dataMap.forEach((type, level) -> {
             entity.removePotionEffect(type);
         });

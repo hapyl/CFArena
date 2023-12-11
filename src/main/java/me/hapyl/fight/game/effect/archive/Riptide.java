@@ -8,6 +8,8 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.potion.PotionEffectType;
 
+import javax.annotation.Nonnull;
+
 public class Riptide extends GameEffect {
     private final EffectParticle[] particles = new EffectParticle[2];
 
@@ -20,7 +22,7 @@ public class Riptide extends GameEffect {
     }
 
     @Override
-    public void onStart(LivingGameEntity entity) {
+    public void onStart(@Nonnull LivingGameEntity entity) {
         entity.addPotionEffect(PotionEffectType.SLOW, 999999, 0);
         entity.addPotionEffect(PotionEffectType.SPEED, 999999, 0);
 
@@ -28,7 +30,7 @@ public class Riptide extends GameEffect {
     }
 
     @Override
-    public void onStop(LivingGameEntity entity) {
+    public void onStop(@Nonnull LivingGameEntity entity) {
         entity.removePotionEffect(PotionEffectType.SLOW);
         entity.removePotionEffect(PotionEffectType.SPEED);
 
@@ -36,10 +38,10 @@ public class Riptide extends GameEffect {
     }
 
     @Override
-    public void onTick(LivingGameEntity entity, int tick) {
+    public void onTick(@Nonnull LivingGameEntity entity, int tick) {
         if (tick == 10) {
             for (final EffectParticle particle : particles) {
-                displayParticles(entity.getEyeLocation().add(0.0d, 0.5d, 0.0d), entity.getEntity(), particle);
+                displayParticles(entity.getEyeLocation().add(0.0d, 0.5d, 0.0d), entity, particle);
             }
         }
     }

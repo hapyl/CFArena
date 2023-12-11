@@ -1,11 +1,11 @@
 package me.hapyl.fight.game.effect;
 
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import org.bukkit.Bukkit;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.game.entity.GamePlayer;
 import org.bukkit.Location;
 import org.bukkit.Particle;
-import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class EffectParticle {
@@ -28,13 +28,13 @@ public class EffectParticle {
         this.speed = speed;
     }
 
-    public void display(Location location, @Nullable Player ignored) {
-        Bukkit.getOnlinePlayers().forEach(player -> {
-            if (ignored != null && player == ignored) {
+    public void display(@Nonnull Location location, @Nullable GamePlayer ignored) {
+        CF.getPlayers().forEach(player -> {
+            if (player.equals(ignored)) {
                 return;
             }
 
-            PlayerLib.spawnParticle(player, location, particle, amount, oX, oY, oZ, speed);
+            player.spawnParticle(location, particle, amount, oX, oY, oZ, speed);
         });
     }
 

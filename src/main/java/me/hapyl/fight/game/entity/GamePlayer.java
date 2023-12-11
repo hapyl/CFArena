@@ -115,8 +115,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         this.shield = null;
         this.talentLock = new TalentLock(this, profile.getHeroHandle());
         this.playerPing = new PlayerPing(this);
-
-        startTicking();
     }
 
     public int getTalentLock(@Nonnull HotbarSlots slot) {
@@ -149,6 +147,12 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         combatTag = 0;
         talentLock.reset();
 
+        // Actually stop the effects before applying the data
+        entityData.getGameEffects().values().forEach(ActiveGameEffect::forceStop);
+
+        // Reset attributes
+        attributes.reset();
+
         markLastMoved();
         setHealth(getMaxHealth());
 
@@ -172,11 +176,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
         // Reset attributes
         defaultVanillaAttributes();
-
-        getData().getGameEffects().values().forEach(ActiveGameEffect::forceStop);
-
-        // Reset attributes
-        attributes.reset();
 
         setOutline(Outline.CLEAR);
 
@@ -206,7 +205,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     }
 
     @Override
-    public void remove() {
+    public void kill() {
         // don't remove player
     }
 
@@ -261,6 +260,8 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
     @Override
     public void onDeath() {
+        getMemory().forgetEverything();
+
         final GameEntity lastDamager = entityData.getLastDamager();
 
         if (!(lastDamager instanceof GamePlayer lastPlayerDamager)) {
@@ -311,22 +312,25 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
             final Player killer = gameKiller.getPlayer();
 
             if (entity != killer) {
-                final IGameInstance gameInstance = Manager.current().getCurrentGame();
-                final StatContainer killerStats = gameKiller.getStats();
+                // Don't add stats for teammates either, BUT display the kill cosmetic
+                if (!isTeammate(gameKiller)) {
+                    final IGameInstance gameInstance = Manager.current().getCurrentGame();
+                    final StatContainer killerStats = gameKiller.getStats();
 
-                killerStats.addValue(StatType.KILLS, 1);
-                gameKiller.getTeam().data.kills++;
+                    killerStats.addValue(StatType.KILLS, 1);
+                    gameKiller.getTeam().data.kills++;
 
-                // Check for first blood
-                if (gameInstance.getTotalKills() == 1) {
-                    Achievements.FIRST_BLOOD.complete(gameKiller.getTeam());
+                    // Check for first blood
+                    if (gameInstance.getTotalKills() == 1) {
+                        Achievements.FIRST_BLOOD.complete(gameKiller.getTeam());
+                    }
+
+                    // Add kill streak for killer
+                    gameKiller.killStreak++;
+
+                    // Award elimination to killer
+                    Award.PLAYER_ELIMINATION.award(gameKiller);
                 }
-
-                // Add kill streak for killer
-                gameKiller.killStreak++;
-
-                // Award elimination to killer
-                Award.PLAYER_ELIMINATION.award(gameKiller);
 
                 // Display cosmetics
                 final Cosmetics killCosmetic = Cosmetics.getSelected(killer, Type.KILL);
@@ -784,12 +788,21 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     }
 
     @Nonnull
-    public <T extends LivingEntity> LivingGameEntity spawnAlliedEntity(@Nonnull Location location, @Nonnull Entities<T> type, @Nonnull Consumer<LivingGameEntity> consumer) {
+    public <T extends LivingEntity> LivingGameEntity spawnAlliedLivingEntity(@Nonnull Location location, @Nonnull Entities<T> type, @Nonnull Consumer<LivingGameEntity> consumer) {
+        return spawnAlliedEntity(location, type, (ConsumerFunction<T, LivingGameEntity>) LivingGameEntity::new);
+    }
+
+    @Nonnull
+    public <T extends LivingEntity, E extends LivingGameEntity> E spawnAlliedEntity(@Nonnull Location location, @Nonnull Entities<T> type, @Nonnull ConsumerFunction<T, E> consumer) {
         final GameTeam team = getTeam();
-        final LivingGameEntity entity = CF.createEntity(location, type, LivingGameEntity::new);
+        final E entity = CF.createEntity(location, type, consumer);
 
         entity.addToTeam(team);
-        consumer.accept(entity);
+
+        // Glow the entity for all allies
+        for (GamePlayer player : getTeam().getPlayers()) {
+            entity.setGlowing(player, ChatColor.GREEN);
+        }
 
         return entity;
     }
@@ -924,7 +937,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         getPlayer().swingMainHand();
     }
 
-    @Nullable
+    @Nonnull
     public EntityEquipment getEquipment() {
         return getPlayer().getEquipment();
     }
@@ -944,10 +957,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
     public void show() {
         CFUtils.showPlayer(getPlayer());
-    }
-
-    public void clearTitle() {
-        getPlayer().resetTitle();
     }
 
     @Nonnull

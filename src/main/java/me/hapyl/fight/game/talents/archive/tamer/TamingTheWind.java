@@ -14,13 +14,18 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 
-public class TamingTheWind extends InputTalent implements TamerTalent {
+public class TamingTheWind extends InputTalent implements TamerTimed {
 
     @DisplayField private final double impairRadius = 5.0d;
     @DisplayField private final short maxEnemies = 5;
+
+    private final int tickEnemy = 9;
+    private final int tickSelf = 15;
 
     public TamingTheWind() {
         super("Taming the Wind");
@@ -39,7 +44,10 @@ public class TamingTheWind extends InputTalent implements TamerTalent {
 
         rightData.setAction("Lift Yourself");
         rightData.setDescription("""
-                Lift &nyourself&7 up into the air to traverse map terrain.
+                Lift &nyourself&7 up into the air.
+                After a short delay, you will &aconstantly&7 move forward.
+                                
+                &8;;Sneak to cancel movement.
                 """);
         rightData.setType(Type.ENHANCE);
         rightData.copyDurationAndCooldownFrom(leftData);
@@ -64,7 +72,20 @@ public class TamingTheWind extends InputTalent implements TamerTalent {
                 break;
             }
 
-            new EntityLevitate<>(entity, duration);
+            new EntityLevitate<>(entity, duration) {
+                @Override
+                public void onStart() {
+                    entity.setVelocity(new Vector(0, 0.75, 0));
+                    entity.addEffect(GameEffectType.IMMOVABLE, duration, true);
+                }
+
+                @Override
+                public void onTick() {
+                    if (getTick() >= tickEnemy) {
+                        entity.setVelocity(new Vector(0.0d, 0.0d, 0.0d));
+                    }
+                }
+            };
         }
 
         // Fx
@@ -84,16 +105,37 @@ public class TamingTheWind extends InputTalent implements TamerTalent {
         new EntityLevitate<>(player, duration) {
             @Override
             public void onStart() {
+                player.addPotionEffect(PotionEffectType.LEVITATION, duration, 6);
+
                 player.addEffect(GameEffectType.FALL_DAMAGE_RESISTANCE, duration + 20, true);
+                player.addEffect(GameEffectType.IMMOVABLE, duration, true);
             }
 
             @Override
             public void onTick() {
+                if (getTick() > tickSelf) {
+                    final Vector velocity;
+
+                    if (!entity.isSneaking()) {
+                        velocity = entity.getDirection().normalize();
+
+                        velocity.setY(0.0d);
+                        velocity.multiply(Math.PI / 10);
+                    }
+                    else {
+                        velocity = new Vector(0.0d, 0.0d, 0.0d);
+                    }
+
+                    entity.setVelocity(velocity);
+                }
+
+                // Fx
                 final Location location = player.getLocation();
                 location.setY(y);
 
                 riptide.teleport(location);
             }
+
         };
 
         // Fx

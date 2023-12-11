@@ -51,7 +51,7 @@ public class Orc extends Hero implements Listener {
                     .increase(AttributeType.ATTACK, 0.5d)
                     .increase(AttributeType.SPEED, 0.05d)
                     .increase(AttributeType.CRIT_CHANCE, 0.4d)
-                    .decrease(AttributeType.DEFENSE, 0.7d)
+                    .decrease(AttributeType.DEFENSE, 0.4d) // 0.7
                     .message(Named.BERSERK.getCharacter() + " &aYou're berserk!");
 
     public Orc() {
@@ -60,10 +60,10 @@ public class Orc extends Hero implements Listener {
         setArchetype(Archetype.DAMAGE);
 
         final HeroAttributes attributes = getAttributes();
-        attributes.setValue(AttributeType.MAX_HEALTH, 150);
-        attributes.setValue(AttributeType.DEFENSE, 0.6d);
-        attributes.setValue(AttributeType.SPEED, 0.22d);
-        attributes.setValue(AttributeType.CRIT_CHANCE, 0.15d);
+        attributes.set(AttributeType.MAX_HEALTH, 150);
+        attributes.set(AttributeType.DEFENSE, 0.6d);
+        attributes.set(AttributeType.SPEED, 0.22d);
+        attributes.set(AttributeType.CRIT_CHANCE, 0.15d);
 
         setWeapon(new OrcWeapon());
 
@@ -101,7 +101,7 @@ public class Orc extends Hero implements Listener {
                 List.of(
                         PotionEffectType.SLOW, PotionEffectType.SLOW_DIGGING, PotionEffectType.HARM,
                         PotionEffectType.CONFUSION, PotionEffectType.BLINDNESS, PotionEffectType.HUNGER,
-                        PotionEffectType.WEAKNESS, PotionEffectType.POISON, PotionEffectType.WITHER, PotionEffectType.DARKNESS
+                        PotionEffectType.POISON, PotionEffectType.WITHER, PotionEffectType.DARKNESS
                 )
         );
     }

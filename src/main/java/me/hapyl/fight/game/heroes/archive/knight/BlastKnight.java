@@ -18,6 +18,8 @@ import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
+import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
+import me.hapyl.fight.util.displayfield.DisplayFieldSerializer;
 import me.hapyl.fight.util.shield.PatternTypes;
 import me.hapyl.fight.util.shield.ShieldBuilder;
 import org.bukkit.*;
@@ -27,7 +29,7 @@ import org.bukkit.inventory.ItemStack;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class BlastKnight extends Hero implements PlayerElement, UIComponent, PlayerDataHandler {
+public class BlastKnight extends Hero implements PlayerElement, UIComponent, PlayerDataHandler, DisplayFieldProvider {
 
     public final ItemStack shieldItem = new ShieldBuilder(DyeColor.BLACK)
             .with(DyeColor.WHITE, PatternTypes.DLS)
@@ -40,8 +42,8 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Pla
     private final Material shieldRechargeCdItem = Material.HORSE_SPAWN_EGG;
 
     @DisplayField private final double ultimateRadius = 7.0d;
-    @DisplayField private final double healingTotal = 50;
-    @DisplayField private final double shieldCapacity = 25;
+    @DisplayField private final double healingTotal = 30;
+    @DisplayField private final double shieldCapacity = 20;
 
     public BlastKnight() {
         super("Blast Knight");
@@ -68,6 +70,7 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Pla
         equipment.setBoots(Material.NETHERITE_BOOTS);
 
         setWeapon(Material.IRON_SWORD, "Royal Sword", "", 8.0d);
+
         setUltimate(new UltimateTalent(
                 "Nanite Rush", """
                 Instantly release a &dNanite Swarm&7 that &brushes&7 upwards, rapidly &ahealing&7 all nearby &ateammates&7 and granting them a &eshield&7.
@@ -78,6 +81,7 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Pla
                 .setCooldownSec(30)
                 .setDuration(30));
 
+        DisplayFieldSerializer.copy(this, getUltimate());
     }
 
     @Override

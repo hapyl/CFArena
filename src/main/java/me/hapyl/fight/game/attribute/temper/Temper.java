@@ -7,7 +7,13 @@ import me.hapyl.fight.util.SmallCapsDescriber;
 
 import javax.annotation.Nonnull;
 
+/**
+ * @see TemperInstance
+ * @see AttributeTemperTable
+ */
 public enum Temper implements SmallCapsDescriber {
+
+    // fixme -> Could really migrate to something like a memory key
 
     COMMAND, // for testing
     FLOWER_BREEZE,
@@ -21,33 +27,30 @@ public enum Temper implements SmallCapsDescriber {
     SHADOW_CLONE,
     BACKSTAB,
     ICE_CAGE,
-    ETERNAL_FREEZE {
-        @Override
-        public boolean isDisplay() {
-            return false;
-        }
-    },
+    ETERNAL_FREEZE(false),
     SHADOWSTRIKE,
-    WITHERBORN {
-        @Override
-        public boolean isDisplay() {
-            return false;
-        }
-    },
+    WITHERBORN(false),
     STONE_CASTLE,
     MECHA_INDUSTRY,
-    TAMING_THE_TIME {
-        @Override
-        public boolean isDisplay() {
-            return false;
-        }
-    },
-    ;
+    TAMING_THE_TIME(false),
+    CONTAINMENT(false),
+    ALCHEMIST(false),
+    WITCHER(false),
+    TAMER_WOLF(false),
+    TAMER_LASER,
+
+    /* Keep semicolon on this line for easier addition. */;
 
     private final String smallCaps;
+    private final boolean isDisplay;
 
     Temper() {
-        smallCaps = toSmallCaps(this);
+        this(true);
+    }
+
+    Temper(boolean isDisplay) {
+        this.smallCaps = toSmallCaps(this);
+        this.isDisplay = isDisplay;
     }
 
     @Nonnull
@@ -62,7 +65,7 @@ public enum Temper implements SmallCapsDescriber {
      * @return true if display should be spawned; false otherwise.
      */
     public boolean isDisplay() {
-        return true;
+        return isDisplay;
     }
 
     @Nonnull

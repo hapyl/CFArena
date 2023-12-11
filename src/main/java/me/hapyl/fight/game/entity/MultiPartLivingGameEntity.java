@@ -46,8 +46,8 @@ public class MultiPartLivingGameEntity<T extends LivingEntity> extends NamedGame
     }
 
     @Override
-    public void remove() {
-        super.remove();
+    public void kill() {
+        super.kill();
 
         parts.forEach(Part::forceRemove);
         parts.clear();

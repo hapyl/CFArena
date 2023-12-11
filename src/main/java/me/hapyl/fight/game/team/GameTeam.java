@@ -77,6 +77,7 @@ public enum GameTeam implements Described, SmallCapsDescriber, Selectable, GameE
     private final String name;
     private final String flag;
     private final String smallCaps;
+    private final org.bukkit.Color bukkitColor;
     private int playerCount;
 
     GameTeam(ChatColor color, Material material) {
@@ -88,6 +89,10 @@ public enum GameTeam implements Described, SmallCapsDescriber, Selectable, GameE
         this.flag = color + "&l🏴";
         this.smallCaps = toSmallCaps(this);
         this.data = new TeamData(this);
+
+        // Get bukkit color
+        final java.awt.Color javaColor = color.asBungee().getColor();
+        this.bukkitColor = org.bukkit.Color.fromRGB(javaColor.getRed(), javaColor.getGreen(), javaColor.getBlue());
     }
 
     public void addEntry(@Nonnull Entry entry) {
@@ -299,6 +304,11 @@ public enum GameTeam implements Described, SmallCapsDescriber, Selectable, GameE
 
     public boolean isAllowJoin() {
         return true;
+    }
+
+    @Nonnull
+    public org.bukkit.Color getColorAsBukkitColor() {
+        return bukkitColor;
     }
 
     private void sendMessage(Entry entry, String string, Object... format) {

@@ -68,6 +68,7 @@ public final class Manager extends DependencyInjector<Main> {
     private final SkinEffectManager skinEffectManager;
     private final AutoSync autoSave;
     private final Trial trial;
+    private final GameTask entityTickTask;
 
     @Nonnull private GameMaps currentMap;
     @Nonnull private Modes currentMode;
@@ -94,8 +95,30 @@ public final class Manager extends DependencyInjector<Main> {
 
         trial = new Trial(main);
         debugData = DebugData.EMPTY;
-    }
 
+        entityTickTask = new GameTask() {
+            @Override
+            public void run() {
+                final Collection<GameEntity> entities = Manager.this.entities.values();
+                entities.removeIf(entity -> {
+                    if (entity instanceof GamePlayer) {
+                        return false;
+                    }
+
+                    return entity.getEntity().isDead();
+                });
+
+                // Tick players
+                entities.forEach(entity -> {
+                    // There was a Ticking instance check before,
+                    // but I really think that entities other than players should be ticked separately.
+                    if (entity instanceof GamePlayer ticking) {
+                        ticking.tick();
+                    }
+                });
+            }
+        }.runTaskTimer(0, 1);
+    }
 
     public void createStartCountdown() {
         createStartCountdown(DebugData.EMPTY);
@@ -210,7 +233,7 @@ public final class Manager extends DependencyInjector<Main> {
         final EntityType type = entity.getType();
 
         return switch (type) {
-            case ARROW, SPECTRAL_ARROW -> createEntity(entity, GameEntity::new);
+            case ARROW, SPECTRAL_ARROW, ARMOR_STAND -> createEntity(entity, GameEntity::new);
             default -> createEntity(entity, LivingGameEntity::new);
         };
     }
@@ -832,9 +855,17 @@ public final class Manager extends DependencyInjector<Main> {
         return getEntity(uuid, GamePlayer.class);
     }
 
+    private void loadStaticEvents() {
+        try {
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @Nonnull
     private Heroes getSelectedLobbyHero(Player player) {
-        final PlayerProfile profile = PlayerProfile.getProfile(player);
+        final PlayerProfile profile = getProfile(player);
 
         if (profile == null) {
             return Heroes.ARCHER;

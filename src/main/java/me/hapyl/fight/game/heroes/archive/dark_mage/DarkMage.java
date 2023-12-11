@@ -55,7 +55,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
         setItem("e6ca63569e8728722ecc4d12020e42f086830e34e82db55cf5c8ecd51c8c8c29");
 
         final HeroAttributes attributes = getAttributes();
-        attributes.setValue(AttributeType.CRIT_CHANCE, 0.15d);
+        attributes.set(AttributeType.CRIT_CHANCE, 0.15d);
 
         final Equipment equipment = getEquipment();
         equipment.setChestPlate(102, 255, 255);

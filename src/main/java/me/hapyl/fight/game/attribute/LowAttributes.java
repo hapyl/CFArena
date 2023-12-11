@@ -6,7 +6,7 @@ public class LowAttributes extends Attributes {
         setHealth(20);
         setDefense(100);
         setAttack(100);
-        setValue(AttributeType.CRIT_CHANCE, 0);
+        set(AttributeType.CRIT_CHANCE, 0);
     }
 
 }

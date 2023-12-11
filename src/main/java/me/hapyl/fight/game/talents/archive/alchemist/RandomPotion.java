@@ -1,6 +1,9 @@
 package me.hapyl.fight.game.talents.archive.alchemist;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.EntityAttributes;
+import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -36,7 +39,14 @@ public class RandomPotion extends Talent {
         effects.add(new Effect("&b\uD83C\uDF0A", "Speed Boost", SPEED, 60, 1))
                 .add(new Effect("☕", "Jump Boost", JUMP, 100, 1))
                 .add(new Effect("&c⚔", "Strength", INCREASE_DAMAGE, 60, 3))
-                .add(new Effect("&6🛡", "Resistance", DAMAGE_RESISTANCE, 80, 1))
+                .add(new Effect("&6🛡", "Resistance") {
+                    @Override
+                    public void affect(GamePlayer player) {
+                        final EntityAttributes attributes = player.getAttributes();
+
+                        attributes.increaseTemporary(Temper.ALCHEMIST, AttributeType.DEFENSE, 0.5d, 60);
+                    }
+                })
                 .add(new Effect("&9⁘⁙", "Invisibility") {
                     @Override
                     public void affect(GamePlayer player) {

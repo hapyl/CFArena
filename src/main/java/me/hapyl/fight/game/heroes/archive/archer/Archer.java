@@ -56,9 +56,9 @@ public class Archer extends Hero implements Listener {
         setWeapon(Material.BOW, "Bow of Destiny", "A custom-made bow with some unique abilities!", 5.0d);
 
         final HeroAttributes attributes = getAttributes();
-        attributes.setValue(AttributeType.MAX_HEALTH, 125.0d);
-        attributes.setValue(AttributeType.SPEED, 0.225d);
-        attributes.setValue(AttributeType.DEFENSE, 0.8d);
+        attributes.set(AttributeType.MAX_HEALTH, 125.0d);
+        attributes.set(AttributeType.SPEED, 0.225d);
+        attributes.set(AttributeType.DEFENSE, 0.8d);
 
         final Equipment equipment = getEquipment();
         equipment.setChestPlate(86, 86, 87);

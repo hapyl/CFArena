@@ -18,11 +18,13 @@ import me.hapyl.fight.fx.Riptide;
 import me.hapyl.fight.fx.beam.Quadrant;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.Attributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.cosmetic.CosmeticCollection;
 import me.hapyl.fight.game.cosmetic.crate.Crates;
 import me.hapyl.fight.game.cosmetic.crate.convert.CrateConvert;
 import me.hapyl.fight.game.cosmetic.crate.convert.CrateConverts;
+import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.*;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
 import me.hapyl.fight.game.entity.cooldown.CooldownData;
@@ -190,6 +192,12 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             protected void execute(Player player, String[] args) {
                 new DeliveryGUI(player);
             }
+        });
+
+        register("spawnEntityWithGameEffects", (player, args) -> {
+            LivingGameEntity entity = CF.createEntity(player.getLocation(), Entities.PIG, LivingGameEntity::new);
+
+            entity.addEffect(GameEffectType.IMMOVABLE, 10000, true);
         });
 
         register(new SimplePlayerAdminCommand("testWindLev") {
@@ -2004,10 +2012,10 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 return;
             }
 
-            gamePlayer.spawnAlliedEntity(player.getLocation(), Entities.HUSK, self -> {
-                self.setGlowing(player, ChatColor.GREEN, 60);
+            gamePlayer.spawnAlliedLivingEntity(player.getLocation(), Entities.HUSK, self -> {
+                self.setGlowing(gamePlayer, ChatColor.GREEN, 60);
                 gamePlayer.schedule(() -> {
-                    self.setGlowingColor(player, ChatColor.BLUE);
+                    self.setGlowingColor(gamePlayer, ChatColor.BLUE);
                 }, 20);
             });
 
@@ -2325,8 +2333,24 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
                 final String arg = getArgument(args, 0).toString();
                 Bukkit.dispatchCommand(sender, (arg.equalsIgnoreCase("server") || arg.equalsIgnoreCase("s")) ? "minecraft:stop" : "cf stop");
+            }
+        });
 
-                Chat.sendMessage(sender, "&6&lWARNING &eDeprecated usage of &n/stop&e command, prefer &n/cf stop&e!");
+        register(new SimplePlayerAdminCommand("calcDef") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                final double damage = getArgument(args, 0).toDouble();
+                final double defense = getArgument(args, 1).toDouble();
+
+                if (damage == 0 && defense == 0) {
+                    Message.Error.INVALID_USAGE.send(player, "/calcDef (Damage) (Defense)");
+                    return;
+                }
+
+                final double calcDamage = damage / (defense * Attributes.DEFENSE_SCALING + (1 - Attributes.DEFENSE_SCALING));
+
+                Message.success(player, "Done!");
+                Chat.sendMessage(player, "&a%.1f &8= %s DMG & %s DEF", calcDamage, damage, defense);
             }
         });
 

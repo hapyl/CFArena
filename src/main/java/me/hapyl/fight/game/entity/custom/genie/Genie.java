@@ -115,11 +115,11 @@ public class Genie extends GameEntityType<Husk> {
         }
 
         @Override
-        public void remove() {
-            super.remove();
+        public void kill() {
+            super.kill();
 
             riptide.remove();
-            child.remove();
+            child.kill();
         }
 
         @Override

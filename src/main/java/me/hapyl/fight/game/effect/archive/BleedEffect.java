@@ -6,6 +6,8 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 
+import javax.annotation.Nonnull;
+
 public class BleedEffect extends GameEffect {
 
     private final double damage = 2.0d;
@@ -16,17 +18,17 @@ public class BleedEffect extends GameEffect {
     }
 
     @Override
-    public void onStart(LivingGameEntity entity) {
+    public void onStart(@Nonnull LivingGameEntity entity) {
         entity.sendMessage("&c&l∲ &7You are bleeding!");
     }
 
     @Override
-    public void onStop(LivingGameEntity entity) {
+    public void onStop(@Nonnull LivingGameEntity entity) {
         entity.sendMessage("&c&l∲ &aThe bleeding has stopped!");
     }
 
     @Override
-    public void onTick(LivingGameEntity entity, int tick) {
+    public void onTick(@Nonnull LivingGameEntity entity, int tick) {
         if (tick == 0) {
             entity.damage(damage, EnumDamageCause.BLEED);
             entity.getWorld()

@@ -1,7 +1,6 @@
 package me.hapyl.fight.util;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Main;
 import me.hapyl.fight.annotate.ForceCloned;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.EnumDamageCause;
@@ -202,7 +201,7 @@ public class CFUtils {
                 return;
             }
 
-            gp.getPlayer().hidePlayer(Main.getPlugin(), player);
+            gp.hideEntity(player);
         });
     }
 
@@ -213,7 +212,7 @@ public class CFUtils {
     public static void showPlayer(Player player) {
         CF.getPlayers().forEach(gp -> {
             if (gp.isNot(player)) {
-                gp.getPlayer().showPlayer(Main.getPlugin(), player);
+                gp.showEntity(player);
             }
         });
     }

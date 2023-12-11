@@ -5,6 +5,8 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.util.CFUtils;
 import org.bukkit.potion.PotionEffectType;
 
+import javax.annotation.Nonnull;
+
 public class Invisibility extends GameEffect {
 
     public Invisibility() {
@@ -13,18 +15,18 @@ public class Invisibility extends GameEffect {
     }
 
     @Override
-    public void onStart(LivingGameEntity entity) {
+    public void onStart(@Nonnull LivingGameEntity entity) {
         entity.asPlayer(CFUtils::hidePlayer);
         entity.addPotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1);
     }
 
     @Override
-    public void onStop(LivingGameEntity entity) {
+    public void onStop(@Nonnull LivingGameEntity entity) {
         entity.asPlayer(CFUtils::showPlayer);
         entity.removePotionEffect(PotionEffectType.INVISIBILITY);
     }
 
     @Override
-    public void onTick(LivingGameEntity entity, int tick) {
+    public void onTick(@Nonnull LivingGameEntity entity, int tick) {
     }
 }

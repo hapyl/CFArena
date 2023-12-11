@@ -3,18 +3,19 @@ package me.hapyl.fight.game.effect;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.display.StringDisplay;
-import org.bukkit.event.player.PlayerEvent;
 
-public class ActiveGameEffect {
+public class ActiveGameEffect extends GameTask {
 
     private final LivingGameEntity entity;
     private final GameEffectType type;
+    private final GameEffect effect;
     private int level;
     private int remainingTicks;
 
     public ActiveGameEffect(LivingGameEntity entity, GameEffectType type, int initTicks) {
         this.entity = entity;
         this.type = type;
+        this.effect = type.getGameEffect();
         this.remainingTicks = initTicks;
         this.level = 0;
 
@@ -41,10 +42,6 @@ public class ActiveGameEffect {
         this.type.getGameEffect().onUpdate(entity);
     }
 
-    public void setRemainingTicks(int ticks) {
-        this.remainingTicks = ticks;
-    }
-
     public void addRemainingTicks(int ticks) {
         this.remainingTicks += ticks;
     }
@@ -57,6 +54,10 @@ public class ActiveGameEffect {
         return remainingTicks;
     }
 
+    public void setRemainingTicks(int ticks) {
+        this.remainingTicks = ticks;
+    }
+
     public void forceStop() {
         remainingTicks = 0;
 
@@ -67,11 +68,22 @@ public class ActiveGameEffect {
         entity.getData().clearEffect(type);
     }
 
-    public <T extends PlayerEvent> void processEvent(T ev) {
+    @Override
+    public void run() {
+        // Stop ticking
+        if (remainingTicks <= 0 || entity.isDead()) {
+            forceStop();
+            cancel();
+            return;
+        }
+
+        effect.onTick(entity, remainingTicks % 20);
+
+        // Actually tick down
+        --remainingTicks;
     }
 
     private void startTicking() {
-        final GameEffect effect = type.getGameEffect();
         final StringDisplay display = effect.getDisplay();
 
         effect.onStart(entity);
@@ -80,23 +92,7 @@ public class ActiveGameEffect {
             display.display(entity.getEyeLocation());
         }
 
-        new GameTask() {
-            @Override
-            public void run() {
-
-                // stop ticking
-                if (remainingTicks <= 0) {
-                    forceStop();
-                    cancel();
-                    return;
-                }
-
-                effect.onTick(entity, remainingTicks % 20);
-
-                // actually tick down
-                --remainingTicks;
-            }
-        }.runTaskTimer(0, 1);
+        runTaskTimer(0, 1);
     }
 
 }

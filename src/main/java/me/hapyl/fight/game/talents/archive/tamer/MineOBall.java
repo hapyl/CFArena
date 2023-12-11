@@ -1,233 +1,115 @@
 package me.hapyl.fight.game.talents.archive.tamer;
 
-import me.hapyl.fight.CF;
+import com.google.common.collect.Lists;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.archive.tamer.pack.ActiveTamerPack;
+import me.hapyl.fight.game.talents.archive.tamer.pack.TamerPack;
+import me.hapyl.fight.game.talents.archive.tamer.pack.TamerPacks;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.collection.player.PlayerMap;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
-import org.bukkit.entity.Creature;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
+import me.hapyl.fight.util.displayfield.DisplayFieldData;
+import me.hapyl.fight.util.displayfield.DisplayFieldDataProvider;
+import me.hapyl.fight.util.displayfield.DisplayFieldSerializer;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntityTargetEvent;
-import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Map;
+import java.util.List;
 
-public class MineOBall extends Talent implements Listener, TamerTalent {
+public class MineOBall extends Talent implements Listener, TamerTimed, DisplayFieldDataProvider {
 
-    private final PlayerMap<TamerPack> tamerPackMap = PlayerMap.newConcurrentMap();
+    private final PlayerMap<ActiveTamerPack> tamerPackMap = PlayerMap.newConcurrentMap();
+    private final List<DisplayFieldData> displayFieldData = Lists.newArrayList();
 
     public MineOBall() {
         super("Mine 'o Ball", """
-                Summon a pack of beasts that will attack nearby opponents.
+                Summon a random pack of creatures that will aid you in battle.
                                 
-                &b&lBeasts:
+                &6Creatures:
                 """);
 
-        for (TamerPacks value : TamerPacks.values()) {
-            addDescription("&7- &f{}\n", value.getPack().getName());
+        for (TamerPacks enumPack : TamerPacks.values()) {
+            final TamerPack pack = enumPack.getPack();
+
+            addDescription("""
+                    &f&l%s
+                    &8%s
+                    %s
+                    """, pack.getName(), pack.getTypeString(), pack.getDescription());
+
+            // Copy display fields
+            DisplayFieldSerializer.copy(pack, this);
         }
 
         setCooldownSec(10);
         setTexture("5fe47640843744cd5796979d1196fb938317ec42b09fccb2c545ee4c925ac2bd");
     }
 
-    // Don't allow targeting an owner. (Happens on spawn since we're the closest.)
-    @EventHandler()
-    public void handleEntityTargetLivingEntityEvent(EntityTargetLivingEntityEvent ev) {
-        final Entity entity = ev.getEntity();
-        final LivingEntity target = ev.getTarget();
-
-        if (entity instanceof LivingEntity living
-                && target instanceof Player player
-                && Heroes.TAMER.getHero().validatePlayer(player)) {
-
-            final GamePlayer gamePlayer = CF.getPlayer(player);
-
-            if (gamePlayer == null) {
-                return;
-            }
-
-            final TamerPack pack = getPack(gamePlayer);
-            if (pack != null && pack.isInPack(living)) {
-                ev.setTarget(null);
-                ev.setCancelled(true);
-            }
-        }
-    }
-
-    @EventHandler()
-    public void handlePackEntityDeath(EntityDeathEvent ev) {
-        final LivingEntity entity = ev.getEntity();
-
-        for (TamerPack value : tamerPackMap.values()) {
-            if (value.isInPack(entity)) {
-                value.remove(entity);
-                break;
-            }
-        }
-    }
-
     @Override
     public void onDeath(@Nonnull GamePlayer player) {
-        Nulls.runIfNotNull(tamerPackMap.get(player), TamerPack::recall);
+        tamerPackMap.removeAnd(player, ActiveTamerPack::recall);
     }
 
     @Override
     public void onStop() {
-        tamerPackMap.values().forEach(TamerPack::removeAll);
-        tamerPackMap.clear();
-    }
-
-    public boolean isInSamePack(LivingEntity living, LivingEntity entity) {
-        for (TamerPack value : tamerPackMap.values()) {
-            if (value.isInPack(living) && value.isInPack(entity)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public boolean isPackEntity(GamePlayer player, LivingEntity entity) {
-        final TamerPack pack = getPack(player);
-        return entity != null && pack != null && pack.isInPack(entity);
-    }
-
-    public boolean isPackEntity(LivingEntity entity) {
-        for (TamerPack pack : tamerPackMap.values()) {
-            if (pack.isInPack(entity)) {
-                return true;
-            }
-        }
-
-        return false;
+        tamerPackMap.forEachAndClear(ActiveTamerPack::remove);
     }
 
     @Nullable
-    public TamerPack getPack(GamePlayer player) {
+    public ActiveTamerPack getPack(GamePlayer player) {
         return player == null ? null : tamerPackMap.get(player);
     }
 
     @Override
     public void onStart() {
-        // This controls 'AI' of the packs.
         new GameTask() {
             @Override
             public void run() {
-                CF.getAlivePlayers().forEach(player -> {
-                    final TamerPack pack = getPack(player);
-
-                    if (pack == null) {
+                tamerPackMap.forEach((player, pack) -> {
+                    if (pack.isOver()) {
+                        pack.recall();
+                        tamerPackMap.remove(player);
                         return;
                     }
 
-                    pack.updateEntitiesNames(player);
-                    pack.getEntities().forEach(entity -> {
-                        final Location location = entity.getLocation();
-
-                        // Teleport to the owner if too far away
-                        if (location.distance(player.getLocation()) >= 50.0d) {
-                            entity.teleport(player.getLocation());
-                        }
-
-                        if (!(entity instanceof Creature creature) || !entity.hasAI()) {
-                            return;
-                        }
-
-                        final LivingEntity target = creature.getTarget();
-
-                        // if the target is null or invalid, then change it
-                        if (target == null || (target instanceof Player playerTarget && !CFUtils.isEntityValid(playerTarget))) {
-                            final LivingEntity newTarget = pack.findNearestTarget();
-
-                            if (newTarget == null) {
-                                return; // don't care
-                            }
-
-                            creature.setTarget(newTarget);
-                            creature.setAware(true);
-
-                            Bukkit.getPluginManager()
-                                    .callEvent(new EntityTargetLivingEntityEvent(
-                                            entity,
-                                            newTarget,
-                                            EntityTargetEvent.TargetReason.CUSTOM
-                                    ));
-
-                            // Fx
-                            PlayerLib.spawnParticle(location, Particle.LAVA, 5, 0.2d, 0.8d, 0.2d, 0.0f);
-                            PlayerLib.playSound(location, Sound.ENTITY_ZOMBIFIED_PIGLIN_ANGRY, 2.0f);
-                        }
-                    });
-
+                    pack.tick();
                 });
             }
-        }.runTaskTimer(0, 5);
+        }.runTaskTimer(0, 1);
+    }
+
+    @Nonnull
+    @Override
+    public String getTypeFormattedWithClassType() {
+        return "Summon Talent";
     }
 
     @Override
     public Response execute(@Nonnull GamePlayer player) {
-        final TamerPack oldPack = getPack(player);
-        if (Heroes.TAMER.getHero().isUsingUltimate(player)) {
-            return Response.error("Can't summon during Ultimate");
-        }
+        final ActiveTamerPack oldPack = getPack(player);
 
         if (oldPack != null) {
             oldPack.recall();
         }
 
-        final TamerPack pack = TamerPacks.newRandom(player);
-        pack.spawn();
+        final TamerPacks randomPack = TamerPacks.random(Nulls.getOrNull(oldPack, ActiveTamerPack::getPack));
+        final ActiveTamerPack tamerPack = new ActiveTamerPack(randomPack.getPack(), player);
 
-        tamerPackMap.put(player, pack);
+        tamerPack.spawn();
+        tamerPackMap.put(player, tamerPack);
 
         // Fx
-        player.sendMessage("&a☀ You just summoned &e%s&a!", pack.getName());
+        player.sendMessage("&c\uD83D\uDD34 &eYou just summoned a &6%s&e!", tamerPack.getName());
 
         return Response.OK;
     }
 
-    public boolean isInSamePackOrOwner(Entity entity, Entity other) {
-        if (!(entity instanceof LivingEntity livingEntity) || !(other instanceof LivingEntity livingEntityOther)) {
-            return false;
-        }
-
-        if (livingEntity instanceof Player player) {
-            final TamerPack pack = getPack(CF.getPlayer(player));
-            if (pack == null) {
-                return false;
-            }
-
-            return pack.isInPack(livingEntityOther);
-        }
-
-        return isInSamePack(livingEntity, livingEntityOther);
-    }
-
-    @Nullable
-    public GamePlayer getOwner(LivingEntity entity) {
-        for (Map.Entry<GamePlayer, TamerPack> entry : tamerPackMap.entrySet()) {
-            if (entry.getValue().isInPack(entity)) {
-                return entry.getKey();
-            }
-        }
-
-        return null;
+    @Nonnull
+    @Override
+    public List<DisplayFieldData> getDisplayFieldData() {
+        return displayFieldData;
     }
 }

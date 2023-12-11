@@ -11,9 +11,8 @@ import org.bukkit.ChatColor;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public enum AttributeType implements Described { // implements Placeholder2
+public enum AttributeType implements Described {
 
-    // FIXME (hapyl): 017, Nov 17: Yeah I fucking hate that this uses 100 and other things use 0.1 fucking fix it
     MAX_HEALTH(
             new Attribute("Health", "Maximum health hero has.") {
                 @Override
@@ -41,6 +40,11 @@ public enum AttributeType implements Described { // implements Placeholder2
         public double maxValue() {
             return 1_000_000_000;
         }
+
+        @Override
+        public double scale(double value) {
+            return value;
+        }
     },
     ATTACK(
             new Attribute("Attack", "The more attack you have, the more damage you deal.")
@@ -58,6 +62,7 @@ public enum AttributeType implements Described { // implements Placeholder2
     ),
     SPEED(
             new Attribute("Speed", "Movement speed of the hero.") {
+
                 @Override
                 public void update(LivingGameEntity entity, double value) {
                     if (entity.getWalkSpeed() == value) {
@@ -74,6 +79,11 @@ public enum AttributeType implements Described { // implements Placeholder2
         @Override
         public double maxValue() {
             return 1.0d;
+        }
+
+        @Override
+        public double scale(double value) {
+            return value * 0.002d;
         }
     },
     CRIT_CHANCE(

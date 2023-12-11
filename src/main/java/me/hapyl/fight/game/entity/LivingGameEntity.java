@@ -7,6 +7,7 @@ import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.GameDeathEvent;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.EntityState;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Event;
@@ -26,16 +27,22 @@ import me.hapyl.fight.game.ui.display.BuffDisplay;
 import me.hapyl.fight.game.ui.display.DamageDisplay;
 import me.hapyl.fight.game.ui.display.DebuffDisplay;
 import me.hapyl.fight.game.ui.display.StringDisplay;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.EternaPlugin;
+import me.hapyl.spigotutils.module.ai.AI;
+import me.hapyl.spigotutils.module.ai.MobAI;
 import me.hapyl.spigotutils.module.annotate.Super;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.math.geometry.Draw;
 import me.hapyl.spigotutils.module.player.EffectType;
 import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.spigotutils.module.reflect.Reflect;
 import me.hapyl.spigotutils.module.reflect.glow.Glowing;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityInsentient;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -43,6 +50,7 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -60,19 +68,21 @@ public class LivingGameEntity extends GameEntity {
 
     private static final Draw FEROCITY_PARTICLE_DATA = new FerocityFx();
     private static final int FEROCITY_HIT_CD = 9;
+    private static final double ACTUAL_ENTITY_HEALTH = 0.1d;
 
+    public final Random random;
     protected final EntityData entityData;
-
     private final Set<EnumDamageCause> immunityCauses = Sets.newHashSet();
     private final EntityMetadata metadata;
     private final EntityCooldown cooldown;
     private final EntityPacketFactory packetFactory;
-    private final Random random;
+    private final EntityMemory memory;
     @Nonnull
     protected EntityAttributes attributes;
     protected boolean wasHit; // Used to check if an entity was hit by custom damage
     protected double health;
     @Nonnull protected EntityState state;
+    private AI ai;
 
     public LivingGameEntity(@Nonnull LivingEntity entity) {
         this(entity, new Attributes(entity));
@@ -88,17 +98,35 @@ public class LivingGameEntity extends GameEntity {
         this.metadata = new EntityMetadata();
         this.cooldown = new EntityCooldown(this);
         this.packetFactory = new EntityPacketFactory(this);
+        this.memory = new EntityMemory(this);
         this.random = new Random();
+
         super.base = false;
 
         // The actual health of the entity is set to 0.1 to remove the weird
         // hearts when it dies, since the health is not actually decreased.
         // Could really make it so entity actually has the health,
         // but I'm pretty sure the max health is 2048, which is wack
-        entity.setHealth(0.1d);
+        entity.setMaxHealth(ACTUAL_ENTITY_HEALTH);
+        entity.setHealth(entity.getMaxHealth());
 
         defaultVanillaAttributes();
         updateAttributes();
+    }
+
+    @Nonnull
+    public AI getMobAI() throws IllegalStateException {
+        if (ai == null) {
+            final Entity nmsEntity = Reflect.getMinecraftEntity(entity);
+
+            if (!(nmsEntity instanceof EntityInsentient)) {
+                throw new IllegalArgumentException("MobAI is not supported for " + getName());
+            }
+
+            ai = MobAI.of(entity);
+        }
+
+        return ai;
     }
 
     /**
@@ -107,11 +135,16 @@ public class LivingGameEntity extends GameEntity {
      * @return true if an entity has died during the game and currently spectating or waiting for respawn.
      */
     public boolean isDead() {
-        return state == EntityState.DEAD;
+        return state == EntityState.DEAD || entity.isDead();
     }
 
     public boolean isDeadOrRespawning() {
         return state == EntityState.DEAD || state == EntityState.RESPAWNING;
+    }
+
+    @Nonnull
+    public EntityMemory getMemory() {
+        return memory;
     }
 
     @Nonnull
@@ -152,9 +185,21 @@ public class LivingGameEntity extends GameEntity {
         entityData.removeEffect(type);
     }
 
+    /**
+     * Kills an entity with the death animation.
+     */
     @Override
-    public void remove() {
+    public void kill() {
         entity.setHealth(0);
+        state = EntityState.DEAD;
+    }
+
+    /**
+     * Removes the entity from existence without death animation.
+     */
+    public void remove() {
+        entity.remove();
+        state = EntityState.DEAD;
     }
 
     public void damage(double damage, @Nullable LivingEntity damager) {
@@ -231,8 +276,32 @@ public class LivingGameEntity extends GameEntity {
         return data != null ? data.getTimeLeft() : 0;
     }
 
+    public void clearTitle() {
+        asPlayer(Player::resetTitle);
+    }
+
+    @Nonnull
+    public EntityEquipment getEquipment() {
+        final EntityEquipment equipment = entity.getEquipment();
+
+        if (equipment == null) {
+            throw new IllegalStateException(getName() + " does not have equipment!");
+        }
+
+        return equipment;
+    }
+
+    public void lookAt(@Nonnull Location location) {
+        CFUtils.lookAt(entity, location);
+    }
+
     private void setInternalNoDamageTicks(int ticks) {
         cooldown.startCooldown(Cooldown.NO_DAMAGE, ticks * 50L);
+    }
+
+    @Nonnull
+    public Attributes getBaseAttributes() {
+        return attributes.getBaseAttributes();
     }
 
     /**
@@ -265,16 +334,16 @@ public class LivingGameEntity extends GameEntity {
         return GameTeam.getEntryTeam(Entry.of(this));
     }
 
-    public void setGlowing(@Nonnull Player player, @Nonnull ChatColor color, int duration) {
-        Glowing.glow(entity, color, duration, player);
+    public void setGlowing(@Nonnull GamePlayer player, @Nonnull ChatColor color, int duration) {
+        Glowing.glow(entity, color, duration, player.getPlayer());
     }
 
-    public void setGlowing(@Nonnull Player player, @Nonnull ChatColor color) {
-        Glowing.glowInfinitly(entity, color, player);
+    public void setGlowing(@Nonnull GamePlayer player, @Nonnull ChatColor color) {
+        Glowing.glowInfinitly(entity, color, player.getPlayer());
     }
 
-    public void setGlowingColor(@Nonnull Player player, @Nonnull ChatColor color) {
-        final Glowing glowing = EternaPlugin.getPlugin().getRegistry().glowingManager.getGlowing(player, entity);
+    public void setGlowingColor(@Nonnull GamePlayer player, @Nonnull ChatColor color) {
+        final Glowing glowing = EternaPlugin.getPlugin().getRegistry().glowingManager.getGlowing(player.getPlayer(), entity);
 
         if (glowing != null) {
             glowing.setColor(color);
@@ -284,8 +353,8 @@ public class LivingGameEntity extends GameEntity {
         }
     }
 
-    public void stopGlowing(@Nonnull Player player) {
-        Glowing.stopGlowing(player, entity);
+    public void stopGlowing(@Nonnull GamePlayer player) {
+        Glowing.stopGlowing(player.getPlayer(), entity);
     }
 
     @Nonnull
@@ -323,6 +392,7 @@ public class LivingGameEntity extends GameEntity {
 
         // GameDeathEvent here to not decrease health below lethal
         if (willDie && new GameDeathEvent(instance).callAndCheck()) {
+            Debug.info("calcelled");
             return;
         }
 
@@ -391,9 +461,15 @@ public class LivingGameEntity extends GameEntity {
             return;
         }
 
-        state = EntityState.DEAD;
         cooldown.stopCooldowns();
+        state = EntityState.DEAD;
         onDeath();
+    }
+
+    @Override
+    public void onDeath() {
+        super.onDeath();
+        memory.forgetEverything();
     }
 
     public boolean isImmune(@Nonnull EnumDamageCause cause) {
@@ -583,24 +659,20 @@ public class LivingGameEntity extends GameEntity {
     }
 
     @Nullable
-    public LivingEntity getTarget() {
-        if (this.entity instanceof Creature creature) {
-            return creature.getTarget();
+    public LivingGameEntity getTargetEntity() {
+        if (!(this.entity instanceof Creature creature)) {
+            return null;
         }
 
-        return null;
-    }
-
-    public void setTarget(@Nullable LivingEntity entity) {
-        if (this.entity instanceof Creature creature) {
-            creature.setTarget(entity);
-        }
+        final LivingEntity target = creature.getTarget();
+        return target != null ? CF.getEntity(target) : null;
     }
 
     public void setTarget(@Nullable LivingGameEntity entity) {
-        setTarget(entity == null ? null : entity.getEntity());
+        if (this.entity instanceof Creature creature) {
+            creature.setTarget(entity == null ? null : entity.getEntity());
+        }
     }
-    // this spawns globally
 
     /**
      * Spawns a particle at this entity location for everyone to see.
@@ -611,6 +683,7 @@ public class LivingGameEntity extends GameEntity {
     public void spawnWorldParticle(Particle particle, int amount) {
         spawnWorldParticle(particle, amount, 0, 0, 0, 0);
     }
+    // this spawns globally
 
     /**
      * Spawns a particle at this entity location for everyone to see.
@@ -815,7 +888,7 @@ public class LivingGameEntity extends GameEntity {
 
         spawnWorldParticle(fxLocation, Particle.CRIT, 10, 0.25d, 0.5d, 0.25d, 0.25f);
 
-        new BuffDisplay("DODGED", 5).display(fxLocation);
+        new BuffDisplay("&6ᴅᴏᴅɢᴇᴅ", 10).display(fxLocation);
     }
 
     @Nonnull
@@ -828,6 +901,10 @@ public class LivingGameEntity extends GameEntity {
         setAttributeValue(Attribute.GENERIC_ATTACK_SPEED, 2.0d);
         setAttributeValue(Attribute.GENERIC_ATTACK_DAMAGE, 1.0d);
         setAttributeValue(Attribute.GENERIC_ARMOR, -100.0d); // Remove armor bars
+    }
+
+    private boolean shouldSimulateDamage() {
+        return hasPotionEffect(PotionEffectType.LEVITATION);
     }
 
     private void updateAttributes() {

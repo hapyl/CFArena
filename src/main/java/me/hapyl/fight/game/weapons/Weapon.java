@@ -7,6 +7,7 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.game.NonNullItemCreator;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.StaticFormat;
 import me.hapyl.fight.game.talents.Talent;
@@ -25,6 +26,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.block.Action;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -178,6 +180,11 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
 
     public void give(GamePlayer player) {
         player.setItem(HotbarSlots.WEAPON, getItem());
+    }
+
+    public void give(LivingGameEntity entity) {
+        final EntityEquipment equipment = entity.getEquipment();
+        equipment.setItemInMainHand(getItem());
     }
 
     public void createItem() {

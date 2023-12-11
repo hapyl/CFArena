@@ -4,6 +4,8 @@ import me.hapyl.fight.game.effect.GameEffect;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.potion.PotionEffectType;
 
+import javax.annotation.Nonnull;
+
 public class Amnesia extends GameEffect {
 
     public Amnesia() {
@@ -13,16 +15,16 @@ public class Amnesia extends GameEffect {
     }
 
     @Override
-    public void onTick(LivingGameEntity entity, int tick) {
+    public void onTick(@Nonnull LivingGameEntity entity, int tick) {
     }
 
     @Override
-    public void onStart(LivingGameEntity entity) {
+    public void onStart(@Nonnull LivingGameEntity entity) {
         entity.addPotionEffect(PotionEffectType.CONFUSION, 99999, 1);
     }
 
     @Override
-    public void onStop(LivingGameEntity entity) {
+    public void onStop(@Nonnull LivingGameEntity entity) {
         entity.removePotionEffect(PotionEffectType.CONFUSION);
     }
 }

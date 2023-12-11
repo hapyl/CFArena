@@ -1,16 +1,17 @@
 package me.hapyl.fight.game.effect.archive;
 
 import me.hapyl.fight.game.effect.GameEffect;
+import me.hapyl.fight.game.entity.EntityMemory;
 import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.entity.MemoryKey;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.entity.LivingEntity;
 
-import java.util.HashMap;
-import java.util.Map;
+import javax.annotation.Nonnull;
 
+// FIXME -> Replace with attribute
 public class Immovable extends GameEffect {
 
-    private final Map<LivingEntity, Double> oldValue = new HashMap<>();
+    private final MemoryKey key = new MemoryKey("immovable_kb");
 
     public Immovable() {
         super("Immovable");
@@ -19,21 +20,22 @@ public class Immovable extends GameEffect {
     }
 
     @Override
-    public void onTick(LivingGameEntity entity, int tick) {
-
+    public void onTick(@Nonnull LivingGameEntity entity, int tick) {
     }
 
     @Override
-    public void onStart(LivingGameEntity entity) {
-        oldValue.put(entity.getEntity(), entity.getAttributeValue(Attribute.GENERIC_KNOCKBACK_RESISTANCE));
+    public void onStart(@Nonnull LivingGameEntity entity) {
+        final EntityMemory memory = entity.getMemory();
+
+        memory.remember(key, entity.getAttributeValue(Attribute.GENERIC_KNOCKBACK_RESISTANCE));
         entity.setAttributeValue(Attribute.GENERIC_KNOCKBACK_RESISTANCE, 1.0d);
     }
 
     @Override
-    public void onStop(LivingGameEntity gameEntity) {
-        final LivingEntity entity = gameEntity.getEntity();
-        final Double value = oldValue.remove(entity);
+    public void onStop(@Nonnull LivingGameEntity entity) {
+        final EntityMemory memory = entity.getMemory();
+        final double value = memory.forget(key, Double.class, 0.0d);
 
-        gameEntity.setAttributeValue(Attribute.GENERIC_KNOCKBACK_RESISTANCE, value == null ? 0.0d : value);
+        entity.setAttributeValue(Attribute.GENERIC_KNOCKBACK_RESISTANCE, value);
     }
 }

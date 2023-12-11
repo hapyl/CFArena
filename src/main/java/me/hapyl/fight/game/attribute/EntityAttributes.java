@@ -50,12 +50,19 @@ public class EntityAttributes extends Attributes implements PlayerElement {
      * @return the base value plus the additional value.
      */
     @Override
-    public double get(AttributeType type) {
+    public double get(@Nonnull AttributeType type) {
         return Numbers.clamp(
                 getBase(type) + super.get(type) + tempers.get(type),
                 type.minValue(),
                 type.maxValue()
         );
+    }
+
+    @Override
+    public void set(@Nonnull AttributeType type, double value) {
+        super.set(type, value);
+
+        type.attribute.update(gameEntity, value);
     }
 
     public final int getFerocityStrikes() {
@@ -178,16 +185,6 @@ public class EntityAttributes extends Attributes implements PlayerElement {
     }
 
     /**
-     * Sets a new value to an attribute.
-     *
-     * @param type  - Attribute type.
-     * @param value - New value.
-     */
-    public void set(AttributeType type, double value) {
-        mapped.put(type, value);
-    }
-
-    /**
      * Returns the <b>base</b> <code>(unmodified)</code> value of this type.
      *
      * @param type - Type.
@@ -219,6 +216,11 @@ public class EntityAttributes extends Attributes implements PlayerElement {
 
     public boolean hasTemper(Temper temper) {
         return tempers.has(temper);
+    }
+
+    @Deprecated
+    public double getRaw(AttributeType attributeType) {
+        return super.get(attributeType);
     }
 
     private void display(AttributeType type, boolean isBuff) {

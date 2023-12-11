@@ -8,10 +8,11 @@ import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
 
-public class TamingTheTime extends InputTalent implements TamerTalent {
+public class TamingTheTime extends InputTalent implements TamerTimed {
 
     @DisplayField private final double attackSpeedIncrease = 1.0d;
     @DisplayField private final double speedIncrease = 0.1d;
@@ -51,6 +52,9 @@ public class TamingTheTime extends InputTalent implements TamerTalent {
                     .decrease(AttributeType.ATTACK_SPEED, attackSpeedIncrease)
                     .decrease(AttributeType.SPEED, speedIncrease)
                     .temper(enemy, duration);
+
+            // Enemy Fx
+            enemy.playSound(Sound.ENTITY_ELDER_GUARDIAN_CURSE, 1.25f);
         });
 
         return Response.OK;
@@ -65,6 +69,9 @@ public class TamingTheTime extends InputTalent implements TamerTalent {
                 .increase(AttributeType.ATTACK_SPEED, attackSpeedIncrease)
                 .increase(AttributeType.SPEED, speedIncrease)
                 .temper(player, duration);
+
+        // Fx
+        player.playWorldSound(Sound.ENTITY_ELDER_GUARDIAN_CURSE, 0.75f);
 
         return Response.OK;
     }

@@ -86,14 +86,14 @@ public class OverlayNamedGameEntity extends NamedGameEntity<Zombie> implements S
     }
 
     @Override
-    public void remove() {
+    public void kill() {
         if (dying) {
             return;
         }
 
         dying = true;
 
-        super.remove();
+        super.kill();
         final Location location = entity.getLocation();
 
         // Since the entity isn't visible to the player, it has to be removed this way.

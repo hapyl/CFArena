@@ -1,9 +1,10 @@
 package me.hapyl.fight.game.effect;
 
+import me.hapyl.fight.game.entity.GamePlayer;
 import org.apache.commons.lang.Validate;
 import org.bukkit.*;
-import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class EffectParticleBlockMarker extends EffectParticle {
@@ -17,7 +18,7 @@ public class EffectParticleBlockMarker extends EffectParticle {
     }
 
     @Override
-    public void display(Location location, @Nullable Player ignored) {
+    public void display(@Nonnull Location location, @Nullable GamePlayer ignored) {
         Bukkit.getOnlinePlayers().forEach(player -> {
             final World world = location.getWorld();
             if (player == ignored || world == null) {

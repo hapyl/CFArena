@@ -28,10 +28,12 @@ public class FrostbiteWeapon extends RangeWeapon {
                 An ordinary shovel used for shoveling the snow.
                 """);
 
-        setDamage(5.0d);
-        setCooldown(15);
+        setDamage(3.0d);
+        setCooldown(25);
+        setReloadTimeSec(5);
+        setKnockback(0.0d);
 
-        raycast = new ProjectileRaycast(this, 0.8d, 2) {
+        raycast = new ProjectileRaycast(this, 0.6d, 2) {
             @Nonnull
             @Override
             public WeaponRaycastInstance newInstance(@Nonnull GamePlayer player) {

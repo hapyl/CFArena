@@ -15,6 +15,7 @@ import org.bukkit.inventory.EntityEquipment;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.Map;
 
 /**
@@ -73,7 +74,7 @@ public class NamedGameEntity<T extends LivingEntity> extends LivingGameEntity {
 
     public final void tick() {
         if (entity.isDead()) {
-            remove();
+            kill();
             return;
         }
 
@@ -136,8 +137,9 @@ public class NamedGameEntity<T extends LivingEntity> extends LivingGameEntity {
     }
 
     @Override
-    public void remove() {
-        super.remove();
+    @OverridingMethodsMustInvokeSuper
+    public void kill() {
+        super.kill();
 
         task.cancel();
         aboveHead.destroy();

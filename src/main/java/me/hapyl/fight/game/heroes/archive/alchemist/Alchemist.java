@@ -7,7 +7,9 @@ import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.HeroAttributes;
+import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
@@ -65,9 +67,9 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
                 .setDescription("Turns out that a stick used in brewing can also be used in battle."));
 
         final HeroAttributes attributes = getAttributes();
-        attributes.setValue(AttributeType.MAX_HEALTH, 125);
-        attributes.setValue(AttributeType.DEFENSE, 0.5d);
-        attributes.setValue(AttributeType.SPEED, 0.22d);
+        attributes.set(AttributeType.MAX_HEALTH, 125);
+        attributes.set(AttributeType.DEFENSE, 0.5d);
+        attributes.set(AttributeType.SPEED, 0.22d);
 
         final Equipment equipment = getEquipment();
         equipment.setChestPlate(31, 5, 3, TrimPattern.SHAPER, TrimMaterial.COPPER);
@@ -75,10 +77,17 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
         positiveEffects.add(new Effect("made you &lFASTER", PotionEffectType.SPEED, 30, 2))
                 .add(new Effect("gave you &lJUMP BOOST", PotionEffectType.JUMP, 30, 1))
                 .add(new Effect("made you &lSTRONGER", PotionEffectType.INCREASE_DAMAGE, 30, 3))
-                .add(new Effect("gave you &lRESISTANCE", PotionEffectType.DAMAGE_RESISTANCE, 30, 1))
+                .add(new Effect("gave you &lRESISTANCE", null, 30, 1) {
+                    @Override
+                    public void affect(@Nonnull GamePlayer player, @Nonnull GamePlayer victim) {
+                        final EntityAttributes playerAttributes = player.getAttributes();
+
+                        playerAttributes.increaseTemporary(Temper.ALCHEMIST, AttributeType.DEFENSE, 0.25d, duration);
+                    }
+                })
                 .add(new Effect("healed half of your missing health", 30) {
                     @Override
-                    public void affect(GamePlayer player, GamePlayer victim) {
+                    public void affect(@Nonnull GamePlayer player, @Nonnull GamePlayer victim) {
                         final double missingHealth = player.getMaxHealth() - player.getHealth();
 
                         player.heal(missingHealth / 2d);
@@ -87,19 +96,26 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
 
         negativeEffects.add(new Effect("&lpoisoned you", PotionEffectType.POISON, 15, 0) {
                     @Override
-                    public void affect(GamePlayer player, GamePlayer victim) {
+                    public void affect(@Nonnull GamePlayer player, @Nonnull GamePlayer victim) {
                         victim.getData().setLastDamager(player);
                     }
                 })
                 .add(new Effect("&lblinded you", PotionEffectType.BLINDNESS, 15, 0))
                 .add(new Effect("&lis withering your blood", PotionEffectType.WITHER, 7, 0) {
                     @Override
-                    public void affect(GamePlayer player, GamePlayer victim) {
+                    public void affect(@Nonnull GamePlayer player, @Nonnull GamePlayer victim) {
                         victim.getData().setLastDamager(player);
                     }
                 })
                 .add(new Effect("&lslowed you", PotionEffectType.SLOW, 15, 2))
-                .add(new Effect("&lmade you weaker", PotionEffectType.WEAKNESS, 15, 0))
+                .add(new Effect("&lmade you weaker", null, 15, 0) {
+                    @Override
+                    public void affect(@Nonnull GamePlayer player, @Nonnull GamePlayer victim) {
+                        final EntityAttributes entityAttributes = victim.getAttributes();
+
+                        entityAttributes.decreaseTemporary(Temper.ALCHEMIST, AttributeType.ATTACK, 0.5d, duration);
+                    }
+                })
                 .add(new Effect("&lis... confusing?", PotionEffectType.CONFUSION, 15, 0));
 
         setUltimate(new UltimateTalent(

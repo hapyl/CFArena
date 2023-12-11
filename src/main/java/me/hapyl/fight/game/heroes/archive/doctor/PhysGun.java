@@ -17,8 +17,6 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.BlockFace;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -56,6 +54,8 @@ public class PhysGun extends Weapon {
                 entity.asPlayer(targetPlayer -> {
                     targetPlayer.setAllowFlight(data.isFlight());
                 });
+
+                entity.setInvulnerable(false);
 
                 entity.setVelocity(player.getLocation().getDirection().multiply(2.0d));
                 entity.spawnWorldParticle(location, Particle.EXPLOSION_NORMAL, 10, 0.2, 0.05, 0.2, 0.02f);
@@ -103,7 +103,7 @@ public class PhysGun extends Weapon {
                         finalLocation = playerLocation;
                     }
 
-                    target.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 20, 1, true));
+                    target.setInvulnerable(true);
                     target.sendSubtitle("&f&lCaptured by &a%s&f&l!".formatted(player.getName()), 0, 10, 0);
 
                     target.teleport(finalLocation);

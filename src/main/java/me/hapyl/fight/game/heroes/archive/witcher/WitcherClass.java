@@ -3,6 +3,8 @@ package me.hapyl.fight.game.heroes.archive.witcher;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.PlayerElement;
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
@@ -21,7 +23,6 @@ import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 
@@ -60,7 +61,7 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
         Talents.KVEN.startCd(player);
         Talents.IRDEN.startCd(player);
 
-        player.addPotionEffect(PotionEffectType.DAMAGE_RESISTANCE, getUltimateDuration(), 1);
+        player.getAttributes().increaseTemporary(Temper.WITCHER, AttributeType.DEFENSE, 1.0d, getUltimateDuration());
 
         new GameTask() {
             private int tick = getUltimateDuration();

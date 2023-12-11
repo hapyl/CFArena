@@ -1,12 +1,13 @@
 package me.hapyl.fight.game.attribute;
 
 import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.util.Described;
 import org.bukkit.ChatColor;
 
 import javax.annotation.Nonnull;
 import java.util.function.Function;
 
-public class Attribute {
+public class Attribute implements Described {
 
     private final String name;
     private final String description;
@@ -16,26 +17,32 @@ public class Attribute {
 
     private Function<Double, String> toString;
 
-    public Attribute(String name, String description) {
+    Attribute(String name, String description) {
         this.name = name;
         this.description = description;
-        this.character = "|";
+        this.character = "?";
         this.color = ChatColor.GREEN;
         this.toString = AttributeType::doubleFormatPercent;
     }
 
+    @Nonnull
+    @Override
     public String getName() {
         return name;
     }
 
+    @Nonnull
+    @Override
     public String getDescription() {
         return description;
     }
 
+    @Nonnull
     public String getCharacter() {
         return character;
     }
 
+    @Nonnull
     public ChatColor getColor() {
         return color;
     }
@@ -64,6 +71,7 @@ public class Attribute {
     public void update(LivingGameEntity entity, double value) {
     }
 
+    @Nonnull
     public String toString(double value) {
         return toString.apply(value);
     }

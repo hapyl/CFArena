@@ -48,10 +48,10 @@ public class Pytaria extends Hero {
         setItem("7bb0752f9fa87a693c2d0d9f29549375feb6f76952da90d68820e7900083f801");
 
         final HeroAttributes attributes = getAttributes();
-        attributes.setValue(AttributeType.MAX_HEALTH, 125.0d);
-        attributes.setValue(AttributeType.ATTACK, 0.9d);
-        attributes.setValue(AttributeType.CRIT_CHANCE, 0.2d);
-        attributes.setValue(AttributeType.CRIT_DAMAGE, 0.4d);
+        attributes.set(AttributeType.MAX_HEALTH, 125.0d);
+        attributes.set(AttributeType.ATTACK, 0.9d);
+        attributes.set(AttributeType.CRIT_CHANCE, 0.2d);
+        attributes.set(AttributeType.CRIT_DAMAGE, 0.4d);
 
         setWeapon(new Weapon(Material.ALLIUM).setName("Annihilallium").setDamage(8.0).setDescription("A beautiful flower, nothing more."));
 

@@ -31,7 +31,7 @@ public class OrcGrowlEffect extends GameEffect {
     }
 
     @Override
-    public void onStart(LivingGameEntity entity) {
+    public void onStart(@Nonnull LivingGameEntity entity) {
         final EntityAttributes attributes = entity.getAttributes();
 
         entity.addPotionEffect(PotionEffectType.SLOW, 10000, 4);
@@ -39,7 +39,7 @@ public class OrcGrowlEffect extends GameEffect {
     }
 
     @Override
-    public void onStop(LivingGameEntity entity) {
+    public void onStop(@Nonnull LivingGameEntity entity) {
         final EntityAttributes attributes = entity.getAttributes();
 
         entity.removePotionEffect(PotionEffectType.SLOW);
@@ -47,7 +47,7 @@ public class OrcGrowlEffect extends GameEffect {
     }
 
     @Override
-    public void onTick(LivingGameEntity entity, int tick) {
+    public void onTick(@Nonnull LivingGameEntity entity, int tick) {
 
     }
 }

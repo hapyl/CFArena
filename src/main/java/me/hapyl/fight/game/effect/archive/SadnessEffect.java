@@ -6,6 +6,8 @@ import me.hapyl.fight.game.effect.GameEffect;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.Sound;
 
+import javax.annotation.Nonnull;
+
 public class SadnessEffect extends GameEffect {
 
     private final double defenseDecrease = 0.3;
@@ -23,7 +25,7 @@ public class SadnessEffect extends GameEffect {
     }
 
     @Override
-    public void onStart(LivingGameEntity entity) {
+    public void onStart(@Nonnull LivingGameEntity entity) {
         final EntityAttributes attributes = entity.getAttributes();
 
         attributes.subtract(AttributeType.DEFENSE, defenseDecrease);
@@ -34,7 +36,7 @@ public class SadnessEffect extends GameEffect {
     }
 
     @Override
-    public void onStop(LivingGameEntity entity) {
+    public void onStop(@Nonnull LivingGameEntity entity) {
         final EntityAttributes attributes = entity.getAttributes();
 
         attributes.add(AttributeType.DEFENSE, defenseDecrease);
@@ -46,7 +48,7 @@ public class SadnessEffect extends GameEffect {
     }
 
     @Override
-    public void onTick(LivingGameEntity entity, int tick) {
+    public void onTick(@Nonnull LivingGameEntity entity, int tick) {
 
     }
 }

@@ -8,6 +8,7 @@ public enum GameEffectType {
     PARANOIA(new ParanoiaEffect()),
     AMNESIA(new Amnesia()),
     FALL_DAMAGE_RESISTANCE(new FallDamageResistance()),
+    MOVEMENT_CONTAINMENT(new MovementContainment()),
     STUN(new Stun()),
     VULNERABLE(new Vulnerable()),
     IMMOVABLE(new Immovable()),

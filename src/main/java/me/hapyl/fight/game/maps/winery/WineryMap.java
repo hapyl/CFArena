@@ -20,6 +20,7 @@ import java.util.Random;
 
 public class WineryMap extends GameMap {
 
+    private final Material lightningMarkerBlock = Material.CAVE_AIR;
     private final int howlPeriod = Tick.fromMinute(3);
     private final double howlRange = 42.0d;
     private final WineryOwl[] owls = new WineryOwl[] {
@@ -132,7 +133,7 @@ public class WineryMap extends GameMap {
 
                     final Block block = player.getBlock();
 
-                    if (block.getType() != Material.STRUCTURE_VOID) {
+                    if (block.getType() != lightningMarkerBlock) {
                         return;
                     }
 

@@ -8,7 +8,7 @@ import me.hapyl.fight.game.talents.Timed;
 
 import javax.annotation.Nonnull;
 
-public interface TamerTalent extends Timed {
+public interface TamerTimed extends Timed {
 
     @Deprecated
     @Override
@@ -17,7 +17,11 @@ public interface TamerTalent extends Timed {
     default int getDuration(@Nonnull GamePlayer player) {
         final int duration = getDuration0();
 
-        return isUsingUltimate(player) ? duration * 2 : duration;
+        return isUsingUltimate(player) ? (int) (duration * getHero().ultimateMultiplier) : duration;
+    }
+
+    default double scaleUltimateEffectiveness(@Nonnull GamePlayer player, double value) {
+        return isUsingUltimate(player) ? value * getHero().ultimateMultiplier : value;
     }
 
     default boolean isUsingUltimate(@Nonnull GamePlayer player) {

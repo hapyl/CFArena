@@ -59,7 +59,7 @@ public class Swooper extends Hero implements Listener, UIComponent {
         setItem("f181c811ad37467550d7c01cac2e5223c4e99fa7906348f940c9456d8aa0cd1b");
 
         final HeroAttributes attributes = getAttributes();
-        attributes.setValue(AttributeType.SPEED, 0.23d);
+        attributes.set(AttributeType.SPEED, 0.23d);
 
         final Equipment equipment = this.getEquipment();
         equipment.setChestPlate(25, 53, 82);

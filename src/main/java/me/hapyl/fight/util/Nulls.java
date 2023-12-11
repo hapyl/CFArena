@@ -38,4 +38,9 @@ public class Nulls {
 
         return selected;
     }
+
+    @Nullable
+    public static <T, R> R getOrNull(@Nullable T t, @Nonnull Function<T, R> fn) {
+        return t != null ? fn.apply(t) : null;
+    }
 }

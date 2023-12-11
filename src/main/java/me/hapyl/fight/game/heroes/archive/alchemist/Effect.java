@@ -4,15 +4,19 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import javax.annotation.Nonnull;
+
 public class Effect {
 
     private final String suffix;
     private final PotionEffect effect;
     private final boolean isPositive;
+    protected final int duration;
 
     public Effect(String suffix, PotionEffectType type, int duration, int level) {
         this.suffix = suffix;
         this.effect = type == null ? null : new PotionEffect(type, duration * 20, level);
+        this.duration = duration;
         this.isPositive = duration == 30;
     }
 
@@ -20,7 +24,7 @@ public class Effect {
         this(suffix, null, duration, 0);
     }
 
-    public void affect(GamePlayer player, GamePlayer victim) {
+    public void affect(@Nonnull GamePlayer player, @Nonnull GamePlayer victim) {
     }
 
     public String getSuffix() {

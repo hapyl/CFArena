@@ -12,7 +12,7 @@ import java.util.function.BiConsumer;
 
 public class Attributes {
 
-    private final static double DEFENSE_SCALING = 0.75d;
+    public final static double DEFENSE_SCALING = 0.5d;
 
     protected final Map<AttributeType, Double> mapped;
     private final AttributeRandom random;
@@ -71,24 +71,121 @@ public class Attributes {
         return isCritical ? damage + (damage * AttributeType.CRIT_DAMAGE.get(this)) : damage;
     }
 
+    /**
+     * Gets the {@link AttributeType#MAX_HEALTH} value for this attribute.
+     *
+     * @return the max health.
+     */
+    public double getHealth() {
+        return get(AttributeType.MAX_HEALTH);
+    }
+
+    /**
+     * Sets the {@link AttributeType#MAX_HEALTH} value for this attribute.
+     *
+     * @param value - New value.
+     */
+    public void setHealth(double value) {
+        setValueScaled(AttributeType.MAX_HEALTH, value);
+    }
+
+    /**
+     * Sets the {@link AttributeType#ATTACK} value for this attribute.
+     *
+     * @param value - New value.
+     */
     public void setAttack(double value) {
         setValueScaled(AttributeType.ATTACK, value);
     }
 
+    /**
+     * Sets the {@link AttributeType#DEFENSE} value for this attribute.
+     *
+     * @param value - New value.
+     */
     public void setDefense(double value) {
         setValueScaled(AttributeType.DEFENSE, value);
     }
 
+    /**
+     * Sets the {@link AttributeType#SPEED} value for this attribute.
+     *
+     * @param value - New value.
+     */
     public void setSpeed(double value) {
-        setValue(AttributeType.SPEED, value * 0.002d);
+        setValueScaled(AttributeType.SPEED, value);
     }
 
-    public void setValue(AttributeType type, double value) {
-        mapped.put(type, value);
+    /**
+     * Sets the {@link AttributeType#CRIT_CHANCE} value for this attribute.
+     *
+     * @param value - New value.
+     */
+    public void setCritChance(double value) {
+        setValueScaled(AttributeType.CRIT_CHANCE, value);
     }
 
-    public void setValueScaled(AttributeType type, double value) {
-        setValue(type, type.scale(value));
+    /**
+     * Sets the {@link AttributeType#CRIT_DAMAGE} value for this attribute.
+     *
+     * @param value - New value.
+     */
+    public void setCritDamage(double value) {
+        setValueScaled(AttributeType.CRIT_DAMAGE, value);
+    }
+
+    /**
+     * Sets the {@link AttributeType#FEROCITY} value for this attribute.
+     *
+     * @param value - New value.
+     */
+    public void setFerocity(double value) {
+        setValueScaled(AttributeType.FEROCITY, value);
+    }
+
+    /**
+     * Sets the {@link AttributeType#MENDING} value for this attribute.
+     *
+     * @param value - New value.
+     */
+    public void setMending(double value) {
+        setValueScaled(AttributeType.MENDING, value);
+    }
+
+    /**
+     * Sets the {@link AttributeType#DODGE} value for this attribute.
+     *
+     * @param value - New value.
+     */
+    public void setDodge(double value) {
+        setValueScaled(AttributeType.DODGE, value);
+    }
+
+    /**
+     * Sets the {@link AttributeType#COOLDOWN_MODIFIER} value for this attribute.
+     *
+     * @param value - New value.
+     */
+    public void setCooldownModifier(double value) {
+        setValueScaled(AttributeType.COOLDOWN_MODIFIER, value);
+    }
+
+    /**
+     * Sets the {@link AttributeType#ATTACK_SPEED} value for this attribute.
+     *
+     * @param value - New value.
+     */
+    public void setAttackSpeed(double value) {
+        setValueScaled(AttributeType.ATTACK_SPEED, value);
+    }
+
+    /**
+     * Sets the {@link AttributeType#KNOCKBACK_RESISTANCE} value for this attribute.
+     *
+     * @param value - New value.
+     */
+    public void setKnockbackResistance(double value) {
+        setValueScaled(AttributeType.KNOCKBACK_RESISTANCE, value);
     }
 
     /**
@@ -97,8 +194,18 @@ public class Attributes {
      * @param type - Type.
      * @return the value.
      */
-    public double get(AttributeType type) {
+    public double get(@Nonnull AttributeType type) {
         return Math.min(mapped.computeIfAbsent(type, t -> 0.0d), type.maxValue());
+    }
+
+    /**
+     * Sets a new value to an attribute.
+     *
+     * @param type  - Attribute type.
+     * @param value - New value.
+     */
+    public void set(@Nonnull AttributeType type, double value) {
+        mapped.put(type, value);
     }
 
     public final void reset() {
@@ -112,7 +219,7 @@ public class Attributes {
      *
      * @param type - Type.
      */
-    public final void reset(AttributeType type) {
+    public final void reset(@Nonnull AttributeType type) {
         mapped.remove(type);
     }
 
@@ -171,22 +278,8 @@ public class Attributes {
         return (color + character.repeat(scale)) + (ChatColor.DARK_GRAY + character.repeat(5 - scale));
     }
 
-    public double getHealth() {
-        return get(AttributeType.MAX_HEALTH);
-    }
-
-    public void setHealth(double value) {
-        setValue(AttributeType.MAX_HEALTH, value);
-    }
-
-
-    private void checkValue(double value) {
-        if (value < 1.0) {
-            throw new IllegalArgumentException("This method scales down the value! %s is too small, did you mean %s?".formatted(
-                    value,
-                    value * 100
-            ));
-        }
+    private void setValueScaled(AttributeType type, double value) {
+        set(type, type.scale(value));
     }
 
     public static Attributes copyOf(@Nonnull Attributes attributes) {

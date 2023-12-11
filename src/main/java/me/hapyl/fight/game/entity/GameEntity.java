@@ -223,7 +223,7 @@ public class GameEntity {
         entity.setFireTicks(tick);
     }
 
-    public void remove() {
+    public void kill() {
         entity.remove();
     }
 
@@ -237,7 +237,7 @@ public class GameEntity {
         }
 
         entity.remove();
-        remove();
+        kill();
     }
 
     @Event
@@ -251,10 +251,10 @@ public class GameEntity {
 
     @Event
     public void onDeath() {
-        remove();
+        kill();
     }
 
-    public <T extends GameEntity> void as(@Nonnull Class<T> clazz, @Nonnull Consumer<T> consumer) {
+    public <T extends Entity> void as(@Nonnull Class<T> clazz, @Nonnull Consumer<T> consumer) {
         if (clazz.isInstance(entity)) {
             consumer.accept(clazz.cast(entity));
         }
@@ -317,6 +317,7 @@ public class GameEntity {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
+
         final GameEntity that = (GameEntity) o;
         return Objects.equals(uuid, that.uuid);
     }
@@ -446,5 +447,13 @@ public class GameEntity {
 
     public void addToTeam(@Nonnull GameTeam team) {
         team.addEntry(Entry.of(this));
+    }
+
+    public void setGravity(boolean b) {
+        entity.setGravity(b);
+    }
+
+    public boolean hasGravity() {
+        return entity.hasGravity();
     }
 }

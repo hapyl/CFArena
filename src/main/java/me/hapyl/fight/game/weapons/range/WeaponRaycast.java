@@ -12,27 +12,27 @@ import javax.annotation.Nullable;
 
 public class WeaponRaycast {
 
-    protected WeaponRaycastable raycastable;
+    protected RangeWeapon weapon;
 
-    public WeaponRaycast(WeaponRaycastable raycastable) {
-        this.raycastable = raycastable;
+    public WeaponRaycast(RangeWeapon weapon) {
+        this.weapon = weapon;
     }
 
     @Nonnull
     public WeaponRaycastInstance newInstance(@Nonnull GamePlayer player) {
-        return new WeaponRaycastInstance(player, raycastable);
+        return new WeaponRaycastInstance(player, weapon);
     }
 
     public void cast(@Nonnull GamePlayer player) {
         final WeaponRaycastInstance instance = newInstance(player);
-        final double maxDistance = raycastable.getMaxDistance(player);
+        final double maxDistance = weapon.getMaxDistance(player);
 
         final Location location = player.getEyeLocation();
         final Vector vector = location.getDirection().normalize();
 
         instance.onStart();
 
-        for (double i = 0; i < maxDistance; i += raycastable.getShift()) {
+        for (double i = 0; i < maxDistance; i += weapon.getShift()) {
             final double x = vector.getX() * i;
             final double y = vector.getY() * i;
             final double z = vector.getZ() * i;
@@ -40,7 +40,7 @@ public class WeaponRaycast {
             location.add(x, y, z);
 
             // Check for block predicate
-            if (!raycastable.predicateBlock(location.getBlock())) {
+            if (!weapon.predicateBlock(location.getBlock())) {
                 spawnParticleHit(location);
                 break;
             }
@@ -72,7 +72,7 @@ public class WeaponRaycast {
 
         final boolean isHeadShot = isHeadShot(location, target);
 
-        target.modifyKnockback(RangeWeapon.RANGE_KNOCKBACK, then -> {
+        target.modifyKnockback(weapon.knockback, then -> {
             instance.onHit(then, isHeadShot);
         });
 
@@ -83,7 +83,7 @@ public class WeaponRaycast {
     @Nullable
     protected LivingGameEntity firstNearbyEntity(GamePlayer player, Location location, double radius) {
         for (LivingGameEntity entity : Collect.nearbyEntities(location, radius)) {
-            if (entity == null || player.isSelfOrTeammate(entity) || !raycastable.predicateEntity(entity)) {
+            if (entity == null || player.isSelfOrTeammate(entity) || !weapon.predicateEntity(entity)) {
                 continue;
             }
 
@@ -94,14 +94,14 @@ public class WeaponRaycast {
     }
 
     protected void spawnParticleHit(Location location) {
-        final PackedParticle particle = raycastable.getParticleHit();
+        final PackedParticle particle = weapon.getParticleHit();
         if (particle != null) {
             particle.display(location);
         }
     }
 
     protected void spawnParticleTick(Location location) {
-        final PackedParticle particle = raycastable.getParticleTick();
+        final PackedParticle particle = weapon.getParticleTick();
         if (particle != null) {
             particle.display(location);
         }

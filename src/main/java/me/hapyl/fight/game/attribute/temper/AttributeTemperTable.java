@@ -21,7 +21,7 @@ import javax.annotation.Nullable;
  *      | B    | 0.1    | 1       |
  *      |------|--------|---------|
  * </pre>
- * Where 2 keys point to a single value.
+ * Where two keys point to a single value.
  * <p>
  * Type can hold as many different tempers and tempers can hold as many different types.
  * But only ony single temper and one single type can point to the same value.

@@ -2,9 +2,9 @@ package me.hapyl.fight.game.heroes.archive.frostbite;
 
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.RaycastTask;
+import me.hapyl.fight.game.weapons.range.RangeWeapon;
 import me.hapyl.fight.game.weapons.range.WeaponRaycast;
 import me.hapyl.fight.game.weapons.range.WeaponRaycastInstance;
-import me.hapyl.fight.game.weapons.range.WeaponRaycastable;
 import org.bukkit.Location;
 
 import javax.annotation.Nonnull;
@@ -14,8 +14,8 @@ public class ProjectileRaycast extends WeaponRaycast {
     private final double step;
     private final int iterations;
 
-    public ProjectileRaycast(WeaponRaycastable raycastable, double step, int iterations) {
-        super(raycastable);
+    public ProjectileRaycast(RangeWeapon weapon, double step, int iterations) {
+        super(weapon);
 
         this.step = step;
         this.iterations = iterations;
@@ -24,7 +24,7 @@ public class ProjectileRaycast extends WeaponRaycast {
     @Nonnull
     @Override
     public WeaponRaycastInstance newInstance(@Nonnull GamePlayer player) {
-        return new WeaponRaycastInstance(player, raycastable);
+        return new WeaponRaycastInstance(player, weapon);
     }
 
     @Override
@@ -48,13 +48,13 @@ public class ProjectileRaycast extends WeaponRaycast {
 
             @Override
             public boolean predicate(@Nonnull Location location) {
-                return raycastable.predicateBlock(location.getBlock());
+                return weapon.predicateBlock(location.getBlock());
             }
 
             @Override
             public void onTaskStop() {
                 instance.onStop();
             }
-        }.setStep(step).setMax(raycastable.getMaxDistance(player)).setIterations(iterations).runTaskTimer(0, 1);
+        }.setStep(step).setMax(weapon.getMaxDistance(player)).setIterations(iterations).runTaskTimer(0, 1);
     }
 }

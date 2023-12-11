@@ -2,15 +2,15 @@ package me.hapyl.fight.game.talents.archive.tamer;
 
 import me.hapyl.fight.fx.Riptide;
 import me.hapyl.fight.game.Event;
-import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.TickingGameTask;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.potion.PotionEffectType;
 
 public class EntityLevitate<T extends LivingGameEntity> extends TickingGameTask {
+
+    private static final int effectLiftDuration = 15;
 
     public final T entity;
     public final Location initialLocation;
@@ -24,17 +24,12 @@ public class EntityLevitate<T extends LivingGameEntity> extends TickingGameTask 
         this.riptide = new Riptide(entity.getLocation());
         this.duration = duration;
 
-        entity.addPotionEffect(PotionEffectType.LEVITATION, duration, 6);
-
         onStart();
         runTaskTimer(0, 1);
     }
 
     @Override
     public final void onTaskStop() {
-        if (!(entity instanceof GamePlayer)) {
-            entity.removePotionEffect(PotionEffectType.LEVITATION);
-        }
         riptide.remove();
     }
 
@@ -51,16 +46,6 @@ public class EntityLevitate<T extends LivingGameEntity> extends TickingGameTask 
         if (tick > duration || entity.isDeadOrRespawning()) {
             cancel();
             return;
-        }
-
-        // Mojang haven't fixed this bug since like 2013, so have
-        // to use different approach for player and entities
-        if (entity instanceof GamePlayer player && tick == 10) {
-            player.addPotionEffect(PotionEffectType.LEVITATION, duration - tick, 255);
-        }
-        else if (!(entity instanceof GamePlayer) && tick >= 10 && tick % 5 == 0) {
-            entity.removePotionEffect(PotionEffectType.LEVITATION);
-            entity.addPotionEffect(PotionEffectType.LEVITATION, 5, 0);
         }
 
         final Location location = entity.getLocation();

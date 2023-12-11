@@ -1,15 +1,22 @@
 package me.hapyl.fight.game.effect;
 
+import me.hapyl.fight.Main;
+import me.hapyl.fight.annotate.AutoRegisteredListener;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.ui.display.StringDisplay;
+import me.hapyl.fight.util.Described;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 
-public abstract class GameEffect {
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+@AutoRegisteredListener
+public abstract class GameEffect implements Described {
 
     private final String name;
-
     private String description;
     private EffectParticle effectParticle;
     private boolean isPositive;
@@ -22,14 +29,18 @@ public abstract class GameEffect {
         this.description = "";
         this.isPositive = true;
         this.talentBlocking = false;
-    }
 
-    public void setTalentBlocking(boolean talentBlocking) {
-        this.talentBlocking = talentBlocking;
+        if (this instanceof Listener listener) {
+            Bukkit.getPluginManager().registerEvents(listener, Main.getPlugin());
+        }
     }
 
     public boolean isTalentBlocking() {
         return talentBlocking;
+    }
+
+    public void setTalentBlocking(boolean talentBlocking) {
+        this.talentBlocking = talentBlocking;
     }
 
     public StringDisplay getDisplay() {
@@ -44,20 +55,24 @@ public abstract class GameEffect {
         this.effectParticle = effectParticle;
     }
 
+    @Nonnull
+    @Override
     public String getName() {
         return name;
     }
 
-    public void setDescription(String about, Object... objects) {
-        this.setDescription(about.formatted(objects));
-    }
-
+    @Nonnull
+    @Override
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(@Nonnull String description) {
         this.description = description;
+    }
+
+    public void setDescription(@Nonnull String description, @Nullable Object... objects) {
+        setDescription(description.formatted(objects));
     }
 
     public boolean isPositive() {
@@ -68,29 +83,42 @@ public abstract class GameEffect {
         isPositive = positive;
     }
 
-    public abstract void onStart(LivingGameEntity entity);
+    /**
+     * Called once upon entity gaining this effect.
+     *
+     * @param entity - Entity.
+     */
+    public abstract void onStart(@Nonnull LivingGameEntity entity);
 
-    public abstract void onStop(LivingGameEntity entity);
+    /**
+     * Called once upon entity losing this effect.
+     *
+     * @param entity - Entity.
+     */
+    public abstract void onStop(@Nonnull LivingGameEntity entity);
 
-    public abstract void onTick(LivingGameEntity entity, int tick);
+    /**
+     * Called every tick entity has this effect.
+     *
+     * @param entity - Entity.
+     * @param tick   - Current tick.
+     */
+    public abstract void onTick(@Nonnull LivingGameEntity entity, int tick);
 
-    public void onUpdate(LivingGameEntity entity) {
+    /**
+     * Called whenever this effect has added to the entity when it already had the effect.
+     *
+     * @param entity - Entity.
+     */
+    public void onUpdate(@Nonnull LivingGameEntity entity) {
     }
 
-    public String getExtra() {
-        return "";
-    }
-
-    public void displayParticles(Location location, LivingEntity ignore) {
+    public void displayParticles(@Nonnull Location location, @Nonnull LivingGameEntity ignore) {
         displayParticles(location, ignore, this.effectParticle);
     }
 
-    public void displayParticles(Location location, LivingEntity ignore, EffectParticle particle) {
-        if (particle == null || !(ignore instanceof Player player)) {
-            return;
-        }
-
-        particle.display(location, player);
+    public void displayParticles(@Nonnull Location location, @Nonnull LivingGameEntity ignore, @Nonnull EffectParticle particle) {
+        particle.display(location, ignore instanceof GamePlayer player ? player : null);
     }
 
 }
