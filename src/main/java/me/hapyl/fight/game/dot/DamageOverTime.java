@@ -5,7 +5,7 @@ import me.hapyl.fight.util.EnumWrapper;
 
 import javax.annotation.Nonnull;
 
-public enum Dots implements EnumWrapper<Dot> {
+public enum DamageOverTime implements EnumWrapper<Dot> {
 
     BLEED(new BleedDot()),
 
@@ -13,7 +13,7 @@ public enum Dots implements EnumWrapper<Dot> {
 
     private final Dot dot;
 
-    Dots(Dot dot) {
+    DamageOverTime(Dot dot) {
         this.dot = dot;
     }
 

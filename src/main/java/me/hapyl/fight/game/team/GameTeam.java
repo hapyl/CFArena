@@ -389,7 +389,7 @@ public enum GameTeam implements Described, SmallCapsDescriber, Selectable, GameE
         final List<GameTeam> populatedTeams = Lists.newArrayList();
 
         for (GameTeam team : values()) {
-            if (!team.getBukkitPlayers().isEmpty()) {
+            if (team.playerCount > 0) {
                 populatedTeams.add(team);
             }
         }

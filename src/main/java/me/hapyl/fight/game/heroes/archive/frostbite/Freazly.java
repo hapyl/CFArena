@@ -1,6 +1,8 @@
 package me.hapyl.fight.game.heroes.archive.frostbite;
 
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
@@ -17,6 +19,12 @@ import javax.annotation.Nonnull;
 
 public class Freazly extends Hero implements HeroPlaque {
 
+    private final double chillAuraRadius = 3.0d;
+    private final TemperInstance temper = Temper.CHILL_AURA
+            .newInstance()
+            .decreaseScaled(AttributeType.SPEED, 10)
+            .decreaseScaled(AttributeType.ATTACK_SPEED, 50);
+
     public Freazly() {
         super("Frostbite");
 
@@ -30,7 +38,7 @@ public class Freazly extends Hero implements HeroPlaque {
         equipment.setBoots(Color.fromRGB(45, 54, 69));
 
         setWeapon(new FrostbiteWeapon());
-        setUltimate(new FrostbiteUltimate(80));
+        setUltimate(new FrostbiteUltimate(60));
     }
 
     @Override
@@ -39,12 +47,12 @@ public class Freazly extends Hero implements HeroPlaque {
             @Override
             public void run() {
                 getAlivePlayers().forEach(player -> {
-                    Collect.nearbyEntities(player.getLocation(), 1.0d).forEach(entity -> {
-                        if (entity.equals(player)) {
+                    Collect.nearbyEntities(player.getLocation(), chillAuraRadius).forEach(entity -> {
+                        if (player.isSelfOrTeammate(entity)) {
                             return;
                         }
 
-                        entity.addEffect(GameEffectType.CHILL_AURA, 20, true);
+                        temper.temper(entity, 20);
                     });
                 });
             }

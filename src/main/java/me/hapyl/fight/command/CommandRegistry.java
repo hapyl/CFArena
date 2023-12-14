@@ -24,6 +24,9 @@ import me.hapyl.fight.game.cosmetic.CosmeticCollection;
 import me.hapyl.fight.game.cosmetic.crate.Crates;
 import me.hapyl.fight.game.cosmetic.crate.convert.CrateConvert;
 import me.hapyl.fight.game.cosmetic.crate.convert.CrateConverts;
+import me.hapyl.fight.game.dot.DotInstance;
+import me.hapyl.fight.game.dot.DotInstanceList;
+import me.hapyl.fight.game.dot.DamageOverTime;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.*;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
@@ -234,6 +237,16 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
+        register(new SimplePlayerAdminCommand("testAbsorption") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                final double amount = getArgument(args, 0).toDouble();
+
+                player.setAbsorptionAmount(amount);
+                Chat.sendMessage(player, "&aSet absorption amount to %s!", amount);
+            }
+        });
+
         register(new SimplePlayerAdminCommand("ph") {
             @Override
             protected void execute(Player player, String[] args) {
@@ -410,6 +423,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register("clearCachedTalentItems", (player, args) -> {
             for (Talents enumTalent : Talents.values()) {
                 final Talent talent = enumTalent.getTalent();
+                assert talent == null;
 
                 if (talent != null) {
                     talent.nullifyItem();
@@ -907,6 +921,19 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             Chat.sendMessage(player, "&aDone!");
         });
 
+        register(new SimplePlayerAdminCommand("testLaunchProjectile") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                final GamePlayer gamePlayer = CF.getPlayer(player);
+
+                if (gamePlayer == null) {
+                    return;
+                }
+
+                gamePlayer.launchProjectile(Arrow.class);
+            }
+        });
+
         register(new SimplePlayerAdminCommand("testLine") {
             @Override
             protected void execute(Player player, String[] strings) {
@@ -1038,6 +1065,54 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             Chat.sendMessage(player, "&aSpawned!");
         });
 
+        register(new SimplePlayerAdminCommand("dot") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                final GamePlayer gamePlayer = CF.getPlayer(player);
+
+                if (gamePlayer == null) {
+                    return;
+                }
+
+                if (args.length == 0) {
+                    final Map<DamageOverTime, DotInstanceList> dotMap = gamePlayer.getData().getDotMap();
+
+                    if (dotMap.isEmpty()) {
+                        gamePlayer.sendMessage("&cNo active dots!");
+                        return;
+                    }
+
+                    dotMap.forEach((dots, list) -> {
+                        final int stacks = list.getStacks();
+
+                        gamePlayer.sendMessage("Dot: " + dots.name() + " x" + stacks);
+
+                        int index = 0;
+                        for (DotInstance instance : list) {
+                            gamePlayer.sendMessage("[%s] %s", index++, instance.getTicksLeft());
+                        }
+                    });
+                    return;
+                }
+
+                final DamageOverTime dot = getArgument(args, 0).toEnum(DamageOverTime.class);
+                final int duration = getArgument(args, 1).toInt();
+
+                if (dot == null) {
+                    gamePlayer.sendMessage("&cInvalid dot!");
+                    return;
+                }
+
+                if (duration < 0) {
+                    gamePlayer.sendMessage("&cDuration cannot be negative!");
+                    return;
+                }
+
+                gamePlayer.addDot(dot, gamePlayer, duration);
+                gamePlayer.sendMessage("&aAdded a stack of %s for %s.", dot.name(), duration);
+            }
+        });
+
         register("testHoverText", (player, args) -> {
             final TextComponent text = new TextComponent("Hover me");
 
@@ -1073,7 +1148,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 final double distance = getArgument(strings, 1).toDouble();
                 final GamePlayer gamePlayer = CF.getPlayer(player);
 
-                final String format = cause.getRandomIfMultiple().format(gamePlayer, gamePlayer, distance);
+                final String format = cause.getDeathMessage().format(gamePlayer, gamePlayer, distance);
                 Chat.sendMessage(player, ChatColor.RED + format);
             }
 
@@ -1419,6 +1494,65 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 }
 
                 Chat.sendMessage(player, "&aDone!");
+            }
+        });
+
+        register("testRotatingCircle", (player, args) -> {
+            final Location location = player.getLocation();
+
+            new TickingGameTask() {
+                @Override
+                public void run(int tick) {
+                    if (tick > 360) {
+                        cancel();
+                        Chat.sendMessage(player, "&aDone!");
+                        return;
+                    }
+
+                    final double rad = Math.toRadians(tick);
+                    final Vector vector = new Vector(Math.sin(rad) * 3, 0, Math.cos(rad) * 3);
+
+                    vector.rotateAroundX(tick);
+                    vector.rotateAroundY(tick);
+                    vector.rotateAroundZ(tick);
+
+                    location.add(vector);
+                    PlayerLib.spawnParticle(location, Particle.CRIT_MAGIC, 1);
+                    location.subtract(vector);
+                }
+            }.runTaskTimer(0, 1);
+        });
+
+        register(new SimplePlayerAdminCommand("testParticleRot") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                final Location location = player.getLocation();
+
+                final double x = Math.toRadians(getArgument(args, 0).toDouble());
+                final double y = Math.toRadians(getArgument(args, 1).toDouble());
+                final double z = Math.toRadians(getArgument(args, 2).toDouble());
+
+                final double radius = getArgument(args, 3).toDouble(3);
+
+                for (double d = 0; d < Math.PI * 2; d += Math.PI / 16) {
+                    final Vector vector = new Vector(Math.sin(d) * radius, 0, Math.cos(d) * radius);
+
+                    if (x != 0) {
+                        vector.rotateAroundX(x);
+                    }
+                    if (y != 0) {
+                        vector.rotateAroundY(y);
+                    }
+                    if (z != 0) {
+                        vector.rotateAroundZ(z);
+                    }
+
+                    location.add(vector);
+                    PlayerLib.spawnParticle(location, Particle.VILLAGER_HAPPY, 1);
+                    location.subtract(vector);
+                }
+
+                Chat.sendMessage(player, "&aRotated with %s, %s, %s!", x, y, z);
             }
         });
 

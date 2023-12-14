@@ -1,11 +1,10 @@
 package me.hapyl.fight.game;
 
 import me.hapyl.spigotutils.module.annotate.Super;
-import me.hapyl.spigotutils.module.util.CollectionUtils;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-import java.util.List;
+import javax.annotation.Nonnull;
 
 /**
  * This allows to display custom damage cause messages.
@@ -47,8 +46,8 @@ public enum EnumDamageCause {
     THORNS(DamageCause.minecraft("was pricked", "by")),
     FLY_INTO_WALL(DamageCause.minecraft("hit the wall at 69,420 mph", "while running from")),
     HOT_FLOOR(DamageCause.minecraft("didn't know that floor was lava", "and {damager} didn't tell them")),
-    DRYOUT(DamageCause.minecraft("though it was water, it wasn't")),
-    FREEZE(DamageCause.minecraft("frooze to death")),
+    DRYOUT(DamageCause.minecraft("thought it was water, it wasn't", "and {damager} was there to watch")),
+    FREEZE(DamageCause.minecraft("frooze to death", "while running from")),
     SONIC_BOOM(DamageCause.minecraft("BOOM BOOM BAKUDAN'ed", "and {damager} is the one to blame")),
 
     FEROCIY(DamageCause.nonCrit("was killed", "by")),                   // this is used to indicate ferocity hits
@@ -82,18 +81,18 @@ public enum EnumDamageCause {
     GOLDEN_PATH(DamageCause.of("couldn't fight against their willpower", "created by shine of")),
     FLOWER(DamageCause.nonCrit("was pruned to death", "by")),
     FEEL_THE_BREEZE(DamageCause.nonCrit("felt {damager}'s breeze...")),
-    NEVERMISS(DamageCause.of("couldn't dodge {damager}'s attack, what a noob..")),
-    FEET_ATTACK(DamageCause.of("probably lost their toe")),
-    SUBMERGE(DamageCause.of("didn't know that Sharks bite")),
+    NEVERMISS(DamageCause.of("couldn't dodge {damager}'s attack, what a noob...")),
+    FEET_ATTACK(DamageCause.of("probably lost their toe", "isn't that right, {damager}?")),
+    SUBMERGE(DamageCause.of("didn't know that Sharks bite", "but thanks to the {damager}, not they do")),
     SOTS(DamageCause.nonCrit("couldn't hide from the stars", "of")),
     STAR_SLASH(DamageCause.of("was slashed in half", "by")),
-    RAINFIRE(DamageCause.of("thought it's raining, but in reality it was {damager}'s arrows..")),
+    RAINFIRE(DamageCause.of("thought it's raining, but in reality it was {damager}'s arrows...")),
     SWEEP(DamageCause.of("was swept to death", "by")),
     RIFLE(DamageCause.of("had their brain exploded in cool slow-mo", "by")),
     SATCHEL(DamageCause.of("had their last flights", "with")),
     TORNADO(DamageCause.of("couldn't find the wind", "of")),
-    LIBRARY_VOID(DamageCause.of("was consumed by §0the void")), // fixme -> colors don't work
-    RIPTIDE(DamageCause.of("was splashed", "by")),
+    LIBRARY_VOID(DamageCause.of("was consumed by §0the void")),
+    RIPTIDE(DamageCause.nonCrit("was splashed", "by")),
     COLD(DamageCause.of("froze to death", "with the help of")),
     LASER(DamageCause.of("was lasered to death", "by")),
     WATER(DamageCause.of("really liked the water")),
@@ -118,7 +117,7 @@ public enum EnumDamageCause {
     CYCLING_AXE(DamageCause.of("couldn't see that {damager}'s axe is flying there")),
     FROSTBITE(DamageCause.of("froze to death, and {damager} is the one to blame")),
     POISON_IVY(DamageCause.nonCrit("was poised to death by {damager}'s poison ivy")),
-    DWARF_LAVA(DamageCause.nonCrit("didn't bounce high enough")),
+    DWARF_LAVA(DamageCause.nonCrit("didn't bounce high enough", "and {damager} was just stood there, menacingly")),
     IMPEL(DamageCause.nonCrit("failed to obey {damager}'s command")),
     CHALICE(DamageCause.nonCrit("had their soul sucked away", "by")),
     TWINCLAW(DamageCause.nonCrit("was pierced to death by {damager}'s claw")),
@@ -130,7 +129,7 @@ public enum EnumDamageCause {
     STEAM(DamageCause.nonCrit("was steamed to death", "with help from")),
     DARK_ENERGY(DamageCause.nonCrit("was annihilated to death", "by")),
     SHADOW_CLONE(DamageCause.nonCrit("was killed by {damager}'s shadow")),
-    STONE_CASTLE(DamageCause.nonCrit("died while protecting their teammates")),
+    STONE_CASTLE(DamageCause.nonCrit("died because of {damager} while protecting their teammates")),
     SENTRY_SHOT(DamageCause.nonCrit("was shot to death", "by {damager}'s sentry")),
     ;
 
@@ -149,14 +148,9 @@ public enum EnumDamageCause {
         return damageCause.isCanCrit();
     }
 
-    public DeathMessage getRandomIfMultiple() {
-        final List<DeathMessage> messages = damageCause.getDeathMessages();
-
-        if (messages.size() == 1) {
-            return messages.get(0);
-        }
-
-        return CollectionUtils.randomElement(messages);
+    @Nonnull
+    public DeathMessage getDeathMessage() {
+        return damageCause.getDeathMessage();
     }
 
     public boolean isCustomDamage() {

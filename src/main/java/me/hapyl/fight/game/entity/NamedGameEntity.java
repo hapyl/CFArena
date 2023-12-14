@@ -5,7 +5,6 @@ import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.entity.event.EntityEventListener;
 import me.hapyl.fight.game.entity.event.EventType;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.spigotutils.module.hologram.GlobalHologram;
 import me.hapyl.spigotutils.module.hologram.Hologram;
 import org.bukkit.Location;
@@ -28,7 +27,6 @@ public class NamedGameEntity<T extends LivingEntity> extends LivingGameEntity {
     protected final T entity;
     private final Map<EventType<?>, EntityEventListener<?>> eventHandles;
     private final Hologram aboveHead;
-    private final GameTask task;
     protected int tick;
 
     public NamedGameEntity(GameEntityType<T> type, T entity) {
@@ -40,16 +38,6 @@ public class NamedGameEntity<T extends LivingEntity> extends LivingGameEntity {
         this.aboveHead = new GlobalHologram();
 
         // Schedule tick
-        task = new TickingGameTask() {
-            @Override
-            public void run(int tick) {
-                NamedGameEntity.this.tick = tick;
-                NamedGameEntity.this.tick();
-            }
-        };
-
-        task.runTaskTimer(1, 1);
-
         this.aboveHead.create(getHologramLocation());
         this.aboveHead.showAll();
 
@@ -73,6 +61,8 @@ public class NamedGameEntity<T extends LivingEntity> extends LivingGameEntity {
     }
 
     public final void tick() {
+        super.tick();
+
         if (entity.isDead()) {
             kill();
             return;
@@ -140,8 +130,6 @@ public class NamedGameEntity<T extends LivingEntity> extends LivingGameEntity {
     @OverridingMethodsMustInvokeSuper
     public void kill() {
         super.kill();
-
-        task.cancel();
         aboveHead.destroy();
     }
 

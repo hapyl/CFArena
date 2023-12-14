@@ -2,9 +2,8 @@ package me.hapyl.fight.event.io;
 
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.entity.GameEntity;
-import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
-import org.bukkit.entity.Player;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -13,7 +12,6 @@ import java.util.Optional;
 /**
  * Represents wrapped damage input.
  */
-// FIXME (hapyl): 031, Oct 31: Delete all bukkit player casts!
 public class DamageInput {
 
     private final LivingGameEntity entity;
@@ -74,14 +72,6 @@ public class DamageInput {
     }
 
     /**
-     * Gets the entity as a bukkit player, throws {@link IllegalArgumentException} if entity is not a player.
-     */
-    @Nonnull
-    public Player getBukkitPlayer() {
-        return getEntityAsPlayer().getPlayer();
-    }
-
-    /**
      * Returns final amount of damage.
      * By <b>final</b> I mean that all calculations have been done.
      *
@@ -98,6 +88,10 @@ public class DamageInput {
      */
     public boolean isEntityAttack() {
         return cause == EnumDamageCause.ENTITY_ATTACK || cause == EnumDamageCause.ENTITY_ATTACK_NON_CRIT;
+    }
+
+    public boolean isEntityAttackOrProjectile() {
+        return isEntityAttack() || cause == EnumDamageCause.PROJECTILE;
     }
 
     /**
@@ -131,12 +125,6 @@ public class DamageInput {
         }
 
         return null;
-    }
-
-    @Nullable
-    public Player getDamagerAsBukkitPlayer() {
-        final GamePlayer player = getDamagerAsPlayer();
-        return player == null ? null : player.getPlayer();
     }
 
     @Nonnull

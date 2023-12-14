@@ -43,7 +43,6 @@ public class MoonwalkerWeapon extends Weapon {
             player.launchProjectile(Arrow.class, self -> {
                 self.setDamage(getDamage() / 2);
                 self.setCritical(false);
-                self.setShooter(player.getPlayer());
             });
 
             player.playWorldSound(Sound.ENTITY_ARROW_SHOOT, 1.25f);

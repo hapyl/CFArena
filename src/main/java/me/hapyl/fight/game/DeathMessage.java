@@ -1,5 +1,6 @@
 package me.hapyl.fight.game;
 
+import me.hapyl.fight.Main;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.spigotutils.module.chat.Gradient;
@@ -29,6 +30,13 @@ public record DeathMessage(String message, String damagerSuffix) {
                 this.damagerSuffix = damagerSuffix;
             }
             else {
+                if (damagerSuffix.isEmpty() || damagerSuffix.isBlank()) {
+                    Debug.warn("A death message is missing a suffix! Fixing by suffixing with 'by'! See the console for details.");
+                    Main.getPlugin().getLogger().warning("Missing death message: '%s'".formatted(message));
+
+                    damagerSuffix = "by";
+                }
+
                 this.damagerSuffix = damagerSuffix + " " + DAMAGER_PLACEHOLDER;
             }
         }
@@ -76,7 +84,7 @@ public record DeathMessage(String message, String damagerSuffix) {
 
     private String getValidPronoun(@Nullable GameEntity gameEntity) {
         if (gameEntity == null) {
-            return "";
+            return "something";
         }
 
         final LivingEntity entity = gameEntity.getEntity();

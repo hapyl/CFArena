@@ -4,8 +4,8 @@ import me.hapyl.fight.game.task.GameTask;
 
 public abstract class AttributeTemper implements Runnable {
 
-    protected final double value;
-    protected final int duration;
+    public final double value;
+    public final int duration;
 
     private final GameTask task;
 

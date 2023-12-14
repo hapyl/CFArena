@@ -95,12 +95,6 @@ public class Dice extends Gadget {
 
     @Nonnull
     public DiceSide getRandomSide() {
-        final DiceSide side = sideWeight.get();
-
-        if (side == null) {
-            throw new IllegalStateException("no sides");
-        }
-
-        return side;
+        return sideWeight.get();
     }
 }

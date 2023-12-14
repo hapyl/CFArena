@@ -5,6 +5,7 @@ import me.hapyl.fight.command.CommandRegistry;
 import me.hapyl.fight.database.Database;
 import me.hapyl.fight.event.*;
 import me.hapyl.fight.fastaccess.FastAccessListener;
+import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.achievement.AchievementRegistry;
 import me.hapyl.fight.game.collectible.Collectibles;

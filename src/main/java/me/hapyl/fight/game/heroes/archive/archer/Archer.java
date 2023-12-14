@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.archive.archer;
 
 import me.hapyl.fight.CF;
+import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
@@ -27,7 +28,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
 
@@ -140,24 +140,20 @@ public class Archer extends Hero implements Listener {
     }
 
     @EventHandler()
-    public void handleProjectileLaunchEvent(ProjectileLaunchEvent ev) {
-        if (ev.getEntity() instanceof Arrow arrow && arrow.getShooter() instanceof Player player) {
-            final GamePlayer gamePlayer = CF.getPlayer(player);
-
-            if (gamePlayer == null) {
-                return;
-            }
-
+    public void handleProjectileLaunchEvent(ProjectilePostLaunchEvent ev) {
+        if (ev.getProjectile() instanceof Arrow arrow && ev.getShooter() instanceof GamePlayer player) {
             // Handle ultimate arrows
-            if (isUsingUltimate(gamePlayer) && gamePlayer.isHeldSlot(HotbarSlots.HERO_ITEM)) {
+            final Color color = arrow.getColor();
+
+            if (isUsingUltimate(player) && color == null) {
                 boomArrows.add(arrow);
 
-                gamePlayer.setCooldown(boomBow.getMaterial(), boomBowPerShotCd);
+                player.setCooldown(boomBow.getMaterial(), boomBowPerShotCd);
                 return;
             }
 
             // Handle hawkeye arrows
-            if (!validatePlayer(player) || !gamePlayer.isHeldSlot(HotbarSlots.WEAPON) || !arrow.isCritical() || !player.isSneaking()) {
+            if (!validatePlayer(player) || !player.isHeldSlot(HotbarSlots.WEAPON) || !arrow.isCritical() || !player.isSneaking()) {
                 return;
             }
 
@@ -175,8 +171,8 @@ public class Archer extends Hero implements Listener {
                         return;
                     }
 
-                    PlayerLib.spawnParticle(arrow.getLocation(), Particle.CRIT_MAGIC, 5, 0, 0, 0, 0);
-                    final Entity target = findNearestTarget(gamePlayer, arrow.getLocation());
+                    player.spawnWorldParticle(arrow.getLocation(), Particle.CRIT_MAGIC, 5, 0, 0, 0, 0);
+                    final Entity target = findNearestTarget(player, arrow.getLocation());
 
                     if (target == null) {
                         return;
@@ -193,8 +189,8 @@ public class Archer extends Hero implements Listener {
             }.runTaskTimer(0, 1);
 
             // Fx
-            PlayerLib.playSound(player, Sound.ENCHANT_THORNS_HIT, 2.0f);
-            PlayerLib.playSound(player, Sound.ENTITY_ELDER_GUARDIAN_DEATH_LAND, 1.25f);
+            player.playSound(Sound.ENCHANT_THORNS_HIT, 2.0f);
+            player.playSound(Sound.ENTITY_ELDER_GUARDIAN_DEATH_LAND, 1.25f);
         }
     }
 

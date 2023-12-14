@@ -1,136 +1,133 @@
 package me.hapyl.fight.game.talents.archive.harbinger;
 
-import com.google.common.collect.Sets;
-import me.hapyl.fight.CF;
+import me.hapyl.fight.game.HeroReference;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.harbinger.Harbinger;
-import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.CFUtils;
+import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.spigotutils.module.locaiton.LocationHelper;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import org.bukkit.*;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
+import me.hapyl.fight.util.DirectionalMatrix;
+import org.bukkit.Color;
+import org.bukkit.Location;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.util.Vector;
 
-import java.util.Set;
+import javax.annotation.Nonnull;
 
-public class TidalWave {
+public class TidalWave extends TimedGameTask implements HeroReference<Harbinger> {
 
-    private final int period = 3;
+    private static final Particle.DustTransition innerColor = new Particle.DustTransition(
+            Color.fromRGB(72, 209, 204),
+            Color.fromRGB(143, 188, 143),
+            2
+    );
 
-    private final GamePlayer player;
-    private final int duration;
-    private final Set<Block> affectedBlocks;
-
-    private final Location location;
-    private final Vector vector;
+    private static final Particle.DustTransition outerColor = new Particle.DustTransition(
+            Color.fromRGB(64, 224, 208),
+            Color.fromRGB(0, 128, 128),
+            1
+    );
 
     private final TidalWaveTalent talent;
+    private final GamePlayer player;
+    private final Vector direction;
+    private final Vector pushVector;
+    private final Location location;
+    private final DirectionalMatrix matrix;
+    private final Harbinger hero;
 
-    public TidalWave(GamePlayer player, int duration) {
+    private double d;
+
+    public TidalWave(@Nonnull TidalWaveTalent talent, @Nonnull GamePlayer player) {
+        super(talent);
+
+        this.talent = talent;
+        this.location = player.getEyeLocation();
+        this.direction = location.getDirection().normalize().multiply(talent.speed);
+        this.pushVector = direction.clone().multiply(0.75d);
         this.player = player;
-        this.duration = duration;
-        this.affectedBlocks = Sets.newHashSet();
-        this.talent = Talents.TIDAL_WAVE.getTalent(TidalWaveTalent.class);
+        this.matrix = player.getLookAlongMatrix();
+        this.hero = getHero();
 
-        this.location = player.getLocation();
-        this.vector = location.getDirection().normalize().setY(0.0d).multiply(1.5d);
-
-        launch();
+        runTaskTimer(0, 1);
     }
 
-    private void launch() {
-        location.setPitch(0.0f);
-        location.add(vector);
+    @Override
+    public void run(int tick) {
+        location.add(direction);
 
-        new GameTask() {
-            private int tick = 0;
-
-            @Override
-            public void run() {
-                if (!affectedBlocks.isEmpty()) {
-                    CFUtils.clearCollection(affectedBlocks);
-                }
-
-                if (tick > duration) {
-                    cancel();
-                    return;
-                }
-
-                createBlocks(location);
-
-                // Wider now
-                for (int i = 0; i < talent.width; i++) {
-                    createBlocks(LocationHelper.getToTheRight(location, talent.horizontalOffset + i));
-                    createBlocks(LocationHelper.getToTheLeft(location, talent.horizontalOffset + i));
-                }
-
-                location.add(vector);
-                tick += period;
-
-                // Fx
-                if (tick % 10 == 0) {
-                    PlayerLib.playSound(location, Sound.AMBIENT_UNDERWATER_ENTER, 0.0f);
-                    PlayerLib.playSound(location, Sound.AMBIENT_UNDERWATER_EXIT, 0.0f);
-                }
+        // Affect
+        Collect.nearbyEntities(location, 1.5d).forEach(entity -> {
+            if (player.isSelfOrTeammate(entity)) {
+                return;
             }
-        }.runTaskTimer(0, period);
+
+            hero.addRiptide(player, entity, talent.riptideDuration, false);
+
+            // Push
+            entity.setVelocity(pushVector);
+        });
+
+        // Sfx
+        if (modulo(10)) {
+            player.playWorldSound(location, Sound.AMBIENT_UNDERWATER_ENTER, 1.25f);
+            player.playWorldSound(location, Sound.AMBIENT_UNDERWATER_EXIT, 0.75f);
+            player.playWorldSound(location, Sound.ENTITY_COD_FLOP, 0.0f);
+        }
 
         // Fx
-        PlayerLib.playSound(location, Sound.AMBIENT_UNDERWATER_ENTER, 0.0f);
-        PlayerLib.playSound(location, Sound.AMBIENT_UNDERWATER_EXIT, 0.0f);
+        final double innerSpread = Math.PI * 2 / 4;
+
+        // Spawn 4 inner "vortex splashes"
+        for (int index = 1; index <= 4; index++) {
+            final double x = Math.sin(d + innerSpread * index) * 1.5;
+            final double y = Math.cos(d + innerSpread * index) * 1.5;
+            final double z = 0;
+
+            matrix.transformLocation(location, x, y, z, then -> {
+                player.spawnWorldParticle(
+                        then,
+                        Particle.DUST_COLOR_TRANSITION,
+                        2,
+                        0.05d,
+                        0.05d,
+                        0.05d,
+                        innerColor
+                );
+            });
+        }
+
+        final double outerSpread = Math.PI * 2 / 6;
+
+        // Spawn 6 outer "vortex splashes"
+        for (int index = 1; index <= 6; index++) {
+            final double y = Math.sin(d + outerSpread * index) * 3.0;
+            final double x = Math.cos(d + outerSpread * index) * 3.0;
+            final double z = d / 20;
+
+            final Vector vector = matrix.transform(x, y, z);
+            location.add(vector);
+
+            player.spawnWorldParticle(
+                    location,
+                    Particle.DUST_COLOR_TRANSITION,
+                    2,
+                    0.05d,
+                    0.05d,
+                    0.05d,
+                    outerColor
+            );
+
+            location.subtract(vector);
+        }
+
+        d += Math.PI / 12;
     }
 
-    private void createBlocks(Location location) {
-        final World world = location.getWorld();
-        final Vector pushVector = vector.clone().multiply(0.5d);
-
-        // Skip if not passable
-        if (!location.getBlock().getType().isAir()) {
-            return;
-        }
-
-        // Anchor location to the ground
-        while (true) {
-            final Block block = location.getBlock().getRelative(BlockFace.DOWN);
-
-            if (!block.getType().isAir() || world == null || location.getY() <= world.getMinHeight()) {
-                break;
-            }
-
-            location.subtract(0.0d, 1.0d, 0.0d);
-        }
-
-        // Create blocks
-        for (int i = 0; i < talent.height; i++) {
-            final Block block = location.getBlock().getRelative(BlockFace.UP, i);
-
-            if (!block.getType().isAir()) {
-                continue;
-            }
-
-            // Push enemies
-            Collect.nearbyEntities(location, 1.0d, entity -> entity.isValid(player))
-                    .forEach(entity -> {
-                        entity.setVelocity(pushVector);
-                        Heroes.HARBINGER.getHero(Harbinger.class).addRiptide(player, entity, talent.riptideDuration, false);
-                    });
-
-            affectedBlocks.add(block);
-
-            for (GamePlayer player : CF.getAlivePlayers()) {
-                final Location blockLocation = block.getLocation();
-                player.getPlayer().sendBlockChange(blockLocation, Material.WATER.createBlockData());
-
-                // Fx
-                final double offset = CFUtils.scaleParticleOffset(0.5d);
-                PlayerLib.spawnParticle(blockLocation, Particle.WATER_SPLASH, 1, offset, offset, offset, 0.15f);
-            }
-        }
+    @Nonnull
+    @Override
+    public Harbinger getHero() {
+        return Heroes.HARBINGER.getHero(Harbinger.class);
     }
-
 }

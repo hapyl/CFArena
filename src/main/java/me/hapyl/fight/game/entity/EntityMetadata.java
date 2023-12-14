@@ -1,15 +1,13 @@
 package me.hapyl.fight.game.entity;
 
+import me.hapyl.fight.game.Event;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
 
 public class EntityMetadata {
 
-    /**
-     * Whenever an entity can move.
-     */
-    public final Metadata<Boolean> canMove = new Metadata<>(true);
+    public final LivingGameEntity entity;
 
     /**
      * Whenever the entity can be controller by crowd abilities.
@@ -21,6 +19,15 @@ public class EntityMetadata {
             entity.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
         }
     };
+
+    /**
+     * Whenever an entity can move.
+     */
+    public final Metadata<Boolean> canMove = new Metadata<>(true);
+
+    public EntityMetadata(LivingGameEntity entity) {
+        this.entity = entity;
+    }
 
     public static class Metadata<T> {
 
@@ -37,7 +44,12 @@ public class EntityMetadata {
         }
 
         public void setValue(@Nonnull T value) {
+            if (this.value == value) {
+                return;
+            }
+
             this.value = value;
+            onSet(value);
         }
 
         public boolean isTrue() {
@@ -58,21 +70,25 @@ public class EntityMetadata {
         public void notify(@Nonnull GameEntity entity) {
         }
 
-        public boolean isFalseAndNotify(@Nonnull GameEntity entity) {
+        @Event
+        public void onSet(@Nonnull T value) {
+        }
+
+        public boolean isFalseAndNotify(@Nonnull GameEntity entityToNotify) {
             final boolean b = isFalse();
 
             if (b) {
-                notify(entity);
+                notify(entityToNotify);
             }
 
             return b;
         }
 
-        public boolean isTrueAndNotify(@Nonnull GameEntity entity) {
+        public boolean isTrueAndNotify(@Nonnull GameEntity entityToNotify) {
             final boolean b = isTrue();
 
             if (b) {
-                notify(entity);
+                notify(entityToNotify);
             }
 
             return b;

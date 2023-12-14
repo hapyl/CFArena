@@ -76,8 +76,15 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
 
         positiveEffects.add(new Effect("made you &lFASTER", PotionEffectType.SPEED, 30, 2))
                 .add(new Effect("gave you &lJUMP BOOST", PotionEffectType.JUMP, 30, 1))
-                .add(new Effect("made you &lSTRONGER", PotionEffectType.INCREASE_DAMAGE, 30, 3))
-                .add(new Effect("gave you &lRESISTANCE", null, 30, 1) {
+                .add(new Effect("made you &lSTRONGER", 30) {
+                    @Override
+                    public void affect(@Nonnull GamePlayer player, @Nonnull GamePlayer victim) {
+                        final EntityAttributes playerAttributes = player.getAttributes();
+
+                        playerAttributes.increaseTemporary(Temper.ALCHEMIST, AttributeType.ATTACK, 0.5d, duration);
+                    }
+                })
+                .add(new Effect("gave you &lRESISTANCE", 30) {
                     @Override
                     public void affect(@Nonnull GamePlayer player, @Nonnull GamePlayer victim) {
                         final EntityAttributes playerAttributes = player.getAttributes();

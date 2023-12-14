@@ -31,6 +31,14 @@ public final class ConcurrentTable<R, C, V> {
         return hashMap.get(Cell.of(row, column));
     }
 
+    public int size() {
+        return hashMap.size();
+    }
+
+    public boolean isEmpty() {
+        return hashMap.isEmpty();
+    }
+
     /**
      * Matches two keys using OR, where if either of the values or both
      * present contains a value, it will be added into a hash set.
@@ -62,6 +70,7 @@ public final class ConcurrentTable<R, C, V> {
         return set;
     }
 
+    @Nonnull
     public Set<Map.Entry<Cell<R, C>, V>> entrySet() {
         return hashMap.entrySet();
     }
@@ -139,6 +148,7 @@ public final class ConcurrentTable<R, C, V> {
             return Objects.hash(row, column);
         }
 
+        @Nonnull
         public static <R, C> Cell<R, C> of(R row, C column) {
             return new Cell<>(row, column);
         }

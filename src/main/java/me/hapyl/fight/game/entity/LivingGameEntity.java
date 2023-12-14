@@ -5,15 +5,17 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.PreprocessingMethod;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.GameDeathEvent;
+import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.EntityState;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.Attributes;
 import me.hapyl.fight.game.attribute.EntityAttributes;
+import me.hapyl.fight.game.dot.DamageOverTime;
+import me.hapyl.fight.game.dot.DotInstanceList;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
@@ -29,6 +31,8 @@ import me.hapyl.fight.game.ui.display.DebuffDisplay;
 import me.hapyl.fight.game.ui.display.StringDisplay;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.DirectionalMatrix;
+import me.hapyl.fight.util.Ticking;
 import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.ai.AI;
 import me.hapyl.spigotutils.module.ai.MobAI;
@@ -46,10 +50,7 @@ import net.minecraft.world.entity.EntityInsentient;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Creature;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -64,7 +65,7 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
-public class LivingGameEntity extends GameEntity {
+public class LivingGameEntity extends GameEntity implements Ticking {
 
     private static final Draw FEROCITY_PARTICLE_DATA = new FerocityFx();
     private static final int FEROCITY_HIT_CD = 9;
@@ -83,6 +84,7 @@ public class LivingGameEntity extends GameEntity {
     protected double health;
     @Nonnull protected EntityState state;
     private AI ai;
+    private int aliveTicks = 0;
 
     public LivingGameEntity(@Nonnull LivingEntity entity) {
         this(entity, new Attributes(entity));
@@ -95,7 +97,7 @@ public class LivingGameEntity extends GameEntity {
         this.wasHit = false;
         this.health = attributes.get(AttributeType.MAX_HEALTH);
         this.state = EntityState.ALIVE;
-        this.metadata = new EntityMetadata();
+        this.metadata = new EntityMetadata(this);
         this.cooldown = new EntityCooldown(this);
         this.packetFactory = new EntityPacketFactory(this);
         this.memory = new EntityMemory(this);
@@ -114,6 +116,24 @@ public class LivingGameEntity extends GameEntity {
         updateAttributes();
     }
 
+    /**
+     * Gets the total number of ticks this entity has been alive for.
+     * Other implementations of {@link LivingGameEntity} may modify how {@link #aliveTicks} are counted,
+     * and it may not resemble the actual number of ticks this entity exists.
+     *
+     * @return the number of ticks this entity has been alive for.
+     */
+    public int aliveTicks() {
+        return aliveTicks;
+    }
+
+    /**
+     * Gets the {@link AI} of this entity.
+     * The {@link AI} is a {@link me.hapyl.spigotutils.EternaAPI} module that allows to modify entity's AI easily.
+     *
+     * @return this entity's AI.
+     * @throws IllegalStateException if entity is a {@link Player} or not supported.
+     */
     @Nonnull
     public AI getMobAI() throws IllegalStateException {
         if (ai == null) {
@@ -276,6 +296,27 @@ public class LivingGameEntity extends GameEntity {
         return data != null ? data.getTimeLeft() : 0;
     }
 
+    private void setInternalNoDamageTicks(int ticks) {
+        cooldown.startCooldown(Cooldown.NO_DAMAGE, ticks * 50L);
+    }
+
+    @Nonnull
+    public DirectionalMatrix getLookAlongMatrix() {
+        return new DirectionalMatrix(this);
+    }
+
+    @Override
+    @OverridingMethodsMustInvokeSuper
+    public void tick() {
+        // Tick effects
+        entityData.getGameEffects().values().forEach(ActiveGameEffect::tick);
+
+        // Tick dots
+        entityData.getDotMap().values().forEach(DotInstanceList::tick);
+
+        aliveTicks++;
+    }
+
     public void clearTitle() {
         asPlayer(Player::resetTitle);
     }
@@ -295,8 +336,38 @@ public class LivingGameEntity extends GameEntity {
         CFUtils.lookAt(entity, location);
     }
 
-    private void setInternalNoDamageTicks(int ticks) {
-        cooldown.startCooldown(Cooldown.NO_DAMAGE, ticks * 50L);
+    public void asNonPlayer(@Nonnull Consumer<LivingGameEntity> consumer) {
+        if (entity instanceof Player) {
+            return;
+        }
+
+        consumer.accept(this);
+    }
+
+    /**
+     * Launches a projectile from the entity's eye position.
+     * <p>
+     * This method calls {@link me.hapyl.fight.event.custom.ProjectilePostLaunchEvent}.
+     *
+     * @param clazz    - Projectile class.
+     * @param consumer - Consumer.
+     * @return the launched projectile.
+     */
+    @Nonnull
+    public <T extends Projectile> T launchProjectile(@Nonnull Class<T> clazz, @Nullable Consumer<T> consumer) {
+        final T projectile = entity.launchProjectile(clazz);
+
+        if (consumer != null) {
+            consumer.accept(projectile);
+        }
+
+        new ProjectilePostLaunchEvent(this, projectile).call();
+        return projectile;
+    }
+
+    @Nonnull
+    public <T extends Projectile> T launchProjectile(@Nonnull Class<T> clazz) {
+        return launchProjectile(clazz, null);
     }
 
     @Nonnull
@@ -392,7 +463,6 @@ public class LivingGameEntity extends GameEntity {
 
         // GameDeathEvent here to not decrease health below lethal
         if (willDie && new GameDeathEvent(instance).callAndCheck()) {
-            Debug.info("calcelled");
             return;
         }
 
@@ -443,6 +513,10 @@ public class LivingGameEntity extends GameEntity {
 
     public void addPotionEffect(PotionEffectType type, int duration, int amplifier) {
         entity.addPotionEffect(new PotionEffect(type, duration, amplifier, false, false));
+    }
+
+    public void addDot(@Nonnull DamageOverTime dot, @Nonnull LivingGameEntity damager, int duration) {
+        entityData.addDot(dot, duration, damager);
     }
 
     public void dieBy(@Nonnull EnumDamageCause cause) {

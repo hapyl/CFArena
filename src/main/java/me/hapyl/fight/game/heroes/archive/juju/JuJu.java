@@ -38,6 +38,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
@@ -240,7 +241,10 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
         }
 
         // Remove all player-owned arrows
-        arrowType.keySet().removeIf(arrow -> arrow.getShooter() == player);
+        arrowType.keySet().removeIf(arrow -> {
+            final ProjectileSource shooter = arrow.getShooter();
+            return shooter instanceof Player shooterPlayer && player.is(shooterPlayer);
+        });
     }
 
     @Override

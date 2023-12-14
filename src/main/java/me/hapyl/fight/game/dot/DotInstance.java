@@ -8,18 +8,17 @@ import javax.annotation.Nullable;
 
 public class DotInstance implements Ticking {
 
-    private final Dots dots;
     private final LivingGameEntity entity;
     private final LivingGameEntity applier;
     private final long startedAt;
 
     private int tick;
 
-    public DotInstance(@Nonnull Dots dots, @Nonnull LivingGameEntity entity, @Nullable LivingGameEntity applier) {
-        this.dots = dots;
+    public DotInstance(@Nonnull LivingGameEntity entity, @Nullable LivingGameEntity applier, int tick) {
         this.entity = entity;
         this.applier = applier;
         this.startedAt = System.currentTimeMillis();
+        this.tick = tick;
     }
 
     @Nonnull
@@ -45,7 +44,12 @@ public class DotInstance implements Ticking {
         tick--;
     }
 
-    public boolean isDone() {
-        return tick <= 0;
+    public int getTicksLeft() {
+        return tick;
     }
+
+    public boolean isDone() {
+        return tick <= 0 || entity.isDead();
+    }
+
 }

@@ -72,7 +72,7 @@ import me.hapyl.fight.game.talents.archive.shadow_assassin.*;
 import me.hapyl.fight.game.talents.archive.shaman.ResonanceType;
 import me.hapyl.fight.game.talents.archive.shaman.Totem;
 import me.hapyl.fight.game.talents.archive.shaman.TotemTalent;
-import me.hapyl.fight.game.talents.archive.shark.Submerge;
+import me.hapyl.fight.game.talents.archive.shark.SubmergeTalent;
 import me.hapyl.fight.game.talents.archive.shark.Whirlpool;
 import me.hapyl.fight.game.talents.archive.spark.Molotov;
 import me.hapyl.fight.game.talents.archive.spark.SparkFlash;
@@ -326,8 +326,8 @@ public enum Talents {
     ICE_CAGE(new IceCageTalent()),
     ICE_BARRIER(new IceBarrier()),
     CHILL_AURA(new PassiveTalent("Chill Aura", """
-            You emmit a &bchill aura&7, that &bslows&7 enemies in small AoE.
-            """, Material.LIGHT_BLUE_DYE)),
+            You emmit a &bchill aura&7, that &bslows&7 and decreases enemies %s in small AoE.
+            """.formatted(AttributeType.ATTACK_SPEED), Material.LIGHT_BLUE_DYE)),
 
     /**
      * {@link me.hapyl.fight.game.heroes.archive.dark_mage.DarkMage}
@@ -401,10 +401,8 @@ public enum Talents {
             Material.STRING
     )),
 
-    /**
-     * {@link me.hapyl.fight.game.heroes.archive.shark.Shark}
-     */
-    SUBMERGE(new Submerge()),
+    // Shark
+    SUBMERGE(new SubmergeTalent()),
     WHIRLPOOL(new Whirlpool()),
     CLAW_CRITICAL(new PassiveTalent(
             "Oceanborn/Sturdy Claws",
@@ -418,13 +416,17 @@ public enum Talents {
     LIBRARIAN_SHIELD(new LibrarianShield()),
     WEAPON_DARKNESS(new WeaponDarkness()),
 
-    // Harbinger
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.harbinger.Harbinger}
+     */
     STANCE(new MeleeStance()),
     TIDAL_WAVE(new TidalWaveTalent()),
     RIPTIDE(new PassiveTalent(
-            "Riptide",
-            "Fully charged shots in &e&lRange Stance&7 applies &bRiptide &7effect to opponents.____Hitting opponents affected by &bRiptide&7 with &nfully charged shots&7 or in &e&lMelee &e&lStance &7executes &bRiptide Slash&7 that rapidly deals damage.____&bRiptide Slash&7 can be executed once every &b2.5s&7 per opponent.",
-            Material.HEART_OF_THE_SEA
+            "Riptide", """
+            &nFully&7 &ncharged&7 shots in %1$s or &bcritical&7 hits in %2$s apply the %3$s effect to enemies.
+                        
+            Hitting opponents affected by %3$s in the aforementioned ways will trigger &bRiptide Slash&7, which rapidly deals damage.
+            """.formatted(Named.STANCE_RANGE, Named.STANCE_MELEE, Named.RIPTIDE), Material.HEART_OF_THE_SEA
     )),
 
     // Techie

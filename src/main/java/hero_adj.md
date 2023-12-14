@@ -352,7 +352,6 @@ Frostbite
 
 * Throw a snowball in front of you.
     * Upon hitting an enemy, imprison them in ice.
-    * Click the ice to remove it.
 
 ### Chill Aura (Passive)
 
@@ -469,6 +468,14 @@ Juju
 
 ---
 
+Harbinger
+===
+
+### Riptide (Passive)
+* Increase damage 3 >> 5.
+
+---
+
 System Changes
 ===
 
@@ -485,3 +492,29 @@ System Changes
 ### Weapon Changes
 
 * Reload speed is now affected by Cooldown Modifier.
+
+---
+
+
+Uncategorized Changes
+===
+
+### Frostbite Balancing
+
+#### Chill Aura change:
+
+* Change to decrease Speed attribute instead of slowness effect.
+* Now decreases Attack Speed.
+
+#### Weapon changes:
+
+* Increase damage 3 >> 5.
+* Increase projectile speed 0.6 >> 0.7 blocks per second.
+* Reduce cooldown 1.25s >> 1s.
+* Reduce reload speed 5 >> 4.
+* Decrease max ammo 8 >> 4.
+
+#### Ultimate changes:
+
+* Reduce ultimate cost 80 >> 60.
+* Reduce duration 12s >> 10s.

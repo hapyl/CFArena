@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.dot;
 
+import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.util.Described;
 import me.hapyl.spigotutils.module.math.Numbers;
@@ -14,6 +15,7 @@ public abstract class Dot implements Described {
     private int period;
     private int maxStacks;
     private double damage;
+    @Nonnull private EnumDamageCause cause;
 
     public Dot(String name, String description) {
         this.name = name;
@@ -21,9 +23,19 @@ public abstract class Dot implements Described {
         this.period = 20;
         this.maxStacks = 3;
         this.damage = 0.0d;
+        this.cause = EnumDamageCause.ENTITY_ATTACK;
     }
 
     public abstract void affect(@Nonnull LivingGameEntity entity);
+
+    public void setCause(@Nonnull EnumDamageCause cause) {
+        this.cause = cause;
+    }
+
+    @Nonnull
+    public EnumDamageCause getCause() {
+        return cause;
+    }
 
     public double getDamage() {
         return damage;

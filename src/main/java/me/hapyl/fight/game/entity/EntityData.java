@@ -7,8 +7,9 @@ import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.dot.DotInstance;
 import me.hapyl.fight.game.dot.DotInstanceList;
-import me.hapyl.fight.game.dot.Dots;
+import me.hapyl.fight.game.dot.DamageOverTime;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -27,19 +28,16 @@ import java.util.Map;
 public final class EntityData {
 
     private final Map<GameEffectType, ActiveGameEffect> gameEffects;
-    private final Map<Dots, DotInstanceList> dotMap;
+    private final Map<DamageOverTime, DotInstanceList> dotMap;
     private final Map<Player, Double> damageTaken;
 
     private final LivingGameEntity entity;
-
-    @Nullable private GameEntity lastDamager;
-    @Nullable private EnumDamageCause lastDamageCause;
-
-    private double lastDamage;
-    private boolean isCrit;
-
     @Important(why = "Notifies the event that the damage is custom, not vanilla.")
     boolean wasHit;
+    @Nullable private GameEntity lastDamager;
+    @Nullable private EnumDamageCause lastDamageCause;
+    private double lastDamage;
+    private boolean isCrit;
 
     public EntityData(@Nonnull LivingGameEntity entity) {
         this.entity = entity;
@@ -49,7 +47,7 @@ public final class EntityData {
     }
 
     @Nonnull
-    public Map<Dots, DotInstanceList> getDotMap() {
+    public Map<DamageOverTime, DotInstanceList> getDotMap() {
         return dotMap;
     }
 
@@ -94,6 +92,7 @@ public final class EntityData {
      *
      * @return game effect map.
      */
+    @Nonnull
     public Map<GameEffectType, ActiveGameEffect> getGameEffects() {
         return gameEffects;
     }
@@ -175,6 +174,15 @@ public final class EntityData {
     }
 
     /**
+     * Sets the last damager.
+     *
+     * @param lastDamager - New last damager.
+     */
+    public void setLastDamager(@Nullable GameEntity lastDamager) {
+        this.lastDamager = lastDamager;
+    }
+
+    /**
      * Gets the last damage as living damager if it's not null and is a living game entity.
      *
      * @return last damager or null.
@@ -186,15 +194,6 @@ public final class EntityData {
         }
 
         return null;
-    }
-
-    /**
-     * Sets the last damager.
-     *
-     * @param lastDamager - New last damager.
-     */
-    public void setLastDamager(@Nullable GameEntity lastDamager) {
-        this.lastDamager = lastDamager;
     }
 
     /**
@@ -304,6 +303,14 @@ public final class EntityData {
         if (gameEffect != null) {
             gameEffect.forceStop();
         }
+    }
+
+    public void addDot(DamageOverTime dot, int ticks, LivingGameEntity damager) {
+        dotMap.compute(dot, (d, list) -> {
+            (list = list != null ? list : new DotInstanceList(dot, this.entity)).add(new DotInstance(entity, damager, ticks));
+
+            return list;
+        });
     }
 
     /**

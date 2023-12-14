@@ -4,6 +4,7 @@ import me.hapyl.fight.annotate.Trigger;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.attribute.temper.AttributeTemperTable;
 import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.attribute.temper.TemperData;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.ui.display.AttributeDisplay;
@@ -15,6 +16,7 @@ import me.hapyl.spigotutils.module.math.Numbers;
 
 import javax.annotation.Nonnull;
 import java.util.Random;
+import java.util.function.Consumer;
 
 /**
  * This class stores player attributes that are changeable
@@ -227,6 +229,14 @@ public class EntityAttributes extends Attributes implements PlayerElement {
     @Deprecated
     public double getRaw(AttributeType attributeType) {
         return super.get(attributeType);
+    }
+
+    public void forEachTempers(@Nonnull Consumer<TemperData> consumer) {
+        tempers.forEach(consumer);
+    }
+
+    public boolean hasTempers() {
+        return !tempers.isEmpty();
     }
 
     private void display(AttributeType type, boolean isBuff) {

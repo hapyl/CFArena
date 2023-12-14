@@ -179,6 +179,7 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
         registerRelic(103, new Relic(Type.AMETHYST, 11, 67, -27));
         registerRelic(104, new Relic(Type.AMETHYST, 7, 66, 23));
         registerRelic(105, new Relic(Type.ROSE_QUARTZ, 0, 59, 39).setBlockFace(BlockFace.WEST_NORTH_WEST));
+        registerRelic(106, new Relic(Type.SAPPHIRE, -9, 61, 6));
 
         // Arena
         registerRelic(200, new Relic(Type.SAPPHIRE, 70, 70, 18).setZone(GameMaps.ARENA));

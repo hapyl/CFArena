@@ -20,6 +20,7 @@ import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -144,6 +145,23 @@ public class GamePlayerUI extends TickingGameTask {
         final PlayerInventory inventory = player.getInventory();
 
         inventory.setItem(22, hero.getUltimate().getItem());
+
+        // Set temper items
+        final ItemBuilder temperBuilder = new ItemBuilder(Material.COMPARATOR).setName("Temper Data").addLore("&8Debug").addLore();
+        if (!attributes.hasTempers()) {
+            temperBuilder.addLore("&8Empty!");
+        }
+        else {
+            attributes.forEachTempers(data -> {
+                temperBuilder.addLore("&a&l" + data.temper.name());
+                data.values.forEach((type, temper) -> {
+                    temperBuilder.addLore(" " + type.toString());
+                    temperBuilder.addLore(" %s for %s", temper.value, CFUtils.decimalFormatTick(temper.duration));
+                });
+            });
+        }
+
+        inventory.setItem(25, temperBuilder.asIcon());
     }
 
     public void sendInGameUI(@Nonnull ChatColor ultimateColor) {

@@ -1,8 +1,6 @@
 package me.hapyl.fight.game.effect.archive;
 
 import me.hapyl.fight.event.custom.GameDamageEvent;
-import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.effect.EffectParticle;
 import me.hapyl.fight.game.effect.GameEffect;
 import me.hapyl.fight.game.effect.GameEffectType;
@@ -46,9 +44,6 @@ public class Stun extends GameEffect implements Listener {
 
     @Override
     public void onStart(@Nonnull LivingGameEntity entity) {
-        final EntityAttributes attributes = entity.getAttributes();
-
-        attributes.subtractSilent(AttributeType.SPEED, AttributeType.SPEED.maxValue());
         entity.getMetadata().canMove.setValue(false);
 
         // Fx
@@ -58,11 +53,7 @@ public class Stun extends GameEffect implements Listener {
 
     @Override
     public void onStop(@Nonnull LivingGameEntity entity) {
-        final EntityAttributes attributes = entity.getAttributes();
-
-        attributes.addSilent(AttributeType.SPEED, AttributeType.SPEED.maxValue());
         entity.getMetadata().canMove.setValue(true);
-
         entity.clearTitle();
     }
 }

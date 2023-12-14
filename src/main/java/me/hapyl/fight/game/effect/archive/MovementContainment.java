@@ -6,30 +6,32 @@ import me.hapyl.fight.game.effect.GameEffect;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.util.Vectors;
-import me.hapyl.spigotutils.module.player.EffectType;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 
 public class MovementContainment extends GameEffect {
+    private final double speedConstant = 100;
 
     public MovementContainment() {
-        super("Containment");
-        setDescription("""
-                Prevents players from moving and jumping.
-                """);
-
-        setPositive(false);
+        super("Movement Containment");
     }
 
     @Override
     public void onStart(@Nonnull LivingGameEntity entity) {
         final EntityAttributes attributes = entity.getAttributes();
 
-        attributes.subtractSilent(AttributeType.SPEED, 100);
+        attributes.subtractSilent(AttributeType.SPEED, speedConstant);
+
+        // Maybe one day mojang will fix this stupid bug from TWENTY FUCKING THIRTEEN
+        // with high levels of enchants/levels, but for now, if someone who is very smart,
+        // like DiDenPro, reading this, I'll leave Jeb's comment on this bug:
+
+        // Jeb added a comment - 04/Mar/13 11:22 AM
+        // `I dunno why Dinnerbone removed the limit to the effect command I don't want to chase "bugs" like these..`
 
         if (entity instanceof GamePlayer) {
-            entity.addPotionEffect(EffectType.JUMP_BOOST, 10000, 128);
+            entity.addPotionEffect(PotionEffectType.JUMP, 100000, 128);
         }
     }
 
@@ -37,7 +39,8 @@ public class MovementContainment extends GameEffect {
     public void onStop(@Nonnull LivingGameEntity entity) {
         final EntityAttributes attributes = entity.getAttributes();
 
-        attributes.addSilent(AttributeType.SPEED, 100);
+        attributes.addSilent(AttributeType.SPEED, speedConstant);
+
         if (entity instanceof GamePlayer) {
             entity.removePotionEffect(PotionEffectType.JUMP);
         }
@@ -45,10 +48,6 @@ public class MovementContainment extends GameEffect {
 
     @Override
     public void onTick(@Nonnull LivingGameEntity entity, int tick) {
-        if (entity instanceof GamePlayer) {
-            return;
-        }
-
         entity.setVelocity(Vectors.DOWN);
     }
 }

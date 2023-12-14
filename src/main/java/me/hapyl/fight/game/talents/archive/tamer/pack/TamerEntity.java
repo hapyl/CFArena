@@ -70,7 +70,7 @@ public class TamerEntity<T extends LivingEntity> extends LivingGenericGameEntity
         if ((target == null || team.isTeammates(Entry.of(this), Entry.of(target)))) {
             final LivingGameEntity nearestTarget = findNearestTarget();
 
-            if (nearestTarget == null || nearestTarget == target) {
+            if (nearestTarget == null || nearestTarget.is(target)) {
                 return; // Don't care
             }
 

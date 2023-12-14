@@ -7,6 +7,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.scoreboard.Scoreboarder;
 import org.bukkit.Bukkit;
@@ -77,13 +78,15 @@ public abstract class CFGameMode {
         return playerRequirements;
     }
 
-    // FIXME: 024, Feb 24, 2023 -> Might need to check for teams, not players
     public boolean isPlayerRequirementsMet() {
-        return Bukkit.getOnlinePlayers()
+        final int readyPlayers = Bukkit.getOnlinePlayers()
                 .stream()
                 .filter(player -> !Settings.SPECTATE.isEnabled(player))
-                .collect(Collectors.toSet())
-                .size() >= getPlayerRequirements();
+                .collect(Collectors.toSet()).size();
+
+        final int populatedTeams = GameTeam.getPopulatedTeams().size();
+
+        return readyPlayers >= getPlayerRequirements() && populatedTeams >= 2;
     }
 
     public int getTimeLimit() {

@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.archive.archer;
 
 import com.google.common.collect.Sets;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -9,7 +10,6 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.math.Geometry;
-import me.hapyl.spigotutils.module.math.geometry.Draw;
 import me.hapyl.spigotutils.module.particle.ParticleBuilder;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
@@ -65,43 +65,39 @@ public class ShockDark extends Talent implements Listener {
             return;
         }
 
+        final GamePlayer gamePlayer = CF.getPlayer(shooter);
+
+        if (gamePlayer == null) {
+            return;
+        }
+
         if (shockArrows.contains(arrow)) {
-            executeShockExplosion(shooter, arrow.getLocation());
+            executeShockExplosion(gamePlayer, arrow.getLocation());
             shockArrows.remove(arrow);
         }
     }
 
     @Override
     public Response execute(@Nonnull GamePlayer player) {
-        final Arrow arrow = player.launchProjectile(Arrow.class);
-        arrow.setColor(arrowColor);
+        final Arrow arrow = player.launchProjectile(Arrow.class, self -> {
+            self.setColor(arrowColor);
+        });
 
         shockArrows.add(arrow);
 
         // Fx
-        PlayerLib.playSound(player.getLocation(), Sound.ENTITY_ARROW_SHOOT, 1.0f);
+        player.playWorldSound(Sound.ENTITY_ARROW_SHOOT, 1.0f);
         return Response.OK;
     }
 
-    private void executeShockExplosion(Player player, Location location) {
-        Geometry.drawSphere(location, sphereRings, explosionRadius, new Draw(Particle.VILLAGER_HAPPY) {
-            @Override
-            public void draw(Location location) {
-                blueColor.display(location);
-            }
-        });
-
+    private void executeShockExplosion(GamePlayer player, Location location) {
+        Geometry.drawSphere(location, sphereRings, explosionRadius, blueColor::display);
         playAndCut(location, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 2f, explosionWindup);
 
         new GameTask() {
             @Override
             public void run() {
-                Geometry.drawSphere(location, sphereRings, explosionRadius, new Draw(Particle.VILLAGER_HAPPY) {
-                    @Override
-                    public void draw(Location location) {
-                        redColor.display(location);
-                    }
-                });
+                Geometry.drawSphere(location, sphereRings, explosionRadius, redColor::display);
 
                 Collect.nearbyEntities(location, explosionRadius).forEach(target -> {
                     final double distance = target.getLocation().distance(location);
@@ -111,7 +107,7 @@ public class ShockDark extends Talent implements Listener {
                 });
 
                 // Fx
-                PlayerLib.playSound(location, Sound.ENCHANT_THORNS_HIT, 1.2f);
+                player.playWorldSound(location, Sound.ENCHANT_THORNS_HIT, 1.2f);
             }
         }.runTaskLater(explosionWindup);
 

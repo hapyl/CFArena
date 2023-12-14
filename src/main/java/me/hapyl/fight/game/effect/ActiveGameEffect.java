@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.effect;
 
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.display.StringDisplay;
+import me.hapyl.fight.util.Ticking;
 
-public class ActiveGameEffect extends GameTask {
+public class ActiveGameEffect implements Ticking {
 
     private final LivingGameEntity entity;
     private final GameEffectType type;
@@ -19,7 +19,7 @@ public class ActiveGameEffect extends GameTask {
         this.remainingTicks = initTicks;
         this.level = 0;
 
-        startTicking();
+        start();
     }
 
     public LivingGameEntity getEntity() {
@@ -69,11 +69,10 @@ public class ActiveGameEffect extends GameTask {
     }
 
     @Override
-    public void run() {
+    public void tick() {
         // Stop ticking
         if (remainingTicks <= 0 || entity.isDead()) {
             forceStop();
-            cancel();
             return;
         }
 
@@ -83,7 +82,7 @@ public class ActiveGameEffect extends GameTask {
         --remainingTicks;
     }
 
-    private void startTicking() {
+    private void start() {
         final StringDisplay display = effect.getDisplay();
 
         effect.onStart(entity);
@@ -91,8 +90,6 @@ public class ActiveGameEffect extends GameTask {
         if (display != null) {
             display.display(entity.getEyeLocation());
         }
-
-        runTaskTimer(0, 1);
     }
 
 }

@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.TimedGameTask;
@@ -30,6 +31,7 @@ public class EternalFreeze extends TimedGameTask {
             new ItemStack(Material.BLUE_ICE)
     };
 
+
     private final GamePlayer player;
     private final Location location;
     private final FrostbiteUltimate ultimate;
@@ -37,7 +39,7 @@ public class EternalFreeze extends TimedGameTask {
     private final List<ArmorStand> blocks;
     private final double quality = Math.PI / 16;
     private final int speed = 2;
-
+    private final TemperInstance temper;
     private double distance = 1.0d;
     private double theta = 0.0d;
 
@@ -48,13 +50,25 @@ public class EternalFreeze extends TimedGameTask {
         this.location = player.getLocation();
         this.ultimate = ultimate;
         this.blocks = Lists.newArrayList();
+        this.temper = Temper.ETERNAL_FREEZE
+                .newInstance()
+                .decrease(
+                        AttributeType.CRIT_CHANCE,
+                        ultimate.critChanceReduction
+                ).decrease(
+                        AttributeType.CRIT_DAMAGE,
+                        ultimate.critDamageReduction
+                ).increase(
+                        AttributeType.COOLDOWN_MODIFIER,
+                        ultimate.cooldownIncrease
+                );
 
         prepare();
         setIncrement(speed);
         runTaskTimer(0, speed);
 
         // Fx
-        PlayerLib.playSound(location, Sound.ITEM_ELYTRA_FLYING, 0.0f);
+        player.playWorldSound(location, Sound.ITEM_ELYTRA_FLYING, 0.0f);
     }
 
     public void onTick(@Nonnull ArmorStand block, @Nonnull Location location) {
@@ -63,9 +77,9 @@ public class EternalFreeze extends TimedGameTask {
 
         // For particles, we have to add a little Y offset because of armor stands
         location.add(0.0d, 1.975, 0.0d);
-        PlayerLib.spawnParticle(location, Particle.SNOWFLAKE, 3, 0.5d, 0.5d, 0.5d, 0.25f);
-        PlayerLib.spawnParticle(location, Particle.SNOWBALL, 3, 0.5d, 0.5d, 0.5d, 0.25f);
-        PlayerLib.spawnParticle(location, Particle.SPIT, 1, 0.2d, 0.2d, 0.2d, 0.25f);
+        player.spawnWorldParticle(location, Particle.SNOWFLAKE, 3, 0.5d, 0.5d, 0.5d, 0.25f);
+        player.spawnWorldParticle(location, Particle.SNOWBALL, 3, 0.5d, 0.5d, 0.5d, 0.25f);
+        player.spawnWorldParticle(location, Particle.SPIT, 1, 0.2d, 0.2d, 0.2d, 0.25f);
         location.subtract(0.0d, 1.975, 0.0d);
 
         // Sound FX
@@ -76,34 +90,11 @@ public class EternalFreeze extends TimedGameTask {
 
     public void onTickEntity(@Nonnull LivingGameEntity entity) {
         final EntityAttributes attributes = entity.getAttributes();
-        final boolean newTemper = !attributes.hasTemper(Temper.ETERNAL_FREEZE);
 
-        attributes.decreaseTemporary(
-                Temper.ETERNAL_FREEZE,
-                AttributeType.CRIT_CHANCE,
-                ultimate.critChanceReduction,
-                ultimate.debuffDuration
-        );
-        attributes.decreaseTemporary(
-                Temper.ETERNAL_FREEZE,
-                AttributeType.CRIT_DAMAGE,
-                ultimate.critDamageReduction,
-                ultimate.debuffDuration
-        );
-
-        attributes.increaseTemporary(
-                Temper.ETERNAL_FREEZE,
-                AttributeType.COOLDOWN_MODIFIER,
-                ultimate.cooldownIncrease,
-                ultimate.debuffDuration
-        );
+        temper.temper(entity, ultimate.debuffDuration);
 
         // Fx
         entity.setFreezeTicks(100);
-
-        if (newTemper) {
-            entity.spawnDebuffDisplay("&b&lᴇᴛᴇʀɴᴀʟ ғʀᴇᴇᴢᴇ", 20);
-        }
     }
 
     @Override

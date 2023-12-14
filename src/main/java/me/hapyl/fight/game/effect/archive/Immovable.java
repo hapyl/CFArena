@@ -8,7 +8,6 @@ import org.bukkit.attribute.Attribute;
 
 import javax.annotation.Nonnull;
 
-// FIXME -> Replace with attribute
 public class Immovable extends GameEffect {
 
     private final MemoryKey key = new MemoryKey("immovable_kb");

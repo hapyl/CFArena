@@ -44,7 +44,7 @@ public class Blink extends ChargedTalent {
         final Location start = player.getEyeLocation();
         final Vector direction = start.getDirection().normalize();
         final List<Block> blocks = new ArrayList<>();
-        final BlockIterator iterator = new BlockIterator(player.getWorld(), start.toVector(), direction, 0, (int) Math.ceil(maxDistance));
+        final BlockIterator iterator = new BlockIterator(player.getWorld(), start.toVector(), direction, 0, (int) (double) maxDistance);
 
         double maxDistance = this.maxDistance;
 

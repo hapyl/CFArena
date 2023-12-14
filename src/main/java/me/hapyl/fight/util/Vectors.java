@@ -5,6 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import java.util.Random;
 
 public interface Vectors {
 
@@ -41,6 +42,65 @@ public interface Vectors {
             { 1.0d, -1.0d }, // +x, -z
             { -1.0d, -1.0d } // -x, -z
     };
+
+    @Nonnull
+    static Vector rotateX(@Nonnull Vector vector, double cos, double sin) {
+        double y = vector.getY() * cos - vector.getZ() * sin;
+        double z = vector.getY() * sin + vector.getZ() * cos;
+        return vector.setY(y).setZ(z);
+    }
+
+    @Nonnull
+    static Vector rotateY(@Nonnull Vector vector, double cos, double sin) {
+        double x = vector.getX() * cos + vector.getZ() * sin;
+        double z = vector.getX() * -sin + vector.getZ() * cos;
+        return vector.setX(x).setZ(z);
+    }
+
+    @Nonnull
+    static Vector rotateZ(@Nonnull Vector vector, double cos, double sin) {
+        double x = vector.getX() * cos - vector.getY() * sin;
+        double y = vector.getX() * sin + vector.getY() * cos;
+        return vector.setX(x).setY(y);
+    }
+
+    /**
+     * Gets a random {@link Vector} between <code>0.0-1.0</code>.
+     *
+     * @return a random vector.
+     */
+    @Nonnull
+    static Vector random() {
+        return random(1, 1);
+    }
+
+    /**
+     * Gets a random {@link Vector} between <code>0.0-1.0</code>.
+     *
+     * @param xz - X and Z factor.
+     * @param y  - Y factor.
+     * @return a random vector.
+     */
+    @Nonnull
+    static Vector random(double xz, double y) {
+        return random(xz, y, xz);
+    }
+
+    /**
+     * Gets a random {@link Vector} between <code>0.0-1.0</code>.
+     *
+     * @param x - X factor.
+     * @param y - Y factor.
+     * @param z - Z factor.
+     * @return a random vector.
+     */
+    @Nonnull
+    static Vector random(double x, double y, double z) {
+        final Random random = new Random();
+
+
+        return new Vector(random.nextDouble() * x, random.nextDouble() * y, random.nextDouble() * z);
+    }
 
     /**
      * Gets a vector towards the left of the origin.

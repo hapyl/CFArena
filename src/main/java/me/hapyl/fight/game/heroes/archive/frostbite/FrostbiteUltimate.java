@@ -30,6 +30,6 @@ public class FrostbiteUltimate extends UltimateTalent {
 
         setType(Type.IMPAIR);
         setItem(Material.HEART_OF_THE_SEA);
-        setDurationSec(12);
+        setDurationSec(10);
     }
 }

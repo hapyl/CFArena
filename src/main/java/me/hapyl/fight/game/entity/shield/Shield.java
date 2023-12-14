@@ -6,18 +6,19 @@ import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.spigotutils.module.math.Numbers;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 
 public class Shield {
 
-    private final GamePlayer gamePlayer;
+    private final GamePlayer player;
     private final double maxCapacity;
 
     protected double capacity;
 
     public Shield(@Nonnull GamePlayer player, double maxCapacity) {
-        this.gamePlayer = player;
+        this.player = player;
         this.maxCapacity = maxCapacity;
         this.capacity = maxCapacity;
     }
@@ -43,8 +44,8 @@ public class Shield {
     }
 
     @Nonnull
-    public GamePlayer getGamePlayer() {
-        return gamePlayer;
+    public GamePlayer getPlayer() {
+        return player;
     }
 
     public double getMaxCapacity() {
@@ -72,7 +73,9 @@ public class Shield {
     @Event
     public void onHit(double amount) {
         // Update UI indicator
-        gamePlayer.getPlayer().setAbsorptionAmount(Numbers.clamp(20 / maxCapacity * capacity, 0, 20));
+        final double absorptionAmount = Numbers.clamp(20 / maxCapacity * capacity, 0, 20);
+
+        player.getPlayer().setAbsorptionAmount(absorptionAmount);
     }
 
     /**
@@ -110,4 +113,15 @@ public class Shield {
         setShield(gamePlayer);
     }
 
+    public final void onCreate0() {
+        // No idea why it suddenly doesn't work, the only thing I changed was the version
+        player.addPotionEffect(PotionEffectType.ABSORPTION, 10000, 4);
+
+        onCreate();
+    }
+
+    public final void onBreak0() {
+        player.removePotionEffect(PotionEffectType.ABSORPTION);
+        onBreak();
+    }
 }

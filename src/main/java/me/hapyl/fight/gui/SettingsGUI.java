@@ -21,7 +21,6 @@ import org.bukkit.entity.Player;
 import javax.annotation.Nullable;
 import java.util.List;
 
-// FIXME (hapyl): 028, Sep 28: rewrite this you know how
 public class SettingsGUI extends StyledGUI {
 
     private final int[] settingsSlots = {

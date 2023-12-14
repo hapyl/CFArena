@@ -9,8 +9,6 @@ import me.hapyl.fight.Main;
 import me.hapyl.fight.database.Award;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -59,7 +57,6 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -132,12 +129,8 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
             return;
         }
 
+        super.tick();
         talentLock.tick();
-    }
-
-    @Override
-    public void setState(@Nonnull EntityState state) {
-        super.setState(state);
     }
 
     public void resetPlayer(Ignore... ignores) {
@@ -149,6 +142,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
         // Actually stop the effects before applying the data
         entityData.getGameEffects().values().forEach(ActiveGameEffect::forceStop);
+        entityData.getDotMap().clear(); // if not needed, don't touch, else implement custom hash map
 
         // Reset attributes
         attributes.reset();
@@ -204,9 +198,22 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         }
     }
 
+    /**
+     * @deprecated {@link #die}
+     */
     @Override
+    @Deprecated
     public void kill() {
-        // don't remove player
+        // don't kill players
+    }
+
+    /**
+     * @deprecated {@link #die}
+     */
+    @Override
+    @Deprecated
+    public void remove() {
+        // don't remove players
     }
 
     @Override
@@ -271,29 +278,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         lastPlayerDamager.heal(getMaxHealth() * 0.3d);
     }
 
-    @Nullable
-    @Override
-    public DamageOutput onDamageTaken(@Nonnull DamageInput input) {
-        final GameTeam team = getTeam();
-        final DamageOutput output = new DamageOutput(0.0d);
-
-        team.getPlayers().forEach(player -> {
-            if (player.equals(this)) {
-                return;
-            }
-
-            player.onDamageTakenByTeammate(player, input);
-        });
-
-        // TODO (hapyl): 004, Aug 4:
-        return null;
-    }
-
-    @Nullable
-    public DamageOutput onDamageTakenByTeammate(@Nonnull GamePlayer teammate, @Nonnull DamageInput input) {
-        return null;
-    }
-
     @Override
     public void die(boolean force) {
         super.die(force);
@@ -308,34 +292,39 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
         // Award killer coins for kill
         final GameEntity lastDamager = entityData.getLastDamager();
-        if (lastDamager instanceof GamePlayer gameKiller) {
-            final Player killer = gameKiller.getPlayer();
 
-            if (entity != killer) {
-                // Don't add stats for teammates either, BUT display the kill cosmetic
-                if (!isTeammate(gameKiller)) {
-                    final IGameInstance gameInstance = Manager.current().getCurrentGame();
-                    final StatContainer killerStats = gameKiller.getStats();
+        if (lastDamager instanceof LivingGameEntity gameKiller && !equals(gameKiller)) {
+            // Don't add stats for teammates either, BUT display the kill cosmetic
+            if (!isTeammate(gameKiller)) {
+                final IGameInstance gameInstance = Manager.current().getCurrentGame();
+                final GameTeam team = gameKiller.getTeam();
+
+                if (gameKiller instanceof GamePlayer gamePlayerKiller) {
+                    final StatContainer killerStats = gamePlayerKiller.getStats();
 
                     killerStats.addValue(StatType.KILLS, 1);
-                    gameKiller.getTeam().data.kills++;
-
-                    // Check for first blood
-                    if (gameInstance.getTotalKills() == 1) {
-                        Achievements.FIRST_BLOOD.complete(gameKiller.getTeam());
-                    }
-
-                    // Add kill streak for killer
-                    gameKiller.killStreak++;
-
-                    // Award elimination to killer
-                    Award.PLAYER_ELIMINATION.award(gameKiller);
+                    gamePlayerKiller.killStreak++;
+                    Award.PLAYER_ELIMINATION.award(gamePlayerKiller);
                 }
 
-                // Display cosmetics
-                final Cosmetics killCosmetic = Cosmetics.getSelected(killer, Type.KILL);
+                // Add team kills
+                if (team != null) {
+                    team.data.kills++;
+                }
+
+                // Check for first blood
+                if (gameInstance.getTotalKills() == 1) {
+                    Achievements.FIRST_BLOOD.complete(team);
+                }
+            }
+
+            // Display cosmetics
+            if (lastDamager instanceof GamePlayer gamePlayerDamager) {
+                final Player damagerPlayer = gamePlayerDamager.getPlayer();
+                final Cosmetics killCosmetic = Cosmetics.getSelected(damagerPlayer, Type.KILL);
+
                 if (killCosmetic != null) {
-                    killCosmetic.getCosmetic().onDisplay0(new Display(killer, entity.getLocation()));
+                    killCosmetic.getCosmetic().onDisplay0(new Display(damagerPlayer, entity.getLocation()));
                 }
             }
         }
@@ -531,9 +520,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
             // Shield broke
             if (capacityAfterHit <= 0.0d) {
-                player.setAbsorptionAmount(0.0d);
-
-                shield.onBreak();
+                shield.onBreak0();
                 shield = null;
             }
             // Display absorbed damage
@@ -595,7 +582,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     }
 
     public DeathMessage getRandomDeathMessage() {
-        return getLastDamageCause().getRandomIfMultiple();
+        return getLastDamageCause().getDeathMessage();
     }
 
     public boolean isRespawning() {
@@ -892,8 +879,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         this.shield = shield;
 
         if (shield != null) {
-            getPlayer().setAbsorptionAmount(20.0d);
-            shield.onCreate();
+            shield.onCreate0();
         }
     }
 
@@ -1041,22 +1027,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     @Nonnull
     public List<Block> getLastTwoTargetBlocks(int maxDistance) {
         return getPlayer().getLastTwoTargetBlocks(null, maxDistance);
-    }
-
-    @Nonnull
-    public <T extends Projectile> T launchProjectile(@Nonnull Class<T> clazz, @Nullable Consumer<T> consumer) {
-        final T projectile = getPlayer().launchProjectile(clazz);
-
-        if (consumer != null) {
-            consumer.accept(projectile);
-        }
-
-        return projectile;
-    }
-
-    @Nonnull
-    public <T extends Projectile> T launchProjectile(@Nonnull Class<T> clazz) {
-        return launchProjectile(clazz, null);
     }
 
     public void setGlowing(boolean b) {
@@ -1219,18 +1189,24 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
      *
      * @param consumer - Consumer.
      * @param delay    - Delay in ticks.
+     * @return the scheduled task.
      */
-    public void schedule(@Nonnull Consumer<GamePlayer> consumer, int delay) {
-        schedule(() -> consumer.accept(GamePlayer.this), delay);
+    @Nonnull
+    public PlayerGameTask schedule(@Nonnull Consumer<GamePlayer> consumer, int delay) {
+        return schedule(() -> consumer.accept(GamePlayer.this), delay);
     }
 
-    public void schedule(@Nonnull Runnable runnable, int delay) {
-        new PlayerGameTask(this) {
+    @Nonnull
+    public PlayerGameTask schedule(@Nonnull Runnable runnable, int delay) {
+        final PlayerGameTask task = new PlayerGameTask(this) {
             @Override
             public void run() {
                 runnable.run();
             }
-        }.runTaskLater(delay);
+        };
+
+        task.runTaskLater(delay);
+        return task;
     }
 
     @Nonnull

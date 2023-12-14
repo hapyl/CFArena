@@ -1,11 +1,14 @@
 package me.hapyl.fight.game.attribute.temper;
 
+import com.google.common.collect.Maps;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.util.collection.ConcurrentTable;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * A map (a table, rather) of tempers and their values.
@@ -28,7 +31,7 @@ import javax.annotation.Nullable;
  * <p>
  * Temper <code>A</code> can modify as many types as there are, but will override the existing type.
  */
-public final class AttributeTemperTable {
+public final class AttributeTemperTable implements Iterable<TemperData> {
 
     private final ConcurrentTable<Temper, AttributeType, AttributeTemper> tempers;
     private final EntityAttributes attributes;
@@ -64,7 +67,6 @@ public final class AttributeTemperTable {
      * Gets the temper values for the gives temper and/or type.
      * This method accepts either both values, one or none. Though if
      * none are provided, the return value is always 0.0d.
-     * <p>
      * <ul>
      *     <li>
      *         Providing <b>only the temper</b> will look for all the values done by that temper.
@@ -106,6 +108,31 @@ public final class AttributeTemperTable {
     public void cancelAll() {
         tempers.forEach(AttributeTemper::cancel);
         tempers.clear();
+    }
+
+    @Nonnull
+    @Override
+    public Iterator<TemperData> iterator() {
+        final Map<Temper, TemperData> map = Maps.newHashMap();
+
+        tempers.entrySet().forEach(entry -> {
+            final ConcurrentTable.Cell<Temper, AttributeType> cell = entry.getKey();
+            final Temper temper = cell.row();
+            final AttributeTemper attributeTemper = entry.getValue();
+
+            map.compute(temper, (t, d) -> {
+                (d = d != null ? d : new TemperData(temper)).values.put(cell.column(), attributeTemper);
+
+                return d;
+            });
+
+        });
+
+        return map.values().iterator();
+    }
+
+    public boolean isEmpty() {
+        return tempers.isEmpty();
     }
 
     private void remove(@Nonnull Temper temper, @Nonnull AttributeType type) {

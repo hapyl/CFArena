@@ -29,7 +29,7 @@ public class CoutureCosmetic extends Cosmetic {
 
             @Override
             public void run() {
-                pitch += Math.min(0.015, 2.0f);
+                pitch += Math.min(0.015f, 2.0f);
                 t += Math.PI / 16;
 
                 PlayerLib.playSound(location, Sound.ENTITY_CHICKEN_EGG, pitch);

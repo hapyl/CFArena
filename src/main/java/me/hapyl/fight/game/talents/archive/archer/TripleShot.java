@@ -4,7 +4,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.*;
 import org.bukkit.entity.Arrow;
 
@@ -13,6 +13,8 @@ import javax.annotation.Nonnull;
 public class TripleShot extends Talent {
 
     private final Color arrowColor = Color.fromRGB(186, 177, 153);
+
+    @DisplayField(suffix = "°") private final double spread = 5;
 
     public TripleShot() {
         super(
@@ -34,16 +36,14 @@ public class TripleShot extends Talent {
             return Response.error("world is null?");
         }
 
-        final Location offsetLocation = player.getLocation().add(0, 1.5, 0);
+        final Arrow arrowMiddle = spawnArrow(player);
+        final Arrow arrowLeft = spawnArrow(player);
+        final Arrow arrowRight = spawnArrow(player);
 
-        final Arrow arrowMiddle = player.launchProjectile(Arrow.class);
-        arrowMiddle.setColor(arrowColor);
+        final double piSpread = Math.PI * Math.toRadians(spread);
 
-        final Arrow arrowLeft = spawnArrow(player, offsetLocation);
-        final Arrow arrowRight = spawnArrow(player, offsetLocation);
-
-        arrowLeft.setVelocity(arrowMiddle.getVelocity().add(player.getVectorOffsetLeft(0.3d)));
-        arrowRight.setVelocity(arrowMiddle.getVelocity().add(player.getVectorOffsetRight(0.3d)));
+        arrowLeft.setVelocity(arrowMiddle.getVelocity().add(player.getVectorOffsetLeft(piSpread)));
+        arrowRight.setVelocity(arrowMiddle.getVelocity().add(player.getVectorOffsetRight(piSpread)));
 
         final double damage = Heroes.ARCHER.getHero().getWeapon().getDamage();
         arrowMiddle.setDamage(damage);
@@ -51,20 +51,14 @@ public class TripleShot extends Talent {
         arrowRight.setDamage(damage / 2);
 
         // Fx
-        PlayerLib.playSound(player.getLocation(), Sound.ENTITY_ARROW_SHOOT, 1.25f);
-        PlayerLib.playSound(player.getLocation(), Sound.ENTITY_ARROW_SHOOT, 0.75f);
+        player.playWorldSound(Sound.ENTITY_ARROW_SHOOT, 1.25f);
+        player.playWorldSound(Sound.ENTITY_ARROW_SHOOT, 0.75f);
 
         return Response.OK;
     }
 
-    private Arrow spawnArrow(GamePlayer player, Location location) {
-        final World world = location.getWorld();
-
-        if (world == null) {
-            throw new IllegalArgumentException("Cannot shoot in an unloaded world!");
-        }
-
-        return world.spawn(location, Arrow.class, self -> {
+    private Arrow spawnArrow(GamePlayer player) {
+        return player.launchProjectile(Arrow.class, self -> {
             self.setColor(arrowColor);
             self.setCritical(false);
             self.setShooter(player.getPlayer());

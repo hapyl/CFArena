@@ -65,6 +65,9 @@ public class Color {
     public static final Color WITHERS = new Color("#444477");
     public static final Color DARK_GOLDENROD = new Color("#B8860B");
     public static final Color FOREST_GREEN = new Color("#228B22");
+    public static final Color STANCE_RANGE = new Color("#3498db");
+    public static final Color STANCE_MELEE = new Color("#e74c3c");
+    public static final Color RIPTIDE = new Color("#00bcd4");
 
     // *-----------------------------------------------------*
 

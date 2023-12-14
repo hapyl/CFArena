@@ -31,6 +31,7 @@ import me.hapyl.fight.game.weapons.ability.Ability;
 import me.hapyl.fight.game.weapons.range.RangeWeapon;
 import me.hapyl.fight.garbage.CFGarbageCollector;
 import me.hapyl.fight.util.Nulls;
+import me.hapyl.fight.util.Ticking;
 import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.annotate.Super;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -39,11 +40,11 @@ import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.parkour.ParkourManager;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
-import me.hapyl.spigotutils.module.util.DependencyInjector;
 import org.bukkit.*;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -53,9 +54,10 @@ import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public final class Manager extends DependencyInjector<Main> {
+public final class Manager extends BukkitRunnable {
 
     public final Set<UUID> ignoredEntities;
+    private final Main main;
     private final Set<EntityType> ignoredTypes = Sets.newHashSet(
             //EntityType.ARMOR_STAND,
             EntityType.MARKER,
@@ -68,7 +70,6 @@ public final class Manager extends DependencyInjector<Main> {
     private final SkinEffectManager skinEffectManager;
     private final AutoSync autoSave;
     private final Trial trial;
-    private final GameTask entityTickTask;
 
     @Nonnull private GameMaps currentMap;
     @Nonnull private Modes currentMode;
@@ -77,7 +78,7 @@ public final class Manager extends DependencyInjector<Main> {
     private DebugData debugData;
 
     public Manager(Main main) {
-        super(main);
+        this.main = main;
 
         ignoredEntities = Sets.newHashSet();
         entities = Maps.newConcurrentMap();
@@ -88,7 +89,7 @@ public final class Manager extends DependencyInjector<Main> {
         currentMode = Main.getPlugin().getConfigEnumValue("current-mode", Modes.class, Modes.FFA);
 
         // init skin effect manager
-        skinEffectManager = new SkinEffectManager(getPlugin());
+        skinEffectManager = new SkinEffectManager(main);
 
         // start auto save timer
         autoSave = new AutoSync(Tick.fromMinute(10));
@@ -96,28 +97,29 @@ public final class Manager extends DependencyInjector<Main> {
         trial = new Trial(main);
         debugData = DebugData.EMPTY;
 
-        entityTickTask = new GameTask() {
-            @Override
-            public void run() {
-                final Collection<GameEntity> entities = Manager.this.entities.values();
-                entities.removeIf(entity -> {
-                    if (entity instanceof GamePlayer) {
-                        return false;
-                    }
+        runTaskTimer(main, 0, 1);
+    }
 
-                    return entity.getEntity().isDead();
-                });
-
-                // Tick players
-                entities.forEach(entity -> {
-                    // There was a Ticking instance check before,
-                    // but I really think that entities other than players should be ticked separately.
-                    if (entity instanceof GamePlayer ticking) {
-                        ticking.tick();
-                    }
-                });
+    @Override
+    public void run() {
+        // Tick entities
+        final Collection<GameEntity> entities = Manager.this.entities.values();
+        entities.removeIf(entity -> {
+            if (entity instanceof GamePlayer) {
+                return false;
             }
-        }.runTaskTimer(0, 1);
+
+            return entity.getEntity().isDead();
+        });
+
+        // Tick players
+        entities.forEach(entity -> {
+            // There was a Ticking instance check before,
+            // but I really think that entities other than players should be ticked separately.
+            if (entity instanceof Ticking ticking) {
+                ticking.tick();
+            }
+        });
     }
 
     public void createStartCountdown() {
@@ -209,14 +211,13 @@ public final class Manager extends DependencyInjector<Main> {
     @Nonnull
     public PlayerProfile createProfile(Player player) {
         final PlayerProfile profile = new PlayerProfile(player);
-        final Main plugin = getPlugin();
 
         profiles.put(player.getUniqueId(), profile);
 
         profile.loadData();
 
-        plugin.getExperience().triggerUpdate(player);
-        plugin.getCrateManager().createHologram(player);
+        main.getExperience().triggerUpdate(player);
+        main.getCrateManager().createHologram(player);
         return profile;
     }
 
@@ -325,7 +326,7 @@ public final class Manager extends DependencyInjector<Main> {
 
         // Notify operators
         if (player.isOp()) {
-            Chat.sendMessage(player, getPlugin().database.getDatabaseString());
+            Chat.sendMessage(player, main.database.getDatabaseString());
         }
     }
 
@@ -407,11 +408,20 @@ public final class Manager extends DependencyInjector<Main> {
         final int playerRequirements = getCurrentMode().getMode().getPlayerRequirements();
         final Collection<Player> nonSpectatorPlayers = getNonSpectatorPlayers();
 
-        // Check for minimum players
-        // fixme -> Check for teams, not players
-        if (nonSpectatorPlayers.size() < playerRequirements && !debug.is(DebugData.Flag.DEBUG) && debug.not(DebugData.Flag.FORCE)) {
-            displayError("Not enough players! &l(%s/%s)", nonSpectatorPlayers.size(), playerRequirements);
-            return false;
+        // Check for minimum players if not in debug
+        if (!debug.is(DebugData.Flag.DEBUG) && debug.not(DebugData.Flag.FORCE)) {
+            final List<GameTeam> teams = GameTeam.getPopulatedTeams();
+
+            // Hardcoded minimum 2 teams
+            if (teams.size() < 2) {
+                displayError("Not enough teams! &l(%s/2)", teams.size());
+                return false;
+            }
+
+            if (nonSpectatorPlayers.size() < playerRequirements) {
+                displayError("Not enough players! &l(%s/%s)", nonSpectatorPlayers.size(), playerRequirements);
+                return false;
+            }
         }
 
         return true;
@@ -714,8 +724,8 @@ public final class Manager extends DependencyInjector<Main> {
     public Hero getCurrentHero(GamePlayer player) {
         return getCurrentEnumHero(player).getHero();
     }
-
     // I'm so confused why this is here, it called the same thing
+
     @Nonnull
     public Heroes getCurrentEnumHero(GamePlayer player) {
         if (isPlayerInGame(player)) {
@@ -748,7 +758,7 @@ public final class Manager extends DependencyInjector<Main> {
     }
 
     public void listProfiles() {
-        final Logger logger = getPlugin().getLogger();
+        final Logger logger = main.getLogger();
 
         logger.info("Listing all profiles:");
         logger.info(profiles.values().stream().map(PlayerProfile::toString).collect(Collectors.joining("\n")));
@@ -853,14 +863,6 @@ public final class Manager extends DependencyInjector<Main> {
     @Nullable
     public GamePlayer getPlayer(UUID uuid) {
         return getEntity(uuid, GamePlayer.class);
-    }
-
-    private void loadStaticEvents() {
-        try {
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Nonnull

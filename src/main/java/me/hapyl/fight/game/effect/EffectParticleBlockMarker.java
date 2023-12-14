@@ -21,7 +21,7 @@ public class EffectParticleBlockMarker extends EffectParticle {
     public void display(@Nonnull Location location, @Nullable GamePlayer ignored) {
         Bukkit.getOnlinePlayers().forEach(player -> {
             final World world = location.getWorld();
-            if (player == ignored || world == null) {
+            if ((ignored != null && ignored.is(player)) || world == null) {
                 return;
             }
 

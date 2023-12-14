@@ -43,6 +43,14 @@ public class TemperInstance {
         return increase(type, -value);
     }
 
+    public TemperInstance increaseScaled(@Nonnull AttributeType type, double value) {
+        return increase(type, type.scale(value));
+    }
+
+    public TemperInstance decreaseScaled(@Nonnull AttributeType type, double value) {
+        return decrease(type, type.scale(value));
+    }
+
     public TemperInstance message(@Nonnull String message, @Nullable Object... format) {
         this.message = BFormat.format(message, format);
         return this;
@@ -54,11 +62,15 @@ public class TemperInstance {
 
     public final void temper(@Nonnull EntityAttributes attributes, int duration) {
         final LivingGameEntity entity = attributes.getEntity();
+        final boolean newTemper = !attributes.hasTemper(temper);
+
         values.forEach((t, v) -> attributes.increaseTemporary(temper, t, v, duration, true));
 
         // Fx
-        ifNotNull(name, str -> entity.spawnDisplay(name, 20, BuffDisplay::new));
-        ifNotNull(message, str -> entity.sendMessage(message));
+        if (newTemper) {
+            ifNotNull(name, str -> entity.spawnDisplay(name, 20, BuffDisplay::new));
+            ifNotNull(message, str -> entity.sendMessage(message));
+        }
     }
 
     private void ifNotNull(String string, Consumer<String> consumer) {

@@ -125,7 +125,6 @@ public class GameResult {
                 final Player player = gamePlayer.getPlayer();
                 final StatContainer stat = gamePlayer.getStats();
 
-                // TODO: 028, Feb 28, 2023 -> Either automate report or actually add it every time.
                 Chat.sendMessage(player, "&a&lGame Report:");
                 Chat.sendMessage(player, stat.getString(StatType.COINS));
                 Chat.sendMessage(player, stat.getString(StatType.EXP));

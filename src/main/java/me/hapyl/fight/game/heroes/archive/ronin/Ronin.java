@@ -78,7 +78,7 @@ public class Ronin extends Hero implements Listener, DisabledHero {
     @Nullable
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        final Player player = input.getDamagerAsBukkitPlayer();
+        final GamePlayer player = input.getDamagerAsPlayer();
         final ChargeAttack chargeAttack = chargeAttackMap.remove(player);
 
         if (chargeAttack == null) {

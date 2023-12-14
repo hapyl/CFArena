@@ -1,23 +1,20 @@
 package me.hapyl.fight.game;
 
-import com.google.common.collect.Lists;
-
 import javax.annotation.Nonnull;
-import java.util.List;
 
-public class DamageCause {
+public class DamageCause implements Cloneable {
 
     public static final DamageCause EMPTY = new DamageCause("null", "null");
 
-    private final List<DeathMessage> deathMessages;
+    private final DeathMessage deathMessage;
     public boolean isProjectile;
     protected boolean custom;
     protected boolean canCrit;
     protected boolean isTrueDamage;
     private DamageFormat damageFormat;
 
-    private DamageCause() {
-        this.deathMessages = Lists.newArrayList();
+    private DamageCause(@Nonnull DeathMessage message) {
+        this.deathMessage = message;
         this.canCrit = true;
         this.custom = true;
         this.isProjectile = false;
@@ -26,13 +23,12 @@ public class DamageCause {
     }
 
     private DamageCause(String string, String suffix) {
-        this();
-        deathMessages.add(new DeathMessage(string, suffix));
+        this(new DeathMessage(string, suffix));
     }
 
     @Nonnull
-    public List<DeathMessage> getDeathMessages() {
-        return deathMessages;
+    public DeathMessage getDeathMessage() {
+        return deathMessage;
     }
 
     @Nonnull
@@ -78,15 +74,19 @@ public class DamageCause {
     }
 
     @Override
-    protected DamageCause clone() {
-        final DamageCause clone = new DamageCause();
+    @Nonnull
+    public DamageCause clone() {
+        try {
+            final DamageCause clone = (DamageCause) super.clone();
 
-        clone.custom = custom;
-        clone.canCrit = canCrit;
-        clone.deathMessages.addAll(Lists.newArrayList(deathMessages));
-        clone.damageFormat = damageFormat;
+            clone.custom = custom;
+            clone.canCrit = canCrit;
+            clone.damageFormat = damageFormat;
 
-        return clone;
+            return clone;
+        } catch (CloneNotSupportedException exception) {
+            throw new IllegalStateException(exception);
+        }
     }
 
     /**
@@ -124,7 +124,7 @@ public class DamageCause {
      * @param message - Message.
      */
     public static DamageCause of(String message) {
-        return of(message, "");
+        return of(message, "by");
     }
 
     /**

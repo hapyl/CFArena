@@ -27,6 +27,6 @@ public class ChillAuraEffect extends GameEffect {
             return;
         }
 
-        entity.spawnWorldParticle(entity.getMidpointLocation(), Particle.SNOWFLAKE, 3, 0.1d, 0.1d, 0.1d, 0.05f);
+        entity.spawnWorldParticle(entity.getMidpointLocation(), Particle.SNOWFLAKE, 5, 0.1d, 0.1d, 0.1d, 0.05f);
     }
 }
