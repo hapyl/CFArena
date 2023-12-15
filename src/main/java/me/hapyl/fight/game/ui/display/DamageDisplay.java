@@ -6,11 +6,10 @@ import org.joml.Vector3f;
 
 import javax.annotation.Nonnull;
 
-// FIXME (hapyl): 020, Oct 20: Fix this
 public class DamageDisplay extends StringDisplay {
 
-    public static final String FORMAT = "&b&l%.1f";
-    public static final String FORMAT_CRIT = "&e&l%.1f&c&l✷";
+    public static final String FORMAT = "&b&l%.0f";
+    public static final String FORMAT_CRIT = "&e&l%.0f&c✷";
 
     private final boolean isCrit;
 
@@ -24,7 +23,8 @@ public class DamageDisplay extends StringDisplay {
 
     @Override
     public void onStart(@Nonnull TextDisplay display) {
-        transformScale(display, isCrit ? 1.5f : 1.0f, stay);
+        display.setDefaultBackground(false);
+        transformScale(display, isCrit ? 1.25f : 1.0f, stay);
     }
 
     private void transformScale(TextDisplay display, float scale, int duration) {

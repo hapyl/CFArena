@@ -3,6 +3,8 @@ package me.hapyl.fight.database;
 import org.bson.Document;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -61,7 +63,7 @@ public class PlayerDatabaseEntry {
      * @param def   - Default value.
      * @return - Value or def if not found.
      */
-    protected final <T> T getValue(String paths, T def) {
+    protected final <T> T getValue(@Nonnull String paths, @Nullable T def) {
         return MongoUtils.get(getDocument(), paths, def);
     }
 
@@ -79,7 +81,7 @@ public class PlayerDatabaseEntry {
         MongoUtils.set(getDocument(), paths, value);
     }
 
-    protected final <T> void setValueIfNotSet(String paths, T value) {
+    protected final <T> void setValueIfNotSet(@Nonnull String paths, @Nonnull T value) {
         if (getValue(paths, null) != null) {
             return;
         }

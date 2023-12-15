@@ -2,6 +2,8 @@ package me.hapyl.fight.game.talents.archive.knight;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.TalentReference;
+import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.game.task.TickingGameTask;
@@ -37,6 +39,10 @@ public class Castle extends TimedGameTask implements TalentReference<StoneCastle
         runTaskTimer(0, 1);
     }
 
+    public GamePlayer getPlayer() {
+        return player;
+    }
+
     @Nonnull
     public Location getLocation() {
         return location;
@@ -50,6 +56,8 @@ public class Castle extends TimedGameTask implements TalentReference<StoneCastle
     public void remove() {
         cancel0();
 
+        player.getAttributes().resetTemper(Temper.STONE_CASTLE);
+
         armorStands.forEach(ArmorStand::remove);
         armorStands.clear();
     }
@@ -58,6 +66,10 @@ public class Castle extends TimedGameTask implements TalentReference<StoneCastle
     @Override
     public StoneCastle getTalent() {
         return talent;
+    }
+
+    public boolean isEntityWithin(@Nonnull GameEntity player) {
+        return location.distance(player.getLocation()) <= talent.distance;
     }
 
     private void createStands() {

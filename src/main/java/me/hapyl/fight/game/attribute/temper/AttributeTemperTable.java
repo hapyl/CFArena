@@ -7,6 +7,7 @@ import me.hapyl.fight.util.collection.ConcurrentTable;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -133,6 +134,11 @@ public final class AttributeTemperTable implements Iterable<TemperData> {
 
     public boolean isEmpty() {
         return tempers.isEmpty();
+    }
+
+    public void cancel(@Nonnull Temper temper) {
+        final Collection<AttributeTemper> attributeTempers = tempers.removeAll(temper);
+        attributeTempers.forEach(AttributeTemper::cancel);
     }
 
     private void remove(@Nonnull Temper temper, @Nonnull AttributeType type) {

@@ -3,7 +3,6 @@ package me.hapyl.fight.game.reward;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.database.entry.ExperienceEntry;
-import me.hapyl.fight.game.Debug;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -62,8 +61,6 @@ public enum CurrencyType {
         if (value <= 0) {
             return;
         }
-
-        Debug.info("decrement call");
 
         CF.getDatabase(player).getCurrency().subtract(currency, value);
     }

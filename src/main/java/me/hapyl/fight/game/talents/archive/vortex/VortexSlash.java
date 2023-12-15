@@ -65,7 +65,7 @@ public class VortexSlash extends Talent {
 
                 // Damage
                 Collect.nearbyEntities(nextLocation, collectDistance).forEach(entity -> {
-                    if (entity.equals(player)) {
+                    if (player.isSelfOrTeammateOrHasEffectResistance(entity)) {
                         return;
                     }
 

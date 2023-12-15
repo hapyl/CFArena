@@ -138,6 +138,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
         killStreak = 0;
         combatTag = 0;
+        noCCTicks = 0;
         talentLock.reset();
 
         // Actually stop the effects before applying the data
@@ -524,7 +525,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
                 shield = null;
             }
             // Display absorbed damage
-            else {
+            else if (toAbsorb > 0) {
                 new AscendingDisplay("&e🛡 &6%.0f".formatted(toAbsorb), 20).display(player.getEyeLocation());
             }
         }
@@ -561,6 +562,18 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         // Fx
         playSound(Sound.ENTITY_ELDER_GUARDIAN_CURSE, 2.0f);
         playSound(Sound.ENCHANT_THORNS_HIT, 0.0f);
+    }
+
+    public void interruptShield() {
+        final PlayerInventory inventory = getInventory();
+        final ItemStack offhandItem = inventory.getItem(org.bukkit.inventory.EquipmentSlot.OFF_HAND);
+
+        if (offhandItem == null) {
+            return;
+        }
+
+        inventory.setItem(org.bukkit.inventory.EquipmentSlot.OFF_HAND, null);
+        schedule(() -> inventory.setItem(org.bukkit.inventory.EquipmentSlot.OFF_HAND, offhandItem), 3);
     }
 
     public void triggerOnDeath() {
@@ -1052,6 +1065,10 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
     public boolean isSelfOrTeammate(LivingGameEntity victim) {
         return equals(victim) || isTeammate(victim);
+    }
+
+    public boolean isSelfOrTeammateOrHasEffectResistance(LivingGameEntity victim) {
+        return isSelfOrTeammate(victim) || (victim != null && victim.hasCCResistanceAndDisplay(this));
     }
 
     /**

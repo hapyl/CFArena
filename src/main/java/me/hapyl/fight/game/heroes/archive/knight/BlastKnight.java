@@ -42,8 +42,8 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Pla
     private final Material shieldRechargeCdItem = Material.HORSE_SPAWN_EGG;
 
     @DisplayField private final double ultimateRadius = 7.0d;
-    @DisplayField private final double healingTotal = 30;
-    @DisplayField private final double shieldCapacity = 20;
+    @DisplayField private final double healingTotal = 20;
+    @DisplayField private final double shieldCapacity = 15;
 
     public BlastKnight() {
         super("Blast Knight");
@@ -69,7 +69,11 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Pla
         equipment.setLeggings(170, 55, 204);
         equipment.setBoots(Material.NETHERITE_BOOTS);
 
-        setWeapon(Material.IRON_SWORD, "Royal Sword", "", 8.0d);
+        setWeapon(Material.IRON_SWORD, "Royal Sword", """
+                A royal sword, forget of the best quality ore possible.
+                                
+                It has tiny golden ornate pieces on the edge of the handle.
+                """, 5.0d);
 
         setUltimate(new UltimateTalent(
                 "Nanite Rush", """
@@ -160,8 +164,7 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Pla
         data.incrementShieldCharge();
 
         // Interrupt shield
-        player.setItem(EquipmentSlot.OFF_HAND, null);
-        player.schedule(() -> player.setItem(EquipmentSlot.OFF_HAND, shieldItem), 1);
+        player.interruptShield();
 
         // Fx
         player.playSound(Sound.ITEM_SHIELD_BREAK, 1.0f);

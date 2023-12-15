@@ -472,7 +472,23 @@ Harbinger
 ===
 
 ### Riptide (Passive)
+
 * Increase damage 3 >> 5.
+* Riptide can now be executed with a Melee CRIT hit.
+
+### Melee Stance
+
+* Added a Crit Chance boost upon cast to help with the passive.
+
+### Tidal Wave
+
+* Renamed "Tidal Wave" >> "Tidal Vortex."
+* Changed how the talent works, instead of water, a vortex is launched.
+
+### Crowned Mastery (Ultimate)
+
+* Melee Stance
+    * The damage dealt is increased if the enemy is affected by Riptide.
 
 ---
 
@@ -495,6 +511,35 @@ System Changes
 
 ---
 
+### Crowd Control Changes
+
+#### New attribute: *Crowd Control Resistance*
+
+* Chance to resist crowd control abilities.
+* Default is 0, max is 100.
+
+#### Crowd Control Abilities Change:
+
+* All crowd control abilities now save the attacker as the last damager, meaning if the ability was the cause of death,
+  the one who used the ability will be credited as a killer.
+
+
+* Crowd Control Abilities include:
+    * Moonwalker's Gravity Pull
+    * Troll's Spin
+    * Troll's Repulsor
+    * Dr. Ed's Amnesia Extract Serum
+    * Dr. Ed's Upgraded Gravity Energy Capacitor Mk. 4
+    * Witcher's Aard
+    * Vortex's Astral Slash
+    * Blast Knight's Quantum Discharge
+    * Taker's Hook of Death
+    * Swooper's Blast Pack
+    * Tamer's Taming the Wind
+    * Tamer's Taming the Earth
+    * Shark's Whirlpool
+    * Harbinger's Tidal Vortex
+    * Orc's Spin
 
 Uncategorized Changes
 ===

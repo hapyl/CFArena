@@ -1,7 +1,7 @@
 package me.hapyl.fight.npc;
 
-import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.Event;
+import me.hapyl.fight.game.color.Color;
 import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Bukkit;
@@ -15,13 +15,11 @@ import java.util.function.Function;
 
 public class PersistentNPC extends HumanNPC {
 
+    public final NPCSound sound;
     private final String name;
 
     public PersistentNPC(@Nonnull Location location, @Nullable String name) {
-        super(location, name == null ? null : Color.BUTTON.bold() + "CLICK", "");
-        this.name = name;
-
-        init();
+        this(location, name, "", uuid -> ("§8[NPC] " + uuid.toString().replace("-", "")).substring(0, 16));
     }
 
     public PersistentNPC(double x, double y, double z, @Nullable String name) {
@@ -32,9 +30,13 @@ public class PersistentNPC extends HumanNPC {
         this(BukkitUtils.defLocation(x, y, z, yaw, pitch), name);
     }
 
-    protected PersistentNPC(Location location, String npcName, String skinOwner, Function<UUID, String> hexNameFn) {
-        super(location, npcName, skinOwner, hexNameFn);
-        this.name = npcName;
+    protected PersistentNPC(Location location, String name, String skinOwner, Function<UUID, String> hexNameFn) {
+        super(location, name == null ? null : Color.BUTTON.bold() + "CLICK", skinOwner, hexNameFn);
+
+        this.name = name;
+        this.sound = new NPCSound();
+
+        init();
     }
 
     @Event
@@ -65,6 +67,14 @@ public class PersistentNPC extends HumanNPC {
 
     public boolean shouldCreate(Player player) {
         return true;
+    }
+
+    public void onCreate(@Nonnull Player player) {
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     protected void init() {

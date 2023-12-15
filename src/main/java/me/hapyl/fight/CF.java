@@ -158,6 +158,11 @@ public final class CF {
         return Manager.current().createEntity(type.spawn(location, self -> Manager.current().addIgnored(self)), consumer);
     }
 
+    @Nonnull
+    public static <T extends LivingEntity> LivingGameEntity createEntity(@Nonnull Location location, @Nonnull Entities<T> type) {
+        return createEntity(location, type, LivingGameEntity::new);
+    }
+
     /**
      * Gets a {@link LivingGameEntity} by its {@link UUID}.
      *

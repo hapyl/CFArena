@@ -12,6 +12,9 @@ import me.hapyl.fight.GVar;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.build.NamedSignReader;
 import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.database.entry.DailyRewardEntry;
+import me.hapyl.fight.database.entry.MetadataEntry;
+import me.hapyl.fight.database.entry.MetadataKey;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.fx.GiantItem;
 import me.hapyl.fight.fx.Riptide;
@@ -198,9 +201,39 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         });
 
         register("spawnEntityWithGameEffects", (player, args) -> {
-            LivingGameEntity entity = CF.createEntity(player.getLocation(), Entities.PIG, LivingGameEntity::new);
+            LivingGameEntity entity = CF.createEntity(player.getLocation(), Entities.PIG);
 
             entity.addEffect(GameEffectType.IMMOVABLE, 10000, true);
+        });
+
+        register(new SimplePlayerAdminCommand("resetMetadata") {
+            @Override
+            protected void execute(Player player, String[] strings) {
+                final PlayerProfile profile = PlayerProfile.getProfile(player);
+
+                if (profile == null) {
+                    Chat.sendMessage(player, "&cNo profile somehow!");
+                    return;
+                }
+
+                final String key = getArgument(strings, 0).toString();
+
+                if (key.isBlank() || key.isEmpty()) {
+                    Chat.sendMessage(player, "&cKey cannot be blank or empty!");
+                    return;
+                }
+
+                final MetadataEntry entry = profile.getDatabase().metadataEntry;
+                final MetadataKey metadataKey = new MetadataKey(key);
+
+                if (!entry.has(metadataKey)) {
+                    Chat.sendMessage(player, "&cMetadata value is already null!");
+                    return;
+                }
+
+                entry.set(metadataKey, null);
+                Chat.sendMessage(player, "&aDone!");
+            }
         });
 
         register(new SimplePlayerAdminCommand("testWindLev") {
@@ -1116,8 +1149,16 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register("testHoverText", (player, args) -> {
             final TextComponent text = new TextComponent("Hover me");
 
-            text.setHoverEvent(ChatUtils.showText("first line", "second line", "&ccolor"));
+            text.setHoverEvent(ChatUtils.showText(args));
             player.spigot().sendMessage(text);
+        });
+
+        register("spawnHuskWithCCResist", (player, args) -> {
+            final LivingGameEntity entity = CF.createEntity(player.getLocation(), Entities.HUSK);
+
+            entity.getAttributes().set(AttributeType.CROWD_CONTROL_RESISTANCE, 1);
+
+            Chat.sendMessage(player, "&dDone!");
         });
 
         register("spawnEntityWithMaxDodgeToTestTheDodgeAttributeBecauseIHaveNoFriendsToTestItWith", (player, args) -> {
@@ -2197,9 +2238,12 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             @Override
             protected void execute(Player player, String[] strings) {
                 final PlayerDatabase database = PlayerDatabase.getDatabase(player);
-                database.dailyRewardEntry.setLastDaily(System.currentTimeMillis() - DailyReward.MILLIS_WHOLE_DAY);
 
-                Chat.sendMessage(player, "&aReset daily!");
+                for (DailyRewardEntry.Type type : DailyRewardEntry.Type.values()) {
+                    database.dailyRewardEntry.setLastDaily(type, System.currentTimeMillis() - DailyReward.MILLIS_WHOLE_DAY);
+                }
+
+                Chat.sendMessage(player, "&aReset all daily rewards!");
             }
         });
 

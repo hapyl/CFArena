@@ -5,38 +5,39 @@ import org.bukkit.Sound;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 public class Effect {
 
     private final String effectName;
     private final String effectChar;
     private final PotionEffect potionEffect;
 
-    public void affect(GamePlayer player) {
+    public Effect(@Nonnull String effectChar, @Nonnull String effectName) {
+        this(effectChar, effectName, null, 0, 0);
     }
 
-    public Effect(String effectChar, String effectName, PotionEffectType effect, int duration, int level) {
+    public Effect(@Nonnull String effectChar, @Nonnull String effectName, @Nullable PotionEffectType effect, int duration, int level) {
         this.effectChar = effectChar;
         this.effectName = effectName;
         this.potionEffect = effect == null ? null : new PotionEffect(effect, duration, level);
     }
 
-    public Effect(String effectChar, String effectName) {
-        this(effectChar, effectName, null, 0, 0);
+    public void affect(@Nonnull GamePlayer player) {
     }
 
-    public String getEffectChar() {
+    @Nonnull
+    public String getChar() {
         return effectChar;
     }
 
-    public String getEffectName() {
+    @Nonnull
+    public String getName() {
         return effectName;
     }
 
-    public PotionEffect getPotionEffect() {
-        return potionEffect;
-    }
-
-    public void applyEffectsIgnoreFx(GamePlayer player) {
+    public void applyEffectsIgnoreFx(@Nonnull GamePlayer player) {
         affect(player);
 
         if (potionEffect != null) {
@@ -44,11 +45,11 @@ public class Effect {
         }
     }
 
-    public void applyEffects(GamePlayer player) {
+    public void applyEffects(@Nonnull GamePlayer player) {
         applyEffectsIgnoreFx(player);
 
         // Fx
-        player.playSound(Sound.ENTITY_PLAYER_SWIM, 1.8f);
+        player.playWorldSound(Sound.ENTITY_PLAYER_SWIM, 1.8f);
         player.sendTitle("&a" + effectChar, "&6Gained " + effectName, 5, 10, 5);
         player.sendMessage("&a" + effectChar + " &6Gained " + effectName);
     }

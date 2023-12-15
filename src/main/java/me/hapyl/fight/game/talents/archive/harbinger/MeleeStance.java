@@ -27,9 +27,10 @@ public class MeleeStance extends Talent {
 
     private final PlayerMap<StanceData> dataMap = PlayerMap.newMap();
 
-    private final Weapon abilityItem = new Weapon(Material.IRON_SWORD).setDamage(8.0d)
+    private final Weapon abilityItem = new Weapon(Material.IRON_SWORD)
             .setName(Color.STANCE_RANGE + "Raging Blade")
-            .setDescription("A blade forged from pure water.");
+            .setDescription("A blade forged from pure water.")
+            .setDamage(8.0d);
 
     public MeleeStance() {
         super("Melee Stance");

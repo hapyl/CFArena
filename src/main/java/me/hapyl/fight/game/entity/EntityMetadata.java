@@ -1,24 +1,12 @@
 package me.hapyl.fight.game.entity;
 
 import me.hapyl.fight.game.Event;
-import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
 
 public class EntityMetadata {
 
     public final LivingGameEntity entity;
-
-    /**
-     * Whenever the entity can be controller by crowd abilities.
-     */
-    public final Metadata<Boolean> ccAffect = new Metadata<>(true) {
-        @Override
-        public void notify(@Nonnull GameEntity entity) {
-            entity.sendMessage("&cThis creature is immune to crowd control abilities!");
-            entity.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
-        }
-    };
 
     /**
      * Whenever an entity can move.

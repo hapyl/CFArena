@@ -74,9 +74,15 @@ public class StyledItem implements StyledBuilder {
             "&8Locked!"
     );
 
+    public static final StyledItem ICON_RELIC_REWARDS = new StyledItem(
+            "5726d9d0632e40bda5bcf65839ba2cc98a87bd619c53adf00310d6fc71f042b5",
+            "Rewards",
+            "Trade your relics for unique cosmetic rewards and perks!"
+    );
+
+    public final String name;
+    public final String description;
     private final Material material;
-    private final String name;
-    private final String description;
     protected String texture;
 
     public StyledItem(Material material, String name, String description) {

@@ -5,7 +5,6 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.PreprocessingMethod;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.GameDeathEvent;
-import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EntityState;
@@ -25,14 +24,8 @@ import me.hapyl.fight.game.entity.packet.EntityPacketFactory;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.fight.game.ui.display.BuffDisplay;
-import me.hapyl.fight.game.ui.display.DamageDisplay;
-import me.hapyl.fight.game.ui.display.DebuffDisplay;
-import me.hapyl.fight.game.ui.display.StringDisplay;
-import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.DirectionalMatrix;
-import me.hapyl.fight.util.Ticking;
+import me.hapyl.fight.game.ui.display.*;
+import me.hapyl.fight.util.*;
 import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.ai.AI;
 import me.hapyl.spigotutils.module.ai.MobAI;
@@ -70,6 +63,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     private static final Draw FEROCITY_PARTICLE_DATA = new FerocityFx();
     private static final int FEROCITY_HIT_CD = 9;
     private static final double ACTUAL_ENTITY_HEALTH = 0.1d;
+    private static final String CC_SMALL_CAPS_NAME = SmallCaps.format(AttributeType.CROWD_CONTROL_RESISTANCE.getName());
 
     public final Random random;
     protected final EntityData entityData;
@@ -83,6 +77,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     protected boolean wasHit; // Used to check if an entity was hit by custom damage
     protected double health;
     @Nonnull protected EntityState state;
+    protected int noCCTicks = 0;
     private AI ai;
     private int aliveTicks = 0;
 
@@ -300,6 +295,27 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         cooldown.startCooldown(Cooldown.NO_DAMAGE, ticks * 50L);
     }
 
+    public void setNoDamageTicks(int i) {
+        entity.setNoDamageTicks(i);
+    }
+
+    public boolean hasCCResistanceAndDisplay(@Nonnull GameEntity damager) {
+        if (noCCTicks > 0) {
+            return true;
+        }
+
+        final boolean resist = attributes.calculateCrowdControlResistance();
+
+        if (resist) {
+            noCCTicks = 20;
+            new AscendingDisplay(CC_SMALL_CAPS_NAME, 20).display(getLocation());
+            return true;
+        }
+
+        entityData.setLastDamager(damager);
+        return false;
+    }
+
     @Nonnull
     public DirectionalMatrix getLookAlongMatrix() {
         return new DirectionalMatrix(this);
@@ -315,6 +331,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         entityData.getDotMap().values().forEach(DotInstanceList::tick);
 
         aliveTicks++;
+        noCCTicks = noCCTicks < 0 ? 0 : noCCTicks - 1;
     }
 
     public void clearTitle() {
@@ -361,7 +378,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
             consumer.accept(projectile);
         }
 
-        new ProjectilePostLaunchEvent(this, projectile).call();
+        //new ProjectilePostLaunchEvent(this, projectile).call(); No need to call the event manually anymore
         return projectile;
     }
 

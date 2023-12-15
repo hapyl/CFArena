@@ -68,6 +68,11 @@ public class Color {
     public static final Color STANCE_RANGE = new Color("#3498db");
     public static final Color STANCE_MELEE = new Color("#e74c3c");
     public static final Color RIPTIDE = new Color("#00bcd4");
+    public static final Color AMETHYST = new Color("#9966cc");
+    public static final Color EMERALD = new Color("#50c878");
+    public static final Color SAPPHIRE = new Color("#0F52BA");
+    public static final Color ROSE_QUARTZ = new Color("#FAD4E8");
+    public static final Color DIAMOND = new Color("#B9F2FF");
 
     // *-----------------------------------------------------*
 

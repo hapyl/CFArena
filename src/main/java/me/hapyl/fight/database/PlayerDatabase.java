@@ -13,6 +13,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -43,6 +44,7 @@ public class PlayerDatabase {
     public final DeliveryEntry deliveryEntry;
     public final HotbarLoadoutEntry hotbarEntry;
     public final FastAccessEntry fastAccessEntry;
+    public final MetadataEntry metadataEntry;
     /////////////////
     // ENTRIES END //
     /////////////////
@@ -73,6 +75,7 @@ public class PlayerDatabase {
         this.deliveryEntry = new DeliveryEntry(this);
         this.hotbarEntry = new HotbarLoadoutEntry(this);
         this.fastAccessEntry = new FastAccessEntry(this);
+        this.metadataEntry = new MetadataEntry(this);
 
         UUID_DATABASE_MAP.put(uuid, this);
     }
@@ -101,8 +104,6 @@ public class PlayerDatabase {
     public UUID getUuid() {
         return uuid;
     }
-
-    // entries start
 
     public ExperienceEntry getExperienceEntry() {
         return experienceEntry;
@@ -136,23 +137,22 @@ public class PlayerDatabase {
         return collectibleEntry;
     }
 
-    // entries end
-
+    @Nonnull
     public PlayerRank getRank() {
         final String rankString = document.get("rank", "DEFAULT");
 
         return Validate.getEnumValue(PlayerRank.class, rankString, PlayerRank.DEFAULT);
     }
 
-    public void setRank(PlayerRank rank) {
+    public void setRank(@Nonnull PlayerRank rank) {
         document.put("rank", rank.name());
     }
 
-    public <T> T getValue(String path, T def) {
+    public <T> T getValue(@Nonnull String path, @Nullable T def) {
         return MongoUtils.get(document, path, def);
     }
 
-    public void setValue(String path, Object object) {
+    public void setValue(@Nonnull String path, @Nullable Object object) {
         MongoUtils.set(document, path, object);
     }
 

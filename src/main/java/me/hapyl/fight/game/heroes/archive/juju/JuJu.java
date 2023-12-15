@@ -3,6 +3,7 @@ package me.hapyl.fight.game.heroes.archive.juju;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.entity.EquipmentSlot;
@@ -33,7 +34,6 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
@@ -192,26 +192,20 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
     }
 
     @EventHandler()
-    public void handleBowShoot(ProjectileLaunchEvent ev) {
-        final Projectile projectile = ev.getEntity();
+    public void handleBowShoot(ProjectilePostLaunchEvent ev) {
+        final Projectile projectile = ev.getProjectile();
 
-        if (!(projectile instanceof Arrow arrow) || !(arrow.getShooter() instanceof Player player)) {
+        if (!(projectile instanceof Arrow arrow) || !(arrow.getShooter() instanceof GamePlayer player)) {
             return;
         }
 
-        final GamePlayer gamePlayer = CF.getPlayer(player);
-
-        if (gamePlayer == null) {
-            return;
-        }
-
-        final ArrowData arrowData = playerArrows.get(gamePlayer);
+        final ArrowData arrowData = playerArrows.get(player);
 
         if (arrowData == null) {
             return;
         }
 
-        arrowData.type.onShoot(gamePlayer, arrow);
+        arrowData.type.onShoot(player, arrow);
         arrowType.put(arrow, arrowData.type);
     }
 
@@ -226,7 +220,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
         final GamePlayer gamePlayer = CF.getPlayer(player);
         final ArrowType arrowType = this.arrowType.get(arrow);
 
-        if (gamePlayer == null || arrowType != null) {
+        if (gamePlayer != null && arrowType != null) {
             arrowType.onHit(gamePlayer, arrow);
         }
     }

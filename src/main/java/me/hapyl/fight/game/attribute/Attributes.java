@@ -63,6 +63,10 @@ public class Attributes {
         return random.checkBound(AttributeType.DODGE);
     }
 
+    public final boolean calculateCrowdControlResistance() {
+        return random.checkBound(AttributeType.CROWD_CONTROL_RESISTANCE);
+    }
+
     public final boolean isCritical() {
         return random.checkBound(AttributeType.CRIT_CHANCE);
     }

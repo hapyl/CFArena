@@ -30,6 +30,7 @@ import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.game.weapons.ability.Ability;
 import me.hapyl.fight.game.weapons.range.RangeWeapon;
 import me.hapyl.fight.garbage.CFGarbageCollector;
+import me.hapyl.fight.npc.PersistentNPCs;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Ticking;
 import me.hapyl.spigotutils.EternaPlugin;
@@ -218,6 +219,10 @@ public final class Manager extends BukkitRunnable {
 
         main.getExperience().triggerUpdate(player);
         main.getCrateManager().createHologram(player);
+
+        for (PersistentNPCs enumNpc : PersistentNPCs.values()) {
+            enumNpc.getNpc().onCreate(player);
+        }
         return profile;
     }
 

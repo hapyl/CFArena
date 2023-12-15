@@ -3,6 +3,7 @@ package me.hapyl.fight.game.profile;
 import com.google.common.collect.Queues;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
+import me.hapyl.fight.dialog.ActiveDialog;
 import me.hapyl.fight.fastaccess.PlayerFastAccess;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.delivery.Deliveries;
@@ -58,6 +59,7 @@ public class PlayerProfile {
     private boolean loaded;
     private boolean resourcePack;
     private boolean buildMode;
+    public ActiveDialog dialog;
 
     public PlayerProfile(@Nonnull Player player) {
         this.player = player;

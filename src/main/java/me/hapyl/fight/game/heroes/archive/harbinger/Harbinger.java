@@ -26,6 +26,7 @@ import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
+import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
@@ -44,20 +45,21 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Set;
 
-public class Harbinger extends Hero implements Listener, UIComponent, PlayerDataHandler {
+public class Harbinger extends Hero implements Listener, UIComponent, PlayerDataHandler, DisplayFieldProvider {
 
     @DisplayField private final long meleeRiptideAmount = 100;
     @DisplayField private final long rangeRiptideAmount = 150;
 
-    private final PlayerMap<RiptideStatus> riptideStatus = PlayerMap.newMap();
-    private final Set<Arrow> ultimateArrows = Sets.newHashSet();
-
     @DisplayField private final double ultimateMeleeDamage = 40;
     @DisplayField private final double ultimateMeleeRadius = 4.0d;
+    @DisplayField private final double ultimateMeleeRiptideDamageMultiplier = 1.5d;
 
     @DisplayField private final double ultimateRangeDamage = 25;
     @DisplayField private final int ultimateRangeRiptide = Tick.fromSecond(20);
     @DisplayField private final double ultimateRangeRadius = 4.0d;
+
+    private final PlayerMap<RiptideStatus> riptideStatus = PlayerMap.newMap();
+    private final Set<Arrow> ultimateArrows = Sets.newHashSet();
 
     public Harbinger() {
         super("Harbinger");
@@ -84,13 +86,17 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
                 Gather the surrounding energy to execute a &cfatal strike&7 based on your &ncurrent&7 &nstance&7.
                                 
                 &6In Range Stance
-                Shoots a magic arrow in front of you that explodes upon impact, dealing &cAoE damage&7 and applying %1$s.
+                Shoots a magic arrow in front of you that explodes upon impact, dealing moderate &cAoE damage&7 and applying %1$s.
                                 
                 &6In Melee Stance
-                Perform a slash around you that deals &cAoE damage&7 and executes &bRiptide Slash&7, if an enemy is affected by %1$s.
+                Performs a slash around you that deals significant &cAoE damage&7.
+                                
+                If an enemy is affected by %1$s, the damage is &cincreased&7 and the %1$s is removed.
                 """.formatted(Named.RIPTIDE),
                 70
         ).setItem(Material.DIAMOND).setDuration(40));
+
+        copyDisplayFieldsToUltimate();
     }
 
     @EventHandler()
@@ -128,12 +134,16 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
         final GamePlayer player = input.getDamagerAsPlayer();
         final LivingGameEntity entity = input.getEntity();
 
-        if (player == null || !input.isEntityAttackOrProjectile()) {
+        if (player == null || !input.isEntityAttack()) {
             return DamageOutput.OK;
         }
 
-        // Execute riptide if possible
-        if (shouldExecuteRiptide(input)) {
+        final MeleeStance stance = getFirstTalent();
+        final boolean isStanceActive = stance.isActive(player);
+
+        // If in melee stance only execute on CRIT
+        if (isStanceActive && input.isCrit()) {
+            addRiptide(player, input.getEntity(), meleeRiptideAmount, false);
             executeRiptideSlashIfPossible(player, entity);
         }
 
@@ -207,6 +217,7 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
     @Override
     public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
         final Location location = player.getEyeLocation();
+        final RiptideStatus riptide = getPlayerData(player);
 
         // Stance Check
         final boolean isMeleeStance = getFirstTalent().isActive(player);
@@ -238,10 +249,15 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
                             return;
                         }
 
-                        entity.setLastDamager(player);
-                        entity.damageTick(ultimateMeleeDamage, EnumDamageCause.RIPTIDE, 0); // Damage tick to allow for the Riptide Slash
+                        final boolean affected = riptide.isAffected(entity);
+                        riptide.stop(entity);
 
-                        executeRiptideSlashIfPossible(player, entity);
+                        entity.setLastDamager(player);
+                        entity.damage(
+                                affected ? ultimateMeleeDamage * ultimateMeleeRiptideDamageMultiplier : ultimateMeleeDamage,
+                                EnumDamageCause.RIPTIDE
+                        );
+                        entity.setNoDamageTicks(30); // Prevent multiple damage
                     });
 
                     // Fx
@@ -252,7 +268,7 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
 
                     location.subtract(x, y, z);
 
-                    d += Math.PI / 8;
+                    d += Math.PI / 5;
                     radius += (ultimateMeleeRadius - 1) / mathPi2 / d;
                 }
             }.runTaskTimer(15, 1);
@@ -364,22 +380,4 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
         }.runTaskTimer(0, 1);
     }
 
-    private boolean shouldExecuteRiptide(DamageInput input) {
-        final GamePlayer player = input.getDamagerAsPlayer();
-        final MeleeStance stance = getFirstTalent();
-        final boolean isStanceActive = stance.isActive(player);
-
-        if (player == null) {
-            return false;
-        }
-
-        // If in melee stance only execute on CRIT
-        if (isStanceActive && input.isCrit()) {
-            // Add riptide as well here, because... why not?
-            addRiptide(player, input.getEntity(), meleeRiptideAmount, false);
-            return true;
-        }
-
-        return !isStanceActive;
-    }
 }

@@ -5,7 +5,6 @@ import me.hapyl.fight.command.CommandRegistry;
 import me.hapyl.fight.database.Database;
 import me.hapyl.fight.event.*;
 import me.hapyl.fight.fastaccess.FastAccessListener;
-import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.achievement.AchievementRegistry;
 import me.hapyl.fight.game.collectible.Collectibles;
@@ -92,8 +91,8 @@ public class Main extends JavaPlugin {
         boosters = new BoosterController(this);
         notifier = new Notifier(this);
         parkourManager = new CFParkourManager(this);
-        humanManager = new HumanManager(this);
         collectibles = new Collectibles(this);
+        humanManager = new HumanManager(this);
         achievementRegistry = new AchievementRegistry(this);
         crateManager = new CrateManager(this);
 

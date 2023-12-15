@@ -69,7 +69,11 @@ public class GravityZone extends Talent {
 
                     // Push down
                     getInRange(center, 1.0d).forEach(entity -> {
-                        if (entity.equals(player)) {
+                        if (player.isSelfOrTeammate(entity)) {
+                            return;
+                        }
+
+                        if (entity.hasCCResistanceAndDisplay(player)) {
                             return;
                         }
 
@@ -88,7 +92,7 @@ public class GravityZone extends Talent {
 
                 // Pull Up
                 getInRange(center).forEach(entity -> {
-                    if (entity.equals(player)) {
+                    if (player.isSelfOrTeammateOrHasEffectResistance(entity)) {
                         return;
                     }
 

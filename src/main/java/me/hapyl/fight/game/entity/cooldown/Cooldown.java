@@ -11,7 +11,7 @@ public enum Cooldown {
     NO_DAMAGE,
     PLAYER_PING(500),
     WITCH_POTION,
-    ;
+    CC_MESSAGE(1000);
 
     public final long duration;
 

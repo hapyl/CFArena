@@ -28,13 +28,13 @@ import java.util.function.Consumer;
  */
 public class EntityAttributes extends Attributes implements PlayerElement {
 
-    private final LivingGameEntity gameEntity;
+    private final LivingGameEntity entity;
     private final Attributes baseAttributes;
 
     private final AttributeTemperTable tempers;
 
-    public EntityAttributes(LivingGameEntity gameEntity, Attributes baseAttributes) {
-        this.gameEntity = gameEntity;
+    public EntityAttributes(LivingGameEntity entity, Attributes baseAttributes) {
+        this.entity = entity;
         this.baseAttributes = Attributes.copyOf(baseAttributes);
         this.tempers = new AttributeTemperTable(this);
 
@@ -70,7 +70,7 @@ public class EntityAttributes extends Attributes implements PlayerElement {
 
     @Trigger
     public void triggerUpdate(@Nonnull AttributeType type) {
-        type.attribute.update(gameEntity, get(type));
+        type.attribute.update(entity, get(type));
     }
 
     public final int getFerocityStrikes() {
@@ -162,7 +162,7 @@ public class EntityAttributes extends Attributes implements PlayerElement {
 
         // Call trigger
         final double newBaseValue = get(type);
-        Triggers.call(new AttributeChangeTrigger(gameEntity, type, oldBaseValue, newBaseValue));
+        Triggers.call(new AttributeChangeTrigger(entity, type, oldBaseValue, newBaseValue));
 
         // Call update
         triggerUpdate(type);
@@ -209,7 +209,7 @@ public class EntityAttributes extends Attributes implements PlayerElement {
      */
     @Nonnull
     public LivingGameEntity getEntity() {
-        return gameEntity;
+        return entity;
     }
 
     /**
@@ -239,8 +239,12 @@ public class EntityAttributes extends Attributes implements PlayerElement {
         return !tempers.isEmpty();
     }
 
+    public void resetTemper(@Nonnull Temper temper) {
+        tempers.cancel(temper);
+    }
+
     private void display(AttributeType type, boolean isBuff) {
-        new AttributeDisplay(type, isBuff, gameEntity.getLocation().add(0.0d, 0.5d, 0.0d));
+        new AttributeDisplay(type, isBuff, entity.getLocation().add(0.0d, 0.5d, 0.0d));
     }
 
 }

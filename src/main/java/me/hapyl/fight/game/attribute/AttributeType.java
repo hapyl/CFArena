@@ -183,6 +183,18 @@ public enum AttributeType implements Described {
         }
     },
 
+    CROWD_CONTROL_RESISTANCE(
+            new Attribute("Effect Resistance", "The chance to resist crowd control abilities.")
+                    .setChar("\uD83E\uDE90")
+                    .setColor(ChatColor.DARK_PURPLE),
+            0.0
+    ) {
+        @Override
+        public double maxValue() {
+            return 1.0d;
+        }
+    },
+
     ;
 
     private static final List<String> NAMES;

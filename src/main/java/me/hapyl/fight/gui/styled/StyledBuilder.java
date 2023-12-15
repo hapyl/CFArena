@@ -40,6 +40,10 @@ public interface StyledBuilder {
         return toBuilder().addLore().addLore(Color.BUTTON.color("Click to {action}!", clickTo)).asIcon();
     }
 
+    default ItemStack asButton(@Nonnull String name, @Nonnull String clickTo) {
+        return toBuilder().setName(name).addLore().addLore(Color.BUTTON.color("Click to {action}!", clickTo)).asIcon();
+    }
+
     @Nonnull
     ItemBuilder toBuilder();
 

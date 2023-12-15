@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.heroes.archive.alchemist;
 
-import io.netty.util.internal.ThreadLocalRandom;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
@@ -23,11 +22,12 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.RandomTable;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Numbers;
-import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.spigotutils.module.player.EffectType;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
@@ -41,12 +41,13 @@ import java.util.UUID;
 
 import static org.bukkit.Sound.ENTITY_WITCH_AMBIENT;
 import static org.bukkit.Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR;
-import static org.bukkit.potion.PotionEffectType.*;
+import static org.bukkit.potion.PotionEffectType.POISON;
+import static org.bukkit.potion.PotionEffectType.WITHER;
 
 public class Alchemist extends Hero implements UIComponent, PlayerElement {
 
-    private final RandomTable<Effect> positiveEffects = new RandomTable<>();
-    private final RandomTable<Effect> negativeEffects = new RandomTable<>();
+    private final RandomTable<MadnessEffect> positiveEffects = new RandomTable<>();
+    private final RandomTable<MadnessEffect> negativeEffects = new RandomTable<>();
     private final Map<GamePlayer, Integer> toxinLevel = new HashMap<>();
     private final Map<UUID, CauldronEffect> cauldronEffectMap = new HashMap<>();
 
@@ -74,9 +75,9 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
         final Equipment equipment = getEquipment();
         equipment.setChestPlate(31, 5, 3, TrimPattern.SHAPER, TrimMaterial.COPPER);
 
-        positiveEffects.add(new Effect("made you &lFASTER", PotionEffectType.SPEED, 30, 2))
-                .add(new Effect("gave you &lJUMP BOOST", PotionEffectType.JUMP, 30, 1))
-                .add(new Effect("made you &lSTRONGER", 30) {
+        positiveEffects.add(new MadnessEffect("made you &lFASTER", PotionEffectType.SPEED, 30, 2))
+                .add(new MadnessEffect("gave you &lJUMP BOOST", PotionEffectType.JUMP, 30, 1))
+                .add(new MadnessEffect("made you &lSTRONGER", 30) {
                     @Override
                     public void affect(@Nonnull GamePlayer player, @Nonnull GamePlayer victim) {
                         final EntityAttributes playerAttributes = player.getAttributes();
@@ -84,7 +85,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
                         playerAttributes.increaseTemporary(Temper.ALCHEMIST, AttributeType.ATTACK, 0.5d, duration);
                     }
                 })
-                .add(new Effect("gave you &lRESISTANCE", 30) {
+                .add(new MadnessEffect("&lPROTECTED&a you", 30) {
                     @Override
                     public void affect(@Nonnull GamePlayer player, @Nonnull GamePlayer victim) {
                         final EntityAttributes playerAttributes = player.getAttributes();
@@ -92,7 +93,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
                         playerAttributes.increaseTemporary(Temper.ALCHEMIST, AttributeType.DEFENSE, 0.25d, duration);
                     }
                 })
-                .add(new Effect("healed half of your missing health", 30) {
+                .add(new MadnessEffect("healed half of your missing health", 30) {
                     @Override
                     public void affect(@Nonnull GamePlayer player, @Nonnull GamePlayer victim) {
                         final double missingHealth = player.getMaxHealth() - player.getHealth();
@@ -101,21 +102,21 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
                     }
                 });
 
-        negativeEffects.add(new Effect("&lpoisoned you", PotionEffectType.POISON, 15, 0) {
+        negativeEffects.add(new MadnessEffect("&lpoisoned you", PotionEffectType.POISON, 15, 0) {
                     @Override
                     public void affect(@Nonnull GamePlayer player, @Nonnull GamePlayer victim) {
                         victim.getData().setLastDamager(player);
                     }
                 })
-                .add(new Effect("&lblinded you", PotionEffectType.BLINDNESS, 15, 0))
-                .add(new Effect("&lis withering your blood", PotionEffectType.WITHER, 7, 0) {
+                .add(new MadnessEffect("&lblinded you", PotionEffectType.BLINDNESS, 15, 0))
+                .add(new MadnessEffect("&lis withering your blood", PotionEffectType.WITHER, 7, 0) {
                     @Override
                     public void affect(@Nonnull GamePlayer player, @Nonnull GamePlayer victim) {
                         victim.getData().setLastDamager(player);
                     }
                 })
-                .add(new Effect("&lslowed you", PotionEffectType.SLOW, 15, 2))
-                .add(new Effect("&lmade you weaker", null, 15, 0) {
+                .add(new MadnessEffect("&lslowed you", PotionEffectType.SLOW, 15, 2))
+                .add(new MadnessEffect("&lmade you weaker", null, 15, 0) {
                     @Override
                     public void affect(@Nonnull GamePlayer player, @Nonnull GamePlayer victim) {
                         final EntityAttributes entityAttributes = victim.getAttributes();
@@ -123,7 +124,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
                         entityAttributes.decreaseTemporary(Temper.ALCHEMIST, AttributeType.ATTACK, 0.5d, duration);
                     }
                 })
-                .add(new Effect("&lis... confusing?", PotionEffectType.CONFUSION, 15, 0));
+                .add(new MadnessEffect("&lis... confusing?", PotionEffectType.CONFUSION, 15, 0));
 
         setUltimate(new UltimateTalent(
                 "Alchemical Madness",
@@ -137,8 +138,8 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
 
     @Override
     public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        final Effect positiveEffect = positiveEffects.getRandomElement();
-        final Effect negativeEffect = negativeEffects.getRandomElement();
+        final MadnessEffect positiveEffect = positiveEffects.getRandomElement();
+        final MadnessEffect negativeEffect = negativeEffects.getRandomElement();
 
         positiveEffect.applyEffects(player, player);
         Collect.enemyPlayers(player).forEach(alivePlayer -> negativeEffect.applyEffects(player, alivePlayer));
@@ -161,17 +162,18 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
             return null;
         }
 
-        final PotionEffectType randomEffect = getRandomEffect();
+        final EffectType randomEffect = getRandomEffect();
         victim.addPotionEffect(randomEffect, 20, 3);
         effect.decrementEffectPotions();
 
         player.sendMessage(
                 "&c¤ &eVenom Touch applied &l%s &eto %s. &l%s &echarges left.",
-                Chat.capitalize(randomEffect.getName()),
+                Chat.capitalize(randomEffect.getType().getName()),
                 victim.getName(),
                 effect.getEffectHits()
         );
-        PlayerLib.playSound(player.getLocation(), ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 2.0f);
+
+        player.playWorldSound(player.getLocation(), ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 2.0f);
         return null;
     }
 
@@ -249,10 +251,16 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
     }
 
     // some effects aren't really allowed so
-    private PotionEffectType getRandomEffect() {
-        final PotionEffectType value = PotionEffectType.values()[ThreadLocalRandom.current().nextInt(PotionEffectType.values().length)];
-        return (value == BAD_OMEN || value == HEAL || value == HEALTH_BOOST || value == REGENERATION || value == ABSORPTION ||
-                value == SATURATION || value == LUCK || value == UNLUCK || value == HERO_OF_THE_VILLAGE) ? getRandomEffect() : value;
+    // replaced with EffectType because bukkit effects aren't enums
+    private EffectType getRandomEffect() {
+        final EffectType value = CFUtils.getRandomEffect();
+
+        return switch (value) {
+            case BAD_OMEN, INSTANT_HEAL, HEALTH_BOOST,
+                    REGENERATION, ABSORPTION, SATURATION,
+                    LUCK, UNLUCK, HERO_OF_THE_VILLAGE -> getRandomEffect();
+            default -> value;
+        };
     }
 
     private int getToxinLevel(GamePlayer player) {

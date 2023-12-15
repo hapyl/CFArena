@@ -4,8 +4,8 @@ import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Talent;
@@ -21,12 +21,18 @@ import javax.annotation.Nonnull;
 public class StoneCastle extends Talent implements Listener {
 
     @DisplayField(scaleFactor = 100) protected final double defenseIncrease = 1.0d;
+    @DisplayField(scaleFactor = 100) protected final double kbResistanceIncrease = 0.5d;
+    @DisplayField(scaleFactor = 100) protected final double ccResistanceIncrease = 0.5d;
     @DisplayField protected final double distance = 8.0d;
 
     private final double damageSplitSelf = 0.7d;
     private final double damageSplitOther = 1 - damageSplitSelf;
 
     private final PlayerMap<Castle> castleMap = PlayerMap.newConcurrentMap();
+    private final TemperInstance instance = Temper.STONE_CASTLE.newInstance()
+            .increase(AttributeType.DEFENSE, defenseIncrease)
+            .increase(AttributeType.KNOCKBACK_RESISTANCE, kbResistanceIncrease)
+            .increase(AttributeType.CROWD_CONTROL_RESISTANCE, ccResistanceIncrease);
 
     public StoneCastle() {
         super("Castle of Stone");
@@ -36,8 +42,8 @@ public class StoneCastle extends Talent implements Listener {
                                 
                 When a &ateammate&7 &b&nwithin&7 the castle takes &cdamage&7, the damage is &asplit&7 between you.
                                 
-                You also receive a %s increase.
-                """, AttributeType.DEFENSE);
+                You also receive a %s, %s and %s increase.
+                """, AttributeType.DEFENSE, AttributeType.KNOCKBACK_RESISTANCE, AttributeType.CROWD_CONTROL_RESISTANCE);
 
         addAttributeDescription("Damage Split", "%.0f%%/%.0f%%".formatted(damageSplitSelf * 100, damageSplitOther * 100));
 
@@ -74,8 +80,8 @@ public class StoneCastle extends Talent implements Listener {
                 continue;
             }
 
-            if (castle.getLocation().distance(player.getLocation()) > distance) {
-                continue;
+            if (!castle.isEntityWithin(player) || !castle.isEntityWithin(castle.getPlayer())) {
+                return;
             }
 
             final double damage = ev.getDamage();
@@ -96,8 +102,7 @@ public class StoneCastle extends Talent implements Listener {
             oldCastle.remove();
         }
 
-        final EntityAttributes attributes = player.getAttributes();
-        attributes.increaseTemporary(Temper.STONE_CASTLE, AttributeType.DEFENSE, defenseIncrease, getDuration());
+        instance.temper(player, getDuration());
 
         castleMap.put(player, new Castle(this, player) {
             @Override

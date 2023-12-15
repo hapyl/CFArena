@@ -8,7 +8,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.meta.When;
 
 public final class MongoUtils {
 
@@ -43,7 +42,7 @@ public final class MongoUtils {
      * @param <T>  - Type of value
      * @return Value or default value if not found.
      */
-    @Nonnull(when = When.MAYBE)
+    @SuppressWarnings("unchecked")
     public static <T> T get(@Nonnull final Document root, @Nonnull final String path, @Nullable final T def) {
         final String[] pathSegments = path.split("\\.");
         Document currentNode = root;
@@ -59,7 +58,8 @@ public final class MongoUtils {
             currentNode = nextNode;
         }
 
-        return currentNode.get(pathSegments[pathSegments.length - 1], def);
+        final Object object = currentNode.get(pathSegments[pathSegments.length - 1]);
+        return object != null ? (T) object : def;
     }
 
     /**

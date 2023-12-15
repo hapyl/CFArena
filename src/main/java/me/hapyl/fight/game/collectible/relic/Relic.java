@@ -48,7 +48,8 @@ public class Relic {
     }
 
     /**
-     * @deprecated Prefer {@link #setBlockFace(BlockFace)}
+     * @see #setBlockFace(BlockFace)
+     * @deprecated magic numbers
      */
     @Deprecated
     public Relic setBlockFace(int rotation) {

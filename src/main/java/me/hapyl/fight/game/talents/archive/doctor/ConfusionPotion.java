@@ -82,7 +82,7 @@ public class ConfusionPotion extends Talent {
 
         GameTask.runDuration(this, i -> {
             Collect.nearbyPlayers(location, 3.5d).forEach(target -> {
-                if (target.equals(player)) {
+                if (player.isSelfOrTeammateOrHasEffectResistance(target)) {
                     return;
                 }
 

@@ -26,10 +26,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class HarvestBlocks extends Talent {
@@ -174,21 +171,15 @@ public class HarvestBlocks extends Talent {
             @Override
             public void run() {
                 if (entity.isDead() || distanceTravelled >= maxDistance) {
-                    removeCancelAndPlayFx();
+                    removeCancelExplode(entity.getLocation());
                     return;
                 }
 
                 final LivingGameEntity nearestEntity = Collect.nearestEntity(location, 1.5d, player);
                 final Location fixedLocation = entity.getLocation().add(0.0d, 1.5d, 0.0d);
 
-                if (fixedLocation.getBlock().getType().isOccluding()) {
-                    removeCancelAndPlayFx();
-                    return;
-                }
-
-                if (nearestEntity != null) {
-                    nearestEntity.damage(damage, player, EnumDamageCause.GRAVITY_GUN);
-                    removeCancelAndPlayFx();
+                if (nearestEntity != null || fixedLocation.getBlock().getType().isOccluding()) {
+                    removeCancelExplode(fixedLocation);
                     return;
                 }
 
@@ -199,15 +190,22 @@ public class HarvestBlocks extends Talent {
                 distanceTravelled += 1.0d;
             }
 
-            private void removeCancelAndPlayFx() {
-                final Location location = entity.getLocation();
-
+            private void removeCancelExplode(Location location) {
                 entity.remove();
                 cancel();
+
+                Collect.nearbyEntities(location, 3.0d).forEach(entity -> {
+                    if (player.isTeammate(entity)) { // Damage self but not teammates
+                        return;
+                    }
+
+                    entity.damage(damage, player, EnumDamageCause.GRAVITY_GUN);
+                });
 
                 player.spawnWorldParticle(location, Particle.EXPLOSION_HUGE, 1);
                 player.playWorldSound(location, Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 0.0f);
             }
+
         }.runTaskTimer(0, 1);
 
     }

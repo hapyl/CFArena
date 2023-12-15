@@ -11,6 +11,7 @@ import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -30,7 +31,6 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.potion.PotionEffectType;
@@ -78,14 +78,11 @@ public class BountyHunter extends Hero {
     public DamageOutput processDamageAsVictim(DamageInput input) {
         final GamePlayer player = input.getEntityAsPlayer();
         final double damage = input.getDamage();
-
         final double health = player.getHealth();
 
         if (health > 50 && (health - damage <= (player.getMaxHealth() / 2.0d))) {
-            final PlayerInventory inventory = player.getInventory();
-
-            inventory.setItem(4, SMOKE_BOMB);
-            player.sendTitle("", "&aSmoke Bomb triggered!", 5, 20, 5);
+            player.setItem(HotbarSlots.HERO_ITEM, SMOKE_BOMB);
+            player.sendTitle("", "&aSMOKE BOMB TRIGGERED!", 5, 20, 5);
         }
 
         return null;
@@ -110,8 +107,8 @@ public class BountyHunter extends Hero {
         player.sendMessage("&aBackstabbed &7%s&a!", target.getName());
         target.sendMessage("&cYou were backstabbed by &7%s&c!", player.getName());
 
-        PlayerLib.playSound(location, Sound.ENTITY_ENDER_DRAGON_FLAP, 0.0f);
-        PlayerLib.playSound(location, Sound.ENTITY_IRON_GOLEM_REPAIR, 1.25f);
+        player.playWorldSound(location, Sound.ENTITY_ENDER_DRAGON_FLAP, 0.0f);
+        player.playWorldSound(location, Sound.ENTITY_IRON_GOLEM_REPAIR, 1.25f);
 
         player.swingMainHand();
 

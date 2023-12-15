@@ -87,12 +87,11 @@ public class BlastPack extends ChargedTalent {
             public void run() {
 
                 if (maxAirTime-- < 0 || item.isDead() || getBlastPack(player) != item || item.isOnGround()) {
-                    this.cancel();
+                    cancel();
                     return;
                 }
 
                 PlayerLib.spawnParticle(item.getLocation(), Particle.FLAME, 1, 0, 0, 0, 0);
-
             }
         }.runTaskTimer(0, 1);
 
@@ -112,8 +111,12 @@ public class BlastPack extends ChargedTalent {
             if (gameEntity.equals(player)) {
                 gameEntity.addEffect(GameEffectType.FALL_DAMAGE_RESISTANCE, 40);
             }
-            else {
+            else if (!player.isTeammate(gameEntity)) {
                 gameEntity.damage(5.0d, player, EnumDamageCause.SATCHEL);
+            }
+
+            if (gameEntity.hasCCResistanceAndDisplay(player)) {
+                return;
             }
 
             final Vector vector = gameEntity.getLocation().toVector().subtract(location.toVector()).normalize();

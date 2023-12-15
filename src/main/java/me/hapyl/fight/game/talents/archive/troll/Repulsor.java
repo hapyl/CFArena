@@ -29,7 +29,7 @@ public class Repulsor extends Talent {
     @Override
     public Response execute(@Nonnull GamePlayer player) {
         Collect.nearbyEntities(player.getLocation(), radius).forEach(victim -> {
-            if (player.isSelfOrTeammate(victim)) {
+            if (player.isSelfOrTeammateOrHasEffectResistance(victim)) {
                 return;
             }
 

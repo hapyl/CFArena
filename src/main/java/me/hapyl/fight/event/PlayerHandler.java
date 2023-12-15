@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.event.custom.GameDamageEvent;
+import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -27,6 +28,7 @@ import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.team.LocalTeamManager;
@@ -75,11 +77,9 @@ public class PlayerHandler implements Listener {
     public final double DAMAGE_LIMIT = Integer.MAX_VALUE;
     public final double HEALING_AT_KILL = 0.3d;
 
-    private final Map<PotionEffectType, AttributeType> disabledEffects;
+    public static final Map<PotionEffectType, AttributeType> disabledEffects = Maps.newHashMap();
 
     public PlayerHandler() {
-        disabledEffects = Maps.newHashMap();
-
         disabledEffects.put(PotionEffectType.WEAKNESS, AttributeType.DEFENSE);
         disabledEffects.put(PotionEffectType.INCREASE_DAMAGE, AttributeType.ATTACK);
         disabledEffects.put(PotionEffectType.DAMAGE_RESISTANCE, AttributeType.DEFENSE);
@@ -834,6 +834,35 @@ public class PlayerHandler implements Listener {
             }
         }
 
+    }
+
+    /**
+     * Because of spigots stupid thing where {@link ProjectileLaunchEvent} is actually a spawn event, I have to "re-wire" it to the custom event.
+     */
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void handleProjectileLaunchRewire(final ProjectileLaunchEvent ev) {
+        final Projectile entity = ev.getEntity();
+        final ProjectileSource shooter = entity.getShooter();
+
+        if (!(shooter instanceof LivingEntity living)) {
+            return;
+        }
+
+        final LivingGameEntity livingGameEntity = CF.getEntity(living);
+
+        if (livingGameEntity == null) {
+            return;
+        }
+
+        // We need to make sure that entity has all the data
+        // after spawning, so adding a 1 tick delay is fine here.
+        // Yet I agree that this is hideous.
+        new GameTask() {
+            @Override
+            public void run() {
+                new ProjectilePostLaunchEvent(livingGameEntity, entity).call();
+            }
+        }.runTaskLater(1);
     }
 
     private void processLobbyDamage(@Nonnull LivingEntity entity, @Nonnull EntityDamageEvent ev) {

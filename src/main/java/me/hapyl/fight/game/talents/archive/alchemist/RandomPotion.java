@@ -22,7 +22,9 @@ import static org.bukkit.potion.PotionEffectType.*;
 public class RandomPotion extends Talent {
 
     private final RandomTable<Effect> effects = new RandomTable<>();
+
     @DisplayField private final short toxinAccumulation = 12;
+    @DisplayField private final int effectDuration = 60;
 
     public RandomPotion() {
         super(
@@ -36,26 +38,33 @@ public class RandomPotion extends Talent {
         setItem(Material.POTION);
         setCooldown(50);
 
-        effects.add(new Effect("&b\uD83C\uDF0A", "Speed Boost", SPEED, 60, 1))
-                .add(new Effect("☕", "Jump Boost", JUMP, 100, 1))
-                .add(new Effect("&c⚔", "Strength", INCREASE_DAMAGE, 60, 3))
-                .add(new Effect("&6🛡", "Resistance") {
+        effects.add(new Effect("&b\uD83C\uDF0A", "Speed Boost", SPEED, effectDuration, 1))
+                .add(new Effect("☕", "Jump Boost", JUMP, effectDuration, 1))
+                .add(new Effect("&c⚔", "Attack") {
                     @Override
-                    public void affect(GamePlayer player) {
+                    public void affect(@Nonnull GamePlayer player) {
                         final EntityAttributes attributes = player.getAttributes();
 
-                        attributes.increaseTemporary(Temper.ALCHEMIST, AttributeType.DEFENSE, 0.5d, 60);
+                        attributes.increaseTemporary(Temper.ALCHEMIST, AttributeType.ATTACK, 1, effectDuration);
+                    }
+                })
+                .add(new Effect("&6🛡", "Defense") {
+                    @Override
+                    public void affect(@Nonnull GamePlayer player) {
+                        final EntityAttributes attributes = player.getAttributes();
+
+                        attributes.increaseTemporary(Temper.ALCHEMIST, AttributeType.DEFENSE, 0.5d, effectDuration);
                     }
                 })
                 .add(new Effect("&9⁘⁙", "Invisibility") {
                     @Override
-                    public void affect(GamePlayer player) {
-                        player.addEffect(GameEffectType.INVISIBILITY, 60, true);
+                    public void affect(@Nonnull GamePlayer player) {
+                        player.addEffect(GameEffectType.INVISIBILITY, effectDuration, true);
                     }
                 })
                 .add(new Effect("&c❤", "Healing") {
                     @Override
-                    public void affect(GamePlayer player) {
+                    public void affect(@Nonnull GamePlayer player) {
                         player.heal(10);
                     }
                 });
@@ -81,15 +90,15 @@ public class RandomPotion extends Talent {
             player.sendMessage("&e☕ &a&lDouble Potion has %s changes left", effect.getDoublePotion());
             player.sendMessage(
                     " &aGained %s &a%s &aand %s &a%s",
-                    firstEffect.getEffectChar(),
-                    firstEffect.getEffectName(),
-                    secondEffect.getEffectChar(),
-                    secondEffect.getEffectName()
+                    firstEffect.getChar(),
+                    firstEffect.getName(),
+                    secondEffect.getChar(),
+                    secondEffect.getName()
             );
 
             player.sendTitle(
-                    "&a%s      &a%s".formatted(firstEffect.getEffectChar(), secondEffect.getEffectChar()),
-                    "&6%s    &6%s".formatted(firstEffect.getEffectName(), secondEffect.getEffectName()),
+                    "&a%s      &a%s".formatted(firstEffect.getChar(), secondEffect.getChar()),
+                    "&6%s    &6%s".formatted(firstEffect.getName(), secondEffect.getName()),
                     5,
                     10,
                     5

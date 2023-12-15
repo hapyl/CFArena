@@ -1,6 +1,9 @@
 package me.hapyl.fight.game.reward;
 
 import com.google.common.collect.Lists;
+import me.hapyl.fight.util.ChatUtils;
+import me.hapyl.spigotutils.module.chat.Chat;
+import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -40,9 +43,15 @@ public class RewardDisplay implements Iterable<String> {
         return add(condition ? ifTrue : ifFalse);
     }
 
+    @Nonnull
     @Override
     public Iterator<String> iterator() {
         return strings.iterator();
+    }
+
+    // Fixme -> Mojang does not support custom hover colors???
+    public void sendMessage(@Nonnull Player player, @Nonnull String message, @Nullable Object... format) {
+        Chat.sendHoverableMessage(player, ChatUtils.showText(strings.toArray(new String[0])), message, format);
     }
 
     @Nonnull

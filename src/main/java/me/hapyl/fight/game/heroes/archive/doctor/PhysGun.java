@@ -64,7 +64,9 @@ public class PhysGun extends Weapon {
             }
 
             // Get the target entity
-            final LivingGameEntity target = Collect.targetEntity(player, 3.0d, e -> !e.equals(player));
+            final LivingGameEntity target = Collect.targetEntity(player, 3.0d, entity -> {
+                return !player.isSelfOrTeammateOrHasEffectResistance(entity);
+            });
 
             if (target == null) {
                 return Response.error("&cNo valid target!");

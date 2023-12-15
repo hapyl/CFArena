@@ -24,7 +24,7 @@ public class TestDatabaseCommand extends SimplePlayerAdminCommand {
         final String path = args[0];
 
         if (args.length == 1) {
-            final String str = MongoUtils.get(playerDatabase.getDocument(), path, "");
+            final String str = String.valueOf(MongoUtils.get(playerDatabase.getDocument(), path, null));
 
             Chat.sendMessage(player, "&aValue: &e%s", str);
         }

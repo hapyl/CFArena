@@ -94,6 +94,11 @@ public class OrcAxe extends InputTalent {
                     Collect.nearbyEntities(location, 1.0d, entity -> !entity.equals(player))
                             .forEach(entity -> {
                                 entity.damage(15.0d, player, EnumDamageCause.CYCLING_AXE);
+
+                                if (entity.hasCCResistanceAndDisplay(player)) {
+                                    return;
+                                }
+
                                 entity.setVelocity(entity.getLocation().getDirection().normalize().multiply(-1.5d));
                             });
                 });

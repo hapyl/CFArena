@@ -33,9 +33,10 @@ public class Aard extends Talent {
         }
 
         Collect.nearbyEntities(inFront, radius).forEach(entity -> {
-            if (entity.equals(player)) {
+            if (player.isSelfOrTeammateOrHasEffectResistance(entity)) {
                 return;
             }
+
             entity.setVelocity(vector);
         });
 

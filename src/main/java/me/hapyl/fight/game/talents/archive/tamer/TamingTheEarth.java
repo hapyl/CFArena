@@ -36,7 +36,7 @@ public class TamingTheEarth extends Talent implements TamerTimed {
         final int duration = getDuration(player);
 
         Collect.nearbyEntities(player.getLocation(), radius).forEach(entity -> {
-            if (player.isSelfOrTeammate(entity)) {
+            if (player.isSelfOrTeammateOrHasEffectResistance(entity)) {
                 return;
             }
 

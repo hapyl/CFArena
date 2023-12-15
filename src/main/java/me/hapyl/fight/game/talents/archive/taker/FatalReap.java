@@ -1,10 +1,13 @@
 package me.hapyl.fight.game.talents.archive.taker;
 
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.archive.taker.SpiritualBones;
 import me.hapyl.fight.game.heroes.archive.taker.Taker;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.Collect;
@@ -41,20 +44,24 @@ public class FatalReap extends Talent {
         for (double d = length; d >= -length; d -= 0.2d) {
             final Location location = calculateLocation(player.getEyeLocation(), d);
 
-            Collect.nearbyEntities(location, 1.0d).forEach(victim -> {
-                if (player.isSelfOrTeammate(victim)) {
-                    return;
+            for (LivingGameEntity entity : Collect.nearbyEntities(location, 1.0d)) {
+                if (player.isSelfOrTeammate(entity)) {
+                    continue;
                 }
 
-                final double health = victim.getHealth();
-                final double damage = Math.min(health * (damagePercent / 100), victim.getMaxHealth() / 2);
-                victim.damage(damage, player, EnumDamageCause.RIP_BONES);
-            });
+                // Give bones per entity hit
+                if (entity.getNoDamageTicks() <= entity.getMaximumNoDamageTicks() / 2) {
+                    final SpiritualBones bones = Heroes.TAKER.getHero(Taker.class).getBones(player);
+                    bones.add(spiritualBoneGeneration, true);
+                }
+
+                final double health = entity.getHealth();
+                final double damage = Math.min(health * (damagePercent / 100), entity.getMaxHealth() / 2);
+                entity.damage(damage, player, EnumDamageCause.RIP_BONES);
+            }
 
             player.spawnWorldParticle(location, Particle.SWEEP_ATTACK, 1, 0.0f, 0.0f, 0.0f, 0.0f);
         }
-
-        Heroes.TAKER.getHero(Taker.class).getBones(player).add(spiritualBoneGeneration, true);
 
         // Fx
         player.playWorldSound(Sound.ENTITY_CAT_HISS, 2.0f);

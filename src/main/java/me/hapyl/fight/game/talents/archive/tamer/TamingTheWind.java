@@ -64,7 +64,7 @@ public class TamingTheWind extends InputTalent implements TamerTimed {
         int liftedEnemies = 0;
 
         for (LivingGameEntity entity : Collect.nearbyEntities(location, impairRadius)) {
-            if (player.isSelfOrTeammate(entity)) {
+            if (player.isSelfOrTeammateOrHasEffectResistance(entity)) {
                 continue;
             }
 

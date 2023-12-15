@@ -85,7 +85,7 @@ public class TakerHook {
                 final LivingGameEntity nearest = Collect.nearestEntity(location, 1.5d, player);
 
                 if (nearest != null) {
-                    if (nearest.getMetadata().ccAffect.isFalseAndNotify(player)) {
+                    if (player.isSelfOrTeammateOrHasEffectResistance(nearest)) {
                         contract();
                         return;
                     }

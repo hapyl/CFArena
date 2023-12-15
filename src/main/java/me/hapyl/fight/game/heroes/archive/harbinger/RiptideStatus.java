@@ -21,7 +21,7 @@ public class RiptideStatus extends PlayerData implements Ticking {
     //protected final static long RIPTIDE_DURATION = 100; // dynamic
     private final static double RIPTIDE_DAMAGE = 5.0d;
     protected final static long RIPTIDE_PERIOD = 50;
-    protected final static int RIPTIDE_AMOUNT = 5;
+    protected final static int RIPTIDE_AMOUNT = 3;
 
     private final Map<LivingGameEntity, RiptideData> riptideData;
 
@@ -108,7 +108,7 @@ public class RiptideStatus extends PlayerData implements Ticking {
         return data != null && !data.isExpired();
     }
 
-    public void stop(LivingGameEntity killer) {
-        final RiptideData data = riptideData.remove(killer);
+    public void stop(@Nonnull LivingGameEntity killer) {
+        riptideData.remove(killer);
     }
 }

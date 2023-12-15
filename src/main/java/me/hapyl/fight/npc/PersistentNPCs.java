@@ -4,7 +4,7 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.parkour.ParkourCourse;
 import me.hapyl.fight.game.parkour.storage.SlimeParkour;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
-import me.hapyl.fight.gui.EyeGUI;
+import me.hapyl.fight.npc.archive.TheEyeNPC;
 import me.hapyl.fight.util.StringRandom;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.npc.ClickType;
@@ -36,22 +36,7 @@ public enum PersistentNPCs {
             }
     ),
 
-    THE_EYE(
-            new PersistentNPC(28.5, 65, 0.5, 90, 0, "The Eye") {
-                @Override
-                public void onPrepare() {
-                    setSkin(
-                            "ewogICJ0aW1lc3RhbXAiIDogMTYxMzMwMjM5NTg0NSwKICAicHJvZmlsZUlkIiA6ICI4NDMwMDNlM2JlNTY0M2Q5OTQxMTBkMzJhMzU2MTk2MCIsCiAgInByb2ZpbGVOYW1lIiA6ICJHYWJvTWNHYW1lciIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS9hODhiMWNkOTU3NDY3MmU4ZTMyNjJmMjEwYzBkZGRiYzA4MmVhNzU2OWU4ZTcwZjBjMDdiNGJlZTc1ZTMyZjYyIgogICAgfQogIH0KfQ==",
-                            "IfwCAwsmxYOgutDZaDi6mjsp5Hzl0oV6zXyYWl6iNDFyEXZisKbYIDHbw/Vua4T8FD2gwWHtM4nTduvRk2DRcmLubkpUmmJ+t/9/6oEa9N5VfG6veAA436fSnfhEl+F/MR2gTQFz7nJb/S0E/WmZGcMr7deGL61tdsFVVKwJOHboM/fokGWpfhMG7LRY5uI9S4CIC0f0sKiFRtDC0fXGNKpkumMYn8t6oCjpQnvESYRVV8AD6Ap8s2ajTRYM/OhFJEulTIXP8N70bD8qClpEpbL4RuC0fuEEuoGSIWvQ4PwFc5uSnT1WnVPMreSD8P5XEaxiNRlqHReTQ6Bz9XuYc7uMfYn+DneWZSBf4Y3SmfnSNtax7W+e1CXxMCDMQHFtAxoaNmmQ6lWKSEFSiGEAPILdM7Nq0HaM6ITgUW2TlSt+k82hh4jwp6C+G2y5+h5S55eLzQ5ERbjvvDZuHRLr0izlz/kszVdtcAGKxTGrHbWs+pYboTWrLEXiTJLYS5dUar3/TeCf6uh2WyeOUqpgbCwrYLKzbxXxYNKTGcbv7Sva72YodKH7uvl6uCp17/n0+PGV2ymzxzVb9w/oMlrUzz3QdfA9capV7jIDSrItnu0+AFL7O80LDTGTKUdFiIQDuaOKFh11DW8bGzJtRPPeD4RDvE3kiy4cvgZCh/0xQUg="
-                    );
-                }
-
-                @Override
-                public void onClick(Player player, HumanNPC npc, ClickType clickType) {
-                    new EyeGUI(player);
-                }
-            }
-    ),
+    THE_EYE(new TheEyeNPC()),
 
     HYPIXEL(
             new PersistentNPC(10, 65, 24, 102.5f, 0.0f, null) {
@@ -91,8 +76,8 @@ public enum PersistentNPCs {
                             "Why do they keep dying? It's been %s times."
                     ).formatted(fails));
 
-                    PlayerLib.playSound(location, Sound.ENTITY_SKELETON_AMBIENT, 1.0f);
-                    PlayerLib.playSound(location, Sound.ENTITY_SKELETON_HURT, 0.25f);
+                    PlayerLib.playSound(player, Sound.ENTITY_SKELETON_AMBIENT, 1.0f);
+                    PlayerLib.playSound(player, Sound.ENTITY_SKELETON_HURT, 0.25f);
                 }
             }
     ),

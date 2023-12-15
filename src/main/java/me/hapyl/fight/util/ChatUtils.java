@@ -1,21 +1,36 @@
 package me.hapyl.fight.util;
 
 import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.ChatColor;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 public class ChatUtils {
 
     @Nonnull
-    public static HoverEvent showText(@Nonnull String first, @Nonnull String... other) {
-        final HoverEvent event = new HoverEvent(HoverEvent.Action.SHOW_TEXT, text(first));
+    public static HoverEvent showText(@Nonnull String... strings) {
+        final HoverEvent event = new HoverEvent(HoverEvent.Action.SHOW_TEXT, text(strings[0]));
+        event.addContent(nl());
 
-        for (String string : other) {
-            event.addContent(nl());
-            event.addContent(text(string));
+        for (int i = 1; i < strings.length; i++) {
+            if (i != 1) {
+                event.addContent(nl());
+            }
+
+            final String string = strings[i];
+            final List<String> list = ItemBuilder.splitString(string);
+
+            for (int j = 0; j < list.size(); j++) {
+                if (j != 0) {
+                    event.addContent(nl());
+                }
+
+                event.addContent(text(list.get(j)));
+            }
         }
 
         return event;

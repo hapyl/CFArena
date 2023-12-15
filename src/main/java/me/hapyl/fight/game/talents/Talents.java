@@ -387,7 +387,7 @@ public enum Talents {
             "Climb", """
             Raised by the &ajungle&7, Juju mastered the ability to &2climb&7 &nanything&7.
 
-            &6&lJUMP&7 no the wall to gran onto it and &bdescend&7 slowly.
+            &6&lJUMP&7 no the wall to grab onto it and &bdescend&7 slowly.
             &6&lSNEAK&7 to climb upwards.
             """, Material.LEATHER_BOOTS
     )),

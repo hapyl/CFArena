@@ -108,7 +108,7 @@ public class Discharge extends Talent implements Listener, HeroReference<BlastKn
 
     public void explode(Location location, GamePlayer player, double damage) {
         Collect.nearbyEntities(location, explosionRadius).forEach(entity -> {
-            if (entity.equals(player) || player.isTeammate(entity)) {
+            if (player.isSelfOrTeammateOrHasEffectResistance(entity)) {
                 return;
             }
 

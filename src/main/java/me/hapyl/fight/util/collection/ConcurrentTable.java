@@ -5,10 +5,7 @@ import com.google.common.collect.Sets;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -126,6 +123,22 @@ public final class ConcurrentTable<R, C, V> {
         }
 
         return hashMap.put(Cell.of(row, column), v);
+    }
+
+    public Collection<V> removeAll(R row) {
+        Set<V> set = Sets.newHashSet();
+
+        hashMap.forEach((r, c) -> {
+            if (r.equals(row)) {
+                final V removed = hashMap.remove(r);
+
+                if (removed != null) {
+                    set.add(removed);
+                }
+            }
+        });
+
+        return set;
     }
 
     public record Cell<R, C>(R row, C column) {

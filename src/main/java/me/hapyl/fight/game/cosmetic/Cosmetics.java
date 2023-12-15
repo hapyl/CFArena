@@ -195,14 +195,19 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
             Rarity.EPIC
     ).setIcon(Material.DRAGON_HEAD)),
 
-    DICE_STATUS(
-            new PrefixCosmetic(
-                    "High Class",
-                    "Straight from Kickback City!",
-                    Color.BLACK + "🎲",
-                    Rarity.LEGENDARY
-            ).setIcon(Material.MUSIC_DISC_STAL).setExclusive(true)
-    ),
+    DICE_STATUS(new PrefixCosmetic(
+            "High Class",
+            "Straight from Kickback City!",
+            Color.BLACK + "🎲",
+            Rarity.LEGENDARY
+    ).setIcon(Material.MUSIC_DISC_STAL).setExclusive(true)),
+
+    RELIC_HUNTER(new PrefixCosmetic(
+            "Relic Hunter",
+            "Gotta find them all.",
+            Color.DIAMOND + "💎",
+            Rarity.LEGENDARY
+    ).setIcon(Material.DIAMOND).setExclusive(true)),
 
     // Win Effects
 
@@ -218,9 +223,10 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
 
     // Gadgets
     FIREWORK(new FireworkGadget()),
-    DICE(new DiceGadget()),
-    DICE_HIGH_CLASS(new HighClassDice()),
 
+    DICE(new DiceGadget()),
+
+    DICE_HIGH_CLASS(new HighClassDice()),
     ;
 
     private final static Map<Type, List<Cosmetics>> byType = Maps.newHashMap();

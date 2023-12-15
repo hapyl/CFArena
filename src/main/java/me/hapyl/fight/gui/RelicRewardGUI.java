@@ -6,106 +6,117 @@ import me.hapyl.fight.database.entry.CollectibleEntry;
 import me.hapyl.fight.game.collectible.relic.Relic;
 import me.hapyl.fight.game.collectible.relic.RelicHunt;
 import me.hapyl.fight.game.collectible.relic.Type;
+import me.hapyl.fight.game.color.Color;
+import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.reward.Reward;
+import me.hapyl.fight.gui.styled.ReturnData;
+import me.hapyl.fight.gui.styled.Size;
+import me.hapyl.fight.gui.styled.StyledGUI;
+import me.hapyl.fight.gui.styled.StyledItem;
+import me.hapyl.fight.gui.styled.eye.RelicHuntGUI;
+import me.hapyl.fight.ux.Message;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.inventory.gui.Arguments;
-import me.hapyl.spigotutils.module.inventory.gui.PlayerDynamicGUI;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.RomanNumber;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
-public class RelicRewardGUI extends PlayerDynamicGUI {
+public class RelicRewardGUI extends StyledGUI {
 
     private final RelicHunt relicHunt;
     private final int PERMANENT_EXCHANGE_RATE = 5;
 
     public RelicRewardGUI(Player player) {
-        super(player, "Relic Rewards", 6);
+        super(player, "Relic Rewards", Size.FIVE);
         relicHunt = Main.getPlugin().getCollectibles().getRelicHunt();
 
         openInventory();
     }
 
+    @Nullable
     @Override
-    public void setupInventory(@Nonnull Arguments arguments) {
-        final CollectibleEntry entry = PlayerDatabase.getDatabase(player).collectibleEntry;
-        setArrowBack("Relic Hunt", ref -> new RelicHuntGUI(player));
+    public ReturnData getReturnData() {
+        return ReturnData.of("Relic Hunt", RelicHuntGUI::new);
+    }
 
+    @Override
+    public void onUpdate() {
+        final CollectibleEntry entry = PlayerDatabase.getDatabase(player).collectibleEntry;
+
+        setHeader(StyledItem.ICON_RELIC_REWARDS.asIcon());
+
+        // Tiered
         int slot = 37;
         for (Type type : Type.values()) {
-            final String name = Chat.capitalize(type);
-            setItem(slot, ItemBuilder.playerHeadUrl(type.getTexture()).setName(name).asIcon());
+            final ItemBuilder relicBuilder = ItemBuilder.playerHeadUrl(type.getTexture());
+            relicBuilder.setName(type.getName());
+            relicBuilder.addLore();
+            relicBuilder.addSmartLore(type.getDescription());
 
-            // Tiered claims per claimed relics:
-            // - Find one
-            // - Find half
-            // - Find all
+            setItem(slot, relicBuilder.asIcon());
 
-            for (int i = 1; i <= 3; i++) {
-                final List<Relic> relics = relicHunt.byType(type);
-                final List<Relic> foundList = relicHunt.getFoundListByType(player, type);
+            final List<Relic> relicsByType = relicHunt.byType(type);
+            final List<Relic> foundRelicsByType = relicHunt.getFoundListByType(player, type);
 
-                final boolean hasClaimed = entry.hasClaimed(type, i);
-                final int rewardSlot = slot - (9 * i);
-                final Reward reward = relicHunt.getCollectorReward(i);
+            // Tiers
+            for (int index = 1; index <= 3; index++) {
+                final int finalIndex = index;
+                final boolean hasClaimedTier = entry.hasClaimed(type, index);
+                final int tierSlot = slot - (9 * index);
+                final ItemBuilder builder = new ItemBuilder(hasClaimedTier ? Material.MINECART : Material.CHEST_MINECART);
+
+                builder.setName(Chat.capitalize(type.name()) + " Collector " + RomanNumber.toRoman(index));
+                builder.addLore("&8One Time Exchange");
+                builder.addLore();
+
+                final Reward reward = relicHunt.getCollectorReward(index);
 
                 if (reward == null) {
-                    setItem(rewardSlot, ItemBuilder.of(Material.BARRIER, "no reward LOL!!!!!!!").asIcon());
                     continue;
                 }
 
-                final ItemBuilder builder = reward.formatBuilder(
-                        player,
-                        ItemBuilder.of(
-                                hasClaimed ? Material.MINECART : Material.CHEST_MINECART,
-                                "%s Collector %s".formatted(name, RomanNumber.toRoman(i)),
-                                "&8One Time Exchange"
-                        ).setAmount(i).addLore()
-                ).addLore();
+                reward.formatBuilder(player, builder);
+                builder.addLore();
 
-                if (hasClaimed) {
-                    builder.addLore("&aAlready claimed!");
-                    setItem(rewardSlot, builder.asIcon(), ref -> {
-                        Chat.sendMessage(player, "&aAlready claimed!");
+                switch (index) {
+                    case 1 -> builder.addSmartLore("Collect at least one relic of this type.", "&7&o");
+                    case 2 -> builder.addSmartLore("Collect at least half of the relics of this type.", "&7&o");
+                    case 3 -> builder.addSmartLore("Collect all the relics of this type.", "&7&o");
+                }
+
+                builder.addLore();
+
+                if (hasClaimedTier) {
+                    builder.addLore(Color.SUCCESS + "Already claimed!");
+                    setItem(tierSlot, builder.asIcon(), click -> {
+                        Chat.sendMessage(player, Color.SUCCESS + "Already claimed!");
                         PlayerLib.playSound(player, Sound.BLOCK_ANVIL_LAND, 1.0f);
                     });
                 }
                 else {
-                    boolean canClaim = false;
-                    final int totalRelics = relics.size();
-                    final int foundRelics = foundList.size();
+                    final int totalRelics = relicsByType.size();
+                    final int foundRelics = foundRelicsByType.size();
                     final boolean anyClaimable = totalRelics > 0 && foundRelics > 0;
 
-                    switch (i) {
-                        case 1 -> {
-                            canClaim = anyClaimable;
-                            builder.addSmartLore("Collect at least one %s relic to claim.".formatted(name));
-                        }
-                        case 2 -> {
-                            canClaim = anyClaimable && foundRelics >= (totalRelics / 2);
-                            builder.addSmartLore("Collect half of %s relics to claim.".formatted(name));
-                        }
-                        case 3 -> {
-                            canClaim = anyClaimable && foundRelics >= totalRelics;
-                            builder.addSmartLore("Collect all of %s relics to claim.".formatted(name));
-                        }
-                    }
-
-                    builder.addLore();
-                    final int finalI = i;
+                    final boolean canClaim = switch (index) {
+                        case 1 -> anyClaimable;
+                        case 2 -> anyClaimable && foundRelics >= (totalRelics / 2);
+                        case 3 -> anyClaimable && foundRelics >= totalRelics;
+                        default -> false;
+                    };
 
                     if (canClaim) {
-                        setItem(rewardSlot, builder.glow().addLore("&aClick to claim!").asIcon(), ref -> {
+                        builder.addLore(Color.BUTTON + "Click to claim!");
+                        setItem(tierSlot, builder.asIcon(), click -> {
                             reward.grant(player);
-                            entry.setClaimed(type, finalI, true);
+                            entry.setClaimed(type, finalIndex, true);
 
-                            Chat.sendMessage(player, "&aClaimed!");
+                            Message.success(player, "Claimed!");
                             PlayerLib.playSound(player, Sound.BLOCK_CHEST_LOCKED, 0.75f);
                             PlayerLib.playSound(player, Sound.BLOCK_CHEST_CLOSE, 1.25f);
 
@@ -113,8 +124,10 @@ public class RelicRewardGUI extends PlayerDynamicGUI {
                         });
                     }
                     else {
-                        setItem(rewardSlot, builder.addLore("&cCannot claim yet!").asIcon(), ref -> {
-                            Chat.sendMessage(player, "&cCannot claim yet!");
+                        builder.addLore(Color.ERROR + "Cannot claim yet!");
+                        setItem(tierSlot, builder.asIcon(), click -> {
+                            Message.error(player, "Cannot claim yet!");
+                            PlayerLib.playSound(player, Sound.BLOCK_ANVIL_LAND, 1.0f);
                         });
                     }
                 }
@@ -123,42 +136,90 @@ public class RelicRewardGUI extends PlayerDynamicGUI {
             slot++;
         }
 
-        // Transmitter
-        final ItemBuilder exchangeBuilder = ItemBuilder.of(Material.END_PORTAL_FRAME, "Ancient Transmitter", "&8Permanent Exchange", "")
-                .addSmartLore("Exchange every &b%s&7 relics for a small reward.".formatted(PERMANENT_EXCHANGE_RATE))
-                .addLore();
+        // All relics
+        final Cosmetics cosmetic = Cosmetics.RELIC_HUNTER;
+        final ItemBuilder builder = new ItemBuilder(Material.DIAMOND);
 
+        builder.setName("Exclusive Cosmetic");
+        builder.addLore("&8One Time Exchange");
+        builder.addLore();
+        builder.addSmartLore("Collect every single relic to claim:", "&7&o");
+        builder.addLore(cosmetic.getCosmetic().getFormatted());
+        builder.addLore();
+
+        if (cosmetic.isUnlocked(player)) {
+            builder.addLore(Color.SUCCESS + "Already claimed!");
+
+            setItem(25, builder.asIcon(), click -> {
+                Message.error(player, "Already claimed!");
+                PlayerLib.villagerNo(player);
+            });
+        }
+        else {
+            if (relicHunt.hasClaimedAll(player)) {
+                builder.addLore(Color.BUTTON + "Click to claim!");
+                builder.glow();
+
+                setItem(25, builder.asIcon(), click -> {
+                    cosmetic.setUnlocked(player, true);
+
+                    Message.success(player, "Claimed!");
+                    PlayerLib.villagerYes(player);
+                    PlayerLib.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1.0f);
+
+                    update();
+                });
+            }
+            else {
+                builder.addLore(Color.ERROR + "Cannot claim yet!");
+
+                setItem(25, builder.asIcon(), click -> {
+                    Message.error(player, "Cannot claim yet!");
+                    PlayerLib.playSound(player, Sound.BLOCK_ANVIL_LAND, 1.0f);
+                });
+            }
+        }
+
+        // Permanent
         final List<Relic> foundList = relicHunt.getFoundList(player);
-        final int exchanged = entry.getPermanentExchangeCount();
-        final int canExchange = foundList.size() - exchanged;
-        final int tier = exchanged / PERMANENT_EXCHANGE_RATE + 1;
-        final Reward reward = relicHunt.getExchangeReward(tier);
+        final int totalExchanged = entry.getPermanentExchangeCount();
+        final int canExchange = foundList.size() - totalExchanged;
+        final int exchangeTier = totalExchanged / PERMANENT_EXCHANGE_RATE + 1;
+        final Reward reward = relicHunt.getExchangeReward(exchangeTier);
 
-        exchangeBuilder.addLore("Current Exchange Tier &f&l" + RomanNumber.toRoman(tier));
+        final ItemBuilder exchangeBuilder = new ItemBuilder(Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE);
+        exchangeBuilder.setAmount(Math.max(1, exchangeTier));
+        exchangeBuilder.setName("Relic Stabilizer");
+        exchangeBuilder.addLore("&8Permanent Exchange");
+        exchangeBuilder.addLore();
+        exchangeBuilder.addLore("Current Exchange Tier: &b&l" + RomanNumber.toRoman(exchangeTier));
         exchangeBuilder.addLore();
         exchangeBuilder.addLore("Rewards:");
+
         reward.formatBuilder(player, exchangeBuilder);
         exchangeBuilder.addLore();
 
         if (canExchange < PERMANENT_EXCHANGE_RATE) {
-            setItem(34, exchangeBuilder.addLore("&cCannot exchange! (%s/%s)", canExchange, PERMANENT_EXCHANGE_RATE).asIcon(), ref -> {
-                Chat.sendMessage(player, "&cNot enough relics!");
+            exchangeBuilder.addLore(Color.ERROR + "Cannot exchange! (%s/%s)", canExchange, PERMANENT_EXCHANGE_RATE);
+
+            setItem(34, exchangeBuilder.asIcon(), click -> {
+                Message.error(player, "Cannot exchange!");
                 PlayerLib.playSound(player, Sound.BLOCK_ANVIL_LAND, 1.0f);
             });
         }
         else {
-            setItem(34, exchangeBuilder.addLore("&aClick to exchange").asIcon(), ref -> {
+            exchangeBuilder.addLore(Color.BUTTON + "Click to exchange!");
+
+            setItem(34, exchangeBuilder.asIcon(), click -> {
                 reward.grant(player);
                 entry.incrementPermanentExchangeCount(PERMANENT_EXCHANGE_RATE);
 
-                Chat.sendMessage(player, "&aExchanged!");
+                Message.success(player, "Successfully exchanged!");
                 PlayerLib.playSound(player, Sound.ENTITY_FIREWORK_ROCKET_TWINKLE, 2.0f);
 
                 update();
             });
         }
-
-
     }
 
 }

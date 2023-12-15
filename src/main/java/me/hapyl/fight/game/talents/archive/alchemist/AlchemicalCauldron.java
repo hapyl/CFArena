@@ -89,7 +89,7 @@ public class AlchemicalCauldron extends TickingGameTask {
 
             progress += progressPerTick;
 
-            if (progress % 15 == 0) {
+            if (progress % (100 / progress / 5) == 0) {
                 playSound(Sound.AMBIENT_UNDERWATER_EXIT, 1.5f);
             }
 

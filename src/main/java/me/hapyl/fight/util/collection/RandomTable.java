@@ -1,16 +1,23 @@
 package me.hapyl.fight.util.collection;
 
+import com.google.common.collect.Lists;
+
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.Random;
 
 public class RandomTable<E> {
 
     private final List<E> collection;
+    private final Random random;
+
+    public RandomTable(@Nonnull List<E> collection) {
+        this.collection = collection;
+        this.random = new Random();
+    }
 
     public RandomTable() {
-        collection = new ArrayList<>();
+        this(Lists.newArrayList());
     }
 
     public RandomTable<E> add(E e) {
@@ -48,7 +55,7 @@ public class RandomTable<E> {
             throw new IllegalStateException("size() == 0");
         }
 
-        return collection.get(ThreadLocalRandom.current().nextInt(collection.size()));
+        return collection.get(random.nextInt(collection.size()));
     }
 
 }

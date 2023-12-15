@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.annotate.Unique;
+import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.reward.CurrencyReward;
 import me.hapyl.fight.game.reward.Reward;
@@ -51,9 +52,9 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
         collectorRewards = Maps.newHashMap();
         exchangeReward = Maps.newHashMap();
 
-        collectorRewards.put(1, new CurrencyReward().withCoins(500).withExp(5));
-        collectorRewards.put(2, new CurrencyReward().withCoins(1000).withExp(10));
-        collectorRewards.put(3, new CurrencyReward().withCoins(2000).withExp(20).withRubies(1));
+        collectorRewards.put(1, new CurrencyReward().withCoins(1000).withExp(10));
+        collectorRewards.put(2, new CurrencyReward().withCoins(2500).withExp(25));
+        collectorRewards.put(3, new CurrencyReward().withCoins(5000).withExp(50).withRubies(1));
 
         exchangeReward.put(1, new CurrencyReward().withCoins(500).withExp(5));
         exchangeReward.put(2, new CurrencyReward().withCoins(1000).withExp(10));
@@ -171,6 +172,28 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
         return Lists.newArrayList(byType.getOrDefault(value, Lists.newArrayList()));
     }
 
+    @Nonnull
+    public List<GameMaps> getMapsWithRelics() {
+        final List<GameMaps> list = Lists.newArrayList();
+
+        for (GameMaps map : GameMaps.values()) {
+            if (!anyIn(map)) {
+                continue;
+            }
+
+            list.add(map);
+        }
+
+        return list;
+    }
+
+    public boolean hasClaimedAll(Player player) {
+        final PlayerDatabase database = PlayerDatabase.getDatabase(player);
+        final List<Integer> foundList = database.collectibleEntry.getFoundList();
+
+        return byId.size() == foundList.size();
+    }
+
     private void registerRelics() {
         // Lobby
         registerRelic(100, new Relic(Type.AMETHYST, 27, 66, 8));
@@ -233,12 +256,11 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
 
                     final PlayerProfile playerProfile = Bukkit.createPlayerProfile(UUID.randomUUID());
                     playerProfile.getTextures()
-                            .setSkin(new URL("http://textures.minecraft.net/texture/%s".formatted(relic.getType().getTexture())));
+                            .setSkin(new URL("http://textures.minecraft.net/texture/" + relic.getType().getTexture()));
 
                     skull.setOwnerProfile(playerProfile);
                     skull.update(true, false);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch (Exception ignored) {
                 }
             }
 

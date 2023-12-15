@@ -5,6 +5,7 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -19,7 +20,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 
 import javax.annotation.Nonnull;
 
@@ -74,7 +74,7 @@ public class CauldronAbility extends Talent implements Listener {
         }
 
         // Prevent wrong clicks by adding a tiny cooldown
-        if (player.hasCooldown(Heroes.ALCHEMIST.getHero().getWeapon().getType()) || player.hasCooldown(missingStickItem.getType())) {
+        if (player.hasCooldown(Heroes.ALCHEMIST.getHero().getWeapon().getMaterial()) || player.hasCooldown(missingStickItem.getType())) {
             return;
         }
 
@@ -142,17 +142,15 @@ public class CauldronAbility extends Talent implements Listener {
     }
 
     private void changeItem(GamePlayer player, boolean flag) {
-        final PlayerInventory inventory = player.getInventory();
-
         GameTask.runLater(() -> {
             if (flag) {
                 final Weapon weapon = Heroes.ALCHEMIST.getHero().getWeapon();
 
-                inventory.setItem(0, weapon.getItem());
-                player.setCooldown(weapon.getType(), 10);
+                player.setItem(HotbarSlots.WEAPON, weapon.getItem());
+                player.setCooldown(weapon.getMaterial(), 10);
             }
             else {
-                inventory.setItem(0, missingStickItem);
+                player.setItem(HotbarSlots.WEAPON, missingStickItem);
                 player.setCooldown(missingStickItem.getType(), 10);
             }
         }, 1);

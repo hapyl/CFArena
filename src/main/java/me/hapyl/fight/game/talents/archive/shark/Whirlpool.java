@@ -4,7 +4,6 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.Quality;
@@ -55,7 +54,7 @@ public class Whirlpool extends Talent {
 
                     // Pull enemies towards the center
                     Collect.nearbyEntities(location, range).forEach(entity -> {
-                        if (player.isSelfOrTeammate(entity)) {
+                        if (player.isSelfOrTeammateOrHasEffectResistance(entity)) {
                             return;
                         }
 

@@ -5,7 +5,6 @@ import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.attribute.Attributes;
 import me.hapyl.fight.game.entity.*;
-import me.hapyl.fight.game.entity.EntityMetadata;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -55,9 +54,6 @@ public class Genie extends GameEntityType<Husk> {
 
         public GenieEntity(Husk entity) {
             super(Genie.this, entity);
-
-            final EntityMetadata metadata = getMetadata();
-            metadata.ccAffect.setValue(false);
 
             final Location location = entity.getLocation();
 

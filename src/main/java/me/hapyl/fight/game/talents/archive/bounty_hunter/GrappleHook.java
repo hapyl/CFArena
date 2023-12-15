@@ -95,7 +95,7 @@ public class GrappleHook {
             private final double speed = 0.075d;
             private final int checksPerTick = 2;
 
-            private void nextLocation() {
+            private boolean nextLocation() {
                 final double x = vector.getX() * distance;
                 final double y = vector.getY() * distance;
                 final double z = vector.getZ() * distance;
@@ -109,17 +109,22 @@ public class GrappleHook {
                     if (!isValidBlock(block)) {
                         remove();
                         player.sendMessage("&6∞ &cYou can't hook to that!");
-                        return;
+                        return true;
                     }
 
                     hookedBlock = block;
                     retractHook();
-                    return;
+                    return true;
                 }
 
                 final LivingGameEntity nearest = Collect.nearestEntity(location, 1.5d, player);
 
                 if (nearest != null) {
+                    if (nearest.hasCCResistanceAndDisplay(player)) {
+                        breakHook();
+                        return true;
+                    }
+
                     hookedEntity = nearest;
 
                     if (hook instanceof Slime slime) {
@@ -134,11 +139,12 @@ public class GrappleHook {
                     // Fx
                     player.sendMessage("&6∞ &aYou hooked &e%s&a!", hookedEntity.getName());
                     hookedEntity.sendMessage("&6∞ &e%s&a hooked you, damage the knot to remove the hook!", player.getName());
-                    return;
+                    return true;
                 }
 
                 hook.teleport(location);
                 distance += speed;
+                return false;
             }
 
             @Override
@@ -160,7 +166,10 @@ public class GrappleHook {
                     if (hookedBlock != null || hookedEntity != null) {
                         return;
                     }
-                    nextLocation();
+
+                    if (nextLocation()) {
+                        return;
+                    }
                 }
 
             }
@@ -215,13 +224,13 @@ public class GrappleHook {
     private boolean isValidBlock(Block block) {
         final Material type = block.getType();
 
-        if (!block.getType().isAir()) {
-            return true;
-        }
-
         // Add more checks
         if (type == Material.BARRIER) {
             return false;
+        }
+
+        if (!block.getType().isAir()) {
+            return true;
         }
 
         return true;

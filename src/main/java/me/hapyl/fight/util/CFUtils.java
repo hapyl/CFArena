@@ -1,18 +1,23 @@
 package me.hapyl.fight.util;
 
+import com.google.common.collect.Lists;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.ForceCloned;
+import me.hapyl.fight.event.PlayerHandler;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.collection.RandomTable;
 import me.hapyl.spigotutils.module.annotate.TestedOn;
 import me.hapyl.spigotutils.module.annotate.Version;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.math.geometry.Quality;
 import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
+import me.hapyl.spigotutils.module.player.EffectType;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.Reflect;
 import net.minecraft.network.protocol.game.PacketPlayOutBlockAction;
@@ -55,6 +60,7 @@ public class CFUtils {
     private static final Random RANDOM = new Random();
     public static double ANGLE_IN_RAD = 6.283185307179586d;
     private static String SERVER_IP;
+    private static List<EffectType> ALLOWED_EFFECTS;
 
     public static String stripColor(String message) {
         message = ChatColor.stripColor(message);
@@ -118,6 +124,23 @@ public class CFUtils {
     @Nullable
     public static Team getEntityTeam(Entity entity, Scoreboard scoreboard) {
         return scoreboard.getEntryTeam(entity instanceof Player ? entity.getName() : entity.getUniqueId().toString());
+    }
+
+    @Nonnull
+    public static List<EffectType> getEffects() {
+        if (ALLOWED_EFFECTS == null) {
+            ALLOWED_EFFECTS = Lists.newArrayList();
+
+            for (EffectType type : EffectType.values()) {
+                if (PlayerHandler.disabledEffects.containsKey(type.getType())) {
+                    continue;
+                }
+
+                ALLOWED_EFFECTS.add(type);
+            }
+        }
+
+        return Lists.newArrayList(ALLOWED_EFFECTS);
     }
 
     public static void playSoundAndCut(Location location, Sound sound, float pitch, int cutAt) {
@@ -621,13 +644,28 @@ public class CFUtils {
         instance.setBaseValue(value);
     }
 
-    public static double dot(Location start, @ForceCloned Location end) {
+    /**
+     * Calculates a dot product between two {@link Location}.
+     *
+     * @param start - Start.
+     * @param end   - End.
+     * @return the dot product between locations.
+     */
+    public static double dot(@Nonnull Location start, @Nonnull @ForceCloned Location end) {
         final Vector vector = end.clone().subtract(start).toVector().normalize();
 
         return start.getDirection().normalize().dot(vector);
     }
 
-    public static double dot(Location start, @ForceCloned Location end, double distance) {
+    /**
+     * Calculates a dot product between two {@link Location}.
+     *
+     * @param start    - Start.
+     * @param end      - End.
+     * @param distance - Distance to check.
+     * @return the dot product if the distance between locations is <code><=</code> <code>distance</code>; -1 otherwise.
+     */
+    public static double dot(@Nonnull Location start, @Nonnull @ForceCloned Location end, double distance) {
         if (start.distance(end) < distance) {
             return -1.0d;
         }
@@ -635,14 +673,31 @@ public class CFUtils {
         return dot(start, end);
     }
 
-    public static boolean dot(Location start, @ForceCloned Location end, float dot, double distance) {
+    /**
+     * Calculates a dot product between two {@link Location} and checks if it is greater or equals <code>>=</code> to the parameter.
+     *
+     * @param start    - Start.
+     * @param end      - End.
+     * @param dot      - Dot to match.
+     * @param distance - Distance to check.
+     * @return true if the dot product is <code>>=</code> <code>dot</code> and <code>distance</code> is <code><=</code> between location.
+     */
+    public static boolean dot(@Nonnull Location start, @Nonnull @ForceCloned Location end, float dot, double distance) {
         final double theDot = dot(start, end, distance);
 
         return theDot >= dot;
     }
 
+    /**
+     * Gets the {@link ItemStack} display name; or an empty string is there is no meta.
+     * <p>
+     * This method <b>stripes</b> the color from a name if there is any.
+     *
+     * @param item - Item.
+     * @return item's display name.
+     */
     @Nonnull
-    public static String getItemName(ItemStack item) {
+    public static String getItemName(@Nonnull ItemStack item) {
         final ItemMeta itemMeta = item.getItemMeta();
 
         if (itemMeta == null) {
@@ -652,25 +707,63 @@ public class CFUtils {
         return ChatColor.stripColor(itemMeta.getDisplayName());
     }
 
+    /**
+     * Returns a random double between origin and bound, either positive or negavite.
+     *
+     * @param origin - Origin.
+     * @param bound  - Bound (exclusive).
+     * @return a random positive or negative bound.
+     */
     public static double randomAxis(double origin, double bound) {
         final double d = random(origin, bound);
         return RANDOM.nextBoolean() ? d : -d;
     }
 
+    /**
+     * Gets a random double between origin and bound (exclusive).
+     *
+     * @param origin - Origin.
+     * @param bound  - Bound (exclusive).
+     * @return a random double.
+     */
     public static double random(double origin, double bound) {
         return RANDOM.nextDouble(origin, bound);
     }
 
+    /**
+     * Gets a random {@link EulerAngle}.
+     *
+     * @return a random EulerAngle.
+     */
     @Nonnull
     public static EulerAngle randomEulerAngle() {
         return new EulerAngle(random(0.0d, ANGLE_IN_RAD), random(0.0d, ANGLE_IN_RAD), random(0.0d, ANGLE_IN_RAD));
     }
 
+    /**
+     * Returns a checkmark based on the condition.
+     * <p>
+     * If the condition is <code>true</code>, a <code>GREEN</code> ✔ is returned.
+     * <p>
+     * If the condition is <code>false</code>, a <code>RED</code> ❌ is returned.
+     * <p>
+     * If the condition is <code>null</code>, a blank string is returned.
+     *
+     * @param condition - Boolean condition.
+     * @return a checkmark, an X or a blank string.
+     */
     @Nonnull
     public static String checkmark(@Nullable Boolean condition) {
         return condition == null ? "" : condition ? "&a✔" : "&c❌";
     }
 
+    /**
+     * Center the location based on its block coordinates.
+     * This does not center the <code>Y</code> coordinate.
+     *
+     * @param location - Location to center.
+     * @return a new, centered location.
+     */
     @Nonnull
     public static Location centerLocation(@Nonnull Location location) {
         return new Location(
@@ -683,18 +776,35 @@ public class CFUtils {
         );
     }
 
+    /**
+     * Creates an exact copy of the given list.
+     *
+     * @param list - List to copy from.
+     * @return an exact copy of the list.
+     */
     @Nonnull
-    public static <T> List<T> copyList(List<T> list) {
-        final ArrayList<T> newList = new ArrayList<>();
-
-        if (list != null) {
-            newList.addAll(list);
-        }
-
-        return newList;
+    public static <T> List<T> copyList(@Nonnull List<T> list) {
+        return Lists.newArrayList(list);
     }
 
-    private static boolean isBlockSlab(Material material) {
+    /**
+     * Gets a random {@link EffectType}.
+     * This can only return an allowed effect.
+     *
+     * @return a random effect.
+     */
+    @Nonnull
+    public static EffectType getRandomEffect() {
+        return new RandomTable<>(getEffects()).getRandomElement();
+    }
+
+    /**
+     * Returns true is the material a slab.
+     *
+     * @param material - Material.
+     * @return true if the material is a blab.
+     */
+    public static boolean isBlockSlab(@Nonnull Material material) {
         if (!material.isBlock()) {
             return false;
         }
@@ -702,7 +812,12 @@ public class CFUtils {
         return material.name().endsWith("_SLAB");
     }
 
-    private static <E> void doClearEntry(E e) {
+    /**
+     * Performs an entry clear based in the entry type.
+     *
+     * @param e - Entry.
+     */
+    public static <E> void doClearEntry(@Nullable E e) {
         if (e == null) {
             return;
         }
@@ -710,8 +825,12 @@ public class CFUtils {
         if (e instanceof Entity entity) {
             entity.remove();
         }
+        else if (e instanceof GameEntity entity) {
+            entity.kill();
+        }
         else if (e instanceof Block block) {
             block.getState().update(true, false);
         }
     }
+
 }
