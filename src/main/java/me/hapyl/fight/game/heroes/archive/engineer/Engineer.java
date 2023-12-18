@@ -75,6 +75,8 @@ public class Engineer extends Hero implements Listener {
     @Override
     public void onDeath(@Nonnull GamePlayer player) {
         Nulls.runIfNotNull(constructs.remove(player), Construct::remove);
+
+        playerIron.remove(player);
     }
 
     @Nullable
@@ -193,6 +195,11 @@ public class Engineer extends Hero implements Listener {
         construct.remove();
      //   player.sendMessage("&aYour previous %s was removed!", construct.getName());
         return construct;
+    }
+
+    @Override
+    public void onStop() {
+        playerIron.clear();
     }
 
     public void setConstruct(GamePlayer player, Construct construct) {
