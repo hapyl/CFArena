@@ -200,6 +200,7 @@ public class Engineer extends Hero implements Listener {
     @Override
     public void onStop() {
         playerIron.clear();
+        constructs.clear();
     }
 
     public void setConstruct(GamePlayer player, Construct construct) {
