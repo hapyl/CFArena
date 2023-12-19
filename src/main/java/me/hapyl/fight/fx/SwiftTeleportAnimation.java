@@ -73,10 +73,12 @@ public abstract class SwiftTeleportAnimation extends GameTask {
     }
 
     public void start(int delay, int period) {
-        this.distance = from.distance(to);
+        this.distance = Math.max(1, from.distance(to));
         this.step = distance / 30 * speed;
 
-        this.vector = to.clone().subtract(from).toVector().normalize().multiply(step);
+        final Vector vector = to.toVector().subtract(from.toVector());
+
+        this.vector = vector.isZero() ? vector : vector.normalize().multiply(step);
         this.location = from.clone();
 
         runTaskTimer(delay, period);

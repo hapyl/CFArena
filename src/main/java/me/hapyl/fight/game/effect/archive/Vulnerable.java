@@ -1,18 +1,33 @@
 package me.hapyl.fight.game.effect.archive;
 
+import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.game.effect.EffectParticle;
 import me.hapyl.fight.game.effect.GameEffect;
+import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.Particle;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
 
-public class Vulnerable extends GameEffect {
+public class Vulnerable extends GameEffect implements Listener {
+
+    private final double damageMultiplier = 1.5d;
 
     public Vulnerable() {
         super("Vulnerable");
-        setDescription("Players affected by vulnerability take 50%% more damage.");
+        setDescription("Vulnerable entities take more damage.");
         setPositive(false);
+    }
+
+    @EventHandler()
+    public void handleGameDamageEvent(GameDamageEvent ev) {
+        final LivingGameEntity entity = ev.getEntity();
+
+        if (entity.hasEffect(GameEffectType.VULNERABLE)) {
+            ev.setDamage(ev.getDamage() * damageMultiplier);
+        }
     }
 
     @Override

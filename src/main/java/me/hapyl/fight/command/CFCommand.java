@@ -23,7 +23,7 @@ public abstract class CFCommand extends SimplePlayerCommand {
     protected final void execute(Player player, String[] args) {
         final PlayerRank playerRank = PlayerRank.getRank(player);
         if (!playerRank.isOrHigher(rank)) {
-            Message.Error.NOT_PERMISSIONS_NEED_RANK.send(player, rank);
+            Message.Error.NOT_PERMISSIONS_NEED_RANK.send(player, rank.getPrefixWithFallback());
             return;
         }
 

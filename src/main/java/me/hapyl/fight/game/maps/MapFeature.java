@@ -5,18 +5,21 @@ import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.PlayerElement;
+import me.hapyl.fight.util.Described;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 
+import javax.annotation.Nonnull;
+
 @AutoRegisteredListener
-public abstract class MapFeature implements GameElement, PlayerElement {
+public abstract class MapFeature implements Described, GameElement, PlayerElement {
 
     private final String name;
-    private final String info;
+    private final String description;
 
     public MapFeature(String name, String info) {
         this.name = name;
-        this.info = info;
+        this.description = info;
 
         if (this instanceof Listener listener) {
             Bukkit.getPluginManager().registerEvents(listener, Main.getPlugin());
@@ -31,12 +34,16 @@ public abstract class MapFeature implements GameElement, PlayerElement {
     public void onStop() {
     }
 
+    @Nonnull
+    @Override
     public String getName() {
         return name;
     }
 
-    public String getInfo() {
-        return info;
+    @Nonnull
+    @Override
+    public String getDescription() {
+        return description;
     }
 
     public void tick(int tick) {

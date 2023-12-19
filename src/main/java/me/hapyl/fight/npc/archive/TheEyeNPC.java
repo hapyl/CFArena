@@ -5,13 +5,12 @@ import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.dialog.Dialog;
 import me.hapyl.fight.dialog.DialogEntry;
 import me.hapyl.fight.game.collectible.relic.RelicHunt;
+import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.gui.styled.eye.EyeGUI;
 import me.hapyl.fight.npc.PersistentNPC;
 import me.hapyl.fight.util.Ticking;
 import me.hapyl.spigotutils.module.hologram.PlayerHologram;
 import me.hapyl.spigotutils.module.hologram.StringArray;
-import me.hapyl.spigotutils.module.reflect.npc.ClickType;
-import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -49,11 +48,11 @@ public class TheEyeNPC extends PersistentNPC implements Ticking {
         holograms = new PlayerHologram(getLocation().add(0, 2.25, 0));
         relicHunt = Main.getPlugin().getCollectibles().getRelicHunt();
 
-        startTicking(0, 20);
+        startTicking(0, 20).setShutdownAction(ShutdownAction.IGNORE);
     }
 
     @Override
-    public void onClick(Player player, HumanNPC npc, ClickType clickType) {
+    public void onClick(@Nonnull Player player) {
         if (!dialog.hasTalked(player)) {
             dialog.start(player);
             return;

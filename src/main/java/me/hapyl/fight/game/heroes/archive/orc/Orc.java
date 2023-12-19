@@ -15,7 +15,7 @@ import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.orc.OrcAxe;
@@ -46,13 +46,13 @@ public class Orc extends Hero implements Listener {
     private final PlayerMap<DamageData> damageMap = PlayerMap.newMap();
     private final Set<PotionEffectType> negativeEffects = Sets.newHashSet();
     private final Set<Player> awaitEffectChange = Sets.newHashSet();
-    private final TemperInstance berserk =
-            Temper.BERSERK_MODE.newInstance(Named.BERSERK.toString())
-                    .increase(AttributeType.ATTACK, 0.5d)
-                    .increase(AttributeType.SPEED, 0.05d)
-                    .increase(AttributeType.CRIT_CHANCE, 0.4d)
-                    .decrease(AttributeType.DEFENSE, 0.4d) // 0.7
-                    .message(Named.BERSERK.getCharacter() + " &aYou're berserk!");
+
+    private final TemperInstance berserk = Temper.BERSERK_MODE.newInstance(Named.BERSERK.toString())
+            .increase(AttributeType.ATTACK, 0.5d)
+            .increase(AttributeType.SPEED, 0.05d)
+            .increase(AttributeType.CRIT_CHANCE, 0.4d)
+            .decrease(AttributeType.DEFENSE, 0.6d) // 0.7
+            .message(Named.BERSERK.getCharacter() + " &aYou're berserk!");
 
     public Orc() {
         super("Pakarat Rakab");
@@ -60,7 +60,7 @@ public class Orc extends Hero implements Listener {
         setArchetype(Archetype.DAMAGE);
 
         final HeroAttributes attributes = getAttributes();
-        attributes.set(AttributeType.MAX_HEALTH, 150);
+        attributes.set(AttributeType.MAX_HEALTH, 125);
         attributes.set(AttributeType.DEFENSE, 0.6d);
         attributes.set(AttributeType.SPEED, 0.22d);
         attributes.set(AttributeType.CRIT_CHANCE, 0.15d);
@@ -76,9 +76,10 @@ public class Orc extends Hero implements Listener {
 
         setUltimate(
                 new UltimateTalent("Berserk", 70)
-                        .setDurationSec(20)
-                        .setCooldown(30)
+                        .setType(Talent.Type.ENHANCE)
                         .setItem(Material.NETHER_WART)
+                        .setDurationSec(15)
+                        .setCooldownSec(30)
                         .appendDescription(
                                 """
                                         Enter %s for {duration}.
@@ -87,13 +88,13 @@ public class Orc extends Hero implements Listener {
                                         • &aIncreased %s.
                                         • &aIncreased %s.
                                         • &aIncreased %s.
-                                        • &c-70 %s.
+                                        • &c%.0f %s.
                                         """,
                                 Named.BERSERK,
                                 AttributeType.ATTACK,
                                 AttributeType.SPEED,
                                 AttributeType.CRIT_CHANCE,
-                                AttributeType.DEFENSE
+                                berserk.get(AttributeType.DEFENSE) * 100, AttributeType.DEFENSE
                         )
         );
 
@@ -178,7 +179,7 @@ public class Orc extends Hero implements Listener {
         berserk.temper(attributes, duration);
 
         // Fx
-        new PlayerGameTask(player) {
+        new PlayerGameTask(Named.BERSERK, player) {
             private int tick = 0;
 
             @Override

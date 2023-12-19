@@ -6,6 +6,7 @@ import me.hapyl.fight.game.maps.HiddenMapFeature;
 import me.hapyl.fight.game.maps.MapFeature;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledItem;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -48,7 +49,12 @@ public class MapSelectGUI extends GameManagementSubGUI<GameMaps> {
                 }
 
                 builder.addLore(" &a" + feature.getName());
-                builder.addSmartLore(feature.getInfo(), "&7&o  ");
+                builder.addTextBlockLore(
+                        feature.getDescription(),
+                        "&7&o  ",
+                        ItemBuilder.DEFAULT_SMART_SPLIT_CHAR_LIMIT,
+                        CFUtils.DISAMBIGUATE
+                );
             }
         }
 

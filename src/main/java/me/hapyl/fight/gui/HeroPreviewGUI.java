@@ -1,11 +1,12 @@
 package me.hapyl.fight.gui;
 
 import com.google.common.collect.Sets;
+import me.hapyl.fight.PlayerSkinPreview;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.gui.styled.StyledTexture;
@@ -16,6 +17,7 @@ import me.hapyl.spigotutils.module.inventory.gui.PlayerGUI;
 import me.hapyl.spigotutils.module.inventory.gui.SlotPattern;
 import me.hapyl.spigotutils.module.inventory.gui.SmartComponent;
 import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.spigotutils.module.reflect.npc.ItemSlot;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -79,13 +81,24 @@ public class HeroPreviewGUI extends PlayerGUI {
         }
 
         final PlayerSkin skin = hero.getSkin();
+
         if (skin != null) {
-            setItem(26, ItemBuilder.of(Material.LEATHER_CHESTPLATE, "&aAbout Player Skins").addTextBlockLore("""
-                    &8This hero uses custom skin!
-                                        
-                    Instead of armor, your skin will be changed.
-                    &e;;You can turn this off in &e/settings&e.
-                    """).asIcon());
+            setItem(26, ItemBuilder.of(Material.LEATHER_CHESTPLATE, "&aHero-Specific Skin")
+                    .addLore()
+                    .addSmartLore("This hero uses a &bcustom skin&7 instead of armor, meaning your skin will be changed during the game.")
+                    .addLore("&8You can turn this off in your settings.")
+                    .addLore()
+                    .addLore(Color.BUTTON + "Click to preview skin!")
+                    .asIcon(), player -> {
+                closeInventory();
+
+                new PlayerSkinPreview(player, skin) {
+                    @Override
+                    public void onTaskStart() {
+                        npc.setItem(ItemSlot.MAINHAND, hero.getWeapon().getItem());
+                    }
+                };
+            });
         }
 
         final UltimateTalent ultimate = hero.getUltimate();
@@ -139,15 +152,19 @@ public class HeroPreviewGUI extends PlayerGUI {
 
         component.apply(this, PATTERN, 1);
 
-        // favourite item
+        // Favourite
         final boolean favourite = heroes.isFavourite(getPlayer());
+
         setItem(
                 17,
-                new ItemBuilder(favourite ? Material.LIME_DYE : Material.GRAY_DYE).setName("&aFavourite")
+                new ItemBuilder(favourite ? Material.LIME_DYE : Material.GRAY_DYE)
+                        .setName("&aFavourite")
                         .addLore()
                         .addSmartLore("Favourite heroes appear first in hero selection screen.")
                         .addLore()
-                        .addLore("&eClick to %s your favourite list.", (favourite ? "remove from" : "add to"))
+                        .addLoreIf(Color.SUCCESS + "This hero is your favourite!", favourite)
+                        .addLoreIf(Color.ERROR + "This hero is not your favourite!", !favourite)
+                        .addLore(Color.BUTTON + ("Click to %s your favourite list.".formatted(favourite ? "remove from" : "add to")))
                         .predicate(favourite, ItemBuilder::glow)
                         .toItemStack(),
                 player -> {
@@ -168,7 +185,12 @@ public class HeroPreviewGUI extends PlayerGUI {
 
         setItem(
                 35,
-                ItemBuilder.of(Material.CREEPER_BANNER_PATTERN, "Statistics", "Click to view this hero global statistics!").asIcon(),
+                ItemBuilder.of(Material.CREEPER_BANNER_PATTERN, "Global Statistics")
+                        .addLore()
+                        .addSmartLore("View global statistics of this hero, such as playtime, kills, deaths, etc.")
+                        .addLore()
+                        .addLore(Color.BUTTON + "Click to view!")
+                        .asIcon(),
                 player -> new HeroStatisticGUI(player, heroes, index)
         );
 

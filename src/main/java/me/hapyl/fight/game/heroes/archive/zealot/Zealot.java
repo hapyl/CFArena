@@ -1,40 +1,46 @@
 package me.hapyl.fight.game.heroes.archive.zealot;
 
 import com.google.common.collect.Maps;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.EntityAttributes;
+import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.archive.zealot.BrokenHeartRadiation;
+import me.hapyl.fight.game.talents.archive.zealot.MaledictionVeil;
 import me.hapyl.fight.game.talents.archive.zealot.MalevolentHitshield;
-import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.spigotutils.module.block.display.BlockStudioParser;
-import me.hapyl.spigotutils.module.block.display.DisplayData;
-import me.hapyl.spigotutils.module.block.display.DisplayEntity;
-import org.bukkit.Location;
+import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Material;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
-import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
-public class Zealot extends Hero {
+public class Zealot extends Hero implements Listener {
 
     protected final Equipment abilityEquipment;
     protected final Map<Player, SoulsRebound> soulsReboundMap;
 
-    private final DisplayData displayData = BlockStudioParser.parse(
-            "/summon block_display ~-0.5 ~-0.5 ~-0.5 {Passengers:[{id:\"minecraft:item_display\",item:{id:\"minecraft:golden_sword\",Count:1},item_display:\"none\",transformation:[3.5355f,3.5355f,0.0000f,0.0000f,-3.5355f,3.5355f,0.0000f,0.0000f,0.0000f,-0.0000f,5.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f]}]}"
-    );
+    private final PlayerMap<ZealotSwords> playerSwords = PlayerMap.newMap();
 
     public Zealot() {
         super("Zealot");
@@ -56,32 +62,67 @@ public class Zealot extends Hero {
 
         soulsReboundMap = Maps.newConcurrentMap();
 
-        setUltimate(new UltimateTalent("Midas' Punch", """
-                Command a giant sword to raise in front of you, dealing AoE damage.
-                                
-                """, 70).setItem(Material.GOLDEN_SWORD).setDurationSec(5));
+        setUltimate(new ZealotUltimate());
     }
 
+    @Override
+    public void onDeath(@Nonnull GamePlayer player) {
+        playerSwords.removeAnd(player, ZealotSwords::remove);
+    }
+
+    @Override
+    public void onStop() {
+        playerSwords.forEachAndClear(ZealotSwords::remove);
+    }
+
+    @EventHandler()
+    public void handleSwing(PlayerInteractEvent ev) {
+        if (ev.getHand() == EquipmentSlot.OFF_HAND) {
+            return;
+        }
+
+        final Player player = ev.getPlayer();
+
+        if (!validatePlayer(player)) {
+            return;
+        }
+
+        swingSwordsIfCan(player);
+    }
+
+    @EventHandler()
+    public void handleSwing(EntityDamageByEntityEvent ev) {
+        final Entity damager = ev.getDamager();
+
+        if (!(damager instanceof Player player)) {
+            return;
+        }
+
+        if (!validatePlayer(player)) {
+            return;
+        }
+
+        swingSwordsIfCan(player);
+    }
+
+    // fixme> Not the best impl but I know how to rewrite the damage instance thingy, copy both attributes and yes you know the rest
     @Nullable
     @Override
     public DamageOutput processDamageAsDamager(DamageInput input) {
-        return DamageOutput.OK;
-    }
+        final GamePlayer player = input.getDamagerAsPlayer();
+        final LivingGameEntity entity = input.getEntity();
 
-    @Nullable
-    @Override
-    public DamageOutput processDamageAsVictim(DamageInput input) {
-        final MalevolentHitshield shield = getSecondTalent();
-        final GamePlayer player = input.getEntityAsPlayer();
-
-        // Cancel even if internal cooldown
-        if (player.hasCooldown(shield.cooldownItem)) {
-            return DamageOutput.CANCEL;
+        if (player == null) {
+            return DamageOutput.OK;
         }
 
-        if (shield.hasCharge(player)) {
-            shield.reduce(player);
-            return DamageOutput.CANCEL;
+        final EntityAttributes attributes = player.getAttributes();
+        final MaledictionVeil passiveTalent = getPassiveTalent();
+        final boolean hasDebuff = entity.getAttributes().hasTemper(Temper.MALEDICTION_VEIL);
+        final double ferocity = attributes.get(AttributeType.FEROCITY);
+
+        if (ferocity > 0 && hasDebuff) {
+            attributes.increaseTemporary(Temper.MALEDICTION_VEIL, AttributeType.FEROCITY, passiveTalent.ferocityRate, 1, true);
         }
 
         return DamageOutput.OK;
@@ -89,36 +130,50 @@ public class Zealot extends Hero {
 
     @Override
     public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        final Location location = player.getLocation();
-        final Vector vector = location.getDirection().normalize().setY(0.0d).multiply(5);
-        final UltimateTalent ultimate = getUltimate();
-
-        final double baseY = location.getY();
-        location.add(vector);
-        location.setPitch(0.0f);
-
-        final DisplayEntity entity = displayData.spawn(location);
-
-        GameTask.runDuration(ultimate, tick -> {
-            if (tick == 0) {
-                entity.remove();
-                return;
+        final ZealotSwords oldSwords = playerSwords.put(player, new ZealotSwords(player, getUltimate()) {
+            @Override
+            public void onTaskStop() {
+                super.onTaskStop();
+                playerSwords.remove(player, this);
             }
+        });
 
-            final double y = Math.cos(Math.toRadians(tick));
-
-            location.setY(baseY + y);
-            location.setYaw(location.getYaw() + 5);
-
-            entity.teleport(location);
-        }, 0, 1);
+        if (oldSwords != null) {
+            oldSwords.cancel();
+        }
 
         return UltimateCallback.OK;
     }
 
+    @Nonnull
     @Override
-    public Talent getFirstTalent() {
-        return Talents.BROKEN_HEART_RADIATION.getTalent();
+    public ZealotUltimate getUltimate() {
+        return (ZealotUltimate) super.getUltimate();
+    }
+
+    @Override
+    public void onStart() {
+        final MaledictionVeil passive = getPassiveTalent();
+
+        new TickingGameTask() {
+            @Override
+            public void run(int tick) {
+                getAlivePlayers().forEach(player -> {
+                    Collect.nearbyEntities(player.getLocation(), passive.radius).forEach(entity -> {
+                        if (player.isSelfOrTeammate(entity)) {
+                            return;
+                        }
+
+                        passive.temperInstance.temper(entity, passive.getDuration());
+                    });
+                });
+            }
+        }.runTaskTimer(0, 5);
+    }
+
+    @Override
+    public BrokenHeartRadiation getFirstTalent() {
+        return (BrokenHeartRadiation) Talents.BROKEN_HEART_RADIATION.getTalent();
     }
 
     @Override
@@ -127,7 +182,23 @@ public class Zealot extends Hero {
     }
 
     @Override
-    public Talent getPassiveTalent() {
-        return Talents.MALEDICTION_VEIL.getTalent();
+    public MaledictionVeil getPassiveTalent() {
+        return (MaledictionVeil) Talents.MALEDICTION_VEIL.getTalent();
+    }
+
+    private void swingSwordsIfCan(Player bukkitPlayer) {
+        final GamePlayer player = CF.getPlayer(bukkitPlayer);
+
+        if (player == null) {
+            return;
+        }
+
+        final ZealotSwords swords = playerSwords.get(player);
+
+        if (swords == null) {
+            return;
+        }
+
+        swords.swing();
     }
 }

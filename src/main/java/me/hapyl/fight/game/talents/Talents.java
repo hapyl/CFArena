@@ -6,7 +6,7 @@ import me.hapyl.fight.Main;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.archive.Discharge;
+import me.hapyl.fight.game.talents.archive.knight.Discharge;
 import me.hapyl.fight.game.talents.archive.TestChargeTalent;
 import me.hapyl.fight.game.talents.archive.alchemist.CauldronAbility;
 import me.hapyl.fight.game.talents.archive.alchemist.RandomPotion;
@@ -86,8 +86,7 @@ import me.hapyl.fight.game.talents.archive.tamer.MineOBall;
 import me.hapyl.fight.game.talents.archive.tamer.TamingTheEarth;
 import me.hapyl.fight.game.talents.archive.tamer.TamingTheTime;
 import me.hapyl.fight.game.talents.archive.tamer.TamingTheWind;
-import me.hapyl.fight.game.talents.archive.techie.TrapCage;
-import me.hapyl.fight.game.talents.archive.techie.TrapWire;
+import me.hapyl.fight.game.talents.archive.techie.*;
 import me.hapyl.fight.game.talents.archive.troll.Repulsor;
 import me.hapyl.fight.game.talents.archive.troll.TrollSpin;
 import me.hapyl.fight.game.talents.archive.vampire.BatSwarm;
@@ -429,13 +428,29 @@ public enum Talents {
             """.formatted(Named.STANCE_RANGE, Named.STANCE_MELEE, Named.RIPTIDE), Material.HEART_OF_THE_SEA
     )),
 
-    // Techie
-    TRAP_CAGE(new TrapCage()),
-    TRAP_WIRE(new TrapWire()),
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.techie.Techie}
+     */
+    SABOTEUR(new Saboteur()),
+    CIPHER_LOCK(new CipherLock()),
+
+    @Deprecated TRAP_CAGE(new TrapCage()),
+    @Deprecated TRAP_WIRE(new TrapWire()),
     NEURAL_THEFT(new PassiveTalent(
-            "Neural Theft/CYber Hack",
-            "&b&lNeural Theft__Every &b10s&7, hacks into opponents revealing their location and health.____&b&lCYber Hack:__&7A small virus that reveals opponent's location, slows them and applies &6&lVulnerability&7 for short duration.",
-            Material.CHAINMAIL_HELMET
+            Named.BUG.getName(), """
+            A nano &fbug&7, capable of &ehacking &copponents&7.
+                        
+            At &bintervals&7, the &fbug&7 will hack and send the data to &nyou&7 and your &nteammates&7.
+                        
+            &oThe data includes:
+            └ Enemy's &blocation&7.
+            └ Enemy's &c❤ Health&7.
+            └ Enemy's %1$s.
+                        
+            The &fbug&7 also &4steals&7 a small amount of %1$s.
+            &8;;Once implanted, the bug cannot be removed.
+                        
+            """.formatted(Named.ENERGY), Material.CHAINMAIL_HELMET, Talent.Type.IMPAIR
     )),
 
     // Killing Machine
@@ -474,12 +489,15 @@ public enum Talents {
             Material.REDSTONE
     )),
 
-    // Bounty Hunter
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.bounty_hunter.BountyHunter}
+     */
     SHORTY(new ShortyShotgun()),
     GRAPPLE(new GrappleHookTalent()),
     SMOKE_BOMB(new PassiveTalent("Smoke Bomb", """
-            Whenever your health falls below &c50%&7, you gain a &eSmoke Bomb&7.
-            Throw it to create a smoke field that &bblinds&7 everyone inside it and grant you a &bspeed boost&7.
+            Whenever your &chealth&7 falls &nbelow&7 &c50%&7, you gain a &aSmoke Bomb&7.
+                        
+            Throw it to create a &8smoke field&7 that &b3linds&7 everyone inside it and grant you a &bspeed boost&7.
             """, Material.ENDERMAN_SPAWN_EGG
     )),
 
@@ -488,15 +506,17 @@ public enum Talents {
     UPDRAFT(new Updraft()),
     SLASH(new Slash()),
 
-    // Orc
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.orc.Orc}
+     */
     ORC_GROWN(new OrcGrowl()),
     ORC_AXE(new OrcAxe()),
     ORC_PASSIVE(new PassiveTalent("Don't Anger Me/Orc's Blood", format("""
             &b&lDon't Anger Me
-            Taking continuous damage within the set time window will trigger {} for &b3s&7.
+            Taking &ncontinuous&7 &cdamage&7 within the set time window will trigger {} for &b3s&7.
                         
             &b&lOrc's Blood
-            Negative effects are 50% less effective.
+            Negative effects are &c50%&7 less effective.
             """, Named.BERSERK), Material.FERMENTED_SPIDER_EYE)),
 
     // Engineer
@@ -504,17 +524,21 @@ public enum Talents {
     ENGINEER_TURRET(new EngineerTurret()),
     ENGINEER_RECALL(new EngineerRecall()),
     ENGINEER_PASSIVE(new PassiveTalent("Magnetic Attraction", """
-            Every few seconds you'll receive an Iron Ingot. 
+            Every few seconds you'll receive an Iron Ingot.
             Use it to build stuff!""", Material.IRON_INGOT)),
 
-    // Bloodfiend
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend}
+     */
     TWIN_CLAWS(new TwinClaws()),
     CANDLEBANE(new CandlebaneTalent()),
     BLOOD_CHALICE(new BloodChaliceTalent()),
     BLOOD_CUP(new BloodCup()),
     SUCCULENCE(new BloodfiendPassive()),
 
-    // Zealot
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.zealot.Zealot}
+     */
     BROKEN_HEART_RADIATION(new BrokenHeartRadiation()),
     MALEVOLENT_HITSHIELD(new MalevolentHitshield()),
     MALEDICTION_VEIL(new MaledictionVeil()),

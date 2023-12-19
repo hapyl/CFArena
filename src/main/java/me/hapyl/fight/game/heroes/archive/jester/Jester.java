@@ -4,7 +4,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.UltimateCallback;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 
 import javax.annotation.Nonnull;
 

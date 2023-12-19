@@ -49,7 +49,9 @@ public class JapanFeature extends MapFeature implements Listener {
     );
 
     public JapanFeature() {
-        super("Healing Sakura", "Stand inside &eSakura's &7&orange to feel its healing petals!");
+        super("Healing Sakura", """
+                Stand inside &eSakura's &7&orange to feel its healing petals!
+                """);
     }
 
     @Override

@@ -4,7 +4,6 @@ import me.hapyl.fight.game.maps.features.Turbine;
 import me.hapyl.spigotutils.module.math.Numbers;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
-import org.bukkit.util.Consumer;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
@@ -12,6 +11,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import javax.annotation.Nonnull;
+import java.util.function.Consumer;
 
 // An 'extension' to BlockFace.
 public enum Direction {

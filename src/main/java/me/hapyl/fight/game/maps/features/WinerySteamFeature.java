@@ -13,7 +13,9 @@ public class WinerySteamFeature extends MapFeature {
     private final Set<Steam> geysers;
 
     public WinerySteamFeature() {
-        super("Hot Steam", "Be careful of the hot steam!");
+        super("Hot Steam", """
+                "Be careful of the hot steam!"
+                """);
 
         geysers = Sets.newHashSet();
 

@@ -9,7 +9,6 @@ import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
@@ -19,8 +18,12 @@ import javax.annotation.Nonnull;
 
 public class BloodChalice extends Taunt implements TalentReference<BloodChaliceTalent> {
 
-    private static final ItemStack CHALICE_TEXTURE
-            = ItemBuilder.playerHeadUrl("492f08c1294829d471a8e0109a06fb6ae717e5faf3e0808408a66d889227dac7").asIcon();
+    private static final ItemStack[] CHALICE_TEXTURES = {
+            createTexture("492f08c1294829d471a8e0109a06fb6ae717e5faf3e0808408a66d889227dac7"),
+            createTexture("d135853b09d40700c3ee3ce388185067f229d85add03c838bd819675257b6889"),
+            createTexture("7838abd9dc57f4e805486236c1896bc962bd89719ab8fb0a4093d8c0f654dacc")
+    };
+
     private static final ItemStack BLOOD_TEXTURE
             = ItemBuilder.playerHeadUrl("c0340923a6de4825a176813d133503eff186db0896e32b6704928c2a2bf68422").asIcon();
 
@@ -37,20 +40,20 @@ public class BloodChalice extends Taunt implements TalentReference<BloodChaliceT
         this.stand = new ArmorStand[2];
 
         this.stand[0] = spawnEntity(Entities.ARMOR_STAND, location, self -> {
-            CFUtils.lockArmorStand(self);
-
             self.setMaxHealth(reference.chaliceHealth);
             self.setHealth(reference.chaliceHealth);
-            self.setHelmet(CHALICE_TEXTURE);
+            self.setHelmet(CHALICE_TEXTURES[0]);
             self.setGravity(false);
             self.setInvulnerable(true);
             self.setInvisible(true);
             self.setSilent(true);
+
+            CFUtils.lockArmorStand(self);
         });
     }
 
     @Override
-    public void onAnimationStep(Location location) {
+    public void onAnimationStep(@Nonnull Location location) {
         location.setYaw(location.getYaw() + 15);
         stand[0].teleport(location);
     }
@@ -81,13 +84,6 @@ public class BloodChalice extends Taunt implements TalentReference<BloodChaliceT
         final int timeLeft = getTimeLeft();
         final Location baseLocation = stand[0].getLocation();
 
-        if (player.getLocation().distance(baseLocation) >= reference.maxDistance) {
-            remove();
-
-            player.sendMessage("&4&l🍷 &cThe Chalice broke because you strayed too far away!");
-            return;
-        }
-
         if (stand[0].isDead()) {
             remove();
             return;
@@ -100,8 +96,7 @@ public class BloodChalice extends Taunt implements TalentReference<BloodChaliceT
 
         // Fx
         final double baseY = baseLocation.getY() + 1.5d;
-        final double radians = Math.toRadians(tick * 2);
-        final double y = Math.sin(radians) / 2;
+        final double y = Math.sin(Math.toRadians(tick * 2)) / 2;
 
         baseLocation.setY(baseY + y);
 
@@ -112,8 +107,8 @@ public class BloodChalice extends Taunt implements TalentReference<BloodChaliceT
 
         asPlayers(player -> {
             player.spawnParticle(
-                    Particle.REDSTONE,
                     baseLocation.add(0.0d, 0.76d, 0.0d),
+                    Particle.REDSTONE,
                     1,
                     0.2d,
                     0.2d,
@@ -133,11 +128,6 @@ public class BloodChalice extends Taunt implements TalentReference<BloodChaliceT
     @Override
     public String getCharacter() {
         return "&4&l🍷";
-    }
-
-    @Override
-    public double getDamage() {
-        return reference.getExplosionDamage();
     }
 
     @Nonnull
@@ -161,8 +151,8 @@ public class BloodChalice extends Taunt implements TalentReference<BloodChaliceT
 
         // Fx
         asPlayers(player -> {
-            PlayerLib.playSound(player, location, Sound.BLOCK_GLASS_BREAK, 0.0f);
-            PlayerLib.spawnParticle(player, location, Particle.EXPLOSION_NORMAL, 15, 0.1d, 0.1d, 0.1d, 0.05f);
+            player.playSound(location, Sound.BLOCK_GLASS_BREAK, 0.0f);
+            player.spawnParticle(location, Particle.EXPLOSION_NORMAL, 15, 0.1d, 0.1d, 0.1d, 0.05f);
         });
     }
 
@@ -191,7 +181,7 @@ public class BloodChalice extends Taunt implements TalentReference<BloodChaliceT
         health--;
 
         asPlayers(player -> {
-            PlayerLib.playSound(player, initialLocation, Sound.ENTITY_SKELETON_HURT, 0.0f);
+            player.playSound(initialLocation, Sound.ENTITY_SKELETON_HURT, 0.0f);
         });
 
         if (health <= 0) {
@@ -199,12 +189,10 @@ public class BloodChalice extends Taunt implements TalentReference<BloodChaliceT
             return;
         }
 
-        final Location location = pickRandomLocation(5);
-        final Location currentLocation = this.initialLocation.clone();
-        this.initialLocation = location.subtract(0.0d, 1.3d, 0.0d);
+        final Location currentLocation = initialLocation.clone();
+        initialLocation = pickRandomLocation(initialLocation.clone(), 5);
 
-        final SwiftTeleportAnimation animation
-                = new SwiftTeleportAnimation(currentLocation, this.initialLocation) {
+        final SwiftTeleportAnimation animation = new SwiftTeleportAnimation(currentLocation, initialLocation) {
             @Override
             public void onAnimationStep(Location location) {
                 final ArmorStand stand = BloodChalice.this.stand[0];
@@ -221,5 +209,12 @@ public class BloodChalice extends Taunt implements TalentReference<BloodChaliceT
         animation.setSpeed(2.0d);
         animation.setSlope(Math.PI / 2);
         animation.start(0, 1);
+
+        // Update texture
+        stand[0].setHelmet(CHALICE_TEXTURES[CHALICE_TEXTURES.length - health]);
+    }
+
+    private static ItemStack createTexture(String texture) {
+        return ItemBuilder.playerHeadUrl(texture).asIcon();
     }
 }

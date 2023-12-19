@@ -12,7 +12,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.harbinger.MeleeStance;
@@ -68,8 +68,8 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
                 She is a harbinger of unknown organization. Nothing else is known.
                 """);
 
-        setAffiliation(Affiliation.UNKNOWN);
         setArchetype(Archetype.STRATEGY);
+        setAffiliation(Affiliation.UNKNOWN);
 
         setMinimumLevel(5);
         setItem("22a1ac2a8dd48c371482806b3963571952997a5712806e2c8060b8e7777754");

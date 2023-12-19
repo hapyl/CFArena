@@ -5,8 +5,10 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.WrappedEnumEntityUseAction;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.TalentReference;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.spigotutils.module.reflect.protocol.ProtocolListener;
 import org.bukkit.entity.Player;
@@ -40,10 +42,16 @@ public class CandlebaneProtocol extends ProtocolListener implements TalentRefere
                 continue;
             }
 
+            final GamePlayer gamePlayer = CF.getPlayer(player);
+
+            if (gamePlayer == null) {
+                return;
+            }
+
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    pillar.click(player, isLeftClick ? ClickType.LEFT : ClickType.RIGHT);
+                    pillar.click(gamePlayer, isLeftClick ? ClickType.LEFT : ClickType.RIGHT);
                 }
             }.runTask(Main.getPlugin());
         }

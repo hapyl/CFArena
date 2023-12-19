@@ -4,7 +4,7 @@ import me.hapyl.fight.annotate.KeepNull;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.archive.heavy_knight.Slash;
 import me.hapyl.fight.game.talents.archive.heavy_knight.Updraft;

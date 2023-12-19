@@ -1,7 +1,7 @@
 package me.hapyl.fight.event.custom;
 
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import org.bukkit.event.HandlerList;
 
 import javax.annotation.Nonnull;

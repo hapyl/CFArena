@@ -29,7 +29,9 @@ public class LibraryCat extends MapFeature implements Listener {
     private Cat cat;
 
     public LibraryCat() {
-        super("Void Cat", "A mysterious cat that doesn't like being touched.");
+        super("Void Cat", """
+                "A mysterious cat that doesn't like being touched."
+                """);
     }
 
     @Override

@@ -5,7 +5,7 @@ import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.loadout.HotbarLoadout;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.ChargedTalent;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.util.Ticking;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.math.Numbers;
@@ -16,6 +16,7 @@ import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -23,12 +24,16 @@ import java.util.Set;
 public class TalentLock implements Ticking {
 
     private static final ItemStack[] DYE_MATERIALS = {
-            createDyeItem(Material.GRAY_DYE),
-            createDyeItem(Material.LIME_DYE),
-            createDyeItem(Material.LIGHT_BLUE_DYE),
-            createDyeItem(Material.PURPLE_DYE),
-            createDyeItem(Material.MAGENTA_DYE),
-            createDyeItem(Material.PINK_DYE)
+            createDyeItem(Material.LIME_STAINED_GLASS_PANE),
+            createDyeItem(Material.YELLOW_STAINED_GLASS_PANE),
+            createDyeItem(Material.RED_STAINED_GLASS_PANE),
+            createDyeItem(Material.ORANGE_STAINED_GLASS_PANE),
+            createDyeItem(Material.LIGHT_BLUE_STAINED_GLASS_PANE),
+            createDyeItem(Material.BLUE_STAINED_GLASS_PANE),
+            createDyeItem(Material.PINK_STAINED_GLASS_PANE),
+            createDyeItem(Material.MAGENTA_STAINED_GLASS_PANE),
+            createDyeItem(Material.GREEN_STAINED_GLASS_PANE),
+            createDyeItem(Material.PURPLE_STAINED_GLASS_PANE)
     };
 
     private final GamePlayer player;
@@ -42,7 +47,7 @@ public class TalentLock implements Ticking {
         this.lock = Maps.newHashMap();
         this.loadout = player.getProfile().getHotbarLoadout();
 
-        // Init talents since only it should only apply to existing hero talents
+        // Init talents since it should only apply to existing hero talents
         for (HotbarSlots slot : HotbarSlots.TALENT_SLOTS) {
             final Talent talent = hero.getTalent(slot);
 
@@ -78,6 +83,24 @@ public class TalentLock implements Ticking {
 
         lock.put(slot, tick);
         return true;
+    }
+
+    public void setLockAll(int duration) {
+        for (HotbarSlots slot : HotbarSlots.values()) {
+            setLock(slot, duration);
+        }
+    }
+
+    @Nullable
+    public HotbarSlots setLockRandomly(int duration) {
+        final HotbarSlots slot = CollectionUtils.randomElement(lock.keySet());
+
+        if (slot == null) {
+            return null;
+        }
+
+        setLock(slot, duration);
+        return slot;
     }
 
     @Override
@@ -122,15 +145,15 @@ public class TalentLock implements Ticking {
         });
     }
 
+    @Nonnull
+    private ItemStack getRandomDyeItem() {
+        return CollectionUtils.randomElement(DYE_MATERIALS, DYE_MATERIALS[0]);
+    }
+
     private static ItemStack createDyeItem(Material material) {
         return new ItemBuilder(material)
                 .setName("&5&l&kTalent Locked")
                 .addSmartLore("Some ancient power of preventing this talent to be used!", "&d&l&k")
                 .asIcon();
-    }
-
-    @Nonnull
-    private ItemStack getRandomDyeItem() {
-        return CollectionUtils.randomElement(DYE_MATERIALS, DYE_MATERIALS[0]);
     }
 }

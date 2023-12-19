@@ -30,6 +30,7 @@ import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.ai.AI;
 import me.hapyl.spigotutils.module.ai.MobAI;
 import me.hapyl.spigotutils.module.annotate.Super;
+import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.math.geometry.Draw;
@@ -295,6 +296,16 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         cooldown.startCooldown(Cooldown.NO_DAMAGE, ticks * 50L);
     }
 
+    @Nonnull
+    public Location getLocationToTheLeft(double v) {
+        return LocationHelper.getToTheLeft(getLocation(), v);
+    }
+
+    @Nonnull
+    public Location getLocationToTheRight(double v) {
+        return LocationHelper.getToTheRight(getLocation(), v);
+    }
+
     public void setNoDamageTicks(int i) {
         entity.setNoDamageTicks(i);
     }
@@ -427,7 +438,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     }
 
     public void setGlowing(@Nonnull GamePlayer player, @Nonnull ChatColor color) {
-        Glowing.glowInfinitly(entity, color, player.getPlayer());
+        Glowing.glowInfinitely(entity, color, player.getPlayer());
     }
 
     public void setGlowingColor(@Nonnull GamePlayer player, @Nonnull ChatColor color) {
@@ -836,6 +847,16 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         });
     }
 
+    public <T> void spawnParticle(Location location, Particle particle, int amount, double x, double y, double z, T data) {
+        asPlayer(player -> {
+            if (!particle.getDataType().isInstance(data)) {
+                return;
+            }
+
+            player.spawnParticle(particle, location, amount, x, y, z, data);
+        });
+    }
+
     public void damageTick(double damage, EnumDamageCause cause, int tick) {
         damageTick(damage, (LivingGameEntity) null, cause, tick);
     }
@@ -888,7 +909,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
             return;
         }
 
-        PlayerLib.playSound(getLocation(), Sound.ITEM_FLINTANDSTEEL_USE, 0.0f);
+        playWorldSound(getLocation(), Sound.ITEM_FLINTANDSTEEL_USE, 0.0f);
 
         for (int i = 0; i < ferocityStrikes; i++) {
             GameTask.runLater(() -> damageFerocity(damage, lastDamager), i * 3 + FEROCITY_HIT_CD);

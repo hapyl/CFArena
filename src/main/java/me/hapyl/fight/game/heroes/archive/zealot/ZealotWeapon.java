@@ -3,7 +3,8 @@ package me.hapyl.fight.game.heroes.archive.zealot;
 import me.hapyl.fight.game.HeroReference;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.EntityAttributes;
+import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.PlayerGameTask;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -46,8 +47,20 @@ public class ZealotWeapon extends Weapon implements HeroReference<Zealot> {
         @DisplayField(scaleFactor = 100)
         private final double ferocityIncrease = 1.5d;
 
+        @DisplayField(scaleFactor = 500)
+        private final double speedIncrease = 0.02; // 10%
+
+        private final TemperInstance temperInstance = Temper.SOUL_CRY.newInstance()
+                .increase(AttributeType.FEROCITY, ferocityIncrease)
+                .increase(AttributeType.SPEED, speedIncrease);
+
         public SoulCryAbility() {
-            super("Soul Cry", "Gain &a{ferocityIncrease} %s for {duration}.", AttributeType.FEROCITY);
+            super(
+                    "Soul Cry",
+                    "Gain &a{ferocityIncrease} %s and &b{speedIncrease} %s for {duration}.",
+                    AttributeType.FEROCITY,
+                    AttributeType.SPEED
+            );
 
             setDurationSec(4);
             setCooldownSec(16);
@@ -59,9 +72,7 @@ public class ZealotWeapon extends Weapon implements HeroReference<Zealot> {
                 return Response.OK;
             }
 
-            final EntityAttributes attributes = player.getAttributes();
-
-            attributes.add(AttributeType.FEROCITY, ferocityIncrease);
+            temperInstance.temper(player, getDuration());
 
             zealot.abilityEquipment.equip(player);
             item.setType(Material.GOLDEN_SWORD);
@@ -69,17 +80,16 @@ public class ZealotWeapon extends Weapon implements HeroReference<Zealot> {
             new PlayerGameTask(player) {
                 @Override
                 public void run() {
-                    attributes.subtract(AttributeType.FEROCITY, ferocityIncrease);
                     zealot.getEquipment().equip(player);
                     item.setType(Material.DIAMOND_SWORD);
 
                     // Fx
-                    player.playSound(Sound.ENTITY_ELDER_GUARDIAN_AMBIENT_LAND, 1.0f);
+                    player.playWorldSound(Sound.ENTITY_ELDER_GUARDIAN_AMBIENT_LAND, 1.0f);
                 }
             }.runTaskLater(getDuration());
 
             // Fx
-            player.playSound(Sound.ENTITY_ELDER_GUARDIAN_AMBIENT_LAND, 0.0f);
+            player.playWorldSound(Sound.ENTITY_ELDER_GUARDIAN_AMBIENT_LAND, 0.0f);
 
             return Response.OK;
         }

@@ -9,7 +9,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.alchemist.Alchemist;
 import me.hapyl.fight.game.heroes.archive.alchemist.CauldronEffect;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.util.collection.RandomTable;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
@@ -45,7 +45,7 @@ public class RandomPotion extends Talent {
                     public void affect(@Nonnull GamePlayer player) {
                         final EntityAttributes attributes = player.getAttributes();
 
-                        attributes.increaseTemporary(Temper.ALCHEMIST, AttributeType.ATTACK, 1, effectDuration);
+                        attributes.increaseTemporary(Temper.ALCHEMIST, AttributeType.ATTACK, 2.5, effectDuration);
                     }
                 })
                 .add(new Effect("&6🛡", "Defense") {

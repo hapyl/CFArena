@@ -48,6 +48,11 @@ public enum HotbarSlots implements EnumWrapper<HotbarSlot> {
         return item;
     }
 
+    @Override
+    public String toString() {
+        return item.getName();
+    }
+
     @Nullable
     public static HotbarSlots byIndex(int index) {
         return values()[index];

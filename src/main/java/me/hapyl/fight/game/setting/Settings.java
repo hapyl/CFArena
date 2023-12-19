@@ -119,6 +119,21 @@ public enum Settings implements EnumWrapper<Setting>, PlayerItemCreator {
             true
     )),
 
+    SHOW_HEALTH_AND_SHIELD_SEPARATELY(new Setting(
+            Material.SHIELD,
+            "Show Health and Shield Separately", """
+            Whenever to show health and shield amount separately, rather than combined.
+                        
+            &aIf enabled:
+            &c&c50 &c❤ &e&l50 &e🛡
+                        
+            &cIf disabled:
+            &e&l100 &e🛡
+            """,
+            Category.CHAT,
+            true
+    )),
+
     // Other
     SEE_OTHERS_CONTRAIL(new Setting(
             Material.FIREWORK_ROCKET,

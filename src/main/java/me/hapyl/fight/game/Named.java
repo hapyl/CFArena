@@ -20,6 +20,8 @@ public enum Named {
     STANCE_RANGE("🏹", "Range Stance", Color.STANCE_RANGE),
     STANCE_MELEE("⚔", "Melee Stance", Color.STANCE_MELEE),
     RIPTIDE(ChatColor.BOLD + "\uD83D\uDCA6", "Riptide", Color.RIPTIDE),
+    BUG(ChatColor.BOLD + "🐜", "Disruptive Bug", Color.WHITE),
+    ENERGY("※", "Energy", Color.AQUA),
 
     ;
 

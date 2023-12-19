@@ -4,14 +4,15 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.TalentReference;
 import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.archive.BleedEffect;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.util.Ticking;
 import me.hapyl.fight.game.heroes.archive.bloodfield.impel.ImpelInstance;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.archive.bloodfiend.BloodCup;
 import me.hapyl.fight.game.talents.archive.bloodfiend.BloodfiendPassive;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.CFUtils;
+import me.hapyl.fight.util.Ticking;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.ThreadRandom;
 import org.bukkit.*;
@@ -25,14 +26,9 @@ import java.util.Set;
 
 public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassive> {
 
-    private static final Particle.DustTransition PARTICLE_DATA = new Particle.DustTransition(
-            Color.fromRGB(125, 1, 20),
-            Color.fromRGB(194, 14, 41),
-            2
-    );
-
     private final GamePlayer player;
     private final Map<GamePlayer, BiteData> succulence; // FIXME -> Maybe chance this to apply to living entities?
+    private final BleedEffect bleedEffect;
     private ImpelInstance impelInstance;
     private int flightTime;
     private boolean flying;
@@ -45,6 +41,7 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
         this.succulence = Maps.newConcurrentMap();
         this.flightTime = 0;
         this.flying = false;
+        this.bleedEffect = (BleedEffect) GameEffectType.BLEED.getGameEffect();
     }
 
     @Nullable
@@ -116,10 +113,8 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
             }
             else {
                 // Fx
-                final Location location = player.getLocation().add(0.0d, 0.5d, 0.0d);
-
-                player.spawnParticle(Particle.DUST_COLOR_TRANSITION, location, 1, 0.2d, 0.2d, 0.2d, 0, PARTICLE_DATA);
-                this.player.spawnParticle(Particle.DUST_COLOR_TRANSITION, location, 1, 0.2d, 0.2d, 0.2d, 0, PARTICLE_DATA);
+                bleedEffect.spawnParticle(player.getLocation().add(0, 0.5, 0));
+                bleedEffect.spawnParticle(this.player.getLocation().add(0, 0.5, 0));
             }
         });
 
@@ -266,9 +261,6 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
 
         blood++;
         bloodCup.updateTexture(this);
-
-        // Fx
-
     }
 
     public void clearBlood() {

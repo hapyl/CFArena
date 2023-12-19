@@ -492,6 +492,124 @@ Harbinger
 
 ---
 
+Techie
+===
+
+### Sabotuer
+
+* Equip a hacking device, after a short delay, hack all nearby enemies and implant a Disruptive Bug.
+* This ability can also hack Supply Packs, rendering them unobtainable for you or your teammates but impairing an enemy
+  when they pick it up.
+
+### Cipher Lock
+
+* Equip a hacking device, after a short delay, launch an energy blast forward.
+* Upon hitting an enemy, impair them and lock a random talent.
+
+### Lockdown (Ultimate)
+
+* Equip a hacking device, after a short delay, overload all nearby Disruptive Bugs, locking all talents and impairing
+  enemies in the process.
+
+### Disruptive Bug
+
+* A nano bug that at intervals hacks into enemies sending the hacked data to you and your teammates.
+* The data includes:
+    * Enemy's location.
+    * Enemy's health.
+    * Enemy's energy.
+* The bug also steals a small amount of energy.
+
+---
+
+Bounty Hunter
+---
+
+### Grappling Hook
+
+* Fixed a bug where players were unable to remove the hook.
+
+---
+
+Pakarat Rakat
+---
+
+### General
+
+* Decrease base health 150 >> 125.
+
+### Weapon
+
+* Increase throw hitbox 0.2 >> 0.4
+
+### Berserk (Ultimate)
+
+* Decrease duration 20s >> 15s.
+* Increase defense reduction 40% >> 60%. (60 - 60 = 0 = no defense but big damaje)
+* Fixed berserk applying multiple times and spamming "Berserk is over!" in chat.
+
+---
+
+Bloodfiend
+===
+
+### Impel (Ultimate)
+
+* Decrease impel 5 >> 4 times.
+
+### Taunt
+
+* Taunts no longer explode after the duration has expired.
+* Taunts receive a damage boost because of this.
+
+### Candlebane Pillar
+
+* Increase click delay 0.1s >> 0.2s.
+* Increase damage per interval 2 >> 5.
+
+### Blood Chalice
+
+* Add cracked texture to indicate chalice health.
+* Fix chalice flying to the player instead of nearby.
+
+### Blood Cup
+
+* Fix using wrong slots.
+
+---
+
+Zealot
+===
+
+### Psionic Blade (Weapon)
+
+* Soul Cry:
+    * Gain ferocity and speed boost.
+
+### Broken Heart Radiation
+
+* Create four radiation beams that spin around you. Upon hitting an enemy, damage and impair them.
+
+### Malevolent Hitshield
+
+* Creates a hitshield that blocks 10 damage hits, regardless of damage.
+
+### Malediction Veil (Passive)
+
+* Emmit an aura that apply Curse of Greed to enemies.
+* Enemies affected by the Curse of Greed suffer DEF reduction and Ferocity is 100% more effective.
+
+### Blade Barrage (Ultimate)
+
+* Summon two giant swords that follow you.
+* Swing your katana to swing one of the swords.
+* Psionic Blade:
+    * Decreases DEF and deals damage.
+* Soul Blade:
+    * Increases Ferocity and deals damage.
+
+---
+
 System Changes
 ===
 

@@ -158,16 +158,19 @@ public class Buffer<E> implements List<E> {
         return linkedList.lastIndexOf(o);
     }
 
+    @Nonnull
     @Override
     public ListIterator<E> listIterator() {
         return linkedList.listIterator();
     }
 
+    @Nonnull
     @Override
     public ListIterator<E> listIterator(int index) {
         return linkedList.listIterator(index);
     }
 
+    @Nonnull
     @Override
     public List<E> subList(int fromIndex, int toIndex) {
         return linkedList.subList(fromIndex, toIndex);

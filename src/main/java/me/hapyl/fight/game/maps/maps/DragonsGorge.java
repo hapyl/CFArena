@@ -28,7 +28,9 @@ public class DragonsGorge extends GameMap {
         setSize(Size.MEDIUM);
         setTicksBeforeReveal(100);
 
-        addFeature(new MapFeature("Sheer Cold", "This water is so cold! Better keep an eye on your cold-o-meter!") {
+        addFeature(new MapFeature("Sheer Cold", """
+                This water is so cold! Better keep an eye on your cold-o-meter!
+                """) {
 
             private final Map<Player, Float> coldMeter = new HashMap<>();
             private final float maxColdValue = 100.0f;

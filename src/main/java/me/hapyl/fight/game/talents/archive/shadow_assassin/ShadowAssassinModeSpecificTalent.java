@@ -3,7 +3,7 @@ package me.hapyl.fight.game.talents.archive.shadow_assassin;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.archive.shadow_assassin.ShadowAssassin;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 
 public abstract class ShadowAssassinModeSpecificTalent extends Talent {
 

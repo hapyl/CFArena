@@ -3,13 +3,17 @@ package me.hapyl.fight.game.effect.archive;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.effect.GameEffect;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import org.bukkit.Material;
-import org.bukkit.Particle;
+import org.bukkit.*;
 
 import javax.annotation.Nonnull;
 
 public class BleedEffect extends GameEffect {
 
+    private final Particle.DustTransition dustTransition = new Particle.DustTransition(
+            Color.fromRGB(125, 1, 20),
+            Color.fromRGB(194, 14, 41),
+            2
+    );
     private final double damage = 2.0d;
 
     public BleedEffect() {
@@ -43,5 +47,15 @@ public class BleedEffect extends GameEffect {
                             Material.REDSTONE_BLOCK.createBlockData()
                     );
         }
+    }
+
+    public void spawnParticle(Location location) {
+        final World world = location.getWorld();
+
+        if (world == null) {
+            return;
+        }
+
+        world.spawnParticle(Particle.DUST_COLOR_TRANSITION, location, 1, 0.2d, 0.2d, 0.2d, 0, dustTransition);
     }
 }

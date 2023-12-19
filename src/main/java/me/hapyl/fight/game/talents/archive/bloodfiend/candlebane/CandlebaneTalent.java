@@ -13,11 +13,8 @@ public class CandlebaneTalent extends TauntTalent<Candlebane> {
 
     @DisplayField protected final short pillarHeight = 7;
     @DisplayField protected final short pillarClicks = 10;
-    @DisplayField protected final double damage = 50.0d;
-    @DisplayField(suffix = "&c❤") protected final double damagePerInterval = 2.0d;
+    @DisplayField(suffix = "&c❤") protected final double damagePerInterval = 5.0d;
     @DisplayField protected final int interval = 50;
-
-    //@DisplayField protected final int spawnInterval = Tick.fromSecond(10);
 
     public CandlebaneTalent() {
         super("Candlebane Pillar");
@@ -39,25 +36,20 @@ public class CandlebaneTalent extends TauntTalent<Candlebane> {
     @Override
     public String getHowToRemove() {
         return """
-                The pillar must be compacted by clicking on it with a &acorrect&7 click.
-                &8&o;;The correct click is displayed above the pillar.
+                The pillar must be compacted by alternating &eleft&7 and &6right&7 clicks.
                 """;
     }
 
+    @Nonnull
     @Override
-    public double getExplosionDamage() {
-        return damage;
+    public Candlebane createTaunt(@Nonnull GamePlayer player, @Nonnull GamePlayer target) {
+        return new Candlebane(this, player, target);
     }
 
     @Override
     @Nonnull
     public EnumDamageCause getDamageCause() {
         return EnumDamageCause.CANDLEBANE;
-    }
-
-    @Override
-    public Candlebane createTaunt(GamePlayer player, GamePlayer target) {
-        return new Candlebane(this, player, target);
     }
 
     @Nonnull

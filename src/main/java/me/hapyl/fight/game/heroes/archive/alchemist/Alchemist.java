@@ -16,7 +16,7 @@ import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
@@ -82,7 +82,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
                     public void affect(@Nonnull GamePlayer player, @Nonnull GamePlayer victim) {
                         final EntityAttributes playerAttributes = player.getAttributes();
 
-                        playerAttributes.increaseTemporary(Temper.ALCHEMIST, AttributeType.ATTACK, 0.5d, duration);
+                        playerAttributes.increaseTemporary(Temper.ALCHEMIST, AttributeType.ATTACK, 3.125, duration);
                     }
                 })
                 .add(new MadnessEffect("&lPROTECTED&a you", 30) {

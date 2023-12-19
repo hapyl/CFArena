@@ -15,14 +15,13 @@ import javax.annotation.Nonnull;
 
 public class BloodChaliceTalent extends TauntTalent<BloodChalice> implements Listener {
 
+    @DisplayField(percentage = true) public final double healingPercent = 0.5d;
     @DisplayField protected final short chaliceHealth = 3;
-    @DisplayField protected final double maxDistance = 30.0d;
-    @DisplayField private final double damage = 25.0d;
-    @DisplayField(suffix = "%", suffixSpace = false) public final double healingPercent = 50;
 
     public BloodChaliceTalent() {
         super("Blood Chalice");
 
+        setType(Type.SUPPORT);
         setItem(Material.SKELETON_SKULL);
         setDurationSec(20);
         setCooldownSec(30);
@@ -47,18 +46,14 @@ public class BloodChaliceTalent extends TauntTalent<BloodChalice> implements Lis
     }
 
     @Override
-    public double getExplosionDamage() {
-        return damage;
-    }
-
-    @Override
     @Nonnull
     public EnumDamageCause getDamageCause() {
         return EnumDamageCause.CHALICE;
     }
 
+    @Nonnull
     @Override
-    public BloodChalice createTaunt(GamePlayer player, GamePlayer target) {
+    public BloodChalice createTaunt(@Nonnull GamePlayer player, @Nonnull GamePlayer target) {
         return new BloodChalice(this, player, target);
     }
 

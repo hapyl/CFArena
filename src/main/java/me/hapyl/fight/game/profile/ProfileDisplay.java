@@ -16,6 +16,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class ProfileDisplay {
 
@@ -24,14 +25,15 @@ public class ProfileDisplay {
 
     private final Player player;
     private final long level;
-    private final String customName;
     private final String prefix;
     private final RankFormatter rank;
+    @Nonnull
+    private String customName;
 
     public ProfileDisplay(@Nonnull PlayerProfile profile) {
         this.profile = profile;
         this.player = profile.getPlayer();
-        this.customName = player.getDisplayName();
+        this.customName = player.getName();
 
         final PlayerDatabase database = profile.getDatabase();
         this.cosmetics = database.getCosmetics();
@@ -102,6 +104,21 @@ public class ProfileDisplay {
     @Nonnull
     public Color getColor() {
         return rank.nameColor();
+    }
+
+    public void resetNick() {
+        setNick(null);
+    }
+
+    public void setNick(@Nullable String newNick) {
+        customName = newNick != null ? newNick : player.getName();
+    }
+
+    private void updateName() {
+        //final GameProfile gameProfile = Reflect.getGameProfile(player);
+
+        //gameProfile.getName();
+        // todo -> Idk might need to actually change players profile name
     }
 
     @Nonnull

@@ -49,7 +49,9 @@ public class TrapWire extends ChargedTalent implements Listener {
     }
 
     @Override
-    public void onStopCharged() {
+    public void onStop() {
+        super.onStop();
+
         trapMap.values().forEach(set -> {
             set.forEach(Tripwire::clearBlocks);
             set.clear();
@@ -58,13 +60,16 @@ public class TrapWire extends ChargedTalent implements Listener {
     }
 
     @Override
-    public void onDeathCharged(@Nonnull GamePlayer player) {
+    public void onDeath(@Nonnull GamePlayer player) {
+        super.onDeath(player);
         //getTraps(player).forEach(Tripwire::clearBlocks);
         //trapMap.remove(player);
     }
 
     @Override
-    public void onStartCharged() {
+    public void onStart() {
+        super.onStart();
+
         new GameTask() {
             @Override
             public void run() {

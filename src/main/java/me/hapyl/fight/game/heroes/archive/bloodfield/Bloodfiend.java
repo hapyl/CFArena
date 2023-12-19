@@ -3,6 +3,7 @@ package me.hapyl.fight.game.heroes.archive.bloodfield;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.annotate.StrictTalentPlacement;
 import me.hapyl.fight.event.custom.TalentUseEvent;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
@@ -16,8 +17,9 @@ import me.hapyl.fight.game.heroes.archive.bloodfield.impel.Impel;
 import me.hapyl.fight.game.heroes.archive.bloodfield.impel.ImpelInstance;
 import me.hapyl.fight.game.heroes.archive.bloodfield.impel.Type;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.bloodfiend.BloodCup;
@@ -34,6 +36,7 @@ import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.entity.EntityUtils;
+import me.hapyl.spigotutils.module.math.geometry.Drawable;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
 import org.bukkit.Location;
@@ -60,9 +63,7 @@ import java.util.function.BiConsumer;
 
 public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplexComponent {
 
-    public static final int BLOOD_SLOT = 4;
-
-    @DisplayField public final short impelTimes = 5;
+    @DisplayField public final short impelTimes = 4;
     @DisplayField public final int impelDuration = 40;
     @DisplayField public final int impelCd = 10;
     @DisplayField public final double impelDamage = 30.0d;
@@ -94,6 +95,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
         setWeapon(new Weapon(Material.GHAST_TEAR).setName("Vampire's Fang").setDamage(6.0d).setAttackSpeed(0.5d));
 
         final UltimateTalent ultimate = new UltimateTalent("Impel", 50)
+                .setType(Talent.Type.IMPAIR)
                 .setItem(Material.MOOSHROOM_SPAWN_EGG)
                 .setDuration(impelDuration * impelTimes)
                 .setCastDuration(30);
@@ -102,9 +104,9 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
                 After a short casting time, impel all &cbitten &cenemies&7 for {duration}.
                 &8&o;;While casting, transform into a bat and fly freely.
                                 
-                While impelled, enemies must obey &b%s &7of your commands.
+                While impelled, enemies &nmust&7 obey &b&l%s &7of your commands.
                                 
-                If failed to obey a command, they will suffer &c%s&7 damage.
+                If &4failed&7 to obey a command, they will suffer &c%.0f&7 ❤ damage.
                 """, impelTimes, impelDamage);
 
         setUltimate(ultimate);
@@ -142,7 +144,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
     @EventHandler()
     public void handleTalentUse(TalentUseEvent ev) {
         final GamePlayer player = ev.getPlayer();
-        
+
         workImpel(player, (impel, gp) -> {
             impel.complete(player, Type.USE_ABILITY);
         });
@@ -176,7 +178,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
 
         if (taunt != null && taunt.target.equals(victim)) {
             final double damage = input.getDamage();
-            final double healing = damage * bloodChalice.healingPercent / 100;
+            final double healing = damage * bloodChalice.healingPercent;
 
             player.heal(healing);
         }
@@ -209,11 +211,16 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
         final HumanNPC npc = new HumanNPC(player.getLocation(), "", player.getName());
 
         npc.showAll();
+        npc.setEquipment(player.getEquipment());
         npc.setSitting(true);
 
         // Draw particles
         succulencePlayers.forEach(target -> {
-            drawTentacleParticles(location, target.getLocation());
+            drawTentacleParticles(location, target.getLocation(), draw -> {
+                player.spawnWorldParticle(draw, Particle.LAVA, 1, 0.1d, 0.1d, 0.1d, 0.0f);
+                player.spawnWorldParticle(draw, Particle.FLAME, 1);
+                player.spawnWorldParticle(draw, Particle.SMALL_FLAME, 3, 0.1d, 0.1d, 0.1d, 0.05f);
+            });
         });
 
         // Spawn bats
@@ -304,8 +311,9 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
     }
 
     @Override
+    @StrictTalentPlacement
     public BloodCup getFourthTalent() {
-        return (BloodCup) Talents.BLOOD_CUP.getTalent();
+        return (BloodCup) Talents.BLOOD_CUP.getTalent().setTalentSlot(HotbarSlots.TALENT_4);
     }
 
     @Override
@@ -450,7 +458,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
         );
     }
 
-    public void drawTentacleParticles(Location start, Location end) {
+    public void drawTentacleParticles(Location start, Location end, Drawable draw) {
         final double distance = start.distance(end);
         final double step = distance / 30 * 2;
 
@@ -472,9 +480,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
                 location.add(vector);
                 location.add(0, y, 0);
 
-                PlayerLib.spawnParticle(location, Particle.LAVA, 1, 0.1d, 0.1d, 0.1d, 0.0f);
-                PlayerLib.spawnParticle(location, Particle.FLAME, 1);
-                PlayerLib.spawnParticle(location, Particle.SMALL_FLAME, 3, 0.1d, 0.1d, 0.1d, 0.05f);
+                draw.draw(location);
 
                 location.subtract(0, y, 0);
                 d += step;

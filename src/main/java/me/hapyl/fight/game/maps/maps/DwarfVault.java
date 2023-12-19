@@ -40,7 +40,9 @@ public class DwarfVault extends GameMap {
         addLocation(1499, 102, 1522);
         addLocation(1479, 102, 1501);
 
-        addFeature(new MapFeature("Bouncy Lava", "Hot but bouncy lava that allows you to get back to the platform.") {
+        addFeature(new MapFeature("Bouncy Lava", """
+                Hot but bouncy lava that allows you to get back to the platform.
+                """) {
             @Override
             public void tick(int tick) {
                 if (tick % 20 == 0) {

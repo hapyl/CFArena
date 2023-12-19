@@ -13,7 +13,9 @@ import org.bukkit.event.player.PlayerMoveEvent;
 public class CloudFeatures extends MapFeature implements Listener {
 
     public CloudFeatures() {
-        super("Boosters", "Propel yourself to another island. Do not fall though, it would be hard to explain your death...");
+        super("Boosters", """
+                Propel yourself to another island. Do not fall though, it would be hard to explain your death...
+                """);
 
         // Register Boosters
         new Booster(518, 62, 505, 2.5, 1.0, -0.5);

@@ -6,8 +6,6 @@ import me.hapyl.fight.game.parkour.ParkourLeaderboard;
 import me.hapyl.fight.util.BoundingBoxCollector;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.util.BoundingBox;
@@ -45,9 +43,6 @@ public class SlimeParkour extends CFParkour {
         final Location location = player.getLocation();
 
         if (!boundingBox.contains(location.getX(), location.getY(), location.getZ())) {
-            return;
-        }
-        if (location.getBlock().getRelative(BlockFace.DOWN).getType() == Material.SLIME_BLOCK) {
             return;
         }
 

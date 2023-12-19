@@ -8,7 +8,6 @@ import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import me.hapyl.spigotutils.module.math.Tick;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -104,7 +103,7 @@ public abstract class OrcWeaponEntity extends GameTask {
 
         // Fx
         if (aliveTicks % 12 == 0) {
-            PlayerLib.playSound(entityLocation, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 0.8f);
+            player.playWorldSound(entityLocation, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 0.8f);
         }
 
         final Location axeLocation = getAxeLocation();
@@ -121,46 +120,13 @@ public abstract class OrcWeaponEntity extends GameTask {
         world.spawnParticle(Particle.FALLING_DUST, axeLocation, 1, 0.1d, 0.1d, 0.1d, 1, BLOCK_DATA[1]);
     }
 
+    @Nonnull
     public Location getAxeLocation() {
         return LocationHelper.getToTheRight(entity.getLocation(), 0.25d).add(0.0d, 1.5d, 0.0d);
     }
 
     public void returnToSender(int delay) {
         GameTask.runLater(this::returnToSender, delay);
-    }
-
-    private boolean next() {
-        // Check for entity or block hit
-        final Location location = entity.getLocation();
-        final Location nextLocation = location.add(vector);
-        final Location hitLocation = LocationHelper.getToTheRight(location, 0.25d).add(0.0d, 1.5d, 0.0d);
-
-        // Check for hit block
-        final Block hitBlock = hitLocation.getBlock();
-
-        // Stay in block for 1 second and return back
-        if (hitBlock.getType().isOccluding()) {
-            cancel();
-            onHit(hitBlock);
-            returnToSender(60);
-            return true;
-        }
-
-        // Check for entity hit
-        final LivingGameEntity nearestEntity = Collect.nearestEntity(hitLocation, 0.2d, predicate -> !predicate.equals(player));
-
-        if (nearestEntity != null) {
-            hitEntity = nearestEntity.getEntity();
-            aliveTicks = 0;
-
-            onHit(hitEntity);
-            return true;
-        }
-
-        // Travel
-        entity.teleport(nextLocation);
-        entity.setRightArmPose(entity.getRightArmPose().add(Math.toRadians(15.0d), 0.0d, 0.0d));
-        return false;
     }
 
     public void returnToSender() {
@@ -192,6 +158,40 @@ public abstract class OrcWeaponEntity extends GameTask {
         cancel();
         entity.remove();
         aliveTicks = -1;
+    }
+
+    private boolean next() {
+        // Check for entity or block hit
+        final Location location = entity.getLocation();
+        final Location nextLocation = location.add(vector);
+        final Location hitLocation = LocationHelper.getToTheRight(location, 0.25d).add(0.0d, 1.5d, 0.0d);
+
+        // Check for hit block
+        final Block hitBlock = hitLocation.getBlock();
+
+        // Stay in block for 1 second and return
+        if (hitBlock.getType().isOccluding()) {
+            cancel();
+            onHit(hitBlock);
+            returnToSender(60);
+            return true;
+        }
+
+        // Check for entity hit
+        final LivingGameEntity nearestEntity = Collect.nearestEntity(hitLocation, 0.4d, player);
+
+        if (nearestEntity != null) {
+            hitEntity = nearestEntity.getEntity();
+            aliveTicks = 0;
+
+            onHit(hitEntity);
+            return true;
+        }
+
+        // Travel
+        entity.teleport(nextLocation);
+        entity.setRightArmPose(entity.getRightArmPose().add(Math.toRadians(15.0d), 0.0d, 0.0d));
+        return false;
     }
 
 }

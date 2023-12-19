@@ -211,7 +211,7 @@ public enum GameTeam implements Described, SmallCapsDescriber, Selectable, GameE
                     continue;
                 }
 
-                Glowing.glowInfinitly(other, ChatColor.GREEN, player);
+                Glowing.glowInfinitely(other, ChatColor.GREEN, player);
             }
         }
     }

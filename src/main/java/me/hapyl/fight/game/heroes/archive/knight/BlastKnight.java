@@ -3,15 +3,16 @@ package me.hapyl.fight.game.heroes.archive.knight;
 import me.hapyl.fight.event.io.DamageInput;
 import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.PlayerElement;
+import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.shield.Shield;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.archive.Discharge;
+import me.hapyl.fight.game.talents.archive.knight.Discharge;
 import me.hapyl.fight.game.talents.archive.knight.StoneCastle;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
@@ -42,8 +43,8 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Pla
     private final Material shieldRechargeCdItem = Material.HORSE_SPAWN_EGG;
 
     @DisplayField private final double ultimateRadius = 7.0d;
-    @DisplayField private final double healingTotal = 20;
-    @DisplayField private final double shieldCapacity = 15;
+    @DisplayField private final double initialShieldCapacity = 10;
+    @DisplayField private final double shieldCapacity = 50;
 
     public BlastKnight() {
         super("Blast Knight");
@@ -53,6 +54,9 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Pla
 
         setDescription("Royal Knight with high-end technology gadgets.");
         setItem("f6eaa1fd9d2d49d06a894798d3b145d3ae4dcca038b7da718c7b83a66ef264f0");
+
+        final HeroAttributes attributes = getAttributes();
+        attributes.setDefense(150);
 
         final Equipment equipment = getEquipment();
 
@@ -77,7 +81,7 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Pla
 
         setUltimate(new UltimateTalent(
                 "Nanite Rush", """
-                Instantly release a &dNanite Swarm&7 that &brushes&7 upwards, rapidly &ahealing&7 all nearby &ateammates&7 and granting them a &eshield&7.
+                Instantly release a &dNanite Swarm&7 that &brushes&7 upwards, creating a &eshield&7 and rapidly &aregenerates&7 all existing shields.
                 """, 60
         )
                 .setType(Talent.Type.SUPPORT)
@@ -100,14 +104,25 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Pla
 
     @Override
     public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        final double healingPerTick = healingTotal / getUltimateDuration();
+        final double shieldPerTick = (shieldCapacity - initialShieldCapacity) / getUltimateDuration();
         final Location location = player.getLocation();
 
         new TimedGameTask(getUltimate()) {
             @Override
+            public void onFirstTick() {
+                nearbyPlayers().forEach(player -> {
+                    player.setShield(new Shield(player, shieldCapacity, initialShieldCapacity));
+                });
+            }
+
+            @Override
             public void run(int tick) {
                 nearbyPlayers().forEach(player -> {
-                    player.heal(healingPerTick);
+                    final Shield shield = player.getShield();
+
+                    if (shield != null) {
+                        shield.regenerate(shieldPerTick);
+                    }
                 });
 
                 // Fx
@@ -117,13 +132,6 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Pla
 
                 player.playWorldSound(location, Sound.ITEM_FLINTANDSTEEL_USE, pitch);
                 player.playWorldSound(location, Sound.ENTITY_ENDER_DRAGON_FLAP, pitch);
-            }
-
-            @Override
-            public void onFirstTick() {
-                nearbyPlayers().forEach(player -> {
-                    player.setShield(new Shield(player, shieldCapacity));
-                });
             }
 
             private List<GamePlayer> nearbyPlayers() {

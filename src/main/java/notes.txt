@@ -2,8 +2,6 @@
 
 └
 
-bn should be in range to take dmg
-
 ####################################################################
 
 - [!] The lobby game player bug STILL happens.
@@ -34,9 +32,6 @@ bn should be in range to take dmg
 -- Should be fixed for all characters, though needs testing.
 
 - [✔] Remove durability from weapons it BREAKS LOL
-
-* Nightmare
-- Make omen work like monass' omen
 
 * Frenzy
 - Make last life have a red outline

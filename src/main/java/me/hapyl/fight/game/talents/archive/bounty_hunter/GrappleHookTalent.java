@@ -17,6 +17,7 @@ import javax.annotation.Nullable;
 
 public class GrappleHookTalent extends ChargedTalent implements Listener {
 
+    @DisplayField public final double onHookMultiplier = 1.5d;
     @DisplayField(suffix = "blocks") protected final double maxDistance = 30.0d;
     @DisplayField private final int cooldown = 200;
 
@@ -26,15 +27,17 @@ public class GrappleHookTalent extends ChargedTalent implements Listener {
         super("Grappling Hook", 3);
 
         setDescription("""
-                Launch a grappling hook that travels up to &b{maxDistance}&7 blocks.
+                Launch a &6grappling hook&7 that travels up to &b{maxDistance}&7.
                                 
-                Whenever it hits a &bblock&7 or an &bentity&7, it will pull you towards it.
+                Whenever it hits a &3block&7 or an &cenemy&7, it will pull &nyou&7 &ntowards&7 it.
+                &8;;The hook can be destroyed.
                                 
-                &6;;Cooldown starts after all charges are used.
+                &8;;The cooldown of this ability stars after all the charges are used.
                 """);
 
-        setNoChargedMaterial(Material.GOAT_HORN);
+        setType(Type.MOVEMENT);
         setItem(Material.LEAD);
+        setNoChargedMaterial(Material.GOAT_HORN);
     }
 
     @Override
@@ -66,11 +69,13 @@ public class GrappleHookTalent extends ChargedTalent implements Listener {
         hook.remove();
 
         // Fx
-        player.sendTitle("&6∞", "&eHook rope cut!", 0, 10, 10);
+        player.sendTitle("&6\uD83E\uDE9D", "&eHook rope cut!", 0, 10, 10);
     }
 
     @Override
-    public void onDeathCharged(@Nonnull GamePlayer player) {
+    public void onDeath(@Nonnull GamePlayer player) {
+        super.onDeath(player);
+
         final GrappleHook hook = getHook(player);
 
         if (hook != null) {
@@ -79,7 +84,9 @@ public class GrappleHookTalent extends ChargedTalent implements Listener {
     }
 
     @Override
-    public void onStopCharged() {
+    public void onStop() {
+        super.onStop();
+
         playerHooks.values().forEach(GrappleHook::remove);
         playerHooks.clear();
     }

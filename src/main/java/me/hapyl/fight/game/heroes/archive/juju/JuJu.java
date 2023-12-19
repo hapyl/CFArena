@@ -10,7 +10,7 @@ import me.hapyl.fight.game.entity.EquipmentSlot;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.juju.ArrowShield;
@@ -59,8 +59,8 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
     public JuJu() {
         super("Juju");
 
-        setAffiliation(Affiliation.THE_JUNGLE);
         setArchetype(Archetype.HEXBANE);
+        setAffiliation(Affiliation.THE_JUNGLE);
 
         setMinimumLevel(5);
 

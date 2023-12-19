@@ -11,6 +11,7 @@ public class HitShield extends Shield {
 
     @Override
     public void takeDamage(double damage) {
-        capacity--;
+        capacity = Math.max(capacity - 1, 0);
     }
+
 }

@@ -73,6 +73,7 @@ public class Color {
     public static final Color SAPPHIRE = new Color("#0F52BA");
     public static final Color ROSE_QUARTZ = new Color("#FAD4E8");
     public static final Color DIAMOND = new Color("#B9F2FF");
+    public static final Color CORNFLOWER_BLUE = new Color("#6495ED");
 
     // *-----------------------------------------------------*
 

@@ -10,7 +10,7 @@ import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.game.weapons.ability.Ability;
 import me.hapyl.fight.game.weapons.ability.AbilityType;
 import me.hapyl.fight.util.collection.player.PlayerMap;
-import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -25,6 +25,8 @@ public class OrcWeapon extends Weapon {
 
     private final PlayerMap<OrcWeaponEntity> thrownAxe;
 
+    @DisplayField private final double damage = 16;
+
     public OrcWeapon() {
         super(Material.IRON_AXE);
 
@@ -32,6 +34,7 @@ public class OrcWeapon extends Weapon {
 
         setName("Poleaxe");
         setDescription("A sharp poleaxe.");
+        setAttackSpeed(-0.4d); // -40%
         setDamage(12.0d);
         setId("orc_axe");
 
@@ -57,9 +60,9 @@ public class OrcWeapon extends Weapon {
             super("Throw", """
                     Throw your poleaxe at your enemies!
                                     
-                    Upon hitting an enemy, it drastically slows them and deals damage before returning to you.
+                    Upon hitting an &cenemy&7, it drastically &3slows&7 them and deals &cdamage&7 before returning to you.
                                     
-                    Upon hitting a block, stay in a block for a while before returning to you.
+                    Upon hitting a &eblock&7, stay in a block for a while before returning to you.
                     """);
 
             setCooldownSec(15);
@@ -82,8 +85,8 @@ public class OrcWeapon extends Weapon {
                 @Override
                 public void onHit(@Nonnull LivingEntity entity) {
                     CF.getEntityOptional(entity).ifPresent(gameEntity -> {
-                        gameEntity.damage(16.0d, player, EnumDamageCause.ORC_WEAPON);
-                        gameEntity.addPotionEffect(PotionEffectType.SLOW.createEffect(100, 4));
+                        gameEntity.damage(damage, player, EnumDamageCause.ORC_WEAPON);
+                        gameEntity.addPotionEffect(PotionEffectType.SLOW, 100, 4);
                         gameEntity.setFreezeTicks(100);
                     });
                 }
@@ -101,7 +104,7 @@ public class OrcWeapon extends Weapon {
             thrownAxe.put(player, entity);
 
             // Fx
-            PlayerLib.playSound(location, Sound.ITEM_TRIDENT_RETURN, 0.0f);
+            player.playWorldSound(location, Sound.ITEM_TRIDENT_RETURN, 0.0f);
 
             return Response.OK;
         }

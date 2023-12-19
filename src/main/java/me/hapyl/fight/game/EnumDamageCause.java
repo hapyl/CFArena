@@ -113,7 +113,7 @@ public enum EnumDamageCause {
     DARKNESS_CURSE(DamageCause.of("was swallowed by {damager}'s darkness")),
     CORROSION(DamageCause.nonCrit("corroded to death", "with help from")),
     ORC_DASH(DamageCause.of("was hit too hard", "by")),
-    ORC_WEAPON(DamageCause.of("was {damager}'s bullseye")),
+    ORC_WEAPON(DamageCause.nonCrit("was {damager}'s bullseye")),
     CYCLING_AXE(DamageCause.of("couldn't see that {damager}'s axe is flying there")),
     FROSTBITE(DamageCause.of("froze to death, and {damager} is the one to blame")),
     POISON_IVY(DamageCause.nonCrit("was poised to death by {damager}'s poison ivy")),
@@ -131,6 +131,9 @@ public enum EnumDamageCause {
     SHADOW_CLONE(DamageCause.nonCrit("was killed by {damager}'s shadow")),
     STONE_CASTLE(DamageCause.nonCrit("died because of {damager} while protecting their teammates")),
     SENTRY_SHOT(DamageCause.nonCrit("was shot to death", "by {damager}'s sentry")),
+    HACK(DamageCause.nonCrit("was hacked", "by")),
+    BLADE_BARRAGE(DamageCause.nonCrit("fell before {damager}'s swords")),
+
     ;
 
     private final DamageCause damageCause;

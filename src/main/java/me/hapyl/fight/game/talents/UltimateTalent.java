@@ -3,6 +3,7 @@ package me.hapyl.fight.game.talents;
 import com.google.common.collect.Lists;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.util.displayfield.DisplayFieldData;
 import me.hapyl.fight.util.displayfield.DisplayFieldDataProvider;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;

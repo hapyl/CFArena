@@ -9,14 +9,12 @@ import me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.ThreadRandom;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import java.util.function.Consumer;
@@ -33,8 +31,7 @@ public abstract class Taunt extends GameTask {
     public Taunt(GamePlayer player, GamePlayer target) {
         this.player = player;
         this.target = target;
-        this.initialLocation = pickRandomLocation(5);
-        this.initialLocation.subtract(0.0d, 1.3d, 0.0d);
+        this.initialLocation = pickRandomLocation(player.getLocation(), 5);
 
         final Location location = player.getLocation();
         animation = new SwiftTeleportAnimation(location, this.initialLocation) {
@@ -47,6 +44,7 @@ public abstract class Taunt extends GameTask {
             public void onAnimationStop() {
                 isAnimation = false;
                 Taunt.this.onAnimationEnd();
+
                 target.sendWarning(getName() + " is taunting you!", 30);
                 player.sendMessage("%s&a is taunting &c%s&a!", getNameWithCharacter(), target.getName());
             }
@@ -56,14 +54,14 @@ public abstract class Taunt extends GameTask {
         animation.setSlope(2.0d).start(0, 1);
 
         // Fx
-        PlayerLib.playSound(location, Sound.ENTITY_IRON_GOLEM_DEATH, 0.0f);
+        player.playWorldSound(location, Sound.ENTITY_IRON_GOLEM_DEATH, 0.0f);
     }
 
     public boolean isAnimation() {
         return isAnimation;
     }
 
-    public void onAnimationStep(Location location) {
+    public void onAnimationStep(@Nonnull Location location) {
     }
 
     public void onAnimationEnd() {
@@ -101,14 +99,8 @@ public abstract class Taunt extends GameTask {
             target.playSound(initialLocation, Sound.ENTITY_ZOMBIE_VILLAGER_CONVERTED, 0.0f);
         }
 
-        // Warn about taunt!
-        if (tick <= 100 && (tick % 2 == 0)) {
-            target.sendWarning("&c%s is about to explode!".formatted(getName()), 20);
-            target.playSound(Sound.BLOCK_NOTE_BLOCK_PLING, 2f - (1.5f / 100 * tick));
-        }
-
         if (tick <= 0) {
-            explode();
+            remove();
         }
     }
 
@@ -123,22 +115,8 @@ public abstract class Taunt extends GameTask {
         return getCharacter() + " " + getName();
     }
 
-    public abstract double getDamage();
-
     @Nonnull
     public abstract EnumDamageCause getDamageCause();
-
-    public void explode() {
-        final double damage = getDamage();
-        target.damage(damage, player, getDamageCause());
-
-        // Fx
-        target.sendMessage("%s &c%s's %s exploded on you! &7-%s ❤", getCharacter(), player.getName(), getName(), damage);
-        target.playSound(Sound.ENTITY_PLAYER_DEATH, 1.0f);
-        target.playSound(Sound.ENTITY_HUSK_DEATH, 0.0f);
-
-        remove();
-    }
 
     @Nonnull
     public final World getWorld() {
@@ -156,15 +134,15 @@ public abstract class Taunt extends GameTask {
         return Heroes.BLOODFIEND.getHero(Bloodfiend.class);
     }
 
-    protected void asPlayers(@Nonnull Consumer<Player> consumer) {
-        consumer.accept(player.getPlayer());
-        consumer.accept(target.getPlayer());
+    protected void asPlayers(@Nonnull Consumer<GamePlayer> consumer) {
+        consumer.accept(player);
+        consumer.accept(target);
     }
 
     // Spawns particle for both players
     protected void spawnParticle(Location location, Particle particle, int amount, double x, double y, double z, float speed) {
         asPlayers(player -> {
-            PlayerLib.spawnParticle(player, location, particle, amount, x, y, z, speed);
+            player.spawnParticle(location, particle, amount, x, y, z, speed);
         });
     }
 
@@ -183,9 +161,7 @@ public abstract class Taunt extends GameTask {
     }
 
     @Nonnull
-    protected Location pickRandomLocation(int remainingTries) {
-        final Location location = player.getLocation();
-
+    protected Location pickRandomLocation(Location location, int remainingTries) {
         if (remainingTries < 0) {
             return location;
         }
@@ -195,13 +171,15 @@ public abstract class Taunt extends GameTask {
 
         location.add(x, 0, z);
         if (!location.getBlock().getType().isAir()) {
-            return pickRandomLocation(--remainingTries);
+            location.subtract(x, 0, z);
+
+            return pickRandomLocation(location, --remainingTries);
         }
 
         // Center location to avoid animation artifacts
         location.setX(location.getBlockX() + 0.5d);
         location.setZ(location.getBlockZ() + 0.5d);
 
-        return CFUtils.anchorLocation(location);
+        return CFUtils.anchorLocation(location).subtract(0, 1.35d, 0);
     }
 }

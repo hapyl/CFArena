@@ -44,13 +44,16 @@ public class TrapCage extends ChargedTalent implements Listener {
     }
 
     @Override
-    public void onDeathCharged(@Nonnull GamePlayer player) {
+    public void onDeath(@Nonnull GamePlayer player) {
+        super.onDeath(player);
         //getCages(player).forEach(CyberCage::remove);
         //cageMap.remove(player);
     }
 
     @Override
-    public void onStopCharged() {
+    public void onStop() {
+        super.onStop();
+
         cageMap.values().forEach(set -> {
             set.forEach(CyberCage::remove);
             set.clear();
@@ -86,7 +89,9 @@ public class TrapCage extends ChargedTalent implements Listener {
     }
 
     @Override
-    public void onStartCharged() {
+    public void onStart() {
+        super.onStart();
+
         new GameTask() {
             @Override
             public void run() {

@@ -6,7 +6,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend;
 import me.hapyl.fight.game.heroes.archive.bloodfield.BloodfiendData;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Sound;
@@ -16,22 +16,22 @@ import javax.annotation.Nonnull;
 
 public class BloodCup extends Talent implements HeroReference<Bloodfiend> {
 
-    private final ItemStack[] TEXTURES;
-
     @DisplayField(scaleFactor = 100, suffix = "%", suffixSpace = false) public final double chance = 0.25d;
     @DisplayField public final short maxBlood = 6;
+    private final ItemStack[] TEXTURES;
     @DisplayField private final double healingPerBottle = 6.0d;
 
     public BloodCup() {
         super("Blood Cup");
 
-        setTexture("f2c251d42546cff35365efe378e79fca9c8d60ff588f5b2111c4ce35c8401a9e");
         setDescription("""
-                Biting enemies has a &b{chance}&7 to drain blood from them up to &b{maxBlood}&7.
+                Biting &cenemies&7 has a &b&l{chance}&7 to drain &cblood&7 from them.
                                 
-                Drinking the bottle heals you for &c{healingPerBottle} &c❤&7/&cblood&7.
+                Drinking the &cblood&7 &aheals&7 you for &c{healingPerBottle} &c❤&7 per &cblood&7 per &cblood&7.
                 """);
 
+        setType(Type.SUPPORT);
+        setTexture("f2c251d42546cff35365efe378e79fca9c8d60ff588f5b2111c4ce35c8401a9e");
         setCooldownSec(15);
 
         TEXTURES = new ItemStack[6];
@@ -47,7 +47,9 @@ public class BloodCup extends Talent implements HeroReference<Bloodfiend> {
         final GamePlayer player = data.getPlayer();
         final int blood = data.getBlood();
 
-        player.getInventory().setItem(Bloodfiend.BLOOD_SLOT, getTexture(blood));
+        if (talentSlot != null) {
+            player.setItem(talentSlot, getTexture(blood));
+        }
     }
 
     @Override

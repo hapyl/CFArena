@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.archive.shaman;
 
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 

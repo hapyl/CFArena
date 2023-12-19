@@ -8,7 +8,7 @@ import me.hapyl.fight.game.heroes.archive.dark_mage.DarkMage;
 import me.hapyl.fight.game.heroes.archive.dark_mage.DarkMageSpell;
 import me.hapyl.fight.game.heroes.archive.dark_mage.SpellButton;
 import me.hapyl.fight.game.heroes.archive.witcher.WitherData;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.util.SmallCaps;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Material;

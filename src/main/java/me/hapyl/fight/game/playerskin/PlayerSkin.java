@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.playerskin;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
@@ -13,6 +14,7 @@ import net.minecraft.network.protocol.game.*;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.EnumGamemode;
 import net.minecraft.world.level.dimension.DimensionManager;
 import org.bukkit.Bukkit;
@@ -23,13 +25,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.PlayerInventory;
 
 import javax.annotation.Nonnull;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import javax.annotation.Nullable;
+import java.util.*;
 
 // With help from https://wiki.vg/Protocol, SkinsRestorer I finally got this to work.
 // (September 3rd, 2023) -h
 public class PlayerSkin {
+
+    public static final Cache cache = new Cache();
 
     private final String texture;
     private final String signature;
@@ -78,6 +81,19 @@ public class PlayerSkin {
 
         sendGlobalPacket(packet);
 
+        // Re-created for others
+        final PacketPlayOutEntityDestroy destroyPacket = new PacketPlayOutEntityDestroy(player.getEntityId());
+        final PacketPlayOutSpawnEntity spawnPacket = new PacketPlayOutSpawnEntity(mcPlayer);
+
+        Bukkit.getOnlinePlayers().forEach(online -> {
+            if (online == player) {
+                return;
+            }
+
+            sendPacket(online, destroyPacket);
+            sendPacket(online, spawnPacket);
+        });
+
         // Respawn player
         final World playerWorld = player.getWorld();
         final Location location = player.getLocation();
@@ -119,6 +135,15 @@ public class PlayerSkin {
                 player.getTotalExperience(),
                 player.getLevel()
         );
+
+        // Update 2nd layer
+        final Entity minecraftEntity = Reflect.getMinecraftEntity(player);
+
+        if (minecraftEntity != null) {
+            Bukkit.getOnlinePlayers().forEach(online -> {
+                Reflect.updateMetadata(minecraftEntity, online);
+            });
+        }
 
         // Update effects
         final Collection<MobEffect> activeEffects = mcPlayer.er(); // getActiveEffects()
@@ -188,5 +213,26 @@ public class PlayerSkin {
 
         Debug.warn("Could not get %s's textures, using default. (Offline mode?)", player.getName());
         return new PlayerSkin("", "");
+    }
+
+    public static class Cache {
+        private final Map<String, PlayerSkin> cached;
+
+        public Cache() {
+            this.cached = Maps.newHashMap();
+        }
+
+        public boolean isCached(@Nonnull String name) {
+            return cached.containsKey(name.toLowerCase());
+        }
+
+        public boolean cache(@Nonnull String name, @Nonnull PlayerSkin skin) {
+            return cached.put(name.toLowerCase(), skin) == null;
+        }
+
+        @Nullable
+        public PlayerSkin getCached(@Nonnull String name) {
+            return cached.get(name.toLowerCase());
+        }
     }
 }

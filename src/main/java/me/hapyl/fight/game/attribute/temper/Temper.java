@@ -39,6 +39,13 @@ public enum Temper implements SmallCapsDescriber {
     TAMER_WOLF(false),
     TAMER_LASER,
     CHILL_AURA,
+    HACKED,
+    CIPHER_LOCK,
+    LOCKDOWN,
+    ORC_GROWL,
+    MALEDICTION_VEIL,
+    SOUL_CRY,
+    BLADE_BARRAGE,
 
     /* Keep semicolon on this line for easier addition. */;
 

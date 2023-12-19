@@ -7,8 +7,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend;
 import me.hapyl.fight.game.heroes.archive.bloodfield.BloodfiendData;
-import me.hapyl.fight.game.talents.Talent;
-import org.bukkit.entity.Player;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -31,13 +30,6 @@ public abstract class TauntTalent<T extends Taunt> extends Talent {
 
         addNlDescription("&c&lHow to Remove:");
         addNlDescription(getHowToRemove());
-
-        addNlDescription("&4&lIf not Removed:");
-        addDescription("""
-                Explodes, dealing &c%s &c❤ &7to the &btaunted&7 player.
-                                
-                If &btaunted&7 player dies, the {name} will be removed.
-                """, getExplosionDamage());
     }
 
     @Override
@@ -69,17 +61,14 @@ public abstract class TauntTalent<T extends Taunt> extends Talent {
         return playerTaunt.get(player);
     }
 
-    public abstract T createTaunt(GamePlayer player, GamePlayer target);
+    @Nonnull
+    public abstract T createTaunt(@Nonnull GamePlayer player, @Nonnull GamePlayer target);
 
     @Nonnull
     public abstract String getDescription();
 
     @Nonnull
     public abstract String getHowToRemove();
-
-    public double getExplosionDamage() {
-        return 100.0d;
-    }
 
     @Nonnull
     public EnumDamageCause getDamageCause() {

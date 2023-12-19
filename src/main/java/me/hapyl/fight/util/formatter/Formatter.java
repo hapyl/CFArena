@@ -1,7 +1,7 @@
 package me.hapyl.fight.util.formatter;
 
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 
 import java.util.Map;
 

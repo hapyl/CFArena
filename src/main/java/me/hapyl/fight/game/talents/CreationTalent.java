@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents;
 
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 
 import javax.annotation.Nonnull;

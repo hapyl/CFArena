@@ -23,14 +23,11 @@ import org.bukkit.util.Vector;
 public class GrappleHook {
 
     private final GamePlayer player;
-
-    private LivingGameEntity hookedEntity;
-    private Block hookedBlock;
-
     private final LivingEntity anchor;
     private final LivingEntity hook;
-
     private final GameTask syncTask;
+    private LivingGameEntity hookedEntity;
+    private Block hookedBlock;
     private GameTask extendTask;
     private GameTask retractTask;
 
@@ -50,12 +47,32 @@ public class GrappleHook {
 
                 if (hookedEntity != null) {
                     hook.teleport(hookedEntity.getLocation());
-                    hook.getWorld().spawnParticle(Particle.ITEM_CRACK, hook.getLocation(), 2, 0, 0, 0, 0.1f, new ItemStack(Material.LEAD));
+                    hook.getWorld().spawnParticle(Particle.ITEM_CRACK, hook.getLocation(),
+                            5,
+                            0.125,
+                            0.125,
+                            0.125,
+                            0.05f,
+                            new ItemStack(Material.LEAD)
+                    );
                 }
             }
         }.runTaskTimer(0, 1);
 
         extendHook();
+    }
+
+    public boolean isHookBroken() {
+        return hook.isDead() || !anchor.isLeashed();
+    }
+
+    public void remove() {
+        anchor.remove();
+        hook.remove();
+
+        Nulls.runIfNotNull(extendTask, GameTask::cancel);
+        Nulls.runIfNotNull(retractTask, GameTask::cancel);
+        Nulls.runIfNotNull(syncTask, GameTask::cancel);
     }
 
     private boolean isHookToAnchorObstructed() {
@@ -67,7 +84,7 @@ public class GrappleHook {
         final Vector vector = anchorLocation.toVector().subtract(hookLocation.toVector()).normalize().multiply(step);
 
         for (double i = 0.0; i < distance; i += step) {
-            // Don't check the a and the last block
+            // Don't check the first and the last block
             if (i == 0.0 || i >= (distance - step)) {
                 continue;
             }
@@ -91,9 +108,36 @@ public class GrappleHook {
         player.playSound(Sound.ENTITY_LEASH_KNOT_PLACE, 0.0f);
 
         this.extendTask = new GameTask() {
-            private double distance = 0.0d;
             private final double speed = 0.075d;
             private final int checksPerTick = 2;
+            private double distance = 0.0d;
+
+            @Override
+            public void run() {
+                if (isHookBroken()) {
+                    breakHook();
+                    return;
+                }
+
+                if (distance >= (talent().maxDistance * speed)) {
+                    remove();
+
+                    // Fx
+                    player.sendMessage("&6\uD83E\uDE9D &cYou didn't hook anything!");
+                    return;
+                }
+
+                for (int i = 0; i < checksPerTick; i++) {
+                    if (hookedBlock != null || hookedEntity != null) {
+                        return;
+                    }
+
+                    if (nextLocation()) {
+                        return;
+                    }
+                }
+
+            }
 
             private boolean nextLocation() {
                 final double x = vector.getX() * distance;
@@ -108,7 +152,7 @@ public class GrappleHook {
                 if (!block.getType().isAir()) {
                     if (!isValidBlock(block)) {
                         remove();
-                        player.sendMessage("&6∞ &cYou can't hook to that!");
+                        player.sendMessage("&6\uD83E\uDE9D &cYou can't hook to that!");
                         return true;
                     }
 
@@ -129,49 +173,21 @@ public class GrappleHook {
 
                     if (hook instanceof Slime slime) {
                         slime.setSize(2);
-                        slime.setMaxHealth(10.0d);
-                        slime.setHealth(10.0d);
+                        slime.setHealth(1);
                         slime.setInvulnerable(false);
                     }
 
                     retractHook();
 
                     // Fx
-                    player.sendMessage("&6∞ &aYou hooked &e%s&a!", hookedEntity.getName());
-                    hookedEntity.sendMessage("&6∞ &e%s&a hooked you, damage the knot to remove the hook!", player.getName());
+                    player.sendMessage("&6\uD83E\uDE9D &aYou hooked &e%s&a!", hookedEntity.getName());
+                    hookedEntity.sendMessage("&6\uD83E\uDE9D &e%s&a hooked you, damage the knot to remove the hook!", player.getName());
                     return true;
                 }
 
                 hook.teleport(location);
                 distance += speed;
                 return false;
-            }
-
-            @Override
-            public void run() {
-                if (isHookBroken()) {
-                    cancel();
-                    return;
-                }
-
-                if (distance >= (talent().maxDistance * speed)) {
-                    remove();
-
-                    // Fx
-                    player.sendMessage("&6∞ &cYou didn't hook anything!");
-                    return;
-                }
-
-                for (int i = 0; i < checksPerTick; i++) {
-                    if (hookedBlock != null || hookedEntity != null) {
-                        return;
-                    }
-
-                    if (nextLocation()) {
-                        return;
-                    }
-                }
-
             }
         }.runTaskTimer(0, 1);
     }
@@ -186,13 +202,13 @@ public class GrappleHook {
             @Override
             public void run() {
                 if (isHookBroken()) {
-                    cancel();
+                    breakHook();
                     return;
                 }
 
                 if (isHookToAnchorObstructed()) {
                     remove();
-                    player.sendMessage("&6∞ &cYour hook broke because of tear!");
+                    player.sendMessage("&6\uD83E\uDE9D &cYour hook broke!");
                     player.playSound(Sound.ENTITY_LEASH_KNOT_BREAK, 0.0f);
                     player.playSound(Sound.ENTITY_LEASH_KNOT_BREAK, 2.0f);
                     return;
@@ -217,10 +233,6 @@ public class GrappleHook {
         }.runTaskTimer(0, 1);
     }
 
-    public boolean isHookBroken() {
-        return hook.isDead() || !anchor.isLeashed();
-    }
-
     private boolean isValidBlock(Block block) {
         final Material type = block.getType();
 
@@ -240,7 +252,7 @@ public class GrappleHook {
         remove();
 
         // Fx
-        player.sendMessage("&6∞ &cYour hook broke!");
+        player.sendMessage("&6\uD83E\uDE9D &cYour hook broke!");
         player.playSound(Sound.ENTITY_LEASH_KNOT_BREAK, 0.0f);
     }
 
@@ -248,15 +260,6 @@ public class GrappleHook {
         return NumberConversions.isFinite(vector.getX())
                 && NumberConversions.isFinite(vector.getY())
                 && NumberConversions.isFinite(vector.getZ());
-    }
-
-    public void remove() {
-        anchor.remove();
-        hook.remove();
-
-        Nulls.runIfNotNull(extendTask, GameTask::cancel);
-        Nulls.runIfNotNull(retractTask, GameTask::cancel);
-        Nulls.runIfNotNull(syncTask, GameTask::cancel);
     }
 
     private LivingEntity createEntity() {

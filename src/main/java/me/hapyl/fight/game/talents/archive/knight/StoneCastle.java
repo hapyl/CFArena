@@ -8,7 +8,7 @@ import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -20,9 +20,9 @@ import javax.annotation.Nonnull;
 
 public class StoneCastle extends Talent implements Listener {
 
-    @DisplayField(scaleFactor = 100) protected final double defenseIncrease = 1.0d;
-    @DisplayField(scaleFactor = 100) protected final double kbResistanceIncrease = 0.5d;
-    @DisplayField(scaleFactor = 100) protected final double ccResistanceIncrease = 0.5d;
+    @DisplayField(percentage = true) protected final double defenseIncrease = 1.5d;
+    @DisplayField(percentage = true) protected final double kbResistanceIncrease = 0.5d;
+    @DisplayField(percentage = true) protected final double ccResistanceIncrease = 0.5d;
     @DisplayField protected final double distance = 8.0d;
 
     private final double damageSplitSelf = 0.7d;

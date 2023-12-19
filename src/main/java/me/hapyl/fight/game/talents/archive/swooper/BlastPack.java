@@ -45,13 +45,17 @@ public class BlastPack extends ChargedTalent {
     }
 
     @Override
-    public void onStopCharged() {
+    public void onStop() {
+        super.onStop();
+
         blastPackMap.values().forEach(Entity::remove);
         blastPackMap.clear();
     }
 
     @Override
-    public void onDeathCharged(@Nonnull GamePlayer player) {
+    public void onDeath(@Nonnull GamePlayer player) {
+        super.onDeath(player);
+
         Nulls.runIfNotNull(blastPackMap.get(player), Entity::remove);
         blastPackMap.remove(player);
     }

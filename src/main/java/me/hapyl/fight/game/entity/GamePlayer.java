@@ -3,7 +3,6 @@ package me.hapyl.fight.game.entity;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.Award;
@@ -31,7 +30,11 @@ import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.game.stats.StatType;
-import me.hapyl.fight.game.talents.*;
+import me.hapyl.fight.game.talents.ChargedTalent;
+import me.hapyl.fight.game.talents.InputTalent;
+import me.hapyl.fight.game.talents.TalentQueue;
+import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.PlayerGameTask;
 import me.hapyl.fight.game.team.Entry;
@@ -46,6 +49,7 @@ import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.math.Tick;
+import me.hapyl.spigotutils.module.player.EffectType;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.Reflect;
 import me.hapyl.spigotutils.module.reflect.ReflectPacket;
@@ -68,7 +72,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
@@ -79,11 +82,13 @@ import java.util.function.Consumer;
  */
 public class GamePlayer extends LivingGameEntity implements Ticking {
 
-    public static final long COMBAT_TAG_DURATION = 5000L;
+    private static final long COMBAT_TAG_DURATION = 5000L;
+    private static final double HEALING_AT_KILL = 0.3d;
+    private static final String SHIELD_FORMAT = "&e&l%.0f &e🛡";
 
     private final StatContainer stats;
     private final TalentQueue talentQueue;
-    private final Set<PlayerGameTask> taskSet;
+    private final PlayerTaskList taskList;
     private final TalentLock talentLock;
     private final PlayerPing playerPing;
     public boolean blockDismount;
@@ -108,7 +113,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         this.lastMoved = System.currentTimeMillis();
         this.combatTag = 0L;
         this.attributes = new EntityAttributes(this, profile.getHeroHandle().getAttributes());
-        this.taskSet = Sets.newHashSet();
+        this.taskList = new PlayerTaskList(this);
         this.shield = null;
         this.talentLock = new TalentLock(this, profile.getHeroHandle());
         this.playerPing = new PlayerPing(this);
@@ -219,7 +224,8 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
     @Override
     public boolean shouldDie() {
-        return getEntity().getGameMode() == GameMode.CREATIVE;
+        // players do not die, they're put in spectator
+        return false;
     }
 
     @Override
@@ -230,7 +236,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
         Glowing.stopGlowing(player);
         resetPlayer();
-        getPlayer().setWalkSpeed(0.2f);
 
         // Reset skin if was applied
         final PlayerSkin skin = hero.getHero().getSkin();
@@ -268,6 +273,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
     @Override
     public void onDeath() {
+        // Don't call super since it calls remove()
         getMemory().forgetEverything();
 
         final GameEntity lastDamager = entityData.getLastDamager();
@@ -276,12 +282,18 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
             return;
         }
 
-        lastPlayerDamager.heal(getMaxHealth() * 0.3d);
+        // Don't heal for self or teammate kills
+        if (isSelfOrTeammate(lastPlayerDamager)) {
+            return;
+        }
+
+        lastPlayerDamager.heal(getMaxHealth() * HEALING_AT_KILL);
     }
 
     @Override
     public void die(boolean force) {
         super.die(force);
+        onDeath();
 
         final Player player = getEntity();
         player.setGameMode(GameMode.SPECTATOR);
@@ -380,8 +392,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         }
 
         // Clear tasks
-        taskSet.forEach(PlayerGameTask::cancelBecauseOfDeath);
-        taskSet.clear();
+        taskList.cancelAll();
 
         // KEEP LAST
         resetPlayer(GamePlayer.Ignore.GAME_MODE);
@@ -425,6 +436,9 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     public void heal(double amount) {
         super.heal(amount);
         updateHealth();
+
+        // Fx
+        addPotionEffect(EffectType.REGENERATION, 25, 0);
     }
 
     @Nonnull
@@ -498,35 +512,48 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         return this.ultPoints >= getHero().getUltimate().getCost();
     }
 
+    // Health = 100
+    // Shield = 20
+    //
+    // Take 10 damage:
+    // s - d = s
+    // // Shield took damage
+    // if (s >= 0) damage = 0
+
+    // Take 20 damage:
+    // s - d = 0
+    // shield took damage
+    // if (s >= 0) damage = 0
+
     public void updateScoreboardTeams(boolean toLobby) {
         profile.getLocalTeamManager().updateAll(toLobby);
     }
 
+    // Take 25 damage:
+    // s - d = -5
+    // if (s < 0) damage = -s
     @Override
     public void decreaseHealth(@Nonnull DamageInstance instance) {
         final Player player = getPlayer();
 
         if (shield != null) {
-            final double capacity = shield.getCapacity();
-            double toAbsorb = instance.damage;
+            final double capacityAfterHit = shield.takeDamage0(instance.damage);
 
-            if (toAbsorb - capacity > 0.0d) {
-                toAbsorb -= (toAbsorb - capacity);
+            // Always display shield damage
+            if (instance.damage > 0) {
+                new AscendingDisplay("&e🛡 &6%.0f".formatted(instance.damage), 20).display(player.getEyeLocation());
             }
 
-            instance.damage -= toAbsorb;
-            shield.takeDamage0(toAbsorb);
-
-            final double capacityAfterHit = shield.getCapacity();
-
+            // Shield took damage
+            if (capacityAfterHit > 0) {
+                instance.damage = 0;
+            }
             // Shield broke
-            if (capacityAfterHit <= 0.0d) {
+            else {
+                instance.damage = -capacityAfterHit;
+
                 shield.onBreak0();
                 shield = null;
-            }
-            // Display absorbed damage
-            else if (toAbsorb > 0) {
-                new AscendingDisplay("&e🛡 &6%.0f".formatted(toAbsorb), 20).display(player.getEyeLocation());
             }
         }
 
@@ -544,7 +571,12 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     @Override
     public String getHealthFormatted() {
         if (shield != null) {
-            return "&e&l%.0f &e🛡".formatted(health + shield.getCapacity());
+            if (Settings.SHOW_HEALTH_AND_SHIELD_SEPARATELY.isEnabled(getPlayer())) {
+                return super.getHealthFormatted() + " " + SHIELD_FORMAT.formatted(shield.getCapacity());
+            }
+            else {
+                return SHIELD_FORMAT.formatted(getHealth() + shield.getCapacity());
+            }
         }
 
         return super.getHealthFormatted();
@@ -602,6 +634,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         return state == EntityState.RESPAWNING;
     }
 
+    @Nonnull
     public UltimateTalent getUltimate() {
         return getHero().getUltimate();
     }
@@ -870,8 +903,8 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         getPlayer().showEntity(Main.getPlugin(), entity);
     }
 
-    public void addTask(PlayerGameTask task) {
-        taskSet.add(task);
+    public void addTask(@Nonnull PlayerGameTask task) {
+        taskList.add(task);
     }
 
     @Override

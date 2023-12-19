@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.archive.sun;
 
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 
 import javax.annotation.Nonnull;
 

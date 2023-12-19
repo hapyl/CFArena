@@ -8,7 +8,7 @@ import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
@@ -33,15 +33,15 @@ public class BrokenHeartRadiation extends Talent {
         super("Broken Heart Radiation");
 
         setDescription("""
-                Create 4 radiation beams that spin around you for {duration}.
+                Create four radiation beams that spin around you for {duration}.
                                 
                 If a beam touches an enemy, it deals &c{beamDamage} ❤&7 damage and reduces %s by &c{mendingReduction}&7 and %s by &c{defenseReduction}&7 for &b{effectDuration}.
                 """, AttributeType.MENDING, AttributeType.DEFENSE);
 
+        setType(Type.IMPAIR);
+        setItem(Material.TWISTING_VINES);
         setDurationSec(3);
         setCooldownSec(20);
-
-        setItem(Material.TWISTING_VINES);
     }
 
     @Override
@@ -65,7 +65,7 @@ public class BrokenHeartRadiation extends Talent {
             public void onTick() {
                 teleport(player.getLocation());
 
-                if (getTick() >= getDuration()) {
+                if (player.isDeadOrRespawning() || getTick() >= getDuration()) {
                     remove();
                 }
             }

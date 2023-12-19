@@ -26,8 +26,8 @@ import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.InputTalent;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
@@ -74,8 +74,7 @@ import java.util.Random;
 public class PlayerHandler implements Listener {
 
     public final double RANGE_SCALE = 8.933d;
-    public final double DAMAGE_LIMIT = Integer.MAX_VALUE;
-    public final double HEALING_AT_KILL = 0.3d;
+    public final double DAMAGE_LIMIT = Short.MAX_VALUE;
 
     public static final Map<PotionEffectType, AttributeType> disabledEffects = Maps.newHashMap();
 
@@ -456,11 +455,6 @@ public class PlayerHandler implements Listener {
                     instance.damage = 0.0;
                 }
             }
-
-            // Increase damage taken by 2 if vulnerable
-            if (gameEntity.hasEffect(GameEffectType.VULNERABLE)) {
-                instance.damage *= 2.0d;
-            }
         }
 
         // CALCULATE DAMAGE USING ATTRIBUTES
@@ -490,19 +484,6 @@ public class PlayerHandler implements Listener {
             ev.setCancelled(true);
             gameEntity.playDodgeFx();
             return;
-        }
-
-        // Ferocity
-        if (lastDamager != null
-                && (instance.cause != null
-                && instance.cause.isAllowedForFerocity())
-                && !gameEntity.hasCooldown(Cooldown.FEROCITY)) {
-            final EntityAttributes damagerAttributes = lastDamager.getAttributes();
-            final int ferocityStrikes = damagerAttributes.getFerocityStrikes();
-
-            if (ferocityStrikes > 0) {
-                gameEntity.executeFerocity(instance.damage, lastDamager, ferocityStrikes);
-            }
         }
 
         // PROCESS HERO EVENTS
@@ -538,6 +519,19 @@ public class PlayerHandler implements Listener {
         if (instance.isCancel()) {
             ev.setCancelled(true);
             return;
+        }
+
+        // Ferocity
+        if (lastDamager != null
+                && (instance.cause != null
+                && instance.cause.isAllowedForFerocity())
+                && !gameEntity.hasCooldown(Cooldown.FEROCITY)) {
+            final EntityAttributes damagerAttributes = lastDamager.getAttributes();
+            final int ferocityStrikes = damagerAttributes.getFerocityStrikes();
+
+            if (ferocityStrikes > 0) {
+                gameEntity.executeFerocity(instance.damage, lastDamager, ferocityStrikes);
+            }
         }
 
         // Don't damage anything, only visually
@@ -781,6 +775,11 @@ public class PlayerHandler implements Listener {
     public void handleInputTalent(PlayerInteractEvent ev) {
         final Action action = ev.getAction();
         final boolean isLeftClick = action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK;
+
+        // Bad!
+        if (action == Action.PHYSICAL) {
+            return;
+        }
 
         handleInputTalent(CF.getPlayer(ev.getPlayer()), isLeftClick);
     }

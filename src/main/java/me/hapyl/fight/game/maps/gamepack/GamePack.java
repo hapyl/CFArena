@@ -17,9 +17,6 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Stores the location.
- */
 public abstract class GamePack implements GameElement, Listener {
 
     private final List<Location> locations;
@@ -91,6 +88,7 @@ public abstract class GamePack implements GameElement, Listener {
         activePacks.clear();
     }
 
+    @Nonnull
     public Set<ActivePack> getActivePacks() {
         return activePacks;
     }

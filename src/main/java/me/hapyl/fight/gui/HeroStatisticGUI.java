@@ -4,7 +4,7 @@ import me.hapyl.fight.database.collection.HeroStatsCollection;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.PassiveTalent;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.gui.styled.StyledTexture;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;

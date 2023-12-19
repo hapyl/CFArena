@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.archive.tamer.pack;
 
 import me.hapyl.fight.game.attribute.Attributes;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.archive.tamer.TamerTimed;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Described;

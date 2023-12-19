@@ -18,11 +18,9 @@ import me.hapyl.spigotutils.module.block.display.BlockStudioParser;
 import me.hapyl.spigotutils.module.block.display.DisplayData;
 import me.hapyl.spigotutils.module.block.display.DisplayEntity;
 import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.World;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.util.Vector;
 
@@ -45,15 +43,10 @@ public class TwinClaw extends TickingGameTask implements TalentReference<TwinCla
         this.vector = vector;
         this.duration = duration;
 
-        final World world = startLocation.getWorld();
         final Vector direction = startLocation.getDirection();
 
         //direction.setY(0.0d);
         startLocation.setDirection(direction);
-
-        if (world == null) {
-            throw new IllegalStateException("unloaded world");
-        }
 
         entity = Entities.ARMOR_STAND_MARKER.spawn(startLocation, self -> {
             self.setGravity(false);
@@ -67,7 +60,7 @@ public class TwinClaw extends TickingGameTask implements TalentReference<TwinCla
         runTaskTimer(0, 1);
 
         // Fx
-        PlayerLib.playSound(Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 0.75f);
+        player.playWorldSound(Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 0.75f);
     }
 
     @Override
@@ -89,7 +82,7 @@ public class TwinClaw extends TickingGameTask implements TalentReference<TwinCla
         displayEntity.teleport(location);
 
         // Damage
-        final LivingGameEntity nearestEntity = Collect.nearestEntity(location, 1, predicate -> !predicate.equals(player));
+        final LivingGameEntity nearestEntity = Collect.nearestEntity(location, 1, entity -> !player.isSelfOrTeammate(entity));
 
         if (nearestEntity == null) {
             return;
@@ -129,7 +122,7 @@ public class TwinClaw extends TickingGameTask implements TalentReference<TwinCla
         cancel();
 
         // Fx
-        PlayerLib.spawnParticle(location, Particle.EXPLOSION_NORMAL, 20, 0.5d, 0.6d, 0.5d, 0.1f);
+        player.spawnWorldParticle(location, Particle.EXPLOSION_NORMAL, 20, 0.5d, 0.6d, 0.5d, 0.1f);
     }
 
     @Nonnull

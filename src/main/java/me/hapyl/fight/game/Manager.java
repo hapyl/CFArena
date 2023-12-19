@@ -20,7 +20,7 @@ import me.hapyl.fight.game.profile.data.AchievementData;
 import me.hapyl.fight.game.profile.data.PlayerProfileData;
 import me.hapyl.fight.game.profile.data.Type;
 import me.hapyl.fight.game.setting.Settings;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
@@ -60,7 +60,7 @@ public final class Manager extends BukkitRunnable {
     public final Set<UUID> ignoredEntities;
     private final Main main;
     private final Set<EntityType> ignoredTypes = Sets.newHashSet(
-            //EntityType.ARMOR_STAND,
+            EntityType.ARMOR_STAND,
             EntityType.MARKER,
             EntityType.TEXT_DISPLAY,
             EntityType.BLOCK_DISPLAY,
@@ -239,7 +239,9 @@ public final class Manager extends BukkitRunnable {
         final EntityType type = entity.getType();
 
         return switch (type) {
-            case ARROW, SPECTRAL_ARROW, ARMOR_STAND -> createEntity(entity, GameEntity::new);
+            // Why are ARMOR_STAND here?
+            // That literally deletes the armor stands spawned during the lobby.
+            case ARROW, SPECTRAL_ARROW -> createEntity(entity, GameEntity::new);
             default -> createEntity(entity, LivingGameEntity::new);
         };
     }

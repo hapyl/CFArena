@@ -60,6 +60,14 @@ public class TemperInstance {
         temper(entity.getAttributes(), duration);
     }
 
+    public double get(@Nonnull AttributeType type) {
+        return values.getOrDefault(type, 0.0d);
+    }
+
+    public double getScaled(@Nonnull AttributeType type) {
+        return type.scale(get(type));
+    }
+
     public final void temper(@Nonnull EntityAttributes attributes, int duration) {
         final LivingGameEntity entity = attributes.getEntity();
         final boolean newTemper = !attributes.hasTemper(temper);

@@ -111,7 +111,9 @@ public class RelicRewardGUI extends StyledGUI {
                     };
 
                     if (canClaim) {
+                        builder.glow();
                         builder.addLore(Color.BUTTON + "Click to claim!");
+
                         setItem(tierSlot, builder.asIcon(), click -> {
                             reward.grant(player);
                             entry.setClaimed(type, finalIndex, true);

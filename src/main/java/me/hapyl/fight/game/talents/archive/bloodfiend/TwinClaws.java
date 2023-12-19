@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.archive.bloodfiend;
 
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -21,10 +21,11 @@ public class TwinClaws extends Talent implements Listener {
         super("Twin Claws");
 
         setDescription("""
-                Launch two giant claws. One in front, one behind.
+                Launch two &6giant claws&7. One in front, one behind.
                                 
-                If a claw hits an enemy, it deals &c{twinClawDamage} &c❤&7 to them; If the enemy is &cbitten&7, the damage is increased by &b%s%%.
-                """, bittenDamageIncrease * 100);
+                If a &6claw&7 hits an &cenemy&7, it deals &c{twinClawDamage} ❤ &cdamage&7 to them.
+                &8;;Bitten enemies suffer more damage.
+                """);
 
         setItem(Material.ACACIA_FENCE);
         setDuration(30);
@@ -34,11 +35,7 @@ public class TwinClaws extends Talent implements Listener {
     @Override
     public Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocation().add(0.0d, 0.5d, 0.0d);
-        final World world = location.getWorld();
-
-        if (world == null) {
-            return Response.error("cannot spawn in an unloaded world");
-        }
+        final World world = player.getWorld();
 
         final Vector vectorFront = location.getDirection().normalize().multiply(0.5d);
         final Location locationFront = location.clone().add(vectorFront);

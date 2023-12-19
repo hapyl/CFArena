@@ -13,6 +13,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.inventory.ItemStack;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class ActivePack extends TickingGameTask {
@@ -22,9 +23,9 @@ public class ActivePack extends TickingGameTask {
     private final GamePack pack;
     private final Location location;
     private final ArmorStand platform;
-
-    private ArmorStand entity;
+    public HackedPack hacked;
     protected int nextSpawn;
+    private ArmorStand entity;
 
     public ActivePack(GamePack pack, Location location) {
         this.pack = pack;
@@ -81,8 +82,19 @@ public class ActivePack extends TickingGameTask {
         pack.displayParticle(entityLocation);
     }
 
-    public final void pickup0(GamePlayer player) {
-        pack.onPickup(player);
+    public final void pickup0(@Nonnull GamePlayer player) {
+        // Hacked pack logic
+        if (hacked != null) {
+            if (hacked.player.isSelfOrTeammate(player)) {
+                return;
+            }
+
+            hacked.onPickup(player);
+            hacked = null;
+        }
+        else {
+            pack.onPickup(player);
+        }
 
         remove();
         next();
@@ -113,6 +125,11 @@ public class ActivePack extends TickingGameTask {
                 }
             }
         }.runTaskTimer(0, 1);
+    }
+
+    @Nonnull
+    public Location getLocation() {
+        return location;
     }
 
     private void remove() {

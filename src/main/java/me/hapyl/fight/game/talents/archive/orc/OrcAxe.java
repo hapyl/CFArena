@@ -13,14 +13,12 @@ import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 
@@ -35,14 +33,14 @@ public class OrcAxe extends InputTalent {
 
         leftData.setAction("Spin")
                 .setDescription("""
-                        Summon the axe that spins around you for {duration}.
+                        Spin the axe, &cdamaging&7 and knocking enemies back.
                         """)
                 .setDurationSec(3)
                 .setCooldownSec(10);
 
         rightData.setAction("Dash")
                 .setDescription("""
-                        Dash forward up to six blocks, damaging the first enemy hit.
+                        Dash forward, &cdamaging&7 the &nfirst&7 hit &cenemy.
                         """)
                 .setCooldownSec(15);
 
@@ -52,7 +50,6 @@ public class OrcAxe extends InputTalent {
     @Nonnull
     @Override
     public Response onLeftClick(@Nonnull GamePlayer player) {
-        final PlayerInventory inventory = player.getInventory();
         final ItemStack item = player.getItem(HotbarSlots.WEAPON);
 
         // Don't allow spin if no axe
@@ -88,10 +85,10 @@ public class OrcAxe extends InputTalent {
 
                 offsetXZ(playerLocation, 3.0d, location -> {
                     CFUtils.lookAt(axe, location);
-                    PlayerLib.spawnParticle(location.clone().add(0.0d, 0.75d, 0.0d), Particle.SWEEP_ATTACK, 1);
+                    player.spawnWorldParticle(location.clone().add(0.0d, 0.75d, 0.0d), Particle.SWEEP_ATTACK, 1);
 
                     // Damage and KB
-                    Collect.nearbyEntities(location, 1.0d, entity -> !entity.equals(player))
+                    Collect.nearbyEntities(location, 1.0d, entity -> !player.isSelfOrTeammate(entity))
                             .forEach(entity -> {
                                 entity.damage(15.0d, player, EnumDamageCause.CYCLING_AXE);
 
@@ -115,8 +112,8 @@ public class OrcAxe extends InputTalent {
 
         // Fx
         final Location location = player.getLocation();
-        PlayerLib.playSound(location, Sound.ENTITY_ILLUSIONER_PREPARE_MIRROR, 0.75f);
-        PlayerLib.playSound(location, Sound.ENTITY_EVOKER_CAST_SPELL, 1.25f);
+        player.playWorldSound(location, Sound.ENTITY_ILLUSIONER_PREPARE_MIRROR, 0.75f);
+        player.playWorldSound(location, Sound.ENTITY_EVOKER_CAST_SPELL, 1.25f);
 
         return Response.OK;
     }
@@ -143,7 +140,7 @@ public class OrcAxe extends InputTalent {
                     return;
                 }
 
-                final LivingGameEntity hitEntity = Collect.nearestEntity(location, 1.0d, living -> !living.equals(player));
+                final LivingGameEntity hitEntity = Collect.nearestEntity(location, 1.0d, living -> !player.isSelfOrTeammate(living));
 
                 if (hitEntity != null) {
                     executeHit(hitEntity.getEyeLocation());
@@ -156,8 +153,8 @@ public class OrcAxe extends InputTalent {
 
                 // Fx
                 if (tick % 5 == 0) {
-                    PlayerLib.spawnParticle(eyeLocation, Particle.SWEEP_ATTACK, 1, 0.1d, 0.1d, 0.1d, 1);
-                    PlayerLib.spawnParticle(eyeLocation, Particle.LAVA, 1, 0.1d, 0.1d, 0.1d, 1);
+                    player.spawnWorldParticle(eyeLocation, Particle.SWEEP_ATTACK, 1, 0.1d, 0.1d, 0.1d, 1);
+                    player.spawnWorldParticle(eyeLocation, Particle.LAVA, 1, 0.1d, 0.1d, 0.1d, 1);
                 }
             }
 
@@ -165,14 +162,14 @@ public class OrcAxe extends InputTalent {
                 CF.damageAoE(location, 2.5d, 10.0d, player, EnumDamageCause.ORC_DASH, living -> !living.equals(player));
 
                 // Fx
-                PlayerLib.spawnParticle(location, Particle.SWEEP_ATTACK, 1, 0.1d, 0.1d, 0.1d, 10);
-                PlayerLib.playSound(location, Sound.BLOCK_ANVIL_HIT, 0.75f);
+                player.spawnWorldParticle(location, Particle.SWEEP_ATTACK, 1, 0.1d, 0.1d, 0.1d, 10);
+                player.playWorldSound(location, Sound.BLOCK_ANVIL_HIT, 0.75f);
             }
         }.runTaskTimer(0, 1);
 
         // Fx
-        PlayerLib.playSound(startLocation, Sound.ENTITY_CAMEL_DASH, 0.75f);
-        PlayerLib.playSound(startLocation, Sound.ENTITY_CAMEL_DASH_READY, 0.0f);
+        player.playWorldSound(startLocation, Sound.ENTITY_CAMEL_DASH, 0.75f);
+        player.playWorldSound(startLocation, Sound.ENTITY_CAMEL_DASH_READY, 0.0f);
 
         return Response.OK;
     }

@@ -5,6 +5,7 @@ import me.hapyl.fight.command.CommandRegistry;
 import me.hapyl.fight.database.Database;
 import me.hapyl.fight.event.*;
 import me.hapyl.fight.fastaccess.FastAccessListener;
+import me.hapyl.fight.filter.ProfanityFilter;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.achievement.AchievementRegistry;
 import me.hapyl.fight.game.collectible.Collectibles;
@@ -68,6 +69,8 @@ public class Main extends JavaPlugin {
         plugin = this;
         CF.plugin = this;
         start = System.currentTimeMillis();
+
+        ProfanityFilter.instantiate(this);
 
         // Initiate API
         new EternaAPI(this);

@@ -16,6 +16,7 @@ import me.hapyl.fight.database.entry.DailyRewardEntry;
 import me.hapyl.fight.database.entry.MetadataEntry;
 import me.hapyl.fight.database.entry.MetadataKey;
 import me.hapyl.fight.database.rank.PlayerRank;
+import me.hapyl.fight.filter.ProfanityFilter;
 import me.hapyl.fight.fx.GiantItem;
 import me.hapyl.fight.fx.Riptide;
 import me.hapyl.fight.fx.beam.Quadrant;
@@ -27,9 +28,9 @@ import me.hapyl.fight.game.cosmetic.CosmeticCollection;
 import me.hapyl.fight.game.cosmetic.crate.Crates;
 import me.hapyl.fight.game.cosmetic.crate.convert.CrateConvert;
 import me.hapyl.fight.game.cosmetic.crate.convert.CrateConverts;
+import me.hapyl.fight.game.dot.DamageOverTime;
 import me.hapyl.fight.game.dot.DotInstance;
 import me.hapyl.fight.game.dot.DotInstanceList;
-import me.hapyl.fight.game.dot.DamageOverTime;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.*;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
@@ -51,10 +52,10 @@ import me.hapyl.fight.game.maps.gamepack.GamePack;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.reward.DailyReward;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.archive.engineer.Construct;
 import me.hapyl.fight.game.talents.archive.juju.Orbiting;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.team.Entry;
@@ -137,7 +138,6 @@ import java.io.FileWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.reflect.Field;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Queue;
 import java.util.*;
@@ -809,26 +809,21 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             experience.getLevelEnoughExp(10000);
         });
 
-        register(new SimplePlayerAdminCommand("skin") {
+        register(new SkinCommand());
+        register(new NickCommand());
 
-            private final String textureUrl = "https://textures.minecraft.net/texture/";
-
+        register(new SimplePlayerAdminCommand("isProfanity") {
             @Override
             protected void execute(Player player, String[] args) {
-                final String arg = getArgument(args, 0).toString();
+                final String string = getArgument(args, 0).toString();
 
-                if (arg.equalsIgnoreCase("reset")) {
-                    PlayerSkin.reset(player);
-                    Message.success(player, "Reset your skin!");
+                if (string.isEmpty()) {
+                    Chat.sendMessage(player, "&cWell how the hell am I supposed to know?");
                     return;
                 }
 
-                final String url = arg.contains(textureUrl) ? arg : textureUrl + arg;
-                final byte[] encoded = Base64.getEncoder().encode(url.getBytes(StandardCharsets.UTF_8));
-                final String texture = new String(encoded);
-
-                new PlayerSkin(texture, texture).apply(player);
-                Message.success(player, "Set your skin!");
+                final boolean isProfane = ProfanityFilter.isProfane(string);
+                Chat.sendMessage(player, "'%s' is %s.", string, isProfane ? "&cis profane!" : "&ais not profane.");
             }
         });
 
@@ -2125,7 +2120,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             protected void execute(Player player, String[] strings) {
                 final Pig spawn = Entities.PIG.spawn(player.getLocation());
 
-                Glowing.glowInfinitly(spawn, ChatColor.GOLD, player);
+                Glowing.glowInfinitely(spawn, ChatColor.GOLD, player);
 
                 Runnables.runLater(() -> {
                     Glowing.stopGlowing(player, spawn);

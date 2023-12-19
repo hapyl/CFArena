@@ -1,7 +1,9 @@
 package me.hapyl.fight.game.talents;
 
+import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -11,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 /**
  * Represents a talent with multiple charges.
@@ -51,36 +54,26 @@ public class ChargedTalent extends Talent {
         this.noChargedMaterial = noChargedMaterial;
     }
 
-    public void onStartCharged() {
-    }
-
-    public void onStopCharged() {
-    }
-
-    public void onDeathCharged(@Nonnull GamePlayer player) {
+    @Override
+    @OverridingMethodsMustInvokeSuper
+    public void onStart() {
     }
 
     @Override
-    public final void onStart() {
-        onStartCharged();
-    }
-
-    @Override
-    public final void onDeath(@Nonnull GamePlayer player) {
-        getData(player).reset();
-        data.remove(player);
-
-        onDeathCharged(player);
-    }
-
-    @Override
-    public final void onStop() {
+    @OverridingMethodsMustInvokeSuper
+    public void onStop() {
         data.forEach((p, d) -> d.reset());
         data.clear();
-
-        onStopCharged();
     }
 
+    @Override
+    @OverridingMethodsMustInvokeSuper
+    public void onDeath(@Nonnull GamePlayer player) {
+        getData(player).reset();
+        data.remove(player);
+    }
+
+    @Event
     public void onLastCharge(@Nonnull GamePlayer player) {
     }
 

@@ -1,4 +1,4 @@
-package me.hapyl.fight.game.talents;
+package me.hapyl.fight.game.talents.archive.techie;
 
 import com.google.common.collect.Lists;
 import me.hapyl.fight.Main;
@@ -11,7 +11,9 @@ import me.hapyl.fight.game.effect.GameEffect;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.effect.archive.SlowingAuraEffect;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.stats.StatContainer;
+import me.hapyl.fight.game.talents.*;
 import me.hapyl.fight.util.Condition;
 import me.hapyl.fight.util.Described;
 import me.hapyl.fight.util.Nulls;
@@ -45,7 +47,6 @@ public abstract class Talent extends NonNullItemCreator
     private String name;
     @Nonnull
     private String description;
-
     private ItemStack itemStats;
     private int startAmount;
     private Material material;
@@ -57,6 +58,8 @@ public abstract class Talent extends NonNullItemCreator
     private int cd;
     private int duration;
     private boolean autoAdd;
+    @Nullable
+    protected HotbarSlots talentSlot;
 
     public Talent(@Nonnull String name) {
         this(name, "", Type.DAMAGE);
@@ -108,6 +111,16 @@ public abstract class Talent extends NonNullItemCreator
     @Override
     public Talent setDuration(int duration) {
         this.duration = duration;
+        return this;
+    }
+
+    public Talent setTalentSlot(@Nonnull HotbarSlots talentSlot) {
+        switch (talentSlot) {
+            case TALENT_1, TALENT_2, TALENT_3, TALENT_4, TALENT_5 -> {
+            }
+            default -> throw new IllegalArgumentException("Slot must be a talent, not " + talentSlot);
+        }
+        this.talentSlot = talentSlot;
         return this;
     }
 
@@ -462,17 +475,17 @@ public abstract class Talent extends NonNullItemCreator
         return cd;
     }
 
-    @Nonnull
-    public String getCooldownFormatted() {
-        return Tick.round(cd) + "s";
-    }
-
     @Override
     @ExecuteOrder(before = { "setPoint(int)" })
     public Talent setCooldown(int cd) {
         this.cd = cd;
         defaultPointGeneration();
         return this;
+    }
+
+    @Nonnull
+    public String getCooldownFormatted() {
+        return Tick.round(cd) + "s";
     }
 
     @Override

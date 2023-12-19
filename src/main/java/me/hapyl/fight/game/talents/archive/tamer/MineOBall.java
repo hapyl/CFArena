@@ -3,7 +3,7 @@ package me.hapyl.fight.game.talents.archive.tamer;
 import com.google.common.collect.Lists;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.archive.tamer.pack.ActiveTamerPack;
 import me.hapyl.fight.game.talents.archive.tamer.pack.TamerPack;
 import me.hapyl.fight.game.talents.archive.tamer.pack.TamerPacks;

@@ -1,10 +1,7 @@
 package me.hapyl.fight.game.maps;
 
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.maps.features.CloudFeatures;
-import me.hapyl.fight.game.maps.features.JapanFeature;
-import me.hapyl.fight.game.maps.features.LibraryCat;
-import me.hapyl.fight.game.maps.features.LibraryFeature;
+import me.hapyl.fight.game.maps.features.*;
 import me.hapyl.fight.game.maps.gamepack.PackType;
 import me.hapyl.fight.game.maps.maps.DragonsGorge;
 import me.hapyl.fight.game.maps.maps.DwarfVault;
@@ -125,7 +122,7 @@ public enum GameMaps implements Selectable {
                     .setMaterial(Material.BOOKSHELF)
                     .setSize(Size.MEDIUM)
                     .setTicksBeforeReveal(100)
-                    .addFeature(new LibraryFeature())
+                    .addFeature(new LibraryVoid())
                     .addFeature(new LibraryCat())
                     .addLocation(0, 64, -90, -180, 0)
                     .addLocation(-10, 74, -95, -180, 0)
@@ -143,6 +140,18 @@ public enum GameMaps implements Selectable {
     WINERY(new WineryMap()), // complex map, stored in separate file
     MOON_BASE(new MoonBase()), // complex map, stored in separate file
     DWARF_VAULT(new DwarfVault()),
+    LIMBO(
+            new GameMap("Limbo")
+                    .setDescription("Yes, no?")
+                    .setMaterial(Material.SCULK_VEIN)
+                    .setSize(Size.LARGE)
+                    .setTicksBeforeReveal(100)
+                    .addFeature(new LimboFeature())
+                    .addLocation(-831, 68, -237)
+                    .addLocation(-830, 47, -267)
+                    .addLocation(-830, 47, -267)
+                    .addLocation(-832, 112, -218)
+    ),
 
     ;
 

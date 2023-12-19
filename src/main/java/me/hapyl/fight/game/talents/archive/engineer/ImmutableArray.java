@@ -35,6 +35,7 @@ public class ImmutableArray<T> {
         return new ImmutableArray<>();
     }
 
+    @SafeVarargs
     public static <T> ImmutableArray<T> of(@Nonnull T... values) {
         return new ImmutableArray<>(values);
     }

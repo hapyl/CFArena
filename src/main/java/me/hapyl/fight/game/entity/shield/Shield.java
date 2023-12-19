@@ -18,9 +18,13 @@ public class Shield {
     protected double capacity;
 
     public Shield(@Nonnull GamePlayer player, double maxCapacity) {
+        this(player, maxCapacity, maxCapacity);
+    }
+
+    public Shield(@Nonnull GamePlayer player, double maxCapacity, double initialCapacity) {
         this.player = player;
         this.maxCapacity = maxCapacity;
-        this.capacity = maxCapacity;
+        this.capacity = initialCapacity;
     }
 
     public void regenerate(double amount) {
@@ -28,19 +32,27 @@ public class Shield {
         capacity = regenerateAmount;
 
         onRegenerate(regenerateAmount);
+        updateShield();
     }
 
     @PreprocessingMethod
-    public final void takeDamage0(double damage) {
+    public final double takeDamage0(double damage) {
         takeDamage(damage);
 
+        // Only call onHit if the shield is still active after hitting it
         if (capacity > 0.0d) {
             onHit(damage);
         }
+
+        return capacity;
     }
 
     public void takeDamage(double damage) {
         capacity -= damage;
+    }
+
+    public double getCapacity() {
+        return capacity;
     }
 
     @Nonnull
@@ -50,10 +62,6 @@ public class Shield {
 
     public double getMaxCapacity() {
         return maxCapacity;
-    }
-
-    public double getCapacity() {
-        return capacity;
     }
 
     /**
@@ -72,10 +80,7 @@ public class Shield {
      */
     @Event
     public void onHit(double amount) {
-        // Update UI indicator
-        final double absorptionAmount = Numbers.clamp(20 / maxCapacity * capacity, 0, 20);
-
-        player.getPlayer().setAbsorptionAmount(absorptionAmount);
+        updateShield();
     }
 
     /**
@@ -117,11 +122,19 @@ public class Shield {
         // No idea why it suddenly doesn't work, the only thing I changed was the version
         player.addPotionEffect(PotionEffectType.ABSORPTION, 10000, 4);
 
+        updateShield();
         onCreate();
     }
 
     public final void onBreak0() {
         player.removePotionEffect(PotionEffectType.ABSORPTION);
         onBreak();
+    }
+
+    private void updateShield() {
+        // Update UI indicator
+        final double absorptionAmount = Numbers.clamp(20 / maxCapacity * capacity, 0, 20);
+
+        player.getPlayer().setAbsorptionAmount(absorptionAmount);
     }
 }
