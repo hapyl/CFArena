@@ -283,7 +283,9 @@ public enum Talents {
             Talent.Type.ENHANCE
     )),
 
-    // Witcher
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.witcher.WitcherClass}
+     */
     AARD(new Aard()),
     IGNY(new Igny()),
     KVEN(new Kven()),

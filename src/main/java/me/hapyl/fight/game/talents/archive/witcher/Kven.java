@@ -18,8 +18,9 @@ public class Kven extends Talent {
     private final PlayerMap<Integer> shieldCharges = PlayerMap.newMap();
 
     public Kven() {
-        super("Quen", "Applies two charges of Quen shield that blocks damage.");
+        super("Quen", "Applies &ntwo charges&7 of Quen shield that &8blocks&7 any damage.");
 
+        setType(Type.DEFENSE);
         setItem(Material.FLOWER_POT);
         setCooldownSec(30);
     }
@@ -39,11 +40,11 @@ public class Kven extends Talent {
             shieldCharges.remove(player);
 
             player.sendMessage("&aYour &l%s &ashield has broke!", getName());
-            player.playSound(Sound.ITEM_SHIELD_BREAK, 0.5f);
+            player.playWorldSound(Sound.ITEM_SHIELD_BREAK, 0.5f);
         }
         else {
             player.sendMessage("&aOne of your &l%s &ashields broke!", getName());
-            player.playSound(Sound.ITEM_SHIELD_BREAK, 0.75f);
+            player.playWorldSound(Sound.ITEM_SHIELD_BREAK, 0.75f);
         }
     }
 
@@ -53,17 +54,18 @@ public class Kven extends Talent {
             return Response.error("Already have shield applied!");
         }
 
+        shieldCharges.put(player, 2);
+
         new GameTask() {
             private double theta = 0.0d;
 
             @Override
             public void run() {
-
                 final Location location = player.getLocation().add(0.0d, 1.0d, 0.0d);
                 final int shieldCharge = getShieldCharge(player);
 
                 if (shieldCharge <= 0) {
-                    this.cancel();
+                    cancel();
                     return;
                 }
 
@@ -87,7 +89,6 @@ public class Kven extends Talent {
         // Fx
         player.sendMessage("&a%s Shields have been activated!", getName());
         player.playSound(Sound.BLOCK_BELL_RESONATE, 2.0f);
-        shieldCharges.put(player, 2);
 
         return Response.OK;
     }

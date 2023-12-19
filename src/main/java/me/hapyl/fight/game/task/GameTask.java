@@ -116,7 +116,8 @@ public abstract class GameTask implements Runnable {
         return bukkitTask.isCancelled();
     }
 
-    protected void cancel0() {
+    @Deprecated
+    public void cancel0() {
         if (bukkitTask == null) {
             Debug.warn("Tried to cancel an inactive task!");
             return;

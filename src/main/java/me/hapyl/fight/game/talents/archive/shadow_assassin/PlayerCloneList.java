@@ -5,7 +5,7 @@ import com.google.common.collect.Maps;
 import me.hapyl.fight.game.TalentReference;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.task.PlayerGameTask;
+import me.hapyl.fight.game.task.player.PlayerGameTask;
 import me.hapyl.spigotutils.module.player.EffectType;
 import org.bukkit.Location;
 import org.bukkit.Particle;

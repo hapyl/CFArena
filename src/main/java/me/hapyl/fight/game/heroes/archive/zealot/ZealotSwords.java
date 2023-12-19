@@ -7,7 +7,7 @@ import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Removable;
-import me.hapyl.fight.game.task.PlayerGameTask;
+import me.hapyl.fight.game.task.player.PlayerGameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.MaterialCooldown;
 import me.hapyl.spigotutils.module.entity.Entities;

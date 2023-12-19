@@ -46,6 +46,7 @@ public enum Temper implements SmallCapsDescriber {
     MALEDICTION_VEIL,
     SOUL_CRY,
     BLADE_BARRAGE,
+    YRDED,
 
     /* Keep semicolon on this line for easier addition. */;
 

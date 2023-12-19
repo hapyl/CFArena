@@ -14,19 +14,18 @@ public class Akciy extends Talent {
 
     public Akciy() {
         super("Axii", """
-                Stuns your target opponent for {duration} or until they get hit.
-                                
-                Stunned opponent is immovable and cannot use their abilities.
+                Stun the &etarget&7 &cenemy for {duration} or until they &nget&7 hit.
                 """);
 
+        setType(Type.IMPAIR);
+        setItem(Material.SLIME_BALL);
         setDuration(100);
         setCooldownSec(40);
-        setItem(Material.SLIME_BALL);
     }
 
     @Override
     public Response execute(@Nonnull GamePlayer player) {
-        final LivingGameEntity target = Collect.targetEntity(player, 50.0d, 0.8d, e -> !e.equals(player));
+        final LivingGameEntity target = Collect.targetEntity(player, 50.0d, 0.8d, entity -> !player.isSelfOrTeammate(entity));
 
         if (target == null) {
             return Response.error("No valid target!");

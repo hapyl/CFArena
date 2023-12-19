@@ -27,11 +27,11 @@ public class Igny extends Talent {
 
     public Igny() {
         super("Igni", """
-                Fires blazing spirits in front of you that deal damage and set enemies on fire.
-                                
-                Damage and burning duration fall off with distance.
+                Fire &cblazing spirits&7 in front of you that deal &cAoE damage&7 and set &cenemies&7 on &6fire&7.
+                &8;;Damage and burning duration falls off with distance.
                 """);
 
+        setType(Type.DAMAGE);
         setItem(Material.BLAZE_POWDER);
         setCooldownSec(10);
     }

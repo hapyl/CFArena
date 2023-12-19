@@ -6,7 +6,7 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.task.PlayerGameTask;
+import me.hapyl.fight.game.task.player.PlayerGameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.game.weapons.ability.Ability;
 import me.hapyl.fight.game.weapons.ability.AbilityType;

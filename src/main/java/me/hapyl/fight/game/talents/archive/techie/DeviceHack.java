@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.archive.techie;
 
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.task.PlayerGameTask;
+import me.hapyl.fight.game.task.player.PlayerGameTask;
 import me.hapyl.spigotutils.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.Material;

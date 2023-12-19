@@ -20,7 +20,7 @@ import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.orc.OrcAxe;
 import me.hapyl.fight.game.talents.archive.orc.OrcGrowl;
-import me.hapyl.fight.game.task.PlayerGameTask;
+import me.hapyl.fight.game.task.player.PlayerGameTask;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.math.Tick;
 import org.bukkit.Material;
@@ -179,7 +179,7 @@ public class Orc extends Hero implements Listener {
         berserk.temper(attributes, duration);
 
         // Fx
-        new PlayerGameTask(Named.BERSERK, player) {
+        new PlayerGameTask(player, Named.BERSERK) {
             private int tick = 0;
 
             @Override

@@ -36,7 +36,8 @@ import me.hapyl.fight.game.talents.TalentQueue;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.game.task.PlayerGameTask;
+import me.hapyl.fight.game.task.player.IPlayerTask;
+import me.hapyl.fight.game.task.player.PlayerGameTask;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.display.AscendingDisplay;
@@ -903,7 +904,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         getPlayer().showEntity(Main.getPlugin(), entity);
     }
 
-    public void addTask(@Nonnull PlayerGameTask task) {
+    public void addTask(@Nonnull IPlayerTask task) {
         taskList.add(task);
     }
 

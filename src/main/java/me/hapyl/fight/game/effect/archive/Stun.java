@@ -21,6 +21,7 @@ public class Stun extends GameEffect implements Listener {
                 Stunned players cannot move or use their abilities.
                 The effect will be cleared upon taking damage.
                 """);
+
         setPositive(false);
         setTalentBlocking(true);
         setEffectParticle(new EffectParticle(Particle.VILLAGER_ANGRY, 1));
