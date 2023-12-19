@@ -1,6 +1,7 @@
 package me.hapyl.fight.event;
 
 import me.hapyl.fight.game.attribute.EntityAttributes;
+import me.hapyl.fight.game.attribute.WeakEntityAttributes;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.util.Disposable;
 
@@ -14,7 +15,7 @@ import javax.annotation.Nonnull;
 public class InstanceEntityData implements Disposable {
 
     public final LivingGameEntity entity;
-    public final EntityAttributes attributes;
+    public final WeakEntityAttributes attributes;
 
     public InstanceEntityData(LivingGameEntity entity) {
         this.entity = entity;
@@ -38,7 +39,7 @@ public class InstanceEntityData implements Disposable {
      * @return the weak copy of entity's attributes.
      */
     @Nonnull
-    public EntityAttributes getAttributes() {
+    public WeakEntityAttributes getAttributes() {
         return attributes;
     }
 

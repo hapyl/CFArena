@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.heroes.archive.pytaria;
 
-import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
@@ -12,10 +11,10 @@ import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.pytaria.FlowerBreeze;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -72,7 +71,7 @@ public class Pytaria extends Hero {
                         Also regenerates &c%s%% ❤&7 of &aPytaria's&7 missing health.
                         """, healthRegenPercent)
                 .appendAttributeDescription("Health Regeneration", healthRegenPercent)
-                .setCastDuration(40)
+                .setCastDuration(50)
                 .setSound(Sound.ENTITY_BEE_DEATH, 0.0f)
                 .setTexture("d4579f1ea3864269c2148d827c0887b0c5ed43a975b102a01afb644efb85ccfd"));
     }
@@ -90,10 +89,10 @@ public class Pytaria extends Hero {
             me.setAI(false);
         });
 
-        final double finalDamage = calculateDamage(player, 50.0d, EnumDamageCause.FEEL_THE_BREEZE);
-        final LivingGameEntity entity = Collect.nearestEntityPrioritizePlayers(location, 50, check -> !check.equals(player));
+        final double finalDamage = calculateDamage(player, 25.0d, EnumDamageCause.FEEL_THE_BREEZE);
+        final LivingGameEntity entity = Collect.nearestEntityPrioritizePlayers(location, 50, check -> !player.isSelfOrTeammate(check));
 
-        PlayerLib.playSound(location, Sound.ENTITY_BEE_LOOP_AGGRESSIVE, 1.0f);
+        player.playWorldSound(location, Sound.ENTITY_BEE_LOOP_AGGRESSIVE, 1.0f);
 
         new TickingGameTask() {
             @Override
@@ -114,7 +113,7 @@ public class Pytaria extends Hero {
                 final Location lockLocation = entity == null ? location.clone().subtract(0, 9, 0) : entity.getEyeLocation();
                 bee.remove();
 
-                Collect.nearbyEntities(lockLocation, 1.5d).forEach(victim -> {
+                Collect.nearbyEntities(lockLocation, 1.0d).forEach(victim -> {
                     victim.damage(finalDamage, player, EnumDamageCause.FEEL_THE_BREEZE);
                 });
 
@@ -129,11 +128,11 @@ public class Pytaria extends Hero {
                 // Fx
                 PlayerLib.stopSound(Sound.ENTITY_BEE_LOOP_AGGRESSIVE);
 
-                PlayerLib.spawnParticle(location, Particle.EXPLOSION_NORMAL, 5, 0.2, 0.2, 0.2, 0.1f);
-                PlayerLib.playSound(location, Sound.ENTITY_BEE_DEATH, 1.5f);
+                player.spawnWorldParticle(location, Particle.EXPLOSION_NORMAL, 5, 0.2, 0.2, 0.2, 0.1f);
+                player.playWorldSound(location, Sound.ENTITY_BEE_DEATH, 1.5f);
 
-                PlayerLib.spawnParticle(lockLocation, Particle.EXPLOSION_LARGE, 3, 0.5, 0, 0.5, 0);
-                PlayerLib.playSound(lockLocation, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 1.25f);
+                player.spawnWorldParticle(lockLocation, Particle.EXPLOSION_LARGE, 3, 0.5, 0, 0.5, 0);
+                player.playWorldSound(lockLocation, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 1.25f);
             }
         };
     }

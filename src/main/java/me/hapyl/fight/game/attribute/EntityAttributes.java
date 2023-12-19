@@ -28,10 +28,10 @@ import java.util.function.Consumer;
  */
 public class EntityAttributes extends Attributes implements PlayerElement {
 
+    protected final AttributeTemperTable tempers;
+
     private final LivingGameEntity entity;
     private final Attributes baseAttributes;
-
-    private final AttributeTemperTable tempers;
 
     public EntityAttributes(LivingGameEntity entity, Attributes baseAttributes) {
         this.entity = entity;
@@ -245,12 +245,8 @@ public class EntityAttributes extends Attributes implements PlayerElement {
 
     @Nonnull
     @Override
-    public EntityAttributes weakCopy() {
-        final EntityAttributes copy = new EntityAttributes(entity, baseAttributes);
-        copy.mapped.putAll(mapped);
-        copy.tempers.putAll(tempers);
-
-        return copy;
+    public WeakEntityAttributes weakCopy() {
+        return new WeakEntityAttributes(this);
     }
 
     @Override

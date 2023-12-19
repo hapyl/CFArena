@@ -5,7 +5,7 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.InstanceEntityData;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.EntityAttributes;
+import me.hapyl.fight.game.attribute.WeakEntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -104,7 +104,6 @@ public class Zealot extends Hero implements Listener {
         swingSwordsIfCan(player);
     }
 
-    // fixme> Not the best impl but I know how to rewrite the damage instance thingy, copy both attributes and yes you know the rest
     @Override
     public void processDamageAsDamager(@Nonnull DamageInstance instance) {
         final InstanceEntityData damagerData = instance.getDamagerData();
@@ -114,7 +113,7 @@ public class Zealot extends Hero implements Listener {
             return;
         }
 
-        final EntityAttributes attributes = damagerData.getAttributes();
+        final WeakEntityAttributes attributes = damagerData.getAttributes();
         final MaledictionVeil passiveTalent = getPassiveTalent();
         final boolean hasDebuff = entity.getAttributes().hasTemper(Temper.MALEDICTION_VEIL);
         final double ferocity = attributes.get(AttributeType.FEROCITY);

@@ -27,6 +27,7 @@ public class TemperInstance {
     private final Map<AttributeType, Double> values;
 
     private String message;
+    private Consumer<LivingGameEntity> onApply;
 
     TemperInstance(@Nonnull Temper temper, @Nullable String name) {
         this.temper = temper;
@@ -56,6 +57,11 @@ public class TemperInstance {
         return this;
     }
 
+    public TemperInstance onApply(@Nonnull Consumer<LivingGameEntity> onApply) {
+        this.onApply = onApply;
+        return this;
+    }
+
     public final void temper(@Nonnull LivingGameEntity entity, int duration) {
         temper(entity.getAttributes(), duration);
     }
@@ -76,14 +82,15 @@ public class TemperInstance {
 
         // Fx
         if (newTemper) {
-            ifNotNull(name, str -> entity.spawnDisplay(name, 20, BuffDisplay::new));
-            ifNotNull(message, str -> entity.sendMessage(message));
+            ifNotNull(name, then -> entity.spawnDisplay(then, 20, BuffDisplay::new));
+            ifNotNull(message, entity::sendMessage);
+            ifNotNull(onApply, then -> then.accept(entity));
         }
     }
 
-    private void ifNotNull(String string, Consumer<String> consumer) {
-        if (string != null) {
-            consumer.accept(string);
+    private <T> void ifNotNull(@Nullable T t, Consumer<T> consumer) {
+        if (t != null) {
+            consumer.accept(t);
         }
     }
 }
