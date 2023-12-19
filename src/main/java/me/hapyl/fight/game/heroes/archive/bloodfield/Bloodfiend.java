@@ -4,9 +4,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.StrictTalentPlacement;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.TalentUseEvent;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.effect.GameEffectType;
@@ -152,13 +151,13 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
 
     @Nullable
     @Override
-    public DamageOutput processDamageAsDamager(DamageInput input) {
-        final GamePlayer player = input.getDamagerAsPlayer();
-        final LivingGameEntity entity = input.getEntity();
-        final EnumDamageCause cause = input.getDamageCause();
+    public void processDamageAsDamager(@Nonnull DamageInstance instance) {
+        final GamePlayer player = instance.getDamagerAsPlayer();
+        final LivingGameEntity entity = instance.getEntity();
+        final EnumDamageCause cause = instance.getCause();
 
         if (player == null || cause != EnumDamageCause.ENTITY_ATTACK) {
-            return DamageOutput.OK;
+            return;
         }
 
         entity.addEffect(GameEffectType.IMMOVABLE, 1);
@@ -167,7 +166,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
         data.addBlood();
 
         if (!(entity instanceof GamePlayer victim)) {
-            return DamageOutput.OK;
+            return;
         }
 
         data.addSucculence(victim);
@@ -177,13 +176,11 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
         final BloodChalice taunt = bloodChalice.getTaunt(player);
 
         if (taunt != null && taunt.target.equals(victim)) {
-            final double damage = input.getDamage();
+            final double damage = instance.getDamage();
             final double healing = damage * bloodChalice.healingPercent;
 
             player.heal(healing);
         }
-
-        return DamageOutput.OK;
     }
 
     @Nonnull

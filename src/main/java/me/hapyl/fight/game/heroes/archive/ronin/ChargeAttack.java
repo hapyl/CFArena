@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.archive.ronin;
 
 import me.hapyl.fight.game.HeroReference;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -19,16 +20,16 @@ public class ChargeAttack extends GameTask implements HeroReference<Ronin> {
     private static final String CHAR_OFF = "┃";
 
     private final Ronin ronin;
-    private final Player player;
+    private final GamePlayer player;
 
     private long lastHeld;
     private double strength;
 
-    public ChargeAttack(Ronin ronin, Player player) {
+    public ChargeAttack(Ronin ronin, GamePlayer player) {
         this.ronin = ronin;
         this.player = player;
 
-        PlayerLib.playSound(player, Sound.ITEM_ARMOR_EQUIP_CHAIN, 0.0f);
+        player.playSound(Sound.ITEM_ARMOR_EQUIP_CHAIN, 0.0f);
         runTaskTimer(1, 1);
     }
 
@@ -51,8 +52,8 @@ public class ChargeAttack extends GameTask implements HeroReference<Ronin> {
         }
 
         // Fx
-        Chat.sendTitle(player, "", builder.toString(), 0, 5, 5);
-        PlayerLib.addEffect(player, PotionEffectType.SLOW, 1, 5);
+        player.sendSubtitle(builder.toString(), 0, 5, 5);
+        player.addPotionEffect(PotionEffectType.SLOW, 1, 5);
     }
 
     @Nonnull
@@ -82,19 +83,19 @@ public class ChargeAttack extends GameTask implements HeroReference<Ronin> {
 
         // Perfect Fx
         if (strength >= Strength.PERFECT.startIndex && strength < Strength.WEAK.startIndex) {
-            PlayerLib.playSound(player, Sound.ENTITY_ARROW_HIT_PLAYER, 0.75f);
-            PlayerLib.playSound(player, Sound.ENTITY_ARROW_HIT_PLAYER, 1.25f);
+            player.playSound(Sound.ENTITY_ARROW_HIT_PLAYER, 0.75f);
+            player.playSound(Sound.ENTITY_ARROW_HIT_PLAYER, 1.25f);
         }
 
         // Normal Fx
         if (strength <= Strength.WEAK.startIndex) {
             final float pitch = (float) (0.5f + (2.0f / Strength.PERFECT.startIndex * strength));
 
-            PlayerLib.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, pitch);
-            PlayerLib.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASEDRUM, pitch);
+            player.playSound(Sound.BLOCK_NOTE_BLOCK_BASS, pitch);
+            player.playSound(Sound.BLOCK_NOTE_BLOCK_BASEDRUM, pitch);
         }
         else {
-            PlayerLib.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 0.0f);
+            player.playSound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.0f);
         }
     }
 

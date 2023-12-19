@@ -1,21 +1,18 @@
 package me.hapyl.fight.game.heroes.archive.spark;
 
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TimedGameTask;
-import me.hapyl.fight.game.weapons.PackedParticle;
 import me.hapyl.fight.game.weapons.range.RangeWeapon;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.*;
@@ -142,27 +139,27 @@ public class Spark extends Hero implements PlayerElement {
     }
 
     @Override
-    public DamageOutput processDamageAsVictim(DamageInput input) {
-        final GamePlayer player = input.getEntityAsPlayer();
-        final EnumDamageCause cause = input.getDamageCause();
+    public void processDamageAsVictim(@Nonnull DamageInstance instance) {
+        final GamePlayer player = instance.getEntityAsPlayer();
+        final EnumDamageCause cause = instance.getCause();
 
         if (!validatePlayer(player) || cause == null) {
-            return null;
+            return;
         }
 
         // Check for ultimate death
-        if (isUsingUltimate(player) && input.getDamage() >= player.getHealth()) {
+        if (isUsingUltimate(player) && instance.getDamage() >= player.getHealth()) {
             rebirthPlayer(player);
             setUsingUltimate(player, false);
 
-            return DamageOutput.CANCEL;
+            instance.setCancelled(true);
+            return;
         }
 
         // Cancel any fire damage
-        return switch (cause) {
-            case FIRE, FIRE_TICK, LAVA -> DamageOutput.CANCEL;
-            default -> null;
-        };
+        switch (cause) {
+            case FIRE, FIRE_TICK, LAVA -> instance.setCancelled(true);
+        }
     }
 
     @Override

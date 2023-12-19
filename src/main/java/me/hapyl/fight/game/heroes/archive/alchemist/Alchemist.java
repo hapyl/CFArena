@@ -1,8 +1,7 @@
 package me.hapyl.fight.game.heroes.archive.alchemist;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -148,18 +147,18 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
     }
 
     @Override
-    public DamageOutput processDamageAsDamager(DamageInput input) {
-        final LivingGameEntity victim = input.getEntity();
-        final LivingGameEntity player = input.getDamagerAsPlayer();
+    public void processDamageAsDamager(@Nonnull DamageInstance instance) {
+        final LivingGameEntity victim = instance.getEntity();
+        final LivingGameEntity player = instance.getDamagerAsPlayer();
 
         if (player == null) {
-            return null;
+            return;
         }
 
         final CauldronEffect effect = cauldronEffectMap.get(player.getUUID());
 
-        if (!input.isEntityAttack() || effect == null || effect.getEffectHits() <= 0) {
-            return null;
+        if (!instance.isEntityAttack() || effect == null || effect.getEffectHits() <= 0) {
+            return;
         }
 
         final EffectType randomEffect = getRandomEffect();
@@ -174,7 +173,6 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
         );
 
         player.playWorldSound(player.getLocation(), ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 2.0f);
-        return null;
     }
 
     public CauldronEffect getEffect(GamePlayer player) {

@@ -35,7 +35,7 @@ public class EntityAttributes extends Attributes implements PlayerElement {
 
     public EntityAttributes(LivingGameEntity entity, Attributes baseAttributes) {
         this.entity = entity;
-        this.baseAttributes = Attributes.copyOf(baseAttributes);
+        this.baseAttributes = baseAttributes.weakCopy();
         this.tempers = new AttributeTemperTable(this);
 
         mapped.clear(); // default to 0
@@ -241,6 +241,23 @@ public class EntityAttributes extends Attributes implements PlayerElement {
 
     public void resetTemper(@Nonnull Temper temper) {
         tempers.cancel(temper);
+    }
+
+    @Nonnull
+    @Override
+    public EntityAttributes weakCopy() {
+        final EntityAttributes copy = new EntityAttributes(entity, baseAttributes);
+        copy.mapped.putAll(mapped);
+        copy.tempers.putAll(tempers);
+
+        return copy;
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+
+        tempers.clear();
     }
 
     private void display(AttributeType type, boolean isBuff) {

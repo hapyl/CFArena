@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.nightmare;
 
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
@@ -11,9 +10,9 @@ import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Collect;
@@ -25,7 +24,6 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class Nightmare extends Hero implements DisplayFieldProvider {
@@ -128,23 +126,22 @@ public class Nightmare extends Hero implements DisplayFieldProvider {
         return UltimateCallback.OK;
     }
 
-    @Nullable
     @Override
-    public DamageOutput processDamageAsDamager(DamageInput input) {
-        final GamePlayer damager = input.getDamagerAsPlayer();
-        final LivingGameEntity entity = input.getEntity();
+    public void processDamageAsDamager(@Nonnull DamageInstance instance) {
+        final GamePlayer damager = instance.getDamagerAsPlayer();
+        final LivingGameEntity entity = instance.getEntity();
 
-        if (damager == null || !input.isEntityAttack()) {
-            return DamageOutput.OK;
+        if (damager == null || !instance.isEntityAttack()) {
+            return;
         }
 
         final OmenDebuff debuff = getDebuff(damager);
 
         if (!debuff.isAffected(entity)) {
-            return DamageOutput.OK;
+            return;
         }
 
-        return new DamageOutput(input.getDamage() * omenDamageMultiplier);
+        instance.setDamage(instance.getDamage() * omenDamageMultiplier);
     }
 
     @Override

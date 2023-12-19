@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.taker;
 
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -34,7 +33,6 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class Taker extends Hero implements UIComponent, DisplayFieldProvider {
 
@@ -215,43 +213,40 @@ public class Taker extends Hero implements UIComponent, DisplayFieldProvider {
         };
     }
 
-    @Nullable
     @Override
-    public DamageOutput processDamageAsDamager(DamageInput input) {
-        final GamePlayer player = input.getDamagerAsPlayer();
+    public void processDamageAsDamager(@Nonnull DamageInstance instance) {
+        final GamePlayer player = instance.getDamagerAsPlayer();
 
         if (player == null) {
-            return null;
+            return;
         }
 
         final SpiritualBones bones = getBones(player);
 
         if (bones.getBones() == 0) {
-            return null;
+            return;
         }
 
         final double healing = bones.getHealing();
-        final double damage = input.getDamage();
+        final double damage = instance.getDamage();
 
         final double healingScaled = damage * healing / 100.0d;
         player.heal(healingScaled);
 
-        return new DamageOutput(damage + (damage / 10 * bones.getDamageMultiplier()));
+        instance.setDamage(damage + (damage / 10 * bones.getDamageMultiplier()));
     }
 
-    @Nullable
     @Override
-    public DamageOutput processDamageAsVictim(DamageInput input) {
-        final GamePlayer player = input.getEntityAsPlayer();
+    public void processDamageAsVictim(@Nonnull DamageInstance instance) {
+        final GamePlayer player = instance.getEntityAsPlayer();
         final SpiritualBones bones = getBones(player);
 
         if (bones.getBones() == 0) {
-            return null;
+            return;
         }
 
-        final double damage = input.getDamage();
-
-        return new DamageOutput(damage - (damage / 100 * bones.getDamageReduction()));
+        final double damage = instance.getDamage();
+        instance.setDamage(damage - (damage / 100 * bones.getDamageReduction()));
     }
 
     @Override

@@ -1,8 +1,7 @@
 package me.hapyl.fight.game.heroes.archive.shadow_assassin;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.effect.GameEffectType;
@@ -13,12 +12,12 @@ import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.loadout.HotbarSlots;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.shadow_assassin.DarkCover;
 import me.hapyl.fight.game.talents.archive.shadow_assassin.PlayerCloneList;
 import me.hapyl.fight.game.talents.archive.shadow_assassin.ShadowAssassinClone;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.Collect;
@@ -160,36 +159,33 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
     }
 
     @Override
-    public boolean processInvisibilityDamage(GamePlayer player, LivingGameEntity entity, double damage) {
+    public boolean processInvisibilityDamage(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity, double damage) {
         getSecondTalent().onDamage(player, entity, damage);
         return false;
     }
 
-    @Nullable
     @Override
-    public DamageOutput processDamageAsVictim(DamageInput input) {
-        final GamePlayer player = input.getEntityAsPlayer();
+    public void processDamageAsVictim(@Nonnull DamageInstance instance) {
+        final GamePlayer player = instance.getEntityAsPlayer();
         final DarkCover darkCover = getSecondTalent();
 
         if (darkCover.isInDarkCover(player)) {
-            return DamageOutput.CANCEL;
+            instance.setCancelled(true);
         }
-
-        return DamageOutput.OK;
     }
 
     @Override
-    public DamageOutput processDamageAsDamager(DamageInput input) {
-        final GamePlayer player = input.getDamagerAsPlayer();
+    public void processDamageAsDamager(@Nonnull DamageInstance instance) {
+        final GamePlayer player = instance.getDamagerAsPlayer();
 
-        if (player == null || !input.isEntityAttack()) {
-            return DamageOutput.OK;
+        if (player == null || !instance.isEntityAttack()) {
+            return;
         }
 
-        final LivingGameEntity entity = input.getEntity();
+        final LivingGameEntity entity = instance.getEntity();
 
         if (!validateCanBackStab(player, entity)) {
-            return DamageOutput.OK;
+            return;
         }
 
         final Vector playerDirection = player.getLocation().getDirection();
@@ -198,8 +194,6 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
         if (playerDirection.dot(entityDirection) > 0) {
             getWeapon().performBackStab(player, entity);
         }
-
-        return DamageOutput.OK;
     }
 
     public void displayFootprints(Location location) {

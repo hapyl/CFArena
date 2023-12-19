@@ -1,8 +1,7 @@
 package me.hapyl.fight.game.entity.custom.genie;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.Attributes;
 import me.hapyl.fight.game.entity.*;
 import me.hapyl.fight.game.task.GameTask;
@@ -17,7 +16,6 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class Genie extends GameEntityType<Husk> {
     public Genie() {
@@ -72,8 +70,7 @@ public class Genie extends GameEntityType<Husk> {
                         }
 
                         @Override
-                        public DamageOutput onDamageDealt(@Nonnull DamageInput input) {
-                            return DamageOutput.CANCEL;
+                        public void onDamageDealt(@Nonnull DamageInstance instance) {
                         }
                     };
                 }
@@ -97,17 +94,14 @@ public class Genie extends GameEntityType<Husk> {
             equipment.setChestplate(new ItemStack(Material.DIAMOND_CHESTPLATE));
         }
 
-        @Nullable
         @Override
-        public DamageOutput onDamageTaken(@Nonnull DamageInput input) {
-            if (!rage && (getHealth() - input.getDamage() <= getMaxHealth() / 2)) {
+        public void onDamageTaken(@Nonnull DamageInstance instance) {
+            if (!rage && (getHealth() - instance.getDamage() <= getMaxHealth() / 2)) {
                 rage = true;
 
                 final EntityEquipment equipment = getEquipment();
                 equipment.setHelmet(VEX_HEAD_RAGE);
             }
-
-            return null;
         }
 
         @Override

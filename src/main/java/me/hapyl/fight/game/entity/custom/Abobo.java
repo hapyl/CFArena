@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.entity.custom;
 
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.attribute.Attributes;
 import me.hapyl.fight.game.entity.EntityType;
@@ -10,7 +9,6 @@ import me.hapyl.fight.game.entity.NamedGameEntity;
 import org.bukkit.entity.Husk;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class Abobo extends GameEntityType<Husk> {
     public Abobo() {
@@ -28,9 +26,8 @@ public class Abobo extends GameEntityType<Husk> {
     public NamedGameEntity<Husk> create(@Nonnull Husk entity) {
         return new NamedGameEntity<>(this, entity) {
             @Override
-            public DamageOutput onDamageTaken(@Nonnull DamageInput input) {
-                Debug.info("ABOBO took damage from " + input.getDamager());
-                return DamageOutput.CANCEL;
+            public void onDamageTaken(@Nonnull DamageInstance instance) {
+                Debug.info("ABOBO took damage from " + instance.getDamager());
             }
 
             @Override
@@ -38,11 +35,9 @@ public class Abobo extends GameEntityType<Husk> {
                 Debug.info("ABOBO DIED NO!!!!!!!!!!!!!!!!!!!!");
             }
 
-            @Nullable
             @Override
-            public DamageOutput onDamageDealt(@Nonnull DamageInput input) {
-                Debug.info("ABOBO hit " + input.getEntity());
-                return null;
+            public void onDamageDealt(@Nonnull DamageInstance instance) {
+                Debug.info("ABOBO hit " + instance.getEntity());
             }
 
             @Override

@@ -2,8 +2,8 @@ package me.hapyl.fight.game.heroes.archive.zealot;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.event.DamageInstance;
+import me.hapyl.fight.event.InstanceEntityData;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
@@ -32,7 +32,6 @@ import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Map;
 
 public class Zealot extends Hero implements Listener {
@@ -106,26 +105,23 @@ public class Zealot extends Hero implements Listener {
     }
 
     // fixme> Not the best impl but I know how to rewrite the damage instance thingy, copy both attributes and yes you know the rest
-    @Nullable
     @Override
-    public DamageOutput processDamageAsDamager(DamageInput input) {
-        final GamePlayer player = input.getDamagerAsPlayer();
-        final LivingGameEntity entity = input.getEntity();
+    public void processDamageAsDamager(@Nonnull DamageInstance instance) {
+        final InstanceEntityData damagerData = instance.getDamagerData();
+        final LivingGameEntity entity = instance.getEntity();
 
-        if (player == null) {
-            return DamageOutput.OK;
+        if (damagerData == null) {
+            return;
         }
 
-        final EntityAttributes attributes = player.getAttributes();
+        final EntityAttributes attributes = damagerData.getAttributes();
         final MaledictionVeil passiveTalent = getPassiveTalent();
         final boolean hasDebuff = entity.getAttributes().hasTemper(Temper.MALEDICTION_VEIL);
         final double ferocity = attributes.get(AttributeType.FEROCITY);
 
         if (ferocity > 0 && hasDebuff) {
-            attributes.increaseTemporary(Temper.MALEDICTION_VEIL, AttributeType.FEROCITY, passiveTalent.ferocityRate, 1, true);
+            attributes.addSilent(AttributeType.FEROCITY, passiveTalent.ferocityRate);
         }
-
-        return DamageOutput.OK;
     }
 
     @Override

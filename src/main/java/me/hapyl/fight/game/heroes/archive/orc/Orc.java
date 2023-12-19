@@ -1,8 +1,7 @@
 package me.hapyl.fight.game.heroes.archive.orc;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -140,21 +139,18 @@ public class Orc extends Hero implements Listener {
         }
     }
 
-    @Nullable
     @Override
-    public DamageOutput processDamageAsVictim(DamageInput input) {
-        final GamePlayer player = input.getEntityAsPlayer();
-        final EnumDamageCause cause = input.getDamageCauseOr(EnumDamageCause.NONE);
+    public void processDamageAsVictim(@Nonnull DamageInstance instance) {
+        final GamePlayer player = instance.getEntityAsPlayer();
+        final EnumDamageCause cause = instance.getCauseOr(EnumDamageCause.NONE);
 
         if (cause != EnumDamageCause.ENTITY_ATTACK) {
-            return null;
+            return;
         }
 
         if (damageMap.computeIfAbsent(player, DamageData::new).addHitAndCheck()) {
             enterBerserk(player, Tick.fromSecond(3));
         }
-
-        return null;
     }
 
     @Override

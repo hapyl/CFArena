@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.knight;
 
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.GameEntity;
@@ -148,25 +147,25 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Pla
     }
 
     @Override
-    public DamageOutput processDamageAsVictim(DamageInput input) {
-        final GamePlayer player = input.getEntityAsPlayer();
-        final GameEntity damager = input.getDamager();
-        final double damage = input.getDamage();
+    public void processDamageAsVictim(@Nonnull DamageInstance instance) {
+        final GamePlayer player = instance.getEntityAsPlayer();
+        final GameEntity damager = instance.getDamager();
+        final double damage = instance.getDamage();
 
         if (!player.isBlocking() || damager == null || damage > 0.0d) {
-            return DamageOutput.OK;
+            return;
         }
 
         final double dot = player.dot(damager.getLocation());
 
         if (dot <= 0.6d) {
-            return DamageOutput.OK;
+            return;
         }
 
         final BlastKnightData data = getPlayerData(player);
 
         if (data.isShieldOnCooldown()) {
-            return DamageOutput.OK;
+            return;
         }
 
         data.incrementShieldCharge();
@@ -177,7 +176,7 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Pla
         // Fx
         player.playSound(Sound.ITEM_SHIELD_BREAK, 1.0f);
 
-        return new DamageOutput(0.0d, false);
+        instance.setDamage(0.0d);
     }
 
     @Nonnull

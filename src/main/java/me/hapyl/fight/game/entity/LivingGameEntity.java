@@ -5,8 +5,6 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.PreprocessingMethod;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.GameDeathEvent;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EntityState;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Event;
@@ -594,38 +592,34 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     }
 
     @PreprocessingMethod
-    @Nullable
-    public final DamageOutput onDamageTaken0(@Nonnull DamageInput input) {
-        final EnumDamageCause cause = input.getDamageCause();
+    public final void onDamageTaken0(@Nonnull DamageInstance instance) {
+        final EnumDamageCause cause = instance.getCause();
 
         if (cause != null && immunityCauses.contains(cause)) {
-            final GameEntity damager = input.getDamager();
+            final GameEntity damager = instance.getDamager();
+
             if (damager != null) {
                 damager.sendMessage(ChatColor.RED + getNameUnformatted() + " is immune to this kind of damage!");
             }
 
-            return DamageOutput.CANCEL;
+            instance.setCancelled(true);
+            return;
         }
 
-        return onDamageTaken(input);
+        onDamageTaken(instance);
     }
 
     @Event
-    @Nullable
-    public DamageOutput onDamageTaken(@Nonnull DamageInput input) {
-        return null;
+    public void onDamageTaken(@Nonnull DamageInstance instance) {
     }
 
     @PreprocessingMethod
-    @Nullable
-    public final DamageOutput onDamageDealt0(DamageInput input) {
-        return onDamageDealt(input);
+    public final void onDamageDealt0(DamageInstance instance) {
+        onDamageDealt(instance);
     }
 
     @Event
-    @Nullable
-    public DamageOutput onDamageDealt(@Nonnull DamageInput input) {
-        return null;
+    public void onDamageDealt(@Nonnull DamageInstance instance) {
     }
 
     public boolean shouldDie() {

@@ -141,6 +141,10 @@ public final class ConcurrentTable<R, C, V> {
         return set;
     }
 
+    public void putAll(@Nonnull ConcurrentTable<R, C, V> table) {
+        hashMap.putAll(table.hashMap);
+    }
+
     public record Cell<R, C>(R row, C column) {
 
         @Override

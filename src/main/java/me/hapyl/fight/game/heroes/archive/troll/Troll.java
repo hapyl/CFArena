@@ -1,8 +1,7 @@
 package me.hapyl.fight.game.heroes.archive.troll;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -108,12 +107,12 @@ public class Troll extends Hero implements Listener {
     }
 
     @Override
-    public DamageOutput processDamageAsDamager(DamageInput input) {
-        final GamePlayer killer = input.getDamagerAsPlayer();
-        final LivingGameEntity entity = input.getEntity();
+    public void processDamageAsDamager(@Nonnull DamageInstance instance) {
+        final GamePlayer killer = instance.getDamagerAsPlayer();
+        final LivingGameEntity entity = instance.getEntity();
 
         if (killer == null) {
-            return null;
+            return;
         }
 
         if (Math.random() >= 0.98) {
@@ -131,8 +130,6 @@ public class Troll extends Hero implements Listener {
 
             Achievements.LAUGHING_OUT_LOUD.complete(killer.getPlayer());
         }
-
-        return null;
     }
 
     @Override

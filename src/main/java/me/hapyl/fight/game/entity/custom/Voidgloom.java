@@ -1,8 +1,7 @@
 package me.hapyl.fight.game.entity.custom;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.Attributes;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.EntityType;
@@ -99,7 +98,7 @@ public class Voidgloom extends GameEntityType<Enderman> implements Listener {
         }
 
         @Override
-        public DamageOutput onDamageTaken(@Nonnull DamageInput input) {
+        public void onDamageTaken(@Nonnull DamageInstance instance) {
             if (hitPhase) {
                 hitsLeft--;
 
@@ -114,14 +113,14 @@ public class Voidgloom extends GameEntityType<Enderman> implements Listener {
                     // Fx
                     playWorldSound(Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 1.75f);
                     spawnWorldParticle(Particle.EXPLOSION_LARGE, 3);
-                    return null;
+                    return;
                 }
 
                 playWorldSound(location, Sound.ENTITY_ENDERMAN_TELEPORT, 2.0f - (1.0f / MAX_HITS * hitsLeft));
-                return DamageOutput.CANCEL;
+                instance.setCancelled(true);
             }
             else {
-                damageTook += input.getDamage();
+                damageTook += instance.getDamage();
 
                 if (damageTook >= HITS_THRESHOLD) {
                     hitsLeft = MAX_HITS;
@@ -129,8 +128,6 @@ public class Voidgloom extends GameEntityType<Enderman> implements Listener {
                     hitPhase = true;
                 }
             }
-
-            return null;
         }
 
         @Override

@@ -1,8 +1,7 @@
 package me.hapyl.fight.game.heroes.archive.dark_mage;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
@@ -109,12 +108,11 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
         getPlayerData(player).removeWither();
     }
 
-    @Nullable
     @Override
-    public DamageOutput processDamageAsVictim(DamageInput input) {
+    public void processDamageAsVictim(@Nonnull DamageInstance instance) {
         final ShadowClone talent = getFourthTalent();
-        final GamePlayer player = input.getEntityAsPlayer();
-        final LivingGameEntity entity = input.getDamagerAsLiving();
+        final GamePlayer player = instance.getEntityAsPlayer();
+        final LivingGameEntity entity = instance.getDamager();
         final ShadowCloneNPC clone = talent.getClone(player);
 
         // Handle passive
@@ -139,21 +137,18 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
             player.playSound(ENTITY_PLAYER_BREATH, 1.0f);
             player.playSound(ENTITY_GHAST_SCREAM, 0.75f);
 
-            return DamageOutput.CANCEL;
+            instance.setCancelled(true);
         }
-
-        return null;
     }
 
-    @Nullable
     @Override
-    public DamageOutput processDamageAsDamager(DamageInput input) {
-        final GamePlayer gamePlayer = input.getDamagerAsPlayer();
-        final LivingGameEntity entity = input.getEntity();
+    public void processDamageAsDamager(@Nonnull DamageInstance instance) {
+        final GamePlayer gamePlayer = instance.getDamagerAsPlayer();
+        final LivingGameEntity entity = instance.getEntity();
 
         // Skip witherboard damage
-        if (gamePlayer == null || input.getDamageCause() == EnumDamageCause.WITHERBORN || !input.isEntityAttack()) {
-            return null;
+        if (gamePlayer == null || instance.getCause() == EnumDamageCause.WITHERBORN || !instance.isEntityAttack()) {
+            return;
         }
 
         final WitherData data = getWither(gamePlayer);
@@ -161,8 +156,6 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
         if (data != null) {
             data.assistAttack(entity);
         }
-
-        return null;
     }
 
     @EventHandler()

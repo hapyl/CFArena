@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.pytaria;
 
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
@@ -149,11 +148,6 @@ public class Pytaria extends Hero {
                 });
             }
         }.runTaskTimer(0, 5);
-    }
-
-    @Override
-    public DamageOutput processDamageAsVictim(DamageInput input) {
-        return null;
     }
 
     public void recalculateStats(@Nonnull GamePlayer gamePlayer) {

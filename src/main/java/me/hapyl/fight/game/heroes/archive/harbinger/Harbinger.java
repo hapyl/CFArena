@@ -2,9 +2,8 @@ package me.hapyl.fight.game.heroes.archive.harbinger;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.GameDeathEvent;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.entity.EquipmentSlot;
@@ -12,12 +11,12 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.harbinger.MeleeStance;
 import me.hapyl.fight.game.talents.archive.harbinger.StanceData;
 import me.hapyl.fight.game.talents.archive.harbinger.TidalWaveTalent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.task.TimedGameTask;
@@ -42,7 +41,6 @@ import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Set;
 
 public class Harbinger extends Hero implements Listener, UIComponent, PlayerDataHandler, DisplayFieldProvider {
@@ -130,44 +128,39 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
     }
 
     @Override
-    public DamageOutput processDamageAsDamager(DamageInput input) {
-        final GamePlayer player = input.getDamagerAsPlayer();
-        final LivingGameEntity entity = input.getEntity();
+    public void processDamageAsDamager(@Nonnull DamageInstance instance) {
+        final GamePlayer player = instance.getDamagerAsPlayer();
+        final LivingGameEntity entity = instance.getEntity();
 
-        if (player == null || !input.isEntityAttack()) {
-            return DamageOutput.OK;
+        if (player == null || !instance.isEntityAttack()) {
+            return;
         }
 
         final MeleeStance stance = getFirstTalent();
         final boolean isStanceActive = stance.isActive(player);
 
         // If in melee stance only execute on CRIT
-        if (isStanceActive && input.isCrit()) {
-            addRiptide(player, input.getEntity(), meleeRiptideAmount, false);
+        if (isStanceActive && instance.isCrit()) {
+            addRiptide(player, instance.getEntity(), meleeRiptideAmount, false);
             executeRiptideSlashIfPossible(player, entity);
         }
-
-        return DamageOutput.OK;
     }
 
-    @Nullable
     @Override
-    public DamageOutput processDamageAsDamagerProjectile(DamageInput input, Projectile projectile) {
+    public void processDamageAsDamagerProjectile(@Nonnull DamageInstance instance, Projectile projectile) {
         if (!(projectile instanceof Arrow arrow) || !arrow.isCritical()) {
-            return null;
+            return;
         }
 
-        final GamePlayer player = input.getDamagerAsPlayer();
-        final LivingGameEntity entity = input.getEntity();
+        final GamePlayer player = instance.getDamagerAsPlayer();
+        final LivingGameEntity entity = instance.getEntity();
 
         if (player == null) {
-            return DamageOutput.OK;
+            return;
         }
 
         executeRiptideSlashIfPossible(player, entity);
         addRiptide(player, entity, rangeRiptideAmount, false);
-
-        return DamageOutput.OK;
     }
 
     public void executeRiptideSlashIfPossible(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity) {

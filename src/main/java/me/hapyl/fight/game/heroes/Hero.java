@@ -5,11 +5,9 @@ import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.PreferredReturnValue;
 import me.hapyl.fight.annotate.PreprocessingMethod;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
@@ -427,86 +425,31 @@ public abstract class Hero implements GameElement, PlayerElement {
     }
 
     /**
-     * Called when player DAMAGES something.
-     * <p>
-     * <h2>Examples:</h2>
-     * <blockquote>
-     * Increase OUTGOING damage by 50%:
-     * <pre>
-     *      return new DamageOutput(input.getDamage() * 1.5d);
-     * </pre>
+     * Called whenever a player who uses this hero <b>takes</b> damage.
      *
-     * </blockquote>
-     * <blockquote>
-     * Cancel OUTGOING damage:
-     * <pre>
-     *      return DamageOutput.CANCEL;
-     * </pre>
-     * </blockquote>
-     *
-     * <b>
-     * Keep in mind the player who damaged is a damager in the input, not the entity!
-     * </b>
-     *
-     * @param input - Initial damage input.
-     * @return new damage output, or null to skip.
+     * @param instance - Damage instance.
      */
-    @Nullable
-    public DamageOutput processDamageAsDamager(DamageInput input) {
-        return null;
+    @Event
+    public void processDamageAsVictim(@Nonnull DamageInstance instance) {
     }
 
     /**
-     * Called when player TAKES DAMAGE something.
-     * <p>
-     * <h2>Examples:</h2>
-     * <blockquote>
-     * Reduce INCOMING damage by 50%:
-     * <pre>
-     *      return new DamageOutput(input.getDamage() / 1.5d);
-     * </pre>
+     * Called whenever a player who uses this hero <b>deals</b> damage.
      *
-     * </blockquote>
-     * <blockquote>
-     * Cancel INCOMING damage:
-     * <pre>
-     *      return DamageOutput.CANCEL;
-     * </pre>
-     * </blockquote>
-     *
-     * @param input - Initial damage input.
-     * @return new damage output, or null to skip.
+     * @param instance - Damage instance.
      */
-    @Nullable
-    public DamageOutput processDamageAsVictim(DamageInput input) {
-        return null;
+    @Event
+    public void processDamageAsDamager(@Nonnull DamageInstance instance) {
     }
 
     /**
-     * Called when player DAMAGES something via projectile.
-     * <p>
-     * <h2>Examples:</h2>
-     * <blockquote>
-     * Increase OUTGOING damage by 50%:
-     * <pre>
-     *      return new DamageOutput(input.getDamage() * 1.5d);
-     * </pre>
+     * Called whenever a player who uses this hero <b>deals</b> damage with a {@link Projectile}.
      *
-     * </blockquote>
-     * <blockquote>
-     * Cancel OUTGOING damage:
-     * <pre>
-     *      return DamageOutput.CANCEL;
-     * </pre>
-     * </blockquote>
-     *
-     * @param input      - Initial damage input.
-     * @param projectile - Projectile that dealt damage.
-     * @return new damage output, or null to skip.
+     * @param instance   - Damage instance.
+     * @param projectile - Projectile.
      */
-    @Nullable
-    public DamageOutput processDamageAsDamagerProjectile(DamageInput input, Projectile projectile) {
-        return null;
+    @Event
+    public void processDamageAsDamagerProjectile(@Nonnull DamageInstance instance, Projectile projectile) {
     }
 
     /**

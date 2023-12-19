@@ -1,8 +1,7 @@
 package me.hapyl.fight.game.heroes.archive.ninja;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
@@ -14,10 +13,10 @@ import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.loadout.HotbarSlots;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.ninja.NinjaSmoke;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.MaterialCooldown;
@@ -161,17 +160,17 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
     }
 
     @Override
-    public DamageOutput processDamageAsDamager(DamageInput input) {
-        final GamePlayer player = input.getDamagerAsPlayer();
-        final LivingGameEntity entity = input.getEntity();
+    public void processDamageAsDamager(@Nonnull DamageInstance instance) {
+        final GamePlayer player = instance.getDamagerAsPlayer();
+        final LivingGameEntity entity = instance.getEntity();
         final NinjaWeapon weapon = getWeapon();
 
-        if (entity == player || player == null || !input.isEntityAttack() || player.hasCooldown(weapon.getMaterial())) {
-            return DamageOutput.OK;
+        if (entity == player || player == null || !instance.isEntityAttack() || player.hasCooldown(weapon.getMaterial())) {
+            return;
         }
 
         if (!player.isHeldSlot(HotbarSlots.WEAPON)) {
-            return DamageOutput.OK;
+            return;
         }
 
         weapon.noAbilityWeapon.give(player);
@@ -183,17 +182,13 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
 
         // Return task
         player.schedule(weapon::give, weapon.stunCd);
-
-        return DamageOutput.OK;
     }
 
     @Override
-    public DamageOutput processDamageAsVictim(DamageInput input) {
-        if (input.getDamageCause() == EnumDamageCause.FALL) {
-            return DamageOutput.CANCEL;
+    public void processDamageAsVictim(@Nonnull DamageInstance instance) {
+        if (instance.getCause() == EnumDamageCause.FALL) {
+            instance.setCancelled(true);
         }
-
-        return null;
     }
 
     @Override

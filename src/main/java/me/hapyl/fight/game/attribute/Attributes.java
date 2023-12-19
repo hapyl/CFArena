@@ -2,6 +2,7 @@ package me.hapyl.fight.game.attribute;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.util.WeakCopy;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.LivingEntity;
 
@@ -10,7 +11,7 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-public class Attributes {
+public class Attributes implements WeakCopy {
 
     public final static double DEFENSE_SCALING = 0.5d;
 
@@ -282,14 +283,22 @@ public class Attributes {
         return (color + character.repeat(scale)) + (ChatColor.DARK_GRAY + character.repeat(5 - scale));
     }
 
+    @Nonnull
+    @Override
+    public Attributes weakCopy() {
+        final Attributes copy = new Attributes();
+        copy.mapped.putAll(mapped);
+
+        return copy;
+    }
+
+    @Override
+    public void dispose() {
+        mapped.clear();
+    }
+
     private void setValueScaled(AttributeType type, double value) {
         set(type, type.scale(value));
     }
 
-    public static Attributes copyOf(@Nonnull Attributes attributes) {
-        final Attributes copy = new Attributes();
-        copy.mapped.putAll(attributes.mapped);
-
-        return copy;
-    }
 }

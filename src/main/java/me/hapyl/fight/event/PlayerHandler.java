@@ -19,7 +19,6 @@ import me.hapyl.fight.game.entity.ping.PlayerPing;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.loadout.HotbarLoadout;
 import me.hapyl.fight.game.loadout.HotbarSlots;
-import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.parkour.CFParkour;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.setting.Settings;
@@ -73,10 +72,9 @@ import java.util.Random;
  */
 public class PlayerHandler implements Listener {
 
+    public static final Map<PotionEffectType, AttributeType> disabledEffects = Maps.newHashMap();
     public final double RANGE_SCALE = 8.933d;
     public final double DAMAGE_LIMIT = Short.MAX_VALUE;
-
-    public static final Map<PotionEffectType, AttributeType> disabledEffects = Maps.newHashMap();
 
     public PlayerHandler() {
         disabledEffects.put(PotionEffectType.WEAKNESS, AttributeType.DEFENSE);
@@ -369,13 +367,6 @@ public class PlayerHandler implements Listener {
 
         // PRE-EVENTS TESTS, SUCH AS GAME EFFECT, ETC.
 
-        // Test for fall damage resistance
-        if (data.getLastDamageCauseNonNull() == EnumDamageCause.FALL && gameEntity.hasEffect(GameEffectType.FALL_DAMAGE_RESISTANCE)) {
-            ev.setCancelled(true);
-            gameEntity.removeEffect(GameEffectType.FALL_DAMAGE_RESISTANCE);
-            return;
-        }
-
         // Calculate base damage and find final damager
         if (ev instanceof EntityDamageByEntityEvent ev2) {
             final Entity damager = ev2.getDamager();
@@ -426,7 +417,7 @@ public class PlayerHandler implements Listener {
             }
 
             final LivingGameEntity lastDamager = data.getLastDamagerAsLiving();
-            instance.damager = lastDamager;
+            instance.setLastDamager(lastDamager);
 
             if (lastDamager instanceof GamePlayer gamePlayer && gamePlayer.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
                 final boolean cancelDamage = gamePlayer.getHero().processInvisibilityDamage(gamePlayer, gameEntity, instance.damage);
@@ -434,6 +425,7 @@ public class PlayerHandler implements Listener {
                 if (cancelDamage) {
                     ev.setDamage(0.0d);
                     ev.setCancelled(true);
+                    instance.dispose();
                     return;
                 }
             }
@@ -445,6 +437,7 @@ public class PlayerHandler implements Listener {
                 lastDamager.sendMessage("&cCannot damage teammates!");
                 ev.setCancelled(true);
                 ev.setDamage(0.0d);
+                instance.dispose();
                 return;
             }
 
@@ -457,13 +450,20 @@ public class PlayerHandler implements Listener {
             }
         }
 
+        // CALL DAMAGE EVENT BEFORE CALCULATING ATTRIBUTES
+        if (new GameDamageEvent(instance).callAndCheck()) {
+            ev.setCancelled(true);
+            instance.dispose();
+            return;
+        }
+
         // CALCULATE DAMAGE USING ATTRIBUTES
 
         // Outgoing damage
-        final LivingGameEntity lastDamager = data.getLastDamagerAsLiving();
+        final InstanceEntityData damagerData = instance.getDamagerData();
 
-        if (lastDamager != null) {
-            final EntityAttributes attributes = lastDamager.getAttributes();
+        if (damagerData != null) {
+            final EntityAttributes attributes = damagerData.getAttributes();
             final CriticalResponse criticalResponse = attributes.calculateOutgoingDamage(instance.damage, data.getLastDamageCause());
 
             instance.damage = criticalResponse.damage();
@@ -471,7 +471,9 @@ public class PlayerHandler implements Listener {
         }
 
         // Incoming damage
-        final EntityAttributes attributes = gameEntity.getAttributes();
+        final InstanceEntityData entityData = instance.getEntityData();
+        final EntityAttributes attributes = entityData.getAttributes();
+
         instance.damage = attributes.calculateIncomingDamage(instance.damage);
 
         // Don't allow negative damage
@@ -483,6 +485,7 @@ public class PlayerHandler implements Listener {
         if (instance.damage > 0 && attributes.calculateDodge()) {
             ev.setCancelled(true);
             gameEntity.playDodgeFx();
+            instance.dispose();
             return;
         }
 
@@ -490,43 +493,40 @@ public class PlayerHandler implements Listener {
 
         // As victim
         if (gameEntity instanceof GamePlayer player) {
-            instance.fromOutput(player.getHero().processDamageAsVictim(instance.toInput()));
+            player.getHero().processDamageAsVictim(instance);
         }
 
         // As damager
-        if (data.getLastDamager() instanceof GamePlayer player) {
-            instance.fromOutput(player.getHero().processDamageAsDamager(instance.toInput()));
+        final LivingGameEntity lastDamager = instance.getDamager();
+
+        if (lastDamager instanceof GamePlayer player) {
+            player.getHero().processDamageAsDamager(instance);
         }
 
         // As projectile
-        if (data.getLastDamager() instanceof GamePlayer player && finalProjectile != null) { //  && Manager.current().isGameInProgress()
-            instance.fromOutput(player.getHero().processDamageAsDamagerProjectile(instance.toInput(), finalProjectile));
+        if (lastDamager instanceof GamePlayer player && finalProjectile != null) {
+            player.getHero().processDamageAsDamagerProjectile(instance, finalProjectile);
         }
 
         // PROCESS GAME ENTITY DAMAGE
-        instance.fromOutput(gameEntity.onDamageTaken0(instance.toInput()));
+        gameEntity.onDamageTaken0(instance);
 
         if (lastDamager != null) {
-            instance.fromOutput(lastDamager.onDamageDealt0(instance.toInput()));
+            lastDamager.onDamageDealt0(instance);
         }
 
-        // PROCESS MAP DAMAGE
-        final GameMaps currentMap = Manager.current().getCurrentMap();
-
-        instance.fromOutput(currentMap.getMap().onDamageTaken(instance.toInput()));
-        instance.fromOutput(currentMap.getMap().onDamageDealt(instance.toInput()));
-
-        if (instance.isCancel()) {
+        if (instance.isCancelled()) {
             ev.setCancelled(true);
+            instance.dispose();
             return;
         }
 
         // Ferocity
-        if (lastDamager != null
+        if (damagerData != null
                 && (instance.cause != null
                 && instance.cause.isAllowedForFerocity())
                 && !gameEntity.hasCooldown(Cooldown.FEROCITY)) {
-            final EntityAttributes damagerAttributes = lastDamager.getAttributes();
+            final EntityAttributes damagerAttributes = damagerData.getAttributes();
             final int ferocityStrikes = damagerAttributes.getFerocityStrikes();
 
             if (ferocityStrikes > 0) {
@@ -540,15 +540,6 @@ public class PlayerHandler implements Listener {
         // Store data in DamageData
         data.setLastDamage(instance.damage);
         data.setCrit(instance.isCrit);
-
-        // CALL DAMAGE EVENT
-        final GameDamageEvent event = instance.toEvent();
-        Bukkit.getPluginManager().callEvent(event);
-
-        if (event.isCancelled()) {
-            ev.setCancelled(true);
-            return;
-        }
 
         // Process true damage
         if (instance.cause.isTrueDamage()) {
@@ -595,6 +586,8 @@ public class PlayerHandler implements Listener {
                 ev.setCancelled(true);
             }
         }
+
+        instance.dispose();
     }
 
     // A little wonky implementation, but it allows damaging endermen with arrows.

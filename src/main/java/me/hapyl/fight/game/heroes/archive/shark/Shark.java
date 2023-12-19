@@ -1,8 +1,7 @@
 package me.hapyl.fight.game.heroes.archive.shark;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -120,20 +119,18 @@ public class Shark extends Hero implements Listener {
     }
 
     @Override
-    public DamageOutput processDamageAsDamager(DamageInput input) {
-        final GamePlayer player = input.getDamagerAsPlayer();
-        final LivingGameEntity entity = input.getEntity();
+    public void processDamageAsDamager(@Nonnull DamageInstance instance) {
+        final GamePlayer player = instance.getDamagerAsPlayer();
+        final LivingGameEntity entity = instance.getEntity();
 
         if (player == null || player.hasCooldown(getPassiveTalent().getMaterial()) || entity.equals(player)) {
-            return null;
+            return;
         }
 
-        if (input.isCrit()) {
+        if (instance.isCrit()) {
             player.setCooldown(getPassiveTalent().getMaterial(), 20 * 5);
-            performCriticalHit(input.getEntityAsPlayer(), entity);
+            performCriticalHit(instance.getEntityAsPlayer(), entity);
         }
-
-        return null;
     }
 
     public void performCriticalHit(GamePlayer player, LivingGameEntity entity) {

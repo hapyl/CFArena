@@ -3,9 +3,6 @@ package me.hapyl.fight.game.maps;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
-import me.hapyl.fight.game.EntityElement;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.StaticServerEvent;
@@ -21,18 +18,17 @@ import me.hapyl.spigotutils.module.util.CollectionUtils;
 import org.bukkit.*;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 
-public class GameMap implements GameElement, PlayerElement, EntityElement {
+public class GameMap implements GameElement, PlayerElement {
 
     private final String name;
 
-    private final List<PredicateLocation> locations;
+    private final List<PredicateLocation<?>> locations;
 
     private final Map<PackType, GamePack> gamePacks;
     private final List<MapFeature> features;
@@ -258,7 +254,10 @@ public class GameMap implements GameElement, PlayerElement, EntityElement {
 
         int tries = 0;
         while (tries++ < Byte.MAX_VALUE) {
-            final PredicateLocation<GameMap> predicateLocation = CollectionUtils.randomElement(locations, locations.get(0));
+            final PredicateLocation<GameMap> predicateLocation = (PredicateLocation<GameMap>) CollectionUtils.randomElement(
+                    locations,
+                    locations.get(0)
+            );
 
             if (predicateLocation.predicate(this)) {
                 return predicateLocation.getLocation();
@@ -338,18 +337,6 @@ public class GameMap implements GameElement, PlayerElement, EntityElement {
 
     public Collection<GamePack> getGamePacks() {
         return gamePacks.values();
-    }
-
-    @Nullable
-    @Override
-    public DamageOutput onDamageTaken(@Nonnull DamageInput input) {
-        return null;
-    }
-
-    @Nullable
-    @Override
-    public DamageOutput onDamageDealt(@Nonnull DamageInput input) {
-        return null;
     }
 
     private Location createLocation(double x, double y, double z, float yaw, float pitch) {

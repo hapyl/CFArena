@@ -3,18 +3,17 @@ package me.hapyl.fight.game.heroes.archive.juju;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
 import me.hapyl.fight.game.entity.EquipmentSlot;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.juju.ArrowShield;
 import me.hapyl.fight.game.talents.archive.juju.TricksOfTheJungle;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComplexComponent;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -313,17 +312,15 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
     }
 
     @Override
-    public DamageOutput processDamageAsVictim(DamageInput input) {
+    public void processDamageAsVictim(@Nonnull DamageInstance instance) {
         final ArrowShield shield = getFirstTalent();
-        final GamePlayer player = input.getEntityAsPlayer();
+        final GamePlayer player = instance.getEntityAsPlayer();
 
         if (shield.getCharges(player) > 0) {
             shield.removeCharge(player);
 
-            return DamageOutput.CANCEL;
+            instance.setCancelled(true);
         }
-
-        return null;
     }
 
     @Override

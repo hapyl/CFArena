@@ -538,20 +538,21 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         final Player player = getPlayer();
 
         if (shield != null) {
-            final double capacityAfterHit = shield.takeDamage0(instance.damage);
+            final double damage = instance.getDamage();
+            final double capacityAfterHit = shield.takeDamage0(damage);
 
             // Always display shield damage
-            if (instance.damage > 0) {
-                new AscendingDisplay("&e🛡 &6%.0f".formatted(instance.damage), 20).display(player.getEyeLocation());
+            if (damage > 0) {
+                new AscendingDisplay("&e🛡 &6%.0f".formatted(damage), 20).display(player.getEyeLocation());
             }
 
             // Shield took damage
             if (capacityAfterHit > 0) {
-                instance.damage = 0;
+                instance.setDamage(0);
             }
             // Shield broke
             else {
-                instance.damage = -capacityAfterHit;
+                instance.setDamage(-capacityAfterHit);
 
                 shield.onBreak0();
                 shield = null;

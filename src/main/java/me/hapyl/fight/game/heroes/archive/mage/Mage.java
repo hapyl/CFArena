@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.mage;
 
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
@@ -75,16 +74,15 @@ public class Mage extends Hero implements UIComponent {
     }
 
     @Override
-    public DamageOutput processDamageAsDamager(DamageInput input) {
-        final LivingGameEntity victim = input.getEntity();
-        final GamePlayer player = input.getDamagerAsPlayer();
+    public void processDamageAsDamager(@Nonnull DamageInstance instance) {
+        final LivingGameEntity victim = instance.getEntity();
+        final GamePlayer player = instance.getDamagerAsPlayer();
 
         if (!victim.hasTag("LastDamage=Soul")) {
             addSouls(player, 1);
         }
 
         victim.removeTag("LastDamage=Soul");
-        return null;
     }
 
     @Override

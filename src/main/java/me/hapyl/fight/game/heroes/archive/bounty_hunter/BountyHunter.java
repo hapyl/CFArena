@@ -2,8 +2,7 @@ package me.hapyl.fight.game.heroes.archive.bounty_hunter;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.StrictTalentPlacement;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.color.Color;
@@ -97,19 +96,16 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
         copyDisplayFieldsTo(getUltimate());
     }
 
-    @Nullable
     @Override
-    public DamageOutput processDamageAsVictim(DamageInput input) {
-        final GamePlayer player = input.getEntityAsPlayer();
-        final double damage = input.getDamage();
+    public void processDamageAsVictim(@Nonnull DamageInstance instance) {
+        final GamePlayer player = instance.getEntityAsPlayer();
+        final double damage = instance.getDamage();
         final double health = player.getHealth();
 
         if (health > 50 && (health - damage <= (player.getMaxHealth() / 2.0d))) {
             player.setItem(HotbarSlots.HERO_ITEM, smokeBomb);
             player.sendTitle("&7💣", "&e&lSMOKE BOMB TRIGGERED", 5, 20, 5);
         }
-
-        return null;
     }
 
     @Override

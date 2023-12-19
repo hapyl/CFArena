@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.witcher;
 
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
@@ -74,7 +73,7 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
         kven.startCd(player, 10000);
         irden.startCd(player, 10000);
 
-        attributes.increaseTemporary(Temper.WITCHER, AttributeType.DEFENSE, 1.0d, getUltimateDuration());
+        attributes.increaseTemporary(Temper.WITCHER, AttributeType.DEFENSE, defenseIncrease, getUltimateDuration());
 
         new PlayerTimedGameTask(player, Heroes.WITCHER, getUltimate()) {
             @Override
@@ -107,16 +106,16 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
     }
 
     @Override
-    public DamageOutput processDamageAsDamager(DamageInput input) {
-        final GamePlayer player = input.getDamagerAsPlayer();
-        final LivingGameEntity entity = input.getEntity();
+    public void processDamageAsDamager(@Nonnull DamageInstance instance) {
+        final GamePlayer player = instance.getDamagerAsPlayer();
+        final LivingGameEntity entity = instance.getEntity();
 
         if (player == null) {
-            return null;
+            return;
         }
 
         final Combo combo = getCombo(player);
-        double damage = input.getDamage();
+        double damage = instance.getDamage();
 
         if (combo.getEntity() == null && entity != player) {
             combo.setEntity(entity.getEntity());
@@ -131,7 +130,7 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
         }
         else {
             combo.reset();
-            return null;
+            return;
         }
 
         final int comboHits = combo.getCombo();
@@ -145,20 +144,19 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
             player.playSound(Sound.ITEM_SHIELD_BREAK, 1.75f);
         }
 
-        return new DamageOutput(damage);
+        instance.setDamage(damage);
     }
 
     @Override
-    public DamageOutput processDamageAsVictim(DamageInput input) {
+    public void processDamageAsVictim(@Nonnull DamageInstance instance) {
         final Kven kven = getThirdTalent();
-        final GamePlayer player = input.getEntityAsPlayer();
+        final GamePlayer player = instance.getEntityAsPlayer();
 
         if (kven.getShieldCharge(player) > 0) {
             kven.removeShieldCharge(player);
 
-            return DamageOutput.CANCEL;
+            instance.setCancelled(true);
         }
-        return null;
     }
 
     @Override

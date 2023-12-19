@@ -141,6 +141,14 @@ public final class AttributeTemperTable implements Iterable<TemperData> {
         attributeTempers.forEach(AttributeTemper::cancel);
     }
 
+    public void putAll(@Nonnull AttributeTemperTable table) {
+        tempers.putAll(table.tempers);
+    }
+
+    public void clear() {
+        tempers.clear();
+    }
+
     private void remove(@Nonnull Temper temper, @Nonnull AttributeType type) {
         final AttributeTemper remove = tempers.remove(temper, type);
 
