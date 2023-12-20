@@ -46,6 +46,8 @@
 * Passive idea for tank or support maybe
 - When hit and damage is NOT leathal but under like 5% of health = heal. Cd ofc
 
+- Museum
+
 ####################################################################
 
 Bugs:

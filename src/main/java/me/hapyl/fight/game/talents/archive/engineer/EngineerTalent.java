@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.talents.archive.engineer;
 
-import com.mojang.datafixers.kinds.Const;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -28,7 +27,9 @@ public abstract class EngineerTalent extends Talent {
     public abstract Construct create(@Nonnull GamePlayer player, @Nonnull Location location);
 
     @Nonnull
-    public abstract Response predicate(@Nonnull GamePlayer player, @Nonnull Location location);
+    public Response predicate(@Nonnull GamePlayer player, @Nonnull Location location) {
+        return Response.OK;
+    }
 
     @Override
     public final Response execute(@Nonnull GamePlayer player) {

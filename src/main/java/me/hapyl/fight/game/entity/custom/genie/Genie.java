@@ -58,7 +58,7 @@ public class Genie extends GameEntityType<Husk> {
             child = CF.createEntity(location, Entities.HUSK, new ConsumerFunction<>() {
                 @Nonnull
                 @Override
-                public LivingGameEntity apply(Husk husk) {
+                public LivingGameEntity apply(@Nonnull Husk husk) {
                     husk.setBaby();
                     husk.setInvisible(true);
                     husk.setInvulnerable(true);

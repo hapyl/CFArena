@@ -123,7 +123,7 @@ public class Pytaria extends Hero {
                 final double healingAmount = (maxHealth - health) * healthRegenPercent / maxHealth;
 
                 player.heal(healingAmount);
-                player.sendMessage("&6🐝 &aHealed for &c&l%s&c❤&a!", healingAmount);
+                player.sendMessage("&6🐝 &aHealed for &c&l%.0f&c❤&a!", healingAmount);
 
                 // Fx
                 PlayerLib.stopSound(Sound.ENTITY_BEE_LOOP_AGGRESSIVE);

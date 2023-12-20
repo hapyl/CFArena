@@ -1,34 +1,35 @@
 package me.hapyl.fight.game.talents.archive.engineer;
 
-import me.hapyl.fight.CF;
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.RaycastTask;
-import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.entity.ArmorStand;
 
 import javax.annotation.Nonnull;
 
 public class EngineerTurret extends EngineerTalent {
+
+    // This field delegates to the Sentry class,
+    // it's quite clear what damage it is, unless
+    // there are more causes of damage
     @DisplayField
-    private final double sDamage = 5;
+    private final double damage = 5; // prev: sDamage
+    @DisplayField private final double radius = 16;
+    @DisplayField private int delayBetweenShots = 20;
+
     public EngineerTurret() {
         super("Sentry", 6);
 
         setDescription("""
-                Create a Sentry.
-                It will shoot any player it sees!
+                Create a &cSentry&7 that will shoot the &enearest &cenemy&7.
                 """);
 
         setItem(Material.NETHERITE_SCRAP);
@@ -41,18 +42,15 @@ public class EngineerTurret extends EngineerTalent {
         return new Construct(player, location, this) {
             @Override
             public void onCreate() {
-
-          //      stand.setHelmet(new ItemStack(Material.END_ROD));
-                // hapyl, no
-
-
             }
 
+            @Nonnull
             @Override
             public ImmutableArray<Double> healthScaled() {
                 return ImmutableArray.of(15d, 25d, 35d, 45d);
             }
 
+            @Nonnull
             @Override
             public ImmutableArray<Integer> durationScaled() {
                 return ImmutableArray.of(15, 25, 35, 45);
@@ -60,81 +58,70 @@ public class EngineerTurret extends EngineerTalent {
 
             @Override
             public void onDestroy() {
-                player.sendMessage("&cYour previous &lSentry &cwas destroyed!");
             }
 
             @Override
             public void onTick() {
-                if(modulo(20)) {
-
-                    LivingGameEntity nearestEntity = Collect.nearestEntity(location, 16, livingGameEntity -> {
-                        if (livingGameEntity.equals(player)) {
-                            return false;
-                        }
-                        if (!livingGameEntity.hasLineOfSight(stand)) {
-                            return false;
-                        }
-                        if (player.isTeammate(livingGameEntity)) {
-                            return false;
-                        }
-                        return true;
-
-                    });
-
-                    if (nearestEntity == null) {
-                        return;
+                final LivingGameEntity nearestEntity = Collect.nearestEntity(location, radius, entity -> {
+                    if (player.isSelfOrTeammate(entity)) {
+                        return false;
                     }
-                    CFUtils.lookAt(stand, nearestEntity.getLocation());
-                    new RaycastTask(stand.getLocation().add(0.00d, 1.5d, 0.00d)) {
 
-                        @Override
-                        public boolean predicate(@Nonnull Location location) {
-                            final Block block = location.getBlock();
-                            final Material type = block.getType();
+                    return entity.hasLineOfSight(this.entity.getEntity());
+                });
+
+                // Rotate if there are no entities
+                if (nearestEntity == null) {
+                    final ArmorStand stand = entity.getStand();
+                    final Location location = stand.getLocation();
+                    location.setYaw(location.getYaw() + 5);
+
+                    stand.teleport(location);
+                    return;
+                }
+
+                if (!modulo(delayBetweenShots)) {
+                    return;
+                }
+
+                entity.lookAt(nearestEntity.getLocation());
+
+                new RaycastTask(entity.getLocation().add(0.00d, 1.5d, 0.00d)) {
+
+                    @Override
+                    public boolean predicate(@Nonnull Location location) {
+                        final Block block = location.getBlock();
+                        final Material type = block.getType();
 
 
-                            return !type.isOccluding();
+                        return !type.isOccluding();
+                    }
+
+                    @Override
+                    public boolean step(@Nonnull Location location) {
+                        player.spawnWorldParticle(location, Particle.CRIT_MAGIC, 1);
+
+                        // Hit detection
+                        final LivingGameEntity targetEntity = Collect.nearestEntity(location, 1, entity -> {
+                            return !player.isSelfOrTeammate(entity);
+                        });
+
+                        if (targetEntity == null) {
+                            return false;
                         }
 
-                        @Override
-                        public boolean step(@Nonnull Location location) {
-                            PlayerLib.spawnParticle(location, Particle.CRIT_MAGIC, 1);
+                        targetEntity.damage(damage, player, EnumDamageCause.SENTRY_SHOT);
+                        return true;
+                    }
+                }.runTaskTimer(0, 1);
 
-                            LivingGameEntity targetEntity = Collect.nearestEntity(location, 1, livingGameEntity -> {
-                                if (livingGameEntity.equals(player)) {
-                                    return false;
-                                }
-                                if (player.isTeammate(livingGameEntity)) {
-                                    return false;
-                                }
-                                return true;
-                            });
-
-                            if (targetEntity == null) {
-                                return false;
-                            }
-
-                            targetEntity.damage(sDamage, player, EnumDamageCause.SENTRY_SHOT);
-                            return true;
-                        }
-                    }.runTaskTimer(0, 1);
-
-                }
-                else{
-                    Location standLocation = stand.getLocation();
-                    standLocation.setYaw(standLocation.getYaw()+1);
-                    stand.teleport(standLocation);
-                }
+                // Fx
+                player.playWorldSound(location, Sound.ENTITY_BLAZE_SHOOT, 1.25f);
+                player.playWorldSound(location, Sound.ENTITY_BLAZE_SHOOT, 2.0f);
             }
         };
 
     }
 
 
-
-    @Nonnull
-    @Override
-    public Response predicate(@Nonnull GamePlayer player, @Nonnull Location location) {
-        return Response.OK;
-    }
 }

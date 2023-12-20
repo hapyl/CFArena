@@ -155,7 +155,7 @@ public final class CF {
      */
     @Nonnull
     public static <T extends LivingEntity, E extends GameEntity> E createEntity(@Nonnull Location location, @Nonnull Entities<T> type, @Nonnull ConsumerFunction<T, E> consumer) {
-        return Manager.current().createEntity(type.spawn(location, self -> Manager.current().addIgnored(self)), consumer);
+        return Manager.current().createEntity(location, type, consumer);
     }
 
     @Nonnull

@@ -44,6 +44,7 @@ import me.hapyl.fight.game.heroes.archive.bloodfield.BloodfiendData;
 import me.hapyl.fight.game.heroes.archive.dark_mage.AnimatedWither;
 import me.hapyl.fight.game.heroes.archive.doctor.ElementType;
 import me.hapyl.fight.game.heroes.archive.engineer.Engineer;
+import me.hapyl.fight.game.heroes.archive.engineer.EngineerData;
 import me.hapyl.fight.game.heroes.archive.moonwalker.Moonwalker;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.lobby.LobbyItems;
@@ -922,6 +923,18 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     livingGameEntity.addPotionEffect(PotionEffectType.GLOWING, 60, 1);
                 }
             }
+        });
+
+        register("rechargeIron", (player, args) -> {
+            final GamePlayer gamePlayer = CF.getPlayer(player);
+
+            if (gamePlayer == null) {
+                Chat.sendMessage(player, "&cNot in a game!");
+                return;
+            }
+
+            Heroes.ENGINEER.getHero(Engineer.class).getPlayerData(gamePlayer).setIron(Engineer.MAX_IRON);
+            Chat.sendMessage(player, "&aRecharged!");
         });
 
         register("setHeroSkin", (player, args) -> {

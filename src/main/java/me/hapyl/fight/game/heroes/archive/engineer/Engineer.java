@@ -1,128 +1,180 @@
 package me.hapyl.fight.game.heroes.archive.engineer;
 
-import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.EntityAttributes;
-import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.UltimateCallback;
+import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.engineer.Construct;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.collection.player.PlayerMap;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.math.Numbers;
+import me.hapyl.fight.util.displayfield.DisplayField;
+import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.entity.Entity;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class Engineer extends Hero implements Listener {
+public class Engineer extends Hero implements Listener, PlayerDataHandler, UIComponent, DisplayFieldProvider {
 
-    public final int IRON_RECHARGE_RATE = 60;
-    public final int MAX_IRON = 10;
+    public static final int MAX_IRON = 10;
 
-    private final Weapon ironFist = new Weapon(Material.IRON_BLOCK).setDamage(10.0d).setName("&6&lIron Fist");
-    private final int Hitcd = 5;
-    public final PlayerMap<Construct> constructs = PlayerMap.newMap();
-    private final PlayerMap<Integer> playerIron = PlayerMap.newMap();
+    @DisplayField public final double ultimateInWaterDamage = 10;
+    @DisplayField public final int ultimateHitCd = 5; // Follow java camelCase; Name too generic, hit cd of what?; prev: Hitcd
+
+    public final Weapon ironFist = new Weapon(Material.IRON_BLOCK).setDamage(10.0d).setName("&6&lIron Fist");
+
+    private final int ironRechargeRate = 60;
+    private final PlayerMap<EngineerData> playerData = PlayerMap.newMap();
 
     public Engineer() {
-        super("Engineer",
-                """
-            A Genius with 12 PHDs. All of his buildings were made by himself. Though, he uses just 2 of those.
-            And your best hope - Not pointed at you.""", Material.IRON_INGOT);
+        super("Engineer", """
+                A Genius with 12 PHDs. He made all of his buildings himself. Though, he uses just two of those.
+                And your best hope - Not pointed at you.
+                """, Material.IRON_INGOT
+        );
 
         setArchetype(Archetype.STRATEGY);
 
         setItem("55f0bfea3071a0eb37bcc2ca6126a8bdd79b79947734d86e26e4d4f4c7aa9");
-        setWeapon(new Weapon(Material.IRON_HOE).setName("Prototype Wrench").setDescription("""
-                A Prototype Wrench for all the needs.
-                It.. Probably hurts to be hit with it.""").setDamage(5.0d));
+        setWeapon(new Weapon(Material.IRON_HOE)
+                .setName("Prototype Wrench")
+                .setDescription("""
+                        A Prototype Wrench for all the needs.
+                        It... Probably hurts to be hit with it."""
+                ).setDamage(5.0d));
 
-            final Equipment equipment = getEquipment();
-              equipment.setChestPlate(255, 0, 0);
-             equipment.setLeggings(0, 0, 0);
-             equipment.setBoots(0, 0, 0);
-
-
+        final Equipment equipment = getEquipment();
+        equipment.setChestPlate(255, 0, 0);
+        equipment.setLeggings(0, 0, 0);
+        equipment.setBoots(0, 0, 0);
 
         setUltimate(new UltimateTalent(
-                "Mecha-Industries",
-                """
-                        Create a Big Boss and get ready for a fight!
-                         &lBig Boss &7 has more HP and more Attack Stats. 
-                         However, it doesn't really like water..""",
-                70
+                "Mecha-Industries", """
+                Instantly create a &fmech suit&7 and pilot it for {duration}.
+                                
+                The suit provides &cattack&7 power.
+                &8;;Looks like a wire sticking out of it, probably should keep away from water.
+                """, 70
         ).setItem(Material.IRON_SWORD)
                 .setDurationSec(25)
                 .setCooldownSec(35)
                 .setSound(Sound.BLOCK_ANVIL_USE, 0.25f));
 
+        copyDisplayFieldsToUltimate();
     }
 
+    @EventHandler()
+    public void handleEntityInteractEvent(PlayerInteractAtEntityEvent ev) {
+        final GamePlayer player = CF.getPlayer(ev.getPlayer());
+        final EquipmentSlot hand = ev.getHand();
+        final Material cooldownMaterial = getPassiveTalent().getMaterial();
+
+        if (player == null || !validatePlayer(player) || hand == EquipmentSlot.OFF_HAND) {
+            return;
+        }
+
+        final ItemStack heldItem = player.getHeldItem();
+
+        // Didn't click with iron
+        if (heldItem.getType() != cooldownMaterial) {
+            return;
+        }
+
+        final Entity entity = ev.getRightClicked();
+        final EngineerData data = getPlayerData(player);
+        final Construct construct = data.getConstruct();
+
+        if (construct == null || !construct.getEntity().getEntity().equals(entity)) {
+            return;
+        }
+
+        // internal cd
+        if (player.hasCooldown(cooldownMaterial)) {
+            return;
+        }
+
+        player.setCooldown(cooldownMaterial, 10);
+
+        final int iron = data.getIron();
+
+        if (iron < construct.getUpgradeCost()) {
+            player.sendMessage("&6&l🔧 &cNot enough iron to upgrade!");
+            return;
+        }
+
+        if (!construct.levelUp()) {
+            return;
+        }
+
+        data.subtractIron(iron);
+    }
 
     @Override
     public void onDeath(@Nonnull GamePlayer player) {
-        Nulls.runIfNotNull(constructs.remove(player), Construct::remove);
-
-        playerIron.remove(player);
+        playerData.removeAnd(player, EngineerData::remove);
     }
 
     @Nullable
     public Construct getConstruct(GamePlayer player) {
-        return constructs.get(player);
+        return getPlayerData(player).getConstruct();
     }
 
-    /**
-     * This removes the current construct if exists and refunds 50% of the cost.
-     *
-     * @param player - Player.
-     */
-    public void destruct(GamePlayer player) {
-        final Construct construct = constructs.remove(player);
+    @EventHandler()
+    public void handlePlayerSwing(PlayerInteractEvent ev) {
+        final GamePlayer player = CF.getPlayer(ev.getPlayer());
+        final Action action = ev.getAction();
 
-        if (construct == null) {
+        if (ev.getHand() == EquipmentSlot.OFF_HAND) {
             return;
         }
 
-        Heroes.ENGINEER.getHero(Engineer.class).addIron(player, (int) (construct.getCost() * 0.25));
-        construct.remove();
+        if (action != Action.LEFT_CLICK_BLOCK && action != Action.LEFT_CLICK_AIR) {
+            return;
+        }
+
+        swingMechaHand(player);
+    }
+
+    @Override
+    public void processDamageAsDamager(@Nonnull DamageInstance instance) {
+        final GamePlayer damager = instance.getDamagerAsPlayer();
+
+        swingMechaHand(damager);
+    }
+
+    @Override
+    public boolean processInvisibilityDamage(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity, double damage) {
+        return !isUsingUltimate(player);
     }
 
     @Override
     public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        player.setItemAndSnap(HotbarSlots.TALENT_4, ironFist.getItem());
-        player.setCooldown(ironFist.getMaterial(), Hitcd);
+        final EngineerData data = getPlayerData(player);
+        data.createMechaIndustries(this);
 
-        int ultimateDuration = getUltimateDuration();
+        player.schedule(data::removeMechaIndustries, getUltimateDuration());
 
-        EntityAttributes ultAttributes = player.getAttributes();
-        ultAttributes.increaseTemporary(Temper.MECHA_INDUSTRY, AttributeType.MAX_HEALTH, 120.0d, ultimateDuration);
-        ultAttributes.decreaseTemporary(Temper.MECHA_INDUSTRY, AttributeType.SPEED, 0.05d, ultimateDuration);
-        ultAttributes.increaseTemporary(Temper.MECHA_INDUSTRY, AttributeType.DEFENSE, 1.0d, ultimateDuration);
-
-
-        GameTask.runLater(() -> {
-            player.setItem(HotbarSlots.TALENT_4, null);
-            player.snapToWeapon();
-        }, ultimateDuration);
         return UltimateCallback.OK;
     }
 
     public int getIron(GamePlayer player) {
-        return playerIron.computeIfAbsent(player, v -> 0);
+        return getPlayerData(player).getIron();
     }
 
     public void subtractIron(GamePlayer player, int amount) {
@@ -130,16 +182,7 @@ public class Engineer extends Hero implements Listener {
     }
 
     public void addIron(GamePlayer player, int amount) {
-        playerIron.compute(player, (p, i) -> Numbers.clamp(i == null ? amount : i + amount, 0, MAX_IRON));
-        updateIron(player);
-    }
-
-    public void updateIron(GamePlayer player) {
-        final PlayerInventory inventory = player.getInventory();
-
-        player.setItem(HotbarSlots.HERO_ITEM, ItemBuilder.of(Material.IRON_INGOT, "&aIron", "Your iron to build your structures!")
-                .setAmount(playerIron.getOrDefault(player, 1))
-                .asIcon());
+        getPlayerData(player).addIron(amount);
     }
 
     @Override
@@ -147,21 +190,14 @@ public class Engineer extends Hero implements Listener {
         new GameTask() {
             @Override
             public void run() {
-                Heroes.ENGINEER.getAlivePlayers().forEach(player -> {
-                    addIron(player, 1);
-
-                    if (!player.getPlayer().isInWater()) {
-                        return;
-                    }
-
-
-                    if(!isUsingUltimate(player)){
-                        return;
-                    }
-                    player.damage(10.0d);
-                });
+                Heroes.ENGINEER.getAlivePlayers().forEach(player -> addIron(player, 1));
             }
-        }.runTaskTimer(IRON_RECHARGE_RATE, IRON_RECHARGE_RATE);
+        }.runTaskTimer(ironRechargeRate, ironRechargeRate);
+    }
+
+    @Override
+    public void onStop() {
+        playerData.forEachAndClear(EngineerData::remove);
     }
 
     @Override
@@ -185,27 +221,40 @@ public class Engineer extends Hero implements Listener {
         return Talents.ENGINEER_PASSIVE.getTalent();
     }
 
-    @Nullable
-    public Construct removeConstruct(GamePlayer player) {
-        final Construct construct = constructs.remove(player);
+    public void removeConstruct(@Nonnull GamePlayer player) {
+        final EngineerData data = getPlayerData(player);
+        final Construct construct = data.setConstruct(null);
 
         if (construct == null) {
-            return null;
+            return;
         }
 
         construct.remove();
-     //   player.sendMessage("&aYour previous %s was removed!", construct.getName());
-        return construct;
     }
 
-    @Override
-    public void onStop() {
-        playerIron.clear();
-        constructs.clear();
-    }
+    public void setConstruct(@Nonnull GamePlayer player, @Nonnull Construct construct) {
+        final EngineerData data = getPlayerData(player);
 
-    public void setConstruct(GamePlayer player, Construct construct) {
-        constructs.put(player, construct);
+        data.setConstruct(construct);
         construct.runTaskTimer(0, 1);
+    }
+
+    @Nonnull
+    @Override
+    public EngineerData getPlayerData(@Nonnull GamePlayer player) {
+        return playerData.computeIfAbsent(player, fn -> new EngineerData(player, this));
+    }
+
+    @Nonnull
+    @Override
+    public String getString(@Nonnull GamePlayer player) {
+        final EngineerData data = getPlayerData(player);
+        final MechaIndustries mecha = data.getMechaIndustries();
+
+        return mecha != null ? mecha.toString() : "";
+    }
+
+    private void swingMechaHand(GamePlayer player) {
+        getPlayerData(player).swingMechaIndustriesHand();
     }
 }

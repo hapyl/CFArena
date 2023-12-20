@@ -224,7 +224,11 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
 
         // Winery
         registerRelic(600, new Relic(Type.SAPPHIRE, 231, 62, 216).setZone(GameMaps.WINERY));
-        registerRelic(601, new Relic(Type.DIAMOND, 223, 62, 190).setZone(GameMaps.WINERY).setBlockFace(13));
+        registerRelic(601, new Relic(Type.DIAMOND, 223, 62, 190).setZone(GameMaps.WINERY).setBlockFace(BlockFace.EAST_SOUTH_EAST));
+
+        // Library
+        registerRelic(700, new Relic(Type.AMETHYST, -21, 78, -119).setZone(GameMaps.LIBRARY).setBlockFace(BlockFace.SOUTH_WEST));
+        registerRelic(701, new Relic(Type.DIAMOND, 18, 72, -115).setZone(GameMaps.LIBRARY).setBlockFace(BlockFace.NORTH_EAST));
     }
 
     private <K, V> void computeMapList(final Map<K, List<V>> map, K key, final Consumer<List<V>> consumer) {

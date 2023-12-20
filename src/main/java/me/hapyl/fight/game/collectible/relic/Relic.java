@@ -10,6 +10,8 @@ import org.bukkit.Sound;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
+
 public class Relic {
 
     private final Type type;
@@ -47,6 +49,10 @@ public class Relic {
         return this;
     }
 
+    public BlockFace getBlockFace() {
+        return blockFace;
+    }
+
     /**
      * @see #setBlockFace(BlockFace)
      * @deprecated magic numbers
@@ -56,13 +62,16 @@ public class Relic {
         return setBlockFace(BlockFaceInt.get(rotation));
     }
 
-    public Relic setBlockFace(BlockFace blockFace) {
+    /**
+     * Sets this relic direction.
+     * <p>
+     * <code>/skullblockface</code> in game to get the direction.
+     *
+     * @param blockFace - New block face.
+     */
+    public Relic setBlockFace(@Nonnull BlockFace blockFace) {
         this.blockFace = blockFace;
         return this;
-    }
-
-    public BlockFace getBlockFace() {
-        return blockFace;
     }
 
     public int getId() {

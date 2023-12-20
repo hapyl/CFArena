@@ -290,6 +290,10 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         return data != null ? data.getTimeLeft() : 0;
     }
 
+    public boolean isInWater() {
+        return entity.isInWater();
+    }
+
     private void setInternalNoDamageTicks(int ticks) {
         cooldown.startCooldown(Cooldown.NO_DAMAGE, ticks * 50L);
     }

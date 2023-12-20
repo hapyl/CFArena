@@ -71,8 +71,8 @@ public class PersistentNPC extends HumanNPC {
     }
 
     @Override
-    public PersistentNPC setInteractionDelay(long interactionDelay) {
-        this.interactDelay = interactionDelay;
+    public PersistentNPC setInteractionDelay(long interactionDelayTick) {
+        this.interactDelay = interactionDelayTick;
         return this;
     }
 

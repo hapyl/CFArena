@@ -1,12 +1,15 @@
 package me.hapyl.fight.game.talents.archive.engineer;
 
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.engineer.Engineer;
 import me.hapyl.fight.game.task.TickingGameTask;
-import me.hapyl.spigotutils.module.entity.Entities;
+import me.hapyl.spigotutils.module.util.BukkitUtils;
+import me.hapyl.spigotutils.module.util.RomanNumber;
 import org.bukkit.Location;
-import org.bukkit.entity.ArmorStand;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
 
@@ -18,66 +21,109 @@ public abstract class Construct extends TickingGameTask {
     protected final GamePlayer player;
     protected final Location location;
     @Nonnull
-    protected final ArmorStand stand;
+    protected final ConstructEntity entity;
     private final EngineerTalent talent;
-
+    private final Engineer hero;
     private int level;
     private int cost;
+    private int upgradeCost;
 
     public Construct(@Nonnull GamePlayer player, @Nonnull Location location, @Nonnull EngineerTalent talent) {
         this.player = player;
         this.location = location;
         this.level = 0;
+        this.upgradeCost = 2;
         this.talent = talent;
+        this.hero = Heroes.ENGINEER.getHero(Engineer.class);
 
-        stand = Entities.ARMOR_STAND.spawn(location, self -> {
-            final double health = healthScaled().get(0, 10.0d);
-
-            self.setMaxHealth(health);
-            self.setHealth(health);
-        });
+        this.entity = new ConstructEntity(this);
 
         onCreate();
     }
 
-    public String getName(){
+    @Nonnull
+    public String getName() {
         return talent.getName();
+    }
+
+    public int getDuration() {
+        return durationScaled().get(level, Construct.MAX_DURATION_SEC) * 20;
+    }
+
+    @Nonnull
+    public Location getLocation() {
+        return BukkitUtils.newLocation(location);
     }
 
     @Override
     public void run(int tick) {
-        final int duration = durationScaled().get(getLevel(), Construct.MAX_DURATION_SEC) * 20;
+        final int duration = getDuration();
 
-        if (tick > duration || stand.isDead()) {
-            remove();
-            Heroes.ENGINEER.getHero(Engineer.class).constructs.remove(player);
+        if (tick > duration || entity.isDead()) {
+            if (entity.isDead()) {
+                player.sendMessage("&6&l\uD83D\uDD27 &cYour %s was destroyed!", getName());
+            }
+
+            hero.removeConstruct(player);
             return;
         }
 
+        entity.tick();
         onTick();
     }
 
+    public int getUpgradeCost() {
+        return upgradeCost;
+    }
+
+    public void setUpgradeCost(int upgradeCost) {
+        this.upgradeCost = upgradeCost;
+    }
+
+    @Nonnull
     public ImmutableArray<Integer> durationScaled() {
         return ImmutableArray.empty();
     }
 
+    @Nonnull
     public ImmutableArray<Double> healthScaled() {
         return ImmutableArray.empty();
     }
 
+    /**
+     * Called once upon creating.
+     */
     public abstract void onCreate();
 
+    /**
+     * Called once upon destroyed, be it because the entity died, duration runs out or any other cause.
+     */
     public abstract void onDestroy();
 
+    /**
+     * Called every tick.
+     */
     public abstract void onTick();
 
-    public void onLevelUp(int newLevel) {
+    /**
+     * Called every time the construct successfully levels up.
+     */
+    public void onLevelUp() {
     }
 
+    /**
+     * Removes this construct.
+     * <p>
+     * Note that this only removes the construct itself; To properly remove the construct, use {@link Engineer#removeConstruct(GamePlayer)}
+     */
     public void remove() {
         cancel();
         onDestroy();
-        stand.remove();
+        entity.remove();
+
+        // Fx
+        player.playWorldSound(location, Sound.ENTITY_ITEM_BREAK, 0.75f);
+        player.playWorldSound(location, Sound.ENTITY_IRON_GOLEM_DAMAGE, 0.25f);
     }
 
     public int getCost() {
@@ -89,19 +135,38 @@ public abstract class Construct extends TickingGameTask {
         return this;
     }
 
-    public void levelUp() {
-        level = Math.min(level + 1, MAX_LEVEL);
+    public boolean levelUp() {
+        if (level >= MAX_LEVEL) {
+            player.sendMessage("&6&l🔧 &cAlready at max level!");
+            player.playSound(Sound.BLOCK_ANVIL_LAND, 1.0f);
+            return false;
+        }
+
+        level++;
 
         // Update health
         final double health = healthScaled().get(level, 10.0d);
+        final double halfHealth = health / 2;
 
-        stand.setMaxHealth(health);
+        final LivingGameEntity entity = this.entity.getEntity();
 
-        if (stand.getHealth() < health / 2) {
-            stand.setHealth(health / 2);
+        entity.getAttributes().setHealth(health);
+
+        // If health < than half of the new max health, heal to half.
+        if (entity.getHealth() < halfHealth) {
+            entity.setHealth(halfHealth);
         }
 
-        onLevelUp(level);
+        onLevelUp();
+
+        // Fx
+        player.playWorldSound(location, Sound.BLOCK_ANVIL_USE, 0.75f);
+        player.playWorldSound(location, Sound.ENTITY_IRON_GOLEM_REPAIR, 1.25f);
+
+        player.spawnWorldParticle(location, Particle.VILLAGER_HAPPY, 10, 0.25d, 0.25d, 0.25, 0f);
+
+        player.sendMessage("&6&l🔧 &eLevelled up %s to level &l%s&e!", getName(), getLevelRoman());
+        return true;
     }
 
     public int getLevel() {
@@ -109,7 +174,17 @@ public abstract class Construct extends TickingGameTask {
     }
 
     @Nonnull
-    public ArmorStand getStand() {
-        return stand;
+    public ConstructEntity getEntity() {
+        return entity;
+    }
+
+    @Nonnull
+    public String getLevelRoman() {
+        return RomanNumber.toRoman(level + 1);
+    }
+
+    @Nonnull
+    public String getDurationLeft() {
+        return BukkitUtils.decimalFormat((getDuration() - getTick()) / 20.0d);
     }
 }

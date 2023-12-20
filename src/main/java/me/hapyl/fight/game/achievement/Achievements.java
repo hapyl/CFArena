@@ -81,6 +81,11 @@ public enum Achievements {
             new HiddenAchievement("Bing Chilling", "Get caged by your own teammate.")
     ),
 
+    // Tamer
+    FISHING_TIME(
+            new HiddenAchievement("Fishing Time", "Go fishing in the middle of the game.")
+    ),
+
     ////////////////////////
     // OTHER ACHIEVEMENTS //
     ////////////////////////

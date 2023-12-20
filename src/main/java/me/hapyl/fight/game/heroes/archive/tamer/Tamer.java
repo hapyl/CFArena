@@ -3,6 +3,7 @@ package me.hapyl.fight.game.heroes.archive.tamer;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
@@ -22,6 +23,7 @@ import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.CFUtils;
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.FishHook;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -113,7 +115,13 @@ public class Tamer extends Hero implements Listener, UIComponent, HeroPlaque {
             return;
         }
 
-        if (ev.getHitBlock() != null) {
+        final Block hitBlock = ev.getHitBlock();
+
+        if (hitBlock != null) {
+            if (hook.isInWater()) {
+                Achievements.FISHING_TIME.complete(player);
+            }
+
             hook.remove();
             return;
         }

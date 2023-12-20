@@ -20,8 +20,8 @@ import me.hapyl.fight.game.profile.data.AchievementData;
 import me.hapyl.fight.game.profile.data.PlayerProfileData;
 import me.hapyl.fight.game.profile.data.Type;
 import me.hapyl.fight.game.setting.Settings;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.trial.Trial;
@@ -34,7 +34,6 @@ import me.hapyl.fight.npc.PersistentNPCs;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Ticking;
 import me.hapyl.spigotutils.EternaPlugin;
-import me.hapyl.spigotutils.module.annotate.Super;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Tick;
@@ -50,6 +49,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
@@ -64,7 +64,8 @@ public final class Manager extends BukkitRunnable {
             EntityType.MARKER,
             EntityType.TEXT_DISPLAY,
             EntityType.BLOCK_DISPLAY,
-            EntityType.ITEM_DISPLAY
+            EntityType.ITEM_DISPLAY,
+            EntityType.GIANT
     );
     private final Map<UUID, GameEntity> entities;
     private final Map<UUID, PlayerProfile> profiles;
@@ -241,26 +242,67 @@ public final class Manager extends BukkitRunnable {
         return switch (type) {
             // Why are ARMOR_STAND here?
             // That literally deletes the armor stands spawned during the lobby.
-            case ARROW, SPECTRAL_ARROW -> createEntity(entity, GameEntity::new);
-            default -> createEntity(entity, LivingGameEntity::new);
+            case ARROW, SPECTRAL_ARROW -> registerEntity(new GameEntity(entity));
+            default -> registerEntity(new LivingGameEntity(entity));
         };
     }
 
+    /**
+     * Creates a {@link GameEntity} handle for a {@link LivingEntity}.
+     *
+     * @param location - Location, where to spawn the entity.
+     * @param type     - Entity type.
+     * @param consumer - Consumer.
+     * @return a {@link GameEntity} handle.
+     * @throws IllegalArgumentException if an entity with that {@link UUID} already exists.
+     */
     @Nonnull
-    @Super
-    public <E extends LivingEntity, T extends GameEntity> T createEntity(@Nonnull E entity, @Nonnull ConsumerFunction<E, T> consumer) {
-        final UUID uuid = entity.getUniqueId();
+    public <E extends LivingEntity, T extends GameEntity> T createEntity(@Nonnull Location location, @Nonnull Entities<E> type, @Nonnull ConsumerFunction<E, T> consumer) {
+        final AtomicReference<T> reference = new AtomicReference<>();
+
+        type.spawn(location, self -> {
+            // Add ignored entity so the manager doesn't create a handle for it.
+            ignoredEntities.add(self.getUniqueId());
+
+            // Create a game entity via the reference, because lambdas are cool.
+            reference.set(consumer.apply(self));
+        });
+
+        final T gameEntity = reference.get();
+
+        return registerEntity(gameEntity, consumer::andThen);
+    }
+
+    /**
+     * Registers the given {@link GameEntity} to the manager.
+     *
+     * @param entity   - Entity to register.
+     * @param consumer - Consumer.
+     * @return the same {@link GameEntity}.
+     * @throws IllegalArgumentException if an entity with that {@link UUID} already exists.
+     */
+    @Nonnull
+    public <E extends LivingEntity, T extends GameEntity> T registerEntity(@Nonnull T entity, @Nullable Consumer<T> consumer) {
+        final UUID uuid = entity.getUUID();
 
         if (entities.containsKey(uuid)) {
+            entity.forceRemove();
             throw new IllegalArgumentException("duplicate entity creation");
         }
 
-        final T gameEntity = consumer.apply(entity);
-        consumer.andThen(gameEntity);
+        if (consumer != null) {
+            consumer.accept(entity);
+        }
 
-        entities.put(uuid, gameEntity);
+        entities.put(uuid, entity);
         ignoredEntities.remove(uuid);
-        return gameEntity;
+
+        return entity;
+    }
+
+    @Nonnull
+    public <T extends GameEntity> T registerEntity(@Nonnull T entity) {
+        return registerEntity(entity, null);
     }
 
     @Nonnull

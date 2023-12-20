@@ -998,10 +998,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         return getPlayer().getScoreboard();
     }
 
-    public boolean isInWater() {
-        return getPlayer().isInWater();
-    }
-
     public void stopCooldown(@Nonnull Material material) {
         getEntity().setCooldown(material, 0);
     }

@@ -30,7 +30,7 @@ public class MultiPartLivingGameEntity<T extends LivingEntity> extends NamedGame
         final Part<E> gameEntity = CF.createEntity(location, type, new ConsumerFunction<>() {
             @Nonnull
             @Override
-            public Part<E> apply(E t) {
+            public Part<E> apply(@Nonnull E t) {
                 final Part<E> part = new Part<>(t);
 
                 if (consumer != null) {
