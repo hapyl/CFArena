@@ -10,6 +10,8 @@ import me.hapyl.spigotutils.module.util.RomanNumber;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 
 import javax.annotation.Nonnull;
 
@@ -178,6 +180,12 @@ public abstract class Construct extends TickingGameTask {
         return entity;
     }
 
+    public boolean checkEntity(Entity entity){
+        if(!(entity instanceof LivingEntity livingEntity)){
+            return false;
+        }
+        return this.entity.getEntity().is(livingEntity);
+    }
     @Nonnull
     public String getLevelRoman() {
         return RomanNumber.toRoman(level + 1);

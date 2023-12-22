@@ -83,5 +83,6 @@ public class ConstructEntity implements Removable, Ticking {
     }
 
     public void lookAt(@Nonnull Location location) {
+        entity.lookAt(location);
     }
 }
