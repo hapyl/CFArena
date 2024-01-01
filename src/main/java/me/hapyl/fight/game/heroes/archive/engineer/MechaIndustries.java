@@ -29,7 +29,7 @@ public class MechaIndustries extends TimedGameTask implements Removable {
             self.setAI(false);
 
             final Attributes attributes = new Attributes();
-            attributes.setHealth(220);
+            attributes.setHealth(195);
             attributes.setDefense(200);
 
             player.hideEntity(self);
