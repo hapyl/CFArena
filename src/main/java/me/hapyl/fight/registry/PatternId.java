@@ -28,8 +28,8 @@ public class PatternId {
     public String getId() throws IllegalStateException {
         if (id.isNull()) {
             throw new IllegalStateException("ID is not set for " + getClass().getSimpleName());
-
         }
+
         return id.get();
     }
 

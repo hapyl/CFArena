@@ -41,7 +41,7 @@ public class TestDatabaseCommand extends SimplePlayerAdminCommand {
             }
 
 
-            playerDatabase.sync();
+            playerDatabase.save();
         }
 
     }

@@ -39,7 +39,7 @@ public class ParkourLeaderboardGUI extends PlayerPageGUI<LeaderboardData> {
     @Override
     public ItemStack asItem(Player player, LeaderboardData data, int index, int page) {
         final ItemBuilder builder = ItemBuilder.of(Material.PLAYER_HEAD)
-                .setName(data.getName())
+                .setName(data.getNameFormatted())
                 .setSkullOwner(data.getName())
                 .addLore("&8#" + (index + 1))
                 .addLore()
@@ -62,8 +62,4 @@ public class ParkourLeaderboardGUI extends PlayerPageGUI<LeaderboardData> {
         return builder.asIcon();
     }
 
-    @Override
-    public void onClick(Player player, LeaderboardData content, int index, int page) {
-
-    }
 }

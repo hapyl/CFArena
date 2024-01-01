@@ -95,6 +95,10 @@ public class GameMap implements GameElement, PlayerElement {
         return this;
     }
 
+    public GameMap setTime(@Nonnull MinecraftTime time) {
+        return setTime(time.time);
+    }
+
     public WeatherType getWeather() {
         return weatherType;
     }

@@ -79,6 +79,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     protected int noCCTicks = 0;
     private AI ai;
     private int aliveTicks = 0;
+    private boolean informImmune = true;
 
     public LivingGameEntity(@Nonnull LivingEntity entity) {
         this(entity, new Attributes(entity));
@@ -290,12 +291,12 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         return data != null ? data.getTimeLeft() : 0;
     }
 
-    public boolean isInWater() {
-        return entity.isInWater();
-    }
-
     private void setInternalNoDamageTicks(int ticks) {
         cooldown.startCooldown(Cooldown.NO_DAMAGE, ticks * 50L);
+    }
+
+    public boolean isInWater() {
+        return entity.isInWater();
     }
 
     @Nonnull
@@ -576,23 +577,45 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         memory.forgetEverything();
     }
 
+    /**
+     * Returns true if this entity is immune to this {@link EnumDamageCause}.
+     *
+     * @param cause - Cause.
+     * @return true if this entity is immune to this cause, false otherwise.
+     */
     public boolean isImmune(@Nonnull EnumDamageCause cause) {
         return immunityCauses.contains(cause);
     }
 
-    public void addImmune(@Nonnull EnumDamageCause cause, @Nullable EnumDamageCause... other) {
-        immunityCauses.add(cause);
-        if (other != null) {
-            Collections.addAll(immunityCauses, other);
+    /**
+     * Sets this entity being immune to the given {@link EnumDamageCause}.
+     *
+     * @param causes - Causes.
+     */
+    public void setImmune(@Nonnull EnumDamageCause... causes) {
+        Collections.addAll(immunityCauses, causes);
+    }
+
+    /**
+     * Unsets this entity being immune to the given {@link EnumDamageCause}.
+     *
+     * @param causes - Causes.
+     */
+    public void unsetImmune(@Nonnull EnumDamageCause... causes) {
+        for (EnumDamageCause cause : causes) {
+            immunityCauses.remove(cause);
         }
     }
 
-    public void removeImmune(@Nullable EnumDamageCause... causes) {
-        if (causes != null) {
-            for (EnumDamageCause cause : causes) {
-                immunityCauses.remove(cause);
-            }
-        }
+    /**
+     * Sets if last damager should be informed about immune damage.
+     *
+     * @param informImmune - Should be informed.
+     * @see #isImmune(EnumDamageCause)
+     * @see #setImmune(EnumDamageCause...)
+     */
+    public void setInformImmune(boolean informImmune) {
+        this.informImmune = informImmune;
     }
 
     @PreprocessingMethod
@@ -602,7 +625,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         if (cause != null && immunityCauses.contains(cause)) {
             final GameEntity damager = instance.getDamager();
 
-            if (damager != null) {
+            if (damager != null && informImmune) {
                 damager.sendMessage(ChatColor.RED + getNameUnformatted() + " is immune to this kind of damage!");
             }
 

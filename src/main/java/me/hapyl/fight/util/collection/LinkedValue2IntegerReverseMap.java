@@ -15,9 +15,9 @@ public class LinkedValue2IntegerReverseMap<K> extends LinkedHashMap<K, Integer> 
     /**
      * Performs a for each iteration with a given consumer.
      *
-     * @param consumer - {@link Consumer}.
+     * @param consumer - {@link LinkedConsumer}.
      */
-    public void forEach(@Nonnull Consumer<K> consumer) {
+    public void forEach(@Nonnull LinkedConsumer<K> consumer) {
         int index = 0;
         for (Map.Entry<K, Integer> entry : entrySet()) {
             final K key = entry.getKey();
@@ -31,9 +31,9 @@ public class LinkedValue2IntegerReverseMap<K> extends LinkedHashMap<K, Integer> 
      * Performs a for i iteration given number of times, regardless of map size.
      *
      * @param times    - How many times to perform iterations.
-     * @param consumer - {@link NullableConsumer}.
+     * @param consumer - {@link NullableLinkedConsumer}.
      */
-    public void forEach(int times, @Nonnull NullableConsumer<K> consumer) {
+    public void forEach(int times, @Nonnull NullableLinkedConsumer<K> consumer) {
         int index = 0;
 
         for (Map.Entry<K, Integer> entry : entrySet()) {
@@ -57,7 +57,7 @@ public class LinkedValue2IntegerReverseMap<K> extends LinkedHashMap<K, Integer> 
         return of(map, Integer.MAX_VALUE);
     }
 
-    public interface NullableConsumer<K> {
+    public interface NullableLinkedConsumer<K> {
         /**
          * Accepts consumer values.
          * Note that both key and value <b>may</b> be null.
@@ -69,7 +69,7 @@ public class LinkedValue2IntegerReverseMap<K> extends LinkedHashMap<K, Integer> 
         void accept(int index, @Nullable K k, @Nullable Integer integer);
     }
 
-    public interface Consumer<K> {
+    public interface LinkedConsumer<K> {
         /**
          * Accepts consumer values.
          *

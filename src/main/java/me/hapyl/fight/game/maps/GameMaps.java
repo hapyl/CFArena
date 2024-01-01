@@ -146,6 +146,7 @@ public enum GameMaps implements Selectable {
                     .setMaterial(Material.SCULK_VEIN)
                     .setSize(Size.LARGE)
                     .setTicksBeforeReveal(100)
+                    .setTime(18000)
                     .addFeature(new LimboFeature())
                     .addLocation(-831, 68, -237)
                     .addLocation(-830, 47, -267)

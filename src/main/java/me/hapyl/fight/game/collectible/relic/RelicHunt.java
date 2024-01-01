@@ -229,6 +229,9 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
         // Library
         registerRelic(700, new Relic(Type.AMETHYST, -21, 78, -119).setZone(GameMaps.LIBRARY).setBlockFace(BlockFace.SOUTH_WEST));
         registerRelic(701, new Relic(Type.DIAMOND, 18, 72, -115).setZone(GameMaps.LIBRARY).setBlockFace(BlockFace.NORTH_EAST));
+
+        // Limbo
+        registerRelic(800, new Relic(Type.ROSE_QUARTZ, -823, 51, -215).setZone(GameMaps.LIMBO).setBlockFace(BlockFace.SOUTH_WEST));
     }
 
     private <K, V> void computeMapList(final Map<K, List<V>> map, K key, final Consumer<List<V>> consumer) {

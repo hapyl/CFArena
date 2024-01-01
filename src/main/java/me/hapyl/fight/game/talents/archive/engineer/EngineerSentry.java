@@ -2,14 +2,8 @@ package me.hapyl.fight.game.talents.archive.engineer;
 
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.spigotutils.module.block.display.BlockStudioParser;
-import me.hapyl.spigotutils.module.block.display.DisplayData;
-import me.hapyl.spigotutils.module.block.display.DisplayDataObject;
-import me.hapyl.spigotutils.module.block.display.DisplayEntity;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.entity.Display;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
@@ -17,9 +11,6 @@ import javax.annotation.Nonnull;
 public class EngineerSentry extends EngineerTalent {
 
     private final double radius = 35;
-    private final DisplayData spot = BlockStudioParser.parse(
-            "/summon block_display ~-0.5 ~-0.5 ~-0.5 {Passengers:[{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:exposed_copper\",Properties:{}},transformation:[2.0000f,0.0000f,0.0000f,-1.0000f,0.0000f,0.5000f,0.0000f,0.0000f,0.0000f,0.0000f,2.0000f,-1.0000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:exposed_copper\",Properties:{}},transformation:[0.5000f,0.0000f,0.0000f,-0.7500f,0.0000f,0.5000f,0.0000f,0.5000f,0.0000f,0.0000f,0.5000f,-0.2500f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:exposed_copper\",Properties:{}},transformation:[0.5000f,0.0000f,0.0000f,-0.2500f,0.0000f,0.5000f,0.0000f,0.5000f,0.0000f,0.0000f,0.5000f,-0.2500f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:exposed_copper\",Properties:{}},transformation:[0.5000f,0.0000f,0.0000f,0.2500f,0.0000f,0.5000f,0.0000f,0.5000f,0.0000f,0.0000f,0.5000f,-0.2500f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:exposed_copper\",Properties:{}},transformation:[0.5000f,0.0000f,0.0000f,-0.2500f,0.0000f,0.5000f,0.0000f,0.5000f,0.0000f,0.0000f,0.5000f,-0.7500f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:exposed_copper\",Properties:{}},transformation:[0.5000f,0.0000f,0.0000f,-0.2500f,0.0000f,0.5000f,0.0000f,0.5000f,0.0000f,0.0000f,0.5000f,0.2500f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:exposed_copper\",Properties:{}},transformation:[0.5000f,0.0000f,0.0000f,-0.5000f,0.0000f,0.5000f,0.0000f,0.7500f,0.0000f,0.0000f,0.5000f,-0.5000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:exposed_copper\",Properties:{}},transformation:[0.5000f,0.0000f,0.0000f,-0.5000f,0.0000f,0.5000f,0.0000f,0.7500f,0.0000f,0.0000f,0.5000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:exposed_copper\",Properties:{}},transformation:[0.5000f,0.0000f,0.0000f,0.0000f,0.0000f,0.5000f,0.0000f,0.7500f,0.0000f,0.0000f,0.5000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:exposed_copper\",Properties:{}},transformation:[0.5000f,0.0000f,0.0000f,0.0000f,0.0000f,0.5000f,0.0000f,0.7500f,0.0000f,0.0000f,0.5000f,-0.5000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:redstone_block\",Properties:{}},transformation:[0.7500f,0.0000f,0.0000f,-0.3750f,0.0000f,0.7500f,0.0000f,1.2500f,0.0000f,0.0000f,0.7500f,-0.3750f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:daylight_detector\",Properties:{inverted:\"false\"}},transformation:[0.7500f,0.0000f,0.0000f,-0.3750f,0.0000f,0.7500f,0.0000f,2.0000f,0.0000f,0.0000f,0.7500f,-0.3750f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:lightning_rod\",Properties:{facing:\"up\",powered:\"false\"}},transformation:[1.5000f,0.0000f,0.0000f,-0.7500f,0.0000f,1.5000f,0.0000f,2.2500f,0.0000f,0.0000f,1.5000f,-0.7500f,0.0000f,0.0000f,0.0000f,1.0000f]}]}"
-    );
 
     public EngineerSentry() {
         super("Spotter", 4);
@@ -31,6 +22,11 @@ public class EngineerSentry extends EngineerTalent {
         setItem(Material.ARROW);
         setDurationSec(10);
         setCooldownSec(15);
+
+        setDisplayData(
+                0,
+                "/summon block_display ~-0.5 ~-0.5 ~-0.5 {Passengers:[{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:exposed_copper\",Properties:{}},transformation:[2.0000f,0.0000f,0.0000f,-1.0000f,0.0000f,0.5000f,0.0000f,0.0000f,0.0000f,0.0000f,2.0000f,-1.0000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:exposed_copper\",Properties:{}},transformation:[0.5000f,0.0000f,0.0000f,-0.7500f,0.0000f,0.5000f,0.0000f,0.5000f,0.0000f,0.0000f,0.5000f,-0.2500f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:exposed_copper\",Properties:{}},transformation:[0.5000f,0.0000f,0.0000f,-0.2500f,0.0000f,0.5000f,0.0000f,0.5000f,0.0000f,0.0000f,0.5000f,-0.2500f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:exposed_copper\",Properties:{}},transformation:[0.5000f,0.0000f,0.0000f,0.2500f,0.0000f,0.5000f,0.0000f,0.5000f,0.0000f,0.0000f,0.5000f,-0.2500f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:exposed_copper\",Properties:{}},transformation:[0.5000f,0.0000f,0.0000f,-0.2500f,0.0000f,0.5000f,0.0000f,0.5000f,0.0000f,0.0000f,0.5000f,-0.7500f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:exposed_copper\",Properties:{}},transformation:[0.5000f,0.0000f,0.0000f,-0.2500f,0.0000f,0.5000f,0.0000f,0.5000f,0.0000f,0.0000f,0.5000f,0.2500f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:exposed_copper\",Properties:{}},transformation:[0.5000f,0.0000f,0.0000f,-0.5000f,0.0000f,0.5000f,0.0000f,0.7500f,0.0000f,0.0000f,0.5000f,-0.5000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:exposed_copper\",Properties:{}},transformation:[0.5000f,0.0000f,0.0000f,-0.5000f,0.0000f,0.5000f,0.0000f,0.7500f,0.0000f,0.0000f,0.5000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:exposed_copper\",Properties:{}},transformation:[0.5000f,0.0000f,0.0000f,0.0000f,0.0000f,0.5000f,0.0000f,0.7500f,0.0000f,0.0000f,0.5000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:exposed_copper\",Properties:{}},transformation:[0.5000f,0.0000f,0.0000f,0.0000f,0.0000f,0.5000f,0.0000f,0.7500f,0.0000f,0.0000f,0.5000f,-0.5000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:redstone_block\",Properties:{}},transformation:[0.7500f,0.0000f,0.0000f,-0.3750f,0.0000f,0.7500f,0.0000f,1.2500f,0.0000f,0.0000f,0.7500f,-0.3750f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:daylight_detector\",Properties:{inverted:\"false\"}},transformation:[0.7500f,0.0000f,0.0000f,-0.3750f,0.0000f,0.7500f,0.0000f,2.0000f,0.0000f,0.0000f,0.7500f,-0.3750f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:lightning_rod\",Properties:{facing:\"up\",powered:\"false\"}},transformation:[1.5000f,0.0000f,0.0000f,-0.7500f,0.0000f,1.5000f,0.0000f,2.2500f,0.0000f,0.0000f,1.5000f,-0.7500f,0.0000f,0.0000f,0.0000f,1.0000f]}]}"
+        );
     }
 
     @Override
@@ -38,9 +34,12 @@ public class EngineerSentry extends EngineerTalent {
     public Construct create(@Nonnull GamePlayer player, @Nonnull Location location) {
 
         return new Construct(player, location, this) {
-            DisplayEntity displayEntity = spot.spawn(location);
             @Override
             public void onCreate() {
+            }
+
+            @Override
+            public void onDestroy() {
 
             }
 
@@ -54,11 +53,6 @@ public class EngineerSentry extends EngineerTalent {
             @Override
             public ImmutableArray<Integer> durationScaled() {
                 return ImmutableArray.of(10, 20, 30, 40);
-            }
-
-            @Override
-            public void onDestroy() {
-                displayEntity.remove();
             }
 
             @Override

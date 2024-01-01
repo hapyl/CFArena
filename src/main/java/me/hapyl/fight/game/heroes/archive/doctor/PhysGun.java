@@ -23,6 +23,8 @@ import javax.annotation.Nullable;
 
 public class PhysGun extends Weapon {
 
+    private final PlayerMap<CaptureData> capturedEntity = PlayerMap.newMap();
+
     public PhysGun() {
         super(Material.GOLDEN_HORSE_ARMOR);
         setId("dr_ed_gun_2");
@@ -31,9 +33,17 @@ public class PhysGun extends Weapon {
         setAbility(AbilityType.RIGHT_CLICK, new Harvest());
     }
 
-    public static class Harvest extends Ability {
+    public void stop(@Nonnull GamePlayer player) {
+        final CaptureData data = capturedEntity.remove(player);
 
-        private final PlayerMap<CaptureData> capturedEntity = PlayerMap.newMap();
+        if (data == null) {
+            return;
+        }
+
+        data.stop();
+    }
+
+    public class Harvest extends Ability {
 
         public Harvest() {
             super("Harvest V2", "harvest v2");
@@ -45,17 +55,14 @@ public class PhysGun extends Weapon {
         @Nullable
         @Override
         public Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
+            final CaptureData data = capturedEntity.remove(player);
+
             // Throw
-            if (capturedEntity.containsKey(player)) {
-                final CaptureData data = capturedEntity.remove(player);
+            if (data != null) {
                 final Location location = player.getLocation().add(player.getLocation().getDirection().multiply(2.0d));
                 final LivingGameEntity entity = data.getCaptured();
 
-                entity.asPlayer(targetPlayer -> {
-                    targetPlayer.setAllowFlight(data.isFlight());
-                });
-
-                entity.setInvulnerable(false);
+                data.stop();
 
                 entity.setVelocity(player.getLocation().getDirection().multiply(2.0d));
                 entity.spawnWorldParticle(location, Particle.EXPLOSION_NORMAL, 10, 0.2, 0.05, 0.2, 0.02f);
@@ -105,7 +112,6 @@ public class PhysGun extends Weapon {
                         finalLocation = playerLocation;
                     }
 
-                    target.setInvulnerable(true);
                     target.sendSubtitle("&f&lCaptured by &a%s&f&l!".formatted(player.getName()), 0, 10, 0);
 
                     target.teleport(finalLocation);

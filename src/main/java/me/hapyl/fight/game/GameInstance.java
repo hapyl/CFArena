@@ -9,6 +9,7 @@ import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.cosmetic.WinCosmetic;
 import me.hapyl.fight.game.cosmetic.crate.Crates;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.MoveType;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -267,7 +268,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
 
         // AFK detection
         alivePlayers.forEach(player -> {
-            if (player.hasMovedInLast(15000)) { // 15s afk detection
+            if (player.hasMovedInLast(MoveType.MOUSE, 15000)) { // 15s afk detection
                 return;
             }
 
@@ -312,6 +313,17 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
                 return;
             }
 
+            if (Settings.RANDOM_HERO.isEnabled(player)) {
+                final Heroes randomHero = Heroes.randomHero();
+
+                profile.setSelectedHero(randomHero);
+
+                Chat.sendMessage(player, "");
+                Chat.sendMessage(player, "&a&l%s &awas randomly selected as your hero!", randomHero.getHero().getName());
+                Chat.sendMessage(player, "&e/setting &ato turn off this feature.");
+                Chat.sendMessage(player, "");
+            }
+
             final GamePlayer gamePlayer = profile.createGamePlayer();
 
             // Spectate Setting
@@ -319,17 +331,6 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
                 gamePlayer.setSpectator(true);
             }
             else {
-                if (Settings.RANDOM_HERO.isEnabled(player)) {
-                    profile.setSelectedHero(Heroes.randomHero());
-
-                    gamePlayer.sendMessage("");
-                    gamePlayer.sendMessage(
-                            "&a&l%s &awas randomly selected as your hero!",
-                            gamePlayer.getHero().getName()
-                    );
-                    gamePlayer.sendMessage("&e/setting &ato turn off this feature.");
-                    gamePlayer.sendMessage("");
-                }
                 gamePlayer.resetPlayer();
             }
 
@@ -340,10 +341,6 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
 
             gamePlayer.updateScoreboardTeams(false);
         });
-    }
-
-    private Heroes getHero(GamePlayer player) {
-        return Settings.RANDOM_HERO.isEnabled(player.getPlayer()) ? Heroes.randomHero() : Manager.current().getCurrentEnumHero(player);
     }
 
     private String generateHexCode() {

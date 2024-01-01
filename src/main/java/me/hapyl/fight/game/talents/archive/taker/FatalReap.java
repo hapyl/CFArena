@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.talents.archive.taker;
 
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
@@ -44,7 +43,7 @@ public class FatalReap extends Talent {
         for (double d = length; d >= -length; d -= 0.2d) {
             final Location location = calculateLocation(player.getEyeLocation(), d);
 
-            for (LivingGameEntity entity : Collect.nearbyEntities(location, 1.0d)) {
+            for (LivingGameEntity entity : Collect.nearbyEntities(location, 1.5d)) {
                 if (player.isSelfOrTeammate(entity)) {
                     continue;
                 }

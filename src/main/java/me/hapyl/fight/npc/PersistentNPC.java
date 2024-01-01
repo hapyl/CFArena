@@ -1,6 +1,5 @@
 package me.hapyl.fight.npc;
 
-import com.google.common.collect.Maps;
 import me.hapyl.fight.dialog.Placeholder;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.color.Color;
@@ -15,15 +14,12 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 
 public class PersistentNPC extends HumanNPC {
 
     private final String name;
-    private final Map<UUID, Long> interactedAt;
-    private long interactDelay = 0;
 
     @Nonnull
     private NPCSound sound;
@@ -46,7 +42,6 @@ public class PersistentNPC extends HumanNPC {
 
         this.name = name;
         this.sound = new NPCSound();
-        this.interactedAt = Maps.newHashMap();
 
         init();
     }
@@ -57,22 +52,12 @@ public class PersistentNPC extends HumanNPC {
     }
 
     @Override
-    public final void onClick(Player player, HumanNPC npc, ClickType clickType) {
-        final UUID uuid = player.getUniqueId();
-        final long lastInteraction = interactedAt.getOrDefault(uuid, 0L);
-        final long currentTimeMillis = System.currentTimeMillis();
-
-        if (lastInteraction > 0 && currentTimeMillis - lastInteraction < (interactDelay * 50L)) {
-            return;
-        }
-
+    public final void onClick(@Nonnull Player player, @Nonnull ClickType type) {
         onClick(player);
-        interactedAt.put(uuid, currentTimeMillis);
     }
 
-    @Override
-    public PersistentNPC setInteractionDelay(long interactionDelayTick) {
-        this.interactDelay = interactionDelayTick;
+    public PersistentNPC setInteractionDelay(int interactionDelayTick) {
+        super.setInteractionDelayTick(interactionDelayTick);
         return this;
     }
 

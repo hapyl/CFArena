@@ -2,7 +2,6 @@ package me.hapyl.fight.game.heroes.archive.engineer;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
@@ -20,7 +19,6 @@ import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -91,7 +89,6 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler, UICom
             return;
         }
 
-
         final ItemStack heldItem = player.getHeldItem();
 
         // Didn't click with iron
@@ -99,23 +96,18 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler, UICom
             return;
         }
 
-
         final Entity entity = ev.getRightClicked();
         final EngineerData data = getPlayerData(player);
         final Construct construct = data.getConstruct();
 
-        Debug.info(construct);
         if (construct == null || !construct.checkEntity(entity)) {
             return;
         }
-
-
 
         // internal cd
         if (player.hasCooldown(cooldownMaterial)) {
             return;
         }
-
 
         player.setCooldown(cooldownMaterial, 10);
 
@@ -130,7 +122,7 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler, UICom
             return;
         }
 
-        data.subtractIron(iron);
+        data.subtractIron(construct.getUpgradeCost());
     }
 
     @Override

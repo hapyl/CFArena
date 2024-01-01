@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.entity.EquipmentSlot;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
@@ -194,7 +195,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
     public void handleBowShoot(ProjectilePostLaunchEvent ev) {
         final Projectile projectile = ev.getProjectile();
 
-        if (!(projectile instanceof Arrow arrow) || !(arrow.getShooter() instanceof GamePlayer player)) {
+        if (!(projectile instanceof Arrow arrow) || !(ev.getShooter() instanceof GamePlayer player)) {
             return;
         }
 

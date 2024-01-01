@@ -1,5 +1,7 @@
 package me.hapyl.fight.command;
 
+import me.hapyl.fight.CF;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
 import me.hapyl.spigotutils.module.entity.Entities;
@@ -12,14 +14,17 @@ public class DummyCommand extends SimplePlayerAdminCommand {
 
     @Override
     protected void execute(Player player, String[] args) {
-        Entities.IRON_GOLEM.spawn(player.getLocation(), self -> {
+        final LivingGameEntity entity = CF.createEntity(player.getLocation(), Entities.IRON_GOLEM, self -> {
             self.setMaxHealth(2048);
             self.setHealth(self.getMaxHealth());
             self.setCustomName(Chat.format("&aDummy"));
             self.setCustomNameVisible(true);
-            self.getScoreboardTags().add("dummy");
             self.setAI(false);
-        }, false);
+
+            return new LivingGameEntity(self);
+        });
+
+        entity.setForceValid(true);
 
         Chat.sendMessage(player, "&aSpawned dummy.");
     }

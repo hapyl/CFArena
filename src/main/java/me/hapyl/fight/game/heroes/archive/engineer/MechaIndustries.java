@@ -34,7 +34,10 @@ public class MechaIndustries extends TimedGameTask implements Removable {
 
             player.hideEntity(self);
 
-            return new LivingGameEntity(self, attributes);
+            final LivingGameEntity entity = new LivingGameEntity(self, attributes);
+            entity.setForceValid(true);
+
+            return entity;
         });
 
         player.addEffect(GameEffectType.INVISIBILITY, 100000, true);

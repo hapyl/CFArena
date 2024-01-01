@@ -32,16 +32,13 @@ public class FallDamageResistance extends GameEffect implements Listener {
 
     @Override
     public void onTick(@Nonnull LivingGameEntity entity, int tick) {
-
     }
 
     @Override
     public void onStart(@Nonnull LivingGameEntity entity) {
-
     }
 
     @Override
     public void onStop(@Nonnull LivingGameEntity entity) {
-
     }
 }

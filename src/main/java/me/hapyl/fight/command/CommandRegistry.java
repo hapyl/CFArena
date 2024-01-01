@@ -44,7 +44,6 @@ import me.hapyl.fight.game.heroes.archive.bloodfield.BloodfiendData;
 import me.hapyl.fight.game.heroes.archive.dark_mage.AnimatedWither;
 import me.hapyl.fight.game.heroes.archive.doctor.ElementType;
 import me.hapyl.fight.game.heroes.archive.engineer.Engineer;
-import me.hapyl.fight.game.heroes.archive.engineer.EngineerData;
 import me.hapyl.fight.game.heroes.archive.moonwalker.Moonwalker;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.lobby.LobbyItems;
@@ -63,6 +62,8 @@ import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.display.DamageDisplay;
 import me.hapyl.fight.game.ui.splash.SplashText;
+import me.hapyl.fight.github.Contributor;
+import me.hapyl.fight.github.Contributors;
 import me.hapyl.fight.gui.HeroPreviewGUI;
 import me.hapyl.fight.gui.LegacyAchievementGUI;
 import me.hapyl.fight.gui.styled.profile.DeliveryGUI;
@@ -90,6 +91,7 @@ import me.hapyl.spigotutils.module.player.EffectType;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.DataWatcherType;
 import me.hapyl.spigotutils.module.reflect.Reflect;
+import me.hapyl.spigotutils.module.reflect.fakeplayer.FakePlayer;
 import me.hapyl.spigotutils.module.reflect.glow.Glowing;
 import me.hapyl.spigotutils.module.reflect.npc.Human;
 import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
@@ -152,7 +154,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
     public CommandRegistry(Main main) {
         super(main);
 
-        Bukkit.getPluginManager().registerEvents(this, main);
+        CF.registerEvents(this);
         this.processor = new CommandProcessor(main);
 
         // Unregister annoying paper commands
@@ -194,6 +196,25 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new SnakeBuilderCommand("snakeBuilder"));
         register(new CrateCommandCommand("crate"));
         register(new GlobalConfigCommand("globalConfig"));
+        register(new ArtifactCommand("artifact"));
+
+        // *=* Inner commands *=*
+
+        register("testContributors", (player, args) -> {
+            final List<Contributor> contributors = Contributors.getContributors();
+
+            if (contributors.isEmpty()) {
+                Chat.sendMessage(player, "&cStill loading!");
+                return;
+            }
+
+            Chat.sendMessage(player, "&aContributors:");
+
+            for (Contributor contributor : contributors) {
+                Chat.sendMessage(player, contributor.toString());
+            }
+        });
+
         register(new SimplePlayerCommand("delivery") {
             @Override
             protected void execute(Player player, String[] args) {
@@ -205,6 +226,18 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             LivingGameEntity entity = CF.createEntity(player.getLocation(), Entities.PIG);
 
             entity.addEffect(GameEffectType.IMMOVABLE, 10000, true);
+        });
+
+        register("whenLastMoved", (player, args) -> {
+            final GamePlayer gamePlayer = CF.getPlayer(player);
+
+            if (gamePlayer == null) {
+                Chat.sendMessage(player, "&cNot in a game.");
+                return;
+            }
+
+            gamePlayer.sendMessage("Mouse=" + MoveType.MOUSE.getLastMoved(gamePlayer));
+            gamePlayer.sendMessage("Keyboard=" + MoveType.KEYBOARD.getLastMoved(gamePlayer));
         });
 
         register(new SimplePlayerAdminCommand("resetMetadata") {
@@ -342,6 +375,43 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
                 gamePlayer.setShield(new Shield(gamePlayer, capacity));
                 Chat.sendMessage(player, "&aApplied shield with %s capacity.", capacity);
+            }
+        });
+
+        register(new SimpleAdminCommand("loadDatabase") {
+            @Override
+            protected void execute(CommandSender sender, String[] args) {
+                final UUID uuid = UUID.fromString(args[0]);
+
+                PlayerDatabase.getDatabase(uuid);
+            }
+        });
+
+        register(new SimplePlayerAdminCommand("spawnNpcThatWillThrowError") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                new HumanNPC(player.getLocation(), "name", "hypixel").showAll();
+            }
+        });
+
+        register(new SimplePlayerAdminCommand("sendFakePlayer") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                final PlayerProfile profile = PlayerProfile.getProfile(player);
+                final String tabName = profile.getDisplay().getDisplayNameTab();
+
+                final String name = getArgument(args, 0).toString();
+
+                final FakePlayer fakePlayer = new FakePlayer(name.isEmpty() ? tabName : name).setSkin(player);
+                fakePlayer.show(player);
+
+                Chat.sendMessage(player, "&aShown!");
+
+                Runnables.runLater(() -> {
+                    fakePlayer.hide(player);
+                    Chat.sendMessage(player, "&cHid!");
+                }, 60);
+
             }
         });
 

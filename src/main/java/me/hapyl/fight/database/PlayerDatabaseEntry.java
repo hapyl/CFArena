@@ -1,6 +1,7 @@
 package me.hapyl.fight.database;
 
 import org.bson.Document;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -37,12 +38,23 @@ public class PlayerDatabaseEntry {
     }
 
     /**
-     * Returns the player associated with this entry.
+     * Gets the {@link OfflinePlayer} associated with this entry.
      *
-     * @return - Player
+     * @return the offline player.
      */
-    public Player getPlayer() {
+    @Nonnull
+    public OfflinePlayer getPlayer() {
         return this.playerDatabase.getPlayer();
+    }
+
+    /**
+     * Gets the {@link Player} associated with this entry; or null if they're offline.
+     *
+     * @return the player associated with this entry; or null if they're offline.
+     */
+    @Nullable
+    public Player getOnlinePlayer() {
+        return getPlayer().getPlayer();
     }
 
     protected String path() {

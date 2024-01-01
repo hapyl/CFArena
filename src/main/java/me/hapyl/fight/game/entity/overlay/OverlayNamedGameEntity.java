@@ -38,8 +38,8 @@ public class OverlayNamedGameEntity extends NamedGameEntity<Zombie> implements S
         this.type = type;
         this.npc = new HumanNPC(getLocation(), "", "") {
             @Override
-            public void onClick(Player player, HumanNPC npc, ClickType clickType) {
-                if (clickType != ClickType.ATTACK) {
+            public void onClick(@Nonnull Player player, @Nonnull ClickType type) {
+                if (type != ClickType.ATTACK) {
                     return;
                 }
 

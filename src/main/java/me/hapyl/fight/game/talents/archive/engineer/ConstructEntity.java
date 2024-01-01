@@ -1,13 +1,16 @@
 package me.hapyl.fight.game.talents.archive.engineer;
 
 import me.hapyl.fight.CF;
+import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.util.Ticking;
+import me.hapyl.spigotutils.module.block.display.DisplayEntity;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 
@@ -20,6 +23,9 @@ public class ConstructEntity implements Removable, Ticking {
 
     // Armor stand is used to display health, time, etc.
     private final ArmorStand stand;
+
+    // Current display entity
+    private DisplayEntity displayEntity;
 
     public ConstructEntity(Construct construct) {
         this.construct = construct;
@@ -35,12 +41,22 @@ public class ConstructEntity implements Removable, Ticking {
             self.setMaxHealth(health);
             self.setHealth(health);
 
-            return new LivingGameEntity(self);
+            final LivingGameEntity entity = new LivingGameEntity(self);
+            entity.setImmune(EnumDamageCause.SUFFOCATION);
+            entity.setInformImmune(false);
+
+            return entity;
         });
 
-        this.stand = Entities.ARMOR_STAND.spawn(location, self -> {
+        final EngineerTalent talent = construct.talent;
+
+        this.stand = Entities.ARMOR_STAND_MARKER.spawn(location.clone().add(0, talent.yOffset, 0), self -> {
             self.setInvisible(true);
+            self.setSmall(true);
+            self.setGravity(false);
         });
+
+        setDisplayEntity(0);
     }
 
     @Nonnull
@@ -51,6 +67,19 @@ public class ConstructEntity implements Removable, Ticking {
     @Nonnull
     public ArmorStand getStand() {
         return stand;
+    }
+
+    @Nonnull
+    public DisplayEntity getDisplayEntity() {
+        return displayEntity;
+    }
+
+    public void setDisplayEntity(int level) {
+        if (displayEntity != null) {
+            displayEntity.remove();
+        }
+
+        displayEntity = construct.talent.getDisplayData(level).spawn(construct.location);
     }
 
     @Override
@@ -71,6 +100,7 @@ public class ConstructEntity implements Removable, Ticking {
     public void remove() {
         entity.remove();
         stand.remove();
+        displayEntity.remove();
     }
 
     public boolean isDead() {
@@ -79,10 +109,14 @@ public class ConstructEntity implements Removable, Ticking {
 
     @Nonnull
     public Location getLocation() {
-        return entity.getLocation();
+        return displayEntity.getHead().getLocation();
     }
 
     public void lookAt(@Nonnull Location location) {
-        entity.lookAt(location);
+        final Location entityLocation = displayEntity.getHead().getLocation();
+        final Vector vector = location.toVector().subtract(entityLocation.toVector()).setY(0.0d);
+
+        entityLocation.setDirection(vector);
+        displayEntity.teleport(entityLocation);
     }
 }

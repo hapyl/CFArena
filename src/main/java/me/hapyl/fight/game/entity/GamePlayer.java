@@ -3,6 +3,7 @@ package me.hapyl.fight.game.entity;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.Award;
@@ -43,9 +44,7 @@ import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.display.AscendingDisplay;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.game.weapons.range.RangeWeapon;
-import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.util.ItemStacks;
-import me.hapyl.fight.util.Ticking;
+import me.hapyl.fight.util.*;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Numbers;
@@ -68,10 +67,12 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
+import org.junit.Ignore;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -92,12 +93,12 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     private final PlayerTaskList taskList;
     private final TalentLock talentLock;
     private final PlayerPing playerPing;
+    private final Map<MoveType, Long> lastMoved;
     public boolean blockDismount;
     @Nonnull
     private PlayerProfile profile;
     private int ultPoints;
     private double ultimateModifier;
-    private long lastMoved;
     private long combatTag;
     private int killStreak;
     private InputTalent inputTalent;
@@ -111,13 +112,15 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         this.ultimateModifier = 1.0d;
         this.talentQueue = new TalentQueue(this);
         this.stats = new StatContainer(this);
-        this.lastMoved = System.currentTimeMillis();
+        this.lastMoved = Maps.newHashMap();
         this.combatTag = 0L;
         this.attributes = new EntityAttributes(this, profile.getHeroHandle().getAttributes());
         this.taskList = new PlayerTaskList(this);
         this.shield = null;
         this.talentLock = new TalentLock(this, profile.getHeroHandle());
         this.playerPing = new PlayerPing(this);
+
+        markLastMoved();
     }
 
     public int getTalentLock(@Nonnull HotbarSlots slot) {
@@ -139,7 +142,11 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         talentLock.tick();
     }
 
-    public void resetPlayer(Ignore... ignores) {
+    /**
+     * Resets all the player data.
+     * Called upon respawn or start of the game.
+     */
+    public void resetPlayer() {
         final Player player = getEntity();
 
         killStreak = 0;
@@ -185,24 +192,14 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         inputTalent = null;
         shield = null;
 
-        if (isNotIgnored(ignores, Ignore.GAME_MODE)) {
-            player.setGameMode(GameMode.SURVIVAL);
-        }
-
-        // If a player is in spectator - forcefully enable flight
-        if (player.getGameMode() == GameMode.SPECTATOR) {
-            player.setAllowFlight(true);
-            player.setFlying(true);
-        }
+        player.setGameMode(GameMode.SURVIVAL);
 
         // reset all cooldowns as well
-        if (isNotIgnored(ignores, Ignore.COOLDOWNS)) {
-            for (final Material value : Material.values()) {
-                if (value.isItem() && player.hasCooldown(value)) {
-                    player.setCooldown(value, 0);
-                }
+        Materials.iterate(MaterialCategory.ITEM, item -> {
+            if (player.hasCooldown(item)) {
+                player.setCooldown(item, 0);
             }
-        }
+        });
     }
 
     /**
@@ -396,7 +393,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         taskList.cancelAll();
 
         // KEEP LAST
-        resetPlayer(GamePlayer.Ignore.GAME_MODE);
+        //resetPlayer(GamePlayer.Ignore.GAME_MODE); Don't reset player actually
         Chat.broadcast(deathMessage);
     }
 
@@ -429,8 +426,16 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         return killStreak;
     }
 
-    public void markLastMoved() {
-        this.lastMoved = System.currentTimeMillis();
+    public void markLastMoved(@Nonnull MoveType... moveTypes) {
+        final long currentTimeMillis = System.currentTimeMillis();
+
+        for (MoveType moveType : moveTypes) {
+            lastMoved.put(moveType, currentTimeMillis);
+        }
+    }
+
+    public long getLastMoved(@Nonnull MoveType type) {
+        return lastMoved.getOrDefault(type, System.currentTimeMillis());
     }
 
     @Override
@@ -490,10 +495,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         }
 
         return pointsString;
-    }
-
-    public long getLastMoved() {
-        return lastMoved;
     }
 
     @Nonnull
@@ -763,7 +764,8 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     }
 
     public void respawn() {
-        resetPlayer(Ignore.GAME_MODE);
+        resetPlayer();
+
         final Player player = getEntity();
         final Hero hero = getHero();
 
@@ -776,8 +778,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         equipPlayer(hero);
 
         hero.onRespawn(this);
-
-        player.setGameMode(GameMode.SURVIVAL);
 
         // Add spawn protection
         addEffect(GameEffectType.RESPAWN_RESISTANCE, 60);
@@ -873,8 +873,10 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         getEntity().setCooldown(material, cd);
     }
 
-    public boolean hasMovedInLast(long millis) {
-        return getLastMoved() != 0 && (System.currentTimeMillis() - getLastMoved()) < millis;
+    public boolean hasMovedInLast(@Nonnull MoveType type, long millis) {
+        final long lastMoved = getLastMoved(type);
+
+        return lastMoved != 0 && (System.currentTimeMillis() - lastMoved) < millis;
     }
 
     public boolean isBlocking() {
@@ -948,7 +950,14 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     }
 
     public void setFlying(boolean b) {
-        getPlayer().setFlying(b);
+        final Player player = getPlayer();
+
+        // Don't allow changing fly mode in spectator to avoid falling off the map
+        if (player.getGameMode() == GameMode.SPECTATOR) {
+            return;
+        }
+
+        player.setFlying(b);
     }
 
     public float getFlySpeed() {
@@ -1364,11 +1373,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     public static Optional<GamePlayer> getPlayerOptional(Player player) {
         final GamePlayer gamePlayer = getExistingPlayer(player);
         return gamePlayer == null ? Optional.empty() : Optional.of(gamePlayer);
-    }
-
-    public enum Ignore {
-        GAME_MODE,
-        COOLDOWNS
     }
 
 }

@@ -140,6 +140,9 @@ public class Main extends JavaPlugin {
         // Clear garbage entities
         GameTask.runLater(CFGarbageCollector::clearInAllWorlds, 20);
 
+        // Load contributors
+        //Contributors.loadContributors();
+
         // Initiate runtime tests
         new Test(this);
     }

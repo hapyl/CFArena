@@ -18,6 +18,16 @@ public class CaptureData {
         this.player = gamePlayer;
         this.captured = captured;
         this.flight = flight;
+
+        captured.setInvulnerable(true);
+    }
+
+    public void stop() {
+        captured.setInvulnerable(false);
+
+        if (captured instanceof GamePlayer capturedPlayer) {
+            capturedPlayer.setAllowFlight(flight);
+        }
     }
 
     @Nonnull
@@ -57,7 +67,7 @@ public class CaptureData {
             captured.teleport(player);
         }
 
-        captured.asPlayer(asPlayer -> asPlayer.setAllowFlight(flight));
+        stop();
     }
 
     public boolean check(LivingGameEntity target) {

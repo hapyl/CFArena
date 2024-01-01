@@ -616,8 +616,8 @@ public final class Manager extends BukkitRunnable {
 
         gameInstance.calculateEverything();
 
-        this.gameInstance.onStop();
-        this.gameInstance.setGameState(State.POST_GAME);
+        gameInstance.onStop();
+        gameInstance.setGameState(State.POST_GAME);
 
         EntityData.resetDamageData(); // clear damage handler
 
@@ -672,7 +672,7 @@ public final class Manager extends BukkitRunnable {
         // Remove garbage entities
         CFGarbageCollector.clearInAllWorlds();
 
-        entities.forEach((uuid, entity) -> entity.onStop(this.gameInstance));
+        entities.forEach((uuid, entity) -> entity.onStop(gameInstance));
         entities.clear();
 
         if (debugData.any()) {
@@ -697,6 +697,7 @@ public final class Manager extends BukkitRunnable {
             player.setInvulnerable(false);
             player.setHealth(player.getMaxHealth());
             player.setGameMode(GameMode.SURVIVAL);
+            player.setWalkSpeed(0.2f);
             player.teleport(GameMaps.SPAWN.getMap().getLocation());
 
             // Progress achievement
@@ -773,7 +774,6 @@ public final class Manager extends BukkitRunnable {
     public Hero getCurrentHero(GamePlayer player) {
         return getCurrentEnumHero(player).getHero();
     }
-    // I'm so confused why this is here, it called the same thing
 
     @Nonnull
     public Heroes getCurrentEnumHero(GamePlayer player) {
@@ -803,7 +803,7 @@ public final class Manager extends BukkitRunnable {
     }
 
     public boolean anyProfiles() {
-        return profiles.size() > 0;
+        return !profiles.isEmpty();
     }
 
     public void listProfiles() {

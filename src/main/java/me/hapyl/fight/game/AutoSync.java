@@ -41,7 +41,7 @@ public class AutoSync {
             Chat.broadcast("&7&oSyncing database, might lag a little.");
 
             Manager.current().allProfiles(profile -> {
-                profile.getDatabase().sync();
+                profile.getDatabase().save();
             });
 
             Chat.broadcast("&a&oDatabase synced!");

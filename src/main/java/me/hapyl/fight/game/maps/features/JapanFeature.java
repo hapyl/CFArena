@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.MoveType;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.maps.MapFeature;
 import me.hapyl.fight.game.task.GameTask;
@@ -147,7 +148,7 @@ public class JapanFeature extends MapFeature implements Listener {
     }
 
     private boolean canBeHealed(GamePlayer player) {
-        return !player.hasMovedInLast(5000);
+        return !player.hasMovedInLast(MoveType.KEYBOARD, 5000);
     }
 
 }

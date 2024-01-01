@@ -7,6 +7,7 @@ import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bson.Document;
+import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ public class CosmeticEntry extends PlayerDatabaseEntry {
     }
 
     public void unsetSelected(Type type) {
-        final Cosmetics selectedCosmetic = Cosmetics.getSelected(getPlayer(), type);
+        final Player player = getOnlinePlayer();
         final Document cosmetics = getDocument().get("cosmetics", new Document());
         final Document selected = cosmetics.get("selected", new Document());
 
@@ -37,8 +38,12 @@ public class CosmeticEntry extends PlayerDatabaseEntry {
         getDocument().put("cosmetics", cosmetics);
 
         // Call event
-        if (selectedCosmetic != null) {
-            selectedCosmetic.getCosmetic().onUnequip(getPlayer());
+        if (player != null) {
+            final Cosmetics selectedCosmetic = Cosmetics.getSelected(player, type);
+
+            if (selectedCosmetic != null) {
+                selectedCosmetic.getCosmetic().onUnequip(player);
+            }
         }
     }
 
@@ -52,7 +57,11 @@ public class CosmeticEntry extends PlayerDatabaseEntry {
         getDocument().put("cosmetics", cosmetics);
 
         // Call event
-        cosmetic.getCosmetic().onEquip(getPlayer());
+        final Player player = getOnlinePlayer();
+
+        if (player != null) {
+            cosmetic.getCosmetic().onEquip(player);
+        }
     }
 
     public boolean hasCosmetic(Cosmetics cosmetic) {
@@ -81,10 +90,6 @@ public class CosmeticEntry extends PlayerDatabaseEntry {
         getDocument().put("cosmetics", cosmetics);
     }
 
-    private List<String> getOwnedCosmetics() {
-        return getDocument().get("cosmetics", new Document()).get("owned", Lists.newArrayList());
-    }
-
     public List<Cosmetics> getOwnedCosmeticsAsCosmetic() {
         final List<String> names = getOwnedCosmetics();
         final List<Cosmetics> cosmetics = Lists.newArrayList();
@@ -98,6 +103,10 @@ public class CosmeticEntry extends PlayerDatabaseEntry {
         }
 
         return cosmetics;
+    }
+
+    private List<String> getOwnedCosmetics() {
+        return getDocument().get("cosmetics", new Document()).get("owned", Lists.newArrayList());
     }
 
 

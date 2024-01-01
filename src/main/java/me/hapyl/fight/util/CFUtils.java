@@ -219,7 +219,6 @@ public class CFUtils {
     /**
      * @deprecated use {@link me.hapyl.fight.game.effect.GameEffectType#INVISIBILITY}
      */
-    @Deprecated
     public static void hidePlayer(Player player) {
         CF.getAlivePlayers().forEach(gp -> {
             if (gp.getPlayer() == player || gp.isSpectator() || gp.isTeammate(CF.getPlayer(player))) {
@@ -228,12 +227,13 @@ public class CFUtils {
 
             gp.hideEntity(player);
         });
+
+        // Send a packet to keep the player in tab
     }
 
     /**
      * @deprecated use {@link me.hapyl.fight.game.effect.GameEffectType#INVISIBILITY}
      */
-    @Deprecated
     public static void showPlayer(Player player) {
         CF.getPlayers().forEach(gp -> {
             if (gp.isNot(player)) {
@@ -871,6 +871,23 @@ public class CFUtils {
         if (!NumberConversions.isFinite(v)) {
             Debug.info("F NOT FINITE");
             fix.accept(0.0f);
+        }
+    }
+
+    public static <T> Collection<T> computeCollection(@Nonnull Collection<T> collection, @Nonnull T t, boolean add) {
+        if (add) {
+            collection.add(t);
+        }
+        else {
+            collection.remove(t);
+        }
+
+        return collection;
+    }
+
+    public static void validateVarArgs(Object[] objects) {
+        if (objects == null || objects.length == 0) {
+            throw new IllegalArgumentException("there must be at least one var arg!");
         }
     }
 }

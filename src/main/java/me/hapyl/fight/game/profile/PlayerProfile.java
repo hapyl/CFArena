@@ -65,7 +65,7 @@ public class PlayerProfile {
         this.player = player;
 
         // Init database before anything else
-        this.playerDatabase = new PlayerDatabase(player);
+        this.playerDatabase = PlayerDatabase.instantiate(player);
         this.localTeamManager = new LocalTeamManager(player);
         this.loaded = false;
         this.resourcePack = false;

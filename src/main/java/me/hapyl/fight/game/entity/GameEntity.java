@@ -35,6 +35,7 @@ public class GameEntity {
     private final Set<String> tags;
     @Nonnull
     protected LivingEntity entity;
+    private boolean forceValid;
     // By default, GameEntity is a 'base' class, which allows for
     // faster and better checks for if entity is valid.
     protected boolean base = false;
@@ -175,8 +176,8 @@ public class GameEntity {
             return true;
         }
 
-        // Dummy check
-        if (entity.getScoreboardTags().contains("dummy")) {
+        // Force valid check
+        if (forceValid) {
             return true;
         }
 
@@ -455,5 +456,13 @@ public class GameEntity {
 
     public boolean hasGravity() {
         return entity.hasGravity();
+    }
+
+    public void setForceValid(boolean forceValid) {
+        this.forceValid = forceValid;
+    }
+
+    public boolean isForceValid() {
+        return forceValid;
     }
 }

@@ -384,12 +384,12 @@ public class GamePlayerUI extends TickingGameTask {
                 """
                                        
                         %s
-                        &8%s
+                        &8Version %s
                                                 
                         &7ᴘʟᴀʏᴇʀs: &f%s&7, ᴛᴘs: %s
                         """.formatted(
                         CF.getName(),
-                        CF.getVersion(),
+                        CF.getVersionNoSnapshot(),
                         CF.getOnlinePlayerCount(),
                         CF.getTpsFormatted()
                 ),

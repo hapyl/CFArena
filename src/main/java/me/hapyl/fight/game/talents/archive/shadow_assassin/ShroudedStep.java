@@ -88,7 +88,7 @@ public class ShroudedStep extends Talent {
                 if (!player.isSneaking()) {
                     final Human decoy = new HumanNPC(entityLocation, "", player.getName()) {
                         @Override
-                        public void onClick(Player player, HumanNPC npc, ClickType clickType) {
+                        public void onClick(@Nonnull Player player, @Nonnull ClickType clickType) {
                             explode(this);
                         }
                     };

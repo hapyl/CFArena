@@ -24,7 +24,7 @@ public abstract class Construct extends TickingGameTask {
     protected final Location location;
     @Nonnull
     protected final ConstructEntity entity;
-    private final EngineerTalent talent;
+    protected final EngineerTalent talent;
     private final Engineer hero;
     private int level;
     private int cost;
@@ -138,7 +138,7 @@ public abstract class Construct extends TickingGameTask {
     }
 
     public boolean levelUp() {
-        if (level >= MAX_LEVEL) {
+        if (level >= (MAX_LEVEL - 1)) {
             player.sendMessage("&6&l🔧 &cAlready at max level!");
             player.playSound(Sound.BLOCK_ANVIL_LAND, 1.0f);
             return false;
@@ -158,6 +158,9 @@ public abstract class Construct extends TickingGameTask {
         if (entity.getHealth() < halfHealth) {
             entity.setHealth(halfHealth);
         }
+
+        // Update display entity
+        this.entity.setDisplayEntity(level);
 
         onLevelUp();
 
@@ -180,12 +183,13 @@ public abstract class Construct extends TickingGameTask {
         return entity;
     }
 
-    public boolean checkEntity(Entity entity){
-        if(!(entity instanceof LivingEntity livingEntity)){
+    public boolean checkEntity(Entity entity) {
+        if (!(entity instanceof LivingEntity livingEntity)) {
             return false;
         }
         return this.entity.getEntity().is(livingEntity);
     }
+
     @Nonnull
     public String getLevelRoman() {
         return RomanNumber.toRoman(level + 1);

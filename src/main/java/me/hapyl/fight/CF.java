@@ -352,6 +352,17 @@ public final class CF {
     }
 
     /**
+     * Registers the given {@link Listener}s to the plugin.
+     *
+     * @param listeners - Listeners to register.
+     */
+    public static void registerEvents(@Nonnull List<Listener> listeners) {
+        for (Listener listener : listeners) {
+            registerEvents(listener);
+        }
+    }
+
+    /**
      * Gets an {@link GameEntity} by its entity Id.
      *
      * @param entityId - Entity Id.

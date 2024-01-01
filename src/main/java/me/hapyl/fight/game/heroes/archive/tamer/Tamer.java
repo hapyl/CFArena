@@ -11,13 +11,13 @@ import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroPlaque;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.tamer.MineOBall;
 import me.hapyl.fight.game.talents.archive.tamer.TamingTheWind;
 import me.hapyl.fight.game.talents.archive.tamer.pack.ActiveTamerPack;
 import me.hapyl.fight.game.talents.archive.tamer.pack.DrWitch;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.CFUtils;
@@ -32,6 +32,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.player.PlayerFishEvent;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
@@ -104,6 +105,22 @@ public class Tamer extends Hero implements Listener, UIComponent, HeroPlaque {
     }
 
     @EventHandler()
+    public void handle(PlayerFishEvent ev) {
+        final Player player = ev.getPlayer();
+        final PlayerFishEvent.State state = ev.getState();
+
+        if (state != PlayerFishEvent.State.CAUGHT_FISH) {
+            return;
+        }
+
+        if (!validatePlayer(player)) {
+            return;
+        }
+
+        Achievements.FISHING_TIME.complete(player);
+    }
+
+    @EventHandler()
     public void handleLash(ProjectileHitEvent ev) {
         if (!(ev.getEntity() instanceof FishHook hook) || !(hook.getShooter() instanceof Player player)) {
             return;
@@ -118,10 +135,6 @@ public class Tamer extends Hero implements Listener, UIComponent, HeroPlaque {
         final Block hitBlock = ev.getHitBlock();
 
         if (hitBlock != null) {
-            if (hook.isInWater()) {
-                Achievements.FISHING_TIME.complete(player);
-            }
-
             hook.remove();
             return;
         }

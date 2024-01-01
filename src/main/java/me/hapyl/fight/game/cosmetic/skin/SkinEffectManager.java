@@ -6,6 +6,7 @@ import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.MoveType;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.task.GameTask;
 import org.bukkit.event.Listener;
@@ -18,7 +19,7 @@ public class SkinEffectManager implements Listener, GameElement {
 
     @Override
     public void onStart() {
-        new GameTask() {
+        new GameTask() { // fixme gameTask will be cancelled you dumass
             private int tick = 0;
 
             @Override
@@ -28,13 +29,14 @@ public class SkinEffectManager implements Listener, GameElement {
                 for (GamePlayer player : CF.getAlivePlayers()) {
                     final PlayerProfile profile = PlayerProfile.getProfile(player.getPlayer());
                     final Skins enumSkin = null; // profile.getSkin();
+
                     if (enumSkin == null) {
                         continue;
                     }
 
                     final Skin skin = enumSkin.getSkin();
 
-                    if (!player.hasMovedInLast(1000)) {
+                    if (!player.hasMovedInLast(MoveType.KEYBOARD,1000)) {
                         skin.onStandingStill(player.getPlayer());
                     }
 

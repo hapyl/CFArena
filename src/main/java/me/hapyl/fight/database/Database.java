@@ -92,7 +92,7 @@ public class Database extends DependencyInjector<Main> {
             // load async database
             globalConfig = new GlobalConfigCollection(global);
         } catch (Exception e) {
-            breakConnectionAndDisablePlugin("Failed to retrieve database collection!");
+            breakConnectionAndDisablePlugin("Failed to retrieve a database collection!");
         }
     }
 

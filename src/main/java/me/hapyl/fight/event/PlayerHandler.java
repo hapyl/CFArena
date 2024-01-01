@@ -10,10 +10,10 @@ import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.CriticalResponse;
 import me.hapyl.fight.game.attribute.EntityAttributes;
-import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.EntityData;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.entity.MoveType;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
 import me.hapyl.fight.game.entity.ping.PlayerPing;
 import me.hapyl.fight.game.heroes.Hero;
@@ -65,7 +65,6 @@ import javax.annotation.Nullable;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Random;
 
 /**
  * Handles all player related events.
@@ -73,6 +72,7 @@ import java.util.Random;
 public class PlayerHandler implements Listener {
 
     public static final Map<PotionEffectType, AttributeType> disabledEffects = Maps.newHashMap();
+    private static final double VELOCITY_MAX_Y = 4.821600093841552d;
     public final double RANGE_SCALE = 8.933d;
     public final double DAMAGE_LIMIT = Short.MAX_VALUE;
 
@@ -156,7 +156,7 @@ public class PlayerHandler implements Listener {
         manager.getOrCreateProfile(player).getDatabase().save();
 
         // Delete database instance
-        PlayerDatabase.removeDatabase(player.getUniqueId());
+        PlayerDatabase.uninstantiate(player.getUniqueId());
 
         // Delete profile
         manager.removeProfile(player);
@@ -719,6 +719,15 @@ public class PlayerHandler implements Listener {
             return;
         }
 
+        // Attempt to fix the jump boost bug
+        final Vector velocity = player.getVelocity();
+
+        if (velocity.getY() >= VELOCITY_MAX_Y) {
+            ev.setCancelled(true);
+            ev.setTo(from);
+            return;
+        }
+
         if (Manager.current().isGameInProgress()) {
             final GamePlayer gamePlayer = CF.getPlayer(player);
             if (gamePlayer == null) {
@@ -726,28 +735,17 @@ public class PlayerHandler implements Listener {
             }
 
             // AFK detection
-            // Mark as moved even if the player can't move and only moved the mouse
-            gamePlayer.markLastMoved();
+            gamePlayer.markLastMoved(MoveType.MOUSE);
 
             if (hasNotMoved(from, to)) {
                 return;
             }
 
+            gamePlayer.markLastMoved(MoveType.KEYBOARD);
+
             // Handle no moving
             if (!gamePlayer.canMove()) {
                 ev.setCancelled(true);
-                return;
-            }
-
-            // Amnesia
-            if (gamePlayer.hasEffect(GameEffectType.AMNESIA)) {
-                final double pushSpeed = player.isSneaking() ? 0.05d : 0.1d;
-
-                player.setVelocity(new Vector(
-                        new Random().nextBoolean() ? pushSpeed : -pushSpeed,
-                        -0.2723,
-                        new Random().nextBoolean() ? pushSpeed : -pushSpeed
-                ));
             }
         }
     }

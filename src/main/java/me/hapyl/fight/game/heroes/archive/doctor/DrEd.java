@@ -8,12 +8,11 @@ import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.loadout.HotbarSlots;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
-import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -29,7 +28,7 @@ import javax.annotation.Nonnull;
 
 public class DrEd extends Hero implements UIComponent {
 
-    private final Weapon ultimateWeapon = new PhysGun();
+    private final PhysGun ultimateWeapon = new PhysGun();
     private final PlayerMap<BlockShield> playerShield;
 
     public DrEd() {
@@ -132,6 +131,7 @@ public class DrEd extends Hero implements UIComponent {
         player.setItemAndSnap(HotbarSlots.HERO_ITEM, ultimateWeapon.getItem());
 
         GameTask.runLater(() -> {
+            ultimateWeapon.stop(player);
             player.setItem(HotbarSlots.HERO_ITEM, null);
             player.snapToWeapon();
         }, getUltimateDuration());

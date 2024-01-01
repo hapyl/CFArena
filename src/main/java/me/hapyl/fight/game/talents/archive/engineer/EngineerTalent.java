@@ -5,6 +5,8 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.engineer.Engineer;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
+import me.hapyl.spigotutils.module.block.display.BlockStudioParser;
+import me.hapyl.spigotutils.module.block.display.DisplayData;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -14,6 +16,9 @@ import javax.annotation.Nonnull;
 public abstract class EngineerTalent extends Talent {
 
     private final int ironCost;
+    private final DisplayData[] displayData = new DisplayData[Construct.MAX_LEVEL];
+
+    protected double yOffset = 2.0d;
 
     public EngineerTalent(@Nonnull String name, int ironCost) {
         super(name);
@@ -59,7 +64,7 @@ public abstract class EngineerTalent extends Talent {
         }
 
         Construct construct = hero.getConstruct(player);
-        if(construct != null){
+        if (construct != null) {
             return Response.error("%s already exists!", construct.getName());
         }
 
@@ -69,4 +74,30 @@ public abstract class EngineerTalent extends Talent {
 
         return Response.OK;
     }
+
+    @Nonnull
+    public DisplayData getDisplayData(int level) {
+        DisplayData data = displayData[level];
+
+        // default to first level entity
+        if (data == null) {
+            data = displayData[0];
+        }
+
+        // if no default level entity you are dumb
+        if (data == null) {
+            throw new IllegalStateException("Construct must have at least one display data! %s has none!".formatted(getName()));
+        }
+
+        return data;
+    }
+
+    protected void setDisplayData(int level, @Nonnull DisplayData data) {
+        displayData[level] = data;
+    }
+
+    protected void setDisplayData(int level, @Nonnull String data) {
+        setDisplayData(level, BlockStudioParser.parse(data));
+    }
+
 }

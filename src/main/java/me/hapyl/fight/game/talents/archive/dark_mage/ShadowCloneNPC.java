@@ -54,16 +54,16 @@ public class ShadowCloneNPC extends HumanNPC implements TalentReference<ShadowCl
     }
 
     @Override
-    public void onClick(Player clicker, HumanNPC npc, ClickType clickType) {
-        if (player.is(clicker)) {
+    public void onClick(@Nonnull Player player, @Nonnull ClickType type) {
+        if (this.player.is(player)) {
             return;
         }
 
         if (ultimate) {
-            blind(clicker);
+            blind(player);
         }
         else {
-            explode(clicker);
+            explode(player);
         }
     }
 

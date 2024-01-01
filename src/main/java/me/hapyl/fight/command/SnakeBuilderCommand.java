@@ -1,6 +1,7 @@
 package me.hapyl.fight.command;
 
 import com.google.common.collect.Maps;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.chat.LazyEvent;
@@ -28,7 +29,7 @@ public class SnakeBuilderCommand extends SimplePlayerAdminCommand implements Lis
     public SnakeBuilderCommand(String name) {
         super(name);
 
-        Bukkit.getPluginManager().registerEvents(this, Main.getPlugin());
+        CF.registerEvents(this);
     }
 
     @Override

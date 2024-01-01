@@ -127,6 +127,7 @@ public class Deathmatch extends CFGameMode {
             player.setGameMode(GameMode.SPECTATOR);
 
             gamePlayer = profile.createGamePlayer();
+            gamePlayer.setState(EntityState.RESPAWNING);
             gamePlayer.resetPlayer();
             gamePlayer.respawnIn(60);
 
