@@ -7,6 +7,7 @@ import me.hapyl.fight.util.Ticking;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Particle;
+import org.bukkit.Sound;
 
 import javax.annotation.Nullable;
 import java.util.Set;
@@ -51,6 +52,7 @@ public class AstralStars implements Ticking {
 
     @Override
     public void tick() {
+        AstralStar previousTarget = targetStar;
         targetStar = null;
         double closestDot = 0.0d;
 
@@ -82,7 +84,12 @@ public class AstralStars implements Ticking {
 
         if (targetStar != null) {
             targetStar.setColor(ChatColor.GREEN);
+
+            if (previousTarget != targetStar) {
+                player.playSound(Sound.ITEM_FLINTANDSTEEL_USE, 0.5f);
+            }
         }
+
     }
 
     public void removeStar(AstralStar star) {

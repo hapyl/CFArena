@@ -42,7 +42,8 @@ public class Archer extends Hero implements Listener {
 
     private final double explosionRadius = 5.0d;
     private final double explosionDamage = 30.0d;
-    private final int boomBowPerShotCd = 10;
+    private final int boomBowPerShotCd = 15;
+
     private final Color hawkeyeArrowColors = Color.fromRGB(19, 81, 143);
 
     public Archer() {
@@ -56,8 +57,8 @@ public class Archer extends Hero implements Listener {
         setWeapon(Material.BOW, "Bow of Destiny", "A custom-made bow with some unique abilities!", 5.0d);
 
         final HeroAttributes attributes = getAttributes();
-        attributes.set(AttributeType.MAX_HEALTH, 125.0d);
-        attributes.set(AttributeType.SPEED, 0.225d);
+        attributes.set(AttributeType.MAX_HEALTH, 100.0d);
+        attributes.set(AttributeType.SPEED, 0.23d);
         attributes.set(AttributeType.DEFENSE, 0.8d);
 
         final Equipment equipment = getEquipment();
@@ -68,9 +69,9 @@ public class Archer extends Hero implements Listener {
         setUltimate(new UltimateTalent(
                 "Boom Bow",
                 "Equip a &6&lBOOM BOW &7for {duration} that fires explosive arrows that explode on impact dealing with massive &ftrue damage&7.",
-                50
+                60
         ).setItem(Material.BLAZE_POWDER)
-                .setDuration(120)
+                .setDurationSec(6)
                 .setCooldownSec(20)
                 .setSound(Sound.ITEM_CROSSBOW_SHOOT, 0.25f));
 
@@ -127,14 +128,7 @@ public class Archer extends Hero implements Listener {
                     return;
                 }
 
-                CFUtils.createExplosion(
-                        arrow.getLocation(),
-                        explosionRadius,
-                        explosionDamage,
-                        gamePlayer,
-                        EnumDamageCause.BOOM_BOW,
-                        null
-                );
+                gamePlayer.createExplosion(arrow.getLocation(), explosionRadius, explosionDamage, EnumDamageCause.BOOM_BOW);
             }
         }
     }

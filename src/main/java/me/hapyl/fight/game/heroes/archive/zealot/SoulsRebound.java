@@ -30,8 +30,6 @@ public class SoulsRebound extends GameTask implements HeroReference<Zealot> {
 
     @Override
     public final void run() {
-        zealot.soulsReboundMap.remove(player);
-
         damageTaken.forEach((entity, damage) -> {
             entity.damage(damage, player, EnumDamageCause.SOULS_REBOUND);
 

@@ -98,7 +98,6 @@ public interface Vectors {
     static Vector random(double x, double y, double z) {
         final Random random = new Random();
 
-
         return new Vector(random.nextDouble() * x, random.nextDouble() * y, random.nextDouble() * z);
     }
 

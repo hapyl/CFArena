@@ -67,7 +67,7 @@ public enum EnumDamageCause {
     FIRE_SPRAY(DamageCause.of("got sprayed to death", "by")),
     FROZEN_WEAPON(DamageCause.of("has been frozen to death", "by")),
     LEASHED(DamageCause.of("leashed to death", "by")),
-    SOUL_WHISPER(DamageCause.of("has entered {damager}'s souls collection")),
+    SOUL_WHISPER(DamageCause.nonCrit("has entered {damager}'s souls collection")),
     TOXIN(DamageCause.nonCrit("drunk too many potions", "while trying to fight")),
     METEORITE(DamageCause.nonCrit("felt the wrath of the rock", "of")),
     MOON_PILLAR(DamageCause.of("couldn't handle the beat", "of")),

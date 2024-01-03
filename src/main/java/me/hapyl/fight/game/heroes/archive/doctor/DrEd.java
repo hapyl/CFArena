@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.archive.doctor;
 
 import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
@@ -38,6 +39,10 @@ public class DrEd extends Hero implements UIComponent {
 
         setDescription("Simply named scientist with not so simple inventions...");
         setItem("3b51e96bddd177992d68278c9d5f1e685b60fbb94aaa709259e9f2781c76f8");
+
+        final HeroAttributes attributes = getAttributes();
+        attributes.setSpeed(115);
+        attributes.setDefense(125);
 
         final Equipment equipment = getEquipment();
         equipment.setChestPlate(237, 235, 235, TrimPattern.VEX, TrimMaterial.IRON);

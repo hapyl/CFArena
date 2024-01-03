@@ -55,6 +55,7 @@ public class ZealotSwords extends PlayerGameTask implements Removable, MaterialC
         final Location location = getLocation();
 
         for (Giant giant : giants) {
+            giant.setFireTicks(0);
             giant.teleport(location);
         }
     }
@@ -73,6 +74,8 @@ public class ZealotSwords extends PlayerGameTask implements Removable, MaterialC
     public void remove() {
         for (Giant giant : giants) {
             giant.remove();
+
+            player.spawnWorldParticle(giant.getEyeLocation(), Particle.EXPLOSION_NORMAL, 5, 0.25d, 0.5d, 0.25d, 0.05f);
         }
     }
 

@@ -198,7 +198,7 @@ public class Spark extends Hero implements PlayerElement {
         }
 
         for (int i = 10; i > 0; i--) {
-            if (location.getBlock().getRelative(BlockFace.DOWN).getType().isOccluding()) {
+            if (location.getBlock().getRelative(BlockFace.DOWN).getType().isSolid()) {
                 break;
             }
 

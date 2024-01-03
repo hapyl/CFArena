@@ -48,6 +48,8 @@ public class MageWeapon extends Weapon implements HeroReference<Mage> {
 
         public SoulWhisper() {
             super("Soul Whisper", "Launch a laser of souls that damages the first enemy it hits.");
+
+            setCooldownSec(1);
         }
 
         @Nullable

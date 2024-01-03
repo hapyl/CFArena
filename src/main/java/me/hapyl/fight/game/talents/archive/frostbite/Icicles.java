@@ -49,7 +49,7 @@ public class Icicles extends Talent {
 
         setDescription("""
                 Summon a bunch of icicles at your &etarget&7 enemy.
-                &8;;If there are no target enemies, the cage will spawn in front of you.
+                &8;;If there are no target enemies, the icicles will spawn in front of you.
                                 
                 After a short delay, the icicles fall down, dealing &cAoE damage&7 and:
                 └ Decreases %s by &b{critChanceReduction}&7.

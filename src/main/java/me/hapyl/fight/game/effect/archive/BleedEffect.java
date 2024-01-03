@@ -35,17 +35,7 @@ public class BleedEffect extends GameEffect {
     public void onTick(@Nonnull LivingGameEntity entity, int tick) {
         if (tick == 0) {
             entity.damage(damage, EnumDamageCause.BLEED);
-            entity.getWorld()
-                    .spawnParticle(
-                            Particle.BLOCK_CRACK,
-                            entity.getLocation(),
-                            10,
-                            0.5d,
-                            0.5d,
-                            0.5d,
-                            0.0d,
-                            Material.REDSTONE_BLOCK.createBlockData()
-                    );
+            spawnParticle(entity.getLocation());
         }
     }
 

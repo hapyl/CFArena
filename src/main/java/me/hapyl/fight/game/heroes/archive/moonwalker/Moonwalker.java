@@ -4,6 +4,7 @@ import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
@@ -18,7 +19,7 @@ import org.bukkit.potion.PotionEffectType;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class Moonwalker extends Hero implements PlayerElement {
+public class Moonwalker extends Hero implements PlayerElement, DisabledHero {
 
     public Moonwalker() {
         super("Moonwalker");

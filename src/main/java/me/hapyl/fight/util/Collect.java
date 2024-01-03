@@ -57,7 +57,7 @@ public final class Collect {
     @Nullable
     public static LivingGameEntity targetEntity(@Nonnull GamePlayer player, double radius, double dot, @Nullable Predicate<LivingGameEntity> predicate) {
         final List<LivingGameEntity> nearbyEntities = nearbyEntities(player.getLocation(), radius);
-        final Vector casterDirection = player.getLocation().getDirection().normalize();
+        final Vector casterDirection = player.getEyeLocation().getDirection().normalize();
 
         double closestDot = 0.0d;
         LivingGameEntity closestEntity = null;
@@ -68,7 +68,7 @@ public final class Collect {
                 continue;
             }
 
-            final Vector direction = entity.getLocation().subtract(player.getLocation()).toVector().normalize();
+            final Vector direction = entity.getLocation().subtract(player.getEyeLocation()).toVector().normalize();
 
             final double dotProduct = casterDirection.dot(direction);
             final double distance = player.getLocation().distance(entity.getLocation());

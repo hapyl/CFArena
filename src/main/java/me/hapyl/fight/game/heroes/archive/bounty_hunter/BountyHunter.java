@@ -39,7 +39,6 @@ import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class BountyHunter extends Hero implements DisplayFieldProvider {
 
@@ -66,7 +65,7 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
         super("Bounty Hunter", """
                 She is a skilled bounty hunter.
                                 
-                &8&o;;"Jackpot! Everyone here's got a bounty on their head."
+                &8&o;;`Jackpot! Everyone here's got a bounty on their head.`
                 """);
 
         setAffiliation(Affiliation.MERCENARY);

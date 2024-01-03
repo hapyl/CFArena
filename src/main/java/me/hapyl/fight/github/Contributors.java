@@ -9,6 +9,7 @@ import me.hapyl.fight.util.Requests;
 import javax.annotation.Nonnull;
 import java.util.List;
 
+// todo -> Cache and refresh like once an hour or something to not limit requests
 public class Contributors {
 
     private static final String CONTRIBUTORS_URL = "https://api.github.com/repos/hapyl/ClassesFightArena/contributors";

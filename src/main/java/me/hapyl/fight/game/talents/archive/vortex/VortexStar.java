@@ -13,9 +13,9 @@ import javax.annotation.Nonnull;
 
 public class VortexStar extends Talent {
 
-    @DisplayField private final short maximumStars = 5;
+    @DisplayField private final short maximumStars = 7;
     @DisplayField private final int pickupCooldown = 30;
-    @DisplayField private final int summonCooldown = 200;
+    @DisplayField private final int summonCooldown = 100;
 
     private final PlayerMap<AstralStars> stars = PlayerMap.newMap();
 
@@ -26,7 +26,7 @@ public class VortexStar extends Talent {
                 Summon an &eAstral Star&7 at your current location.
                 &8&o;;If used nearby a star, it will be picked up.
                                 
-                &7&o;;The stars are your guide! But only &b{maximumStars}&7&o can exist at the same time.
+                &7&o;;The stars are your guide! But only &b&o{maximumStars}&7&o can exist at the same time.
                 """);
 
         setType(Type.CREATABLE);
@@ -62,7 +62,7 @@ public class VortexStar extends Talent {
             public void run() {
                 stars.values().forEach(AstralStars::tick);
             }
-        }.runTaskTimer(0, 5);
+        }.runTaskTimer(0, 3);
     }
 
     @Override

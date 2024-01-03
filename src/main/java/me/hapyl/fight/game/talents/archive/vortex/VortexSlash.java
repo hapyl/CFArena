@@ -19,7 +19,7 @@ import javax.annotation.Nonnull;
 public class VortexSlash extends Talent {
 
     @DisplayField private final int maxDuration = Tick.fromSecond(10);
-    @DisplayField private final double damage = 1.0d;
+    @DisplayField private final double damage = 0.0d;
     @DisplayField private final double collectDistance = 2.0d;
     @DisplayField private final double shiftDistance = 0.5;
 
@@ -38,7 +38,7 @@ public class VortexSlash extends Talent {
 
         setType(Type.DAMAGE);
         setItem(Material.BONE_MEAL);
-        setCooldownSec(20);
+        setCooldownSec(10);
     }
 
     @Override

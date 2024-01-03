@@ -1,0 +1,6 @@
+database:
+  type: "PRODUCTION"
+  connection_link: "null"
+motd:
+  header: "&e&lCLASSES FIGHT &c&lᴀʀᴇɴᴀ"
+  footer: "&3Hosted by &bServer.pro"

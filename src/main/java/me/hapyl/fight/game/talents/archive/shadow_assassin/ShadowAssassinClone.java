@@ -28,8 +28,8 @@ public class ShadowAssassinClone extends ShadowAssassinTalent {
     @DisplayField protected final short cloneLimit = 3;
     @DisplayField protected final short energyRegen = 25;
 
-    @DisplayField protected final double furyAoeDistance = 3.0d;
-    @DisplayField protected final int furyImpairDuration = 60;
+    @DisplayField protected final double furyAoeDistance = 6.0d;
+    @DisplayField protected final int furyImpairDuration = 200;
     @DisplayField protected final double furyCloneDamage = 20.0d;
 
     private final PlayerMap<PlayerCloneList> clones = PlayerMap.newMap();

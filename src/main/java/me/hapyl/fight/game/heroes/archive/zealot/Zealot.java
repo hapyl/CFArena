@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.heroes.archive.zealot;
 
-import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.InstanceEntityData;
@@ -25,6 +24,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -32,12 +32,10 @@ import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 
 import javax.annotation.Nonnull;
-import java.util.Map;
 
 public class Zealot extends Hero implements Listener {
 
     protected final Equipment abilityEquipment;
-    protected final Map<Player, SoulsRebound> soulsReboundMap;
 
     private final PlayerMap<ZealotSwords> playerSwords = PlayerMap.newMap();
 
@@ -59,8 +57,6 @@ public class Zealot extends Hero implements Listener {
         abilityEquipment.setLeggings(Material.GOLDEN_LEGGINGS, TrimPattern.SILENCE, TrimMaterial.GOLD);
         abilityEquipment.setBoots(Material.GOLDEN_BOOTS, TrimPattern.RIB, TrimMaterial.GOLD);
 
-        soulsReboundMap = Maps.newConcurrentMap();
-
         setUltimate(new ZealotUltimate());
     }
 
@@ -76,7 +72,7 @@ public class Zealot extends Hero implements Listener {
 
     @EventHandler()
     public void handleSwing(PlayerInteractEvent ev) {
-        if (ev.getHand() == EquipmentSlot.OFF_HAND) {
+        if (ev.getAction() == Action.PHYSICAL || ev.getHand() == EquipmentSlot.OFF_HAND) {
             return;
         }
 

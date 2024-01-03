@@ -439,19 +439,15 @@ public enum Talents {
     @Deprecated TRAP_CAGE(new TrapCage()),
     @Deprecated TRAP_WIRE(new TrapWire()),
     NEURAL_THEFT(new PassiveTalent(
-            Named.BUG.getName(), """
-            A nano &fbug&7, capable of &ehacking &copponents&7.
-                        
-            At &bintervals&7, the &fbug&7 will hack and send the data to &nyou&7 and your &nteammates&7.
+            "Neural Theft", """
+            At &bintervals&7, &bhack&7 all &fbugged&7 opponents and send the data to &nyou&7 and your &nteammates&7.
                         
             &oThe data includes:
             └ Enemy's &blocation&7.
             └ Enemy's &c❤ Health&7.
             └ Enemy's %1$s.
                         
-            The &fbug&7 also &4steals&7 a small amount of %1$s.
-            &8;;Once implanted, the bug cannot be removed.
-                        
+            Also, &4steal&7 a small amount of %1$s from each hacked enemy.
             """.formatted(Named.ENERGY), Material.CHAINMAIL_HELMET, Talent.Type.IMPAIR
     )),
 

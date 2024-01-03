@@ -99,23 +99,16 @@ public enum Heroes implements Formatted {
     WAR_MACHINE(new KillingMachine()),
     HARBINGER(new Harbinger()),
     SHAMAN(new Shaman()),
-
-    // 1.5
     HEALER(new Healer()),
     VAMPIRE(new Vampire()),
     BOUNTY_HUNTER(new BountyHunter()),
     SWORD_MASTER(new SwordMaster()),
     ENGINEER(new Engineer()),
-
-    // 1.6,
     ORC(new Orc()),
-
-    // 2.0
     BLOODFIEND(new Bloodfiend()),
     ZEALOT(new Zealot()),
     RONIN(new Ronin()),
     JESTER(new Jester()),
-
 
     ;
 

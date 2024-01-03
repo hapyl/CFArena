@@ -39,8 +39,8 @@ import java.util.Map;
 
 public class Tamer extends Hero implements Listener, UIComponent, HeroPlaque {
 
-    private final double WEAPON_DAMAGE = 8.0d; // since it's a fishing rod, we're storing the damage here
-    private final int WEAPON_COOLDOWN = 10;
+    private final double WEAPON_DAMAGE = 7.0d; // since it's a fishing rod, we're storing the damage here
+    private final int WEAPON_COOLDOWN = 15;
 
     public final double ultimateMultiplier = 2.0d;
     public final Map<ThrownPotion, DrWitch.WitchData> potionMap = Maps.newHashMap();
@@ -141,8 +141,10 @@ public class Tamer extends Hero implements Listener, UIComponent, HeroPlaque {
 
         if (ev.getHitEntity() instanceof LivingEntity living) {
             CF.getEntityOptional(living).ifPresent(gameEntity -> {
-                gameEntity.damage(WEAPON_DAMAGE, gamePlayer, EnumDamageCause.LEASHED);
+                gameEntity.setLastDamager(gamePlayer);
+                gameEntity.damage(WEAPON_DAMAGE, EnumDamageCause.LEASHED);
             });
+
             hook.remove();
         }
 

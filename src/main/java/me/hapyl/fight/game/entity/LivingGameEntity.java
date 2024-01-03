@@ -32,6 +32,8 @@ import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.math.geometry.Draw;
+import me.hapyl.spigotutils.module.math.geometry.Quality;
+import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
 import me.hapyl.spigotutils.module.player.EffectType;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.Reflect;
@@ -295,6 +297,36 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         cooldown.startCooldown(Cooldown.NO_DAMAGE, ticks * 50L);
     }
 
+    public void createExplosion(@Nonnull Location location, double explosionRadius, double explosionDamage, @Nullable EnumDamageCause cause) {
+        Collect.nearbyEntities(location, explosionRadius).forEach(entity -> {
+            double damage = explosionDamage;
+
+            if (isTeammate(entity)) {
+                damage /= 3.0d;
+            }
+
+            entity.damage(damage, this, cause);
+        });
+
+        // Fx
+        Geometry.drawCircle(location, explosionRadius, Quality.NORMAL, new WorldParticle(Particle.CRIT));
+        Geometry.drawCircle(location, explosionRadius + 0.5d, Quality.NORMAL, new WorldParticle(Particle.ENCHANTMENT_TABLE));
+
+        final int amountScaled = (int) (explosionRadius * 1.5d);
+        final double offsetScaled = (explosionRadius - 2) * 0.8d;
+
+        spawnWorldParticle(location, Particle.EXPLOSION_LARGE, amountScaled, offsetScaled, 0, offsetScaled, 0);
+        playWorldSound(location, Sound.ENTITY_GENERIC_EXPLODE, 1);
+    }
+
+    public boolean isSelfOrTeammate(@Nullable LivingGameEntity victim) {
+        return equals(victim) || isTeammate(victim);
+    }
+
+    public boolean isSelfOrTeammateOrHasEffectResistance(@Nullable LivingGameEntity victim) {
+        return isSelfOrTeammate(victim) || (victim != null && victim.hasCCResistanceAndDisplay(this));
+    }
+
     public boolean isInWater() {
         return entity.isInWater();
     }
@@ -482,6 +514,8 @@ public class LivingGameEntity extends GameEntity implements Ticking {
                 (int) Numbers.clamp(amount / 5, 1, 10),
                 0.44, 0.2, 0.44, 0.015f
         );
+
+        new AscendingDisplay("&a+ &l%.0f".formatted(amount), 15).display(getLocation());
     }
 
     /**
@@ -688,6 +722,10 @@ public class LivingGameEntity extends GameEntity implements Ticking {
 
     public double getMaxHealth() {
         return attributes.get(AttributeType.MAX_HEALTH);
+    }
+
+    public boolean isTeammate(@Nullable GameEntity entity) {
+        return entity != null && GameTeam.isTeammate(Entry.of(this), Entry.of(entity));
     }
 
     @Override

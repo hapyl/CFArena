@@ -35,7 +35,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.EulerAngle;
-import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 import org.joml.Matrix4f;
 
@@ -419,6 +418,7 @@ public class CFUtils {
         createExplosion(location, range, damage, damager, cause, null);
     }
 
+    @Deprecated
     public static void createExplosion(Location location, double range, double damage, @Nullable LivingGameEntity damager, @Nullable EnumDamageCause cause, @Nullable Consumer<LivingGameEntity> consumer) {
         final World world = location.getWorld();
         if (world == null) {
@@ -835,42 +835,12 @@ public class CFUtils {
         }
     }
 
-    public static void fixFinite(@Nonnull Location location) {
-        fixFinite(location.getX(), location::setX);
-        fixFinite(location.getY(), location::setY);
-        fixFinite(location.getZ(), location::setZ);
-        fixFinite(location.getYaw(), location::setYaw);
-        fixFinite(location.getPitch(), location::setPitch);
-    }
-
-    @Nonnull
-    public static Vector fixFinite(@Nonnull Vector vector) {
-        fixFinite(vector.getX(), vector::setX);
-        fixFinite(vector.getY(), vector::setY);
-        fixFinite(vector.getZ(), vector::setZ);
-
-        return vector;
-    }
-
     @Nullable
     public static URL urlFromString(String url) {
         try {
             return new URL(url);
         } catch (Exception e) {
             return null;
-        }
-    }
-
-    public static void fixFinite(double v, Consumer<Double> fix) {
-        if (!NumberConversions.isFinite(v)) {
-            fix.accept(0.0d);
-        }
-    }
-
-    public static void fixFinite(float v, Consumer<Float> fix) {
-        if (!NumberConversions.isFinite(v)) {
-            Debug.info("F NOT FINITE");
-            fix.accept(0.0f);
         }
     }
 

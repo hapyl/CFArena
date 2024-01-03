@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 public class VortexWeapon extends Weapon implements HeroReference<Vortex> {
 
     @DisplayField private final double explosionDistance = 5.0d;
-    @DisplayField private final double explosionDamage = 15.0d;
+    @DisplayField private final double explosionDamage = 10.0d;
 
     private final Vortex hero;
 
@@ -75,7 +75,7 @@ public class VortexWeapon extends Weapon implements HeroReference<Vortex> {
             });
 
             // Fx
-            player.spawnWorldParticle(location, Particle.EXPLOSION_LARGE, 10, 0, 0, 0, 1);
+            player.spawnWorldParticle(location, Particle.EXPLOSION_LARGE, 5, 0.5, 0.5, 0.5, 1);
             player.spawnWorldParticle(location, Particle.CRIT, 10, 0.5d, 0.5d, 0.5d, 0.025f);
             player.spawnWorldParticle(
                     location,

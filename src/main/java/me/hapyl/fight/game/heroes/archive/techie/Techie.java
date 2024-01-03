@@ -3,6 +3,7 @@ package me.hapyl.fight.game.heroes.archive.techie;
 import me.hapyl.fight.event.custom.GameDeathEvent;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -33,6 +34,7 @@ import org.bukkit.inventory.meta.trim.TrimPattern;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.Set;
 
 public class Techie extends Hero implements UIComplexComponent, Listener, PlayerDataHandler, DisplayFieldProvider {
 
@@ -69,6 +71,9 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
                 "DYpJG7/gq5paUh9/xrymHlyg1pI5vQ5rWmU8/x+RdUInYVa0TO4Of5b+V1USEg3yGVG3ncwfuOim9kK7qbDXW+Hg0wYbgXr9UYHA3MegKDhov/+DVWPowAQ/FOnNuMhVgG0hFT2UDn8sl2VtaRZbYn3Z8w28By7/pp/9jST38Jcf98aA/JCHpatVGw8hJIlcy5fsAUzujULDUNclfml6jzjoahHOo9A2JYR3wdzaV8bRyTdYLVvyenMUq3y6IcQGnqKV3hfOwrtlP2AXDI8YyUZbf2ISfc+47D6tJeCxAJJQ8rViWgZbLR+Ld7qJq9mQOuZkhZ4+XPQ1FonMTZ5RBhEEn+djoui6JHB/nGPvRIqjBO02PWhXylrjQber8qhRRiD53cx+FIyq9Ccqq4Uh6uhtrbNCxJuouPrjsOdD8uqkM4Hyj75jfG71aYJrygB0M5z7P6NmHbnYYG4tUa5bvz1/YnZymUq8re6X5qDzfBGSMn7LsU/EBwSzmyg04rHlr8xI8yFZMKOBJi8PbwYf7z5E/atA46eqHjeOQiOcso6aY+6GqeF9Upd8OybGDA1SU+RfREVZCNk91MHxwhJrtU8yTMxiL70n7YRmek4hkiOfrdkqrgER6p/1lftJsjpU9MYtN0S1mN/oeong9MVE0EVmgapW4y+Zi4mEGBodqsg="
         ));
 
+        final HeroAttributes attributes = getAttributes();
+        attributes.setSpeed(110);
+
         final Equipment equipment = getEquipment();
         equipment.setChestPlate(245, 245, 245, TrimPattern.TIDE, TrimMaterial.NETHERITE);
         equipment.setLeggings(Material.NETHERITE_LEGGINGS, TrimPattern.SILENCE, TrimMaterial.NETHERITE);
@@ -96,7 +101,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
 
     @Override
     public void onDeath(@Nonnull GamePlayer player) {
-        playerData.removeAnd(player, PlayerData::remove);
+        playerData.removeAnd(player, TechieData::remove);
     }
 
     @EventHandler()
@@ -111,18 +116,30 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
         playerData.forEachAndClear(PlayerData::remove);
     }
 
-    public void revealEntity(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity) {
+    public void revealEntity(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity, @Nonnull Set<BugType> bugs) {
         entity.setGlowing(player, ChatColor.AQUA, neuralTheftDuration);
 
         final Hologram hologram = new Hologram()
                 .create(entity.getLocationToTheLeft(1.5).add(0, 0.5, 0))
-                .setLinesAndUpdate(
+                .setLines(
                         neuralTheftTitle, // todo: Maybe add some classified name for lore here
                         "&fName: " + entity.getName(),
-                        "&cHealth: " + entity.getHealthFormatted(),
-                        "&bUltimate: " + (entity instanceof GamePlayer entityPlayer ? entityPlayer.getUltimateString() : "&kundefined")
-                )
-                .show(player.getPlayer());
+                        "&cHealth: " + entity.getHealthFormatted()
+                );
+
+        if (entity instanceof GamePlayer gamePlayer) {
+            hologram.addLine("&bUltimate: " + gamePlayer.getUltimateString());
+        }
+
+        final StringBuilder builder = new StringBuilder();
+        for (BugType bug : bugs) {
+            builder.append(bug.getName()).append(" ");
+        }
+
+        hologram.addLine("&4Bugs: " + builder.toString().trim());
+        hologram.updateLines();
+
+        hologram.show(player.getPlayer());
 
         GameTask.runLater(hologram::destroy, neuralTheftDuration).setShutdownAction(ShutdownAction.IGNORE);
 
@@ -143,7 +160,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
 
                     for (LivingGameEntity entity : data) {
                         player.getTeam().getPlayers().forEach(teammate -> {
-                            revealEntity(teammate, entity);
+                            revealEntity(teammate, entity, data.getBugs(entity));
                         });
 
                         // Steal energy

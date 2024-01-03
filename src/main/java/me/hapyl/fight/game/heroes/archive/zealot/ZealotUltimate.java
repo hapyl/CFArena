@@ -5,6 +5,7 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 
 public class ZealotUltimate extends UltimateTalent {
 
@@ -30,5 +31,7 @@ public class ZealotUltimate extends UltimateTalent {
         setType(Talent.Type.ENHANCE);
         setItem(Material.GOLDEN_SWORD);
         setDurationSec(12);
+
+        setSound(Sound.ENTITY_HORSE_DEATH, 0.0f);
     }
 }

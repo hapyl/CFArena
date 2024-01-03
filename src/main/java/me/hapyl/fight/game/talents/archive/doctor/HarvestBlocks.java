@@ -178,7 +178,7 @@ public class HarvestBlocks extends Talent {
                 final LivingGameEntity nearestEntity = Collect.nearestEntity(location, 1.5d, player);
                 final Location fixedLocation = entity.getLocation().add(0.0d, 1.5d, 0.0d);
 
-                if (nearestEntity != null || fixedLocation.getBlock().getType().isOccluding()) {
+                if (nearestEntity != null || fixedLocation.getBlock().getType().isSolid()) {
                     removeCancelExplode(fixedLocation);
                     return;
                 }

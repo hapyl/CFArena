@@ -20,7 +20,6 @@ import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -156,7 +155,7 @@ public class GamePlayerUI extends TickingGameTask {
                 temperBuilder.addLore("&a&l" + data.temper.name());
                 data.values.forEach((type, temper) -> {
                     temperBuilder.addLore(" " + type.toString());
-                    temperBuilder.addLore(" %s for %s", temper.value, CFUtils.decimalFormatTick(temper.duration));
+                    temperBuilder.addLore(" %s for %s", temper.value, temper.toString());
                 });
             });
         }

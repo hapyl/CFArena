@@ -11,6 +11,7 @@ import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.archive.techie.BugType;
 import me.hapyl.fight.game.heroes.archive.techie.Techie;
 import me.hapyl.fight.game.heroes.archive.techie.TechieData;
 import me.hapyl.fight.game.maps.GameMaps;
@@ -30,7 +31,7 @@ import java.util.List;
 
 public class Saboteur extends TechieTalent implements HeroReference<Techie> {
 
-    @DisplayField private final double hackDistance = 3.0d;
+    @DisplayField private final double hackDistance = 5.0d;
     @DisplayField private final double hackedSupplyDamage = 10;
     @DisplayField(scaleFactor = 100) private final double hackedSupplyAttackReduction = 0.25d;
     @DisplayField(scaleFactor = 500) private final double hackedSupplySeedReduction = 0.06d; // 30%
@@ -46,18 +47,29 @@ public class Saboteur extends TechieTalent implements HeroReference<Techie> {
         setType(Type.IMPAIR);
         setItem(Material.IRON_TRAPDOOR);
         setCooldownSec(12);
-        setCastingTime(15);
+        setCastingTime(10);
     }
 
     @Nonnull
     @Override
     public String getHackDescription() {
         return """
-                hack all &copponents&7 in front of you, &eimpairing&7 them and &bimplanting&7 a %s onto them.
+                hack all &copponents&7 in front of you, &bimplanting&7 a random &f%s&7 onto them.
                                 
-                This ability can also hack &aSupply Packs&7, rendering them &4unobtainable&7 for &nyou&7 or your &nteammates&7 but &eimpairing&7 an &cenemy&7 when they pick it up.
-                &8;;Impair is identical to this ability's hack.
-                """.formatted(Named.BUG);
+                &6Bugs:
+                %s&7: %s
+                                
+                %s&7: %s
+                                
+                %s&7: %s
+                             
+                This ability can also hack &aSupply Packs&7, rendering them &4unobtainable&7 for &nyou&7 or your &nteammates&7 but &eimpairing&7 and &bimplanting&7 a random &fbug&7 onto an &cenemy&7 when they pick it up.
+                """.formatted(
+                Named.BUG,
+                BugType.TYPE_A.getName(), BugType.TYPE_A.getDescription(),
+                BugType.TYPE_D.getName(), BugType.TYPE_D.getDescription(),
+                BugType.TYPE_S.getName(), BugType.TYPE_S.getDescription()
+        );
     }
 
     @Override
@@ -99,21 +111,18 @@ public class Saboteur extends TechieTalent implements HeroReference<Techie> {
                         player.setLastDamager(player);
                         player.damage(hackedSupplyDamage, EnumDamageCause.HACK);
 
-                        // Impair
-                        temperInstance.temper(player, impairDuration);
-
                         // Fx
                         player.playWorldSound(Sound.ENTITY_ENDERMAN_HURT, 0.75f);
                         player.playWorldSound(Sound.ENTITY_BLAZE_HURT, 0.75f);
 
                         player.sendTitle("&bʜᴀᴄᴋᴇᴅ ʙʏ", "&3" + this.player.getName(), 0, 20, 5);
+                        data.bugRandomly(player);
                     }
                 };
 
                 // Glow hacked pack
                 player.getTeam().getPlayers().forEach(teammate -> {
-                    // fixme: AAAAAAAAAAAAAAAAAA
-                    Glowing.glow(teammate.getPlayer(), entity, ChatColor.AQUA, 1000);
+                    Glowing.glow(teammate.getPlayer(), entity, ChatColor.AQUA, 100000);
                 });
 
                 hackedPacks++;
@@ -126,8 +135,7 @@ public class Saboteur extends TechieTalent implements HeroReference<Techie> {
                 continue;
             }
 
-            temperInstance.temper(entity, impairDuration);
-            data.setBugged(entity, true);
+            data.bugRandomly(entity);
             hackedEnemies++;
         }
 

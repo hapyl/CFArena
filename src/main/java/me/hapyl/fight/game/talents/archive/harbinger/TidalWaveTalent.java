@@ -13,6 +13,10 @@ import javax.annotation.Nonnull;
 public class TidalWaveTalent extends Talent {
 
     @DisplayField protected final double speed = 0.75d;
+    @DisplayField protected final double verticalSpread = 3.0d;
+    @DisplayField protected final double horizontalSpread = 5.0d;
+    @DisplayField protected final double innerToOuterSpread = 1.5d;
+    @DisplayField protected final double distance = 3.0d;
     @DisplayField protected final int riptideDuration = Tick.fromSecond(12);
 
     public TidalWaveTalent() {

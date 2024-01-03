@@ -2,6 +2,7 @@ package me.hapyl.fight.util.collection;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import me.hapyl.fight.game.Debug;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -129,7 +130,7 @@ public final class ConcurrentTable<R, C, V> {
         Set<V> set = Sets.newHashSet();
 
         hashMap.forEach((r, c) -> {
-            if (r.equals(row)) {
+            if (r.row == row) {
                 final V removed = hashMap.remove(r);
 
                 if (removed != null) {

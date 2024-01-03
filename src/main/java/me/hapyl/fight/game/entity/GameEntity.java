@@ -441,9 +441,9 @@ public class GameEntity {
     }
 
     public double dot(@Nonnull Location other) {
-        final Vector vector = other.subtract(getLocation()).toVector().normalize();
+        final Vector vector = other.subtract(getEyeLocation()).toVector().normalize();
 
-        return getDirection().normalize().dot(vector);
+        return getEyeLocation().getDirection().dot(vector);
     }
 
     public void addToTeam(@Nonnull GameTeam team) {

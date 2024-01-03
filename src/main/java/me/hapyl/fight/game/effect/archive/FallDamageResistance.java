@@ -22,7 +22,7 @@ public class FallDamageResistance extends GameEffect implements Listener {
         final LivingGameEntity entity = ev.getEntity();
         final EnumDamageCause cause = ev.getCause();
 
-        if (cause != EnumDamageCause.FALL) {
+        if (cause != EnumDamageCause.FALL || !entity.hasEffect(GameEffectType.FALL_DAMAGE_RESISTANCE)) {
             return;
         }
 

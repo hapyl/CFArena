@@ -846,10 +846,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         return player != null && GameTeam.isTeammate(Entry.of(this), Entry.of(player));
     }
 
-    public boolean isTeammate(@Nullable GameEntity entity) {
-        return entity != null && GameTeam.isTeammate(Entry.of(this), Entry.of(entity));
-    }
-
     public void setHandle(Player player) {
         this.entity = player;
         this.profile = Manager.current().getOrCreateProfile(player);
@@ -1101,14 +1097,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
         return team;
 
-    }
-
-    public boolean isSelfOrTeammate(LivingGameEntity victim) {
-        return equals(victim) || isTeammate(victim);
-    }
-
-    public boolean isSelfOrTeammateOrHasEffectResistance(LivingGameEntity victim) {
-        return isSelfOrTeammate(victim) || (victim != null && victim.hasCCResistanceAndDisplay(this));
     }
 
     /**

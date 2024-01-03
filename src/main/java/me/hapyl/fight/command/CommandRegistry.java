@@ -127,6 +127,7 @@ import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
 import org.joml.AxisAngle4f;
@@ -199,6 +200,19 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new ArtifactCommand("artifact"));
 
         // *=* Inner commands *=*
+
+        register("testLosBlocks", (player, args) -> {
+            final RayTraceResult result = player.rayTraceBlocks(50);
+            final org.bukkit.entity.Entity hitEntity = result.getHitEntity();
+            final LivingGameEntity entity = CF.getEntity(hitEntity);
+
+            if (hitEntity == null) {
+                Chat.sendMessage(player, "&cNo entity hit!");
+                return;
+            }
+
+            Chat.sendMessage(player, "&aHit: " + entity.toString());
+        });
 
         register("testContributors", (player, args) -> {
             final List<Contributor> contributors = Contributors.getContributors();

@@ -3,6 +3,9 @@ package me.hapyl.fight.game.heroes.archive.shark;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.effect.GameEffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -33,6 +36,9 @@ import javax.annotation.Nonnull;
 public class Shark extends Hero implements Listener {
 
     private final double CRITICAL_AMOUNT = 15.0d;
+    private final TemperInstance temperInstance = Temper.SHARK.newInstance("Oceanborn")
+            .increase(AttributeType.ATTACK, 1.2d)
+            .increase(AttributeType.DEFENSE, 0.5d);
 
     public Shark() {
         super(
@@ -110,8 +116,7 @@ public class Shark extends Hero implements Listener {
     public void setState(GamePlayer player, boolean state, int duration) {
         if (state) {
             player.setWalkSpeed(0.4f);
-            player.addPotionEffect(EffectType.STRENGTH, duration, 2);
-            player.addPotionEffect(EffectType.RESISTANCE, duration, 1);
+            temperInstance.temper(player, duration);
         }
         else {
             player.setWalkSpeed(0.2f);

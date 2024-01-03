@@ -22,7 +22,7 @@ import javax.annotation.Nonnull;
 
 public class Mage extends Hero implements UIComponent {
 
-    private final int maxSoulsAmount = 26;
+    private final int maxSoulsAmount = 10;
 
     public final MageSpell spellWyvernHeart = new WyvernHeartSpell();
     public final MageSpell spellDragonSkin = new DragonSkinSpell();

@@ -6,6 +6,7 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
@@ -37,7 +38,7 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 
-public class Swooper extends Hero implements Listener, UIComponent {
+public class Swooper extends Hero implements Listener, UIComponent, DisabledHero {
 
     private final int bufferSize = 5 * 20;
     private final int ultimateSpeed = 2;

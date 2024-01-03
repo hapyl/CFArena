@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.archive.ender;
 
 import me.hapyl.fight.event.custom.EnderPearlTeleportEvent;
+import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
@@ -33,6 +34,9 @@ public class Ender extends Hero implements Listener {
         setDescription(
                 "Weird enderman-like looking warrior with teleportation abilities. He hits you with his arm, but it hurts like a brick."
         );
+
+        final HeroAttributes attributes = getAttributes();
+        attributes.setHealth(150);
 
         final Equipment equipment = this.getEquipment();
         equipment.setChestPlate(85, 0, 102);

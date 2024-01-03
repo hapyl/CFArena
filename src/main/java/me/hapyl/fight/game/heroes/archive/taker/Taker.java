@@ -39,7 +39,7 @@ public class Taker extends Hero implements UIComponent, DisplayFieldProvider {
     @DisplayField private final double ultimateSpeed = 0.45d;
     @DisplayField private final int hitDelay = 10;
 
-    private final PlayerMap<SpiritualBones> playerBones = PlayerMap.newMap();
+    private final PlayerMap<SpiritualBones> playerBones = PlayerMap.newConcurrentMap();
 
     public Taker() {
         super("Taker", "Will take your life away!");
@@ -104,8 +104,11 @@ public class Taker extends Hero implements UIComponent, DisplayFieldProvider {
 
     @Override
     public void onDeath(@Nonnull GamePlayer player) {
-        getBones(player).reset();
-        getBones(player).clearArmorStands();
+        final SpiritualBones bones = playerBones.remove(player);
+
+        if (bones != null) {
+            bones.reset();
+        }
     }
 
     @Override
@@ -135,7 +138,6 @@ public class Taker extends Hero implements UIComponent, DisplayFieldProvider {
         final double healing = 1.0d + bonesAmount;
 
         bones.reset();
-        bones.clearArmorStands();
 
         player.addPotionEffect(PotionEffectType.SLOW, castDuration, 255);
 

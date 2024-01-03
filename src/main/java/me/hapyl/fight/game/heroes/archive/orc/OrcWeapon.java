@@ -35,7 +35,7 @@ public class OrcWeapon extends Weapon {
         setName("Poleaxe");
         setDescription("A sharp poleaxe.");
         setAttackSpeed(-0.4d); // -40%
-        setDamage(12.0d);
+        setDamage(10.0d);
         setId("orc_axe");
 
         setAbility(AbilityType.RIGHT_CLICK, new Throw());
