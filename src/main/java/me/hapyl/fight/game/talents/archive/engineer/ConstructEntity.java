@@ -44,6 +44,7 @@ public class ConstructEntity implements Removable, Ticking {
             final LivingGameEntity entity = new LivingGameEntity(self);
             entity.setImmune(EnumDamageCause.SUFFOCATION);
             entity.setInformImmune(false);
+            entity.setCustomName(construct.getName());
 
             return entity;
         });
@@ -114,7 +115,7 @@ public class ConstructEntity implements Removable, Ticking {
 
     public void lookAt(@Nonnull Location location) {
         final Location entityLocation = displayEntity.getHead().getLocation();
-        final Vector vector = location.toVector().subtract(entityLocation.toVector()).setY(0.0d);
+        final Vector vector = location.toVector().subtract(entityLocation.toVector());
 
         entityLocation.setDirection(vector);
         displayEntity.teleport(entityLocation);

@@ -149,7 +149,6 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
         });
     }
 
-    @Nullable
     @Override
     public void processDamageAsDamager(@Nonnull DamageInstance instance) {
         final GamePlayer player = instance.getDamagerAsPlayer();
@@ -259,7 +258,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
             }
         }.runTaskTimer(0, 1);
 
-        PlayerLib.playSound(location, Sound.ENTITY_BAT_TAKEOFF, 0.25f);
+        player.playWorldSound(location, Sound.ENTITY_BAT_TAKEOFF, 0.25f);
 
         playSoundAtTick(
                 location,
@@ -418,6 +417,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
 
         // Ultimate bat
         if (isUsingUltimate(player)) {
+            ev.setCancelled(true);
             return;
         }
 
