@@ -1,6 +1,7 @@
 ####################################################################
 
-└
+- Player don't hide on start
+- Items don't reset?
 
 ####################################################################
 
@@ -191,7 +192,7 @@ default game entity.
 
 - [✔] HP shows in lobby (Parkour calls creation!)
 - [✔, Fixed using a work-around, need a better patch] Game PLayer is not removed after the game
---  at ClassesFightArena.jar//me.hapyl.fight.game.ui.GamePlayerUI.updateScoreboard(GamePlayerUI.java:147)
+--  at ClassesFightArena.jar//me.hapyl.fight.game.ui.PlayerUI.updateScoreboard(GamePlayerUI.java:147)
 
 - Display damage boost for nightmare
 - [✔] Taker scythe (1) does not work

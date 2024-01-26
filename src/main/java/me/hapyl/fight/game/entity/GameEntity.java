@@ -4,7 +4,7 @@ import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.garbage.CFGarbageCollector;
@@ -169,7 +169,7 @@ public class GameEntity {
                 return false;
             }
 
-            if (gamePlayer.hasEffect(GameEffectType.INVISIBILITY)) {
+            if (gamePlayer.hasEffect(Effects.INVISIBILITY)) {
                 return false;
             }
 
@@ -368,6 +368,17 @@ public class GameEntity {
         return entity.getVelocity();
     }
 
+    /**
+     * Gets the absolute velocity.
+     */
+    @Nonnull
+    public Vector getAbsoluteVelocity() {
+        final Vector velocity = getVelocity();
+
+        return new Vector(Math.abs(velocity.getX()), Math.abs(velocity.getY()), Math.abs(velocity.getZ()));
+    }
+
+
     public void setVelocity(Vector vector) {
         entity.setVelocity(vector);
     }
@@ -434,6 +445,24 @@ public class GameEntity {
     @Nonnull
     public Vector getDirection() {
         return getLocation().getDirection();
+    }
+
+    @Nonnull
+    public Vector getEyeDirection() {
+        return getEyeLocation().getDirection();
+    }
+
+    /**
+     * Gets the throw direction from entity's {@link #getDirection()} multiplied by <code>normalized</code> {@link #getAbsoluteVelocity()}.
+     *
+     * @return the throw direction.
+     */
+    @Nonnull
+    public Vector getThrowDirection() {
+        final Vector direction = getDirection();
+        final Vector velocity = getAbsoluteVelocity().normalize();
+
+        return direction.multiply(velocity);
     }
 
     public net.minecraft.world.entity.Entity getNMSEntity() {

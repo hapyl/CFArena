@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.archive.witcher;
 
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
@@ -25,13 +25,13 @@ public class Akciy extends Talent {
 
     @Override
     public Response execute(@Nonnull GamePlayer player) {
-        final LivingGameEntity target = Collect.targetEntity(player, 50.0d, 0.8d, entity -> !player.isSelfOrTeammate(entity));
+        final LivingGameEntity target = Collect.targetEntityDot(player, 50.0d, 0.8d, entity -> !player.isSelfOrTeammate(entity));
 
         if (target == null) {
             return Response.error("No valid target!");
         }
 
-        target.addEffect(GameEffectType.STUN, getDuration());
+        target.addEffect(Effects.STUN, getDuration());
 
         target.sendMessage("&c%s stunned you!", player.getName());
         player.sendMessage("&aStunned %s!", target.getName());

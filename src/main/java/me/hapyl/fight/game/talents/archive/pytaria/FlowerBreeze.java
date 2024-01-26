@@ -4,6 +4,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.TimedGameTask;
@@ -61,7 +62,7 @@ public class FlowerBreeze extends Talent {
         final World world = player.getWorld();
 
         player.playWorldSound(Sound.ENTITY_HORSE_BREATHE, 0.0f);
-        player.addPotionEffect(PotionEffectType.SLOW, 10, 2);
+        player.addEffect(Effects.SLOW, 2, 10);
 
         // can't go lower than 1 heart
         player.setHealth(Math.max(2, player.getHealth() - healthSacrifice));

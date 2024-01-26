@@ -1,5 +1,7 @@
 package me.hapyl.fight.game;
 
+import me.hapyl.fight.event.DamageInstance;
+
 import javax.annotation.Nonnull;
 
 public interface DamageFormat {
@@ -7,16 +9,12 @@ public interface DamageFormat {
     DamageFormat DEFAULT = new DamageFormat() {
         @Nonnull
         @Override
-        public String getFormat() {
-            return "{damage}";
+        public String format(@Nonnull DamageInstance instance) {
+            return "%.0f".formatted(instance.getDamage());
         }
     };
 
     @Nonnull
-    String getFormat();
-
-    default String format(double damage) {
-        return getFormat().replace("{damage}", "%.1f".formatted(damage));
-    }
+    String format(@Nonnull DamageInstance instance);
 
 }

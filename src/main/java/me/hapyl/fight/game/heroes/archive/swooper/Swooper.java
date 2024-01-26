@@ -1,28 +1,21 @@
 package me.hapyl.fight.game.heroes.archive.swooper;
 
-import me.hapyl.fight.game.Debug;
-import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.DisabledHero;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.UltimateCallback;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.loadout.HotbarSlots;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.PackedParticle;
 import me.hapyl.fight.game.weapons.range.RangeWeapon;
-import me.hapyl.fight.util.Buffer;
-import me.hapyl.fight.util.BufferMap;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.ItemStacks;
-import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -49,10 +42,8 @@ public class Swooper extends Hero implements Listener, UIComponent, DisabledHero
             .addClickEvent(this::launchProjectile)
             .build();
 
-    private final BufferMap<Player, SwooperData> dataMap = new BufferMap<>();
-
-    public Swooper() {
-        super("Swooper");
+    public Swooper(@Nonnull Heroes handle) {
+        super(handle, "Swooper");
 
         setArchetype(Archetype.RANGE);
 
@@ -98,7 +89,7 @@ public class Swooper extends Hero implements Listener, UIComponent, DisabledHero
                         """));
 
         setUltimate(new UltimateTalent(
-                "Showstopper", """
+                this, "Showstopper", """
                 Equip a rocket launcher for {duration}.
                                 
                 &6&lCLICK &7to launch explosive in front of you that explodes on impact dealing massive damage.
@@ -227,59 +218,6 @@ public class Swooper extends Hero implements Listener, UIComponent, DisabledHero
     @Override
     public Talent getPassiveTalent() {
         return Talents.SNIPER_SCOPE.getTalent();
-    }
-
-    @Deprecated
-    private void useUltimateSwoop(Player player) {
-        final Buffer<SwooperData> buffer = dataMap.remove(player);
-
-        if (buffer == null) {
-            Chat.sendMessage(player, "&cNo buffer, somehow.");
-            return;
-        }
-
-        player.setGameMode(GameMode.SPECTATOR);
-        player.addPotionEffect(PotionEffectType.SPEED.createEffect(10000, 3));
-
-        new GameTask() {
-
-            private SwooperData previous = null;
-
-            @Override
-            public void run() {
-                if (next()) {
-                    return;
-                }
-
-                this.cancel();
-                player.setGameMode(GameMode.SURVIVAL);
-                player.removePotionEffect(PotionEffectType.SPEED);
-
-                if (previous == null) {
-                    Debug.warn("previous swooper data somehow null for " + player.getName());
-                    return; // should not happen but just in case
-                }
-
-                // Give health
-                previous.player().setHealth(previous.health());
-            }
-
-            private boolean next() {
-                for (int i = 0; i < ultimateSpeed; i++) {
-                    final SwooperData data = buffer.pollLast();
-
-                    if (data != null) {
-                        previous = data;
-                        player.teleport(data.location());
-                    }
-                    else {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-        }.runTaskTimer(0, 1);
     }
 
     private void launchProjectile(Player player) {

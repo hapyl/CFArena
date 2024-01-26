@@ -3,11 +3,17 @@ package me.hapyl.fight.game.heroes;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.annotate.PreferredReturnValue;
 import me.hapyl.fight.annotate.PreprocessingMethod;
+import me.hapyl.fight.database.collection.HeroStatsCollection;
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.*;
+import me.hapyl.fight.game.Event;
+import me.hapyl.fight.game.GameElement;
+import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.attribute.HeroAttributes;
+import me.hapyl.fight.game.cosmetic.EnumHandle;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
@@ -15,10 +21,13 @@ import me.hapyl.fight.game.heroes.equipment.Slot;
 import me.hapyl.fight.game.heroes.friendship.HeroFriendship;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.translate.Language;
+import me.hapyl.fight.translate.Translatable;
+import me.hapyl.fight.translate.TranslatedDescribed;
 import me.hapyl.fight.util.SmallCaps;
 import me.hapyl.spigotutils.module.annotate.Super;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -43,8 +52,11 @@ import java.util.function.Consumer;
  * @see GameElement
  * @see PlayerElement
  */
-public abstract class Hero implements GameElement, PlayerElement {
+@AutoRegisteredListener
+public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Heroes>, Rankable, Translatable {
 
+    private final Heroes enumHero;
+    private final HeroStatsCollection stats;
     private final HeroAttributes attributes;
     private final Equipment equipment;
     private final String name;
@@ -52,7 +64,7 @@ public abstract class Hero implements GameElement, PlayerElement {
     private final Map<GamePlayer, GameTask> reverseTasks;
     private final CachedHeroItem cachedHeroItem;
     private final HeroFriendship friendship;
-
+    private final Map<Talent, HotbarSlots> talentsMapped;
     private Affiliation affiliation;
     private Archetype archetype;
     private String description;
@@ -61,10 +73,13 @@ public abstract class Hero implements GameElement, PlayerElement {
     private long minimumLevel;
     private UltimateTalent ultimate;
     private PlayerSkin skin;
+    private int rank;
 
     @Super
-    public Hero(String name) {
+    public Hero(@Nonnull Heroes handle, @Nonnull String name) {
+        this.enumHero = handle;
         this.name = name;
+        this.stats = new HeroStatsCollection(handle);
         this.description = "No description provided.";
         this.guiTexture = new ItemStack(Material.RED_BED);
         this.weapon = new Weapon(Material.WOODEN_SWORD);
@@ -75,28 +90,90 @@ public abstract class Hero implements GameElement, PlayerElement {
         this.affiliation = Affiliation.NOT_SET;
         this.archetype = Archetype.NOT_SET;
         this.minimumLevel = 0;
-        this.ultimate = new UltimateTalent("Unknown Ultimate", "This hero's ultimate talent is not yet implemented!", Integer.MAX_VALUE);
+        this.ultimate = new UltimateTalent(this, "Unknown Ultimate", "This hero's ultimate talent is not yet implemented!", 12345);
         this.cachedHeroItem = new CachedHeroItem(this);
         this.skin = null;
         this.friendship = new HeroFriendship(this);
+        this.talentsMapped = Maps.newHashMap();
+
+        // Map talents
+        mapTalent(HotbarSlots.TALENT_1);
+        mapTalent(HotbarSlots.TALENT_2);
+        mapTalent(HotbarSlots.TALENT_3);
+        mapTalent(HotbarSlots.TALENT_4);
+        mapTalent(HotbarSlots.TALENT_5);
+
+        // Check duplicate talents
+        checkDuplicateTalents();
 
         setItem("null"); // default to null because I don't like exceptions
     }
 
-    public Hero(String name, String lore) {
-        this(name);
-        this.setDescription(lore);
+    @Nonnull
+    @Override
+    public String getParentTranslatableKey() {
+        return "hero." + getHandle().name().toLowerCase() + ".";
     }
 
-    public Hero(String name, String lore, Material material) {
-        this(name);
-        setDescription(lore);
-        setItem(material);
+    @Nullable
+    public ItemStack getTalentItem(@Nonnull HotbarSlots slot, @Nonnull Language language) {
+        final Talent talent = getTalent(slot);
+
+        return talent != null ? talent.getItem(/* language */) : null;
+    }
+
+    @Nonnull
+    public TranslatedDescribed getArchetype(@Nonnull Language language) {
+        return new TranslatedDescribed(language, "archetype." + archetype.name().toLowerCase());
+    }
+
+    @Nonnull
+    public TranslatedDescribed getAffiliation(@Nonnull Language language) {
+        return new TranslatedDescribed(language, "affiliation." + affiliation.name().toLowerCase());
+    }
+
+    @Nonnull
+    public TranslatedDescribed getUltimate(@Nonnull Language language) {
+        return new TranslatedDescribed(language, getParentTranslatableKey() + "ultimate");
+    }
+
+    public TranslatedDescribed getWeapon(@Nonnull Language language) {
+        return new TranslatedDescribed(language, getParentTranslatableKey() + "weapon");
+    }
+
+    private void checkDuplicateTalents() {
+    }
+
+    @Override
+    public int getRank() {
+        return rank;
+    }
+
+    @Override
+    public void setRank(int rank) {
+        this.rank = rank;
+    }
+
+    @Nonnull
+    public HeroStatsCollection getStats() {
+        return stats;
     }
 
     @Nonnull
     public HeroFriendship getFriendship() {
         return friendship;
+    }
+
+    @Nonnull
+    @Override
+    public Heroes getHandle() {
+        return enumHero;
+    }
+
+    @Override
+    @Deprecated
+    public void setHandle(@Nonnull Heroes handle) throws IllegalStateException {
+        throw new IllegalStateException("cannot set handle");
     }
 
     @Nullable
@@ -145,7 +222,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      *
      * @return the origin of this hero.
      */
-    public Affiliation getOrigin() {
+    public Affiliation getAffiliation() {
         return affiliation;
     }
 
@@ -632,7 +709,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      */
     public final boolean validatePlayer(@Nullable GamePlayer player) {
         final Manager current = Manager.current();
-        return player != null && validPlayerInGame(player) && current.getCurrentHero(player) == this;
+        return player != null && player.isInGameOrTrial() && current.getCurrentHero(player) == this;
     }
 
     public final boolean validatePlayer(Player player) {
@@ -670,19 +747,41 @@ public abstract class Hero implements GameElement, PlayerElement {
      *
      * @return all talents of this hero, including nullable.
      */
+    @Nonnull
     public List<Talent> getTalents() {
         final List<Talent> talents = Lists.newArrayList();
 
         talents.add(getFirstTalent());
         talents.add(getSecondTalent());
         talents.add(getPassiveTalent());
-
-        // extra talents
         talents.add(getThirdTalent());
         talents.add(getFourthTalent());
         talents.add(getFifthTalent());
 
         return talents;
+    }
+
+    /**
+     * Gets a {@link HotbarSlots} for a talent by its handle.
+     *
+     * @param talent - Talent.
+     * @return the slot for this talent.
+     * @throws IllegalArgumentException - If the given talent does not belong to this hero.
+     */
+    @Nonnull
+    public HotbarSlots getTalentSlotByHandle(@Nonnull Talent talent) {
+        final HotbarSlots slot = talentsMapped.get(talent);
+
+        if (slot == null) {
+            throw new IllegalArgumentException("talent '%s' does not belong to this hero!".formatted(talent));
+        }
+
+        return slot;
+    }
+
+    @Nullable
+    public HotbarSlots getTalentSlotByHandleOrNull(@Nonnull Talent talent) {
+        return talentsMapped.get(talent);
     }
 
     /**
@@ -760,6 +859,20 @@ public abstract class Hero implements GameElement, PlayerElement {
         throw new CloneNotSupportedException("Heroes cannot be cloned.");
     }
 
+    private void mapTalent(HotbarSlots slot) {
+        final Talent talent = getTalent(slot);
+
+        if (talent == null) {
+            return;
+        }
+
+        if (talentsMapped.containsKey(talent)) {
+            throw new IllegalArgumentException("Duplicate talent in " + getName() + "!");
+        }
+
+        talentsMapped.put(talent, slot);
+    }
+
     private void cancelOldReverseTask(GamePlayer player) {
         final GameTask oldTask = reverseTasks.remove(player);
 
@@ -768,14 +881,4 @@ public abstract class Hero implements GameElement, PlayerElement {
         }
     }
 
-    /**
-     * Returns true if there is a game in progress and player is in game.
-     *
-     * @param player - Player.
-     * @return true, if there is a game in progress and player is in game.
-     */
-    private boolean validPlayerInGame(GamePlayer player) {
-        final Manager current = Manager.current();
-        return current.isGameInProgress() && current.isPlayerInGame(player);
-    }
 }

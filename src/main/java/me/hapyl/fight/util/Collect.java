@@ -45,7 +45,11 @@ public final class Collect {
 
     /**
      * Gets the target living entity for a given player.
+     * <p>
      * This performs a dot product to check.
+     *
+     * <p>
+     * <i>Note:</i> Because of the nature of the <code>dot product</code>, this is not the best way to check entities up close, but a faster way to find entities that are further away.
      *
      * @param player    - Player.
      * @param radius    - Maximum radius.
@@ -55,7 +59,7 @@ public final class Collect {
      */
     @ExplicitEntityValidation
     @Nullable
-    public static LivingGameEntity targetEntity(@Nonnull GamePlayer player, double radius, double dot, @Nullable Predicate<LivingGameEntity> predicate) {
+    public static LivingGameEntity targetEntityDot(@Nonnull GamePlayer player, double radius, double dot, @Nullable Predicate<LivingGameEntity> predicate) {
         final List<LivingGameEntity> nearbyEntities = nearbyEntities(player.getLocation(), radius);
         final Vector casterDirection = player.getEyeLocation().getDirection().normalize();
 
@@ -84,6 +88,7 @@ public final class Collect {
 
     /**
      * Gets the target player for a given player.
+     * <p>
      * This performs a ray-cast distance to check.
      *
      * @param player      - Player.
@@ -94,28 +99,29 @@ public final class Collect {
     @Nullable
     @Deprecated
     public static Player targetPlayer(@Nonnull GamePlayer player, double maxDistance) {
-        return (Player) targetEntity(
+        return (Player) targetEntityRayCast(
                 player,
                 maxDistance,
-                entity -> entity.equals(player)
+                1.25f, entity -> entity.equals(player)
         );
     }
 
     /**
      * Gets the target player for a given player.
+     * <p>
      * This performs a ray-cast distance to check.
      *
-     * @param player      - Player.
-     * @param maxDistance - Max distance to check.
-     * @param predicate   - Predicate.
+     * @param player       - Player.
+     * @param maxDistance  - Max distance to check.
+     * @param lookupRadius - Radius in which an entity is searched for.
+     * @param predicate    - Predicate.
      * @return a target living entity; or null if none.
      */
     @ExplicitEntityValidation
     @Nullable
-    public static LivingGameEntity targetEntity(@Nonnull GamePlayer player, double maxDistance, @Nonnull Predicate<LivingGameEntity> predicate) {
-        final Location location = player.getLocation().add(0, 1.5, 0);
+    public static LivingGameEntity targetEntityRayCast(@Nonnull GamePlayer player, double maxDistance, double lookupRadius, @Nonnull Predicate<LivingGameEntity> predicate) {
+        final Location location = player.getEyeLocation();
         final Vector vector = location.getDirection().normalize();
-        final float radius = 1.25f;
 
         for (double i = 0; i < maxDistance; i += 0.5d) {
             final double x = vector.getX() * i;
@@ -123,7 +129,7 @@ public final class Collect {
             final double z = vector.getZ() * i;
             location.add(x, y, z);
 
-            for (final LivingGameEntity entity : nearbyEntities(location, radius)) {
+            for (final LivingGameEntity entity : nearbyEntities(location, lookupRadius)) {
                 if (!entity.hasLineOfSight(player) || !predicate.test(entity)) {
                     continue;
                 }

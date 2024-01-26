@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.archive.harbinger;
 
 import com.google.common.collect.Maps;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.PlayerData;
@@ -53,8 +53,8 @@ public class RiptideStatus extends PlayerData implements Ticking {
             player.spawnParticle(location, Particle.GLOW, 1, 0.15d, 0.15d, 0.5d, 0.025f);
 
             // This is just for the effect
-            entity.addPotionEffect(PotionEffectType.SPEED, 20, 0);
-            entity.addPotionEffect(PotionEffectType.SLOW, 20, 0);
+            entity.addPotionEffect(PotionEffectType.SPEED, 0, 20);
+            entity.addPotionEffect(PotionEffectType.SLOW, 0, 20);
         });
     }
 

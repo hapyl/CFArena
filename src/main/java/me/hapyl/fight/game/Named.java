@@ -22,6 +22,7 @@ public enum Named {
     RIPTIDE(ChatColor.BOLD + "\uD83D\uDCA6", "Riptide", Color.RIPTIDE),
     BUG(ChatColor.BOLD + "🐜", "Disruptive Bug", Color.WHITE),
     ENERGY("※", "Energy", Color.AQUA),
+    OVERHEAL(ChatColor.DARK_GREEN + "⚕", "Overheal", Color.GREEN),
 
     ;
 

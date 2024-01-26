@@ -3,7 +3,7 @@ package me.hapyl.fight.game.heroes.archive.bloodfield;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.TalentReference;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.effect.archive.BleedEffect;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.archive.bloodfield.impel.ImpelInstance;
@@ -27,7 +27,7 @@ import java.util.Set;
 public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassive> {
 
     private final GamePlayer player;
-    private final Map<GamePlayer, BiteData> succulence; // FIXME -> Maybe chance this to apply to living entities?
+    private final Map<GamePlayer, BiteData> succulence; // FIXME -> Maybe change this to apply to living entities?
     private final BleedEffect bleedEffect;
     private ImpelInstance impelInstance;
     private int flightTime;
@@ -41,7 +41,7 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
         this.succulence = Maps.newConcurrentMap();
         this.flightTime = 0;
         this.flying = false;
-        this.bleedEffect = (BleedEffect) GameEffectType.BLEED.getGameEffect();
+        this.bleedEffect = (BleedEffect) Effects.BLEED.getEffect();
     }
 
     @Nullable
@@ -174,7 +174,7 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
         batCloud.remove();
         batCloud = null;
 
-        player.addEffect(GameEffectType.FALL_DAMAGE_RESISTANCE, 100);
+        player.addEffect(Effects.FALL_DAMAGE_RESISTANCE, 100);
 
         // Fx
         final Location location = player.getLocation();

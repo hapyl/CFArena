@@ -11,6 +11,7 @@ import me.hapyl.spigotutils.module.util.Runnables;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.Sound;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
@@ -64,8 +65,10 @@ public final class ReloadChecker extends DependencyInjector<Main> {
     }
 
     private void sendCenterMessageToOperatorsAndConsole(String message, @Nullable Object... format) {
+        final List<CommandSender> senders = Collect.onlineOperatorsAndConsole();
+
         if (message.isEmpty() || message.isBlank()) {
-            Collect.onlineOperatorsAndConsole().forEach(sender -> {
+            senders.forEach(sender -> {
                 Chat.sendMessage(sender, "", format);
             });
             return;
@@ -76,7 +79,7 @@ public final class ReloadChecker extends DependencyInjector<Main> {
         for (String string : strings) {
             final String centerString = CenterChat.makeString(string);
 
-            Collect.onlineOperatorsAndConsole().forEach(sender -> {
+            senders.forEach(sender -> {
                 Chat.sendMessage(sender, centerString, format);
             });
         }

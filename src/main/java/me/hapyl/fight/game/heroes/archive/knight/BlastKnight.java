@@ -45,8 +45,8 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Pla
     @DisplayField private final double initialShieldCapacity = 10;
     @DisplayField private final double shieldCapacity = 50;
 
-    public BlastKnight() {
-        super("Blast Knight");
+    public BlastKnight(@Nonnull Heroes handle) {
+        super(handle, "Blast Knight");
 
         setArchetype(Archetype.DEFENSE);
         setAffiliation(Affiliation.KINGDOM);
@@ -79,7 +79,7 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Pla
                 """, 5.0d);
 
         setUltimate(new UltimateTalent(
-                "Nanite Rush", """
+                this, "Nanite Rush", """
                 Instantly release a &dNanite Swarm&7 that &brushes&7 upwards, creating a &eshield&7 and rapidly &aregenerates&7 all existing shields.
                 """, 60
         )
@@ -176,7 +176,7 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Pla
         // Fx
         player.playSound(Sound.ITEM_SHIELD_BREAK, 1.0f);
 
-        instance.setDamage(0.0d);
+        instance.setDamageMultiplier(0.0d);
     }
 
     @Nonnull

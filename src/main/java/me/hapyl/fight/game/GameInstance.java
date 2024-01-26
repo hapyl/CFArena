@@ -8,6 +8,7 @@ import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.cosmetic.WinCosmetic;
 import me.hapyl.fight.game.cosmetic.crate.Crates;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.MoveType;
 import me.hapyl.fight.game.gamemode.CFGameMode;
@@ -18,6 +19,7 @@ import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.report.GameReport;
 import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.packet.StaticPacket;
 import me.hapyl.fight.util.Nulls;
@@ -26,7 +28,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -105,8 +106,10 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
 
     @Override
     public void calculateEverything() {
-        gameResult.calculate();
-        gameResult.awardWinners();
+        GameTask.runLater(() -> {
+            gameResult.calculate();
+            gameResult.awardWinners();
+        }, 10).setShutdownAction(ShutdownAction.IGNORE);
     }
 
     public void executeWinCosmetic() {
@@ -272,8 +275,9 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
                 return;
             }
 
-            player.addPotionEffect(PotionEffectType.GLOWING, 20, 1);
+            player.addEffect(Effects.GLOWING, 20);
             player.sendTitle("&c&lYOU'RE AFK", "&aMove to return from afk!", 0, 10, 0);
+
             if (tick % 10 == 0) {
                 player.playSound(Sound.BLOCK_NOTE_BLOCK_HAT, 1.0f);
                 StaticPacket.Demo.SHOW_HOW_TO_MOVE.send(player);

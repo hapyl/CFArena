@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.archive.shark;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
@@ -13,8 +14,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
@@ -61,7 +60,7 @@ public class Whirlpool extends Talent {
                         final Location entityLocation = entity.getLocation();
 
                         Vector direction = location.clone().subtract(entityLocation).toVector().normalize().multiply(0.5);
-                        entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 20, 0));
+                        entity.addEffect(Effects.SLOW, 20);
                         entity.setVelocity(direction);
                     });
 

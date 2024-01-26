@@ -19,13 +19,15 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.team.LocalTeamManager;
-import me.hapyl.fight.game.ui.GamePlayerUI;
+import me.hapyl.fight.game.trial.Trial;
+import me.hapyl.fight.game.ui.PlayerUI;
 import me.hapyl.fight.infraction.PlayerInfraction;
 import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Deque;
@@ -50,16 +52,15 @@ public class PlayerProfile {
     private final PlayerRelationship relationship;
     private final HotbarLoadout hotbarLoadout;
     private final PlayerFastAccess fastAccess;
-
+    public ActiveDialog dialog;
     @Nullable
     private GamePlayer gamePlayer; // current game player
-    private GamePlayerUI playerUI; // ui
+    private PlayerUI playerUI; // ui
     private Heroes selectedHero;   // selected hero
-
+    private Trial trial;
     private boolean loaded;
     private boolean resourcePack;
     private boolean buildMode;
-    public ActiveDialog dialog;
 
     public PlayerProfile(@Nonnull Player player) {
         this.player = player;
@@ -76,6 +77,34 @@ public class PlayerProfile {
         this.originalSkin = PlayerSkin.of(player);
         this.hotbarLoadout = new HotbarLoadout(this);
         this.fastAccess = new PlayerFastAccess(this);
+    }
+
+    public void newTrial() {
+        if (trial != null) {
+            throw new IllegalStateException("Trial already is in progress!");
+        }
+
+        trial = new Trial(this);
+        trial.onStart();
+    }
+
+    public boolean stopTrial() {
+        if (trial == null) {
+            return false;
+        }
+
+        trial.onStop();
+        trial = null;
+        return true;
+    }
+
+    @Nullable
+    public Trial getTrial() {
+        return trial;
+    }
+
+    public boolean hasTrial() {
+        return trial != null;
     }
 
     @Nonnull
@@ -145,7 +174,7 @@ public class PlayerProfile {
         // Load some data after init method
         selectedHero = playerDatabase.getHeroEntry().getSelectedHero();
         GameTeam.addMemberIfNotInTeam(this);
-        playerUI = new GamePlayerUI(this);
+        playerUI = new PlayerUI(this);
 
         // Prompt Resource Pack
         promptResourcePack();
@@ -171,13 +200,13 @@ public class PlayerProfile {
         return gamePlayer;
     }
 
+    public void setGamePlayer(@Nullable GamePlayer gamePlayer) {
+        this.gamePlayer = gamePlayer;
+    }
+
     @Nonnull
     public GamePlayer getOrCreateGamePlayer() {
         return gamePlayer != null ? gamePlayer : createGamePlayer();
-    }
-
-    public void setGamePlayer(@Nullable GamePlayer gamePlayer) {
-        this.gamePlayer = gamePlayer;
     }
 
     /**
@@ -207,6 +236,67 @@ public class PlayerProfile {
 
         return team != null ? team.getFlagColored() + " " + team.getNameSmallCapsColorized() : "&8None!";
     }
+
+    public void resetGamePlayer() {
+        gamePlayer = null;
+    }
+
+    @Nonnull
+    public Heroes getSelectedHero() {
+        return selectedHero;
+    }
+
+    public void setSelectedHero(Heroes selectedHero) {
+        this.selectedHero = selectedHero;
+    }
+
+    public String getSelectedHeroString() {
+        final boolean randomHeroEnabled = Settings.RANDOM_HERO.isEnabled(player);
+        return randomHeroEnabled ? "&l❓&f ʀᴀɴᴅᴏᴍ" : selectedHero.getFormatted();
+    }
+
+    public PlayerUI getPlayerUI() {
+        return playerUI;
+    }
+
+    public void setPlayerUI(PlayerUI playerUI) {
+        this.playerUI = playerUI;
+    }
+
+    public void promptResourcePack() {
+        if (true) {
+            return;
+        }
+
+        player.setResourcePack(PlayerProfile.RESOURCE_PACK_URI, null, """
+                                
+                §b§lOPTIONAL
+                §aDownload resource pack for additional features?
+                                    
+                §e§lSome of the features:
+                §bBetter effects
+                §bCustom 3d models
+                §bFancier text
+                """);
+    }
+
+    public UUID getUuid() {
+        return player.getUniqueId();
+    }
+
+    public Heroes getHero() {
+        return selectedHero;
+    }
+
+    public Hero getHeroHandle() {
+        return selectedHero.getHero();
+    }
+
+    @Nonnull
+    public PlayerRank getRank() {
+        return playerDatabase.getRank();
+    }
+
 
     private void createTraceDump(RuntimeException exception) {
         final StackTraceElement[] stackTrace = exception.getStackTrace();
@@ -261,67 +351,7 @@ public class PlayerProfile {
         });
     }
 
-    public void resetGamePlayer() {
-        gamePlayer = null;
-    }
-
-    @Nonnull
-    public Heroes getSelectedHero() {
-        return selectedHero;
-    }
-
-    public void setSelectedHero(Heroes selectedHero) {
-        this.selectedHero = selectedHero;
-    }
-
-    public String getSelectedHeroString() {
-        final boolean randomHeroEnabled = Settings.RANDOM_HERO.isEnabled(player);
-        return randomHeroEnabled ? "&l❓&f ʀᴀɴᴅᴏᴍ" : selectedHero.getFormatted();
-    }
-
-    public GamePlayerUI getPlayerUI() {
-        return playerUI;
-    }
-
-    public void setPlayerUI(GamePlayerUI playerUI) {
-        this.playerUI = playerUI;
-    }
-
-    public void promptResourcePack() {
-        if (true) {
-            return;
-        }
-
-        player.setResourcePack(PlayerProfile.RESOURCE_PACK_URI, null, """
-                                
-                §b§lOPTIONAL
-                §aDownload resource pack for additional features?
-                                    
-                §e§lSome of the features:
-                §bBetter effects
-                §bCustom 3d models
-                §bFancier text
-                """);
-    }
-
-    public UUID getUuid() {
-        return player.getUniqueId();
-    }
-
-    public Heroes getHero() {
-        return selectedHero;
-    }
-
-    public Hero getHeroHandle() {
-        return selectedHero.getHero();
-    }
-
-    @Nonnull
-    public PlayerRank getRank() {
-        return playerDatabase.getRank();
-    }
-
-    @Nullable
+    @CheckForNull
     public static PlayerProfile getProfile(Player player) {
         return Manager.current().getProfile(player);
     }

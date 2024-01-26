@@ -5,6 +5,7 @@ import org.bukkit.DyeColor;
 import javax.annotation.Nonnull;
 import java.awt.*;
 
+// todo: this is a cool module for Eterna
 public interface Colors {
 
     ColorConvert<org.bukkit.ChatColor> CHAT_COLOR = new ColorConvert<>() {

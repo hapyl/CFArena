@@ -4,6 +4,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.archive.dark_mage.SpellButton;
 import me.hapyl.fight.game.task.TimedGameTask;
@@ -18,7 +19,6 @@ import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 
@@ -82,7 +82,7 @@ public class SlowingAura extends DarkMageTalent {
                         return; // Don't slow Dark Mage
                     }
 
-                    entity.addPotionEffect(PotionEffectType.SLOW, 10, 3);
+                    entity.addEffect(Effects.SLOW, 3, 10);
 
                     // Witherborn assist
                     if (hasWither(player)) {

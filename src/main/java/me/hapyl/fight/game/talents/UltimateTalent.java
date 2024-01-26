@@ -3,7 +3,10 @@ package me.hapyl.fight.game.talents;
 import com.google.common.collect.Lists;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
+import me.hapyl.fight.translate.Language;
+import me.hapyl.fight.translate.TranslateKey;
 import me.hapyl.fight.util.displayfield.DisplayFieldData;
 import me.hapyl.fight.util.displayfield.DisplayFieldDataProvider;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -26,23 +29,44 @@ public class UltimateTalent extends Talent implements DisplayFieldDataProvider {
 
     private final List<DisplayFieldData> dataFields;
 
+    private final Hero hero;
     private final int cost;
     private Sound sound;
     private float pitch;
     private int castDuration;
 
-    public UltimateTalent(String name, int pointCost) {
-        this(name, "", pointCost);
+    public UltimateTalent(Hero hero, String name, int pointCost) {
+        this(hero, name, "", pointCost);
     }
 
-    public UltimateTalent(String name, String info, int pointCost) {
+    public UltimateTalent(Hero hero, String name, String info, int pointCost) {
         super(name, info, Type.DAMAGE);
+
+        this.hero = hero;
         cost = pointCost;
         sound = Sound.ENTITY_ENDER_DRAGON_GROWL;
         pitch = 2.0f;
         dataFields = Lists.newArrayList();
 
         setDuration(0);
+    }
+
+    @Nonnull
+    @Override
+    public String getTranslateName(@Nonnull Language language) {
+        return language.getFormatted(new TranslateKey(getParentTranslatableKey() + "name"));
+    }
+
+    @Nonnull
+    @Override
+    public String getTranslateDescription(@Nonnull Language language) {
+        return language.getFormatted(new TranslateKey(getParentTranslatableKey() + "description"));
+    }
+
+    @Nonnull
+    @Override
+    public String getParentTranslatableKey() {
+        return hero.getParentTranslatableKey() + "ultimate.";
     }
 
     @Override

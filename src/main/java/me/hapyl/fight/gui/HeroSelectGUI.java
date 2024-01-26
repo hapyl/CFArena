@@ -3,6 +3,7 @@ package me.hapyl.fight.gui;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.CachedHeroItem;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.lobby.LobbyItems;
@@ -90,7 +91,7 @@ public class HeroSelectGUI extends StyledPageGUI<Heroes> {
                     .asIcon();
         }
         else {
-            return hero.getCachedHeroItem().getSelectItem();
+            return hero.getCachedHeroItem().getItem(CachedHeroItem.Type.SELECT);
         }
     }
 

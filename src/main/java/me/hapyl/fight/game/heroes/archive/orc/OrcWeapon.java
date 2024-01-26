@@ -1,8 +1,9 @@
 package me.hapyl.fight.game.heroes.archive.orc;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.loadout.HotbarSlots;
@@ -16,7 +17,6 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -86,7 +86,7 @@ public class OrcWeapon extends Weapon {
                 public void onHit(@Nonnull LivingEntity entity) {
                     CF.getEntityOptional(entity).ifPresent(gameEntity -> {
                         gameEntity.damage(damage, player, EnumDamageCause.ORC_WEAPON);
-                        gameEntity.addPotionEffect(PotionEffectType.SLOW, 100, 4);
+                        gameEntity.addEffect(Effects.SLOW, 4, 100);
                         gameEntity.setFreezeTicks(100);
                     });
                 }

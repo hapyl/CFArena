@@ -1,7 +1,5 @@
 package me.hapyl.fight.game.reward;
 
-import me.hapyl.fight.database.entry.DailyRewardEntry;
-import me.hapyl.fight.game.cosmetic.crate.Crates;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -25,6 +23,8 @@ public enum Rewards {
             player.sendMessage("Revoking empty reward!");
         }
     }),
+
+    HERO_RATING_FIRST_TIME(new CurrencyReward().withCoins(5000)),
 
     ;
 

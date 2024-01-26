@@ -5,7 +5,9 @@ import com.mongodb.client.MongoCollection;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.entry.*;
 import me.hapyl.fight.database.rank.PlayerRank;
+import me.hapyl.fight.translate.Language;
 import me.hapyl.fight.util.CFUtils;
+import me.hapyl.spigotutils.module.util.Enums;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bson.Document;
 import org.bukkit.Bukkit;
@@ -143,6 +145,17 @@ public class PlayerDatabase {
         final String rankString = document.get("rank", "DEFAULT");
 
         return Validate.getEnumValue(PlayerRank.class, rankString, PlayerRank.DEFAULT);
+    }
+
+    @Nonnull
+    public Language getLanguage() {
+        final String lang = document.get("lang", Language.ENGLISH.name());
+
+        return Enums.byName(Language.class, lang, Language.ENGLISH);
+    }
+
+    public void setLanguage(@Nonnull Language language) {
+        document.put("lang", language.name());
     }
 
     public void setRank(@Nonnull PlayerRank rank) {

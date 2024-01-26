@@ -7,6 +7,7 @@ import me.hapyl.fight.game.maps.maps.DragonsGorge;
 import me.hapyl.fight.game.maps.maps.DwarfVault;
 import me.hapyl.fight.game.maps.maps.MoonBase;
 import me.hapyl.fight.game.maps.winery.WineryMap;
+import me.hapyl.fight.translate.Translatable;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.Material;
@@ -16,10 +17,10 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum GameMaps implements Selectable {
+public enum GameMaps implements Selectable, Translatable {
 
     // non-playable map, storing here for easy coordinate grab and consistency
-    TRAINING_GROUNDS(new NonPlayableGameMap("Training Grounds", "Test heroes abilities here!", 100, 64, 100)),
+    TRAINING_GROUNDS(new NonPlayableGameMap("Training Grounds", "Test heroes abilities here!", -250, 64, 250, -90, 0)),
     SPAWN(new NonPlayableGameMap("Spawn", "You spawn here!", 0, 64, 0).setMaterial(Material.NETHER_STAR)),
 
     // april fools maps (replaces spawn and arena with classic maps)
@@ -173,6 +174,12 @@ public enum GameMaps implements Selectable {
     @Override
     public boolean isSelected(@Nonnull Player player) {
         return Manager.current().getCurrentMap() == this;
+    }
+
+    @Nonnull
+    @Override
+    public String getParentTranslatableKey() {
+        return "map." + name().toLowerCase() + ".";
     }
 
     @Override

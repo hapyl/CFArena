@@ -2,7 +2,8 @@ package me.hapyl.fight.game.effect.archive;
 
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
-import me.hapyl.fight.game.effect.GameEffect;
+import me.hapyl.fight.game.effect.Effect;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.util.Vectors;
@@ -10,15 +11,15 @@ import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 
-public class MovementContainment extends GameEffect {
+public class MovementContainment extends Effect {
     private final double speedConstant = 100;
 
     public MovementContainment() {
-        super("Movement Containment");
+        super("Movement Containment", EffectType.NEGATIVE);
     }
 
     @Override
-    public void onStart(@Nonnull LivingGameEntity entity) {
+    public void onStart(@Nonnull LivingGameEntity entity, int amplifier) {
         final EntityAttributes attributes = entity.getAttributes();
 
         attributes.subtractSilent(AttributeType.SPEED, speedConstant);
@@ -31,12 +32,12 @@ public class MovementContainment extends GameEffect {
         // `I dunno why Dinnerbone removed the limit to the effect command I don't want to chase "bugs" like these..`
 
         if (entity instanceof GamePlayer) {
-            entity.addPotionEffect(PotionEffectType.JUMP, 100000, 128);
+            entity.addPotionEffect(PotionEffectType.JUMP, 128, 100000);
         }
     }
 
     @Override
-    public void onStop(@Nonnull LivingGameEntity entity) {
+    public void onStop(@Nonnull LivingGameEntity entity, int amplifier) {
         final EntityAttributes attributes = entity.getAttributes();
 
         attributes.addSilent(AttributeType.SPEED, speedConstant);

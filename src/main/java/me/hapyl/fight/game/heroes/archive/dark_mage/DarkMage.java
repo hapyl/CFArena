@@ -2,23 +2,23 @@ package me.hapyl.fight.game.heroes.archive.dark_mage;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.archive.witcher.WitherData;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.loadout.HotbarSlots;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.dark_mage.ShadowClone;
 import me.hapyl.fight.game.talents.archive.dark_mage.ShadowCloneNPC;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
@@ -29,7 +29,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -44,8 +43,8 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
 
     private final PlayerMap<DarkMageData> playerData = PlayerMap.newMap();
 
-    public DarkMage() {
-        super("Dark Mage");
+    public DarkMage(@Nonnull Heroes handle) {
+        super(handle, "Dark Mage");
 
         setArchetype(Archetype.MAGIC);
         setAffiliation(Affiliation.THE_WITHERS);
@@ -63,7 +62,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
 
         setWeapon(new DarkMageWeapon());
 
-        setUltimate(new UltimateTalent("Witherborn", """
+        setUltimate(new UltimateTalent(this, "Witherborn", """
                 Raised by the &8Withers&7, they will always assist you in battle.
                                 
                 While &cattacking&7, the &8Wither&7 will unleash a &acoordinated&7 attack.
@@ -117,7 +116,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
 
         // Handle passive
         if (entity != null && new Random().nextDouble() < passiveChance) {
-            entity.addEffect(GameEffectType.WITHER_BLOOD, 60, true);
+            entity.addEffect(Effects.WITHER_BLOOD, 60, true);
 
             entity.sendMessage("&8☠ &c%s poisoned your blood!", player.getName());
             player.sendMessage("&8☠ &aYou poisoned %s's blood!", entity.getName());
@@ -131,7 +130,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
             // Fx
             player.sendMessage("&aYour %s nullified the damage!", talent.getName());
 
-            player.addPotionEffect(PotionEffectType.BLINDNESS, 10, 1);
+            player.addEffect(Effects.BLINDNESS, 1, 10);
 
             player.playSound(ENTITY_ENDERMAN_TELEPORT, 1.0f);
             player.playSound(ENTITY_PLAYER_BREATH, 1.0f);

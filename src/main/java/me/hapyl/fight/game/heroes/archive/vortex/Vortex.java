@@ -1,14 +1,16 @@
 package me.hapyl.fight.game.heroes.archive.vortex;
 
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.archive.vortex.StarAligner;
 import me.hapyl.fight.game.talents.archive.vortex.VortexSlash;
 import me.hapyl.fight.game.talents.archive.vortex.VortexStar;
@@ -25,7 +27,6 @@ import me.hapyl.spigotutils.module.math.geometry.Quality;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.Compute;
 import org.bukkit.*;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
@@ -42,8 +43,8 @@ public class Vortex extends Hero implements UIComplexComponent {
 
     private final PlayerMap<DreamStack> dreamStackMap = PlayerMap.newConcurrentMap();
 
-    public Vortex() {
-        super("Vortex");
+    public Vortex(@Nonnull Heroes handle) {
+        super(handle, "Vortex");
 
         setArchetype(Archetype.STRATEGY);
 
@@ -57,7 +58,7 @@ public class Vortex extends Hero implements UIComplexComponent {
 
         setWeapon(new VortexWeapon(this));
 
-        setUltimate(new UltimateTalent("All the Stars", """
+        setUltimate(new UltimateTalent(this, "All the Stars", """
                 Instantly create &b10 &eAstral Stars&7 around you.
                                 
                 After a short delay, &brapidly&7 slash between them, &cdealing damage&7 in a process before finishing with a &4final blow&7 that &bslows&7 enemies.
@@ -150,7 +151,7 @@ public class Vortex extends Hero implements UIComplexComponent {
                         if (modulo(10)) {
                             Geometry.drawCircleAnchored(location, ultimateRange, Quality.HIGH, new Draw(null) {
                                 @Override
-                                public void draw(Location location) {
+                                public void draw(@Nonnull Location location) {
                                     player.spawnWorldParticle(location, Particle.FIREWORKS_SPARK, 1);
                                     player.spawnWorldParticle(location, Particle.CRIT, 1, 0.1d, 0.1d, 0.1d, 0.05f);
                                 }
@@ -248,7 +249,7 @@ public class Vortex extends Hero implements UIComplexComponent {
 
                 entity.setLastDamager(player);
                 entity.damage(1.0d, EnumDamageCause.ENTITY_ATTACK);
-                entity.addPotionEffect(PotionEffectType.SLOW, 80, 3);
+                entity.addEffect(Effects.SLOW, 3, 80);
             });
 
             // Fx

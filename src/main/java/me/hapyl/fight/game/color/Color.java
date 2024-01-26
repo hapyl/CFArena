@@ -16,7 +16,8 @@ import javax.annotation.Nullable;
  */
 public class Color {
 
-    // Bukkit colors start
+    // *=* Bukkit Colors *=*
+
     public static final Color BLACK = bukkit(ChatColor.BLACK);
     public static final Color DARK_BLUE = bukkit(ChatColor.DARK_BLUE);
     public static final Color DARK_GREEN = bukkit(ChatColor.DARK_GREEN);
@@ -33,7 +34,8 @@ public class Color {
     public static final Color LIGHT_PURPLE = bukkit(ChatColor.LIGHT_PURPLE);
     public static final Color YELLOW = bukkit(ChatColor.YELLOW);
     public static final Color WHITE = bukkit(ChatColor.WHITE);
-    // Bukkit colors end
+
+    // *=* Custom Colors *=*
 
     public static final Color DEFAULT = new Color("#aabbcc");
     public static final Color SUCCESS = new Color("#05e30c");
@@ -82,6 +84,10 @@ public class Color {
     // since they cannot have custom colors for
     // some reason, maybe mojang just forgot about it,
     // just like they did with the actionbar ¯\_(ツ)_/¯
+    /// iTs BeCaUsE oF gLoWiNg!!!
+    /// First, it's just stupid that glowing is based on a team color rather than LITERALLY ANYTHING ELSE.
+    /// And second, JUST MAKE GLOWING USE ANY COLOR WE'RE NOT IN A FUCKING 1995.
+    /// - hapyl, signing off
     public final org.bukkit.ChatColor bukkitChatColor;
     public final org.bukkit.Color bukkitColor;
     private ColorFlag[] flags;

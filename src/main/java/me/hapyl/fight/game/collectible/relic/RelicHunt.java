@@ -195,6 +195,9 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
     }
 
     private void registerRelics() {
+        // Trial
+        registerRelic(1, new Relic(Type.EMERALD, -240, 62, 243).setBlockFace(BlockFace.NORTH_EAST));
+
         // Lobby
         registerRelic(100, new Relic(Type.AMETHYST, 27, 66, 8));
         registerRelic(101, new Relic(Type.AMETHYST, 32, 66, 0));
@@ -275,6 +278,10 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
     }
 
     private void registerRelic(@Unique final int id, final Relic relic) throws IllegalArgumentException {
+        if (id <= 0) {
+            throw new IllegalArgumentException("Do not use negative or 0 ids.");
+        }
+
         if (byId.containsKey(id)) {
             throw new IllegalArgumentException("Id %s is already taken by %s!".formatted(id, byId.get(id)));
         }

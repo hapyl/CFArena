@@ -1,9 +1,10 @@
 package me.hapyl.fight.game.talents.archive.bloodfiend.candlebane;
 
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.archive.bloodfiend.taunt.TauntTalent;
 import me.hapyl.fight.util.displayfield.DisplayField;
+import org.bukkit.Location;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
@@ -42,8 +43,8 @@ public class CandlebaneTalent extends TauntTalent<Candlebane> {
 
     @Nonnull
     @Override
-    public Candlebane createTaunt(@Nonnull GamePlayer player, @Nonnull GamePlayer target) {
-        return new Candlebane(this, player, target);
+    public Candlebane createTaunt(@Nonnull GamePlayer player, @Nonnull GamePlayer target, @Nonnull Location location) {
+        return new Candlebane(this, player, target, location);
     }
 
     @Override

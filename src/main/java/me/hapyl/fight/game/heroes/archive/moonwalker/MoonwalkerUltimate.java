@@ -1,9 +1,10 @@
 package me.hapyl.fight.game.heroes.archive.moonwalker;
 
-import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.TickingGameTask;
@@ -34,9 +35,9 @@ public class MoonwalkerUltimate extends UltimateTalent {
     @DisplayField private final double meteoriteDamage = 50.0d;
     @DisplayField(suffix = "blocks") private final double distanceFromLanding = 15;
 
-    public MoonwalkerUltimate() {
+    public MoonwalkerUltimate(@Nonnull Hero hero) {
         super(
-                "Moonteorite",
+                hero, "Moonteorite",
                 """
                         Summon a huge meteorite at the &etarget&7 location.
                                                 
@@ -214,7 +215,7 @@ public class MoonwalkerUltimate extends UltimateTalent {
 
         Collect.nearbyEntities(location, meteoriteRadius).forEach(entity -> {
             entity.damage(meteoriteDamage, executor, EnumDamageCause.METEORITE);
-            entity.addEffect(GameEffectType.CORROSION, corrosionTime, true);
+            entity.addEffect(Effects.CORROSION, corrosionTime, true);
         });
 
         // FX

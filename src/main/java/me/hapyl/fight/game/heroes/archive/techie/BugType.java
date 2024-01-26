@@ -42,6 +42,11 @@ public enum BugType implements Described {
         return description;
     }
 
+    @Override
+    public String toString() {
+        return name;
+    }
+
     @Nonnull
     public TemperInstance getTemper() {
         return temper;

@@ -1,20 +1,18 @@
 package me.hapyl.fight.game.heroes.archive.hercules;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.archive.GroundPunchCosmetic;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.DisabledHero;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.UltimateCallback;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
 import org.bukkit.*;
@@ -27,7 +25,6 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerStatisticIncrementEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
@@ -39,8 +36,8 @@ public class Hercules extends Hero implements Listener, PlayerElement, DisabledH
     private final int tridentCooldown = 300;
     private final Map<Player, Trident> fragileTrident = new HashMap<>();
 
-    public Hercules() {
-        super("Hercules");
+    public Hercules(@Nonnull Heroes handle) {
+        super(handle, "Hercules");
 
         setArchetype(Archetype.MOBILITY);
 
@@ -57,7 +54,7 @@ public class Hercules extends Hero implements Listener, PlayerElement, DisabledH
         setWeapon(new HerculesWeapon());
 
         setUltimate(new UltimateTalent(
-                "Crush the Ground",
+                this, "Crush the Ground",
                 "Call upon divine power to increase your &ejump height &7and &cplunging damage&7 for {duration}.",
                 50
         ).setDuration(240).setItem(Material.NETHERITE_HELMET).setCooldownSec(30));
@@ -73,7 +70,7 @@ public class Hercules extends Hero implements Listener, PlayerElement, DisabledH
             public void run() {
                 if (tick % 4 == 0) {
                     if (tick <= 20) {
-                        player.addPotionEffect(PotionEffectType.SLOW, 4, tick / 4);
+                        player.addEffect(Effects.SLOW, tick / 4, 4);
                         player.playSound(Sound.ENTITY_WITHER_SHOOT, (float) (0.5d + (0.1d * tick / 4)));
                     }
                     else {
@@ -192,7 +189,7 @@ public class Hercules extends Hero implements Listener, PlayerElement, DisabledH
         final double plungeDamage = 5.0d + (1.5d * distance);
 
         player.playWorldSound(Sound.ITEM_TRIDENT_RIPTIDE_2, 1.75f);
-        player.addPotionEffect(PotionEffectType.JUMP, 80, 255);
+        player.addEffect(Effects.JUMP_BOOST, 255, 80);
 
         player.setVelocity(new Vector(0.0d, -1.0d, 0.0d));
         player.addTag("plunging");
@@ -206,7 +203,7 @@ public class Hercules extends Hero implements Listener, PlayerElement, DisabledH
                     this.cancel();
 
                     player.removeTag("plunging");
-                    player.removePotionEffect(PotionEffectType.JUMP);
+                    player.removeEffect(Effects.JUMP_BOOST);
 
                     Cosmetics.GROUND_PUNCH.getCosmetic(GroundPunchCosmetic.class).playAnimation(player.getLocation(), 2);
 

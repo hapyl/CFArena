@@ -53,7 +53,7 @@ public class AngryPiglin extends GameEntityType<Piglin> {
         @Override
         public String[] getExtraHologramLines() {
             return new String[] {
-                    "&4Attack Boost &l" + AttributeType.ATTACK.attribute.toString(attributes.get(AttributeType.ATTACK)) + "%",
+                    "&4Attack Boost &l" + AttributeType.ATTACK.toString(attributes.get(AttributeType.ATTACK)) + "%",
                     "&aTime Left: &l" + ((MAX_TICK - getTick()) / 20) + "s"
             };
         }

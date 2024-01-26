@@ -3,7 +3,7 @@ package me.hapyl.fight.game.maps.features;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.MoveType;
 import me.hapyl.fight.game.maps.GameMaps;
@@ -121,7 +121,7 @@ public class JapanFeature extends MapFeature implements Listener {
             player.playWorldSound(Sound.ENTITY_WITHER_SHOOT, 1.5f);
         }, 20);
 
-        player.addEffect(GameEffectType.FALL_DAMAGE_RESISTANCE, 60);
+        player.addEffect(Effects.FALL_DAMAGE_RESISTANCE, 60);
     }
 
     @EventHandler()

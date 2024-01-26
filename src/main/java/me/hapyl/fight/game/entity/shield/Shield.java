@@ -120,7 +120,7 @@ public class Shield {
 
     public final void onCreate0() {
         // No idea why it suddenly doesn't work, the only thing I changed was the version
-        player.addPotionEffect(PotionEffectType.ABSORPTION, 10000, 4);
+        player.addPotionEffect(PotionEffectType.ABSORPTION, 4, 10000);
 
         updateShield();
         onCreate();

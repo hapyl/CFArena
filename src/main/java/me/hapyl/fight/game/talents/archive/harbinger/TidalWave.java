@@ -66,7 +66,7 @@ public class TidalWave extends TimedGameTask implements HeroReference<Harbinger>
             hero.addRiptide(player, entity, talent.riptideDuration, false);
 
             // Push
-            if (entity.hasCCResistanceAndDisplay(player)) {
+            if (entity.hasEffectResistanceAndNotify(player)) {
                 return;
             }
 

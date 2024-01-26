@@ -1,6 +1,8 @@
 package me.hapyl.fight.event;
 
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.WeakEntityAttributes;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.util.Disposable;
@@ -15,6 +17,9 @@ import javax.annotation.Nullable;
  */
 public class DamageInstance implements Cancellable, Disposable {
 
+    public static final String DAMAGE_FORMAT = "&b&l%s";
+    public static final String DAMAGE_FORMAT_CRIT = "&e&l%s&c✷";
+
     private final InstanceEntityData entity;
     private final double initialDamage;
 
@@ -22,13 +27,16 @@ public class DamageInstance implements Cancellable, Disposable {
     protected double damage;
     protected boolean isCrit;
 
+    private double critAt = 0.0d;
     private InstanceEntityData damager;
     private boolean cancel;
+    private double multiplier;
 
     public DamageInstance(@Nonnull LivingGameEntity entity, double damage) {
         this.entity = new InstanceEntityData(entity);
         this.initialDamage = damage;
         this.damage = damage;
+        this.multiplier = 1.0d;
     }
 
     /**
@@ -124,12 +132,34 @@ public class DamageInstance implements Cancellable, Disposable {
     }
 
     /**
-     * Sets the current damage.
+     * Sets the damage of this instance.
+     * <h1>Big Note!</h1>
+     * Setting the damage in
+     * {@link me.hapyl.fight.event.custom.GameDamageEvent},
+     * {@link me.hapyl.fight.game.heroes.Hero#processDamageAsDamager(DamageInstance)},
+     * {@link me.hapyl.fight.game.heroes.Hero#processDamageAsVictim(DamageInstance)}}
+     * is <b>not</b> supported.
+     * <p>
+     * Don't use unless you KNOW what's your doing, see {@link #setDamageMultiplier(double)}.
      *
      * @param damage - New damage.
+     * @see #setDamageMultiplier(double)
      */
-    public void setDamage(double damage) {
+    public void setInternalDamage(double damage) {
         this.damage = damage;
+    }
+
+    public double getDamageMultiplier() {
+        return multiplier;
+    }
+
+    /**
+     * Sets the final multiplier for this damage.
+     *
+     * @param multiplier - Damage multiplier.
+     */
+    public void setDamageMultiplier(double multiplier) {
+        this.multiplier = Math.max(multiplier, 0.0d);
     }
 
     /**
@@ -213,6 +243,83 @@ public class DamageInstance implements Cancellable, Disposable {
         if (damager != null) {
             damager.dispose();
         }
+    }
+
+    // Calculate damage
+    public void calculateDamage() {
+        // True damage is, well, "true" damage.
+        if (cause != null && cause.isTrueDamage()) {
+            damage = initialDamage;
+            return;
+        }
+
+        if (damager != null) {
+            final WeakEntityAttributes damagerAttributes = damager.getAttributes();
+
+            damage = damagerAttributes.calculateOutgoingDamage(damage);
+            isCrit = (cause != null && cause.isCanCrit()) && damagerAttributes.isCritical();
+
+            if (isCrit) {
+                critAt = damagerAttributes.get(AttributeType.CRIT_CHANCE);
+                damage += damage * damagerAttributes.get(AttributeType.CRIT_DAMAGE);
+            }
+        }
+
+        damage = Math.max(0.0d, entity.getAttributes().calculateIncomingDamage(damage));
+        damage *= multiplier;
+    }
+
+    // Recalculate damage again in case attributes changed
+    public void recalculateDamage() {
+        // True damage is, well, "true" damage.
+        if (cause != null && cause.isTrueDamage()) {
+            damage = initialDamage;
+            return;
+        }
+
+        // Default damage
+        damage = initialDamage;
+
+        if (damager != null) {
+            final WeakEntityAttributes damagerAttributes = damager.getAttributes();
+
+            damage = damagerAttributes.calculateOutgoingDamage(damage);
+
+            // If was crit before, check if still have enough crit chance
+            if (isCrit) {
+                final double critChance = damagerAttributes.get(AttributeType.CRIT_CHANCE);
+
+                // If >= to initial crit chance, recalculate with new crit damage
+                if (critChance >= critAt) {
+                    damage += damage * damagerAttributes.get(AttributeType.CRIT_DAMAGE);
+                }
+                // Else remove crit
+                else {
+                    isCrit = false;
+                }
+            }
+        }
+
+        damage = Math.max(0.0d, entity.getAttributes().calculateIncomingDamage(damage));
+        damage *= multiplier;
+    }
+
+    public double getDamageWithinLimit() {
+        return Math.min(damage, entity.getAttributes().getHealth() + 1);
+    }
+
+    @Nonnull
+    public String getDamageFormatted() {
+        String stringDamage;
+
+        if (cause != null) {
+            stringDamage = cause.getDamageCause().getDamageFormat().format(this);
+        }
+        else {
+            stringDamage = "%.0f".formatted(damage);
+        }
+
+        return isCrit ? DAMAGE_FORMAT_CRIT.formatted(stringDamage) : DAMAGE_FORMAT.formatted(stringDamage);
     }
 
     protected void setLastDamager(@Nullable LivingGameEntity entity) {

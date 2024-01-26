@@ -1,49 +1,106 @@
 package me.hapyl.fight.game.talents.archive.shaman;
 
+import com.google.common.collect.Lists;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
-import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
+import me.hapyl.fight.game.talents.InputTalent;
+import me.hapyl.fight.game.talents.archive.shaman.resonance.ResonanceType;
+import me.hapyl.fight.util.collection.player.PlayerMap;
+import me.hapyl.fight.util.displayfield.DisplayField;
+import org.bukkit.Material;
+import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
+import java.util.LinkedList;
 
-public class TotemTalent extends Talent {
+public class TotemTalent extends InputTalent {
 
-    private final ResonanceType type;
+    @DisplayField protected final double verticalVelocity = 0.25d;
+    @DisplayField protected final double velocity = 0.75d;
+    @DisplayField protected final int interval = 30;
+    @DisplayField private final short maxTotems = 3;
 
-    public TotemTalent(ResonanceType type, int cd) {
-        super(
-                type.getName(),
-                "",
-                type.getMaterial()
-        );
+    private final PlayerMap<LinkedList<Totem>> playerTotems = PlayerMap.newMap();
+
+    public TotemTalent() {
+        super("Totem");
 
         setDescription("""
-                Target placed totem and use to switch it to {name}.
+                Equip a &aTotem&7 and prepare to toss it.
                                 
+                After a &aTotem&7 lands, it &aactivates&7 and does one of the following actions every &b{interval}&7 based on the &3Resonance&7.
                 """);
 
-        addDescription(type.getAbout());
+        leftData.setAction("Resonate Discord");
+        leftData.setType(Type.DAMAGE);
+        leftData.setCooldownSec(6);
+        leftData.setDescription(ResonanceType.DAMAGE_AURA.toString());
 
-        this.type = type;
+        rightData.setAction("Resonate Harmony");
+        rightData.setType(Type.SUPPORT);
+        rightData.setCooldownSec(10);
+        rightData.setDescription(ResonanceType.HEALING_AURA.toString());
 
-        addAttributeDescription("Aura Range &l%s", type.getRange() + " blocks");
-        addAttributeDescription("Aura Interval &l%s", BukkitUtils.roundTick(type.getInterval()) + "s");
-
-        setCooldownSec(cd);
+        setItem(Material.SPRUCE_FENCE);
+        setDurationSec(20);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
-        final ActiveTotem totem = Talents.TOTEM.getTalent(Totem.class).getTargetTotem(player);
-        if (totem == null) {
-            return Response.error("Not targeting totem.");
-        }
+    public void onStop() {
+        playerTotems.forEachAndClear(list -> {
+            list.forEach(Totem::cancel);
+            list.clear();
+        });
 
-        totem.setResonanceType(type);
-        player.sendMessage("Switched totem to %s.", type.getName());
+        playerTotems.clear();
+    }
+
+    @Override
+    public void onDeath(@Nonnull GamePlayer player) {
+        final LinkedList<Totem> totems = playerTotems.remove(player);
+
+        if (totems != null) {
+            totems.forEach(Totem::cancel);
+            totems.clear();
+        }
+    }
+
+    @Nonnull
+    @Override
+    public Response onLeftClick(@Nonnull GamePlayer player) {
+        throwTotem(player, ResonanceType.DAMAGE_AURA);
 
         return Response.OK;
     }
+
+    @Nonnull
+    @Override
+    public Response onRightClick(@Nonnull GamePlayer player) {
+        throwTotem(player, ResonanceType.HEALING_AURA);
+
+        return Response.OK;
+    }
+
+    @Nonnull
+    public LinkedList<Totem> getTotems(@Nonnull GamePlayer player) {
+        return playerTotems.computeIfAbsent(player, fn -> Lists.newLinkedList());
+    }
+
+    private void throwTotem(GamePlayer player, ResonanceType type) {
+        final LinkedList<Totem> totems = getTotems(player);
+
+        if (totems.size() >= maxTotems) {
+            final Totem last = totems.pollFirst();
+
+            if (last != null) {
+                last.cancel();
+            }
+        }
+
+        totems.add(new Totem(this, player, type.getResonance()));
+
+        // Fx
+        player.playWorldSound(Sound.ENTITY_IRON_GOLEM_DEATH, 0.75f);
+    }
+
 }

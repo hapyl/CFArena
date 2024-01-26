@@ -19,6 +19,7 @@ import me.hapyl.fight.util.Copyable;
 import me.hapyl.fight.util.Described;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.spigotutils.module.inventory.ItemFunction;
 import me.hapyl.spigotutils.module.math.Tick;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -28,6 +29,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.block.Action;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import javax.annotation.Nonnull;
@@ -89,7 +91,8 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
 
     /**
      * Sets the weapon attack speed.
-     * Use <code>/setattackspeed (value)</code> in game to test this, the value is quite arbitrary.
+     * <p>
+     * <b>Use <code>/setattackspeed (value)</code> in game to test this, the value is quite arbitrary.</b>
      *
      * @param attackSpeed - Attack speed.
      */
@@ -187,7 +190,8 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
         equipment.setItemInMainHand(getItem());
     }
 
-    public void createItem() {
+    @Nonnull
+    public ItemStack createItem() {
         final ItemBuilder builder = this.id == null ? new ItemBuilder(this.material) : new ItemBuilder(
                 this.material,
                 this.id
@@ -211,6 +215,7 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
         // Note that RIGHT CLICK and LEFT CLICK abilities REQUIRE id's
         for (AbilityType type : AbilityType.values()) {
             final Ability ability = abilities.get(type);
+
             if (ability == null) {
                 continue;
             }
@@ -242,7 +247,7 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
                     throw new IllegalArgumentException("Ability for weapon '%s' is set, but the weapon is missing Id!".formatted(getName()));
                 }
 
-                builder.addClickEvent(player -> {
+                final ItemFunction function = builder.addFunction(player -> {
                     final GamePlayer gamePlayer = CF.getPlayer(player);
 
                     if (gamePlayer == null) {
@@ -252,7 +257,16 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
                     Talent.preconditionTalentAnd(gamePlayer)
                             .ifTrue((pl, rs) -> ability.execute0(pl, pl.getInventory().getItemInMainHand()))
                             .ifFalse((pl, rs) -> rs.sendError(pl));
-                }, clickTypes);
+                });
+
+                for (Action action : clickTypes) {
+                    function.accept(action);
+                }
+
+                // Don't cancel clicks for these items
+                switch (material) {
+                    case BOW, CROSSBOW, TRIDENT, FISHING_ROD, SHIELD -> function.setCancelClicks(false);
+                }
             }
         }
 
@@ -324,13 +338,9 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
             builder.addEnchant(Enchantment.LOYALTY, 3);
         }
 
-        // don't cancel clicks for these items
-        switch (material) {
-            case BOW, CROSSBOW, TRIDENT, FISHING_ROD, SHIELD -> builder.setCancelClicks(false);
-        }
-
         builder.hideFlags();
-        this.item = builder.build();
+
+        return builder.build();
     }
 
     @Nonnull

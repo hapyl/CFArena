@@ -45,10 +45,10 @@ public class ZealotWeapon extends Weapon implements HeroReference<Zealot> {
     public class SoulCryAbility extends Ability {
 
         @DisplayField(scaleFactor = 100)
-        private final double ferocityIncrease = 1.0d;
+        private final double ferocityIncrease = 0.75d;
 
         @DisplayField(scaleFactor = 500)
-        private final double speedIncrease = 0.02; // 10%
+        private final double speedIncrease = 0.03; // 15%
 
         private final TemperInstance temperInstance = Temper.SOUL_CRY.newInstance()
                 .increase(AttributeType.FEROCITY, ferocityIncrease)

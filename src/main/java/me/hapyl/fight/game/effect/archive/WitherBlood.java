@@ -1,33 +1,28 @@
 package me.hapyl.fight.game.effect.archive;
 
-import me.hapyl.fight.game.effect.PotionGameEffect;
+import me.hapyl.fight.game.effect.Effect;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 
-public class WitherBlood extends PotionGameEffect {
+public class WitherBlood extends Effect {
     public WitherBlood() {
-        super("Withered Blood");
+        super("Withered Blood", EffectType.NEGATIVE);
+
         setDescription("Feel the wither in your blood.");
-        setPositive(false);
-
-        setPotionEffect(PotionEffectType.WITHER, 1);
-        setPotionEffect(PotionEffectType.BLINDNESS, 1);
     }
 
     @Override
-    public void onTick(@Nonnull LivingGameEntity entity, int tick) {
+    public void onStart(@Nonnull LivingGameEntity entity, int amplifier) {
+        entity.addPotionEffectIndefinitely(PotionEffectType.WITHER, 1);
+        entity.addPotionEffectIndefinitely(PotionEffectType.BLINDNESS, 1);
     }
 
     @Override
-    public void onStartAfter(@Nonnull LivingEntity entity) {
-
-    }
-
-    @Override
-    public void onStopAfter(@Nonnull LivingEntity entity) {
-
+    public void onStop(@Nonnull LivingGameEntity entity, int amplifier) {
+        entity.removePotionEffect(PotionEffectType.WITHER);
+        entity.removePotionEffect(PotionEffectType.BLINDNESS);
     }
 }

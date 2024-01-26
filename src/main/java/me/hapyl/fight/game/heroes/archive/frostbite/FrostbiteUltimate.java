@@ -1,9 +1,12 @@
 package me.hapyl.fight.game.heroes.archive.frostbite;
 
 import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
+
+import javax.annotation.Nonnull;
 
 public class FrostbiteUltimate extends UltimateTalent {
 
@@ -16,8 +19,8 @@ public class FrostbiteUltimate extends UltimateTalent {
 
     @DisplayField public final int debuffDuration = 20;
 
-    public FrostbiteUltimate(int pointCost) {
-        super("Eternal Freeze", pointCost);
+    public FrostbiteUltimate(@Nonnull Hero hero, int pointCost) {
+        super(hero, "Eternal Freeze", pointCost);
 
         setDescription("""
                 Unleash the {name} upon your enemies, creating a massive &f&lsnow field&7 that &4debuffs&7 enemies.

@@ -35,23 +35,24 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler, UICom
     public static final int MAX_IRON = 10;
 
     @DisplayField public final double ultimateInWaterDamage = 10;
-    @DisplayField public final int ultimateHitCd = 5; // Follow java camelCase; Name too generic, hit cd of what?; prev: Hitcd
+    @DisplayField public final int ultimateHitCd = 5;
 
     public final Weapon ironFist = new Weapon(Material.IRON_BLOCK).setDamage(10.0d).setName("&6&lIron Fist");
 
     private final int ironRechargeRate = 60;
     private final PlayerMap<EngineerData> playerData = PlayerMap.newMap();
 
-    public Engineer() {
-        super("Engineer", """
-                A Genius with 12 PHDs. He made all of his buildings himself. Though, he uses just two of those.
-                And your best hope - Not pointed at you.
-                """, Material.IRON_INGOT
-        );
+    public Engineer(@Nonnull Heroes handle) {
+        super(handle, "Engineer");
 
         setArchetype(Archetype.STRATEGY);
 
+        setDescription("""
+                A Genius with 12 PHDs. He made all of his buildings himself. Though, he uses just two of those.
+                And your best hope - Not pointed at you.
+                """);
         setItem("55f0bfea3071a0eb37bcc2ca6126a8bdd79b79947734d86e26e4d4f4c7aa9");
+
         setWeapon(new Weapon(Material.IRON_HOE)
                 .setName("Prototype Wrench")
                 .setDescription("""
@@ -65,7 +66,7 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler, UICom
         equipment.setBoots(0, 0, 0);
 
         setUltimate(new UltimateTalent(
-                "Mecha-Industries", """
+                this, "Mecha-Industries", """
                 Instantly create a &fmech suit&7 and pilot it for {duration}.
                                 
                 The suit provides &cattack&7 power.

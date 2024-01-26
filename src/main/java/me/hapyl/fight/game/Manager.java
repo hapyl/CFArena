@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
+import me.hapyl.fight.command.RateHeroCommand;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.cosmetic.skin.SkinEffectManager;
 import me.hapyl.fight.game.entity.*;
@@ -24,8 +25,7 @@ import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.fight.game.trial.Trial;
-import me.hapyl.fight.game.ui.GamePlayerUI;
+import me.hapyl.fight.game.ui.PlayerUI;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.game.weapons.ability.Ability;
 import me.hapyl.fight.game.weapons.range.RangeWeapon;
@@ -40,10 +40,12 @@ import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.parkour.ParkourManager;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
+import me.hapyl.spigotutils.module.util.Runnables;
 import org.bukkit.*;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
@@ -67,11 +69,11 @@ public final class Manager extends BukkitRunnable {
             EntityType.ITEM_DISPLAY,
             EntityType.GIANT
     );
+
     private final Map<UUID, GameEntity> entities;
     private final Map<UUID, PlayerProfile> profiles;
     private final SkinEffectManager skinEffectManager;
     private final AutoSync autoSave;
-    private final Trial trial;
 
     @Nonnull private GameMaps currentMap;
     @Nonnull private Modes currentMode;
@@ -96,7 +98,6 @@ public final class Manager extends BukkitRunnable {
         // start auto save timer
         autoSave = new AutoSync(Tick.fromMinute(10));
 
-        trial = new Trial(main);
         debugData = DebugData.EMPTY;
 
         runTaskTimer(main, 0, 1);
@@ -336,7 +337,7 @@ public final class Manager extends BukkitRunnable {
     }
 
     @Nullable
-    public GamePlayerUI getPlayerUI(Player player) {
+    public PlayerUI getPlayerUI(Player player) {
         return getOrCreateProfile(player).getPlayerUI();
     }
 
@@ -344,11 +345,11 @@ public final class Manager extends BukkitRunnable {
      * Returns if player is able to use an ability.
      * Checks for the game to exist and being in progress.
      *
-     * @param player - Player to check.
+     * @param profile - Player to check.
      * @return true if a player is able to use an ability; false otherwise.
      */
-    public boolean isAbleToUse(Player player) {
-        return isGameInProgress() || trial.isInTrial(player);
+    public boolean isAbleToUse(PlayerProfile profile) {
+        return isGameInProgress() || profile.hasTrial();
     }
 
     public boolean isGameInProgress() {
@@ -419,14 +420,6 @@ public final class Manager extends BukkitRunnable {
         return debugData;
     }
 
-    public Trial getTrial() {
-        return trial;
-    }
-
-    public boolean hasTrial() {
-        return getTrial() != null;
-    }
-
     public Modes getCurrentMode() {
         return currentMode;
     }
@@ -452,6 +445,14 @@ public final class Manager extends BukkitRunnable {
         if ((!currentMap.isPlayable() || !currentMap.getMap().hasLocation()) && !debug.is(DebugData.Flag.DEBUG)) {
             displayError("Invalid map!");
             return false;
+        }
+
+        // Check if a player is in a trial
+        for (PlayerProfile profile : profiles.values()) {
+            if (profile.hasTrial()) {
+                displayError(profile.getPlayer().getName() + " is in a Trial!");
+                return false;
+            }
         }
 
         final int playerRequirements = getCurrentMode().getMode().getPlayerRequirements();
@@ -534,7 +535,7 @@ public final class Manager extends BukkitRunnable {
             // Equip and hide players
             if (!gamePlayer.isSpectator()) {
                 gamePlayer.equipPlayer(gamePlayer.getHero());
-                gamePlayer.hide();
+                gamePlayer.hidePlayer();
 
                 // Apply player skin if exists
                 final PlayerSkin skin = gamePlayer.getHero().getSkin();
@@ -586,7 +587,7 @@ public final class Manager extends BukkitRunnable {
                 final World world = target.getWorld();
 
                 target.getHero().onPlayersReveal(target);
-                target.show();
+                target.showPlayer();
                 target.getTeam().glowTeammates();
 
                 if (!debug.is(DebugData.Flag.DEBUG)) {
@@ -694,17 +695,32 @@ public final class Manager extends BukkitRunnable {
 
         // teleport players to spawn
         for (final Player player : Bukkit.getOnlinePlayers()) {
+            player.getInventory().clear();
+            player.setAllowFlight(false);
+            player.setArrowsInBody(0);
             player.setInvulnerable(false);
             player.setHealth(player.getMaxHealth());
             player.setGameMode(GameMode.SURVIVAL);
             player.setWalkSpeed(0.2f);
             player.teleport(GameMaps.SPAWN.getMap().getLocation());
 
+            for (PotionEffect potionEffect : player.getActivePotionEffects()) {
+                player.removePotionEffect(potionEffect.getType());
+            }
+
             // Progress achievement
             Achievements.PLAY_FIRST_GAME.complete(player);
 
             LobbyItems.giveAll(player);
         }
+
+        // Hero Rating
+        Runnables.runLater(() -> {
+            Bukkit.getOnlinePlayers().forEach(player -> {
+                final Heroes hero = getSelectedLobbyHero(player);
+                RateHeroCommand.allowRatingHeroIfHasNotRatedAlready(player, hero);
+            });
+        }, 60);
 
         if (autoSave.scheduleSave) {
             autoSave.save();
@@ -915,7 +931,7 @@ public final class Manager extends BukkitRunnable {
     }
 
     @Nonnull
-    private Heroes getSelectedLobbyHero(Player player) {
+    public Heroes getSelectedLobbyHero(Player player) {
         final PlayerProfile profile = getProfile(player);
 
         if (profile == null) {
@@ -923,6 +939,17 @@ public final class Manager extends BukkitRunnable {
         }
 
         return profile.getSelectedHero();
+    }
+
+    public boolean isInGameOrTrial(@Nullable Player player) {
+        final PlayerProfile profile = player != null ? PlayerProfile.getProfile(player) : null;
+
+        return isGameInProgress() || (profile != null && profile.hasTrial());
+    }
+
+    @Nonnull
+    public AutoSync getAutoSave() {
+        return autoSave;
     }
 
     private void playAnimation() {

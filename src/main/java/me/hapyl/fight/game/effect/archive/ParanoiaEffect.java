@@ -1,7 +1,8 @@
 package me.hapyl.fight.game.effect.archive;
 
 import me.hapyl.fight.game.effect.EffectParticle;
-import me.hapyl.fight.game.effect.GameEffect;
+import me.hapyl.fight.game.effect.Effect;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
 import me.hapyl.spigotutils.module.util.ThreadRandom;
@@ -10,7 +11,7 @@ import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 
-public class ParanoiaEffect extends GameEffect {
+public class ParanoiaEffect extends Effect {
 
     private final Sound[] decoySounds = {
             Sound.ENTITY_PLAYER_HURT,
@@ -26,16 +27,19 @@ public class ParanoiaEffect extends GameEffect {
     };
 
     public ParanoiaEffect() {
-        super("Paranoia");
-        setDescription("Blinds players and plays decoy sounds around them.");
-        setPositive(false);
+        super("Paranoia", EffectType.NEGATIVE);
+
+        setDescription("""
+                Blinds players and plays decoy sounds around them.
+                """);
+
         setEffectParticle(new EffectParticle(Particle.SQUID_INK, 5, 0.175d, 0.175d, 0.175d, 0.02f));
     }
 
     @Override
     public void onTick(@Nonnull LivingGameEntity entity, int tick) {
         // Plays a sound every 20 ticks or with 10% chance
-        if (tick == 0 || Math.random() >= 0.9d) {
+        if (tick % 20 == 0 || Math.random() >= 0.9d) {
             // Display paranoia for all players but the viewer
             final Location spawnLocation = entity.getLocation().clone().add(0, 1.7d, 0);
             //this.displayParticles(spawnLocation, entity.getEntity()); Moved to omen debuff to only show the particles for the player
@@ -56,14 +60,14 @@ public class ParanoiaEffect extends GameEffect {
     }
 
     @Override
-    public void onStart(@Nonnull LivingGameEntity entity) {
-        entity.addPotionEffect(PotionEffectType.DARKNESS.createEffect(99999, 1));
+    public void onStart(@Nonnull LivingGameEntity entity, int amplifier) {
+        entity.addPotionEffectIndefinitely(PotionEffectType.DARKNESS, 1);
     }
 
     @Override
-    public void onStop(@Nonnull LivingGameEntity entity) {
+    public void onStop(@Nonnull LivingGameEntity entity, int amplifier) {
         // This needed for smooth fade-out
         entity.removePotionEffect(PotionEffectType.DARKNESS);
-        entity.addPotionEffect(PotionEffectType.BLINDNESS.createEffect(20, 1));
+        entity.addPotionEffect(PotionEffectType.BLINDNESS, 1, 20);
     }
 }

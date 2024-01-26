@@ -12,7 +12,6 @@ import javax.annotation.Nullable;
 
 public enum Message {
 
-
     ;
 
     private static final String STAFF_PREFIX = Color.CORNFLOWER_BLUE.bold() + "sᴛᴀғғ";

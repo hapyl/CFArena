@@ -2,7 +2,6 @@ package me.hapyl.fight.registry;
 
 import me.hapyl.fight.fastaccess.FastAccessRegistry;
 import me.hapyl.fight.game.artifact.ArtifactRegistry;
-import me.hapyl.fight.item.ItemRegistry;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -11,7 +10,6 @@ import java.util.Optional;
 
 public interface Registry<T extends EnumId> {
 
-    ItemRegistry ITEM_REGISTRY = new ItemRegistry();
     FastAccessRegistry FAST_ACCESS = new FastAccessRegistry();
     ArtifactRegistry ARTIFACTS = new ArtifactRegistry();
 

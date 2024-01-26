@@ -2,7 +2,7 @@ package me.hapyl.fight.game.heroes.archive.engineer;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.attribute.Attributes;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Removable;
@@ -40,7 +40,7 @@ public class MechaIndustries extends TimedGameTask implements Removable {
             return entity;
         });
 
-        player.addEffect(GameEffectType.INVISIBILITY, 100000, true);
+        player.addEffect(Effects.INVISIBILITY, 100000, true);
 
         // Fx
         player.spawnWorldParticle(Particle.EXPLOSION_HUGE, 1);
@@ -53,7 +53,7 @@ public class MechaIndustries extends TimedGameTask implements Removable {
         cancel();
 
         golem.remove();
-        player.removeEffect(GameEffectType.INVISIBILITY);
+        player.removeEffect(Effects.INVISIBILITY);
 
         // Fx
         player.playWorldSound(Sound.ENTITY_IRON_GOLEM_DEATH, 0.75f);

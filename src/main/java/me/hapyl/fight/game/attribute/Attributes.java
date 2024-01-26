@@ -1,13 +1,12 @@
 package me.hapyl.fight.game.attribute;
 
 import com.google.common.collect.Maps;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.translate.Language;
 import me.hapyl.fight.util.WeakCopy;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.LivingEntity;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
@@ -16,7 +15,7 @@ public class Attributes implements WeakCopy {
     public final static double DEFENSE_SCALING = 0.5d;
 
     protected final Map<AttributeType, Double> mapped;
-    private final AttributeRandom random;
+    protected final AttributeRandom random;
 
     public Attributes(LivingEntity entity) {
         this();
@@ -33,31 +32,58 @@ public class Attributes implements WeakCopy {
         }
     }
 
-    public final double calculateHealing(double healing) {
+    /**
+     * Calculates the outgoing healing with the formula:
+     * <pre>
+     *     healing * mending
+     * </pre>
+     *
+     * @param healing - Healing.
+     * @return the calculated outgoing healing
+     */
+    public final double calculateOutgoingHealing(double healing) {
         return healing * get(AttributeType.MENDING);
     }
 
+    /**
+     * Calculates the incoming healing with the formula:
+     * <pre>
+     *     healing * vitality
+     * </pre>
+     *
+     * @param healing - Healing.
+     * @return the calculated incoming healing.
+     */
+    public final double calculateIncomingHealing(double healing) {
+        return healing * get(AttributeType.VITALITY);
+    }
+
+    /**
+     * Calculates the incoming damage with the formula:
+     * <pre>
+     *     damage / (defense * {@link #DEFENSE_SCALING} + (1 - ({@link #DEFENSE_SCALING}))
+     * </pre>
+     *
+     * @param damage - Damage.
+     * @return the calculated incoming damage.
+     */
     public final double calculateIncomingDamage(double damage) {
         final double defense = get(AttributeType.DEFENSE);
 
         return damage / (defense * DEFENSE_SCALING + (1 - DEFENSE_SCALING));
     }
 
-    public final CriticalResponse calculateOutgoingDamage(double damage) {
-        return calculateOutgoingDamage(damage, null);
-    }
-
-    public final CriticalResponse calculateOutgoingDamage(double damage, @Nullable EnumDamageCause cause) {
-        final double scaled = damage * AttributeType.ATTACK.get(this);
-
-        if (cause != null && !cause.isCanCrit()) {
-            return new CriticalResponse(scaled, false);
-        }
-
-        final boolean isCritical = isCritical();
-        final double scaledCritical = scaleCritical(scaled, isCritical);
-
-        return new CriticalResponse(scaledCritical, isCritical);
+    /**
+     * Calculates the outgoing damage with the formula:
+     * <pre>
+     *     damage * attack
+     * </pre>
+     *
+     * @param damage - Damage.
+     * @return the calculated outgoing damage.
+     */
+    public final double calculateOutgoingDamage(double damage) {
+        return damage * AttributeType.ATTACK.get(this);
     }
 
     public final boolean calculateDodge() {
@@ -65,7 +91,7 @@ public class Attributes implements WeakCopy {
     }
 
     public final boolean calculateCrowdControlResistance() {
-        return random.checkBound(AttributeType.CROWD_CONTROL_RESISTANCE);
+        return random.checkBound(AttributeType.EFFECT_RESISTANCE);
     }
 
     public final boolean isCritical() {
@@ -149,12 +175,16 @@ public class Attributes implements WeakCopy {
     }
 
     /**
-     * Sets the {@link AttributeType#MENDING} value for this attribute.
+     * Sets the {@link AttributeType#VITALITY} value for this attribute.
      *
      * @param value - New value.
      */
     public void setMending(double value) {
         setValueScaled(AttributeType.MENDING, value);
+    }
+
+    public void setVitality(double value) {
+        setValueScaled(AttributeType.VITALITY, value);
     }
 
     /**
@@ -191,6 +221,10 @@ public class Attributes implements WeakCopy {
      */
     public void setKnockbackResistance(double value) {
         setValueScaled(AttributeType.KNOCKBACK_RESISTANCE, value);
+    }
+
+    public void setEffectResistance(double value) {
+        setValueScaled(AttributeType.EFFECT_RESISTANCE, value);
     }
 
     /**
@@ -257,6 +291,11 @@ public class Attributes implements WeakCopy {
     }
 
     @Nonnull
+    public String getLore(@Nonnull Language language, @Nonnull AttributeType type) {
+        return " &7" + language.getTranslated("attribute." + type.name().toLowerCase()) + ": " + getStar(type);
+    }
+
+    @Nonnull
     public String getStar(AttributeType type) {
         final double defaultValue = type.getDefaultValue();
         final double value = get(type);
@@ -298,7 +337,26 @@ public class Attributes implements WeakCopy {
     }
 
     private void setValueScaled(AttributeType type, double value) {
-        set(type, type.scale(value));
+        set(type, type.scaleDown(value));
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder("{");
+
+        int i = 0;
+        for (AttributeType type : AttributeType.values()) {
+            if (i++ != 0) {
+                builder.append("\n");
+            }
+
+            final double v = get(type);
+
+            if (v > 0) {
+                builder.append(" ").append(type.name()).append(" = ").append(v);
+            }
+        }
+
+        return builder.append("}").toString();
+    }
 }

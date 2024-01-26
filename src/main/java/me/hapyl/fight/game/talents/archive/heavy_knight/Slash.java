@@ -1,13 +1,14 @@
 package me.hapyl.fight.game.talents.archive.heavy_knight;
 
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.heavy_knight.SwordMaster;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.TalentQueue;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.math.Tick;
@@ -16,8 +17,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
@@ -65,8 +64,8 @@ public class Slash extends Talent {
         // Check for talent order
         if (checkTalentOrder(player)) {
             entitiesHit.forEach(entity -> {
-                entity.addPotionEffect(PotionEffectType.SLOW.createEffect(effectDuration, 1));
-                entity.addPotionEffect(PotionEffectType.WEAKNESS.createEffect(effectDuration, 1));
+                entity.addEffect(Effects.SLOW, 1, effectDuration);
+                // &weakness
 
                 entity.sendMessage(""); // ???
             });

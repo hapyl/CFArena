@@ -1,11 +1,12 @@
 package me.hapyl.fight.game.heroes.archive.doctor;
 
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.loadout.HotbarSlots;
@@ -32,8 +33,8 @@ public class DrEd extends Hero implements UIComponent {
     private final PhysGun ultimateWeapon = new PhysGun();
     private final PlayerMap<BlockShield> playerShield;
 
-    public DrEd() {
-        super("Dr. Ed");
+    public DrEd(@Nonnull Heroes handle) {
+        super(handle, "Dr. Ed");
 
         setArchetype(Archetype.STRATEGY);
 
@@ -51,7 +52,7 @@ public class DrEd extends Hero implements UIComponent {
 
         setWeapon(new GravityGun());
 
-        setUltimate(new UltimateTalent("Upgrades People, Upgrades!", 70)
+        setUltimate(new UltimateTalent(this, "Upgrades People, Upgrades!", 70)
                 .appendDescription("""
                         Grants Dr. Ed an upgraded version of &a%s&7 for {duration} that is capable of capturing entities' flesh and energy, allowing manipulating them.
                         """, getWeapon().getName())

@@ -10,7 +10,7 @@ public enum StatType {
     DAMAGE_TAKEN("&7You've taken &c&l%s &7damage this game!", "&7You haven't taken any damage this game."),
     ULTIMATE_USED("&7You've used your ultimate &e&l%s &7times this game!", "&7You haven't used your ultimate this game."),
 
-    // Used to store in database, but unused in player stats
+    // Used to store in the database, but unused in player stats
     WINS,
     PLAYED,
 

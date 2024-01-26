@@ -1,6 +1,8 @@
 package me.hapyl.fight.game.attribute;
 
 import me.hapyl.fight.annotate.Trigger;
+import me.hapyl.fight.event.custom.AttributeChangeEvent;
+import me.hapyl.fight.event.custom.AttributeTemperEvent;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.attribute.temper.AttributeTemperTable;
 import me.hapyl.fight.game.attribute.temper.Temper;
@@ -10,21 +12,23 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.ui.display.AttributeDisplay;
 import me.hapyl.fight.trigger.Triggers;
 import me.hapyl.fight.trigger.subscribe.AttributeChangeTrigger;
-import me.hapyl.fight.util.collection.ImmutableTuple;
+import me.hapyl.fight.util.collection.NonnullTuple;
+import me.hapyl.fight.util.collection.Tuple;
 import me.hapyl.spigotutils.module.annotate.Super;
 import me.hapyl.spigotutils.module.math.Numbers;
 
 import javax.annotation.Nonnull;
-import java.util.Random;
 import java.util.function.Consumer;
 
 /**
- * This class stores player attributes that are changeable
+ * This class stores entity attributes that are changeable
  * during the game.
  * <p>
  * The stats itself defaults to 0, since they're considered
  * as additional stats and the getter returns the base value
  * plus additional.
+ *
+ * @see #get(AttributeType)
  */
 public class EntityAttributes extends Attributes implements PlayerElement {
 
@@ -83,7 +87,7 @@ public class EntityAttributes extends Attributes implements PlayerElement {
         }
 
         if (ferocity > 0.0d) {
-            if (new Random().nextDouble(0.0d, 1.0d) < ferocity) {
+            if (random.checkBound(ferocity)) {
                 strikes++;
             }
         }
@@ -106,6 +110,10 @@ public class EntityAttributes extends Attributes implements PlayerElement {
     }
 
     public void increaseTemporary(@Nonnull Temper temper, @Nonnull AttributeType type, double value, int duration, boolean silent) {
+        if (new AttributeTemperEvent(entity, temper, type, value, duration, silent).callAndCheck()) {
+            return;
+        }
+
         final boolean newTemper = !tempers.has(temper, type);
         tempers.add(temper, type, value, duration);
 
@@ -137,7 +145,7 @@ public class EntityAttributes extends Attributes implements PlayerElement {
      * @return the new value.
      */
     public double add(@Nonnull AttributeType type, double value) {
-        final ImmutableTuple<Double, Double> tuple = addSilent(type, value);
+        final NonnullTuple<Double, Double> tuple = addSilent(type, value);
         final double oldValue = tuple.getA();
         final double newValue = tuple.getB();
 
@@ -153,10 +161,15 @@ public class EntityAttributes extends Attributes implements PlayerElement {
      * @return the new value.
      */
     @Super
-    public ImmutableTuple<Double, Double> addSilent(@Nonnull AttributeType type, double value) {
+    public NonnullTuple<Double, Double> addSilent(@Nonnull AttributeType type, double value) {
         final double oldBaseValue = get(type);
         final double original = super.get(type);
         final double newValue = original + value;
+
+        // Call event
+        if (new AttributeChangeEvent(entity, type, original, newValue).callAndCheck()) {
+            return Tuple.ofNonnull(0.d, 0.d);
+        }
 
         mapped.put(type, newValue);
 
@@ -167,7 +180,7 @@ public class EntityAttributes extends Attributes implements PlayerElement {
         // Call update
         triggerUpdate(type);
 
-        return ImmutableTuple.of(original, newValue);
+        return Tuple.ofNonnull(original, newValue);
     }
 
     /**
@@ -177,7 +190,7 @@ public class EntityAttributes extends Attributes implements PlayerElement {
      * @param value - Subtract value.
      * @return the new value.
      */
-    public double subtract(AttributeType type, double value) {
+    public double subtract(@Nonnull AttributeType type, double value) {
         return add(type, -value);
     }
 
@@ -188,7 +201,7 @@ public class EntityAttributes extends Attributes implements PlayerElement {
      * @param value - Subtract value.
      * @return the new value.
      */
-    public double subtractSilent(AttributeType type, double value) {
+    public double subtractSilent(@Nonnull AttributeType type, double value) {
         return addSilent(type, -value).b();
     }
 
@@ -198,7 +211,7 @@ public class EntityAttributes extends Attributes implements PlayerElement {
      * @param type - Type.
      * @return the base value of this type.
      */
-    public double getBase(AttributeType type) {
+    public double getBase(@Nonnull AttributeType type) {
         return baseAttributes.get(type);
     }
 
@@ -260,4 +273,9 @@ public class EntityAttributes extends Attributes implements PlayerElement {
         new AttributeDisplay(type, isBuff, entity.getLocation().add(0.0d, 0.5d, 0.0d));
     }
 
+
+    @Override
+    public String toString() {
+        return entity.toString() + super.toString();
+    }
 }

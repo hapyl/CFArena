@@ -2,14 +2,11 @@ package me.hapyl.fight.game.heroes.archive.tamer;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.HeroPlaque;
-import me.hapyl.fight.game.heroes.UltimateCallback;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -45,8 +42,8 @@ public class Tamer extends Hero implements Listener, UIComponent, HeroPlaque {
     public final double ultimateMultiplier = 2.0d;
     public final Map<ThrownPotion, DrWitch.WitchData> potionMap = Maps.newHashMap();
 
-    public Tamer() {
-        super("Tamer");
+    public Tamer(@Nonnull Heroes handle) {
+        super(handle, "Tamer");
 
         setDescription("""
                 A former circus pet trainer who gained the ability to tame the elements.
@@ -70,7 +67,7 @@ public class Tamer extends Hero implements Listener, UIComponent, HeroPlaque {
                 .setId("tamer_weapon")
                 .setDamage(2.0d)); // This is melee damage, weapon damage is handled in the event
 
-        setUltimate(new UltimateTalent("Improve! Overcome!", """
+        setUltimate(new UltimateTalent(this, "Improve! Overcome!", """
                 Improve the &bduration&7 and &aeffectiveness&7 of your talents and beasts.
                 """, 50)
                 .setType(Talent.Type.ENHANCE)

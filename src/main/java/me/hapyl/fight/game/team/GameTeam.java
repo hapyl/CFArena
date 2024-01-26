@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.team;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Manager;
@@ -11,12 +10,14 @@ import me.hapyl.fight.game.maps.Selectable;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.util.Described;
 import me.hapyl.fight.util.SmallCapsDescriber;
+import me.hapyl.spigotutils.module.block.display.DisplayEntity;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.reflect.glow.Glowing;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
 import me.hapyl.spigotutils.module.util.Compute;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -311,6 +312,14 @@ public enum GameTeam implements Described, SmallCapsDescriber, Selectable, GameE
         return bukkitColor;
     }
 
+    public void glowEntity(@Nonnull Entity entity) {
+        Glowing.glowInfinitely(entity, ChatColor.GREEN, getBukkitPlayers());
+    }
+
+    public void glowEntity(@Nonnull DisplayEntity displayEntity) {
+        displayEntity.getEntities().forEach(this::glowEntity);
+    }
+
     private void sendMessage(Entry entry, String string, Object... format) {
         final Player player = entry.getPlayer();
 
@@ -370,7 +379,6 @@ public enum GameTeam implements Described, SmallCapsDescriber, Selectable, GameE
                 boolean isRemove = entry.isPlayer() && entry.getPlayer() == null;
 
                 if (isRemove) {
-                    Debug.info("Removed %s from a team because they're offline!", entry.getUuid().toString());
                     team.playerCount--;
                 }
 

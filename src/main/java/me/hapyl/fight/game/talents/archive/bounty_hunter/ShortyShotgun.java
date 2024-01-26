@@ -1,11 +1,12 @@
 package me.hapyl.fight.game.talents.archive.bounty_hunter;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.util.Collect;
@@ -75,11 +76,7 @@ public class ShortyShotgun extends Talent {
     }
 
     private void fixAmount(GamePlayer player) {
-        if (talentSlot == null) {
-            return;
-        }
-
-        final ItemStack shotgunItem = player.getItem(talentSlot);
+        final ItemStack shotgunItem = player.getItem(Heroes.BOUNTY_HUNTER.getHero().getTalentSlotByHandle(this));
 
         if (shotgunItem == null || shotgunItem.getType() != getMaterial()) {
             return;
@@ -109,8 +106,8 @@ public class ShortyShotgun extends Talent {
                 // Check for bleed
                 if (entity.getLocation().distance(player.getLocation()) <= bleedThreshold) {
                     entity.setLastDamager(player);
-                    entity.addEffect(GameEffectType.BLEED, bleedDuration, true);
-                    entity.addEffect(GameEffectType.VULNERABLE, bleedDuration, true);
+                    entity.addEffect(Effects.BLEED, bleedDuration, true);
+                    entity.addEffect(Effects.VULNERABLE, bleedDuration, true);
                 }
 
                 double damage = maxDamagePerPellet - d;

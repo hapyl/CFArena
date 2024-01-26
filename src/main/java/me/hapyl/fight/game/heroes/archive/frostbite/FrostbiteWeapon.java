@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.archive.frostbite;
 
-import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.weapons.range.RangeWeapon;
@@ -59,7 +59,7 @@ public class FrostbiteWeapon extends RangeWeapon {
                     public void onHit(@Nonnull LivingGameEntity entity, boolean isHeadShot) {
                         super.onHit(entity, isHeadShot);
 
-                        entity.addEffect(GameEffectType.SLOWING_AURA, slowingAuraDuration, true);
+                        entity.addEffect(Effects.SLOWING_AURA, slowingAuraDuration, true);
                     }
 
                     @Override

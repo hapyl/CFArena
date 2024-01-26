@@ -48,6 +48,11 @@ public class CosmeticEntry extends PlayerDatabaseEntry {
     }
 
     public void setSelected(Type type, Cosmetics cosmetic) {
+        if (!cosmetic.canObtain(getPlayer())) {
+            sendMessage("&cYou cannot select this cosmetic!");
+            return;
+        }
+
         final Document cosmetics = getDocument().get("cosmetics", new Document());
         final Document selected = cosmetics.get("selected", new Document());
 
@@ -70,6 +75,11 @@ public class CosmeticEntry extends PlayerDatabaseEntry {
 
     public void addOwned(Cosmetics cosmetic) {
         if (hasCosmetic(cosmetic)) {
+            return;
+        }
+
+        if (!cosmetic.canObtain(getPlayer())) {
+            sendMessage("&cYou cannot own this cosmetic!");
             return;
         }
 

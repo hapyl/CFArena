@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.bloodfield.impel;
 
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend;
 import org.bukkit.Sound;

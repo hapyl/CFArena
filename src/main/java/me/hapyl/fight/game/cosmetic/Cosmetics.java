@@ -9,6 +9,7 @@ import me.hapyl.fight.game.cosmetic.archive.*;
 import me.hapyl.fight.game.cosmetic.archive.gadget.FireworkGadget;
 import me.hapyl.fight.game.cosmetic.archive.gadget.dice.DiceGadget;
 import me.hapyl.fight.game.cosmetic.archive.gadget.dice.HighClassDice;
+import me.hapyl.fight.util.StaticUUID;
 import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.*;
 import org.bukkit.entity.Item;
@@ -81,6 +82,7 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
     STYLISH_FALL(new StylishFallCosmetic()),
     ELECTROCUTE(new ElectrocuteCosmetic()),
     EMERALD_EXPLOSION(new EmeraldExplosion()),
+    BONES_AND_SHREDS(new BonesAndShredsCosmetic()),
 
     // Contrails
     MUSIC(new MusicContrail()),
@@ -209,6 +211,13 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
             Rarity.LEGENDARY
     ).setIcon(Material.DIAMOND).setExclusive(true)),
 
+    HAPYL_PREFIX(new PrefixCosmetic("hapyl", "It's him!", Color.DARK_RED.bold() + "ዞ", Rarity.COMMON).setExclusive(true)) {
+        @Override
+        public boolean canObtain(@Nonnull OfflinePlayer player) {
+            return StaticUUID.HAPYL.matches(player);
+        }
+    },
+
     // Win Effects
 
     /**
@@ -328,6 +337,10 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
     @Override
     public void setCollection(@Nullable CosmeticCollection collection) {
         this.collection = collection;
+    }
+
+    public boolean canObtain(@Nonnull OfflinePlayer player) {
+        return true;
     }
 
     // static members

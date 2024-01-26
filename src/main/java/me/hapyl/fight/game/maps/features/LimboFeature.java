@@ -2,6 +2,7 @@ package me.hapyl.fight.game.maps.features;
 
 import me.hapyl.fight.event.custom.GameEntityContactPortalEvent;
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.maps.GameMap;
@@ -14,7 +15,6 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.potion.PotionEffectType;
 
 public class LimboFeature extends VoidFeature implements Listener {
     public LimboFeature() {
@@ -61,7 +61,7 @@ public class LimboFeature extends VoidFeature implements Listener {
         entity.teleport(teleportLocation);
 
         // Fx
-        entity.addPotionEffect(PotionEffectType.DARKNESS, 40, 255);
+        entity.addEffect(Effects.DARKNESS, 255, 40);
         entity.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
 
         Geometry.drawLine(location, teleportLocation, 0.5,

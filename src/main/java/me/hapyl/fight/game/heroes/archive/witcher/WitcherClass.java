@@ -30,8 +30,8 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
 
     @DisplayField private final double defenseIncrease = 2.0d;
 
-    public WitcherClass() {
-        super("The Witcher");
+    public WitcherClass(@Nonnull Heroes handle) {
+        super(handle, "The Witcher");
 
         setArchetype(Archetype.DAMAGE);
 
@@ -53,7 +53,7 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
 
         setUltimate(
                 new UltimateTalent(
-                        "All the Trainings", """
+                        this, "All the Trainings", """
                         Remember all your trainings and unleash them at once.
                                                 
                         Gaining a %1$s increase and the %2$s aura that follows you for {duration}.
@@ -115,7 +115,6 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
         }
 
         final Combo combo = getCombo(player);
-        double damage = instance.getDamage();
 
         if (combo.getEntity() == null && entity != player) {
             combo.setEntity(entity.getEntity());
@@ -137,14 +136,14 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
 
         // combo starts at 2 hits
         if (comboHits > 2) {
-            damage = Math.max(damage, damage * (1 + (comboHits - 2) * 0.1d));
+            final double damageMultiplier = (1 + (comboHits - 2) * 0.1d);
 
             // Fx
-            player.sendTitle("    &6&lCOMBO!", "     &4&lx" + (comboHits - 2), 0, 25, 25);
+            player.sendTitle("    &6&lCOMBO!", "     &4&lx" + damageMultiplier * 100, 0, 25, 25);
             player.playSound(Sound.ITEM_SHIELD_BREAK, 1.75f);
-        }
 
-        instance.setDamage(damage);
+            instance.setDamageMultiplier(damageMultiplier);
+        }
     }
 
     @Override

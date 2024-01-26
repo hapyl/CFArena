@@ -2,12 +2,14 @@ package me.hapyl.fight.game.heroes.archive.alchemist;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.effect.EffectFlag;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
@@ -15,18 +17,16 @@ import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.RandomTable;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.math.Numbers;
-import me.hapyl.spigotutils.module.player.EffectType;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
@@ -40,8 +40,6 @@ import java.util.UUID;
 
 import static org.bukkit.Sound.ENTITY_WITCH_AMBIENT;
 import static org.bukkit.Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR;
-import static org.bukkit.potion.PotionEffectType.POISON;
-import static org.bukkit.potion.PotionEffectType.WITHER;
 
 public class Alchemist extends Hero implements UIComponent, PlayerElement {
 
@@ -50,8 +48,8 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
     private final Map<GamePlayer, Integer> toxinLevel = new HashMap<>();
     private final Map<UUID, CauldronEffect> cauldronEffectMap = new HashMap<>();
 
-    public Alchemist() {
-        super("Alchemist");
+    public Alchemist(@Nonnull Heroes handle) {
+        super(handle, "Alchemist");
 
         setArchetype(Archetype.STRATEGY);
 
@@ -126,6 +124,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
                 .add(new MadnessEffect("&lis... confusing?", PotionEffectType.CONFUSION, 15, 0));
 
         setUltimate(new UltimateTalent(
+                this,
                 "Alchemical Madness",
                 "Call upon the darkest spells to cast random &c&lNegative &7effect on your foes for &b15s &7and random &a&lPositive &7effect on yourself for &b30s&7.",
                 50
@@ -161,13 +160,14 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
             return;
         }
 
-        final EffectType randomEffect = getRandomEffect();
-        victim.addPotionEffect(randomEffect, 20, 3);
+        final Effects randomEffect = getRandomEffect();
+
+        victim.addEffect(randomEffect, 3, 20);
         effect.decrementEffectPotions();
 
         player.sendMessage(
                 "&c¤ &eVenom Touch applied &l%s &eto %s. &l%s &echarges left.",
-                Chat.capitalize(randomEffect.getType().getName()),
+                Chat.capitalize(randomEffect.getName()),
                 victim.getName(),
                 effect.getEffectHits()
         );
@@ -207,10 +207,10 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
             public void run() {
                 CF.getAlivePlayers(Heroes.ALCHEMIST).forEach(gamePlayer -> {
                     if (isToxinLevelBetween(gamePlayer, 50, 75)) {
-                        gamePlayer.addPotionEffect(POISON, 20, 2);
+                        gamePlayer.addEffect(Effects.POISON, 2, 20);
                     }
                     else if (isToxinLevelBetween(gamePlayer, 75, 90)) {
-                        gamePlayer.addPotionEffect(WITHER, 20, 1);
+                        gamePlayer.addEffect(Effects.WITHER, 1, 20);
                     }
                     else if (getToxinLevel(gamePlayer) >= 100) {
                         gamePlayer.dieBy(EnumDamageCause.TOXIN);
@@ -250,15 +250,8 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
 
     // some effects aren't really allowed so
     // replaced with EffectType because bukkit effects aren't enums
-    private EffectType getRandomEffect() {
-        final EffectType value = CFUtils.getRandomEffect();
-
-        return switch (value) {
-            case BAD_OMEN, INSTANT_HEAL, HEALTH_BOOST,
-                    REGENERATION, ABSORPTION, SATURATION,
-                    LUCK, UNLUCK, HERO_OF_THE_VILLAGE -> getRandomEffect();
-            default -> value;
-        };
+    private Effects getRandomEffect() {
+        return Effects.getRandomEffect(EffectFlag.VANILLA);
     }
 
     private int getToxinLevel(GamePlayer player) {

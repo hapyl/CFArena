@@ -1,13 +1,15 @@
 package me.hapyl.fight.game.talents.archive.bloodfiend.taunt;
 
 import com.google.common.collect.Maps;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend;
 import me.hapyl.fight.game.heroes.archive.bloodfield.BloodfiendData;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
+import me.hapyl.fight.translate.Language;
+import org.bukkit.Location;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -32,6 +34,21 @@ public abstract class TauntTalent<T extends Taunt> extends Talent {
         addNlDescription(getHowToRemove());
     }
 
+    @Nonnull
+    @Override
+    public String getTranslateDescription(@Nonnull Language language) {
+        return language.getFormatted("""
+                <talent.bloodfiend.taunt.description>
+                <talent.bloodfiend.taunt.while_active>
+                <%s>
+                <talent.bloodfiend.taunt.how_to_remove>
+                <%s>
+                """.formatted(
+                getParentTranslatableKey() + "description",
+                getParentTranslatableKey() + "description_2"
+        ));
+    }
+
     @Override
     public final void setDescription(@Nonnull String description, Object... format) {
         addDescription(description, format);
@@ -52,17 +69,24 @@ public abstract class TauntTalent<T extends Taunt> extends Talent {
             player.sendMessage("&aYour previous %s was removed!", taunt.getName());
         }
 
-        playerTaunt.put(player, createTaunt(player, mostRecentBitPlayer));
+        final Location playerLocation = player.getLocation();
+        final Location location = Taunt.pickRandomLocation(playerLocation);
+
+        if (Math.abs(location.getY()) - Math.abs(playerLocation.getY()) > 5) {
+            return Response.error("Could not find location to place the taunt!");
+        }
+
+        playerTaunt.put(player, createTaunt(player, mostRecentBitPlayer, location));
         return Response.OK;
     }
 
     @Nullable
-    public T getTaunt(GamePlayer player) {
+    public T getTaunt(@Nonnull GamePlayer player) {
         return playerTaunt.get(player);
     }
 
     @Nonnull
-    public abstract T createTaunt(@Nonnull GamePlayer player, @Nonnull GamePlayer target);
+    public abstract T createTaunt(@Nonnull GamePlayer player, @Nonnull GamePlayer target, @Nonnull Location location);
 
     @Nonnull
     public abstract String getDescription();

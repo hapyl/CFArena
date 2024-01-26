@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.archive.dark_mage;
 
 import me.hapyl.fight.game.TalentReference;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.CFUtils;
@@ -35,7 +35,7 @@ public class ShadowCloneNPC extends HumanNPC implements TalentReference<ShadowCl
         this.player = player;
 
         // Spawn
-        player.addEffect(GameEffectType.INVISIBILITY, talent.getDuration());
+        player.addEffect(Effects.INVISIBILITY, talent.getDuration());
         showAll();
         setEquipment(player.getEquipment());
 
@@ -139,8 +139,8 @@ public class ShadowCloneNPC extends HumanNPC implements TalentReference<ShadowCl
             }
 
             target.damage(talent.damage, target);
-            target.addPotionEffect(PotionEffectType.SLOW, 60, 2);
-            target.addPotionEffect(PotionEffectType.BLINDNESS, 60, 2);
+            target.addEffect(Effects.SLOW, 2, 60);
+            target.addEffect(Effects.BLINDNESS, 2, 60);
         });
 
         // Fx

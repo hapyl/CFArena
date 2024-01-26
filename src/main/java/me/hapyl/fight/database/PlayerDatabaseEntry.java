@@ -1,5 +1,6 @@
 package me.hapyl.fight.database;
 
+import me.hapyl.spigotutils.module.chat.Chat;
 import org.bson.Document;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -55,6 +56,14 @@ public class PlayerDatabaseEntry {
     @Nullable
     public Player getOnlinePlayer() {
         return getPlayer().getPlayer();
+    }
+
+    public void sendMessage(@Nonnull String message, @Nullable Object... format) {
+        final Player player = getOnlinePlayer();
+
+        if (player != null) {
+            Chat.sendMessage(player, message, format);
+        }
     }
 
     protected String path() {

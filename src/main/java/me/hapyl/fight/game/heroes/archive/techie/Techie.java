@@ -53,8 +53,8 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
             .decrease(AttributeType.SPEED, 0.1) // 50%
             .decrease(AttributeType.ATTACK_SPEED, 0.5);
 
-    public Techie() {
-        super("Cryptshade");
+    public Techie(@Nonnull Heroes handle) {
+        super(handle, "Cryptshade");
 
         setArchetype(Archetype.HEXBANE);
         setAffiliation(Affiliation.UNKNOWN);
@@ -83,7 +83,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
                 .setDamage(6.0d)
                 .addEnchant(Enchantment.KNOCKBACK, 1));
 
-        setUltimate(new UltimateTalent("Lockdown", """
+        setUltimate(new UltimateTalent(this, "Lockdown", """
                 Equip a &bhacking device&7; after a &nlong&7 &3casting time&7, &coverload&7 all implanted %s&fs.
                                 
                 &cOverloading&7 the &fbugs&7 &cimplodes&7 them, causing affected enemies' &btalents&7 to be &dlocked&7.

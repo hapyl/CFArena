@@ -27,4 +27,9 @@ public interface Removable {
      */
     default void onReplace(@Nonnull GamePlayer player) {
     }
+
+    default boolean shouldRemove() {
+        return false;
+    }
+
 }

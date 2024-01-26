@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /**
- * Temper Instance if used to statically store the
+ * Temper Instance is used to statically store the
  * temping values and applying them whenever.
  * <p>
  * <b>This is designed for multiple attribute tempering at once!</b>
@@ -45,11 +45,11 @@ public class TemperInstance {
     }
 
     public TemperInstance increaseScaled(@Nonnull AttributeType type, double value) {
-        return increase(type, type.scale(value));
+        return increase(type, type.scaleDown(value));
     }
 
     public TemperInstance decreaseScaled(@Nonnull AttributeType type, double value) {
-        return decrease(type, type.scale(value));
+        return decrease(type, type.scaleDown(value));
     }
 
     public TemperInstance message(@Nonnull String message, @Nullable Object... format) {
@@ -62,8 +62,26 @@ public class TemperInstance {
         return this;
     }
 
+    /**
+     * Tempers {@link LivingGameEntity} attributes with this instance for the given duration.
+     *
+     * @param entity   - Entity.
+     * @param duration - Duration.
+     */
     public final void temper(@Nonnull LivingGameEntity entity, int duration) {
         temper(entity.getAttributes(), duration);
+    }
+
+    /**
+     * Tempers {@link LivingGameEntity} attributes with this instance for indefinite duration.
+     * <p>
+     * <b>Note</b>
+     * Event though {@link Temper} was designed as a duration-based attribute increase, they do support infinite duration.
+     *
+     * @param entity - Entity.
+     */
+    public final void temper(@Nonnull LivingGameEntity entity) {
+        temper(entity, -1);
     }
 
     public double get(@Nonnull AttributeType type) {
@@ -71,7 +89,7 @@ public class TemperInstance {
     }
 
     public double getScaled(@Nonnull AttributeType type) {
-        return type.scale(get(type));
+        return type.scaleDown(get(type));
     }
 
     public final void temper(@Nonnull EntityAttributes attributes, int duration) {
@@ -86,6 +104,10 @@ public class TemperInstance {
             ifNotNull(message, entity::sendMessage);
             ifNotNull(onApply, then -> then.accept(entity));
         }
+    }
+
+    public void untemper(LivingGameEntity entity) {
+        entity.getAttributes().resetTemper(temper);
     }
 
     private <T> void ifNotNull(@Nullable T t, Consumer<T> consumer) {

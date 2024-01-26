@@ -49,7 +49,7 @@ public abstract class Ability implements Described, Timed, Cooldown, DisplayFiel
 
     public final void execute0(GamePlayer player, ItemStack item) {
         if (hasCooldown(player)) {
-            if (player.isSettingEnable(Settings.SHOW_COOLDOWN_MESSAGE)) {
+            if (player.isSettingEnabled(Settings.SHOW_COOLDOWN_MESSAGE)) {
                 sendError(player, "&cThis ability is on cooldown for %s!", getCooldownTimeLeftFormatted(player));
             }
             return;

@@ -1,11 +1,14 @@
 package me.hapyl.fight.util;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
 import com.google.common.collect.Lists;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.ForceCloned;
 import me.hapyl.fight.event.PlayerHandler;
 import me.hapyl.fight.game.Debug;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -27,6 +30,7 @@ import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
@@ -46,6 +50,7 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -57,64 +62,79 @@ public class CFUtils {
 
     public static final Pattern STRIP_COLOR_PATTERN = Pattern.compile("(?i)" + '&' + "[0-9A-FK-ORX]");
     public static final Object[] DISAMBIGUATE = new Object[] {};
+
     private static final DecimalFormat TICK_FORMAT = new DecimalFormat("0.0");
     private static final Random RANDOM = new Random();
+    private static final double ANCHOR_COMPENSATION = 0.61d;
+
     public static double ANGLE_IN_RAD = 6.283185307179586d;
+
     private static String SERVER_IP;
     private static List<EffectType> ALLOWED_EFFECTS;
 
-    public static String stripColor(String message) {
+    /**
+     * Strips the color from the given message.
+     *
+     * @param message - Message.
+     * @return the uncolored message.
+     */
+    @Nonnull
+    public static String stripColor(@Nonnull String message) {
         message = ChatColor.stripColor(message);
         message = STRIP_COLOR_PATTERN.matcher(message).replaceAll("");
 
         return message;
     }
 
-    public static String colorString(String str, String defColor) {
-        final StringBuilder builder = new StringBuilder();
-        final String[] strings = str.split(" ");
-        for (final String string : strings) {
-            if (string.endsWith("%")) {
-                builder.append(ChatColor.RED);
-            }
-            else if (string.endsWith("s") && string.contains("[0-9]")) {
-                builder.append(ChatColor.AQUA);
-            }
-            else {
-                builder.append(defColor);
-            }
-            builder.append(string).append(" ");
-        }
-        return builder.toString().trim();
-    }
-
-    public static void setEquipment(LivingEntity entity, /*@IjSg("equipment")*/ Consumer<EntityEquipment> consumer) {
+    /**
+     * Sets the {@link LivingEntity}'s equipment.
+     * <p>
+     * Because {@link LivingEntity#getEquipment()} is nullable for some reason.
+     *
+     * @param entity   - Entity.
+     * @param consumer - Consumer.
+     */
+    public static void setEquipment(@Nonnull LivingEntity entity, /*@IjSg("equipment")*/ @Nonnull Consumer<EntityEquipment> consumer) {
         Nulls.runIfNotNull(entity.getEquipment(), consumer);
     }
 
+    /**
+     * Scales the particle offset to be a 1:1 block ratio.
+     *
+     * @param v - offset.
+     * @return the scaled offset.
+     */
     public static double scaleParticleOffset(double v) {
         return v * v / 8.0d;
     }
 
     /**
-     * Gets a loaded world from location or throws an error if the world is null.
+     * Gets the {@link World} from the given {@link Location}, or throws {@link IllegalStateException} if the world is unloaded.
      *
      * @param location - Location.
-     * @return a loaded world from location or throws an error if the world is null.
+     * @return the world from the given location, or throws an error if the world is unloaded.
      */
     @Nonnull
-    public static World getWorld(Location location) {
+    public static World getWorld(@Nonnull Location location) {
         final World world = location.getWorld();
+
         if (world == null) {
-            throw new NullPointerException("world is unloaded");
+            throw new IllegalStateException("unloaded world");
         }
 
         return world;
     }
 
+    /**
+     * Gets the {@link Team} the given {@link Entity} belongs to in the main scoreboard; or null if there are none.
+     *
+     * @param entity - Entity.
+     * @return the team the given entity belongs to in the main scoreboard; or null if there are none.
+     */
     @Nullable
-    public static Team getEntityTeam(Entity entity) {
+    public static Team getEntityTeam(@Nonnull Entity entity) {
         final Scoreboard scoreboard = Bukkit.getScoreboardManager() == null ? null : Bukkit.getScoreboardManager().getMainScoreboard();
+
         if (scoreboard == null) {
             return null;
         }
@@ -122,12 +142,20 @@ public class CFUtils {
         return getEntityTeam(entity, scoreboard);
     }
 
+    /**
+     * Gets the {@link Team} the given {@link Entity} belongs to in the given scoreboard; or null if there are none.
+     *
+     * @param entity     - Entity.
+     * @param scoreboard - Scoreboard.
+     * @return the team the given entity belongs to in the given scoreboard; or null if there are none.
+     */
     @Nullable
-    public static Team getEntityTeam(Entity entity, Scoreboard scoreboard) {
+    public static Team getEntityTeam(@Nonnull Entity entity, @Nonnull Scoreboard scoreboard) {
         return scoreboard.getEntryTeam(entity instanceof Player ? entity.getName() : entity.getUniqueId().toString());
     }
 
     @Nonnull
+    @Deprecated
     public static List<EffectType> getEffects() {
         if (ALLOWED_EFFECTS == null) {
             ALLOWED_EFFECTS = Lists.newArrayList();
@@ -215,9 +243,6 @@ public class CFUtils {
         return result;
     }
 
-    /**
-     * @deprecated use {@link me.hapyl.fight.game.effect.GameEffectType#INVISIBILITY}
-     */
     public static void hidePlayer(Player player) {
         CF.getAlivePlayers().forEach(gp -> {
             if (gp.getPlayer() == player || gp.isSpectator() || gp.isTeammate(CF.getPlayer(player))) {
@@ -227,12 +252,9 @@ public class CFUtils {
             gp.hideEntity(player);
         });
 
-        // Send a packet to keep the player in tab
+        // todo?: Send a packet to keep the player in tab
     }
 
-    /**
-     * @deprecated use {@link me.hapyl.fight.game.effect.GameEffectType#INVISIBILITY}
-     */
     public static void showPlayer(Player player) {
         CF.getPlayers().forEach(gp -> {
             if (gp.isNot(player)) {
@@ -360,15 +382,8 @@ public class CFUtils {
         throw new IllegalArgumentException(errorMessage);
     }
 
-    @TestedOn(version = Version.V1_20)
+    @TestedOn(version = Version.V1_20_2)
     public static void setWitherInvul(Wither wither, int invul) {
-        //Reflect.setDataWatcherValue(
-        //        Objects.requireNonNull(Reflect.getMinecraftEntity(wither)),
-        //        DataWatcherType.INT,
-        //        19,
-        //        invul,
-        //        Bukkit.getOnlinePlayers().toArray(new Player[] {})
-        //);
         ((EntityWither) Objects.requireNonNull(Reflect.getMinecraftEntity(wither))).s(invul);
     }
 
@@ -563,37 +578,101 @@ public class CFUtils {
     }
 
     @Nonnull
+    public static Location findRandomLocationAround(@Nonnull Location around) {
+        final Location location = new Location(
+                around.getWorld(),
+                around.getBlockX(),
+                around.getBlockY(),
+                around.getBlockZ(),
+                around.getYaw(),
+                around.getPitch()
+        );
+        final World world = location.getWorld();
+
+        if (world == null) {
+            throw new IllegalArgumentException("Cannot find location in an unloaded world.");
+        }
+
+        location.add(RANDOM.nextDouble(-3, 3), 0, RANDOM.nextDouble(-3, 3));
+
+        return anchorLocation(location);
+    }
+
+    @Nonnull
     public static Location anchorLocation(@Nonnull Location location) {
         final World world = location.getWorld();
 
         if (world == null) {
-            return location;
+            throw new IllegalArgumentException("Cannot anchor location in an unloaded world.");
         }
 
-        // in case standing on slab/non-full block
-        location.setY(location.getBlockY() + 1d);
+        // in case in a half-block or a carpet
+        location.add(0, ANCHOR_COMPENSATION, 0);
 
+        // Up
         while (true) {
             final Block block = location.getBlock();
 
-            if (block.getY() <= world.getMinHeight()) {
+            if (location.getY() >= world.getMaxHeight() || !block.getType().isSolid()) {
                 break;
             }
 
-            if (!block.isEmpty()) {
-                if (isBlockSlab(block.getType())) {
-                    location.subtract(0, 0.5, 0);
-                }
+            location.add(0, 1, 0);
+        }
 
-                // compensate
-                location.add(0, 0.15, 0);
+        // Down
+        while (true) {
+            final Block block = location.getBlock();
+            final Block blockBelow = block.getRelative(BlockFace.DOWN);
+
+            if (location.getY() <= world.getMinHeight()) {
                 break;
             }
 
-            location.subtract(0, 0.1, 0);
+            if (isAirOrSoftSolid(block) && isSolid(blockBelow)) {
+                break;
+            }
+
+            location.subtract(0, 1, 0);
+        }
+
+        // Compensate
+        location.subtract(0, ANCHOR_COMPENSATION, 0);
+
+        // Slab
+        if (Tag.SLABS.isTagged(location.getBlock().getRelative(BlockFace.DOWN).getType())) {
+            location.subtract(0, 0.5, 0);
         }
 
         return location;
+    }
+
+    public static boolean isAirOrSoftSolid(@Nonnull Block block) {
+        final Material type = block.getType();
+
+        if (type.isAir()) {
+            return true;
+        }
+
+        if (type.isOccluding()) {
+            return true;
+        }
+
+        // Carpets
+        if (Tag.WOOL_CARPETS.isTagged(type)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public static boolean isSolid(@Nonnull Block block) {
+        final Material type = block.getType();
+
+        return switch (type) {
+            case BARRIER -> false;
+            default -> type.isSolid();
+        };
     }
 
     public static void setGlowing(@Nonnull Player player, @Nonnull Entity entity, @Nonnull String teamName, @Nonnull ChatColor color) {
@@ -859,5 +938,36 @@ public class CFUtils {
         if (objects == null || objects.length == 0) {
             throw new IllegalArgumentException("there must be at least one var arg!");
         }
+    }
+
+    public static int divide(int a, int b) {
+        return (int) ((double) (a / b));
+    }
+
+    @Nonnull
+    public static <K> Cache<K, Boolean> createCache(long expireAfter) {
+        return CacheBuilder.newBuilder()
+                .expireAfterWrite(expireAfter, TimeUnit.MILLISECONDS)
+                .build(new CacheLoader<K, Boolean>() {
+                    @Nonnull
+                    @Override
+                    public Boolean load(@Nonnull K key) throws Exception {
+                        return true;
+                    }
+                });
+    }
+
+    @Nonnull
+    public static <E extends Enum<E>> Set<E> setOfEnum(Class<E> clazz, Function<E, Boolean> fn) {
+        Set<E> set = new HashSet<>();
+
+        final E[] enumConstants = clazz.getEnumConstants();
+        for (E enumConstant : enumConstants) {
+            if (fn.apply(enumConstant)) {
+                set.add(enumConstant);
+            }
+        }
+
+        return set;
     }
 }

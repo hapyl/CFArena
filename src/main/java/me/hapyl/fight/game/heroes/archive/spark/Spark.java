@@ -1,11 +1,13 @@
 package me.hapyl.fight.game.heroes.archive.spark;
 
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.PlayerElement;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talents;
@@ -17,7 +19,6 @@ import me.hapyl.fight.game.weapons.range.RangeWeapon;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 
@@ -25,8 +26,8 @@ public class Spark extends Hero implements PlayerElement {
 
     private final PlayerMap<RunInBackData> markerLocation = PlayerMap.newMap();
 
-    public Spark() {
-        super("Spark");
+    public Spark(@Nonnull Heroes handle) {
+        super(handle, "Spark");
 
         setArchetype(Archetype.RANGE);
 
@@ -41,7 +42,7 @@ public class Spark extends Hero implements PlayerElement {
         setWeapon(new SparkWeapon());
 
         setUltimate(new UltimateTalent(
-                "Run it Back", """
+                this, "Run it Back", """
                 Instantly place a marker at your current location for {duration}.
                                         
                 Upon death or after duration ends, safely teleport to the marked location with health you had upon activating the ability.
@@ -129,7 +130,7 @@ public class Spark extends Hero implements PlayerElement {
         }
 
         // Fx
-        player.addPotionEffect(PotionEffectType.SLOW, 20, 50);
+        player.addEffect(Effects.SLOW, 50, 20);
         player.playWorldSound(Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 1.5f);
         player.spawnWorldParticle(Particle.FIREWORKS_SPARK, 50, 0.1d, 0.5d, 0.1d, 0.2f);
         player.spawnWorldParticle(Particle.LAVA, 10, 0.1d, 0.5d, 0.1d, 0.2f);
@@ -164,7 +165,7 @@ public class Spark extends Hero implements PlayerElement {
 
     @Override
     public void onStart(@Nonnull GamePlayer player) {
-        player.addPotionEffect(PotionEffectType.FIRE_RESISTANCE, 999999, 1);
+        player.addEffect(Effects.FIRE_RESISTANCE, 1, 999999);
     }
 
     @Override

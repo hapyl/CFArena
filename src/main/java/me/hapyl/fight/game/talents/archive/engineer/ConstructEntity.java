@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.archive.engineer;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.util.Ticking;
@@ -35,6 +35,7 @@ public class ConstructEntity implements Removable, Ticking {
         this.entity = CF.createEntity(location, Entities.SLIME, self -> {
             final double health = construct.healthScaled().get(0, 10.0d);
 
+            self.setSilent(true);
             self.setInvisible(true);
             self.setAI(false);
             self.setSize(3);

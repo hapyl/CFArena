@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.pytaria;
 
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.HeroAttributes;
@@ -19,6 +19,7 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
@@ -31,12 +32,11 @@ import javax.annotation.Nonnull;
 
 public class Pytaria extends Hero {
 
-    private final int healthRegenPercent = 40;
     private final double CRIT_MULTIPLIER = 8.0d;
     private final double ATTACK_MULTIPLIER = 6.5d;
 
-    public Pytaria() {
-        super("Pytaria");
+    public Pytaria(@Nonnull Heroes handle) {
+        super(handle, "Pytaria");
 
         setArchetype(Archetype.DAMAGE);
 
@@ -58,22 +58,13 @@ public class Pytaria extends Hero {
         equipment.setLeggings(54, 158, 110, TrimPattern.SILENCE, TrimMaterial.IRON);
         equipment.setBoots(179, 204, 204, TrimPattern.SILENCE, TrimMaterial.IRON);
 
-        setUltimate(new UltimateTalent("Feel the Breeze", 60)
-                .setCooldownSec(50)
-                .setDuration(60)
-                .appendDescription("""
-                        Summon a blooming &6Bee&7 in front of &aPytaria&7.
-                                        
-                        The Bee will lock on the closest enemy and charge for {cast}.
-                                                
-                        Once charged, the &6Bee&7 creates an explosion at the locked location, dealing damage in small &eAoE&7.
-                                                
-                        Also regenerates &c%s%% ❤&7 of &aPytaria's&7 missing health.
-                        """, healthRegenPercent)
-                .appendAttributeDescription("Health Regeneration", healthRegenPercent)
-                .setCastDuration(50)
-                .setSound(Sound.ENTITY_BEE_DEATH, 0.0f)
-                .setTexture("d4579f1ea3864269c2148d827c0887b0c5ed43a975b102a01afb644efb85ccfd"));
+        setUltimate(new PytariaUltimate(this));
+    }
+
+    @Nonnull
+    @Override
+    public PytariaUltimate getUltimate() {
+        return (PytariaUltimate) super.getUltimate();
     }
 
     @Override
@@ -120,7 +111,7 @@ public class Pytaria extends Hero {
                 // Heal
                 final double health = player.getHealth();
                 final double maxHealth = player.getMaxHealth();
-                final double healingAmount = (maxHealth - health) * healthRegenPercent / maxHealth;
+                final double healingAmount = (maxHealth - health) * getUltimate().healthRegenPercent / maxHealth;
 
                 player.heal(healingAmount);
                 player.sendMessage("&6🐝 &aHealed for &c&l%.0f&c❤&a!", healingAmount);
@@ -170,7 +161,7 @@ public class Pytaria extends Hero {
 
     // This is needed for "snapshot" damage.
     public double calculateDamage(@Nonnull GamePlayer player, double damage, @Nonnull EnumDamageCause cause) {
-        return player.getAttributes().calculateOutgoingDamage(damage, cause).damage();
+        return player.getAttributes().calculateOutgoingDamage(damage);
     }
 
     @Override
@@ -211,4 +202,29 @@ public class Pytaria extends Hero {
         }
     }
 
+    public static class PytariaUltimate extends UltimateTalent {
+
+        @DisplayField public final short healthRegenPercent = 40;
+
+        public PytariaUltimate(@Nonnull Hero hero) {
+            super(hero, "Feel the Breeze", 60);
+
+            setCooldownSec(50);
+            setDuration(60);
+
+            setDescription("""
+                    Summon a blooming &6Bee&7 in front of &aPytaria&7.
+                                    
+                    The Bee will lock on the closest enemy and charge for {cast}.
+                                            
+                    Once charged, the &6Bee&7 creates an explosion at the locked location, dealing damage in small &eAoE&7.
+                                            
+                    Also regenerates &c{healthRegenPercent}%% ❤&7 of &aPytaria's&7 missing health.
+                    """);
+
+            setCastDuration(50);
+            setSound(Sound.ENTITY_BEE_DEATH, 0.0f);
+            setTexture("d4579f1ea3864269c2148d827c0887b0c5ed43a975b102a01afb644efb85ccfd");
+        }
+    }
 }

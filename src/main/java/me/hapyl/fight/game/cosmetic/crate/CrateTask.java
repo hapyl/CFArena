@@ -4,7 +4,8 @@ import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.task.RangeTask;
 import me.hapyl.fight.game.task.ShutdownAction;
-import me.hapyl.fight.util.collection.ImmutableTuple;
+import me.hapyl.fight.util.collection.NonnullTuple;
+import me.hapyl.fight.util.collection.Tuple;
 import me.hapyl.spigotutils.module.hologram.Hologram;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.ChatColor;
@@ -20,7 +21,7 @@ import javax.annotation.Nonnull;
 public abstract class CrateTask extends RangeTask {
 
     protected final CrateLoot loot;
-    private ImmutableTuple<Item, Hologram> display;
+    private NonnullTuple<Item, Hologram> display;
 
     public CrateTask(@Nonnull CrateLoot loot) {
         this.loot = loot;
@@ -39,7 +40,7 @@ public abstract class CrateTask extends RangeTask {
     }
 
     @Nonnull
-    public ImmutableTuple<Item, Hologram> display(@Nonnull Location location) {
+    public NonnullTuple<Item, Hologram> display(@Nonnull Location location) {
         removeDisplay();
 
         final Cosmetic cosmetic = loot.getLoot().getCosmetic();
@@ -70,7 +71,7 @@ public abstract class CrateTask extends RangeTask {
         }
 
         chest.broadcastLoot(loot);
-        return display = new ImmutableTuple<>(item, hologram);
+        return display = Tuple.ofNonnull(item, hologram);
     }
 
     @Override

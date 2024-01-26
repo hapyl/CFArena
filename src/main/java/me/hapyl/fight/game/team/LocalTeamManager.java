@@ -120,7 +120,7 @@ public class LocalTeamManager implements Ticking {
         return Manager.current().getGameInstance() != null;
     }
 
-    public static void updateAll(Player player) {
+    public static void updateAll(@Nonnull Player player) {
         final boolean gameInProgress = Manager.current().isGameInProgress();
 
         for (Player other : Bukkit.getOnlinePlayers()) {
@@ -135,6 +135,11 @@ public class LocalTeamManager implements Ticking {
             teamManager.getTeam(player);
             teamManager.updateAll(!gameInProgress);
         }
+
+        // Update for self as well
+        PlayerProfile.getProfileOptional(player).ifPresent(profile -> {
+            profile.getLocalTeamManager().updateAll(!gameInProgress);
+        });
     }
 
 }

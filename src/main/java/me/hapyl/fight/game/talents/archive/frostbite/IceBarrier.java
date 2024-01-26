@@ -2,10 +2,11 @@ package me.hapyl.fight.game.talents.archive.frostbite;
 
 import com.google.common.collect.Lists;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.CreationTalent;
-import me.hapyl.fight.game.talents.TickingCreation;
+import me.hapyl.fight.game.talents.PlayerCreation;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Direction;
@@ -20,7 +21,6 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Ageable;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -63,22 +63,30 @@ public class IceBarrier extends CreationTalent {
 
         final Location location = targetLocation.subtract((isEastWest ? 0 : 2), 0, (isEastWest ? 2 : 0));
 
-        newCreation(player, new TickingCreation() {
+        newCreation(player, new PlayerCreation(this, player) {
             private final List<Block> blocks = Lists.newArrayList();
 
             @Override
             public void run(int tick) {
+                super.run(tick);
+
                 for (LivingGameEntity entity : Collect.nearbyEntities(location, radius)) {
                     if (entity.equals(player)) {
                         entity.heal(healingPerTick);
                     }
                     else {
-                        entity.addPotionEffect(PotionEffectType.SLOW.createEffect(20, 3));
+                        entity.addEffect(Effects.SLOW, 3, 20);
                     }
                 }
 
                 Geometry.drawCircle(location, radius, Quality.SUPER_HIGH, new WorldParticle(Particle.FALLING_WATER));
                 Geometry.drawCircle(location, radius, Quality.SUPER_HIGH, new WorldParticle(Particle.BUBBLE_POP));
+            }
+
+            @Nonnull
+            @Override
+            public Location getLocation() {
+                return blocks.get(0).getLocation();
             }
 
             @Override
@@ -113,12 +121,13 @@ public class IceBarrier extends CreationTalent {
 
             @Override
             public void remove() {
+                super.remove();
+
                 for (Block block : blocks) {
                     block.getWorld().playSound(block.getLocation(), Sound.BLOCK_GLASS_BREAK, SoundCategory.MASTER, 10, 2f);
                     block.setType(Material.AIR, false);
                 }
 
-                cancel();
                 blocks.clear();
             }
 

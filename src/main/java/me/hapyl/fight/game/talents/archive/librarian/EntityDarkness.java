@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.talents.archive.librarian;
 
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -46,7 +46,7 @@ public class EntityDarkness extends LibrarianTalent {
                 }
 
                 victim.damage(getCurrentValue(player), player, EnumDamageCause.DARKNESS);
-                victim.addEffect(GameEffectType.PARANOIA, 20);
+                victim.addEffect(Effects.PARANOIA, 20);
 
                 // Fx
                 PlayerLib.playSound(location, Sound.BLOCK_STONE_STEP, 0.0f);

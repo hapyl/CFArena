@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.attribute;
 
+import javax.annotation.Nonnull;
 import java.util.Random;
 
 public class AttributeRandom extends Random {
@@ -10,7 +11,7 @@ public class AttributeRandom extends Random {
         this.attributes = attributes;
     }
 
-    public boolean checkBound(AttributeType type) {
+    public boolean checkBound(@Nonnull AttributeType type) {
         final double value = type.get(attributes);
 
         return value >= 1.0d || (value > 0 && checkBound(value));

@@ -3,15 +3,14 @@ package me.hapyl.fight.game.entity;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.Important;
-import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.IGameInstance;
-import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.*;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.dot.DotInstance;
 import me.hapyl.fight.game.dot.DotInstanceList;
 import me.hapyl.fight.game.dot.DamageOverTime;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.EffectType;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -27,7 +26,7 @@ import java.util.Map;
  */
 public final class EntityData {
 
-    private final Map<GameEffectType, ActiveGameEffect> gameEffects;
+    private final Map<Effects, ActiveGameEffect> gameEffects;
     private final Map<DamageOverTime, DotInstanceList> dotMap;
     private final Map<Player, Double> damageTaken;
 
@@ -93,7 +92,7 @@ public final class EntityData {
      * @return game effect map.
      */
     @Nonnull
-    public Map<GameEffectType, ActiveGameEffect> getGameEffects() {
+    public Map<Effects, ActiveGameEffect> getGameEffects() {
         return gameEffects;
     }
 
@@ -259,27 +258,34 @@ public final class EntityData {
     /**
      * Adds effect to this entity.
      *
-     * @param type     - Effect type.
-     * @param ticks    - Duration.
-     * @param override - True to override existing effect.
-     *                 When overriding, the previous effect will be
-     *                 overridden, else the duration will be added
-     *                 to remaining ticks.
+     * @param type      - Effect type.
+     * @param amplifier - Amplifier.
+     * @param duration  - Duration. {@code -1} for infinite duration.
+     * @param override  - True to override existing effect.
+     *                  When overriding, the previous effect will be
+     *                  overridden, else the duration will be added
+     *                  to remaining ticks.
      */
-    public void addEffect(GameEffectType type, int ticks, boolean override) {
+    public void addEffect(@Nonnull Effects type, int amplifier, int duration, boolean override) {
+        // Check for effect resistance
+        if (type.getEffect().getType() == EffectType.NEGATIVE && entity.hasEffectResistanceAndNotify()) {
+            return;
+        }
+
         final ActiveGameEffect effect = gameEffects.get(type);
 
         if (effect != null) {
             effect.triggerUpdate();
+
             if (override) {
-                effect.setRemainingTicks(ticks);
+                effect.setRemainingTicks(duration);
             }
             else {
-                effect.addRemainingTicks(ticks);
+                effect.addRemainingTicks(duration);
             }
         }
         else {
-            gameEffects.put(type, new ActiveGameEffect(entity, type, ticks));
+            gameEffects.put(type, new ActiveGameEffect(entity, type, amplifier, duration));
         }
     }
 
@@ -289,7 +295,7 @@ public final class EntityData {
      *
      * @param type - Type.
      */
-    public void clearEffect(GameEffectType type) {
+    public void clearEffect(Effects type) {
         gameEffects.remove(type);
     }
 
@@ -298,7 +304,7 @@ public final class EntityData {
      *
      * @param type - Type.
      */
-    public void removeEffect(GameEffectType type) {
+    public void removeEffect(Effects type) {
         final ActiveGameEffect gameEffect = gameEffects.get(type);
         if (gameEffect != null) {
             gameEffect.forceStop();
@@ -319,7 +325,7 @@ public final class EntityData {
      * @param type - Type.
      * @return true if this entity has the given effect.
      */
-    public boolean hasEffect(GameEffectType type) {
+    public boolean hasEffect(Effects type) {
         return gameEffects.containsKey(type);
     }
 

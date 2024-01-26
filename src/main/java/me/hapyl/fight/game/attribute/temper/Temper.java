@@ -8,12 +8,13 @@ import me.hapyl.fight.util.SmallCapsDescriber;
 import javax.annotation.Nonnull;
 
 /**
+ * Used as a name for a temper.
+ *
+ * @see #newInstance()
  * @see TemperInstance
  * @see AttributeTemperTable
  */
 public enum Temper implements SmallCapsDescriber {
-
-    // fixme -> Could really migrate to something like a memory key
 
     COMMAND, // for testing
     FLOWER_BREEZE,
@@ -49,6 +50,9 @@ public enum Temper implements SmallCapsDescriber {
     YRDED,
     SHARK,
     SABOTEUR,
+    SPIRITUAL_CLEANSING,
+    SLIME_GUNK,
+    SHAMANS_MARK,
 
     /* Keep semicolon on this line for easier addition. */;
 

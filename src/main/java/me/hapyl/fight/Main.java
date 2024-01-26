@@ -21,6 +21,7 @@ import me.hapyl.fight.game.parkour.CFParkourManager;
 import me.hapyl.fight.game.talents.archive.bloodfiend.candlebane.CandlebaneProtocol;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TaskList;
+import me.hapyl.fight.game.trial.TrialListener;
 import me.hapyl.fight.garbage.CFGarbageCollector;
 import me.hapyl.fight.notifier.Notifier;
 import me.hapyl.fight.npc.HumanManager;
@@ -28,6 +29,8 @@ import me.hapyl.fight.protocol.ArcaneMuteProtocol;
 import me.hapyl.fight.protocol.CameraProtocol;
 import me.hapyl.fight.protocol.DismountProtocol;
 import me.hapyl.fight.protocol.PlayerClickAtEntityProtocol;
+import me.hapyl.fight.script.ScriptManager;
+import me.hapyl.fight.translate.Translate;
 import me.hapyl.spigotutils.EternaAPI;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.Bukkit;
@@ -61,6 +64,8 @@ public class Main extends JavaPlugin {
     public CFParkourManager parkourManager;
     public Collectibles collectibles;
     public AchievementRegistry achievementRegistry;
+    public ScriptManager scriptManager;
+    public Translate translate;
     private CrateManager crateManager;
 
     @Override
@@ -98,6 +103,8 @@ public class Main extends JavaPlugin {
         humanManager = new HumanManager(this);
         achievementRegistry = new AchievementRegistry(this);
         crateManager = new CrateManager(this);
+        scriptManager = new ScriptManager(this);
+        translate = new Translate(this);
 
         //new LampGame(this);
 
@@ -142,6 +149,8 @@ public class Main extends JavaPlugin {
 
         // Load contributors
         //Contributors.loadContributors();
+
+        new TrialListener();
 
         // Initiate runtime tests
         new Test(this);

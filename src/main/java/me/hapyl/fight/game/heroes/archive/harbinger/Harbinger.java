@@ -4,8 +4,9 @@ import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.GameDeathEvent;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Named;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.EquipmentSlot;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -36,7 +37,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
 
@@ -59,8 +59,8 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
     private final PlayerMap<RiptideStatus> riptideStatus = PlayerMap.newMap();
     private final Set<Arrow> ultimateArrows = Sets.newHashSet();
 
-    public Harbinger() {
-        super("Harbinger");
+    public Harbinger(@Nonnull Heroes handle) {
+        super(handle, "Harbinger");
 
         setDescription("""
                 She is a harbinger of unknown organization. Nothing else is known.
@@ -80,7 +80,7 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
         setWeapon(new Weapon(Material.BOW).setDamage(2.0d).setName("Bow").setDescription("Just a normal bow."));
 
         setUltimate(new UltimateTalent(
-                "Crowned Mastery", """
+                this, "Crowned Mastery", """
                 Gather the surrounding energy to execute a &cfatal strike&7 based on your &ncurrent&7 &nstance&7.
                                 
                 &6In Range Stance
@@ -289,7 +289,7 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
         }
 
         // Fx
-        player.addPotionEffect(PotionEffectType.SLOW, 20, 2);
+        player.addEffect(Effects.SLOW, 2, 20);
         player.playWorldSound(Sound.BLOCK_CONDUIT_AMBIENT, 2.0f);
 
         return UltimateCallback.OK;

@@ -1,11 +1,12 @@
 package me.hapyl.fight.game.talents.archive.shadow_assassin;
 
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.util.collection.player.PlayerMap;
@@ -130,8 +131,8 @@ public class ShadowAssassinClone extends ShadowAssassinTalent {
                 @Override
                 public void onAttack(@Nonnull List<LivingGameEntity> entities) {
                     entities.forEach(entity -> {
-                        entity.addPotionEffect(PotionEffectType.SLOW, furyImpairDuration, 1);
-                        entity.addPotionEffect(PotionEffectType.DARKNESS, furyImpairDuration, 1);
+                        entity.addEffect(Effects.SLOW, 1, furyImpairDuration);
+                        entity.addEffect(Effects.DARKNESS, 1, furyImpairDuration);
                     });
 
                     player.playWorldSound(attackLocation, Sound.ENTITY_HORSE_DEATH, 0.75f);

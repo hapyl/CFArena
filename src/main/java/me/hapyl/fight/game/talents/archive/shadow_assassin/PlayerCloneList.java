@@ -3,10 +3,10 @@ package me.hapyl.fight.game.talents.archive.shadow_assassin;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.game.TalentReference;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.player.PlayerGameTask;
-import me.hapyl.spigotutils.module.player.EffectType;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -46,7 +46,7 @@ public class PlayerCloneList implements TalentReference<ShadowAssassinClone> {
 
         player.teleport(linkedClone.getLocation());
         player.playWorldSound(Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f);
-        player.addPotionEffect(EffectType.BLINDNESS, 20, 1);
+        player.addEffect(Effects.BLINDNESS, 1, 20);
 
         getTalent().getData(player).addEnergy(talent.energyRegen);
 

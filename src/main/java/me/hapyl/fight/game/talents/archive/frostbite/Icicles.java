@@ -1,11 +1,12 @@
 package me.hapyl.fight.game.talents.archive.frostbite;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
@@ -75,7 +76,7 @@ public class Icicles extends Talent {
             attributes.decreaseTemporary(Temper.ICE_CAGE, AttributeType.CRIT_DAMAGE, critDamageReduction, debuffDuration);
             attributes.decreaseTemporary(Temper.ICE_CAGE, AttributeType.ATTACK, attackReduction, debuffDuration);
 
-            entity.addPotionEffect(PotionEffectType.SLOW, 20, 1);
+            entity.addEffect(Effects.SLOW, 1, 20);
         });
 
         // Fx
@@ -85,7 +86,7 @@ public class Icicles extends Talent {
 
     @Override
     public Response execute(@Nonnull GamePlayer player) {
-        final LivingGameEntity targetEntity = Collect.targetEntity(player, 10, 0.7d, entity -> !entity.equals(player));
+        final LivingGameEntity targetEntity = Collect.targetEntityDot(player, 10, 0.7d, entity -> !entity.equals(player));
 
         Location location;
 

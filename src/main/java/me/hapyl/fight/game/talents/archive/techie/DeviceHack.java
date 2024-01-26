@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.archive.techie;
 
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.player.PlayerGameTask;
 import me.hapyl.spigotutils.module.entity.Entities;
@@ -33,7 +33,7 @@ public interface DeviceHack {
         final Vector direction = player.getEyeLocation().toVector().subtract(location.toVector());
         location.setDirection(direction);
 
-        player.addEffect(GameEffectType.MOVEMENT_CONTAINMENT, castingTime, true);
+        player.addEffect(Effects.MOVEMENT_CONTAINMENT, castingTime, true);
 
         final ArmorStand device = Entities.ARMOR_STAND_MARKER.spawn(location, self -> {
             self.setSilent(true);

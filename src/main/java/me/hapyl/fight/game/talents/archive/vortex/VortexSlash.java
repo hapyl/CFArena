@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.talents.archive.vortex;
 
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
-import me.hapyl.fight.game.task.TimedGameTask;
+import me.hapyl.fight.game.task.player.PlayerTimedGameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.math.Tick;
@@ -18,8 +18,8 @@ import javax.annotation.Nonnull;
 
 public class VortexSlash extends Talent {
 
-    @DisplayField private final int maxDuration = Tick.fromSecond(10);
-    @DisplayField private final double damage = 0.0d;
+    @DisplayField private final int maxDuration = Tick.fromSecond(3);
+    @DisplayField private final double damage = 1.0d;
     @DisplayField private final double collectDistance = 2.0d;
     @DisplayField private final double shiftDistance = 0.5;
 
@@ -38,14 +38,14 @@ public class VortexSlash extends Talent {
 
         setType(Type.DAMAGE);
         setItem(Material.BONE_MEAL);
-        setCooldownSec(10);
+        setCooldownSec(20);
     }
 
     @Override
     public Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getEyeLocation();
 
-        new TimedGameTask(maxDuration) {
+        new PlayerTimedGameTask(player, maxDuration) {
 
             @Override
             public void onLastTick() {
@@ -57,7 +57,7 @@ public class VortexSlash extends Talent {
                 final Location nextLocation = location.add(player.getEyeLocation().getDirection().multiply(shiftDistance));
 
                 // Collision check
-                if (nextLocation.getBlock().getType().isOccluding()) {
+                if (nextLocation.getBlock().getType().isSolid()) {
                     startCd(player);
                     cancel();
                     return;

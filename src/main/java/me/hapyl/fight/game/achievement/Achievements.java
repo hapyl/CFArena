@@ -86,6 +86,11 @@ public enum Achievements {
             new HiddenAchievement("Fishing Time", "Go fishing in the middle of the game.")
     ),
 
+    // Shaman
+    TOTEM_OUT_OF_WORLD(
+            new HiddenAchievement("MY TOTEM!!", "Throw a totem outside this world.")
+    ),
+
     ////////////////////////
     // OTHER ACHIEVEMENTS //
     ////////////////////////
@@ -95,7 +100,7 @@ public enum Achievements {
     ),
 
     DEFENSELESS(
-            new HiddenAchievement("Defenseless", "Get 0 and less defense.")
+            new HiddenAchievement("Defenseless", "Get zero and less defense.")
                     .setTrigger(Triggers.ATTRIBUTE_CHANGE, trigger -> {
                         return trigger.type == AttributeType.DEFENSE && trigger.newValue <= 0.0d;
                     })
@@ -129,6 +134,11 @@ public enum Achievements {
     OWL_SPY(
             new HiddenAchievement("Owl Spy", "Find all the hidden owls at the winery in the single game.")
     ),
+
+    FIRST_TRY(
+            new HiddenAchievement("First Try!", "Hit all the target blocks in your first try.")
+    ),
+
     ;
 
     public final Achievement achievement;

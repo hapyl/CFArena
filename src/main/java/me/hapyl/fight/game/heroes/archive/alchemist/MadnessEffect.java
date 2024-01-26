@@ -37,7 +37,7 @@ public class MadnessEffect {
         affect(player, victim);
 
         if (effect != null) {
-            victim.addPotionEffect(effect.getType(), effect.getDuration(), effect.getAmplifier());
+            victim.addPotionEffect(effect.getType(), effect.getAmplifier(), effect.getDuration());
         }
 
         victim.sendMessage(isPositive ?

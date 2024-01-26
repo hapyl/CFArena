@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.archive.juju;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
@@ -11,7 +12,6 @@ import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 
@@ -62,7 +62,7 @@ public class Climb extends Talent {
             player.setVelocity(player.getLocation().getDirection().normalize().multiply(magnitude).setY(magnitude));
         }, 1);
 
-        player.addPotionEffect(PotionEffectType.SPEED, 60, 1);
+        player.addEffect(Effects.SPEED, 1, 60);
         player.playSound(Sound.BLOCK_SLIME_BLOCK_BREAK, 0.75f);
 
         if (!Heroes.JUJU.getHero().isUsingUltimate(player)) {

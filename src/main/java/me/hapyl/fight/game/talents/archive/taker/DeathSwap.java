@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.archive.taker;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -10,10 +11,13 @@ import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 
 import javax.annotation.Nonnull;
 
-public class DeathSwap extends Talent {
+public class DeathSwap extends Talent implements Listener {
 
     @DisplayField(suffix = "blocks") protected final double maxDistance = 20.0d;
     @DisplayField protected final double shift = 0.55d;
@@ -38,6 +42,21 @@ public class DeathSwap extends Talent {
         setType(Type.IMPAIR);
         setItem(Material.CHAIN);
         setCooldownSec(16);
+    }
+
+    @EventHandler()
+    public void handleChainBreak(PlayerToggleSneakEvent ev) {
+        final GamePlayer player = CF.getPlayer(ev.getPlayer());
+
+        if (player == null) {
+            return;
+        }
+
+        final TakerHook hook = playerHooks.remove(player);
+
+        if (hook != null) {
+            hook.breakChains();
+        }
     }
 
     public double getMaxDistanceScaled() {

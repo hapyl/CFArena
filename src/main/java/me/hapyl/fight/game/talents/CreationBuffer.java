@@ -5,11 +5,12 @@ import me.hapyl.fight.util.Buffer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Iterator;
 
-public final class CreationBuffer {
+public final class CreationBuffer implements Iterable<Creation> {
 
-    private final GamePlayer player;
     private final Buffer<Creation> buffer;
+    private final GamePlayer player;
 
     public CreationBuffer(@Nonnull GamePlayer player, int bufferSize) {
         this.player = player;
@@ -75,5 +76,11 @@ public final class CreationBuffer {
                 "player=" + player +
                 ", buffer=" + buffer +
                 '}';
+    }
+
+    @Nonnull
+    @Override
+    public Iterator<Creation> iterator() {
+        return buffer.iterator();
     }
 }

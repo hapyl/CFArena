@@ -27,7 +27,7 @@ public class SpiritualBonesPassive extends PassiveTalent {
                 &b└ &7Take &b&l{DAMAGE_REDUCE_PER_BONE}%% &7less damage &nper&7 bone.
                 &b└ &7Heal for &c&l{HEALING_PER_BONE}%% &c❤&7 &nper&7 bone of the damage dealt.
                                 
-                &8;;You will start will {START_BONES} bone.
+                &8;;You will start with {START_BONES} bone.
                 """);
     }
 

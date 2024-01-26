@@ -134,7 +134,17 @@ public enum Settings implements EnumWrapper<Setting>, PlayerItemCreator {
             true
     )),
 
-    // Other
+    SEE_HERO_RATING_MESSAGE(new Setting(
+            Material.FILLED_MAP,
+            "Don't Show Hero Rating",
+            "Whenever you will get a message asking to rate a hero when you haven't yet.",
+            Category.CHAT,
+            true
+    )),
+
+    ///////////
+    // Other //
+    ///////////
     SEE_OTHERS_CONTRAIL(new Setting(
             Material.FIREWORK_ROCKET,
             "See Others Contrail",

@@ -5,7 +5,6 @@ import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.entity.EquipmentSlot;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
@@ -56,8 +55,8 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
     private final Set<Player> climbing = Sets.newHashSet();
     private final int CLIMB_COOLDOWN = Tick.fromSecond(10);
 
-    public JuJu() {
-        super("Juju");
+    public JuJu(@Nonnull Heroes handle) {
+        super(handle, "Juju");
 
         setArchetype(Archetype.HEXBANE);
         setAffiliation(Affiliation.THE_JUNGLE);
@@ -78,7 +77,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
                 .setDamage(4.0d));
 
         setUltimate(
-                new UltimateTalent(ArrowType.POISON_IVY.getName(), 60)
+                new UltimateTalent(this, ArrowType.POISON_IVY.getName(), 60)
                         .setType(Talent.Type.IMPAIR)
                         .setItem(Material.SPIDER_EYE)
                         .setDurationSec(4),

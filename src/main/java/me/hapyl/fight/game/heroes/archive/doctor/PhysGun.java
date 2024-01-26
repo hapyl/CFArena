@@ -71,7 +71,7 @@ public class PhysGun extends Weapon {
             }
 
             // Get the target entity
-            final LivingGameEntity target = Collect.targetEntity(player, 3.0d, entity -> {
+            final LivingGameEntity target = Collect.targetEntityRayCast(player, 3.0d, 1.25f, entity -> {
                 return !player.isSelfOrTeammateOrHasEffectResistance(entity);
             });
 

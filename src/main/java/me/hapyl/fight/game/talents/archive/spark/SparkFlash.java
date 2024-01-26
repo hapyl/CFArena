@@ -1,8 +1,9 @@
 package me.hapyl.fight.game.talents.archive.spark;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.TimedGameTask;
@@ -14,7 +15,6 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
@@ -77,7 +77,7 @@ public class SparkFlash extends Talent {
                     final double distance = victim.getLocation().distance(itemLocation);
 
                     if ((dotProduct >= 0.4f && distance <= maxDistance) && victim.hasLineOfSight(item)) {
-                        victim.addPotionEffect(PotionEffectType.BLINDNESS, flashDuration, 1);
+                        victim.addEffect(Effects.BLINDNESS, 1, flashDuration);
                         victim.playSoundAndCut(Sound.ITEM_ELYTRA_FLYING, 2.0f, flashDuration);
                         victim.damage(fireDamage, player, EnumDamageCause.FIRE_TICK);
                         victim.setFireTicks(10);

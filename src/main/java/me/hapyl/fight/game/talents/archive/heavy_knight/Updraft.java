@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.archive.heavy_knight;
 
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
@@ -10,7 +11,6 @@ import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
@@ -31,7 +31,7 @@ public class Updraft extends Talent {
         final Vector velocity = player.getVelocity();
 
         player.setVelocity(BukkitUtils.vector3Y(3.0d).setX(velocity.getX()).setZ(velocity.getZ()));
-        player.addPotionEffect(PotionEffectType.SLOW_FALLING.createEffect(21, 1));
+        player.addEffect(Effects.SLOW_FALLING, 1, 21);
 
         GameTask.runLater(() -> {
             final Location location = player.getLocation();

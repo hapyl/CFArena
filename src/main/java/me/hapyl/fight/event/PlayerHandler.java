@@ -8,8 +8,8 @@ import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.CriticalResponse;
 import me.hapyl.fight.game.attribute.EntityAttributes;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.EntityData;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -65,6 +65,7 @@ import javax.annotation.Nullable;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Handles all player related events.
@@ -72,9 +73,12 @@ import java.util.Objects;
 public class PlayerHandler implements Listener {
 
     public static final Map<PotionEffectType, AttributeType> disabledEffects = Maps.newHashMap();
+
     private static final double VELOCITY_MAX_Y = 4.821600093841552d;
     public final double RANGE_SCALE = 8.933d;
     public final double DAMAGE_LIMIT = Short.MAX_VALUE;
+    private final Set<EntityDamageEvent.DamageCause> instantDeathCauses =
+            Set.of(EntityDamageEvent.DamageCause.VOID);
 
     public PlayerHandler() {
         disabledEffects.put(PotionEffectType.WEAKNESS, AttributeType.DEFENSE);
@@ -88,7 +92,6 @@ public class PlayerHandler implements Listener {
         final Manager manager = Manager.current();
 
         manager.handlePlayer(player);
-        LocalTeamManager.updateAll(player);
 
         if (manager.isGameInProgress()) {
             final GameInstance gameInstance = (GameInstance) manager.getCurrentGame();
@@ -105,6 +108,8 @@ public class PlayerHandler implements Listener {
             // Game instance should modify and broadcast the join message.
             ev.setJoinMessage(Chat.format("&7[&a+&7] %s%s &ewants to fight!", player.isOp() ? "&c" : "", player.getName()));
         }
+
+        LocalTeamManager.updateAll(player);
     }
 
     @EventHandler()
@@ -255,7 +260,7 @@ public class PlayerHandler implements Listener {
 
         // Ultimate is on cooldown
         if (ultimate.hasCd(gamePlayer)) {
-            if (gamePlayer.isSettingEnable(Settings.SHOW_COOLDOWN_MESSAGE)) {
+            if (gamePlayer.isSettingEnabled(Settings.SHOW_COOLDOWN_MESSAGE)) {
                 gamePlayer.sendMessage(
                         "&4&l※ &cYour ultimate is on cooldown for %s!",
                         CFUtils.decimalFormatTick(ultimate.getCdTimeLeft(gamePlayer))
@@ -315,7 +320,8 @@ public class PlayerHandler implements Listener {
             return;
         }
 
-        if (ev.getCause() == EntityDamageEvent.DamageCause.VOID) {
+        // Check instant death
+        if (instantDeathCauses.contains(cause)) {
             EntityData.die(livingEntity);
             return;
         }
@@ -331,18 +337,9 @@ public class PlayerHandler implements Listener {
         // needed to handle custom damage/causes
         final LivingGameEntity gameEntity = CF.getEntity(livingEntity);
 
-        if (!Manager.current().isGameInProgress()) {
-            // Ignore lobby damage unless game entity
-            // Don't cancel when falling on slime block for a slime glitch
-            if (entity.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() == Material.SLIME_BLOCK) {
-                ev.setDamage(0.0d);
-                return;
-            }
-
-            processLobbyDamage(livingEntity, ev);
-        }
-
+        // No handle means not in a game
         if (gameEntity == null) {
+            processLobbyDamage(livingEntity, ev);
             return;
         }
 
@@ -364,6 +361,11 @@ public class PlayerHandler implements Listener {
         // Reassign cause
         data.setLastDamageCauseIfNative(cause);
         instance.cause = data.getLastDamageCauseNonNull();
+
+        // FIXME:
+        // For some reason this was missing?
+        // If something breaks after this update, remove this ig
+        instance.setLastDamager(data.getLastDamagerAsLiving());
 
         // PRE-EVENTS TESTS, SUCH AS GAME EFFECT, ETC.
 
@@ -433,7 +435,7 @@ public class PlayerHandler implements Listener {
             final GameTeam entityTeam = gameEntity.getTeam();
 
             // Teammate check
-            if (entityTeam != null && lastDamager != null && entityTeam.isEntry(Entry.of(lastDamager))) {
+            if (entityTeam != null && lastDamager != null && !gameEntity.equals(lastDamager) && entityTeam.isEntry(Entry.of(lastDamager))) {
                 lastDamager.sendMessage("&cCannot damage teammates!");
                 ev.setCancelled(true);
                 ev.setDamage(0.0d);
@@ -450,41 +452,18 @@ public class PlayerHandler implements Listener {
             }
         }
 
-        // CALL DAMAGE EVENT BEFORE CALCULATING ATTRIBUTES
-        if (new GameDamageEvent(instance).callAndCheck()) {
-            ev.setCancelled(true);
-            instance.dispose();
-            return;
-        }
-
         // CALCULATE DAMAGE USING ATTRIBUTES
 
         // Outgoing damage
         final InstanceEntityData damagerData = instance.getDamagerData();
 
-        if (damagerData != null) {
-            final EntityAttributes attributes = damagerData.getAttributes();
-            final CriticalResponse criticalResponse = attributes.calculateOutgoingDamage(instance.damage, data.getLastDamageCause());
+        // Calculate damage before calling events
+        instance.calculateDamage();
 
-            instance.damage = criticalResponse.damage();
-            instance.isCrit = criticalResponse.isCrit();
-        }
+        // CALL DAMAGE EVENT
 
-        // Incoming damage
-        final InstanceEntityData entityData = instance.getEntityData();
-        final EntityAttributes attributes = entityData.getAttributes();
-
-        instance.damage = attributes.calculateIncomingDamage(instance.damage);
-
-        // Don't allow negative damage
-        if (instance.damage < 0.0d) {
-            instance.damage = 0.0d;
-        }
-
-        // Dodge
-        if (instance.damage > 0 && attributes.calculateDodge()) {
+        if (new GameDamageEvent(instance).callAndCheck()) {
             ev.setCancelled(true);
-            gameEntity.playDodgeFx();
             instance.dispose();
             return;
         }
@@ -521,6 +500,20 @@ public class PlayerHandler implements Listener {
             return;
         }
 
+        // Recalculate damage in case attributes changed
+        instance.recalculateDamage();
+
+        final InstanceEntityData entityData = instance.getEntityData();
+        final EntityAttributes attributes = entityData.getAttributes();
+
+        // Dodge
+        if (instance.damage > 0 && attributes.calculateDodge()) {
+            ev.setCancelled(true);
+            gameEntity.playDodgeFx();
+            instance.dispose();
+            return;
+        }
+
         // Ferocity
         if (damagerData != null
                 && (instance.cause != null
@@ -549,14 +542,13 @@ public class PlayerHandler implements Listener {
 
         // Keep damage in limit
         if (instance.damage > DAMAGE_LIMIT) {
-            Debug.warn("%s dealt too much damage! (%.1f)", lastDamager == null ? "Server" : lastDamager.getName(), instance.damage);
             instance.damage = DAMAGE_LIMIT;
             data.setLastDamage(DAMAGE_LIMIT);
         }
 
         // Progress stats for damager
         if (lastDamager instanceof GamePlayer player) {
-            player.getStats().addValue(StatType.DAMAGE_DEALT, instance.damage);
+            player.getStats().addValue(StatType.DAMAGE_DEALT, instance.getDamageWithinLimit());
 
             if (Settings.SHOW_DAMAGE_IN_CHAT.isEnabled(player.getPlayer())) {
                 data.notifyChatOutgoing(player);
@@ -573,7 +565,7 @@ public class PlayerHandler implements Listener {
             player.markCombatTag();
 
             // Progress stats for a victim
-            player.getStats().addValue(StatType.DAMAGE_TAKEN, instance.damage);
+            player.getStats().addValue(StatType.DAMAGE_TAKEN, instance.getDamageWithinLimit());
 
             if (Settings.SHOW_DAMAGE_IN_CHAT.isEnabled(player.getPlayer())) {
                 data.notifyChatIncoming(player);
@@ -632,7 +624,10 @@ public class PlayerHandler implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void handleInventoryClickEvent(InventoryClickEvent ev) {
-        if (Manager.current().isGameInProgress()) {
+        final Player player = (Player) ev.getWhoClicked();
+        final PlayerProfile profile = PlayerProfile.getProfile(player);
+
+        if ((profile != null && profile.hasTrial()) || Manager.current().isGameInProgress()) {
             ev.setCancelled(true);
         }
     }
@@ -656,7 +651,7 @@ public class PlayerHandler implements Listener {
         }
 
         // This means the game has not yet started, aka "pre-game"
-        if (!Manager.current().isAbleToUse(player)) {
+        if (!Manager.current().isAbleToUse(profile)) {
             gamePlayer.snapToWeapon();
             return;
         }
@@ -858,6 +853,11 @@ public class PlayerHandler implements Listener {
     private void processLobbyDamage(@Nonnull LivingEntity entity, @Nonnull EntityDamageEvent ev) {
         final EntityDamageEvent.DamageCause cause = ev.getCause();
 
+        if (entity.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() == Material.SLIME_BLOCK) {
+            ev.setDamage(0.0d);
+            return;
+        }
+
         if (!(entity instanceof Player player)) {
             return;
         }
@@ -954,7 +954,7 @@ public class PlayerHandler implements Listener {
 
         // cooldown check
         if (talent.hasCd(player)) {
-            if (player.isSettingEnable(Settings.SHOW_COOLDOWN_MESSAGE)) {
+            if (player.isSettingEnabled(Settings.SHOW_COOLDOWN_MESSAGE)) {
                 player.sendMessage("&cTalent on cooldown for %s.", CFUtils.decimalFormatTick(talent.getCdTimeLeft(player)));
             }
             player.snapToWeapon();

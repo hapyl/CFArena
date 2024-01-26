@@ -42,8 +42,9 @@ public class LeaderboardData implements Comparator<Long> {
     @Nonnull
     public String getNameFormatted() {
         final PlayerRank rank = database.getRank();
-        
-        return rank.getPrefix() + " " + rank.getFormat().nameColor() + getName();
+        final String prefix = rank.getPrefix();
+
+        return (!prefix.isEmpty() ? prefix + " " : "") + rank.getFormat().nameColor() + getName();
     }
 
     public long getCompletionTime() {

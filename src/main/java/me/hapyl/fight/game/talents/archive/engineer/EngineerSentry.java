@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.talents.archive.engineer;
 
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.Collect;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 
@@ -63,7 +63,7 @@ public class EngineerSentry extends EngineerTalent {
                             return;
                         }
 
-                        entity.addPotionEffect(PotionEffectType.GLOWING, getDuration(), 1);
+                        entity.addEffect(Effects.GLOWING, 1, getDuration());
                     });
                 }
             }

@@ -8,6 +8,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talents;
@@ -33,8 +34,8 @@ public class Nightmare extends Hero implements DisplayFieldProvider {
 
     private final PlayerMap<OmenDebuff> omenDebuffMap = PlayerMap.newConcurrentMap();
 
-    public Nightmare() {
-        super("Nightmare");
+    public Nightmare(@Nonnull Heroes handle) {
+        super(handle, "Nightmare");
 
         setArchetype(Archetype.DAMAGE);
 
@@ -52,7 +53,7 @@ public class Nightmare extends Hero implements DisplayFieldProvider {
         equipment.setBoots(30, 0, 153);
 
         setUltimate(new UltimateTalent(
-                "Your Worst Nightmare",
+                this, "Your Worst Nightmare",
                 "Applies the &4👻 &c&lOmen&7 to all living opponents for {duration}.",
                 55
         ).setDuration(240)
@@ -141,7 +142,7 @@ public class Nightmare extends Hero implements DisplayFieldProvider {
             return;
         }
 
-        instance.setDamage(instance.getDamage() * omenDamageMultiplier);
+        instance.setDamageMultiplier(omenDamageMultiplier);
     }
 
     @Override

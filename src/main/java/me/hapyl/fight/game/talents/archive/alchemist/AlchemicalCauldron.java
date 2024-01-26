@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.archive.alchemist;
 
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.alchemist.Alchemist;
@@ -22,7 +23,6 @@ import org.bukkit.block.data.Levelled;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.EulerAngle;
 
 public class AlchemicalCauldron extends TickingGameTask {
@@ -111,7 +111,7 @@ public class AlchemicalCauldron extends TickingGameTask {
                     ((Alchemist) Heroes.ALCHEMIST.getHero()).addToxin(owner, 8);
                 }
                 else {
-                    entity.addPotionEffect(PotionEffectType.POISON, 20, 5);
+                    entity.addEffect(Effects.POISON, 5, 20);
                 }
             });
         }
@@ -156,7 +156,7 @@ public class AlchemicalCauldron extends TickingGameTask {
         Talents.CAULDRON.getTalent().startCd(owner);
         ((Alchemist) Heroes.ALCHEMIST.getHero()).startCauldronBoost(owner);
 
-        owner.addPotionEffect(PotionEffectType.SPEED, 30, 2);
+        owner.addEffect(Effects.SPEED, 2, 30);
         owner.playSound(Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 2.0f);
         owner.sendMessage("&aYou have gained the Cauldron Buff!");
 

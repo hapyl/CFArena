@@ -1,5 +1,7 @@
 package me.hapyl.fight.util;
 
+import me.hapyl.fight.game.Event;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
@@ -84,7 +86,12 @@ public class Buffer<E> implements List<E> {
         return true;
     }
 
-    // called whenever the first element is removed due to buffer size
+    /**
+     * Called whenever the first element is removed due to buffer size.
+     *
+     * @param e - Element that was removed.
+     */
+    @Event
     public void unbuffered(@Nonnull E e) {
     }
 

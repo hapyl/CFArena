@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.talents.archive.swooper;
 
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.task.GameTask;
@@ -113,13 +113,13 @@ public class BlastPack extends ChargedTalent {
         // Explosion
         Collect.nearbyEntities(location, explosionRadius).forEach(gameEntity -> {
             if (gameEntity.equals(player)) {
-                gameEntity.addEffect(GameEffectType.FALL_DAMAGE_RESISTANCE, 40);
+                gameEntity.addEffect(Effects.FALL_DAMAGE_RESISTANCE, 40);
             }
             else if (!player.isTeammate(gameEntity)) {
                 gameEntity.damage(5.0d, player, EnumDamageCause.SATCHEL);
             }
 
-            if (gameEntity.hasCCResistanceAndDisplay(player)) {
+            if (gameEntity.hasEffectResistanceAndNotify(player)) {
                 return;
             }
 

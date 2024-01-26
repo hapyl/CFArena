@@ -1,12 +1,18 @@
 package me.hapyl.fight.util;
 
+import org.bukkit.event.Event;
+
 import javax.annotation.Nonnull;
 
-public interface SingleEventHandler<T> {
+/**
+ * An interface for <b>single event</b> handling.
+ * <p>
+ * The implementation is manual for each handler.
+ *
+ * @see me.hapyl.fight.game.trial.objecitive.TrialObjective
+ */
+public interface SingleEventHandler {
 
-    @Nonnull
-    Class<T> getEventClass();
-
-    void handle(@Nonnull T ev);
+    <T extends Event> void handle(@Nonnull T ev);
 
 }

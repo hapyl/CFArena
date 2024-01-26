@@ -2,27 +2,25 @@ package me.hapyl.fight.game.heroes.archive.moonwalker;
 
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.attribute.HeroAttributes;
+import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.entity.EquipmentSlot;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.DisabledHero;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.UltimateCallback;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.archive.moonwalker.MoonPillarTalent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class Moonwalker extends Hero implements PlayerElement, DisabledHero {
 
-    public Moonwalker() {
-        super("Moonwalker");
+    public Moonwalker(@Nonnull Heroes handle) {
+        super(handle, "Moonwalker");
 
         setMinimumLevel(3);
         setArchetype(Archetype.RANGE);
@@ -38,7 +36,7 @@ public class Moonwalker extends Hero implements PlayerElement, DisabledHero {
         equipment.setBoots(105, 105, 105);
 
         setWeapon(new MoonwalkerWeapon());
-        setUltimate(new MoonwalkerUltimate());
+        setUltimate(new MoonwalkerUltimate(this));
     }
 
     @Nonnull
@@ -71,8 +69,8 @@ public class Moonwalker extends Hero implements PlayerElement, DisabledHero {
 
     @Override
     public void onStart(@Nonnull GamePlayer player) {
-        player.getInventory().setItem(9, new ItemStack(Material.ARROW));
-        player.addPotionEffect(PotionEffectType.SLOW_FALLING.createEffect(999999, 2));
+        player.setItem(EquipmentSlot.ARROW, new ItemStack(Material.ARROW));
+        player.addEffect(Effects.SLOW_FALLING, 2, -1);
     }
 
     @Override

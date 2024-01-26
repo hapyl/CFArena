@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.archive.orc;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -92,7 +92,7 @@ public class OrcAxe extends InputTalent {
                             .forEach(entity -> {
                                 entity.damage(15.0d, player, EnumDamageCause.CYCLING_AXE);
 
-                                if (entity.hasCCResistanceAndDisplay(player)) {
+                                if (entity.hasEffectResistanceAndNotify(player)) {
                                     return;
                                 }
 

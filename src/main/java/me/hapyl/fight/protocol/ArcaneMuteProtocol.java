@@ -5,7 +5,7 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.injector.temporary.TemporaryPlayer;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.spigotutils.module.reflect.protocol.ProtocolListener;
 import org.bukkit.entity.Player;
@@ -30,7 +30,7 @@ public class ArcaneMuteProtocol extends ProtocolListener {
 
         final GamePlayer gamePlayer = CF.getPlayer(player);
 
-        if (gamePlayer != null && gamePlayer.hasEffect(GameEffectType.ARCANE_MUTE)) {
+        if (gamePlayer != null && gamePlayer.hasEffect(Effects.ARCANE_MUTE)) {
             ev.setCancelled(true);
         }
     }

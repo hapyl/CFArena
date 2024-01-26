@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.DisabledHero;
@@ -68,8 +68,8 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
 
     private final Material BLOOD_MATERIAL = Material.REDSTONE;
 
-    public Vampire() {
-        super("Vampire");
+    public Vampire(@Nonnull Heroes handle) {
+        super(handle, "Vampire");
 
         vampireData = PlayerMap.newMap();
 
@@ -82,7 +82,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
 
         setWeapon(Material.GHAST_TEAR, "Fang", 5.0d);
 
-        final UltimateTalent ultimate = new UltimateTalent("Sanguineous Morphology", """
+        final UltimateTalent ultimate = new UltimateTalent(this, "Sanguineous Morphology", """
                 Transform into a bat and fly freely for {duration}.
                                 
                 After duration ends, transform back into vampire and gain the opposite amount of blood you had upon casting and summon &eDracula Jr&7.
@@ -106,7 +106,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
         getFirstTalent().startCd(player, 99999);
         getSecondTalent().startCd(player, 99999);
 
-        player.hide();
+        player.hidePlayer();
 
         final Bat bat = Entities.BAT.spawn(player.getLocation(), self -> {
             self.setCustomName(player.getCustomName());
@@ -132,7 +132,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
                     player.setFlying(false);
                     player.setAllowFlight(false);
 
-                    player.show();
+                    player.showPlayer();
                     bat.remove();
 
                     data.setBlood(bloodAfterUse);

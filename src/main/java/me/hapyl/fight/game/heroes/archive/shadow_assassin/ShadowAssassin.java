@@ -2,13 +2,14 @@ package me.hapyl.fight.game.heroes.archive.shadow_assassin;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Named;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.loadout.HotbarSlots;
@@ -31,7 +32,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
@@ -44,8 +44,8 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
     private final int nevermissCd = 20;
     private final PlayerMap<Data> playerData = PlayerMap.newMap();
 
-    public ShadowAssassin() {
-        super("Shadow Assassin");
+    public ShadowAssassin(@Nonnull Heroes handle) {
+        super(handle, "Shadow Assassin");
 
         setArchetype(Archetype.STRATEGY);
 
@@ -68,7 +68,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
         setWeapon(new ShadowAssassinWeapon(this));
 
         setUltimate(new UltimateTalent(
-                "Extreme Focus", """
+                this, "Extreme Focus", """
                 Enter {name} for {duration}.
                                 
                 While active, your &amelee&7 attacks will &nnot&7 miss if an enemy is close enough and has no cover.
@@ -106,7 +106,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
         // Fx
         player.playWorldSound(Sound.BLOCK_BEACON_ACTIVATE, 1.75f);
         player.playWorldSound(Sound.BLOCK_BEACON_AMBIENT, 1.75f);
-        player.addPotionEffect(PotionEffectType.SLOW, getUltimateDuration(), 0);
+        player.addEffect(Effects.SLOW, getUltimateDuration());
 
         GameTask.runLater(() -> player.playWorldSound(Sound.BLOCK_BEACON_DEACTIVATE, 1.85f), getUltimateDuration());
 
@@ -148,7 +148,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
             @Override
             public void run() {
                 getAlivePlayers().forEach(player -> {
-                    if (!player.hasEffect(GameEffectType.INVISIBILITY)) {
+                    if (!player.hasEffect(Effects.INVISIBILITY)) {
                         return;
                     }
 
@@ -253,7 +253,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
 
     @Nullable
     private LivingGameEntity getNearestEntity(GamePlayer player) {
-        return Collect.targetEntity(player, 10, 0.5d, t -> t.hasLineOfSight(player));
+        return Collect.targetEntityDot(player, 10, 0.5d, t -> t.hasLineOfSight(player));
     }
 
     private boolean validateCanBackStab(GamePlayer player, LivingGameEntity entity) {

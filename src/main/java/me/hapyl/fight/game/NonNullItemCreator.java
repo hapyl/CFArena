@@ -36,11 +36,7 @@ public abstract class NonNullItemCreator implements LoreAppender {
     @Nonnull
     public final ItemStack getItem() {
         if (item == null) {
-            createItem();
-        }
-
-        if (item == null) {
-            throw new IllegalStateException("Must implement createItem() and set item!");
+            item = createItem();
         }
 
         return item;
@@ -49,6 +45,7 @@ public abstract class NonNullItemCreator implements LoreAppender {
     /**
      * A class must override and set item using this method.
      */
-    public abstract void createItem();
+    @Nonnull
+    public abstract ItemStack createItem();
 
 }

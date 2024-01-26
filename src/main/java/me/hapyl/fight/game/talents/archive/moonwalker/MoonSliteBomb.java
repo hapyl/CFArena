@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.archive.moonwalker;
 
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
@@ -139,7 +139,7 @@ public class MoonSliteBomb extends Talent implements Listener {
     }
 
     private void applyCorrosion(LivingGameEntity entity) {
-        entity.addEffect(GameEffectType.CORROSION, corrosionDuration);
+        entity.addEffect(Effects.CORROSION, corrosionDuration);
     }
 
     private boolean isBombItem(Item item) {

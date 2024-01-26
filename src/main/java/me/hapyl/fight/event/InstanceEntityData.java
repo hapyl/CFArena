@@ -50,4 +50,9 @@ public class InstanceEntityData implements Disposable {
     public void dispose() {
         attributes.dispose();
     }
+
+    @Override
+    public String toString() {
+        return attributes.toString();
+    }
 }

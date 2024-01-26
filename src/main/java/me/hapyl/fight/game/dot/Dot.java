@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.dot;
 
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.util.Described;
 import me.hapyl.spigotutils.module.math.Numbers;

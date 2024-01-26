@@ -1,28 +1,23 @@
 package me.hapyl.fight.game.effect.archive;
 
-import me.hapyl.fight.game.effect.GameEffect;
+import me.hapyl.fight.game.effect.Effect;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 
 import javax.annotation.Nonnull;
 
-public class PoisonIvy extends GameEffect {
+public class PoisonIvy extends Effect {
     public PoisonIvy() {
-        super("Poison Ivy");
-
-        setPositive(false);
+        super("Poison Ivy", EffectType.NEGATIVE);
     }
 
     @Override
-    public void onStart(@Nonnull LivingGameEntity entity) {
+    public void onStart(@Nonnull LivingGameEntity entity, int amplifier) {
     }
 
     @Override
-    public void onStop(@Nonnull LivingGameEntity entity) {
+    public void onStop(@Nonnull LivingGameEntity entity, int amplifier) {
 
     }
 
-    @Override
-    public void onTick(@Nonnull LivingGameEntity entity, int tick) {
-
-    }
 }

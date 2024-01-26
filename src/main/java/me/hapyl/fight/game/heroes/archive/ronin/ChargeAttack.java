@@ -1,13 +1,10 @@
 package me.hapyl.fight.game.heroes.archive.ronin;
 
 import me.hapyl.fight.game.HeroReference;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 
@@ -53,7 +50,7 @@ public class ChargeAttack extends GameTask implements HeroReference<Ronin> {
 
         // Fx
         player.sendSubtitle(builder.toString(), 0, 5, 5);
-        player.addPotionEffect(PotionEffectType.SLOW, 1, 5);
+        player.addEffect(Effects.SLOW, 5, 1);
     }
 
     @Nonnull

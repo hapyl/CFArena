@@ -1,11 +1,13 @@
 package me.hapyl.fight.game.heroes.archive.taker;
 
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Named;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talents;
@@ -29,7 +31,6 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
@@ -41,11 +42,14 @@ public class Taker extends Hero implements UIComponent, DisplayFieldProvider {
 
     private final PlayerMap<SpiritualBones> playerBones = PlayerMap.newConcurrentMap();
 
-    public Taker() {
-        super("Taker", "Will take your life away!");
+    public Taker(@Nonnull Heroes handle) {
+        super(handle, "Taker");
 
         setArchetype(Archetype.DAMAGE);
 
+        setDescription("""
+                Will take your life away!
+                """);
         setItem("ff1e554161bd4b2ce4cad18349fd756994f74cabf1fd1dacdf91b6d05dffaf");
 
         final Equipment equipment = getEquipment();
@@ -58,7 +62,7 @@ public class Taker extends Hero implements UIComponent, DisplayFieldProvider {
                 """, 6.66d);
 
         final UltimateTalent ultimate = new UltimateTalent(
-                "Embodiment of Death", """
+                this, "Embodiment of Death", """
                 Instantly consume all %s to cloak yourself in the &8darkness&7 for {duration}.
                                         
                 After a short delay, embrace the death and become &binvulnerable&7.
@@ -139,7 +143,7 @@ public class Taker extends Hero implements UIComponent, DisplayFieldProvider {
 
         bones.reset();
 
-        player.addPotionEffect(PotionEffectType.SLOW, castDuration, 255);
+        player.addEffect(Effects.SLOW, 255, castDuration);
 
         new TickingGameTask() {
             @Override
@@ -235,7 +239,7 @@ public class Taker extends Hero implements UIComponent, DisplayFieldProvider {
         final double healingScaled = damage * healing / 100.0d;
         player.heal(healingScaled);
 
-        instance.setDamage(damage + (damage / 10 * bones.getDamageMultiplier()));
+        instance.setDamageMultiplier(1 + bones.getDamageMultiplier() / 100);
     }
 
     @Override
@@ -247,8 +251,7 @@ public class Taker extends Hero implements UIComponent, DisplayFieldProvider {
             return;
         }
 
-        final double damage = instance.getDamage();
-        instance.setDamage(damage - (damage / 100 * bones.getDamageReduction()));
+        instance.setDamageMultiplier(1 - bones.getDamageReduction() / 100);
     }
 
     @Override

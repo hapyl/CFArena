@@ -4,10 +4,7 @@ import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.DisabledHero;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.UltimateCallback;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
@@ -49,8 +46,8 @@ public class Ronin extends Hero implements Listener, DisabledHero {
      * - Increase speed and attack.
      * - All hits apply bleed.
      */
-    public Ronin() {
-        super("Ronin");
+    public Ronin(@Nonnull Heroes handle) {
+        super(handle, "Ronin");
 
         setArchetype(Archetype.DAMAGE);
         setItem("267bf069fefb40be22724b02e6c4fbe2133ef5e112bc551a4f0042ea99dcf6a2");
@@ -62,7 +59,7 @@ public class Ronin extends Hero implements Listener, DisabledHero {
 
         setWeapon(new RoninWeapon());
 
-        setUltimate(new UltimateTalent("Harakiri", """
+        setUltimate(new UltimateTalent(this, "Harakiri", """
                                 
                 """, 30));
 
@@ -85,7 +82,7 @@ public class Ronin extends Hero implements Listener, DisabledHero {
 
         final Strength strength = chargeAttack.getStrength();
 
-        instance.setDamage(instance.getDamage() * strength.multiplier);
+        instance.setDamageMultiplier(strength.multiplier);
     }
 
     @EventHandler()

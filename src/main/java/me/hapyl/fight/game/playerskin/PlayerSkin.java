@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
+import com.mojang.datafixers.util.Pair;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.spigotutils.module.reflect.Reflect;
@@ -15,18 +16,21 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EnumItemSlot;
 import net.minecraft.world.level.EnumGamemode;
 import net.minecraft.world.level.dimension.DimensionManager;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 // With help from https://wiki.vg/Protocol, SkinsRestorer I finally got this to work.
 // (September 3rd, 2023) -h
@@ -52,7 +56,7 @@ public class PlayerSkin {
         return signature;
     }
 
-    public void apply(Player player) {
+    public void apply(@Nonnull Player player) {
         final GameProfile gameProfile = Reflect.getGameProfile(player);
         final PropertyMap properties = gameProfile.getProperties();
 
@@ -69,13 +73,13 @@ public class PlayerSkin {
         return new String[] { texture, signature };
     }
 
-    private void removePlayer(Player player) {
+    private void removePlayer(@Nonnull Player player) {
         final ClientboundPlayerInfoRemovePacket remove = new ClientboundPlayerInfoRemovePacket(List.of(player.getUniqueId()));
 
         sendGlobalPacket(remove);
     }
 
-    private void createPlayer(Player player) {
+    private void createPlayer(@Nonnull Player player) {
         final EntityPlayer mcPlayer = Reflect.getMinecraftPlayer(player);
         final ClientboundPlayerInfoUpdatePacket packet = ClientboundPlayerInfoUpdatePacket.a(List.of(mcPlayer)); // createPlayerInitializing()
 
@@ -161,6 +165,21 @@ public class PlayerSkin {
         Runnables.runLater(() -> {
             player.updateInventory();
 
+            // Update equipment
+            final PacketPlayOutEntityEquipment packetUpdateEquipment = new PacketPlayOutEntityEquipment(
+                    player.getEntityId(),
+                    List.of(
+                            getPair(player, EquipmentSlot.HAND),
+                            getPair(player, EquipmentSlot.OFF_HAND),
+                            getPair(player, EquipmentSlot.FEET),
+                            getPair(player, EquipmentSlot.LEGS),
+                            getPair(player, EquipmentSlot.CHEST),
+                            getPair(player, EquipmentSlot.HEAD)
+                    )
+            );
+
+            sendGlobalPacket(packetUpdateEquipment);
+
             // Fix "Unable to switch game mode; no permission"
             if (player.isOp()) {
                 player.setOp(false);
@@ -180,6 +199,23 @@ public class PlayerSkin {
             case ADVENTURE -> EnumGamemode.c;
             case SPECTATOR -> EnumGamemode.d;
         };
+    }
+
+    private EnumItemSlot getNmsItemSlot(EquipmentSlot slot) {
+        return switch (slot) {
+            case HAND -> EnumItemSlot.a;
+            case OFF_HAND -> EnumItemSlot.b;
+            case FEET -> EnumItemSlot.c;
+            case LEGS -> EnumItemSlot.d;
+            case CHEST -> EnumItemSlot.e;
+            case HEAD -> EnumItemSlot.f;
+        };
+    }
+
+    private Pair<EnumItemSlot, net.minecraft.world.item.ItemStack> getPair(Player player, EquipmentSlot slot) {
+        final ItemStack item = player.getInventory().getItem(slot);
+
+        return new Pair<>(getNmsItemSlot(slot), Reflect.bukkitItemToNMS(item != null ? item : new ItemStack(Material.AIR)));
     }
 
     private void sendPacket(@Nonnull Player player, @Nonnull Packet<?> packet) {

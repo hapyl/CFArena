@@ -3,7 +3,6 @@ package me.hapyl.fight.game.talents;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
-import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Material;
 
@@ -56,20 +55,25 @@ public abstract class InputTalent extends Talent {
 
     @Override
     public void appendLore(@Nonnull ItemBuilder builder) {
-        builder.addTextBlockLore(
-                Chat.bformat("""
-                                                        
-                                &e&lLEFT CLICK&e to {LeftName}
-                                &8{LeftType}
-                                {LeftDescription}
-                                &6&lRIGHT CLICK&6 to {RightName}
-                                &8{RightType}
-                                {RightDescription}
-                                """,
-                        leftData.getAction(), leftData.getType().getName(), format(leftData.getDescription(), leftData),
-                        rightData.getAction(), rightData.getType().getName(), format(rightData.getDescription(), rightData)
-                )
-        );
+        builder.addTextBlockLore("""
+                                
+                &e&lLEFT CLICK&e to %s
+                &8%s
+                %s
+                &6&lRIGHT CLICK&6 to %s
+                &8%s
+                %s
+                """.formatted(
+                // Left
+                leftData.getAction(),
+                leftData.getType().getName(),
+                format(leftData),
+
+                // Right
+                rightData.getAction(),
+                rightData.getType().getName(),
+                format(rightData)
+        ));
     }
 
     @Nonnull
@@ -184,6 +188,16 @@ public abstract class InputTalent extends Talent {
         if (point > 0) {
             player.addUltimatePoints(point);
         }
+    }
+
+    private String format(InputTalentData data) {
+        String string = data.getDescription();
+
+        string = StaticFormat.NAME.format(string, this);
+        string = StaticFormat.DURATION.format(string, data);
+        string = StaticFormat.COOLDOWN.format(string, data);
+
+        return string;
     }
 
     private String format(@Nonnull String string, @Nonnull InputTalentData data) {

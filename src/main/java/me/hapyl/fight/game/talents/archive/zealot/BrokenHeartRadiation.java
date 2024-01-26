@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.archive.zealot;
 
 import me.hapyl.fight.fx.beam.Quadrant;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
@@ -31,7 +31,7 @@ public class BrokenHeartRadiation extends Talent {
     @DisplayField private final int effectDuration = 250;
 
     private final TemperInstance temperInstance = Temper.RADIATION.newInstance()
-            .decrease(AttributeType.MENDING, mendingReduction)
+            .decrease(AttributeType.VITALITY, mendingReduction)
             .decrease(AttributeType.DEFENSE, defenseReduction)
             .onApply(entity -> entity.spawnParticle(entity.getLocation(), Particle.MOB_APPEARANCE, 1, 0, 0, 0, 0));
 
@@ -42,7 +42,7 @@ public class BrokenHeartRadiation extends Talent {
                 Create four radiation beams that spin around you for {duration}.
                                 
                 If a beam touches an enemy, it deals &c{beamDamage} ❤&7 damage and reduces %s by &c{mendingReduction}&7 and %s by &c{defenseReduction}&7 for &b{effectDuration}.
-                """, AttributeType.MENDING, AttributeType.DEFENSE);
+                """, AttributeType.VITALITY, AttributeType.DEFENSE);
 
         setType(Type.IMPAIR);
         setItem(Material.TWISTING_VINES);

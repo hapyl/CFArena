@@ -216,6 +216,12 @@ public class Equipment implements Described, Lore {
         equip(gamePlayer.getPlayer());
     }
 
+    public void setFromEquipment(@Nonnull Equipment equipment) {
+        for (int i = 0; i < this.items.length; i++) {
+            this.items[i] = equipment.items[i];
+        }
+    }
+
     @Nonnull
     private EntityEquipment getEntityEquipment(LivingEntity entity) {
         final EntityEquipment equipment = entity.getEquipment();

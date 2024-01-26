@@ -3,9 +3,9 @@ package me.hapyl.fight.game.talents.archive.moonwalker;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
@@ -73,7 +73,7 @@ public class GravityZone extends Talent {
                             return;
                         }
 
-                        if (entity.hasCCResistanceAndDisplay(player)) {
+                        if (entity.hasEffectResistanceAndNotify(player)) {
                             return;
                         }
 
@@ -83,7 +83,7 @@ public class GravityZone extends Talent {
 
                         final Vector velocity = entity.getVelocity();
                         entity.setVelocity(new Vector(velocity.getX() / 2, -2.0d, velocity.getZ() / 2));
-                        entity.addEffect(GameEffectType.FALL_DAMAGE_RESISTANCE, 60, true);
+                        entity.addEffect(Effects.FALL_DAMAGE_RESISTANCE, 60, true);
                     });
 
                     ticksInPull.clear();

@@ -2,14 +2,15 @@ package me.hapyl.fight.game.heroes.archive.ninja;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.loadout.HotbarSlots;
@@ -30,7 +31,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
@@ -54,11 +54,12 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
             .build();
     private final int doubleJumpCooldown = Tick.fromSecond(5);
 
-    public Ninja() {
-        super(
-                "Ninja",
-                "An extremely well-trained fighter with a gift from the wind."
-        );
+    public Ninja(@Nonnull Heroes handle) {
+        super(handle, "Ninja");
+
+        setDescription("""
+                An extremely well-trained fighter with a gift from the wind.
+                """);
 
         setArchetype(Archetype.MOBILITY);
         setItem("1413159cfab50aba283e68c1659d74412392fbcb1f7d663d1bd2a2a6430c2743");
@@ -71,7 +72,7 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
         setWeapon(new NinjaWeapon());
 
         setUltimate(new UltimateTalent(
-                "Throwing Stars",
+                this, "Throwing Stars",
                 "Equip &b5&7 dead-accurate &6throwing stars&7 that deal &c%.0f&7 damage upon hitting an enemy.".formatted(ultimateDamage),
                 70
         ).setItem(Material.NETHER_STAR).setSound(Sound.ITEM_TRIDENT_RIPTIDE_1, 0.75f));
@@ -87,9 +88,9 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
         final NinjaSmoke ninjaSmoke = getSecondTalent();
 
         Temper.SHADOWSTRIKE.temper(player, AttributeType.DODGE, ninjaSmoke.dodgeIncrease, ninjaSmoke.buffDuration);
-        player.removeEffect(GameEffectType.INVISIBILITY);
+        player.removeEffect(Effects.INVISIBILITY);
 
-        entity.addPotionEffect(PotionEffectType.SLOW, 20, 5);
+        entity.addEffect(Effects.SLOW, 5, 20);
 
         // Fx
         player.playWorldSound(Sound.BLOCK_ANVIL_LAND, 1.25f);
@@ -120,7 +121,7 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
 
     @Override
     public void onStart(@Nonnull GamePlayer player) {
-        player.addPotionEffect(PotionEffectType.SPEED, 999999, 0);
+        player.addEffect(Effects.SPEED, -1);
     }
 
     @EventHandler()

@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.archive.archer;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
@@ -45,6 +45,7 @@ public class ShockDark extends Talent implements Listener {
         setType(Type.DAMAGE);
         setItem(Material.LIGHT_BLUE_DYE);
         setCooldown(120);
+        setPoint(0);
 
         shockArrows = Sets.newHashSet();
     }
@@ -103,7 +104,8 @@ public class ShockDark extends Talent implements Listener {
                     final double distance = target.getLocation().distance(location);
                     final double damage = distance <= 1 ? explosionMaxDamage : (explosionMaxDamage - (distance * 2));
 
-                    target.damage(damage, player, EnumDamageCause.SHOCK_DART);
+                    target.setLastDamager(player);
+                    target.damage(damage, EnumDamageCause.SHOCK_DART);
                 });
 
                 // Fx

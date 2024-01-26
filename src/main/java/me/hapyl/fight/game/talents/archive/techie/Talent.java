@@ -1,21 +1,24 @@
 package me.hapyl.fight.game.talents.archive.techie;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.Main;
 import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.annotate.ExecuteOrder;
 import me.hapyl.fight.event.custom.TalentUseEvent;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.achievement.Achievements;
-import me.hapyl.fight.game.effect.GameEffect;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.cosmetic.EnumHandle;
+import me.hapyl.fight.game.effect.Effect;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.effect.archive.SlowingAuraEffect;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.game.talents.*;
+import me.hapyl.fight.translate.Language;
+import me.hapyl.fight.translate.Translatable;
+import me.hapyl.fight.translate.TranslateKey;
 import me.hapyl.fight.util.Condition;
 import me.hapyl.fight.util.Described;
+import me.hapyl.fight.util.Final;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.fight.util.displayfield.DisplayFieldSerializer;
@@ -25,7 +28,6 @@ import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -38,11 +40,15 @@ import java.util.function.Consumer;
  */
 @AutoRegisteredListener
 public abstract class Talent extends NonNullItemCreator
-        implements GameElement, PlayerElement, DisplayFieldProvider, Nameable, Timed, Cooldown {
+        implements GameElement, PlayerElement, DisplayFieldProvider,
+        Nameable, Timed, Cooldown, EnumHandle<Talents>, Translatable {
 
     public static final Talent NULL = null;
     public static int DYNAMIC = -1;
     private final List<String> attributeDescription;
+    private final Final<Talents> handle;
+    protected TranslateKey translateName;
+    protected TranslateKey translateDescription;
     private Type type;
     private String name;
     @Nonnull
@@ -58,8 +64,6 @@ public abstract class Talent extends NonNullItemCreator
     private int cd;
     private int duration;
     private boolean autoAdd;
-    @Nullable
-    protected HotbarSlots talentSlot;
 
     public Talent(@Nonnull String name) {
         this(name, "", Type.DAMAGE);
@@ -81,6 +85,7 @@ public abstract class Talent extends NonNullItemCreator
      *     <li>Preserve order of such builder methods, start with enums, end with primitives.</li>
      * </ul>
      */
+    @Super
     public Talent(@Nonnull String name, @Nonnull String description, @Nonnull Type type) {
         this.name = name;
         this.description = description;
@@ -92,11 +97,45 @@ public abstract class Talent extends NonNullItemCreator
         this.autoAdd = true;
         this.point = 1;
         this.duration = 0;
+        this.handle = new Final<>();
+    }
+
+    @Nonnull
+    @Override
+    public String getTranslateName(@Nonnull Language language) {
+        if (translateName == null) {
+            return name;
+        }
+
+        return language.getFormatted(translateName);
+    }
+
+    @Nonnull
+    @Override
+    public String getTranslateDescription(@Nonnull Language language) {
+        if (translateDescription == null) {
+            return description;
+        }
+
+        return language.getFormatted(translateDescription);
     }
 
     // defaults to 1 point per 10 seconds of cooldown
     public void defaultPointGeneration() {
         point = calcPointGeneration(cd);
+    }
+
+    @Nonnull
+    @Override
+    public Talents getHandle() {
+        return handle.getOrThrow();
+    }
+
+    @Override
+    public void setHandle(@Nonnull Talents handle) {
+        this.handle.set(handle);
+        this.translateName = new TranslateKey("talent." + handle.name() + ".name");
+        this.translateDescription = new TranslateKey("talent." + handle.name() + ".description");
     }
 
     public void setAltUsage(String altUsage) {
@@ -111,16 +150,6 @@ public abstract class Talent extends NonNullItemCreator
     @Override
     public Talent setDuration(int duration) {
         this.duration = duration;
-        return this;
-    }
-
-    public Talent setTalentSlot(@Nonnull HotbarSlots talentSlot) {
-        switch (talentSlot) {
-            case TALENT_1, TALENT_2, TALENT_3, TALENT_4, TALENT_5 -> {
-            }
-            default -> throw new IllegalArgumentException("Slot must be a talent, not " + talentSlot);
-        }
-        this.talentSlot = talentSlot;
         return this;
     }
 
@@ -230,10 +259,6 @@ public abstract class Talent extends NonNullItemCreator
     public void onDeath(@Nonnull GamePlayer player) {
     }
 
-    public void displayDuration(Player player, int duration, byte b) {
-        // TODO: 010, Mar 10, 2023 -> this
-    }
-
     @Nonnull
     public String getTalentClassType() {
         return "Talent";
@@ -244,7 +269,9 @@ public abstract class Talent extends NonNullItemCreator
         return type.getName() + " " + getTalentClassType();
     }
 
-    public void createItem() {
+    @Nonnull
+    @Override
+    public ItemStack createItem() {
         final ItemBuilder builderItem = ItemBuilder.of(material)
                 .setName(name)
                 .addLore("&8" + getTypeFormattedWithClassType())
@@ -253,34 +280,18 @@ public abstract class Talent extends NonNullItemCreator
         builderItem.setAmount(startAmount);
 
         // Add head texture if an item is a player head
-        if (material == Material.PLAYER_HEAD) {
-            if (texture64 != null) {
-                builderItem.setHeadTextureUrl(texture64);
-            }
+        if (material == Material.PLAYER_HEAD && texture64 != null) {
+            builderItem.setHeadTextureUrl(texture64);
         }
 
         // Execute functions is present
         Nulls.runIfNotNull(itemFunction, function -> function.accept(builderItem));
 
+        final String description = StaticFormat.formatTalent(this.description, this);
+
+        builderItem.addTextBlockLore(description.replace("%", "%%"));
+
         // Append lore
-        // Now using text block lore
-        try { // fixme: try-catch for debugging, remove on prod
-            // fix % I fucking hate that java uses % as formatter fucking why
-            description = StaticFormat.formatTalent(description, this);
-            description = description.replace("%", "%%");
-
-            builderItem.addTextBlockLore(description);
-        } catch (Exception e) {
-            final StackTraceElement[] stackTrace = e.getStackTrace();
-
-            builderItem.addLore("&4&lERROR FORMATTING, REPORT THIS WITH A CODE BELOW");
-            builderItem.addLore("&e@" + getName());
-            builderItem.addLore("&e" + stackTrace[0].toString());
-
-            Main.getPlugin().getLogger().severe(description);
-            e.printStackTrace();
-        }
-
         appendLore(builderItem);
 
         // Is ability having alternative usage, tell how to use it
@@ -293,15 +304,16 @@ public abstract class Talent extends NonNullItemCreator
             builderItem.glow();
         }
 
-        // Attributes
-        super.setItem(builderItem.asIcon());
+        ////////////////
+        // Attributes //
+        ////////////////
+        final ItemBuilder builderAttributes = new ItemBuilder(builderItem.asIcon());
 
-        final ItemBuilder builderAttributes = new ItemBuilder(getItemUnsafe());
-
+        // Details
         builderAttributes.removeLore();
         builderAttributes.setName(name).addLore("&8Details").addLore();
 
-        //
+        // Type description
         builderAttributes.addLore("&f&l" + type.getName());
         builderAttributes.addSmartLore(type.getDescription());
         builderAttributes.addLore();
@@ -356,6 +368,8 @@ public abstract class Talent extends NonNullItemCreator
         }
 
         itemStats = builderAttributes.asIcon();
+
+        return builderItem.asIcon();
     }
 
     public int getStartAmount() {
@@ -371,6 +385,11 @@ public abstract class Talent extends NonNullItemCreator
         this.setItem(Material.PLAYER_HEAD);
         this.texture64 = texture64;
         return this;
+    }
+
+    @Nonnull
+    public String getTexture64() {
+        return texture64;
     }
 
     public Talent setItem(Material material) {
@@ -418,12 +437,9 @@ public abstract class Talent extends NonNullItemCreator
     public final void postProcessTalent(@Nonnull GamePlayer player) {
         // Progress ability usage
         final StatContainer stats = player.getStats();
-        final Talents enumTalent = Talents.fromTalent(this);
-        final DebugData debug = Manager.current().getDebug();
+        final Talents enumTalent = getHandle();
 
-        if (!debug.any()) {
-            stats.addAbilityUsage(enumTalent);
-        }
+        stats.addAbilityUsage(enumTalent);
 
         // Progress achievement
         Achievements.USE_TALENTS.complete(player);
@@ -441,8 +457,8 @@ public abstract class Talent extends NonNullItemCreator
         }
 
         // If a player has slowing aura, modify cooldown
-        if (player.hasEffect(GameEffectType.SLOWING_AURA)) {
-            cooldown *= ((SlowingAuraEffect) GameEffectType.SLOWING_AURA.getGameEffect()).COOLDOWN_MODIFIER;
+        if (player.hasEffect(Effects.SLOWING_AURA)) {
+            cooldown *= ((SlowingAuraEffect) Effects.SLOWING_AURA.getEffect()).cooldownModifier;
         }
 
         // Don't start CD if in debug
@@ -539,6 +555,19 @@ public abstract class Talent extends NonNullItemCreator
         startCd(player, 100000);
     }
 
+    @Nonnull
+    @Override
+    public String getParentTranslatableKey() {
+        return "talent." + handle.getOrThrow().name().toLowerCase() + ".";
+    }
+
+    @Nonnull
+    public String getHandleName() {
+        final Talents handle = this.handle.get();
+
+        return handle != null ? handle.name().toLowerCase() : "NO_HANDLE";
+    }
+
     private String formatIfPossible(@Nonnull String toFormat, @Nullable Object... format) {
         if (format == null || format.length == 0) {
             return toFormat;
@@ -573,11 +602,11 @@ public abstract class Talent extends NonNullItemCreator
             return Response.ERROR;
         }
 
-        for (GameEffectType type : GameEffectType.values()) {
-            final GameEffect gameEffect = type.getGameEffect();
+        for (Effects type : Effects.values()) {
+            final Effect effect = type.getEffect();
 
-            if (gameEffect.isTalentBlocking() && player.hasEffect(type)) {
-                return Response.error(gameEffect.getName());
+            if (effect.isTalentBlocking() && player.hasEffect(type)) {
+                return Response.error(effect.getName());
             }
         }
 

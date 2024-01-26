@@ -8,6 +8,8 @@ import me.hapyl.fight.game.profile.data.PlayerProfileData;
 import me.hapyl.fight.game.profile.relationship.PlayerRelationship;
 import me.hapyl.fight.game.profile.relationship.Relationship;
 import me.hapyl.fight.game.setting.Settings;
+import me.hapyl.fight.game.team.Entry;
+import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.infraction.InfractionType;
 import me.hapyl.fight.infraction.PlayerInfraction;
 import me.hapyl.fight.ux.Message;
@@ -24,6 +26,8 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import java.util.Locale;
 
 public class ChatHandler implements Listener {
+
+    public static final String TEAM_MESSAGE_PREFIX = "#";
 
     @EventHandler(ignoreCancelled = true)
     public void handleChat(AsyncPlayerChatEvent ev) {
@@ -52,6 +56,28 @@ public class ChatHandler implements Listener {
         final PlayerRank rank = profile.getRank();
         final PlayerProfileData playerData = profile.getPlayerData();
 
+        // Team message
+        if (message.startsWith(TEAM_MESSAGE_PREFIX)) {
+            final GameTeam playerTeam = GameTeam.getEntryTeam(Entry.of(player));
+
+            if (playerTeam == null) {
+                Message.error(player, "You are not in a team!");
+                return;
+            }
+
+            final String teamMessage = "%1$s[%2$s%1$s] %3$s&f: &o%4$s".formatted(
+                    playerTeam.getColor(),
+                    playerTeam.getFlagColored(),
+                    player.getName(),
+                    message.substring(1).trim()
+            ).trim();
+
+            playerTeam.getBukkitPlayers().forEach(teammate -> {
+                Chat.sendMessage(teammate, teamMessage);
+            });
+            return;
+        }
+
         if (!rank.isStaff() && playerData.isLastMessageSimilarTo(message)) {
             Message.error(player, "You cannot say the same message twice!");
             return;
@@ -74,22 +100,6 @@ public class ChatHandler implements Listener {
 
             formatAndSendMessage(player, message, online);
         });
-    }
-
-    /**
-     * Using scoreboard tags for now.
-     */
-    public boolean isMuted(Player player) {
-        return player.getScoreboardTags().contains("Muted");
-    }
-
-    public void setMuted(Player player, boolean flag) {
-        if (flag) {
-            player.addScoreboardTag("Muted");
-        }
-        else {
-            player.removeScoreboardTag("Muted");
-        }
     }
 
     private void formatAndSendMessage(Player sender, String message, Player receiver) {

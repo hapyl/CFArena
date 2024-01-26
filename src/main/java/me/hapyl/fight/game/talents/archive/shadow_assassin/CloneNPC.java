@@ -1,15 +1,15 @@
 package me.hapyl.fight.game.talents.archive.shadow_assassin;
 
-import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.util.Ticking;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.spigotutils.module.player.EffectType;
+import me.hapyl.fight.util.Ticking;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
 import me.hapyl.spigotutils.module.reflect.npc.ItemSlot;
@@ -97,7 +97,7 @@ public class CloneNPC extends HumanNPC implements Ticking {
         entity.setLastDamager(player);
         entity.damageTick(talent.cloneDamage, EnumDamageCause.SHADOW_CLONE, 1);
 
-        entity.addPotionEffect(EffectType.BLINDNESS, 20, 1);
+        entity.addEffect(Effects.BLINDNESS, 1, 20);
 
         // Reduce defense
         final EntityAttributes attributes = entity.getAttributes();

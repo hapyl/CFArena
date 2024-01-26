@@ -3,7 +3,7 @@ package me.hapyl.fight.event;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.custom.GameEntityContactPortalEvent;
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.team.Entry;
@@ -105,7 +105,7 @@ public class EntityHandler implements Listener {
         }
 
         // Don't target invisible entities
-        if (target.hasEffect(GameEffectType.INVISIBILITY)) {
+        if (target.hasEffect(Effects.INVISIBILITY)) {
             ev.setTarget(null);
             ev.setCancelled(true);
             return;

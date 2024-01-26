@@ -5,6 +5,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.loadout.HotbarSlots;
@@ -29,8 +30,8 @@ public class Mage extends Hero implements UIComponent {
 
     private final PlayerMap<Integer> soulsCharge = PlayerMap.newMap();
 
-    public Mage() {
-        super("Mage");
+    public Mage(@Nonnull Heroes handle) {
+        super(handle, "Mage");
 
         setArchetype(Archetype.MAGIC);
 
@@ -48,14 +49,13 @@ public class Mage extends Hero implements UIComponent {
         setWeapon(new MageWeapon(this));
 
         setUltimate(new UltimateTalent(
-                "Magical Trainings",
-                """
-                        Retrieve two ancient spells and use one of them to your advantage!
-                                                
-                        %s
-                        %s
-                        Only one of the spells can be used at the same time, and you will &nnot&7 gain &b&l※ &7until spell is over.
-                        """.formatted(spellWyvernHeart.getFormatted(), spellDragonSkin.getFormatted()),
+                this, "Magical Trainings", """
+                Retrieve two ancient spells and use one of them to your advantage!
+                                        
+                %s
+                %s
+                Only one of the spells can be used at the same time, and you will &nnot&7 gain &b&l※ &7until spell is over.
+                """.formatted(spellWyvernHeart.getFormatted(), spellDragonSkin.getFormatted()),
                 50
         ).setItem(Material.WRITABLE_BOOK)
                 .setType(Talent.Type.ENHANCE)

@@ -32,6 +32,7 @@ public class Abobo extends GameEntityType<Husk> {
 
             @Override
             public void onDeath() {
+                super.onDeath();
                 Debug.info("ABOBO DIED NO!!!!!!!!!!!!!!!!!!!!");
             }
 

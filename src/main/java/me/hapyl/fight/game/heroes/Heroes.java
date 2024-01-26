@@ -3,7 +3,6 @@ package me.hapyl.fight.game.heroes;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.collection.HeroStatsCollection;
 import me.hapyl.fight.database.entry.ExperienceEntry;
@@ -12,6 +11,7 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.archive.alchemist.Alchemist;
 import me.hapyl.fight.game.heroes.archive.archer.Archer;
+import me.hapyl.fight.game.heroes.archive.archer_tutorial.TutorialArcher;
 import me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend;
 import me.hapyl.fight.game.heroes.archive.bounty_hunter.BountyHunter;
 import me.hapyl.fight.game.heroes.archive.dark_mage.DarkMage;
@@ -52,7 +52,6 @@ import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.util.Formatted;
 import me.hapyl.fight.util.SmallCaps;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
@@ -61,6 +60,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Registry for Heroes.
@@ -71,44 +71,47 @@ public enum Heroes implements Formatted {
 
     // New Hero -> Halloween
 
-    ARCHER(new Archer()),
-    ALCHEMIST(new Alchemist()),
-    MOONWALKER(new Moonwalker()),
-    @OnReworkIgnoreForNow HERCULES(new Hercules()),
-    MAGE(new Mage()),
-    PYTARIA(new Pytaria()),
-    TROLL(new Troll()),
-    NIGHTMARE(new Nightmare()),
-    DR_ED(new DrEd()),
-    ENDER(new Ender()),
-    SPARK(new Spark()),
-    SHADOW_ASSASSIN(new ShadowAssassin()),
-    WITCHER(new WitcherClass()),
-    VORTEX(new Vortex()),
-    FREAZLY(new Freazly()),
-    DARK_MAGE(new DarkMage()),
-    BLAST_KNIGHT(new BlastKnight()),
-    NINJA(new Ninja()),
-    TAKER(new Taker()),
-    JUJU(new JuJu()),
-    SWOOPER(new Swooper()),
-    TAMER(new Tamer()),
-    SHARK(new Shark()),
-    LIBRARIAN(new Librarian()),
-    TECHIE(new Techie()),
-    WAR_MACHINE(new KillingMachine()),
-    HARBINGER(new Harbinger()),
-    SHAMAN(new Shaman()),
-    HEALER(new Healer()),
-    VAMPIRE(new Vampire()),
-    BOUNTY_HUNTER(new BountyHunter()),
-    SWORD_MASTER(new SwordMaster()),
-    ENGINEER(new Engineer()),
-    ORC(new Orc()),
-    BLOODFIEND(new Bloodfiend()),
-    ZEALOT(new Zealot()),
-    RONIN(new Ronin()),
-    JESTER(new Jester()),
+    ARCHER(Archer::new),
+    ALCHEMIST(Alchemist::new),
+    MOONWALKER(Moonwalker::new),
+    @OnReworkIgnoreForNow HERCULES(Hercules::new),
+    MAGE(Mage::new),
+    PYTARIA(Pytaria::new),
+    TROLL(Troll::new),
+    NIGHTMARE(Nightmare::new),
+    DR_ED(DrEd::new),
+    ENDER(Ender::new),
+    SPARK(Spark::new),
+    SHADOW_ASSASSIN(ShadowAssassin::new),
+    WITCHER(WitcherClass::new),
+    VORTEX(Vortex::new),
+    FREAZLY(Freazly::new),
+    DARK_MAGE(DarkMage::new),
+    BLAST_KNIGHT(BlastKnight::new),
+    NINJA(Ninja::new),
+    TAKER(Taker::new),
+    JUJU(JuJu::new),
+    SWOOPER(Swooper::new),
+    TAMER(Tamer::new),
+    SHARK(Shark::new),
+    LIBRARIAN(Librarian::new),
+    TECHIE(Techie::new),
+    WAR_MACHINE(KillingMachine::new),
+    HARBINGER(Harbinger::new),
+    SHAMAN(Shaman::new),
+    HEALER(Healer::new),
+    VAMPIRE(Vampire::new),
+    BOUNTY_HUNTER(BountyHunter::new),
+    SWORD_MASTER(SwordMaster::new),
+    ENGINEER(Engineer::new),
+    ORC(Orc::new),
+    BLOODFIEND(Bloodfiend::new),
+    ZEALOT(Zealot::new),
+    RONIN(Ronin::new),
+    JESTER(Jester::new),
+
+    // *=* Tutorial Hero *=* //
+    TUTORIAL_ARCHER(TutorialArcher::new),
 
     ;
 
@@ -116,15 +119,10 @@ public enum Heroes implements Formatted {
 
     private final static List<Heroes> PLAYABLE = Lists.newArrayList();
     private final static Map<Archetype, List<Heroes>> BY_ARCHETYPE = Maps.newHashMap();
-    private final static Map<Hero, Heroes> BY_HANDLE = Maps.newHashMap();
+    private static GlobalHeroStats globalStats;
 
     static {
         for (Heroes hero : values()) {
-            // save handles either way
-            if (hero.hero != null) {
-                BY_HANDLE.put(hero.hero, hero);
-            }
-
             if (!hero.isValidHero()) {
                 continue;
             }
@@ -139,22 +137,24 @@ public enum Heroes implements Formatted {
             // Add playable
             PLAYABLE.add(hero);
         }
+
+        // Global Stats Calculations
+        calculateGlobalStats();
     }
 
     private final Hero hero;
-    private final HeroStatsCollection stats; // can't store in a hero object because requires enum
 
-    Heroes(Hero hero) {
-        this.hero = hero;
-        this.stats = new HeroStatsCollection(this);
+    Heroes(@Nonnull Function<Heroes, Hero> fn) {
+        this.hero = fn.apply(this);
 
         if (hero instanceof Listener listener) {
-            Bukkit.getPluginManager().registerEvents(listener, Main.getPlugin());
+            CF.registerEvents(listener);
         }
     }
 
+    @Nonnull
     public HeroStatsCollection getStats() {
-        return stats;
+        return hero.getStats();
     }
 
     public boolean isValidHero() {
@@ -302,6 +302,19 @@ public enum Heroes implements Formatted {
         return hero.getArchetype().getPrefix() + " &f" + hero.getNameSmallCaps();
     }
 
+    @Nonnull
+    public static GlobalHeroStats getGlobalStats() {
+        return globalStats;
+    }
+
+    public static void calculateGlobalStats() {
+        if (globalStats != null) {
+            globalStats.clear();
+        }
+
+        globalStats = new GlobalHeroStats();
+    }
+
     /**
      * Returns all playable heroes.
      *
@@ -311,6 +324,7 @@ public enum Heroes implements Formatted {
      *
      * @return all playable heroes.
      */
+    @Nonnull
     public static List<Heroes> playable() {
         return Lists.newArrayList(PLAYABLE);
     }
@@ -321,6 +335,7 @@ public enum Heroes implements Formatted {
      * @param player - Player to sort by favourites.
      * @return all playable heroes sorted by favourites.
      */
+    @Nonnull
     public static List<Heroes> playableRespectFavourites(Player player) {
         final PlayerProfile profile = PlayerProfile.getProfile(player);
         final List<Heroes> playable = playable();
@@ -336,6 +351,7 @@ public enum Heroes implements Formatted {
         return playable;
     }
 
+    @Nonnull
     public static List<Heroes> playableRespectLockedFavourites(Player player) {
         final List<Heroes> heroes = playableRespectFavourites(player);
         heroes.sort(Comparator.comparingInt(a -> (a.isLocked(player) ? 1 : 0)));
@@ -348,6 +364,7 @@ public enum Heroes implements Formatted {
      *
      * @return playable heroes names by their Enum name.
      */
+    @Nonnull
     public static List<String> playableStings() {
         return playable().stream().map(Enum::name).toList();
     }
@@ -371,11 +388,6 @@ public enum Heroes implements Formatted {
     @Nonnull
     public static Heroes randomHero() {
         return CollectionUtils.randomElement(playable(), DEFAULT_HERO);
-    }
-
-    @Nonnull
-    public static Heroes byHandle(Hero hero) {
-        return BY_HANDLE.getOrDefault(hero, DEFAULT_HERO);
     }
 
 }

@@ -124,12 +124,12 @@ public class Deathmatch extends CFGameMode {
 
         // Player joined while the game is in progress
         if (gamePlayer == null) {
-            player.setGameMode(GameMode.SPECTATOR);
-
             gamePlayer = profile.createGamePlayer();
             gamePlayer.setState(EntityState.RESPAWNING);
             gamePlayer.resetPlayer();
             gamePlayer.respawnIn(60);
+
+            player.setGameMode(GameMode.SPECTATOR);
 
             Chat.broadcast("");
             Chat.broadcast(ChatColor.GREEN + "%s joined the game!", playerName);

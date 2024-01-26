@@ -6,9 +6,9 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.StrictTalentPlacement;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.TalentUseEvent;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
@@ -16,9 +16,7 @@ import me.hapyl.fight.game.heroes.archive.bloodfield.impel.Impel;
 import me.hapyl.fight.game.heroes.archive.bloodfield.impel.ImpelInstance;
 import me.hapyl.fight.game.heroes.archive.bloodfield.impel.Type;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.bloodfiend.BloodCup;
@@ -27,6 +25,7 @@ import me.hapyl.fight.game.talents.archive.bloodfiend.candlebane.Candlebane;
 import me.hapyl.fight.game.talents.archive.bloodfiend.candlebane.CandlebaneTalent;
 import me.hapyl.fight.game.talents.archive.bloodfiend.chalice.BloodChalice;
 import me.hapyl.fight.game.talents.archive.bloodfiend.chalice.BloodChaliceTalent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.UIComplexComponent;
@@ -69,8 +68,8 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
 
     private final Map<GamePlayer, BloodfiendData> playerData = Maps.newConcurrentMap();
 
-    public Bloodfiend() {
-        super("Bloodfiend");
+    public Bloodfiend(@Nonnull Heroes handle) {
+        super(handle, "Bloodfiend");
 
         setDescription("""
                 A vampire prince with a sunscreen.
@@ -93,7 +92,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
 
         setWeapon(new Weapon(Material.GHAST_TEAR).setName("Vampire's Fang").setDamage(6.0d).setAttackSpeed(0.5d));
 
-        final UltimateTalent ultimate = new UltimateTalent("Impel", 50)
+        final UltimateTalent ultimate = new UltimateTalent(this, "Impel", 50)
                 .setType(Talent.Type.IMPAIR)
                 .setItem(Material.MOOSHROOM_SPAWN_EGG)
                 .setDuration(impelDuration * impelTimes)
@@ -159,7 +158,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
             return;
         }
 
-        entity.addEffect(GameEffectType.IMMOVABLE, 1);
+        entity.addEffect(Effects.IMMOVABLE, 1);
 
         final BloodfiendData data = getData(player);
         data.addBlood();
@@ -230,7 +229,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
             }));
         }
 
-        player.addEffect(GameEffectType.INVISIBILITY, 10000, true);
+        player.addEffect(Effects.INVISIBILITY, 10000, true);
 
         final Bat playerBat = Entities.BAT.spawn(eyeLocation, self -> {
             self.setAwake(true);
@@ -282,7 +281,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
 
                 data.cooldownFlight(true);
 
-                player.removeEffect(GameEffectType.INVISIBILITY);
+                player.removeEffect(Effects.INVISIBILITY);
 
                 npc.remove();
                 playerBat.remove();
@@ -309,7 +308,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
     @Override
     @StrictTalentPlacement
     public BloodCup getFourthTalent() {
-        return (BloodCup) Talents.BLOOD_CUP.getTalent().setTalentSlot(HotbarSlots.TALENT_4);
+        return (BloodCup) Talents.BLOOD_CUP.getTalent();
     }
 
     @Override

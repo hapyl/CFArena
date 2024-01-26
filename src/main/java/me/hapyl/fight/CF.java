@@ -2,9 +2,10 @@ package me.hapyl.fight;
 
 import me.hapyl.fight.database.Database;
 import me.hapyl.fight.database.PlayerDatabase;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.cosmetic.crate.CrateManager;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.ConsumerFunction;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -20,6 +21,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
+import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -462,4 +464,5 @@ public final class CF {
     public static String getName() {
         return Main.GAME_NAME;
     }
+
 }

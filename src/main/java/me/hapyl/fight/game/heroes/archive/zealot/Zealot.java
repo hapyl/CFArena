@@ -4,12 +4,14 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.InstanceEntityData;
 import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.attribute.WeakEntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talents;
@@ -39,12 +41,15 @@ public class Zealot extends Hero implements Listener {
 
     private final PlayerMap<ZealotSwords> playerSwords = PlayerMap.newMap();
 
-    public Zealot() {
-        super("Zealot");
+    public Zealot(@Nonnull Heroes handle) {
+        super(handle, "Zealot");
 
         setArchetype(Archetype.HEXBANE);
         setItem("131530db74bac84ad9e322280c56c4e0199fbe879883b76c9cf3fd8ff19cf025");
         setWeapon(new ZealotWeapon(this));
+
+        final HeroAttributes attributes = getAttributes();
+        attributes.setFerocity(25);
 
         final Equipment equipment = getEquipment();
         equipment.setChestPlate(104, 166, 232, TrimPattern.SILENCE, TrimMaterial.DIAMOND);
@@ -57,7 +62,7 @@ public class Zealot extends Hero implements Listener {
         abilityEquipment.setLeggings(Material.GOLDEN_LEGGINGS, TrimPattern.SILENCE, TrimMaterial.GOLD);
         abilityEquipment.setBoots(Material.GOLDEN_BOOTS, TrimPattern.RIB, TrimMaterial.GOLD);
 
-        setUltimate(new ZealotUltimate());
+        setUltimate(new ZealotUltimate(this));
     }
 
     @Override
@@ -109,13 +114,12 @@ public class Zealot extends Hero implements Listener {
             return;
         }
 
-        final WeakEntityAttributes attributes = damagerData.getAttributes();
+        final WeakEntityAttributes attributes = instance.getEntityData().getAttributes();
         final MaledictionVeil passiveTalent = getPassiveTalent();
         final boolean hasDebuff = entity.getAttributes().hasTemper(Temper.MALEDICTION_VEIL);
-        final double ferocity = attributes.get(AttributeType.FEROCITY);
 
-        if (ferocity > 0 && hasDebuff) {
-            attributes.addSilent(AttributeType.FEROCITY, passiveTalent.ferocityRate);
+        if (hasDebuff) {
+            attributes.subtract(AttributeType.DEFENSE, passiveTalent.defenseIgnore);
         }
     }
 

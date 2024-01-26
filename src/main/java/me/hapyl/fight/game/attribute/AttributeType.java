@@ -3,6 +3,8 @@ package me.hapyl.fight.game.attribute;
 import com.google.common.collect.Lists;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.translate.Language;
+import me.hapyl.fight.translate.TranslatableToString;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Described;
 import me.hapyl.spigotutils.module.math.Numbers;
@@ -11,10 +13,10 @@ import org.bukkit.ChatColor;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public enum AttributeType implements Described {
+public enum AttributeType implements Described, TranslatableToString {
 
     MAX_HEALTH(
-            new Attribute("Health", "Maximum health hero has.") {
+            new Attribute("Health", "Maximum health of an entity.") {
                 @Override
                 public void update(LivingGameEntity entity, double value) {
                     final double health = entity.getHealth();
@@ -42,8 +44,8 @@ public enum AttributeType implements Described {
         }
 
         @Override
-        public double scale(double value) {
-            return value;
+        public double getScale() {
+            return 1;
         }
     },
     ATTACK(
@@ -61,7 +63,7 @@ public enum AttributeType implements Described {
             1.0d
     ),
     SPEED(
-            new Attribute("Speed", "Movement speed of the hero.") {
+            new Attribute("Speed", "Movement speed of an entity.") {
 
                 @Override
                 public void update(LivingGameEntity entity, double value) {
@@ -73,7 +75,7 @@ public enum AttributeType implements Described {
                 }
             }.setChar("🌊")
                     .setColor(ChatColor.AQUA)
-                    .setToString(value -> "%.0f%%".formatted(value / 0.002d)),
+                    .setToString((type, value) -> "%.0f%%".formatted(type.scaleUp(value))),
             0.2d
     ) {
         @Override
@@ -82,8 +84,8 @@ public enum AttributeType implements Described {
         }
 
         @Override
-        public double scale(double value) {
-            return value * 0.002d;
+        public double getScale() {
+            return 500;
         }
     },
     CRIT_CHANCE(
@@ -92,7 +94,12 @@ public enum AttributeType implements Described {
                     .setColor(ChatColor.BLUE)
                     .setToString(AttributeType::doubleFormatPercent),
             0.1d
-    ),
+    ) {
+        @Override
+        public double minValue() {
+            return -1;
+        }
+    },
     CRIT_DAMAGE(
             new Attribute("Crit Damage", "The damage increase modifier for critical hit.")
                     .setChar("☠")
@@ -113,9 +120,16 @@ public enum AttributeType implements Described {
         }
     },
     MENDING(
-            new Attribute("Mending", "Incoming healing multiplier.")
+            new Attribute("Mending", "Outgoing healing multiplier.")
                     .setChar("🌿")
                     .setColor(ChatColor.GREEN)
+                    .setToString(AttributeType::doubleFormatPercent),
+            1.0d
+    ),
+    VITALITY(
+            new Attribute("Vitality", "Incoming healing multiplier.")
+                    .setChar(ChatColor.BOLD + "\uD83E\uDE78" + ChatColor.DARK_RED)
+                    .setColor(ChatColor.DARK_RED)
                     .setToString(AttributeType::doubleFormatPercent),
             1.0d
     ),
@@ -145,7 +159,6 @@ public enum AttributeType implements Described {
         }
     },
 
-    // TODO -> Maybe implement for bows/range weapons
     ATTACK_SPEED(
             new Attribute("Attack Speed", "How fast you attack.") {
                 @Override
@@ -155,9 +168,7 @@ public enum AttributeType implements Described {
             }
                     .setChar("⚔")
                     .setColor(ChatColor.YELLOW)
-                    .setToString((value) -> {
-                        return doubleFormatPercent(value - 1);
-                    }),
+                    .setToString((type, value) -> doubleFormatPercent(type, value - 1)),
             2.0d
     ) {
         @Override
@@ -183,9 +194,9 @@ public enum AttributeType implements Described {
         }
     },
 
-    CROWD_CONTROL_RESISTANCE(
-            new Attribute("Effect Resistance", "The chance to resist crowd control abilities.")
-                    .setChar("\uD83E\uDE90")
+    EFFECT_RESISTANCE(
+            new Attribute("Effect Resistance", "The chance to resist negative effects.")
+                    .setChar("&5&l\uD83D\uDC1A&5")
                     .setColor(ChatColor.DARK_PURPLE),
             0.0
     ) {
@@ -242,8 +253,10 @@ public enum AttributeType implements Described {
 
     /**
      * Gets the relativity of this attribute.
-     * If true, relativity means `The higher, the better`.
-     * If false, relativity means 'The lower, the better'.
+     * <br>
+     * If <code>true</code>, relativity means `The higher, the better`.
+     * <br>
+     * If <code>false</code>, relativity means 'The lower, the better'.
      *
      * @return the relativity of this attribute.
      */
@@ -294,7 +307,15 @@ public enum AttributeType implements Described {
 
     @Override
     public String toString() {
-        return attribute.getColor() + attribute.getCharacter() + " " + getName() + "&7";
+        final ChatColor color = attribute.getColor();
+
+        return color + attribute.getCharacter() + " " + color + getName() + "&7";
+    }
+
+    @Nonnull
+    @Override
+    public String toString(@Nonnull Language language) {
+        return toString();
     }
 
     @Nonnull
@@ -306,15 +327,74 @@ public enum AttributeType implements Described {
     public String getFormatted(Attributes attributes) {
         final double value = get(attributes);
 
-        return "%s%s %s".formatted(attribute.getColor(), attribute.getCharacter(), attribute.toString(value));
+        return "%s%s %s".formatted(attribute.getColor(), attribute.getCharacter(), attribute.toString(this, value));
     }
 
     public boolean getDisplayType(double newValue, double oldValue) {
         return relativity() ? newValue > oldValue : newValue < oldValue;
     }
 
-    public double scale(double value) {
-        return value / 100;
+    /**
+     * Scales the value up, meaning multiplying the value by <code>scale</code>.
+     *
+     * @param value - Value to scale.
+     * @return scaled value.
+     * @see #getScale()
+     */
+    public double scaleUp(double value) {
+        return value * getScale();
+    }
+
+    /**
+     * Scales the value down, meaning dividing the value by <code>scale</code>.
+     *
+     * @param value - Value to scale.
+     * @return scaled value.
+     * @see #getScale()
+     */
+    public double scaleDown(double value) {
+        return value / getScale();
+    }
+
+    /**
+     * Gets the scale of this attribute.
+     * <p>
+     * Since most attribute values are normalized, scaling up or down is
+     * required to display or setting the value in more human way.
+     * <p>
+     * Examples:
+     * <pre>
+     *     // More clear that the crit is 10%
+     *     setCritChance(10);
+     *
+     *     // Less clear that the crit is 10%, moreover, some attributes scale differently, like speed.
+     *     setCritChance(0.1);
+     *
+     * </pre>
+     *
+     * <h2>The speed is the best example:</h2>
+     * <pre>
+     *     // Very clear that the speed is 25%
+     *     setSpeed(25);
+     *
+     *     // Not very clear it's 25%.
+     *     setSpeed(0.05d);
+     * </pre>
+     *
+     * @return the scale of this attribute.
+     */
+    public double getScale() {
+        return 100;
+    }
+
+    @Nonnull
+    public String toString(double value) {
+        return attribute.toString(this, value);
+    }
+
+    @Nonnull
+    public String getCharacter() {
+        return attribute.getCharacter();
     }
 
     /**
@@ -328,17 +408,17 @@ public enum AttributeType implements Described {
     }
 
     @Nonnull
-    public static String doubleFormat(double d) {
-        return "%.0f".formatted(d);
+    public static String doubleFormat(@Nonnull AttributeType type, double value) {
+        return "%.0f".formatted(value);
     }
 
-    public static String doubleFormatScaled(double d) {
-        return doubleFormat(d * 100);
+    public static String doubleFormatScaled(@Nonnull AttributeType type, double value) {
+        return doubleFormat(type, value * 100);
     }
 
     @Nonnull
-    public static String doubleFormatPercent(double d) {
-        return doubleFormatScaled(d) + "%";
+    public static String doubleFormatPercent(@Nonnull AttributeType type, double value) {
+        return doubleFormatScaled(type, value) + "%";
     }
 
 }

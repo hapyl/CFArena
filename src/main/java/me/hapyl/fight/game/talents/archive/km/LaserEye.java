@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.talents.archive.km;
 
-import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
@@ -13,7 +13,6 @@ import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 
@@ -33,9 +32,9 @@ public class LaserEye extends Talent {
     public Response execute(@Nonnull GamePlayer player) {
         final int duration = getDuration();
 
-        player.addEffect(GameEffectType.IMMOVABLE, duration, true);
-        player.addPotionEffect(PotionEffectType.JUMP, duration, 250);
-        player.addPotionEffect(PotionEffectType.SLOW, duration, 255);
+        player.addEffect(Effects.IMMOVABLE, duration, true);
+        player.addEffect(Effects.JUMP_BOOST, 250, duration);
+        player.addEffect(Effects.SLOW, 255, duration);
 
         GameTask.runTaskTimerTimes((task, tick) -> {
             CFUtils.rayTraceLine(player, 50, 0.5d, 0.0d, move -> {

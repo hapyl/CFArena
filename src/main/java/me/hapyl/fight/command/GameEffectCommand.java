@@ -1,7 +1,7 @@
 package me.hapyl.fight.command;
 
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
@@ -29,7 +29,7 @@ public class GameEffectCommand extends SimplePlayerAdminCommand {
                 return;
             }
 
-            final GameEffectType type = Validate.getEnumValue(GameEffectType.class, args[0]);
+            final Effects type = Validate.getEnumValue(Effects.class, args[0]);
             final int ticks = args[1].equalsIgnoreCase("stop") ? -1 : Validate.getInt(args[1]);
 
             final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
@@ -40,16 +40,16 @@ public class GameEffectCommand extends SimplePlayerAdminCommand {
 
             if (ticks <= -1) {
                 if (gamePlayer.hasEffect(type)) {
-                    Chat.sendMessage(player, "&cYou don't have %s effect applied!", type.getGameEffect().getName());
+                    Chat.sendMessage(player, "&cYou don't have %s effect applied!", type.getEffect().getName());
                     return;
                 }
                 gamePlayer.removeEffect(type);
-                Chat.sendMessage(player, "&aStopped %s effect!", type.getGameEffect().getName());
+                Chat.sendMessage(player, "&aStopped %s effect!", type.getEffect().getName());
                 return;
             }
 
             gamePlayer.addEffect(type, ticks);
-            Chat.sendMessage(player, "&aApplied %s effect for %st!", type.getGameEffect().getName(), ticks);
+            Chat.sendMessage(player, "&aApplied %s effect for %st!", type.getEffect().getName(), ticks);
 
             return;
         }
@@ -59,7 +59,7 @@ public class GameEffectCommand extends SimplePlayerAdminCommand {
     @Override
     protected List<String> tabComplete(CommandSender sender, String[] args) {
         if (args.length == 1) {
-            return completerSort(arrayToList(GameEffectType.values()), args);
+            return completerSort(arrayToList(Effects.values()), args);
         }
         return null;
     }
