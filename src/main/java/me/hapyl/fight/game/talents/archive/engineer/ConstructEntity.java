@@ -81,7 +81,7 @@ public class ConstructEntity implements Removable, Ticking {
             displayEntity.remove();
         }
 
-        displayEntity = construct.talent.getDisplayData(level).spawn(construct.location);
+        displayEntity = construct.talent.getDisplayData(level).spawnInterpolated(construct.location);
     }
 
     @Override

@@ -295,6 +295,10 @@ public enum AttributeType implements Described, TranslatableToString {
         return defaultValue;
     }
 
+    public double getDefaultValueScaled() {
+        return scaleUp(defaultValue);
+    }
+
     /**
      * Gets the current value of this attribute from the given {@link Attributes}.
      *

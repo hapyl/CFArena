@@ -55,7 +55,7 @@ public class TwinClaw extends TickingGameTask implements TalentReference<TwinCla
             self.setInvisible(true);
         });
 
-        displayEntity = DISPLAY_DATA.spawn(startLocation);
+        displayEntity = DISPLAY_DATA.spawnInterpolated(startLocation);
 
         runTaskTimer(0, 1);
 

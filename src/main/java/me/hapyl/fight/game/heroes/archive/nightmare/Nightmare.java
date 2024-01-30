@@ -142,7 +142,7 @@ public class Nightmare extends Hero implements DisplayFieldProvider {
             return;
         }
 
-        instance.setDamageMultiplier(omenDamageMultiplier);
+        instance.multiplyDamage(omenDamageMultiplier);
     }
 
     @Override

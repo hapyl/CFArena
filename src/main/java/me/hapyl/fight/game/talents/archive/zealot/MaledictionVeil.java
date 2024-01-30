@@ -16,7 +16,7 @@ public class MaledictionVeil extends PassiveTalent {
     @DisplayField(percentage = true)
     public final double defenseIgnore = 0.2d;
 
-    @DisplayField(percentage = true) private final double mendingDecrease = 0.5d;
+    @DisplayField(percentage = true) private final double mendingDecrease = 0.25d;
 
     public final TemperInstance temperInstance = Temper.MALEDICTION_VEIL.newInstance()
             .decrease(AttributeType.VITALITY, mendingDecrease);

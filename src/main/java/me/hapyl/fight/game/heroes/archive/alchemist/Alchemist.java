@@ -54,7 +54,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
         setArchetype(Archetype.STRATEGY);
 
         setDescription(
-                "An alchemist who was deceived by the creation of the abyss. In return of help received an Abyssal Bottle that creates potions from the &0&lvoid &8itself."
+                "An alchemist who was deceived by the creation of the abyss."
         );
         setItem("661691fb01825b9d9ec1b8f04199443146aa7d5627aa745962c0704b6a236027");
 

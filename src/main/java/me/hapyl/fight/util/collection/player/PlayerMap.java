@@ -1,6 +1,7 @@
 package me.hapyl.fight.util.collection.player;
 
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.heroes.PlayerData;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
@@ -104,6 +105,17 @@ public interface PlayerMap<V> extends Map<GamePlayer, V> {
     @Nonnull
     static <A, B> PlayerMultiMap<A, B> newMultiMap() {
         return new PlayerMultiMap<>();
+    }
+
+    @Nonnull
+    static <T extends PlayerData> PlayerDataMap<T> newDataMap(@Nonnull Function<GamePlayer, T> fn) {
+        return new PlayerDataMap<>() {
+            @Nonnull
+            @Override
+            public T newData(@Nonnull GamePlayer player) {
+                return fn.apply(player);
+            }
+        };
     }
 
     static int clearAll(@Nonnull PlayerMap<?>... maps) {

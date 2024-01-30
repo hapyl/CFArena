@@ -41,7 +41,7 @@ public class Pytaria extends Hero {
         setArchetype(Archetype.DAMAGE);
 
         setDescription(
-                "Beautiful, but deadly opponent with addiction to flowers. She suffered all her youth, which, in the end, only made her stronger."
+                "Beautiful, yet deadly opponent with addiction to flowers. She suffered all her youth, which, in the end, only made her stronger."
         );
         setItem("7bb0752f9fa87a693c2d0d9f29549375feb6f76952da90d68820e7900083f801");
 

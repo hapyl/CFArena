@@ -427,7 +427,6 @@ public class PlayerHandler implements Listener {
                 if (cancelDamage) {
                     ev.setDamage(0.0d);
                     ev.setCancelled(true);
-                    instance.dispose();
                     return;
                 }
             }
@@ -439,7 +438,6 @@ public class PlayerHandler implements Listener {
                 lastDamager.sendMessage("&cCannot damage teammates!");
                 ev.setCancelled(true);
                 ev.setDamage(0.0d);
-                instance.dispose();
                 return;
             }
 
@@ -454,9 +452,6 @@ public class PlayerHandler implements Listener {
 
         // CALCULATE DAMAGE USING ATTRIBUTES
 
-        // Outgoing damage
-        final InstanceEntityData damagerData = instance.getDamagerData();
-
         // Calculate damage before calling events
         instance.calculateDamage();
 
@@ -464,7 +459,6 @@ public class PlayerHandler implements Listener {
 
         if (new GameDamageEvent(instance).callAndCheck()) {
             ev.setCancelled(true);
-            instance.dispose();
             return;
         }
 
@@ -496,34 +490,30 @@ public class PlayerHandler implements Listener {
 
         if (instance.isCancelled()) {
             ev.setCancelled(true);
-            instance.dispose();
             return;
         }
 
         // Recalculate damage in case attributes changed
-        instance.recalculateDamage();
-
-        final InstanceEntityData entityData = instance.getEntityData();
-        final EntityAttributes attributes = entityData.getAttributes();
+        final EntityAttributes entityAttributes = instance.getEntity().getAttributes();
 
         // Dodge
-        if (instance.damage > 0 && attributes.calculateDodge()) {
+        if (instance.damage > 0 && entityAttributes.calculateDodge()) {
             ev.setCancelled(true);
             gameEntity.playDodgeFx();
-            instance.dispose();
             return;
         }
 
         // Ferocity
-        if (damagerData != null
-                && (instance.cause != null
-                && instance.cause.isAllowedForFerocity())
-                && !gameEntity.hasCooldown(Cooldown.FEROCITY)) {
-            final EntityAttributes damagerAttributes = damagerData.getAttributes();
-            final int ferocityStrikes = damagerAttributes.getFerocityStrikes();
+        if (lastDamager != null) {
+            final EntityAttributes damagerAttributes = lastDamager.getAttributes();
+            if ((instance.cause != null
+                    && instance.cause.isAllowedForFerocity())
+                    && !gameEntity.hasCooldown(Cooldown.FEROCITY)) {
+                final int ferocityStrikes = damagerAttributes.getFerocityStrikes();
 
-            if (ferocityStrikes > 0) {
-                gameEntity.executeFerocity(instance.damage, lastDamager, ferocityStrikes);
+                if (ferocityStrikes > 0) {
+                    gameEntity.executeFerocity(instance.damage, lastDamager, ferocityStrikes);
+                }
             }
         }
 
@@ -578,8 +568,6 @@ public class PlayerHandler implements Listener {
                 ev.setCancelled(true);
             }
         }
-
-        instance.dispose();
     }
 
     // A little wonky implementation, but it allows damaging endermen with arrows.
@@ -913,14 +901,9 @@ public class PlayerHandler implements Listener {
 
         talent.addPoint(player, isLeftClick);
 
-        // Add 1 tick cooldown to a weapon to prevent accidental use
-        final ItemStack item = player.getItem(HotbarSlots.WEAPON);
-
-        if (item != null) {
-            player.setCooldownIfNotAlreadyOnCooldown(item.getType(), 1);
-        }
-
-        player.snapToWeapon();
+        // Snap 1 tick later to prevent it from removing the weapon and to not use the ability accidentally
+        player.schedule(player::snapToWeapon, 1);
+        //player.snapToWeapon();
     }
 
     private boolean isIntractable(ItemStack stack) {

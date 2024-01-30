@@ -66,6 +66,7 @@ public class CachedHeroItem {
 
                 if (hero instanceof ComplexHero) {
                     builder.addTextBlockLore("""
+                            
                             &6&lComplex Hero!
                             This hero is more difficult to play than others. Thus is &nnot&7 recommended for newer players.
                             """);

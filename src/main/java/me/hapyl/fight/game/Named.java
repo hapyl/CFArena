@@ -23,6 +23,7 @@ public enum Named {
     BUG(ChatColor.BOLD + "🐜", "Disruptive Bug", Color.WHITE),
     ENERGY("※", "Energy", Color.AQUA),
     OVERHEAL(ChatColor.DARK_GREEN + "⚕", "Overheal", Color.GREEN),
+    SECOND_WIND("&l\uD83E\uDD8B", "Second Wind", Color.WHITE),
 
     ;
 
@@ -66,4 +67,8 @@ public enum Named {
         return character + " " + name;
     }
 
+    @Nonnull
+    public String getCharacterNoColor() {
+        return ChatColor.stripColor(character);
+    }
 }

@@ -1,12 +1,12 @@
 package me.hapyl.fight.game.maps.features;
 
-import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.BlockLocation;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
 import me.hapyl.spigotutils.module.util.ThreadRandom;
 import org.bukkit.Location;
 import org.bukkit.Sound;
+import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -32,7 +32,7 @@ public class LibraryKeyport {
                 final Location exit = getRandomExitAndMergePitch(entrance, player);
 
                 player.teleport(exit);
-                player.addEffect(Effects.BLINDNESS, 1, 20);
+                player.addPotionEffect(PotionEffectType.BLINDNESS, 1, 20);
                 player.playWorldSound(Sound.ENTITY_ENDERMAN_TELEPORT, 1.25f);
                 return true;
             }

@@ -35,7 +35,7 @@ public class Totem extends TickingGameTask {
         final Location location = player.getMidpointLocation();
         location.setPitch(0.0f);
 
-        this.displayEntity = resonance.getDisplayData().spawn(location);
+        this.displayEntity = resonance.getDisplayData().spawnInterpolated(location);
 
         player.getTeam().glowEntity(displayEntity);
 

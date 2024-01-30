@@ -33,7 +33,7 @@ public class Ender extends Hero implements Listener {
         setMinimumLevel(5);
 
         setDescription(
-                "Weird enderman-like looking warrior with teleportation abilities. He hits you with his arm, but it hurts like a brick."
+                "Weird enderman-like looking warrior with teleportation abilities. Hits you with his arm, but it hurts like a brick."
         );
 
         final HeroAttributes attributes = getAttributes();

@@ -20,6 +20,7 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.game.ui.UIComplexComponent;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
@@ -36,7 +37,7 @@ import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Set;
 
-public class Techie extends Hero implements UIComplexComponent, Listener, PlayerDataHandler, DisplayFieldProvider {
+public class Techie extends Hero implements UIComplexComponent, Listener, PlayerDataHandler<TechieData>, DisplayFieldProvider {
 
     @DisplayField private final int lockdownTalentLockDuration = Tick.fromSecond(30);
     @DisplayField private final double ultimateDistance = 20;
@@ -45,7 +46,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
     private final int neuralTheftDuration = 40;
     private final int neuralTheftEnergy = 4;
 
-    private final PlayerMap<TechieData> playerData = PlayerMap.newMap();
+    private final PlayerDataMap<TechieData> playerData = PlayerMap.newDataMap(TechieData::new);
     private final String neuralTheftTitle = "&3&lɴᴇᴜʀᴀʟ ᴛʜᴇғᴛ";
 
     private final TemperInstance temperInstance = Temper.LOCKDOWN
@@ -60,8 +61,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
         setAffiliation(Affiliation.UNKNOWN);
 
         setDescription("""
-                Anonymous hacker, who hacked his way to the fight.
-                Specializes in locking enemies abilities.
+                Anonymous hacker, who hacked his way to the fight. Specializes in locking enemies abilities.
                 """);
 
         setItem("4e3b15e5eb0ada16e2e1751644bdc28e0ceae8d398439a6b8037d4da097b9c37");
@@ -99,21 +99,11 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
         copyDisplayFieldsTo(getUltimate());
     }
 
-    @Override
-    public void onDeath(@Nonnull GamePlayer player) {
-        playerData.removeAnd(player, TechieData::remove);
-    }
-
     @EventHandler()
     public void handleGameDeathEvent(GameDeathEvent ev) {
         final LivingGameEntity entity = ev.getEntity();
 
         playerData.forEach((player, data) -> data.remove(entity));
-    }
-
-    @Override
-    public void onStop() {
-        playerData.forEachAndClear(PlayerData::remove);
     }
 
     public void revealEntity(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity, @Nonnull Set<BugType> bugs) {
@@ -276,8 +266,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
 
     @Nonnull
     @Override
-    public TechieData getPlayerData(@Nonnull GamePlayer player) {
-        return playerData.computeIfAbsent(player, TechieData::new);
+    public PlayerDataMap<TechieData> getDataMap() {
+        return playerData;
     }
-
 }

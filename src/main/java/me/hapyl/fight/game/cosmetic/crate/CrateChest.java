@@ -1,5 +1,9 @@
 package me.hapyl.fight.game.cosmetic.crate;
 
+import com.google.common.collect.Lists;
+import me.hapyl.fight.database.entry.CrateEntry;
+import me.hapyl.fight.database.entry.Currency;
+import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
@@ -16,10 +20,17 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Map;
 
 public class CrateChest extends Location {
 
     public static final String PREFIX = Color.BUTTON.color("&lCRATE! ") + Color.DEFAULT;
+
+    public static final long MIN_BULK_OPEN = 10;
+    public static final long MAX_BULK_OPEN = Byte.MAX_VALUE;
+
+    public static final PlayerRank RANK_TO_BULK_OPEN = PlayerRank.PREMIUM;
 
     public final PlayerHologram hologram;
     private Player occupiedBy;
@@ -46,7 +57,7 @@ public class CrateChest extends Location {
         final Rarity rarity = loot.getRarity();
         final CrateAnimation animation = CrateAnimation.byRarity(rarity);
 
-        animation.play0(crateLoot);
+        animation.play0(crateLoot, this);
     }
 
     public void sendOccupiedMessage(@Nonnull Player player) {
@@ -138,4 +149,54 @@ public class CrateChest extends Location {
 
         return world == null ? BukkitUtils.defWorld() : world;
     }
+
+    public void openBulk(@Nonnull Player player, @Nonnull CrateEntry entry) {
+        final Map<Crates, Long> totalCrates = entry.getTotalCrates();
+        final List<CrateLoot> crateLoots = Lists.newArrayList();
+
+        totalCrates.forEach((crate, amount) -> {
+            if (crateLoots.size() >= MAX_BULK_OPEN) {
+                return;
+            }
+
+            for (long i = 0; i < amount; i++) {
+                crateLoots.add(new CrateLoot(player, crate));
+
+                if (crateLoots.size() >= MAX_BULK_OPEN) {
+                    break;
+                }
+            }
+        });
+
+        Chat.sendMessage(player, "");
+        Chat.sendCenterMessage(player, "&6&lYour loot from %s crates:".formatted(crateLoots.size()));
+        Chat.sendMessage(player, "");
+
+        final long[] convert = { 0, 0 };
+
+        crateLoots.forEach(crateLoot -> {
+            crateLoot.createLoot();
+
+            final Cosmetics loot = crateLoot.getLoot();
+            final Rarity rarity = loot.getRarity();
+
+            // Only display the new loot
+            if (crateLoot.isLootNew()) {
+                Chat.sendCenterMessage(
+                        player,
+                        "&a+ %s &7(%s) %s".formatted(rarity.getColor() + loot.getCosmetic().getName(), loot.getType().toSmallCaps(), rarity)
+                );
+            }
+            else {
+                convert[0] += rarity.getCoinCompensation();
+                convert[1] += rarity.getDustCompensation();
+            }
+        });
+
+        if (convert[0] > 0) {
+            Chat.sendCenterMessage(player, Currency.COINS.formatProduct(convert[0]));
+            Chat.sendCenterMessage(player, Currency.CHEST_DUST.formatProduct(convert[1]));
+        }
+    }
+
 }

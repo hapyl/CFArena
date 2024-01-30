@@ -18,6 +18,7 @@ import me.hapyl.fight.database.entry.DailyRewardEntry;
 import me.hapyl.fight.database.entry.MetadataEntry;
 import me.hapyl.fight.database.entry.MetadataKey;
 import me.hapyl.fight.database.rank.PlayerRank;
+import me.hapyl.fight.event.ServerHandler;
 import me.hapyl.fight.filter.ProfanityFilter;
 import me.hapyl.fight.fx.GiantItem;
 import me.hapyl.fight.fx.Riptide;
@@ -148,6 +149,7 @@ import java.io.FileWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.reflect.Field;
+import java.time.DayOfWeek;
 import java.util.List;
 import java.util.Queue;
 import java.util.*;
@@ -210,6 +212,22 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new LanguageCommand("language"));
 
         // *=* Inner commands *=* //
+
+        register("colorWithDayOfTheWeekGradient", (player, args) -> {
+            final int numericDayOfWeek = getArgument(args, 0).toInt();
+            final String stringToColor = Chat.arrayToString(args, 1);
+
+            if (numericDayOfWeek < 1 || numericDayOfWeek > 7) {
+                Chat.sendMessage(player, "&cThere are seven days in a week, not %s!".formatted(numericDayOfWeek));
+                return;
+            }
+
+            final DayOfWeek dayOfWeek = DayOfWeek.of(numericDayOfWeek);
+            final ServerHandler.WeekDayGradient gradient = ServerHandler.getGradient(dayOfWeek);
+
+            Chat.sendMessage(player, "&aColor string with %s gradient:".formatted(dayOfWeek));
+            Chat.sendMessage(player, gradient.colorString(stringToColor));
+        });
 
         register("writeDefaultTranslations", (player, args) -> {
             final File file = new File(getPlugin().getDataFolder() + "/defaultTranslations.yml");
@@ -303,7 +321,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     }
                 }
 
-                Chat.sendMessage(player, isForce ? "&aForcefully reloaded!": "&aReloaded!");
+                Chat.sendMessage(player, isForce ? "&aForcefully reloaded!" : "&aReloaded!");
                 return;
             }
 
@@ -916,8 +934,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register("viewLegacyAchievementGUI", (player, args) -> {
             new LegacyAchievementGUI(player);
         });
-
-        register(new CustomItemCommand("customItem"));
 
         register("getLobbyItems", (player, args) -> {
             LobbyItems.giveAll(player);

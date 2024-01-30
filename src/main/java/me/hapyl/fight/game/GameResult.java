@@ -59,6 +59,7 @@ public class GameResult {
         }
     }
 
+    // fixme ->
     public void calculate() {
         final String gameDuration = new SimpleDateFormat("mm:ss").format(System.currentTimeMillis() - this.gameInstance.getStartedAt());
 

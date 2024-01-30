@@ -82,7 +82,7 @@ public class Ronin extends Hero implements Listener, DisabledHero {
 
         final Strength strength = chargeAttack.getStrength();
 
-        instance.setDamageMultiplier(strength.multiplier);
+        instance.multiplyDamage(strength.multiplier);
     }
 
     @EventHandler()

@@ -30,7 +30,7 @@ public class BloodCup extends Talent implements HeroReference<Bloodfiend> {
         setDescription("""
                 Biting &cenemies&7 has a &b&l{chance}&7 to drain &cblood&7 from them.
                                 
-                Drinking the &cblood&7 &aheals&7 you for &c{healingPerBottle} &c❤&7 per &cblood&7 per &cblood&7.
+                Drinking the &cblood&7 &aheals&7 you for &c{healingPerBottle} &c❤&7 per &cblood&7.
                 """);
 
         setType(Type.SUPPORT);

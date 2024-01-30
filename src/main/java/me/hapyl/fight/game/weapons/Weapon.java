@@ -4,7 +4,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.NonNullItemCreator;
+import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -37,7 +39,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
 
-public class Weapon extends NonNullItemCreator implements Described, DisplayFieldProvider, Copyable {
+public class Weapon extends NonNullItemCreator implements Described, DisplayFieldProvider, Copyable, GameElement, PlayerElement {
 
     private final Map<AbilityType, Ability> abilities;
     private final List<Enchant> enchants;
@@ -71,10 +73,25 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
             return;
         }
 
+        if (!ability.isTypeApplicable(type)) {
+            throw new IllegalArgumentException("Ability type %s is not applicable to %s!".formatted(
+                    type.name(),
+                    ability.getClass().getSimpleName()
+            ));
+        }
+
         // I guess this is fine?
         // FIXME (hapyl): 020, Nov 20: Might break cooldown for weapons that have multiple abilities
         ability.setCooldownMaterial(material);
         this.abilities.put(type, ability);
+    }
+
+    @Override
+    public void onStart() {
+    }
+
+    @Override
+    public void onStop() {
     }
 
     @Nullable

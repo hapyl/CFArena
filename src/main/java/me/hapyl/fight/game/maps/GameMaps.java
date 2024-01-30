@@ -11,6 +11,7 @@ import me.hapyl.fight.translate.Translatable;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.Material;
+import org.bukkit.WeatherType;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -75,9 +76,11 @@ public enum GameMaps implements Selectable, Translatable {
 
     MIDJOURNEY(
             new GameMap("Mid Journey")
-                    .setDescription("Mid Journey is a fierce and treacherous arena located deep within the Nether.____" +
-                            "Its jagged walls and pillars of obsidian provide cover and obstacles for players " +
-                            "to use to their advantage as they battle for supremacy in this dangerous realm.")
+                    .setDescription("""
+                            DiDenPro add description.
+                            DiDenPro add description.
+                            DiDenPro add description.
+                            """)
                     .setMaterial(Material.CRIMSON_NYLIUM)
                     .setSize(Size.MEDIUM)
                     .setTicksBeforeReveal(100)
@@ -153,6 +156,19 @@ public enum GameMaps implements Selectable, Translatable {
                     .addLocation(-830, 47, -267)
                     .addLocation(-830, 47, -267)
                     .addLocation(-832, 112, -218)
+    ),
+
+    FORGOTTEN_CHURCH(
+            new GameMap("Forgotten Church")
+                    .setDescription("""
+                            All forgotten church covered in snow.
+                                                        
+                            A long time has passed since it last seen guests.
+                            """)
+                    .setMaterial(Material.TOTEM_OF_UNDYING)
+                    .setSize(Size.MEDIUM)
+                    .setTicksBeforeReveal(100)
+                    .setWeather(WeatherType.DOWNFALL)
     ),
 
     ;

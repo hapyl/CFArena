@@ -110,13 +110,13 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
     }
 
     @Override
-    public void onPlayersReveal(@Nonnull GamePlayer player) {
+    public void onPlayersRevealed(@Nonnull GamePlayer player) {
         player.setAllowFlight(true);
     }
 
     @Override
     public void onRespawn(@Nonnull GamePlayer player) {
-        onPlayersReveal(player);
+        onPlayersRevealed(player);
     }
 
     @Override

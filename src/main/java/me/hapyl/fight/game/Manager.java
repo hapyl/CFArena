@@ -21,17 +21,11 @@ import me.hapyl.fight.game.profile.data.AchievementData;
 import me.hapyl.fight.game.profile.data.PlayerProfileData;
 import me.hapyl.fight.game.profile.data.Type;
 import me.hapyl.fight.game.setting.Settings;
-import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.PlayerUI;
-import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.game.weapons.ability.Ability;
-import me.hapyl.fight.game.weapons.range.RangeWeapon;
 import me.hapyl.fight.garbage.CFGarbageCollector;
 import me.hapyl.fight.npc.PersistentNPCs;
-import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Ticking;
 import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -517,18 +511,6 @@ public final class Manager extends BukkitRunnable {
         this.gameInstance = new GameInstance(getCurrentMode(), getCurrentMap());
         this.gameInstance.onStart();
 
-        this.gameInstance.getMode().onStart(this.gameInstance);
-
-        for (final Heroes value : Heroes.values()) {
-            Nulls.runIfNotNull(value.getHero(), Hero::onStart);
-        }
-
-        for (final Talents value : Talents.values()) {
-            Nulls.runIfNotNull(value.getTalent(), Talent::onStart);
-        }
-
-        gameInstance.getEnumMap().getMap().onStart();
-
         for (final GamePlayer gamePlayer : CF.getPlayers()) {
             final Player player = gamePlayer.getPlayer();
 
@@ -564,19 +546,7 @@ public final class Manager extends BukkitRunnable {
         GameTask.runLater(() -> {
             Chat.broadcast("&a&l➺ &aPlayers have been revealed. &lFIGHT!");
             gameInstance.setGameState(State.IN_GAME);
-
-            // Call onPlayersReveal
-            gameInstance.onPlayersReveal();
-
-            for (final Heroes value : Heroes.values()) {
-                Nulls.runIfNotNull(value.getHero(), Hero::onPlayersReveal);
-            }
-
-            for (final Talents value : Talents.values()) {
-                Nulls.runIfNotNull(value.getTalent(), Talent::onPlayersReveal);
-            }
-
-            gameInstance.getEnumMap().getMap().onPlayersReveal();
+            gameInstance.onPlayersRevealed();
 
             if (debug.any()) {
                 Chat.broadcast("&c&lDEBUG &fRunning in debug instance.");
@@ -586,7 +556,7 @@ public final class Manager extends BukkitRunnable {
             CF.getAlivePlayers().forEach(target -> {
                 final World world = target.getWorld();
 
-                target.getHero().onPlayersReveal(target);
+                target.getHero().onPlayersRevealed(target);
                 target.showPlayer();
                 target.getTeam().glowTeammates();
 
@@ -625,40 +595,6 @@ public final class Manager extends BukkitRunnable {
         // Save stats
         // this.gameInstance.getActiveHeroes().forEach(hero -> hero.getStats().saveAsync());
 
-        // reset all cooldowns
-        for (final Material value : Material.values()) {
-            if (value.isItem()) {
-                Bukkit.getOnlinePlayers().forEach(player -> player.setCooldown(value, 0));
-            }
-        }
-
-        // call talents onStop and reset cooldowns
-        for (final Talents value : Talents.values()) {
-            Nulls.runIfNotNull(value.getTalent(), Talent::onStop);
-        }
-
-        // call heroes onStop
-        for (final Heroes enumHero : Heroes.values()) {
-            final Hero hero = enumHero.getHero();
-
-            if (hero == null) {
-                continue;
-            }
-
-            hero.onStop();
-            hero.clearUsingUltimate();
-
-            final Weapon weapon = hero.getWeapon();
-            weapon.getAbilities().forEach(Ability::clearCooldowns);
-
-            if (weapon instanceof RangeWeapon rangeWeapon) {
-                rangeWeapon.onStop();
-            }
-        }
-
-        // call maps onStop
-        currentMap.getMap().onStop();
-
         // stop all game tasks
         Main.getPlugin().getTaskList().onStop();
 
@@ -685,6 +621,22 @@ public final class Manager extends BukkitRunnable {
         gameInstance.executeWinCosmetic();
     }
 
+    public void resetPlayer(@Nonnull Player player) {
+        player.getInventory().clear();
+        player.setAllowFlight(false);
+        player.setArrowsInBody(0);
+        player.setInvulnerable(false);
+        player.setHealth(player.getMaxHealth());
+        player.setGameMode(GameMode.SURVIVAL);
+        player.setWalkSpeed(0.2f);
+        player.setWorldBorder(player.getWorld().getWorldBorder());
+        player.teleport(GameMaps.SPAWN.getMap().getLocation());
+
+        for (PotionEffect potionEffect : player.getActivePotionEffects()) {
+            player.removePotionEffect(potionEffect.getType());
+        }
+    }
+
     /**
      * Called after the game stopped.
      */
@@ -695,18 +647,7 @@ public final class Manager extends BukkitRunnable {
 
         // teleport players to spawn
         for (final Player player : Bukkit.getOnlinePlayers()) {
-            player.getInventory().clear();
-            player.setAllowFlight(false);
-            player.setArrowsInBody(0);
-            player.setInvulnerable(false);
-            player.setHealth(player.getMaxHealth());
-            player.setGameMode(GameMode.SURVIVAL);
-            player.setWalkSpeed(0.2f);
-            player.teleport(GameMaps.SPAWN.getMap().getLocation());
-
-            for (PotionEffect potionEffect : player.getActivePotionEffects()) {
-                player.removePotionEffect(potionEffect.getType());
-            }
+            resetPlayer(player);
 
             // Progress achievement
             Achievements.PLAY_FIRST_GAME.complete(player);

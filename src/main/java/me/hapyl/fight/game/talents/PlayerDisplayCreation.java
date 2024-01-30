@@ -25,7 +25,7 @@ public abstract class PlayerDisplayCreation extends PlayerCreation {
     @OverridingMethodsMustInvokeSuper
     @Override
     public void create(@Nonnull GamePlayer player) {
-        entity = displayData.spawn(getLocation());
+        entity = displayData.spawnInterpolated(getLocation());
     }
 
     /**

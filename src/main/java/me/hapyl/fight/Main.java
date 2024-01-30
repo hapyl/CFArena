@@ -47,13 +47,15 @@ import javax.annotation.Nullable;
 
 public class Main extends JavaPlugin {
 
-    public static final String GAME_NAME_HEADER = Color.GOLD.bold() +
+    public static final String GAME_NAME = Color.GOLD.bold() +
             "\uD835\uDE72\uD835\uDE95\uD835\uDE8A\uD835\uDE9C\uD835\uDE9C\uD835\uDE8E\uD835\uDE9C \uD835\uDE75\uD835\uDE92\uD835\uDE90\uD835\uDE91\uD835\uDE9D";
-    public static final String GAME_NAME = GAME_NAME_HEADER;
+
+    public static VersionInfo versionInfo = new VersionInfo("&a&lShaman&a, &a&lHeavy Knight&a and &a&lRogue&a!");
 
     private static long start;
     private static Main plugin;
 
+    // FIXME (hapyl): 029, Jan 29: scary public non final fields 😳
     public Manager manager;
     public HumanManager humanManager;
     public TaskList taskList;
@@ -71,8 +73,8 @@ public class Main extends JavaPlugin {
     @Override
     public void onEnable() {
         // Assign singleton & start time
-        plugin = this;
-        CF.plugin = this;
+        plugin = CF.plugin = this;
+
         start = System.currentTimeMillis();
 
         ProfanityFilter.instantiate(this);
@@ -92,8 +94,7 @@ public class Main extends JavaPlugin {
         taskList = new TaskList(this);
 
         // Register the main manager
-        manager = new Manager(this);
-        CF.manager = manager;
+        manager = CF.manager = new Manager(this);
 
         experience = new Experience(this);
         boosters = new BoosterController(this);

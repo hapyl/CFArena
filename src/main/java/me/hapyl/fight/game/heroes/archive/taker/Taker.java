@@ -116,7 +116,7 @@ public class Taker extends Hero implements UIComponent, DisplayFieldProvider {
     }
 
     @Override
-    public void onPlayersReveal() {
+    public void onPlayersRevealed() {
         new GameTask() {
             @Override
             public void run() {
@@ -239,7 +239,7 @@ public class Taker extends Hero implements UIComponent, DisplayFieldProvider {
         final double healingScaled = damage * healing / 100.0d;
         player.heal(healingScaled);
 
-        instance.setDamageMultiplier(1 + bones.getDamageMultiplier() / 100);
+        instance.multiplyDamage(1 + bones.getDamageMultiplier() / 100);
     }
 
     @Override
@@ -251,7 +251,7 @@ public class Taker extends Hero implements UIComponent, DisplayFieldProvider {
             return;
         }
 
-        instance.setDamageMultiplier(1 - bones.getDamageReduction() / 100);
+        instance.multiplyDamage(1 - bones.getDamageReduction() / 100);
     }
 
     @Override

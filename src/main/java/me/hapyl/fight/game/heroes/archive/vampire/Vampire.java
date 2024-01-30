@@ -274,7 +274,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
     }
 
     @Override
-    public void onPlayersReveal() {
+    public void onPlayersRevealed() {
         new GameTask() {
             @Override
             public void run() {

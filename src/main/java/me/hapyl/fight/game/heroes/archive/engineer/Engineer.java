@@ -13,6 +13,7 @@ import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
@@ -30,7 +31,7 @@ import org.bukkit.inventory.ItemStack;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class Engineer extends Hero implements Listener, PlayerDataHandler, UIComponent, DisplayFieldProvider {
+public class Engineer extends Hero implements Listener, PlayerDataHandler<EngineerData>, UIComponent, DisplayFieldProvider {
 
     public static final int MAX_IRON = 10;
 
@@ -40,7 +41,7 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler, UICom
     public final Weapon ironFist = new Weapon(Material.IRON_BLOCK).setDamage(10.0d).setName("&6&lIron Fist");
 
     private final int ironRechargeRate = 60;
-    private final PlayerMap<EngineerData> playerData = PlayerMap.newMap();
+    private final PlayerDataMap<EngineerData> playerData = PlayerMap.newDataMap(player -> new EngineerData(player, this));
 
     public Engineer(@Nonnull Heroes handle) {
         super(handle, "Engineer");
@@ -126,11 +127,6 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler, UICom
         data.subtractIron(construct.getUpgradeCost());
     }
 
-    @Override
-    public void onDeath(@Nonnull GamePlayer player) {
-        playerData.removeAnd(player, EngineerData::remove);
-    }
-
     @Nullable
     public Construct getConstruct(GamePlayer player) {
         return getPlayerData(player).getConstruct();
@@ -197,11 +193,6 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler, UICom
     }
 
     @Override
-    public void onStop() {
-        playerData.forEachAndClear(EngineerData::remove);
-    }
-
-    @Override
     public Talent getFirstTalent() {
         return Talents.ENGINEER_SENTRY.getTalent();
     }
@@ -242,8 +233,8 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler, UICom
 
     @Nonnull
     @Override
-    public EngineerData getPlayerData(@Nonnull GamePlayer player) {
-        return playerData.computeIfAbsent(player, fn -> new EngineerData(player, this));
+    public PlayerDataMap<EngineerData> getDataMap() {
+        return playerData;
     }
 
     @Nonnull

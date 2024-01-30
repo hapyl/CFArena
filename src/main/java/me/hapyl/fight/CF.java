@@ -1,11 +1,11 @@
 package me.hapyl.fight;
 
+import com.comphenix.protocol.events.PacketEvent;
 import me.hapyl.fight.database.Database;
 import me.hapyl.fight.database.PlayerDatabase;
-import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.cosmetic.crate.CrateManager;
-import me.hapyl.fight.game.effect.EffectType;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.ConsumerFunction;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -13,7 +13,9 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.IProtocolListener;
 import me.hapyl.spigotutils.module.entity.Entities;
+import me.hapyl.spigotutils.module.reflect.protocol.ProtocolListener;
 import net.minecraft.server.MinecraftServer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -21,7 +23,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -365,6 +366,27 @@ public final class CF {
     }
 
     /**
+     * Registers a {@link IProtocolListener} interface with a {@link ProtocolListener}.
+     *
+     * @param listener - Listener.
+     * @return ProtocolListener.
+     */
+    @Nonnull
+    public static ProtocolListener registerProtocolListener(@Nonnull IProtocolListener listener) {
+        return new ProtocolListener(listener.getPacketType()) {
+            @Override
+            public void onPacketReceiving(@Nonnull PacketEvent packetEvent) {
+                listener.onPacketReceiving(packetEvent);
+            }
+
+            @Override
+            public void onPacketSending(@Nonnull PacketEvent packetEvent) {
+                listener.onPacketSending(packetEvent);
+            }
+        };
+    }
+
+    /**
      * Gets an {@link GameEntity} by its entity Id.
      *
      * @param entityId - Entity Id.
@@ -393,6 +415,11 @@ public final class CF {
     @Nonnull
     public static String getVersionNoSnapshot() {
         return getVersion().replace("-SNAPSHOT", "");
+    }
+
+    @Nonnull
+    public static String getVersionTopic() {
+        return Main.versionInfo.getUpdateTopic();
     }
 
     /**
@@ -464,5 +491,6 @@ public final class CF {
     public static String getName() {
         return Main.GAME_NAME;
     }
+
 
 }

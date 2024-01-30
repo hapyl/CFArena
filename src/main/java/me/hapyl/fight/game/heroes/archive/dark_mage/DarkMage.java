@@ -19,6 +19,7 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.dark_mage.ShadowClone;
 import me.hapyl.fight.game.talents.archive.dark_mage.ShadowCloneNPC;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
+import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
@@ -36,12 +37,12 @@ import java.util.Random;
 
 import static org.bukkit.Sound.*;
 
-public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataHandler {
+public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataHandler<DarkMageData> {
 
     @DisplayField private final double passiveChance = 0.12d;
     @DisplayField private final double ultimateCooldownBoost = 0.5d;
 
-    private final PlayerMap<DarkMageData> playerData = PlayerMap.newMap();
+    private final PlayerDataMap<DarkMageData> playerData = PlayerMap.newDataMap(DarkMageData::new);
 
     public DarkMage(@Nonnull Heroes handle) {
         super(handle, "Dark Mage");
@@ -49,7 +50,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
         setArchetype(Archetype.MAGIC);
         setAffiliation(Affiliation.THE_WITHERS);
 
-        setDescription("A mage that was cursed by &8&lDark &8&lMagic&8&o. But even it couldn't kill him...");
+        setDescription("A mage who was cursed by the &8&l&oDark Magic&8&o, but even it couldn't kill him...");
         setItem("e6ca63569e8728722ecc4d12020e42f086830e34e82db55cf5c8ecd51c8c8c29");
 
         final HeroAttributes attributes = getAttributes();
@@ -80,17 +81,6 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
                 .appendAttributeDescription("Assist Hits", WitherData.ASSIST_HITS)
                 .appendAttributeDescription("Assist Damage", WitherData.ASSIST_DAMAGE_TOTAL)
         );
-    }
-
-    @Override
-    public void onDeath(@Nonnull GamePlayer player) {
-        getPlayerData(player).removeWither();
-    }
-
-    @Override
-    public void onStop() {
-        playerData.values().forEach(PlayerData::remove);
-        playerData.clear();
     }
 
     @Override
@@ -220,8 +210,8 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
 
     @Nonnull
     @Override
-    public DarkMageData getPlayerData(@Nonnull GamePlayer player) {
-        return playerData.computeIfAbsent(player, DarkMageData::new);
+    public PlayerDataMap<DarkMageData> getDataMap() {
+        return playerData;
     }
 
     // [hapyl's rant about interaction detection]

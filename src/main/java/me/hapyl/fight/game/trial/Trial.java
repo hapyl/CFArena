@@ -92,7 +92,7 @@ public class Trial extends TickingGameTask implements GameElement {
         player.resetPlayer();
         player.equipPlayer(trialHero);
 
-        player.hideEntity();
+        player.hide();
 
         // Remove talents because they will be explained one by one
         player.setItem(HotbarSlots.TALENT_1, lockedTalent);

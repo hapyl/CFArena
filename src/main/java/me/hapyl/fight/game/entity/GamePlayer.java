@@ -9,6 +9,7 @@ import me.hapyl.fight.Main;
 import me.hapyl.fight.database.Award;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.event.DamageInstance;
+import me.hapyl.fight.event.custom.GamePlayerDeathEvent;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -25,6 +26,7 @@ import me.hapyl.fight.game.entity.shield.Shield;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.PlayerDataHandler;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.loadout.HotbarLoadout;
 import me.hapyl.fight.game.loadout.HotbarSlots;
@@ -45,7 +47,6 @@ import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.display.AscendingDisplay;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.game.weapons.range.RangeWeapon;
 import me.hapyl.fight.translate.Language;
 import me.hapyl.fight.util.*;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -84,7 +85,7 @@ import java.util.function.Consumer;
  * <p>
  * <b>A single instance should exist per game bases and cleared after the game ends.</b>
  */
-public class GamePlayer extends LivingGameEntity implements Ticking {
+public class GamePlayer extends LivingGameEntity implements Ticking, PlayerElement.Caller {
 
     public static final double HEALING_AT_KILL = 0.3d;
 
@@ -545,11 +546,11 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
             // Shield took damage
             if (capacityAfterHit > 0) {
-                instance.setInternalDamage(0);
+                instance.setDamage(0);
             }
             // Shield broke
             else {
-                instance.setInternalDamage(-capacityAfterHit);
+                instance.setDamage(-capacityAfterHit);
 
                 shield.onBreak0();
                 shield = null;
@@ -609,20 +610,24 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
     public void triggerOnDeath() {
         final IGameInstance currentGame = Manager.current().getCurrentGame();
-        final Player player = getEntity();
         final Hero hero = getHero();
         final Weapon weapon = hero.getWeapon();
 
         currentGame.getEnumMap().getMap().onDeath(this);
         hero.onDeath(this);
+
+        if (hero instanceof PlayerDataHandler<?> handler) {
+            handler.removePlayerData(this);
+        }
+
         attributes.onDeath(this);
         executeTalentsOnDeath();
 
-        if (weapon instanceof RangeWeapon rangeWeapon) {
-            rangeWeapon.onDeath(this);
-        }
-
+        weapon.onDeath(this);
         weapon.getAbilities().forEach(ability -> ability.stopCooldown(this));
+
+        // Call event
+        new GamePlayerDeathEvent(this).call();
     }
 
     public DeathMessage getRandomDeathMessage() {
@@ -947,7 +952,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
     public void setShield(@Nullable Shield shield) {
         if (this.shield != null) {
-            this.shield.onRemove();
+            this.shield.onRemove0();
         }
 
         this.shield = shield;
@@ -1027,7 +1032,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
      * </ul>
      */
     public void hidePlayer() {
-        CFUtils.hidePlayer(getPlayer());
+        CFUtils.hidePlayer(this);
     }
 
     /**
@@ -1037,7 +1042,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
      * </ul>
      */
     public void showPlayer() {
-        CFUtils.showPlayer(getPlayer());
+        CFUtils.showPlayer(this);
     }
 
     @Nonnull
@@ -1173,6 +1178,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         }
 
         hero.onStart(this);
+        hero.getWeapon().onStart(this);
 
         inventory.setItem(weaponSlot, hero.getWeapon().getItem());
         giveTalentItems();
@@ -1343,6 +1349,34 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
     public void sendBlockChange(@Nonnull Location location, @Nonnull Material material) {
         getPlayer().sendBlockChange(location, material.createBlockData());
+    }
+
+    /**
+     * @deprecated raw
+     */
+    @Deprecated
+    public int getHeldSlotRaw() {
+        return getInventory().getHeldItemSlot();
+    }
+
+    @Override
+    public void callOnStart() {
+
+    }
+
+    @Override
+    public void callOnStop() {
+
+    }
+
+    @Override
+    public void callOnDeath() {
+
+    }
+
+    @Override
+    public void callOnPlayersRevealed() {
+
     }
 
     private List<Block> getBlocksRelative(BiFunction<Location, World, Boolean> fn, Consumer<Location> consumer) {

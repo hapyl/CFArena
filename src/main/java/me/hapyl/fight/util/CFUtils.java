@@ -67,7 +67,7 @@ public class CFUtils {
     private static final Random RANDOM = new Random();
     private static final double ANCHOR_COMPENSATION = 0.61d;
 
-    public static double ANGLE_IN_RAD = 6.283185307179586d;
+    public static final double ANGLE_IN_RAD = 6.283185307179586d;
 
     private static String SERVER_IP;
     private static List<EffectType> ALLOWED_EFFECTS;
@@ -243,23 +243,25 @@ public class CFUtils {
         return result;
     }
 
-    public static void hidePlayer(Player player) {
-        CF.getAlivePlayers().forEach(gp -> {
-            if (gp.getPlayer() == player || gp.isSpectator() || gp.isTeammate(CF.getPlayer(player))) {
+    public static void hidePlayer(@Nonnull GamePlayer player) {
+        CF.getAlivePlayers().forEach(gamePlayer -> {
+            if (gamePlayer.equals(player) || gamePlayer.isSpectator() || gamePlayer.isTeammate(player)) {
                 return;
             }
 
-            gp.hideEntity(player);
+            player.hide(gamePlayer.getPlayer());
         });
 
         // todo?: Send a packet to keep the player in tab
     }
 
-    public static void showPlayer(Player player) {
-        CF.getPlayers().forEach(gp -> {
-            if (gp.isNot(player)) {
-                gp.showEntity(player);
+    public static void showPlayer(@Nonnull GamePlayer player) {
+        CF.getPlayers().forEach(gamePlayer -> {
+            if (gamePlayer.equals(player)) {
+                return;
             }
+
+            player.show(gamePlayer.getPlayer());
         });
     }
 

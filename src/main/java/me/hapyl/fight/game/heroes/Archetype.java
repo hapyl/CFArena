@@ -9,7 +9,7 @@ public enum Archetype implements Prefixed {
 
     DAMAGE("&4&l💢&4", "Damage", "Experts in dealing as much damage as possible."),
     RANGE("&b&l🎯&b", "Range", "Rangers are dead-eye shooters that can hold distance to strike."),
-    MAGIC("&5🌌", "Magic", "Experts in casting magic spells."),
+    MAGIC("&5🌟", "Magic", "Experts in casting magic spells."),
     DEFENSE("&3🛡", "Defense", "Provides defense for self and allies."),
     MOBILITY("&d👣", "Mobility", "Fast and mobile, they zip around the battlefield."),
     STRATEGY("&e💡", "Strategy", "Strategists rely on their abilities, rather than strength to win."),

@@ -139,6 +139,15 @@ public class Buffer<E> implements List<E> {
         return linkedList.get(index);
     }
 
+    @Nullable
+    public E getOrNull(int index) {
+        return getOrDefault(index, null);
+    }
+
+    public E getOrDefault(int index, E def) {
+        return index < 0 || index >= linkedList.size() ? def : get(index);
+    }
+
     @Override
     public E set(int index, E element) {
         return linkedList.set(index, element);
@@ -189,5 +198,50 @@ public class Buffer<E> implements List<E> {
                 "maxCapacity=" + maxCapacity +
                 ", buffer=" + linkedList +
                 '}';
+    }
+
+    public boolean compare(int index, @Nullable E element) {
+        if (index < 0 || index > size()) {
+            return false;
+        }
+
+        final E e = getOrNull(index);
+
+        return e != null && e == element;
+    }
+
+    public boolean compareAll(@Nonnull E[] values) {
+        if (isEmpty() || values.length > size()) {
+            return false;
+        }
+
+        for (int i = 0; i < values.length; i++) {
+            final E value = values[i];
+            final E e = getOrNull(i);
+
+            if (e != null && e != value) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public boolean compareAll(@Nonnull Map<Integer, E> map) {
+        if (isEmpty() || map.size() > size()) {
+            return false;
+        }
+
+        for (Map.Entry<Integer, E> entry : map.entrySet()) {
+            final int index = entry.getKey();
+            final E value = entry.getValue();
+            final E e = getOrNull(index);
+
+            if (value != null && e != value) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

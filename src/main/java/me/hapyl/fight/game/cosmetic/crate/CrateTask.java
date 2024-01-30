@@ -21,10 +21,13 @@ import javax.annotation.Nonnull;
 public abstract class CrateTask extends RangeTask {
 
     protected final CrateLoot loot;
+    protected final CrateChest chest;
+
     private NonnullTuple<Item, Hologram> display;
 
-    public CrateTask(@Nonnull CrateLoot loot) {
+    public CrateTask(@Nonnull CrateLoot loot, @Nonnull CrateChest chest) {
         this.loot = loot;
+        this.chest = chest;
 
         setShutdownAction(ShutdownAction.IGNORE);
         runTaskTimer(0, 1);
@@ -45,7 +48,6 @@ public abstract class CrateTask extends RangeTask {
 
         final Cosmetic cosmetic = loot.getLoot().getCosmetic();
         final Rarity rarity = cosmetic.getRarity();
-        final CrateChest chest = loot.getChest();
         final World world = chest.getWorld();
 
         final Item item = world.spawn(
@@ -76,7 +78,6 @@ public abstract class CrateTask extends RangeTask {
 
     @Override
     public final void onTaskStop() {
-        final CrateChest chest = loot.getChest();
         chest.setOccupied(null);
         chest.playCloseAnimation();
         chest.hologram.showAll();

@@ -45,6 +45,10 @@ public class Orc extends Hero implements Listener {
     public Orc(@Nonnull Heroes handle) {
         super(handle, "Pakarat Rakab");
 
+        setDescription("""
+                Half-orc half-dwarf loner.
+                """);
+
         setArchetype(Archetype.DAMAGE);
 
         final HeroAttributes attributes = getAttributes();

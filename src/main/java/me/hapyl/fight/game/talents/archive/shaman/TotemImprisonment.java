@@ -24,7 +24,8 @@ public class TotemImprisonment extends Talent {
 
         setItem(Material.COBBLESTONE_WALL);
         setType(Type.IMPAIR);
-        setDurationSec(8);
+        setCooldownSec(16);
+        setDurationSec(6);
     }
 
     @Override

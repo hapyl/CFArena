@@ -2,7 +2,7 @@ package me.hapyl.fight.database;
 
 import java.util.UUID;
 
-public class OfflinePlayerDatabase extends PlayerDatabase {
+public final class OfflinePlayerDatabase extends PlayerDatabase {
     public OfflinePlayerDatabase(UUID uuid) {
         super(uuid);
     }

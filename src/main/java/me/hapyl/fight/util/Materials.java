@@ -3,6 +3,8 @@ package me.hapyl.fight.util;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.spigotutils.module.util.Compute;
+import me.hapyl.spigotutils.module.util.Validate;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
@@ -63,6 +65,14 @@ public final class Materials {
         if (materials != null) {
             materials.forEach(consumer);
         }
+    }
+
+    public static void setCooldown(@Nonnull Material material, int cd) {
+        Validate.isTrue(material.isItem(), "Material must be an item!");
+
+        Bukkit.getOnlinePlayers().forEach(player -> {
+            player.setCooldown(material, cd);
+        });
     }
 
     private static void compute(MaterialCategory category, Material material) {

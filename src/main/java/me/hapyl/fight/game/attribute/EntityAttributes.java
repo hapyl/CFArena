@@ -262,13 +262,6 @@ public class EntityAttributes extends Attributes implements PlayerElement {
         return new WeakEntityAttributes(this);
     }
 
-    @Override
-    public void dispose() {
-        super.dispose();
-
-        tempers.clear();
-    }
-
     private void display(AttributeType type, boolean isBuff) {
         new AttributeDisplay(type, isBuff, entity.getLocation().add(0.0d, 0.5d, 0.0d));
     }

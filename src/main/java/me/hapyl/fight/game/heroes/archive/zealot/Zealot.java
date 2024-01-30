@@ -2,17 +2,13 @@ package me.hapyl.fight.game.heroes.archive.zealot;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.event.InstanceEntityData;
 import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.attribute.WeakEntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.UltimateCallback;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.archive.zealot.BrokenHeartRadiation;
@@ -44,7 +40,13 @@ public class Zealot extends Hero implements Listener {
     public Zealot(@Nonnull Heroes handle) {
         super(handle, "Zealot");
 
+        setDescription("""
+                A space ranger with a single goal of maintaining order.
+                """);
+
         setArchetype(Archetype.HEXBANE);
+        setAffiliation(Affiliation.SPACE);
+
         setItem("131530db74bac84ad9e322280c56c4e0199fbe879883b76c9cf3fd8ff19cf025");
         setWeapon(new ZealotWeapon(this));
 
@@ -107,19 +109,17 @@ public class Zealot extends Hero implements Listener {
 
     @Override
     public void processDamageAsDamager(@Nonnull DamageInstance instance) {
-        final InstanceEntityData damagerData = instance.getDamagerData();
         final LivingGameEntity entity = instance.getEntity();
+        final EntityAttributes entityAttributes = entity.getAttributes();
 
-        if (damagerData == null) {
-            return;
-        }
-
-        final WeakEntityAttributes attributes = instance.getEntityData().getAttributes();
         final MaledictionVeil passiveTalent = getPassiveTalent();
-        final boolean hasDebuff = entity.getAttributes().hasTemper(Temper.MALEDICTION_VEIL);
+        final boolean hasDebuff = entityAttributes.hasTemper(Temper.MALEDICTION_VEIL);
 
         if (hasDebuff) {
-            attributes.subtract(AttributeType.DEFENSE, passiveTalent.defenseIgnore);
+            instance.setDamage(entityAttributes.calculateDefense(
+                    instance.getDamage(),
+                    entityAttributes.get(AttributeType.DEFENSE) * (1 - passiveTalent.defenseIgnore)
+            ));
         }
     }
 

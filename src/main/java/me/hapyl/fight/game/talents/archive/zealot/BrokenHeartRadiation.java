@@ -24,7 +24,7 @@ public class BrokenHeartRadiation extends Talent {
     @DisplayField private final double beamDamage = 10.0d;
 
     @DisplayField(scaleFactor = 100.0d, suffix = "%", suffixSpace = false)
-    private final double mendingReduction = 0.5d;
+    private final double mendingReduction = 0.25d;
     @DisplayField(scaleFactor = 100.0d, suffix = "%", suffixSpace = false)
     private final double defenseReduction = 0.33d;
 

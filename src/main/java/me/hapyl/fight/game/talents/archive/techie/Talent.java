@@ -41,7 +41,7 @@ import java.util.function.Consumer;
 @AutoRegisteredListener
 public abstract class Talent extends NonNullItemCreator
         implements GameElement, PlayerElement, DisplayFieldProvider,
-        Nameable, Timed, Cooldown, EnumHandle<Talents>, Translatable {
+        Nameable, Timed, Cooldown, EnumHandle<Talents>, Translatable, Comparable<Talent> {
 
     public static final Talent NULL = null;
     public static int DYNAMIC = -1;
@@ -650,4 +650,8 @@ public abstract class Talent extends NonNullItemCreator
         }
     }
 
+    @Override
+    public int compareTo(@Nonnull Talent o) {
+        return handle.getOrThrow().ordinal() - o.handle.getOrThrow().ordinal();
+    }
 }

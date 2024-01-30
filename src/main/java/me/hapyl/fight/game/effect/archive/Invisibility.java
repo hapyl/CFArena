@@ -2,8 +2,8 @@ package me.hapyl.fight.game.effect.archive;
 
 import me.hapyl.fight.game.effect.Effect;
 import me.hapyl.fight.game.effect.EffectType;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -21,7 +21,10 @@ public class Invisibility extends Effect {
 
     @Override
     public void onStart(@Nonnull LivingGameEntity entity, int amplifier) {
-        entity.asPlayer(CFUtils::hidePlayer);
+        if (entity instanceof GamePlayer player) {
+            player.hidePlayer();
+        }
+
         entity.addPotionEffectIndefinitely(PotionEffectType.INVISIBILITY, 1);
 
         // Lose target
@@ -38,7 +41,10 @@ public class Invisibility extends Effect {
 
     @Override
     public void onStop(@Nonnull LivingGameEntity entity, int amplifier) {
-        entity.asPlayer(CFUtils::showPlayer);
+        if (entity instanceof GamePlayer player) {
+            player.showPlayer();
+        }
+        
         entity.removePotionEffect(PotionEffectType.INVISIBILITY);
     }
 }

@@ -62,7 +62,7 @@ public class CrateManager extends DependencyInjector<Main> implements Listener, 
                 if (tick % 20 == 0) {
                     crateChests.forEach(location -> {
                         location.hologram.setLines(player -> {
-                            final long totalCrates = PlayerDatabase.getDatabase(player).crateEntry.getTotalCrates();
+                            final long totalCrates = PlayerDatabase.getDatabase(player).crateEntry.getTotalCratesCount();
 
                             return StringArray.of(Color.BUTTON.bold() + "CRATES")
                                     .appendIf(

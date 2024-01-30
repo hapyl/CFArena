@@ -70,7 +70,7 @@ public class MoonwalkerUltimate extends UltimateTalent {
         spawnLocation.add(0.0d, 15, 0.0d);
         spawnLocation.subtract(offset);
 
-        final DisplayEntity entity = blob.spawn(spawnLocation);
+        final DisplayEntity entity = blob.spawnInterpolated(spawnLocation);
 
         final Vector vector = landingLocation.toVector()
                 .subtract(spawnLocation.toVector())

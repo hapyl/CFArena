@@ -131,6 +131,11 @@ public class Shield {
         onBreak();
     }
 
+    public final void onRemove0() {
+        player.removePotionEffect(PotionEffectType.ABSORPTION);
+        onRemove();
+    }
+
     private void updateShield() {
         // Update UI indicator
         final double absorptionAmount = Numbers.clamp(20 / maxCapacity * capacity, 0, 20);

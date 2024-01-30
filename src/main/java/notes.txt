@@ -1,7 +1,19 @@
 ####################################################################
 
-- Player don't hide on start
-- Items don't reset?
+- [✔] Player screen did not reset properly
+- [✔] Witcher shows wrong combo
+- [✔] Invis hides the wrong player lol
+- Fix player stats at the end
+- [✔] Tp blindness
+- [✔] Just bring back the old damage system, I'm doo dumb and it's like breaks everything but one characters
+- [✔] Shaman wepoan disappeared again
+- [✔] +0 overheal
+
+Rogue First Test:
+- [✔] Make swayblade more pitch-yaw
+- [✔] Buff second wind
+- [✔] Add sound
+- [?!] Passive sometimes don't proc?
 
 ####################################################################
 

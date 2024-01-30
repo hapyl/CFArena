@@ -83,6 +83,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     private AI ai;
     private int aliveTicks = 0;
     private boolean informImmune = true;
+    private int inWaterTicks;
 
     public LivingGameEntity(@Nonnull LivingEntity entity) {
         this(entity, new Attributes(entity));
@@ -349,7 +350,6 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         damage(damage, cause);
     }
 
-
     /**
      * Performs damage, with a given no damage ticks.
      *
@@ -383,12 +383,25 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         return data != null ? data.getTimeLeft() : 0;
     }
 
-    public double getHealthToMaxHealthPercent() {
-        return getHealth() / getMaxHealth();
+    @Nonnull
+    public Location getEyeLocationOffset(double yOffset, double directionOffset) {
+        final Location location = getEyeLocation();
+        location.add(0, yOffset, 0);
+        location.add(location.getDirection().normalize().multiply(directionOffset));
+
+        return location;
+    }
+
+    public void playEffect(@Nonnull EntityEffect entityEffect) {
+        entity.playEffect(entityEffect);
     }
 
     private void setInternalNoDamageTicks(int ticks) {
         cooldown.startCooldown(Cooldown.NO_DAMAGE, ticks * 50L);
+    }
+
+    public double getHealthToMaxHealthPercent() {
+        return getHealth() / getMaxHealth();
     }
 
     public boolean isVisibleTo(@Nonnull Player player) {
@@ -402,8 +415,8 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     /**
      * Hides this entity for each online player.
      */
-    public void hideEntity() {
-        Bukkit.getOnlinePlayers().forEach(this::hideEntity);
+    public void hide() {
+        Bukkit.getOnlinePlayers().forEach(this::hide);
     }
 
     /**
@@ -411,15 +424,15 @@ public class LivingGameEntity extends GameEntity implements Ticking {
      *
      * @param player - Player.
      */
-    public void hideEntity(@Nonnull Player player) {
+    public void hide(@Nonnull Player player) {
         player.hideEntity(Main.getPlugin(), entity);
     }
 
     /**
      * Shows this entity to each online player.
      */
-    public void showEntity() {
-        Bukkit.getOnlinePlayers().forEach(this::showEntity);
+    public void show() {
+        Bukkit.getOnlinePlayers().forEach(this::show);
     }
 
     /**
@@ -427,7 +440,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
      *
      * @param player - Player.
      */
-    public void showEntity(@Nonnull Player player) {
+    public void show(@Nonnull Player player) {
         player.showEntity(Main.getPlugin(), entity);
     }
 
@@ -522,6 +535,23 @@ public class LivingGameEntity extends GameEntity implements Ticking {
 
         aliveTicks++;
         noCCTicks = noCCTicks < 0 ? 0 : noCCTicks - 1;
+
+        // In water ticks
+        if (entity.isInWater()) {
+            inWaterTicks++;
+        }
+        else {
+            inWaterTicks = 0;
+        }
+    }
+
+    /**
+     * Gets the number of ticks this entity has been in water for, 0 if not in water.
+     *
+     * @return the number of ticks this entity has been in water for, 0 if not in water.
+     */
+    public int getInWaterTicks() {
+        return inWaterTicks;
     }
 
     public void clearTitle() {

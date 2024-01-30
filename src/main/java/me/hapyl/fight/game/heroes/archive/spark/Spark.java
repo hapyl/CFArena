@@ -31,7 +31,7 @@ public class Spark extends Hero implements PlayerElement {
 
         setArchetype(Archetype.RANGE);
 
-        setDescription("Strikes as fire with his fire abilities.");
+        setDescription("Strikes with fire! ...literally.");
         setItem("ade095332720215ca9b85e7eacd1d092b1697fad34d696add94d3b70976702c");
 
         final Equipment equipment = this.getEquipment();

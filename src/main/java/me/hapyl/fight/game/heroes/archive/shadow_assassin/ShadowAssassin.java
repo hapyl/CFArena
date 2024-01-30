@@ -50,8 +50,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
         setArchetype(Archetype.STRATEGY);
 
         setDescription("""
-                Well-trained assassin from dimension of shadows.
-                Capable of switching between being &9Stealth&8&o, and &cFurious&8&o.
+                An assassin with anger management issues from dimension of shadows. Capable of switching between being &9&oStealth&8&o, and &c&oFurious&8&o.
                 """);
         setItem("d7fcfa5b0af855f314606a5cd2b597475286a152d1ee08d9949a6386cbc46a8e");
 

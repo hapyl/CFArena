@@ -2,7 +2,7 @@ package me.hapyl.fight.util;
 
 import javax.annotation.Nonnull;
 
-public interface WeakCopy extends Disposable {
+public interface WeakCopy {
 
     /**
      * Creates a weak copy of this object.
@@ -18,8 +18,4 @@ public interface WeakCopy extends Disposable {
     @Nonnull
     Object weakCopy();
 
-    @Override
-    default void dispose() {
-        throw new IllegalStateException("Cannot dispose of the object.");
-    }
 }

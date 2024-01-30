@@ -71,10 +71,13 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
     public Bloodfiend(@Nonnull Heroes handle) {
         super(handle, "Bloodfiend");
 
+        setArchetype(Archetype.DAMAGE);
+        setAffiliation(Affiliation.CHATEAU);
+
         setDescription("""
                 A vampire prince with a sunscreen.
                 """);
-        setArchetype(Archetype.DAMAGE);
+
         setItem("5aa29ea961757dc3c90bfabf302c5abe9d308fb4a7d3864e5788ad2cc9160aa2");
         setSkin(new PlayerSkin(
                 "ewogICJ0aW1lc3RhbXAiIDogMTY2MTQwMDI0MTc2NiwKICAicHJvZmlsZUlkIiA6ICI4YTg3NGJhNmFiZDM0ZTc5OTljOWM1ODMwYWYyY2NmNSIsCiAgInByb2ZpbGVOYW1lIiA6ICJSZXphMTExIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzVhYTI5ZWE5NjE3NTdkYzNjOTBiZmFiZjMwMmM1YWJlOWQzMDhmYjRhN2QzODY0ZTU3ODhhZDJjYzkxNjBhYTIiCiAgICB9CiAgfQp9",
@@ -90,7 +93,15 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
         equipment.setLeggings(28, 3, 7);
         equipment.setBoots(5, 3, 23, TrimPattern.HOST, TrimMaterial.NETHERITE);
 
-        setWeapon(new Weapon(Material.GHAST_TEAR).setName("Vampire's Fang").setDamage(6.0d).setAttackSpeed(0.5d));
+        setWeapon(
+                new Weapon(Material.GHAST_TEAR)
+                        .setName("Vampire's Fang")
+                        .setDescription("""
+                                A sharp fang.
+                                """)
+                        .setDamage(6.0d)
+                        .setAttackSpeed(0.5d)
+        );
 
         final UltimateTalent ultimate = new UltimateTalent(this, "Impel", 50)
                 .setType(Talent.Type.IMPAIR)
@@ -130,7 +141,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
 
 
     @Override
-    public void onPlayersReveal(@Nonnull GamePlayer player) {
+    public void onPlayersRevealed(@Nonnull GamePlayer player) {
         getData(player).cooldownFlight(true);
     }
 

@@ -139,10 +139,10 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
             final double damageMultiplier = (1 + (comboHits - 2) * 0.1d);
 
             // Fx
-            player.sendTitle("    &6&lCOMBO!", "     &4&lx" + damageMultiplier * 100, 0, 25, 25);
+            player.sendTitle("    &6&lCOMBO!", "     &4&lx" + (comboHits - 2), 0, 25, 25);
             player.playSound(Sound.ITEM_SHIELD_BREAK, 1.75f);
 
-            instance.setDamageMultiplier(damageMultiplier);
+            instance.multiplyDamage(damageMultiplier);
         }
     }
 

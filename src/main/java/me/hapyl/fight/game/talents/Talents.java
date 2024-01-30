@@ -3,10 +3,11 @@ package me.hapyl.fight.game.talents;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.exception.HandleNotSetException;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.archive.TestChargeTalent;
 import me.hapyl.fight.game.talents.archive.alchemist.CauldronAbility;
 import me.hapyl.fight.game.talents.archive.alchemist.RandomPotion;
 import me.hapyl.fight.game.talents.archive.archer.ShockDark;
@@ -68,6 +69,8 @@ import me.hapyl.fight.game.talents.archive.orc.OrcAxe;
 import me.hapyl.fight.game.talents.archive.orc.OrcGrowl;
 import me.hapyl.fight.game.talents.archive.pytaria.FlowerBreeze;
 import me.hapyl.fight.game.talents.archive.pytaria.FlowerEscape;
+import me.hapyl.fight.game.talents.archive.rogue.ExtraCut;
+import me.hapyl.fight.game.talents.archive.rogue.Swayblade;
 import me.hapyl.fight.game.talents.archive.shadow_assassin.*;
 import me.hapyl.fight.game.talents.archive.shaman.ShamanMarkTalent;
 import me.hapyl.fight.game.talents.archive.shaman.SlimeGunkTalent;
@@ -528,7 +531,9 @@ public enum Talents {
     SLASH(new Slash()),
     SWORD_MASTER_PASSIVE(
             new PassiveTalent("Perfect Sequence", """
-                    """, Material.CLOCK)
+                    Using %1$s ❱ %2$s ❱ %3$s in quick &2&nsuccession&7 &cempowers&7 and &nresets&7 the cooldown of %3$s.
+                    """.formatted(UPPERCUT, UPDRAFT, SLASH), Material.CLOCK)
+                    .setCooldownSec(5)
     ),
 
     /**
@@ -566,11 +571,31 @@ public enum Talents {
     MALEVOLENT_HITSHIELD(new MalevolentHitshield()),
     MALEDICTION_VEIL(new MaledictionVeil()),
 
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.rogue.Rogue}
+     */
+    EXTRA_CUT(new ExtraCut()),
+    SWAYBLADE(new Swayblade()),
+    SECOND_WIND(new PassiveTalent(
+            "Second Wind",
+            """
+                    When taking &4lethal damage&7, instead of dying, gain %s for short duration.
+                                
+                    &6%s
+                    • Increases %s.
+                    • Decreases %s.
+                    • Grants a &eshield&7.
+                                
+                    If the &eshield&7 &cbreaks&7 before duration ends, you &cdie&7.
+                    If the &eshield&7 has &nnot&7 expired after the duration ends, convert &b100%%&7 of remaining &eshield&7 into &chealing&7.
+                    """.formatted(Named.SECOND_WIND, Named.SECOND_WIND.getName(), AttributeType.ATTACK, AttributeType.COOLDOWN_MODIFIER),
+            Material.TOTEM_OF_UNDYING
+    )),
+
     // ???,
     SYNTHETIC_SUN(new SyntheticSun()),
 
-    // test (keep last),
-    TestChargeTalent(new TestChargeTalent());
+    ;
 
     private final static Map<Talent.Type, List<Talents>> BY_TYPE;
 
@@ -607,6 +632,7 @@ public enum Talents {
         getTalent().startCd(player);
     }
 
+    @Nonnull
     public String getName() {
         return getTalent().getName();
     }
@@ -621,6 +647,10 @@ public enum Talents {
      */
     @Nonnull
     public Talent getTalent() {
+        if (talent == null) {
+            throw new HandleNotSetException(this);
+        }
+
         return talent;
     }
 
@@ -642,6 +672,11 @@ public enum Talents {
         }
     }
 
+    @Override
+    public String toString() {
+        return Color.GREEN + getName() + Color.GRAY;
+    }
+
     @Nonnull
     public static List<Talents> byType(@Nonnull Talent.Type type) {
         return BY_TYPE.getOrDefault(type, Lists.newArrayList());
@@ -654,6 +689,4 @@ public enum Talents {
 
         return BFormat.format(textBlock, format);
     }
-
-
 }

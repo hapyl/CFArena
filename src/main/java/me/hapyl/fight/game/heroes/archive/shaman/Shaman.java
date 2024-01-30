@@ -13,6 +13,7 @@ import me.hapyl.fight.game.talents.archive.shaman.TotemTalent;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.UIComponent;
+import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
@@ -20,9 +21,9 @@ import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
 
-public class Shaman extends Hero implements PlayerDataHandler, UIComponent, Listener {
+public class Shaman extends Hero implements PlayerDataHandler<ShamanData>, UIComponent, Listener {
 
-    private final PlayerMap<ShamanData> shamanData = PlayerMap.newMap();
+    private final PlayerDataMap<ShamanData> shamanData = PlayerMap.newDataMap(ShamanData::new);
 
     private final double damageIncreasePerOverheal = 0.05;
     private final double maxOverhealUse = 10;
@@ -34,6 +35,10 @@ public class Shaman extends Hero implements PlayerDataHandler, UIComponent, List
         setAffiliation(Affiliation.THE_JUNGLE);
         setArchetype(Archetype.SUPPORT);
 
+        setDescription("""
+                An orc from the jungle. Always rumbles about something.
+                """);
+
         setWeapon(new ShamanWeapon());
         setItem("a90515c41b3e131b623cc04978f101aab2e5b82c892890df991b7c079f91d2bd");
 
@@ -44,23 +49,13 @@ public class Shaman extends Hero implements PlayerDataHandler, UIComponent, List
         attributes.setDefense(75);
         attributes.setVitality(50); // to balance self-healing
         attributes.setMending(200);
-        attributes.setEffectResistance(50);
+        attributes.setEffectResistance(30);
 
         final Equipment equipment = getEquipment();
         equipment.setChestPlate(110, 94, 74);
         equipment.setLeggings(57, 40, 90);
 
         setUltimate(new ShamanUltimate(this));
-    }
-
-    @Override
-    public void onDeath(@Nonnull GamePlayer player) {
-        shamanData.removeAnd(player, PlayerData::remove);
-    }
-
-    @Override
-    public void onStop() {
-        shamanData.forEachAndClear(PlayerData::remove);
     }
 
     @EventHandler()
@@ -74,6 +69,10 @@ public class Shaman extends Hero implements PlayerDataHandler, UIComponent, List
         }
 
         final double excessHealing = ev.getExcessHealing();
+
+        if (excessHealing <= 0) {
+            return;
+        }
 
         final ShamanData data = getPlayerData(player);
         data.increaseOverheal(excessHealing);
@@ -151,15 +150,15 @@ public class Shaman extends Hero implements PlayerDataHandler, UIComponent, List
 
     @Nonnull
     @Override
-    public ShamanData getPlayerData(@Nonnull GamePlayer player) {
-        return shamanData.computeIfAbsent(player, fn -> new ShamanData(player));
-    }
-
-    @Nonnull
-    @Override
     public String getString(@Nonnull GamePlayer player) {
         final ShamanData data = getPlayerData(player);
 
         return "%s &a%.0f".formatted(Named.OVERHEAL.getCharacter(), data.getOverheal()) + (data.isOverheadMaxed() ? " &lMAX!" : "");
+    }
+
+    @Nonnull
+    @Override
+    public PlayerDataMap<ShamanData> getDataMap() {
+        return shamanData;
     }
 }

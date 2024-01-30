@@ -76,6 +76,9 @@ public class Color {
     public static final Color ROSE_QUARTZ = new Color("#FAD4E8");
     public static final Color DIAMOND = new Color("#B9F2FF");
     public static final Color CORNFLOWER_BLUE = new Color("#6495ED");
+    public static final Color CRIMSON = new Color("#DC143C");
+    public static final Color BLOOD = new Color("#8B0000");
+    public static final Color SPACE = new Color("#A020F0");
 
     // *-----------------------------------------------------*
 
@@ -282,6 +285,11 @@ public class Color {
     @Nonnull
     public org.bukkit.ChatColor getBukkitChatColor() {
         return bukkitChatColor;
+    }
+
+    @Nonnull
+    public String boldAndDefault(String string) {
+        return this.bold() + string + this;
     }
 
     /**

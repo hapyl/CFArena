@@ -70,7 +70,12 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
                 """);
         setItem("cf4f866f1432f324e31b0a502e6e9ebccd7a66f474f1ca9cb0cfab879ea22ce0");
 
-        setWeapon(new Weapon(Material.IRON_SWORD).setName("Iron Sword").setDamage(6.0d));
+        setWeapon(
+                new Weapon(Material.IRON_SWORD)
+                        .setName("Bloodweep")
+                        .setDescription("A handy sword that appeared in her dream.")
+                        .setDamage(6.0d)
+        );
 
         final HeroAttributes attributes = getAttributes();
         attributes.setDefense(100);

@@ -70,6 +70,19 @@ public class Attributes implements WeakCopy {
     public final double calculateIncomingDamage(double damage) {
         final double defense = get(AttributeType.DEFENSE);
 
+        return calculateDefense(damage, defense);
+    }
+
+    /**
+     * Calculates the incoming damage with the formula:
+     * <pre>
+     *     damage / (defense * {@link #DEFENSE_SCALING} + (1 - ({@link #DEFENSE_SCALING}))
+     * </pre>
+     *
+     * @param damage - Damage.
+     * @return the calculated incoming damage.
+     */
+    public final double calculateDefense(double damage, double defense) {
         return damage / (defense * DEFENSE_SCALING + (1 - DEFENSE_SCALING));
     }
 
@@ -329,11 +342,6 @@ public class Attributes implements WeakCopy {
         copy.mapped.putAll(mapped);
 
         return copy;
-    }
-
-    @Override
-    public void dispose() {
-        mapped.clear();
     }
 
     private void setValueScaled(AttributeType type, double value) {

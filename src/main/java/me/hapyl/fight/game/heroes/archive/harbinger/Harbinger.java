@@ -24,6 +24,7 @@ import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
@@ -43,7 +44,7 @@ import org.bukkit.util.Vector;
 import javax.annotation.Nonnull;
 import java.util.Set;
 
-public class Harbinger extends Hero implements Listener, UIComponent, PlayerDataHandler, DisplayFieldProvider {
+public class Harbinger extends Hero implements Listener, UIComponent, PlayerDataHandler<RiptideStatus>, DisplayFieldProvider {
 
     @DisplayField private final long meleeRiptideAmount = 100;
     @DisplayField private final long rangeRiptideAmount = 150;
@@ -56,7 +57,7 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
     @DisplayField private final int ultimateRangeRiptide = Tick.fromSecond(20);
     @DisplayField private final double ultimateRangeRadius = 4.0d;
 
-    private final PlayerMap<RiptideStatus> riptideStatus = PlayerMap.newMap();
+    private final PlayerDataMap<RiptideStatus> riptideStatus = PlayerMap.newDataMap(RiptideStatus::new);
     private final Set<Arrow> ultimateArrows = Sets.newHashSet();
 
     public Harbinger(@Nonnull Heroes handle) {
@@ -183,16 +184,6 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
     }
 
     @Override
-    public void onStop() {
-        riptideStatus.clear();
-    }
-
-    @Override
-    public void onDeath(@Nonnull GamePlayer player) {
-        riptideStatus.remove(player);
-    }
-
-    @Override
     public void onStart(@Nonnull GamePlayer player) {
         player.setItem(EquipmentSlot.ARROW, new ItemStack(Material.ARROW));
     }
@@ -295,12 +286,6 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
         return UltimateCallback.OK;
     }
 
-    @Nonnull
-    @Override
-    public RiptideStatus getPlayerData(@Nonnull GamePlayer player) {
-        return riptideStatus.computeIfAbsent(player, RiptideStatus::new);
-    }
-
     @Override
     public MeleeStance getFirstTalent() {
         return (MeleeStance) Talents.STANCE.getTalent();
@@ -329,6 +314,12 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
                 BukkitUtils.roundTick(data.getDurationTick()),
                 BukkitUtils.roundTick(getFirstTalent().getMaxDuration())
         );
+    }
+
+    @Nonnull
+    @Override
+    public PlayerDataMap<RiptideStatus> getDataMap() {
+        return riptideStatus;
     }
 
     private void executeUltimateArrow(GamePlayer player, Location location) {

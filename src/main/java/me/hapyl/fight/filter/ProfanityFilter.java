@@ -25,7 +25,7 @@ public final class ProfanityFilter {
 
         ProfanityFilter.plugin = plugin;
 
-        // Load profany words
+        // Load profane words
         new BukkitRunnable() {
             @Override
             public void run() {

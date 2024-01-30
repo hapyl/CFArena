@@ -53,6 +53,11 @@ public enum Temper implements SmallCapsDescriber {
     SPIRITUAL_CLEANSING,
     SLIME_GUNK,
     SHAMANS_MARK,
+    ULTIMATE_SACRIFICE,
+    POWER_SLASH(false),
+    SECOND_WIND,
+    EXTRA_CUTS,
+    THROWING_KNIFE,
 
     /* Keep semicolon on this line for easier addition. */;
 
@@ -85,7 +90,7 @@ public enum Temper implements SmallCapsDescriber {
 
     @Nonnull
     public TemperInstance newInstance() {
-        return newInstance(smallCaps);
+        return isDisplay ? newInstance(smallCaps) : newAnonymousInstance();
     }
 
     @Nonnull

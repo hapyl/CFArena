@@ -58,7 +58,7 @@ public class TrialObjectiveCritical extends TrialObjective {
                 @Override
                 public void onDamageTaken(@Nonnull DamageInstance instance) {
                     if (!instance.isCrit()) {
-                        instance.setDamageMultiplier(0.0d);
+                        instance.multiplyDamage(0.0d);
                         instance.setCancelled(true);
 
                         new AscendingDisplay("&4Non-Crit", 20).display(getLocation());

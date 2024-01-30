@@ -16,6 +16,7 @@ import me.hapyl.fight.game.talents.archive.knight.StoneCastle;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
@@ -29,7 +30,7 @@ import org.bukkit.inventory.ItemStack;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class BlastKnight extends Hero implements PlayerElement, UIComponent, PlayerDataHandler, DisplayFieldProvider {
+public class BlastKnight extends Hero implements PlayerElement, UIComponent, PlayerDataHandler<BlastKnightData>, DisplayFieldProvider {
 
     public final ItemStack shieldItem = new ShieldBuilder(DyeColor.BLACK)
             .with(DyeColor.WHITE, PatternTypes.DLS)
@@ -38,7 +39,8 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Pla
             .with(DyeColor.PINK, PatternTypes.MC)
             .with(DyeColor.BLACK, PatternTypes.FLO)
             .build();
-    private final PlayerMap<BlastKnightData> dataMap = PlayerMap.newMap();
+
+    private final PlayerDataMap<BlastKnightData> dataMap = PlayerMap.newDataMap(BlastKnightData::new);
     private final Material shieldRechargeCdItem = Material.HORSE_SPAWN_EGG;
 
     @DisplayField private final double ultimateRadius = 7.0d;
@@ -51,7 +53,7 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Pla
         setArchetype(Archetype.DEFENSE);
         setAffiliation(Affiliation.KINGDOM);
 
-        setDescription("Royal Knight with high-end technology gadgets.");
+        setDescription("A royal knight with high-end technology gadgets.");
         setItem("f6eaa1fd9d2d49d06a894798d3b145d3ae4dcca038b7da718c7b83a66ef264f0");
 
         final HeroAttributes attributes = getAttributes();
@@ -89,16 +91,6 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Pla
                 .setDuration(30));
 
         DisplayFieldSerializer.copy(this, getUltimate());
-    }
-
-    @Override
-    public void onDeath(@Nonnull GamePlayer player) {
-        dataMap.removeAnd(player, PlayerData::remove);
-    }
-
-    @Override
-    public void onStop() {
-        dataMap.forEachAndClear(PlayerData::remove);
     }
 
     @Override
@@ -176,13 +168,13 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Pla
         // Fx
         player.playSound(Sound.ITEM_SHIELD_BREAK, 1.0f);
 
-        instance.setDamageMultiplier(0.0d);
+        instance.multiplyDamage(0.0d);
     }
 
     @Nonnull
     @Override
-    public BlastKnightData getPlayerData(@Nonnull GamePlayer player) {
-        return dataMap.computeIfAbsent(player, BlastKnightData::new);
+    public PlayerDataMap<BlastKnightData> getDataMap() {
+        return dataMap;
     }
 
     public int getShieldCharge(GamePlayer player) {

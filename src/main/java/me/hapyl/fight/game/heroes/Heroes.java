@@ -7,6 +7,7 @@ import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.collection.HeroStatsCollection;
 import me.hapyl.fight.database.entry.ExperienceEntry;
 import me.hapyl.fight.database.entry.HeroEntry;
+import me.hapyl.fight.exception.HandleNotSetException;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.archive.alchemist.Alchemist;
@@ -34,6 +35,7 @@ import me.hapyl.fight.game.heroes.archive.nightmare.Nightmare;
 import me.hapyl.fight.game.heroes.archive.ninja.Ninja;
 import me.hapyl.fight.game.heroes.archive.orc.Orc;
 import me.hapyl.fight.game.heroes.archive.pytaria.Pytaria;
+import me.hapyl.fight.game.heroes.archive.rogue.Rogue;
 import me.hapyl.fight.game.heroes.archive.ronin.Ronin;
 import me.hapyl.fight.game.heroes.archive.shadow_assassin.ShadowAssassin;
 import me.hapyl.fight.game.heroes.archive.shaman.Shaman;
@@ -109,6 +111,7 @@ public enum Heroes implements Formatted {
     ZEALOT(Zealot::new),
     RONIN(Ronin::new),
     JESTER(Jester::new),
+    ROGUE(Rogue::new),
 
     // *=* Tutorial Hero *=* //
     TUTORIAL_ARCHER(TutorialArcher::new),
@@ -169,9 +172,10 @@ public enum Heroes implements Formatted {
      *
      * @return handle of a hero.
      */
+    @Nonnull
     public Hero getHero() {
         if (hero == null) {
-            throw new NullPointerException("%s doesn't have a handle!".formatted(name()));
+            throw new HandleNotSetException(this);
         }
 
         return hero;

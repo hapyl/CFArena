@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-public class PlayerDatabase {
+public sealed class PlayerDatabase permits OfflinePlayerDatabase {
 
     private static final Map<UUID, PlayerDatabase> UUID_DATABASE_MAP = Maps.newConcurrentMap();
 

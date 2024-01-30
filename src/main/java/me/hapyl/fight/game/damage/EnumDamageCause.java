@@ -142,6 +142,10 @@ public enum EnumDamageCause {
             .addFlags(DamageFlag.PIERCING_DAMAGE)
             .setDamageFormat(instance -> "&b%.0f ⚡".formatted(instance.getDamage()))),
     TOTEM(DamageCause.of("was stomped on", "by")),
+    RAY_OF_DEATH(DamageCause.of("was doomed to fail", "and {damager} knew that")),
+    ROGUE_ATTACK(ENTITY_ATTACK.damageCause),
+    THROWING_KNIFE(DamageCause.nonCrit("was hit by a throwing knife", "of")),
+    PIPE_BOMB(DamageCause.nonCrit("was blown away by {damager}'s Pipe Bomb").setTrueDamage()),
 
     ;
 
