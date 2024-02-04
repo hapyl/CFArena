@@ -1,7 +1,10 @@
 package me.hapyl.fight.game.cosmetic.crate;
 
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.cosmetic.*;
+import me.hapyl.fight.game.cosmetic.BelongsToCollection;
+import me.hapyl.fight.game.cosmetic.CosmeticCollection;
+import me.hapyl.fight.game.cosmetic.Cosmetics;
+import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.util.Described;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -75,7 +78,7 @@ public class Crate extends RandomLoot<Cosmetics> implements Described {
         final ItemContents<Cosmetics> contents = getContents();
 
         for (BelongsToCollection item : collection.getItems()) {
-            if (item instanceof Cosmetics cosmetics) {
+            if (item instanceof Cosmetics cosmetics && cosmetics.isValidForCrate()) {
                 contents.addItem(cosmetics);
             }
         }
@@ -101,8 +104,7 @@ public class Crate extends RandomLoot<Cosmetics> implements Described {
      */
     public Crate with(@Nonnull Rarity rarity, @Nullable Cosmetics... exclude) {
         for (Cosmetics value : Cosmetics.values()) {
-            final Cosmetic cosmetic = value.getCosmetic();
-            if (cosmetic.isExclusive() || cosmetic.getRarity() == Rarity.UNSET || value.isIgnore()) {
+            if (!value.isValidForCrate()) {
                 continue;
             }
 

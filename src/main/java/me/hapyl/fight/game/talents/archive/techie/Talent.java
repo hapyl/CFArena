@@ -3,11 +3,11 @@ package me.hapyl.fight.game.talents.archive.techie;
 import com.google.common.collect.Lists;
 import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.annotate.ExecuteOrder;
+import me.hapyl.fight.event.custom.PlayerPreconditionEvent;
 import me.hapyl.fight.event.custom.TalentUseEvent;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.cosmetic.EnumHandle;
-import me.hapyl.fight.game.effect.Effect;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.effect.archive.SlowingAuraEffect;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -409,7 +409,7 @@ public abstract class Talent extends NonNullItemCreator
     @Super
     @Nonnull
     public final Response execute0(@Nonnull GamePlayer player) {
-        final Response precondition = preconditionTalent(player);
+        final Response precondition = precondition(player);
 
         if (precondition.isError()) {
             return precondition;
@@ -568,6 +568,11 @@ public abstract class Talent extends NonNullItemCreator
         return handle != null ? handle.name().toLowerCase() : "NO_HANDLE";
     }
 
+    @Override
+    public int compareTo(@Nonnull Talent o) {
+        return handle.getOrThrow().ordinal() - o.handle.getOrThrow().ordinal();
+    }
+
     private String formatIfPossible(@Nonnull String toFormat, @Nullable Object... format) {
         if (format == null || format.length == 0) {
             return toFormat;
@@ -584,8 +589,8 @@ public abstract class Talent extends NonNullItemCreator
         return Numbers.clamp(cd / 200, 1, 100);
     }
 
-    public static Condition<GamePlayer, Response> preconditionTalentAnd(@Nonnull GamePlayer player) {
-        final Response response = preconditionTalent(player);
+    public static Condition<GamePlayer, Response> preconditionAnd(@Nonnull GamePlayer player) {
+        final Response response = precondition(player);
         final Condition<GamePlayer, Response> condition = new Condition<>(player, response);
 
         if (response.isError()) {
@@ -595,19 +600,18 @@ public abstract class Talent extends NonNullItemCreator
         return condition.setStatus(true);
     }
 
-    // Precondition player talent (and weapon) if it can be used.
-    // Returns the error with a name of the blocking talent or OK.
-    public static Response preconditionTalent(GamePlayer player) {
-        if (player == null) {
-            return Response.ERROR;
-        }
+    /**
+     * Precondition player talent (or weapon) if it can be used.
+     *
+     * @param player - Player.
+     * @return OK or an error with a message.
+     */
+    @Nonnull
+    public static Response precondition(@Nonnull GamePlayer player) {
+        final PlayerPreconditionEvent event = new PlayerPreconditionEvent(player);
 
-        for (Effects type : Effects.values()) {
-            final Effect effect = type.getEffect();
-
-            if (effect.isTalentBlocking() && player.hasEffect(type)) {
-                return Response.error(effect.getName());
-            }
+        if (event.callAndCheck()) {
+            return Response.error(event.getReason());
         }
 
         if (Manager.current().isGameInProgress()) {
@@ -648,10 +652,5 @@ public abstract class Talent extends NonNullItemCreator
         public String getDescription() {
             return description;
         }
-    }
-
-    @Override
-    public int compareTo(@Nonnull Talent o) {
-        return handle.getOrThrow().ordinal() - o.handle.getOrThrow().ordinal();
     }
 }

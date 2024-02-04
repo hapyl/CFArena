@@ -183,14 +183,18 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
     }
 
     @Override
-    public void checkWinCondition() {
+    public boolean checkWinCondition() {
         if (gameState == State.POST_GAME) {
-            return;
+            return true;
         }
 
         if (mode.testWinCondition(this)) {
             Manager.current().stopCurrentGame();
+
+            return true;
         }
+
+        return false;
     }
 
     @Nonnull
@@ -402,6 +406,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
             if (Settings.RANDOM_HERO.isEnabled(player)) {
                 final Heroes randomHero = Heroes.randomHero();
 
+                profile.rememberLastSelectedHero();
                 profile.setSelectedHero(randomHero);
 
                 Chat.sendMessage(player, "");

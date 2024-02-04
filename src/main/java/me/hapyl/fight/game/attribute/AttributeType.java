@@ -161,15 +161,23 @@ public enum AttributeType implements Described, TranslatableToString {
 
     ATTACK_SPEED(
             new Attribute("Attack Speed", "How fast you attack.") {
+
                 @Override
                 public void update(LivingGameEntity entity, double value) {
-                    entity.setAttributeValue(org.bukkit.attribute.Attribute.GENERIC_ATTACK_SPEED, value);
+                    final boolean isInfiniteSpeed = value == Attributes.INFINITE_ATTACK_SPEED;
+
+                    entity.setAttributeValue(
+                            org.bukkit.attribute.Attribute.GENERIC_ATTACK_SPEED,
+                            isInfiniteSpeed ? 100 : 1 + value
+                    );
                 }
             }
                     .setChar("⚔")
                     .setColor(ChatColor.YELLOW)
-                    .setToString((type, value) -> doubleFormatPercent(type, value - 1)),
-            2.0d
+                    .setToString((type, value) -> {
+                        return value == Attributes.INFINITE_ATTACK_SPEED ? "∞" : AttributeType.doubleFormatPercent(type, value);
+                    }),
+            1.0d
     ) {
         @Override
         public double maxValue() {

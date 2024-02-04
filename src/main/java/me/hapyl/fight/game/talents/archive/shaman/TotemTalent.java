@@ -17,6 +17,8 @@ public class TotemTalent extends InputTalent {
 
     @DisplayField protected final double verticalVelocity = 0.25d;
     @DisplayField protected final double velocity = 0.75d;
+    @DisplayField(percentage = true) protected final double chanceToExplode = 0.2d;
+    @DisplayField protected final double explodeDamage = 10.0d;
     @DisplayField protected final int interval = 30;
     @DisplayField private final short maxTotems = 3;
 
@@ -29,6 +31,7 @@ public class TotemTalent extends InputTalent {
                 Equip a &aTotem&7 and prepare to toss it.
                                 
                 After a &aTotem&7 lands, it &aactivates&7 and does one of the following actions every &b{interval}&7 based on the &3Resonance&7.
+                &8;;There is a small chance for totem to explode violently.
                 """);
 
         leftData.setAction("Resonate Discord");

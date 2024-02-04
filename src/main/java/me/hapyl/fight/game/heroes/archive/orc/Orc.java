@@ -52,11 +52,12 @@ public class Orc extends Hero implements Listener {
         setArchetype(Archetype.DAMAGE);
 
         final HeroAttributes attributes = getAttributes();
-        attributes.set(AttributeType.MAX_HEALTH, 125);
-        attributes.set(AttributeType.DEFENSE, 0.6d);
-        attributes.set(AttributeType.SPEED, 0.22d);
-        attributes.set(AttributeType.CRIT_CHANCE, 0.15d);
-        attributes.set(AttributeType.EFFECT_RESISTANCE, 0.5d);
+        attributes.setHealth(125);
+        attributes.setDefense(60);
+        attributes.setSpeed(110);
+        attributes.setCritChance(15);
+        attributes.setEffectResistance(50);
+        attributes.setAttackSpeed(60);
 
         setWeapon(new OrcWeapon());
 

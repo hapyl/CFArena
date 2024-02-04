@@ -44,13 +44,14 @@ public class SwordMaster extends Hero implements PlayerDataHandler<SwordMasterDa
         final HeroAttributes attributes = getAttributes();
         attributes.setDefense(150);
         attributes.setSpeed(80);
+        attributes.setAttackSpeed(80);
 
         final Equipment equipment = getEquipment();
         equipment.setChestPlate(Material.NETHERITE_CHESTPLATE);
         equipment.setLeggings(Material.IRON_LEGGINGS);
         equipment.setBoots(Material.NETHERITE_BOOTS);
 
-        setWeapon(new Weapon(Material.NETHERITE_SWORD).setName("Basta").setDamage(12.0d).setAttackSpeed(-0.2d));
+        setWeapon(new Weapon(Material.NETHERITE_SWORD).setName("Basta").setDamage(12.0d));
 
         setUltimate(new UltimateTalent(this, "Ultimate Sacrifice", """
                 Instantly drop &nall&7 your &farmor&7 in exchange for more &4power&7, becoming a glass cannon.

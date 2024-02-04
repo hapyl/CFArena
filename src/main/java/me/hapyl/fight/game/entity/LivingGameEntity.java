@@ -16,6 +16,7 @@ import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.dot.DamageOverTime;
 import me.hapyl.fight.game.dot.DotInstanceList;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
+import me.hapyl.fight.game.effect.Effect;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
@@ -111,8 +112,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         entity.setMaxHealth(ACTUAL_ENTITY_HEALTH);
         entity.setHealth(entity.getMaxHealth());
 
-        defaultVanillaAttributes();
-        updateAttributes();
+        applyAttributes();
     }
 
     /**
@@ -264,6 +264,12 @@ public class LivingGameEntity extends GameEntity implements Ticking {
      */
     public boolean hasEffect(@Nonnull Effects effect) {
         return entityData.hasEffect(effect);
+    }
+
+    public boolean hasEffect(@Nonnull Effect effect) {
+        final Effects enumEffect = Effects.byHandle(effect);
+
+        return enumEffect != null && hasEffect(enumEffect);
     }
 
     public void removeEffect(@Nonnull Effects effect) {
@@ -682,7 +688,8 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     public boolean heal(double amount, @Nullable LivingGameEntity healer) {
         final EntityAttributes attributes = getAttributes();
 
-        if (healer != null) {
+        if (healer != null && !healer.equals(this)) {
+            // Don't increase "outgoing" healing towards yourself
             amount = healer.getAttributes().calculateOutgoingHealing(amount);
         }
 
@@ -1297,11 +1304,15 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         return uuid.toString();
     }
 
-    protected void defaultVanillaAttributes() {
+    // This defaults vanilla attributes and applies the custom ones.
+    // YES, I FORGOT TO CALL UPDATE ATTRIBUTE FOR PLAYERS
+    protected void applyAttributes() {
         setAttributeValue(Attribute.GENERIC_KNOCKBACK_RESISTANCE, 0.0d);
         setAttributeValue(Attribute.GENERIC_ATTACK_SPEED, 2.0d);
         setAttributeValue(Attribute.GENERIC_ATTACK_DAMAGE, 1.0d);
         setAttributeValue(Attribute.GENERIC_ARMOR, -100.0d); // Remove armor bars
+
+        updateAttributes();
     }
 
     private boolean shouldSimulateDamage() {

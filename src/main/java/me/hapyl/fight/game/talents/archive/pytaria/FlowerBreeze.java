@@ -15,15 +15,14 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 
 public class FlowerBreeze extends Talent {
 
-    @DisplayField(scaleFactor = 100.0d) public final double attackIncrease = 0.9d;
-    @DisplayField(scaleFactor = 100.0d) public final double defenseIncrease = 2.0d;
+    @DisplayField(scaleFactor = 100.0d) public final double attackIncrease = 0.5d;
+    @DisplayField(scaleFactor = 100.0d) public final double defenseIncrease = 1.5d;
     @DisplayField private final double healthSacrifice = 15.0d;
 
     private final Material[] flowers = {

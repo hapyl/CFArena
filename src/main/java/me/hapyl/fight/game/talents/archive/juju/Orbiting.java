@@ -133,6 +133,7 @@ public abstract class Orbiting extends TickingGameTask implements Iterable<ItemD
 
         if (entity == null) {
             entity = Entities.ITEM_DISPLAY.spawn(location, self -> {
+                self.setTeleportDuration(1);
                 self.setItemStack(itemStack);
                 self.setTransformationMatrix(matrix4f);
                 self.setItemDisplayTransform(transform);

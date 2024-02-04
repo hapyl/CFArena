@@ -3,9 +3,11 @@ package me.hapyl.fight.game.setting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.game.color.Color;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.util.EnumWrapper;
 import me.hapyl.fight.util.PlayerItemCreator;
+import me.hapyl.fight.ux.Message;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Material;
@@ -31,7 +33,31 @@ public enum Settings implements EnumWrapper<Setting>, PlayerItemCreator {
             "Random Hero",
             "Whenever you start the game with a random hero every time.",
             Category.GAMEPLAY
-    )),
+    ) {
+        @Override
+        public void onDisabled(@Nonnull Player player) {
+            super.onDisabled(player);
+            final PlayerProfile profile = PlayerProfile.getProfile(player);
+
+            if (profile == null) {
+                return;
+            }
+
+            final Heroes lastSelectedHero = profile.getLastSelectedHero();
+
+            if (lastSelectedHero == null) {
+                return;
+            }
+
+            profile.setSelectedHero(lastSelectedHero);
+            profile.forgetLastSelectedHero();
+
+            Message.warning(
+                    player,
+                    "&b&l%s &bwas selected because it was your hero before turning on this setting!".formatted(lastSelectedHero.getName())
+            );
+        }
+    }),
 
     PLAYER_PINGS(new Setting(
             Material.ARROW,

@@ -9,6 +9,9 @@ import org.bukkit.event.HandlerList;
 
 import javax.annotation.Nonnull;
 
+/**
+ * Called <b>after</b> a {@link GamePlayer} <b>successfully</b> used a {@link Talent}.
+ */
 public class TalentUseEvent extends GamePlayerEvent {
 
     private static final HandlerList HANDLERS = new HandlerList();

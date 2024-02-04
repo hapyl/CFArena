@@ -1,20 +1,32 @@
 package me.hapyl.fight.game.effect.archive;
 
+import me.hapyl.fight.event.custom.PlayerPreconditionEvent;
 import me.hapyl.fight.game.effect.Effect;
 import me.hapyl.fight.game.effect.EffectType;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.spigotutils.module.chat.Chat;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
 
-public class ArcaneMuteEffect extends Effect {
+public class ArcaneMuteEffect extends Effect implements Listener {
     public ArcaneMuteEffect() {
         super("Arcane Mute", EffectType.NEGATIVE);
 
         setDescription("""
                 Prevents players from using their talents and deafens them.
                 """);
-        setTalentBlocking(true);
+    }
+
+    @EventHandler()
+    public void handlePrecondition(PlayerPreconditionEvent ev) {
+        final GamePlayer player = ev.getPlayer();
+
+        if (player.hasEffect(this)) {
+            ev.setCancelled(true, "Arcane Mute!");
+        }
     }
 
     @Override

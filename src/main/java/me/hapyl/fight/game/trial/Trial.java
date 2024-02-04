@@ -56,7 +56,7 @@ public class Trial extends TickingGameTask implements GameElement {
         this.profile = profile;
         this.previousHero = profile.getHero();
 
-        profile.setSelectedHero(enumTrialHero);
+        profile.setSelectedHero(enumTrialHero, false);
 
         this.player = profile.createGamePlayer();
 

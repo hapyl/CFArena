@@ -3,6 +3,8 @@ package me.hapyl.fight.game.gamemode;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EntityState;
 import me.hapyl.fight.game.GameInstance;
+import me.hapyl.fight.game.GameResult;
+import me.hapyl.fight.game.GameResultType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.setting.Settings;
@@ -38,44 +40,44 @@ public abstract class CFGameMode {
         this.allowRespawn = false;
     }
 
-    public void setRespawnTime(int respawnTime) {
-        this.respawnTime = respawnTime;
-    }
-
     public int getRespawnTime() {
         return respawnTime;
     }
 
-    public void setAllowRespawn(boolean allowRespawn) {
-        this.allowRespawn = allowRespawn;
+    public void setRespawnTime(int respawnTime) {
+        this.respawnTime = respawnTime;
     }
 
     public boolean isAllowRespawn() {
         return allowRespawn;
     }
 
-    public void setMaterial(Material material) {
-        this.material = material;
+    public void setAllowRespawn(boolean allowRespawn) {
+        this.allowRespawn = allowRespawn;
     }
 
     public Material getMaterial() {
         return material;
     }
 
-    public void setDescription(String info) {
-        this.description = info;
+    public void setMaterial(Material material) {
+        this.material = material;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setPlayerRequirements(int playerRequirements) {
-        this.playerRequirements = playerRequirements;
+    public void setDescription(String info) {
+        this.description = info;
     }
 
     public int getPlayerRequirements() {
         return playerRequirements;
+    }
+
+    public void setPlayerRequirements(int playerRequirements) {
+        this.playerRequirements = playerRequirements;
     }
 
     public boolean isPlayerRequirementsMet() {
@@ -173,5 +175,62 @@ public abstract class CFGameMode {
 
     public boolean shouldRespawn(@Nonnull GamePlayer gamePlayer) {
         return true;
+    }
+
+    public void displayWinners(@Nonnull GameResult result) {
+        final String gameTime = result.getGameTimeFormatted();
+        final GameResultType resultType = result.getResultType();
+
+        Chat.broadcastCenterMessage("&a&lɢᴀᴍᴇ ᴏᴠᴇʀ");
+        Chat.broadcastCenterMessage("&7" + gameTime);
+        Chat.broadcastCenterMessage("");
+
+        Chat.broadcastCenterMessage(resultType);
+
+        // Per-result titles
+        switch (resultType) {
+            case DRAW -> {
+                titleAll(resultType.toString(), "&7It's a draw!");
+            }
+            case NO_WINNERS -> {
+                titleAll("&6&lɢᴀᴍᴇ ᴏᴠᴇʀ", "&7There are no winners!");
+            }
+            case SINGLE_WINNER, MULTIPLE_WINNERS -> {
+                // This one is per player to display either WINNER or DEFEAT
+                Bukkit.getOnlinePlayers().forEach(player -> {
+                    if (result.isWinner(player)) {
+                        title(player, "&a&lᴠɪᴄᴛᴏʀʏ", "&7You are the winner!");
+                    }
+                    else {
+                        final boolean isSingleWinner = resultType == GameResultType.SINGLE_WINNER;
+                        final String winnersFormatted = result.formatWinners();
+
+                        if (isSingleWinner) {
+                            title(player, "&c&lᴅᴇғᴇᴀᴛ", winnersFormatted + "&7 is the winner!");
+                        }
+                        else {
+                            title(player, "&c&lᴅᴇғᴇᴀᴛ", winnersFormatted + "&7 are the winners!");
+                        }
+                    }
+                });
+            }
+        }
+
+        // Display winners if there are
+        if (!result.isWinners()) {
+            return;
+        }
+
+        result.getWinners().forEach(winner -> {
+            Chat.broadcastCenterMessage(winner.formatWinnerName());
+        });
+    }
+
+    protected void titleAll(String title, String subtitle) {
+        Bukkit.getOnlinePlayers().forEach(player -> title(player, title, subtitle));
+    }
+
+    protected void title(Player player, String title, String subtitle) {
+        Chat.sendTitle(player, title, subtitle, 10, 60, 5);
     }
 }

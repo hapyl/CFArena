@@ -62,12 +62,20 @@ public class CFUtils {
 
     public static final Pattern STRIP_COLOR_PATTERN = Pattern.compile("(?i)" + '&' + "[0-9A-FK-ORX]");
     public static final Object[] DISAMBIGUATE = new Object[] {};
+    public static final double ANGLE_IN_RAD = 6.283185307179586d;
 
     private static final DecimalFormat TICK_FORMAT = new DecimalFormat("0.0");
     private static final Random RANDOM = new Random();
     private static final double ANCHOR_COMPENSATION = 0.61d;
 
-    public static final double ANGLE_IN_RAD = 6.283185307179586d;
+    private static final Map<Tag<Material>, Double> anchorCompensationMap = Map.of(
+            Tag.SLABS, 0.5d,
+            Tag.WOOL_CARPETS, 0.075d // This does NOT include moss carpet because fuck you
+    );
+
+    private static final Set<Tag<Material>> softSolidTags = Set.of(
+            Tag.WOOL_CARPETS, Tag.ALL_SIGNS
+    );
 
     private static String SERVER_IP;
     private static List<EffectType> ALLOWED_EFFECTS;
@@ -600,8 +608,23 @@ public class CFUtils {
         return anchorLocation(location);
     }
 
+    /**
+     * <b>Attempts</b> to anchor the location, so it's directly on a block.
+     *
+     * @param originalLocation - Location.
+     * @return The same anchored location.
+     */
     @Nonnull
-    public static Location anchorLocation(@Nonnull Location location) {
+    public static Location anchorLocation(@Nonnull Location originalLocation) {
+        final Location location = new Location(
+                originalLocation.getWorld(),
+                originalLocation.getX(),
+                originalLocation.getBlockY() + 0.5d,
+                originalLocation.getZ(),
+                originalLocation.getYaw(),
+                originalLocation.getPitch()
+        );
+
         final World world = location.getWorld();
 
         if (world == null) {
@@ -625,13 +648,14 @@ public class CFUtils {
         // Down
         while (true) {
             final Block block = location.getBlock();
+            final Block blockAbove = block.getRelative(BlockFace.UP);
             final Block blockBelow = block.getRelative(BlockFace.DOWN);
 
             if (location.getY() <= world.getMinHeight()) {
-                break;
+                return originalLocation; // fail-safe to NOT fall out of the world
             }
 
-            if (isAirOrSoftSolid(block) && isSolid(blockBelow)) {
+            if (isAirOrSoftSolid(blockAbove) && isAirOrSoftSolid(block) && isSolid(blockBelow)) {
                 break;
             }
 
@@ -639,12 +663,22 @@ public class CFUtils {
         }
 
         // Compensate
-        location.subtract(0, ANCHOR_COMPENSATION, 0);
+        location.subtract(0, ANCHOR_COMPENSATION - 0.5d, 0);
 
-        // Slab
-        if (Tag.SLABS.isTagged(location.getBlock().getRelative(BlockFace.DOWN).getType())) {
-            location.subtract(0, 0.5, 0);
-        }
+        // Compensate based on a block below
+        final Material blockType = location.getBlock().getType();
+        final Material blockBelowType = location.getBlock().getRelative(BlockFace.DOWN).getType();
+
+        anchorCompensationMap.forEach((tag, value) -> {
+            // If IN a block, compensate UP
+            if (tag.isTagged(blockType)) {
+                location.add(0, value, 0);
+            }
+            // If ABOVE a block, compensate DOWN
+            else if (tag.isTagged(blockBelowType)) {
+                location.subtract(0, value, 0);
+            }
+        });
 
         return location;
     }
@@ -652,17 +686,16 @@ public class CFUtils {
     public static boolean isAirOrSoftSolid(@Nonnull Block block) {
         final Material type = block.getType();
 
-        if (type.isAir()) {
+        if (type.isAir() || !type.isOccluding()) {
             return true;
         }
 
-        if (type.isOccluding()) {
-            return true;
-        }
 
         // Carpets
-        if (Tag.WOOL_CARPETS.isTagged(type)) {
-            return true;
+        for (Tag<Material> tag : softSolidTags) {
+            if (tag.isTagged(type)) {
+                return true;
+            }
         }
 
         return false;
@@ -971,5 +1004,19 @@ public class CFUtils {
         }
 
         return set;
+    }
+
+    /**
+     * Gets a copy of a mapped list; or empty list.
+     *
+     * @param hashMap - Hash map.
+     * @param key     - Key.
+     * @return a copy of a mapped list.
+     */
+    @Nonnull
+    public static <K, V> List<V> copyMapList(@Nonnull Map<K, List<V>> hashMap, @Nonnull K key) {
+        final List<V> list = hashMap.get(key);
+
+        return list != null ? new ArrayList<>(list) : new ArrayList<>();
     }
 }

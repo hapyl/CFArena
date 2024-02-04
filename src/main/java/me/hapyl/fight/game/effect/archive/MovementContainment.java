@@ -14,8 +14,12 @@ import javax.annotation.Nonnull;
 public class MovementContainment extends Effect {
     private final double speedConstant = 100;
 
+    public MovementContainment(@Nonnull String string) {
+        super(string, EffectType.NEGATIVE);
+    }
+
     public MovementContainment() {
-        super("Movement Containment", EffectType.NEGATIVE);
+        this("Movement Containment");
     }
 
     @Override

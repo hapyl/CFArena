@@ -27,7 +27,10 @@ import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.Attributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.CosmeticCollection;
+import me.hapyl.fight.game.cosmetic.Cosmetics;
+import me.hapyl.fight.game.cosmetic.DisabledCosmetic;
 import me.hapyl.fight.game.cosmetic.crate.Crates;
 import me.hapyl.fight.game.cosmetic.crate.convert.CrateConvert;
 import me.hapyl.fight.game.cosmetic.crate.convert.CrateConverts;
@@ -61,6 +64,7 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.engineer.Construct;
 import me.hapyl.fight.game.talents.archive.juju.Orbiting;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
+import me.hapyl.fight.game.talents.archive.witcher.Akciy;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.team.Entry;
@@ -212,6 +216,46 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new LanguageCommand("language"));
 
         // *=* Inner commands *=* //
+
+        register("debugCosmetic", (player, args) -> {
+            final Cosmetics enumCosmetic = getArgument(args, 0).toEnum(Cosmetics.class);
+
+            if (enumCosmetic == null) {
+                Chat.sendMessage(player, "&cInvalid cosmetic!");
+                return;
+            }
+
+            final Cosmetic cosmetic = enumCosmetic.getCosmetic();
+
+            Chat.sendMessage(player, "&bEnum: " + enumCosmetic.name());
+            Chat.sendMessage(player, "&3Class: " + cosmetic.getClass().getSimpleName());
+            Chat.sendMessage(player, "&bIs Valid For Crate: " + enumCosmetic.isValidForCrate());
+            Chat.sendMessage(player, "&3Name: " + cosmetic.getName());
+            Chat.sendMessage(player, "&bRarity: " + cosmetic.getRarity());
+            Chat.sendMessage(player, "&3Type: " + cosmetic.getType());
+            Chat.sendMessage(player, "&bIs Exclusive: " + cosmetic.isExclusive());
+            Chat.sendMessage(player, "&3Is Disabled: " + (cosmetic instanceof DisabledCosmetic));
+        });
+
+        register("stunMe", (player, args) -> {
+            final Akciy talent = Talents.AKCIY.getTalent(Akciy.class);
+            final GamePlayer gamePlayer = CF.getPlayer(player);
+
+            if (gamePlayer == null) {
+                Chat.sendMessage(player, "&cNo handle.");
+                return;
+            }
+
+            talent.stun(gamePlayer);
+        });
+
+        register("anchorMe", (player, args) -> {
+            final Location location = CFUtils.anchorLocation(player.getLocation());
+
+            player.teleport(location);
+
+            PlayerLib.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f);
+        });
 
         register("colorWithDayOfTheWeekGradient", (player, args) -> {
             final int numericDayOfWeek = getArgument(args, 0).toInt();
@@ -1170,6 +1214,12 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 final boolean isProfane = ProfanityFilter.isProfane(string);
                 Chat.sendMessage(player, "&a'%s' %s", string, isProfane ? "&cis profane!" : "&ais not profane.");
             }
+        });
+
+        register("cstr", (player, args) -> {
+            final String string = Chat.arrayToString(args, 0);
+
+            Chat.sendCenterMessage(player, string);
         });
 
         register("debugCrate", (player, args) -> {

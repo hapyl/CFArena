@@ -9,7 +9,6 @@ import me.hapyl.fight.Main;
 import me.hapyl.fight.database.Award;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.event.custom.GamePlayerDeathEvent;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -70,7 +69,6 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
-import org.junit.Ignore;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -88,9 +86,9 @@ import java.util.function.Consumer;
 public class GamePlayer extends LivingGameEntity implements Ticking, PlayerElement.Caller {
 
     public static final double HEALING_AT_KILL = 0.3d;
-
-    private static final long COMBAT_TAG_DURATION = 5000L;
-    private static final String SHIELD_FORMAT = "&e&l%.0f &e🛡";
+    public static final double ASSIST_DAMAGE_PERCENT = 0.5d;
+    public static final long COMBAT_TAG_DURATION = 5000L;
+    public static final String SHIELD_FORMAT = "&e&l%.0f &e🛡";
 
     private final StatContainer stats;
     private final TalentQueue talentQueue;
@@ -187,7 +185,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         player.getActivePotionEffects().forEach(effect -> this.entity.removePotionEffect(effect.getType()));
 
         // Reset attributes
-        defaultVanillaAttributes();
+        applyAttributes();
 
         setOutline(Outline.CLEAR);
 
@@ -299,16 +297,14 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
             return;
         }
 
-        onDeath();
-
         final Player player = getEntity();
+        boolean gameOver = false;
+
         player.setGameMode(GameMode.SPECTATOR);
 
         playSound(Sound.ENTITY_BLAZE_DEATH, 2.0f);
         playWorldSound(Sound.ENTITY_PLAYER_DEATH, 1.0f);
         sendTitle("&c&lʏᴏᴜ ᴅɪᴇᴅ", "", 5, 25, 10);
-
-        triggerOnDeath();
 
         // Award killer coins for kill
         final GameEntity lastDamager = entityData.getLastDamager();
@@ -361,7 +357,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
             if (damagerPlayer != null) {
                 final StatContainer damagerStats = damagerPlayer.getStats();
 
-                if (percentDamageDealt < 0.5d) {
+                if (percentDamageDealt < ASSIST_DAMAGE_PERCENT) {
                     return;
                 }
 
@@ -384,7 +380,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
             final CFGameMode mode = gameInstance.getMode();
 
             mode.onDeath(gameInstance, this);
-            gameInstance.checkWinCondition();
+            gameOver = gameInstance.checkWinCondition();
 
             // Handle respawn
             if (mode.isAllowRespawn() && mode.shouldRespawn(this)) {
@@ -400,6 +396,10 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
 
         // Clear tasks
         taskList.cancelAll();
+
+        if (!gameOver) {
+            triggerOnDeath();
+        }
 
         // KEEP LAST
         //resetPlayer(GamePlayer.Ignore.GAME_MODE); Don't reset player actually
@@ -609,6 +609,8 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
     }
 
     public void triggerOnDeath() {
+        this.onDeath();
+
         final IGameInstance currentGame = Manager.current().getCurrentGame();
         final Hero hero = getHero();
         final Weapon weapon = hero.getWeapon();
@@ -625,9 +627,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
 
         weapon.onDeath(this);
         weapon.getAbilities().forEach(ability -> ability.stopCooldown(this));
-
-        // Call event
-        new GamePlayerDeathEvent(this).call();
     }
 
     public DeathMessage getRandomDeathMessage() {
@@ -1376,7 +1375,22 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
 
     @Override
     public void callOnPlayersRevealed() {
+    }
 
+    @Nonnull
+    public String formatWinnerName() {
+        final StatContainer stats = getStats();
+        final GameTeam winnerTeam = getTeam();
+
+        return Chat.bformat(
+                "{Team} &7⁑ &6{Hero} &e&l{Name} &7⁑ &c&l{Health}  &b&l{Kills} &b🗡  &c&l{Deaths} &c☠",
+                winnerTeam.getFirstLetterCaps(),
+                getHero().getNameSmallCaps(),
+                getName(),
+                getHealthFormatted(),
+                stats.getValue(StatType.KILLS),
+                stats.getValue(StatType.DEATHS)
+        );
     }
 
     private List<Block> getBlocksRelative(BiFunction<Location, World, Boolean> fn, Consumer<Location> consumer) {
@@ -1410,19 +1424,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         }
 
         item.setAmount(chargedTalent.getMaxCharges());
-    }
-
-    private String replaceColor(String string, ChatColor color) {
-        return string.replace("$", color.toString());
-    }
-
-    private boolean isNotIgnored(Ignore[] ignores, Ignore target) {
-        for (final Ignore ignore : ignores) {
-            if (ignore == target) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private void executeTalentsOnDeath() {

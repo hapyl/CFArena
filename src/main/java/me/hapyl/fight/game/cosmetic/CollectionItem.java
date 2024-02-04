@@ -64,7 +64,7 @@ public class CollectionItem {
      * Sets if this cosmetics is exclusive.
      * Exclusive cosmetics cannot be dropped from crates or bought.
      *
-     * @param exclusive - Is explosive.
+     * @param exclusive - Is exclusive.
      */
     public CollectionItem setExclusive(boolean exclusive) {
         this.exclusive = exclusive;

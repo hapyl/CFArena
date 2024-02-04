@@ -2,16 +2,18 @@ package me.hapyl.fight.game.gamemode.modes;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.game.EntityState;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.Outline;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.util.collection.LinkedValue2IntegerReverseMap;
 import me.hapyl.spigotutils.module.scoreboard.Scoreboarder;
+import me.hapyl.spigotutils.module.util.Compute;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
-import java.util.Objects;
 
 public class FrenzyMode extends CFGameMode {
 
@@ -67,18 +69,26 @@ public class FrenzyMode extends CFGameMode {
 
     @Override
     public void onDeath(@Nonnull GameInstance instance, @Nonnull GamePlayer player) {
-        int lives = playerLivesMap.compute(player, (pl, value) -> Objects.requireNonNullElse(value, maxLives) - 1);
+        // If not in a map it means they have died.
+        if (playerLivesMap.containsKey(player)) {
+            return;
+        }
 
-        switch (lives) {
+        final int remainingLives = playerLivesMap.compute(player, Compute.intSubtract());
+
+        switch (remainingLives) {
             case 0 -> {
                 playerLivesMap.remove(player);
                 player.sendMessage("&7[&4☠&7] &4It was nice knowing you.");
+                player.setState(EntityState.DEAD);
             }
             case 1 -> {
                 player.sendMessage("&7[&4☠&7] &cThis is your final life, don't waste it!");
+                player.setOutline(Outline.RED);
             }
             default -> {
-                player.sendMessage("&7[&4☠&7] &a%s lives remaining!", lives);
+                player.sendMessage("&7[&4☠&7] &a%s lives remaining!", remainingLives);
+                player.setOutline(Outline.CLEAR);
             }
         }
     }

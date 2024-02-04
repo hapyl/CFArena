@@ -17,7 +17,7 @@ import javax.annotation.Nonnull;
 
 public class HealResonance extends TotemResonance {
 
-    @DisplayField private final double healingAmount = 5.0d;
+    @DisplayField private final double healingAmount = 3.0d;
     @DisplayField private final double healingRadius = 3.0d;
 
     protected HealResonance() {

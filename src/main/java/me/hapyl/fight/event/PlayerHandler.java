@@ -705,7 +705,7 @@ public class PlayerHandler implements Listener {
         // Attempt to fix the jump boost bug
         final Vector velocity = player.getVelocity();
 
-        if (velocity.getY() >= VELOCITY_MAX_Y) {
+        if (Math.abs(velocity.getY()) >= VELOCITY_MAX_Y) {
             ev.setCancelled(true);
             ev.setTo(from);
             return;

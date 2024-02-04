@@ -31,7 +31,7 @@ public class ExtraCut extends Talent {
     @DisplayField private final int castingTime = 7;
     @DisplayField private final double maxFlightDistance = 80;
     @DisplayField private final double step = 1.75d;
-    @DisplayField private final double damage = 20.0d;
+    @DisplayField private final double damage = 15.0d;
     @DisplayField(scaleFactor = 500) private final double speedDecrease = 0.15d;
     @DisplayField private final int impairDuration = Tick.fromSecond(2);
 

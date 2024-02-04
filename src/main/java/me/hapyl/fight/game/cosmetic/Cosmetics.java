@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.cosmetic;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CosmeticEntry;
@@ -9,8 +8,10 @@ import me.hapyl.fight.game.cosmetic.archive.*;
 import me.hapyl.fight.game.cosmetic.archive.gadget.FireworkGadget;
 import me.hapyl.fight.game.cosmetic.archive.gadget.dice.DiceGadget;
 import me.hapyl.fight.game.cosmetic.archive.gadget.dice.HighClassDice;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.StaticUUID;
 import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.util.Compute;
 import org.bukkit.*;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -18,12 +19,15 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+// Yeah, don't use enums as registries 🤪
 public enum Cosmetics implements RareItem, BelongsToCollection {
 
+    ////////////////////
+    // Kill Cosmetics //
+    ////////////////////
     BLOOD(new Cosmetic("Blood", "A classic redstone particles mimicking blood.", Type.KILL, Rarity.COMMON, Material.REDSTONE) {
         @Override
         public void onDisplay(Display display) {
@@ -59,7 +63,9 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
     COUTURE_KILL(new CoutureCosmetic(Type.KILL)),
     MUSIC_KILL(new MusicCosmetic()),
 
-    // Death Cosmetics
+    /////////////////////
+    // Death Cosmetics //
+    /////////////////////
     SCARY_DOOKIE(new Cosmetic("Scary Dookie", "The ultimate scare.", Type.DEATH, Rarity.RARE, Material.COCOA_BEANS) {
         @Override
         public void onDisplay(Display display) {
@@ -84,14 +90,18 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
     EMERALD_EXPLOSION(new EmeraldExplosion()),
     BONES_AND_SHREDS(new BonesAndShredsCosmetic()),
 
-    // Contrails
+    ///////////////
+    // Contrails //
+    ///////////////
     MUSIC(new MusicContrail()),
     RAINBOW(new RainbowContrail()),
     BED_ROCKING(new BedRockingContrail()),
     FLOWER_PATH(new FlowerPathContrail()),
     SHADOW_TRAIL(new ShadowTrail()),
 
-    // Prefixes
+    //////////////
+    // Prefixes //
+    //////////////
     FIGHTER(new PrefixCosmetic(
             "Fighter",
             "Show everyone who you really are.",
@@ -218,56 +228,58 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
         }
     },
 
-    // Win Effects
+    /////////////////
+    // Win Effects //
+    /////////////////
 
     /**
      * Should not explicitly be used.
      */
-    @Deprecated
-    FIREWORKS(new FireworksWinEffect(), true),
-
+    @Deprecated FIREWORKS(new FireworksWinEffect().setExclusive(true)),
     AVALANCHE(new AvalancheWinEffect()),
-
     TWERK(new TwerkWinEffect()),
 
-    // Gadgets
+    /////////////
+    // Gadgets //
+    /////////////
     FIREWORK(new FireworkGadget()),
-
     DICE(new DiceGadget()),
-
     DICE_HIGH_CLASS(new HighClassDice()),
     ;
 
     private final static Map<Type, List<Cosmetics>> byType = Maps.newHashMap();
-    private final static Map<Class<?>, List<Cosmetics>> BY_CLASS = Maps.newHashMap();
+    private final static Map<Rarity, List<Cosmetics>> byRarity = Maps.newHashMap();
 
     static {
-        for (Cosmetics value : values()) {
-            if (value.ignore || value.cosmetic instanceof DisabledCosmetic) {
+        for (Cosmetics enumCosmetic : values()) {
+            if (enumCosmetic.cosmetic instanceof DisabledCosmetic) {
                 continue;
             }
 
-            byType.computeIfAbsent(value.getCosmetic().getType(), k -> Lists.newArrayList()).add(value);
+            final Cosmetic cosmetic = enumCosmetic.getCosmetic();
+            final Type type = cosmetic.getType();
+            final Rarity rarity = cosmetic.getRarity();
+
+            byType.compute(type, Compute.listAdd(enumCosmetic));
+            byRarity.compute(rarity, Compute.listAdd(enumCosmetic));
         }
     }
 
-    private final boolean ignore;
     private final Cosmetic cosmetic;
     @Nullable
     private CosmeticCollection collection;
 
     Cosmetics(Cosmetic cosmetic) {
-        this(cosmetic, false);
-    }
-
-    Cosmetics(Cosmetic cosmetic, boolean force) {
         this.cosmetic = cosmetic;
         this.cosmetic.setHandle(this);
-        this.ignore = force;
     }
 
     public Cosmetic getCosmetic() {
         return cosmetic;
+    }
+
+    public boolean isValidForCrate() {
+        return !(cosmetic instanceof DisabledCosmetic) && !cosmetic.isExclusive();
     }
 
     @Nonnull
@@ -324,10 +336,6 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
         throw new IllegalArgumentException("%s cannot be cast to %s".formatted(this, clazz.getSimpleName()));
     }
 
-    public boolean isIgnore() {
-        return ignore;
-    }
-
     @Nullable
     @Override
     public CosmeticCollection getCollection() {
@@ -343,9 +351,18 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
         return true;
     }
 
-    // static members
+    public boolean isExclusive() {
+        return !cosmetic.isExclusive();
+    }
+
+    @Nonnull
     public static List<Cosmetics> getByType(Type type) {
-        return new ArrayList<>(byType.getOrDefault(type, Lists.newArrayList()));
+        return CFUtils.copyMapList(byType, type);
+    }
+
+    @Nonnull
+    public static List<Cosmetics> getByRarity(@Nonnull Rarity rarity) {
+        return CFUtils.copyMapList(byRarity, rarity);
     }
 
     @Nullable

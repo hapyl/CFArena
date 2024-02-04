@@ -27,6 +27,7 @@ import me.hapyl.fight.game.ui.PlayerUI;
 import me.hapyl.fight.garbage.CFGarbageCollector;
 import me.hapyl.fight.npc.PersistentNPCs;
 import me.hapyl.fight.util.Ticking;
+import me.hapyl.fight.ux.Message;
 import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
@@ -710,18 +711,20 @@ public final class Manager extends BukkitRunnable {
 
         getOrCreateProfile(player).setSelectedHero(heroes);
         player.closeInventory();
+
         PlayerLib.villagerYes(player);
         Chat.sendMessage(player, "&aSelected %s!", heroes.getHero().getName());
 
         if (Settings.RANDOM_HERO.isEnabled(player)) {
+            Settings.RANDOM_HERO.setEnabled(player, false);
+
             Chat.sendMessage(player, "");
-            Chat.sendMessage(player, "&aKeep in mind &l%s &ais enabled! Use &e/setting", Settings.RANDOM_HERO.getName());
-            Chat.sendMessage(player, "&aturn the feature off and play as %s!", heroes.getHero().getName());
+            Message.warning(
+                    player,
+                    "&b&l%s &bsetting was &c&ndisabled&b because you selected a hero manually!".formatted(Settings.RANDOM_HERO.getName())
+            );
             Chat.sendMessage(player, "");
         }
-
-        // save to the database
-        getOrCreateProfile(player).getDatabase().getHeroEntry().setSelectedHero(heroes);
     }
 
     /**

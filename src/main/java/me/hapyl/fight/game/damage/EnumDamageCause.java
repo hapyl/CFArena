@@ -106,7 +106,7 @@ public enum EnumDamageCause {
     BLOCK_SHIELD(DamageCause.of("was hit by {damager}'s circling block")),
     DECOY(DamageCause.of("was bamboozled", "by")),
     MINION(DamageCause.of("was killed by {damager}'s minion")),
-    RIP_BONES(DamageCause.of("was ripped to shreds", "by")),
+    RIP_BONES(DamageCause.nonCrit("was ripped to shreds", "by")),
     AURA_OF_CIRCUS(DamageCause.of("was furiously tamed", "by")),
     BLEED(DamageCause.nonCrit("bled to death from {damager}'s touch")),
     SHOTGUN(DamageCause.of("was shot to death", "by")),

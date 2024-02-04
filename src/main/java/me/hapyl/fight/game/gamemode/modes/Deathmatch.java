@@ -2,10 +2,7 @@ package me.hapyl.fight.game.gamemode.modes;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.EntityState;
-import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.GameResult;
-import me.hapyl.fight.game.IGameInstance;
+import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.profile.PlayerProfile;

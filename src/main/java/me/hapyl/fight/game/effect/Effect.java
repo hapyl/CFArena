@@ -21,25 +21,15 @@ public abstract class Effect implements Described {
     private String description;
     private EffectParticle effectParticle;
     private StringDisplay display;
-    private boolean talentBlocking;
 
     protected Effect(@Nonnull String name, @Nonnull EffectType type) {
         this.name = name;
         this.description = "";
         this.type = type;
-        this.talentBlocking = false;
 
         if (this instanceof Listener listener) {
             CF.registerEvents(listener);
         }
-    }
-
-    public boolean isTalentBlocking() {
-        return talentBlocking;
-    }
-
-    public void setTalentBlocking(boolean talentBlocking) {
-        this.talentBlocking = talentBlocking;
     }
 
     public StringDisplay getDisplay() {

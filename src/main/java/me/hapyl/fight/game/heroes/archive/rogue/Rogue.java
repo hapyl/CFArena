@@ -16,6 +16,7 @@ import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.archive.rogue.SecondWind;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
@@ -40,8 +41,7 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
 
     private final PlayerDataMap<RogueData> rogueData = PlayerMap.newDataMap(RogueData::new);
 
-    private final double shieldCapacity = 25.0d;
-    private final double passiveHealing = 1.0d;
+    private final double shieldCapacity = 30.0d;
 
     private final int passiveDuration = Tick.fromSecond(6);
 
@@ -70,7 +70,7 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
         setAffiliation(Affiliation.MERCENARY);
 
         setDescription("""
-                The most "insane" member of the mercenaries.
+                The most selfish member of the mercenaries.
                 """);
 
         setItem("73abc6192f1a559ed566e50fddf6a7b50c42cb0a15862091411487ace1d60ab8");
@@ -79,7 +79,7 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
 
         attributes.setHealth(60);
         attributes.setSpeed(130);
-        attributes.setAttackSpeed(AttributeType.ATTACK_SPEED.getDefaultValueScaled() + 100);
+        attributes.setInfiniteAttackSpeed();
 
         final Equipment equipment = getEquipment();
 
@@ -92,8 +92,10 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
                         .setName("Sacrificial Dagger")
                         .setDescription("""
                                 An ornate ceremonial dagger.
+                                                                
+                                Its small size allows for fast swings.
                                 """)
-                        .setDamage(4.0d)
+                        .setDamage(3.0d)
         );
 
         setUltimate(new UltimateTalent(this, "Pipe Bomb", """
@@ -210,8 +212,8 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
     }
 
     @Override
-    public Talent getPassiveTalent() {
-        return Talents.SECOND_WIND.getTalent();
+    public SecondWind getPassiveTalent() {
+        return (SecondWind) Talents.SECOND_WIND.getTalent();
     }
 
     @Nonnull
@@ -237,7 +239,7 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
             if (player.getShield() == shield) {
                 final double capacity = shield.getCapacity();
 
-                player.heal(capacity * passiveHealing);
+                player.heal(capacity * getPassiveTalent().passiveHealing);
                 player.setOutline(Outline.CLEAR);
                 player.setShield(null);
 
@@ -250,9 +252,9 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
         player.playWorldSound(Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 1.25f);
         player.playWorldSound(Sound.ENTITY_ZOMBIE_VILLAGER_CONVERTED, 1.75f);
 
-        //player.spawnWorldParticle(Particle.TOTEM, 15, 0.1, 0.3, 0.1, 0.75f);
+        player.spawnWorldParticle(Particle.TOTEM, 15, 0.1, 0.3, 0.1, 0.75f);
 
-        player.playEffect(EntityEffect.TOTEM_RESURRECT);
+        //player.playEffect(EntityEffect.TOTEM_RESURRECT); Too obstructive
     }
 
     @Nonnull

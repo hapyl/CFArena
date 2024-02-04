@@ -32,8 +32,13 @@ import javax.annotation.Nonnull;
 
 public class Pytaria extends Hero {
 
-    private final double CRIT_MULTIPLIER = 8.0d;
-    private final double ATTACK_MULTIPLIER = 6.5d;
+    private final double maxAttack = 1.5d;
+    private final double maxCritChance = 1.5d;
+    private final double minDefense = 0.2d;
+
+    private final double attackScale;
+    private final double critChanceScale;
+    private final double defenseScale;
 
     public Pytaria(@Nonnull Heroes handle) {
         super(handle, "Pytaria");
@@ -50,6 +55,10 @@ public class Pytaria extends Hero {
         attributes.set(AttributeType.ATTACK, 0.9d);
         attributes.set(AttributeType.CRIT_CHANCE, 0.2d);
         attributes.set(AttributeType.CRIT_DAMAGE, 0.4d);
+
+        this.attackScale = maxAttack - attributes.get(AttributeType.ATTACK);
+        this.critChanceScale = maxCritChance - attributes.get(AttributeType.CRIT_CHANCE);
+        this.defenseScale = attributes.get(AttributeType.DEFENSE) - minDefense;
 
         setWeapon(new Weapon(Material.ALLIUM).setName("Annihilallium").setDamage(8.0).setDescription("A beautiful flower, nothing more."));
 
@@ -145,18 +154,15 @@ public class Pytaria extends Hero {
 
         final double maxHealth = gamePlayer.getMaxHealth();
         final double health = gamePlayer.getHealth();
-        final double factor = (maxHealth - health) / maxHealth / 10;
-
-        final double critIncrease = CRIT_MULTIPLIER * factor;
-        final double attackIncrease = ATTACK_MULTIPLIER * factor;
+        final double factor = 1 - (health / maxHealth);
 
         attributes.reset(AttributeType.CRIT_CHANCE);
         attributes.reset(AttributeType.ATTACK);
         attributes.reset(AttributeType.DEFENSE);
 
-        attributes.addSilent(AttributeType.CRIT_CHANCE, critIncrease);
-        attributes.addSilent(AttributeType.ATTACK, attackIncrease);
-        attributes.subtractSilent(AttributeType.DEFENSE, critIncrease);
+        attributes.addSilent(AttributeType.ATTACK, factor * attackScale);
+        attributes.addSilent(AttributeType.CRIT_CHANCE, factor * critChanceScale);
+        attributes.subtractSilent(AttributeType.DEFENSE, factor * defenseScale);
     }
 
     // This is needed for "snapshot" damage.

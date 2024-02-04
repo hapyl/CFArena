@@ -12,12 +12,6 @@ import javax.annotation.Nullable;
 
 /**
  * Called whenever {@link LivingGameEntity} takes lethal damage.
- *
- * <h1>
- * Keep in mind player don't die!
- * </h1>
- * <p>
- * For players, use {@link GamePlayerDeathEvent} instead!
  */
 public class GameDeathEvent extends CustomEvent implements Cancellable {
 

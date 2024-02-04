@@ -80,6 +80,19 @@ public class Totem extends TickingGameTask {
 
         player.playWorldSound(location, Sound.ENTITY_IRON_GOLEM_DAMAGE, 0.25f);
         player.spawnWorldParticle(location, Particle.CRIT, 25, 0.25d, 0.5d, 0.25d, 0.5f);
+
+        // Explode
+        if (player.random.nextDouble() < talent.chanceToExplode) {
+            Collect.nearbyEntities(location, 2.5d).forEach(entity -> {
+                if (player.isSelfOrTeammate(entity)) {
+                    return;
+                }
+
+                entity.damageNoKnockback(talent.explodeDamage, player, EnumDamageCause.TOTEM);
+            });
+
+            player.playWorldSound(location, Sound.ENTITY_GENERIC_EXPLODE, 1);
+        }
     }
 
     public void onLand() {

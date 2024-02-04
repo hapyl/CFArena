@@ -70,6 +70,7 @@ import me.hapyl.fight.game.talents.archive.orc.OrcGrowl;
 import me.hapyl.fight.game.talents.archive.pytaria.FlowerBreeze;
 import me.hapyl.fight.game.talents.archive.pytaria.FlowerEscape;
 import me.hapyl.fight.game.talents.archive.rogue.ExtraCut;
+import me.hapyl.fight.game.talents.archive.rogue.SecondWind;
 import me.hapyl.fight.game.talents.archive.rogue.Swayblade;
 import me.hapyl.fight.game.talents.archive.shadow_assassin.*;
 import me.hapyl.fight.game.talents.archive.shaman.ShamanMarkTalent;
@@ -576,21 +577,7 @@ public enum Talents {
      */
     EXTRA_CUT(new ExtraCut()),
     SWAYBLADE(new Swayblade()),
-    SECOND_WIND(new PassiveTalent(
-            "Second Wind",
-            """
-                    When taking &4lethal damage&7, instead of dying, gain %s for short duration.
-                                
-                    &6%s
-                    • Increases %s.
-                    • Decreases %s.
-                    • Grants a &eshield&7.
-                                
-                    If the &eshield&7 &cbreaks&7 before duration ends, you &cdie&7.
-                    If the &eshield&7 has &nnot&7 expired after the duration ends, convert &b100%%&7 of remaining &eshield&7 into &chealing&7.
-                    """.formatted(Named.SECOND_WIND, Named.SECOND_WIND.getName(), AttributeType.ATTACK, AttributeType.COOLDOWN_MODIFIER),
-            Material.TOTEM_OF_UNDYING
-    )),
+    SECOND_WIND(new SecondWind()),
 
     // ???,
     SYNTHETIC_SUN(new SyntheticSun()),

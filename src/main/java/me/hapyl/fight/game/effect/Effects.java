@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.effect;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.effect.archive.*;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -9,6 +10,8 @@ import me.hapyl.spigotutils.module.util.CollectionUtils;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Map;
 import java.util.Set;
 
 public enum Effects implements Described {
@@ -30,7 +33,7 @@ public enum Effects implements Described {
         public void onStop(@Nonnull LivingGameEntity entity, int amplifier) {
             super.onStop(entity, amplifier);
             // Fade out
-            entity.addPotionEffect(PotionEffectType.BLINDNESS, 1, 10);
+            entity.addPotionEffect(PotionEffectType.BLINDNESS, 100, 10);
         }
     }),
     NIGHT_VISION(new VanillaEffect("Night Vision", PotionEffectType.NIGHT_VISION, EffectType.POSITIVE)),
@@ -48,13 +51,11 @@ public enum Effects implements Described {
     AMNESIA(new Amnesia()),
     FALL_DAMAGE_RESISTANCE(new FallDamageResistance()),
     MOVEMENT_CONTAINMENT(new MovementContainment()),
-    STUN(new Stun()),
     VULNERABLE(new Vulnerable()),
     IMMOVABLE(new Immovable()),
     INVISIBILITY(new Invisibility()),
     RESPAWN_RESISTANCE(new RespawnResistance()),
     RIPTIDE(new Riptide()),
-    LOCK_DOWN(new LockdownEffect()),
     ARCANE_MUTE(new ArcaneMuteEffect()),
     SLOWING_AURA(new SlowingAuraEffect()),
     BLEED(new BleedEffect()),
@@ -66,14 +67,18 @@ public enum Effects implements Described {
     ;
 
     private static final Set<Effects> vanillaEffects;
+    private static final Map<Effect, Effects> byHandle;
 
     static {
         vanillaEffects = Sets.newHashSet();
+        byHandle = Maps.newHashMap();
 
         for (Effects effect : values()) {
             if (effect.effect instanceof VanillaEffect) {
                 vanillaEffects.add(effect);
             }
+
+            byHandle.put(effect.effect, effect);
         }
     }
 
@@ -109,6 +114,17 @@ public enum Effects implements Described {
     @Nonnull
     public static Set<Effects> getEffects(@Nonnull EffectType type) {
         return CFUtils.setOfEnum(Effects.class, effect -> effect.getEffect().getType() == type);
+    }
+
+    /**
+     * Gets an enum {@link Effects} by the {@link Effect} handle.
+     *
+     * @param effect - Handle.
+     * @return an enum or null.
+     */
+    @Nullable
+    public static Effects byHandle(@Nonnull Effect effect) {
+        return byHandle.get(effect);
     }
 
     /**

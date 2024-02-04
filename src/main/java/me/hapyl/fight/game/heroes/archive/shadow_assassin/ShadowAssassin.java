@@ -77,6 +77,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
         )
                 .setDurationSec(10)
                 .setCooldownSec(40)
+                .setType(Talent.Type.ENHANCE)
                 .setItem(Material.GOLDEN_CARROT));
 
         getUltimate().addAttributeDescription("Cooldown Per Hit", nevermissCd);

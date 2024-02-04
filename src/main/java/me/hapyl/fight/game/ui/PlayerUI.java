@@ -296,7 +296,7 @@ public class PlayerUI extends TickingGameTask {
 
         // Display teammate information:
         if (team != null) {
-            builder.append("\n&e&lTeammates:\n");
+            builder.append("\n&e&lᴛᴇᴀᴍᴍᴀᴛᴇs:\n");
             if ((team.getPlayers().size() == 1) && (Settings.SHOW_YOURSELF_AS_TEAMMATE.isDisabled(player))) {
                 builder.append("&8None!");
             }
@@ -324,7 +324,7 @@ public class PlayerUI extends TickingGameTask {
         }
 
         // Display active effects
-        builder.append("\n\n&e&lActive Effects:\n");
+        builder.append("\n\n&e&lᴀᴄᴛɪᴠᴇ ᴇғғᴇᴄᴛs:\n");
         final GamePlayer gp = GamePlayer.getExistingPlayer(this.player);
         if (gp == null || gp.getActiveEffects().isEmpty()) {
             builder.append("&8None!");

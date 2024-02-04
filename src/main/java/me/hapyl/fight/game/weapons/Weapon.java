@@ -32,7 +32,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -49,7 +48,6 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
     private String description;
     private String lore;
     private double damage;
-    private double attackSpeed;
 
     private String id;
 
@@ -61,7 +59,6 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
         this.material = material;
         this.name = name;
         this.description = about;
-        this.attackSpeed = 0.0d;
         this.damage = damage;
         this.enchants = Lists.newArrayList();
         this.abilities = Maps.newHashMap();
@@ -104,18 +101,6 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
         final Ability ability = getAbility(type);
 
         return ability == null ? Optional.empty() : Optional.of(ability);
-    }
-
-    /**
-     * Sets the weapon attack speed.
-     * <p>
-     * <b>Use <code>/setattackspeed (value)</code> in game to test this, the value is quite arbitrary.</b>
-     *
-     * @param attackSpeed - Attack speed.
-     */
-    public Weapon setAttackSpeed(double attackSpeed) {
-        this.attackSpeed = attackSpeed;
-        return this;
     }
 
     public Weapon addEnchant(Enchantment enchantment, int level) {
@@ -271,7 +256,7 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
                         return;
                     }
 
-                    Talent.preconditionTalentAnd(gamePlayer)
+                    Talent.preconditionAnd(gamePlayer)
                             .ifTrue((pl, rs) -> ability.execute0(pl, pl.getInventory().getItemInMainHand()))
                             .ifFalse((pl, rs) -> rs.sendError(pl));
                 });
@@ -319,31 +304,21 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
         }
 
         // Set attack speed
-        final ItemMeta meta = builder.getMeta();
 
-        // The attack speed is not generalized,
+        // The attack speed is now generalized,
         // meaning all weapons work the same with
         // the same attack speed regardless of vanilla attack speed
-        if (meta != null) {
+        builder.modifyMeta(meta -> {
             meta.removeAttributeModifier(Attribute.GENERIC_ATTACK_SPEED);
+
             meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(
                     UUID.randomUUID(),
                     "AttackSpeed",
-                    attackSpeed,
+                    0.0d,
                     AttributeModifier.Operation.ADD_NUMBER,
                     EquipmentSlot.HAND
             ));
-            builder.setItemMeta(meta);
-        }
-
-        if (attackSpeed != 0.0d) {
-            builder.addAttribute(
-                    Attribute.GENERIC_ATTACK_SPEED,
-                    attackSpeed,
-                    AttributeModifier.Operation.ADD_NUMBER,
-                    EquipmentSlot.HAND
-            );
-        }
+        });
 
         builder.setUnbreakable(true);
 
@@ -383,8 +358,7 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
         return new Weapon(material)
                 .setName(name)
                 .setDescription(description)
-                .setDamage(damage)
-                .setAttackSpeed(attackSpeed);
+                .setDamage(damage);
     }
 
     private void addDynamicLore(@Nonnull ItemBuilder builder, @Nonnull String string, @Nonnull Number number, Function<Number, String> function) {

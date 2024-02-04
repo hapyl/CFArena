@@ -5,6 +5,7 @@ import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.dialog.ActiveDialog;
 import me.hapyl.fight.fastaccess.PlayerFastAccess;
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.delivery.Deliveries;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -55,7 +56,8 @@ public class PlayerProfile {
     public ActiveDialog dialog;
     @Nullable
     private GamePlayer gamePlayer; // current game player
-    private PlayerUI playerUI; // ui
+    private PlayerUI playerUI;     // ui
+    private Heroes lastSelectedHero;   // Previous hero to later restore in Random Hero setting
     private Heroes selectedHero;   // selected hero
     private Trial trial;
     private boolean loaded;
@@ -246,8 +248,17 @@ public class PlayerProfile {
         return selectedHero;
     }
 
-    public void setSelectedHero(Heroes selectedHero) {
-        this.selectedHero = selectedHero;
+    public void setSelectedHero(@Nonnull Heroes selectedHero) {
+        setSelectedHero(selectedHero, true);
+    }
+
+    public void setSelectedHero(@Nonnull Heroes hero, boolean save) {
+        this.selectedHero = hero;
+
+        if (save) {
+            // Store to database here duh
+            playerDatabase.heroEntry.setSelectedHero(hero);
+        }
     }
 
     public String getSelectedHeroString() {
@@ -284,6 +295,20 @@ public class PlayerProfile {
         return player.getUniqueId();
     }
 
+    @Nullable
+    public Heroes getLastSelectedHero() {
+        return lastSelectedHero;
+    }
+
+    public void rememberLastSelectedHero() {
+        // Don't re-remember a hero
+        if (lastSelectedHero != null) {
+            return;
+        }
+
+        lastSelectedHero = selectedHero;
+    }
+
     public Heroes getHero() {
         return selectedHero;
     }
@@ -297,6 +322,9 @@ public class PlayerProfile {
         return playerDatabase.getRank();
     }
 
+    public void forgetLastSelectedHero() {
+        lastSelectedHero = null;
+    }
 
     private void createTraceDump(RuntimeException exception) {
         final StackTraceElement[] stackTrace = exception.getStackTrace();

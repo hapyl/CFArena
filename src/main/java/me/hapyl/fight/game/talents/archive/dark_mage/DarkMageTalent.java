@@ -77,13 +77,13 @@ public abstract class DarkMageTalent extends Talent {
         return Response.AWAIT;
     }
 
-    public final Response executeDarkMage(GamePlayer player) {
+    public final Response executeDarkMage(@Nonnull GamePlayer player) {
         if (hasCd(player)) {
             player.sendSubtitle("&cSpell on cooldown for %ss!".formatted(BukkitUtils.roundTick(getCdTimeLeft(player))), 0, 20, 5);
             return Response.ERROR;
         }
 
-        final Response response = Talent.preconditionTalent(player);
+        final Response response = Talent.precondition(player);
 
         if (!response.isOk()) {
             player.sendTitle("&c" + response.getReason(), null, 0, 20, 5);

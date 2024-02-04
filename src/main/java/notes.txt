@@ -1,5 +1,35 @@
 ####################################################################
 
+- [✔] Player can get "hapyl" status
+- [?, Needs testing] Finish the thing last thingy
+- [✔] Rejoinig with a random class breaks the game
+- [✔] Cannot see teammate mark
+- [✔] RIP BONES should not crit
+- [✔] Taker can break chains after death?
+- [✔] I SPAWNED AN ENDERMAN WHAT THE FUCK
+- [✔] STUN KICKES FOR FLY
+
+##########
+
+* Shaman:
+- [✔] Less healing
+- [✔] Chance to totem to explode
+
+* Rogue:
+- More damage in second wind
+- More shield
+
+* Heavy Knight:
+- 1st ability should push both
+- Hit pushes down
+
+* SA:
+- Fury Clones
+
+####################################################################
+
+- Maybe remove totem effect cannot see what is happening
+
 - [✔] Player screen did not reset properly
 - [✔] Witcher shows wrong combo
 - [✔] Invis hides the wrong player lol
@@ -35,11 +65,6 @@ Rogue First Test:
 - Frenzy bugged
 - Frenzy death after health <= 0 resets health
 - [✔] Change flight to onReveal() not onStart() OR force flight on when setting to spectator
-
-* Bloodfiend
-- Change bloodfiend to use hp%
-- Change bloodfiend pillar to left/right
-- Fix bloodfiend blood tps to player not nearby
 
 - [✔] I BELIEVE I CAN FLY, I BELIEVE I CAN TOUCH THE SKY
 -- Should be fixed for all characters, though needs testing.

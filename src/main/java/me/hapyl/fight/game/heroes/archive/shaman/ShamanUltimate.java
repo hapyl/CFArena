@@ -34,6 +34,7 @@ public class ShamanUltimate extends UltimateTalent {
                 Also increase their %s for &b{effectResIncreaseDuration}&7.
                 """.formatted(AttributeType.EFFECT_RESISTANCE));
 
+        setType(Type.SUPPORT);
         setItem(Material.MILK_BUCKET);
         setSound(Sound.ENTITY_GOAT_SCREAMING_MILK, 0.0f);
         setCooldownSec(30);

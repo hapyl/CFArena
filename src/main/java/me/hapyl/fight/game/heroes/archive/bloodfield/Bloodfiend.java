@@ -86,6 +86,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
 
         final HeroAttributes attributes = getAttributes();
         attributes.setHealth(80.0d);
+        attributes.setAttackSpeed(150);
 
         final Equipment equipment = getEquipment();
 
@@ -99,8 +100,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
                         .setDescription("""
                                 A sharp fang.
                                 """)
-                        .setDamage(6.0d)
-                        .setAttackSpeed(0.5d)
+                        .setDamage(5.0d)
         );
 
         final UltimateTalent ultimate = new UltimateTalent(this, "Impel", 50)

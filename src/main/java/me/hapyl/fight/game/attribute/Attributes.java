@@ -13,6 +13,7 @@ import java.util.function.BiConsumer;
 public class Attributes implements WeakCopy {
 
     public final static double DEFENSE_SCALING = 0.5d;
+    public static final double INFINITE_ATTACK_SPEED = 9.99d;
 
     protected final Map<AttributeType, Double> mapped;
     protected final AttributeRandom random;
@@ -228,6 +229,15 @@ public class Attributes implements WeakCopy {
     }
 
     /**
+     * Sets the {@link AttributeType#ATTACK_SPEED} to be "infinite".
+     * <p>
+     * This will allow spamming the weapon like in 1.8 and will remove the indicator.
+     */
+    public void setInfiniteAttackSpeed() {
+        set(AttributeType.ATTACK_SPEED, INFINITE_ATTACK_SPEED);
+    }
+
+    /**
      * Sets the {@link AttributeType#KNOCKBACK_RESISTANCE} value for this attribute.
      *
      * @param value - New value.
@@ -344,10 +354,6 @@ public class Attributes implements WeakCopy {
         return copy;
     }
 
-    private void setValueScaled(AttributeType type, double value) {
-        set(type, type.scaleDown(value));
-    }
-
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder("{");
@@ -366,5 +372,9 @@ public class Attributes implements WeakCopy {
         }
 
         return builder.append("}").toString();
+    }
+
+    private void setValueScaled(AttributeType type, double value) {
+        set(type, type.scaleDown(value));
     }
 }

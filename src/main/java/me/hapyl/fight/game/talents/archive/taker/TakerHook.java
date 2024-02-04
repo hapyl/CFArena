@@ -134,6 +134,10 @@ public class TakerHook {
     }
 
     public void breakChains() {
+        if (chains.isEmpty()) {
+            return;
+        }
+
         chains.forEach(stand -> {
             final EulerAngle pose = stand.getHeadPose();
 
