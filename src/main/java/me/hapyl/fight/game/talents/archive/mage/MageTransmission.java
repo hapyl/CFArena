@@ -66,7 +66,7 @@ public class MageTransmission extends Talent {
             return null;
         }
 
-        return block.getRelative(BlockFace.UP).getLocation();
+        return block.getRelative(BlockFace.UP).getLocation().add(0.5, 0, 0.5);
     }
 
 

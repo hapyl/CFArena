@@ -101,6 +101,7 @@ import me.hapyl.fight.game.talents.archive.vortex.VortexSlash;
 import me.hapyl.fight.game.talents.archive.vortex.VortexStar;
 import me.hapyl.fight.game.talents.archive.witcher.*;
 import me.hapyl.fight.game.talents.archive.zealot.BrokenHeartRadiation;
+import me.hapyl.fight.game.talents.archive.zealot.FerociousStrikes;
 import me.hapyl.fight.game.talents.archive.zealot.MaledictionVeil;
 import me.hapyl.fight.game.talents.archive.zealot.MalevolentHitshield;
 import me.hapyl.spigotutils.module.util.BFormat;
@@ -570,7 +571,8 @@ public enum Talents {
      */
     BROKEN_HEART_RADIATION(new BrokenHeartRadiation()),
     MALEVOLENT_HITSHIELD(new MalevolentHitshield()),
-    MALEDICTION_VEIL(new MaledictionVeil()),
+    FEROCIOUS_STRIKES(new FerociousStrikes()),
+    @Deprecated MALEDICTION_VEIL(new MaledictionVeil()),
 
     /**
      * {@link me.hapyl.fight.game.heroes.archive.rogue.Rogue}

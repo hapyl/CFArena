@@ -116,6 +116,11 @@ public enum Rarity implements RandomDrop, FormattedEnum {
     }
 
     @Nonnull
+    public String toString(@Nonnull String suffix) {
+        return prefix() + color.color(name + " " + suffix) + suffix();
+    }
+
+    @Nonnull
     @Override
     public String getFormatted() {
         return toString();

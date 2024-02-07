@@ -30,10 +30,12 @@ public enum Effects implements Described {
     WATER_BREATHING(new VanillaEffect("Water Breathing", PotionEffectType.WATER_BREATHING, EffectType.POSITIVE)),
     BLINDNESS(new VanillaEffect("Blindness", PotionEffectType.BLINDNESS, EffectType.NEGATIVE) {
         @Override
+        public void onStart(@Nonnull LivingGameEntity entity, int amplifier, int duration) {
+            entity.addPotionEffect(PotionEffectType.BLINDNESS, amplifier, duration);
+        }
+
+        @Override
         public void onStop(@Nonnull LivingGameEntity entity, int amplifier) {
-            super.onStop(entity, amplifier);
-            // Fade out
-            entity.addPotionEffect(PotionEffectType.BLINDNESS, 100, 10);
         }
     }),
     NIGHT_VISION(new VanillaEffect("Night Vision", PotionEffectType.NIGHT_VISION, EffectType.POSITIVE)),

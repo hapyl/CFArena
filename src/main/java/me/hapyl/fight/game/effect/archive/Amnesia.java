@@ -49,7 +49,7 @@ public class Amnesia extends Effect implements Listener {
     }
 
     @Override
-    public void onStart(@Nonnull LivingGameEntity entity, int amplifier) {
+    public void onStart(@Nonnull LivingGameEntity entity, int amplifier, int duration) {
         entity.addPotionEffectIndefinitely(PotionEffectType.CONFUSION, 1);
     }
 

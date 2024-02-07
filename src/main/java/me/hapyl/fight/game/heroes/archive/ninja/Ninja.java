@@ -3,6 +3,7 @@ package me.hapyl.fight.game.heroes.archive.ninja;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
@@ -64,6 +65,9 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
         setArchetype(Archetype.MOBILITY);
         setItem("1413159cfab50aba283e68c1659d74412392fbcb1f7d663d1bd2a2a6430c2743");
 
+        final HeroAttributes attributes = getAttributes();
+        attributes.setSpeed(115);
+
         final Equipment equipment = getEquipment();
         equipment.setChestPlate(Color.WHITE);
         equipment.setLeggings(Material.CHAINMAIL_LEGGINGS);
@@ -117,11 +121,6 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
     @Override
     public void onRespawn(@Nonnull GamePlayer player) {
         onPlayersRevealed(player);
-    }
-
-    @Override
-    public void onStart(@Nonnull GamePlayer player) {
-        player.addEffect(Effects.SPEED, -1);
     }
 
     @EventHandler()

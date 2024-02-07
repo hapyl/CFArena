@@ -17,6 +17,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.text.SimpleDateFormat;
 import java.util.stream.Collectors;
 
@@ -177,6 +178,7 @@ public abstract class CFGameMode {
         return true;
     }
 
+    @OverridingMethodsMustInvokeSuper
     public void displayWinners(@Nonnull GameResult result) {
         final String gameTime = result.getGameTimeFormatted();
         final GameResultType resultType = result.getResultType();

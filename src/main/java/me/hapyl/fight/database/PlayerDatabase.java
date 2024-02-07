@@ -43,6 +43,7 @@ public sealed class PlayerDatabase permits OfflinePlayerDatabase {
     public final FastAccessEntry fastAccessEntry;
     public final MetadataEntry metadataEntry;
     public final ArtifactEntry artifactEntry;
+    public final RandomHeroEntry randomHeroEntry;
     /////////////////
     // ENTRIES END //
     /////////////////
@@ -80,6 +81,7 @@ public sealed class PlayerDatabase permits OfflinePlayerDatabase {
         this.fastAccessEntry = new FastAccessEntry(this);
         this.metadataEntry = new MetadataEntry(this);
         this.artifactEntry = new ArtifactEntry(this);
+        this.randomHeroEntry = new RandomHeroEntry(this);
     }
 
     PlayerDatabase(Player player) {

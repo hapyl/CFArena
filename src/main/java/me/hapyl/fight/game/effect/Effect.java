@@ -74,8 +74,9 @@ public abstract class Effect implements Described {
      *
      * @param entity    - Entity.
      * @param amplifier - Amplifier.
+     * @param duration  - Duration.
      */
-    public abstract void onStart(@Nonnull LivingGameEntity entity, int amplifier);
+    public abstract void onStart(@Nonnull LivingGameEntity entity, int amplifier, int duration);
 
     /**
      * Called once upon entity losing this effect.

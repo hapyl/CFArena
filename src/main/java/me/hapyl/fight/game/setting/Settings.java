@@ -3,11 +3,9 @@ package me.hapyl.fight.game.setting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.util.EnumWrapper;
 import me.hapyl.fight.util.PlayerItemCreator;
-import me.hapyl.fight.ux.Message;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Material;
@@ -28,37 +26,6 @@ public enum Settings implements EnumWrapper<Setting>, PlayerItemCreator {
             Category.GAMEPLAY
     )),
 
-    RANDOM_HERO(new Setting(
-            Material.TOTEM_OF_UNDYING,
-            "Random Hero",
-            "Whenever you start the game with a random hero every time.",
-            Category.GAMEPLAY
-    ) {
-        @Override
-        public void onDisabled(@Nonnull Player player) {
-            super.onDisabled(player);
-            final PlayerProfile profile = PlayerProfile.getProfile(player);
-
-            if (profile == null) {
-                return;
-            }
-
-            final Heroes lastSelectedHero = profile.getLastSelectedHero();
-
-            if (lastSelectedHero == null) {
-                return;
-            }
-
-            profile.setSelectedHero(lastSelectedHero);
-            profile.forgetLastSelectedHero();
-
-            Message.warning(
-                    player,
-                    "&b&l%s &bwas selected because it was your hero before turning on this setting!".formatted(lastSelectedHero.getName())
-            );
-        }
-    }),
-
     PLAYER_PINGS(new Setting(
             Material.ARROW,
             "Player Pings",
@@ -67,7 +34,24 @@ public enum Settings implements EnumWrapper<Setting>, PlayerItemCreator {
             true
     )),
 
-    // Chat
+    SHOW_HEALTH_AND_SHIELD_SEPARATELY(new Setting(
+            Material.SHIELD,
+            "Show Health and Shield Separately", """
+            Whenever to show health and shield amount separately, rather than combined.
+                        
+            &aIf enabled:
+            &c&c50 &c❤ &e&l50 &e🛡
+                        
+            &cIf disabled:
+            &e&l100 &e🛡
+            """,
+            Category.GAMEPLAY,
+            true
+    )),
+
+    //////////
+    // Chat //
+    //////////
     CHAT_PING(new Setting(
             Material.GOLD_INGOT,
             "Chat Notification",
@@ -79,23 +63,53 @@ public enum Settings implements EnumWrapper<Setting>, PlayerItemCreator {
     SEE_NOTIFICATIONS(new Setting(
             Material.PAPER,
             "See Notifications",
-            "Whenever you will see notifications.",
+            "Whenever you will see when someone @mentions you.",
             Category.CHAT,
             true
     )),
 
+    SHOW_DAMAGE_IN_CHAT(new Setting(
+            Material.SWEET_BERRIES,
+            "Show Damage in Chat", """
+            Whenever you'll see damage dealt and taken messages in chat.
+                                
+            &9Nerds special!
+            """,
+            Category.CHAT
+    )),
+
+    SHOW_COOLDOWN_MESSAGE(new Setting(
+            Material.CLOCK,
+            "Show Cooldown Messages & Sound", """
+            Whenever you'll see and hear ability cooldown messages.
+            """,
+            Category.CHAT,
+            true
+    )),
+
+    SEE_HERO_RATING_MESSAGE(new Setting(
+            Material.FILLED_MAP,
+            "Don't Show Hero Rating",
+            "Whenever you will get a message asking to rate a hero when you haven't yet.",
+            Category.CHAT,
+            true
+    )),
+
+    ////////
+    // UI //
+    ////////
     SHOW_YOURSELF_AS_TEAMMATE(new Setting(
             Material.PLAYER_HEAD,
             "Show Yourself as a Teammate",
             "Whenever you will see yourself as a teammate in a tab list.",
-            Category.CHAT
+            Category.UI
     )),
 
     HIDE_UI(new Setting(
             Material.GLASS_PANE,
             "Hide Game UI",
             "Whenever to hide most of the game UI elements, such as actionbar, scoreboard, damage indicators, etc.",
-            Category.CHAT
+            Category.UI
     ) {
         @Override
         public void onEnable(@Nonnull Player player) {
@@ -126,48 +140,6 @@ public enum Settings implements EnumWrapper<Setting>, PlayerItemCreator {
         }
     }),
 
-    SHOW_DAMAGE_IN_CHAT(new Setting(
-            Material.SWEET_BERRIES,
-            "Show Damage in Chat", """
-            Whenever you'll see damage dealt and taken messages in chat.
-                                
-            &9Nerds special!
-            """,
-            Category.CHAT
-    )),
-
-    SHOW_COOLDOWN_MESSAGE(new Setting(
-            Material.CLOCK,
-            "Show Cooldown Messages & Sound", """
-            Whenever you'll see and hear ability cooldown messages.
-            """,
-            Category.CHAT,
-            true
-    )),
-
-    SHOW_HEALTH_AND_SHIELD_SEPARATELY(new Setting(
-            Material.SHIELD,
-            "Show Health and Shield Separately", """
-            Whenever to show health and shield amount separately, rather than combined.
-                        
-            &aIf enabled:
-            &c&c50 &c❤ &e&l50 &e🛡
-                        
-            &cIf disabled:
-            &e&l100 &e🛡
-            """,
-            Category.CHAT,
-            true
-    )),
-
-    SEE_HERO_RATING_MESSAGE(new Setting(
-            Material.FILLED_MAP,
-            "Don't Show Hero Rating",
-            "Whenever you will get a message asking to rate a hero when you haven't yet.",
-            Category.CHAT,
-            true
-    )),
-
     ///////////
     // Other //
     ///////////
@@ -178,6 +150,7 @@ public enum Settings implements EnumWrapper<Setting>, PlayerItemCreator {
             Category.OTHER,
             true
     )),
+
 
     USE_SKINS_INSTEAD_OF_ARMOR(new Setting(
             Material.LEATHER_CHESTPLATE,

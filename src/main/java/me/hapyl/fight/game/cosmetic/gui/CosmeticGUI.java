@@ -38,7 +38,7 @@ public class CosmeticGUI extends StyledPageGUI<Cosmetics> {
             final Cosmetic cosmetic = enumCosmetic.getCosmetic();
 
             if (cosmetic.isExclusive()) {
-                return !enumCosmetic.isUnlocked(player) && !enumCosmetic.isSelected(player);
+                return !enumCosmetic.isUnlocked(player);
             }
 
             return false;

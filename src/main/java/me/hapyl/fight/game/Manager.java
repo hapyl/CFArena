@@ -6,7 +6,10 @@ import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.command.RateHeroCommand;
+import me.hapyl.fight.database.entry.RandomHeroEntry;
 import me.hapyl.fight.game.achievement.Achievements;
+import me.hapyl.fight.game.color.Color;
+import me.hapyl.fight.game.competetive.Tournament;
 import me.hapyl.fight.game.cosmetic.skin.SkinEffectManager;
 import me.hapyl.fight.game.entity.*;
 import me.hapyl.fight.game.gamemode.Modes;
@@ -75,6 +78,7 @@ public final class Manager extends BukkitRunnable {
     private StartCountdown startCountdown;
     private GameInstance gameInstance; // @implNote: For now, only one game instance can be active at a time.
     private DebugData debugData;
+    private Tournament competitive;
 
     public Manager(Main main) {
         this.main = main;
@@ -530,6 +534,9 @@ public final class Manager extends BukkitRunnable {
 
             // Teleport to the map
             player.teleport(currentMap.getMap().getLocation());
+
+            // Glow teammates right after teleport
+            gamePlayer.getTeam().glowTeammates();
         }
 
         if (!debug.is(DebugData.Flag.DEBUG)) {
@@ -559,7 +566,6 @@ public final class Manager extends BukkitRunnable {
 
                 target.getHero().onPlayersRevealed(target);
                 target.showPlayer();
-                target.getTeam().glowTeammates();
 
                 if (!debug.is(DebugData.Flag.DEBUG)) {
                     world.strikeLightningEffect(target.getLocation().add(0, 2, 0));
@@ -709,21 +715,21 @@ public final class Manager extends BukkitRunnable {
             return;
         }
 
-        getOrCreateProfile(player).setSelectedHero(heroes);
+        final PlayerProfile profile = getOrCreateProfile(player);
+
+        profile.setSelectedHero(heroes);
         player.closeInventory();
 
         PlayerLib.villagerYes(player);
-        Chat.sendMessage(player, "&aSelected %s!", heroes.getHero().getName());
+        Message.success(player, "Selected %s!".formatted(heroes.getFormatted(Color.SUCCESS)));
 
-        if (Settings.RANDOM_HERO.isEnabled(player)) {
-            Settings.RANDOM_HERO.setEnabled(player, false);
+        final RandomHeroEntry entry = profile.getDatabase().randomHeroEntry;
 
-            Chat.sendMessage(player, "");
-            Message.warning(
-                    player,
-                    "&b&l%s &bsetting was &c&ndisabled&b because you selected a hero manually!".formatted(Settings.RANDOM_HERO.getName())
-            );
-            Chat.sendMessage(player, "");
+        if (entry.isEnabled()) {
+            entry.setEnabled(false);
+            entry.setLastSelectedHero(null); // Forget last hero because yes
+
+            Message.info(player, "&b&lRandom Hero Select &bwas &c&ndisabled&b because you selected a hero manually!");
         }
     }
 

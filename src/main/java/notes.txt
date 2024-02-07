@@ -1,49 +1,9 @@
-####################################################################
-
-- [✔] Player can get "hapyl" status
-- [?, Needs testing] Finish the thing last thingy
-- [✔] Rejoinig with a random class breaks the game
-- [✔] Cannot see teammate mark
-- [✔] RIP BONES should not crit
-- [✔] Taker can break chains after death?
-- [✔] I SPAWNED AN ENDERMAN WHAT THE FUCK
-- [✔] STUN KICKES FOR FLY
-
 ##########
 
-* Shaman:
-- [✔] Less healing
-- [✔] Chance to totem to explode
-
-* Rogue:
-- More damage in second wind
-- More shield
-
-* Heavy Knight:
-- 1st ability should push both
-- Hit pushes down
-
-* SA:
-- Fury Clones
-
-####################################################################
-
-- Maybe remove totem effect cannot see what is happening
-
-- [✔] Player screen did not reset properly
-- [✔] Witcher shows wrong combo
-- [✔] Invis hides the wrong player lol
-- Fix player stats at the end
-- [✔] Tp blindness
-- [✔] Just bring back the old damage system, I'm doo dumb and it's like breaks everything but one characters
-- [✔] Shaman wepoan disappeared again
-- [✔] +0 overheal
-
-Rogue First Test:
-- [✔] Make swayblade more pitch-yaw
-- [✔] Buff second wind
-- [✔] Add sound
-- [?!] Passive sometimes don't proc?
+- Stopping the game should display winners
+- Add open 10 instead of bulk open, or make open 10 VIP and bulk PREMIUM
+- Add fight thingy so FIGHT
+- Make debug data cooler
 
 ####################################################################
 

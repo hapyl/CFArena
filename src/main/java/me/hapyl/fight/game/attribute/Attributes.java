@@ -100,6 +100,24 @@ public class Attributes implements WeakCopy {
         return damage * AttributeType.ATTACK.get(this);
     }
 
+    /**
+     * Calculates the range attack speed with the formula:
+     * <pre>
+     *     scale = sin(PI / (attackSpeed + 1))
+     *     scale = atkSpd < 1 ? PI - (PI / 10) - scale : scale
+     *
+     *     max(0, speed * scale)
+     * </pre>
+     */
+    public final int calculateRangeAttackSpeed(int speed) {
+        final double attackSpeed = get(AttributeType.ATTACK_SPEED);
+
+        double scale = Math.sin(Math.PI / (attackSpeed + 1));
+        scale = attackSpeed < 1 ? (Math.PI - Math.PI / 10 - scale) : scale;
+
+        return Math.max(0, (int) (speed * scale));
+    }
+
     public final boolean calculateDodge() {
         return random.checkBound(AttributeType.DODGE);
     }

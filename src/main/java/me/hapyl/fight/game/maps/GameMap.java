@@ -3,6 +3,8 @@ package me.hapyl.fight.game.maps;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.StaticServerEvent;
@@ -16,6 +18,7 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
 import org.bukkit.*;
+import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
@@ -25,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 
+@AutoRegisteredListener
 public class GameMap implements GameElement, PlayerElement {
 
     private final String name;
@@ -68,6 +72,10 @@ public class GameMap implements GameElement, PlayerElement {
         this.gamePacks = Maps.newHashMap();
         this.gamePacks.put(PackType.HEALTH, new HealthPack());
         this.gamePacks.put(PackType.CHARGE, new ChangePack());
+
+        if (this instanceof Listener listener) {
+            CF.registerEvents(listener);
+        }
     }
 
     @Override

@@ -4,8 +4,8 @@ import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.GameDeathEvent;
-import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Named;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.EquipmentSlot;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -22,7 +22,7 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
-import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.game.weapons.BowWeapon;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
@@ -78,7 +78,7 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
         equipment.setLeggings(54, 48, 48);
         equipment.setBoots(183, 183, 180);
 
-        setWeapon(new Weapon(Material.BOW).setDamage(2.0d).setName("Bow").setDescription("Just a normal bow."));
+        setWeapon(new BowWeapon().setDamage(2.0d).setName("Bow").setDescription("Just a normal bow."));
 
         setUltimate(new UltimateTalent(
                 this, "Crowned Mastery", """

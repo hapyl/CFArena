@@ -45,7 +45,7 @@ public class Vulnerable extends Effect implements Listener {
     }
 
     @Override
-    public void onStart(@Nonnull LivingGameEntity entity, int amplifier) {
+    public void onStart(@Nonnull LivingGameEntity entity, int amplifier, int duration) {
 
     }
 

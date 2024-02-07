@@ -23,7 +23,7 @@ public class MovementContainment extends Effect {
     }
 
     @Override
-    public void onStart(@Nonnull LivingGameEntity entity, int amplifier) {
+    public void onStart(@Nonnull LivingGameEntity entity, int amplifier, int duration) {
         final EntityAttributes attributes = entity.getAttributes();
 
         attributes.subtractSilent(AttributeType.SPEED, speedConstant);

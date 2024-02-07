@@ -15,6 +15,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -128,7 +129,7 @@ public class BlindingCurse extends DarkMageTalent {
 
         to.sendTitle("&0&l☠", "&0&l☠", 0, blindingDuration - 10, 10);
 
-        to.addEffect(Effects.BLINDNESS, 10, blindingDuration);
+        to.addPotionEffect(PotionEffectType.BLINDNESS, 10, blindingDuration);
         to.addEffect(Effects.SLOW, 1, slowingDuration);
 
         to.damage(damage, player, EnumDamageCause.DARKNESS_CURSE);

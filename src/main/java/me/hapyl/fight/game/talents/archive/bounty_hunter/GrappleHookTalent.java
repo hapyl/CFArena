@@ -1,8 +1,10 @@
 package me.hapyl.fight.game.talents.archive.bounty_hunter;
 
 import me.hapyl.fight.CF;
+import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -40,18 +42,6 @@ public class GrappleHookTalent extends ChargedTalent implements Listener {
         setNoChargedMaterial(Material.GOAT_HORN);
     }
 
-    @Override
-    public void onLastCharge(@Nonnull GamePlayer player) {
-        grantAllCharges(player, cooldown);
-        player.setCooldown(getNoChargedMaterial(), cooldown);
-    }
-
-    @EventHandler()
-    public void handleSlimeSplit(SlimeSplitEvent ev) {
-        ev.setCount(0);
-        ev.setCancelled(true);
-    }
-
     @EventHandler()
     public void handleHookRemove(PlayerToggleSneakEvent ev) {
         final GamePlayer player = CF.getPlayer(ev.getPlayer());
@@ -70,6 +60,18 @@ public class GrappleHookTalent extends ChargedTalent implements Listener {
 
         // Fx
         player.sendTitle("&6\uD83E\uDE9D", "&eHook rope cut!", 0, 10, 10);
+    }
+
+    @Override
+    public void onLastCharge(@Nonnull GamePlayer player) {
+        grantAllCharges(player, cooldown);
+        player.setCooldown(getNoChargedMaterial(), cooldown);
+    }
+
+    @EventHandler()
+    public void handleSlimeSplit(SlimeSplitEvent ev) {
+        ev.setCount(0);
+        ev.setCancelled(true);
     }
 
     @Override

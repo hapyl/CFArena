@@ -24,17 +24,18 @@ public class Slash extends Talent {
 
     @DisplayField private final double distance = 3.0d;
     @DisplayField private final int effectDuration = Tick.fromSecond(4);
-    @DisplayField private final double damage = 10.0d;
+    @DisplayField private final double damage = 6.0d;
+    @DisplayField private final double strongDamage = 10.0d;
 
     private final TemperInstance temperInstance = Temper.POWER_SLASH.newInstance()
-            .decrease(AttributeType.SPEED, 0.25d)
+            .decrease(AttributeType.SPEED, 0.05d) // 25%
             .decrease(AttributeType.DEFENSE, 0.25d);
 
     public Slash() {
         super("Slash");
 
         setDescription("""
-                Perform a slash in front of you, &cdamaging&7 and &3knocking&7 all &cenemies&7 in small AoE.
+                Perform a &cslash&7 attack in front of you, &cdamaging&7 and knocking all &cenemies&7 in small AoE.
                 """);
 
         setType(Type.DAMAGE);
@@ -49,6 +50,8 @@ public class Slash extends Talent {
 
         location.add(direction.multiply(distance));
 
+        direction.multiply(0.5d); // perfect distance to dash
+
         final List<LivingGameEntity> entitiesHit = Collect.nearbyEntities(
                 location,
                 distance,
@@ -58,16 +61,18 @@ public class Slash extends Talent {
         boolean strongHit = false;
 
         for (LivingGameEntity entity : entitiesHit) {
-            entity.damageNoKnockback(damage, player);
-
             if (SwordMaster.addSuccessfulTalent(player, this) && !strongHit) {
                 strongHit = true;
             }
+
+            entity.damageNoKnockback(strongHit ? strongDamage : damage, player);
 
             if (strongHit) {
                 temperInstance.temper(entity, effectDuration);
                 entity.playWorldSound(location, Sound.BLOCK_ANVIL_LAND, 2.0f);
             }
+
+            entity.setVelocity(direction);
         }
 
         // Fx

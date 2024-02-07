@@ -40,6 +40,8 @@ import java.util.function.Function;
 
 public class Weapon extends NonNullItemCreator implements Described, DisplayFieldProvider, Copyable, GameElement, PlayerElement {
 
+    public static final int DEFAULT_BOW_COOLDOWN = 15;
+
     private final Map<AbilityType, Ability> abilities;
     private final List<Enchant> enchants;
     private final Material material;
@@ -240,8 +242,8 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
                 builder.addLore();
             }
 
-            builder.addLoreIf("&f&m•&f &7Cooldown: &f&l" + CFUtils.decimalFormatTick(cooldown), cooldown > 0);
-            builder.addLoreIf("&f&m•&f &7Duration: &f&l" + CFUtils.decimalFormatTick(duration), duration > 0);
+            builder.addLoreIf("&f•&f &7Cooldown: &f&l" + CFUtils.decimalFormatTick(cooldown), cooldown > 0);
+            builder.addLoreIf("&f•&f &7Duration: &f&l" + CFUtils.decimalFormatTick(duration), duration > 0);
 
             final Action[] clickTypes = type.getClickTypes();
             if (clickTypes != null) {

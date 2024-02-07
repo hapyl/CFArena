@@ -2,10 +2,12 @@ package me.hapyl.fight.game;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.database.Award;
+import me.hapyl.fight.database.entry.RandomHeroEntry;
 import me.hapyl.fight.event.custom.game.GameChangeStateEvent;
 import me.hapyl.fight.event.custom.game.GameEndEvent;
 import me.hapyl.fight.event.custom.game.GameStartEvent;
 import me.hapyl.fight.game.achievement.Achievements;
+import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
@@ -403,15 +405,16 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
                 return;
             }
 
-            if (Settings.RANDOM_HERO.isEnabled(player)) {
-                final Heroes randomHero = Heroes.randomHero();
+            final RandomHeroEntry entry = profile.getDatabase().randomHeroEntry;
 
-                profile.rememberLastSelectedHero();
+            if (entry.isEnabled()) {
+                final Heroes randomHero = entry.getRandomHero();
+
+                entry.setLastSelectedHero(profile.getHero());
                 profile.setSelectedHero(randomHero);
 
                 Chat.sendMessage(player, "");
-                Chat.sendMessage(player, "&a&l%s &awas randomly selected as your hero!", randomHero.getHero().getName());
-                Chat.sendMessage(player, "&e/setting &ato turn off this feature.");
+                Chat.sendMessage(player, "&6✒ %s &bwas randomly selected!".formatted(randomHero.getFormatted(Color.DARK_AQUA)));
                 Chat.sendMessage(player, "");
             }
 

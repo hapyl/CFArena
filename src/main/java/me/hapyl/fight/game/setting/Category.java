@@ -11,7 +11,8 @@ import javax.annotation.Nonnull;
 public enum Category implements Described, PlayerItemCreator {
 
     GAMEPLAY(Material.NETHER_STAR, "Gameplay", "Gameplay related settings."),
-    CHAT(Material.OAK_HANGING_SIGN, "UI & Chat", "User Interface and Chat-related settings."),
+    CHAT(Material.OAK_HANGING_SIGN, "Chat", "Chat related settings."),
+    UI(Material.PAINTING, "UI", "User Interface, such as actionbar, scoreboard, etc."),
     OTHER(Material.DEAD_BUSH, "Other", "Other uncategorized settings."),
 
     ;

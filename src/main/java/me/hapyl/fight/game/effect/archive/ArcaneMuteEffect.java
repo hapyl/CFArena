@@ -30,7 +30,7 @@ public class ArcaneMuteEffect extends Effect implements Listener {
     }
 
     @Override
-    public void onStart(@Nonnull LivingGameEntity entity, int amplifier) {
+    public void onStart(@Nonnull LivingGameEntity entity, int amplifier, int duration) {
         entity.asPlayer(player -> {
             Chat.sendTitle(player, "&e&l☠", "&7Shhhhh...", 10, 20, 10);
         });

@@ -108,7 +108,7 @@ public class ActiveGameEffect implements Ticking {
     private void start() {
         final StringDisplay display = effect.getDisplay();
 
-        effect.onStart(entity, amplifier);
+        effect.onStart(entity, amplifier, remainingTicks);
 
         if (display != null) {
             display.display(entity.getEyeLocation());

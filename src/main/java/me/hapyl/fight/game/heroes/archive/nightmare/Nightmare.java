@@ -2,8 +2,8 @@ package me.hapyl.fight.game.heroes.archive.nightmare;
 
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
@@ -30,9 +30,13 @@ import java.util.List;
 public class Nightmare extends Hero implements DisplayFieldProvider {
 
     @DisplayField
-    private final double omenDamageMultiplier = 1.25d;
+    private final double omenDamageMultiplier = 1.5d;
 
     private final PlayerMap<OmenDebuff> omenDebuffMap = PlayerMap.newConcurrentMap();
+    private final TemperInstance temperInstance = Temper.NIGHTMARE_BUFF
+            .newInstance("In the Shadows")
+            .increase(AttributeType.ATTACK, 0.5d)
+            .increase(AttributeType.SPEED, 0.05d);
 
     public Nightmare(@Nonnull Heroes handle) {
         super(handle, "Nightmare");
@@ -96,10 +100,7 @@ public class Nightmare extends Hero implements DisplayFieldProvider {
                             continue;
                         }
 
-                        final EntityAttributes attributes = player.getAttributes();
-
-                        attributes.increaseTemporary(Temper.NIGHTMARE_BUFF, AttributeType.ATTACK, 0.25d, 30);
-                        attributes.increaseTemporary(Temper.NIGHTMARE_BUFF, AttributeType.SPEED, 0.05d, 30);
+                        temperInstance.temper(player, 30);
 
                         player.spawnWorldParticle(Particle.LAVA, 5, 0.15d, 0.15d, 0.15d, 0.01f);
                         player.spawnWorldParticle(Particle.SMOKE_LARGE, 5, 0.15d, 0.15d, 0.15d, 0.01f);

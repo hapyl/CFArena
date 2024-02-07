@@ -61,7 +61,7 @@ public class PlayerCloneList implements TalentReference<ShadowAssassinClone> {
     }
 
     public void disappearAll() {
-        clones.forEach(CloneNPC::remove0);
+        clones.forEach(CloneNPC::remove1);
         clones.clear();
         linkedClone = null;
     }

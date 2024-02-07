@@ -23,7 +23,7 @@ public class MeleeStance extends Talent {
     @DisplayField private final int maxDuration = 600;
     @DisplayField private final int minimumCd = 60;
     @DisplayField private final int cdPerSecond = 30;
-    @DisplayField(percentage = true) private final double critChanceIncrease = 0.5d;
+    @DisplayField(percentage = true) private final double critChanceIncrease = 0.3d;
 
     private final PlayerMap<StanceData> dataMap = PlayerMap.newMap();
 

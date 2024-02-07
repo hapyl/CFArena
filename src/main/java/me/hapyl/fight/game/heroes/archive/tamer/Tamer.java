@@ -138,6 +138,10 @@ public class Tamer extends Hero implements Listener, UIComponent, HeroPlaque {
 
         if (ev.getHitEntity() instanceof LivingEntity living) {
             CF.getEntityOptional(living).ifPresent(gameEntity -> {
+                if (gamePlayer.isSelfOrTeammate(gameEntity)) {
+                    return;
+                }
+
                 gameEntity.setLastDamager(gamePlayer);
                 gameEntity.damage(WEAPON_DAMAGE, EnumDamageCause.LEASHED);
             });

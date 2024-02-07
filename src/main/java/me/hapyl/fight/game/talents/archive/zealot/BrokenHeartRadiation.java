@@ -1,16 +1,15 @@
 package me.hapyl.fight.game.talents.archive.zealot;
 
 import me.hapyl.fight.fx.beam.Quadrant;
-import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -62,7 +61,7 @@ public class BrokenHeartRadiation extends Talent {
 
                 temperInstance.temper(entity, effectDuration);
 
-                entity.damage(beamDamage, player, EnumDamageCause.RADIATION);
+                entity.damageNoKnockback(beamDamage, player, EnumDamageCause.RADIATION);
             }
 
             @Override
@@ -70,8 +69,13 @@ public class BrokenHeartRadiation extends Talent {
                 teleport(player.getLocation());
 
                 if (player.isDeadOrRespawning() || getTick() >= getDuration()) {
-                    remove();
+                    cancel();
                 }
+            }
+
+            @Override
+            public void onTaskStop() {
+                remove();
             }
         };
 
@@ -79,7 +83,7 @@ public class BrokenHeartRadiation extends Talent {
         quadrant.runTaskTimer(0, 1);
 
         // Fx
-        PlayerLib.playSound(location, Sound.ENTITY_ELDER_GUARDIAN_CURSE, 0.0f);
+        player.playWorldSound(location, Sound.ENTITY_ELDER_GUARDIAN_CURSE, 0.0f);
 
         return Response.OK;
     }

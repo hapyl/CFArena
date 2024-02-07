@@ -6,14 +6,12 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.collect.Lists;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.ForceCloned;
-import me.hapyl.fight.event.PlayerHandler;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.collection.RandomTable;
 import me.hapyl.spigotutils.module.annotate.TestedOn;
 import me.hapyl.spigotutils.module.annotate.Version;
 import me.hapyl.spigotutils.module.math.Geometry;
@@ -160,24 +158,6 @@ public class CFUtils {
     @Nullable
     public static Team getEntityTeam(@Nonnull Entity entity, @Nonnull Scoreboard scoreboard) {
         return scoreboard.getEntryTeam(entity instanceof Player ? entity.getName() : entity.getUniqueId().toString());
-    }
-
-    @Nonnull
-    @Deprecated
-    public static List<EffectType> getEffects() {
-        if (ALLOWED_EFFECTS == null) {
-            ALLOWED_EFFECTS = Lists.newArrayList();
-
-            for (EffectType type : EffectType.values()) {
-                if (PlayerHandler.disabledEffects.containsKey(type.getType())) {
-                    continue;
-                }
-
-                ALLOWED_EFFECTS.add(type);
-            }
-        }
-
-        return Lists.newArrayList(ALLOWED_EFFECTS);
     }
 
     public static void playSoundAndCut(Location location, Sound sound, float pitch, int cutAt) {
@@ -846,6 +826,10 @@ public class CFUtils {
         return RANDOM.nextDouble(origin, bound);
     }
 
+    public static float random(float origin, float bound) {
+        return RANDOM.nextFloat(origin, bound);
+    }
+
     /**
      * Gets a random {@link EulerAngle}.
      *
@@ -901,17 +885,6 @@ public class CFUtils {
     @Nonnull
     public static <T> List<T> copyList(@Nonnull List<T> list) {
         return Lists.newArrayList(list);
-    }
-
-    /**
-     * Gets a random {@link EffectType}.
-     * This can only return an allowed effect.
-     *
-     * @return a random effect.
-     */
-    @Nonnull
-    public static EffectType getRandomEffect() {
-        return new RandomTable<>(getEffects()).getRandomElement();
     }
 
     /**

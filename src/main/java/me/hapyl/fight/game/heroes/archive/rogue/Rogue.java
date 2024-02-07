@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.archive.rogue;
 
 import me.hapyl.fight.event.DamageInstance;
+import me.hapyl.fight.event.custom.GameDeathEvent;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
@@ -30,6 +31,8 @@ import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.Tick;
 import org.bukkit.*;
 import org.bukkit.entity.Item;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
@@ -37,7 +40,7 @@ import org.bukkit.inventory.meta.trim.TrimPattern;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UIComponent, DisplayFieldProvider {
+public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UIComponent, DisplayFieldProvider, Listener {
 
     private final PlayerDataMap<RogueData> rogueData = PlayerMap.newDataMap(RogueData::new);
 
@@ -50,7 +53,7 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
      * Increase for slower attacks.
      * The effect will be the same if the value is == 10
      */
-    private final int attackSpeedTick = 6;
+    private final int attackSpeedTick = 7;
 
     private final TemperInstance temperInstance = Temper.SECOND_WIND.newInstance()
             .increase(AttributeType.ATTACK, 1.32d)
@@ -58,9 +61,9 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
 
     @DisplayField private final double explosionRadius = 4.0d;
     @DisplayField private final double explosionDamage = 30.0d;
-    @DisplayField private final int explosionDelay = 15;
-    @DisplayField private final double magnitude = 0.53d;
-    @DisplayField private final double yMagnitude = 0.33d;
+    @DisplayField private final int maxExplosionDelay = Tick.fromSecond(3);
+    @DisplayField private final double magnitude = 0.75d;
+    @DisplayField private final double yMagnitude = 0.21d;
     @DisplayField private final int bleedDuration = 60;
 
     public Rogue(@Nonnull Heroes handle) {
@@ -79,7 +82,7 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
 
         attributes.setHealth(60);
         attributes.setSpeed(130);
-        attributes.setInfiniteAttackSpeed();
+        attributes.setAttackSpeed(300);
 
         final Equipment equipment = getEquipment();
 
@@ -99,9 +102,9 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
         );
 
         setUltimate(new UltimateTalent(this, "Pipe Bomb", """
-                Toss a hand-made pipe bomb in front of you that &4explodes&7 after a &bshort fuse&7, dealing &cdamage&7 and applying &cbleeding&7.
-                                
-                Also refresh %s charges.
+                Toss a hand-made pipe bomb in front of you that &4explodes&7 upon contact with an &cenemy&7 or a &bblock&7, dealing &cdamage&7 in moderate &cAoE&7 and applies &4Bleeding&7.
+
+                If at least &none&7 enemy was &chit&7, &nrefresh&7 %s charges.
                 """.formatted(Named.SECOND_WIND), 60)
                 .setItem(Material.LIGHTNING_ROD)
                 .setSound(Sound.ENTITY_CREEPER_PRIMED, 1.0f)
@@ -110,11 +113,13 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
         copyDisplayFieldsToUltimate();
     }
 
-    @Override
-    public void processDamageAsVictim(@Nonnull DamageInstance instance) {
-        final GamePlayer player = instance.getEntityAsPlayer();
+    @EventHandler()
+    public void handleDeath(GameDeathEvent ev) {
+        if (!(ev.getEntity() instanceof GamePlayer player)) {
+            return;
+        }
 
-        if (!instance.isDamageLethal()) {
+        if (!validatePlayer(player)) {
             return;
         }
 
@@ -126,7 +131,9 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
 
         playerData.secondWindCharges--;
 
-        instance.setCancelled(true);
+        ev.setCancelled(true);
+
+        player.setHealth(1); // Force set health to 1 because I SAID SO
         enterSecondWind(player);
     }
 
@@ -142,7 +149,10 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
         }
 
         instance.setCancelled(true);
-        entity.damageTick(instance.getInitialDamage(), damager, EnumDamageCause.ROGUE_ATTACK, attackSpeedTick);
+
+        entity.modifyKnockback(d -> 0.7d, then -> {
+            then.damageTick(instance.getInitialDamage(), damager, EnumDamageCause.ROGUE_ATTACK, attackSpeedTick);
+        });
     }
 
     @Nullable
@@ -160,7 +170,11 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
         new TickingGameTask() {
             @Override
             public void run(int tick) {
-                if (tick > explosionDelay) {
+                final LivingGameEntity targetEntity = Collect.nearestEntity(item.getLocation(), 0.25d, entity -> {
+                    return !player.isSelfOrTeammate(entity);
+                });
+
+                if (targetEntity != null || item.isOnGround() || tick > maxExplosionDelay) {
                     explode();
                     return;
                 }
@@ -168,21 +182,32 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
                 // Fx
                 final Location location = item.getLocation();
 
-                player.playWorldSound(location, Sound.BLOCK_NOTE_BLOCK_HAT, 0.5f + (1.0f / explosionDelay * tick));
+                player.playWorldSound(location, Sound.BLOCK_NOTE_BLOCK_HAT, tick % 2 == 0 ? 0.5f : 1.0f);
                 player.spawnWorldParticle(location, Particle.CRIT, 1);
             }
 
             private void explode() {
                 final Location location = item.getLocation();
+                boolean hitEnemy = false;
 
-                Collect.nearbyEntities(location, explosionRadius).forEach(entity -> {
+                for (LivingGameEntity entity : Collect.nearbyEntities(location, explosionRadius)) {
                     if (player.isSelfOrTeammate(entity)) {
                         return;
                     }
 
+                    if (!hitEnemy) {
+                        hitEnemy = true;
+                    }
+
                     entity.damageNoKnockback(explosionDamage, player, EnumDamageCause.PIPE_BOMB);
                     entity.addEffect(Effects.BLEED, bleedDuration);
-                });
+                }
+                ;
+
+                // Refresh passive
+                if (hitEnemy) {
+                    getPlayerData(player).refreshSecondWindCharges();
+                }
 
                 // Fx
                 player.playWorldSound(location, Sound.ENTITY_GENERIC_EXPLODE, 1.25f);
@@ -194,9 +219,6 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
                 cancel();
             }
         }.runTaskTimer(0, 1);
-
-        // Refresh passive
-        getPlayerData(player).refreshSecondWindCharges();
 
         return UltimateCallback.OK;
     }

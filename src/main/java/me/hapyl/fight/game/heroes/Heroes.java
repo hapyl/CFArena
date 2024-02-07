@@ -9,6 +9,7 @@ import me.hapyl.fight.database.entry.ExperienceEntry;
 import me.hapyl.fight.database.entry.HeroEntry;
 import me.hapyl.fight.exception.HandleNotSetException;
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.archive.alchemist.Alchemist;
 import me.hapyl.fight.game.heroes.archive.archer.Archer;
@@ -303,7 +304,17 @@ public enum Heroes implements Formatted {
     @Nonnull
     @Override
     public String getFormatted() {
-        return hero.getArchetype().getPrefix() + " &f" + hero.getNameSmallCaps();
+        return getFormatted(Color.WHITE);
+    }
+
+    @Nonnull
+    public String getFormatted(@Nonnull Color color) {
+        return getPrefix() + color + " " + hero.getNameSmallCaps();
+    }
+
+    @Nonnull
+    public String getPrefix() {
+        return hero.getArchetype().getPrefix();
     }
 
     @Nonnull
@@ -392,6 +403,14 @@ public enum Heroes implements Formatted {
     @Nonnull
     public static Heroes randomHero() {
         return CollectionUtils.randomElement(playable(), DEFAULT_HERO);
+    }
+
+    @Nonnull
+    public static Heroes randomHero(@Nonnull Player player) {
+        final List<Heroes> playable = playable();
+        playable.removeIf(hero -> hero.isLocked(player));
+
+        return CollectionUtils.randomElement(playable, DEFAULT_HERO);
     }
 
 }

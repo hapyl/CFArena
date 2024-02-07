@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.archive.heavy_knight;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.archive.heavy_knight.SwordMaster;
@@ -22,18 +23,19 @@ public class Uppercut extends Talent {
 
     @DisplayField private final double range = 5.0d;
     @DisplayField private final double height = 3.0d;
+    @DisplayField private final double damage = 5.0d;
 
     public Uppercut() {
         super("Uppercut");
 
         setDescription("""
-                Knock all &cenemies&7 in front of you up into the &3sky&7.
-                
-                Hit &cenemies&7 fall down slowly, &eimpairing&7 their movement.
+                Perform an &nuppercut&7 attack, &bjumping&7 up with &cenemies&7 in front of you.
+                                
+                Hit &cenemies&7 fall down &3slowly&7, &eimpairing&7 their movement.
                 """);
 
         setType(Type.IMPAIR);
-        setItem(Material.IRON_BLOCK);
+        setItem(Material.RABBIT_FOOT);
         setCooldownSec(6);
         setDuration(20);
     }
@@ -42,6 +44,7 @@ public class Uppercut extends Talent {
     public Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocation();
         final Vector vector = location.getDirection().normalize().setY(0.0d);
+        final Vector upVelocity = BukkitUtils.vector3Y(height);
 
         location.add(vector.multiply(3.0d));
 
@@ -52,10 +55,13 @@ public class Uppercut extends Talent {
 
             SwordMaster.addSuccessfulTalent(player, this);
 
+            entity.damageNoKnockback(damage, player, EnumDamageCause.UPPERCUT);
             entity.addEffect(Effects.SLOW_FALLING, 5, getDuration());
-            entity.setVelocity(BukkitUtils.vector3Y(height));
+            entity.setVelocity(upVelocity);
         });
 
+        player.setVelocity(upVelocity);
+        player.addEffect(Effects.SLOW_FALLING, 5, getDuration());
 
         location.add(0, 0.2d, 0);
 

@@ -245,7 +245,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
     @Nonnull
     public String getString(@Nonnull GamePlayer player) {
         final int toxinLevel = getToxinLevel(player);
-        return getToxinColor(player) + "☠ &l" + toxinLevel + "%%";
+        return getToxinColor(player) + "☠ &l" + toxinLevel + "%";
     }
 
     // some effects aren't really allowed so

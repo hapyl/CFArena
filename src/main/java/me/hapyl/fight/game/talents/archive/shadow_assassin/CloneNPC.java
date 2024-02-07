@@ -59,7 +59,7 @@ public class CloneNPC extends HumanNPC implements Ticking {
         remove();
     }
 
-    public void remove0() {
+    public void remove1() {
         if (task != null) {
             task.cancel();
         }
@@ -74,10 +74,10 @@ public class CloneNPC extends HumanNPC implements Ticking {
     @Override
     public void remove() {
         cloneList.remove(this);
-        remove0();
+        remove1();
     }
 
-    public void attack(@Nonnull LivingGameEntity entity) {
+    public void attack(@Nonnull LivingGameEntity entity, double damage) {
         final ShadowAssassinClone talent = cloneList.getTalent();
         cloneList.attackingMap.put(this, entity);
 
@@ -95,7 +95,7 @@ public class CloneNPC extends HumanNPC implements Ticking {
         // The damage is done without a damager to remove the knockback,
         // and the tick damage is, so when player teleports, they can instantly hit the enemy
         entity.setLastDamager(player);
-        entity.damageTick(talent.cloneDamage, EnumDamageCause.SHADOW_CLONE, 1);
+        entity.damageTick(damage, EnumDamageCause.SHADOW_CLONE, 1);
 
         entity.addEffect(Effects.BLINDNESS, 1, 20);
 
@@ -119,15 +119,15 @@ public class CloneNPC extends HumanNPC implements Ticking {
         }
 
         Collect.nearbyEntities(getLocation(), 3).forEach(entity -> {
-            if (isAttacking || entity.equals(player) || cloneList.isBeingAttacked(entity)) {
+            if (isAttacking || player.isSelfOrTeammate(entity) || cloneList.isBeingAttacked(entity)) {
                 return;
             }
 
-            if (bukkitEntity().hasLineOfSight(entity.getEntity())) {
+            if (player.hasLineOfSight(entity)) {
                 isAttacking = true;
                 cloneList.createCloneLink(this);
 
-                attack(entity);
+                attack(entity, cloneList.getTalent().cloneDamage);
 
                 GameTask.runLater(this::disappear, PlayerCloneList.MAX_LINK_TIME);
             }

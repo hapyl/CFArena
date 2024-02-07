@@ -38,7 +38,7 @@ public class ServerHandler implements Listener {
 
             serverMessageOfTheDay = new String[] {
                     // Header
-                    Chat.format("                    &6&l%s            &8v%s &lβ".formatted(
+                    Chat.format("                    &6&l%s            &8v%s".formatted(
                             "CLASSES FIGHT",
                             CF.getVersionNoSnapshot()
                     )),

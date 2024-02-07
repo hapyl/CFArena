@@ -23,22 +23,20 @@ public class GameResult {
     private final Set<GamePlayer> winners;
     private final Set<GameTeam> winningTeams;
     private final Set<GamePlayer> players;
-    private final GameResultType resultType;
 
     public GameResult(GameInstance gameInstance) {
         this.gameInstance = gameInstance;
         this.winners = Sets.newHashSet();
         this.winningTeams = Sets.newHashSet();
         this.players = CF.getPlayers();
-        this.resultType = isWinners()
-                ? isDraw() ? GameResultType.DRAW
-                : isSingleWinner() ? GameResultType.SINGLE_WINNER : GameResultType.MULTIPLE_WINNERS
-                : GameResultType.NO_WINNERS;
     }
 
     @Nonnull
     public GameResultType getResultType() {
-        return resultType;
+        return isWinners()
+                ? isDraw() ? GameResultType.DRAW
+                : isSingleWinner() ? GameResultType.SINGLE_WINNER : GameResultType.MULTIPLE_WINNERS
+                : GameResultType.NO_WINNERS;
     }
 
     @Nonnull

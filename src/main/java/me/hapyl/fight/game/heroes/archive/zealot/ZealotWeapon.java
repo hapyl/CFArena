@@ -26,7 +26,7 @@ public class ZealotWeapon extends Weapon implements HeroReference<Zealot> {
         this.zealot = zealot;
 
         setId("zealot_weapon");
-        setDamage(3.0d);
+        setDamage(2.5d);
 
         setName("Psionic Blade");
         setDescription("""
@@ -45,10 +45,10 @@ public class ZealotWeapon extends Weapon implements HeroReference<Zealot> {
     public class SoulCryAbility extends Ability {
 
         @DisplayField(scaleFactor = 100)
-        private final double ferocityIncrease = 0.75d;
+        private final double ferocityIncrease = 1.0d;
 
         @DisplayField(scaleFactor = 500)
-        private final double speedIncrease = 0.03; // 15%
+        private final double speedIncrease = 0.04; // 20%
 
         private final TemperInstance temperInstance = Temper.SOUL_CRY.newInstance()
                 .increase(AttributeType.FEROCITY, ferocityIncrease)
@@ -62,8 +62,8 @@ public class ZealotWeapon extends Weapon implements HeroReference<Zealot> {
                     AttributeType.SPEED
             );
 
-            setDurationSec(4);
-            setCooldownSec(16);
+            setDurationSec(3);
+            setCooldownSec(13);
         }
 
         @Override

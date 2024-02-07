@@ -117,7 +117,6 @@ public abstract class Quadrant extends TickingGameTask implements Removable {
 
     @Override
     public void remove() {
-        cancel();
         beams.forEach(QuadrantBeam::remove);
     }
 

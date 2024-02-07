@@ -67,7 +67,9 @@ public class ShadowShift extends Talent implements Listener {
 
     @Nonnull
     public TargetLocation getLocationAndCheck0(GamePlayer player, double maxDistance, double dot) {
-        final LivingGameEntity target = Collect.targetEntityDot(player, maxDistance, dot, e -> e.hasLineOfSight(player));
+        final LivingGameEntity target = Collect.targetEntityRayCast(player, maxDistance, dot, entity -> {
+            return !player.isSelfOrTeammate(entity) && player.hasLineOfSight(entity);
+        });
 
         if (target == null) {
             return new TargetLocation(null, null, ErrorCode.NO_TARGET);

@@ -2,6 +2,7 @@ package me.hapyl.fight.game.cosmetic;
 
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -22,6 +23,10 @@ public class CollectionItem {
         this.description = description;
         this.rarity = Rarity.UNSET;
         this.icon = Material.BARRIER;
+    }
+
+    public boolean canObtain(@Nonnull OfflinePlayer player) {
+        return true;
     }
 
     @Nonnull

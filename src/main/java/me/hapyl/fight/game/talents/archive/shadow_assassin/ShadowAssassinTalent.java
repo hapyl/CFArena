@@ -80,12 +80,12 @@ public abstract class ShadowAssassinTalent extends Talent implements HeroReferen
         setDescription("""
                 &9&lWhile in Stealth mode:
                 %s
-                &8Cooldown: %s
+                &b• Cooldown: &f%s
                                 
                 &c&lWhile in Fury mode:
                 %s
-                &8Cooldown: %s
-                &8Energy Cost: %s
+                &b• Cooldown: &f%s
+                &b• Energy Cost: &f%s
                 """.formatted(
                 // Stealth
                 stealthTalent.getDescription(),

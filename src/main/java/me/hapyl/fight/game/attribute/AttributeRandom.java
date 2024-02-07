@@ -14,7 +14,7 @@ public class AttributeRandom extends Random {
     public boolean checkBound(@Nonnull AttributeType type) {
         final double value = type.get(attributes);
 
-        return value >= 1.0d || (value > 0 && checkBound(value));
+        return checkBound(value);
     }
 
     public boolean checkBound(double bound) {

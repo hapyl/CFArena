@@ -102,15 +102,14 @@ public class Pytaria extends Hero {
                     return;
                 }
 
-                final Location lockLocation = entity == null ? location.clone().subtract(0, 9, 0) : entity.getEyeLocation();
-                drawLine(location.clone(), lockLocation.clone());
+                getLockLocation(bee, entity);
             }
         }.runTaskTimer(0, 1);
 
         return new UltimateCallback() {
             @Override
             public void callback(@Nonnull GamePlayer player) {
-                final Location lockLocation = entity == null ? location.clone().subtract(0, 9, 0) : entity.getEyeLocation();
+                final Location lockLocation = getLockLocation(bee, entity);
                 bee.remove();
 
                 Collect.nearbyEntities(lockLocation, 1.0d).forEach(victim -> {
@@ -185,27 +184,29 @@ public class Pytaria extends Hero {
         return Talents.EXCELLENCY.getTalent();
     }
 
-    private void drawLine(Location start, Location end) {
-        final World world = start.getWorld();
-        final Vector vector = end.toVector().subtract(start.toVector()).normalize().multiply(0.5d);
-        final double distance = start.distance(end);
+    private Location getLockLocation(Bee bee, LivingGameEntity entity) {
+        final Location location = bee.getLocation();
+        final Location targetLocation = entity == null ? location.clone().subtract(0, 9, 0) : entity.getEyeLocation();
+
+        final World world = bee.getWorld();
+        final Vector vector = targetLocation.toVector().subtract(location.toVector()).normalize().multiply(0.5d);
+        final double distance = targetLocation.distance(location);
+
 
         for (double i = 0.0D; i < distance; i += 0.5) {
-            start.add(vector);
+            location.add(vector);
 
-            if (world == null) {
-                return;
-            }
-
-            if (!start.getBlock().getType().isAir()) {
-                final Location cloned = start.add(0, 0.15, 0);
+            if (location.getBlock().getType().isSolid()) {
+                final Location cloned = location.add(0, 0.15, 0);
                 world.spawnParticle(Particle.FLAME, cloned, 3, 0.1, 0.1, 0.1, 0.02);
 
-                return;
+                return location;
             }
 
-            world.spawnParticle(Particle.REDSTONE, start, 1, 0, 0, 0, 0, new Particle.DustOptions(Color.RED, 0.5f));
+            world.spawnParticle(Particle.REDSTONE, location, 1, 0, 0, 0, 0, new Particle.DustOptions(Color.RED, 0.5f));
         }
+
+        return location;
     }
 
     public static class PytariaUltimate extends UltimateTalent {

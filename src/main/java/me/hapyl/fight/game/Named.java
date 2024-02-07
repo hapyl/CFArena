@@ -24,6 +24,7 @@ public enum Named {
     ENERGY("※", "Energy", Color.AQUA),
     OVERHEAL(ChatColor.DARK_GREEN + "⚕", "Overheal", Color.GREEN),
     SECOND_WIND("&l\uD83E\uDD8B", "Second Wind", Color.WHITE),
+    FEROCIOUS_STRIKE("\uD83C\uDF00", "Ferocious Strike", Color.DARK_RED),
 
     ;
 
@@ -35,6 +36,11 @@ public enum Named {
         this.character = character;
         this.color = color;
         this.name = name;
+    }
+
+    @Nonnull
+    public String getCharacterColored() {
+        return color + character;
     }
 
     @Nonnull

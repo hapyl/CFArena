@@ -42,7 +42,7 @@ public class Igny extends Talent {
         final Location targetLocation = location.add(player.getLocation().getDirection().multiply(3));
 
         Collect.nearbyEntities(targetLocation, maximumDistance).forEach(target -> {
-            if (target.equals(player)) {
+            if (player.isSelfOrTeammate(target)) {
                 return;
             }
 

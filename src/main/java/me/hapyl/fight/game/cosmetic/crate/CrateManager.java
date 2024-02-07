@@ -51,11 +51,22 @@ public class CrateManager extends DependencyInjector<Main> implements Listener, 
                 final int tick = getTick();
 
                 // Fx
+                final double x = Math.sin(theta);
+                final double y = Math.sin(Math.toRadians(tick)) * 0.25;
+                final double z = Math.cos(theta);
+
                 crateChests.forEach(location -> {
-                    offsetXZ(location, 1.0d, 0.5d, loc -> {
+                    location.add(0, 0.5, 0);
+
+                    super.offsetLocation(location, x, y, z, loc -> {
                         PlayerLib.spawnParticle(loc, Particle.FLAME, 1, 0, 0, 0, 0.05f);
+                    });
+
+                    super.offsetLocation(location, z, -y, x, loc -> {
                         PlayerLib.spawnParticle(loc, Particle.CRIT, 1, 0, 0, 0, 0.05f);
                     });
+
+                    location.subtract(0, 0.5, 0);
                 });
 
                 // Update holograms

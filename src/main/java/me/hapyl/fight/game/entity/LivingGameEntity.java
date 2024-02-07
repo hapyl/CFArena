@@ -60,6 +60,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class LivingGameEntity extends GameEntity implements Ticking {
 
@@ -389,6 +390,10 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         return data != null ? data.getTimeLeft() : 0;
     }
 
+    private void setInternalNoDamageTicks(int ticks) {
+        cooldown.startCooldown(Cooldown.NO_DAMAGE, ticks * 50L);
+    }
+
     @Nonnull
     public Location getEyeLocationOffset(double yOffset, double directionOffset) {
         final Location location = getEyeLocation();
@@ -400,10 +405,6 @@ public class LivingGameEntity extends GameEntity implements Ticking {
 
     public void playEffect(@Nonnull EntityEffect entityEffect) {
         entity.playEffect(entityEffect);
-    }
-
-    private void setInternalNoDamageTicks(int ticks) {
-        cooldown.startCooldown(Cooldown.NO_DAMAGE, ticks * 50L);
     }
 
     public double getHealthToMaxHealthPercent() {
@@ -735,6 +736,10 @@ public class LivingGameEntity extends GameEntity implements Ticking {
      */
     @OverridingMethodsMustInvokeSuper
     public void decreaseHealth(@Nonnull DamageInstance instance) {
+        if (isDeadOrRespawning()) {
+            return; // Don't decrease health if already dead or respawning
+        }
+
         final double damage = instance.getDamage();
         final boolean willDie = health - damage <= 0.0d;
 
@@ -1005,7 +1010,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
      */
     @Deprecated
     public void addPotionEffect(@Nonnull PotionEffectType type, int amplifier, int duration) {
-        addPotionEffect(type.createEffect(duration, amplifier));
+        addPotionEffect(new PotionEffect(type, duration, amplifier, false, false, false));
     }
 
     /**
@@ -1039,12 +1044,26 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         setAttributeValue(Attribute.GENERIC_KNOCKBACK_RESISTANCE, d);
     }
 
-    public void modifyKnockback(double d, Consumer<LivingGameEntity> consumer) {
+    public void modifyKnockback(double d, @Nonnull Consumer<LivingGameEntity> consumer) {
         final double knockback = getKnockback();
 
         setKnockback(d);
         consumer.accept(this);
         setKnockback(knockback);
+    }
+
+    public void modifyKnockback(@Nonnull Function<Double, Double> fn, @Nonnull Consumer<LivingGameEntity> consumer) {
+        modifyKnockback(fn.apply(getKnockback()), consumer);
+    }
+
+    // Yes, this is a hack, so?
+    public void modifyKnockbackTick(@Nonnull Function<Double, Double> fn, @Nonnull Consumer<LivingGameEntity> consumer) {
+        final double kb = getKnockback();
+
+        setKnockback(fn.apply(kb));
+        consumer.accept(this);
+
+        GameTask.runLater(() -> setKnockback(kb), 2);
     }
 
     public void setTargetClosest() {
@@ -1203,22 +1222,40 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         this.cooldown.startCooldown(cooldown);
     }
 
-    public void executeFerocity(double damage, LivingGameEntity lastDamager, int ferocityStrikes) {
-        if (hasCooldown(Cooldown.FEROCITY)) {
+    public void executeFerocity(double damage, @Nullable LivingGameEntity lastDamager, int ferocityStrikes) {
+        executeFerocity(damage, lastDamager, ferocityStrikes, false);
+    }
+
+    protected boolean isInvalidForFerocity() {
+        return isDeadOrRespawning();
+    }
+
+    public void executeFerocity(double damage, @Nullable LivingGameEntity damager, int ferocityStrikes, boolean force) {
+        if (isInvalidForFerocity()) {
+            return;
+        }
+
+        if (hasCooldown(Cooldown.FEROCITY) && !force) {
             return;
         }
 
         playWorldSound(getLocation(), Sound.ITEM_FLINTANDSTEEL_USE, 0.0f);
 
         for (int i = 0; i < ferocityStrikes; i++) {
-            GameTask.runLater(() -> damageFerocity(damage, lastDamager), i * 3 + FEROCITY_HIT_CD);
+            GameTask.runLater(() -> {
+                if (isInvalidForFerocity()) {
+                    return;
+                }
+
+                damageFerocity(damage, damager);
+            }, i * 3 + FEROCITY_HIT_CD);
         }
 
         startCooldown(Cooldown.FEROCITY);
     }
 
-    public void damageFerocity(double damage, LivingGameEntity lastDamager) {
-        if (isDeadOrRespawning()) {
+    public void damageFerocity(double damage, @Nullable LivingGameEntity lastDamager) {
+        if (isInvalidForFerocity()) {
             return;
         }
 

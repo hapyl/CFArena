@@ -18,7 +18,7 @@ public class VanillaEffect extends Effect {
     }
 
     @Override
-    public void onStart(@Nonnull LivingGameEntity entity, int amplifier) {
+    public void onStart(@Nonnull LivingGameEntity entity, int amplifier, int duration) {
         entity.getEntity().addPotionEffect(new org.bukkit.potion.PotionEffect(effect, INFINITE_DURATION, amplifier, false, false, false));
     }
 

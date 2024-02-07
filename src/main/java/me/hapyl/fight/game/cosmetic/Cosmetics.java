@@ -89,6 +89,7 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
     ELECTROCUTE(new ElectrocuteCosmetic()),
     EMERALD_EXPLOSION(new EmeraldExplosion()),
     BONES_AND_SHREDS(new BonesAndShredsCosmetic()),
+    FLOWER_POT(new FlowerPotCosmetic()),
 
     ///////////////
     // Contrails //
@@ -221,12 +222,18 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
             Rarity.LEGENDARY
     ).setIcon(Material.DIAMOND).setExclusive(true)),
 
-    HAPYL_PREFIX(new PrefixCosmetic("hapyl", "It's him!", Color.DARK_RED.bold() + "ዞ", Rarity.COMMON).setExclusive(true)) {
-        @Override
-        public boolean canObtain(@Nonnull OfflinePlayer player) {
-            return StaticUUID.HAPYL.matches(player);
-        }
-    },
+    CRAB_RAVE(new PrefixCosmetic(
+            "Crab Rave",
+            "You can hear it, can't you?",
+            Color.CRAB + "🦀",
+            Rarity.UNCOMMON
+    ).setIcon(Material.NAUTILUS_SHELL)),
+
+    CAT_PREFIX(new PrefixCosmetic("Cat", "Meow?", "&9&l\uD83D\uDC31", Rarity.UNCOMMON).setIcon(Material.COD)),
+
+    // Admin exclusive prefixes
+    HAPYL_PREFIX(new AdminPrefixCosmetic("hapyl", Color.DARK_RED.bold() + "ዞ", StaticUUID.HAPYL)),
+    DIDEN_PREFIX(new AdminPrefixCosmetic("DiDenPro", Color.DIDEN.bold() + "⨵", StaticUUID.DIDEN)),
 
     /////////////////
     // Win Effects //
@@ -348,7 +355,7 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
     }
 
     public boolean canObtain(@Nonnull OfflinePlayer player) {
-        return true;
+        return cosmetic.canObtain(player);
     }
 
     public boolean isExclusive() {

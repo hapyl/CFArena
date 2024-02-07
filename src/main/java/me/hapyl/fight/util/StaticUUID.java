@@ -8,15 +8,9 @@ import java.util.UUID;
 
 public interface StaticUUID {
 
-    StaticUUID HAPYL = new StaticUUID() {
-        static final UUID uuid = UUID.fromString("b58e578c-8e36-4789-af50-1ee7400307c0");
-
-        @Nonnull
-        @Override
-        public UUID getUUID() {
-            return uuid;
-        }
-    };
+    StaticUUID HAPYL = new SimpleUUID("b58e578c-8e36-4789-af50-1ee7400307c0");
+    StaticUUID DIDEN = new SimpleUUID("491c1d9a-357f-4a98-bd24-4ddbeb8555b0");
+    StaticUUID SDIMAS = new SimpleUUID("a7ed32f7-f5a4-4abe-a14e-62cdeea42f3b");
 
     @Nonnull
     UUID getUUID();
@@ -31,6 +25,20 @@ public interface StaticUUID {
 
     default boolean matches(@Nonnull OfflinePlayer player) {
         return matches(player.getUniqueId());
+    }
+
+    class SimpleUUID implements StaticUUID {
+        private final UUID uuid;
+
+        public SimpleUUID(String string) {
+            this.uuid = UUID.fromString(string);
+        }
+
+        @Nonnull
+        @Override
+        public UUID getUUID() {
+            return uuid;
+        }
     }
 
 }

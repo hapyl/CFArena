@@ -3,12 +3,13 @@ package me.hapyl.fight.game.damage;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.DamageFormat;
 import me.hapyl.fight.game.DeathMessage;
+import me.hapyl.fight.util.Copyable;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Set;
 
-public class DamageCause implements Cloneable {
+public class DamageCause implements Copyable {
 
     public static final DamageCause EMPTY = new DamageCause("null", "null");
 
@@ -98,24 +99,20 @@ public class DamageCause implements Cloneable {
         return modifyFlag(DamageFlag.PROJECTILE, projectile);
     }
 
-    @Override
-    @Nonnull
-    public DamageCause clone() {
-        try {
-            final DamageCause clone = (DamageCause) super.clone();
-
-            clone.flags.addAll(this.flags);
-            clone.damageFormat = damageFormat;
-
-            return clone;
-        } catch (CloneNotSupportedException exception) {
-            throw new IllegalStateException(exception);
-        }
-    }
-
     @Nonnull
     public Set<DamageFlag> getFlags() {
         return flags;
+    }
+
+    @Nonnull
+    @Override
+    public DamageCause createCopy() {
+        final DamageCause cause = new DamageCause(this.deathMessage);
+
+        cause.flags.addAll(this.flags);
+        cause.damageFormat = this.damageFormat;
+
+        return cause;
     }
 
     /**

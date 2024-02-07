@@ -1,6 +1,5 @@
 package me.hapyl.fight.event;
 
-import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.event.custom.GameDamageEvent;
@@ -32,6 +31,8 @@ import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.team.LocalTeamManager;
 import me.hapyl.fight.game.tutorial.Tutorial;
+import me.hapyl.fight.game.weapons.BowWeapon;
+import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -55,7 +56,6 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
@@ -63,7 +63,6 @@ import org.bukkit.util.Vector;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -72,8 +71,6 @@ import java.util.Set;
  */
 public class PlayerHandler implements Listener {
 
-    public static final Map<PotionEffectType, AttributeType> disabledEffects = Maps.newHashMap();
-
     private static final double VELOCITY_MAX_Y = 4.821600093841552d;
     public final double RANGE_SCALE = 8.933d;
     public final double DAMAGE_LIMIT = Short.MAX_VALUE;
@@ -81,9 +78,6 @@ public class PlayerHandler implements Listener {
             Set.of(EntityDamageEvent.DamageCause.VOID);
 
     public PlayerHandler() {
-        disabledEffects.put(PotionEffectType.WEAKNESS, AttributeType.DEFENSE);
-        disabledEffects.put(PotionEffectType.INCREASE_DAMAGE, AttributeType.ATTACK);
-        disabledEffects.put(PotionEffectType.DAMAGE_RESISTANCE, AttributeType.DEFENSE);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -113,27 +107,39 @@ public class PlayerHandler implements Listener {
     }
 
     @EventHandler()
-    public void handleDisabledEffect(EntityPotionEffectEvent ev) {
-        final Entity entity = ev.getEntity();
-        final PotionEffect newEffect = ev.getNewEffect();
-        final EntityPotionEffectEvent.Action action = ev.getAction();
+    public void handleBow(EntityShootBowEvent ev) {
+        final LivingEntity entity = ev.getEntity();
 
-        if (newEffect == null || action != EntityPotionEffectEvent.Action.ADDED) {
+        if (!Manager.current().isGameInProgress()) {
             return;
         }
 
-        final PotionEffectType type = newEffect.getType();
-        final AttributeType attributeReplacement = disabledEffects.get(type);
-
-        if (attributeReplacement == null) {
+        if (!(entity instanceof Player bukkitPlayer)) {
             return;
         }
 
-        Chat.broadcastOp("&4&lADMIN&c A disabled effect is used, canceled!");
-        Chat.broadcastOp("&4&lADMIN&c Do &nnot&c use &e&l%s&c!", Chat.capitalize(type.getKey().getKey()));
-        Chat.broadcastOp("&4&lADMIN&c Replace it with &e&l%s&c attribute!", attributeReplacement.getName());
+        final GamePlayer player = CF.getPlayer(bukkitPlayer);
+        final ItemStack bow = ev.getBow();
 
-        ev.setCancelled(true);
+        if (bow == null || player == null) {
+            return;
+        }
+
+        final Weapon weapon = player.getHero().getWeapon();
+        final ItemStack weaponItem = weapon.getItem();
+
+        if (!(weapon instanceof BowWeapon bowWeapon)) {
+            return;
+        }
+
+        if (!weaponItem.isSimilar(bow)) {
+            return;
+        }
+
+        final EntityAttributes attributes = player.getAttributes();
+        final int cooldown = attributes.calculateRangeAttackSpeed(bowWeapon.getShotCooldown());
+
+        player.setCooldownIgnoreModifier(weaponItem.getType(), cooldown);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -393,7 +399,8 @@ public class PlayerHandler implements Listener {
                     if (projectile.getShooter() instanceof Player player && projectile instanceof AbstractArrow arrow) {
                         final GamePlayer gamePlayer = CF.getPlayer(player);
                         if (gamePlayer != null) {
-                            final double weaponDamage = gamePlayer.getHero().getWeapon().getDamage();
+                            final Weapon weapon = gamePlayer.getHero().getWeapon();
+                            final double weaponDamage = weapon.getDamage();
                             final double scaleFactor = 1 + (instance.damage / RANGE_SCALE);
 
                             instance.damage = weaponDamage * scaleFactor;

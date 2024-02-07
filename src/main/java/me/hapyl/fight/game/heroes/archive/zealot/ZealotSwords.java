@@ -1,9 +1,5 @@
 package me.hapyl.fight.game.heroes.archive.zealot;
 
-import me.hapyl.fight.game.damage.EnumDamageCause;
-import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.EntityAttributes;
-import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Removable;
@@ -100,24 +96,9 @@ public class ZealotSwords extends PlayerGameTask implements Removable, MaterialC
     }
 
     public void onSwingLeft() {
-        // Ferocity
-        final EntityAttributes attributes = player.getAttributes();
-
-        attributes.increaseTemporary(Temper.BLADE_BARRAGE, AttributeType.FEROCITY, ultimate.ferocityIncrease, 10);
-
-        hitEnemies(entity -> {
-            entity.damage(ultimate.psionicBladeDamage, player, EnumDamageCause.BLADE_BARRAGE);
-        });
     }
 
     public void onSwingRight() {
-        // Defense decrease
-        hitEnemies(entity -> {
-            final EntityAttributes attributes = entity.getAttributes();
-
-            attributes.decreaseTemporary(Temper.BLADE_BARRAGE, AttributeType.DEFENSE, ultimate.defenseDecrease, 10);
-            entity.damage(ultimate.psionicBladeDamage, player, EnumDamageCause.BLADE_BARRAGE);
-        });
     }
 
     @Nonnull
@@ -128,7 +109,7 @@ public class ZealotSwords extends PlayerGameTask implements Removable, MaterialC
 
     @Override
     public int getCooldown() {
-        return ultimate.swingCooldown;
+        return 0;
     }
 
     private void hitEnemies(Consumer<LivingGameEntity> consumer) {

@@ -14,7 +14,6 @@ import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BFormat;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Arrow;
@@ -25,10 +24,6 @@ import javax.annotation.Nonnull;
 public enum ArrowType implements Described {
 
     ELUSIVE("Elusive Arrows", "Bloom upon impact into &a&omultiple&7&o arrows, dealing &c&oAoE &c&odamage&7&o.") {
-        @Override
-        public void onShoot(GamePlayer player, Arrow arrow) {
-            player.setCooldown(Material.BOW, getTalent().cdBetweenShots);
-        }
 
         @Override
         public void onTick(GamePlayer player, Arrow arrow) {

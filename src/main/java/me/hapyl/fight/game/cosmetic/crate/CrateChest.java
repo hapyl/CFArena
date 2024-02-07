@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
+// why is this not called CrateLocation or something
 public class CrateChest extends Location {
 
     public static final String PREFIX = Color.BUTTON.color("&lCRATE! ") + Color.DEFAULT;
@@ -61,7 +62,7 @@ public class CrateChest extends Location {
     }
 
     public void sendOccupiedMessage(@Nonnull Player player) {
-        Message.error(player, "{} is already opening a crate!", occupiedBy.getName());
+        Message.error(player, "{} already opening a crate!", occupiedBy == player ? "You are" : occupiedBy.getName() + " is");
     }
 
     public boolean checkOccupiedAndSendError(@Nonnull Player player) {

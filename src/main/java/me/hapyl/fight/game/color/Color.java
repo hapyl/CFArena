@@ -79,6 +79,8 @@ public class Color {
     public static final Color CRIMSON = new Color("#DC143C");
     public static final Color BLOOD = new Color("#8B0000");
     public static final Color SPACE = new Color("#A020F0");
+    public static final Color DIDEN = new Color("#0096aa");
+    public static final Color CRAB = new Color("#b05a5f");
 
     // *-----------------------------------------------------*
 

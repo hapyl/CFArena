@@ -1,9 +1,9 @@
 package me.hapyl.fight.game.weapons.range;
 
-import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.task.TickingGameTask;
@@ -64,7 +64,7 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
 
     /**
      * Sets this weapon knockback multiplier between 0-1.
-     * The lower, the less knockback entity will take, where 0 being no knockback.
+     * The lower, the less knockback entity will take, where 0 is no knockback.
      *
      * @param knockback - New knockback.
      */
@@ -345,11 +345,19 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
                 reload(player);
             }
             else {
-                RangeWeapon.this.startCooldown(player, getWeaponCooldown(player));
+                final int weaponCooldownScale = getWeaponCooldownScale(player);
+
+                player.setCooldownIgnoreModifier(getMaterial(), weaponCooldownScale);
             }
 
             return Response.OK;
         }
+    }
+
+    public int getWeaponCooldownScale(GamePlayer player) {
+        final int weaponCooldown = getWeaponCooldown(player);
+
+        return player.getAttributes().calculateRangeAttackSpeed(weaponCooldown);
     }
 
 }

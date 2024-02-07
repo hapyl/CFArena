@@ -17,6 +17,7 @@ import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.weapons.BowWeapon;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
@@ -54,7 +55,7 @@ public class Archer extends Hero implements Listener {
         setDescription("One of the best archers joins the fight! Not alone though but with his &3&ocustom-made &8&obow.");
         setItem("106c16817c73ff64a4a49b590d2cdb25bcfa52c630fe7281a177eabacdaa857b");
 
-        setWeapon(Material.BOW, "Bow of Destiny", "A custom-made bow with some unique abilities!", 5.0d);
+        setWeapon(new BowWeapon("Bow of Destiny", "A custom-made bow with some unique abilities!", 5.0d));
 
         final HeroAttributes attributes = getAttributes();
         attributes.set(AttributeType.MAX_HEALTH, 100.0d);

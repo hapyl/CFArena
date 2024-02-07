@@ -1,5 +1,6 @@
 package me.hapyl.fight.event;
 
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.damage.EnumDamageCause;
@@ -36,8 +37,6 @@ public class DamageInstance implements Cancellable {
 
     /**
      * Returns true if the damage is critical.
-     * <p>
-     * <b>If called inside {@link me.hapyl.fight.event.custom.GameDamageEvent}, this value is always <code>false</code>, since the calculations are done after the event.</b>
      *
      * @return true if the damage is critical.
      */

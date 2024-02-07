@@ -13,13 +13,13 @@ import me.hapyl.fight.game.talents.archive.heavy_knight.Slash;
 import me.hapyl.fight.game.talents.archive.heavy_knight.Updraft;
 import me.hapyl.fight.game.talents.archive.heavy_knight.Uppercut;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
-import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 
@@ -44,14 +44,14 @@ public class SwordMaster extends Hero implements PlayerDataHandler<SwordMasterDa
         final HeroAttributes attributes = getAttributes();
         attributes.setDefense(150);
         attributes.setSpeed(80);
-        attributes.setAttackSpeed(80);
+        attributes.setAttackSpeed(25);
 
         final Equipment equipment = getEquipment();
         equipment.setChestPlate(Material.NETHERITE_CHESTPLATE);
         equipment.setLeggings(Material.IRON_LEGGINGS);
         equipment.setBoots(Material.NETHERITE_BOOTS);
 
-        setWeapon(new Weapon(Material.NETHERITE_SWORD).setName("Basta").setDamage(12.0d));
+        setWeapon(new SwordMasterWeapon());
 
         setUltimate(new UltimateTalent(this, "Ultimate Sacrifice", """
                 Instantly drop &nall&7 your &farmor&7 in exchange for more &4power&7, becoming a glass cannon.
@@ -76,7 +76,16 @@ public class SwordMaster extends Hero implements PlayerDataHandler<SwordMasterDa
 
         // Fx
         player.playWorldSound(Sound.ENTITY_IRON_GOLEM_DAMAGE, 0.75f);
-        player.spawnWorldParticle(player.getMidpointLocation(), Particle.CRIT, 10, 0.15, 0.4, 0.15, 0.1f);
+        player.spawnWorldParticle(
+                player.getMidpointLocation(),
+                Particle.ITEM_CRACK,
+                20,
+                0.15,
+                0.4,
+                0.15,
+                0.25f,
+                new ItemStack(Material.NETHERITE_INGOT)
+        );
 
         return UltimateCallback.OK;
     }
@@ -84,6 +93,10 @@ public class SwordMaster extends Hero implements PlayerDataHandler<SwordMasterDa
     @Override
     public void onUltimateEnd(@Nonnull GamePlayer player) {
         getEquipment().equip(player);
+
+        // Fx
+        player.playWorldSound(Sound.ITEM_ARMOR_EQUIP_NETHERITE, 0.0f);
+        player.playWorldSound(Sound.ITEM_ARMOR_EQUIP_NETHERITE, 0.75f);
     }
 
     @Override

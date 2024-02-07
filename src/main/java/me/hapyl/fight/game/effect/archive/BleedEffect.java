@@ -22,7 +22,7 @@ public class BleedEffect extends Effect {
     }
 
     @Override
-    public void onStart(@Nonnull LivingGameEntity entity, int amplifier) {
+    public void onStart(@Nonnull LivingGameEntity entity, int amplifier, int duration) {
         entity.sendMessage("&c&l∲ &7You are bleeding!");
     }
 

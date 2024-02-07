@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.task;
 
 import me.hapyl.fight.game.Callback;
+import me.hapyl.fight.game.cosmetic.crate.CrateChest;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Timed;
 import org.bukkit.Location;
@@ -186,6 +187,12 @@ public abstract class GeometryTask extends GameTask {
                 }
             }
         }
+    }
+
+    protected void offsetLocation(@Nonnull Location location, double x, double y, double z, @Nonnull Callback<Location> callback) {
+        location.add(x, y, z);
+        callback.callback(location);
+        location.subtract(x, y, z);
     }
 
     private boolean shouldCancel() {

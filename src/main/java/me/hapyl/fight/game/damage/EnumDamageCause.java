@@ -22,7 +22,7 @@ public enum EnumDamageCause {
     // Have to consider entity_attack as custom damage for display purpose
     ENTITY_ATTACK(DamageCause.of("was killed", "by")),
     // Use this for normal attacks that should not crit if too lazy to create a custom damage cause
-    ENTITY_ATTACK_NON_CRIT(ENTITY_ATTACK.damageCause.clone().setCanCrit(false)),
+    ENTITY_ATTACK_NON_CRIT(ENTITY_ATTACK.damageCause.createCopy().setCanCrit(false)),
     PROJECTILE(DamageCause.minecraft("was shot", "by").setCanCrit(true).setProjectile(true)),
     FALL(DamageCause.minecraft("fell to their death", "while escaping from")),
     FIRE(DamageCause.minecraft("was toasted", "with help from").setDamageFormat(instance -> "&6%.0f 🔥".formatted(instance.getDamage()))),
@@ -81,7 +81,7 @@ public enum EnumDamageCause {
     PLUNGE(DamageCause.of("was stepped on", "by")),
     BLACK_HOLE(DamageCause.of("was sucked into the black hole", "created by")),
     DARKNESS(DamageCause.of("was blinded to death", "by")),
-    THROWING_STARS(DamageCause.of("felt the absolute pain of {damager}'s dagger")),
+    THROWING_STARS(DamageCause.nonCrit("felt the absolute pain of {damager}'s dagger")),
     STARFALL(DamageCause.of("doesn't know how danger looks like, yes {damager}?")),
     GOLDEN_PATH(DamageCause.of("couldn't fight against their willpower", "created by shine of")),
     FLOWER(DamageCause.nonCrit("was pruned to death", "by")),
@@ -146,6 +146,7 @@ public enum EnumDamageCause {
     ROGUE_ATTACK(ENTITY_ATTACK.damageCause),
     THROWING_KNIFE(DamageCause.nonCrit("was hit by a throwing knife", "of")),
     PIPE_BOMB(DamageCause.nonCrit("was blown away by {damager}'s Pipe Bomb").setTrueDamage()),
+    UPPERCUT(DamageCause.nonCrit("was upperCUT", "by")),
 
     ;
 

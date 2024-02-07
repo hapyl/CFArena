@@ -20,7 +20,7 @@ public class Invisibility extends Effect {
     }
 
     @Override
-    public void onStart(@Nonnull LivingGameEntity entity, int amplifier) {
+    public void onStart(@Nonnull LivingGameEntity entity, int amplifier, int duration) {
         if (entity instanceof GamePlayer player) {
             player.hidePlayer();
         }

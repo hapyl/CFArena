@@ -5,7 +5,6 @@ import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.dialog.ActiveDialog;
 import me.hapyl.fight.fastaccess.PlayerFastAccess;
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.delivery.Deliveries;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -15,7 +14,6 @@ import me.hapyl.fight.game.loadout.HotbarLoadout;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.profile.data.PlayerProfileData;
 import me.hapyl.fight.game.profile.relationship.PlayerRelationship;
-import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
@@ -57,7 +55,6 @@ public class PlayerProfile {
     @Nullable
     private GamePlayer gamePlayer; // current game player
     private PlayerUI playerUI;     // ui
-    private Heroes lastSelectedHero;   // Previous hero to later restore in Random Hero setting
     private Heroes selectedHero;   // selected hero
     private Trial trial;
     private boolean loaded;
@@ -262,8 +259,7 @@ public class PlayerProfile {
     }
 
     public String getSelectedHeroString() {
-        final boolean randomHeroEnabled = Settings.RANDOM_HERO.isEnabled(player);
-        return randomHeroEnabled ? "&l❓&f ʀᴀɴᴅᴏᴍ" : selectedHero.getFormatted();
+        return playerDatabase.randomHeroEntry.isEnabled() ? "&l❓&f ʀᴀɴᴅᴏᴍ" : selectedHero.getFormatted();
     }
 
     public PlayerUI getPlayerUI() {
@@ -295,20 +291,6 @@ public class PlayerProfile {
         return player.getUniqueId();
     }
 
-    @Nullable
-    public Heroes getLastSelectedHero() {
-        return lastSelectedHero;
-    }
-
-    public void rememberLastSelectedHero() {
-        // Don't re-remember a hero
-        if (lastSelectedHero != null) {
-            return;
-        }
-
-        lastSelectedHero = selectedHero;
-    }
-
     public Heroes getHero() {
         return selectedHero;
     }
@@ -320,10 +302,6 @@ public class PlayerProfile {
     @Nonnull
     public PlayerRank getRank() {
         return playerDatabase.getRank();
-    }
-
-    public void forgetLastSelectedHero() {
-        lastSelectedHero = null;
     }
 
     private void createTraceDump(RuntimeException exception) {

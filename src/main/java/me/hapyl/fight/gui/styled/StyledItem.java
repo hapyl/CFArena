@@ -80,6 +80,12 @@ public class StyledItem implements StyledBuilder {
             "Trade your relics for unique cosmetic rewards and perks!"
     );
 
+    public static final StyledItem RANDOM_HERO_PREFERENCES = new StyledItem(
+            Material.BONE_MEAL,
+            "Random Hero Preferences",
+            "Tired of manually selecting a hero? Try this!"
+    );
+
     public final String name;
     public final String description;
     private final Material material;

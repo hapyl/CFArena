@@ -26,11 +26,11 @@ public class CollectibleEntry extends PlayerDatabaseEntry {
      */
 
     public boolean hasClaimed(Type type, int tier) {
-        return getValue(path() + ".claimed.%s%s".formatted(type.name(), tier), false);
+        return getValue(getPath() + ".claimed.%s%s".formatted(type.name(), tier), false);
     }
 
     public void setClaimed(Type type, int tier, boolean flag) {
-        setValue(path() + ".claimed.%s%s".formatted(type.name(), tier), flag);
+        setValue(getPath() + ".claimed.%s%s".formatted(type.name(), tier), flag);
     }
 
     public boolean hasFound(Relic relic) {
@@ -45,25 +45,25 @@ public class CollectibleEntry extends PlayerDatabaseEntry {
         }
 
         foundList.add(relic.getId());
-        setValue(path() + ".found", foundList);
+        setValue(getPath() + ".found", foundList);
     }
 
     public void removeFound(Relic relic) {
         final List<Integer> foundList = getFoundList();
 
         foundList.remove(relic.getId());
-        setValue(path() + ".found", foundList);
+        setValue(getPath() + ".found", foundList);
     }
 
     public List<Integer> getFoundList() {
-        return getValue(path() + ".found", Lists.newArrayList());
+        return getValue(getPath() + ".found", Lists.newArrayList());
     }
 
     public int getPermanentExchangeCount() {
-        return getValue(path() + ".exchange", 0);
+        return getValue(getPath() + ".exchange", 0);
     }
 
     public void incrementPermanentExchangeCount(int value) {
-        setValue(path() + ".exchange", getPermanentExchangeCount() + value);
+        setValue(getPath() + ".exchange", getPermanentExchangeCount() + value);
     }
 }

@@ -18,7 +18,7 @@ public class SlowingAuraEffect extends Effect {
     }
 
     @Override
-    public void onStart(@Nonnull LivingGameEntity entity, int amplifier) {
+    public void onStart(@Nonnull LivingGameEntity entity, int amplifier, int duration) {
         entity.addPotionEffectIndefinitely(PotionEffectType.SLOW, 1);
     }
 

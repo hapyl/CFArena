@@ -2,38 +2,47 @@ package me.hapyl.fight.game.heroes;
 
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.util.Prefixed;
+import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 
 public enum Archetype implements Prefixed {
 
-    DAMAGE("&4&l💢&4", "Damage", "Experts in dealing as much damage as possible."),
-    RANGE("&b&l🎯&b", "Range", "Rangers are dead-eye shooters that can hold distance to strike."),
-    MAGIC("&5🌟", "Magic", "Experts in casting magic spells."),
-    DEFENSE("&3🛡", "Defense", "Provides defense for self and allies."),
-    MOBILITY("&d👣", "Mobility", "Fast and mobile, they zip around the battlefield."),
-    STRATEGY("&e💡", "Strategy", "Strategists rely on their abilities, rather than strength to win."),
-    SUPPORT("&2🍀", "Support", "Provide buffs to self and allies."),
+    DAMAGE(Material.BLAZE_POWDER, "&4&l💢&4", "Damage", "Experts in dealing as much damage as possible."),
+    RANGE(Material.BOW, "&b&l🎯&b", "Range", "Rangers are dead-eye shooters that can hold distance to strike."),
+    MAGIC(Material.NETHER_STAR, "&5🌟", "Magic", "Experts in casting magic spells."),
+    DEFENSE(Material.SHIELD, "&3🛡", "Defense", "Provides defense for self and allies."),
+    MOBILITY(Material.RABBIT_FOOT, "&d👣", "Mobility", "Fast and mobile, they zip around the battlefield."),
+    STRATEGY(Material.LIGHT, "&e💡", "Strategy", "Strategists rely on their abilities, rather than strength to win."),
+    SUPPORT(Material.GOLDEN_APPLE, "&2🍀", "Support", "Provide buffs to self and allies."),
     HEXBANE(
+            Material.NETHERITE_SCRAP,
             new Color("#5C3D2E") + "🕷",
             "Hexbane",
             "Masters of debuffs, they weaken and hinder enemies with eerie precision."
     ),
 
-    NOT_SET();
+    NOT_SET;
 
+    private final Material material;
     private final String prefix;
     private final String name;
     private final String description;
 
     Archetype() {
-        this("", "", "");
+        this(Material.BEDROCK, "", "", "");
     }
 
-    Archetype(@Nonnull String prefix, @Nonnull String name, @Nonnull String description) {
+    Archetype(@Nonnull Material material, @Nonnull String prefix, @Nonnull String name, @Nonnull String description) {
+        this.material = material;
         this.prefix = prefix;
         this.name = name;
         this.description = description;
+    }
+
+    @Nonnull
+    public Material getMaterial() {
+        return material;
     }
 
     @Nonnull

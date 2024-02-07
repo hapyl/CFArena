@@ -1,12 +1,11 @@
 package me.hapyl.fight.game.maps;
 
-import me.hapyl.fight.Main;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.util.Described;
-import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
@@ -22,7 +21,7 @@ public abstract class MapFeature implements Described, GameElement, PlayerElemen
         this.description = info;
 
         if (this instanceof Listener listener) {
-            Bukkit.getPluginManager().registerEvents(listener, Main.getPlugin());
+            CF.registerEvents(listener);
         }
     }
 
