@@ -61,6 +61,7 @@ import net.minecraft.network.protocol.game.PacketPlayOutAnimation;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
@@ -69,6 +70,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
+import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -97,6 +99,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
     private final PlayerPing playerPing;
     private final Map<MoveType, Long> lastMoved;
     public boolean blockDismount;
+    private int sneakTicks;
     @Nonnull
     private PlayerProfile profile;
     private int ultPoints;
@@ -142,6 +145,12 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
 
         super.tick();
         talentLock.tick();
+
+        sneakTicks = isSneaking() ? sneakTicks + 1 : 0;
+    }
+
+    public int getSneakTicks() {
+        return sneakTicks;
     }
 
     /**
@@ -154,6 +163,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         killStreak = 0;
         combatTag = 0;
         noCCTicks = 0;
+        sneakTicks = 0;
         talentLock.reset();
 
         // Actually stop the effects before applying the data
@@ -497,7 +507,8 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         if (getHero().isUsingUltimate(this)) {
             final long durationLeft = getHero().getUltimateDurationLeft(this);
 
-            return "&b&lIN USE &b(%s&b)".formatted(BukkitUtils.roundTick(Tick.fromMillis(durationLeft)) + "s");
+
+            return "&b&lIN USE &b(%s&b)".formatted(durationLeft < 0 ? "∞" : BukkitUtils.roundTick(Tick.fromMillis(durationLeft)) + "s");
         }
 
         if (ultimate.hasCd(this)) {
@@ -1393,6 +1404,27 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         );
     }
 
+    public void setWorldBorder(@Nullable WorldBorder worldBorder) {
+        getPlayer().setWorldBorder(worldBorder);
+    }
+
+    @Nonnull
+    public Item throwItem(@Nonnull Material material, @Nonnull Vector vector) {
+        final World world = getWorld();
+
+        final Item item = world.dropItem(getEyeLocation(), new ItemStack(material));
+
+        item.setPickupDelay(999998);
+        item.setOwner(uuid);
+
+        item.setVelocity(vector);
+
+        // Fx
+        playWorldSound(Sound.ENTITY_SNOWBALL_THROW, 0.75f);
+
+        return item;
+    }
+
     private List<Block> getBlocksRelative(BiFunction<Location, World, Boolean> fn, Consumer<Location> consumer) {
         final List<Block> blocks = Lists.newArrayList();
         final Location location = getEyeLocation();
@@ -1468,6 +1500,13 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
     public static Optional<GamePlayer> getPlayerOptional(Player player) {
         final GamePlayer gamePlayer = getExistingPlayer(player);
         return gamePlayer == null ? Optional.empty() : Optional.of(gamePlayer);
+    }
+
+    @Nonnull
+    public Vector getDirectionWithMovementError(double movementError) {
+        final Location location = getEyeLocation();
+
+        return location.getDirection();
     }
 
 }

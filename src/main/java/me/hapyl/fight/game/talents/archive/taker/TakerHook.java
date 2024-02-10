@@ -49,7 +49,7 @@ public class TakerHook {
         final Vector vector = location.getDirection().normalize();
 
         player.addEffect(Effects.SLOW, 10, 10000);
-        player.getMetadata().canMove.setValue(false);
+        player.setCanMove(false);
 
         taskExtend = new GameTask() {
             private double step = 0.0d;
@@ -130,7 +130,7 @@ public class TakerHook {
         player.removeEffect(Effects.SLOW);
         player.removeEffect(Effects.JUMP_BOOST);
 
-        player.getMetadata().canMove.setValue(true);
+        player.setCanMove(true);
     }
 
     public void breakChains() {
@@ -165,7 +165,7 @@ public class TakerHook {
             public void run() {
                 if (chains.isEmpty()) {
                     player.removeEffect(Effects.SLOW);
-                    player.getMetadata().canMove.setValue(true);
+                    player.setCanMove(true);
 
                     cancel();
                     return;

@@ -146,7 +146,9 @@ public enum GameMaps implements Selectable, Translatable {
     DWARF_VAULT(new DwarfVault()),
     LIMBO(
             new GameMap("Limbo")
-                    .setDescription("Yes, no?")
+                    .setDescription("""
+                            A lighthouse.
+                            """)
                     .setMaterial(Material.SCULK_VEIN)
                     .setSize(Size.LARGE)
                     .setTicksBeforeReveal(100)

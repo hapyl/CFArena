@@ -3,7 +3,6 @@ package me.hapyl.fight.game.talents.archive.witcher;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.TickingGameTask;
-import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -62,7 +61,7 @@ public class AxiiData extends TickingGameTask {
         final int timeLeft = talent.getDuration() - tick;
 
         // Display
-        entity.sendTitle("&f&lsᴛᴜɴɴᴇᴅ", "&b" + CFUtils.decimalFormatTick(timeLeft), 0, 10, 0);
+        entity.sendTitle("&f&lsᴛᴜɴɴᴇᴅ", "&b%.1f".formatted(timeLeft / 20.d), 0, 10, 0);
 
         // Fx
         final Location location = entity.getEyeLocation().add(0, 0.25, 0);

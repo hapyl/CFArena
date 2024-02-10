@@ -23,6 +23,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerEvent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -203,6 +204,13 @@ public final class CF {
         return manager.getPlayer(uuid);
     }
 
+    @Nullable
+    public static GamePlayer getPlayer(@Nonnull PlayerEvent ev) {
+        final Player player = ev.getPlayer();
+
+        return getPlayer(player);
+    }
+
     /**
      * Gets an optional of {@link GamePlayer}.
      *
@@ -224,13 +232,18 @@ public final class CF {
         return manager.getPlayers();
     }
 
+    @Nonnull
+    public static Set<GamePlayer> getPlayers(@Nonnull Predicate<GamePlayer> predicate) {
+        return manager.getPlayers(predicate);
+    }
+
     /**
      * Gets a copy of existing {@link GamePlayer}s who is {@link GamePlayer#isAlive()}.
      *
      * @return a copy of living players.
      */
     @Nonnull
-    public static List<GamePlayer> getAlivePlayers() {
+    public static Set<GamePlayer> getAlivePlayers() {
         return manager.getAlivePlayers();
     }
 
@@ -241,7 +254,7 @@ public final class CF {
      * @return a copy of living players matching the predicate.
      */
     @Nonnull
-    public static List<GamePlayer> getAlivePlayers(@Nonnull Predicate<GamePlayer> predicate) {
+    public static Set<GamePlayer> getAlivePlayers(@Nonnull Predicate<GamePlayer> predicate) {
         return manager.getAlivePlayers(predicate);
     }
 
@@ -252,7 +265,7 @@ public final class CF {
      * @return a copy of living player matching the hero.
      */
     @Nonnull
-    public static List<GamePlayer> getAlivePlayers(@Nonnull Heroes enumHero) {
+    public static Set<GamePlayer> getAlivePlayers(@Nonnull Heroes enumHero) {
         return manager.getAlivePlayers(enumHero);
     }
 
@@ -491,6 +504,5 @@ public final class CF {
     public static String getName() {
         return Main.GAME_NAME;
     }
-
 
 }

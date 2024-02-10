@@ -23,6 +23,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -35,9 +36,9 @@ public final class Collect {
      * Gets the list with game players that are considered enemies to a given player.
      *
      * @param player - Player.
-     * @return the list of player's enemies.
+     * @return the set of player's enemies.
      */
-    public static List<GamePlayer> enemyPlayers(@Nonnull GamePlayer player) {
+    public static Set<GamePlayer> enemyPlayers(@Nonnull GamePlayer player) {
         return CF.getAlivePlayers(predicate -> {
             return !predicate.isSpectator() && !predicate.compare(player) && !predicate.isTeammate(player);
         });
@@ -402,9 +403,8 @@ public final class Collect {
     }
 
     @Nonnull
-    public static List<GamePlayer> aliveGamePlayers() {
-        final Manager manager = Manager.current();
-        return manager.getAlivePlayers();
+    public static Set<GamePlayer> aliveGamePlayers() {
+        return Manager.current().getAlivePlayers();
     }
 
     /**

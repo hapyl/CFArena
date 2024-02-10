@@ -3,13 +3,15 @@ package me.hapyl.fight.game.task;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.talents.Timed;
 
+import javax.annotation.Nonnull;
+
 // Timed tasks are the same as ticking game task, but with a max tick value
 // that will automatically cancel the task upon reaching the limit.
 public abstract class TimedGameTask extends TickingGameTask {
 
     protected final int maxTick;
 
-    public TimedGameTask(Timed timed) {
+    public TimedGameTask(@Nonnull Timed timed) {
         this(timed.getDuration());
     }
 

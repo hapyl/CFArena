@@ -48,7 +48,7 @@ public class ProjectileRaycast extends WeaponRaycast {
 
             @Override
             public boolean predicate(@Nonnull Location location) {
-                return weapon.predicateBlock(location.getBlock());
+                return weapon.predicateBlock(player, location.getBlock());
             }
 
             @Override

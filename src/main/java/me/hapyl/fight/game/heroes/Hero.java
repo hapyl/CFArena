@@ -24,6 +24,7 @@ import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.translate.Language;
 import me.hapyl.fight.translate.Translatable;
@@ -35,12 +36,15 @@ import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -103,10 +107,21 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
         mapTalent(HotbarSlots.TALENT_4);
         mapTalent(HotbarSlots.TALENT_5);
 
-        // Check duplicate talents
-        checkDuplicateTalents();
-
         setItem("null"); // default to null because I don't like exceptions
+
+        // Register listener if needed
+        if (this instanceof Listener listener) {
+            CF.registerEvents(listener);
+        }
+
+        if (this instanceof TickingHero tickingHero) {
+            new TickingGameTask() {
+                @Override
+                public void run(int tick) {
+                    tickingHero.tick(tick);
+                }
+            }.runTaskTimer(tickingHero.delay(), tickingHero.period());
+        }
     }
 
     @Nonnull
@@ -139,9 +154,6 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
 
     public TranslatedDescribed getWeapon(@Nonnull Language language) {
         return new TranslatedDescribed(language, getParentTranslatableKey() + "weapon");
-    }
-
-    private void checkDuplicateTalents() {
     }
 
     @Override
@@ -679,26 +691,23 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
     }
 
     /**
-     * Gets all players that are using this hero.
+     * Gets a set of {@link GamePlayer} whose selected hero is this hero.
      *
-     * @return list of player using this hero.
+     * @return set of player using this hero.
      */
     @Nonnull
-    public List<GamePlayer> getPlayers() {
-        return CF.getAlivePlayers(predicate -> predicate.getHero() == this);
+    public Set<GamePlayer> getPlayers() {
+        return CF.getPlayers(player -> player.getEnumHero() == enumHero);
     }
 
     /**
      * Gets all players that are using this hero who is alive.
      *
-     * @return list of living player using this hero.
+     * @return set of living player using this hero.
      */
     @Nonnull
-    public List<GamePlayer> getAlivePlayers() {
-        final List<GamePlayer> players = getPlayers();
-        players.removeIf(player -> !player.isAlive());
-
-        return players;
+    public Set<GamePlayer> getAlivePlayers() {
+        return CF.getAlivePlayers(player -> player.getEnumHero() == enumHero && player.isAlive());
     }
 
     /**
@@ -849,6 +858,24 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
         return "&a" + getName();
     }
 
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+
+        final Hero hero = (Hero) object;
+        return enumHero == hero.enumHero;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(enumHero);
+    }
+
     protected void setUltimate(UltimateTalent ultimate, Consumer<UltimateTalent> andThen) {
         setUltimate(ultimate);
         andThen.accept(ultimate);
@@ -880,5 +907,4 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
             oldTask.cancel();
         }
     }
-
 }

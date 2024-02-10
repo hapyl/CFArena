@@ -1,6 +1,5 @@
 package me.hapyl.fight.game;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
@@ -68,7 +67,7 @@ public final class Manager extends BukkitRunnable {
             EntityType.GIANT
     );
 
-    private final Map<UUID, GameEntity> entities;
+    private final Map<UUID, GameEntity> entities; // This might need optimizing if A LOT of entities since getting players is iterating over the whole map
     private final Map<UUID, PlayerProfile> profiles;
     private final SkinEffectManager skinEffectManager;
     private final AutoSync autoSave;
@@ -786,6 +785,7 @@ public final class Manager extends BukkitRunnable {
     @Nonnull
     public Set<GamePlayer> getPlayers() {
         final Set<GamePlayer> players = Sets.newHashSet();
+
         for (GameEntity entity : entities.values()) {
             if (entity instanceof GamePlayer player) {
                 players.add(player);
@@ -796,8 +796,24 @@ public final class Manager extends BukkitRunnable {
     }
 
     @Nonnull
-    public List<GamePlayer> getAlivePlayers() {
+    public Set<GamePlayer> getPlayers(Predicate<GamePlayer> predicate) {
+        final Set<GamePlayer> players = getPlayers();
+        players.removeIf(player -> !predicate.test(player));
+
+        return players;
+    }
+
+    @Nonnull
+    public Set<GamePlayer> getAlivePlayers() {
         return getAlivePlayers(player -> true);
+    }
+
+    @Nonnull
+    public Set<GamePlayer> getAlivePlayers(Predicate<GamePlayer> predicate) {
+        final Set<GamePlayer> players = getPlayers();
+        players.removeIf(player -> !player.isAlive() || !predicate.test(player));
+
+        return players;
     }
 
     @Nonnull
@@ -806,15 +822,7 @@ public final class Manager extends BukkitRunnable {
     }
 
     @Nonnull
-    public List<GamePlayer> getAlivePlayers(Predicate<GamePlayer> predicate) {
-        final Set<GamePlayer> players = getPlayers();
-        players.removeIf(player -> !player.isAlive() || !predicate.test(player));
-
-        return Lists.newArrayList(players);
-    }
-
-    @Nonnull
-    public List<GamePlayer> getAlivePlayers(Heroes enumHero) {
+    public Set<GamePlayer> getAlivePlayers(Heroes enumHero) {
         return getAlivePlayers(player -> player.getEnumHero() == enumHero);
     }
 
@@ -901,6 +909,7 @@ public final class Manager extends BukkitRunnable {
     public AutoSync getAutoSave() {
         return autoSave;
     }
+
 
     private void playAnimation() {
         new TitleAnimation();

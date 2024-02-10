@@ -84,6 +84,8 @@ import me.hapyl.fight.game.talents.archive.spark.SparkFlash;
 import me.hapyl.fight.game.talents.archive.sun.SyntheticSun;
 import me.hapyl.fight.game.talents.archive.swooper.BlastPack;
 import me.hapyl.fight.game.talents.archive.swooper.Blink;
+import me.hapyl.fight.game.talents.archive.swooper.SmokeBomb;
+import me.hapyl.fight.game.talents.archive.swooper.SwooperPassive;
 import me.hapyl.fight.game.talents.archive.taker.DeathSwap;
 import me.hapyl.fight.game.talents.archive.taker.FatalReap;
 import me.hapyl.fight.game.talents.archive.taker.SpiritualBonesPassive;
@@ -398,14 +400,13 @@ public enum Talents {
             """, Material.LEATHER_BOOTS
     )),
 
-    // Swooper
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.swooper.Swooper}
+     */
     BLAST_PACK(new BlastPack()),
-    BLINK(new Blink()),
-    SNIPER_SCOPE(new PassiveTalent(
-            "Path Writer",
-            "Your last &b5&7 seconds of life are stored in the path writer.",
-            Material.STRING
-    )),
+    SWOOPER_SMOKE_BOMB(new SmokeBomb()),
+    @Deprecated BLINK(new Blink()),
+    SWOOPER_PASSIVE(new SwooperPassive()),
 
     // Shark
     SUBMERGE(new SubmergeTalent()),
@@ -521,7 +522,7 @@ public enum Talents {
     SMOKE_BOMB(new PassiveTalent("Smoke Bomb", """
             Whenever your &chealth&7 falls &nbelow&7 &c50%&7, you gain a &aSmoke Bomb&7.
                         
-            Throw it to create a &8smoke field&7 that &b3linds&7 everyone inside it and grant you a &bspeed boost&7.
+            Throw it to create a &8smoke field&7 that &3blinds&7 everyone inside it and grant you a &bspeed boost&7.
             """, Material.ENDERMAN_SPAWN_EGG
     )),
 

@@ -72,7 +72,6 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     public final EntityRandom random;
     protected final EntityData entityData;
     private final Set<EnumDamageCause> immunityCauses = Sets.newHashSet();
-    private final EntityMetadata metadata;
     private final EntityCooldown cooldown;
     private final EntityPacketFactory packetFactory;
     private final EntityMemory memory;
@@ -82,10 +81,11 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     protected double health;
     @Nonnull protected EntityState state;
     protected int noCCTicks = 0;
+    protected int inWaterTicks;
     private AI ai;
     private int aliveTicks = 0;
     private boolean informImmune = true;
-    private int inWaterTicks;
+    private boolean canMove = true;
 
     public LivingGameEntity(@Nonnull LivingEntity entity) {
         this(entity, new Attributes(entity));
@@ -98,7 +98,6 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         this.wasHit = false;
         this.health = attributes.get(AttributeType.MAX_HEALTH);
         this.state = EntityState.ALIVE;
-        this.metadata = new EntityMetadata(this);
         this.cooldown = new EntityCooldown(this);
         this.packetFactory = new EntityPacketFactory(this);
         this.memory = new EntityMemory(this);
@@ -181,19 +180,12 @@ public class LivingGameEntity extends GameEntity implements Ticking {
      *
      * @return true if an entity can move; false otherwise.
      */
-    @Deprecated
     public boolean canMove() {
-        return metadata.canMove.getValue();
+        return canMove;
     }
 
-    @Deprecated
     public void setCanMove(boolean canMove) {
-        metadata.canMove.setValue(canMove);
-    }
-
-    @Nonnull
-    public EntityMetadata getMetadata() {
-        return metadata;
+        this.canMove = canMove;
     }
 
     @Nonnull
@@ -543,13 +535,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         aliveTicks++;
         noCCTicks = noCCTicks < 0 ? 0 : noCCTicks - 1;
 
-        // In water ticks
-        if (entity.isInWater()) {
-            inWaterTicks++;
-        }
-        else {
-            inWaterTicks = 0;
-        }
+        inWaterTicks = entity.isInWater() ? inWaterTicks + 1 : 0;
     }
 
     /**
@@ -1226,10 +1212,6 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         executeFerocity(damage, lastDamager, ferocityStrikes, false);
     }
 
-    protected boolean isInvalidForFerocity() {
-        return isDeadOrRespawning();
-    }
-
     public void executeFerocity(double damage, @Nullable LivingGameEntity damager, int ferocityStrikes, boolean force) {
         if (isInvalidForFerocity()) {
             return;
@@ -1339,6 +1321,10 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     @Nonnull
     public String getScoreboardName() {
         return uuid.toString();
+    }
+
+    protected boolean isInvalidForFerocity() {
+        return isDeadOrRespawning();
     }
 
     // This defaults vanilla attributes and applies the custom ones.

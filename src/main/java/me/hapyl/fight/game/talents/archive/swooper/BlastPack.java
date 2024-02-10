@@ -1,135 +1,75 @@
 package me.hapyl.fight.game.talents.archive.swooper;
 
-import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.ChargedTalent;
-import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.math.Geometry;
-import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Item;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class BlastPack extends ChargedTalent {
 
-    @DisplayField(suffix = "blocks") private final double explosionRadius = 4.0d;
+    @DisplayField public final int maxAirTime = 300;
+    @DisplayField(suffix = "blocks") public final double explosionRadius = 4.0d;
+    @DisplayField public final double stunDistance = explosionRadius / 2.0d;
+    @DisplayField public final double selfMagnitude = 1.5d;
+    @DisplayField public final double otherMagnitude = 0.5d;
+    @DisplayField public final double damage = 2.0d;
 
-    private final PlayerMap<Entity> blastPackMap = PlayerMap.newMap();
+    protected final PlayerMap<BlastPackEntity> blastPacks = PlayerMap.newMap();
 
     public BlastPack() {
         super("Blast Pack", """
-                &b1) &7Throw the blast pack!
-                &b2) &7Click again to explode!
-                &b3) &7???
-                &b4) &7Fly!
+                Throw an explosive &eC4&7 in front of you that &nsticks&7 to surfaces.
+                                
+                &nUse&7 &nagain&7 to &4explode&7, damaging &cenemies&7 and moving all &bentities&7.
+                &8;;If an enemy is close to explosion, they will be stunned.
                 """, 2);
 
+        setType(Type.MOVEMENT);
         setItem(Material.DETECTOR_RAIL);
         setCooldown(3);
-        setRechargeTimeSec(12);
+        setRechargeTimeSec(8);
     }
 
     @Override
     public void onStop() {
         super.onStop();
 
-        blastPackMap.values().forEach(Entity::remove);
-        blastPackMap.clear();
+        blastPacks.forEachAndClear(BlastPackEntity::cancel);
     }
 
     @Override
     public void onDeath(@Nonnull GamePlayer player) {
         super.onDeath(player);
 
-        Nulls.runIfNotNull(blastPackMap.get(player), Entity::remove);
-        blastPackMap.remove(player);
+        blastPacks.removeAnd(player, BlastPackEntity::cancel);
     }
 
     @Nullable
-    public Entity getBlastPack(GamePlayer player) {
-        return blastPackMap.get(player);
+    public BlastPackEntity getBlastPack(GamePlayer player) {
+        return blastPacks.get(player);
     }
 
     @Override
     public Response execute(@Nonnull GamePlayer player) {
-        final Entity blastPack = getBlastPack(player);
+        final BlastPackEntity blastPack = blastPacks.remove(player);
 
         // Explode blast pack
         if (blastPack != null) {
-            explodeSatchel(player, blastPack);
+            blastPack.explode();
             return Response.OK;
         }
 
         // Throw blast pack
-        final Item item = player.getWorld().dropItem(player.getEyeLocation(), new ItemStack(getMaterial()));
-        final Vector vector = player.getEyeLocation().getDirection().normalize();
-        blastPackMap.put(player, item);
+        blastPacks.put(player, new BlastPackEntity(this, player));
 
-        item.setPickupDelay(Integer.MAX_VALUE);
-        item.setVelocity(vector);
-        item.setThrower(player.getUUID());
-
-        new GameTask() {
-            private int maxAirTime = 300;
-
-            @Override
-            public void run() {
-
-                if (maxAirTime-- < 0 || item.isDead() || getBlastPack(player) != item || item.isOnGround()) {
-                    cancel();
-                    return;
-                }
-
-                PlayerLib.spawnParticle(item.getLocation(), Particle.FLAME, 1, 0, 0, 0, 0);
-            }
-        }.runTaskTimer(0, 1);
-
-        PlayerLib.playSound(item.getLocation(), Sound.ENTITY_SLIME_JUMP, 0.75f);
-
+        player.playWorldSound(Sound.ENTITY_SLIME_JUMP, 0.75f);
         return Response.AWAIT;
-    }
-
-    public void explodeSatchel(GamePlayer player, Entity entity) {
-        entity.remove();
-        blastPackMap.remove(player);
-
-        final Location location = entity.getLocation();
-
-        // Explosion
-        Collect.nearbyEntities(location, explosionRadius).forEach(gameEntity -> {
-            if (gameEntity.equals(player)) {
-                gameEntity.addEffect(Effects.FALL_DAMAGE_RESISTANCE, 40);
-            }
-            else if (!player.isTeammate(gameEntity)) {
-                gameEntity.damage(5.0d, player, EnumDamageCause.SATCHEL);
-            }
-
-            if (gameEntity.hasEffectResistanceAndNotify(player)) {
-                return;
-            }
-
-            final Vector vector = gameEntity.getLocation().toVector().subtract(location.toVector()).normalize();
-            gameEntity.setVelocity(vector.multiply(gameEntity.equals(player) ? 1.35d : 0.35d));
-        });
-
-        // FX
-        PlayerLib.playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 1.75f);
-        Geometry.drawSphere(location, (explosionRadius * 2) + 1, explosionRadius, new WorldParticle(Particle.FIREWORKS_SPARK));
     }
 
 }

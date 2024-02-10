@@ -150,10 +150,6 @@ public enum Heroes implements Formatted {
 
     Heroes(@Nonnull Function<Heroes, Hero> fn) {
         this.hero = fn.apply(this);
-
-        if (hero instanceof Listener listener) {
-            CF.registerEvents(listener);
-        }
     }
 
     @Nonnull

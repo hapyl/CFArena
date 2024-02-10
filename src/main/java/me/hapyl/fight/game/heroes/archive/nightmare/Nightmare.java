@@ -25,7 +25,7 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
-import java.util.List;
+import java.util.Set;
 
 public class Nightmare extends Hero implements DisplayFieldProvider {
 
@@ -113,7 +113,7 @@ public class Nightmare extends Hero implements DisplayFieldProvider {
     @Override
     public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
         final OmenDebuff debuff = getDebuff(player);
-        final List<GamePlayer> enemies = Collect.enemyPlayers(player);
+        final Set<GamePlayer> enemies = Collect.enemyPlayers(player);
         final int enemiesSize = enemies.size();
 
         if (enemiesSize == 0) {

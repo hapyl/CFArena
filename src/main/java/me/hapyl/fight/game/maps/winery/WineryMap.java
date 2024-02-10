@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.maps.winery;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.achievement.Achievements;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.maps.GameMap;
 import me.hapyl.fight.game.maps.HiddenMapFeature;
@@ -15,7 +15,6 @@ import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 
-import java.util.List;
 import java.util.Random;
 
 public class WineryMap extends GameMap {
@@ -122,9 +121,7 @@ public class WineryMap extends GameMap {
 
             @Override
             public void tick(int tick) {
-                final List<GamePlayer> players = CF.getAlivePlayers();
-
-                players.forEach(player -> {
+                CF.getAlivePlayers().forEach(player -> {
                     final int y = player.getBlockY();
 
                     if (y < minHeight) {

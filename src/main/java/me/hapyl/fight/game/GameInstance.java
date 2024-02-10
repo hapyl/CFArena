@@ -31,7 +31,6 @@ import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.game.weapons.ability.Ability;
-import me.hapyl.fight.packet.StaticPacket;
 import me.hapyl.fight.util.Materials;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -43,7 +42,6 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
-import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
@@ -348,7 +346,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
     public void run(final int tick) {
         mode.tick(this, tick);
 
-        final List<GamePlayer> alivePlayers = CF.getAlivePlayers();
+        final Set<GamePlayer> alivePlayers = CF.getAlivePlayers();
 
         if (Manager.current().isDebug()) {
             alivePlayers.forEach(player -> {
@@ -368,7 +366,6 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
 
             if (tick % 10 == 0) {
                 player.playSound(Sound.BLOCK_NOTE_BLOCK_HAT, 1.0f);
-                StaticPacket.Demo.SHOW_HOW_TO_MOVE.send(player);
             }
 
             Achievements.AFK.complete(player);
@@ -379,7 +376,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
         }
 
         // Auto-Points
-        if (tick % 20 == 0) {
+        if (gameState == State.IN_GAME && modulo(20)) {
             alivePlayers.forEach(player -> {
                 player.addUltimatePoints(1);
             });

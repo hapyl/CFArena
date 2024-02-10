@@ -183,7 +183,7 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
         new TimedGameTask(smokeDuration) {
             @Override
             public void run(int tick) {
-                Collect.nearbyPlayers(location, 3.0d).forEach(inRange -> {
+                Collect.nearbyPlayers(location, smokeRadius).forEach(inRange -> {
                     inRange.addEffect(Effects.BLINDNESS, 1, 25);
                     inRange.addEffect(Effects.INVISIBILITY, 25, true);
                 });

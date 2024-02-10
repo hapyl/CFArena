@@ -12,8 +12,10 @@ import java.util.function.BiConsumer;
 
 public class Attributes implements WeakCopy {
 
-    public final static double DEFENSE_SCALING = 0.5d;
     public static final double INFINITE_ATTACK_SPEED = 9.99d;
+
+    public static final double DEFENSE_SCALING = 0.5d;
+    public static final double ATTACK_SPEED_SCALING = Math.PI * 2 / 10;
 
     protected final Map<AttributeType, Double> mapped;
     protected final AttributeRandom random;
@@ -103,19 +105,13 @@ public class Attributes implements WeakCopy {
     /**
      * Calculates the range attack speed with the formula:
      * <pre>
-     *     scale = sin(PI / (attackSpeed + 1))
-     *     scale = atkSpd < 1 ? PI - (PI / 10) - scale : scale
-     *
-     *     max(0, speed * scale)
+     *     speed / (attackSpeed * {@link #ATTACK_SPEED_SCALING} + (1 - ({@link #ATTACK_SPEED_SCALING}))
      * </pre>
      */
     public final int calculateRangeAttackSpeed(int speed) {
         final double attackSpeed = get(AttributeType.ATTACK_SPEED);
 
-        double scale = Math.sin(Math.PI / (attackSpeed + 1));
-        scale = attackSpeed < 1 ? (Math.PI - Math.PI / 10 - scale) : scale;
-
-        return Math.max(0, (int) (speed * scale));
+        return (int) Math.max(0, speed / (attackSpeed * ATTACK_SPEED_SCALING + (1 - ATTACK_SPEED_SCALING)));
     }
 
     public final boolean calculateDodge() {

@@ -58,6 +58,7 @@ public enum Temper implements SmallCapsDescriber {
     SECOND_WIND,
     EXTRA_CUTS,
     THROWING_KNIFE,
+    SMOKE_BOMB,
 
     /* Keep semicolon on this line for easier addition. */;
 

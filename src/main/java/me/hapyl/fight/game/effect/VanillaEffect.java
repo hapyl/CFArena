@@ -7,8 +7,6 @@ import javax.annotation.Nonnull;
 
 public class VanillaEffect extends Effect {
 
-    private static final int INFINITE_DURATION = -1;
-
     private final PotionEffectType effect;
 
     public VanillaEffect(String name, PotionEffectType effect, EffectType type) {

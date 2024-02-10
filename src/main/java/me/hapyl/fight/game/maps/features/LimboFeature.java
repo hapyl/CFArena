@@ -1,7 +1,9 @@
 package me.hapyl.fight.game.maps.features;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.event.custom.GameEntityContactPortalEvent;
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.effect.Effect;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -19,7 +21,17 @@ import org.bukkit.event.Listener;
 public class LimboFeature extends VoidFeature implements Listener {
     public LimboFeature() {
         super("The Sea of Nothingness", """
+                A very mysterious sea surrounds this island.
+                                
+                If you decide to slim in it, prepare for pain.
                 """);
+    }
+
+    @Override
+    public void onStart() {
+        CF.getPlayers().forEach(player -> {
+            player.addEffect(Effects.NIGHT_VISION, Effect.INFINITE_DURATION);
+        });
     }
 
     @EventHandler()

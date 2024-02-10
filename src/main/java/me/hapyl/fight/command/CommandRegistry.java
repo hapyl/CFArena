@@ -63,6 +63,7 @@ import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.engineer.Construct;
 import me.hapyl.fight.game.talents.archive.juju.Orbiting;
+import me.hapyl.fight.game.talents.archive.swooper.BlastPackEntity;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.archive.witcher.Akciy;
 import me.hapyl.fight.game.task.GameTask;
@@ -82,6 +83,7 @@ import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.ChatUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.ux.Message;
+import me.hapyl.spigotutils.module.block.display.DisplayEntity;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.chat.Gradient;
 import me.hapyl.spigotutils.module.chat.LazyEvent;
@@ -216,6 +218,19 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new LanguageCommand("language"));
 
         // *=* Inner commands *=* //
+
+        register("spawnBlastPackWallEntity", (player, args) -> {
+            final float yaw = getArgument(args, 0).toFloat();
+            final float pitch = getArgument(args, 1).toFloat();
+
+            final Location location = player.getLocation();
+            location.setYaw(yaw);
+            location.setPitch(pitch);
+
+            final DisplayEntity entity = BlastPackEntity.data.spawn(location);
+
+            Chat.sendMessage(player, "&aSpawned with %s yaw and %s pitch!".formatted(yaw, pitch));
+        });
 
         register("debugCosmetic", (player, args) -> {
             final Cosmetics enumCosmetic = getArgument(args, 0).toEnum(Cosmetics.class);

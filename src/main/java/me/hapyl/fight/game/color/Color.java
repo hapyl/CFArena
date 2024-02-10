@@ -81,6 +81,7 @@ public class Color {
     public static final Color SPACE = new Color("#A020F0");
     public static final Color DIDEN = new Color("#0096aa");
     public static final Color CRAB = new Color("#b05a5f");
+    public static final Color SKY_BLUE = new Color("#87CEEB");
 
     // *-----------------------------------------------------*
 

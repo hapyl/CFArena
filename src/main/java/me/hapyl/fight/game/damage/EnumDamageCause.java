@@ -96,7 +96,7 @@ public enum EnumDamageCause {
     RIFLE(DamageCause.of("had their brain exploded in cool slow-mo", "by")),
     SATCHEL(DamageCause.of("had their last flights", "with")),
     TORNADO(DamageCause.of("couldn't find the wind", "of")),
-    LIBRARY_VOID(DamageCause.of("was consumed by §0the void")),
+    LIBRARY_VOID(DamageCause.of("was consumed by §kthe void")),
     RIPTIDE(DamageCause.nonCrit("was splashed", "by")),
     COLD(DamageCause.of("froze to death", "with the help of")),
     LASER(DamageCause.of("was lasered to death", "by")),

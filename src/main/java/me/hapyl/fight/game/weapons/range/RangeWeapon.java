@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.weapons.range;
 
+import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.Response;
@@ -34,6 +35,7 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
     private final PlayerMap<Integer> playerAmmo;
     protected double shift;
     protected double knockback;
+    protected double movementError;
     @Nonnull
     protected WeaponRaycast raycast;
     private int reloadTime;
@@ -55,11 +57,21 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
         this.playerAmmo = PlayerMap.newMap();
         this.maxAmmo = 8;
         this.reloadTime = 100;
+        this.movementError = 0.3d;
         this.raycast = new WeaponRaycast(this);
         this.knockback = RANGE_KNOCKBACK;
 
         setAbility(AbilityType.RIGHT_CLICK, new AbilityShoot());
         setAbility(AbilityType.LEFT_CLICK, new AbilityReload());
+    }
+
+    public double getMovementError() {
+        return movementError;
+    }
+
+    public RangeWeapon setMovementError(double movementError) {
+        this.movementError = movementError;
+        return this;
     }
 
     /**
@@ -279,6 +291,17 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
         }
     }
 
+    @Event
+    public void onShoot(@Nonnull GamePlayer player) {
+
+    }
+
+    public int getWeaponCooldownScale(GamePlayer player) {
+        final int weaponCooldown = getWeaponCooldown(player);
+
+        return player.getAttributes().calculateRangeAttackSpeed(weaponCooldown);
+    }
+
     private int subtractAmmo(GamePlayer player) {
         return playerAmmo.compute(player, (p, i) -> i == null ? maxAmmo - 1 : i - 1);
     }
@@ -340,6 +363,7 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
             final int ammo = subtractAmmo(player);
 
             raycast.cast(player);
+            onShoot(player);
 
             if (ammo <= 0) {
                 reload(player);
@@ -352,12 +376,6 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
 
             return Response.OK;
         }
-    }
-
-    public int getWeaponCooldownScale(GamePlayer player) {
-        final int weaponCooldown = getWeaponCooldown(player);
-
-        return player.getAttributes().calculateRangeAttackSpeed(weaponCooldown);
     }
 
 }

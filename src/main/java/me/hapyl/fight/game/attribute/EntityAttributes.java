@@ -9,13 +9,16 @@ import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperData;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.ui.display.AttributeDisplay;
+import me.hapyl.fight.game.ui.display.BuffDisplay;
+import me.hapyl.fight.game.ui.display.DebuffDisplay;
+import me.hapyl.fight.game.ui.display.StringDisplay;
 import me.hapyl.fight.trigger.Triggers;
 import me.hapyl.fight.trigger.subscribe.AttributeChangeTrigger;
 import me.hapyl.fight.util.collection.NonnullTuple;
 import me.hapyl.fight.util.collection.Tuple;
 import me.hapyl.spigotutils.module.annotate.Super;
 import me.hapyl.spigotutils.module.math.Numbers;
+import org.bukkit.Location;
 
 import javax.annotation.Nonnull;
 import java.util.function.Consumer;
@@ -263,7 +266,13 @@ public class EntityAttributes extends Attributes implements PlayerElement {
     }
 
     private void display(AttributeType type, boolean isBuff) {
-        new AttributeDisplay(type, isBuff, entity.getLocation().add(0.0d, 0.5d, 0.0d));
+        final Location location = entity.getMidpointLocation();
+
+        final StringDisplay display = isBuff
+                ? new BuffDisplay("&a&l▲ %s &a&l▲".formatted(type), 30)
+                : new DebuffDisplay("&c&l▼ %s &c&l▼".formatted(type), 30);
+
+        display.display(location);
     }
 
 

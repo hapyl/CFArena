@@ -122,13 +122,7 @@ public class GameEntity {
 
     @Nonnull
     public World getWorld() {
-        final World world = getLocation().getWorld();
-
-        if (world != null) {
-            return world;
-        }
-
-        throw new IllegalArgumentException("unloaded world!!!");
+        return entity.getWorld();
     }
 
     public boolean isValid() {

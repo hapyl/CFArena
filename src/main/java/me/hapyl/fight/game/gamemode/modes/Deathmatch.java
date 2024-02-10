@@ -64,6 +64,13 @@ public class Deathmatch extends CFGameMode {
         }
     }
 
+    @Override
+    public void displayWinners(@Nonnull GameResult result) {
+        super.displayWinners(result);
+
+        // TODO (hapyl): 009, Feb 9: Add more data like TOP 5 yeah
+    }
+
     public String formatTeamName(GameTeam team) {
         final StringBuilder builder = new StringBuilder(team.getFirstLetterCaps()).append(" ").append(ChatColor.WHITE);
 

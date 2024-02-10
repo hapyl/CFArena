@@ -30,6 +30,7 @@ import me.hapyl.spigotutils.module.scoreboard.Scoreboarder;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scoreboard.DisplaySlot;
 
@@ -127,40 +128,53 @@ public class PlayerUI extends TickingGameTask {
             return;
         }
 
-        final EntityAttributes attributes = gamePlayer.getAttributes();
-        final Attributes baseAttributes = attributes.getBaseAttributes();
-
-        final ItemBuilder baseBuilder = ItemBuilder.of(Material.COARSE_DIRT, "Base Attributes", "&8Debug").addLore();
-        baseAttributes.forEach((type, value) -> baseBuilder.addLore(type.getFormatted(baseAttributes)));
-
-        final ItemBuilder playerBuilder = ItemBuilder.of(Material.DIRT, "Player Attributes", "&8Debug").addLore();
-        attributes.forEach((type, value) -> playerBuilder.addLore(type.getFormatted(attributes)));
-
-        player.getInventory().setItem(21, baseBuilder.toItemStack());
-        player.getInventory().setItem(23, playerBuilder.toItemStack());
-
         // Set ultimate item
         final Hero hero = gamePlayer.getHero();
         final PlayerInventory inventory = player.getInventory();
 
-        inventory.setItem(22, hero.getUltimate().getItem());
+        final ItemStack ultimateItem = hero.getUltimate().getItem();
+        final ItemStack passiveItem = hero.getPassiveTalent().getItem();
 
-        // Set temper items
-        final ItemBuilder temperBuilder = new ItemBuilder(Material.COMPARATOR).setName("Temper Data").addLore("&8Debug").addLore();
-        if (!attributes.hasTempers()) {
-            temperBuilder.addLore("&8Empty!");
+        // Design changes if debug is enabled
+        if (Settings.SEE_DEBUG_DATA.isEnabled(player)) {
+            final EntityAttributes attributes = gamePlayer.getAttributes();
+            final Attributes baseAttributes = attributes.getBaseAttributes();
+
+            // Attributes
+            final ItemBuilder baseBuilder = ItemBuilder.of(Material.COARSE_DIRT, "Base Attributes", "&8Debug").addLore();
+            baseAttributes.forEach((type, value) -> baseBuilder.addLore(type.getFormatted(baseAttributes)));
+
+            final ItemBuilder playerBuilder = ItemBuilder.of(Material.DIRT, "Player Attributes", "&8Debug").addLore();
+            attributes.forEach((type, value) -> playerBuilder.addLore(type.getFormatted(attributes)));
+
+            // Tempers
+            // Set temper items
+            final ItemBuilder temperBuilder = new ItemBuilder(Material.COMPARATOR).setName("Temper Data").addLore("&8Debug").addLore();
+            if (!attributes.hasTempers()) {
+                temperBuilder.addLore("&8Empty!");
+            }
+            else {
+                attributes.forEachTempers(data -> {
+                    temperBuilder.addLore("&a&l" + data.temper.name());
+                    data.values.forEach((type, temper) -> {
+                        temperBuilder.addLore(" " + type.toString());
+                        temperBuilder.addLore(" %s for %s", temper.value, temper.toString());
+                    });
+                });
+            }
+
+            inventory.setItem(19, baseBuilder.toItemStack());
+            inventory.setItem(20, playerBuilder.toItemStack());
+            inventory.setItem(21, temperBuilder.toItemStack());
+
+            // Hero-related items
+            inventory.setItem(23, ultimateItem);
+            inventory.setItem(24, passiveItem);
         }
         else {
-            attributes.forEachTempers(data -> {
-                temperBuilder.addLore("&a&l" + data.temper.name());
-                data.values.forEach((type, temper) -> {
-                    temperBuilder.addLore(" " + type.toString());
-                    temperBuilder.addLore(" %s for %s", temper.value, temper.toString());
-                });
-            });
+            inventory.setItem(21, ultimateItem);
+            inventory.setItem(23, passiveItem);
         }
-
-        inventory.setItem(25, temperBuilder.asIcon());
     }
 
     public void sendInGameUI(@Nonnull ChatColor ultimateColor) {

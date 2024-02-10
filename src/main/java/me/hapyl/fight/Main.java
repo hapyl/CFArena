@@ -50,7 +50,7 @@ public class Main extends JavaPlugin {
     public static final String GAME_NAME = Color.GOLD.bold() +
             "\uD835\uDE72\uD835\uDE95\uD835\uDE8A\uD835\uDE9C\uD835\uDE9C\uD835\uDE8E\uD835\uDE9C \uD835\uDE75\uD835\uDE92\uD835\uDE90\uD835\uDE91\uD835\uDE9D";
 
-    public static VersionInfo versionInfo = new VersionInfo("&a&lShaman&a, &a&lHeavy Knight&a and &a&lRogue&a!");
+    public static VersionInfo versionInfo = new VersionInfo("&a&lIt's Zealot's time to shine!");
 
     private static long start;
     private static Main plugin;

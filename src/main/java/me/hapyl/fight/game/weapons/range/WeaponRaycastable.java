@@ -24,7 +24,7 @@ public interface WeaponRaycastable {
     @Nullable
     EnumDamageCause getDamageCause(@Nonnull GamePlayer player);
 
-    default boolean predicateBlock(@Nonnull Block block) {
+    default boolean predicateBlock(@Nonnull GamePlayer player, @Nonnull Block block) {
         return !block.getType().isOccluding();
     }
 

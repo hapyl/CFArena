@@ -25,6 +25,7 @@ public enum Named {
     OVERHEAL(ChatColor.DARK_GREEN + "⚕", "Overheal", Color.GREEN),
     SECOND_WIND("&l\uD83E\uDD8B", "Second Wind", Color.WHITE),
     FEROCIOUS_STRIKE("\uD83C\uDF00", "Ferocious Strike", Color.DARK_RED),
+    REFRACTION(ChatColor.BOLD + "⛺", "Refraction", Color.SKY_BLUE),
 
     ;
 

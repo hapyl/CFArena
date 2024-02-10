@@ -23,12 +23,13 @@ public class WeaponRaycast {
         return new WeaponRaycastInstance(player, weapon);
     }
 
+    // FIXME (hapyl): 010, Feb 10: This dog shit system sucks balls
     public void cast(@Nonnull GamePlayer player) {
         final WeaponRaycastInstance instance = newInstance(player);
         final double maxDistance = weapon.getMaxDistance(player);
 
         final Location location = player.getEyeLocation();
-        final Vector vector = location.getDirection().normalize();
+        final Vector vector = player.getDirectionWithMovementError(weapon.movementError);
 
         instance.onStart();
 
@@ -40,7 +41,7 @@ public class WeaponRaycast {
             location.add(x, y, z);
 
             // Check for block predicate
-            if (!weapon.predicateBlock(location.getBlock())) {
+            if (!weapon.predicateBlock(player, location.getBlock())) {
                 spawnParticleHit(location);
                 break;
             }

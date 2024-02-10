@@ -18,7 +18,9 @@ import java.util.Map;
 
 public enum Settings implements EnumWrapper<Setting>, PlayerItemCreator {
 
-    // Gameplay
+    //////////////
+    // Gameplay //
+    //////////////
     SPECTATE(new Setting(
             Material.ENDER_EYE,
             "Spectate",
@@ -139,6 +141,14 @@ public enum Settings implements EnumWrapper<Setting>, PlayerItemCreator {
             profile.getPlayerUI().showScoreboard();
         }
     }),
+
+    SEE_DEBUG_DATA(new Setting(
+            Material.CHAIN_COMMAND_BLOCK,
+            "See Debug Data",
+            "Whenever you will see debug data in your inventory.",
+            Category.UI,
+            false
+    )),
 
     ///////////
     // Other //
