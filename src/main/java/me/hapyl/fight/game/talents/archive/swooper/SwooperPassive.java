@@ -8,17 +8,22 @@ import org.bukkit.Material;
 
 public class SwooperPassive extends PassiveTalent {
 
-    @DisplayField public final int standStillTime = Tick.fromSecond(5);
+    @DisplayField public final int sneakThreshold = Tick.fromSecond(5);
     @DisplayField public final double stealthDamageMultiplier = 2.0d;
+    @DisplayField(suffix = "blocks") public final double maxNestStrayDistance = 1.0d;
 
+
+    // FIXME (hapyl): 015, Feb 15:
     public SwooperPassive() {
-        super("You Can't See Me", """
-                While &nscoping&7 &land&7 &nstanding&7 &nstill&7 for a &b{standStillTime}&7, enter %1$s.
+        super("Sniper Nest", """
+                While &nscoping&& for a &b{standStillTime}&7, create &6Sniper Nest&7 and enter %1$s.
                                 
                 &6%1$s:
                 Become &9invisible&7 and &cincrease&7 your rifle damage.
                                 
                 &8;;Taking damage, moving or un-scoping clears this effect.
                 """.formatted(Named.REFRACTION), Material.FERMENTED_SPIDER_EYE);
+
+        setCooldownSec(3);
     }
 }

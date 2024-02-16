@@ -39,7 +39,7 @@ public class EntityMemory {
      * @param toRemember - Object to remember.
      * @return the previous object entity remembers at the same key.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("all")
     public <T> Object remember(@Nonnull MemoryKey key, @Nonnull T toRemember) {
         return memory.put(key, toRemember);
     }

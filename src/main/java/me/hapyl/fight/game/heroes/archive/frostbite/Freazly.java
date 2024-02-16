@@ -14,7 +14,7 @@ import org.bukkit.Color;
 
 import javax.annotation.Nonnull;
 
-public class Freazly extends Hero implements HeroPlaque {
+public class Freazly extends Hero {
 
     private final double chillAuraRadius = 3.0d;
     private final TemperInstance temper = Temper.CHILL_AURA
@@ -84,14 +84,4 @@ public class Freazly extends Hero implements HeroPlaque {
         return Talents.CHILL_AURA.getTalent();
     }
 
-    @Nonnull
-    @Override
-    public String text() {
-        return "&a&lREWORKED!";
-    }
-
-    @Override
-    public long until() {
-        return HeroPlaque.super.until();
-    }
 }

@@ -23,7 +23,7 @@ public class ZealotUltimate extends UltimateTalent {
         super(hero, "Maintain Order", """
                 Command a &egiant sword&7 to &afall down&7 from the &bsky&7.
 
-                Upon landing, &4explodes&7 violently, inflicting %s on neaby &cenemies&7 based on your %s stacks.
+                Upon landing, &4explodes&7 violently, inflicting %s on nearby &cenemies&7 based on your %s stacks.
                 """.formatted(AttributeType.FEROCITY, Named.FEROCIOUS_STRIKE), 60);
 
         setType(Type.DAMAGE);

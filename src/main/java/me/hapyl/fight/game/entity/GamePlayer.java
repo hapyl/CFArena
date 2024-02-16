@@ -445,12 +445,16 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         return killStreak;
     }
 
-    public void markLastMoved(@Nonnull MoveType... moveTypes) {
+    public void markLastMoved() {
+        for (MoveType moveType : MoveType.values()) {
+            markLastMoved(moveType);
+        }
+    }
+
+    public void markLastMoved(@Nonnull MoveType moveType) {
         final long currentTimeMillis = System.currentTimeMillis();
 
-        for (MoveType moveType : moveTypes) {
-            lastMoved.put(moveType, currentTimeMillis);
-        }
+        lastMoved.put(moveType, currentTimeMillis);
     }
 
     public long getLastMoved(@Nonnull MoveType type) {
@@ -1423,6 +1427,35 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         playWorldSound(Sound.ENTITY_SNOWBALL_THROW, 0.75f);
 
         return item;
+    }
+
+    /**
+     * Returns true if the player is presumably standing still.
+     * <br>
+     * This is checks if the player last {@link MoveType#KEYBOARD} was:
+     * <pre>
+     *     now() - lastMoved >= 100L
+     * </pre>
+     *
+     * @return true if the player is presumably standing still.
+     */
+    public boolean isStandingStill() {
+        final long lastMoved = getLastMoved(MoveType.KEYBOARD);
+        final long timeSinceLastMoved = System.currentTimeMillis() - lastMoved;
+
+        return timeSinceLastMoved >= 100L;
+    }
+
+    public boolean isUsingUltimate() {
+        return getHero().isUsingUltimate(this);
+    }
+
+    public boolean hasCooldown(@Nonnull Talent talent) {
+        return hasCooldown(talent.getMaterial());
+    }
+
+    public void startCooldown(@Nonnull Talent talent) {
+        talent.startCd(this);
     }
 
     private List<Block> getBlocksRelative(BiFunction<Location, World, Boolean> fn, Consumer<Location> consumer) {

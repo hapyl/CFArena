@@ -4,9 +4,9 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.entity.MoveType;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.loadout.HotbarSlots;
@@ -14,16 +14,22 @@ import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.swooper.SwooperPassive;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
+import me.hapyl.fight.game.talents.archive.witcher.Akciy;
 import me.hapyl.fight.game.ui.UIComplexComponent;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
-import org.bukkit.*;
-import org.bukkit.block.data.BlockData;
+import me.hapyl.fight.util.displayfield.DisplayField;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.WorldBorder;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -32,10 +38,11 @@ import java.util.concurrent.TimeUnit;
 
 public class Swooper extends Hero implements Listener, UIComplexComponent, PlayerDataHandler<SwooperData>, TickingHero {
 
-    private final PlayerDataMap<SwooperData> playerData = PlayerMap.newDataMap(SwooperData::new);
-
-    private final double ultimateRadius = 25.0d;
-    private final BlockData passiveEffectBlockData = Material.LIGHT_GRAY_CONCRETE.createBlockData();
+    @DisplayField public final double ultimateRadius = 100.0d;
+    @DisplayField public final double ultimateDamageMultiplier = 2.5d;
+    private final PlayerDataMap<SwooperData> playerData = PlayerMap.newDataMap(player -> new SwooperData(this, player));
+    private final double knockbackChance = 0.12d;
+    private final int stunDuration = 40;
 
     public Swooper(@Nonnull Heroes handle) {
         super(handle, "Swooper");
@@ -77,18 +84,48 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
                 .setItem(Material.PURPLE_GLAZED_TERRACOTTA)
                 .setSound(Sound.ENTITY_ELDER_GUARDIAN_AMBIENT, 2.0f)
                 .setCastDuration(20));
+
+        copyDisplayFieldsToUltimate();
+    }
+
+    @Override
+    public boolean processInvisibilityDamage(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity, double damage) {
+        return false; // Allow damaging while invisible lol
+    }
+
+    @Override
+    public boolean isValidIfInvisible(@Nonnull GamePlayer player) {
+        return true; // This will allow Swooper to be damaged and abilities to work against him
     }
 
     @Override
     public void processDamageAsDamager(@Nonnull DamageInstance instance) {
         final LivingGameEntity entity = instance.getEntity();
         final GamePlayer player = instance.getDamagerAsPlayer();
+        final EnumDamageCause cause = instance.getCause();
 
         if (player == null) {
             return;
         }
 
         final SwooperData data = getPlayerData(player);
+
+        // Butt
+        if (cause == EnumDamageCause.ENTITY_ATTACK) {
+            data.lastButt = Math.max(0, data.lastButt - 1);
+
+            if (data.lastButt == 0 && player.random.nextDouble() <= knockbackChance) {
+                final Vector vector = player.getLocation().getDirection().normalize().multiply(0.5d);
+
+                data.lastButt = 5;
+
+                entity.setVelocity(vector);
+                Talents.AKCIY.getTalent(Akciy.class).stun(entity, stunDuration);
+
+                // Fx
+                entity.playWorldSound(Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 0.0f);
+            }
+        }
 
         if (!data.isHighlighted(entity)) {
             return;
@@ -98,33 +135,50 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
     }
 
     @Override
+    public void processDamageAsVictim(@Nonnull DamageInstance instance) {
+        final GamePlayer player = instance.getEntityAsPlayer();
+        final SwooperData data = getPlayerData(player);
+
+        if (data.isStealthMode()) {
+            data.setStealthMode(false);
+        }
+    }
+
+    @Override
     public void tick(int tick) {
         final SwooperPassive passiveTalent = getPassiveTalent();
 
         getAlivePlayers().forEach(player -> {
+            if (player.hasCooldown(passiveTalent)) {
+                return;
+            }
+
             // Passive check
             final SwooperData data = getPlayerData(player);
-            final boolean hasMoved = player.hasMovedInLast(MoveType.KEYBOARD, passiveTalent.standStillTime * 50L);
-            final boolean canActivePassive = player.getSneakTicks() > passiveTalent.standStillTime && !hasMoved;
+            final boolean isSneaking = player.isSneaking();
 
-            if (!canActivePassive && data.isStealthMode()) {
-                data.setStealthMode(false);
+            data.sneakTicks = isSneaking ? Math.max(data.sneakTicks + 1, 0) : 0;
+
+            final boolean canActivePassive = data.sneakTicks >= passiveTalent.sneakThreshold;
+
+            if (data.isStealthMode()) {
+                if (!canActivePassive || data.isTooFarAwayFromNest()) {
+                    data.sneakTicks = 0;
+                    data.setStealthMode(false);
+                }
+
+                // Fx
+                data.drawNestParticles();
             }
             else if (canActivePassive) {
                 if (!data.isStealthMode()) {
                     data.setStealthMode(true);
                 }
+            }
 
-                // Fx
-                final Location location = player.getEyeLocation();
-
-                CF.getPlayers().forEach(other -> {
-                    if (player.equals(other)) {
-                        return;
-                    }
-
-                    other.spawnParticle(location, Particle.BLOCK_DUST, 5, 0.15d, 0, 0.15d, 0, passiveEffectBlockData);
-                });
+            // Display
+            if (data.sneakTicks > 2 && !data.isStealthMode()) {
+                player.sendSubtitle(data.makeBars(), 0, 10, 0);
             }
 
             // Zoom check
@@ -180,12 +234,16 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
     @Override
     public List<String> getStrings(@Nonnull GamePlayer player) {
         final SwooperData data = getPlayerData(player);
+        final SwooperPassive talent = getPassiveTalent();
 
         final boolean stealthMode = data.isStealthMode();
         final int ultimateShots = data.ultimateShots;
 
+        final int cdTimeLeft = talent.getCdTimeLeft(player);
+
         return List.of(
-                "%s".formatted(stealthMode ? "&3&k| &b&l⛺ &3&k|" : "&8⛺"),
+                "%s".formatted(stealthMode ? "&3&k| &b&l⛺ &3&k|" : ("&8⛺" +
+                        (cdTimeLeft > 0 ? " " + CFUtils.decimalFormatTick(cdTimeLeft) : ""))),
                 ultimateShots > 0 ? "&4&l🧨 &c&l" + ultimateShots : ""
         );
     }
@@ -232,6 +290,5 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
     public PlayerDataMap<SwooperData> getDataMap() {
         return playerData;
     }
-
 
 }

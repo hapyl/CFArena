@@ -216,8 +216,14 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new ScriptCommand("script"));
         register(new TrialCommand("trial"));
         register(new LanguageCommand("language"));
+        register(new GuessWhoCommand("guessWho"));
+        register(new InviteCommand("invite"));
 
         // *=* Inner commands *=* //
+
+        register("stopGuessWho", (player, args) -> {
+            Manager.current().stopGuessWhoGame();
+        });
 
         register("spawnBlastPackWallEntity", (player, args) -> {
             final float yaw = getArgument(args, 0).toFloat();
@@ -252,16 +258,41 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             Chat.sendMessage(player, "&3Is Disabled: " + (cosmetic instanceof DisabledCosmetic));
         });
 
+        register("later", (player, args) -> {
+            final int delay = getArgument(args, 0).toInt();
+            final String command = Chat.arrayToString(args, 1);
+
+            if (command.contains("later")) {
+                Chat.sendMessage(player, "&cThis command is not allowed to be scheduled.");
+                return;
+            }
+
+            if (delay <= 0) {
+                Chat.sendMessage(player, "&cDelay cannot be negative or 0.");
+                return;
+            }
+
+            Chat.sendMessage(player, "&aRunning '%s' in %s ticks.".formatted(command, delay));
+
+            GameTask.runLater(() -> {
+                player.performCommand(command);
+
+                Chat.sendMessage(player, "&aRan '%s'!".formatted(command));
+            }, delay);
+        });
+
         register("stunMe", (player, args) -> {
             final Akciy talent = Talents.AKCIY.getTalent(Akciy.class);
             final GamePlayer gamePlayer = CF.getPlayer(player);
+            final int duration = getArgument(args, 0).toInt(30);
 
             if (gamePlayer == null) {
                 Chat.sendMessage(player, "&cNo handle.");
                 return;
             }
 
-            talent.stun(gamePlayer);
+            talent.stun(gamePlayer, duration);
+            Chat.sendMessage(player, "&aStunned for %ss!".formatted(duration));
         });
 
         register("anchorMe", (player, args) -> {

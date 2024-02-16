@@ -363,6 +363,17 @@ public class PlayerProfile {
     }
 
     @Nonnull
+    public static PlayerProfile getProfileOrThrow(Player player) {
+        final PlayerProfile profile = getProfile(player);
+
+        if (profile != null) {
+            return profile;
+        }
+
+        throw new NullPointerException("No profile.");
+    }
+
+    @Nonnull
     public static Optional<PlayerProfile> getProfileOptional(Player player) {
         return Optional.ofNullable(getProfile(player));
     }

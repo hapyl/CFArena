@@ -1,15 +1,19 @@
 package me.hapyl.fight.game.heroes.archive.swooper;
 
+import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.weapons.PackedParticle;
+import me.hapyl.fight.game.weapons.ability.Ability;
+import me.hapyl.fight.game.weapons.ability.AbilityType;
 import me.hapyl.fight.game.weapons.range.RangeWeapon;
+import me.hapyl.fight.game.weapons.range.WeaponRayCast;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -18,6 +22,11 @@ public class SwooperWeapon extends RangeWeapon {
 
     private final Swooper swooper;
     private final double scopeMultiplier = 2.0d;
+
+    private final PackedParticle[] particles = {
+            new PackedParticle(Particle.FIREWORKS_SPARK),
+            new PackedParticle(Particle.FLAME)
+    };
 
     public SwooperWeapon(Swooper swooper) {
         super(Material.WOODEN_HOE, "swooper_weapon");
@@ -29,69 +38,96 @@ public class SwooperWeapon extends RangeWeapon {
                 &8&o;;Looks like a gift from someone important.
                                 
                 &eAbility: Scope %s&lSNEAK
-                Activates a sniper score, increase the damage and max distance of the rifle.
+                Activates a sniper score, increasing the max bullet distance.
                 """.formatted(Color.BUTTON));
 
         this.swooper = swooper;
 
-        setDamage(5.0d);
+        setDamage(8.0d);
         setMaxAmmo(5);
-        setMaxDistance(20);
-        setCooldown(45);
+        setMaxDistance(75);
+        setCooldown(40);
 
-        setParticleTick(new PackedParticle(Particle.FIREWORKS_SPARK));
         setSound(Sound.ENTITY_GENERIC_EXPLODE, 1.5f);
+
+        removeAbility(AbilityType.LEFT_CLICK);
+        setAbility(AbilityType.ATTACK, new StunAbility());
     }
 
+    @Nonnull
     @Override
-    public void onShoot(@Nonnull GamePlayer player) {
+    public WeaponRayCast newRayCastInstance(@Nonnull GamePlayer player) {
         final SwooperData data = swooper.getPlayerData(player);
+        final boolean strongShot;
 
-        if (data.ultimateShots <= 0) {
-            return;
+        if (data.ultimateShots > 0) {
+            strongShot = true;
+            data.ultimateShots--;
+
+            if (data.ultimateShots <= 0) {
+                swooper.setUsingUltimate(player, false);
+            }
+        }
+        else {
+            strongShot = false;
         }
 
-        data.ultimateShots--;
+        return new WeaponRayCast(this, player) {
 
-        if (data.ultimateShots <= 0) {
-            swooper.setUsingUltimate(player, false);
+            @Nonnull
+            @Override
+            public PackedParticle getParticleTick() {
+                return particles[strongShot ? 1 : 0];
+            }
+
+            @Nonnull
+            @Override
+            public EnumDamageCause getDamageCause() {
+                return EnumDamageCause.RIFLE;
+            }
+
+            @Override
+            public boolean predicateBlock(@Nonnull Block block) {
+                return strongShot || super.predicateBlock(block);
+            }
+
+            @Override
+            public double getDamage(boolean isHeadShot) {
+                final SwooperData data = swooper.getPlayerData(player);
+
+                double damage = weapon.getDamage();
+
+                if (data.isStealthMode()) {
+                    damage *= swooper.getPassiveTalent().stealthDamageMultiplier;
+                }
+
+                if (strongShot) {
+                    damage *= swooper.ultimateDamageMultiplier;
+                }
+
+                return damage;
+            }
+
+            @Override
+            public double getMaxDistance() {
+                final double maxDistance = weapon.getMaxDistance();
+
+                return player.isSneaking() ? maxDistance * scopeMultiplier : maxDistance;
+            }
+        };
+    }
+
+    private class StunAbility extends Ability {
+        public StunAbility() {
+            super("Stun", """
+                    Hitting an &cenemy&7 with your rifle has a small chance to &estun&7 them.
+                    """);
         }
-    }
 
-    @Nullable
-    @Override
-    public EnumDamageCause getDamageCause(@Nonnull GamePlayer player) {
-        return EnumDamageCause.RIFLE;
-    }
-
-    @Override
-    public boolean predicateBlock(@Nonnull GamePlayer player, @Nonnull Block block) {
-        final Hero hero = player.getHero();
-
-        return hero.isUsingUltimate(player) || super.predicateBlock(player, block);
-    }
-
-    @Override
-    public double getDamage(@Nonnull GamePlayer player, boolean isHeadShot) {
-        final SwooperData data = swooper.getPlayerData(player);
-
-        double damage = getDamage();
-
-        if (player.isSneaking()) {
-            damage *= scopeMultiplier;
+        @Nullable
+        @Override
+        public Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
+            return Response.OK;
         }
-
-        if (data.isStealthMode()) {
-            damage *= swooper.getPassiveTalent().stealthDamageMultiplier;
-        }
-
-        return damage;
-    }
-
-    @Override
-    public double getMaxDistance(@Nonnull GamePlayer player) {
-        final double maxDistance = getMaxDistance();
-
-        return player.isSneaking() ? maxDistance * scopeMultiplier : maxDistance;
     }
 }

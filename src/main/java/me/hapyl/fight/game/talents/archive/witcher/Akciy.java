@@ -59,7 +59,7 @@ public class Akciy extends Talent implements Listener {
             return Response.OK;
         }
 
-        stun(target);
+        stun(target, getDuration());
 
         target.sendMessage("&c%s stunned you!", player.getName());
         player.sendMessage("&aStunned %s!", target.getName());
@@ -92,9 +92,9 @@ public class Akciy extends Talent implements Listener {
         ev.setCancelled(true, "Stunned!");
     }
 
-    public void stun(@Nonnull LivingGameEntity entity) {
+    public void stun(@Nonnull LivingGameEntity entity, int duration) {
         unStun(entity);
-        axiiDatamap.put(entity, new AxiiData(this, entity));
+        axiiDatamap.put(entity, new AxiiData(this, entity, duration));
     }
 
     private void unStun(LivingGameEntity entity) {

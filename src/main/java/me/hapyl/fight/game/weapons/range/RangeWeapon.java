@@ -1,10 +1,8 @@
 package me.hapyl.fight.game.weapons.range;
 
-import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.task.TickingGameTask;
@@ -14,7 +12,9 @@ import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.game.weapons.ability.Ability;
 import me.hapyl.fight.game.weapons.ability.AbilityType;
 import me.hapyl.fight.util.collection.player.PlayerMap;
+import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.math.Numbers;
+import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -26,7 +26,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
-public abstract class RangeWeapon extends Weapon implements GameElement, PlayerElement, UIComponent, WeaponRaycastable {
+public abstract class RangeWeapon extends Weapon implements GameElement, PlayerElement, UIComponent {
 
     public static final double HEADSHOT_THRESHOLD = 0.75d;
     public static final double HEADSHOT_MULTIPLIER = 1.5d;
@@ -36,12 +36,12 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
     protected double shift;
     protected double knockback;
     protected double movementError;
-    @Nonnull
-    protected WeaponRaycast raycast;
+
     private int reloadTime;
     private int maxAmmo;
     private int cooldown;
     private double maxDistance;
+
     private PackedParticle particleTick;
     private PackedParticle particleHit;
     private Sound sound;
@@ -58,8 +58,10 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
         this.maxAmmo = 8;
         this.reloadTime = 100;
         this.movementError = 0.3d;
-        this.raycast = new WeaponRaycast(this);
         this.knockback = RANGE_KNOCKBACK;
+
+        this.particleHit = PackedParticle.EMPTY;
+        this.particleTick = PackedParticle.EMPTY;
 
         setAbility(AbilityType.RIGHT_CLICK, new AbilityShoot());
         setAbility(AbilityType.LEFT_CLICK, new AbilityReload());
@@ -98,6 +100,19 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
         playerAmmo.remove(player);
     }
 
+    @Override
+    public void appendLore(@Nonnull ItemBuilder builder) {
+        builder.addLore();
+        builder.addLore("&e&lᴀᴛᴛʀɪʙᴜᴛᴇs:");
+
+        addDynamicLore(builder, " ғɪʀᴇ ʀᴀᴛᴇ: &f&l%s", cooldown, t -> Tick.round(t.intValue()) + "s");
+        addDynamicLore(builder, " ᴍᴀx ᴅɪsᴛᴀɴᴄᴇ: &f&l%s", maxDistance, Object::toString);
+        addDynamicLore(builder, " ᴅᴀᴍᴀɢᴇ: &f&l%s", damage, Object::toString);
+
+        builder.addLore(" ᴍᴀx ᴀᴍᴍᴏ: &f&l%s", maxAmmo);
+        builder.addLore(" ʀᴇʟᴏᴀᴅ ᴛɪᴍᴇ: &f&l%s", Tick.round(reloadTime) + "s");
+    }
+
     @Nonnull
     @Override
     public String getString(@Nonnull GamePlayer player) {
@@ -117,6 +132,26 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
     public RangeWeapon setCooldown(int cd) {
         this.cooldown = cd;
         this.reloadTime = cd * 3;
+        return this;
+    }
+
+    @Nonnull
+    public PackedParticle getParticleTick() {
+        return particleTick;
+    }
+
+    public RangeWeapon setParticleTick(PackedParticle particleTick) {
+        this.particleTick = particleTick;
+        return this;
+    }
+
+    @Nonnull
+    public PackedParticle getParticleHit() {
+        return particleHit;
+    }
+
+    public RangeWeapon setParticleHit(PackedParticle particleHit) {
+        this.particleHit = particleHit;
         return this;
     }
 
@@ -145,7 +180,11 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
         return this;
     }
 
-    @Override
+    @Nonnull
+    public WeaponRayCast newRayCastInstance(@Nonnull GamePlayer player) {
+        return new WeaponRayCast(this, player);
+    }
+
     public double getShift() {
         return shift;
     }
@@ -155,12 +194,6 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
         return this;
     }
 
-    @Override
-    public double getMaxDistance(@Nonnull GamePlayer player) {
-        return maxDistance;
-    }
-
-    @Override
     public final double getMaxDistance() {
         return maxDistance;
     }
@@ -168,17 +201,6 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
     public RangeWeapon setMaxDistance(double d) {
         this.maxDistance = d;
         return this;
-    }
-
-    @Override
-    public double getDamage(@Nonnull GamePlayer player, boolean isHeadShot) {
-        return isHeadShot ? getDamage() * HEADSHOT_MULTIPLIER : getDamage();
-    }
-
-    @Override
-    @Nullable
-    public EnumDamageCause getDamageCause(@Nonnull GamePlayer player) {
-        return null;
     }
 
     public int getCooldown(GamePlayer player) {
@@ -253,47 +275,8 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
         startCooldown(player, reloadTime);
     }
 
-    @Override
-    @Nullable
-    public PackedParticle getParticleHit() {
-        return particleHit;
-    }
-
-    public RangeWeapon setParticleHit(PackedParticle particleHit) {
-        this.particleHit = particleHit;
-        return this;
-    }
-
-    @Override
-    @Nullable
-    public PackedParticle getParticleTick() {
-        return particleTick;
-    }
-
-    public RangeWeapon setParticleTick(PackedParticle particleTick) {
-        this.particleTick = particleTick;
-        return this;
-    }
-
-    public int getPlayerAmmo(GamePlayer player) {
+    public int getPlayerAmmo(@Nonnull GamePlayer player) {
         return playerAmmo.computeIfAbsent(player, fn -> maxAmmo);
-    }
-
-    public void spawnParticleHit(Location location) {
-        if (particleHit != null) {
-            particleHit.display(location);
-        }
-    }
-
-    public void spawnParticleTick(Location location) {
-        if (particleTick != null) {
-            particleHit.display(location);
-        }
-    }
-
-    @Event
-    public void onShoot(@Nonnull GamePlayer player) {
-
     }
 
     public int getWeaponCooldownScale(GamePlayer player) {
@@ -358,12 +341,12 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
             }
 
             playShootSound(player.getLocation());
+            final WeaponRayCast instance = newRayCastInstance(player);
 
             // Cooldown and Ammunition
             final int ammo = subtractAmmo(player);
 
-            raycast.cast(player);
-            onShoot(player);
+            instance.cast();
 
             if (ammo <= 0) {
                 reload(player);

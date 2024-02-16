@@ -14,8 +14,10 @@ import javax.annotation.Nullable;
 public class BlastPack extends ChargedTalent {
 
     @DisplayField public final int maxAirTime = 300;
+    @DisplayField public final int maxLifeTime = 100;
     @DisplayField(suffix = "blocks") public final double explosionRadius = 4.0d;
     @DisplayField public final double stunDistance = explosionRadius / 2.0d;
+    @DisplayField public final int stunDuration = 40;
     @DisplayField public final double selfMagnitude = 1.5d;
     @DisplayField public final double otherMagnitude = 0.5d;
     @DisplayField public final double damage = 2.0d;

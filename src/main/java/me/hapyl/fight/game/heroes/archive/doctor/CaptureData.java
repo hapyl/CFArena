@@ -2,32 +2,40 @@ package me.hapyl.fight.game.heroes.archive.doctor;
 
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.task.TickingGameTask;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
+import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 
-public class CaptureData {
+public class CaptureData extends TickingGameTask {
 
+    private final PhysGun physGun;
     private final GamePlayer player;
-    private final LivingGameEntity captured;
+    private final LivingGameEntity entity;
     private final boolean flight;
 
-    public CaptureData(GamePlayer gamePlayer, LivingGameEntity captured, boolean flight) {
-        this.player = gamePlayer;
-        this.captured = captured;
-        this.flight = flight;
+    public CaptureData(@Nonnull PhysGun physGun, @Nonnull GamePlayer player, @Nonnull LivingGameEntity entity) {
+        this.physGun = physGun;
+        this.player = player;
+        this.entity = entity;
+        this.flight = entity instanceof GamePlayer playerEntity && playerEntity.getAllowFlight();
 
-        captured.setInvulnerable(true);
+        entity.setInvulnerable(true);
+        runTaskTimer(0, 1);
     }
 
-    public void stop() {
-        captured.setInvulnerable(false);
+    @Override
+    public void onTaskStop() {
+        entity.setInvulnerable(false);
 
-        if (captured instanceof GamePlayer capturedPlayer) {
+        if (entity instanceof GamePlayer capturedPlayer) {
             capturedPlayer.setAllowFlight(flight);
         }
+
+        physGun.capturedEntity.remove(player, this);
     }
 
     @Nonnull
@@ -36,41 +44,55 @@ public class CaptureData {
     }
 
     @Nonnull
-    public LivingGameEntity getCaptured() {
-        return captured;
+    public LivingGameEntity getEntity() {
+        return entity;
     }
 
-    public boolean isFlight() {
-        return flight;
-    }
-
-    public void dismount() {
-        final Location location = captured.getLocation();
-        final Block block = location.getBlock();
-
-        if (!block.getType().isAir() || !block.getRelative(BlockFace.UP).getType().isAir()) {
-            player.sendMessage("&a%s was teleported to your since they would suffocate.", captured.getName());
-            captured.teleport(player);
+    @Override
+    public void run(int tick) {
+        if (player.isDeadOrRespawning() || entity.isDeadOrRespawning() || !player.isHeldSlot(HotbarSlots.HERO_ITEM)) {
+            cancel();
+            return;
         }
 
-        boolean solid = false;
-        // check for solid ground
-        for (double y = 0; y <= location.getY(); ++y) {
-            if (!location.clone().subtract(0.0d, y, 0.0d).getBlock().getType().isAir()) {
-                solid = true;
+        final Location location = player.getEyeLocation();
+        final Vector directionNormalized = location.getDirection().normalize().multiply(0.5d);
+        final Vector direction = location.getDirection().normalize().multiply(0.1d);
+
+        for (double d = 0.0d; d <= physGun.maxDistance; d += physGun.shift) {
+            final double x = direction.getX() * d;
+            final double y = direction.getY() * d;
+            final double z = direction.getZ() * d;
+
+            location.add(x, y, z);
+
+            final boolean passable = location.getBlock().isPassable();
+
+            if (!passable) {
+                location.subtract(directionNormalized);
                 break;
             }
         }
 
-        if (!solid) {
-            player.sendMessage("&a%s was teleported to your since they would fall into void.", captured.getName());
-            captured.teleport(player);
+        final Location entityLocation = entity.getEyeLocation();
+        final double eyeHeight = entity.getEyeHeight();
+
+        location.subtract(0, eyeHeight, 0);
+        location.setYaw(entityLocation.getYaw());
+        location.setPitch(entityLocation.getPitch());
+
+        // Check for the blocks above/below
+        final Block block = location.getBlock();
+
+        if (!block.isPassable()) {
+            location.add(0, 1, 0);
         }
 
-        stop();
+        // Sync to location
+        entity.teleport(location);
+
+        entity.sendSubtitle("&f&lCaptured by &a%s&f&l!".formatted(player.getName()), 0, 10, 0);
+        player.sendSubtitle("&f&lCarrying &a%s".formatted(entity.getName()), 0, 10, 0);
     }
 
-    public boolean check(LivingGameEntity target) {
-        return !captured.equals(target) || captured.isDeadOrRespawning();
-    }
 }

@@ -20,18 +20,22 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
-public class GrappleHook {
+public class GrappleHook extends GameTask {
 
-    private final GamePlayer player;
+    public final GamePlayer player;
+    private final GrappleHookTalent talent;
     private final LivingEntity anchor;
     private final LivingEntity hook;
-    private final GameTask syncTask;
-    private LivingGameEntity hookedEntity;
+
+    protected LivingGameEntity hookedEntity;
+    protected int ropeCuts;
+
     private Block hookedBlock;
     private GameTask extendTask;
     private GameTask retractTask;
 
-    public GrappleHook(GamePlayer player) {
+    public GrappleHook(GrappleHookTalent talent, GamePlayer player) {
+        this.talent = talent;
         this.player = player;
 
         this.anchor = createEntity();
@@ -39,27 +43,35 @@ public class GrappleHook {
 
         this.anchor.setLeashHolder(this.hook);
 
-        this.syncTask = new GameTask() {
-            @Override
-            public void run() {
-                // Sync
-                anchor.teleport(player.getLocation());
-
-                if (hookedEntity != null) {
-                    hook.teleport(hookedEntity.getLocation());
-                    hook.getWorld().spawnParticle(Particle.ITEM_CRACK, hook.getLocation(),
-                            5,
-                            0.125,
-                            0.125,
-                            0.125,
-                            0.05f,
-                            new ItemStack(Material.LEAD)
-                    );
-                }
-            }
-        }.runTaskTimer(0, 1);
-
         extendHook();
+
+        runTaskTimer(0, 1);
+    }
+
+    @Override
+    public void run() {
+        anchor.teleport(player.getLocation());
+
+        if (hookedEntity != null) {
+            hook.teleport(hookedEntity.getLocation());
+            hook.getWorld().spawnParticle(Particle.ITEM_CRACK, hook.getLocation(),
+                    5,
+                    0.125,
+                    0.125,
+                    0.125,
+                    0.05f,
+                    new ItemStack(Material.LEAD)
+            );
+
+            final String title = ropeCuts == 0
+                    ? "&6ʏᴏᴜ'ʀᴇ ʜᴏᴏᴋᴇᴅ"
+                    : "&a\uD83E\uDE9D".repeat(ropeCuts) + "&8\uD83E\uDE9D".repeat(talent.cutsToRemove - ropeCuts);
+
+            final int ticks = hookedEntity.aliveTicks() % 40;
+            final String subTitle = ticks == 0 || ticks > 20 ? "&e&lSNEAK&6 to cut the rope!" : "&6&lSNEAK&e to cut the rope!";
+
+            hookedEntity.sendTitle(title, subTitle, 0, 10, 0);
+        }
     }
 
     public boolean isHookBroken() {
@@ -67,12 +79,15 @@ public class GrappleHook {
     }
 
     public void remove() {
+        cancel();
+
         anchor.remove();
         hook.remove();
 
         Nulls.runIfNotNull(extendTask, GameTask::cancel);
         Nulls.runIfNotNull(retractTask, GameTask::cancel);
-        Nulls.runIfNotNull(syncTask, GameTask::cancel);
+
+        talent.playerHooks.remove(player, this);
     }
 
     private boolean isHookToAnchorObstructed() {
@@ -181,7 +196,6 @@ public class GrappleHook {
 
                     // Fx
                     player.sendMessage("&6\uD83E\uDE9D &aYou hooked &e%s&a!", hookedEntity.getName());
-                    hookedEntity.sendMessage("&6\uD83E\uDE9D &e%s&a hooked you, damage the knot to remove the hook!", player.getName());
                     return true;
                 }
 

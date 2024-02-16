@@ -382,6 +382,11 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         return data != null ? data.getTimeLeft() : 0;
     }
 
+    @Nonnull
+    public EntityLocation getEntityLocation() {
+        return new EntityLocation(getLocation());
+    }
+
     private void setInternalNoDamageTicks(int ticks) {
         cooldown.startCooldown(Cooldown.NO_DAMAGE, ticks * 50L);
     }
@@ -965,6 +970,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         return state.string;
     }
 
+    @Deprecated
     public boolean hasPotionEffect(PotionEffectType type) {
         return entity.hasPotionEffect(type);
     }

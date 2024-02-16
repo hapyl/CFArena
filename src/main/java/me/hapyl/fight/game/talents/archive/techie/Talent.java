@@ -501,6 +501,10 @@ public abstract class Talent extends NonNullItemCreator
 
     @Nonnull
     public String getCooldownFormatted() {
+        if (cd <= 0) {
+            return "Dynamic";
+        }
+
         return Tick.round(cd) + "s";
     }
 

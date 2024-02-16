@@ -22,7 +22,6 @@ import me.hapyl.fight.util.Described;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.ItemFunction;
-import me.hapyl.spigotutils.module.math.Tick;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -45,12 +44,10 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
     private final Map<AbilityType, Ability> abilities;
     private final List<Enchant> enchants;
     private final Material material;
-
+    protected double damage;
     private String name;
     private String description;
     private String lore;
-    private double damage;
-
     private String id;
 
     public Weapon(@Nonnull Material material) {
@@ -64,6 +61,10 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
         this.damage = damage;
         this.enchants = Lists.newArrayList();
         this.abilities = Maps.newHashMap();
+    }
+
+    public void removeAbility(@Nonnull AbilityType type) {
+        this.abilities.remove(type);
     }
 
     public void setAbility(@Nonnull AbilityType type, @Nullable Ability ability) {
@@ -274,21 +275,7 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
             }
         }
 
-        if (this instanceof RangeWeapon rangeWeapon) {
-            final int reloadTime = rangeWeapon.getWeaponCooldown();
-            final double maxDistance = rangeWeapon.getMaxDistance();
-            final double weaponDamage = rangeWeapon.getDamage();
-
-            builder.addLore();
-            builder.addLore("&e&lAttributes:");
-
-            addDynamicLore(builder, " Fire Rate: &f&l%s", reloadTime, t -> Tick.round(t.intValue()) + "s");
-            addDynamicLore(builder, " Max Distance: &f&l%s", maxDistance, Object::toString);
-            addDynamicLore(builder, " Damage: &f&l%s", weaponDamage, Object::toString);
-
-            builder.addLore(" Max Ammo: &f&l%s", rangeWeapon.getMaxAmmo());
-            builder.addLore(" Reload Time: &f&l%s", Tick.round(rangeWeapon.getReloadTime()) + "s");
-        }
+        appendLore(builder);
 
         if (!enchants.isEmpty()) {
             enchants.forEach(enchant -> builder.addEnchant(enchant.getEnchantment(), enchant.getLevel()));
@@ -363,7 +350,7 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
                 .setDamage(damage);
     }
 
-    private void addDynamicLore(@Nonnull ItemBuilder builder, @Nonnull String string, @Nonnull Number number, Function<Number, String> function) {
+    protected void addDynamicLore(@Nonnull ItemBuilder builder, @Nonnull String string, @Nonnull Number number, Function<Number, String> function) {
         final int value = number.intValue();
 
         // Since damage cannot be negative, have to handle both -1 and 1.

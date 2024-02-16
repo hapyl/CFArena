@@ -37,7 +37,7 @@ public class ProfileDisplay {
 
         final PlayerDatabase database = profile.getDatabase();
         this.cosmetics = database.getCosmetics();
-        this.level = database.getExperienceEntry().get(ExperienceEntry.Type.LEVEL);
+        this.level = database.getExperienceEntry().get(ExperienceEntry.Type.LEVEL); // FIXME (hapyl): 013, Feb 13: ?
         this.rank = database.getRank().getFormat();
         this.prefix = getPrefix();
     }
@@ -119,6 +119,11 @@ public class ProfileDisplay {
 
         //gameProfile.getName();
         // todo -> Idk might need to actually change players profile name
+    }
+
+    @Nonnull
+    public String getNamePrefixed() {
+        return rank.prefix() + " " + rank.nameColor() + customName;
     }
 
     @Nonnull

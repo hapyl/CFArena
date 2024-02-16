@@ -27,13 +27,14 @@ public class BlastPackEntity extends TickingGameTask {
     public static final DisplayData data = BlockStudioParser.parse(
             "/summon block_display ~-0.5 ~-0.5 ~-0.5 {Passengers:[{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:detector_rail\",Properties:{powered:\"false\",shape:\"east_west\"}},transformation:[-0.0000f,0.0000f,-0.7500f,0.3750f,0.7500f,-0.0000f,-0.0000f,0.0000f,-0.0000f,-0.7500f,0.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f]}]}"
     );
-    private static final double blockOffset = 0.5d;
+    private static final double blockOffset = 0.37d;
 
     private final BlastPack talent;
     private final GamePlayer player;
     private final Item entity;
     private DisplayEntity wallEntity;
     private int aliveTime;
+    private boolean isArmed;
 
     public BlastPackEntity(BlastPack talent, GamePlayer player) {
         this.talent = talent;
@@ -57,9 +58,19 @@ public class BlastPackEntity extends TickingGameTask {
 
     @Override
     public void run(int tick) {
-        if (aliveTime++ >= talent.maxAirTime) {
+        if (aliveTime++ >= (isArmed ? talent.maxLifeTime : talent.maxAirTime)) {
             explode();
             return;
+        }
+
+        // Fx
+        if (isArmed) {
+            final int maxLifeTime = talent.maxLifeTime;
+
+            if (isFibonacci(maxLifeTime - aliveTime, maxLifeTime)) {
+                player.playWorldSound(entity.getLocation(), Sound.BLOCK_NOTE_BLOCK_HAT, 1.25f);
+                player.playWorldSound(entity.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.75f + (0.75f / maxLifeTime * aliveTime));
+            }
         }
 
         // Collision detection
@@ -94,8 +105,7 @@ public class BlastPackEntity extends TickingGameTask {
         final Location location = getLocation();
 
         Collect.nearbyEntities(location, talent.explosionRadius).forEach(entity -> {
-            final double distanceToCentre = entity.getLocation().distance(location);
-            final Vector vector = player.getLocation().toVector().subtract(location.toVector()).normalize();
+            final Vector vector = entity.getLocation().toVector().subtract(location.toVector()).normalize();
 
             // Push the player
             if (player.equals(entity)) {
@@ -108,8 +118,8 @@ public class BlastPackEntity extends TickingGameTask {
             if (!player.isTeammate(entity)) {
                 entity.damageNoKnockback(talent.damage, player, EnumDamageCause.SATCHEL);
 
-                if (distanceToCentre <= talent.stunDistance) {
-                    Talents.AKCIY.getTalent(Akciy.class).stun(entity);
+                if (shouldStun()) {
+                    Talents.AKCIY.getTalent(Akciy.class).stun(entity, talent.stunDuration);
                 }
             }
 
@@ -141,16 +151,38 @@ public class BlastPackEntity extends TickingGameTask {
         }
     }
 
+    private boolean isFibonacci(int i, int max) {
+        int a = 0;
+        int b = 1;
+
+        while (a <= max) {
+            if (a == i) {
+                return true;
+            }
+
+            int t = a + b;
+            a = b;
+            b = t;
+        }
+
+        return false;
+    }
+
+    private boolean shouldStun() {
+        return isArmed && aliveTime >= (talent.maxLifeTime / 2);
+    }
+
     private void makeWallEntity(WallSide side) {
         final Location location = entity.getLocation();
 
         entity.remove();
         aliveTime = 0;
+        isArmed = true;
 
         wallEntity = data.spawn(side.mutate(location));
 
         // Fx
-        player.playWorldSound(location, Sound.BLOCK_NOTE_BLOCK_PLING, 0.0f);
+        player.playWorldSound(location, Sound.ITEM_ARMOR_EQUIP_CHAIN, 0.0f);
     }
 
     enum WallSide {

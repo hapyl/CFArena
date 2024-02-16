@@ -1,9 +1,74 @@
-##########
+#########################################
+
+#########################################
+
+Swooper
+---
+
+# Weapon
+- Fire rate decreased 1.5s >> 2s
+- Can no longer manually reload (To prevent accidentally reloading while trying to stun an enemy)
+
+# Blast Pack
+- Reduce sensitivity 0.5 >> 0.37
+- Add max lifetime of 5s
+- Can only stun while armed and lifetime is at least half of the max lifetime
+-- Meaning the C3 *must* be on a wall for at *least* 2.5s
+- Fixed wrong velocity calculations
+
+# You Can't See Me (Passive)
+- Renamed to "Sniper Nest"
+- Add a small cooldown when leaving this state
+- Remove the need to stand still
+- Upon entering the state, the entered location (nest) is saved
+-- If player moved too far from the nest, the state is cancelled
+-- If player unsneaks, the state is cancelled
+-- If player takes damage, the state if cancelled
+
+Bounty Hunter
+---
+
+# Grapple Hook
+- It is now easier to escape the hook.
+
+
+#########################################
+
+- Allow opening the GUI just don't allow clicking
+- Test swooper
 
 - Stopping the game should display winners
 - Add open 10 instead of bulk open, or make open 10 VIP and bulk PREMIUM
 - Add fight thingy so FIGHT
-- Make debug data cooler
+
+- Increase base damage >> 8
+- Increate ultimate range
+- Increase ultimate damage
+- Preklad
+- Less stun time
+- Stealth broke?
+- Punish more for being on a roof
+_ i'm I stupid?
+
+- Dr Ed can damage self?
+- Dr Ed Ult
+- Maybe add attack display for pytaria?
+- 0.1?
+- stun add s
+- add sound to blast pack
+
+- Make DM clone deal damage?
+- Make DM leave invis like ninja
+- Migrate to RayCawst check
+- Improve DM
+- Range CD BROKE?
+- Make cool ray red
+- Smoke blinks?
+- STUN?
+- Maybe rework Bloodfiend make him AoE:
+-- Pillar does AoE damage.
+-- Chalice STEALS health.
+-- No blood cup.
 
 ####################################################################
 

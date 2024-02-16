@@ -21,6 +21,7 @@ import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.PlayerDataHandler;
+import me.hapyl.fight.game.heroes.TickingHero;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.report.GameReport;
@@ -218,6 +219,16 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
 
             hero.onStart();
             hero.getWeapon().onStart();
+
+            // Schedule task
+            if (hero instanceof TickingHero tickingHero) {
+                new TickingGameTask() {
+                    @Override
+                    public void run(int tick) {
+                        tickingHero.tick(tick);
+                    }
+                }.runTaskTimer(1, 1);
+            }
         }
 
         for (final Talents enumTalent : Talents.values()) {

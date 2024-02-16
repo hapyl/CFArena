@@ -56,7 +56,6 @@ import me.hapyl.fight.util.Formatted;
 import me.hapyl.fight.util.SmallCaps;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
 import java.util.Comparator;
@@ -133,7 +132,6 @@ public enum Heroes implements Formatted {
 
             // Store archetype for easier grab
             final Archetype archetype = hero.hero.getArchetype();
-
             final List<Heroes> byArchetype = BY_ARCHETYPE.computeIfAbsent(archetype, l -> Lists.newArrayList());
 
             byArchetype.add(hero);

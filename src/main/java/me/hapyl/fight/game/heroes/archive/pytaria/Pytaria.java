@@ -6,10 +6,7 @@ import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.UltimateCallback;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -44,6 +41,7 @@ public class Pytaria extends Hero {
         super(handle, "Pytaria");
 
         setArchetype(Archetype.DAMAGE);
+        setSex(Gender.FEMALE);
 
         setDescription(
                 "Beautiful, yet deadly opponent with addiction to flowers. She suffered all her youth, which, in the end, only made her stronger."

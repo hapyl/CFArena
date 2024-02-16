@@ -47,7 +47,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaque {
+public class JuJu extends Hero implements Listener, UIComplexComponent {
 
     private final PlayerMap<ArrowData> playerArrows = PlayerMap.newMap();
     private final Map<Arrow, ArrowType> arrowType = Maps.newHashMap();
@@ -350,12 +350,6 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
     @Override
     public Talent getPassiveTalent() {
         return Talents.JUJU_PASSIVE.getTalent();
-    }
-
-    @Nonnull
-    @Override
-    public String text() {
-        return "&b&lUPDATED!";
     }
 
     @Nullable

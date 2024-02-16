@@ -164,7 +164,7 @@ public class GameEntity {
             }
 
             if (gamePlayer.hasEffect(Effects.INVISIBILITY)) {
-                return false;
+                return gamePlayer.getHero().isValidIfInvisible(gamePlayer);
             }
 
             return true;

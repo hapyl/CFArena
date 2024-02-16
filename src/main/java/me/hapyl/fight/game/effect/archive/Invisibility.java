@@ -27,16 +27,23 @@ public class Invisibility extends Effect {
 
         entity.addPotionEffectIndefinitely(PotionEffectType.INVISIBILITY, 1);
 
-        // Lose target
-        Collect.nearbyEntities(entity.getLocation(), 10).forEach(target -> {
-            final LivingGameEntity targetEntity = target.getTargetEntity();
+        boolean loseAggro = true;
 
-            if (targetEntity != entity) {
-                return;
-            }
+        if (entity instanceof GamePlayer player) {
+            loseAggro = !player.getHero().isValidIfInvisible(player);
+        }
 
-            target.setTarget(null);
-        });
+        if (loseAggro) {
+            Collect.nearbyEntities(entity.getLocation(), 10).forEach(target -> {
+                final LivingGameEntity targetEntity = target.getTargetEntity();
+
+                if (targetEntity != entity) {
+                    return;
+                }
+
+                target.setTarget(null);
+            });
+        }
     }
 
     @Override

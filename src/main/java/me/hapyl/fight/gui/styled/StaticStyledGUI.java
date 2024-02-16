@@ -9,6 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -28,11 +29,14 @@ public final class StaticStyledGUI {
             final int size = gui.getSize();
 
             gui.fillItem(size - 9, size - 1, ItemStacks.BLACK_BAR);
-            gui.setItem(
-                    size - 5,
-                    ItemBuilder.of(Material.BARRIER, "&cClose", "Click to close the menu!").asIcon(),
-                    HumanEntity::closeInventory
-            );
+
+            if (gui.isSetCloseButton()) {
+                gui.setItem(
+                        size - 5,
+                        ItemBuilder.of(Material.BARRIER, "&cClose", "Click to close the menu!").asIcon(),
+                        HumanEntity::closeInventory
+                );
+            }
 
             setReturn(gui, gui.getSize() - 8);
         }
@@ -64,9 +68,13 @@ public final class StaticStyledGUI {
     }
 
     public static <T extends PlayerGUI & Styled> void setPanelItem(T gui, int index, ItemStack item, me.hapyl.spigotutils.module.inventory.gui.Action action) {
+        setPanelItem(gui, index, item, action, ClickType.LEFT);
+    }
+
+    public static <T extends PlayerGUI & Styled> void setPanelItem(T gui, int index, ItemStack item, me.hapyl.spigotutils.module.inventory.gui.Action action, ClickType... clickTypes) {
         index = gui.getSize() - (9 - index);
 
-        gui.setItem(index, item, action);
+        gui.setItem(index, item, action, getClickTypes(clickTypes));
     }
 
     public static <T extends PlayerGUI & Styled> void fillRow(T gui, int row, ItemStack item) {
@@ -77,5 +85,14 @@ public final class StaticStyledGUI {
 
     public static <T extends PlayerGUI & Styled> void openFx(T gui) {
         PlayerLib.playSound(gui.getPlayer(), Sound.BLOCK_STONE_BUTTON_CLICK_ON, 1.0f);
+    }
+
+    @Nonnull
+    private static ClickType[] getClickTypes(ClickType[] clickTypes) {
+        if (clickTypes == null || clickTypes.length == 0) {
+            return new ClickType[] { ClickType.LEFT };
+        }
+
+        return clickTypes;
     }
 }

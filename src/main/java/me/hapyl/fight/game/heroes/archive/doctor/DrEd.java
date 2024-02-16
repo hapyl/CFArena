@@ -135,12 +135,7 @@ public class DrEd extends Hero implements UIComponent {
     @Override
     public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
         player.setItemAndSnap(HotbarSlots.HERO_ITEM, ultimateWeapon.getItem());
-
-        GameTask.runLater(() -> {
-            ultimateWeapon.stop(player);
-            player.setItem(HotbarSlots.HERO_ITEM, null);
-            player.snapToWeapon();
-        }, getUltimateDuration());
+        player.schedule(() -> ultimateWeapon.stop(player), getUltimateDuration());
 
         return UltimateCallback.OK;
     }

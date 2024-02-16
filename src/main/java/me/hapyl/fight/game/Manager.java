@@ -27,6 +27,7 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.PlayerUI;
 import me.hapyl.fight.garbage.CFGarbageCollector;
+import me.hapyl.fight.guesswho.GuessWho;
 import me.hapyl.fight.npc.PersistentNPCs;
 import me.hapyl.fight.util.Ticking;
 import me.hapyl.fight.ux.Message;
@@ -78,6 +79,7 @@ public final class Manager extends BukkitRunnable {
     private GameInstance gameInstance; // @implNote: For now, only one game instance can be active at a time.
     private DebugData debugData;
     private Tournament competitive;
+    private GuessWho guessWhoGame;
 
     public Manager(Main main) {
         this.main = main;
@@ -99,6 +101,40 @@ public final class Manager extends BukkitRunnable {
         debugData = DebugData.EMPTY;
 
         runTaskTimer(main, 0, 1);
+    }
+
+    @Nullable
+    public GuessWho getGuessWhoGame() {
+        return guessWhoGame;
+    }
+
+    public boolean isGuessWhoGameInProgress() {
+        return guessWhoGame != null;
+    }
+
+    public void stopGuessWhoGame() {
+        if (guessWhoGame == null) {
+            return;
+        }
+
+        guessWhoGame.onStop();
+        guessWhoGame = null;
+    }
+
+    public boolean createNewGuessWhoGame(@Nonnull Player player1, @Nonnull Player player2) {
+        if (!player1.isOnline()) {
+            displayError("Player 1 is not online!");
+            return false;
+        }
+
+        if (!player2.isOnline()) {
+            displayError("Player 2 is not online!");
+            return false;
+        }
+
+        guessWhoGame = new GuessWho(player1, player2);
+        guessWhoGame.onStart();
+        return true;
     }
 
     @Override
@@ -504,6 +540,9 @@ public final class Manager extends BukkitRunnable {
                 Chat.broadcast("&6&lUnbalanced Team! &e%s has more players than other teams.", populatedTeam.getName());
             }
         }
+
+        // Stop GuessWho
+        stopGuessWhoGame();
 
         // Stop parkour
         final ParkourManager parkourManager = EternaPlugin.getPlugin().getParkourManager();

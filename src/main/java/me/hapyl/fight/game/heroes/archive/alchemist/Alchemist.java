@@ -12,10 +12,7 @@ import me.hapyl.fight.game.effect.EffectFlag;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.UltimateCallback;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -52,6 +49,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
         super(handle, "Alchemist");
 
         setArchetype(Archetype.STRATEGY);
+        setSex(Gender.FEMALE);
 
         setDescription(
                 "An alchemist who was deceived by the creation of the abyss."

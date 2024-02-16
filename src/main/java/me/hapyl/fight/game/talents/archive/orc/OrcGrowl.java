@@ -36,7 +36,7 @@ public class OrcGrowl extends Talent {
         super("Growl of a Beast");
 
         setDescription("""
-                Growl with your &a&lbeautiful&7 and &4dealy&7 void, scaring enemies in moderate range, &eimpairing&7 and &3slowing&7 them down.
+                Growl with your &a&lbeautiful&7 and &4dealy&7 voice, scaring enemies in moderate range, &eimpairing&7 and &3slowing&7 them down.
                 """);
 
         setType(Type.IMPAIR);

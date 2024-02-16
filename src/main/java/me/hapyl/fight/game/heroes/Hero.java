@@ -7,6 +7,7 @@ import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.annotate.PreferredReturnValue;
 import me.hapyl.fight.annotate.PreprocessingMethod;
 import me.hapyl.fight.database.collection.HeroStatsCollection;
+import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.GameElement;
@@ -24,12 +25,12 @@ import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.translate.Language;
 import me.hapyl.fight.translate.Translatable;
 import me.hapyl.fight.translate.TranslatedDescribed;
 import me.hapyl.fight.util.SmallCaps;
+import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.spigotutils.module.annotate.Super;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
@@ -57,7 +58,7 @@ import java.util.function.Consumer;
  * @see PlayerElement
  */
 @AutoRegisteredListener
-public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Heroes>, Rankable, Translatable {
+public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Heroes>, Rankable, Translatable, DisplayFieldProvider {
 
     private final Heroes enumHero;
     private final HeroStatsCollection stats;
@@ -71,6 +72,7 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
     private final Map<Talent, HotbarSlots> talentsMapped;
     private Affiliation affiliation;
     private Archetype archetype;
+    private Gender sex;
     private String description;
     private ItemStack guiTexture;
     private Weapon weapon;
@@ -78,6 +80,7 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
     private UltimateTalent ultimate;
     private PlayerSkin skin;
     private int rank;
+    private String guiTextureUrl = "";
 
     @Super
     public Hero(@Nonnull Heroes handle, @Nonnull String name) {
@@ -99,6 +102,7 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
         this.skin = null;
         this.friendship = new HeroFriendship(this);
         this.talentsMapped = Maps.newHashMap();
+        this.sex = Gender.MALE;
 
         // Map talents
         mapTalent(HotbarSlots.TALENT_1);
@@ -113,15 +117,15 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
         if (this instanceof Listener listener) {
             CF.registerEvents(listener);
         }
+    }
 
-        if (this instanceof TickingHero tickingHero) {
-            new TickingGameTask() {
-                @Override
-                public void run(int tick) {
-                    tickingHero.tick(tick);
-                }
-            }.runTaskTimer(tickingHero.delay(), tickingHero.period());
-        }
+    @Nonnull
+    public Gender getSex() {
+        return sex;
+    }
+
+    public void setSex(@Nonnull Gender sex) {
+        this.sex = sex;
     }
 
     @Nonnull
@@ -439,8 +443,15 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
      * @param texture64 - Texture in base64 format.
      */
     public void setItem(String texture64) {
+        this.guiTextureUrl = texture64;
+
         guiTexture = ItemBuilder.playerHeadUrl(texture64).asIcon();
         getEquipment().setTexture(texture64);
+    }
+
+    @Nonnull
+    public String getTextureUrl() {
+        return guiTextureUrl;
     }
 
     /**
@@ -625,6 +636,17 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
         return this.ultimate;
     }
 
+    @Nonnull
+    public PlayerRating getAverageRating() {
+        final PlayerRating rating = stats.getAverageRating();
+
+        return rating != null ? rating : PlayerRating.FIVE;
+    }
+
+    public int getActiveTalentsCount() {
+        return talentsMapped.size();
+    }
+
     /**
      * Sets this hero's weapon.
      *
@@ -632,6 +654,16 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
      */
     protected void setUltimate(UltimateTalent ultimate) {
         this.ultimate = ultimate;
+    }
+
+    /**
+     * Returns if this {@link GamePlayer} is considered "valid" if they're invisible.
+     *
+     * @param player - player.
+     * @return true if this player is valid if they're invisible; false otherwise.
+     */
+    public boolean isValidIfInvisible(@Nonnull GamePlayer player) {
+        return false;
     }
 
     @PreprocessingMethod

@@ -139,6 +139,14 @@ public enum Achievements {
             new HiddenAchievement("First Try!", "Hit all the target blocks in your first try.")
     ),
 
+    WIN_GUESS_WHO(
+            new Achievement("Pro Guesser", "Win a game of Guess Who.")
+    ),
+
+    FORFEIT_GUESS_WHO(
+            new HiddenAchievement("I'm Not a Chicken!", "Forfeit a game of Guess Who!")
+    ),
+
     ;
 
     public final Achievement achievement;

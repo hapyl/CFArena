@@ -9,6 +9,7 @@ import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.EntityData;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -33,6 +34,7 @@ import me.hapyl.fight.game.team.LocalTeamManager;
 import me.hapyl.fight.game.tutorial.Tutorial;
 import me.hapyl.fight.game.weapons.BowWeapon;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.guesswho.GuessWho;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -146,6 +148,13 @@ public class PlayerHandler implements Listener {
     public void handlePlayerQuit(PlayerQuitEvent ev) {
         final Player player = ev.getPlayer();
         final Manager manager = Manager.current();
+
+        // GuessWho
+        final GuessWho guessWhoGame = manager.getGuessWhoGame();
+
+        if (guessWhoGame != null) {
+            guessWhoGame.loseBecauseLeft(player);
+        }
 
         if (manager.isGameInProgress()) {
             final IGameInstance game = manager.getCurrentGame();
@@ -428,7 +437,7 @@ public class PlayerHandler implements Listener {
             final LivingGameEntity lastDamager = data.getLastDamagerAsLiving();
             instance.setLastDamager(lastDamager);
 
-            if (lastDamager instanceof GamePlayer gamePlayer && gamePlayer.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
+            if (lastDamager instanceof GamePlayer gamePlayer && gamePlayer.hasEffect(Effects.INVISIBILITY)) {
                 final boolean cancelDamage = gamePlayer.getHero().processInvisibilityDamage(gamePlayer, gameEntity, instance.damage);
 
                 if (cancelDamage) {
@@ -727,6 +736,10 @@ public class PlayerHandler implements Listener {
             // AFK detection
             gamePlayer.markLastMoved(MoveType.MOUSE);
 
+            // FIXME (hapyl): 012, Feb 12:
+            //  This sometimes does not pass the check because the
+            //  first mouse movement is for whatever reason is on a slightly different
+            //  coordinate than the previous one ¯\_(ツ)_/¯
             if (hasNotMoved(from, to)) {
                 return;
             }

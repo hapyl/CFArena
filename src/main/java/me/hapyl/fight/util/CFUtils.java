@@ -992,4 +992,30 @@ public class CFUtils {
 
         return list != null ? new ArrayList<>(list) : new ArrayList<>();
     }
+
+    /**
+     * Increments an integer if the <code>condition</code> is <code>true</code> or sets to <code>min</code> otherwise.
+     *
+     * @param integer    - Integer.
+     * @param condition- Condition.
+     * @param min        - Min.
+     * @param max        - Max
+     * @return <code>min(int+1, max)</code> if the condition is met; <code>min</code> otherwise.
+     */
+    public static int incrementIntegerConditionallyAndClamp(int integer, boolean condition, int min, int max) {
+        return condition ? Math.min(integer + 1, max) : min;
+    }
+
+    @Nullable
+    public static UUID getUUIDfromString(@Nullable String string) {
+        if (string == null) {
+            return null;
+        }
+
+        try {
+            return UUID.fromString(string);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
 }

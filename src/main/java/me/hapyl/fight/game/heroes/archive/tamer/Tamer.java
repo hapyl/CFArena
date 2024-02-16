@@ -34,7 +34,7 @@ import org.bukkit.event.player.PlayerFishEvent;
 import javax.annotation.Nonnull;
 import java.util.Map;
 
-public class Tamer extends Hero implements Listener, UIComponent, HeroPlaque {
+public class Tamer extends Hero implements Listener, UIComponent {
 
     private final double WEAPON_DAMAGE = 7.0d; // since it's a fishing rod, we're storing the damage here
     private final int WEAPON_COOLDOWN = 15;
@@ -191,9 +191,4 @@ public class Tamer extends Hero implements Listener, UIComponent, HeroPlaque {
         return pack.getName() + " " + pack.getPack().toString(pack) + " &e⌚ " + CFUtils.decimalFormatTick(duration);
     }
 
-    @Nonnull
-    @Override
-    public String text() {
-        return "&a&lREWORKED!";
-    }
 }

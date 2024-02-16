@@ -15,7 +15,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.block.BlockFace;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -23,7 +22,10 @@ import javax.annotation.Nullable;
 
 public class PhysGun extends Weapon {
 
-    private final PlayerMap<CaptureData> capturedEntity = PlayerMap.newMap();
+    public final double maxDistance = 2.5d;
+    public final double shift = 0.1d;
+    public final double throwMagnitude = 2.0d;
+    protected final PlayerMap<CaptureData> capturedEntity = PlayerMap.newMap();
 
     public PhysGun() {
         super(Material.GOLDEN_HORSE_ARMOR);
@@ -36,11 +38,14 @@ public class PhysGun extends Weapon {
     public void stop(@Nonnull GamePlayer player) {
         final CaptureData data = capturedEntity.remove(player);
 
+        player.setItem(HotbarSlots.HERO_ITEM, null);
+        player.snapToWeapon();
+
         if (data == null) {
             return;
         }
 
-        data.stop();
+        data.cancel();
     }
 
     public class Harvest extends Ability {
@@ -59,10 +64,11 @@ public class PhysGun extends Weapon {
 
             // Throw
             if (data != null) {
-                final Location location = player.getLocation().add(player.getLocation().getDirection().multiply(2.0d));
-                final LivingGameEntity entity = data.getCaptured();
+                final Location location = player.getLocation().add(player.getLocation().getDirection().multiply(throwMagnitude));
+                final LivingGameEntity entity = data.getEntity();
 
-                data.stop();
+                data.cancel();
+                stop(player);
 
                 entity.setVelocity(player.getLocation().getDirection().multiply(2.0d));
                 entity.spawnWorldParticle(location, Particle.EXPLOSION_NORMAL, 10, 0.2, 0.05, 0.2, 0.02f);
@@ -79,47 +85,7 @@ public class PhysGun extends Weapon {
                 return Response.error("&cNo valid target!");
             }
 
-            capturedEntity.put(player, new CaptureData(player, target,
-                    target instanceof GamePlayer targetPlayer && targetPlayer.getAllowFlight()
-            ));
-
-            // Tick entity
-            new GameTask() {
-                @Override
-                public void run() {
-                    final CaptureData data = capturedEntity.get(player);
-
-                    if (player.isDeadOrRespawning() || data == null) {
-                        cancel();
-                        return;
-                    }
-
-                    if (!player.isHeldSlot(HotbarSlots.HERO_ITEM) || data.check(target)) {
-                        data.dismount();
-                        cancel();
-                        return;
-                    }
-
-                    final Location playerLocation = player.getLocation();
-                    final Location location = target.getLocation();
-                    Location finalLocation = playerLocation.add(0.0d, 1.0d, 0.0d).add(playerLocation.getDirection().multiply(2.0d));
-
-                    finalLocation.setYaw(location.getYaw());
-                    finalLocation.setPitch(location.getPitch());
-
-                    if (!finalLocation.getBlock().getType().isAir() ||
-                            !finalLocation.getBlock().getRelative(BlockFace.UP).getType().isAir()) {
-                        finalLocation = playerLocation;
-                    }
-
-                    target.sendSubtitle("&f&lCaptured by &a%s&f&l!".formatted(player.getName()), 0, 10, 0);
-
-                    target.teleport(finalLocation);
-                    player.sendSubtitle("&f&lCarrying &a%s".formatted(target.getName()), 0, 10, 0);
-
-                }
-            }.runTaskTimer(0, 1);
-
+            capturedEntity.put(player, new CaptureData(PhysGun.this, player, target));
             return Response.AWAIT;
         }
 

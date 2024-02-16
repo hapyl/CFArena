@@ -1,5 +1,6 @@
 package me.hapyl.fight.gui.styled;
 
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -24,7 +25,11 @@ public interface Styled {
         setPanelItem(index, item, null);
     }
 
-    void setPanelItem(int index, @Nonnull ItemStack item, @Nullable me.hapyl.spigotutils.module.inventory.gui.Action action);
+    void setPanelItem(int index, @Nonnull ItemStack item, @Nullable me.hapyl.spigotutils.module.inventory.gui.Action action, @Nullable ClickType... clickTypes);
 
     void fillRow(int row, @Nonnull ItemStack item);
+
+    default boolean isSetCloseButton() {
+        return true;
+    }
 }

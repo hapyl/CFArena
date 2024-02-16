@@ -1,8 +1,10 @@
 package me.hapyl.fight.gui.styled;
 
 import me.hapyl.fight.game.color.Color;
+import me.hapyl.spigotutils.module.inventory.gui.Action;
 import me.hapyl.spigotutils.module.inventory.gui.PlayerPageGUI;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -54,8 +56,9 @@ public abstract class StyledPageGUI<T> extends PlayerPageGUI<T> implements Style
         StaticStyledGUI.setHeader(this, item);
     }
 
-    public void setPanelItem(int index, @Nonnull ItemStack item, @Nullable me.hapyl.spigotutils.module.inventory.gui.Action action) {
-        StaticStyledGUI.setPanelItem(this, index, item, action);
+    @Override
+    public void setPanelItem(int index, @Nonnull ItemStack item, @Nullable Action action, @Nullable ClickType... clickTypes) {
+        StaticStyledGUI.setPanelItem(this, index, item, action, clickTypes);
     }
 
     public void fillRow(int row, @Nonnull ItemStack item) {

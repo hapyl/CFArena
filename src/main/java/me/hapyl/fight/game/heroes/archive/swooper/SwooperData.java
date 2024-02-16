@@ -2,25 +2,41 @@ package me.hapyl.fight.game.heroes.archive.swooper;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.Named;
+import me.hapyl.fight.game.color.Color;
+import me.hapyl.fight.game.entity.EntityLocation;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.PlayerData;
+import me.hapyl.fight.game.talents.archive.swooper.SwooperPassive;
 import me.hapyl.spigotutils.module.reflect.glow.Glowing;
 import org.bukkit.ChatColor;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Set;
 
 public class SwooperData extends PlayerData {
 
+    private static final Particle.DustTransition nestParticleData = new Particle.DustTransition(
+            org.bukkit.Color.fromRGB(46, 59, 79),
+            org.bukkit.Color.fromRGB(42, 68, 110), 1
+    );
+
+    private final Swooper swooper;
     private final Set<LivingGameEntity> highlightedEntities;
     protected int ultimateShots;
+    protected int sneakTicks;
+    protected int lastButt;
+    @Nullable
+    protected EntityLocation nestLocation;
     private boolean stealthMode;
 
-    public SwooperData(GamePlayer player) {
+    public SwooperData(Swooper swooper, GamePlayer player) {
         super(player);
 
+        this.swooper = swooper;
         this.highlightedEntities = Sets.newHashSet();
     }
 
@@ -32,25 +48,61 @@ public class SwooperData extends PlayerData {
         return stealthMode;
     }
 
-    public void setStealthMode(boolean b) {
-        this.stealthMode = b;
+    public void setStealthMode(boolean stealth) {
+        this.stealthMode = stealth;
 
         // Enter mode
-        if (b) {
+        if (stealth) {
             player.hidePlayer();
+            nestLocation = player.getEntityLocation().add(0, 0.15, 0);
 
             // Fx
             player.playWorldSound(Sound.ENTITY_ILLUSIONER_MIRROR_MOVE, 0.75f);
         }
         else {
             player.showPlayer();
+            nestLocation = null;
+
+            // Start cooldown
+            player.startCooldown(swooper.getPassiveTalent());
 
             // Fx
             player.playWorldSound(Sound.ENTITY_ILLUSIONER_PREPARE_MIRROR, 1.0f);
         }
 
         // Title because humans are stupid
-        player.sendTitle(Named.REFRACTION.getCharacterColored(), b ? "&aᴀᴄᴛɪᴠᴀᴛᴇᴅ" : "&cᴅᴇᴀᴄᴛɪᴠᴀᴛᴇᴅ", 0, 15, 5);
+        player.sendTitle(Named.REFRACTION.getCharacterColored(), stealth ? "&aᴀᴄᴛɪᴠᴀᴛᴇᴅ" : "&cᴅᴇᴀᴄᴛɪᴠᴀᴛᴇᴅ", 0, 15, 5);
+    }
+
+    public void drawNestParticles() {
+        if (nestLocation == null) {
+            return;
+        }
+
+        final SwooperPassive passiveTalent = swooper.getPassiveTalent();
+
+        // Fx
+        final int aliveTicks = player.aliveTicks();
+        final double radians = Math.toRadians(aliveTicks);
+
+        final double x = Math.sin(radians * 5) * passiveTalent.maxNestStrayDistance;
+        final double y = Math.sin(radians) * 0.1d;
+        final double z = Math.cos(radians * 5) * passiveTalent.maxNestStrayDistance;
+
+        nestLocation.modifyAnd(x, y, z, then -> {
+            player.spawnWorldParticle(then, Particle.DUST_COLOR_TRANSITION, 1, 0, 0, 0, 0, nestParticleData);
+        });
+
+        nestLocation.modifyAnd(z, y, x, then -> {
+            player.spawnWorldParticle(then, Particle.DUST_COLOR_TRANSITION, 1, 0, 0, 0, 0, nestParticleData);
+        });
+
+    }
+
+    public boolean isTooFarAwayFromNest() {
+        final double maxNestStrayDistance = swooper.getPassiveTalent().maxNestStrayDistance;
+
+        return nestLocation != null && player.getLocation().distance(nestLocation) >= maxNestStrayDistance;
     }
 
     public void addHighlighted(@Nonnull LivingGameEntity entity) {
@@ -79,5 +131,17 @@ public class SwooperData extends PlayerData {
             Glowing.stopGlowing(player.getPlayer(), entity.getEntity());
         });
         highlightedEntities.clear();
+    }
+
+    @Nonnull
+    public String makeBars() {
+        return Named.REFRACTION.getCharacterColored() + " " + makeBar(sneakTicks);
+    }
+
+    private String makeBar(int i) {
+        final int halfStandingTime = swooper.getPassiveTalent().sneakThreshold;
+        final int progress = i * 10 / halfStandingTime;
+
+        return (Color.SKY_BLUE + "|".repeat(progress)) + (Color.DARK_GRAY + "|".repeat(10 - progress));
     }
 }

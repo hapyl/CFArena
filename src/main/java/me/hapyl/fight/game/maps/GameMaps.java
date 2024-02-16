@@ -23,6 +23,7 @@ public enum GameMaps implements Selectable, Translatable {
     // non-playable map, storing here for easy coordinate grab and consistency
     TRAINING_GROUNDS(new NonPlayableGameMap("Training Grounds", "Test heroes abilities here!", -250, 64, 250, -90, 0)),
     SPAWN(new NonPlayableGameMap("Spawn", "You spawn here!", 0, 64, 0).setMaterial(Material.NETHER_STAR)),
+    GUESS_WHO(new NonPlayableGameMap("Guess Who", "It's the 'Guess Who' arena!", 1234, 90, 1234)),
 
     // april fools maps (replaces spawn and arena with classic maps)
     ARENA_APRIL_FOOLS(new NonPlayableGameMap("Classic Arena", "A classic arena from Classes Fight v1.0", -900, 63, 0, 180.0f, 0.0f)),

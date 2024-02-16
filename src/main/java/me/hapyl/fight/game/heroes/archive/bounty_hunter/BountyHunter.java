@@ -62,6 +62,7 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
 
         setAffiliation(Affiliation.MERCENARY);
         setArchetype(Archetype.MOBILITY);
+        setSex(Gender.FEMALE);
 
         setDescription("""
                 She is a skilled bounty hunter.
