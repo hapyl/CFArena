@@ -5,6 +5,7 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.guesswho.gui.GuessWhoRuleOutGUI;
 import me.hapyl.fight.guesswho.gui.GuessWhoSelectionGUI;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Sound;
@@ -13,6 +14,7 @@ import org.bukkit.entity.Player;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Set;
 
 public class GuessWhoPlayer {
 
@@ -121,11 +123,11 @@ public class GuessWhoPlayer {
         return board.size() == 1;
     }
 
-    public void ruleOut(@Nonnull Heroes hero) {
-        board.remove(hero);
+    public void ruleOut(@Nonnull Set<Heroes> toRuleOut) {
+        board.removeAll(toRuleOut);
 
         // Fx
-        sendMessage("Ruled out %s!".formatted(hero.getName()));
+        sendMessage("Ruled out " + CFUtils.makeStringCommaAnd(toRuleOut, Heroes::getNameSmallCaps) + "!");
         playSound(Sound.BLOCK_NOTE_BLOCK_PLING, 2.0f);
     }
 
@@ -175,5 +177,9 @@ public class GuessWhoPlayer {
     @Nonnull
     public String getName() {
         return player.getName();
+    }
+
+    public int getBoardSize() {
+        return board.size();
     }
 }

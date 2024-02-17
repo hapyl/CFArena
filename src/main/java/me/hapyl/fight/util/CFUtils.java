@@ -1018,4 +1018,26 @@ public class CFUtils {
             return null;
         }
     }
+
+    @Nonnull
+    public static <T> String makeStringCommaAnd(@Nonnull Collection<T> collection, @Nonnull Function<T, String> fn) {
+        final StringBuilder builder = new StringBuilder();
+        final int size = collection.size();
+        int index = 0;
+
+        for (T t : collection) {
+            if (index == size - 1) {
+                builder.append(" and ");
+            }
+            else if (index != 0) {
+                builder.append(", ");
+            }
+
+            builder.append(fn.apply(t));
+            ++index;
+        }
+
+        return builder.toString();
+    }
+
 }

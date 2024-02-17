@@ -12,6 +12,8 @@ public class GuessWhoGuessGUI extends GuessWhoGUI {
 
     public GuessWhoGuessGUI(GuessWhoPlayer data) {
         super(data, "Guess");
+
+        openInventory();
     }
 
     @Nonnull

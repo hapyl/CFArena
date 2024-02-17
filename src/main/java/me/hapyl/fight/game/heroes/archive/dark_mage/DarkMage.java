@@ -68,7 +68,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
                                 
                 While &cattacking&7, the &8Wither&7 will unleash a &acoordinated&7 attack.
                                 
-                While &acastring&7 a spell, it will be &aimproved&7, and the cooldown is &breduced&7.
+                While &acasting&7 a spell, it will be &aimproved&7, and the cooldown is &breduced&7.
                                 
                 After {duration}, the &8Wither&7 will leave.
                 """, 70)
@@ -77,7 +77,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
                 .setDurationSec(12)
                 .setCooldownSec(30)
                 .setSound(Sound.ENTITY_WITHER_SPAWN, 2.0f)
-                .appendAttributeDescription("Assist Delay", WitherData.ASSIST_DELAY)
+                .appendAttributeDescription("Assist Delay", WitherData.ASSIST_DELAY / 50)
                 .appendAttributeDescription("Assist Hits", WitherData.ASSIST_HITS)
                 .appendAttributeDescription("Assist Damage", WitherData.ASSIST_DAMAGE_TOTAL)
         );

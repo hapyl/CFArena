@@ -14,6 +14,7 @@ import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
 import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import org.bukkit.Material;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 
@@ -36,9 +37,6 @@ public abstract class GuessWhoGUI extends StyledGUI {
         super(data.getPlayer(), menuArrowSplit("Guess Who", subMenu), Size.FIVE);
 
         this.data = data;
-
-        openInventory();
-        onOpen();
     }
 
     @Event
@@ -72,8 +70,8 @@ public abstract class GuessWhoGUI extends StyledGUI {
     public ItemStack getItem(@Nonnull Heroes heroes) {
         final ItemBuilder builder = createItem(heroes);
 
-        if (data.isRuledOut(heroes)) {
-            return ItemBuilder.playerHeadUrl("c38ab145747b4bd09ce0354354948ce69ff6f41d9e098c6848b80e187e919")
+        if (data.isMyTurn() && data.isRuledOut(heroes)) {
+            return new ItemBuilder(Material.GRAY_DYE)
                     .setName(heroes.getHero().getName())
                     .addLore()
                     .addLore("&cRuled out!")

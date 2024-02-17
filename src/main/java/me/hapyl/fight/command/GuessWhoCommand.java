@@ -27,6 +27,7 @@ public class GuessWhoCommand extends SimplePlayerCommand {
             final GuessWho game = manager.getGuessWhoGame();
 
             if (game == null) {
+                Message.error(player, "Provide a valid player name!");
                 return;
             }
 

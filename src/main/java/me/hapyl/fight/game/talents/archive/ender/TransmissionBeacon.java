@@ -20,7 +20,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 
@@ -38,6 +37,7 @@ public class TransmissionBeacon extends Talent implements Listener {
                 """);
 
         setItem(Material.BEACON);
+        setType(Type.MOVEMENT);
     }
 
     @Override
