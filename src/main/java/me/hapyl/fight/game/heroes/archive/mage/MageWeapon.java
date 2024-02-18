@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.mage;
 
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.HeroReference;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -48,6 +48,8 @@ public class MageWeapon extends Weapon implements HeroReference<Mage> {
 
         public SoulWhisper() {
             super("Soul Whisper", "Launch a laser of souls that damages the first enemy it hits.");
+
+            setCooldownSec(1);
         }
 
         @Nullable

@@ -2,10 +2,7 @@ package me.hapyl.fight.game.gamemode.modes;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.EntityState;
-import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.GameResult;
-import me.hapyl.fight.game.IGameInstance;
+import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.profile.PlayerProfile;
@@ -67,6 +64,13 @@ public class Deathmatch extends CFGameMode {
         }
     }
 
+    @Override
+    public void displayWinners(@Nonnull GameResult result) {
+        super.displayWinners(result);
+
+        // TODO (hapyl): 009, Feb 9: Add more data like TOP 5 yeah
+    }
+
     public String formatTeamName(GameTeam team) {
         final StringBuilder builder = new StringBuilder(team.getFirstLetterCaps()).append(" ").append(ChatColor.WHITE);
 
@@ -124,11 +128,12 @@ public class Deathmatch extends CFGameMode {
 
         // Player joined while the game is in progress
         if (gamePlayer == null) {
-            player.setGameMode(GameMode.SPECTATOR);
-
             gamePlayer = profile.createGamePlayer();
+            gamePlayer.setState(EntityState.RESPAWNING);
             gamePlayer.resetPlayer();
             gamePlayer.respawnIn(60);
+
+            player.setGameMode(GameMode.SPECTATOR);
 
             Chat.broadcast("");
             Chat.broadcast(ChatColor.GREEN + "%s joined the game!", playerName);

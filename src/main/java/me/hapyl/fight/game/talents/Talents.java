@@ -2,12 +2,12 @@ package me.hapyl.fight.game.talents;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import me.hapyl.fight.Main;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.exception.HandleNotSetException;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.archive.knight.Discharge;
-import me.hapyl.fight.game.talents.archive.TestChargeTalent;
 import me.hapyl.fight.game.talents.archive.alchemist.CauldronAbility;
 import me.hapyl.fight.game.talents.archive.alchemist.RandomPotion;
 import me.hapyl.fight.game.talents.archive.archer.ShockDark;
@@ -48,6 +48,7 @@ import me.hapyl.fight.game.talents.archive.juju.Climb;
 import me.hapyl.fight.game.talents.archive.juju.PoisonZone;
 import me.hapyl.fight.game.talents.archive.juju.TricksOfTheJungle;
 import me.hapyl.fight.game.talents.archive.km.LaserEye;
+import me.hapyl.fight.game.talents.archive.knight.Discharge;
 import me.hapyl.fight.game.talents.archive.knight.SlownessPotion;
 import me.hapyl.fight.game.talents.archive.knight.Spear;
 import me.hapyl.fight.game.talents.archive.knight.StoneCastle;
@@ -68,9 +69,13 @@ import me.hapyl.fight.game.talents.archive.orc.OrcAxe;
 import me.hapyl.fight.game.talents.archive.orc.OrcGrowl;
 import me.hapyl.fight.game.talents.archive.pytaria.FlowerBreeze;
 import me.hapyl.fight.game.talents.archive.pytaria.FlowerEscape;
+import me.hapyl.fight.game.talents.archive.rogue.ExtraCut;
+import me.hapyl.fight.game.talents.archive.rogue.SecondWind;
+import me.hapyl.fight.game.talents.archive.rogue.Swayblade;
 import me.hapyl.fight.game.talents.archive.shadow_assassin.*;
-import me.hapyl.fight.game.talents.archive.shaman.ResonanceType;
-import me.hapyl.fight.game.talents.archive.shaman.Totem;
+import me.hapyl.fight.game.talents.archive.shaman.ShamanMarkTalent;
+import me.hapyl.fight.game.talents.archive.shaman.SlimeGunkTalent;
+import me.hapyl.fight.game.talents.archive.shaman.TotemImprisonment;
 import me.hapyl.fight.game.talents.archive.shaman.TotemTalent;
 import me.hapyl.fight.game.talents.archive.shark.SubmergeTalent;
 import me.hapyl.fight.game.talents.archive.shark.Whirlpool;
@@ -79,6 +84,8 @@ import me.hapyl.fight.game.talents.archive.spark.SparkFlash;
 import me.hapyl.fight.game.talents.archive.sun.SyntheticSun;
 import me.hapyl.fight.game.talents.archive.swooper.BlastPack;
 import me.hapyl.fight.game.talents.archive.swooper.Blink;
+import me.hapyl.fight.game.talents.archive.swooper.SmokeBomb;
+import me.hapyl.fight.game.talents.archive.swooper.SwooperPassive;
 import me.hapyl.fight.game.talents.archive.taker.DeathSwap;
 import me.hapyl.fight.game.talents.archive.taker.FatalReap;
 import me.hapyl.fight.game.talents.archive.taker.SpiritualBonesPassive;
@@ -96,11 +103,11 @@ import me.hapyl.fight.game.talents.archive.vortex.VortexSlash;
 import me.hapyl.fight.game.talents.archive.vortex.VortexStar;
 import me.hapyl.fight.game.talents.archive.witcher.*;
 import me.hapyl.fight.game.talents.archive.zealot.BrokenHeartRadiation;
+import me.hapyl.fight.game.talents.archive.zealot.FerociousStrikes;
 import me.hapyl.fight.game.talents.archive.zealot.MaledictionVeil;
 import me.hapyl.fight.game.talents.archive.zealot.MalevolentHitshield;
 import me.hapyl.spigotutils.module.util.BFormat;
 import me.hapyl.spigotutils.module.util.Compute;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.Listener;
 
@@ -283,7 +290,9 @@ public enum Talents {
             Talent.Type.ENHANCE
     )),
 
-    // Witcher
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.witcher.WitcherClass}
+     */
     AARD(new Aard()),
     IGNY(new Igny()),
     KVEN(new Kven()),
@@ -391,21 +400,25 @@ public enum Talents {
             """, Material.LEATHER_BOOTS
     )),
 
-    // Swooper
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.swooper.Swooper}
+     */
     BLAST_PACK(new BlastPack()),
-    BLINK(new Blink()),
-    SNIPER_SCOPE(new PassiveTalent(
-            "Path Writer",
-            "Your last &b5&7 seconds of life are stored in the path writer.",
-            Material.STRING
-    )),
+    SWOOPER_SMOKE_BOMB(new SmokeBomb()),
+    @Deprecated BLINK(new Blink()),
+    SWOOPER_PASSIVE(new SwooperPassive()),
 
     // Shark
     SUBMERGE(new SubmergeTalent()),
     WHIRLPOOL(new Whirlpool()),
     CLAW_CRITICAL(new PassiveTalent(
-            "Oceanborn/Sturdy Claws",
-            "&b&lOceanborn:__While in water, your speed and damage is drastically increased.____&b&lSturdy Claws:__Critical hits summons an ancient creature from beneath that deals extra damage and heals you!",
+            "Oceanborn/Sturdy Claws", """
+            &b&lOceanborn:
+            While in water, your speed and damage is drastically increased.
+                        
+            &b&lSturdy Claws:
+            Critical hits summons an ancient creature from beneath that deals extra damage and heals you!
+            """,
             Material.MILK_BUCKET
     )),
 
@@ -437,19 +450,15 @@ public enum Talents {
     @Deprecated TRAP_CAGE(new TrapCage()),
     @Deprecated TRAP_WIRE(new TrapWire()),
     NEURAL_THEFT(new PassiveTalent(
-            Named.BUG.getName(), """
-            A nano &fbug&7, capable of &ehacking &copponents&7.
-                        
-            At &bintervals&7, the &fbug&7 will hack and send the data to &nyou&7 and your &nteammates&7.
+            "Neural Theft", """
+            At &bintervals&7, &bhack&7 all &fbugged&7 opponents and send the data to &nyou&7 and your &nteammates&7.
                         
             &oThe data includes:
             └ Enemy's &blocation&7.
             └ Enemy's &c❤ Health&7.
             └ Enemy's %1$s.
                         
-            The &fbug&7 also &4steals&7 a small amount of %1$s.
-            &8;;Once implanted, the bug cannot be removed.
-                        
+            Also, &4steal&7 a small amount of %1$s from each hacked enemy.
             """.formatted(Named.ENERGY), Material.CHAINMAIL_HELMET, Talent.Type.IMPAIR
     )),
 
@@ -457,12 +466,28 @@ public enum Talents {
     LASER_EYE(new LaserEye()),
     //GRENADE(new ShellGrande()),
 
-    // Shaman
-    TOTEM(new Totem()),
-    TOTEM_SLOWING_AURA(new TotemTalent(ResonanceType.SLOWING_AURA, 10)),
-    TOTEM_HEALING_AURA(new TotemTalent(ResonanceType.HEALING_AURA, 12)),
-    TOTEM_CYCLONE_AURA(new TotemTalent(ResonanceType.CYCLONE_AURA, 16)),
-    TOTEM_ACCELERATION_AURA(new TotemTalent(ResonanceType.ACCELERATING_AURA, 20)),
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.shaman.Shaman}
+     */
+    TOTEM(new TotemTalent()),
+    TOTEM_IMPRISONMENT(new TotemImprisonment()),
+    SHAMAN_MARK(new ShamanMarkTalent()),
+    OVERHEAL(new PassiveTalent(Named.OVERHEAL.getName(), """
+            When &ahealing&7 an &a&nally&7 who is already at &c&nfull&7 &c&nhealth&7, the excess &ahealing&7 is converted into %1$s.
+                        
+            When &nyou&7 or &nyour&7 allies deal &cdamage&7, it's increased by your %1$s.
+            &8;;The Overheal is consumed with the damage.
+            """.formatted(Named.OVERHEAL), Material.GLISTERING_MELON_SLICE)),
+
+    SLIMY_GUNK(new SlimeGunkTalent()),
+
+    @Deprecated TOTEM_LINK(new PassiveTalent("Arcane Linkage", """
+            Your &atotems&7 are linked by an invisible chain.
+                        
+            &cEnemies&7 passing through a chain will take &cdamage&7.
+            """,
+            Material.CHAIN
+    )),
 
     // Healer
     HEALING_ORB(new HealingOrb()),
@@ -497,29 +522,35 @@ public enum Talents {
     SMOKE_BOMB(new PassiveTalent("Smoke Bomb", """
             Whenever your &chealth&7 falls &nbelow&7 &c50%&7, you gain a &aSmoke Bomb&7.
                         
-            Throw it to create a &8smoke field&7 that &b3linds&7 everyone inside it and grant you a &bspeed boost&7.
+            Throw it to create a &8smoke field&7 that &3blinds&7 everyone inside it and grant you a &bspeed boost&7.
             """, Material.ENDERMAN_SPAWN_EGG
     )),
 
-    // Heavy Knight
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.heavy_knight.SwordMaster}
+     */
     UPPERCUT(new Uppercut()),
     UPDRAFT(new Updraft()),
     SLASH(new Slash()),
+    SWORD_MASTER_PASSIVE(
+            new PassiveTalent("Perfect Sequence", """
+                    Using %1$s ❱ %2$s ❱ %3$s in quick &2&nsuccession&7 &cempowers&7 and &nresets&7 the cooldown of %3$s.
+                    """.formatted(UPPERCUT, UPDRAFT, SLASH), Material.CLOCK)
+                    .setCooldownSec(5)
+    ),
 
     /**
      * {@link me.hapyl.fight.game.heroes.archive.orc.Orc}
      */
     ORC_GROWN(new OrcGrowl()),
     ORC_AXE(new OrcAxe()),
-    ORC_PASSIVE(new PassiveTalent("Don't Anger Me/Orc's Blood", format("""
-            &b&lDon't Anger Me
-            Taking &ncontinuous&7 &cdamage&7 within the set time window will trigger {} for &b3s&7.
-                        
-            &b&lOrc's Blood
-            Negative effects are &c50%&7 less effective.
-            """, Named.BERSERK), Material.FERMENTED_SPIDER_EYE)),
+    ORC_PASSIVE(new PassiveTalent("Don't Anger Me", """
+            Taking &ncontinuous&7 &cdamage&7 within the set time window will trigger %s for &b3s&7.
+            """.formatted(Named.BERSERK), Material.FERMENTED_SPIDER_EYE)),
 
-    // Engineer
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.engineer.Engineer}
+     */
     ENGINEER_SENTRY(new EngineerSentry()),
     ENGINEER_TURRET(new EngineerTurret()),
     ENGINEER_RECALL(new EngineerRecall()),
@@ -541,19 +572,24 @@ public enum Talents {
      */
     BROKEN_HEART_RADIATION(new BrokenHeartRadiation()),
     MALEVOLENT_HITSHIELD(new MalevolentHitshield()),
-    MALEDICTION_VEIL(new MaledictionVeil()),
+    FEROCIOUS_STRIKES(new FerociousStrikes()),
+    @Deprecated MALEDICTION_VEIL(new MaledictionVeil()),
+
+    /**
+     * {@link me.hapyl.fight.game.heroes.archive.rogue.Rogue}
+     */
+    EXTRA_CUT(new ExtraCut()),
+    SWAYBLADE(new Swayblade()),
+    SECOND_WIND(new SecondWind()),
 
     // ???,
     SYNTHETIC_SUN(new SyntheticSun()),
 
-    // test (keep last),
-    TestChargeTalent(new TestChargeTalent());
+    ;
 
-    private final static Map<Talent, Talents> HANDLE_TO_ENUM;
     private final static Map<Talent.Type, List<Talents>> BY_TYPE;
 
     static {
-        HANDLE_TO_ENUM = Maps.newHashMap();
         BY_TYPE = Maps.newHashMap();
 
         for (Talents enumTalent : values()) {
@@ -563,7 +599,6 @@ public enum Talents {
                 continue;
             }
 
-            HANDLE_TO_ENUM.put(talent, enumTalent);
             BY_TYPE.compute(talent.getType(), Compute.listAdd(enumTalent));
         }
     }
@@ -574,9 +609,12 @@ public enum Talents {
         if (talent instanceof UltimateTalent) {
             throw new IllegalArgumentException("ultimate talent enum initiation");
         }
+
         this.talent = talent;
+        this.talent.setHandle(this);
+
         if (talent instanceof Listener listener) {
-            Bukkit.getPluginManager().registerEvents(listener, Main.getPlugin());
+            CF.registerEvents(listener);
         }
     }
 
@@ -584,6 +622,7 @@ public enum Talents {
         getTalent().startCd(player);
     }
 
+    @Nonnull
     public String getName() {
         return getTalent().getName();
     }
@@ -598,6 +637,10 @@ public enum Talents {
      */
     @Nonnull
     public Talent getTalent() {
+        if (talent == null) {
+            throw new HandleNotSetException(this);
+        }
+
         return talent;
     }
 
@@ -619,19 +662,9 @@ public enum Talents {
         }
     }
 
-    /**
-     * Gets the enum from a talent handle.
-     *
-     * @param talent - Talent handle.
-     * @return the enum if present, or null.
-     */
-    @Nullable
-    public static Talents fromTalent(@Nullable Talent talent) {
-        if (talent == null) {
-            return null;
-        }
-
-        return HANDLE_TO_ENUM.get(talent);
+    @Override
+    public String toString() {
+        return Color.GREEN + getName() + Color.GRAY;
     }
 
     @Nonnull
@@ -646,6 +679,4 @@ public enum Talents {
 
         return BFormat.format(textBlock, format);
     }
-
-
 }

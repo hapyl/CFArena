@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.archive.knight;
 
 import me.hapyl.fight.event.custom.GameDamageEvent;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
@@ -32,7 +32,7 @@ public class StoneCastle extends Talent implements Listener {
     private final TemperInstance instance = Temper.STONE_CASTLE.newInstance()
             .increase(AttributeType.DEFENSE, defenseIncrease)
             .increase(AttributeType.KNOCKBACK_RESISTANCE, kbResistanceIncrease)
-            .increase(AttributeType.CROWD_CONTROL_RESISTANCE, ccResistanceIncrease);
+            .increase(AttributeType.EFFECT_RESISTANCE, ccResistanceIncrease);
 
     public StoneCastle() {
         super("Castle of Stone");
@@ -43,7 +43,7 @@ public class StoneCastle extends Talent implements Listener {
                 When a &ateammate&7 &b&nwithin&7 the castle takes &cdamage&7, the damage is &asplit&7 between you.
                                 
                 You also receive a %s, %s and %s increase.
-                """, AttributeType.DEFENSE, AttributeType.KNOCKBACK_RESISTANCE, AttributeType.CROWD_CONTROL_RESISTANCE);
+                """, AttributeType.DEFENSE, AttributeType.KNOCKBACK_RESISTANCE, AttributeType.EFFECT_RESISTANCE);
 
         addAttributeDescription("Damage Split", "%.0f%%/%.0f%%".formatted(damageSplitSelf * 100, damageSplitOther * 100));
 
@@ -85,10 +85,9 @@ public class StoneCastle extends Talent implements Listener {
             }
 
             final double damage = ev.getDamage();
-            final double castledDamage = damage * damageSplitOther;
             final double splitDamage = damage * damageSplitSelf;
 
-            ev.setDamage(castledDamage);
+            ev.setDamageMultiplier(damageSplitOther);
             teammate.damageTick(splitDamage, EnumDamageCause.STONE_CASTLE, 1);
             break;
         }

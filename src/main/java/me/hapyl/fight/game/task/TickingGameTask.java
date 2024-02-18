@@ -2,6 +2,8 @@ package me.hapyl.fight.game.task;
 
 import me.hapyl.fight.game.Event;
 
+import javax.annotation.OverridingMethodsMustInvokeSuper;
+
 // A game task with a designated tick variable
 public abstract class TickingGameTask extends GameTask {
 
@@ -26,6 +28,7 @@ public abstract class TickingGameTask extends GameTask {
     }
 
     @Override
+    @OverridingMethodsMustInvokeSuper
     public void run() {
         if (!ticked) {
             ticked = true;

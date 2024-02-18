@@ -1,9 +1,12 @@
 package me.hapyl.fight.game.maps.features;
 
 import me.hapyl.fight.CF;
+import me.hapyl.fight.event.custom.GameEntityContactPortalEvent;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.BlockLocation;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -41,6 +44,24 @@ public class LibraryVoid extends VoidFeature implements Listener {
         }
 
         addVoidValue(player, 1);
+    }
+
+    @EventHandler()
+    public void handlePortalEvent(GameEntityContactPortalEvent ev) {
+        final LivingGameEntity entity = ev.getEntity();
+
+        if (!validateCurrentMap(GameMaps.LIBRARY)) {
+            return;
+        }
+
+        if (!(entity instanceof GamePlayer player)) {
+            return;
+        }
+
+        final BlockLocation exit = portals.getRandom();
+
+        player.teleport(exit.toLocation(player.getLocation()));
+        addVoidValue(player, 2);
     }
 
     @Override

@@ -1,8 +1,7 @@
 package me.hapyl.fight.game.maps.maps;
 
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.event.custom.GameDamageEvent;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
 import me.hapyl.fight.game.maps.GameMap;
@@ -11,12 +10,13 @@ import me.hapyl.fight.game.maps.Size;
 import me.hapyl.fight.util.BoundingBoxCollector;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
-public class DwarfVault extends GameMap {
+public class DwarfVault extends GameMap implements Listener {
 
     public final BoundingBoxCollector LAVA_BOUNDING_BOX = new BoundingBoxCollector(1464, 44, 1539, 1531, 60, 1614);
     public final double DAMAGE = 20.0d;
@@ -52,22 +52,19 @@ public class DwarfVault extends GameMap {
         });
     }
 
-    @Nullable
-    @Override
-    public DamageOutput onDamageTaken(@Nonnull DamageInput input) {
-        final LivingGameEntity gameEntity = input.getEntity();
-        final EnumDamageCause cause = input.getDamageCause();
+    @EventHandler
+    public void handleDamage(GameDamageEvent ev) {
+        final LivingGameEntity entity = ev.getEntity();
+        final EnumDamageCause cause = ev.getCause();
 
         if (cause == EnumDamageCause.DWARF_LAVA) {
-            return DamageOutput.OK;
+            return;
         }
 
-        if (LAVA_BOUNDING_BOX.isWithin(gameEntity)) {
-            launchUp(gameEntity);
-            return DamageOutput.CANCEL;
+        if (LAVA_BOUNDING_BOX.isWithin(entity)) {
+            launchUp(entity);
+            ev.setCancelled(true);
         }
-
-        return null;
     }
 
     public void launchUp(@Nonnull LivingGameEntity entity) {

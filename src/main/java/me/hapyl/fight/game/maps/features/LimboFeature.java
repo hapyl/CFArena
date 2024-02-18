@@ -1,7 +1,10 @@
 package me.hapyl.fight.game.maps.features;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.event.custom.GameEntityContactPortalEvent;
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.effect.Effect;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.maps.GameMap;
@@ -14,12 +17,21 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.potion.PotionEffectType;
 
 public class LimboFeature extends VoidFeature implements Listener {
     public LimboFeature() {
         super("The Sea of Nothingness", """
+                A very mysterious sea surrounds this island.
+                                
+                If you decide to slim in it, prepare for pain.
                 """);
+    }
+
+    @Override
+    public void onStart() {
+        CF.getPlayers().forEach(player -> {
+            player.addEffect(Effects.NIGHT_VISION, Effect.INFINITE_DURATION);
+        });
     }
 
     @EventHandler()
@@ -61,7 +73,7 @@ public class LimboFeature extends VoidFeature implements Listener {
         entity.teleport(teleportLocation);
 
         // Fx
-        entity.addPotionEffect(PotionEffectType.DARKNESS, 40, 255);
+        entity.addEffect(Effects.DARKNESS, 255, 40);
         entity.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
 
         Geometry.drawLine(location, teleportLocation, 0.5,

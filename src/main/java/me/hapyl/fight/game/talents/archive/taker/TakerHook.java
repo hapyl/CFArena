@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.archive.taker;
 
 import com.google.common.collect.Lists;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -10,13 +11,13 @@ import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.spigotutils.module.entity.Entities;
+import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 
@@ -47,8 +48,8 @@ public class TakerHook {
         final Location location = player.getEyeLocation().subtract(0.0d, 0.5d, 0.0d);
         final Vector vector = location.getDirection().normalize();
 
-        player.addPotionEffect(PotionEffectType.SLOW, 10000, 10);
-        player.getMetadata().canMove.setValue(false);
+        player.addEffect(Effects.SLOW, 10, 10000);
+        player.setCanMove(false);
 
         taskExtend = new GameTask() {
             private double step = 0.0d;
@@ -99,8 +100,8 @@ public class TakerHook {
                             talent().damagePercent
                     );
 
-                    nearest.addPotionEffect(PotionEffectType.SLOW, 60, 1);
-                    nearest.addPotionEffect(PotionEffectType.WITHER, 60, 1);
+                    nearest.addEffect(Effects.SLOW, 1, 60);
+                    nearest.addEffect(Effects.WITHER, 1, 60);
 
                     final double damage = Math.min(health * (talent().damagePercent / 100), 100.0d);
                     nearest.damage(damage, player);
@@ -126,10 +127,33 @@ public class TakerHook {
 
         CFUtils.clearCollection(chains);
 
-        player.removePotionEffect(PotionEffectType.SLOW);
-        player.removePotionEffect(PotionEffectType.JUMP);
+        player.removeEffect(Effects.SLOW);
+        player.removeEffect(Effects.JUMP_BOOST);
 
-        player.getMetadata().canMove.setValue(true);
+        player.setCanMove(true);
+    }
+
+    public void breakChains() {
+        if (chains.isEmpty()) {
+            return;
+        }
+
+        chains.forEach(stand -> {
+            final EulerAngle pose = stand.getHeadPose();
+
+            stand.setHeadPose(pose.add(player.random.nextDouble(), player.random.nextDouble(), player.random.nextDouble()));
+
+            PlayerLib.playSound(stand.getLocation(), Sound.BLOCK_CHAIN_BREAK, 0.0f);
+        });
+
+        player.sendSubtitle("&8\uD83D\uDD17 Broke Chains!", 0, 15, 0);
+
+        new GameTask() {
+            @Override
+            public void run() {
+                remove();
+            }
+        }.runTaskLater(5).runTaskAtCancel();
     }
 
     private void contract() {
@@ -140,10 +164,9 @@ public class TakerHook {
             @Override
             public void run() {
                 if (chains.isEmpty()) {
-                    player.removePotionEffect(PotionEffectType.SLOW);
-                    player.getMetadata().canMove.setValue(true);
+                    player.removeEffect(Effects.SLOW);
+                    player.setCanMove(true);
 
-                    chains.clear();
                     cancel();
                     return;
                 }

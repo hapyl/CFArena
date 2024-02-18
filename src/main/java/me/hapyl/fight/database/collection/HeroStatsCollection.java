@@ -2,10 +2,17 @@ package me.hapyl.fight.database.collection;
 
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.PlayerRating;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.util.Numeric;
+import me.hapyl.spigotutils.module.math.Numbers;
 import org.bson.Document;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.UUID;
 
 public class HeroStatsCollection extends AsynchronousDatabase {
 
@@ -35,9 +42,6 @@ public class HeroStatsCollection extends AsynchronousDatabase {
 
     public long getAbilityUsage(Talents talent) {
         return read("ability_used." + talent.name(), 0L);
-        //        final Document abilityUsed = document.get("ability_used", new Document());
-        //
-        //        return abilityUsed.get(talent.name(), 0L);
     }
 
     public void addAbilityUsage(Talents talents, long value) {
@@ -46,10 +50,38 @@ public class HeroStatsCollection extends AsynchronousDatabase {
 
     public void setAbilityUsage(Talents talent, long value) {
         write("ability_used." + talent.name(), value);
-        //        final Document abilityUsed = document.get("ability_used", new Document());
-        //
-        //        abilityUsed.put(talent.name(), value);
-        //        document.put("ability_used", abilityUsed);
+    }
+
+    @Nullable
+    public PlayerRating getPlayerRating(@Nonnull UUID uuid) {
+        return PlayerRating.fromInt(read("player_rating." + uuid, 0));
+    }
+
+    public void setPlayerRating(@Nonnull UUID uuid, @Nonnull PlayerRating rating) {
+        write("player_rating." + uuid, rating.toInt());
+    }
+
+    public boolean hasRated(@Nonnull UUID uuid) {
+        return read("player_rating." + uuid, null) != null;
+    }
+
+    @Nullable
+    public PlayerRating getAverageRating() {
+        final Document document = read("player_rating", new Document());
+
+        int rating = 0;
+        int rated = 0;
+
+        for (Object object : document.values()) {
+            if (!(object instanceof Integer integer)) {
+                continue;
+            }
+
+            rating += integer;
+            rated++;
+        }
+
+        return PlayerRating.fromInt((int) Numbers.clamp((double) rating / rated, 1, 10));
     }
 
     public void fromPlayerStatistic(StatContainer stat) {
@@ -62,5 +94,15 @@ public class HeroStatsCollection extends AsynchronousDatabase {
         }
 
         stat.getUsedAbilities().forEach(this::addAbilityUsage);
+    }
+
+    @Nonnull
+    public Numeric getNumeric(StatType statType) {
+        final double value = getStat(statType);
+
+        return switch (statType) {
+            case COINS, KILLS, ASSISTS, EXP, DEATHS, ULTIMATE_USED, WINS, PLAYED -> Numeric.of((int) value);
+            default -> Numeric.of(value);
+        };
     }
 }

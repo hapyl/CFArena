@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.archive.ender;
 
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -38,7 +38,7 @@ public class EnderPassive extends PassiveTalent {
         gamePlayer.getAttributes().increaseTemporary(Temper.ENDER_TELEPORT, AttributeType.ATTACK, attackBoost, attackBoostDuration);
 
         Collect.nearbyEntities(gamePlayer.getLocation(), 1.0d).forEach(entity -> {
-            if (entity.equals(gamePlayer)) {
+            if (gamePlayer.isSelfOrTeammate(entity)) {
                 return;
             }
 

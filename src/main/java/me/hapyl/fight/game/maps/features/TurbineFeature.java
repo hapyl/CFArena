@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.maps.features;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;

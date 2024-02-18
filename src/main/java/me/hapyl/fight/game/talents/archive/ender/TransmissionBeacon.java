@@ -3,6 +3,7 @@ package me.hapyl.fight.game.talents.archive.ender;
 import me.hapyl.fight.event.custom.EnderPearlTeleportEvent;
 import me.hapyl.fight.event.custom.PlayerClickAtEntityEvent;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.TickingGameTask;
@@ -19,7 +20,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 
@@ -37,6 +37,7 @@ public class TransmissionBeacon extends Talent implements Listener {
                 """);
 
         setItem(Material.BEACON);
+        setType(Type.MOVEMENT);
     }
 
     @Override
@@ -143,7 +144,7 @@ public class TransmissionBeacon extends Talent implements Listener {
 
         new EnderPearlTeleportEvent(player, location).call();
 
-        player.addPotionEffect(PotionEffectType.BLINDNESS, 20, 1);
+        player.addEffect(Effects.BLINDNESS, 1, 20);
         player.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.75f);
     }
 

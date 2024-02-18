@@ -4,7 +4,8 @@ import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.task.RangeTask;
 import me.hapyl.fight.game.task.ShutdownAction;
-import me.hapyl.fight.util.collection.ImmutableTuple;
+import me.hapyl.fight.util.collection.NonnullTuple;
+import me.hapyl.fight.util.collection.Tuple;
 import me.hapyl.spigotutils.module.hologram.Hologram;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.ChatColor;
@@ -20,10 +21,13 @@ import javax.annotation.Nonnull;
 public abstract class CrateTask extends RangeTask {
 
     protected final CrateLoot loot;
-    private ImmutableTuple<Item, Hologram> display;
+    protected final CrateChest chest;
 
-    public CrateTask(@Nonnull CrateLoot loot) {
+    private NonnullTuple<Item, Hologram> display;
+
+    public CrateTask(@Nonnull CrateLoot loot, @Nonnull CrateChest chest) {
         this.loot = loot;
+        this.chest = chest;
 
         setShutdownAction(ShutdownAction.IGNORE);
         runTaskTimer(0, 1);
@@ -39,12 +43,11 @@ public abstract class CrateTask extends RangeTask {
     }
 
     @Nonnull
-    public ImmutableTuple<Item, Hologram> display(@Nonnull Location location) {
+    public NonnullTuple<Item, Hologram> display(@Nonnull Location location) {
         removeDisplay();
 
         final Cosmetic cosmetic = loot.getLoot().getCosmetic();
         final Rarity rarity = cosmetic.getRarity();
-        final CrateChest chest = loot.getChest();
         final World world = chest.getWorld();
 
         final Item item = world.spawn(
@@ -70,12 +73,11 @@ public abstract class CrateTask extends RangeTask {
         }
 
         chest.broadcastLoot(loot);
-        return display = new ImmutableTuple<>(item, hologram);
+        return display = Tuple.ofNonnull(item, hologram);
     }
 
     @Override
     public final void onTaskStop() {
-        final CrateChest chest = loot.getChest();
         chest.setOccupied(null);
         chest.playCloseAnimation();
         chest.hologram.showAll();

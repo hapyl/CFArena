@@ -152,18 +152,7 @@ public class GameEntityType<T extends LivingEntity> {
     public final NamedGameEntity<T> spawn(@Nonnull Location location) {
         final T spawn = bukkitSpawn(location);
 
-        return Manager.current().createEntity(spawn, new ConsumerFunction<>() {
-            @Nonnull
-            @Override
-            public NamedGameEntity<T> apply(LivingEntity entity) {
-                return create(spawn);
-            }
-
-            @Override
-            public void andThen(NamedGameEntity<T> entity) {
-                onSpawn(entity);
-            }
-        });
+        return Manager.current().registerEntity(create(spawn), this::onSpawn);
     }
 
     protected T bukkitSpawn(@Nonnull Location location) {

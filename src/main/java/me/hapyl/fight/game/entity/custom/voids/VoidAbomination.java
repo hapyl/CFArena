@@ -1,19 +1,14 @@
 package me.hapyl.fight.game.entity.custom.voids;
 
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.Attributes;
-import me.hapyl.fight.game.entity.EntityType;
-import me.hapyl.fight.game.entity.GameEntityType;
-import me.hapyl.fight.game.entity.MultiPartLivingGameEntity;
-import me.hapyl.fight.game.entity.NamedGameEntity;
+import me.hapyl.fight.game.entity.*;
 import me.hapyl.fight.game.entity.event.EventType;
 import me.hapyl.spigotutils.module.entity.Entities;
 import org.bukkit.Sound;
 import org.bukkit.entity.Enderman;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class VoidAbomination extends GameEntityType<Enderman> {
     public VoidAbomination() {
@@ -60,15 +55,16 @@ public class VoidAbomination extends GameEntityType<Enderman> {
             });
         }
 
-        @Nullable
         @Override
-        public DamageOutput onDamageTaken(@Nonnull DamageInput input) {
-            input.getDamagerOptional().ifPresent(damager -> {
+        public void onDamageTaken(@Nonnull DamageInstance instance) {
+            final LivingGameEntity damager = instance.getDamager();
+
+            if (damager != null) {
                 damager.sendMessage("&5&l&k1 &cThis creature is immune to this kind of damage! &5&l&k1");
                 damager.playSound(Sound.ENTITY_IRON_GOLEM_HURT, 1.25f);
-            });
+            }
 
-            return DamageOutput.CANCEL;
+            instance.setCancelled(true);
         }
     }
 }

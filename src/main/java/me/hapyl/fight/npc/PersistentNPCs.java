@@ -1,13 +1,10 @@
 package me.hapyl.fight.npc;
 
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend;
-import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.npc.archive.BloodfiendNpc;
+import me.hapyl.fight.npc.archive.MuseumManagerNpc;
 import me.hapyl.fight.npc.archive.SlimeParkourEnjoyer;
 import me.hapyl.fight.npc.archive.TheEyeNPC;
 import me.hapyl.spigotutils.module.reflect.npc.NPCPose;
-import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 
@@ -32,6 +29,7 @@ public enum PersistentNPCs {
 
     SLIME_PARKOUR_ENJOYER(new SlimeParkourEnjoyer()),
     BLOODFIEND(new BloodfiendNpc()),
+    MUSEUM_MANAGER(new MuseumManagerNpc()),
 
     ;
 

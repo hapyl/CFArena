@@ -197,12 +197,16 @@ public class Equipment implements Described, Lore {
     }
 
     public final void equipArmor(@Nonnull LivingEntity entity) {
+        equipArmor(entity, false);
+    }
+
+    public final void equipArmor(@Nonnull LivingEntity entity, boolean silent) {
         final EntityEquipment equipment = getEntityEquipment(entity);
 
-        equipment.setHelmet(getItem(Slot.HELMET));
-        equipment.setChestplate(getItem(Slot.CHESTPLATE));
-        equipment.setLeggings(getItem(Slot.LEGGINGS));
-        equipment.setBoots(getItem(Slot.BOOTS));
+        equipment.setHelmet(getItem(Slot.HELMET), silent);
+        equipment.setChestplate(getItem(Slot.CHESTPLATE), silent);
+        equipment.setLeggings(getItem(Slot.LEGGINGS), silent);
+        equipment.setBoots(getItem(Slot.BOOTS), silent);
     }
 
     @Nonnull
@@ -214,6 +218,12 @@ public class Equipment implements Described, Lore {
 
     public void equip(GamePlayer gamePlayer) {
         equip(gamePlayer.getPlayer());
+    }
+
+    public void setFromEquipment(@Nonnull Equipment equipment) {
+        for (int i = 0; i < this.items.length; i++) {
+            this.items[i] = equipment.items[i];
+        }
     }
 
     @Nonnull

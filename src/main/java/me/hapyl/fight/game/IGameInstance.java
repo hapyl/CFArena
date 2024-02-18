@@ -71,8 +71,10 @@ public interface IGameInstance {
 
     /**
      * Forced game to check for win condition <b>and</b> stop and game if check passed.
+     *
+     * @return
      */
-    void checkWinCondition();
+    boolean checkWinCondition();
 
     /**
      * Returns this instance game mode.

@@ -1,23 +1,24 @@
 package me.hapyl.fight.game.heroes.archive.ninja;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.loadout.HotbarSlots;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.ninja.NinjaSmoke;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.MaterialCooldown;
@@ -31,7 +32,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
@@ -55,14 +55,18 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
             .build();
     private final int doubleJumpCooldown = Tick.fromSecond(5);
 
-    public Ninja() {
-        super(
-                "Ninja",
-                "An extremely well-trained fighter with a gift from the wind."
-        );
+    public Ninja(@Nonnull Heroes handle) {
+        super(handle, "Ninja");
+
+        setDescription("""
+                An extremely well-trained fighter with a gift from the wind.
+                """);
 
         setArchetype(Archetype.MOBILITY);
         setItem("1413159cfab50aba283e68c1659d74412392fbcb1f7d663d1bd2a2a6430c2743");
+
+        final HeroAttributes attributes = getAttributes();
+        attributes.setSpeed(115);
 
         final Equipment equipment = getEquipment();
         equipment.setChestPlate(Color.WHITE);
@@ -72,7 +76,7 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
         setWeapon(new NinjaWeapon());
 
         setUltimate(new UltimateTalent(
-                "Throwing Stars",
+                this, "Throwing Stars",
                 "Equip &b5&7 dead-accurate &6throwing stars&7 that deal &c%.0f&7 damage upon hitting an enemy.".formatted(ultimateDamage),
                 70
         ).setItem(Material.NETHER_STAR).setSound(Sound.ITEM_TRIDENT_RIPTIDE_1, 0.75f));
@@ -88,9 +92,9 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
         final NinjaSmoke ninjaSmoke = getSecondTalent();
 
         Temper.SHADOWSTRIKE.temper(player, AttributeType.DODGE, ninjaSmoke.dodgeIncrease, ninjaSmoke.buffDuration);
-        player.removeEffect(GameEffectType.INVISIBILITY);
+        player.removeEffect(Effects.INVISIBILITY);
 
-        entity.addPotionEffect(PotionEffectType.SLOW, 20, 5);
+        entity.addEffect(Effects.SLOW, 5, 20);
 
         // Fx
         player.playWorldSound(Sound.BLOCK_ANVIL_LAND, 1.25f);
@@ -110,18 +114,13 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
     }
 
     @Override
-    public void onPlayersReveal(@Nonnull GamePlayer player) {
+    public void onPlayersRevealed(@Nonnull GamePlayer player) {
         player.setAllowFlight(true);
     }
 
     @Override
     public void onRespawn(@Nonnull GamePlayer player) {
-        onPlayersReveal(player);
-    }
-
-    @Override
-    public void onStart(@Nonnull GamePlayer player) {
-        player.addPotionEffect(PotionEffectType.SPEED, 999999, 0);
+        onPlayersRevealed(player);
     }
 
     @EventHandler()
@@ -161,17 +160,17 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
     }
 
     @Override
-    public DamageOutput processDamageAsDamager(DamageInput input) {
-        final GamePlayer player = input.getDamagerAsPlayer();
-        final LivingGameEntity entity = input.getEntity();
+    public void processDamageAsDamager(@Nonnull DamageInstance instance) {
+        final GamePlayer player = instance.getDamagerAsPlayer();
+        final LivingGameEntity entity = instance.getEntity();
         final NinjaWeapon weapon = getWeapon();
 
-        if (entity == player || player == null || !input.isEntityAttack() || player.hasCooldown(weapon.getMaterial())) {
-            return DamageOutput.OK;
+        if (entity == player || player == null || !instance.isEntityAttack() || player.hasCooldown(weapon.getMaterial())) {
+            return;
         }
 
         if (!player.isHeldSlot(HotbarSlots.WEAPON)) {
-            return DamageOutput.OK;
+            return;
         }
 
         weapon.noAbilityWeapon.give(player);
@@ -183,17 +182,13 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
 
         // Return task
         player.schedule(weapon::give, weapon.stunCd);
-
-        return DamageOutput.OK;
     }
 
     @Override
-    public DamageOutput processDamageAsVictim(DamageInput input) {
-        if (input.getDamageCause() == EnumDamageCause.FALL) {
-            return DamageOutput.CANCEL;
+    public void processDamageAsVictim(@Nonnull DamageInstance instance) {
+        if (instance.getCause() == EnumDamageCause.FALL) {
+            instance.setCancelled(true);
         }
-
-        return null;
     }
 
     @Override

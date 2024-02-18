@@ -14,7 +14,7 @@ public class SimpleRegistry<T extends EnumId> implements Registry<T> {
     private boolean isLocked;
 
     public SimpleRegistry() {
-        registered = Maps.newHashMap();
+        registered = Maps.newLinkedHashMap(); // Actually, keep the order.
         isLocked = false;
     }
 

@@ -6,8 +6,20 @@ import javax.annotation.Nonnull;
 
 /**
  * Indicates that this class a game element that process player actions.
+ * <p>
+ * I'M HAVING SO MUCH FUN CALLING EACH PLAYERELEMENT MANUALLY MMMM
  */
 public interface PlayerElement {
+
+    interface Caller {
+        void callOnStart();
+
+        void callOnStop();
+
+        void callOnDeath();
+
+        void callOnPlayersRevealed();
+    }
 
     /**
      * Called once for each player whenever game stars.
@@ -38,7 +50,7 @@ public interface PlayerElement {
      *
      * @param player - Player.
      */
-    default void onPlayersReveal(@Nonnull GamePlayer player) {
+    default void onPlayersRevealed(@Nonnull GamePlayer player) {
     }
 
 }

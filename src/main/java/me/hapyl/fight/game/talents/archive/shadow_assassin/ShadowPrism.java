@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.archive.shadow_assassin;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
@@ -16,7 +17,6 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
 
@@ -140,8 +140,8 @@ public class ShadowPrism extends Talent {
         startCd(player, 9999);
         final float pitchPerTick = 2.0f / windupTime;
 
-        player.addPotionEffect(PotionEffectType.SLOW, windupTime, 100);
-        player.addPotionEffect(PotionEffectType.SLOW_FALLING, windupTime, 0);
+        player.addEffect(Effects.SLOW, 100, windupTime);
+        player.addEffect(Effects.SLOW_FALLING, 0, windupTime);
 
         GameTask.runTaskTimerTimes((task, i) -> {
             final Location eyeLocation = player.getEyeLocation();
@@ -169,7 +169,7 @@ public class ShadowPrism extends Talent {
             playerPrism.remove(player);
 
             // Fx
-            player.addPotionEffect(PotionEffectType.BLINDNESS, 20, 1);
+            player.addEffect(Effects.BLINDNESS, 1, 20);
             player.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.75f);
         }, 1, windupTime);
 

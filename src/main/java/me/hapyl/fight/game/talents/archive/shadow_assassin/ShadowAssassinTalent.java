@@ -8,6 +8,7 @@ import me.hapyl.fight.game.heroes.archive.shadow_assassin.AssassinMode;
 import me.hapyl.fight.game.heroes.archive.shadow_assassin.Data;
 import me.hapyl.fight.game.heroes.archive.shadow_assassin.ShadowAssassin;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
+import me.hapyl.fight.translate.Language;
 
 import javax.annotation.Nonnull;
 
@@ -46,6 +47,32 @@ public abstract class ShadowAssassinTalent extends Talent implements HeroReferen
         return getHero().getData(player);
     }
 
+    @Nonnull
+    @Override
+    public String getTranslateDescription(@Nonnull Language language) {
+        final String handleName = getHandleName();
+
+        return language.getFormatted("""
+                <talent.shadow_assassin.stealth_description>
+                <talent.%s.stealth_description>
+                <talent.shadow_assassin.cooldown>: %s
+                                
+                <talent.shadow_assassin.fury_description>
+                <talent.%s.fury_description>
+                <talent.shadow_assassin.cooldown>: %s
+                <talent.shadow_assassin.energy_cost>: %s
+                """.formatted(
+                // Stealth
+                handleName,
+                stealthTalent.getCooldownFormatted(),
+
+                // Fury
+                handleName,
+                furyTalent.getCooldownFormatted(),
+                furyTalent.furyCost
+        ));
+    }
+
     protected void setTalents(@Nonnull ShadowAssassinModeSpecificTalent stealthTalent, @Nonnull FuryTalent furyTalent) {
         this.stealthTalent = stealthTalent;
         this.furyTalent = furyTalent;
@@ -53,16 +80,23 @@ public abstract class ShadowAssassinTalent extends Talent implements HeroReferen
         setDescription("""
                 &9&lWhile in Stealth mode:
                 %s
-                &8Cooldown: %s
+                &b• Cooldown: &f%s
                                 
                 &c&lWhile in Fury mode:
                 %s
-                &8Cooldown: %s
-                &8Energy Cost: %s
+                &b• Cooldown: &f%s
+                &b• Energy Cost: &f%s
                 """.formatted(
-                stealthTalent.getDescription(), stealthTalent.getCooldownFormatted(),
-                furyTalent.getDescription(), furyTalent.getCooldownFormatted(), furyTalent.furyCost
+                // Stealth
+                stealthTalent.getDescription(),
+                stealthTalent.getCooldownFormatted(),
+
+                // Fury
+                furyTalent.getDescription(),
+                furyTalent.getCooldownFormatted(),
+                furyTalent.furyCost
         ));
     }
+
 
 }

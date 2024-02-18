@@ -72,7 +72,7 @@ public abstract class Cosmetic extends CollectionItem implements Formatted, Enum
         final Rarity rarity = getRarity();
 
         // Rarity Type Cosmetic
-        builder.addLore(rarity + rarity.getColor().color(" " + type.toSmallCaps()));
+        builder.addLore(rarity.toString(type.toSmallCaps()));
         builder.addLore("");
         builder.addTextBlockLore(getDescription());
 

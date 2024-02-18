@@ -122,7 +122,6 @@ public class CosmeticCommand extends SimplePlayerCommand {
 
             switch (action) {
                 case "set" -> {
-
                     if (cosmetics.getSelected(cosmeticType) == cosmetic) {
                         cosmetics.unsetSelected(cosmeticType);
                         Chat.sendMessage(player, "&aUnset %s's %s cosmetic!", target.getName(), cosmeticTypeName);

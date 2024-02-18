@@ -26,11 +26,7 @@ public class PatternId {
 
     @Nonnull
     public String getId() throws IllegalStateException {
-        if (id.isNull()) {
-            throw new IllegalStateException("ID is not set for " + getClass().getSimpleName());
-
-        }
-        return id.get();
+        return id.getOrThrow();
     }
 
     public void setId(@Nonnull String id) {
@@ -50,7 +46,7 @@ public class PatternId {
         Validate.notNull(pattern, "Pattern cannot be null");
         Validate.notNull(id.get(), "Id cannot be null");
         Validate.isTrue(
-                pattern.matcher(id.get()).matches(),
+                pattern.matcher(id.getOrThrow()).matches(),
                 "Id '%s' in %s does not match the pattern: %s".formatted(id.get(), getClass().getSimpleName(), pattern)
         );
     }

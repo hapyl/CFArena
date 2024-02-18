@@ -1,8 +1,9 @@
 package me.hapyl.fight.game.talents.archive.vampire;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
@@ -13,7 +14,6 @@ import me.hapyl.spigotutils.module.util.ThreadRandom;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Bat;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import java.util.Set;
@@ -64,7 +64,7 @@ public class BatSwarm extends Talent {
                         }
 
                         entity.damageTick(2.0d, player, EnumDamageCause.SWARM, 1);
-                        entity.addPotionEffect(PotionEffectType.BLINDNESS, 20, 1);
+                        entity.addEffect(Effects.BLINDNESS, 1, 20);
 
                         bats.remove(bat);
                         bat.remove();

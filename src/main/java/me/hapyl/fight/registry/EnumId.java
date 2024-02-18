@@ -13,7 +13,7 @@ public class EnumId extends PatternId {
     private final String firstWord;
 
     public EnumId(@Nonnull String id) {
-        super(PATTERN, id.toUpperCase());
+        super(PATTERN, formatString(id));
 
         this.stringName = Chat.capitalize(id.replace("_", " "));
 
@@ -29,6 +29,13 @@ public class EnumId extends PatternId {
     @Nonnull
     public String getStringName() {
         return stringName;
+    }
+
+    @Nonnull
+    public static String formatString(@Nonnull String string) {
+        return string
+                .toUpperCase()                       // A-Z
+                .replace(" ", "_"); // _
     }
 
 }

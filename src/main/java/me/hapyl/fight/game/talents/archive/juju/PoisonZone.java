@@ -1,10 +1,11 @@
 package me.hapyl.fight.game.talents.archive.juju;
 
-import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.TimedGameTask;
@@ -13,7 +14,6 @@ import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.math.Tick;
 import org.bukkit.Location;
 import org.bukkit.Particle;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 
@@ -49,7 +49,7 @@ public class PoisonZone extends Talent {
                     final EntityAttributes attributes = living.getAttributes();
                     attributes.decreaseTemporary(Temper.POISON_IVY, AttributeType.DEFENSE, defenseReduction, defenseReductionDuration);
 
-                    living.addPotionEffect(PotionEffectType.POISON, defenseReductionDuration, 1);
+                    living.addEffect(Effects.POISON, 1, defenseReductionDuration);
                 });
 
                 // Fx

@@ -1,6 +1,8 @@
 package me.hapyl.fight.game.heroes.archive.ender;
 
 import me.hapyl.fight.event.custom.EnderPearlTeleportEvent;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
@@ -22,8 +24,8 @@ import javax.annotation.Nonnull;
 
 public class Ender extends Hero implements Listener {
 
-    public Ender() {
-        super("Ender");
+    public Ender(@Nonnull Heroes handle) {
+        super(handle, "Ender");
 
         setArchetype(Archetype.MOBILITY);
 
@@ -31,8 +33,11 @@ public class Ender extends Hero implements Listener {
         setMinimumLevel(5);
 
         setDescription(
-                "Weird enderman-like looking warrior with teleportation abilities. He hits you with his arm, but it hurts like a brick."
+                "Weird enderman-like looking warrior with teleportation abilities. Hits you with his arm, but it hurts like a brick."
         );
+
+        final HeroAttributes attributes = getAttributes();
+        attributes.setHealth(120);
 
         final Equipment equipment = this.getEquipment();
         equipment.setChestPlate(85, 0, 102);
@@ -42,7 +47,7 @@ public class Ender extends Hero implements Listener {
         setWeapon(new EnderWeapon());
 
         setUltimate(new UltimateTalent(
-                "Transmission!",
+                this, "Transmission!",
                 "Instantly teleport to your &b&lTransmission &b&lBeacon &7and collect it for further use.",
                 50
         )
@@ -91,7 +96,7 @@ public class Ender extends Hero implements Listener {
                         return;
                     }
 
-                    player.damage(2.0d);
+                    player.damage(2.0d, EnumDamageCause.WATER);
                     player.playWorldSound(Sound.ENTITY_ENDERMAN_HURT, 1.2f);
                 });
             }

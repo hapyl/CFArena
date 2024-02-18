@@ -1,6 +1,8 @@
 package me.hapyl.fight.database;
 
+import me.hapyl.spigotutils.module.chat.Chat;
 import org.bson.Document;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -37,20 +39,49 @@ public class PlayerDatabaseEntry {
     }
 
     /**
-     * Returns the player associated with this entry.
+     * Gets the {@link OfflinePlayer} associated with this entry.
      *
-     * @return - Player
+     * @return the offline player.
      */
-    public Player getPlayer() {
+    @Nonnull
+    public OfflinePlayer getPlayer() {
         return this.playerDatabase.getPlayer();
     }
 
-    protected String path() {
+    /**
+     * Gets the {@link Player} associated with this entry; or null if they're offline.
+     *
+     * @return the player associated with this entry; or null if they're offline.
+     */
+    @Nullable
+    public Player getOnlinePlayer() {
+        return getPlayer().getPlayer();
+    }
+
+    public void sendMessage(@Nonnull String message, @Nullable Object... format) {
+        final Player player = getOnlinePlayer();
+
+        if (player != null) {
+            Chat.sendMessage(player, message, format);
+        }
+    }
+
+    @Nonnull
+    protected final String getPath() throws IllegalStateException {
+        if (this.path == null) {
+            throw new IllegalStateException("Path is not set for " + this.getClass().getSimpleName() + "!");
+        }
+
         return this.path;
     }
 
-    protected void setPath(String path) {
+    protected void setPath(@Nonnull String path) {
         this.path = path;
+    }
+
+    @Nonnull
+    protected final String getPathWithDot() throws IllegalStateException {
+        return getPath() + ".";
     }
 
     /**
@@ -68,6 +99,23 @@ public class PlayerDatabaseEntry {
     }
 
     /**
+     * Gets the value from a document by a given string.
+     * <p>
+     * The string can be separated by a dot (.) to access nested documents.
+     * </p>
+     * <p>
+     * Requires {@link #path} to be set.
+     * </p>
+     *
+     * @param paths - Path to value.
+     * @param def   - Default value.
+     * @return - Value or def if not found.
+     */
+    protected final <T> T getValueInPath(@Nonnull String paths, @Nullable T def) {
+        return getValue(getPathWithDot() + paths, def);
+    }
+
+    /**
      * Sets the value from a document by a given string.
      * <p>
      * The string can be separated by a dot (.) to access nested documents.
@@ -77,8 +125,25 @@ public class PlayerDatabaseEntry {
      * @param paths - Path to value.
      * @param value - Value to set.
      */
-    protected final <T> void setValue(String paths, T value) {
+    protected final <T> void setValue(@Nonnull String paths, @Nullable T value) {
         MongoUtils.set(getDocument(), paths, value);
+    }
+
+    /**
+     * Sets the value to a document by a given string.
+     * <p>
+     * The string can be separated by a dot (.) to access nested documents.
+     * If the string does not exist, it will be created.
+     * </p>
+     * <p>
+     * Requires {@link #path} to be set.
+     * </p>
+     *
+     * @param paths - Path to value.
+     * @param value - Value to set.
+     */
+    protected final <T> void setValueInPath(@Nonnull String paths, @Nullable T value) {
+        setValue(getPathWithDot() + paths, value);
     }
 
     protected final <T> void setValueIfNotSet(@Nonnull String paths, @Nonnull T value) {
@@ -110,8 +175,7 @@ public class PlayerDatabaseEntry {
     }
 
     protected Document getInDocument() {
-        validatePath();
-        return getInDocument(path);
+        return getInDocument(getPath());
     }
 
     /**
@@ -128,8 +192,7 @@ public class PlayerDatabaseEntry {
     }
 
     protected void fetchDocument(Consumer<Document> consumer) {
-        validatePath();
-        fetchDocument(path, consumer);
+        fetchDocument(getPath(), consumer);
     }
 
     /**
@@ -146,14 +209,7 @@ public class PlayerDatabaseEntry {
     }
 
     protected <T> T fetchFromDocument(Function<Document, T> function) {
-        validatePath();
-        return fetchFromDocument(path, function);
-    }
-
-    private void validatePath() {
-        if (path == null || path.isEmpty() || path.isBlank()) {
-            throw new IllegalArgumentException("string cannot be null or empty!");
-        }
+        return fetchFromDocument(getPath(), function);
     }
 
 }

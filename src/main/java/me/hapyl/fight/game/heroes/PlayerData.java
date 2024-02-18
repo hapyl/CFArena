@@ -14,8 +14,17 @@ public abstract class PlayerData {
         this.player = player;
     }
 
+    /**
+     * Removes all the necessary data.
+     */
     public abstract void remove();
 
+    /**
+     * Removes all the necessary data for the given entity.
+     *
+     * @param entity - Entity.
+     * @throws NotImplementedException if not supported by this data.
+     */
     public void remove(@Nonnull LivingGameEntity entity) {
         throw new NotImplementedException();
     }

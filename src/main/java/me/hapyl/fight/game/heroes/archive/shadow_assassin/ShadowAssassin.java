@@ -1,24 +1,24 @@
 package me.hapyl.fight.game.heroes.archive.shadow_assassin;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Named;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.loadout.HotbarSlots;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.shadow_assassin.DarkCover;
 import me.hapyl.fight.game.talents.archive.shadow_assassin.PlayerCloneList;
 import me.hapyl.fight.game.talents.archive.shadow_assassin.ShadowAssassinClone;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.Collect;
@@ -32,7 +32,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
@@ -45,14 +44,13 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
     private final int nevermissCd = 20;
     private final PlayerMap<Data> playerData = PlayerMap.newMap();
 
-    public ShadowAssassin() {
-        super("Shadow Assassin");
+    public ShadowAssassin(@Nonnull Heroes handle) {
+        super(handle, "Shadow Assassin");
 
         setArchetype(Archetype.STRATEGY);
 
         setDescription("""
-                Well-trained assassin from dimension of shadows.
-                Capable of switching between being &9Stealth&8&o, and &cFurious&8&o.
+                An assassin with anger management issues from dimension of shadows. Capable of switching between being &9&oStealth&8&o, and &c&oFurious&8&o.
                 """);
         setItem("d7fcfa5b0af855f314606a5cd2b597475286a152d1ee08d9949a6386cbc46a8e");
 
@@ -69,7 +67,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
         setWeapon(new ShadowAssassinWeapon(this));
 
         setUltimate(new UltimateTalent(
-                "Extreme Focus", """
+                this, "Extreme Focus", """
                 Enter {name} for {duration}.
                                 
                 While active, your &amelee&7 attacks will &nnot&7 miss if an enemy is close enough and has no cover.
@@ -79,6 +77,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
         )
                 .setDurationSec(10)
                 .setCooldownSec(40)
+                .setType(Talent.Type.ENHANCE)
                 .setItem(Material.GOLDEN_CARROT));
 
         getUltimate().addAttributeDescription("Cooldown Per Hit", nevermissCd);
@@ -107,7 +106,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
         // Fx
         player.playWorldSound(Sound.BLOCK_BEACON_ACTIVATE, 1.75f);
         player.playWorldSound(Sound.BLOCK_BEACON_AMBIENT, 1.75f);
-        player.addPotionEffect(PotionEffectType.SLOW, getUltimateDuration(), 0);
+        player.addEffect(Effects.SLOW, getUltimateDuration());
 
         GameTask.runLater(() -> player.playWorldSound(Sound.BLOCK_BEACON_DEACTIVATE, 1.85f), getUltimateDuration());
 
@@ -149,7 +148,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
             @Override
             public void run() {
                 getAlivePlayers().forEach(player -> {
-                    if (!player.hasEffect(GameEffectType.INVISIBILITY)) {
+                    if (!player.hasEffect(Effects.INVISIBILITY)) {
                         return;
                     }
 
@@ -160,36 +159,33 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
     }
 
     @Override
-    public boolean processInvisibilityDamage(GamePlayer player, LivingGameEntity entity, double damage) {
+    public boolean processInvisibilityDamage(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity, double damage) {
         getSecondTalent().onDamage(player, entity, damage);
         return false;
     }
 
-    @Nullable
     @Override
-    public DamageOutput processDamageAsVictim(DamageInput input) {
-        final GamePlayer player = input.getEntityAsPlayer();
+    public void processDamageAsVictim(@Nonnull DamageInstance instance) {
+        final GamePlayer player = instance.getEntityAsPlayer();
         final DarkCover darkCover = getSecondTalent();
 
         if (darkCover.isInDarkCover(player)) {
-            return DamageOutput.CANCEL;
+            instance.setCancelled(true);
         }
-
-        return DamageOutput.OK;
     }
 
     @Override
-    public DamageOutput processDamageAsDamager(DamageInput input) {
-        final GamePlayer player = input.getDamagerAsPlayer();
+    public void processDamageAsDamager(@Nonnull DamageInstance instance) {
+        final GamePlayer player = instance.getDamagerAsPlayer();
 
-        if (player == null || !input.isEntityAttack()) {
-            return DamageOutput.OK;
+        if (player == null || !instance.isEntityAttack()) {
+            return;
         }
 
-        final LivingGameEntity entity = input.getEntity();
+        final LivingGameEntity entity = instance.getEntity();
 
         if (!validateCanBackStab(player, entity)) {
-            return DamageOutput.OK;
+            return;
         }
 
         final Vector playerDirection = player.getLocation().getDirection();
@@ -198,8 +194,6 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
         if (playerDirection.dot(entityDirection) > 0) {
             getWeapon().performBackStab(player, entity);
         }
-
-        return DamageOutput.OK;
     }
 
     public void displayFootprints(Location location) {
@@ -259,7 +253,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
 
     @Nullable
     private LivingGameEntity getNearestEntity(GamePlayer player) {
-        return Collect.targetEntity(player, 10, 0.5d, t -> t.hasLineOfSight(player));
+        return Collect.targetEntityDot(player, 10, 0.5d, t -> t.hasLineOfSight(player));
     }
 
     private boolean validateCanBackStab(GamePlayer player, LivingGameEntity entity) {

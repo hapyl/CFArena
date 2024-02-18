@@ -83,8 +83,11 @@ public class RelicHuntGUI extends StyledGUI {
             else {
                 builder.addLore("&bᴘʀᴏɢʀᴇss %.0f%%", foundPercentage * 100);
 
-                final int foundBars = relicsInMapSize - relicsFoundInMapSize;
-                builder.addLore("&a|".repeat(10 + foundBars) + "&c|".repeat(10 - foundBars));
+                final int foundBars = (int) (foundPercentage * 20);
+                builder.addLore(
+                        "&a|".repeat(foundBars) + "&c|".repeat(20 - foundBars) + " &7%s/%s",
+                        relicsFoundInMapSize, relicsInMapSize
+                );
             }
 
             setItem(20 + index, builder.asIcon());
@@ -99,7 +102,7 @@ public class RelicHuntGUI extends StyledGUI {
             });
         }
 
-        if (mapIndex < mapsWithRelics.size() / 5) {
+        if (mapIndex < Math.ceil(mapsWithRelics.size() / 5.0d)) {
             setItem(25, StyledTexture.ARROW_RIGHT.asButton("Cycle Right", "cycle right"), click -> {
                 mapIndex++;
                 update();

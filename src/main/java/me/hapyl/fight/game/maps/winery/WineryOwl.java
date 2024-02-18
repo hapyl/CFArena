@@ -53,11 +53,11 @@ public class WineryOwl implements Resettable, Ticking {
         final Integer newValue = lookedAt.compute(uuid, Compute.intAdd(5));
 
         // Fx
-        player.playWorldSound(Sound.ENTITY_PLAYER_BREATH, 2.0f - (2.0f / TICK_THRESHOLD * newValue));
+        player.playSound(location, Sound.ENTITY_PLAYER_BREATH, 2.0f - (2.0f / TICK_THRESHOLD * newValue));
 
         // Complete Fx
         if (newValue >= TICK_THRESHOLD) {
-            player.playWorldSound(Sound.ENTITY_ALLAY_HURT, 0.0f);
+            player.playSound(location, Sound.ENTITY_ALLAY_HURT, 0.0f);
         }
     }
 

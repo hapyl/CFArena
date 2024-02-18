@@ -3,11 +3,12 @@ package me.hapyl.fight.game.talents.archive.tamer;
 import com.google.common.collect.Lists;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.archive.tamer.pack.ActiveTamerPack;
 import me.hapyl.fight.game.talents.archive.tamer.pack.TamerPack;
 import me.hapyl.fight.game.talents.archive.tamer.pack.TamerPacks;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.translate.Language;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayFieldData;
@@ -34,11 +35,13 @@ public class MineOBall extends Talent implements Listener, TamerTimed, DisplayFi
         for (TamerPacks enumPack : TamerPacks.values()) {
             final TamerPack pack = enumPack.getPack();
 
-            addDescription("""
-                    &f&l%s
-                    &8%s
-                    %s
-                    """, pack.getName(), pack.getTypeString(), pack.getDescription());
+            addDescription(
+                    """
+                            &f&l%s
+                            &8%s
+                            %s
+                            """.formatted(pack.getName(), pack.getTypeString(), pack.getDescription())
+            );
 
             // Copy display fields
             DisplayFieldSerializer.copy(pack, this);
@@ -46,6 +49,12 @@ public class MineOBall extends Talent implements Listener, TamerTimed, DisplayFi
 
         setCooldownSec(10);
         setTexture("5fe47640843744cd5796979d1196fb938317ec42b09fccb2c545ee4c925ac2bd");
+    }
+
+    @Nonnull
+    @Override
+    public String getTranslateDescription(@Nonnull Language language) {
+        return language.getFormatted(getDescription());
     }
 
     @Override
@@ -112,4 +121,5 @@ public class MineOBall extends Talent implements Listener, TamerTimed, DisplayFi
     public List<DisplayFieldData> getDisplayFieldData() {
         return displayFieldData;
     }
+
 }

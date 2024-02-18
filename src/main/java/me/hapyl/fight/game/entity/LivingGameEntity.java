@@ -2,21 +2,23 @@ package me.hapyl.fight.game.entity;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.Main;
 import me.hapyl.fight.annotate.PreprocessingMethod;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.GameDeathEvent;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.event.custom.GameEntityHealEvent;
 import me.hapyl.fight.game.EntityState;
-import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.Attributes;
 import me.hapyl.fight.game.attribute.EntityAttributes;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.dot.DamageOverTime;
 import me.hapyl.fight.game.dot.DotInstanceList;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.Effect;
+import me.hapyl.fight.game.effect.EffectType;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
 import me.hapyl.fight.game.entity.cooldown.CooldownData;
 import me.hapyl.fight.game.entity.cooldown.EntityCooldown;
@@ -34,7 +36,8 @@ import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.math.geometry.Draw;
-import me.hapyl.spigotutils.module.player.EffectType;
+import me.hapyl.spigotutils.module.math.geometry.Quality;
+import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.Reflect;
 import me.hapyl.spigotutils.module.reflect.glow.Glowing;
@@ -54,22 +57,21 @@ import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class LivingGameEntity extends GameEntity implements Ticking {
 
     private static final Draw FEROCITY_PARTICLE_DATA = new FerocityFx();
     private static final int FEROCITY_HIT_CD = 9;
     private static final double ACTUAL_ENTITY_HEALTH = 0.1d;
-    private static final String CC_SMALL_CAPS_NAME = SmallCaps.format(AttributeType.CROWD_CONTROL_RESISTANCE.getName());
+    private static final String CC_SMALL_CAPS_NAME = SmallCaps.format(AttributeType.EFFECT_RESISTANCE.getName());
 
-    public final Random random;
+    public final EntityRandom random;
     protected final EntityData entityData;
     private final Set<EnumDamageCause> immunityCauses = Sets.newHashSet();
-    private final EntityMetadata metadata;
     private final EntityCooldown cooldown;
     private final EntityPacketFactory packetFactory;
     private final EntityMemory memory;
@@ -79,8 +81,11 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     protected double health;
     @Nonnull protected EntityState state;
     protected int noCCTicks = 0;
+    protected int inWaterTicks;
     private AI ai;
     private int aliveTicks = 0;
+    private boolean informImmune = true;
+    private boolean canMove = true;
 
     public LivingGameEntity(@Nonnull LivingEntity entity) {
         this(entity, new Attributes(entity));
@@ -93,11 +98,10 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         this.wasHit = false;
         this.health = attributes.get(AttributeType.MAX_HEALTH);
         this.state = EntityState.ALIVE;
-        this.metadata = new EntityMetadata(this);
         this.cooldown = new EntityCooldown(this);
         this.packetFactory = new EntityPacketFactory(this);
         this.memory = new EntityMemory(this);
-        this.random = new Random();
+        this.random = new EntityRandom();
 
         super.base = false;
 
@@ -108,8 +112,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         entity.setMaxHealth(ACTUAL_ENTITY_HEALTH);
         entity.setHealth(entity.getMaxHealth());
 
-        defaultVanillaAttributes();
-        updateAttributes();
+        applyAttributes();
     }
 
     /**
@@ -177,19 +180,12 @@ public class LivingGameEntity extends GameEntity implements Ticking {
      *
      * @return true if an entity can move; false otherwise.
      */
-    @Deprecated
     public boolean canMove() {
-        return metadata.canMove.getValue();
+        return canMove;
     }
 
-    @Deprecated
     public void setCanMove(boolean canMove) {
-        metadata.canMove.setValue(canMove);
-    }
-
-    @Nonnull
-    public EntityMetadata getMetadata() {
-        return metadata;
+        this.canMove = canMove;
     }
 
     @Nonnull
@@ -197,8 +193,93 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         return attributes;
     }
 
-    public void removeEffect(GameEffectType type) {
-        entityData.removeEffect(type);
+    /**
+     * Adds an {@link Effects} to this entity.
+     *
+     * @param effect   - Effect to add.
+     * @param duration - Duration of the effect.
+     *                 -1 for infinite duration.
+     *                 <p>
+     *                 <i>Keep in mind infinite effects are <b>not</b> removed at death!</i>
+     * @param override - Should override?
+     */
+    public void addEffect(@Nonnull Effects effect, int duration, boolean override) {
+        addEffect(effect, 0, duration, override);
+    }
+
+    /**
+     * Adds an {@link Effects} to this entity.
+     *
+     * @param effect   - Effect to add.
+     * @param duration - Duration of the effect.
+     *                 -1 for infinite duration.
+     *                 <p>
+     *                 <i>Keep in mind infinite effects are <b>not</b> removed at death!</i>
+     */
+    public void addEffect(@Nonnull Effects effect, int duration) {
+        addEffect(effect, duration, true);
+    }
+
+    /**
+     * Adds an {@link Effects} to this entity.
+     *
+     * @param effect    - Effect to add.
+     * @param amplifier - Amplifier.
+     * @param duration  - Duration of the effect.
+     *                  -1 for infinite duration.
+     *                  <p>
+     *                  <i>Keep in mind infinite effects are <b>not</b> removed at death!</i>
+     */
+    public void addEffect(@Nonnull Effects effect, int amplifier, int duration) {
+        addEffect(effect, amplifier, duration, true);
+    }
+
+    /**
+     * Adds an {@link Effects} to this entity.
+     *
+     * @param effect    - Effect to add.
+     * @param amplifier - Amplifier (level) of the effect.
+     * @param duration  - Duration of the effect.
+     *                  -1 for infinite duration.
+     *                  <p>
+     *                  <i>Keep in mind infinite effects are <b>not</b> removed at death!</i>
+     * @param override  - Should override?
+     */
+    public void addEffect(@Nonnull Effects effect, int amplifier, int duration, boolean override) {
+        entityData.addEffect(effect, amplifier, duration, override);
+    }
+
+    /**
+     * Returns true if this entity has the given {@link Effects}; false otherwise.
+     *
+     * @param effect - Effect to check.
+     * @return true if this entity has the given {@link Effects}; false otherwise.
+     */
+    public boolean hasEffect(@Nonnull Effects effect) {
+        return entityData.hasEffect(effect);
+    }
+
+    public boolean hasEffect(@Nonnull Effect effect) {
+        final Effects enumEffect = Effects.byHandle(effect);
+
+        return enumEffect != null && hasEffect(enumEffect);
+    }
+
+    public void removeEffect(@Nonnull Effects effect) {
+        entityData.removeEffect(effect);
+    }
+
+    /**
+     * Removes all the effect from this entity with the given type.
+     *
+     * @param type - Type.
+     */
+    public void removeEffectsByType(@Nonnull EffectType type) {
+        for (Effects effect : Effects.values()) {
+            if (effect.getEffect().getType() == type) {
+                removeEffect(effect);
+            }
+        }
     }
 
     /**
@@ -259,6 +340,15 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         damage(damage, CF.getEntity(damager), cause);
     }
 
+    public void damageNoKnockback(double damage, @Nonnull LivingGameEntity damager) {
+        damageNoKnockback(damage, damager, null);
+    }
+
+    public void damageNoKnockback(double damage, @Nonnull LivingGameEntity damager, @Nullable EnumDamageCause cause) {
+        setLastDamager(damager);
+        damage(damage, cause);
+    }
+
     /**
      * Performs damage, with a given no damage ticks.
      *
@@ -292,8 +382,104 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         return data != null ? data.getTimeLeft() : 0;
     }
 
+    @Nonnull
+    public EntityLocation getEntityLocation() {
+        return new EntityLocation(getLocation());
+    }
+
     private void setInternalNoDamageTicks(int ticks) {
         cooldown.startCooldown(Cooldown.NO_DAMAGE, ticks * 50L);
+    }
+
+    @Nonnull
+    public Location getEyeLocationOffset(double yOffset, double directionOffset) {
+        final Location location = getEyeLocation();
+        location.add(0, yOffset, 0);
+        location.add(location.getDirection().normalize().multiply(directionOffset));
+
+        return location;
+    }
+
+    public void playEffect(@Nonnull EntityEffect entityEffect) {
+        entity.playEffect(entityEffect);
+    }
+
+    public double getHealthToMaxHealthPercent() {
+        return getHealth() / getMaxHealth();
+    }
+
+    public boolean isVisibleTo(@Nonnull Player player) {
+        return player.canSee(entity);
+    }
+
+    public boolean isVisibleTo(@Nonnull GamePlayer player) {
+        return isVisibleTo(player.getPlayer());
+    }
+
+    /**
+     * Hides this entity for each online player.
+     */
+    public void hide() {
+        Bukkit.getOnlinePlayers().forEach(this::hide);
+    }
+
+    /**
+     * Hides this entity for the given player.
+     *
+     * @param player - Player.
+     */
+    public void hide(@Nonnull Player player) {
+        player.hideEntity(Main.getPlugin(), entity);
+    }
+
+    /**
+     * Shows this entity to each online player.
+     */
+    public void show() {
+        Bukkit.getOnlinePlayers().forEach(this::show);
+    }
+
+    /**
+     * Shows this entity to the given player.
+     *
+     * @param player - Player.
+     */
+    public void show(@Nonnull Player player) {
+        player.showEntity(Main.getPlugin(), entity);
+    }
+
+    public void createExplosion(@Nonnull Location location, double explosionRadius, double explosionDamage, @Nullable EnumDamageCause cause) {
+        Collect.nearbyEntities(location, explosionRadius).forEach(entity -> {
+            double damage = explosionDamage;
+
+            if (isTeammate(entity)) {
+                damage /= 3.0d;
+            }
+
+            entity.damage(damage, this, cause);
+        });
+
+        // Fx
+        Geometry.drawCircle(location, explosionRadius, Quality.NORMAL, new WorldParticle(Particle.CRIT));
+        Geometry.drawCircle(location, explosionRadius + 0.5d, Quality.NORMAL, new WorldParticle(Particle.ENCHANTMENT_TABLE));
+
+        final int amountScaled = (int) (explosionRadius * 1.5d);
+        final double offsetScaled = (explosionRadius - 2) * 0.8d;
+
+        spawnWorldParticle(location, Particle.EXPLOSION_LARGE, amountScaled, offsetScaled, 0, offsetScaled, 0);
+        playWorldSound(location, Sound.ENTITY_GENERIC_EXPLODE, 1);
+    }
+
+    public boolean isSelfOrTeammate(@Nullable LivingGameEntity victim) {
+        return equals(victim) || isTeammate(victim);
+    }
+
+    public boolean isSelfOrTeammateOrHasEffectResistance(@Nullable LivingGameEntity victim) {
+        return isSelfOrTeammate(victim) || (victim != null && victim.hasEffectResistanceAndNotify(this));
+    }
+
+    public boolean isInWater() {
+        return entity.isInWater();
     }
 
     @Nonnull
@@ -310,20 +496,30 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         entity.setNoDamageTicks(i);
     }
 
-    public boolean hasCCResistanceAndDisplay(@Nonnull GameEntity damager) {
+    public boolean hasEffectResistanceAndNotify(@Nullable GameEntity damager) {
+        final boolean resist = hasEffectResistanceAndNotify();
+
+        if (!resist) {
+            entityData.setLastDamager(damager);
+        }
+
+        return resist;
+    }
+
+    public boolean hasEffectResistanceAndNotify() {
         if (noCCTicks > 0) {
             return true;
         }
 
         final boolean resist = attributes.calculateCrowdControlResistance();
 
+        // Resisted effect, cancel and display
         if (resist) {
             noCCTicks = 20;
             new AscendingDisplay(CC_SMALL_CAPS_NAME, 20).display(getLocation());
             return true;
         }
 
-        entityData.setLastDamager(damager);
         return false;
     }
 
@@ -343,6 +539,17 @@ public class LivingGameEntity extends GameEntity implements Ticking {
 
         aliveTicks++;
         noCCTicks = noCCTicks < 0 ? 0 : noCCTicks - 1;
+
+        inWaterTicks = entity.isInWater() ? inWaterTicks + 1 : 0;
+    }
+
+    /**
+     * Gets the number of ticks this entity has been in water for, 0 if not in water.
+     *
+     * @return the number of ticks this entity has been in water for, 0 if not in water.
+     */
+    public int getInWaterTicks() {
+        return inWaterTicks;
     }
 
     public void clearTitle() {
@@ -467,18 +674,52 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     }
 
     public void heal(double amount) {
-        final EntityAttributes attributes = getAttributes();
-        amount = attributes.calculateHealing(amount);
+        heal(amount, null);
+    }
 
-        this.health = Numbers.clamp(health + amount, 0.5d, getMaxHealth());
+    public boolean heal(double amount, @Nullable LivingGameEntity healer) {
+        final EntityAttributes attributes = getAttributes();
+
+        if (healer != null && !healer.equals(this)) {
+            // Don't increase "outgoing" healing towards yourself
+            amount = healer.getAttributes().calculateOutgoingHealing(amount);
+        }
+
+        amount = attributes.calculateIncomingHealing(amount);
+
+        final double maxHealth = getMaxHealth();
+        final double healthAfterHealing = Numbers.clamp(health + amount, getMinHealth(), maxHealth);
+        final double actualHealing = healthAfterHealing - health;
+        final double excessHealing = Math.max(health + amount - maxHealth, 0);
+
+        if (new GameEntityHealEvent(
+                this,
+                healer,
+                amount,
+                actualHealing,
+                excessHealing,
+                health,
+                healthAfterHealing
+        ).callAndCheck()) {
+            return false;
+        }
+
+        // Heal
+        this.health = healthAfterHealing;
 
         // Fx
-        PlayerLib.spawnParticle(
-                entity.getEyeLocation().add(0.0d, 0.5d, 0.0d),
-                Particle.HEART,
-                (int) Numbers.clamp(amount / 5, 1, 10),
-                0.44, 0.2, 0.44, 0.015f
-        );
+        if (actualHealing >= 1) {
+            PlayerLib.spawnParticle(
+                    entity.getEyeLocation().add(0.0d, 0.5d, 0.0d),
+                    Particle.HEART,
+                    (int) Numbers.clamp(actualHealing / 5, 1, 10),
+                    0.44, 0.2, 0.44, 0.015f
+            );
+
+            new AscendingDisplay("&a+ &l%.0f".formatted(actualHealing), 15).display(getLocation());
+        }
+
+        return true;
     }
 
     /**
@@ -486,6 +727,10 @@ public class LivingGameEntity extends GameEntity implements Ticking {
      */
     @OverridingMethodsMustInvokeSuper
     public void decreaseHealth(@Nonnull DamageInstance instance) {
+        if (isDeadOrRespawning()) {
+            return; // Don't decrease health if already dead or respawning
+        }
+
         final double damage = instance.getDamage();
         final boolean willDie = health - damage <= 0.0d;
 
@@ -514,8 +759,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         final EnumDamageCause cause = instance.getCause();
 
         if (cause != null) {
-            final String format = cause.getDamageCause().getDamageFormat().getFormat();
-            new DamageDisplay(damage, instance.isCrit()).display(getLocation());
+            new DamageDisplay(instance).display(getLocation());
         }
     }
 
@@ -523,24 +767,8 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         return state == EntityState.ALIVE;
     }
 
-    public void removePotionEffect(PotionEffectType type) {
-        entity.removePotionEffect(type);
-    }
-
-    public Map<GameEffectType, ActiveGameEffect> getActiveEffects() {
+    public Map<Effects, ActiveGameEffect> getActiveEffects() {
         return entityData.getGameEffects();
-    }
-
-    public boolean hasEffect(GameEffectType type) {
-        return entityData.hasEffect(type);
-    }
-
-    public void addEffect(GameEffectType type, int ticks) {
-        addEffect(type, ticks, false);
-    }
-
-    public void addPotionEffect(PotionEffectType type, int duration, int amplifier) {
-        entity.addPotionEffect(new PotionEffect(type, duration, amplifier, false, false));
     }
 
     public void addDot(@Nonnull DamageOverTime dot, @Nonnull LivingGameEntity damager, int duration) {
@@ -558,7 +786,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
             return;
         }
 
-        // Don't kill creative players
+        // Don't kill if entity shouldn't die
         if (!shouldDie()) {
             return;
         }
@@ -569,63 +797,82 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     }
 
     @Override
+    @OverridingMethodsMustInvokeSuper
     public void onDeath() {
         super.onDeath();
         memory.forgetEverything();
     }
 
+    /**
+     * Returns true if this entity is immune to this {@link EnumDamageCause}.
+     *
+     * @param cause - Cause.
+     * @return true if this entity is immune to this cause, false otherwise.
+     */
     public boolean isImmune(@Nonnull EnumDamageCause cause) {
         return immunityCauses.contains(cause);
     }
 
-    public void addImmune(@Nonnull EnumDamageCause cause, @Nullable EnumDamageCause... other) {
-        immunityCauses.add(cause);
-        if (other != null) {
-            Collections.addAll(immunityCauses, other);
+    /**
+     * Sets this entity being immune to the given {@link EnumDamageCause}.
+     *
+     * @param causes - Causes.
+     */
+    public void setImmune(@Nonnull EnumDamageCause... causes) {
+        Collections.addAll(immunityCauses, causes);
+    }
+
+    /**
+     * Unsets this entity being immune to the given {@link EnumDamageCause}.
+     *
+     * @param causes - Causes.
+     */
+    public void unsetImmune(@Nonnull EnumDamageCause... causes) {
+        for (EnumDamageCause cause : causes) {
+            immunityCauses.remove(cause);
         }
     }
 
-    public void removeImmune(@Nullable EnumDamageCause... causes) {
-        if (causes != null) {
-            for (EnumDamageCause cause : causes) {
-                immunityCauses.remove(cause);
-            }
-        }
+    /**
+     * Sets if last damager should be informed about immune damage.
+     *
+     * @param informImmune - Should be informed.
+     * @see #isImmune(EnumDamageCause)
+     * @see #setImmune(EnumDamageCause...)
+     */
+    public void setInformImmune(boolean informImmune) {
+        this.informImmune = informImmune;
     }
 
     @PreprocessingMethod
-    @Nullable
-    public final DamageOutput onDamageTaken0(@Nonnull DamageInput input) {
-        final EnumDamageCause cause = input.getDamageCause();
+    public final void onDamageTaken0(@Nonnull DamageInstance instance) {
+        final EnumDamageCause cause = instance.getCause();
 
         if (cause != null && immunityCauses.contains(cause)) {
-            final GameEntity damager = input.getDamager();
-            if (damager != null) {
+            final GameEntity damager = instance.getDamager();
+
+            if (damager != null && informImmune) {
                 damager.sendMessage(ChatColor.RED + getNameUnformatted() + " is immune to this kind of damage!");
             }
 
-            return DamageOutput.CANCEL;
+            instance.setCancelled(true);
+            return;
         }
 
-        return onDamageTaken(input);
+        onDamageTaken(instance);
     }
 
     @Event
-    @Nullable
-    public DamageOutput onDamageTaken(@Nonnull DamageInput input) {
-        return null;
+    public void onDamageTaken(@Nonnull DamageInstance instance) {
     }
 
     @PreprocessingMethod
-    @Nullable
-    public final DamageOutput onDamageDealt0(DamageInput input) {
-        return onDamageDealt(input);
+    public final void onDamageDealt0(DamageInstance instance) {
+        onDamageDealt(instance);
     }
 
     @Event
-    @Nullable
-    public DamageOutput onDamageDealt(@Nonnull DamageInput input) {
-        return null;
+    public void onDamageDealt(@Nonnull DamageInstance instance) {
     }
 
     public boolean shouldDie() {
@@ -669,13 +916,13 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         return attributes.get(AttributeType.MAX_HEALTH);
     }
 
+    public boolean isTeammate(@Nullable GameEntity entity) {
+        return entity != null && GameTeam.isTeammate(Entry.of(this), Entry.of(entity));
+    }
+
     @Override
     public String toString() {
         return "LivingGameEntity{" + entity.getType() + "@" + entity.getUniqueId() + "}";
-    }
-
-    public void addEffect(GameEffectType type, int ticks, boolean override) {
-        entityData.addEffect(type, ticks, override);
     }
 
     public double getMinHealth() {
@@ -723,17 +970,62 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         return state.string;
     }
 
+    @Deprecated
     public boolean hasPotionEffect(PotionEffectType type) {
         return entity.hasPotionEffect(type);
     }
 
-    public PotionEffect getPotionEffect(PotionEffectType type) {
+    @Deprecated
+    @Nullable
+    public PotionEffect getPotionEffect(@Nonnull PotionEffectType type) {
         return entity.getPotionEffect(type);
     }
 
-    @Deprecated/*I hate this*/
-    public void addPotionEffect(PotionEffect effect) {
+    /**
+     * Adds a potion effect to this entity.
+     *
+     * @param effect - Effect to add.
+     * @deprecated prefer {@link Effects}.
+     */
+    @Deprecated
+    public void addPotionEffect(@Nonnull PotionEffect effect) {
         entity.addPotionEffect(effect);
+    }
+
+    /**
+     * Adds a potion effect to this entity.
+     *
+     * @param type      - Type.
+     * @param amplifier - Amplifier.
+     * @param duration  - Duration.
+     * @deprecated prefer {@link Effects}.
+     */
+    @Deprecated
+    public void addPotionEffect(@Nonnull PotionEffectType type, int amplifier, int duration) {
+        addPotionEffect(new PotionEffect(type, duration, amplifier, false, false, false));
+    }
+
+    /**
+     * Add a potion effect to this entity with infinite duration.
+     *
+     * @param type      - Effect type.
+     * @param amplifier - Amplifier.
+     * @deprecated prefer {@link Effects}.
+     */
+    @Deprecated
+    public void addPotionEffectIndefinitely(@Nonnull PotionEffectType type, int amplifier) {
+        addPotionEffect(type, amplifier, PotionEffect.INFINITE_DURATION);
+    }
+
+    /**
+     * Removes a potion effect from this entity.
+     *
+     * @param type - Effect type.
+     * @deprecated prefer {@link Effects}.
+     */
+    @Deprecated
+    public void removePotionEffect(@Nonnull PotionEffectType type) {
+        entity.removePotionEffect(type);
     }
 
     public double getKnockback() {
@@ -744,12 +1036,26 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         setAttributeValue(Attribute.GENERIC_KNOCKBACK_RESISTANCE, d);
     }
 
-    public void modifyKnockback(double d, Consumer<LivingGameEntity> consumer) {
+    public void modifyKnockback(double d, @Nonnull Consumer<LivingGameEntity> consumer) {
         final double knockback = getKnockback();
 
         setKnockback(d);
         consumer.accept(this);
         setKnockback(knockback);
+    }
+
+    public void modifyKnockback(@Nonnull Function<Double, Double> fn, @Nonnull Consumer<LivingGameEntity> consumer) {
+        modifyKnockback(fn.apply(getKnockback()), consumer);
+    }
+
+    // Yes, this is a hack, so?
+    public void modifyKnockbackTick(@Nonnull Function<Double, Double> fn, @Nonnull Consumer<LivingGameEntity> consumer) {
+        final double kb = getKnockback();
+
+        setKnockback(fn.apply(kb));
+        consumer.accept(this);
+
+        GameTask.runLater(() -> setKnockback(kb), 2);
     }
 
     public void setTargetClosest() {
@@ -817,13 +1123,17 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     }
 
     public <T> void spawnWorldParticle(Location location, Particle particle, int amount, double x, double y, double z, T data) {
+        spawnWorldParticle(location, particle, amount, x, y, z, 0.0f, data);
+    }
+
+    public <T> void spawnWorldParticle(Location location, Particle particle, int amount, double x, double y, double z, float speed, T data) {
         final World world = location.getWorld();
 
         if (world == null || !particle.getDataType().isInstance(data)) {
             return;
         }
 
-        world.spawnParticle(particle, location, amount, x, y, z, data);
+        world.spawnParticle(particle, location, amount, x, y, z, speed, data);
     }
 
     public void spawnWorldParticle(Location location, Particle particle, int amount) {
@@ -884,7 +1194,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     }
 
     public <T extends StringDisplay> void spawnDisplay(@Nonnull String string, int duration, @Nonnull BiFunction<String, Integer, T> fn) {
-        fn.apply(string, duration).display(getLocation());
+        fn.apply(string, duration).display(getMidpointLocation());
     }
 
     @Nonnull
@@ -904,34 +1214,48 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         this.cooldown.startCooldown(cooldown);
     }
 
-    public void executeFerocity(double damage, LivingGameEntity lastDamager, int ferocityStrikes) {
-        if (hasCooldown(Cooldown.FEROCITY)) {
+    public void executeFerocity(double damage, @Nullable LivingGameEntity lastDamager, int ferocityStrikes) {
+        executeFerocity(damage, lastDamager, ferocityStrikes, false);
+    }
+
+    public void executeFerocity(double damage, @Nullable LivingGameEntity damager, int ferocityStrikes, boolean force) {
+        if (isInvalidForFerocity()) {
+            return;
+        }
+
+        if (hasCooldown(Cooldown.FEROCITY) && !force) {
             return;
         }
 
         playWorldSound(getLocation(), Sound.ITEM_FLINTANDSTEEL_USE, 0.0f);
 
         for (int i = 0; i < ferocityStrikes; i++) {
-            GameTask.runLater(() -> damageFerocity(damage, lastDamager), i * 3 + FEROCITY_HIT_CD);
+            GameTask.runLater(() -> {
+                if (isInvalidForFerocity()) {
+                    return;
+                }
+
+                damageFerocity(damage, damager);
+            }, i * 3 + FEROCITY_HIT_CD);
         }
 
         startCooldown(Cooldown.FEROCITY);
     }
 
-    public void damageFerocity(double damage, LivingGameEntity lastDamager) {
-        if (isDead()) {
+    public void damageFerocity(double damage, @Nullable LivingGameEntity lastDamager) {
+        if (isInvalidForFerocity()) {
             return;
         }
 
         // Ferocity knock-back is kinda crazy, using this little hack to remove it.
-        entityData.setLastDamager(lastDamager);
-        damageTick(damage, (LivingGameEntity) null, EnumDamageCause.FEROCIY, 1);
+        setLastDamager(lastDamager);
+        damageTick(damage, (LivingGameEntity) null, EnumDamageCause.FEROCITY, 1);
 
         // Fx
         final Location location = getLocation();
 
-        PlayerLib.playSound(location, Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 1.75f);
-        PlayerLib.playSound(location, Sound.ENTITY_DONKEY_HURT, 1.25f);
+        playWorldSound(location, Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 1.75f);
+        playWorldSound(location, Sound.ENTITY_DONKEY_HURT, 1.25f);
 
         final double eyeHeight = entity.getEyeHeight();
 
@@ -939,10 +1263,6 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         final double z = randomDouble(0.5d, 1.25d);
 
         Geometry.drawLine(location.clone().add(x, eyeHeight, z), location.clone().subtract(x, 0, z), 0.2d, FEROCITY_PARTICLE_DATA);
-    }
-
-    public void addPotionEffect(EffectType effectType, int duration, int amplifier) {
-        addPotionEffect(effectType.getType().createEffect(duration, amplifier));
     }
 
     public int getMaximumNoDamageTicks() {
@@ -1009,11 +1329,19 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         return uuid.toString();
     }
 
-    protected void defaultVanillaAttributes() {
+    protected boolean isInvalidForFerocity() {
+        return isDeadOrRespawning();
+    }
+
+    // This defaults vanilla attributes and applies the custom ones.
+    // YES, I FORGOT TO CALL UPDATE ATTRIBUTE FOR PLAYERS
+    protected void applyAttributes() {
         setAttributeValue(Attribute.GENERIC_KNOCKBACK_RESISTANCE, 0.0d);
         setAttributeValue(Attribute.GENERIC_ATTACK_SPEED, 2.0d);
         setAttributeValue(Attribute.GENERIC_ATTACK_DAMAGE, 1.0d);
         setAttributeValue(Attribute.GENERIC_ARMOR, -100.0d); // Remove armor bars
+
+        updateAttributes();
     }
 
     private boolean shouldSimulateDamage() {

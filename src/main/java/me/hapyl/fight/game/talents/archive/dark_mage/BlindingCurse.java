@@ -1,7 +1,8 @@
 package me.hapyl.fight.game.talents.archive.dark_mage;
 
-import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.archive.dark_mage.SpellButton;
@@ -25,9 +26,10 @@ public class BlindingCurse extends DarkMageTalent {
     @DisplayField private final double damage = 7.5d;
     @DisplayField private final int blindingDuration = 40;
     @DisplayField private final int slowingDuration = 40;
+
     private final Draw curseDraw = new Draw(null) {
         @Override
-        public void draw(Location location) {
+        public void draw(@Nonnull Location location) {
             PlayerLib.spawnParticle(location, Particle.SMOKE_LARGE, 1, 0.01d, 0.01d, 0.01d, 0.025f);
             PlayerLib.spawnParticle(location, Particle.SMOKE_NORMAL, 2, 0.02d, 0.02d, 0.02d, 0.025f);
         }
@@ -63,7 +65,7 @@ public class BlindingCurse extends DarkMageTalent {
 
     @Override
     public Response executeSpell(@Nonnull GamePlayer player) {
-        final LivingGameEntity target = Collect.targetEntity(
+        final LivingGameEntity target = Collect.targetEntityDot(
                 player,
                 maxDistance,
                 0.9d,
@@ -127,8 +129,8 @@ public class BlindingCurse extends DarkMageTalent {
 
         to.sendTitle("&0&l☠", "&0&l☠", 0, blindingDuration - 10, 10);
 
-        to.addPotionEffect(PotionEffectType.BLINDNESS, blindingDuration, 10);
-        to.addPotionEffect(PotionEffectType.SLOW, slowingDuration, 1);
+        to.addPotionEffect(PotionEffectType.BLINDNESS, 10, blindingDuration);
+        to.addEffect(Effects.SLOW, 1, slowingDuration);
 
         to.damage(damage, player, EnumDamageCause.DARKNESS_CURSE);
     }

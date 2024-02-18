@@ -1,9 +1,10 @@
 package me.hapyl.fight.game.talents.archive.bloodfiend.chalice;
 
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.archive.bloodfiend.taunt.TauntTalent;
 import me.hapyl.fight.util.displayfield.DisplayField;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -41,8 +42,8 @@ public class BloodChaliceTalent extends TauntTalent<BloodChalice> implements Lis
     public String getHowToRemove() {
         return """
                 Hitting the chalice will cause it to change location and &ccrack&7 a little.
-                &8&o;;Doing so %s times will cause chalice to break.
-                """.formatted(chaliceHealth);
+                &8&o;;Doing so {chaliceHealth} times will cause chalice to break.
+                """;
     }
 
     @Override
@@ -53,8 +54,8 @@ public class BloodChaliceTalent extends TauntTalent<BloodChalice> implements Lis
 
     @Nonnull
     @Override
-    public BloodChalice createTaunt(@Nonnull GamePlayer player, @Nonnull GamePlayer target) {
-        return new BloodChalice(this, player, target);
+    public BloodChalice createTaunt(@Nonnull GamePlayer player, @Nonnull GamePlayer target, @Nonnull Location location) {
+        return new BloodChalice(this, player, target, location);
     }
 
     @EventHandler()

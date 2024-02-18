@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.archive.shadow_assassin;
 
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -88,7 +88,7 @@ public class ShroudedStep extends Talent {
                 if (!player.isSneaking()) {
                     final Human decoy = new HumanNPC(entityLocation, "", player.getName()) {
                         @Override
-                        public void onClick(Player player, HumanNPC npc, ClickType clickType) {
+                        public void onClick(@Nonnull Player player, @Nonnull ClickType clickType) {
                             explode(this);
                         }
                     };

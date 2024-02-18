@@ -1,6 +1,7 @@
 package me.hapyl.fight.game;
 
 import me.hapyl.fight.Main;
+import me.hapyl.fight.util.Benchmark;
 import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -38,13 +39,18 @@ public class AutoSync {
         scheduleSave = false;
 
         try {
+            final Benchmark benchmark = new Benchmark();
+            benchmark.start();
             Chat.broadcast("&7&oSyncing database, might lag a little.");
 
             Manager.current().allProfiles(profile -> {
-                profile.getDatabase().sync();
+                profile.getDatabase().save();
             });
 
-            Chat.broadcast("&a&oDatabase synced!");
+            benchmark.end();
+            long millis = benchmark.getResult().asMillis();
+
+            Chat.broadcast("&a&oDatabase synced! &8(%sms)", millis);
         } catch (Exception e) {
             Chat.broadcast("&4&lCould not save database, report this!");
             e.printStackTrace();

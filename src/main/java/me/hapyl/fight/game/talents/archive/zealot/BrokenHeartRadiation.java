@@ -1,18 +1,18 @@
 package me.hapyl.fight.game.talents.archive.zealot;
 
 import me.hapyl.fight.fx.beam.Quadrant;
-import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.attribute.temper.TemperInstance;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
@@ -23,11 +23,16 @@ public class BrokenHeartRadiation extends Talent {
     @DisplayField private final double beamDamage = 10.0d;
 
     @DisplayField(scaleFactor = 100.0d, suffix = "%", suffixSpace = false)
-    private final double mendingReduction = 0.5d;
+    private final double mendingReduction = 0.25d;
     @DisplayField(scaleFactor = 100.0d, suffix = "%", suffixSpace = false)
     private final double defenseReduction = 0.33d;
 
     @DisplayField private final int effectDuration = 250;
+
+    private final TemperInstance temperInstance = Temper.RADIATION.newInstance()
+            .decrease(AttributeType.VITALITY, mendingReduction)
+            .decrease(AttributeType.DEFENSE, defenseReduction)
+            .onApply(entity -> entity.spawnParticle(entity.getLocation(), Particle.MOB_APPEARANCE, 1, 0, 0, 0, 0));
 
     public BrokenHeartRadiation() {
         super("Broken Heart Radiation");
@@ -36,7 +41,7 @@ public class BrokenHeartRadiation extends Talent {
                 Create four radiation beams that spin around you for {duration}.
                                 
                 If a beam touches an enemy, it deals &c{beamDamage} ❤&7 damage and reduces %s by &c{mendingReduction}&7 and %s by &c{defenseReduction}&7 for &b{effectDuration}.
-                """, AttributeType.MENDING, AttributeType.DEFENSE);
+                """, AttributeType.VITALITY, AttributeType.DEFENSE);
 
         setType(Type.IMPAIR);
         setItem(Material.TWISTING_VINES);
@@ -53,12 +58,10 @@ public class BrokenHeartRadiation extends Talent {
                 if (entity.equals(player)) {
                     return;
                 }
-                final EntityAttributes attributes = entity.getAttributes();
 
-                entity.damage(beamDamage, player, EnumDamageCause.RADIATION);
+                temperInstance.temper(entity, effectDuration);
 
-                attributes.decreaseTemporary(Temper.RADIATION, AttributeType.MENDING, mendingReduction, effectDuration);
-                attributes.decreaseTemporary(Temper.RADIATION, AttributeType.DEFENSE, defenseReduction, effectDuration);
+                entity.damageNoKnockback(beamDamage, player, EnumDamageCause.RADIATION);
             }
 
             @Override
@@ -66,8 +69,13 @@ public class BrokenHeartRadiation extends Talent {
                 teleport(player.getLocation());
 
                 if (player.isDeadOrRespawning() || getTick() >= getDuration()) {
-                    remove();
+                    cancel();
                 }
+            }
+
+            @Override
+            public void onTaskStop() {
+                remove();
             }
         };
 
@@ -75,7 +83,7 @@ public class BrokenHeartRadiation extends Talent {
         quadrant.runTaskTimer(0, 1);
 
         // Fx
-        PlayerLib.playSound(location, Sound.ENTITY_ELDER_GUARDIAN_CURSE, 0.0f);
+        player.playWorldSound(location, Sound.ENTITY_ELDER_GUARDIAN_CURSE, 0.0f);
 
         return Response.OK;
     }

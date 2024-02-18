@@ -14,17 +14,13 @@ public final class CrateLoot {
     private final Player player;
     private final PlayerDatabase database;
     private final Crates enumCrate;
-    private final CrateChest chest;
     private Cosmetics loot;
     private boolean isNew;
 
-    public CrateLoot(Player player, Crates enumCrate, CrateChest chest) {
+    public CrateLoot(Player player, Crates enumCrate) {
         this.player = player;
         this.database = PlayerDatabase.getDatabase(player);
         this.enumCrate = enumCrate;
-        this.chest = chest;
-
-        chest.onOpen(this);
     }
 
     public Player getPlayer() {
@@ -37,10 +33,6 @@ public final class CrateLoot {
 
     public Crates getEnumCrate() {
         return enumCrate;
-    }
-
-    public CrateChest getChest() {
-        return chest;
     }
 
     @Nonnull
@@ -97,4 +89,5 @@ public final class CrateLoot {
             database.currencyEntry.add(Currency.CHEST_DUST, randomItem.getRarity().getDustCompensation());
         }
     }
+
 }

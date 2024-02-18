@@ -5,11 +5,13 @@ import com.mongodb.client.MongoCollection;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.entry.*;
 import me.hapyl.fight.database.rank.PlayerRank;
+import me.hapyl.fight.translate.Language;
 import me.hapyl.fight.util.CFUtils;
+import me.hapyl.spigotutils.module.util.Enums;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bson.Document;
-import org.bson.conversions.Bson;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -18,14 +20,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-public class PlayerDatabase {
+public sealed class PlayerDatabase permits OfflinePlayerDatabase {
 
     private static final Map<UUID, PlayerDatabase> UUID_DATABASE_MAP = Maps.newConcurrentMap();
-
-    protected final Player player;
-    private final Database mongo;
-    private final Document filter;
-    private final UUID uuid;
 
     ///////////////////
     // ENTRIES START //
@@ -45,16 +42,24 @@ public class PlayerDatabase {
     public final HotbarLoadoutEntry hotbarEntry;
     public final FastAccessEntry fastAccessEntry;
     public final MetadataEntry metadataEntry;
+    public final ArtifactEntry artifactEntry;
+    public final RandomHeroEntry randomHeroEntry;
+    public final GuessWhoEntry guessWhoEntry;
     /////////////////
     // ENTRIES END //
     /////////////////
 
+    @Nonnull
+    protected final OfflinePlayer player;
+    private final Database mongo;
+    private final Document filter;
+    private final UUID uuid;
     private Document document;
 
-    public PlayerDatabase(UUID uuid) {
+    PlayerDatabase(UUID uuid) {
         this.uuid = uuid;
         this.mongo = Main.getPlugin().getDatabase();
-        this.player = Bukkit.getPlayer(uuid);
+        this.player = Bukkit.getOfflinePlayer(uuid);
 
         this.filter = new Document("uuid", uuid.toString());
 
@@ -76,11 +81,12 @@ public class PlayerDatabase {
         this.hotbarEntry = new HotbarLoadoutEntry(this);
         this.fastAccessEntry = new FastAccessEntry(this);
         this.metadataEntry = new MetadataEntry(this);
-
-        UUID_DATABASE_MAP.put(uuid, this);
+        this.artifactEntry = new ArtifactEntry(this);
+        this.randomHeroEntry = new RandomHeroEntry(this);
+        this.guessWhoEntry = new GuessWhoEntry(this);
     }
 
-    public PlayerDatabase(Player player) {
+    PlayerDatabase(Player player) {
         this(player.getUniqueId());
     }
 
@@ -92,13 +98,14 @@ public class PlayerDatabase {
         return document;
     }
 
-    public Player getPlayer() {
+    @Nonnull
+    public OfflinePlayer getPlayer() {
         return player;
     }
 
     @Nonnull
     public String getPlayerName() {
-        return player == null ? uuid.toString() : player.getName();
+        return getName();
     }
 
     public UUID getUuid() {
@@ -144,6 +151,17 @@ public class PlayerDatabase {
         return Validate.getEnumValue(PlayerRank.class, rankString, PlayerRank.DEFAULT);
     }
 
+    @Nonnull
+    public Language getLanguage() {
+        final String lang = document.get("lang", Language.ENGLISH.name());
+
+        return Enums.byName(Language.class, lang, Language.ENGLISH);
+    }
+
+    public void setLanguage(@Nonnull Language language) {
+        document.put("lang", language.name());
+    }
+
     public void setRank(@Nonnull PlayerRank rank) {
         document.put("rank", rank.name());
     }
@@ -165,23 +183,20 @@ public class PlayerDatabase {
         return document.get("lastOnlineServer", "None");
     }
 
-    public final void sync() {
-        save();
-        load();
+    @Nonnull
+    public String getName() {
+        return document.get("player_name", "null");
     }
 
     public void save() {
-        checkWriteAccess();
-
-        final String playerName = player == null ? uuid.toString() : player.getName();
+        final String playerName = player.getName();
 
         document.append("lastOnline", System.currentTimeMillis());
         document.append("lastOnlineServer", CFUtils.getServerIp());
 
         try {
-            //Bukkit.getScheduler().runTaskAsynchronously(Main.getPlugin(), () -> {
-            this.mongo.getPlayers().replaceOne(this.filter, this.document);
-            //});
+            final MongoCollection<Document> players = this.mongo.getPlayers();
+            players.replaceOne(this.filter, this.document);
 
             getLogger().info("Successfully saved database for %s.".formatted(playerName));
         } catch (Exception e) {
@@ -191,7 +206,7 @@ public class PlayerDatabase {
     }
 
     public void load() {
-        final String playerName = getPlayerName();
+        final String playerName = player.getName();
 
         try {
             document = mongo.getPlayers().find(filter).first();
@@ -209,19 +224,13 @@ public class PlayerDatabase {
             }
 
             // Update player name
-            if (player != null) {
-                document.put("player_name", playerName);
-            }
+            document.put("player_name", playerName);
 
-            getLogger().info("Successfully loaded database for %s.".formatted(playerName));
+            getLogger().info("Successfully loaded %s for %s.".formatted(getClass().getSimpleName(), playerName));
         } catch (Exception error) {
             error.printStackTrace();
             getLogger().severe("An error occurred whilst trying to load a database for %s.".formatted(playerName));
         }
-    }
-
-    public void update(Bson set) {
-        this.mongo.getPlayers().updateOne(this.filter, set);
     }
 
     private Logger getLogger() {
@@ -235,26 +244,31 @@ public class PlayerDatabase {
 
     @Nonnull
     public static PlayerDatabase getDatabase(@Nonnull UUID uuid) {
-        return CFUtils.getElementOrThrowErrorIfNull(UUID_DATABASE_MAP, uuid, "database does not exist for " + uuid);
+        PlayerDatabase database = UUID_DATABASE_MAP.get(uuid);
+
+        if (database == null) {
+            database = new OfflinePlayerDatabase(uuid);
+
+            UUID_DATABASE_MAP.put(uuid, database);
+        }
+
+        return database;
     }
 
-    public static boolean removeDatabase(@Nonnull UUID uuid) {
+    @Nonnull
+    public static PlayerDatabase instantiate(Player player) {
+        PlayerDatabase database = UUID_DATABASE_MAP.get(player.getUniqueId());
+
+        if (database == null || database instanceof OfflinePlayerDatabase) {
+            database = new PlayerDatabase(player);
+
+            UUID_DATABASE_MAP.put(player.getUniqueId(), database);
+        }
+
+        return database;
+    }
+
+    public static boolean uninstantiate(@Nonnull UUID uuid) {
         return UUID_DATABASE_MAP.remove(uuid) != null;
     }
-
-    public static void dumpDatabaseInstanceInConsoleToConfirmThatThereIsNoMoreInstancesAfterRemoveIsCalledButThisIsTemporaryShouldRemoveOnProd() {
-        final Logger logger = Main.getPlugin().getLogger();
-
-        logger.info("Dumping database instances:");
-        UUID_DATABASE_MAP.forEach((uuid, db) -> {
-            logger.info("%s = %s".formatted(uuid, db));
-        });
-    }
-
-    protected void checkWriteAccess() throws IllegalStateException {
-        if (this instanceof ReadOnlyPlayerDatabase) {
-            throw new IllegalStateException("Write in read only instance!");
-        }
-    }
-
 }

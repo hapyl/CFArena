@@ -3,26 +3,25 @@ package me.hapyl.fight.game.heroes.archive.juju;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.EquipmentSlot;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.juju.ArrowShield;
 import me.hapyl.fight.game.talents.archive.juju.TricksOfTheJungle;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComplexComponent;
-import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.game.weapons.BowWeapon;
 import me.hapyl.fight.util.Iterators;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Tick;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -48,16 +47,16 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaque {
+public class JuJu extends Hero implements Listener, UIComplexComponent {
 
     private final PlayerMap<ArrowData> playerArrows = PlayerMap.newMap();
     private final Map<Arrow, ArrowType> arrowType = Maps.newHashMap();
 
-    private final Set<Player> climbing = Sets.newHashSet();
+    private final Set<GamePlayer> climbing = Sets.newHashSet();
     private final int CLIMB_COOLDOWN = Tick.fromSecond(10);
 
-    public JuJu() {
-        super("Juju");
+    public JuJu(@Nonnull Heroes handle) {
+        super(handle, "Juju");
 
         setArchetype(Archetype.HEXBANE);
         setAffiliation(Affiliation.THE_JUNGLE);
@@ -72,13 +71,13 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
         equipment.setLeggings(62, 51, 40);
         equipment.setBoots(16, 13, 10);
 
-        setWeapon(new Weapon(Material.BOW)
+        setWeapon(new BowWeapon()
                 .setName("Twisted")
                 .setDescription("A bow made of anything you can find in the middle of the jungle.")
                 .setDamage(4.0d));
 
         setUltimate(
-                new UltimateTalent(ArrowType.POISON_IVY.getName(), 60)
+                new UltimateTalent(this, ArrowType.POISON_IVY.getName(), 60)
                         .setType(Talent.Type.IMPAIR)
                         .setItem(Material.SPIDER_EYE)
                         .setDurationSec(4),
@@ -127,18 +126,24 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
             return;
         }
 
+        final GamePlayer gamePlayer = CF.getPlayer(player);
+
+        if (gamePlayer == null) {
+            return;
+        }
+
         final Location from = ev.getFrom();
         final Location to = ev.getTo();
 
         if (player.hasCooldown(getPassiveTalent().getMaterial())
-                || climbing.contains(player)
+                || climbing.contains(gamePlayer)
                 || to == null
                 || to.getY() <= from.getY()
-                || player.isOnGround()) { // I mean just don't hack lol
+                || gamePlayer.isOnGround()) { // I mean just don't hack lol
             return;
         }
 
-        final boolean huggingWall = isHuggingWall(player);
+        final boolean huggingWall = isHuggingWall(gamePlayer);
 
         // Have to check for 2 blocks at the
         // start to avoid annoying 1 block climbing.
@@ -146,14 +151,19 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
             return;
         }
 
-        climbing.add(player);
+        climbing.add(gamePlayer);
     }
 
     @EventHandler()
     public void handleSneaking(PlayerToggleSneakEvent ev) {
         final Player player = ev.getPlayer();
+        final GamePlayer gamePlayer = CF.getPlayer(player);
 
-        if (!ev.isSneaking() || !climbing.contains(player)) {
+        if (gamePlayer == null) {
+            return;
+        }
+
+        if (!ev.isSneaking() || !climbing.contains(gamePlayer)) {
             return;
         }
 
@@ -163,7 +173,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
         player.setVelocity(vector);
 
         // Fx
-        PlayerLib.playSound(player, Sound.BLOCK_LADDER_STEP, 0.0f);
+        gamePlayer.playWorldSound(Sound.BLOCK_LADDER_STEP, 0.0f);
 
         if (new Random().nextBoolean()) {
             player.swingMainHand();
@@ -195,7 +205,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
     public void handleBowShoot(ProjectilePostLaunchEvent ev) {
         final Projectile projectile = ev.getProjectile();
 
-        if (!(projectile instanceof Arrow arrow) || !(arrow.getShooter() instanceof GamePlayer player)) {
+        if (!(projectile instanceof Arrow arrow) || !(ev.getShooter() instanceof GamePlayer player)) {
             return;
         }
 
@@ -227,7 +237,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
 
     @Override
     public void onDeath(@Nonnull GamePlayer player) {
-        climbing.remove(player.getPlayer());
+        climbing.remove(player);
         final ArrowData data = playerArrows.remove(player);
 
         if (data != null) {
@@ -285,10 +295,11 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
                         final Vector vector = location.getDirection().normalize().multiply(0.8d).add(new Vector(0.0d, 0.25d, 0.0d));
 
                         player.setVelocity(vector);
-                        player.addPotionEffect(PotionEffectType.SLOW_FALLING.createEffect(10, 1));
+                        player.addEffect(Effects.SLOW_FALLING, 1, 10);
+                        player.addEffect(Effects.FALL_DAMAGE_RESISTANCE, 100);
 
                         // Fx
-                        PlayerLib.playSound(location, Sound.ENTITY_HORSE_SADDLE, 0.75f);
+                        player.playWorldSound(Sound.ENTITY_HORSE_SADDLE, 0.75f);
                         return;
                     }
 
@@ -313,17 +324,15 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
     }
 
     @Override
-    public DamageOutput processDamageAsVictim(DamageInput input) {
+    public void processDamageAsVictim(@Nonnull DamageInstance instance) {
         final ArrowShield shield = getFirstTalent();
-        final GamePlayer player = input.getEntityAsPlayer();
+        final GamePlayer player = instance.getEntityAsPlayer();
 
         if (shield.getCharges(player) > 0) {
             shield.removeCharge(player);
 
-            return DamageOutput.CANCEL;
+            instance.setCancelled(true);
         }
-
-        return null;
     }
 
     @Override
@@ -341,12 +350,6 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
     @Override
     public Talent getPassiveTalent() {
         return Talents.JUJU_PASSIVE.getTalent();
-    }
-
-    @Nonnull
-    @Override
-    public String text() {
-        return "&b&lUPDATED!";
     }
 
     @Nullable
@@ -383,7 +386,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, HeroPlaq
         return inFront.getBlock().getType().isOccluding();
     }
 
-    private boolean isHuggingWall(Player player) {
+    private boolean isHuggingWall(GamePlayer player) {
         return isHuggingWall(player.getLocation().add(0, player.getEyeHeight() / 2, 0));
     }
 

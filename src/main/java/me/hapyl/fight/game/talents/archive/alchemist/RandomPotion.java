@@ -4,7 +4,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.alchemist.Alchemist;
@@ -16,8 +16,6 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
-
-import static org.bukkit.potion.PotionEffectType.*;
 
 public class RandomPotion extends Talent {
 
@@ -38,8 +36,8 @@ public class RandomPotion extends Talent {
         setItem(Material.POTION);
         setCooldown(50);
 
-        effects.add(new Effect("&b\uD83C\uDF0A", "Speed Boost", SPEED, effectDuration, 1))
-                .add(new Effect("☕", "Jump Boost", JUMP, effectDuration, 1))
+        effects.add(new Effect("&b\uD83C\uDF0A", "Speed Boost", Effects.SPEED, 1, effectDuration))
+                .add(new Effect("☕", "Jump Boost", Effects.JUMP_BOOST, 1, effectDuration))
                 .add(new Effect("&c⚔", "Attack") {
                     @Override
                     public void affect(@Nonnull GamePlayer player) {
@@ -59,7 +57,7 @@ public class RandomPotion extends Talent {
                 .add(new Effect("&9⁘⁙", "Invisibility") {
                     @Override
                     public void affect(@Nonnull GamePlayer player) {
-                        player.addEffect(GameEffectType.INVISIBILITY, effectDuration, true);
+                        player.addEffect(Effects.INVISIBILITY, effectDuration, true);
                     }
                 })
                 .add(new Effect("&c❤", "Healing") {

@@ -3,6 +3,7 @@ package me.hapyl.fight.game.heroes.archive.km;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
@@ -20,8 +21,8 @@ public class KillingMachine extends Hero implements DisabledHero {
 
     private final int weaponCd = 35;
 
-    public KillingMachine() {
-        super("War Machine");
+    public KillingMachine(@Nonnull Heroes handle) {
+        super(handle, "War Machine");
 
         setDescription("A machine of war that was left for scrap, until now...");
         setItem("ec2f3d5d62fd9be6d654d314c123390abfa3698d3d87c1516a453a7ee4fcbf");
@@ -40,6 +41,7 @@ public class KillingMachine extends Hero implements DisabledHero {
                 .setName("Rifle"));
 
         this.setUltimate(new UltimateTalent(
+                this,
                 "Overload",
                 "Overload yourself for {duration}. While overloaded, your fire-rate is increased by &b100% &7and all opponents are highlighted.",
                 60

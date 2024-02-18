@@ -3,6 +3,7 @@ package me.hapyl.fight.event;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.custom.GameEntityContactPortalEvent;
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.team.Entry;
@@ -97,25 +98,26 @@ public class EntityHandler implements Listener {
     @EventHandler()
     public void handleTargetEvent(EntityTargetEvent ev) {
         final Entity entity = ev.getEntity();
-        final Entity target = ev.getTarget();
+        final LivingGameEntity target = CF.getEntity(ev.getTarget());
 
         if (target == null) {
             return;
         }
 
+        // Don't target invisible entities
+        if (target.hasEffect(Effects.INVISIBILITY)) {
+            ev.setTarget(null);
+            ev.setCancelled(true);
+            return;
+        }
+
         final GameTeam team = GameTeam.getEntryTeam(Entry.of(entity));
 
-        if (team == null) {
-            return;
+        // Don't target teammates
+        if (team != null && team.isEntry(Entry.of(target))) {
+            ev.setTarget(null);
+            ev.setCancelled(true);
         }
-
-        if (!team.isEntry(Entry.of(target))) {
-            return;
-        }
-
-        // Cancel targeting teammates
-        ev.setTarget(null);
-        ev.setCancelled(true);
     }
 
     private void callGameEntityContactPortalEvent(LivingGameEntity entity, GameEntityContactPortalEvent.PortalType type) {

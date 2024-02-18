@@ -2,6 +2,7 @@ package me.hapyl.fight.game;
 
 import me.hapyl.fight.game.entity.GamePlayer;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class Response {
@@ -42,8 +43,19 @@ public class Response {
         }
     }
 
+    @Nonnull
     public static Response error(String reason, Object... format) {
         return new Response(reason.formatted(format), Type.ERROR);
+    }
+
+    @Nonnull
+    public static Response ok() {
+        return new Response(null, Type.OK);
+    }
+
+    @Nonnull
+    public static Response await() {
+        return new Response(null, Type.AWAIT);
     }
 
     public enum Type {

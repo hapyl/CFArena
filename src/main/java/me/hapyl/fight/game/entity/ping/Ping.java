@@ -56,7 +56,7 @@ public class Ping extends GameTask implements Removable {
 
             entity.forEach(display -> {
                 team.addEntry(display.getUniqueId().toString());
-                player.showEntity(display);
+                teammate.showEntity(display);
             });
         });
 

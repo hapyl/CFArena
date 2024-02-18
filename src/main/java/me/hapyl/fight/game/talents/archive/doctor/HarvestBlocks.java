@@ -2,8 +2,9 @@ package me.hapyl.fight.game.talents.archive.doctor;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.archive.doctor.ElementType;
@@ -153,7 +154,7 @@ public class HarvestBlocks extends Talent {
         }.runTaskTimer(0, 2);
 
         player.schedule(() -> launchProjectile(player, damage.get()), collectDelay);
-        player.addPotionEffect(PotionEffectType.SLOW, collectDelay, 10);
+        player.addEffect(Effects.SLOW, 10, collectDelay);
 
         return Response.OK;
     }
@@ -178,7 +179,7 @@ public class HarvestBlocks extends Talent {
                 final LivingGameEntity nearestEntity = Collect.nearestEntity(location, 1.5d, player);
                 final Location fixedLocation = entity.getLocation().add(0.0d, 1.5d, 0.0d);
 
-                if (nearestEntity != null || fixedLocation.getBlock().getType().isOccluding()) {
+                if (nearestEntity != null || fixedLocation.getBlock().getType().isSolid()) {
                     removeCancelExplode(fixedLocation);
                     return;
                 }

@@ -1,7 +1,6 @@
 package me.hapyl.fight.gui.styled.hotbar;
 
 import com.google.common.collect.Maps;
-import me.hapyl.fight.game.NonNullItemCreator;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.loadout.HotbarLoadout;
@@ -14,6 +13,7 @@ import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
 import me.hapyl.fight.gui.styled.StyledItem;
 import me.hapyl.fight.gui.styled.profile.PlayerProfileGUI;
+import me.hapyl.fight.translate.Language;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.NoProfileException;
 import me.hapyl.fight.ux.Message;
@@ -60,12 +60,14 @@ public class HotbarLoadoutGUI extends StyledGUI implements EventListener {
         loadout = profile.getHotbarLoadout();
         itemToSlotMap = Maps.newHashMap();
 
-        putToMap(HotbarSlots.WEAPON, hero.getWeapon());
-        putToMap(HotbarSlots.TALENT_1, hero.getFirstTalent());
-        putToMap(HotbarSlots.TALENT_2, hero.getSecondTalent());
-        putToMap(HotbarSlots.TALENT_3, hero.getThirdTalent());
-        putToMap(HotbarSlots.TALENT_4, hero.getFourthTalent());
-        putToMap(HotbarSlots.TALENT_5, hero.getFifthTalent());
+        final Language language = Language.getPlayerLanguage(player);
+
+        putToMap(HotbarSlots.WEAPON, hero.getWeapon().getItem());
+        putToMap(HotbarSlots.TALENT_1, hero.getTalentItem(HotbarSlots.TALENT_1, language));
+        putToMap(HotbarSlots.TALENT_2, hero.getTalentItem(HotbarSlots.TALENT_2, language));
+        putToMap(HotbarSlots.TALENT_3, hero.getTalentItem(HotbarSlots.TALENT_3, language));
+        putToMap(HotbarSlots.TALENT_4, hero.getTalentItem(HotbarSlots.TALENT_4, language));
+        putToMap(HotbarSlots.TALENT_5, hero.getTalentItem(HotbarSlots.TALENT_5, language));
         putToMap(HotbarSlots.HERO_ITEM, null);
 
         setEventListener(this);
@@ -235,13 +237,11 @@ public class HotbarLoadoutGUI extends StyledGUI implements EventListener {
         }
     }
 
-    private void putToMap(HotbarSlots slot, NonNullItemCreator creator) {
+    private void putToMap(HotbarSlots slot, ItemStack item) {
         final HotbarSlot hotbarSlot = slot.get();
         final ItemBuilder builder = new ItemBuilder(hotbarSlot.getMaterial()).setName(hotbarSlot.getName());
 
-        if (creator != null) {
-            final ItemStack item = creator.getItem();
-
+        if (item != null) {
             builder.setType(item.getType());
             builder.addLore("&8" + CFUtils.getItemName(item));
         }

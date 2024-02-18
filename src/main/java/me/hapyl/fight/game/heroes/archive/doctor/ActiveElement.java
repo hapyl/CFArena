@@ -2,7 +2,7 @@ package me.hapyl.fight.game.heroes.archive.doctor;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -110,7 +110,7 @@ public class ActiveElement {
                     stand.setHeadPose(stand.getHeadPose().add(animationType.getX(), animationType.getY(), animationType.getZ()));
 
                     // block hit detection
-                    if (!fixedLocation.getBlock().getType().isAir()) {
+                    if (fixedLocation.getBlock().getType().isOccluding()) {
                         entityPoof();
                         this.cancel();
                         return;

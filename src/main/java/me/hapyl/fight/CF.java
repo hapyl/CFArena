@@ -1,10 +1,11 @@
 package me.hapyl.fight;
 
+import com.comphenix.protocol.events.PacketEvent;
 import me.hapyl.fight.database.Database;
 import me.hapyl.fight.database.PlayerDatabase;
-import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.cosmetic.crate.CrateManager;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.ConsumerFunction;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -12,7 +13,9 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.IProtocolListener;
 import me.hapyl.spigotutils.module.entity.Entities;
+import me.hapyl.spigotutils.module.reflect.protocol.ProtocolListener;
 import net.minecraft.server.MinecraftServer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -20,6 +23,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerEvent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -155,7 +159,7 @@ public final class CF {
      */
     @Nonnull
     public static <T extends LivingEntity, E extends GameEntity> E createEntity(@Nonnull Location location, @Nonnull Entities<T> type, @Nonnull ConsumerFunction<T, E> consumer) {
-        return Manager.current().createEntity(type.spawn(location, self -> Manager.current().addIgnored(self)), consumer);
+        return Manager.current().createEntity(location, type, consumer);
     }
 
     @Nonnull
@@ -200,6 +204,13 @@ public final class CF {
         return manager.getPlayer(uuid);
     }
 
+    @Nullable
+    public static GamePlayer getPlayer(@Nonnull PlayerEvent ev) {
+        final Player player = ev.getPlayer();
+
+        return getPlayer(player);
+    }
+
     /**
      * Gets an optional of {@link GamePlayer}.
      *
@@ -221,13 +232,18 @@ public final class CF {
         return manager.getPlayers();
     }
 
+    @Nonnull
+    public static Set<GamePlayer> getPlayers(@Nonnull Predicate<GamePlayer> predicate) {
+        return manager.getPlayers(predicate);
+    }
+
     /**
      * Gets a copy of existing {@link GamePlayer}s who is {@link GamePlayer#isAlive()}.
      *
      * @return a copy of living players.
      */
     @Nonnull
-    public static List<GamePlayer> getAlivePlayers() {
+    public static Set<GamePlayer> getAlivePlayers() {
         return manager.getAlivePlayers();
     }
 
@@ -238,7 +254,7 @@ public final class CF {
      * @return a copy of living players matching the predicate.
      */
     @Nonnull
-    public static List<GamePlayer> getAlivePlayers(@Nonnull Predicate<GamePlayer> predicate) {
+    public static Set<GamePlayer> getAlivePlayers(@Nonnull Predicate<GamePlayer> predicate) {
         return manager.getAlivePlayers(predicate);
     }
 
@@ -249,7 +265,7 @@ public final class CF {
      * @return a copy of living player matching the hero.
      */
     @Nonnull
-    public static List<GamePlayer> getAlivePlayers(@Nonnull Heroes enumHero) {
+    public static Set<GamePlayer> getAlivePlayers(@Nonnull Heroes enumHero) {
         return manager.getAlivePlayers(enumHero);
     }
 
@@ -352,6 +368,38 @@ public final class CF {
     }
 
     /**
+     * Registers the given {@link Listener}s to the plugin.
+     *
+     * @param listeners - Listeners to register.
+     */
+    public static void registerEvents(@Nonnull List<Listener> listeners) {
+        for (Listener listener : listeners) {
+            registerEvents(listener);
+        }
+    }
+
+    /**
+     * Registers a {@link IProtocolListener} interface with a {@link ProtocolListener}.
+     *
+     * @param listener - Listener.
+     * @return ProtocolListener.
+     */
+    @Nonnull
+    public static ProtocolListener registerProtocolListener(@Nonnull IProtocolListener listener) {
+        return new ProtocolListener(listener.getPacketType()) {
+            @Override
+            public void onPacketReceiving(@Nonnull PacketEvent packetEvent) {
+                listener.onPacketReceiving(packetEvent);
+            }
+
+            @Override
+            public void onPacketSending(@Nonnull PacketEvent packetEvent) {
+                listener.onPacketSending(packetEvent);
+            }
+        };
+    }
+
+    /**
      * Gets an {@link GameEntity} by its entity Id.
      *
      * @param entityId - Entity Id.
@@ -380,6 +428,11 @@ public final class CF {
     @Nonnull
     public static String getVersionNoSnapshot() {
         return getVersion().replace("-SNAPSHOT", "");
+    }
+
+    @Nonnull
+    public static String getVersionTopic() {
+        return Main.versionInfo.getUpdateTopic();
     }
 
     /**
@@ -451,4 +504,5 @@ public final class CF {
     public static String getName() {
         return Main.GAME_NAME;
     }
+
 }

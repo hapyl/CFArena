@@ -10,7 +10,7 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.spigotutils.module.chat.Chat;
-import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -22,25 +22,39 @@ public class GameResult {
     private final GameInstance gameInstance;
     private final Set<GamePlayer> winners;
     private final Set<GameTeam> winningTeams;
+    private final Set<GamePlayer> players;
 
     public GameResult(GameInstance gameInstance) {
         this.gameInstance = gameInstance;
         this.winners = Sets.newHashSet();
         this.winningTeams = Sets.newHashSet();
+        this.players = CF.getPlayers();
     }
 
+    @Nonnull
+    public GameResultType getResultType() {
+        return isWinners()
+                ? isDraw() ? GameResultType.DRAW
+                : isSingleWinner() ? GameResultType.SINGLE_WINNER : GameResultType.MULTIPLE_WINNERS
+                : GameResultType.NO_WINNERS;
+    }
+
+    @Nonnull
     public GameInstance getGameInstance() {
         return gameInstance;
     }
 
+    @Nonnull
     public Set<GamePlayer> getWinners() {
         return winners;
     }
 
+    @Nonnull
     public Set<GameTeam> getWinningTeams() {
         return winningTeams;
     }
 
+    @Nonnull
     public GameTeam getWinningTeam() {
         for (GameTeam winningTeam : winningTeams) {
             return winningTeam;
@@ -59,73 +73,26 @@ public class GameResult {
         }
     }
 
-    public void calculate() {
-        final String gameDuration = new SimpleDateFormat("mm:ss").format(System.currentTimeMillis() - this.gameInstance.getStartedAt());
+    @Nonnull
+    public Set<GamePlayer> getPlayers() {
+        return players;
+    }
 
-        // show the winners
+    public void calculate() {
         Chat.broadcast("");
         Chat.broadcast("&6&l▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀");
 
-        // Per player broadcast
-        Bukkit.getOnlinePlayers().forEach(player -> {
-            Chat.sendCenterMessage(player, "&a&lGAME OVER");
-            Chat.sendCenterMessage(player, "&7" + gameDuration);
-            Chat.sendMessage(player, "");
-
-            if (isWinners()) {
-                if (isDraw()) {
-                    Chat.sendCenterMessage(player, "&b&lDRAW!");
-                }
-                else {
-                    // Display either WINNER or WINNERS
-                    Chat.sendCenterMessage(
-                            player,
-                            "&a&l%s",
-                            isSingleWinner() ? "WINNER" : "WINNERS"
-                    );
-                }
-
-                // Display winners
-                for (GamePlayer winner : winners) {
-                    // Display winner information to the player
-                    Chat.sendCenterMessage(player, formatWinnerName(winner));
-                }
-            }
-            else {
-                Chat.sendCenterMessage(player, "&8No winners :(");
-                Chat.sendTitle(player, "&6&lGAME OVER", "&eThere are no winners!", 10, 60, 5);
-            }
-
-            // Display TITLE
-            if (isWinner(player)) {
-                Chat.sendTitle(player, "&6&lVICTORY", "&eYou're the winner!", 10, 60, 5);
-            }
-            else {
-                if (!isWinners()) {
-                    Chat.sendTitle(player, "&6&lGAME OVER", "&eThere are no winners!", 10, 60, 5);
-                }
-                else {
-                    Chat.sendTitle(
-                            player,
-                            "&c&lDEFEAT",
-                            "&e%s %s the winner!".formatted(formatWinners(), isSingleWinner() ? "is" : "are"),
-                            10,
-                            60,
-                            5
-                    );
-                }
-            }
-        });
+        gameInstance.getMode().displayWinners(this);
 
         Chat.broadcast("&6&l▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀");
 
         // Show each player their game report
         GameTask.runLater(() -> {
-            for (GamePlayer gamePlayer : CF.getPlayers()) {
+            for (GamePlayer gamePlayer : players) {
                 final Player player = gamePlayer.getPlayer();
                 final StatContainer stat = gamePlayer.getStats();
 
-                Chat.sendMessage(player, "&a&lGame Report:");
+                Chat.sendMessage(player, "&a&lɢᴀᴍᴇ ʀᴇᴘᴏʀᴛ:");
                 Chat.sendMessage(player, stat.getString(StatType.COINS));
                 Chat.sendMessage(player, stat.getString(StatType.EXP));
                 Chat.sendMessage(player, stat.getString(StatType.KILLS));
@@ -134,28 +101,38 @@ public class GameResult {
         }, 20).setShutdownAction(ShutdownAction.IGNORE);
     }
 
+    @Nonnull
     public String formatWinners() {
         final StringBuilder builder = new StringBuilder();
 
         int i = 0;
+        final int size = winners.size();
+
         for (GamePlayer winner : winners) {
+            final ChatColor teamColor = winner.getTeam().getColor();
+            final String winnerNameColored = teamColor + winner.getName();
+
             if (isSingleWinner()) {
-                return winner.getName();
+                return winnerNameColored;
             }
 
-            if (i != 0) {
-                builder.append(", ");
+            if (i == size - 1) {
+                builder.append(" &7and ");
+            }
+            else if (i != 0) {
+                builder.append("&7, ");
             }
 
-            builder.append(winner.getName());
+            builder.append(winnerNameColored);
             i++;
         }
 
         return builder.toString().trim();
     }
 
-    private boolean isSingleWinner() {
-        return winners.size() == 1;
+    @Nonnull
+    public String getGameTimeFormatted() {
+        return new SimpleDateFormat("mm:ss").format(System.currentTimeMillis() - gameInstance.getStartedAt());
     }
 
     public boolean isWinners() {
@@ -172,26 +149,15 @@ public class GameResult {
         return false;
     }
 
-    @Nonnull
-    public String formatWinnerName(GamePlayer winner) {
-        final StatContainer stats = winner.getStats();
-        final GameTeam winnerTeam = winner.getTeam();
-
-        return Chat.bformat(
-                "{Team} &7⁑ &6{Hero} &e&l{Name} &7⁑ &c&l{Health}  &b&l{Kills} &b🗡  &c&l{Deaths} &c☠",
-                winnerTeam.getFirstLetterCaps(),
-                winner.getHero().getNameSmallCaps(),
-                winner.getName(),
-                winner.getHealthFormatted(),
-                stats.getValue(StatType.KILLS),
-                stats.getValue(StatType.DEATHS)
-        );
-    }
-
     public void supplyDefaultWinners() {
-        winners.addAll(CF.getAlivePlayers());
-        for (GamePlayer winner : winners) {
-            winningTeams.add(winner.getTeam());
-        }
+        CF.getAlivePlayers().forEach(player -> {
+            winners.add(player);
+            winningTeams.add(player.getTeam());
+        });
     }
+
+    private boolean isSingleWinner() {
+        return winners.size() == 1;
+    }
+
 }

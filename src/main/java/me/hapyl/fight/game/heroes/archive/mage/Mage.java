@@ -1,11 +1,11 @@
 package me.hapyl.fight.game.heroes.archive.mage;
 
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.loadout.HotbarSlots;
@@ -23,20 +23,20 @@ import javax.annotation.Nonnull;
 
 public class Mage extends Hero implements UIComponent {
 
-    private final int maxSoulsAmount = 26;
+    private final int maxSoulsAmount = 10;
 
     public final MageSpell spellWyvernHeart = new WyvernHeartSpell();
     public final MageSpell spellDragonSkin = new DragonSkinSpell();
 
     private final PlayerMap<Integer> soulsCharge = PlayerMap.newMap();
 
-    public Mage() {
-        super("Mage");
+    public Mage(@Nonnull Heroes handle) {
+        super(handle, "Mage");
 
         setArchetype(Archetype.MAGIC);
 
         setDescription("""
-                Necromancer with the ability to absorb soul fragments upon hitting his foes to use them as fuel for his &e&lSoul &e&lEater&7.
+                Necromancer with the ability to absorb soul fragments upon hitting his foes to use them as fuel for his &e&l&oSoul Eater&8&o.
                 """);
 
         setItem("f41e6e4bcd2667bb284fb0dde361894840ea782efbfb717f6244e06b951c2b3f");
@@ -49,14 +49,13 @@ public class Mage extends Hero implements UIComponent {
         setWeapon(new MageWeapon(this));
 
         setUltimate(new UltimateTalent(
-                "Magical Trainings",
-                """
-                        Retrieve two ancient spells and use one of them to your advantage!
-                                                
-                        %s
-                        %s
-                        Only one of the spells can be used at the same time, and you will &nnot&7 gain &b&l※ &7until spell is over.
-                        """.formatted(spellWyvernHeart.getFormatted(), spellDragonSkin.getFormatted()),
+                this, "Magical Trainings", """
+                Retrieve two ancient spells and use one of them to your advantage!
+                                        
+                %s
+                %s
+                Only one of the spells can be used at the same time, and you will &nnot&7 gain &b&l※ &7until spell is over.
+                """.formatted(spellWyvernHeart.getFormatted(), spellDragonSkin.getFormatted()),
                 50
         ).setItem(Material.WRITABLE_BOOK)
                 .setType(Talent.Type.ENHANCE)
@@ -75,16 +74,15 @@ public class Mage extends Hero implements UIComponent {
     }
 
     @Override
-    public DamageOutput processDamageAsDamager(DamageInput input) {
-        final LivingGameEntity victim = input.getEntity();
-        final GamePlayer player = input.getDamagerAsPlayer();
+    public void processDamageAsDamager(@Nonnull DamageInstance instance) {
+        final LivingGameEntity victim = instance.getEntity();
+        final GamePlayer player = instance.getDamagerAsPlayer();
 
         if (!victim.hasTag("LastDamage=Soul")) {
             addSouls(player, 1);
         }
 
         victim.removeTag("LastDamage=Soul");
-        return null;
     }
 
     @Override

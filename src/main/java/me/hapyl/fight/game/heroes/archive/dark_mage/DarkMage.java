@@ -1,25 +1,25 @@
 package me.hapyl.fight.game.heroes.archive.dark_mage;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.archive.witcher.WitherData;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.loadout.HotbarSlots;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.dark_mage.ShadowClone;
 import me.hapyl.fight.game.talents.archive.dark_mage.ShadowCloneNPC;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
+import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
@@ -30,7 +30,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -38,20 +37,20 @@ import java.util.Random;
 
 import static org.bukkit.Sound.*;
 
-public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataHandler {
+public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataHandler<DarkMageData> {
 
     @DisplayField private final double passiveChance = 0.12d;
     @DisplayField private final double ultimateCooldownBoost = 0.5d;
 
-    private final PlayerMap<DarkMageData> playerData = PlayerMap.newMap();
+    private final PlayerDataMap<DarkMageData> playerData = PlayerMap.newDataMap(DarkMageData::new);
 
-    public DarkMage() {
-        super("Dark Mage");
+    public DarkMage(@Nonnull Heroes handle) {
+        super(handle, "Dark Mage");
 
         setArchetype(Archetype.MAGIC);
         setAffiliation(Affiliation.THE_WITHERS);
 
-        setDescription("A mage that was cursed by &8&lDark &8&lMagic&8&o. But even it couldn't kill him...");
+        setDescription("A mage who was cursed by the &8&l&oDark Magic&8&o, but even it couldn't kill him...");
         setItem("e6ca63569e8728722ecc4d12020e42f086830e34e82db55cf5c8ecd51c8c8c29");
 
         final HeroAttributes attributes = getAttributes();
@@ -64,12 +63,12 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
 
         setWeapon(new DarkMageWeapon());
 
-        setUltimate(new UltimateTalent("Witherborn", """
+        setUltimate(new UltimateTalent(this, "Witherborn", """
                 Raised by the &8Withers&7, they will always assist you in battle.
                                 
                 While &cattacking&7, the &8Wither&7 will unleash a &acoordinated&7 attack.
                                 
-                While &acastring&7 a spell, it will be &aimproved&7, and the cooldown is &breduced&7.
+                While &acasting&7 a spell, it will be &aimproved&7, and the cooldown is &breduced&7.
                                 
                 After {duration}, the &8Wither&7 will leave.
                 """, 70)
@@ -78,21 +77,10 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
                 .setDurationSec(12)
                 .setCooldownSec(30)
                 .setSound(Sound.ENTITY_WITHER_SPAWN, 2.0f)
-                .appendAttributeDescription("Assist Delay", WitherData.ASSIST_DELAY)
+                .appendAttributeDescription("Assist Delay", WitherData.ASSIST_DELAY / 50)
                 .appendAttributeDescription("Assist Hits", WitherData.ASSIST_HITS)
                 .appendAttributeDescription("Assist Damage", WitherData.ASSIST_DAMAGE_TOTAL)
         );
-    }
-
-    @Override
-    public void onDeath(@Nonnull GamePlayer player) {
-        getPlayerData(player).removeWither();
-    }
-
-    @Override
-    public void onStop() {
-        playerData.values().forEach(PlayerData::remove);
-        playerData.clear();
     }
 
     @Override
@@ -109,17 +97,16 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
         getPlayerData(player).removeWither();
     }
 
-    @Nullable
     @Override
-    public DamageOutput processDamageAsVictim(DamageInput input) {
+    public void processDamageAsVictim(@Nonnull DamageInstance instance) {
         final ShadowClone talent = getFourthTalent();
-        final GamePlayer player = input.getEntityAsPlayer();
-        final LivingGameEntity entity = input.getDamagerAsLiving();
+        final GamePlayer player = instance.getEntityAsPlayer();
+        final LivingGameEntity entity = instance.getDamager();
         final ShadowCloneNPC clone = talent.getClone(player);
 
         // Handle passive
         if (entity != null && new Random().nextDouble() < passiveChance) {
-            entity.addEffect(GameEffectType.WITHER_BLOOD, 60, true);
+            entity.addEffect(Effects.WITHER_BLOOD, 60, true);
 
             entity.sendMessage("&8☠ &c%s poisoned your blood!", player.getName());
             player.sendMessage("&8☠ &aYou poisoned %s's blood!", entity.getName());
@@ -133,27 +120,24 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
             // Fx
             player.sendMessage("&aYour %s nullified the damage!", talent.getName());
 
-            player.addPotionEffect(PotionEffectType.BLINDNESS, 10, 1);
+            player.addEffect(Effects.BLINDNESS, 1, 10);
 
             player.playSound(ENTITY_ENDERMAN_TELEPORT, 1.0f);
             player.playSound(ENTITY_PLAYER_BREATH, 1.0f);
             player.playSound(ENTITY_GHAST_SCREAM, 0.75f);
 
-            return DamageOutput.CANCEL;
+            instance.setCancelled(true);
         }
-
-        return null;
     }
 
-    @Nullable
     @Override
-    public DamageOutput processDamageAsDamager(DamageInput input) {
-        final GamePlayer gamePlayer = input.getDamagerAsPlayer();
-        final LivingGameEntity entity = input.getEntity();
+    public void processDamageAsDamager(@Nonnull DamageInstance instance) {
+        final GamePlayer gamePlayer = instance.getDamagerAsPlayer();
+        final LivingGameEntity entity = instance.getEntity();
 
         // Skip witherboard damage
-        if (gamePlayer == null || input.getDamageCause() == EnumDamageCause.WITHERBORN || !input.isEntityAttack()) {
-            return null;
+        if (gamePlayer == null || instance.getCause() == EnumDamageCause.WITHERBORN || !instance.isEntityAttack()) {
+            return;
         }
 
         final WitherData data = getWither(gamePlayer);
@@ -161,8 +145,6 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
         if (data != null) {
             data.assistAttack(entity);
         }
-
-        return null;
     }
 
     @EventHandler()
@@ -228,8 +210,8 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
 
     @Nonnull
     @Override
-    public DarkMageData getPlayerData(@Nonnull GamePlayer player) {
-        return playerData.computeIfAbsent(player, DarkMageData::new);
+    public PlayerDataMap<DarkMageData> getDataMap() {
+        return playerData;
     }
 
     // [hapyl's rant about interaction detection]

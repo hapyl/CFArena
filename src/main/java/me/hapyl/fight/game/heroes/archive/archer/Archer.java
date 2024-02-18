@@ -2,20 +2,22 @@ package me.hapyl.fight.game.heroes.archive.archer;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.loadout.HotbarSlots;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.weapons.BowWeapon;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
@@ -37,27 +39,27 @@ import java.util.Set;
 
 public class Archer extends Hero implements Listener {
 
+    public final Weapon boomBow = new Weapon(Material.BOW).setDamage(1.0d).setName("&6&lBOOM BOW");
     private final Set<Arrow> boomArrows = new HashSet<>();
-    private final Weapon boomBow = new Weapon(Material.BOW).setDamage(1.0d).setName("&6&lBOOM BOW");
-
     private final double explosionRadius = 5.0d;
     private final double explosionDamage = 30.0d;
-    private final int boomBowPerShotCd = 10;
+    private final int boomBowPerShotCd = 15;
+
     private final Color hawkeyeArrowColors = Color.fromRGB(19, 81, 143);
 
-    public Archer() {
-        super("Archer");
+    public Archer(@Nonnull Heroes handle) {
+        super(handle, "Archer");
 
         setArchetype(Archetype.RANGE);
 
-        setDescription("One of the best archers joins the fight! Not alone though but with his &3custom-made &8&obow.");
+        setDescription("One of the best archers joins the fight! Not alone though but with his &3&ocustom-made &8&obow.");
         setItem("106c16817c73ff64a4a49b590d2cdb25bcfa52c630fe7281a177eabacdaa857b");
 
-        setWeapon(Material.BOW, "Bow of Destiny", "A custom-made bow with some unique abilities!", 5.0d);
+        setWeapon(new BowWeapon("Bow of Destiny", "A custom-made bow with some unique abilities!", 5.0d).setShotCooldown(7));
 
         final HeroAttributes attributes = getAttributes();
-        attributes.set(AttributeType.MAX_HEALTH, 125.0d);
-        attributes.set(AttributeType.SPEED, 0.225d);
+        attributes.set(AttributeType.MAX_HEALTH, 100.0d);
+        attributes.set(AttributeType.SPEED, 0.23d);
         attributes.set(AttributeType.DEFENSE, 0.8d);
 
         final Equipment equipment = getEquipment();
@@ -66,11 +68,12 @@ public class Archer extends Hero implements Listener {
         equipment.setBoots(51, 51, 51);
 
         setUltimate(new UltimateTalent(
+                this,
                 "Boom Bow",
                 "Equip a &6&lBOOM BOW &7for {duration} that fires explosive arrows that explode on impact dealing with massive &ftrue damage&7.",
-                50
+                60
         ).setItem(Material.BLAZE_POWDER)
-                .setDuration(120)
+                .setDurationSec(6)
                 .setCooldownSec(20)
                 .setSound(Sound.ITEM_CROSSBOW_SHOOT, 0.25f));
 
@@ -127,14 +130,7 @@ public class Archer extends Hero implements Listener {
                     return;
                 }
 
-                CFUtils.createExplosion(
-                        arrow.getLocation(),
-                        explosionRadius,
-                        explosionDamage,
-                        gamePlayer,
-                        EnumDamageCause.BOOM_BOW,
-                        null
-                );
+                gamePlayer.createExplosion(arrow.getLocation(), explosionRadius, explosionDamage, EnumDamageCause.BOOM_BOW);
             }
         }
     }

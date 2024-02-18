@@ -1,11 +1,11 @@
 package me.hapyl.fight.game.heroes.archive.frostbite;
 
-import me.hapyl.fight.game.EnumDamageCause;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.weapons.range.RangeWeapon;
-import me.hapyl.fight.game.weapons.range.WeaponRaycastInstance;
+import me.hapyl.fight.game.weapons.range.WeaponRayCast;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -13,7 +13,6 @@ import org.bukkit.Particle;
 import org.bukkit.entity.ArmorStand;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class FrostbiteWeapon extends RangeWeapon {
 
@@ -33,47 +32,46 @@ public class FrostbiteWeapon extends RangeWeapon {
         setReloadTimeSec(4);
         setMaxAmmo(4);
         setKnockback(0.0d);
-
-        raycast = new ProjectileRaycast(this, 0.7d, 2) {
-            @Nonnull
-            @Override
-            public WeaponRaycastInstance newInstance(@Nonnull GamePlayer player) {
-                final FrostbiteBullet bullet = new FrostbiteBullet(player) {
-                    @Override
-                    public void onContact(@Nonnull ArmorStand armorStand, @Nonnull LivingGameEntity entity, @Nonnull Location location) {
-                        remove();
-                    }
-                };
-
-                return new WeaponRaycastInstance(player, FrostbiteWeapon.this) {
-                    @Override
-                    public void onMove(@Nonnull Location location) {
-                        super.onMove(location);
-
-                        bullet.teleport(location);
-                        player.spawnWorldParticle(location, Particle.SNOWFLAKE, 1);
-                        player.spawnWorldParticle(location, Particle.SNOWBALL, 1, 0.05d, 0.05d, 0.05d, 0.025f);
-                    }
-
-                    @Override
-                    public void onHit(@Nonnull LivingGameEntity entity, boolean isHeadShot) {
-                        super.onHit(entity, isHeadShot);
-
-                        entity.addEffect(GameEffectType.SLOWING_AURA, slowingAuraDuration, true);
-                    }
-
-                    @Override
-                    public void onStop() {
-                        bullet.remove();
-                    }
-                };
-            }
-        };
     }
 
-    @Nullable
+    @Nonnull
     @Override
-    public EnumDamageCause getDamageCause(@Nonnull GamePlayer player) {
-        return EnumDamageCause.FROSTBITE;
+    public WeaponRayCast newRayCastInstance(@Nonnull GamePlayer player) {
+        final FrostbiteBullet bullet = new FrostbiteBullet(player) {
+            @Override
+            public void onContact(@Nonnull ArmorStand armorStand, @Nonnull LivingGameEntity entity, @Nonnull Location location) {
+                remove();
+            }
+        };
+
+        return new ProjectileRayCast(this, player, 0.7d, 2) {
+
+            @Nonnull
+            @Override
+            public EnumDamageCause getDamageCause() {
+                return EnumDamageCause.FROSTBITE;
+            }
+
+            @Override
+            public void onMove(@Nonnull Location location) {
+                bullet.teleport(location);
+
+                player.spawnWorldParticle(location, Particle.SNOWFLAKE, 1);
+                player.spawnWorldParticle(location, Particle.SNOWBALL, 1, 0.05d, 0.05d, 0.05d, 0.025f);
+            }
+
+            @Override
+            public void onHit(@Nonnull LivingGameEntity entity, boolean isHeadShot) {
+                super.onHit(entity, isHeadShot);
+
+                entity.addEffect(Effects.SLOWING_AURA, slowingAuraDuration, true);
+            }
+
+            @Override
+            public void onStop() {
+                bullet.remove();
+            }
+
+        };
     }
 }

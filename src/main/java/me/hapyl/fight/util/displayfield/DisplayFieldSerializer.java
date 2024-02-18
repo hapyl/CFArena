@@ -159,12 +159,7 @@ public final class DisplayFieldSerializer {
     }
 
     private static String scaleFormat(double v) {
-        if (v % 1 == 0) {
-            return String.valueOf((int) v);
-        }
-        else {
-            return DECIMAL_FORMAT.format(v);
-        }
+        return v % 1 == 0 ? "%.0f".formatted(v) : "%.1f".formatted(v);
     }
 
     private static String format(DisplayField display, DisplayFieldFormatter formatter, Field field, Object instance) {

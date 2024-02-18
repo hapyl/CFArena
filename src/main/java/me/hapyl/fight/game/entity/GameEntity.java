@@ -4,7 +4,7 @@ import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.garbage.CFGarbageCollector;
@@ -35,6 +35,7 @@ public class GameEntity {
     private final Set<String> tags;
     @Nonnull
     protected LivingEntity entity;
+    private boolean forceValid;
     // By default, GameEntity is a 'base' class, which allows for
     // faster and better checks for if entity is valid.
     protected boolean base = false;
@@ -121,13 +122,7 @@ public class GameEntity {
 
     @Nonnull
     public World getWorld() {
-        final World world = getLocation().getWorld();
-
-        if (world != null) {
-            return world;
-        }
-
-        throw new IllegalArgumentException("unloaded world!!!");
+        return entity.getWorld();
     }
 
     public boolean isValid() {
@@ -168,15 +163,15 @@ public class GameEntity {
                 return false;
             }
 
-            if (gamePlayer.hasEffect(GameEffectType.INVISIBILITY)) {
-                return false;
+            if (gamePlayer.hasEffect(Effects.INVISIBILITY)) {
+                return gamePlayer.getHero().isValidIfInvisible(gamePlayer);
             }
 
             return true;
         }
 
-        // Dummy check
-        if (entity.getScoreboardTags().contains("dummy")) {
+        // Force valid check
+        if (forceValid) {
             return true;
         }
 
@@ -367,6 +362,17 @@ public class GameEntity {
         return entity.getVelocity();
     }
 
+    /**
+     * Gets the absolute velocity.
+     */
+    @Nonnull
+    public Vector getAbsoluteVelocity() {
+        final Vector velocity = getVelocity();
+
+        return new Vector(Math.abs(velocity.getX()), Math.abs(velocity.getY()), Math.abs(velocity.getZ()));
+    }
+
+
     public void setVelocity(Vector vector) {
         entity.setVelocity(vector);
     }
@@ -435,14 +441,32 @@ public class GameEntity {
         return getLocation().getDirection();
     }
 
+    @Nonnull
+    public Vector getEyeDirection() {
+        return getEyeLocation().getDirection();
+    }
+
+    /**
+     * Gets the throw direction from entity's {@link #getDirection()} multiplied by <code>normalized</code> {@link #getAbsoluteVelocity()}.
+     *
+     * @return the throw direction.
+     */
+    @Nonnull
+    public Vector getThrowDirection() {
+        final Vector direction = getDirection();
+        final Vector velocity = getAbsoluteVelocity().normalize();
+
+        return direction.multiply(velocity);
+    }
+
     public net.minecraft.world.entity.Entity getNMSEntity() {
         return Reflect.getMinecraftEntity(entity);
     }
 
     public double dot(@Nonnull Location other) {
-        final Vector vector = other.subtract(getLocation()).toVector().normalize();
+        final Vector vector = other.subtract(getEyeLocation()).toVector().normalize();
 
-        return getDirection().normalize().dot(vector);
+        return getEyeLocation().getDirection().dot(vector);
     }
 
     public void addToTeam(@Nonnull GameTeam team) {
@@ -455,5 +479,13 @@ public class GameEntity {
 
     public boolean hasGravity() {
         return entity.hasGravity();
+    }
+
+    public void setForceValid(boolean forceValid) {
+        this.forceValid = forceValid;
+    }
+
+    public boolean isForceValid() {
+        return forceValid;
     }
 }

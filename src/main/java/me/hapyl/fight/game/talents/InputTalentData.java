@@ -40,13 +40,13 @@ public class InputTalentData implements Timed, Cooldown {
         return setDuration(sec * 20);
     }
 
-    public void setType(@Nonnull Talent.Type type) {
-        this.type = type;
-    }
-
     @Nonnull
     public Talent.Type getType() {
         return type;
+    }
+
+    public void setType(@Nonnull Talent.Type type) {
+        this.type = type;
     }
 
     @Nonnull

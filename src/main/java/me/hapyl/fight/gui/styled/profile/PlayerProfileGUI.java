@@ -2,12 +2,14 @@ package me.hapyl.fight.gui.styled.profile;
 
 import me.hapyl.fight.game.cosmetic.gui.CollectionGUI;
 import me.hapyl.fight.game.experience.ExperienceGUI;
+import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.gui.styled.hotbar.HotbarLoadoutGUI;
 import me.hapyl.fight.gui.SettingsGUI;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
 import me.hapyl.fight.gui.styled.StyledItem;
 import me.hapyl.fight.gui.styled.profile.achievement.AchievementGUI;
+import me.hapyl.fight.translate.Language;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
@@ -27,6 +29,12 @@ public class PlayerProfileGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
+        final PlayerProfile profile = PlayerProfile.getProfile(player);
+
+        if (profile == null) {
+            return;
+        }
+
         setHeader(new ItemBuilder(Material.PLAYER_HEAD)
                 .setSkullOwner(getPlayer().getName())
                 .setName("&aProfile")
@@ -64,6 +72,15 @@ public class PlayerProfileGUI extends StyledGUI {
                 StyledItem.ICON_LOADOUT.asButton("customize hotbar"),
                 HotbarLoadoutGUI::new
         );
+
+        final Language language = profile.getDatabase().getLanguage();
+
+        // Language
+        //setPanelItem(2,
+        //        ItemBuilder.playerHeadUrl(language.getHeadTexture())
+        //                .setName(language.getTranslated("language.language"))
+        //                .asIcon(), player -> new LanguageGUI(profile)
+        //);
     }
 
 }

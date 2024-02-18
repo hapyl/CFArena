@@ -1,19 +1,20 @@
 package me.hapyl.fight.game.heroes.archive.doctor;
 
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.loadout.HotbarSlots;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
-import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -29,16 +30,20 @@ import javax.annotation.Nonnull;
 
 public class DrEd extends Hero implements UIComponent {
 
-    private final Weapon ultimateWeapon = new PhysGun();
+    private final PhysGun ultimateWeapon = new PhysGun();
     private final PlayerMap<BlockShield> playerShield;
 
-    public DrEd() {
-        super("Dr. Ed");
+    public DrEd(@Nonnull Heroes handle) {
+        super(handle, "Dr. Ed");
 
         setArchetype(Archetype.STRATEGY);
 
         setDescription("Simply named scientist with not so simple inventions...");
         setItem("3b51e96bddd177992d68278c9d5f1e685b60fbb94aaa709259e9f2781c76f8");
+
+        final HeroAttributes attributes = getAttributes();
+        attributes.setSpeed(115);
+        attributes.setDefense(125);
 
         final Equipment equipment = getEquipment();
         equipment.setChestPlate(237, 235, 235, TrimPattern.VEX, TrimMaterial.IRON);
@@ -47,7 +52,7 @@ public class DrEd extends Hero implements UIComponent {
 
         setWeapon(new GravityGun());
 
-        setUltimate(new UltimateTalent("Upgrades People, Upgrades!", 70)
+        setUltimate(new UltimateTalent(this, "Upgrades People, Upgrades!", 70)
                 .appendDescription("""
                         Grants Dr. Ed an upgraded version of &a%s&7 for {duration} that is capable of capturing entities' flesh and energy, allowing manipulating them.
                         """, getWeapon().getName())
@@ -130,11 +135,7 @@ public class DrEd extends Hero implements UIComponent {
     @Override
     public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
         player.setItemAndSnap(HotbarSlots.HERO_ITEM, ultimateWeapon.getItem());
-
-        GameTask.runLater(() -> {
-            player.setItem(HotbarSlots.HERO_ITEM, null);
-            player.snapToWeapon();
-        }, getUltimateDuration());
+        player.schedule(() -> ultimateWeapon.stop(player), getUltimateDuration());
 
         return UltimateCallback.OK;
     }

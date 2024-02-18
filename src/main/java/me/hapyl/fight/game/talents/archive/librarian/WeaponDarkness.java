@@ -2,7 +2,6 @@ package me.hapyl.fight.game.talents.archive.librarian;
 
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.spigotutils.module.player.EffectType;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
@@ -17,7 +16,7 @@ public class WeaponDarkness extends LibrarianTalent {
 
     @Override
     public Response executeGrimoire(@Nonnull GamePlayer player) {
-        player.addPotionEffect(EffectType.STRENGTH, (int) (getCurrentValue(player) * 20), 1);
+        // fixme -> strength
 
         return Response.OK;
     }

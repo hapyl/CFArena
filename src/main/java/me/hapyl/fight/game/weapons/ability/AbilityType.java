@@ -27,6 +27,7 @@ public enum AbilityType {
     },
 
     @Deprecated HELD,
+    HOLD_RIGHT_CLICK,
     BACK_STAB,
     ATTACK,
     ;

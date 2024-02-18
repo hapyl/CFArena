@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.maps.features;
 
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.task.GameTask;
@@ -76,7 +76,7 @@ public class Booster {
         final Entity piggy = launch(flag);
         piggy.addPassenger(player.getPlayer());
 
-        player.addEffect(GameEffectType.FALL_DAMAGE_RESISTANCE, 200);
+        player.addEffect(Effects.FALL_DAMAGE_RESISTANCE, 200);
         player.playWorldSound(Sound.ENTITY_GENERIC_EXPLODE, 2.0f);
         return piggy;
     }

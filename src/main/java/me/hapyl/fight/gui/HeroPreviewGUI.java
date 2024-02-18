@@ -1,15 +1,17 @@
 package me.hapyl.fight.gui;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.PlayerSkinPreview;
+import me.hapyl.fight.game.heroes.PlayerSkinPreview;
 import me.hapyl.fight.game.color.Color;
+import me.hapyl.fight.game.heroes.CachedHeroItem;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.gui.styled.StyledTexture;
+import me.hapyl.fight.translate.Language;
 import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -39,11 +41,13 @@ public class HeroPreviewGUI extends PlayerGUI {
 
     private final Heroes heroes;
     private final Set<Talent> attributeDisplay;
+    private final Language language;
 
     public HeroPreviewGUI(Player player, Heroes heroes, int returnPage) {
         super(player, "Hero Preview - " + heroes.getHero().getName(), 5);
         this.heroes = heroes;
         this.attributeDisplay = Sets.newHashSet();
+        this.language = Language.getPlayerLanguage(player);
 
         update(returnPage);
     }
@@ -64,7 +68,8 @@ public class HeroPreviewGUI extends PlayerGUI {
                 player -> new HeroSelectGUI(player, index)
         );
 
-        setItem(11, hero.getCachedHeroItem().getDetailsItem());
+
+        setItem(11, hero.getCachedHeroItem().getItem(CachedHeroItem.Type.DETAILS));
 
         final Weapon weapon = hero.getWeapon();
         setItem(29, weapon.getItem());
@@ -104,6 +109,7 @@ public class HeroPreviewGUI extends PlayerGUI {
         final UltimateTalent ultimate = hero.getUltimate();
         final boolean showingUltimateAttributes = attributeDisplay.contains(ultimate);
 
+        // Ultimate
         setItem(32, showingUltimateAttributes ? abilityAttributeOrAir(ultimate) : abilityItemOrAir(ultimate));
 
         if (showingUltimateAttributes) {
@@ -217,6 +223,7 @@ public class HeroPreviewGUI extends PlayerGUI {
         }
 
         final boolean isDisplayAttributes = talent.isDisplayAttributes();
+
         return new ItemBuilder(talent.getItem())
                 .addLoreIf("", isDisplayAttributes)
                 .addLoreIf("&eClick for details", isDisplayAttributes)

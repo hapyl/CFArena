@@ -1,0 +1,1377 @@
+#######################################
+## Default english translation file. ##
+##                                   ##
+## by: hapyl                         ##
+## version: 2.7.2                    ##
+#######################################
+language:
+  name: "Русский"
+  selected: "Выбран Русский язык!"
+###############
+## Archetype ##
+###############
+archetype:
+  name: "Архетип"
+  damage:
+    name: '&4&l💢&4 Урон'
+    description: Эксперты в нанесении как можно большего урона.
+  range:
+    name: '&b&l🎯&b Стрелок'
+    description: Они - смертоносные стрелки, которые могут держать дистанцию и метко бить.
+  magic:
+    name: '&5🌌 Маг'
+    description: Специалисты магических заклинаний.
+  defense:
+    name: '&3🛡 Защита'
+    description: Обеспечивает защиту себя и союзников.
+  mobility:
+    name: '&d👣 Мобильность'
+    description: Fast and mobile, they zip around the battlefield.
+  strategy:
+    name: '&e💡 Стратегия'
+    description: Стратегисты полагаются больше на свои способности, чем на свою силу, для победы.
+  support:
+    name: '&2🍀 Поддержка'
+    description: Обеспечивают себя и союзников временными усилениями.
+  hexbane:
+    name: "§x§5§C§3§D§2§E🕷 Хэксбейн"
+    description: Masters of debuffs, they weaken and hinder enemies with eerie precision.
+#################
+## Affiliation ##
+#################
+affiliation:
+  name: "Affiliation"
+  kingdom:
+    name: '§x§B§8§8§6§0§B🏰 Королевство'
+    description: A royal kingdom.
+  the_withers:
+    name: '§x§4§4§4§4§7§7👾 Иссушители'
+    description: Древняя раса иссушителей, которые несут ненависть к человечеству.
+  the_jungle:
+    name: '§x§2§2§8§B§2§2🌺 Джунгли'
+    description: Огромные джунгли, наполненные деревьями (и бандитами.).
+  mercenary:
+    name: '§x§a§a§b§b§c§c❓ Наёмники'
+    description: Это - группа наёмников и охотников за головами.
+  unknown:
+    name: '§x§a§a§b§b§c§c❓ Неизвестно'
+    description: Происхождение этого героя - загадка...
+attributes: "Атрибуты"
+player_rating:
+  name: "Рейтинг Игроков"
+  description: "Рейтинг рассчитывается голосованием игроков."
+complex_hero:
+  name: "&6&lСложный Герой!"
+  description: "Этот герой сложнее других. По этому он &nне&7 рекомендуется новым игрокам."
+######################################
+## UI (Not to be confused with GUI) ##
+######################################
+ui:
+  scoreboard:
+    header_lobby: "Лобби"
+    map: "ᴋᴀᴘтᴀ"
+    mode: "ᴘᴇжиᴍ"
+    header_you: "Вы, {player}"
+    rank: "ᴘᴀʜг"
+    hero: "герои"
+    team: "ᴋᴏᴍᴀʜдᴀ"
+    coins: "ᴋᴏиʜы"
+    ruby: "ᴘʏбиʜ"
+    rubies: "ᴘʏбиʜы"
+  tab_list:
+    version: "Версия {version}"
+    players: ""
+    tps: ""
+#########
+## GUI ##
+#########
+gui:
+  button:
+    select: "&eНажмите ЛКМ, чтобы выбрать"
+    details: "&6Нажмите ПКМ для деталей"
+##############
+#Attributes #
+##############
+attribute:
+  max_health: "&c❤ &cЗдоровье&7"
+  attack: "&4🗡 &4Атака&7"
+  defense: "&2🛡 &2Защита&7"
+  speed: "&b🌊 &bСкорость&7"
+  crit_chance: "&9☣ &9Крит Шанс&7"
+  crit_damage: "&9☠ &9Крит Урон&7"
+  ferocity: "&c🌀 &cСвирепость&7"
+  mending: "&a🌿 &aMending&7"
+  vitality: "&4&l🩸&4 &4Vitality&7"
+  dodge: "&6👥 &6Нашс Уклонения&7"
+  cooldown_modifier: "&2🔂 &2Модификатор перезарядки &7"
+  attack_speed: "&e⚔ &eСкорость Атаки&7"
+  knockback_resistance: "&3🦏 &3Сопротивление Отталкиванию&7"
+  effect_resistance: "&5&l🐚&5 &5Сопротивление Эффектам&7"
+###########
+## Named ##
+###########
+named:
+  berserk: "&x&a&a&0&0&0&0💢 &x&a&a&0&0&0&0Берсерк&7"
+  curse_of_greed: "&x&f&f&a&a&0&0🧿 &x&f&f&a&a&0&0Проклятье Жадности&7"
+  shadow_energy: "&x&8&0&0&0&8&0🕳 &x&8&0&0&0&8&0Теневая Энергия&7"
+  astral_spark: "&x&f&f&f&f&5&5⚡ &x&f&f&f&f&5&5Astral Spark&7"
+  shadowstrike: "&x&7&B&6&8&E&E💥 &x&7&B&6&8&E&EShadowstrike&7"
+  spiritual_bones: "&l&x&a&1&b&5&d&6🦴 &l&x&a&1&b&5&d&6Spiritual Bones&7"
+  stance_range: "&x&3&4&9&8&d&b🏹 &x&3&4&9&8&d&bRange Stance&7"
+  stance_melee: "&x&e&7&4&c&3&c⚔ &x&e&7&4&c&3&cMelee Stance&7"
+  riptide: "&x&0&0&b&c&d&4&l💦 &x&0&0&b&c&d&4Riptide&7"
+  bug: "&x&f&f&f&f&f&f&l🐜 &x&f&f&f&f&f&fDisruptive Bug&7"
+  energy: "&x&5&5&f&f&f&f※ &x&5&5&f&f&f&fЭнергия&7"
+  overheal: "&x&5&5&f&f&5&5&2⚕ &x&5&5&f&f&5&5Чрезмерное Исцеление&7"
+###########
+#Talents #
+###########
+talent:
+  #Misc
+  talent: "Талант"
+  input:
+    left: "&e&lЛКМ&e чтобы {action}"
+    right: "&6&lПКМ&6 чтобы {action}"
+  shadow_assassin:
+    stealth_description: "&9&lВ стелс-режиме:"
+    fury_description: "&c&lВ режиме Ярости:"
+    cooldown: "&8Перезарядка"
+    energy_cost: "&8Стоимость"
+  dark_mage:
+    witherborn_assist: "Поддержка Иссушителя"
+    usage: "Использование"
+    alt_usage: "Вы должны использовать свой посох, чтобы использовать это заклинание!"
+  bloodfiend:
+    taunt:
+      description: |
+        Toss a {name} nearby that will taunt the &bmost &brecently &cbitten&7 player for {duration}.
+      while_active: "&a&lПока активно:"
+      how_to_remove: "&c&lКак убрать:"
+  #Archer
+  triple_shot:
+    name: "Тройной Выстрел"
+    description: |
+      Выстреливает три стрелы. Две дополнительные стрелы наносят &b50%&7 от нормального урона.
+  shock_dark:
+    name: Шоковая Стрела
+    description: |
+      Shoots an arrow infused with &oshocking &7power. Upon hit, charges and explodes dealing damage based on distance.
+  hawkeye_arrow:
+    name: Hawkeye Arrow
+    description: |
+      Fully charged shots while sneaking have &b25%&7 chance to fire a hawkeye arrow that homes to nearby enemies.
+  #Alchemist
+  potion:
+    name: Бутылка Бездны
+    description: |
+      Бутылка, которая может создавать зелья из &7самой &0&lбездны.
+      Выпейте, чтобы получить случайный позитивный эффект.
+  cauldron:
+    name: Зельеварка
+    description: |
+      Устанавливает зельеварку, чтобы сделать зелье. Положите внутрь палку и ждите!
+
+      Когда зелье готово, заберите зелье и усильте себя следующими эффектами:
+
+      &a- &7Выпивание зелья предоставил двойные эффекты. &8(5 зарядов)
+
+      &a- &7Удар врага нанесет случайный эффект. &8(10 зарядов)
+  intoxication:
+    name: Интоксикация
+    description: |
+      Drinking potions will increase &eIntoxication &7level that will decrease constantly.
+
+      Having high &eIntoxication&7 levels isn't good for your body!
+  #Moonwalker
+  moonslite_pillar:
+    name: Moonslite Pillar
+    description: |
+      Raise a pillar at the &etarget &7location for {duration} &7that pulses in set intervals, damaging enemies and healing yourself.
+
+      &6;;You can only have one pillar at a time.
+  moonslite_bomb:
+    name: Moonslite Bomb
+    description: |
+      Drop a proximity grenade at your current location that explodes on contact with enemy or after a set period, dealing damage and applying &6&lCorrosion &7for a short time.
+
+      &6;;You can only have {bombLimit} bombs at the time.
+  moon_gravity:
+    name: Gravity Pull
+    description: |
+      Create a gravity zone at the &etarget&7 location that will charge over time.
+
+      While charging, pull all enemies within range up and slow them down.
+
+      When charged, slam all enemies within range down and deal damage to them.
+      &8;;The damage is scaled with how long an enemy was in the gravity pull.
+  target:
+    name: Скафандр
+    description: Костюм позволяет вам падать медленно.
+  #Hercules
+  hercules_dash:
+    name: Shift
+    description: Мгновенно сделать рывок вперед.
+  hercules_updraft:
+    name: Updraft
+    description: Instantly propel yourself high up to perform plunging attack.
+  plunge:
+    name: Plunge
+    description: While airborne, &e&lSNEAK &7to perform plunging attack, dealing damage to nearby enemies.
+  #Mage
+  mage_transmission:
+    name: Transmission
+    description: Мгновенно телепортирует к целевому блоку, но теряется возможность двигаться на короткое время.
+  arcane_mute:
+    name: Arcane Mute
+    description: Use on a targeted player to silence them, preventing them from using talents for {duration}.
+  soul_harvest:
+    name: Сбор Душ
+    description: Deal &bmelee &7damage to gain soul fragment as fuel for your &e&lSoul &e&lEater&7's range attacks.
+  #Pytaria
+  flower_escape:
+    name: Flower Escape
+    description: |
+      Throw a deadly flower at your current location and dash backwards.
+
+      The flower will continuously pulse and deal damage to nearby players.
+
+      After the duration is over, it will explode dealing &bdouble&7 the damage.
+  flower_breeze:
+    name: Flower Breeze
+    description: |
+      Feel the breeze of the flowers that damages your but grants &c<attribute.attack> &7and &b<attribute.defense> &7boost for {duration}.
+
+      &8;;This ability cannot kill.
+  excellency:
+    name: Excellency
+    description: The less &chealth&7 Pytaria has, the more her <attribute.attack> and <attribute.crit_chance> increases. But her <attribute.defense> significantly decreases.
+  #Troll
+  troll_spin:
+    name: Вращение
+    description: |
+      Rotates all nearby opponents head 180 degrees.
+  repulsor:
+    name: Repulsor
+    description: |
+      Propels all nearby opponents high up into the sky!
+  troll_passive:
+    name: Last Laugh
+    description: |
+      Your hits have &b0.1% &7chance to instantly kill enemy.
+  #Tamer
+  mine_o_ball:
+    name: Mine 'o Ball
+    description: |
+      Summon a random pack of creatures that will aid you in battle.
+
+      &6Creatures:
+    creature:
+      dr_witch:
+        name: "Dr. Witch"
+        description: |
+          Periodically splashes a &ahealing&7 potion on a &eteammate&7 with the lowest health.
+      the_wolf_pack:
+        name: "The Wolf Pack"
+        description: |
+          &nEach&a alive&7 wolf grants you an <attribute.attack> boost.
+      pigman_rusher:
+        name: "Pigman Rusher"
+        description: |
+          &bRushes&7 and &cattacks&7 all nearby enemies.
+      laser_zombie:
+        name: "Laser Zombie"
+        description: |
+          Lasers target enemy, reducing their <attribute.defense>.
+  taming_the_wind:
+    name: Taming the Wind
+    description: |
+      Equip concentrated wind.
+    left:
+      name: "Lift Enemies"
+      description: |
+        Lift up to &b{maxEnemies}&7 nearby &cenemies&7 up into the air, &eimpairing&7 their movement.
+    right:
+      name: "Lift Yourself"
+      description: |
+        Lift &nyourself&7 up into the air.
+        After a short delay, you will &aconstantly&7 move forward.
+
+        &8;;Sneak to cancel movement.
+  taming_the_earth:
+    name: Taming the Earth
+    description: |
+      Lower nearby enemies below the baseboard, &eimpairing&7 their movement.
+  taming_the_time:
+    name: Taming the Time
+    description: |
+      Equip concentrated time.
+    left:
+      name: "Impair Enemies"
+      description: |
+        Hinder all enemies by &eimpairing&7 their movement, decreasing their <attribute.speed> and <attribute.attack_speed>.
+    right:
+      name: "Accelerate"
+      description: |
+        Enhance yourself by increasing your <attribute.speed> and <attribute.attack_speed>.
+  #Nightmare
+  paranoia:
+    name: Паранойя
+    description: |
+      Launch a cloud of darkness in front of you that travels forward, applying &cOmen&7 to whoever it touches for {duration}.
+
+      &4👻 &c&lOmen:
+      Enemies take more damage and suffer &e&lParanoia&7.
+  shadow_shift:
+    name: Shadow Shift
+    description: |
+      Instantly teleport behind your target entity to scare them from behind, applying &cOmen&7.
+
+      You will lose the ability to move for a short duration.
+  in_the_shadows:
+    name: В тенях
+    description: While in moody light, your <attribute.attack> and <attribute.speed> increases.
+  #Dr. Ed
+  confusion_potion:
+    name: Dr. Ed's Amnesia Extract Serum
+    description: |
+      Swiftly throw a potion in the air that explodes and creates an aura for &b{duration}&7.
+
+      Amnesia will affect opponents within range; This effect will persist for additional &b1s &7after player leaves the aura.
+
+      &8;;Dr. Ed is immune to his own amnesia
+  harvest:
+    name: Block Harvest
+    description: |
+      Quickly gather resources from up to &b{maximumBlocks}&7 nearby blocks.
+
+      Then combine them in one big pile before throwing it at your enemies.
+
+      &8;;The damage is based on the number of blocks gathered.
+  block_shield:
+    name: Block Maelstrom
+    description: |
+      Creates a block that orbits around you, dealing damage based on the element upon contact with opponents.
+
+      &7Refreshes every &b10s&7.
+  #Ender
+  teleport_pearl:
+    name: Rideable Pearl
+    description: |
+      Throw an ender pearl and mount to ride it all the way!
+      &6&lSNEAK &7to throw normally.
+  transmission_beacon:
+    name: Transmission Beacon
+    description: |
+      Place the beacon somewhere hidden from your opponents.
+      Use your &bultimate&7 to instantly teleport to its location and collect it.
+
+      &c&l;;The beacon can be destroyed!
+  ender_passive:
+    name: Ender Skin
+    description: |
+      With great power, comes great... strength!
+      Your skin is too weak for the &bwater&7, though on &dteleport&7:
+
+      &8- &7Heal for &c&l{healing} &c❤&7.
+      &8- &7Deal &c&l{damage}&7 damage in small &eAoE&7.
+      &8- &7Gain &c{attackBoost} <attribute.attack> boost for a short duration.
+  #Spark
+  spark_molotov:
+    name: Hot Hands
+    description: |
+      Throw a fireball in front of you that flies for maximum of &b{maximumAirTime}&7.
+
+      Upon landing, set the ground of &efire&7, &cdamaging&7 enemies and &ahealing&7 yourself.
+  spark_flash:
+    name: Blinding Curve
+    description: |
+      Throw an energy blast filled with blinding energy that curves up and explodes after a short delay, blinding anyone looking at it.
+
+      Enemies also receive small fire damage.
+      &8;;You know, their eyes hurt!
+  fire_guy:
+    name: Fire Guy
+    description: |
+      You're completely immune to &clava &7and &cfire &7damage.
+  #Shadow Assassin
+  shadow_switch:
+    name: Shadow Switch
+    stealth_description: |
+      Deal small &cAoE damage&7 and switch to &cFury&7 mode.
+    fury_description: |
+      Deal small &cAoE damage&7 and switch to &9Stealth&7 mode.
+  dark_cover:
+    name: Dark Cover
+    stealth_description: |
+      Cloak yourself in darkness and become &ainvisible&7 and &ainvulnerable&7 for a maximum of &b{darkCoverDuration}&7.
+
+      Dealing damage clears this effect and deals &cAoE damage&7.
+
+      Also regenerate &5{energyRegen} <named.shadow_energy> per enemy hit.
+    fury_description: |
+      Instantly deal &cAoE damage&7 in front of you and gain <attribute.attack> boost.
+
+      The damage dealt is &ax{furyDamageMultiplier}&7 of that in &9Stealth&7 mode.
+  shadow_assassin_clone:
+    name: Shadow Clone
+    stealth_description: |
+      Summon a &8Shadow Clone&7 at your current location.
+
+      The clone waits patiently for an enemy to come close before &cattacking&7 and reducing their <attribute.defense>.
+
+      Upon attacking the clone will &cdisappear&7, and there is a short time window where you can &bteleport&7 to the clone.
+
+      &bTeleporting&7 regenerates &d{energyRegen} <named.shadow_energy>&7.
+
+      &8;;Up to {cloneLimit} clones can exist at the same time.
+    fury_description: |
+      Summon three &8Shadow Clones&7 in front of you.
+
+      The clones take turns attacking in a fixed AoE:
+      └ Slowing and blinding enemies.
+      └ Reducing <attribute.defense>.
+      └ Dealing damage.
+
+      &8;;Any existing clones will disappear.
+  shadow_energy:
+    name: Shadow Energy
+    description: |
+      Accumulate <named.shadow_energy> while using abilities in &9Stealth&7 mode.
+
+      Spend <named.shadow_energy> to use empowered abilities in &cFury&7 mode.
+  #The Witcher
+  aard:
+    name: Aard
+    description: |
+      Creates a &nsmall explosion&7 in front of you that &bpushes &cenemies&7 away.
+  igny:
+    name: Igni
+    description: |
+      Fire &cblazing spirits&7 in front of you that deal &cAoE damage&7 and set &cenemies&7 on &6fire&7.
+      &8;;Damage and burning duration falls off with distance.
+  kven:
+    name: Quen
+    description: |
+      Applies &ntwo charges&7 of Quen shield that &8blocks&7 any damage.
+  akciy:
+    name: Axii
+    description: |
+      Stun the &etarget&7 &cenemy for {duration} or until they &nget&7 hit.
+  irden:
+    name: Yrden
+    description: |
+      Creates &dYrden&7 aura at your current location.
+
+      &cEnemies&7 &ninside&7 the aura are &eimpaired&7 and aren't affected by &3knockback&7.
+  combo_system:
+    name: Combo
+    description: |
+      Dealing &bcontinuous damage&7 to the &bsame target&7 will increase your combo.
+
+      Greater combo hits deal &cincreased damage&7.
+  #Vortex
+  vortex_slash:
+    name: Astral Slash
+    description: |
+      Launch an &eastral&7 energy forward &b&nfollows&7 your crosshair.
+
+      &8;;The energy will disappear after {maxDuration} or upon contact with a block.
+
+      The energy deals &crapid damage&7, and knocks enemies back.
+
+      &8;;The cooldown of this ability stars after the energy disappears.
+  vortex_star:
+    name: Astral Star
+    description: |
+      Summon an &eAstral Star&7 at your current location.
+      &8&o;;If used nearby a star, it will be picked up.
+
+      &7&o;;The stars are your guide! But only &b&o{maximumStars}&7&o can exist at the same time.
+  star_aligner:
+    name: Star Aligner
+    description: |
+      Align with your target &eAstral Star&7, &bteleporting&7 to it and launching an &6Astral Slash&7.
+
+      &8;;The star is consumed on teleport.
+  like_a_dream:
+    name: Like a Dream
+    description: |
+      Using Star Aligner grants you one stack of <named.astral_spark>.
+
+      Each <named.astral_spark> stack increases &6Astral Slash&7 DMG by &b15%&7.
+
+      &8;;Lose one stack after not gaining a stack for 5s.
+  #Frostbite
+  icicles:
+    name: Frostfall
+    description: |
+      Summon a bunch of icicles at your &etarget&7 enemy.
+      &8;;If there are no target enemies, the icicles will spawn in front of you.
+
+      After a short delay, the icicles fall down, dealing &cAoE damage&7 and:
+      └ Decreases <attribute.crit_chance> by &b{critChanceReduction}&7.
+      └ Decreases <attribute.crit_damage> by &b{critDamageReduction}&7.
+      └ Decreases <attribute.attack> by &b{attackReduction}&7.
+  ice_cage:
+    name: Ice Cage
+    description: |
+      Launch a &bsnowball&7 in front of you.
+
+      Upon hitting an entity, immobilize and cage them in ice.
+  ice_barrier:
+    name: Ice Barrier
+    description: |
+      Creates an ice wall at your &etarget&7 location that melts overtime.
+
+      While active, the wall will periodically unleash freezing energy, healing yourself and slowing enemies down.
+  chill_aura:
+    name: Chill Aura
+    description: |
+      You emmit a &bchill aura&7, that &bslows&7 and decreases enemies <attribute.attack_speed> in small AoE.
+  #Dark Mage
+  blinding_curse:
+    name: Darkness Curse
+    description: |
+      Impair the &etarget&7 enemy, dealing &cdamage&7, &8blinding&7 and &3slowing&7 them.
+    witherborn_assist: |
+      The curse &abounces&7 to two additional targets.
+  slowing_aura:
+    name: Замедляющая аура
+    description: |
+      Creates a &fslowness pool&7 at your &etarget&7 block that slows enemies.
+
+      &8;;The aura does not slow its creator.
+    witherborn_assist: |
+      The aura will also increase <attribute.cooldown_modifier> and periodically &4interrupt&7 actions.
+  healing_aura:
+    name: Исцеляющая аура
+    description: |
+      Create a &ahealing&7 circle at your location that periodically &aheals&7 &nall&7 nearby players.
+    witherborn_assist: |
+      Instantly &aheal&7 for &c25 ❤&7.
+  shadow_clone:
+    name: Shadow Clone
+    description: |
+      Create a reflection of &nyourself&7 at your current location and become &binvisible&7.
+
+      After a &abrief delay&7 or whenever the clone is &cdamaged&7, it &4explodes&7, &cdamaging&7 and &eimpairing&7 nearby enemies.
+    witherborn_assist: |
+      The clone will &bpersist&7 until you &ntake damage&7, nullifying the damage and &bteleporting&7 you to its location.
+  dark_mage_passive:
+    name: Wither Blood
+    description: |
+      Upon taking &cdamage&7, there is a small chance to &8wither&7 the attacker.
+  #Blast Knight
+  stone_castle:
+    name: Castle of Stone
+    description: |
+      Erect a castle of stone at your current location.
+
+      When a &ateammate&7 &b&nwithin&7 the castle takes &cdamage&7, the damage is &asplit&7 between you.
+
+      You also receive a <attribute.defense>, <attribute.knockback_resistance> and <attribute.effect_resistance> increase.
+  discharge:
+    name: Quantum Discharge
+    description: |
+      Spend all &dQuantum Energy&7 to launch a &ddevice&7 that charges overtime.
+
+      Once charged, create &fNova Explosion&7 that deals &cAoE damage&7 and knocks enemies back.
+  shielded:
+    name: Quantum Energy
+    description: |
+      &8Blocking&7 damage with your &bshield&7 will accumulate &dQuantum Energy&7.
+
+      Using &aQuantum Discharge&7 can manipulate the energy to create &fNova Explosion&7.
+  #Ninja
+  ninja_dash:
+    name: Dashing Wind
+    description: |
+      Instantly propel yourself into the direction you're looking.
+  ninja_smoke:
+    name: Smoke Bomb
+    description: |
+      Throw a smoke bomb at your current location and enter <named.shadowstrike> state.
+
+      While in this state, become &binvisible&7.
+
+      Inflicting &cdamage&7 will &nclear&7 this state and trigger the following effects:
+      └ &8Slows&7 the attacked enemy.
+      └ Grants you &e{dodgeIncrease} <attribute.dodge> for &b{buffDuration}&7.
+  fleet_foot:
+    name: Ninja Style
+    description: |
+      Ninjas are fast and agile.
+
+      You gain <attribute.speed> &7boost, can &bdouble jump&7 and don't take &3fall&7 damage!
+  #Taker
+  fatal_reap:
+    name: Fatal Reap
+    description: |
+      Instantly swipe your scythe to unleash a &8devastating attack&7 that shatters your opponents' &fbones&7, dealing &c{damagePercent}&7 of their &c&ncurrent health&7 as &4damage&7.
+
+      Convert &b{spiritualBoneGeneration}&7 broken bones directly into <named.spiritual_bones>.
+  death_swap:
+    name: Hook of Death
+    description: |
+      Instantly consume &b{spiritualBoneCost}&7 of your <named.spiritual_bones> to launch a &4chain&7 that travels in a straight line.
+
+      If traveled &b{maxDistance}&7 or a block or an enemy is hit, the &4chain&7 retracts.
+
+      If an opponent is hit, they will be retracted &nwith the chain&7, take &c{damagePercent}&7 of their &c&ncurrent health&7 as &4damage&7, will be &3slowed&7 and &8withered&7 for short duration.
+
+      &8;;Additionally, the cooldown is reduced by 50%.
+  spiritual_bones:
+    name: Spiritual Bones
+    description: |
+      You may possess up to &b{MAX_BONES}&7 <named.spiritual_bones> that orbit around you.
+
+      &nEach&7 bone provides the following effects:
+      &b└ &7Deal &c&l{DAMAGE_AMPLIFIER_PER_BONE}% &7more damage &nper&7 bone.
+      &b└ &7Take &b&l{DAMAGE_REDUCE_PER_BONE}% &7less damage &nper&7 bone.
+      &b└ &7Heal for &c&l{HEALING_PER_BONE}% &c❤&7 &nper&7 bone of the damage dealt.
+
+      &8;;You will start with {START_BONES} bone.
+  #Juju
+  arrow_shield:
+    name: Arrow Shield
+    description: |
+      Creates a &eshield&7 of arrows for {duration} that blocks &nany&7 damage.
+
+      When hit, an arrow triggers a rapid &4explosion&7 in small &cAoE&7, dealing &cdamage&7, applying &2poison&7, and reducing <attribute.defense>.
+  tricks_of_the_jungle:
+    name: Tricks of the Jungle
+    description: |
+      Equip Elusive Arrows for &b8s&7.
+
+      &a&lElusive Arrows
+      &7&o;;Bloom upon impact into &a&omultiple&7&o arrows, dealing &c&oAoE &c&odamage&7&o.
+  juju_passive:
+    name: Climb
+    description: |
+      Raised by the &ajungle&7, Juju mastered the ability to &2climb&7 &nanything&7.
+
+      &6&lJUMP&7 no the wall to grab onto it and &bdescend&7 slowly.
+      &6&lSNEAK&7 to climb upwards.
+  #Swooper
+  blast_pack:
+    name: Blast Pack
+    description: |
+      &b1) &7Throw the blast pack!
+      &b2) &7Click again to explode!
+      &b3) &7???
+      &b4) &7Fly!
+  blink:
+    name: Blink
+    description: |
+      Teleport forward a short distance, passing through any non-solid blocks in the way.
+
+      Cannot teleport through walls.
+  #Shark
+  submerge:
+    name: Submerge
+    description: |
+      Swiftly submerge underground and dash forward revealing a hidden shark fin that deals damage and knocks back nearby enemies.
+  whirlpool:
+    name: Whirlpool
+    description: |
+      Create a whirlpool at your current location that pulls nearby enemies towards the center.
+  claw_critical:
+    name: Oceanborn/Sturdy Claws
+    description: |
+      &b&lOceanborn:
+      While in water, your speed and damage is drastically increased.
+
+      &b&lSturdy Claws:
+      Critical hits summons an ancient creature from beneath that deals extra damage and heals you!'
+  #Harbinger
+  stance:
+    name: Melee Stance
+    description: |
+      Enter <named.stance_melee> for maximum of &b{maxDuration}&7 to replace your bow with &x&3&4&9&8&d&bRaging Blade!
+      &8;;Also gain a Crit Chance increase while in this stance.
+
+      Use again in <named.stance_melee> to get your bow back.
+
+      &8;;The longer you're in Melee Stance, the longer the cooldown of this ability.
+  tidal_wave:
+    name: Tidal Vortex
+    description: |
+      Launch a &bgiant vortex&7 in front.
+
+      The vortex constantly &brushes&7 forward, applying <named.riptide> and &bpushing&7 enemies along with it.
+  riptide:
+    name: Riptide
+    description: |
+      &nFully&7 &ncharged&7 shots in <named.stance_range> or &bcritical&7 hits in <named.stance_melee> apply the <named.riptide> effect to enemies.
+
+      Hitting opponents affected by <named.riptide> in the aforementioned ways will trigger &bRiptide Slash&7, which rapidly deals damage.
+  #Cryptshade
+  saboteur:
+    name: Saboteur
+    description: |
+      Equip a &bhacking device&7; after a short &3casting time&7, hack all &copponents&7 in front of you, &bimplanting&7 a random <named.bug> onto them.
+
+      This ability can also hack &aSupply Packs&7, rendering them &4unobtainable&7 for &nyou&7 or your &nteammates&7 but &eimpairing&7 and &bimplanting&7 a random &fbug&7 onto an &cenemy&7 when they pick it up.
+  cipher_lock:
+    name: Cipher Lock
+    description: |
+      Equip a &bhacking device&7; after a short &3casting time&7, launch an &benergy blast&7 in front of you.
+
+      The energy &btravels forward&7 until it hits an &cenemy&7 or a &8block&7.
+
+      Upon hitting an &cenemy&7, &eimpair&7 them and &dlock&7 a random &dtalent&7 for &b{impairDuration}&7.
+  neural_theft:
+    name: Neural Theft
+    description: |
+      At &bintervals&7, &bhack&7 all &fbugged&7 opponents and send the data to &nyou&7 and your &nteammates&7.
+
+      &oThe data includes:
+      └ Enemy's &blocation&7.
+      └ Enemy's &c❤ Health&7.
+      └ Enemy's <named.energy>.
+
+      Also, &4steal&7 a small amount of <named.energy> from each hacked enemy.
+  #Shaman
+  totem:
+    name: Totem
+    description: |
+      Equip a &aTotem&7 and prepare to toss it.
+
+      After a &aTotem&7 lands, it &aactivates&7 and does one of the following actions every &b{interval}&7 based on the &3Resonance&7.
+    left:
+      name: "Resonate Discord"
+      description: |
+        Periodically deals &cdamage&7 to nearby &nenemies&7.
+    right:
+      name: "Resonate Harmony"
+      description: |
+        Periodically &aheals&7 all nearby &nallies&7.
+  totem_imprisonment:
+    name: Imprisonment
+    description: |
+      Imprison the &etarget&7 &cenemy&7 in a stone cage, preventing them from moving.
+  shaman_mark:
+    name: Shaman's Mark
+    description: |
+      Launch a projectile forward that travels up to &b{maxProjectileDistance} blocks&7.
+
+      If the projectile hits an &aally&7, it applies the &6Shaman's Mark&7 onto them.
+
+      &6Shaman's Mark
+      While active, increases <attribute.speed>, <attribute.attack> and <attribute.attack_speed>.
+
+      The mark exists &nindefinitely&7 as long as the &aally&7 is within the &bline of sight&7.
+
+      &8;;Only one mark can exist on a single ally at any given time.
+      &8;;Marks from different Shamans don't stack.
+  overheal:
+    name: Overheal
+    description: |
+      When &ahealing&7 an &a&nally&7 who is already at &c&nfull&7 &c&nhealth&7, the excess &ahealing&7 is converted into &x&5&5&f&f&5&5&2⚕ &x&5&5&f&f&5&5Overheal&7.
+
+      When &nyou&7 or &nyour&7 allies deal &cdamage&7, it's increased by your <named.overheal>.
+      &8;;The Overheal is consumed with the damage.
+  #Bounty Hunter
+  shorty:
+    name: Двустволка
+    description: |
+      Shoot you double barrel to deal &cdamage&7 that &nfalls&7 &noff&7 with &bdistance&7.
+
+      If hit &cenemy&7 is &bclose enough&7, they will &cBleed&7 and will be &bVulnerable&7 for &b{bleedDuration}&7.
+      &8;;Additionally, if used while on a Grapple Hook, the damage is increased.
+
+      &8;;This ability can be shot twice consecutively before reloading.
+  grapple:
+    name: Grappling Hook
+    description: |
+      Launch a &6grappling hook&7 that travels up to &b{maxDistance}&7.
+
+      Whenever it hits a &3block&7 or an &cenemy&7, it will pull &nyou&7 &ntowards&7 it.
+      &8;;The hook can be destroyed.
+
+      &8;;The cooldown of this ability stars after all the charges are used.
+  smoke_bomb:
+    name: Дымовая шашка
+    description: |
+      Whenever your &chealth&7 falls &nbelow&7 &c50%&7, you gain a &aSmoke Bomb&7.
+
+      Throw it to create a &8smoke field&7 that &3blinds&7 everyone inside it and grant you a &bspeed boost&7.
+  #Orc
+  orc_grown:
+    name: Growl of a Beast
+    description: |
+      Growl with your &a&lbeautiful&7 and &4dealy&7 void, scaring enemies in moderate range, &eimpairing&7 and &3slowing&7 them down.
+  orc_axe:
+    name: Топор
+    description: Equip and prepare your axe for action.
+    left:
+      name: "Вращение"
+      description: |
+        Вращает топор, &cнанося урон&7 и отталкивая врагов.
+    right:
+      name: "Рывок"
+      description: |
+        Сделать рывок вперед, &cнанося урон&7 the &nfirst&7 hit &cenemy.
+  orc_passive:
+    name: Don't Anger Me
+    description: |
+      &b&lDon't Anger Me
+      Taking &ncontinuous&7 &cdamage&7 within the set time window will trigger <named.berserk> for &b3s&7.
+  #Engineer
+  engineer_sentry:
+    name: Наблюдатель
+    description: |
+      Создает &bНаблюдателя&7 который будет &eотмечать&7 всех &cпротивников&7 поблизости.
+  engineer_turret:
+    name: Турель
+    description: |
+      Создает &cТурель&7, которая стреляет в &eближайшего &cврага&7.
+  engineer_recall:
+    name: Возврат
+    description: |
+      Уничтожает текущую постройку, восстанавливая 25% первоначальной цены.
+  engineer_passive:
+    name: Магнитное притяжение
+    description: |
+      Каждые пару секунд вы будете получать железный слиток.
+      Используйте слитки, что-бы строить штуки!
+  #Bloodfiend
+  twin_claws:
+    name: Twin Claws
+    description: |
+      Launch two &6giant claws&7. One in front, one behind.
+
+      If a &6claw&7 hits an &cenemy&7, it deals &c{twinClawDamage} ❤ &cdamage&7 to them.
+      &8;;Bitten enemies suffer more damage.
+  candlebane:
+    name: Candlebane Pillar
+    description: |
+      &bTaunted&7 player will suffer &c{damagePerInterval}&7 damage every &b{interval}&7.
+    description_2: |
+      The pillar must be compacted by alternating &eleft&7 and &6right&7 clicks.
+  blood_chalice:
+    name: Blood Chalice
+    description: |
+      The chalice will convert &c{healingPercent}&7 of damage dealt into healing.
+      &8&o;;Only against taunted player.
+    description_2: |
+      Hitting the chalice will cause it to change location and &ccrack&7 a little.
+      &8&o;;Doing so {chaliceHealth} times will cause chalice to break.
+  blood_cup:
+    name: Blood Cup
+    description: |
+      Biting &cenemies&7 has a &b&l{chance}&7 to drain &cblood&7 from them.
+
+      Drinking the &cblood&7 &aheals&7 you for &c{healingPerBottle} &c❤&7 per &cblood&7 per &cblood&7.
+  succulence:
+    name: Vampire's Bite/Spectral Form
+    description: |
+      &b&lVampire's Bite
+      Your hits will inflict &csucculence&7 for &b{biteDuration}&7.
+
+      &cBitten &7players will suffer health reduction and can be affected by your abilities.
+
+      &b&lSpectral Form
+      &6&lDOUBLE JUMP&7 to summon a swarm of bats and ride them, allowing to move swiftly for a short duration.
+
+      You &ccannot&7 transfer vertically.
+      You &acan&7 use talents, deal and take damage.
+  #Zealot
+  broken_heart_radiation:
+    name: Broken Heart Radiation
+    description: |
+      Create four radiation beams that spin around you for {duration}.
+
+      If a beam touches an enemy, it deals &c{beamDamage} ❤&7 damage and reduces <attribute.vitality> by &c{mendingReduction}&7 and <attribute.defense> by &c{defenseReduction}&7 for &b{effectDuration}.
+  malevolent_hitshield:
+    name: Malevolent Hitshield
+    description: |
+      Gain a &eshield&7 for &b{shieldStrength}&7 hits, reduced on hit &nregardless&7 of damage.
+  malediction_veil:
+    name: Malediction Veil
+    description: |
+      Emmit an aura that applies <named.curse_of_greed> in a small AoE for {duration}.
+
+      <named.curse_of_greed>:
+      └ Decreases <attribute.vitality> by &b{mendingDecrease}&7.
+      └ &nYour&7 hits ignore &2{defenseIgnore}&7 <attribute.defense>.
+##########
+#Heroes #
+##########
+hero:
+  archer:
+    name: Лучник
+    description: |
+      Один из лучших лучников присоединяется к бою! Не один, а с &3самодельным &8&oлуком.
+    weapon:
+      name: Лук Судьбы
+      description: |
+        Самодельный лук с уникальными способностями!
+    ultimate:
+      name: Boom Bow
+      description: |
+        Equip a &6&lBOOM BOW &7for {duration} that fires explosive arrows that explode on impact dealing with massive &ftrue damage&7.
+  alchemist:
+    name: Алхимик
+    description: |
+      Алхимик, обманутая порождением бездны. В обмен на помощь, она получила бутылку бездны, которая создает зелья из &8самой &0&lбездны.
+    weapon:
+      name: Палка
+      description: |
+        Оказывается, что палка, используемая в пивоварении, также может быть использована в бою.
+    ultimate:
+      name: Алхимическое Безумие
+      description: |
+        Вызывает самые темные заклинания для случайного применения &c&lОтрицательного &7эффекта на ваших врагов на &b15 секунд &7, и случайного &a&Положительного &7эффекта для себя на &b30 секунд&7.
+  moonwalker:
+    name: Moonwalker
+    description: Путешественник с другой планеты... или, скорее, Луны? Он имеет свои навыки и... планеты... при себе!
+    weapon:
+      name: Stinger
+      description: |
+        Уникальный лук из неизвестных материалов... Кажись имеет два режима стрельбы.
+    ultimate:
+      name: Moonteorite
+      description: |
+        Привызает огромный метеорит в место &eцелиt&7 
+
+        При приземлении, создает большой взрыв, наносящий огромный урон и наносящий &6&lКоррозию&7 на &b{corrosionTime}&7.
+  hercules:
+    name: Геркулес
+    description: |
+      The greatest warrior of all time - "The Great Hercules" descended from heaven to punish the infidels! Super-Duper strong punches give you a chance to win.
+    weapon:
+      name: Gorynych
+      description: |
+        A loyal trident which will return to you no matter what!
+    ultimate:
+      name: Crush the Ground
+      description: |
+        Call upon divine power to increase your &ejump height &7and &cplunging damage&7 for {duration}.
+  mage:
+    name: Маг
+    description: |
+      Некромант с возможностью поглощать фрагменты душ при попадании во врагов, чтобы использовать их в качестве топлива для его &e& &e&lПожирателя душ&7.
+    weapon:
+      name: Пожиратель душ
+      description: |
+        Оружие, способное поглощать фрагменты душ и превращать их в топливо.
+    ultimate:
+      name: Magical Trainings
+      description: |
+        Retrieve two ancient spells and use one of them to your advantage!
+
+        &a&lHeart of Wyvern
+        Consume to &cheal&7 yourself, gain &bspeed&7 boost but suffer <attribute.attack> reduction.
+
+        &a&lDragon's Skin
+        Consume to gain &cincredible strength&7, but suffer <attribute.speed> reduction.
+
+        Only one of the spells can be used at the same time, and you will &nnot&7 gain <named.energy> &7until spell is over.
+  pytaria:
+    name: Pytaria
+    description: |
+      Beautiful, but deadly opponent with addiction to flowers. She suffered all her youth, which, in the end, only made her stronger.
+    weapon:
+      name: Annihilallium
+      description: |
+        A beautiful flower, nothing more.
+    ultimate:
+      name: Feel the Breeze
+      description: |
+        Summon a blooming &6Bee&7 in front of &aPytaria&7.
+
+        The Bee will lock on the closest enemy and charge for {cast}.
+
+        Once charged, the &6Bee&7 creates an explosion at the locked location, dealing damage in small &eAoE&7.
+
+        Also regenerates &c{healthRegenPercent}% ❤&7 of &aPytaria's&7 missing health.
+  troll:
+    name: Тролль
+    description: |
+      Не очень хороший боец.. Но безусловно хороший тролль!
+    weapon:
+      name: Stickonator
+      description: |
+        - What's brown and sticky?
+        - What?
+        - A stick!
+        - ...
+    ultimate:
+      name: Sticky Situation
+      description: |
+        Spawns a batch of cobwebs at your position that is only visible for your opponents.
+
+        &8;;Only one batch can exist at the same time.
+  nightmare:
+    name: Кошмар
+    description: |
+      Дух из худших кошмаров, ослепляющий врагов и атакующий позади!
+    weapon:
+      name: Клятвопреступник
+      description: |
+        Меч, способный разрезать мечты пополам.
+    ultimate:
+      name: Твой Худший Кошмар
+      description: |
+        Применяет эффект &4👻 &c&lOmen&7 всем живым врагам на {duration}.
+  dr_ed:
+    name: Dr. Ed
+    description: |
+      Simply named scientist with not so simple inventions...
+    weapon:
+      name: Dr. Ed's Gravity Energy Capacitor Mk. 3
+      description: |
+        A tool that is capable of absorbing block elements.
+    ultimate:
+      name: Upgrades People, Upgrades!
+      description: |
+        Grants Dr. Ed an upgraded version of &a<hero.dr_ed.weapon.name>&7 for {duration} that is capable of capturing entities' flesh and energy, allowing to manipulate them.
+  ender:
+    name: Ender
+    description: |
+      Странный боец, выглядящий как Странник Края со способностью телепортироваться.
+      Он бьет рукой, но боль словно от кирпича.
+    weapon:
+      name: Кулак
+      description: |
+        Просто обычный кулак.
+    ultimate:
+      name: Transmission!
+      description: |
+        Моментально телепортирует к &b&lМаяку &b&lПеремещения &7, и собирает его для дальнейшего использования.
+  spark:
+    name: Spark
+    description: |
+      Strikes as fire with his fire abilities.
+    weapon:
+      name: Fire Sprayer
+      description: |
+        A long range weapon that can shoot fire lasers in front of you! How cool is that...
+    ultimate:
+      name: Возврат
+      description: |
+        Моментально помечает место использования на {duration}.
+
+        При смерти или окончании ульты, безопасно перемещает обратно к месту использования, возвращая ХП, которое было при использовании.
+  shadow_assassin:
+    name: Shadow Assassin
+    description: |
+      Well-trained assassin from dimension of shadows.
+      Capable of switching between being &9Stealth&8&o, and &cFurious&8&o.
+    weapon:
+      name: Livid Dagger
+      description: |
+        A dagger made of bad memories.
+    ultimate:
+      name: Extreme Focus
+      description: |
+        Enter {name} for {duration}.
+
+        While active, your &amelee&7 attacks will &nnot&7 miss if an enemy is close enough and has no cover.
+
+        You cannot perform &eShadow Stab&7 while {name} is active.
+  witcher:
+    name: The Witcher
+    description: |
+      Some say that he's the most trained Witcher ever; Well versed in any kind of magic...
+    weapon:
+      name: Aerondight
+      description: |
+        Light, sharp as a razor, and fits the hand neatly.
+    ultimate:
+      name: All the Trainings
+      description: |
+        Remember all your trainings and unleash them at once.
+
+        Gaining a <attribute.defense> increase and the <talent.irden.name> aura that follows you for {duration}.
+        &8;;After the duration ends, <talent.kven.name> and <talent.irden.name> start their cooldown.
+  vortex:
+    name: Vortex
+    description: |
+      A young boy with the power of speaking to stars...
+    weapon:
+      name: Sword of Thousands Stars
+      description: |
+        A sword with an astral link to the stars.
+    ultimate:
+      name: All the Stars
+      description: |
+        Instantly create &b10 &eAstral Stars&7 around you.
+
+        After a short delay, &brapidly&7 slash between them, &cdealing damage&7 in a process before finishing with a &4final blow&7 that &bslows&7 enemies.
+
+        &8;;This will not affect already placed stars.
+  freazly:
+    name: Frostbite
+    description: |
+      A very cold entity to the touch.
+    weapon:
+      name: Snow Shovel
+      description: |
+        An ordinary shovel used for shoveling the snow.
+    ultimate:
+      name: Eternal Freeze
+      description: |
+        Unleash the {name} upon your enemies, creating a massive &f&lsnow field&7 that &4debuffs&7 enemies.
+
+        The field orbits around for {duration}:
+        └ &bDecreasing&7 enemies <attribute.crit_chance> and <attribute.crit_damage>.
+        └ &bSlowing&7 and &bimpairing&7 vision.
+        └ Increasing cooldowns.
+  dark_mage:
+    name: Dark Mage
+    description: |
+      A mage that was cursed by &8&lDark &8&lMagic&8&o. But even it couldn't kill him...
+    weapon:
+      name: Ancient Wand
+      description: |
+        An ancient item capable of casting the darkest of spells...
+    ultimate:
+      name: Witherborn
+      description: |
+        Raised by the &8Withers&7, they will always assist you in battle.
+
+        While &cattacking&7, the &8Wither&7 will unleash a &acoordinated&7 attack.
+
+        While &acastring&7 a spell, it will be &aimproved&7, and the cooldown is &breduced&7.
+
+        After {duration}, the &8Wither&7 will leave.
+  blast_knight:
+    name: Blast Knight
+    description: |
+      Royal Knight with high-end technology gadgets.
+    weapon:
+      name: Royal Sword
+      description: |
+        A royal sword, forget of the best quality ore possible.
+
+        It has tiny golden ornate pieces on the edge of the handle.
+    ultimate:
+      name: Nanite Rush
+      description: |
+        Instantly release a &dNanite Swarm&7 that &brushes&7 upwards, creating a &eshield&7 and rapidly &aregenerates&7 all existing shields.
+  ninja:
+    name: Ninja
+    description: |
+      An extremely well-trained fighter with a gift from the wind.
+    weapon:
+      name: 斬馬刀
+      description: Light but sharp sword.
+    ultimate:
+      name: Throwing Stars
+      description: Equip &b5&7 dead-accurate &6throwing stars&7 that deal &c20&7 damage upon hitting an enemy.
+  taker:
+    name: Taker
+    description: |
+      Will take your life away!
+    weapon:
+      name: Reaper Scythe
+      description: |
+        The sharpest of them all!
+    ultimate:
+      name: Embodiment of Death
+      description: |
+        Instantly consume all <named.spiritual_bones> to cloak yourself in the &8darkness&7 for {duration}.
+
+        After a short delay, embrace the death and become &binvulnerable&7.
+
+        The &8darkness&7 force will constantly &brush forward&7, dealing &cAoE damage&7 and &eimpairing&7 anyone who dares to stay in the way.
+        &8;;Also recover health every time an enemy is hit.
+
+        Hold &6&lSNEAK&7 to rush slower.
+
+        &8;;The damage and healing is scaled with 🦴 Spiritual Bones consumed.
+  juju:
+    name: Juju
+    description: |
+      Бандит из глубин джунглей. Высококвалифицированный в дальнем бою.
+    weapon:
+      name: Twisted
+      description: |
+        Лук из всего, что можно найти в джунглях.
+    ultimate:
+      name: Poison Ivy Arrow
+      description: |
+        Equip Poison Ivy Arrow for &b4s&7.
+
+        &a&lPoison Ivy Arrow
+        &7&o;;Creates a §a§otoxic zone&7&o upon impact that reduces <attribute.defense>&7&p and deals &brapid&7&o damage.
+  swooper:
+    name: Swooper
+    description: |
+      A sniper with slow firing rifle, but fast ways to move around the battlefield.
+    weapon:
+      name: Снайперская Винтовка
+      description: |
+        Медленно-Стреляющая винтовка с большим уроном.
+
+        &6&lПРИСЯДЬТЕ&7, чтобы активировать снайперский прицел, увеличивающий максимальную дальность и урон винтовки.
+    ultimate:
+      name: Гасим свечи!
+      description: |
+        Экипирует ракетомет на {duration}.
+
+        &6&lНАЖМИТЕ &7, чтобы выпустить ракету, наносящую огромный урон по большой области при контакте.
+  tamer:
+    name: Tamer
+    description: |
+      A former circus pet trainer who gained the ability to tame the elements.
+    weapon:
+      name: Lash
+      description: An old lash used to train beasts and monsters.
+    ultimate:
+      name: Improve! Overcome!
+      description: |
+        Improve the &bduration&7 and &aeffectiveness&7 of your talents and beasts.
+  shark:
+    name: Shark
+    description: |
+      Strong warrior from the &3Depth of Waters&8&o... not well versed in on-land fights but don't let it touch the water, or you'll regret it.
+    weapon:
+      name: Claws
+      description: |
+        Using one's claws is a better idea than using a stick, don't you think so?
+    ultimate:
+      name: Ocean Madness
+      description: |
+        Creates a &bShark Aura &7that follow you for {duration} and imitates water.
+  techie:
+    name: Cryptshade
+    description: |
+      Anonymous hacker, who hacked his way to the fight.
+      Specializes in locking enemies abilities.
+    weapon:
+      name: Nano Sword
+      description: добавь описание идиот
+    ultimate:
+      name: Lockdown
+      description: |
+        Equip a &bhacking device&7; after a &nlong&7 &3casting time&7, &coverload&7 all implanted <named.bug>.
+
+        &cOverloading&7 the &fbugs&7 &cimplodes&7 them, causing affected enemies' &btalents&7 to be &dlocked&7.
+        &8;;Overloading bugs causes them to break.
+
+        In addition, all &cenemies&7 &4lose&7 &nhalf&7 of their <named.energy>.
+  harbinger:
+    name: Harbinger
+    description: |
+      She is a harbinger of unknown organization. Nothing else is known.
+    weapon:
+      name: Лук
+      description: |
+        Обычный лук.
+    ultimate:
+      name: Crowned Mastery
+      description: |
+        Gather the surrounding energy to execute a &cfatal strike&7 based on your &ncurrent&7 &nstance&7.
+
+        &6In Range Stance
+        Shoots a magic arrow in front of you that explodes upon impact, dealing moderate &cAoE damage&7 and applying <named.riptide>.
+
+        &6In Melee Stance
+        Performs a slash around you that deals significant &cAoE damage&7.
+
+        If an enemy is affected by §x§0§0§b§c§d§4§l💦 §x§0§0§b§c§d§4Riptide&7, the damage is &cincreased&7 and the <named.riptide> is removed.
+  shaman:
+    name: Shaman
+    description: |
+      An orc from the jungle. Well versed in magic
+    weapon:
+      name: Bamboo Stick
+      description: |
+        An ordinary stick found in the jungle.
+    ultimate:
+      name: Spiritual Cleansing
+      description: |
+        Instantly cleanse all &cnegative&7 effects from nearby &aallies&7.
+
+        Also increase their <attribute.effect_resistance> for &b{effectResIncreaseDuration}&7.
+  bounty_hunter:
+    name: Bounty Hunter
+    description: |
+      She is a skilled bounty hunter.
+
+      &8&o;;`Jackpot! Everyone here's got a bounty on their head.`
+    weapon:
+      name: Iron Sword
+      description: |
+        add description idot
+    ultimate:
+      name: Удар в Спину
+      description: |
+        Instantly &bteleport&7 behind the &etarget&7 player, &cstabbing&7 them from behind.
+  engineer:
+    name: Инженер
+    description: |
+      Гений с 12 докторскими степенями. Все его постройки он сделал сам. Правда, он использует только две из них.
+      И лучше надеяться, что они не целятся в вас.
+    weapon:
+      name: Прототип Гаечного Ключа
+      description: |
+        Прототип Гаечного Ключа для всех надобностей.
+        Это наверное больно, когда им бьют..
+    ultimate:
+      name: Механо-Индустрия
+      description: |
+        Моментально создает &fмеханический костюм&7 и дает управление над ним на {duration}.
+
+        Костюм добавляет силу &cattack&7.
+        &8;;Кажись из него торчит провод, лучше держаться подальше от воды.
+  orc:
+    name: Pakarat Rakab
+    description: Описания нет.
+    weapon:
+      name: Poleaxe
+      description: A sharp poleaxe.
+    ultimate:
+      name: Berserk
+      description: |
+        Enter <named.berserk> for {duration}.
+
+        While active, gain:
+        • &aIncreased <attribute.attack>.
+        • &aIncreased <attribute.attack>.
+        • &aIncreased <attribute.crit_chance>.
+        • &c-60 <attribute.defense>.
+  bloodfiend:
+    name: Bloodfiend
+    description: |
+      A vampire prince with a sunscreen.
+    weapon:
+      name: Vampire's Fang
+      description: добавь описание идиот
+    ultimate:
+      name: Impel
+      description: |
+        After a short casting time, impel all &cbitten &cenemies&7 for {duration}.
+        &8&o;;While casting, transform into a bat and fly freely.
+
+        While impelled, enemies &nmust&7 obey &b&l4 &7of your commands.
+
+        If &4failed&7 to obey a command, they will suffer &c30&7 ❤ damage.
+  zealot:
+    name: Zealot
+    description: No description provided.
+    weapon:
+      name: Psionic Blade
+      description: |
+        An ordinary space katana.
+    ultimate:
+      name: Blade Barrage
+      description: |
+        Command &ntwo&7 &egiant swords&7 to appear and &bfollow&7 you for {duration}.
+
+        Swinging &nyour&7 katana will also &nswing&7 the &egiant swords&7.
+        &8;;The swords swing in turns.
+
+        &bPsionic Blade
+        Decreases &cenemies <attribute.defense> &7and damages them.
+
+        &eSoul Blade
+        Increases your <attribute.ferocity> by &c{ferocityIncrease}&7 and deals &cdamage&7 to enemies.
+##########
+#Errors #
+##########
+error:
+  invalid_argument: "Неверный аргумент!"

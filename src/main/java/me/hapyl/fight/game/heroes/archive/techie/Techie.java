@@ -3,6 +3,7 @@ package me.hapyl.fight.game.heroes.archive.techie;
 import me.hapyl.fight.event.custom.GameDeathEvent;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -19,6 +20,7 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.game.ui.UIComplexComponent;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
@@ -33,8 +35,9 @@ import org.bukkit.inventory.meta.trim.TrimPattern;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.Set;
 
-public class Techie extends Hero implements UIComplexComponent, Listener, PlayerDataHandler, DisplayFieldProvider {
+public class Techie extends Hero implements UIComplexComponent, Listener, PlayerDataHandler<TechieData>, DisplayFieldProvider {
 
     @DisplayField private final int lockdownTalentLockDuration = Tick.fromSecond(30);
     @DisplayField private final double ultimateDistance = 20;
@@ -43,7 +46,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
     private final int neuralTheftDuration = 40;
     private final int neuralTheftEnergy = 4;
 
-    private final PlayerMap<TechieData> playerData = PlayerMap.newMap();
+    private final PlayerDataMap<TechieData> playerData = PlayerMap.newDataMap(TechieData::new);
     private final String neuralTheftTitle = "&3&lɴᴇᴜʀᴀʟ ᴛʜᴇғᴛ";
 
     private final TemperInstance temperInstance = Temper.LOCKDOWN
@@ -51,15 +54,14 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
             .decrease(AttributeType.SPEED, 0.1) // 50%
             .decrease(AttributeType.ATTACK_SPEED, 0.5);
 
-    public Techie() {
-        super("Cryptshade");
+    public Techie(@Nonnull Heroes handle) {
+        super(handle, "Cryptshade");
 
         setArchetype(Archetype.HEXBANE);
         setAffiliation(Affiliation.UNKNOWN);
 
         setDescription("""
-                Anonymous hacker, who hacked his way to the fight.
-                Specializes in locking enemies abilities.
+                Anonymous hacker, who hacked his way to the fight. Specializes in locking enemies abilities.
                 """);
 
         setItem("4e3b15e5eb0ada16e2e1751644bdc28e0ceae8d398439a6b8037d4da097b9c37");
@@ -68,6 +70,9 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
                 "ewogICJ0aW1lc3RhbXAiIDogMTYwMzY0NTY4MTg5NywKICAicHJvZmlsZUlkIiA6ICI3MjI2Mjg2NzYyZWY0YjZlODRlMzc2Y2JkYWNhZjU1NyIsCiAgInByb2ZpbGVOYW1lIiA6ICJicmFuZG9uZDI2IiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzRlM2IxNWU1ZWIwYWRhMTZlMmUxNzUxNjQ0YmRjMjhlMGNlYWU4ZDM5ODQzOWE2YjgwMzdkNGRhMDk3YjljMzciCiAgICB9CiAgfQp9",
                 "DYpJG7/gq5paUh9/xrymHlyg1pI5vQ5rWmU8/x+RdUInYVa0TO4Of5b+V1USEg3yGVG3ncwfuOim9kK7qbDXW+Hg0wYbgXr9UYHA3MegKDhov/+DVWPowAQ/FOnNuMhVgG0hFT2UDn8sl2VtaRZbYn3Z8w28By7/pp/9jST38Jcf98aA/JCHpatVGw8hJIlcy5fsAUzujULDUNclfml6jzjoahHOo9A2JYR3wdzaV8bRyTdYLVvyenMUq3y6IcQGnqKV3hfOwrtlP2AXDI8YyUZbf2ISfc+47D6tJeCxAJJQ8rViWgZbLR+Ld7qJq9mQOuZkhZ4+XPQ1FonMTZ5RBhEEn+djoui6JHB/nGPvRIqjBO02PWhXylrjQber8qhRRiD53cx+FIyq9Ccqq4Uh6uhtrbNCxJuouPrjsOdD8uqkM4Hyj75jfG71aYJrygB0M5z7P6NmHbnYYG4tUa5bvz1/YnZymUq8re6X5qDzfBGSMn7LsU/EBwSzmyg04rHlr8xI8yFZMKOBJi8PbwYf7z5E/atA46eqHjeOQiOcso6aY+6GqeF9Upd8OybGDA1SU+RfREVZCNk91MHxwhJrtU8yTMxiL70n7YRmek4hkiOfrdkqrgER6p/1lftJsjpU9MYtN0S1mN/oeong9MVE0EVmgapW4y+Zi4mEGBodqsg="
         ));
+
+        final HeroAttributes attributes = getAttributes();
+        attributes.setSpeed(110);
 
         final Equipment equipment = getEquipment();
         equipment.setChestPlate(245, 245, 245, TrimPattern.TIDE, TrimMaterial.NETHERITE);
@@ -78,7 +83,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
                 .setDamage(6.0d)
                 .addEnchant(Enchantment.KNOCKBACK, 1));
 
-        setUltimate(new UltimateTalent("Lockdown", """
+        setUltimate(new UltimateTalent(this, "Lockdown", """
                 Equip a &bhacking device&7; after a &nlong&7 &3casting time&7, &coverload&7 all implanted %s&fs.
                                 
                 &cOverloading&7 the &fbugs&7 &cimplodes&7 them, causing affected enemies' &btalents&7 to be &dlocked&7.
@@ -94,11 +99,6 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
         copyDisplayFieldsTo(getUltimate());
     }
 
-    @Override
-    public void onDeath(@Nonnull GamePlayer player) {
-        playerData.removeAnd(player, PlayerData::remove);
-    }
-
     @EventHandler()
     public void handleGameDeathEvent(GameDeathEvent ev) {
         final LivingGameEntity entity = ev.getEntity();
@@ -106,23 +106,30 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
         playerData.forEach((player, data) -> data.remove(entity));
     }
 
-    @Override
-    public void onStop() {
-        playerData.forEachAndClear(PlayerData::remove);
-    }
-
-    public void revealEntity(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity) {
+    public void revealEntity(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity, @Nonnull Set<BugType> bugs) {
         entity.setGlowing(player, ChatColor.AQUA, neuralTheftDuration);
 
         final Hologram hologram = new Hologram()
                 .create(entity.getLocationToTheLeft(1.5).add(0, 0.5, 0))
-                .setLinesAndUpdate(
+                .setLines(
                         neuralTheftTitle, // todo: Maybe add some classified name for lore here
                         "&fName: " + entity.getName(),
-                        "&cHealth: " + entity.getHealthFormatted(),
-                        "&bUltimate: " + (entity instanceof GamePlayer entityPlayer ? entityPlayer.getUltimateString() : "&kundefined")
-                )
-                .show(player.getPlayer());
+                        "&cHealth: " + entity.getHealthFormatted()
+                );
+
+        if (entity instanceof GamePlayer gamePlayer) {
+            hologram.addLine("&bUltimate: " + gamePlayer.getUltimateString());
+        }
+
+        final StringBuilder builder = new StringBuilder();
+        for (BugType bug : bugs) {
+            builder.append(bug.getName()).append(" ");
+        }
+
+        hologram.addLine("&4Bugs: " + builder.toString().trim());
+        hologram.updateLines();
+
+        hologram.show(player.getPlayer());
 
         GameTask.runLater(hologram::destroy, neuralTheftDuration).setShutdownAction(ShutdownAction.IGNORE);
 
@@ -143,7 +150,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
 
                     for (LivingGameEntity entity : data) {
                         player.getTeam().getPlayers().forEach(teammate -> {
-                            revealEntity(teammate, entity);
+                            revealEntity(teammate, entity, data.getBugs(entity));
                         });
 
                         // Steal energy
@@ -259,8 +266,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
 
     @Nonnull
     @Override
-    public TechieData getPlayerData(@Nonnull GamePlayer player) {
-        return playerData.computeIfAbsent(player, TechieData::new);
+    public PlayerDataMap<TechieData> getDataMap() {
+        return playerData;
     }
-
 }

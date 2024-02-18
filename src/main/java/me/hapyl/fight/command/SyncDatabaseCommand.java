@@ -23,7 +23,7 @@ public class SyncDatabaseCommand extends SimplePlayerAdminCommand {
 
         final PlayerDatabase playerDatabase = profile.getDatabase();
 
-        playerDatabase.sync();
+        playerDatabase.save();
         Chat.sendMessage(player, "&aSynced database!");
     }
 }

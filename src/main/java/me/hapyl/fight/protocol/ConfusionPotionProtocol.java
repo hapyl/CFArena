@@ -8,7 +8,7 @@ import com.comphenix.protocol.reflect.StructureModifier;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.spigotutils.module.reflect.protocol.ProtocolListener;
 import me.hapyl.spigotutils.module.util.Runnables;
 import me.hapyl.spigotutils.module.util.ThreadRandom;
@@ -42,7 +42,7 @@ public class ConfusionPotionProtocol extends ProtocolListener {
 
         final GamePlayer gamePlayer = CF.getPlayer(player);
 
-        if (gamePlayer == null || !gamePlayer.hasEffect(GameEffectType.AMNESIA)) {
+        if (gamePlayer == null || !gamePlayer.hasEffect(Effects.AMNESIA)) {
             return;
         }
 

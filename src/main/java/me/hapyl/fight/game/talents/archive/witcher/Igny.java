@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.archive.witcher;
 
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
@@ -27,11 +27,11 @@ public class Igny extends Talent {
 
     public Igny() {
         super("Igni", """
-                Fires blazing spirits in front of you that deal damage and set enemies on fire.
-                                
-                Damage and burning duration fall off with distance.
+                Fire &cblazing spirits&7 in front of you that deal &cAoE damage&7 and set &cenemies&7 on &6fire&7.
+                &8;;Damage and burning duration falls off with distance.
                 """);
 
+        setType(Type.DAMAGE);
         setItem(Material.BLAZE_POWDER);
         setCooldownSec(10);
     }
@@ -42,7 +42,7 @@ public class Igny extends Talent {
         final Location targetLocation = location.add(player.getLocation().getDirection().multiply(3));
 
         Collect.nearbyEntities(targetLocation, maximumDistance).forEach(target -> {
-            if (target.equals(player)) {
+            if (player.isSelfOrTeammate(target)) {
                 return;
             }
 

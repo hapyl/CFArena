@@ -12,14 +12,6 @@ import java.util.LinkedList;
  */
 public class TalentQueue {
 
-    public static final TalentQueue EMPTY = new TalentQueue(null) {
-        @Nonnull
-        @Override
-        public GamePlayer getPlayer() {
-            throw new IllegalStateException("empty talent queue");
-        }
-    };
-
     private final GamePlayer player;
     private final LinkedList<Talent> queue;
 
@@ -40,7 +32,7 @@ public class TalentQueue {
      */
     @Nonnull
     public LinkedList<Talent> getLast(int n) {
-        if (queue.size() == 0) {
+        if (queue.isEmpty()) {
             return new LinkedList<>();
         }
 

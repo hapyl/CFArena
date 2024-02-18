@@ -3,6 +3,7 @@ package me.hapyl.fight.game.entity;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.Award;
@@ -15,13 +16,16 @@ import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
+import me.hapyl.fight.game.damage.DamageFlag;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.ping.PlayerPing;
 import me.hapyl.fight.game.entity.shield.Shield;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.PlayerDataHandler;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.loadout.HotbarLoadout;
 import me.hapyl.fight.game.loadout.HotbarSlots;
@@ -36,20 +40,18 @@ import me.hapyl.fight.game.talents.TalentQueue;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.game.task.PlayerGameTask;
+import me.hapyl.fight.game.task.player.IPlayerTask;
+import me.hapyl.fight.game.task.player.PlayerGameTask;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.display.AscendingDisplay;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.game.weapons.range.RangeWeapon;
-import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.util.ItemStacks;
-import me.hapyl.fight.util.Ticking;
+import me.hapyl.fight.translate.Language;
+import me.hapyl.fight.util.*;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.math.Tick;
-import me.hapyl.spigotutils.module.player.EffectType;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.Reflect;
 import me.hapyl.spigotutils.module.reflect.ReflectPacket;
@@ -59,6 +61,7 @@ import net.minecraft.network.protocol.game.PacketPlayOutAnimation;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
@@ -67,10 +70,12 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
+import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -80,23 +85,25 @@ import java.util.function.Consumer;
  * <p>
  * <b>A single instance should exist per game bases and cleared after the game ends.</b>
  */
-public class GamePlayer extends LivingGameEntity implements Ticking {
+public class GamePlayer extends LivingGameEntity implements Ticking, PlayerElement.Caller {
 
-    private static final long COMBAT_TAG_DURATION = 5000L;
-    private static final double HEALING_AT_KILL = 0.3d;
-    private static final String SHIELD_FORMAT = "&e&l%.0f &e🛡";
+    public static final double HEALING_AT_KILL = 0.3d;
+    public static final double ASSIST_DAMAGE_PERCENT = 0.5d;
+    public static final long COMBAT_TAG_DURATION = 5000L;
+    public static final String SHIELD_FORMAT = "&e&l%.0f &e🛡";
 
     private final StatContainer stats;
     private final TalentQueue talentQueue;
     private final PlayerTaskList taskList;
     private final TalentLock talentLock;
     private final PlayerPing playerPing;
+    private final Map<MoveType, Long> lastMoved;
     public boolean blockDismount;
+    private int sneakTicks;
     @Nonnull
     private PlayerProfile profile;
     private int ultPoints;
     private double ultimateModifier;
-    private long lastMoved;
     private long combatTag;
     private int killStreak;
     private InputTalent inputTalent;
@@ -110,13 +117,15 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         this.ultimateModifier = 1.0d;
         this.talentQueue = new TalentQueue(this);
         this.stats = new StatContainer(this);
-        this.lastMoved = System.currentTimeMillis();
+        this.lastMoved = Maps.newHashMap();
         this.combatTag = 0L;
         this.attributes = new EntityAttributes(this, profile.getHeroHandle().getAttributes());
         this.taskList = new PlayerTaskList(this);
         this.shield = null;
         this.talentLock = new TalentLock(this, profile.getHeroHandle());
         this.playerPing = new PlayerPing(this);
+
+        markLastMoved();
     }
 
     public int getTalentLock(@Nonnull HotbarSlots slot) {
@@ -136,18 +145,29 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
         super.tick();
         talentLock.tick();
+
+        sneakTicks = isSneaking() ? sneakTicks + 1 : 0;
     }
 
-    public void resetPlayer(Ignore... ignores) {
+    public int getSneakTicks() {
+        return sneakTicks;
+    }
+
+    /**
+     * Resets all the player data.
+     * Called upon respawn or start of the game.
+     */
+    public void resetPlayer() {
         final Player player = getEntity();
 
         killStreak = 0;
         combatTag = 0;
         noCCTicks = 0;
+        sneakTicks = 0;
         talentLock.reset();
 
         // Actually stop the effects before applying the data
-        entityData.getGameEffects().values().forEach(ActiveGameEffect::forceStop);
+        entityData.getGameEffects().values().forEach(ActiveGameEffect::forceStopIfNotInfinite);
         entityData.getDotMap().clear(); // if not needed, don't touch, else implement custom hash map
 
         // Reset attributes
@@ -175,7 +195,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         player.getActivePotionEffects().forEach(effect -> this.entity.removePotionEffect(effect.getType()));
 
         // Reset attributes
-        defaultVanillaAttributes();
+        applyAttributes();
 
         setOutline(Outline.CLEAR);
 
@@ -184,24 +204,14 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         inputTalent = null;
         shield = null;
 
-        if (isNotIgnored(ignores, Ignore.GAME_MODE)) {
-            player.setGameMode(GameMode.SURVIVAL);
-        }
-
-        // If a player is in spectator - forcefully enable flight
-        if (player.getGameMode() == GameMode.SPECTATOR) {
-            player.setAllowFlight(true);
-            player.setFlying(true);
-        }
+        player.setGameMode(GameMode.SURVIVAL);
 
         // reset all cooldowns as well
-        if (isNotIgnored(ignores, Ignore.COOLDOWNS)) {
-            for (final Material value : Material.values()) {
-                if (value.isItem() && player.hasCooldown(value)) {
-                    player.setCooldown(value, 0);
-                }
+        Materials.iterate(MaterialCategory.ITEM, item -> {
+            if (player.hasCooldown(item)) {
+                player.setCooldown(item, 0);
             }
-        }
+        });
     }
 
     /**
@@ -235,7 +245,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         final Player player = getEntity();
 
         Glowing.stopGlowing(player);
-        resetPlayer();
+        //resetPlayer(); // maybe don't reset player here actually
 
         // Reset skin if was applied
         final PlayerSkin skin = hero.getHero().getSkin();
@@ -244,7 +254,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
             PlayerSkin.reset(player);
         }
 
-        show();
+        showPlayer();
 
         // Keep winner in survival, so it's clear for them that they have won
         final boolean isWinner = instance.isWinner(player.getPlayer());
@@ -273,8 +283,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
     @Override
     public void onDeath() {
-        // Don't call super since it calls remove()
-        getMemory().forgetEverything();
+        super.onDeath();
 
         final GameEntity lastDamager = entityData.getLastDamager();
 
@@ -287,21 +296,25 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
             return;
         }
 
-        lastPlayerDamager.heal(getMaxHealth() * HEALING_AT_KILL);
+        lastPlayerDamager.heal(lastPlayerDamager.getMaxHealth() * HEALING_AT_KILL);
     }
 
     @Override
     public void die(boolean force) {
         super.die(force);
-        onDeath();
+
+        if (!isAlive()) {
+            return;
+        }
 
         final Player player = getEntity();
+        boolean gameOver = false;
+
         player.setGameMode(GameMode.SPECTATOR);
 
         playSound(Sound.ENTITY_BLAZE_DEATH, 2.0f);
+        playWorldSound(Sound.ENTITY_PLAYER_DEATH, 1.0f);
         sendTitle("&c&lʏᴏᴜ ᴅɪᴇᴅ", "", 5, 25, 10);
-
-        triggerOnDeath();
 
         // Award killer coins for kill
         final GameEntity lastDamager = entityData.getLastDamager();
@@ -354,7 +367,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
             if (damagerPlayer != null) {
                 final StatContainer damagerStats = damagerPlayer.getStats();
 
-                if (percentDamageDealt < 0.5d) {
+                if (percentDamageDealt < ASSIST_DAMAGE_PERCENT) {
                     return;
                 }
 
@@ -377,7 +390,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
             final CFGameMode mode = gameInstance.getMode();
 
             mode.onDeath(gameInstance, this);
-            gameInstance.checkWinCondition();
+            gameOver = gameInstance.checkWinCondition();
 
             // Handle respawn
             if (mode.isAllowRespawn() && mode.shouldRespawn(this)) {
@@ -394,8 +407,12 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         // Clear tasks
         taskList.cancelAll();
 
+        if (!gameOver) {
+            triggerOnDeath();
+        }
+
         // KEEP LAST
-        resetPlayer(GamePlayer.Ignore.GAME_MODE);
+        //resetPlayer(GamePlayer.Ignore.GAME_MODE); Don't reset player actually
         Chat.broadcast(deathMessage);
     }
 
@@ -429,16 +446,32 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     }
 
     public void markLastMoved() {
-        this.lastMoved = System.currentTimeMillis();
+        for (MoveType moveType : MoveType.values()) {
+            markLastMoved(moveType);
+        }
+    }
+
+    public void markLastMoved(@Nonnull MoveType moveType) {
+        final long currentTimeMillis = System.currentTimeMillis();
+
+        lastMoved.put(moveType, currentTimeMillis);
+    }
+
+    public long getLastMoved(@Nonnull MoveType type) {
+        return lastMoved.getOrDefault(type, System.currentTimeMillis());
     }
 
     @Override
-    public void heal(double amount) {
-        super.heal(amount);
+    public boolean heal(double amount, @Nullable LivingGameEntity healer) {
+        if (!super.heal(amount, healer)) {
+            return false;
+        }
+
         updateHealth();
 
         // Fx
-        addPotionEffect(EffectType.REGENERATION, 25, 0);
+        addPotionEffect(PotionEffectType.REGENERATION, 0, 25);
+        return true;
     }
 
     @Nonnull
@@ -478,7 +511,8 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         if (getHero().isUsingUltimate(this)) {
             final long durationLeft = getHero().getUltimateDurationLeft(this);
 
-            return "&b&lIN USE &b(%s&b)".formatted(BukkitUtils.roundTick(Tick.fromMillis(durationLeft)) + "s");
+
+            return "&b&lIN USE &b(%s&b)".formatted(durationLeft < 0 ? "∞" : BukkitUtils.roundTick(Tick.fromMillis(durationLeft)) + "s");
         }
 
         if (ultimate.hasCd(this)) {
@@ -491,10 +525,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         return pointsString;
     }
 
-    public long getLastMoved() {
-        return lastMoved;
-    }
-
     @Nonnull
     public StatContainer getStats() {
         return stats;
@@ -504,7 +534,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         getData().clearEffects();
     }
 
-    public void clearEffect(GameEffectType type) {
+    public void clearEffect(Effects type) {
         getData().clearEffect(type);
     }
 
@@ -512,45 +542,30 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         return this.ultPoints >= getHero().getUltimate().getCost();
     }
 
-    // Health = 100
-    // Shield = 20
-    //
-    // Take 10 damage:
-    // s - d = s
-    // // Shield took damage
-    // if (s >= 0) damage = 0
-
-    // Take 20 damage:
-    // s - d = 0
-    // shield took damage
-    // if (s >= 0) damage = 0
-
     public void updateScoreboardTeams(boolean toLobby) {
         profile.getLocalTeamManager().updateAll(toLobby);
     }
 
-    // Take 25 damage:
-    // s - d = -5
-    // if (s < 0) damage = -s
-    @Override
     public void decreaseHealth(@Nonnull DamageInstance instance) {
         final Player player = getPlayer();
+        final EnumDamageCause cause = instance.getCause();
 
-        if (shield != null) {
-            final double capacityAfterHit = shield.takeDamage0(instance.damage);
+        if (shield != null && (cause != null && !cause.hasFlag(DamageFlag.PIERCING_DAMAGE))) {
+            final double damage = instance.getDamage();
+            final double capacityAfterHit = shield.takeDamage0(damage);
 
             // Always display shield damage
-            if (instance.damage > 0) {
-                new AscendingDisplay("&e🛡 &6%.0f".formatted(instance.damage), 20).display(player.getEyeLocation());
+            if (damage > 0) {
+                new AscendingDisplay("&e🛡 &6%.0f".formatted(damage), 20).display(player.getEyeLocation());
             }
 
             // Shield took damage
             if (capacityAfterHit > 0) {
-                instance.damage = 0;
+                instance.setDamage(0);
             }
             // Shield broke
             else {
-                instance.damage = -capacityAfterHit;
+                instance.setDamage(-capacityAfterHit);
 
                 shield.onBreak0();
                 shield = null;
@@ -609,20 +624,23 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     }
 
     public void triggerOnDeath() {
+        this.onDeath();
+
         final IGameInstance currentGame = Manager.current().getCurrentGame();
-        final Player player = getEntity();
         final Hero hero = getHero();
         final Weapon weapon = hero.getWeapon();
 
         currentGame.getEnumMap().getMap().onDeath(this);
         hero.onDeath(this);
+
+        if (hero instanceof PlayerDataHandler<?> handler) {
+            handler.removePlayerData(this);
+        }
+
         attributes.onDeath(this);
         executeTalentsOnDeath();
 
-        if (weapon instanceof RangeWeapon rangeWeapon) {
-            rangeWeapon.onDeath(this);
-        }
-
+        weapon.onDeath(this);
         weapon.getAbilities().forEach(ability -> ability.stopCooldown(this));
     }
 
@@ -653,6 +671,34 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
             Chat.sendMessage(player, "&b&l※ &bYou ultimate is ready! Press &e&lF &bto use it!");
             Chat.sendTitle(player, "", "&aYou ultimate is ready!", 5, 15, 5);
             PlayerLib.playSound(player, Sound.BLOCK_CONDUIT_DEACTIVATE, 2.0f);
+        }
+    }
+
+    /**
+     * Sends a 'text block' message, each line will be sent a separate message.
+     *
+     * @param textBlock - Message.
+     */
+    public void sendTextBlockMessage(@Nonnull String textBlock) {
+        final String[] strings = textBlock.split("\n");
+
+        for (String string : strings) {
+            string = string.replace("%", "%%");
+
+            if (string.equalsIgnoreCase("")) { // paragraph
+                sendMessage("");
+                continue;
+            }
+
+            final int prefixIndex = string.lastIndexOf(";;");
+            String prefix = "&7";
+
+            if (prefixIndex > 0) {
+                prefix = string.substring(0, prefixIndex);
+                string = string.substring(prefixIndex + 2);
+            }
+
+            sendMessage(prefix + string);
         }
     }
 
@@ -761,7 +807,8 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     }
 
     public void respawn() {
-        resetPlayer(Ignore.GAME_MODE);
+        resetPlayer();
+
         final Player player = getEntity();
         final Hero hero = getHero();
 
@@ -775,10 +822,8 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
         hero.onRespawn(this);
 
-        player.setGameMode(GameMode.SURVIVAL);
-
         // Add spawn protection
-        addEffect(GameEffectType.RESPAWN_RESISTANCE, 60);
+        addEffect(Effects.RESPAWN_RESISTANCE, 60);
 
         // Respawn location
         final IGameInstance gameInstance = Manager.current().getCurrentGame();
@@ -788,7 +833,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         sendTitle("&a&lʀᴇsᴘᴀᴡɴᴇᴅ!", "", 0, 20, 5);
         entity.teleport(location);
 
-        addPotionEffect(PotionEffectType.BLINDNESS, 20, 1);
+        addPotionEffect(PotionEffectType.BLINDNESS, 1, 20);
     }
 
     public int getUltPointsNeeded() {
@@ -844,10 +889,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         return player != null && GameTeam.isTeammate(Entry.of(this), Entry.of(player));
     }
 
-    public boolean isTeammate(@Nullable GameEntity entity) {
-        return entity != null && GameTeam.isTeammate(Entry.of(this), Entry.of(entity));
-    }
-
     public void setHandle(Player player) {
         this.entity = player;
         this.profile = Manager.current().getOrCreateProfile(player);
@@ -871,8 +912,10 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         getEntity().setCooldown(material, cd);
     }
 
-    public boolean hasMovedInLast(long millis) {
-        return getLastMoved() != 0 && (System.currentTimeMillis() - getLastMoved()) < millis;
+    public boolean hasMovedInLast(@Nonnull MoveType type, long millis) {
+        final long lastMoved = getLastMoved(type);
+
+        return lastMoved != 0 && (System.currentTimeMillis() - lastMoved) < millis;
     }
 
     public boolean isBlocking() {
@@ -891,7 +934,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         ProtocolLibrary.getProtocolManager().sendServerPacket(getPlayer(), packet);
     }
 
-    public <T> void spawnParticle(Particle particle, Location location, int amount, double x, double y, double z, float speed, T data) {
+    public <T> void spawnParticle(Location location, Particle particle, int amount, double x, double y, double z, float speed, T data) {
         getPlayer().spawnParticle(particle, location, amount, x, y, z, speed, data);
     }
 
@@ -903,7 +946,11 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         getPlayer().showEntity(Main.getPlugin(), entity);
     }
 
-    public void addTask(@Nonnull PlayerGameTask task) {
+    public void showEntity(@Nonnull LivingGameEntity gameEntity) {
+        showEntity(gameEntity.getEntity());
+    }
+
+    public void addTask(@Nonnull IPlayerTask task) {
         taskList.add(task);
     }
 
@@ -919,7 +966,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
     public void setShield(@Nullable Shield shield) {
         if (this.shield != null) {
-            this.shield.onRemove();
+            this.shield.onRemove0();
         }
 
         this.shield = shield;
@@ -946,7 +993,14 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     }
 
     public void setFlying(boolean b) {
-        getPlayer().setFlying(b);
+        final Player player = getPlayer();
+
+        // Don't allow changing fly mode in spectator to avoid falling off the map
+        if (player.getGameMode() == GameMode.SPECTATOR) {
+            return;
+        }
+
+        player.setFlying(b);
     }
 
     public float getFlySpeed() {
@@ -983,21 +1037,31 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         return getPlayer().getTargetBlockExact(maxDistance);
     }
 
-    public void hide() {
-        CFUtils.hidePlayer(getPlayer());
+    /**
+     * Hides this player from all in game player who:
+     * <ul>
+     *     <li>Is not self.
+     *     <li>Is not a spectator.
+     *     <li>Is not a teammate.
+     * </ul>
+     */
+    public void hidePlayer() {
+        CFUtils.hidePlayer(this);
     }
 
-    public void show() {
-        CFUtils.showPlayer(getPlayer());
+    /**
+     * Shows this player from all in game player who:
+     * <ul>
+     *     <li>Is not self.
+     * </ul>
+     */
+    public void showPlayer() {
+        CFUtils.showPlayer(this);
     }
 
     @Nonnull
     public Scoreboard getScoreboard() {
         return getPlayer().getScoreboard();
-    }
-
-    public boolean isInWater() {
-        return getPlayer().isInWater();
     }
 
     public void stopCooldown(@Nonnull Material material) {
@@ -1096,14 +1160,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
     }
 
-    public boolean isSelfOrTeammate(LivingGameEntity victim) {
-        return equals(victim) || isTeammate(victim);
-    }
-
-    public boolean isSelfOrTeammateOrHasEffectResistance(LivingGameEntity victim) {
-        return isSelfOrTeammate(victim) || (victim != null && victim.hasCCResistanceAndDisplay(this));
-    }
-
     /**
      * Scales the cooldown with player's cooldown modifier.
      *
@@ -1136,6 +1192,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         }
 
         hero.onStart(this);
+        hero.getWeapon().onStart(this);
 
         inventory.setItem(weaponSlot, hero.getWeapon().getItem());
         giveTalentItems();
@@ -1150,6 +1207,11 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         }
 
         giveTalentItem(slot, talent);
+    }
+
+    @Nonnull
+    public Language getLanguage() {
+        return profile.getDatabase().getLanguage();
     }
 
     public void giveTalentItem(@Nonnull HotbarSlots slot, @Nonnull Talent talent) {
@@ -1204,7 +1266,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         return getHeldSlot() == slot;
     }
 
-    public boolean isSettingEnable(@Nonnull Settings settings) {
+    public boolean isSettingEnabled(@Nonnull Settings settings) {
         return settings.isEnabled(getPlayer());
     }
 
@@ -1278,6 +1340,124 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         return getPlayer().getPing();
     }
 
+    @Nonnull
+    public RaycastResult rayCast(double maxDistance, double entitySearchDistance) {
+        return new Raycast(this)
+                .setMaxDistance(maxDistance)
+                .setEntitySearchRadius(entitySearchDistance)
+                .cast();
+    }
+
+    @Nonnull
+    public Raycast rayCast() {
+        return new Raycast(this);
+    }
+
+    public boolean isInGameOrTrial() {
+        return Manager.current().isInGameOrTrial(getPlayer());
+    }
+
+    public void sendBlockChange(@Nonnull Block block, @Nonnull Material material) {
+        sendBlockChange(block.getLocation(), material);
+    }
+
+    public void sendBlockChange(@Nonnull Location location, @Nonnull Material material) {
+        getPlayer().sendBlockChange(location, material.createBlockData());
+    }
+
+    /**
+     * @deprecated raw
+     */
+    @Deprecated
+    public int getHeldSlotRaw() {
+        return getInventory().getHeldItemSlot();
+    }
+
+    @Override
+    public void callOnStart() {
+
+    }
+
+    @Override
+    public void callOnStop() {
+
+    }
+
+    @Override
+    public void callOnDeath() {
+
+    }
+
+    @Override
+    public void callOnPlayersRevealed() {
+    }
+
+    @Nonnull
+    public String formatWinnerName() {
+        final StatContainer stats = getStats();
+        final GameTeam winnerTeam = getTeam();
+
+        return Chat.bformat(
+                "{Team} &7⁑ &6{Hero} &e&l{Name} &7⁑ &c&l{Health}  &b&l{Kills} &b🗡  &c&l{Deaths} &c☠",
+                winnerTeam.getFirstLetterCaps(),
+                getHero().getNameSmallCaps(),
+                getName(),
+                getHealthFormatted(),
+                stats.getValue(StatType.KILLS),
+                stats.getValue(StatType.DEATHS)
+        );
+    }
+
+    public void setWorldBorder(@Nullable WorldBorder worldBorder) {
+        getPlayer().setWorldBorder(worldBorder);
+    }
+
+    @Nonnull
+    public Item throwItem(@Nonnull Material material, @Nonnull Vector vector) {
+        final World world = getWorld();
+
+        final Item item = world.dropItem(getEyeLocation(), new ItemStack(material));
+
+        item.setPickupDelay(999998);
+        item.setOwner(uuid);
+
+        item.setVelocity(vector);
+
+        // Fx
+        playWorldSound(Sound.ENTITY_SNOWBALL_THROW, 0.75f);
+
+        return item;
+    }
+
+    /**
+     * Returns true if the player is presumably standing still.
+     * <br>
+     * This is checks if the player last {@link MoveType#KEYBOARD} was:
+     * <pre>
+     *     now() - lastMoved >= 100L
+     * </pre>
+     *
+     * @return true if the player is presumably standing still.
+     */
+    public boolean isStandingStill() {
+        final long lastMoved = getLastMoved(MoveType.KEYBOARD);
+        final long timeSinceLastMoved = System.currentTimeMillis() - lastMoved;
+
+        return timeSinceLastMoved >= 100L;
+    }
+
+    public boolean isUsingUltimate() {
+        return getHero().isUsingUltimate(this);
+    }
+
+    public boolean hasCooldown(@Nonnull Talent talent) {
+        return hasCooldown(talent.getMaterial());
+    }
+
+    public void startCooldown(@Nonnull Talent talent) {
+        talent.startCd(this);
+    }
+
     private List<Block> getBlocksRelative(BiFunction<Location, World, Boolean> fn, Consumer<Location> consumer) {
         final List<Block> blocks = Lists.newArrayList();
         final Location location = getEyeLocation();
@@ -1309,19 +1489,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         }
 
         item.setAmount(chargedTalent.getMaxCharges());
-    }
-
-    private String replaceColor(String string, ChatColor color) {
-        return string.replace("$", color.toString());
-    }
-
-    private boolean isNotIgnored(Ignore[] ignores, Ignore target) {
-        for (final Ignore ignore : ignores) {
-            if (ignore == target) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private void executeTalentsOnDeath() {
@@ -1368,9 +1535,11 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         return gamePlayer == null ? Optional.empty() : Optional.of(gamePlayer);
     }
 
-    public enum Ignore {
-        GAME_MODE,
-        COOLDOWNS
+    @Nonnull
+    public Vector getDirectionWithMovementError(double movementError) {
+        final Location location = getEyeLocation();
+
+        return location.getDirection();
     }
 
 }

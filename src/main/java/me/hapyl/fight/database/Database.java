@@ -12,6 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import javax.annotation.Nonnull;
+import java.util.logging.Logger;
 
 /**
  * I really don't know how a database works or should work;
@@ -65,15 +66,14 @@ public class Database extends DependencyInjector<Main> {
             final String connectionLink = config.getString("database.connection_link");
 
             if (connectionLink == null || connectionLink.equals("null")) {
-                breakConnectionAndDisablePlugin("Provide a valid connection link in config.yml!");
+                breakConnectionAndDisablePlugin("Provide a valid connection link in config.yml!", null);
                 return;
             }
 
             try {
                 client = MongoClients.create(connectionLink);
-            } catch (Exception e) {
-                getPlugin().getLogger().warning(connectionLink);
-                breakConnectionAndDisablePlugin("Failed to connect to MongoDB! Invalid connection link?");
+            } catch (RuntimeException e) {
+                breakConnectionAndDisablePlugin("Failed to connect to MongoDB! Invalid connection link?", e);
                 return;
             }
 
@@ -91,8 +91,8 @@ public class Database extends DependencyInjector<Main> {
 
             // load async database
             globalConfig = new GlobalConfigCollection(global);
-        } catch (Exception e) {
-            breakConnectionAndDisablePlugin("Failed to retrieve database collection!");
+        } catch (RuntimeException e) {
+            breakConnectionAndDisablePlugin("Failed to retrieve a database collection!", e);
         }
     }
 
@@ -126,10 +126,19 @@ public class Database extends DependencyInjector<Main> {
         return heroStats;
     }
 
-    private void breakConnectionAndDisablePlugin(String message) throws RuntimeException {
-        getPlugin().getLogger().severe(message);
-        Bukkit.getPluginManager().disablePlugin(getPlugin());
+    private void breakConnectionAndDisablePlugin(String message, RuntimeException e) {
+        final Main plugin = getPlugin();
+        final Logger logger = plugin.getLogger();
 
-        throw new RuntimeException(message);
+        logger.severe("");
+        logger.severe("Unable to start the plugin!");
+        logger.severe(message);
+        logger.severe("");
+
+        Bukkit.getPluginManager().disablePlugin(plugin);
+
+        if (e != null) {
+            throw e;
+        }
     }
 }

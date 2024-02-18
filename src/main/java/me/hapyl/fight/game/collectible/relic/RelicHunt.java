@@ -195,6 +195,9 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
     }
 
     private void registerRelics() {
+        // Trial
+        registerRelic(1, new Relic(Type.EMERALD, -240, 62, 243).setBlockFace(BlockFace.NORTH_EAST));
+
         // Lobby
         registerRelic(100, new Relic(Type.AMETHYST, 27, 66, 8));
         registerRelic(101, new Relic(Type.AMETHYST, 32, 66, 0));
@@ -224,7 +227,14 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
 
         // Winery
         registerRelic(600, new Relic(Type.SAPPHIRE, 231, 62, 216).setZone(GameMaps.WINERY));
-        registerRelic(601, new Relic(Type.DIAMOND, 223, 62, 190).setZone(GameMaps.WINERY).setBlockFace(13));
+        registerRelic(601, new Relic(Type.DIAMOND, 223, 62, 190).setZone(GameMaps.WINERY).setBlockFace(BlockFace.EAST_SOUTH_EAST));
+
+        // Library
+        registerRelic(700, new Relic(Type.AMETHYST, -21, 78, -119).setZone(GameMaps.LIBRARY).setBlockFace(BlockFace.SOUTH_WEST));
+        registerRelic(701, new Relic(Type.DIAMOND, 18, 72, -115).setZone(GameMaps.LIBRARY).setBlockFace(BlockFace.NORTH_EAST));
+
+        // Limbo
+        registerRelic(800, new Relic(Type.ROSE_QUARTZ, -823, 51, -215).setZone(GameMaps.LIMBO).setBlockFace(BlockFace.SOUTH_WEST));
     }
 
     private <K, V> void computeMapList(final Map<K, List<V>> map, K key, final Consumer<List<V>> consumer) {
@@ -268,6 +278,10 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
     }
 
     private void registerRelic(@Unique final int id, final Relic relic) throws IllegalArgumentException {
+        if (id <= 0) {
+            throw new IllegalArgumentException("Do not use negative or 0 ids.");
+        }
+
         if (byId.containsKey(id)) {
             throw new IllegalArgumentException("Id %s is already taken by %s!".formatted(id, byId.get(id)));
         }

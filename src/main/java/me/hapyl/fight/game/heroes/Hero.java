@@ -3,13 +3,18 @@ package me.hapyl.fight.game.heroes;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.annotate.PreferredReturnValue;
 import me.hapyl.fight.annotate.PreprocessingMethod;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
-import me.hapyl.fight.game.*;
+import me.hapyl.fight.database.collection.HeroStatsCollection;
+import me.hapyl.fight.database.rank.PlayerRank;
+import me.hapyl.fight.event.DamageInstance;
+import me.hapyl.fight.game.Event;
+import me.hapyl.fight.game.GameElement;
+import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.cosmetic.EnumHandle;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
@@ -17,23 +22,30 @@ import me.hapyl.fight.game.heroes.equipment.Slot;
 import me.hapyl.fight.game.heroes.friendship.HeroFriendship;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.translate.Language;
+import me.hapyl.fight.translate.Translatable;
+import me.hapyl.fight.translate.TranslatedDescribed;
 import me.hapyl.fight.util.SmallCaps;
+import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.spigotutils.module.annotate.Super;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -45,8 +57,11 @@ import java.util.function.Consumer;
  * @see GameElement
  * @see PlayerElement
  */
-public abstract class Hero implements GameElement, PlayerElement {
+@AutoRegisteredListener
+public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Heroes>, Rankable, Translatable, DisplayFieldProvider {
 
+    private final Heroes enumHero;
+    private final HeroStatsCollection stats;
     private final HeroAttributes attributes;
     private final Equipment equipment;
     private final String name;
@@ -54,19 +69,24 @@ public abstract class Hero implements GameElement, PlayerElement {
     private final Map<GamePlayer, GameTask> reverseTasks;
     private final CachedHeroItem cachedHeroItem;
     private final HeroFriendship friendship;
-
+    private final Map<Talent, HotbarSlots> talentsMapped;
     private Affiliation affiliation;
     private Archetype archetype;
+    private Gender sex;
     private String description;
     private ItemStack guiTexture;
     private Weapon weapon;
     private long minimumLevel;
     private UltimateTalent ultimate;
     private PlayerSkin skin;
+    private int rank;
+    private String guiTextureUrl = "";
 
     @Super
-    public Hero(String name) {
+    public Hero(@Nonnull Heroes handle, @Nonnull String name) {
+        this.enumHero = handle;
         this.name = name;
+        this.stats = new HeroStatsCollection(handle);
         this.description = "No description provided.";
         this.guiTexture = new ItemStack(Material.RED_BED);
         this.weapon = new Weapon(Material.WOODEN_SWORD);
@@ -77,28 +97,99 @@ public abstract class Hero implements GameElement, PlayerElement {
         this.affiliation = Affiliation.NOT_SET;
         this.archetype = Archetype.NOT_SET;
         this.minimumLevel = 0;
-        this.ultimate = new UltimateTalent("Unknown Ultimate", "This hero's ultimate talent is not yet implemented!", Integer.MAX_VALUE);
+        this.ultimate = new UltimateTalent(this, "Unknown Ultimate", "This hero's ultimate talent is not yet implemented!", 12345);
         this.cachedHeroItem = new CachedHeroItem(this);
         this.skin = null;
         this.friendship = new HeroFriendship(this);
+        this.talentsMapped = Maps.newHashMap();
+        this.sex = Gender.MALE;
+
+        // Map talents
+        mapTalent(HotbarSlots.TALENT_1);
+        mapTalent(HotbarSlots.TALENT_2);
+        mapTalent(HotbarSlots.TALENT_3);
+        mapTalent(HotbarSlots.TALENT_4);
+        mapTalent(HotbarSlots.TALENT_5);
 
         setItem("null"); // default to null because I don't like exceptions
+
+        // Register listener if needed
+        if (this instanceof Listener listener) {
+            CF.registerEvents(listener);
+        }
     }
 
-    public Hero(String name, String lore) {
-        this(name);
-        this.setDescription(lore);
+    @Nonnull
+    public Gender getSex() {
+        return sex;
     }
 
-    public Hero(String name, String lore, Material material) {
-        this(name);
-        setDescription(lore);
-        setItem(material);
+    public void setSex(@Nonnull Gender sex) {
+        this.sex = sex;
+    }
+
+    @Nonnull
+    @Override
+    public String getParentTranslatableKey() {
+        return "hero." + getHandle().name().toLowerCase() + ".";
+    }
+
+    @Nullable
+    public ItemStack getTalentItem(@Nonnull HotbarSlots slot, @Nonnull Language language) {
+        final Talent talent = getTalent(slot);
+
+        return talent != null ? talent.getItem(/* language */) : null;
+    }
+
+    @Nonnull
+    public TranslatedDescribed getArchetype(@Nonnull Language language) {
+        return new TranslatedDescribed(language, "archetype." + archetype.name().toLowerCase());
+    }
+
+    @Nonnull
+    public TranslatedDescribed getAffiliation(@Nonnull Language language) {
+        return new TranslatedDescribed(language, "affiliation." + affiliation.name().toLowerCase());
+    }
+
+    @Nonnull
+    public TranslatedDescribed getUltimate(@Nonnull Language language) {
+        return new TranslatedDescribed(language, getParentTranslatableKey() + "ultimate");
+    }
+
+    public TranslatedDescribed getWeapon(@Nonnull Language language) {
+        return new TranslatedDescribed(language, getParentTranslatableKey() + "weapon");
+    }
+
+    @Override
+    public int getRank() {
+        return rank;
+    }
+
+    @Override
+    public void setRank(int rank) {
+        this.rank = rank;
+    }
+
+    @Nonnull
+    public HeroStatsCollection getStats() {
+        return stats;
     }
 
     @Nonnull
     public HeroFriendship getFriendship() {
         return friendship;
+    }
+
+    @Nonnull
+    @Override
+    public Heroes getHandle() {
+        return enumHero;
+    }
+
+    @Override
+    @Deprecated
+    public void setHandle(@Nonnull Heroes handle) throws IllegalStateException {
+        throw new IllegalStateException("cannot set handle");
     }
 
     @Nullable
@@ -147,7 +238,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      *
      * @return the origin of this hero.
      */
-    public Affiliation getOrigin() {
+    public Affiliation getAffiliation() {
         return affiliation;
     }
 
@@ -352,8 +443,15 @@ public abstract class Hero implements GameElement, PlayerElement {
      * @param texture64 - Texture in base64 format.
      */
     public void setItem(String texture64) {
+        this.guiTextureUrl = texture64;
+
         guiTexture = ItemBuilder.playerHeadUrl(texture64).asIcon();
         getEquipment().setTexture(texture64);
+    }
+
+    @Nonnull
+    public String getTextureUrl() {
+        return guiTextureUrl;
     }
 
     /**
@@ -427,86 +525,31 @@ public abstract class Hero implements GameElement, PlayerElement {
     }
 
     /**
-     * Called when player DAMAGES something.
-     * <p>
-     * <h2>Examples:</h2>
-     * <blockquote>
-     * Increase OUTGOING damage by 50%:
-     * <pre>
-     *      return new DamageOutput(input.getDamage() * 1.5d);
-     * </pre>
+     * Called whenever a player who uses this hero <b>takes</b> damage.
      *
-     * </blockquote>
-     * <blockquote>
-     * Cancel OUTGOING damage:
-     * <pre>
-     *      return DamageOutput.CANCEL;
-     * </pre>
-     * </blockquote>
-     *
-     * <b>
-     * Keep in mind the player who damaged is a damager in the input, not the entity!
-     * </b>
-     *
-     * @param input - Initial damage input.
-     * @return new damage output, or null to skip.
+     * @param instance - Damage instance.
      */
-    @Nullable
-    public DamageOutput processDamageAsDamager(DamageInput input) {
-        return null;
+    @Event
+    public void processDamageAsVictim(@Nonnull DamageInstance instance) {
     }
 
     /**
-     * Called when player TAKES DAMAGE something.
-     * <p>
-     * <h2>Examples:</h2>
-     * <blockquote>
-     * Reduce INCOMING damage by 50%:
-     * <pre>
-     *      return new DamageOutput(input.getDamage() / 1.5d);
-     * </pre>
+     * Called whenever a player who uses this hero <b>deals</b> damage.
      *
-     * </blockquote>
-     * <blockquote>
-     * Cancel INCOMING damage:
-     * <pre>
-     *      return DamageOutput.CANCEL;
-     * </pre>
-     * </blockquote>
-     *
-     * @param input - Initial damage input.
-     * @return new damage output, or null to skip.
+     * @param instance - Damage instance.
      */
-    @Nullable
-    public DamageOutput processDamageAsVictim(DamageInput input) {
-        return null;
+    @Event
+    public void processDamageAsDamager(@Nonnull DamageInstance instance) {
     }
 
     /**
-     * Called when player DAMAGES something via projectile.
-     * <p>
-     * <h2>Examples:</h2>
-     * <blockquote>
-     * Increase OUTGOING damage by 50%:
-     * <pre>
-     *      return new DamageOutput(input.getDamage() * 1.5d);
-     * </pre>
+     * Called whenever a player who uses this hero <b>deals</b> damage with a {@link Projectile}.
      *
-     * </blockquote>
-     * <blockquote>
-     * Cancel OUTGOING damage:
-     * <pre>
-     *      return DamageOutput.CANCEL;
-     * </pre>
-     * </blockquote>
-     *
-     * @param input      - Initial damage input.
-     * @param projectile - Projectile that dealt damage.
-     * @return new damage output, or null to skip.
+     * @param instance   - Damage instance.
+     * @param projectile - Projectile.
      */
-    @Nullable
-    public DamageOutput processDamageAsDamagerProjectile(DamageInput input, Projectile projectile) {
-        return null;
+    @Event
+    public void processDamageAsDamagerProjectile(@Nonnull DamageInstance instance, Projectile projectile) {
     }
 
     /**
@@ -593,6 +636,17 @@ public abstract class Hero implements GameElement, PlayerElement {
         return this.ultimate;
     }
 
+    @Nonnull
+    public PlayerRating getAverageRating() {
+        final PlayerRating rating = stats.getAverageRating();
+
+        return rating != null ? rating : PlayerRating.FIVE;
+    }
+
+    public int getActiveTalentsCount() {
+        return talentsMapped.size();
+    }
+
     /**
      * Sets this hero's weapon.
      *
@@ -600,6 +654,16 @@ public abstract class Hero implements GameElement, PlayerElement {
      */
     protected void setUltimate(UltimateTalent ultimate) {
         this.ultimate = ultimate;
+    }
+
+    /**
+     * Returns if this {@link GamePlayer} is considered "valid" if they're invisible.
+     *
+     * @param player - player.
+     * @return true if this player is valid if they're invisible; false otherwise.
+     */
+    public boolean isValidIfInvisible(@Nonnull GamePlayer player) {
+        return false;
     }
 
     @PreprocessingMethod
@@ -659,26 +723,23 @@ public abstract class Hero implements GameElement, PlayerElement {
     }
 
     /**
-     * Gets all players that are using this hero.
+     * Gets a set of {@link GamePlayer} whose selected hero is this hero.
      *
-     * @return list of player using this hero.
+     * @return set of player using this hero.
      */
     @Nonnull
-    public List<GamePlayer> getPlayers() {
-        return CF.getAlivePlayers(predicate -> predicate.getHero() == this);
+    public Set<GamePlayer> getPlayers() {
+        return CF.getPlayers(player -> player.getEnumHero() == enumHero);
     }
 
     /**
      * Gets all players that are using this hero who is alive.
      *
-     * @return list of living player using this hero.
+     * @return set of living player using this hero.
      */
     @Nonnull
-    public List<GamePlayer> getAlivePlayers() {
-        final List<GamePlayer> players = getPlayers();
-        players.removeIf(player -> !player.isAlive());
-
-        return players;
+    public Set<GamePlayer> getAlivePlayers() {
+        return CF.getAlivePlayers(player -> player.getEnumHero() == enumHero && player.isAlive());
     }
 
     /**
@@ -689,7 +750,7 @@ public abstract class Hero implements GameElement, PlayerElement {
      */
     public final boolean validatePlayer(@Nullable GamePlayer player) {
         final Manager current = Manager.current();
-        return player != null && validPlayerInGame(player) && current.getCurrentHero(player) == this;
+        return player != null && player.isInGameOrTrial() && current.getCurrentHero(player) == this;
     }
 
     public final boolean validatePlayer(Player player) {
@@ -727,19 +788,41 @@ public abstract class Hero implements GameElement, PlayerElement {
      *
      * @return all talents of this hero, including nullable.
      */
+    @Nonnull
     public List<Talent> getTalents() {
         final List<Talent> talents = Lists.newArrayList();
 
         talents.add(getFirstTalent());
         talents.add(getSecondTalent());
         talents.add(getPassiveTalent());
-
-        // extra talents
         talents.add(getThirdTalent());
         talents.add(getFourthTalent());
         talents.add(getFifthTalent());
 
         return talents;
+    }
+
+    /**
+     * Gets a {@link HotbarSlots} for a talent by its handle.
+     *
+     * @param talent - Talent.
+     * @return the slot for this talent.
+     * @throws IllegalArgumentException - If the given talent does not belong to this hero.
+     */
+    @Nonnull
+    public HotbarSlots getTalentSlotByHandle(@Nonnull Talent talent) {
+        final HotbarSlots slot = talentsMapped.get(talent);
+
+        if (slot == null) {
+            throw new IllegalArgumentException("talent '%s' does not belong to this hero!".formatted(talent));
+        }
+
+        return slot;
+    }
+
+    @Nullable
+    public HotbarSlots getTalentSlotByHandleOrNull(@Nonnull Talent talent) {
+        return talentsMapped.get(talent);
     }
 
     /**
@@ -807,6 +890,24 @@ public abstract class Hero implements GameElement, PlayerElement {
         return "&a" + getName();
     }
 
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+
+        final Hero hero = (Hero) object;
+        return enumHero == hero.enumHero;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(enumHero);
+    }
+
     protected void setUltimate(UltimateTalent ultimate, Consumer<UltimateTalent> andThen) {
         setUltimate(ultimate);
         andThen.accept(ultimate);
@@ -817,22 +918,25 @@ public abstract class Hero implements GameElement, PlayerElement {
         throw new CloneNotSupportedException("Heroes cannot be cloned.");
     }
 
+    private void mapTalent(HotbarSlots slot) {
+        final Talent talent = getTalent(slot);
+
+        if (talent == null) {
+            return;
+        }
+
+        if (talentsMapped.containsKey(talent)) {
+            throw new IllegalArgumentException("Duplicate talent in " + getName() + "!");
+        }
+
+        talentsMapped.put(talent, slot);
+    }
+
     private void cancelOldReverseTask(GamePlayer player) {
         final GameTask oldTask = reverseTasks.remove(player);
 
         if (oldTask != null && !oldTask.isCancelled()) {
             oldTask.cancel();
         }
-    }
-
-    /**
-     * Returns true if there is a game in progress and player is in game.
-     *
-     * @param player - Player.
-     * @return true, if there is a game in progress and player is in game.
-     */
-    private boolean validPlayerInGame(GamePlayer player) {
-        final Manager current = Manager.current();
-        return current.isGameInProgress() && current.isPlayerInGame(player);
     }
 }

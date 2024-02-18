@@ -45,7 +45,7 @@ public class ParkourLeaderboard {
         topPlayers.forEach((name, record) -> {
             this.hologram.addLine("&b#%d - &a%s &7%ss".formatted(
                     i.incrementAndGet(),
-                    record.getName(),
+                    record.getNameFormatted(),
                     formatTime(record)
             ));
         });
@@ -98,11 +98,8 @@ public class ParkourLeaderboard {
             final OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
 
             if (time > 0) {
-                final String playerName = offlinePlayer.hasPlayedBefore() ? offlinePlayer.getName() : record.get("name", "Unknown");
-                final boolean offline = record.get("offline", false);
-
                 // strikethrough offline players
-                final LeaderboardData data = new LeaderboardData(uuid, (offline ? "&m" : "") + playerName, time);
+                final LeaderboardData data = new LeaderboardData(uuid, time);
 
                 if (record.get("is_dirty", false)) {
                     data.markDirty();

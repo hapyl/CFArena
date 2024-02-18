@@ -1,5 +1,7 @@
 package me.hapyl.fight.util;
 
+import me.hapyl.fight.game.Event;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
@@ -84,7 +86,12 @@ public class Buffer<E> implements List<E> {
         return true;
     }
 
-    // called whenever the first element is removed due to buffer size
+    /**
+     * Called whenever the first element is removed due to buffer size.
+     *
+     * @param e - Element that was removed.
+     */
+    @Event
     public void unbuffered(@Nonnull E e) {
     }
 
@@ -130,6 +137,15 @@ public class Buffer<E> implements List<E> {
     @Override
     public E get(int index) {
         return linkedList.get(index);
+    }
+
+    @Nullable
+    public E getOrNull(int index) {
+        return getOrDefault(index, null);
+    }
+
+    public E getOrDefault(int index, E def) {
+        return index < 0 || index >= linkedList.size() ? def : get(index);
     }
 
     @Override
@@ -182,5 +198,50 @@ public class Buffer<E> implements List<E> {
                 "maxCapacity=" + maxCapacity +
                 ", buffer=" + linkedList +
                 '}';
+    }
+
+    public boolean compare(int index, @Nullable E element) {
+        if (index < 0 || index > size()) {
+            return false;
+        }
+
+        final E e = getOrNull(index);
+
+        return e != null && e == element;
+    }
+
+    public boolean compareAll(@Nonnull E[] values) {
+        if (isEmpty() || values.length > size()) {
+            return false;
+        }
+
+        for (int i = 0; i < values.length; i++) {
+            final E value = values[i];
+            final E e = getOrNull(i);
+
+            if (e != null && e != value) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public boolean compareAll(@Nonnull Map<Integer, E> map) {
+        if (isEmpty() || map.size() > size()) {
+            return false;
+        }
+
+        for (Map.Entry<Integer, E> entry : map.entrySet()) {
+            final int index = entry.getKey();
+            final E value = entry.getValue();
+            final E e = getOrNull(index);
+
+            if (value != null && e != value) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

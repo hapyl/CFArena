@@ -3,9 +3,8 @@ package me.hapyl.fight.game.heroes.archive.vampire;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.event.DamageInstance;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.DisabledHero;
@@ -13,9 +12,9 @@ import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComplexComponent;
 import me.hapyl.fight.util.collection.player.PlayerMap;
@@ -69,8 +68,8 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
 
     private final Material BLOOD_MATERIAL = Material.REDSTONE;
 
-    public Vampire() {
-        super("Vampire");
+    public Vampire(@Nonnull Heroes handle) {
+        super(handle, "Vampire");
 
         vampireData = PlayerMap.newMap();
 
@@ -83,7 +82,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
 
         setWeapon(Material.GHAST_TEAR, "Fang", 5.0d);
 
-        final UltimateTalent ultimate = new UltimateTalent("Sanguineous Morphology", """
+        final UltimateTalent ultimate = new UltimateTalent(this, "Sanguineous Morphology", """
                 Transform into a bat and fly freely for {duration}.
                                 
                 After duration ends, transform back into vampire and gain the opposite amount of blood you had upon casting and summon &eDracula Jr&7.
@@ -107,7 +106,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
         getFirstTalent().startCd(player, 99999);
         getSecondTalent().startCd(player, 99999);
 
-        player.hide();
+        player.hidePlayer();
 
         final Bat bat = Entities.BAT.spawn(player.getLocation(), self -> {
             self.setCustomName(player.getCustomName());
@@ -133,7 +132,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
                     player.setFlying(false);
                     player.setAllowFlight(false);
 
-                    player.show();
+                    player.showPlayer();
                     bat.remove();
 
                     data.setBlood(bloodAfterUse);
@@ -190,21 +189,22 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
     }
 
     @Override
-    public DamageOutput processDamageAsDamager(DamageInput input) {
-        final GamePlayer player = input.getDamagerAsPlayer();
+    public void processDamageAsDamager(@Nonnull DamageInstance instance) {
+        final GamePlayer player = instance.getDamagerAsPlayer();
         final VampireData data = getData(player);
 
         if (player == null) {
-            return null;
+            return;
         }
 
         if (isUsingUltimate(player)) {
-            if (input.getDamageCause() == EnumDamageCause.LIGHTNING) {
-                return null;
+            if (instance.getCause() == EnumDamageCause.LIGHTNING) {
+                return;
             }
 
             player.sendMessage("&4&l❧ &cCannot deal while in ultimate form!");
-            return DamageOutput.CANCEL;
+            instance.setCancelled(true);
+            return;
         }
 
         if (!player.hasCooldown(BLOOD_MATERIAL) && data.getBlood() < MAX_BLOOD_STACKS) {
@@ -215,12 +215,12 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
 
         if (data.isExpired()) {
             data.resetDamageMultiplier();
-            return null;
+            return;
         }
 
         // Handle damage multiplier
-        final double damage = input.getDamage();
-        return new DamageOutput(damage + (damage * (data.getDamageMultiplier() / 10)));
+        final double damage = instance.getDamage();
+        //return new DamageOutput(damage + (damage * (data.getDamageMultiplier() / 10)));
     }
 
     @EventHandler()
@@ -274,7 +274,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
     }
 
     @Override
-    public void onPlayersReveal() {
+    public void onPlayersRevealed() {
         new GameTask() {
             @Override
             public void run() {

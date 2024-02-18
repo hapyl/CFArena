@@ -5,12 +5,12 @@ import org.bukkit.Location;
 import javax.annotation.Nonnull;
 import java.util.function.Predicate;
 
-public class PredicateLocation<T extends GameMap> {
+public class PredicateLocation {
 
     private final Location location;
-    private final Predicate<T> predicate;
+    private final Predicate<GameMap> predicate;
 
-    public PredicateLocation(Location location, Predicate<T> predicate) {
+    public PredicateLocation(Location location, Predicate<GameMap> predicate) {
         this.location = location;
         this.predicate = predicate;
     }
@@ -24,7 +24,7 @@ public class PredicateLocation<T extends GameMap> {
         return location;
     }
 
-    public boolean predicate(T map) {
+    public boolean predicate(GameMap map) {
         return predicate.test(map);
     }
 

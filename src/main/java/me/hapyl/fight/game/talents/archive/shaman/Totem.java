@@ -1,184 +1,153 @@
 package me.hapyl.fight.game.talents.archive.shaman;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.achievement.Achievements;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
-import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.collection.player.ConcurrentPlayerMap;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
+import me.hapyl.fight.game.talents.archive.shaman.resonance.TotemResonance;
+import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.util.Collect;
+import me.hapyl.spigotutils.module.block.display.DisplayEntity;
+import me.hapyl.spigotutils.module.entity.Entities;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Shulker;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.LinkedList;
-import java.util.Set;
 
-public class Totem extends Talent {
+public class Totem extends TickingGameTask {
 
-    private final int MAX_TOTEMS = 3;
-    private final int PLACE_CD = 120;
-    private final int DESTROY_CD = 60;
-    private final ConcurrentPlayerMap<LinkedList<ActiveTotem>> playerTotems = new ConcurrentPlayerMap<>();
+    private final TotemTalent talent;
+    private final GamePlayer player;
+    private final TotemResonance resonance;
 
-    public Totem() {
-        super(
-                "Totem",
-                """
-                        Place a totem on your target location. Target it and use other abilities to activate it.
-                                                
-                        Using this ability while targeting placed totem will destroy it.
-                        """,
-                Material.OBSIDIAN
-        );
+    private final ArmorStand stand;
+    private final DisplayEntity displayEntity;
 
-        addAttributeDescription("Cooldown", BukkitUtils.roundTick(PLACE_CD) + "s");
-        addAttributeDescription("Destroy Cooldown: &l%ss", BukkitUtils.roundTick(DESTROY_CD) + "s");
-        addAttributeDescription("Maximum Totems &l%s", MAX_TOTEMS);
-    }
+    private boolean landed;
 
-    @Override
-    public void onStart() {
-        final int tickPeriod = 5;
+    public Totem(TotemTalent talent, GamePlayer player, TotemResonance resonance) {
+        this.talent = talent;
+        this.player = player;
+        this.resonance = resonance;
 
-        new GameTask() {
-            private int tick = 0;
+        final Location location = player.getMidpointLocation();
+        location.setPitch(0.0f);
 
-            @Override
-            public void run() {
-                playerTotems.values().forEach(totems -> totems.forEach(totem -> {
-                    final ResonanceType resonanceType = totem.getResonanceType();
-                    final int interval = resonanceType.getInterval();
-                    if (interval != 0 && tick % interval != 0) {
-                        return;
-                    }
+        this.displayEntity = resonance.getDisplayData().spawnInterpolated(location);
 
-                    resonanceType.resonate(totem);
-                }));
-                tick += tickPeriod;
-            }
-        }.runTaskTimer(0, tickPeriod);
-    }
+        player.getTeam().glowEntity(displayEntity);
 
-    @Override
-    public void onDeath(@Nonnull GamePlayer player) {
-        getPlayerTotems(player).forEach(ActiveTotem::destroy);
-        playerTotems.remove(player);
-    }
+        stand = Entities.ARMOR_STAND.spawn(location, self -> {
+            self.setInvisible(true);
+            self.setSmall(true);
+            self.setGravity(true);
+            self.setInvulnerable(true);
+            self.setSilent(true);
 
-    @Override
-    public void onStop() {
-        playerTotems.values().forEach(totems -> totems.forEach(ActiveTotem::destroy));
-        playerTotems.clear();
-    }
+            self.addPassenger(displayEntity.getHead());
+        });
 
-    @Override
-    public Response execute(@Nonnull GamePlayer player) {
-        // Check for destroying
-        final ActiveTotem targetTotem = getTargetTotem(player);
+        final Vector vector = player.getDirection()
+                .add(player.getVelocity().normalize().setY(talent.verticalVelocity))
+                .multiply(talent.velocity);
 
-        if (targetTotem != null) {
-            getPlayerTotems(player).remove(targetTotem);
-            targetTotem.destroy();
-            startCd(player, DESTROY_CD);
-            return Response.OK;
-        }
-
-        final Block block = player.getTargetBlockExact(10);
-
-        if (block == null) {
-            return Response.error("Cannot place there.");
-        }
-
-        final Block origin = block.getRelative(BlockFace.UP);
-        final Block plate = origin.getRelative(BlockFace.UP);
-
-        final Location location = origin.getLocation();
-
-        if (!origin.getType().isAir() || !plate.getType().isAir()) {
-            return Response.error("Cannot fit totem!");
-        }
-
-        final LinkedList<ActiveTotem> totems = getPlayerTotems(player);
-        if (totems.size() >= MAX_TOTEMS) {
-            final ActiveTotem first = totems.pollFirst();
-            if (first != null) {
-                first.destroy();
-            }
-        }
-
-        final ActiveTotem totem = new ActiveTotem(player, location);
-        totems.add(totem);
-        totem.create();
-
-        startCd(player, PLACE_CD);
-        return Response.OK;
-    }
-
-    @Nullable
-    public ActiveTotem getTargetTotem(GamePlayer player) {
-        // TODO: 019, Mar 19, 2023 - Maybe use dot
-        final Location location = player.getLocation().add(0, 1.5, 0);
-        final Vector vector = location.getDirection().normalize();
-
-        for (double i = 0; i < 100; i += 0.5) {
-            double x = vector.getX() * i;
-            double y = vector.getY() * i;
-            double z = vector.getZ() * i;
-            location.add(x, y, z);
-
-            for (final Shulker shulker : getShulkersNearby(location)) {
-                final LinkedList<ActiveTotem> totems = getPlayerTotems(player);
-                if (totems.isEmpty()) {
-                    continue;
-                }
-
-                for (ActiveTotem totem : totems) {
-                    if (totem.isShulker(shulker) && totem.getPlayer().equals(player)) {
-                        return totem;
-                    }
-                }
-            }
-
-            location.subtract(x, y, z);
-        }
-
-        return null;
+        stand.setVelocity(vector);
+        runTaskTimer(0, 1);
     }
 
     @Nonnull
-    public LinkedList<ActiveTotem> getPlayerTotems(GamePlayer player) {
-        return playerTotems.computeIfAbsent(player, m -> Lists.newLinkedList());
+    public Location getLocation() {
+        return stand.getLocation().add(0, 1, 0);
     }
 
-    private Set<Shulker> getShulkersNearby(Location location) {
-        final World world = location.getWorld();
-        final Set<Shulker> set = Sets.newHashSet();
+    @Nonnull
+    public GamePlayer getPlayer() {
+        return player;
+    }
 
-        if (world == null) {
-            return set;
+    @Override
+    public void onTaskStop() {
+        stand.remove();
+
+        if (displayEntity != null) {
+            displayEntity.remove();
         }
 
-        for (Entity entity : world.getNearbyEntities(location, 1, 1, 1)) {
-            if (entity instanceof Shulker shulker) {
-                set.add(shulker);
+        // Fx
+        final Location location = getLocation();
+
+        player.playWorldSound(location, Sound.ENTITY_IRON_GOLEM_DAMAGE, 0.25f);
+        player.spawnWorldParticle(location, Particle.CRIT, 25, 0.25d, 0.5d, 0.25d, 0.5f);
+
+        // Explode
+        if (player.random.nextDouble() < talent.chanceToExplode) {
+            Collect.nearbyEntities(location, 2.5d).forEach(entity -> {
+                if (player.isSelfOrTeammate(entity)) {
+                    return;
+                }
+
+                entity.damageNoKnockback(talent.explodeDamage, player, EnumDamageCause.TOTEM);
+            });
+
+            player.playWorldSound(location, Sound.ENTITY_GENERIC_EXPLODE, 1);
+        }
+    }
+
+    public void onLand() {
+        Collect.nearbyEntities(getLocation(), 2).forEach(entity -> {
+            if (player.isSelfOrTeammate(entity)) {
+                return;
             }
-        }
 
-        return set;
+            entity.damage(1, player, EnumDamageCause.TOTEM);
+        });
+
+        // Fx
+        player.playWorldSound(getLocation(), Sound.ENTITY_IRON_GOLEM_REPAIR, 1);
     }
 
-    public void defaultAllTotems(GamePlayer player) {
-        for (ActiveTotem totem : getPlayerTotems(player)) {
-            totem.defaultColor();
+    @Override
+    public void run(int tick) {
+        if (!stand.isOnGround()) {
+            return;
         }
+
+        if (!landed) {
+            landed = true;
+            onLand();
+        }
+
+        // Remove
+        if (shouldRemove()) {
+            talent.getTotems(player).remove(this);
+            cancel();
+            return;
+        }
+
+        if (tick > 0 && modulo(talent.interval)) {
+            resonance.resonate(this);
+        }
+    }
+
+    public boolean shouldRemove() {
+        final double y = getLocation().getY();
+
+        if (y <= 1) {
+            Achievements.TOTEM_OUT_OF_WORLD.complete(player);
+            return true;
+        }
+
+        return getTick() > talent.getDuration();
+    }
+
+    @Override
+    public String toString() {
+        return "Totem@" + Integer.toHexString(hashCode());
+    }
+
+    public boolean isOnGround() {
+        return stand.isOnGround();
     }
 }

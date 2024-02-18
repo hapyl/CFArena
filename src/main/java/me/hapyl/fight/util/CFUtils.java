@@ -1,16 +1,17 @@
 package me.hapyl.fight.util;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
 import com.google.common.collect.Lists;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.ForceCloned;
-import me.hapyl.fight.event.PlayerHandler;
 import me.hapyl.fight.game.Debug;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.collection.RandomTable;
 import me.hapyl.spigotutils.module.annotate.TestedOn;
 import me.hapyl.spigotutils.module.annotate.Version;
 import me.hapyl.spigotutils.module.math.Geometry;
@@ -27,6 +28,7 @@ import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
@@ -35,7 +37,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.EulerAngle;
-import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 import org.joml.Matrix4f;
 
@@ -47,6 +48,7 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -58,64 +60,87 @@ public class CFUtils {
 
     public static final Pattern STRIP_COLOR_PATTERN = Pattern.compile("(?i)" + '&' + "[0-9A-FK-ORX]");
     public static final Object[] DISAMBIGUATE = new Object[] {};
+    public static final double ANGLE_IN_RAD = 6.283185307179586d;
+
     private static final DecimalFormat TICK_FORMAT = new DecimalFormat("0.0");
     private static final Random RANDOM = new Random();
-    public static double ANGLE_IN_RAD = 6.283185307179586d;
+    private static final double ANCHOR_COMPENSATION = 0.61d;
+
+    private static final Map<Tag<Material>, Double> anchorCompensationMap = Map.of(
+            Tag.SLABS, 0.5d,
+            Tag.WOOL_CARPETS, 0.075d // This does NOT include moss carpet because fuck you
+    );
+
+    private static final Set<Tag<Material>> softSolidTags = Set.of(
+            Tag.WOOL_CARPETS, Tag.ALL_SIGNS
+    );
+
     private static String SERVER_IP;
     private static List<EffectType> ALLOWED_EFFECTS;
 
-    public static String stripColor(String message) {
+    /**
+     * Strips the color from the given message.
+     *
+     * @param message - Message.
+     * @return the uncolored message.
+     */
+    @Nonnull
+    public static String stripColor(@Nonnull String message) {
         message = ChatColor.stripColor(message);
         message = STRIP_COLOR_PATTERN.matcher(message).replaceAll("");
 
         return message;
     }
 
-    public static String colorString(String str, String defColor) {
-        final StringBuilder builder = new StringBuilder();
-        final String[] strings = str.split(" ");
-        for (final String string : strings) {
-            if (string.endsWith("%")) {
-                builder.append(ChatColor.RED);
-            }
-            else if (string.endsWith("s") && string.contains("[0-9]")) {
-                builder.append(ChatColor.AQUA);
-            }
-            else {
-                builder.append(defColor);
-            }
-            builder.append(string).append(" ");
-        }
-        return builder.toString().trim();
-    }
-
-    public static void setEquipment(LivingEntity entity, /*@IjSg("equipment")*/ Consumer<EntityEquipment> consumer) {
+    /**
+     * Sets the {@link LivingEntity}'s equipment.
+     * <p>
+     * Because {@link LivingEntity#getEquipment()} is nullable for some reason.
+     *
+     * @param entity   - Entity.
+     * @param consumer - Consumer.
+     */
+    public static void setEquipment(@Nonnull LivingEntity entity, /*@IjSg("equipment")*/ @Nonnull Consumer<EntityEquipment> consumer) {
         Nulls.runIfNotNull(entity.getEquipment(), consumer);
     }
 
+    /**
+     * Scales the particle offset to be a 1:1 block ratio.
+     *
+     * @param v - offset.
+     * @return the scaled offset.
+     */
     public static double scaleParticleOffset(double v) {
         return v * v / 8.0d;
     }
 
     /**
-     * Gets a loaded world from location or throws an error if the world is null.
+     * Gets the {@link World} from the given {@link Location}, or throws {@link IllegalStateException} if the world is unloaded.
      *
      * @param location - Location.
-     * @return a loaded world from location or throws an error if the world is null.
+     * @return the world from the given location, or throws an error if the world is unloaded.
      */
     @Nonnull
-    public static World getWorld(Location location) {
+    public static World getWorld(@Nonnull Location location) {
         final World world = location.getWorld();
+
         if (world == null) {
-            throw new NullPointerException("world is unloaded");
+            throw new IllegalStateException("unloaded world");
         }
 
         return world;
     }
 
+    /**
+     * Gets the {@link Team} the given {@link Entity} belongs to in the main scoreboard; or null if there are none.
+     *
+     * @param entity - Entity.
+     * @return the team the given entity belongs to in the main scoreboard; or null if there are none.
+     */
     @Nullable
-    public static Team getEntityTeam(Entity entity) {
+    public static Team getEntityTeam(@Nonnull Entity entity) {
         final Scoreboard scoreboard = Bukkit.getScoreboardManager() == null ? null : Bukkit.getScoreboardManager().getMainScoreboard();
+
         if (scoreboard == null) {
             return null;
         }
@@ -123,26 +148,16 @@ public class CFUtils {
         return getEntityTeam(entity, scoreboard);
     }
 
+    /**
+     * Gets the {@link Team} the given {@link Entity} belongs to in the given scoreboard; or null if there are none.
+     *
+     * @param entity     - Entity.
+     * @param scoreboard - Scoreboard.
+     * @return the team the given entity belongs to in the given scoreboard; or null if there are none.
+     */
     @Nullable
-    public static Team getEntityTeam(Entity entity, Scoreboard scoreboard) {
+    public static Team getEntityTeam(@Nonnull Entity entity, @Nonnull Scoreboard scoreboard) {
         return scoreboard.getEntryTeam(entity instanceof Player ? entity.getName() : entity.getUniqueId().toString());
-    }
-
-    @Nonnull
-    public static List<EffectType> getEffects() {
-        if (ALLOWED_EFFECTS == null) {
-            ALLOWED_EFFECTS = Lists.newArrayList();
-
-            for (EffectType type : EffectType.values()) {
-                if (PlayerHandler.disabledEffects.containsKey(type.getType())) {
-                    continue;
-                }
-
-                ALLOWED_EFFECTS.add(type);
-            }
-        }
-
-        return Lists.newArrayList(ALLOWED_EFFECTS);
     }
 
     public static void playSoundAndCut(Location location, Sound sound, float pitch, int cutAt) {
@@ -216,29 +231,25 @@ public class CFUtils {
         return result;
     }
 
-    /**
-     * @deprecated use {@link me.hapyl.fight.game.effect.GameEffectType#INVISIBILITY}
-     */
-    @Deprecated
-    public static void hidePlayer(Player player) {
-        CF.getAlivePlayers().forEach(gp -> {
-            if (gp.getPlayer() == player || gp.isSpectator() || gp.isTeammate(CF.getPlayer(player))) {
+    public static void hidePlayer(@Nonnull GamePlayer player) {
+        CF.getAlivePlayers().forEach(gamePlayer -> {
+            if (gamePlayer.equals(player) || gamePlayer.isSpectator() || gamePlayer.isTeammate(player)) {
                 return;
             }
 
-            gp.hideEntity(player);
+            player.hide(gamePlayer.getPlayer());
         });
+
+        // todo?: Send a packet to keep the player in tab
     }
 
-    /**
-     * @deprecated use {@link me.hapyl.fight.game.effect.GameEffectType#INVISIBILITY}
-     */
-    @Deprecated
-    public static void showPlayer(Player player) {
-        CF.getPlayers().forEach(gp -> {
-            if (gp.isNot(player)) {
-                gp.showEntity(player);
+    public static void showPlayer(@Nonnull GamePlayer player) {
+        CF.getPlayers().forEach(gamePlayer -> {
+            if (gamePlayer.equals(player)) {
+                return;
             }
+
+            player.show(gamePlayer.getPlayer());
         });
     }
 
@@ -361,15 +372,8 @@ public class CFUtils {
         throw new IllegalArgumentException(errorMessage);
     }
 
-    @TestedOn(version = Version.V1_20)
+    @TestedOn(version = Version.V1_20_2)
     public static void setWitherInvul(Wither wither, int invul) {
-        //Reflect.setDataWatcherValue(
-        //        Objects.requireNonNull(Reflect.getMinecraftEntity(wither)),
-        //        DataWatcherType.INT,
-        //        19,
-        //        invul,
-        //        Bukkit.getOnlinePlayers().toArray(new Player[] {})
-        //);
         ((EntityWither) Objects.requireNonNull(Reflect.getMinecraftEntity(wither))).s(invul);
     }
 
@@ -419,6 +423,7 @@ public class CFUtils {
         createExplosion(location, range, damage, damager, cause, null);
     }
 
+    @Deprecated
     public static void createExplosion(Location location, double range, double damage, @Nullable LivingGameEntity damager, @Nullable EnumDamageCause cause, @Nullable Consumer<LivingGameEntity> consumer) {
         final World world = location.getWorld();
         if (world == null) {
@@ -563,37 +568,126 @@ public class CFUtils {
     }
 
     @Nonnull
-    public static Location anchorLocation(@Nonnull Location location) {
+    public static Location findRandomLocationAround(@Nonnull Location around) {
+        final Location location = new Location(
+                around.getWorld(),
+                around.getBlockX(),
+                around.getBlockY(),
+                around.getBlockZ(),
+                around.getYaw(),
+                around.getPitch()
+        );
         final World world = location.getWorld();
 
         if (world == null) {
-            return location;
+            throw new IllegalArgumentException("Cannot find location in an unloaded world.");
         }
 
-        // in case standing on slab/non-full block
-        location.setY(location.getBlockY() + 1d);
+        location.add(RANDOM.nextDouble(-3, 3), 0, RANDOM.nextDouble(-3, 3));
 
+        return anchorLocation(location);
+    }
+
+    /**
+     * <b>Attempts</b> to anchor the location, so it's directly on a block.
+     *
+     * @param originalLocation - Location.
+     * @return The same anchored location.
+     */
+    @Nonnull
+    public static Location anchorLocation(@Nonnull Location originalLocation) {
+        final Location location = new Location(
+                originalLocation.getWorld(),
+                originalLocation.getX(),
+                originalLocation.getBlockY() + 0.5d,
+                originalLocation.getZ(),
+                originalLocation.getYaw(),
+                originalLocation.getPitch()
+        );
+
+        final World world = location.getWorld();
+
+        if (world == null) {
+            throw new IllegalArgumentException("Cannot anchor location in an unloaded world.");
+        }
+
+        // in case in a half-block or a carpet
+        location.add(0, ANCHOR_COMPENSATION, 0);
+
+        // Up
         while (true) {
             final Block block = location.getBlock();
 
-            if (block.getY() <= world.getMinHeight()) {
+            if (location.getY() >= world.getMaxHeight() || !block.getType().isSolid()) {
                 break;
             }
 
-            if (!block.isEmpty()) {
-                if (isBlockSlab(block.getType())) {
-                    location.subtract(0, 0.5, 0);
-                }
-
-                // compensate
-                location.add(0, 0.15, 0);
-                break;
-            }
-
-            location.subtract(0, 0.1, 0);
+            location.add(0, 1, 0);
         }
 
+        // Down
+        while (true) {
+            final Block block = location.getBlock();
+            final Block blockAbove = block.getRelative(BlockFace.UP);
+            final Block blockBelow = block.getRelative(BlockFace.DOWN);
+
+            if (location.getY() <= world.getMinHeight()) {
+                return originalLocation; // fail-safe to NOT fall out of the world
+            }
+
+            if (isAirOrSoftSolid(blockAbove) && isAirOrSoftSolid(block) && isSolid(blockBelow)) {
+                break;
+            }
+
+            location.subtract(0, 1, 0);
+        }
+
+        // Compensate
+        location.subtract(0, ANCHOR_COMPENSATION - 0.5d, 0);
+
+        // Compensate based on a block below
+        final Material blockType = location.getBlock().getType();
+        final Material blockBelowType = location.getBlock().getRelative(BlockFace.DOWN).getType();
+
+        anchorCompensationMap.forEach((tag, value) -> {
+            // If IN a block, compensate UP
+            if (tag.isTagged(blockType)) {
+                location.add(0, value, 0);
+            }
+            // If ABOVE a block, compensate DOWN
+            else if (tag.isTagged(blockBelowType)) {
+                location.subtract(0, value, 0);
+            }
+        });
+
         return location;
+    }
+
+    public static boolean isAirOrSoftSolid(@Nonnull Block block) {
+        final Material type = block.getType();
+
+        if (type.isAir() || !type.isOccluding()) {
+            return true;
+        }
+
+
+        // Carpets
+        for (Tag<Material> tag : softSolidTags) {
+            if (tag.isTagged(type)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static boolean isSolid(@Nonnull Block block) {
+        final Material type = block.getType();
+
+        return switch (type) {
+            case BARRIER -> false;
+            default -> type.isSolid();
+        };
     }
 
     public static void setGlowing(@Nonnull Player player, @Nonnull Entity entity, @Nonnull String teamName, @Nonnull ChatColor color) {
@@ -732,6 +826,10 @@ public class CFUtils {
         return RANDOM.nextDouble(origin, bound);
     }
 
+    public static float random(float origin, float bound) {
+        return RANDOM.nextFloat(origin, bound);
+    }
+
     /**
      * Gets a random {@link EulerAngle}.
      *
@@ -790,17 +888,6 @@ public class CFUtils {
     }
 
     /**
-     * Gets a random {@link EffectType}.
-     * This can only return an allowed effect.
-     *
-     * @return a random effect.
-     */
-    @Nonnull
-    public static EffectType getRandomEffect() {
-        return new RandomTable<>(getEffects()).getRandomElement();
-    }
-
-    /**
      * Returns true is the material a slab.
      *
      * @param material - Material.
@@ -835,23 +922,6 @@ public class CFUtils {
         }
     }
 
-    public static void fixFinite(@Nonnull Location location) {
-        fixFinite(location.getX(), location::setX);
-        fixFinite(location.getY(), location::setY);
-        fixFinite(location.getZ(), location::setZ);
-        fixFinite(location.getYaw(), location::setYaw);
-        fixFinite(location.getPitch(), location::setPitch);
-    }
-
-    @Nonnull
-    public static Vector fixFinite(@Nonnull Vector vector) {
-        fixFinite(vector.getX(), vector::setX);
-        fixFinite(vector.getY(), vector::setY);
-        fixFinite(vector.getZ(), vector::setZ);
-
-        return vector;
-    }
-
     @Nullable
     public static URL urlFromString(String url) {
         try {
@@ -861,16 +931,117 @@ public class CFUtils {
         }
     }
 
-    public static void fixFinite(double v, Consumer<Double> fix) {
-        if (!NumberConversions.isFinite(v)) {
-            fix.accept(0.0d);
+    public static <T> Collection<T> computeCollection(@Nonnull Collection<T> collection, @Nonnull T t, boolean add) {
+        if (add) {
+            collection.add(t);
+        }
+        else {
+            collection.remove(t);
+        }
+
+        return collection;
+    }
+
+    public static void validateVarArgs(Object[] objects) {
+        if (objects == null || objects.length == 0) {
+            throw new IllegalArgumentException("there must be at least one var arg!");
         }
     }
 
-    public static void fixFinite(float v, Consumer<Float> fix) {
-        if (!NumberConversions.isFinite(v)) {
-            Debug.info("F NOT FINITE");
-            fix.accept(0.0f);
+    public static int divide(int a, int b) {
+        return (int) ((double) (a / b));
+    }
+
+    @Nonnull
+    public static <K> Cache<K, Boolean> createCache(long expireAfter) {
+        return CacheBuilder.newBuilder()
+                .expireAfterWrite(expireAfter, TimeUnit.MILLISECONDS)
+                .build(new CacheLoader<K, Boolean>() {
+                    @Nonnull
+                    @Override
+                    public Boolean load(@Nonnull K key) throws Exception {
+                        return true;
+                    }
+                });
+    }
+
+    @Nonnull
+    public static <E extends Enum<E>> Set<E> setOfEnum(Class<E> clazz, Function<E, Boolean> fn) {
+        Set<E> set = new HashSet<>();
+
+        final E[] enumConstants = clazz.getEnumConstants();
+        for (E enumConstant : enumConstants) {
+            if (fn.apply(enumConstant)) {
+                set.add(enumConstant);
+            }
+        }
+
+        return set;
+    }
+
+    /**
+     * Gets a copy of a mapped list; or empty list.
+     *
+     * @param hashMap - Hash map.
+     * @param key     - Key.
+     * @return a copy of a mapped list.
+     */
+    @Nonnull
+    public static <K, V> List<V> copyMapList(@Nonnull Map<K, List<V>> hashMap, @Nonnull K key) {
+        final List<V> list = hashMap.get(key);
+
+        return list != null ? new ArrayList<>(list) : new ArrayList<>();
+    }
+
+    /**
+     * Increments an integer if the <code>condition</code> is <code>true</code> or sets to <code>min</code> otherwise.
+     *
+     * @param integer    - Integer.
+     * @param condition- Condition.
+     * @param min        - Min.
+     * @param max        - Max
+     * @return <code>min(int+1, max)</code> if the condition is met; <code>min</code> otherwise.
+     */
+    public static int incrementIntegerConditionallyAndClamp(int integer, boolean condition, int min, int max) {
+        return condition ? Math.min(integer + 1, max) : min;
+    }
+
+    @Nullable
+    public static UUID getUUIDfromString(@Nullable String string) {
+        if (string == null) {
+            return null;
+        }
+
+        try {
+            return UUID.fromString(string);
+        } catch (IllegalArgumentException e) {
+            return null;
         }
     }
+
+    @Nonnull
+    public static <T> String makeStringCommaAnd(@Nonnull Collection<T> collection, @Nonnull Function<T, String> fn) {
+        final StringBuilder builder = new StringBuilder();
+        final int size = collection.size();
+        int index = 0;
+
+        for (T t : collection) {
+            if (size == 1) {
+                return fn.apply(t);
+            }
+
+            if (index == size - 1) {
+                builder.append(" and ");
+            }
+            else if (index != 0) {
+                builder.append(", ");
+            }
+
+            builder.append(fn.apply(t));
+            ++index;
+        }
+
+        return builder.toString();
+    }
+
 }

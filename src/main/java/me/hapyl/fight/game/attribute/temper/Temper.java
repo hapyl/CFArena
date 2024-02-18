@@ -8,12 +8,13 @@ import me.hapyl.fight.util.SmallCapsDescriber;
 import javax.annotation.Nonnull;
 
 /**
+ * Used as a name for a temper.
+ *
+ * @see #newInstance()
  * @see TemperInstance
  * @see AttributeTemperTable
  */
 public enum Temper implements SmallCapsDescriber {
-
-    // fixme -> Could really migrate to something like a memory key
 
     COMMAND, // for testing
     FLOWER_BREEZE,
@@ -46,6 +47,18 @@ public enum Temper implements SmallCapsDescriber {
     MALEDICTION_VEIL,
     SOUL_CRY,
     BLADE_BARRAGE,
+    YRDED,
+    SHARK,
+    SABOTEUR,
+    SPIRITUAL_CLEANSING,
+    SLIME_GUNK,
+    SHAMANS_MARK,
+    ULTIMATE_SACRIFICE,
+    POWER_SLASH(false),
+    SECOND_WIND,
+    EXTRA_CUTS,
+    THROWING_KNIFE,
+    SMOKE_BOMB,
 
     /* Keep semicolon on this line for easier addition. */;
 
@@ -78,7 +91,7 @@ public enum Temper implements SmallCapsDescriber {
 
     @Nonnull
     public TemperInstance newInstance() {
-        return newInstance(smallCaps);
+        return isDisplay ? newInstance(smallCaps) : newAnonymousInstance();
     }
 
     @Nonnull

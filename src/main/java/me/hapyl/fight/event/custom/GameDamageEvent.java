@@ -1,24 +1,23 @@
 package me.hapyl.fight.event.custom;
 
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class GameDamageEvent extends Event implements Cancellable {
+public class GameDamageEvent extends CustomEvent implements Cancellable {
 
     private static final HandlerList HANDLERS = new HandlerList();
 
     private final DamageInstance instance;
     private boolean cancel;
 
-    public GameDamageEvent(DamageInstance instance) {
+    public GameDamageEvent(@Nonnull DamageInstance instance) {
         this.instance = instance;
         this.cancel = false;
     }
@@ -37,8 +36,8 @@ public class GameDamageEvent extends Event implements Cancellable {
         return instance.getDamage();
     }
 
-    public void setDamage(double damage) {
-        instance.damage = damage;
+    public void setDamageMultiplier(double multiplier) {
+        instance.multiplyDamage(multiplier);
     }
 
     @Nullable

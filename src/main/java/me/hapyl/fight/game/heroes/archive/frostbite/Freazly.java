@@ -4,10 +4,7 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.HeroPlaque;
-import me.hapyl.fight.game.heroes.UltimateCallback;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -17,7 +14,7 @@ import org.bukkit.Color;
 
 import javax.annotation.Nonnull;
 
-public class Freazly extends Hero implements HeroPlaque {
+public class Freazly extends Hero {
 
     private final double chillAuraRadius = 3.0d;
     private final TemperInstance temper = Temper.CHILL_AURA
@@ -25,8 +22,8 @@ public class Freazly extends Hero implements HeroPlaque {
             .decreaseScaled(AttributeType.SPEED, 10)
             .decreaseScaled(AttributeType.ATTACK_SPEED, 50);
 
-    public Freazly() {
-        super("Frostbite");
+    public Freazly(@Nonnull Heroes handle) {
+        super(handle, "Frostbite");
 
         setArchetype(Archetype.HEXBANE);
         setDescription("A very cold entity to the touch.");
@@ -38,7 +35,7 @@ public class Freazly extends Hero implements HeroPlaque {
         equipment.setBoots(Color.fromRGB(45, 54, 69));
 
         setWeapon(new FrostbiteWeapon());
-        setUltimate(new FrostbiteUltimate(60));
+        setUltimate(new FrostbiteUltimate(this, 60));
     }
 
     @Override
@@ -87,14 +84,4 @@ public class Freazly extends Hero implements HeroPlaque {
         return Talents.CHILL_AURA.getTalent();
     }
 
-    @Nonnull
-    @Override
-    public String text() {
-        return "&a&lREWORKED!";
-    }
-
-    @Override
-    public long until() {
-        return HeroPlaque.super.until();
-    }
 }

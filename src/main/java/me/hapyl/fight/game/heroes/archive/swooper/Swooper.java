@@ -1,61 +1,59 @@
 package me.hapyl.fight.game.heroes.archive.swooper;
 
-import me.hapyl.fight.game.Debug;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.UltimateCallback;
+import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.loadout.HotbarSlots;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.game.ui.UIComponent;
-import me.hapyl.fight.game.weapons.PackedParticle;
-import me.hapyl.fight.game.weapons.range.RangeWeapon;
-import me.hapyl.fight.util.Buffer;
-import me.hapyl.fight.util.BufferMap;
+import me.hapyl.fight.game.talents.archive.swooper.SwooperPassive;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
+import me.hapyl.fight.game.talents.archive.witcher.Akciy;
+import me.hapyl.fight.game.ui.UIComplexComponent;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.ItemStacks;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.math.Numbers;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import org.bukkit.*;
-import org.bukkit.entity.Player;
+import me.hapyl.fight.util.collection.player.PlayerDataMap;
+import me.hapyl.fight.util.collection.player.PlayerMap;
+import me.hapyl.fight.util.displayfield.DisplayField;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.WorldBorder;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-public class Swooper extends Hero implements Listener, UIComponent {
+public class Swooper extends Hero implements Listener, UIComplexComponent, PlayerDataHandler<SwooperData>, TickingHero {
 
-    private final int bufferSize = 5 * 20;
-    private final int ultimateSpeed = 2;
-    private final int SHOWSTOPPER_DELAY = 30;
+    @DisplayField public final double ultimateRadius = 100.0d;
+    @DisplayField public final double ultimateDamageMultiplier = 2.5d;
+    private final PlayerDataMap<SwooperData> playerData = PlayerMap.newDataMap(player -> new SwooperData(this, player));
+    private final double knockbackChance = 0.12d;
+    private final int stunDuration = 40;
 
-    private final ItemStack ROCKET_LAUNCHER = new ItemBuilder(Material.GOLDEN_HORSE_ARMOR, "swooper_ultimate")
-            .setName("&aRocket Launcher")
-            .addClickEvent(this::launchProjectile)
-            .build();
-
-    private final BufferMap<Player, SwooperData> dataMap = new BufferMap<>();
-
-    public Swooper() {
-        super("Swooper");
+    public Swooper(@Nonnull Heroes handle) {
+        super(handle, "Swooper");
 
         setArchetype(Archetype.RANGE);
+        setAffiliation(Affiliation.MERCENARY);
 
-        setDescription("A sniper with slow firing rifle, but fast ways to move around the battlefield.");
+        setDescription("""
+                A mercenary sniper with a slow firing rifle.
+                """);
+
         setItem("f181c811ad37467550d7c01cac2e5223c4e99fa7906348f940c9456d8aa0cd1b");
 
         final HeroAttributes attributes = getAttributes();
@@ -66,150 +64,209 @@ public class Swooper extends Hero implements Listener, UIComponent {
         equipment.setLeggings(25, 53, 92);
         equipment.setBoots(25, 53, 102);
 
-        setWeapon(new RangeWeapon(Material.WOODEN_HOE, "swooper_weapon") {
+        setWeapon(new SwooperWeapon(this));
 
-            @Override
-            public double getDamage(@Nonnull GamePlayer player, boolean isHeadShot) {
-                return player.isSneaking() ? 10.0d : 5.0d;
-            }
-
-            @Override
-            public double getMaxDistance(@Nonnull GamePlayer player) {
-                return player.isSneaking() ? 50 : 25;
-            }
-
-            @Override
-            public EnumDamageCause getDamageCause(@Nonnull GamePlayer player) {
-                return EnumDamageCause.RIFLE;
-            }
-
-        }.setCooldown(45)
-                .setMaxAmmo(5)
-                .setParticleTick(new PackedParticle(Particle.FIREWORKS_SPARK))
-                .setSound(Sound.ENTITY_GENERIC_EXPLODE, 2.0f)
-                .setMaxDistance(-1)
-                .setDamage(-1)
-                .setName("Sniper Rifle")
-                .setDescription("""
-                        Slow firing, but high-damage rifle.
-                                        
-                        &6&lSNEAK&7 to activate sniper scope, increasing your rifle's damage and max distance.
-                        """));
-
-        setUltimate(new UltimateTalent(
-                "Showstopper", """
-                Equip a rocket launcher for {duration}.
+        setUltimate(new UltimateTalent(this, "Echolocation", """
+                Instantly cast a &awave&7 outwards that &bscans&7 for enemies.
                                 
-                &6&lCLICK &7to launch explosive in front of you that explodes on impact dealing massive damage.
-                """,
-                75
-        ).setDuration(160).setItem(Material.GOLDEN_HORSE_ARMOR).setSound(Sound.BLOCK_BEACON_POWER_SELECT, 2.0f));
+                After a short delay, &bhighlight&7 all hit &cenemies&7.
+                                
+                Also, gain &4&l🧨 &cOvercharge&7 shots, that have &aincreased &cdamage&7 and can &nshoot&7 &nthrough&7 walls.
+                                
+                &8;;Ultimate is considered as active until all Overcharge shots are fired.
+                """, 60) {
+            @Override
+            public int getDuration() {
+                return -1; // because of casting time
+            }
+        }
+                .setType(Talent.Type.ENHANCE)
+                .setItem(Material.PURPLE_GLAZED_TERRACOTTA)
+                .setSound(Sound.ENTITY_ELDER_GUARDIAN_AMBIENT, 2.0f)
+                .setCastDuration(20));
+
+        copyDisplayFieldsToUltimate();
     }
 
     @Override
-    public void onStart() {
-        //new GameTask() {
-        //    private int tick = 0;
-        //
-        //    @Override
-        //    public void run() {
-        //        for (GamePlayer gamePlayer : Heroes.SWOOPER.getAlivePlayers()) {
-        //            final Player player = gamePlayer.getPlayer();
-        //
-        //            if (gamePlayer.isDead() || isUsingUltimate(player)) {
-        //                return;
-        //            }
-        //
-        //            final Buffer<SwooperData> buffer = dataMap.computeIfAbsent(player, bufferSize);
-        //            buffer.add(new SwooperData(gamePlayer));
-        //
-        //            // Draw lines every 5 ticks
-        //            if (tick % 5 == 0) {
-        //                buffer.forEach(data -> {
-        //                    PlayerLib.spawnParticle(player, data.getLocation().add(0.0d, 0.15d, 0.0d), Particle.CRIT_MAGIC, 1);
-        //                });
-        //            }
-        //        }
-        //
-        //        tick++;
-        //    }
-        //}.runTaskTimer(0, 1);
+    public boolean processInvisibilityDamage(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity, double damage) {
+        return false; // Allow damaging while invisible lol
     }
 
     @Override
-    public void onStop() {
-        //dataMap.removeBuffers();
+    public boolean isValidIfInvisible(@Nonnull GamePlayer player) {
+        return true; // This will allow Swooper to be damaged and abilities to work against him
     }
 
     @Override
-    public void onDeath(@Nonnull GamePlayer player) {
-        //dataMap.removeBuffer(player);
+    public void processDamageAsDamager(@Nonnull DamageInstance instance) {
+        final LivingGameEntity entity = instance.getEntity();
+        final GamePlayer player = instance.getDamagerAsPlayer();
+        final EnumDamageCause cause = instance.getCause();
+
+        if (player == null) {
+            return;
+        }
+
+        final SwooperData data = getPlayerData(player);
+
+        // Butt
+        if (cause == EnumDamageCause.ENTITY_ATTACK) {
+            data.lastButt = Math.max(0, data.lastButt - 1);
+
+            if (data.lastButt == 0 && player.random.nextDouble() <= knockbackChance) {
+                final Vector vector = player.getLocation().getDirection().normalize().multiply(0.5d);
+
+                data.lastButt = 5;
+
+                entity.setVelocity(vector);
+                Talents.AKCIY.getTalent(Akciy.class).stun(entity, stunDuration);
+
+                // Fx
+                entity.playWorldSound(Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 0.0f);
+            }
+        }
+
+        if (!data.isHighlighted(entity)) {
+            return;
+        }
+
+        data.removeHighlighted(entity);
     }
 
+    @Override
+    public void processDamageAsVictim(@Nonnull DamageInstance instance) {
+        final GamePlayer player = instance.getEntityAsPlayer();
+        final SwooperData data = getPlayerData(player);
+
+        if (data.isStealthMode()) {
+            data.setStealthMode(false);
+        }
+    }
+
+    @Override
+    public void tick(int tick) {
+        final SwooperPassive passiveTalent = getPassiveTalent();
+
+        getAlivePlayers().forEach(player -> {
+            if (player.hasCooldown(passiveTalent)) {
+                return;
+            }
+
+            // Passive check
+            final SwooperData data = getPlayerData(player);
+            final boolean isSneaking = player.isSneaking();
+
+            data.sneakTicks = isSneaking ? Math.max(data.sneakTicks + 1, 0) : 0;
+
+            final boolean canActivePassive = data.sneakTicks >= passiveTalent.sneakThreshold;
+
+            if (data.isStealthMode()) {
+                if (!canActivePassive || data.isTooFarAwayFromNest()) {
+                    data.sneakTicks = 0;
+                    data.setStealthMode(false);
+                }
+
+                // Fx
+                data.drawNestParticles();
+            }
+            else if (canActivePassive) {
+                if (!data.isStealthMode()) {
+                    data.setStealthMode(true);
+                }
+            }
+
+            // Display
+            if (data.sneakTicks > 2 && !data.isStealthMode()) {
+                player.sendSubtitle(data.makeBars(), 0, 10, 0);
+            }
+
+            // Zoom check
+            final HotbarSlots heldSlot = player.getHeldSlot();
+            if (heldSlot != HotbarSlots.WEAPON) {
+                player.removePotionEffect(PotionEffectType.SLOW);
+            }
+        });
+    }
+
+    @Nullable
+    @Override
     public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
         setUsingUltimate(player, true);
 
-        final PlayerInventory inventory = player.getInventory();
+        final WorldBorder border = Bukkit.createWorldBorder();
+        final SwooperData data = getPlayerData(player);
 
-        // Add delay before shooting but increase time
-        player.setCooldown(ROCKET_LAUNCHER.getType(), SHOWSTOPPER_DELAY);
-        player.setItemAndSnap(HotbarSlots.HERO_ITEM, ROCKET_LAUNCHER);
+        border.setCenter(player.getLocation());
+        border.setSize(2.0d);
+        border.setSize(ultimateRadius * 2, TimeUnit.MILLISECONDS, getUltimate().getCastDuration() * 50L);
 
-        new GameTask() {
-            private final int DURATION = getUltimateDuration() + SHOWSTOPPER_DELAY;
-            private int tick = DURATION;
+        player.setWorldBorder(border);
 
+        // Fx
+        player.playWorldSound(Sound.ENTITY_ELDER_GUARDIAN_CURSE, 0.75f);
+        player.playWorldSound(Sound.ENTITY_ELDER_GUARDIAN_CURSE, 1.25f);
+
+        return new UltimateCallback() {
             @Override
-            public void run() {
-                if (tick-- <= 0 || player.getInventory().getItem(4) == null) {
-                    removeRocketLauncher();
-                    return;
-                }
+            public void callback(@Nonnull GamePlayer player) {
+                player.setWorldBorder(null);
 
-                final int tick20 = tick * 20 / DURATION;
-                final StringBuilder builder = new StringBuilder();
+                final int enemyCount = Collect.enemyPlayers(player).size();
 
-                for (int i = 0; i < 20; i++) {
-                    builder.append(i <= tick20 ? ChatColor.GOLD : ChatColor.DARK_GRAY).append("-");
-                }
+                data.ultimateShots = enemyCount <= 1 ? 2 : 3;
 
-                player.sendTitle("&eRocket Fuse", builder.toString(), 0, 5, 2);
+                Collect.nearbyEntities(player.getLocation(), ultimateRadius).forEach(entity -> {
+                    if (player.isSelfOrTeammate(entity)) {
+                        return;
+                    }
+
+                    data.addHighlighted(entity);
+
+                    // Fx
+                    player.playSound(entity.getLocation(), Sound.ENTITY_ILLUSIONER_CAST_SPELL, 1.25f);
+                });
             }
-
-            private void removeRocketLauncher() {
-                setUsingUltimate(player, false);
-                player.getInventory().setItem(4, ItemStacks.AIR);
-                cancel();
-            }
-        }.runTaskTimer(0, 1);
-
-        return UltimateCallback.OK;
+        };
     }
 
-    @Nonnull
+    @Nullable
     @Override
-    public String getString(@Nonnull GamePlayer player) {
-        return "";
-        //final Buffer<SwooperData> buffer = dataMap.get(player);
-        //
-        //if (buffer == null) {
-        //    return "";
-        //}
-        //
-        //final SwooperData first = buffer.peekFirst();
-        //return first == null ? "" : "&e⇄ %.1f ❤".formatted(first.health());
+    public List<String> getStrings(@Nonnull GamePlayer player) {
+        final SwooperData data = getPlayerData(player);
+        final SwooperPassive talent = getPassiveTalent();
+
+        final boolean stealthMode = data.isStealthMode();
+        final int ultimateShots = data.ultimateShots;
+
+        final int cdTimeLeft = talent.getCdTimeLeft(player);
+
+        return List.of(
+                "%s".formatted(stealthMode ? "&3&k| &b&l⛺ &3&k|" : ("&8⛺" +
+                        (cdTimeLeft > 0 ? " " + CFUtils.decimalFormatTick(cdTimeLeft) : ""))),
+                ultimateShots > 0 ? "&4&l🧨 &c&l" + ultimateShots : ""
+        );
     }
 
     @EventHandler()
     public void handleSniperScope(PlayerToggleSneakEvent ev) {
-        final Player player = ev.getPlayer();
-        if (validatePlayer(player) && player.getInventory().getHeldItemSlot() == 0) {
-            if (ev.isSneaking()) {
-                PlayerLib.addEffect(player, PotionEffectType.SLOW, 10000, 4);
-            }
-            else {
-                PlayerLib.removeEffect(player, PotionEffectType.SLOW);
-            }
+        final GamePlayer player = CF.getPlayer(ev);
+
+        if (player == null || !validatePlayer(player)) {
+            return;
+        }
+
+        if (player.getHeldSlot() != HotbarSlots.WEAPON) {
+            return;
+        }
+
+        if (ev.isSneaking()) {
+            player.addPotionEffectIndefinitely(PotionEffectType.SLOW, 4);
+            player.playWorldSound(Sound.ITEM_SPYGLASS_USE, 1.25f);
+        }
+        else {
+            player.removePotionEffect(PotionEffectType.SLOW);
+            player.playWorldSound(Sound.ITEM_SPYGLASS_USE, 0.75f);
         }
     }
 
@@ -220,116 +277,18 @@ public class Swooper extends Hero implements Listener, UIComponent {
 
     @Override
     public Talent getSecondTalent() {
-        return Talents.BLINK.getTalent();
+        return Talents.SWOOPER_SMOKE_BOMB.getTalent();
     }
 
     @Override
-    public Talent getPassiveTalent() {
-        return Talents.SNIPER_SCOPE.getTalent();
+    public SwooperPassive getPassiveTalent() {
+        return (SwooperPassive) Talents.SWOOPER_PASSIVE.getTalent();
     }
 
-    @Deprecated
-    private void useUltimateSwoop(Player player) {
-        final Buffer<SwooperData> buffer = dataMap.remove(player);
-
-        if (buffer == null) {
-            Chat.sendMessage(player, "&cNo buffer, somehow.");
-            return;
-        }
-
-        player.setGameMode(GameMode.SPECTATOR);
-        player.addPotionEffect(PotionEffectType.SPEED.createEffect(10000, 3));
-
-        new GameTask() {
-
-            private SwooperData previous = null;
-
-            @Override
-            public void run() {
-                if (next()) {
-                    return;
-                }
-
-                this.cancel();
-                player.setGameMode(GameMode.SURVIVAL);
-                player.removePotionEffect(PotionEffectType.SPEED);
-
-                if (previous == null) {
-                    Debug.warn("previous swooper data somehow null for " + player.getName());
-                    return; // should not happen but just in case
-                }
-
-                // Give health
-                previous.player().setHealth(previous.health());
-            }
-
-            private boolean next() {
-                for (int i = 0; i < ultimateSpeed; i++) {
-                    final SwooperData data = buffer.pollLast();
-
-                    if (data != null) {
-                        previous = data;
-                        player.teleport(data.location());
-                    }
-                    else {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-        }.runTaskTimer(0, 1);
-    }
-
-    private void launchProjectile(Player player) {
-        if (player.hasCooldown(ROCKET_LAUNCHER.getType())) {
-            return;
-        }
-
-        player.getInventory().getItemInMainHand().setAmount(0);
-
-        final Location location = player.getEyeLocation().clone();
-        final Vector vector = location.getDirection();
-
-        player.setVelocity(player.getLocation().getDirection().normalize().multiply(-0.5d));
-
-        new GameTask() {
-            private double distance = 0.5d;
-            private float pitch = 0.45f;
-
-            @Override
-            public void run() {
-                if (((distance += 0.5d) >= 40.0d) || (!location.getBlock().getType().isAir())) {
-                    explode();
-                    return;
-                }
-
-                double x = distance * vector.getX();
-                double y = distance * vector.getY();
-                double z = distance * vector.getZ();
-
-                location.add(x, y, z);
-                pitch = Numbers.clamp(pitch + 0.025f, 0.0f, 2.0f);
-
-                PlayerLib.spawnParticle(location, Particle.LAVA, 4, 0.01, 00.1, 00.1, 0);
-                PlayerLib.playSound(location, Sound.BLOCK_NOTE_BLOCK_PLING, pitch);
-            }
-
-            private void explode() {
-                PlayerLib.spawnParticle(location, Particle.EXPLOSION_HUGE, 1, 0, 0, 0, 0);
-                PlayerLib.spawnParticle(location, Particle.LAVA, 20, 1, 1, 1, 0);
-                PlayerLib.spawnParticle(location, Particle.FLAME, 15, 1, 1, 1, 0.75f);
-                PlayerLib.playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 0.0f);
-                PlayerLib.playSound(location, Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 0.75f);
-
-                Collect.nearbyEntities(location, 6.0d).forEach(entity -> {
-                    final double damage = (100 - (entity.getLocation().distance(location) * 8.33d));
-                    entity.damage((entity.is(player) ? damage / 2 : damage), player, EnumDamageCause.ENTITY_EXPLOSION);
-                });
-
-                this.cancel();
-            }
-        }.runTaskTimer(0, 1);
+    @Nonnull
+    @Override
+    public PlayerDataMap<SwooperData> getDataMap() {
+        return playerData;
     }
 
 }

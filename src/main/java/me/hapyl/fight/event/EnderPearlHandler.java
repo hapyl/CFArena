@@ -2,7 +2,7 @@ package me.hapyl.fight.event;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.custom.EnderPearlTeleportEvent;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -57,7 +57,7 @@ public final class EnderPearlHandler implements Listener {
             return;
         }
 
-        gamePlayer.addEffect(GameEffectType.FALL_DAMAGE_RESISTANCE, 20, true);
+        gamePlayer.addEffect(Effects.FALL_DAMAGE_RESISTANCE, 20, true);
         gamePlayer.teleport(location);
         gamePlayer.playWorldSound(Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f);
     }

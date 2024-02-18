@@ -1,87 +1,164 @@
 package me.hapyl.fight.game.heroes.archive.shaman;
 
-import me.hapyl.fight.CF;
+import me.hapyl.fight.event.custom.GameDamageEvent;
+import me.hapyl.fight.event.custom.GameEntityHealEvent;
+import me.hapyl.fight.game.Named;
+import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.talents.archive.shaman.ActiveTotem;
-import me.hapyl.fight.game.talents.archive.shaman.Totem;
-import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.game.weapons.Weapon;
-import org.bukkit.Material;
+import me.hapyl.fight.game.talents.archive.shaman.TotemTalent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
+import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.game.ui.UIComponent;
+import me.hapyl.fight.util.collection.player.PlayerDataMap;
+import me.hapyl.fight.util.collection.player.PlayerMap;
+import org.bukkit.Sound;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
 
-public class Shaman extends Hero implements ComplexHero, DisabledHero {
+public class Shaman extends Hero implements PlayerDataHandler<ShamanData>, UIComponent, Listener {
 
-    public Shaman() {
-        super("Shaman");
+    private final PlayerDataMap<ShamanData> shamanData = PlayerMap.newDataMap(ShamanData::new);
 
-        setWeapon(new Weapon(Material.BAMBOO).setName("Shaman's Weapon").setDamage(5.0d));
+    private final double damageIncreasePerOverheal = 0.05;
+    private final double maxOverhealUse = 10;
+    private final double maxOverhealDistance = 25;
+
+    public Shaman(@Nonnull Heroes handle) {
+        super(handle, "Shaman");
+
+        setAffiliation(Affiliation.THE_JUNGLE);
+        setArchetype(Archetype.SUPPORT);
+
+        setDescription("""
+                An orc from the jungle. Always rumbles about something.
+                """);
+
+        setWeapon(new ShamanWeapon());
         setItem("a90515c41b3e131b623cc04978f101aab2e5b82c892890df991b7c079f91d2bd");
 
-        final Equipment equipment = getEquipment();
+        final HeroAttributes attributes = getAttributes();
 
+        attributes.setHealth(75);
+        attributes.setAttack(50);
+        attributes.setDefense(75);
+        attributes.setVitality(50); // to balance self-healing
+        attributes.setMending(200);
+        attributes.setEffectResistance(30);
+
+        final Equipment equipment = getEquipment();
         equipment.setChestPlate(110, 94, 74);
         equipment.setLeggings(57, 40, 90);
+
+        setUltimate(new ShamanUltimate(this));
     }
 
-    @Override
-    public void onStart() {
-        new GameTask() {
-            @Override
-            public void run() {
-                CF.getAlivePlayers(Heroes.SHAMAN)
-                        .forEach(player -> {
-                            final Totem totemTalent = getFirstTalent();
-                            final ActiveTotem totem = totemTalent.getTargetTotem(player);
+    @EventHandler()
+    public void handleOverhealGain(GameEntityHealEvent ev) {
+        if (!(ev.getHealer() instanceof GamePlayer player)) {
+            return;
+        }
 
-                            if (totem == null) {
-                                totemTalent.defaultAllTotems(player);
-                                return;
-                            }
+        if (!validatePlayer(player)) {
+            return;
+        }
 
-                            totem.setActive();
-                        });
+        final double excessHealing = ev.getExcessHealing();
+
+        if (excessHealing <= 0) {
+            return;
+        }
+
+        final ShamanData data = getPlayerData(player);
+        data.increaseOverheal(excessHealing);
+    }
+
+    @EventHandler()
+    public void handleOverhealDamage(GameDamageEvent ev) {
+        final LivingGameEntity entity = ev.getEntity();
+
+        if (!(ev.getDamager() instanceof LivingGameEntity damager)) {
+            return;
+        }
+
+        final GameTeam team = damager.getTeam();
+
+        if (team == null) {
+            return;
+        }
+
+        for (GamePlayer player : team.getPlayers()) {
+            if (!validatePlayer(player)) {
+                continue;
             }
-        }.runTaskTimer(0, 5);
+
+            if (damager.getLocation().distance(player.getLocation()) >= maxOverhealDistance) {
+                continue;
+            }
+
+            final ShamanData data = getPlayerData(player);
+            final double overhealCapped = Math.min(data.getOverheal(), maxOverhealUse);
+
+            if (overhealCapped <= 0) {
+                continue;
+            }
+
+            final double damageIncrease = 1 + overhealCapped * damageIncreasePerOverheal;
+
+            ev.setDamageMultiplier(damageIncrease);
+            data.decreaseOverheal(overhealCapped);
+
+            // Spawn display to notify that the damage is increased
+            entity.spawnBuffDisplay("&2🐍", 20);
+            entity.playWorldSound(Sound.ENTITY_CAT_HISS, 1.25f);
+            return;
+        }
     }
 
     @Override
     public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
+        getUltimate().execute(player);
+
         return UltimateCallback.OK;
     }
 
     @Override
     @Nonnull
-    public Totem getFirstTalent() {
-        return (Totem) Talents.TOTEM.getTalent();
+    public TotemTalent getFirstTalent() {
+        return (TotemTalent) Talents.TOTEM.getTalent();
     }
 
     @Override
     public Talent getSecondTalent() {
-        return Talents.TOTEM_SLOWING_AURA.getTalent();
+        return Talents.TOTEM_IMPRISONMENT.getTalent();
     }
 
     @Override
     public Talent getThirdTalent() {
-        return Talents.TOTEM_HEALING_AURA.getTalent();
-    }
-
-    @Override
-    public Talent getFourthTalent() {
-        return Talents.TOTEM_CYCLONE_AURA.getTalent();
-    }
-
-    @Override
-    public Talent getFifthTalent() {
-        return Talents.TOTEM_ACCELERATION_AURA.getTalent();
+        return Talents.SHAMAN_MARK.getTalent();
     }
 
     @Override
     public Talent getPassiveTalent() {
-        return null;
+        return Talents.OVERHEAL.getTalent();
+    }
+
+    @Nonnull
+    @Override
+    public String getString(@Nonnull GamePlayer player) {
+        final ShamanData data = getPlayerData(player);
+
+        return "%s &a%.0f".formatted(Named.OVERHEAL.getCharacter(), data.getOverheal()) + (data.isOverheadMaxed() ? " &lMAX!" : "");
+    }
+
+    @Nonnull
+    @Override
+    public PlayerDataMap<ShamanData> getDataMap() {
+        return shamanData;
     }
 }

@@ -58,7 +58,7 @@ public class TidalWave extends TimedGameTask implements HeroReference<Harbinger>
         location.add(direction);
 
         // Affect
-        Collect.nearbyEntities(location, 1.5d).forEach(entity -> {
+        Collect.nearbyEntities(location, talent.distance).forEach(entity -> {
             if (player.isSelfOrTeammate(entity)) {
                 return;
             }
@@ -66,7 +66,7 @@ public class TidalWave extends TimedGameTask implements HeroReference<Harbinger>
             hero.addRiptide(player, entity, talent.riptideDuration, false);
 
             // Push
-            if (entity.hasCCResistanceAndDisplay(player)) {
+            if (entity.hasEffectResistanceAndNotify(player)) {
                 return;
             }
 
@@ -82,11 +82,13 @@ public class TidalWave extends TimedGameTask implements HeroReference<Harbinger>
 
         // Fx
         final double innerSpread = Math.PI * 2 / 4;
+        final double horizontalSpread = talent.horizontalSpread - talent.innerToOuterSpread;
+        final double verticalSpread = talent.verticalSpread - talent.innerToOuterSpread;
 
         // Spawn 4 inner "vortex splashes"
         for (int index = 1; index <= 4; index++) {
-            final double x = Math.sin(d + innerSpread * index) * 1.5;
-            final double y = Math.cos(d + innerSpread * index) * 1.5;
+            final double x = Math.sin(d + innerSpread * index) * horizontalSpread;
+            final double y = Math.cos(d + innerSpread * index) * verticalSpread;
             final double z = 0;
 
             matrix.transformLocation(location, x, y, z, then -> {
@@ -106,8 +108,8 @@ public class TidalWave extends TimedGameTask implements HeroReference<Harbinger>
 
         // Spawn 6 outer "vortex splashes"
         for (int index = 1; index <= 6; index++) {
-            final double y = Math.sin(d + outerSpread * index) * 3.0;
-            final double x = Math.cos(d + outerSpread * index) * 3.0;
+            final double y = Math.sin(d + outerSpread * index) * talent.verticalSpread;
+            final double x = Math.cos(d + outerSpread * index) * talent.horizontalSpread;
             final double z = d / 20;
 
             final Vector vector = matrix.transform(x, y, z);

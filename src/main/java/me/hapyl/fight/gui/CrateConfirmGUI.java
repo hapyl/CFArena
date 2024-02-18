@@ -38,7 +38,9 @@ public class CrateConfirmGUI extends ConfirmGUI {
 
     @Override
     public void onConfirm(@Nonnull Player player) {
-        new CrateLoot(player, crate, location);
+        final CrateLoot loot = new CrateLoot(player, crate);
+
+        location.onOpen(loot);
     }
 
     @Override

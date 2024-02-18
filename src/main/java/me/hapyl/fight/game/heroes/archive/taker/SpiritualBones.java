@@ -22,17 +22,16 @@ import java.util.LinkedList;
 public class SpiritualBones implements Ticking {
 
     private final GamePlayer player;
+    private final LinkedList<ArmorStand> armorStands;
     private int bones;
-
     private float theta = 0.0f;
     private float yaw = 0.0f;
 
-    private final LinkedList<ArmorStand> armorStands;
-
     public SpiritualBones(GamePlayer player) {
         this.player = player;
-        this.bones = 0;
         this.armorStands = Lists.newLinkedList();
+
+        add(talent().START_BONES);
     }
 
     public GamePlayer getPlayer() {
@@ -71,7 +70,8 @@ public class SpiritualBones implements Ticking {
     }
 
     public void reset() {
-        bones = 0;
+        this.bones = 0;
+        clearArmorStands();
     }
 
     @Override

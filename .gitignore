@@ -1,4 +1,4 @@
 # Project exclude paths
 /out/
 /.idea/
-target/
+/src/main/java/patch_notes/

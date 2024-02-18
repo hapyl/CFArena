@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.archive.bloodfiend.candlebane;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.HeroReference;
 import me.hapyl.fight.game.TalentReference;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -48,10 +48,10 @@ public class Candlebane extends Taunt implements TalentReference<CandlebaneTalen
     private ArmorStand display;
     private long lastClick;
 
-    public Candlebane(CandlebaneTalent reference, GamePlayer player, GamePlayer target) {
-        super(player, target);
+    public Candlebane(CandlebaneTalent reference, GamePlayer player, GamePlayer target, Location location) {
+        super(player, target, location);
 
-        final Location location = player.getLocation();
+        final Location playerLocation = player.getLocation();
 
         this.reference = reference;
         this.hero = Heroes.BLOODFIEND.getHero(Bloodfiend.class);
@@ -66,13 +66,13 @@ public class Candlebane extends Taunt implements TalentReference<CandlebaneTalen
         heightOffset = 0.06d;
 
         for (int i = 0; i < reference.pillarHeight; i++) {
-            final ArmorStand stand = createStand(location);
+            final ArmorStand stand = createStand(playerLocation);
 
             if (i % 2 == 0) {
                 stand.setHeadPose(new EulerAngle(0.0d, Math.toRadians(45.0d), 0.0d));
             }
 
-            location.add(0.0d, 0.6d, 0.0d);
+            playerLocation.add(0.0d, 0.6d, 0.0d);
             parts.add(stand);
         }
     }
@@ -245,7 +245,7 @@ public class Candlebane extends Taunt implements TalentReference<CandlebaneTalen
 
     @Nonnull
     private Location getDisplayLocation() {
-        final ArmorStand last = parts.getLast();
+        final ArmorStand last = parts.peekLast();
 
         if (last == null) {
             return initialLocation;

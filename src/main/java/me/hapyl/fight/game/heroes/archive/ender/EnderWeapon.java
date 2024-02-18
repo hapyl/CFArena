@@ -27,7 +27,7 @@ import java.util.List;
 public class EnderWeapon extends Weapon {
 
     public EnderWeapon() {
-        super(Material.ENDERMAN_SPAWN_EGG);
+        super(Material.NETHER_BRICK);
 
         setName("Fist");
         setId("ender_weapon");

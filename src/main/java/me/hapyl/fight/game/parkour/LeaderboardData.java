@@ -1,23 +1,26 @@
 package me.hapyl.fight.game.parkour;
 
 import com.google.common.collect.Maps;
+import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.spigotutils.module.parkour.Stats;
 
+import javax.annotation.Nonnull;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.UUID;
 
 public class LeaderboardData implements Comparator<Long> {
 
+    private final PlayerDatabase database;
     private final UUID uuid;
-    private final String name;
     private final long completionTime;
     private final Map<Stats.Type, Long> stats;
     private boolean dirty;
 
-    public LeaderboardData(UUID uuid, String name, long completionTime) {
+    public LeaderboardData(UUID uuid, long completionTime) {
+        this.database = PlayerDatabase.getDatabase(uuid);
         this.uuid = uuid;
-        this.name = name;
         this.completionTime = completionTime;
         this.stats = Maps.newHashMap();
         this.dirty = false;
@@ -31,8 +34,17 @@ public class LeaderboardData implements Comparator<Long> {
         return uuid;
     }
 
+    @Nonnull
     public String getName() {
-        return name;
+        return database.getName();
+    }
+
+    @Nonnull
+    public String getNameFormatted() {
+        final PlayerRank rank = database.getRank();
+        final String prefix = rank.getPrefix();
+
+        return (!prefix.isEmpty() ? prefix + " " : "") + rank.getFormat().nameColor() + getName();
     }
 
     public long getCompletionTime() {

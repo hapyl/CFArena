@@ -30,15 +30,18 @@ public class ExperienceEntry extends PlayerDatabaseEntry {
         final Document document = getExperience();
         document.put(type.name(), Numbers.clamp(value, type.getMinValue(), type.getMaxValue()));
 
-        type.onSet(getPlayer(), value);
         getDocument().put("experience", document);
 
         // Only update if exp changed
         final Experience experience = Main.getPlugin().getExperience();
-        final Player player = getPlayer();
+        final Player player = getOnlinePlayer();
 
-        if (type == Type.EXP && experience.canLevelUp(player)) {
-            experience.levelUp(getPlayer(), false);
+        if (player != null) {
+            type.onSet(player, value);
+
+            if (type == Type.EXP && experience.canLevelUp(player)) {
+                experience.levelUp(player, false);
+            }
         }
     }
 
@@ -51,7 +54,11 @@ public class ExperienceEntry extends PlayerDatabaseEntry {
     }
 
     public void update() {
-        Main.getPlugin().getExperience().triggerUpdate(getPlayer());
+        final Player player = getOnlinePlayer();
+
+        if (player != null) {
+            Main.getPlugin().getExperience().triggerUpdate(player);
+        }
     }
 
     public enum Type {

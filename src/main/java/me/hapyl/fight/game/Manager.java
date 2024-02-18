@@ -1,11 +1,14 @@
 package me.hapyl.fight.game;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
+import me.hapyl.fight.command.RateHeroCommand;
+import me.hapyl.fight.database.entry.RandomHeroEntry;
 import me.hapyl.fight.game.achievement.Achievements;
+import me.hapyl.fight.game.color.Color;
+import me.hapyl.fight.game.competetive.Tournament;
 import me.hapyl.fight.game.cosmetic.skin.SkinEffectManager;
 import me.hapyl.fight.game.entity.*;
 import me.hapyl.fight.game.gamemode.Modes;
@@ -20,36 +23,33 @@ import me.hapyl.fight.game.profile.data.AchievementData;
 import me.hapyl.fight.game.profile.data.PlayerProfileData;
 import me.hapyl.fight.game.profile.data.Type;
 import me.hapyl.fight.game.setting.Settings;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
-import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.fight.game.trial.Trial;
-import me.hapyl.fight.game.ui.GamePlayerUI;
-import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.game.weapons.ability.Ability;
-import me.hapyl.fight.game.weapons.range.RangeWeapon;
+import me.hapyl.fight.game.ui.PlayerUI;
 import me.hapyl.fight.garbage.CFGarbageCollector;
+import me.hapyl.fight.guesswho.GuessWho;
 import me.hapyl.fight.npc.PersistentNPCs;
-import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.Ticking;
+import me.hapyl.fight.ux.Message;
 import me.hapyl.spigotutils.EternaPlugin;
-import me.hapyl.spigotutils.module.annotate.Super;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.parkour.ParkourManager;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
+import me.hapyl.spigotutils.module.util.Runnables;
 import org.bukkit.*;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
@@ -64,19 +64,22 @@ public final class Manager extends BukkitRunnable {
             EntityType.MARKER,
             EntityType.TEXT_DISPLAY,
             EntityType.BLOCK_DISPLAY,
-            EntityType.ITEM_DISPLAY
+            EntityType.ITEM_DISPLAY,
+            EntityType.GIANT
     );
-    private final Map<UUID, GameEntity> entities;
+
+    private final Map<UUID, GameEntity> entities; // This might need optimizing if A LOT of entities since getting players is iterating over the whole map
     private final Map<UUID, PlayerProfile> profiles;
     private final SkinEffectManager skinEffectManager;
     private final AutoSync autoSave;
-    private final Trial trial;
 
     @Nonnull private GameMaps currentMap;
     @Nonnull private Modes currentMode;
     private StartCountdown startCountdown;
     private GameInstance gameInstance; // @implNote: For now, only one game instance can be active at a time.
     private DebugData debugData;
+    private Tournament competitive;
+    private GuessWho guessWhoGame;
 
     public Manager(Main main) {
         this.main = main;
@@ -95,10 +98,43 @@ public final class Manager extends BukkitRunnable {
         // start auto save timer
         autoSave = new AutoSync(Tick.fromMinute(10));
 
-        trial = new Trial(main);
         debugData = DebugData.EMPTY;
 
         runTaskTimer(main, 0, 1);
+    }
+
+    @Nullable
+    public GuessWho getGuessWhoGame() {
+        return guessWhoGame;
+    }
+
+    public boolean isGuessWhoGameInProgress() {
+        return guessWhoGame != null;
+    }
+
+    public void stopGuessWhoGame() {
+        if (guessWhoGame == null) {
+            return;
+        }
+
+        guessWhoGame.onStop();
+        guessWhoGame = null;
+    }
+
+    public boolean createNewGuessWhoGame(@Nonnull Player player1, @Nonnull Player player2) {
+        if (!player1.isOnline()) {
+            displayError("Player 1 is not online!");
+            return false;
+        }
+
+        if (!player2.isOnline()) {
+            displayError("Player 2 is not online!");
+            return false;
+        }
+
+        guessWhoGame = new GuessWho(player1, player2);
+        guessWhoGame.onStart();
+        return true;
     }
 
     @Override
@@ -214,7 +250,6 @@ public final class Manager extends BukkitRunnable {
         final PlayerProfile profile = new PlayerProfile(player);
 
         profiles.put(player.getUniqueId(), profile);
-
         profile.loadData();
 
         main.getExperience().triggerUpdate(player);
@@ -223,6 +258,7 @@ public final class Manager extends BukkitRunnable {
         for (PersistentNPCs enumNpc : PersistentNPCs.values()) {
             enumNpc.getNpc().onCreate(player);
         }
+
         return profile;
     }
 
@@ -241,26 +277,67 @@ public final class Manager extends BukkitRunnable {
         return switch (type) {
             // Why are ARMOR_STAND here?
             // That literally deletes the armor stands spawned during the lobby.
-            case ARROW, SPECTRAL_ARROW -> createEntity(entity, GameEntity::new);
-            default -> createEntity(entity, LivingGameEntity::new);
+            case ARROW, SPECTRAL_ARROW -> registerEntity(new GameEntity(entity));
+            default -> registerEntity(new LivingGameEntity(entity));
         };
     }
 
+    /**
+     * Creates a {@link GameEntity} handle for a {@link LivingEntity}.
+     *
+     * @param location - Location, where to spawn the entity.
+     * @param type     - Entity type.
+     * @param consumer - Consumer.
+     * @return a {@link GameEntity} handle.
+     * @throws IllegalArgumentException if an entity with that {@link UUID} already exists.
+     */
     @Nonnull
-    @Super
-    public <E extends LivingEntity, T extends GameEntity> T createEntity(@Nonnull E entity, @Nonnull ConsumerFunction<E, T> consumer) {
-        final UUID uuid = entity.getUniqueId();
+    public <E extends LivingEntity, T extends GameEntity> T createEntity(@Nonnull Location location, @Nonnull Entities<E> type, @Nonnull ConsumerFunction<E, T> consumer) {
+        final AtomicReference<T> reference = new AtomicReference<>();
+
+        type.spawn(location, self -> {
+            // Add ignored entity so the manager doesn't create a handle for it.
+            ignoredEntities.add(self.getUniqueId());
+
+            // Create a game entity via the reference, because lambdas are cool.
+            reference.set(consumer.apply(self));
+        });
+
+        final T gameEntity = reference.get();
+
+        return registerEntity(gameEntity, consumer::andThen);
+    }
+
+    /**
+     * Registers the given {@link GameEntity} to the manager.
+     *
+     * @param entity   - Entity to register.
+     * @param consumer - Consumer.
+     * @return the same {@link GameEntity}.
+     * @throws IllegalArgumentException if an entity with that {@link UUID} already exists.
+     */
+    @Nonnull
+    public <E extends LivingEntity, T extends GameEntity> T registerEntity(@Nonnull T entity, @Nullable Consumer<T> consumer) {
+        final UUID uuid = entity.getUUID();
 
         if (entities.containsKey(uuid)) {
+            entity.forceRemove();
             throw new IllegalArgumentException("duplicate entity creation");
         }
 
-        final T gameEntity = consumer.apply(entity);
-        consumer.andThen(gameEntity);
+        if (consumer != null) {
+            consumer.accept(entity);
+        }
 
-        entities.put(uuid, gameEntity);
+        entities.put(uuid, entity);
         ignoredEntities.remove(uuid);
-        return gameEntity;
+
+        return entity;
+    }
+
+    @Nonnull
+    public <T extends GameEntity> T registerEntity(@Nonnull T entity) {
+        return registerEntity(entity, null);
     }
 
     @Nonnull
@@ -294,7 +371,7 @@ public final class Manager extends BukkitRunnable {
     }
 
     @Nullable
-    public GamePlayerUI getPlayerUI(Player player) {
+    public PlayerUI getPlayerUI(Player player) {
         return getOrCreateProfile(player).getPlayerUI();
     }
 
@@ -302,19 +379,20 @@ public final class Manager extends BukkitRunnable {
      * Returns if player is able to use an ability.
      * Checks for the game to exist and being in progress.
      *
-     * @param player - Player to check.
+     * @param profile - Player to check.
      * @return true if a player is able to use an ability; false otherwise.
      */
-    public boolean isAbleToUse(Player player) {
-        return isGameInProgress() || trial.isInTrial(player);
+    public boolean isAbleToUse(PlayerProfile profile) {
+        return isGameInProgress() || profile.hasTrial();
     }
 
     public boolean isGameInProgress() {
         return gameInstance != null && gameInstance.getGameState() == State.IN_GAME;
     }
 
-    public void handlePlayer(Player player) {
-        createProfile(player);
+    @Nonnull
+    public PlayerProfile handlePlayer(Player player) {
+        final PlayerProfile profile = createProfile(player);
 
         // teleport either to spawn or the map if there is a game in progress
         final GameInstance gameInstance = getGameInstance();
@@ -335,6 +413,8 @@ public final class Manager extends BukkitRunnable {
         if (player.isOp()) {
             Chat.sendMessage(player, main.database.getDatabaseString());
         }
+
+        return profile;
     }
 
     /**
@@ -377,14 +457,6 @@ public final class Manager extends BukkitRunnable {
         return debugData;
     }
 
-    public Trial getTrial() {
-        return trial;
-    }
-
-    public boolean hasTrial() {
-        return getTrial() != null;
-    }
-
     public Modes getCurrentMode() {
         return currentMode;
     }
@@ -410,6 +482,14 @@ public final class Manager extends BukkitRunnable {
         if ((!currentMap.isPlayable() || !currentMap.getMap().hasLocation()) && !debug.is(DebugData.Flag.DEBUG)) {
             displayError("Invalid map!");
             return false;
+        }
+
+        // Check if a player is in a trial
+        for (PlayerProfile profile : profiles.values()) {
+            if (profile.hasTrial()) {
+                displayError(profile.getPlayer().getName() + " is in a Trial!");
+                return false;
+            }
         }
 
         final int playerRequirements = getCurrentMode().getMode().getPlayerRequirements();
@@ -464,6 +544,9 @@ public final class Manager extends BukkitRunnable {
             }
         }
 
+        // Stop GuessWho
+        stopGuessWhoGame();
+
         // Stop parkour
         final ParkourManager parkourManager = EternaPlugin.getPlugin().getParkourManager();
         for (Player player : Bukkit.getOnlinePlayers()) {
@@ -474,25 +557,13 @@ public final class Manager extends BukkitRunnable {
         this.gameInstance = new GameInstance(getCurrentMode(), getCurrentMap());
         this.gameInstance.onStart();
 
-        this.gameInstance.getMode().onStart(this.gameInstance);
-
-        for (final Heroes value : Heroes.values()) {
-            Nulls.runIfNotNull(value.getHero(), Hero::onStart);
-        }
-
-        for (final Talents value : Talents.values()) {
-            Nulls.runIfNotNull(value.getTalent(), Talent::onStart);
-        }
-
-        gameInstance.getEnumMap().getMap().onStart();
-
         for (final GamePlayer gamePlayer : CF.getPlayers()) {
             final Player player = gamePlayer.getPlayer();
 
             // Equip and hide players
             if (!gamePlayer.isSpectator()) {
                 gamePlayer.equipPlayer(gamePlayer.getHero());
-                gamePlayer.hide();
+                gamePlayer.hidePlayer();
 
                 // Apply player skin if exists
                 final PlayerSkin skin = gamePlayer.getHero().getSkin();
@@ -504,6 +575,9 @@ public final class Manager extends BukkitRunnable {
 
             // Teleport to the map
             player.teleport(currentMap.getMap().getLocation());
+
+            // Glow teammates right after teleport
+            gamePlayer.getTeam().glowTeammates();
         }
 
         if (!debug.is(DebugData.Flag.DEBUG)) {
@@ -521,19 +595,7 @@ public final class Manager extends BukkitRunnable {
         GameTask.runLater(() -> {
             Chat.broadcast("&a&l➺ &aPlayers have been revealed. &lFIGHT!");
             gameInstance.setGameState(State.IN_GAME);
-
-            // Call onPlayersReveal
-            gameInstance.onPlayersReveal();
-
-            for (final Heroes value : Heroes.values()) {
-                Nulls.runIfNotNull(value.getHero(), Hero::onPlayersReveal);
-            }
-
-            for (final Talents value : Talents.values()) {
-                Nulls.runIfNotNull(value.getTalent(), Talent::onPlayersReveal);
-            }
-
-            gameInstance.getEnumMap().getMap().onPlayersReveal();
+            gameInstance.onPlayersRevealed();
 
             if (debug.any()) {
                 Chat.broadcast("&c&lDEBUG &fRunning in debug instance.");
@@ -543,9 +605,8 @@ public final class Manager extends BukkitRunnable {
             CF.getAlivePlayers().forEach(target -> {
                 final World world = target.getWorld();
 
-                target.getHero().onPlayersReveal(target);
-                target.show();
-                target.getTeam().glowTeammates();
+                target.getHero().onPlayersRevealed(target);
+                target.showPlayer();
 
                 if (!debug.is(DebugData.Flag.DEBUG)) {
                     world.strikeLightningEffect(target.getLocation().add(0, 2, 0));
@@ -574,47 +635,13 @@ public final class Manager extends BukkitRunnable {
 
         gameInstance.calculateEverything();
 
-        this.gameInstance.onStop();
-        this.gameInstance.setGameState(State.POST_GAME);
+        gameInstance.onStop();
+        gameInstance.setGameState(State.POST_GAME);
 
         EntityData.resetDamageData(); // clear damage handler
 
         // Save stats
         // this.gameInstance.getActiveHeroes().forEach(hero -> hero.getStats().saveAsync());
-
-        // reset all cooldowns
-        for (final Material value : Material.values()) {
-            if (value.isItem()) {
-                Bukkit.getOnlinePlayers().forEach(player -> player.setCooldown(value, 0));
-            }
-        }
-
-        // call talents onStop and reset cooldowns
-        for (final Talents value : Talents.values()) {
-            Nulls.runIfNotNull(value.getTalent(), Talent::onStop);
-        }
-
-        // call heroes onStop
-        for (final Heroes enumHero : Heroes.values()) {
-            final Hero hero = enumHero.getHero();
-
-            if (hero == null) {
-                continue;
-            }
-
-            hero.onStop();
-            hero.clearUsingUltimate();
-
-            final Weapon weapon = hero.getWeapon();
-            weapon.getAbilities().forEach(Ability::clearCooldowns);
-
-            if (weapon instanceof RangeWeapon rangeWeapon) {
-                rangeWeapon.onStop();
-            }
-        }
-
-        // call maps onStop
-        currentMap.getMap().onStop();
 
         // stop all game tasks
         Main.getPlugin().getTaskList().onStop();
@@ -630,7 +657,7 @@ public final class Manager extends BukkitRunnable {
         // Remove garbage entities
         CFGarbageCollector.clearInAllWorlds();
 
-        entities.forEach((uuid, entity) -> entity.onStop(this.gameInstance));
+        entities.forEach((uuid, entity) -> entity.onStop(gameInstance));
         entities.clear();
 
         if (debugData.any()) {
@@ -640,6 +667,22 @@ public final class Manager extends BukkitRunnable {
 
         // Spawn Fireworks
         gameInstance.executeWinCosmetic();
+    }
+
+    public void resetPlayer(@Nonnull Player player) {
+        player.getInventory().clear();
+        player.setAllowFlight(false);
+        player.setArrowsInBody(0);
+        player.setInvulnerable(false);
+        player.setHealth(player.getMaxHealth());
+        player.setGameMode(GameMode.SURVIVAL);
+        player.setWalkSpeed(0.2f);
+        player.setWorldBorder(player.getWorld().getWorldBorder());
+        player.teleport(GameMaps.SPAWN.getMap().getLocation());
+
+        for (PotionEffect potionEffect : player.getActivePotionEffects()) {
+            player.removePotionEffect(potionEffect.getType());
+        }
     }
 
     /**
@@ -652,16 +695,21 @@ public final class Manager extends BukkitRunnable {
 
         // teleport players to spawn
         for (final Player player : Bukkit.getOnlinePlayers()) {
-            player.setInvulnerable(false);
-            player.setHealth(player.getMaxHealth());
-            player.setGameMode(GameMode.SURVIVAL);
-            player.teleport(GameMaps.SPAWN.getMap().getLocation());
+            resetPlayer(player);
 
             // Progress achievement
             Achievements.PLAY_FIRST_GAME.complete(player);
 
             LobbyItems.giveAll(player);
         }
+
+        // Hero Rating
+        Runnables.runLater(() -> {
+            Bukkit.getOnlinePlayers().forEach(player -> {
+                final Heroes hero = getSelectedLobbyHero(player);
+                RateHeroCommand.allowRatingHeroIfHasNotRatedAlready(player, hero);
+            });
+        }, 60);
 
         if (autoSave.scheduleSave) {
             autoSave.save();
@@ -708,20 +756,22 @@ public final class Manager extends BukkitRunnable {
             return;
         }
 
-        getOrCreateProfile(player).setSelectedHero(heroes);
+        final PlayerProfile profile = getOrCreateProfile(player);
+
+        profile.setSelectedHero(heroes);
         player.closeInventory();
+
         PlayerLib.villagerYes(player);
-        Chat.sendMessage(player, "&aSelected %s!", heroes.getHero().getName());
+        Message.success(player, "Selected %s!".formatted(heroes.getFormatted(Color.SUCCESS)));
 
-        if (Settings.RANDOM_HERO.isEnabled(player)) {
-            Chat.sendMessage(player, "");
-            Chat.sendMessage(player, "&aKeep in mind &l%s &ais enabled! Use &e/setting", Settings.RANDOM_HERO.getName());
-            Chat.sendMessage(player, "&aturn the feature off and play as %s!", heroes.getHero().getName());
-            Chat.sendMessage(player, "");
+        final RandomHeroEntry entry = profile.getDatabase().randomHeroEntry;
+
+        if (entry.isEnabled()) {
+            entry.setEnabled(false);
+            entry.setLastSelectedHero(null); // Forget last hero because yes
+
+            Message.info(player, "&b&lRandom Hero Select &bwas &c&ndisabled&b because you selected a hero manually!");
         }
-
-        // save to the database
-        getOrCreateProfile(player).getDatabase().getHeroEntry().setSelectedHero(heroes);
     }
 
     /**
@@ -731,7 +781,6 @@ public final class Manager extends BukkitRunnable {
     public Hero getCurrentHero(GamePlayer player) {
         return getCurrentEnumHero(player).getHero();
     }
-    // I'm so confused why this is here, it called the same thing
 
     @Nonnull
     public Heroes getCurrentEnumHero(GamePlayer player) {
@@ -761,8 +810,9 @@ public final class Manager extends BukkitRunnable {
     }
 
     public boolean anyProfiles() {
-        return profiles.size() > 0;
+        return !profiles.isEmpty();
     }
+
 
     public void listProfiles() {
         final Logger logger = main.getLogger();
@@ -778,6 +828,7 @@ public final class Manager extends BukkitRunnable {
     @Nonnull
     public Set<GamePlayer> getPlayers() {
         final Set<GamePlayer> players = Sets.newHashSet();
+
         for (GameEntity entity : entities.values()) {
             if (entity instanceof GamePlayer player) {
                 players.add(player);
@@ -788,8 +839,24 @@ public final class Manager extends BukkitRunnable {
     }
 
     @Nonnull
-    public List<GamePlayer> getAlivePlayers() {
+    public Set<GamePlayer> getPlayers(Predicate<GamePlayer> predicate) {
+        final Set<GamePlayer> players = getPlayers();
+        players.removeIf(player -> !predicate.test(player));
+
+        return players;
+    }
+
+    @Nonnull
+    public Set<GamePlayer> getAlivePlayers() {
         return getAlivePlayers(player -> true);
+    }
+
+    @Nonnull
+    public Set<GamePlayer> getAlivePlayers(Predicate<GamePlayer> predicate) {
+        final Set<GamePlayer> players = getPlayers();
+        players.removeIf(player -> !player.isAlive() || !predicate.test(player));
+
+        return players;
     }
 
     @Nonnull
@@ -798,15 +865,7 @@ public final class Manager extends BukkitRunnable {
     }
 
     @Nonnull
-    public List<GamePlayer> getAlivePlayers(Predicate<GamePlayer> predicate) {
-        final Set<GamePlayer> players = getPlayers();
-        players.removeIf(player -> !player.isAlive() || !predicate.test(player));
-
-        return Lists.newArrayList(players);
-    }
-
-    @Nonnull
-    public List<GamePlayer> getAlivePlayers(Heroes enumHero) {
+    public Set<GamePlayer> getAlivePlayers(Heroes enumHero) {
         return getAlivePlayers(player -> player.getEnumHero() == enumHero);
     }
 
@@ -873,7 +932,7 @@ public final class Manager extends BukkitRunnable {
     }
 
     @Nonnull
-    private Heroes getSelectedLobbyHero(Player player) {
+    public Heroes getSelectedLobbyHero(Player player) {
         final PlayerProfile profile = getProfile(player);
 
         if (profile == null) {
@@ -881,6 +940,21 @@ public final class Manager extends BukkitRunnable {
         }
 
         return profile.getSelectedHero();
+    }
+
+    public boolean isInGameOrTrial(@Nullable Player player) {
+        final PlayerProfile profile = player != null ? PlayerProfile.getProfile(player) : null;
+
+        return isGameInProgress() || (profile != null && profile.hasTrial());
+    }
+
+    @Nonnull
+    public AutoSync getAutoSave() {
+        return autoSave;
+    }
+
+    public void forEachProfile(@Nonnull Consumer<PlayerProfile> consumer) {
+        profiles.values().forEach(consumer::accept);
     }
 
     private void playAnimation() {

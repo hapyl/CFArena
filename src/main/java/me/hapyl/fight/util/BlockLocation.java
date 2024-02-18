@@ -80,6 +80,13 @@ public class BlockLocation {
         return location;
     }
 
+    public Location toLocation(Location other) {
+        final Location location = toLocation();
+        location.setPitch(other.getPitch());
+
+        return location;
+    }
+
     public Location centralize() {
         // center the location, so it doesn't spawn in the corner of a block
         return new Location(getWorld(), this.x + .5, this.y + .5, this.z + .5);

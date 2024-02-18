@@ -3,9 +3,8 @@ package me.hapyl.fight.game.maps;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
-import me.hapyl.fight.game.EntityElement;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.StaticServerEvent;
@@ -19,21 +18,22 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
 import org.bukkit.*;
+import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 
-public class GameMap implements GameElement, PlayerElement, EntityElement {
+@AutoRegisteredListener
+public class GameMap implements GameElement, PlayerElement {
 
     private final String name;
 
     private final List<PredicateLocation> locations;
-
     private final Map<PackType, GamePack> gamePacks;
     private final List<MapFeature> features;
     private final Set<Modes> allowedModes;
@@ -72,6 +72,10 @@ public class GameMap implements GameElement, PlayerElement, EntityElement {
         this.gamePacks = Maps.newHashMap();
         this.gamePacks.put(PackType.HEALTH, new HealthPack());
         this.gamePacks.put(PackType.CHARGE, new ChangePack());
+
+        if (this instanceof Listener listener) {
+            CF.registerEvents(listener);
+        }
     }
 
     @Override
@@ -99,12 +103,17 @@ public class GameMap implements GameElement, PlayerElement, EntityElement {
         return this;
     }
 
+    public GameMap setTime(@Nonnull MinecraftTime time) {
+        return setTime(time.time);
+    }
+
     public WeatherType getWeather() {
         return weatherType;
     }
 
-    public void setWeather(WeatherType weather) {
+    public GameMap setWeather(WeatherType weather) {
         this.weatherType = weather;
+        return this;
     }
 
     public Set<Modes> getAllowedModes() {
@@ -206,22 +215,22 @@ public class GameMap implements GameElement, PlayerElement, EntityElement {
         return addLocation(createLocation(x, y, z, yaw, pitch));
     }
 
-    public <T extends GameMap> GameMap addLocation(double x, double y, double z, float yaw, float pitch, Predicate<T> predicate) {
-        this.locations.add(new PredicateLocation<>(createLocation(x, y, z, yaw, pitch), predicate));
+    public GameMap addLocation(double x, double y, double z, float yaw, float pitch, Predicate<GameMap> predicate) {
+        this.locations.add(new PredicateLocation(createLocation(x, y, z, yaw, pitch), predicate));
         return this;
     }
 
-    public <T extends GameMap> GameMap addLocation(double x, double y, double z, Predicate<T> predicate) {
+    public GameMap addLocation(double x, double y, double z, Predicate<GameMap> predicate) {
         return addLocation(x, y, z, 0.0f, 0.0f, predicate);
     }
 
     public GameMap addLocation(Location location) {
-        this.locations.add(new PredicateLocation<>(location));
+        this.locations.add(new PredicateLocation(location));
         return this;
     }
 
     public GameMap addLocation(Location location, Predicate<GameMap> predicate) {
-        this.locations.add(new PredicateLocation<>(location, predicate));
+        this.locations.add(new PredicateLocation(location, predicate));
         return this;
     }
 
@@ -258,7 +267,7 @@ public class GameMap implements GameElement, PlayerElement, EntityElement {
 
         int tries = 0;
         while (tries++ < Byte.MAX_VALUE) {
-            final PredicateLocation<GameMap> predicateLocation = CollectionUtils.randomElement(locations, locations.get(0));
+            final PredicateLocation predicateLocation = CollectionUtils.randomElement(locations, locations.get(0));
 
             if (predicateLocation.predicate(this)) {
                 return predicateLocation.getLocation();
@@ -270,7 +279,7 @@ public class GameMap implements GameElement, PlayerElement, EntityElement {
 
     @Nonnull
     public World getWorld() {
-        final PredicateLocation<?> location = locations.get(0);
+        final PredicateLocation location = locations.get(0);
         final World world = location.getLocation().getWorld();
 
         if (world == null) {
@@ -280,11 +289,9 @@ public class GameMap implements GameElement, PlayerElement, EntityElement {
         return world;
     }
 
-    public void onStartOnce() {
-    }
-
     @Override
-    public final void onStart() {
+    @OverridingMethodsMustInvokeSuper
+    public void onStart() {
         // Set map time
         final World world = getLocation().getWorld();
 
@@ -294,8 +301,6 @@ public class GameMap implements GameElement, PlayerElement, EntityElement {
         }
 
         gamePacks.values().forEach(GamePack::onStart);
-
-        onStartOnce();
 
         // Features \/
         if (features.isEmpty()) {
@@ -316,15 +321,17 @@ public class GameMap implements GameElement, PlayerElement, EntityElement {
     }
 
     @Override
+    @OverridingMethodsMustInvokeSuper
     public void onStop() {
         gamePacks.values().forEach(GamePack::onStop);
         features.forEach(MapFeature::onStop);
     }
 
     @Override
-    public void onPlayersReveal() {
-        gamePacks.values().forEach(GamePack::onPlayersReveal);
-        features.forEach(MapFeature::onPlayersReveal);
+    @OverridingMethodsMustInvokeSuper
+    public void onPlayersRevealed() {
+        gamePacks.values().forEach(GamePack::onPlayersRevealed);
+        features.forEach(MapFeature::onPlayersRevealed);
     }
 
     public GameMap addPackLocation(PackType type, double x, double y, double z) {
@@ -338,18 +345,6 @@ public class GameMap implements GameElement, PlayerElement, EntityElement {
 
     public Collection<GamePack> getGamePacks() {
         return gamePacks.values();
-    }
-
-    @Nullable
-    @Override
-    public DamageOutput onDamageTaken(@Nonnull DamageInput input) {
-        return null;
-    }
-
-    @Nullable
-    @Override
-    public DamageOutput onDamageDealt(@Nonnull DamageInput input) {
-        return null;
     }
 
     private Location createLocation(double x, double y, double z, float yaw, float pitch) {

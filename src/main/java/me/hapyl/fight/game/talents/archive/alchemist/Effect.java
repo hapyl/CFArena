@@ -1,9 +1,8 @@
 package me.hapyl.fight.game.talents.archive.alchemist;
 
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import org.bukkit.Sound;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -12,16 +11,20 @@ public class Effect {
 
     private final String effectName;
     private final String effectChar;
-    private final PotionEffect potionEffect;
+    private final Effects effect;
+    private final int amplifier;
+    private final int duration;
 
     public Effect(@Nonnull String effectChar, @Nonnull String effectName) {
         this(effectChar, effectName, null, 0, 0);
     }
 
-    public Effect(@Nonnull String effectChar, @Nonnull String effectName, @Nullable PotionEffectType effect, int duration, int level) {
+    public Effect(@Nonnull String effectChar, @Nonnull String effectName, @Nullable Effects effect, int amplifier, int duration) {
         this.effectChar = effectChar;
         this.effectName = effectName;
-        this.potionEffect = effect == null ? null : new PotionEffect(effect, duration, level);
+        this.effect = effect;
+        this.amplifier = amplifier;
+        this.duration = duration;
     }
 
     public void affect(@Nonnull GamePlayer player) {
@@ -40,8 +43,8 @@ public class Effect {
     public void applyEffectsIgnoreFx(@Nonnull GamePlayer player) {
         affect(player);
 
-        if (potionEffect != null) {
-            player.addPotionEffect(potionEffect.getType(), potionEffect.getDuration(), potionEffect.getAmplifier());
+        if (effect != null) {
+            player.addEffect(effect, amplifier, duration);
         }
     }
 

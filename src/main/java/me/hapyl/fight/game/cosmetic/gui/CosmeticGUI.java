@@ -34,9 +34,11 @@ public class CosmeticGUI extends StyledPageGUI<Cosmetics> {
         final List<Cosmetics> cosmetics = Cosmetics.getByType(type);
 
         // Don't show unobtainable cosmetics unless magically selected
-        cosmetics.removeIf(cosmetic -> {
-            if (!cosmetic.getCosmetic().isExclusive()) {
-                return !cosmetic.isUnlocked(getPlayer()) && !cosmetic.isSelected(getPlayer());
+        cosmetics.removeIf(enumCosmetic -> {
+            final Cosmetic cosmetic = enumCosmetic.getCosmetic();
+
+            if (cosmetic.isExclusive()) {
+                return !enumCosmetic.isUnlocked(player);
             }
 
             return false;

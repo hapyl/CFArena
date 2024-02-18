@@ -25,7 +25,7 @@ public class PrefixCosmetic extends Cosmetic {
     @Override
     public void addExtraLore(@Nonnull ItemBuilder builder, @Nonnull Player player) {
         builder.addLore();
-        builder.addLore("&bPrefix Preview: ");
+        builder.addLore("&bPreview: ");
         builder.addLore(" " + getPrefixPreview(player));
     }
 

@@ -1,19 +1,19 @@
 package me.hapyl.fight.game.heroes.archive.nightmare;
 
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Collect;
@@ -25,18 +25,21 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.List;
+import java.util.Set;
 
 public class Nightmare extends Hero implements DisplayFieldProvider {
 
     @DisplayField
-    private final double omenDamageMultiplier = 1.25d;
+    private final double omenDamageMultiplier = 1.5d;
 
     private final PlayerMap<OmenDebuff> omenDebuffMap = PlayerMap.newConcurrentMap();
+    private final TemperInstance temperInstance = Temper.NIGHTMARE_BUFF
+            .newInstance("In the Shadows")
+            .increase(AttributeType.ATTACK, 0.5d)
+            .increase(AttributeType.SPEED, 0.05d);
 
-    public Nightmare() {
-        super("Nightmare");
+    public Nightmare(@Nonnull Heroes handle) {
+        super(handle, "Nightmare");
 
         setArchetype(Archetype.DAMAGE);
 
@@ -54,7 +57,7 @@ public class Nightmare extends Hero implements DisplayFieldProvider {
         equipment.setBoots(30, 0, 153);
 
         setUltimate(new UltimateTalent(
-                "Your Worst Nightmare",
+                this, "Your Worst Nightmare",
                 "Applies the &4👻 &c&lOmen&7 to all living opponents for {duration}.",
                 55
         ).setDuration(240)
@@ -97,10 +100,7 @@ public class Nightmare extends Hero implements DisplayFieldProvider {
                             continue;
                         }
 
-                        final EntityAttributes attributes = player.getAttributes();
-
-                        attributes.increaseTemporary(Temper.NIGHTMARE_BUFF, AttributeType.ATTACK, 0.25d, 30);
-                        attributes.increaseTemporary(Temper.NIGHTMARE_BUFF, AttributeType.SPEED, 0.05d, 30);
+                        temperInstance.temper(player, 30);
 
                         player.spawnWorldParticle(Particle.LAVA, 5, 0.15d, 0.15d, 0.15d, 0.01f);
                         player.spawnWorldParticle(Particle.SMOKE_LARGE, 5, 0.15d, 0.15d, 0.15d, 0.01f);
@@ -113,7 +113,7 @@ public class Nightmare extends Hero implements DisplayFieldProvider {
     @Override
     public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
         final OmenDebuff debuff = getDebuff(player);
-        final List<GamePlayer> enemies = Collect.enemyPlayers(player);
+        final Set<GamePlayer> enemies = Collect.enemyPlayers(player);
         final int enemiesSize = enemies.size();
 
         if (enemiesSize == 0) {
@@ -128,23 +128,22 @@ public class Nightmare extends Hero implements DisplayFieldProvider {
         return UltimateCallback.OK;
     }
 
-    @Nullable
     @Override
-    public DamageOutput processDamageAsDamager(DamageInput input) {
-        final GamePlayer damager = input.getDamagerAsPlayer();
-        final LivingGameEntity entity = input.getEntity();
+    public void processDamageAsDamager(@Nonnull DamageInstance instance) {
+        final GamePlayer damager = instance.getDamagerAsPlayer();
+        final LivingGameEntity entity = instance.getEntity();
 
-        if (damager == null || !input.isEntityAttack()) {
-            return DamageOutput.OK;
+        if (damager == null || !instance.isEntityAttack()) {
+            return;
         }
 
         final OmenDebuff debuff = getDebuff(damager);
 
         if (!debuff.isAffected(entity)) {
-            return DamageOutput.OK;
+            return;
         }
 
-        return new DamageOutput(input.getDamage() * omenDamageMultiplier);
+        instance.multiplyDamage(omenDamageMultiplier);
     }
 
     @Override

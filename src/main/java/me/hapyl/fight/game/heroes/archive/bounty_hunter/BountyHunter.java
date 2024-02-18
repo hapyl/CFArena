@@ -2,18 +2,14 @@ package me.hapyl.fight.game.heroes.archive.bounty_hunter;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.StrictTalentPlacement;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.Affiliation;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.UltimateCallback;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.Talents;
@@ -37,10 +33,8 @@ import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class BountyHunter extends Hero implements DisplayFieldProvider {
 
@@ -63,19 +57,26 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
     @DisplayField private final double backstabMaxDistance = 15;
     @DisplayField private final double backstabDamage = 30;
 
-    public BountyHunter() {
-        super("Bounty Hunter", """
-                She is a skilled bounty hunter.
-                                
-                &8&o;;"Jackpot! Everyone here's got a bounty on their head."
-                """);
+    public BountyHunter(@Nonnull Heroes handle) {
+        super(handle, "Bounty Hunter");
 
         setAffiliation(Affiliation.MERCENARY);
         setArchetype(Archetype.MOBILITY);
+        setSex(Gender.FEMALE);
 
+        setDescription("""
+                She is a skilled bounty hunter.
+                                
+                &8&o;;`Jackpot! Everyone here's got a bounty on their head.`
+                """);
         setItem("cf4f866f1432f324e31b0a502e6e9ebccd7a66f474f1ca9cb0cfab879ea22ce0");
 
-        setWeapon(new Weapon(Material.IRON_SWORD).setName("Iron Sword").setDamage(6.0d));
+        setWeapon(
+                new Weapon(Material.IRON_SWORD)
+                        .setName("Bloodweep")
+                        .setDescription("A handy sword that appeared in her dream.")
+                        .setDamage(6.0d)
+        );
 
         final HeroAttributes attributes = getAttributes();
         attributes.setDefense(100);
@@ -86,7 +87,7 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
         equipment.setBoots(160, 101, 64, TrimPattern.SILENCE, TrimMaterial.IRON);
 
         setUltimate(new UltimateTalent(
-                "Backstab", """
+                this, "Backstab", """
                 Instantly &bteleport&7 behind the &etarget&7 player, &cstabbing&7 them from behind.
                 """, 70
         )
@@ -97,19 +98,16 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
         copyDisplayFieldsTo(getUltimate());
     }
 
-    @Nullable
     @Override
-    public DamageOutput processDamageAsVictim(DamageInput input) {
-        final GamePlayer player = input.getEntityAsPlayer();
-        final double damage = input.getDamage();
+    public void processDamageAsVictim(@Nonnull DamageInstance instance) {
+        final GamePlayer player = instance.getEntityAsPlayer();
+        final double damage = instance.getDamage();
         final double health = player.getHealth();
 
         if (health > 50 && (health - damage <= (player.getMaxHealth() / 2.0d))) {
             player.setItem(HotbarSlots.HERO_ITEM, smokeBomb);
             player.sendTitle("&7💣", "&e&lSMOKE BOMB TRIGGERED", 5, 20, 5);
         }
-
-        return null;
     }
 
     @Override
@@ -158,7 +156,7 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
     @Override
     @StrictTalentPlacement
     public ShortyShotgun getFirstTalent() {
-        return (ShortyShotgun) Talents.SHORTY.getTalent().setTalentSlot(HotbarSlots.TALENT_1);
+        return (ShortyShotgun) Talents.SHORTY.getTalent();
     }
 
     @Override
@@ -181,14 +179,14 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
 
     private void useSmokeBomb(GamePlayer player, Location location) {
         player.setItem(HotbarSlots.HERO_ITEM, null);
-        player.addPotionEffect(PotionEffectType.SPEED, smokeDuration, 2);
+        player.addEffect(Effects.SPEED, 2, smokeDuration);
 
         new TimedGameTask(smokeDuration) {
             @Override
             public void run(int tick) {
-                Collect.nearbyPlayers(location, 3.0d).forEach(inRange -> {
-                    inRange.addPotionEffect(PotionEffectType.BLINDNESS, 25, 1);
-                    inRange.addEffect(GameEffectType.INVISIBILITY, 25, true);
+                Collect.nearbyPlayers(location, smokeRadius).forEach(inRange -> {
+                    inRange.addEffect(Effects.BLINDNESS, 1, 25);
+                    inRange.addEffect(Effects.INVISIBILITY, 25, true);
                 });
 
                 // Fx

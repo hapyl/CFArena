@@ -14,24 +14,24 @@ public class MaledictionVeil extends PassiveTalent {
     public final double radius = 2.5d;
 
     @DisplayField(percentage = true)
-    public final double defenseReduction = 0.1d;
+    public final double defenseIgnore = 0.2d;
 
-    @DisplayField(percentage = true)
-    public final double ferocityRate = 1.0d;
+    @DisplayField(percentage = true) private final double mendingDecrease = 0.25d;
 
-    public final TemperInstance temperInstance = Temper.MALEDICTION_VEIL
-            .newInstance()
-            .decrease(AttributeType.DEFENSE, defenseReduction);
+    public final TemperInstance temperInstance = Temper.MALEDICTION_VEIL.newInstance()
+            .decrease(AttributeType.VITALITY, mendingDecrease);
 
     public MaledictionVeil() {
         super("Malediction Veil", Material.PHANTOM_MEMBRANE);
 
         setDescription("""
                 Emmit an aura that applies %1$s in a small AoE for {duration}.
-                                
-                Enemies affected by %1$s will suffer %2$s reduction and %3$s is &b{ferocityRate}&7 more effective.
-                """, Named.CURSE_OF_GREED, AttributeType.DEFENSE, AttributeType.FEROCITY);
+                               
+                %1$s:
+                └ Decreases %2$s by &b{mendingDecrease}&7.
+                └ &nYour&7 hits ignore &2{defenseIgnore}&7 %3$s.
+                """, Named.CURSE_OF_GREED, AttributeType.VITALITY, AttributeType.DEFENSE);
 
-        setDurationSec(12);
+        setDurationSec(6);
     }
 }

@@ -3,10 +3,12 @@ package me.hapyl.fight.gui.styled;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.gui.StrictlyLobbyGUI;
 import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.inventory.gui.Action;
 import me.hapyl.spigotutils.module.inventory.gui.PlayerGUI;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -55,8 +57,8 @@ public abstract class StyledGUI extends PlayerGUI implements Styled {
     }
 
     @Override
-    public void setPanelItem(int index, @Nonnull ItemStack item, @Nullable me.hapyl.spigotutils.module.inventory.gui.Action action) {
-        StaticStyledGUI.setPanelItem(this, index, item, action);
+    public void setPanelItem(int index, @Nonnull ItemStack item, @Nullable Action action, @Nullable ClickType... clickTypes) {
+        StaticStyledGUI.setPanelItem(this, index, item, action, clickTypes);
     }
 
     @Override

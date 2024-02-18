@@ -17,9 +17,9 @@ import java.util.Random;
 // Should probably make this a whole class rather than an interface
 public interface CrateAnimation {
 
-    CrateAnimation DEFAULT = loot -> {
+    CrateAnimation DEFAULT = (loot, chest) -> {
 
-        final ArmorStand chest = Entities.ARMOR_STAND_MARKER.spawn(loot.getChest().subtractAsNew(0.0d, 1.0d, 0.0d), self -> {
+        final ArmorStand armorStand = Entities.ARMOR_STAND_MARKER.spawn(chest.subtractAsNew(0.0d, 1.0d, 0.0d), self -> {
             self.setInvisible(true);
 
             CFUtils.setEquipment(self, equipment -> {
@@ -41,19 +41,19 @@ public interface CrateAnimation {
             };
         }
 
-        return new CrateTask(loot) {
+        return new CrateTask(loot, chest) {
             @Override
             public void tick(int tick) {
-                final Location location = chest.getLocation();
+                final Location location = armorStand.getLocation();
                 final int range = getRange(0);
 
                 location.add(0.0d, 1.5 / range, 0.0d);
                 location.setYaw(location.getYaw() + (float) 360 * 2 / range);
 
-                chest.teleport(location);
+                armorStand.teleport(location);
             }
         }.tick(0, 60, ref -> {
-            final Location location = chest.getLocation().add(0.0d, 1.5d, 0.0d);
+            final Location location = armorStand.getLocation().add(0.0d, 1.5d, 0.0d);
             final int tick = ref.getTick();
             final int range = ref.getRange(0);
 
@@ -64,16 +64,16 @@ public interface CrateAnimation {
 
             PlayerLib.spawnParticle(location, Particle.FIREWORKS_SPARK, 1, 0.2d, 0.2d, 0.2d, 0.1f);
         }).tick(60, ref -> {
-            final Location chestLocation = chest.getLocation().add(0.0d, 1.5d, 0.0d);
+            final Location chestLocation = armorStand.getLocation().add(0.0d, 1.5d, 0.0d);
 
             ref.display(chestLocation);
-            chest.remove();
+            armorStand.remove();
 
             // Fx
             PlayerLib.spawnParticle(chestLocation, Particle.FLASH, 1);
             PlayerLib.spawnParticle(chestLocation, Particle.EXPLOSION_NORMAL, 5, 0.1d, 0.1d, 0.1d, 0.05f);
 
-        }).tick(100, ref -> PlayerLib.playSound(chest.getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.75f));
+        }).tick(100, ref -> PlayerLib.playSound(armorStand.getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.75f));
     };
 
     static Sound[] randomSound() {
@@ -91,35 +91,20 @@ public interface CrateAnimation {
         return new Sound[] { sound };
     }
 
-    CrateAnimation EPIC = loot -> null;
-    CrateAnimation LEGENDARY = loot -> null;
-    CrateAnimation MYTHIC = loot -> null;
-
     @Nonnull
-    CrateTask play(@Nonnull CrateLoot loot);
+    CrateTask play(@Nonnull CrateLoot loot, @Nonnull CrateChest chest);
 
-    default void play0(@Nonnull CrateLoot loot) {
-        final CrateChest chest = loot.getChest();
+    default void play0(@Nonnull CrateLoot loot, @Nonnull CrateChest chest) {
         chest.hologram.hideAll();
         chest.playOpenAnimation();
 
         loot.getPlayer().closeInventory();
-        play(loot);
+        play(loot, chest);
     }
 
     @Nonnull
     static CrateAnimation byRarity(@Nonnull Rarity rarity) {
-        if (true) {
-            // FIXME (hapyl): 004, Jul 4: Animations are not yet implemented!
-            return DEFAULT;
-        }
-
-        return switch (rarity) {
-            case EPIC -> EPIC;
-            case LEGENDARY -> LEGENDARY;
-            case MYTHIC -> MYTHIC;
-            default -> DEFAULT;
-        };
+        return DEFAULT;
     }
 
 }

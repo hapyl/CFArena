@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.archive.bloodfiend.chalice;
 
 import me.hapyl.fight.fx.SwiftTeleportAnimation;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.TalentReference;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.archive.bloodfiend.taunt.Taunt;
@@ -31,15 +31,15 @@ public class BloodChalice extends Taunt implements TalentReference<BloodChaliceT
     private final ArmorStand[] stand;
     private int health;
 
-    public BloodChalice(BloodChaliceTalent reference, GamePlayer player, GamePlayer target) {
-        super(player, target);
-        final Location location = player.getLocation();
+    public BloodChalice(BloodChaliceTalent reference, GamePlayer player, GamePlayer target, Location location) {
+        super(player, target, location);
+        final Location playerLocation = player.getLocationBehindFromEyes(1);
 
         this.health = reference.chaliceHealth;
         this.reference = reference;
         this.stand = new ArmorStand[2];
 
-        this.stand[0] = spawnEntity(Entities.ARMOR_STAND, location, self -> {
+        this.stand[0] = spawnEntity(Entities.ARMOR_STAND, playerLocation, self -> {
             self.setMaxHealth(reference.chaliceHealth);
             self.setHealth(reference.chaliceHealth);
             self.setHelmet(CHALICE_TEXTURES[0]);
@@ -190,7 +190,12 @@ public class BloodChalice extends Taunt implements TalentReference<BloodChaliceT
         }
 
         final Location currentLocation = initialLocation.clone();
-        initialLocation = pickRandomLocation(initialLocation.clone(), 5);
+        initialLocation = pickRandomLocation(initialLocation.clone());
+
+        if (Math.abs(initialLocation.getY()) - Math.abs(currentLocation.getY()) > 5) {
+            remove();
+            return;
+        }
 
         final SwiftTeleportAnimation animation = new SwiftTeleportAnimation(currentLocation, initialLocation) {
             @Override

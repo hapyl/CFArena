@@ -7,20 +7,23 @@ import me.hapyl.fight.game.maps.maps.DragonsGorge;
 import me.hapyl.fight.game.maps.maps.DwarfVault;
 import me.hapyl.fight.game.maps.maps.MoonBase;
 import me.hapyl.fight.game.maps.winery.WineryMap;
+import me.hapyl.fight.translate.Translatable;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.Material;
+import org.bukkit.WeatherType;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum GameMaps implements Selectable {
+public enum GameMaps implements Selectable, Translatable {
 
     // non-playable map, storing here for easy coordinate grab and consistency
-    TRAINING_GROUNDS(new NonPlayableGameMap("Training Grounds", "Test heroes abilities here!", 100, 64, 100)),
+    TRAINING_GROUNDS(new NonPlayableGameMap("Training Grounds", "Test heroes abilities here!", -250, 64, 250, -90, 0)),
     SPAWN(new NonPlayableGameMap("Spawn", "You spawn here!", 0, 64, 0).setMaterial(Material.NETHER_STAR)),
+    GUESS_WHO(new NonPlayableGameMap("Guess Who", "It's the 'Guess Who' arena!", 1234, 90, 1234)),
 
     // april fools maps (replaces spawn and arena with classic maps)
     ARENA_APRIL_FOOLS(new NonPlayableGameMap("Classic Arena", "A classic arena from Classes Fight v1.0", -900, 63, 0, 180.0f, 0.0f)),
@@ -74,9 +77,11 @@ public enum GameMaps implements Selectable {
 
     MIDJOURNEY(
             new GameMap("Mid Journey")
-                    .setDescription("Mid Journey is a fierce and treacherous arena located deep within the Nether.____" +
-                            "Its jagged walls and pillars of obsidian provide cover and obstacles for players " +
-                            "to use to their advantage as they battle for supremacy in this dangerous realm.")
+                    .setDescription("""
+                            DiDenPro add description.
+                            DiDenPro add description.
+                            DiDenPro add description.
+                            """)
                     .setMaterial(Material.CRIMSON_NYLIUM)
                     .setSize(Size.MEDIUM)
                     .setTicksBeforeReveal(100)
@@ -142,15 +147,31 @@ public enum GameMaps implements Selectable {
     DWARF_VAULT(new DwarfVault()),
     LIMBO(
             new GameMap("Limbo")
-                    .setDescription("Yes, no?")
+                    .setDescription("""
+                            A lighthouse.
+                            """)
                     .setMaterial(Material.SCULK_VEIN)
                     .setSize(Size.LARGE)
                     .setTicksBeforeReveal(100)
+                    .setTime(18000)
                     .addFeature(new LimboFeature())
                     .addLocation(-831, 68, -237)
                     .addLocation(-830, 47, -267)
                     .addLocation(-830, 47, -267)
                     .addLocation(-832, 112, -218)
+    ),
+
+    FORGOTTEN_CHURCH(
+            new GameMap("Forgotten Church")
+                    .setDescription("""
+                            All forgotten church covered in snow.
+                                                        
+                            A long time has passed since it last seen guests.
+                            """)
+                    .setMaterial(Material.TOTEM_OF_UNDYING)
+                    .setSize(Size.MEDIUM)
+                    .setTicksBeforeReveal(100)
+                    .setWeather(WeatherType.DOWNFALL)
     ),
 
     ;
@@ -172,6 +193,12 @@ public enum GameMaps implements Selectable {
     @Override
     public boolean isSelected(@Nonnull Player player) {
         return Manager.current().getCurrentMap() == this;
+    }
+
+    @Nonnull
+    @Override
+    public String getParentTranslatableKey() {
+        return "map." + name().toLowerCase() + ".";
     }
 
     @Override

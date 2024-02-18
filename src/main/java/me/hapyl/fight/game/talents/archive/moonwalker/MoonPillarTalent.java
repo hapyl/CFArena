@@ -1,10 +1,11 @@
 package me.hapyl.fight.game.talents.archive.moonwalker;
 
-import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.CreationTalent;
-import me.hapyl.fight.game.talents.TickingDisplayCreation;
+import me.hapyl.fight.game.talents.PlayerDisplayCreation;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
@@ -22,7 +23,6 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
@@ -66,16 +66,18 @@ public class MoonPillarTalent extends CreationTalent {
             return Response.error("Cannot fit the pillar!");
         }
 
-        newCreation(player, new TickingDisplayCreation(DISPLAY_DATA) {
+        newCreation(player, new PlayerDisplayCreation(this, player, DISPLAY_DATA) {
 
             @Override
             public void run(int tick) {
-                if (location.getBlock().getType().isAir() || (tick >= getDuration())) {
-                    removeCreation(player, this);
-                    return;
-                }
+                super.run(tick);
 
                 pulse();
+            }
+
+            @Override
+            public boolean shouldRemove() {
+                return location.getBlock().getType().isAir() || super.shouldRemove();
             }
 
             @Nonnull
@@ -95,8 +97,6 @@ public class MoonPillarTalent extends CreationTalent {
                 //fx
                 PlayerLib.playSound(location, Sound.ENTITY_IRON_GOLEM_DAMAGE, 0.75f);
                 CFUtils.getWorld(location).spawnParticle(Particle.SPIT, location.clone().add(0, 2, 0), 15, 0, 1, 0, 0.05);
-
-                cancel();
             }
 
             @Override
@@ -139,7 +139,7 @@ public class MoonPillarTalent extends CreationTalent {
                 Collect.nearbyEntities(location, pulseRange).forEach(entity -> {
                     if (entity.equals(player)) {
                         player.heal(healingPerPulse);
-                        player.addPotionEffect(PotionEffectType.JUMP, 20, 2);
+                        player.addEffect(Effects.JUMP_BOOST, 2, 20);
                         return;
                     }
 

@@ -1,32 +1,32 @@
 package me.hapyl.fight.game.heroes.archive.mage;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
+import me.hapyl.fight.game.talents.Timed;
 import me.hapyl.fight.util.Formatted;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 
-public abstract class MageSpell extends Talent implements Formatted {
+public abstract class MageSpell implements Formatted, Timed {
 
-    private ItemStack item;
+    private final ItemStack item;
+    private final String name;
+    private final String description;
 
-    public MageSpell(@Nonnull String name) {
-        super(name);
-    }
+    private int duration;
 
-    @Override
-    public void createItem() {
-        super.createItem();
+    public MageSpell(@Nonnull String name, @Nonnull String description, @Nonnull Material material) {
+        this.name = name;
+        this.description = description;
 
-        this.item = new ItemBuilder(getItem(), getName().replace(" ", ""))
+        this.item = new ItemBuilder(material, name.replace(" ", ""))
                 .addClickEvent(player -> {
                     final GamePlayer gamePlayer = CF.getPlayer(player);
 
@@ -37,21 +37,27 @@ public abstract class MageSpell extends Talent implements Formatted {
 
                     execute(gamePlayer);
                 })
-                .setName(getName() + (Color.BUTTON.bold() + " RIGHT CLICK"))
+                .setName(name + (Color.BUTTON.bold() + " RIGHT CLICK"))
                 .build();
+    }
+
+    @Override
+    public int getDuration() {
+        return duration;
+    }
+
+    @Override
+    public Timed setDuration(int duration) {
+        this.duration = duration;
+        return null;
     }
 
     @Nonnull
     public ItemStack getSpellItem() {
-        if (this.item == null) {
-            createItem();
-        }
-
-        return this.item;
+        return item;
     }
 
-    @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public final Response execute(@Nonnull GamePlayer player) {
         final Mage mage = Heroes.MAGE.getHero(Mage.class);
 
         mage.setUsingUltimate(player, true, getDuration());
@@ -64,7 +70,7 @@ public abstract class MageSpell extends Talent implements Formatted {
         mage.spellDragonSkin.removeItem(player);
 
         // Fx
-        player.sendMessage("&aYou have used &l%s&a!", getName());
+        player.sendMessage("&aYou have used &l%s&a!", name);
         player.playWorldSound(Sound.ITEM_FLINTANDSTEEL_USE, 0.0f);
 
         return Response.OK;
@@ -76,7 +82,7 @@ public abstract class MageSpell extends Talent implements Formatted {
         return """
                 &a&l%s
                 %s
-                """.formatted(getName(), getDescription());
+                """.formatted(name, description);
     }
 
     protected abstract void useSpell(@Nonnull GamePlayer player);

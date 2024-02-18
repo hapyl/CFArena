@@ -4,6 +4,7 @@ import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CosmeticEntry;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
+import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.entity.Player;
@@ -50,6 +51,14 @@ public abstract class Reward {
         getDisplay(player).forEach(builder::addLore);
 
         return builder;
+    }
+
+    public void displayChat(Player player) {
+        Chat.sendMessage(player, "&6&lRewards:");
+
+        getDisplay(player).forEach(string -> {
+            Chat.sendMessage(player, string);
+        });
     }
 
     @Nonnull

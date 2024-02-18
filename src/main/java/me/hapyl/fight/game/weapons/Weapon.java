@@ -4,7 +4,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.NonNullItemCreator;
+import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -19,7 +21,7 @@ import me.hapyl.fight.util.Copyable;
 import me.hapyl.fight.util.Described;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.math.Tick;
+import me.hapyl.spigotutils.module.inventory.ItemFunction;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -28,25 +30,24 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.block.Action;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
 
-public class Weapon extends NonNullItemCreator implements Described, DisplayFieldProvider, Copyable {
+public class Weapon extends NonNullItemCreator implements Described, DisplayFieldProvider, Copyable, GameElement, PlayerElement {
+
+    public static final int DEFAULT_BOW_COOLDOWN = 15;
 
     private final Map<AbilityType, Ability> abilities;
     private final List<Enchant> enchants;
     private final Material material;
-
+    protected double damage;
     private String name;
     private String description;
     private String lore;
-    private double damage;
-    private double attackSpeed;
-
     private String id;
 
     public Weapon(@Nonnull Material material) {
@@ -57,10 +58,13 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
         this.material = material;
         this.name = name;
         this.description = about;
-        this.attackSpeed = 0.0d;
         this.damage = damage;
         this.enchants = Lists.newArrayList();
         this.abilities = Maps.newHashMap();
+    }
+
+    public void removeAbility(@Nonnull AbilityType type) {
+        this.abilities.remove(type);
     }
 
     public void setAbility(@Nonnull AbilityType type, @Nullable Ability ability) {
@@ -69,10 +73,25 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
             return;
         }
 
+        if (!ability.isTypeApplicable(type)) {
+            throw new IllegalArgumentException("Ability type %s is not applicable to %s!".formatted(
+                    type.name(),
+                    ability.getClass().getSimpleName()
+            ));
+        }
+
         // I guess this is fine?
         // FIXME (hapyl): 020, Nov 20: Might break cooldown for weapons that have multiple abilities
         ability.setCooldownMaterial(material);
         this.abilities.put(type, ability);
+    }
+
+    @Override
+    public void onStart() {
+    }
+
+    @Override
+    public void onStop() {
     }
 
     @Nullable
@@ -85,17 +104,6 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
         final Ability ability = getAbility(type);
 
         return ability == null ? Optional.empty() : Optional.of(ability);
-    }
-
-    /**
-     * Sets the weapon attack speed.
-     * Use <code>/setattackspeed (value)</code> in game to test this, the value is quite arbitrary.
-     *
-     * @param attackSpeed - Attack speed.
-     */
-    public Weapon setAttackSpeed(double attackSpeed) {
-        this.attackSpeed = attackSpeed;
-        return this;
     }
 
     public Weapon addEnchant(Enchantment enchantment, int level) {
@@ -187,7 +195,8 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
         equipment.setItemInMainHand(getItem());
     }
 
-    public void createItem() {
+    @Nonnull
+    public ItemStack createItem() {
         final ItemBuilder builder = this.id == null ? new ItemBuilder(this.material) : new ItemBuilder(
                 this.material,
                 this.id
@@ -211,6 +220,7 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
         // Note that RIGHT CLICK and LEFT CLICK abilities REQUIRE id's
         for (AbilityType type : AbilityType.values()) {
             final Ability ability = abilities.get(type);
+
             if (ability == null) {
                 continue;
             }
@@ -233,8 +243,8 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
                 builder.addLore();
             }
 
-            builder.addLoreIf("&f&m•&f &7Cooldown: &f&l" + CFUtils.decimalFormatTick(cooldown), cooldown > 0);
-            builder.addLoreIf("&f&m•&f &7Duration: &f&l" + CFUtils.decimalFormatTick(duration), duration > 0);
+            builder.addLoreIf("&f•&f &7Cooldown: &f&l" + CFUtils.decimalFormatTick(cooldown), cooldown > 0);
+            builder.addLoreIf("&f•&f &7Duration: &f&l" + CFUtils.decimalFormatTick(duration), duration > 0);
 
             final Action[] clickTypes = type.getClickTypes();
             if (clickTypes != null) {
@@ -242,35 +252,30 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
                     throw new IllegalArgumentException("Ability for weapon '%s' is set, but the weapon is missing Id!".formatted(getName()));
                 }
 
-                builder.addClickEvent(player -> {
+                final ItemFunction function = builder.addFunction(player -> {
                     final GamePlayer gamePlayer = CF.getPlayer(player);
 
                     if (gamePlayer == null) {
                         return;
                     }
 
-                    Talent.preconditionTalentAnd(gamePlayer)
+                    Talent.preconditionAnd(gamePlayer)
                             .ifTrue((pl, rs) -> ability.execute0(pl, pl.getInventory().getItemInMainHand()))
                             .ifFalse((pl, rs) -> rs.sendError(pl));
-                }, clickTypes);
+                });
+
+                for (Action action : clickTypes) {
+                    function.accept(action);
+                }
+
+                // Don't cancel clicks for these items
+                switch (material) {
+                    case BOW, CROSSBOW, TRIDENT, FISHING_ROD, SHIELD -> function.setCancelClicks(false);
+                }
             }
         }
 
-        if (this instanceof RangeWeapon rangeWeapon) {
-            final int reloadTime = rangeWeapon.getWeaponCooldown();
-            final double maxDistance = rangeWeapon.getMaxDistance();
-            final double weaponDamage = rangeWeapon.getDamage();
-
-            builder.addLore();
-            builder.addLore("&e&lAttributes:");
-
-            addDynamicLore(builder, " Fire Rate: &f&l%s", reloadTime, t -> Tick.round(t.intValue()) + "s");
-            addDynamicLore(builder, " Max Distance: &f&l%s", maxDistance, Object::toString);
-            addDynamicLore(builder, " Damage: &f&l%s", weaponDamage, Object::toString);
-
-            builder.addLore(" Max Ammo: &f&l%s", rangeWeapon.getMaxAmmo());
-            builder.addLore(" Reload Time: &f&l%s", Tick.round(rangeWeapon.getReloadTime()) + "s");
-        }
+        appendLore(builder);
 
         if (!enchants.isEmpty()) {
             enchants.forEach(enchant -> builder.addEnchant(enchant.getEnchantment(), enchant.getLevel()));
@@ -288,31 +293,21 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
         }
 
         // Set attack speed
-        final ItemMeta meta = builder.getMeta();
 
-        // The attack speed is not generalized,
+        // The attack speed is now generalized,
         // meaning all weapons work the same with
         // the same attack speed regardless of vanilla attack speed
-        if (meta != null) {
+        builder.modifyMeta(meta -> {
             meta.removeAttributeModifier(Attribute.GENERIC_ATTACK_SPEED);
+
             meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(
                     UUID.randomUUID(),
                     "AttackSpeed",
-                    attackSpeed,
+                    0.0d,
                     AttributeModifier.Operation.ADD_NUMBER,
                     EquipmentSlot.HAND
             ));
-            builder.setItemMeta(meta);
-        }
-
-        if (attackSpeed != 0.0d) {
-            builder.addAttribute(
-                    Attribute.GENERIC_ATTACK_SPEED,
-                    attackSpeed,
-                    AttributeModifier.Operation.ADD_NUMBER,
-                    EquipmentSlot.HAND
-            );
-        }
+        });
 
         builder.setUnbreakable(true);
 
@@ -324,13 +319,9 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
             builder.addEnchant(Enchantment.LOYALTY, 3);
         }
 
-        // don't cancel clicks for these items
-        switch (material) {
-            case BOW, CROSSBOW, TRIDENT, FISHING_ROD, SHIELD -> builder.setCancelClicks(false);
-        }
-
         builder.hideFlags();
-        this.item = builder.build();
+
+        return builder.build();
     }
 
     @Nonnull
@@ -356,11 +347,10 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
         return new Weapon(material)
                 .setName(name)
                 .setDescription(description)
-                .setDamage(damage)
-                .setAttackSpeed(attackSpeed);
+                .setDamage(damage);
     }
 
-    private void addDynamicLore(@Nonnull ItemBuilder builder, @Nonnull String string, @Nonnull Number number, Function<Number, String> function) {
+    protected void addDynamicLore(@Nonnull ItemBuilder builder, @Nonnull String string, @Nonnull Number number, Function<Number, String> function) {
         final int value = number.intValue();
 
         // Since damage cannot be negative, have to handle both -1 and 1.

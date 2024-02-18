@@ -1,26 +1,28 @@
 package me.hapyl.fight.game.talents.archive.shadow_assassin;
 
-import me.hapyl.fight.game.EnumDamageCause;
+import com.google.common.collect.Lists;
+import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.EntityAttributes;
-import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.math.Tick;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.potion.PotionEffectType;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class ShadowAssassinClone extends ShadowAssassinTalent {
+public class ShadowAssassinClone extends ShadowAssassinTalent implements Listener {
 
     @DisplayField protected final double cloneDamage = 10.0d;
     @DisplayField protected final double defenseReduction = 0.4d;
@@ -28,9 +30,9 @@ public class ShadowAssassinClone extends ShadowAssassinTalent {
     @DisplayField protected final short cloneLimit = 3;
     @DisplayField protected final short energyRegen = 25;
 
-    @DisplayField protected final double furyAoeDistance = 3.0d;
-    @DisplayField protected final int furyImpairDuration = 60;
-    @DisplayField protected final double furyCloneDamage = 20.0d;
+    @DisplayField protected final short furyCloneLimit = 3;
+    @DisplayField protected final double furyCloneDamage = cloneDamage * 2.5d;
+    @DisplayField protected final double furyCloneRadius = 10.0d;
 
     private final PlayerMap<PlayerCloneList> clones = PlayerMap.newMap();
 
@@ -40,7 +42,12 @@ public class ShadowAssassinClone extends ShadowAssassinTalent {
         setType(Type.IMPAIR);
         setItem(Material.DRAGON_EGG);
 
-        setTalents(new Stealth(), new Fury(60));
+        setTalents(new Stealth(), new Fury(50));
+    }
+
+    @EventHandler()
+    public void handleDamage(GameDamageEvent ev) {
+
     }
 
     @Nonnull
@@ -71,14 +78,12 @@ public class ShadowAssassinClone extends ShadowAssassinTalent {
             setDescription("""
                     Summon a &8Shadow Clone&7 at your current location.
                                         
-                    The clone waits patiently for an enemy to come close before &cattacking&7 and reducing their %s.
+                    The clone waits patiently for an &cenemy&7 to come close before &cattacking&7, reducing their %s and &cdisappearing&7.
                                         
-                    Upon attacking the clone will &cdisappear&7, and there is a short time window where you can &bteleport&7 to the clone.
+                    Before the clone disappears, you can &bteleport&7 to it, &nregenerating&7 %s{energyRegen} %s.
 
-                    &bTeleporting&7 regenerates %s{energyRegen} %s&7.
-                                        
                     &8;;Up to {cloneLimit} clones can exist at the same time.
-                    """, AttributeType.DEFENSE, Named.SHADOW_ENERGY.getColor(), Named.SHADOW_ENERGY);
+                    """.formatted(AttributeType.DEFENSE, Named.SHADOW_ENERGY.getColor(), Named.SHADOW_ENERGY));
             setCooldownSec(16);
         }
 
@@ -97,81 +102,67 @@ public class ShadowAssassinClone extends ShadowAssassinTalent {
             super(ShadowAssassinClone.this, furyCost);
 
             setDescription("""
-                    Summon three &8Shadow Clones&7 in front of you.
+                    Summon three &8Shadow Clones&7 behind nearby &cenemies&7.
                                         
-                    The clones take turns attacking in a fixed AoE:
-                    └ Slowing and blinding enemies.
-                    └ Reducing %s.
-                    └ Dealing damage.
+                    Each clone instantly attacks the enemy, dealing &cdamage&7 and reducing %s.
                                         
+                    &8;;A single clone can target at most one enemy.
                     &8;;Any existing clones will disappear.
-                    """, AttributeType.DEFENSE);
+                    """.formatted(AttributeType.DEFENSE));
 
-            setCooldownSec(28);
+            setCooldownSec(20);
         }
 
         @Override
         public Response execute(@Nonnull GamePlayer player) {
-            final PlayerCloneList playerClones = getPlayerClones(player);
-            playerClones.disappearAll();
+            final PlayerCloneList clones = getPlayerClones(player);
 
-            final Location attackLocation = getInFront(player, 3);
-            final Location location = getInFront(player, 6);
-            final Location locationCloser = getInFront(player, 4);
+            final Location location = player.getLocation();
+            final List<LivingGameEntity> entities = Lists.newArrayList();
 
-            final Vector direction = location.getDirection().normalize().setY(0.0d);
-            final Vector vectorLeft = new Vector(direction.getZ(), 0.0d, -direction.getX()).normalize().multiply(2);
-            final Vector vectorRight = new Vector(-direction.getZ(), 0.0d, direction.getX()).normalize().multiply(2);
-
-            final Location secondCloneLocation = locationCloser.clone().add(vectorLeft);
-            final Location thirdCloneLocation = locationCloser.clone().add(vectorRight);
-
-            new FuryCloneNPC(ShadowAssassinClone.this, location, player, attackLocation, 1) {
-                @Override
-                public void onAttack(@Nonnull List<LivingGameEntity> entities) {
-                    entities.forEach(entity -> {
-                        entity.addPotionEffect(PotionEffectType.SLOW, furyImpairDuration, 1);
-                        entity.addPotionEffect(PotionEffectType.DARKNESS, furyImpairDuration, 1);
-                    });
-
-                    player.playWorldSound(attackLocation, Sound.ENTITY_HORSE_DEATH, 0.75f);
+            Collect.nearbyEntities(location, furyCloneRadius).forEach(entity -> {
+                if (player.isSelfOrTeammate(entity)) {
+                    return;
                 }
-            };
 
-            new FuryCloneNPC(ShadowAssassinClone.this, secondCloneLocation, player, attackLocation, 10) {
-                @Override
-                public void onAttack(@Nonnull List<LivingGameEntity> entities) {
-                    entities.forEach(entity -> {
-                        final EntityAttributes attributes = entity.getAttributes();
+                entities.add(entity);
+            });
 
-                        attributes.decreaseTemporary(Temper.SHADOW_CLONE, AttributeType.DEFENSE, defenseReduction, defenseReductionDuration);
-                    });
+            final List<LivingGameEntity> toHitEntities = entities.stream()
+                    .sorted((o1, o2) -> {
+                        final double distance1 = o1.getLocation().distance(location);
+                        final double distance2 = o2.getLocation().distance(location);
 
-                    // Fx
-                    player.playWorldSound(attackLocation, Sound.ENTITY_BLAZE_HURT, 0.75f);
-                }
-            };
+                        return distance2 > distance1 ? 1 : distance1 < distance2 ? -1 : 0;
+                    })
+                    .limit(furyCloneLimit).toList();
 
-            new FuryCloneNPC(ShadowAssassinClone.this, thirdCloneLocation, player, attackLocation, 20) {
-                @Override
-                public void onAttack(@Nonnull List<LivingGameEntity> entities) {
-                    entities.forEach(entity -> {
-                        entity.damage(furyCloneDamage, player, EnumDamageCause.SHADOW_CLONE);
-                    });
+            entities.clear();
 
-                    // Fx
-                    player.playWorldSound(attackLocation, Sound.ENTITY_PLAYER_HURT, 0.0f);
-                }
-            };
+            if (toHitEntities.isEmpty()) {
+                return Response.error("No valid targets!");
+            }
+
+            clones.disappearAll();
+
+            toHitEntities.forEach(entity -> {
+                final Location entityLocation = entity.getLocation();
+                final Vector vector = entityLocation.getDirection().setY(0.0d);
+
+                entityLocation.add(vector.multiply(-1.25d));
+
+                final CloneNPC clone = clones.createClone(entityLocation);
+                clone.attack(entity, furyCloneDamage);
+
+                GameTask.runLater(clone::disappear, 15);
+
+                // Fx
+                player.playWorldSound(entityLocation, Sound.ENTITY_ILLUSIONER_MIRROR_MOVE, 1.25f);
+            });
 
             return Response.OK;
         }
 
-        private Location getInFront(GamePlayer player, double distance) {
-            final Location location = player.getLocation();
-            final Vector vector = location.getDirection().normalize().setY(0.0d);
 
-            return location.add(vector.multiply(distance));
-        }
     }
 }

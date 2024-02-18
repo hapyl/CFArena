@@ -16,7 +16,8 @@ import javax.annotation.Nullable;
  */
 public class Color {
 
-    // Bukkit colors start
+    // *=* Bukkit Colors *=*
+
     public static final Color BLACK = bukkit(ChatColor.BLACK);
     public static final Color DARK_BLUE = bukkit(ChatColor.DARK_BLUE);
     public static final Color DARK_GREEN = bukkit(ChatColor.DARK_GREEN);
@@ -33,7 +34,8 @@ public class Color {
     public static final Color LIGHT_PURPLE = bukkit(ChatColor.LIGHT_PURPLE);
     public static final Color YELLOW = bukkit(ChatColor.YELLOW);
     public static final Color WHITE = bukkit(ChatColor.WHITE);
-    // Bukkit colors end
+
+    // *=* Custom Colors *=*
 
     public static final Color DEFAULT = new Color("#aabbcc");
     public static final Color SUCCESS = new Color("#05e30c");
@@ -74,6 +76,13 @@ public class Color {
     public static final Color ROSE_QUARTZ = new Color("#FAD4E8");
     public static final Color DIAMOND = new Color("#B9F2FF");
     public static final Color CORNFLOWER_BLUE = new Color("#6495ED");
+    public static final Color CRIMSON = new Color("#DC143C");
+    public static final Color BLOOD = new Color("#8B0000");
+    public static final Color SPACE = new Color("#A020F0");
+    public static final Color DIDEN = new Color("#0096aa");
+    public static final Color CRAB = new Color("#b05a5f");
+    public static final Color SKY_BLUE = new Color("#87CEEB");
+    public static final Color BUTTON_DARKER = BUTTON.darken(0.8f);
 
     // *-----------------------------------------------------*
 
@@ -82,6 +91,10 @@ public class Color {
     // since they cannot have custom colors for
     // some reason, maybe mojang just forgot about it,
     // just like they did with the actionbar ¯\_(ツ)_/¯
+    /// iTs BeCaUsE oF gLoWiNg!!!
+    /// First, it's just stupid that glowing is based on a team color rather than LITERALLY ANYTHING ELSE.
+    /// And second, JUST MAKE GLOWING USE ANY COLOR WE'RE NOT IN A FUCKING 1995.
+    /// - hapyl, signing off
     public final org.bukkit.ChatColor bukkitChatColor;
     public final org.bukkit.Color bukkitColor;
     private ColorFlag[] flags;
@@ -276,6 +289,11 @@ public class Color {
     @Nonnull
     public org.bukkit.ChatColor getBukkitChatColor() {
         return bukkitChatColor;
+    }
+
+    @Nonnull
+    public String boldAndDefault(String string) {
+        return this.bold() + string + this;
     }
 
     /**

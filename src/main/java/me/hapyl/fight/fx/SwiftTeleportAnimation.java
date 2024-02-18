@@ -20,6 +20,11 @@ public abstract class SwiftTeleportAnimation extends GameTask {
     private double step;
 
     public SwiftTeleportAnimation(@Nonnull Location from, @Nonnull Location to) {
+        if (from.equals(to)) {
+            onAnimationStop();
+            throw new IllegalArgumentException("cannot teleport between exact same locations");
+        }
+
         this.from = from;
         this.to = to;
         this.speed = 1.0d;

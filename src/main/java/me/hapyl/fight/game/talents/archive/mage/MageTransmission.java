@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.archive.mage;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -10,7 +11,6 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 
@@ -49,7 +49,7 @@ public class MageTransmission extends Talent {
         }
 
         player.teleport(location);
-        player.addPotionEffect(PotionEffectType.SLOW, 20, 10);
+        player.addEffect(Effects.SLOW, 10, 20);
         player.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.65f);
 
         if (location.getWorld() != null) {
@@ -66,7 +66,7 @@ public class MageTransmission extends Talent {
             return null;
         }
 
-        return block.getRelative(BlockFace.UP).getLocation();
+        return block.getRelative(BlockFace.UP).getLocation().add(0.5, 0, 0.5);
     }
 
 

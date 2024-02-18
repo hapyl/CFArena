@@ -8,18 +8,145 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public enum PlayerRank {
 
-    // Default
-    DEFAULT(0, RankFormatter.of("", Color.YELLOW)),
-    VIP(1, RankFormatter.of(Color.VIP + "ᴠɪᴘ", Color.VIP_NAME)),
-    PREMIUM(2, RankFormatter.of(Color.PREMIUM + "ᴘʀᴇᴍɪᴜᴍ", Color.PREMIUM_NAME)),
+    DEFAULT(0, new RankFormatter() {
+        @Nonnull
+        @Override
+        public String prefix() {
+            return "";
+        }
+
+        @Nonnull
+        @Override
+        public Color nameColor() {
+            return Color.YELLOW;
+        }
+
+    }),
+    VIP(1, new RankFormatter() {
+        @Nonnull
+        @Override
+        public String prefix() {
+            return Color.VIP.bold() + "ᴠɪᴘ";
+        }
+
+        @Nonnull
+        @Override
+        public Color nameColor() {
+            return Color.VIP_NAME;
+        }
+
+        @Nonnull
+        @Override
+        public String joinMessage() {
+            return "{player} &6is here!";
+        }
+
+        @Nonnull
+        @Override
+        public String leaveMessage() {
+            return "{player} &6has left!";
+        }
+    }),
+
+    PREMIUM(2, new RankFormatter() {
+        @Nonnull
+        @Override
+        public String prefix() {
+            return Color.PREMIUM.bold() + "ᴘʀᴇᴍɪᴜᴍ";
+        }
+
+        @Nonnull
+        @Override
+        public Color nameColor() {
+            return Color.PREMIUM_NAME;
+        }
+
+        @Override
+        public String joinMessage() {
+            return "{player} &6has arrived!";
+        }
+
+        @Override
+        public String leaveMessage() {
+            return "{player} &6has departed!";
+        }
+    }),
 
     // Administrators
-    MODERATOR(100, RankFormatter.of(Color.MODERATOR.bold() + "ᴍᴏᴅ", Color.DARK_GREEN, Color.WHITE)),
-    ADMIN(101, RankFormatter.of(Color.ADMIN.bold() + "ᴀᴅᴍɪɴ", Color.RED, Color.WHITE, true)),
-    CONSOLE(102, RankFormatter.of("[CONSOLE]")),
+    MODERATOR(100, new RankFormatter() {
+        @Nonnull
+        @Override
+        public String prefix() {
+            return Color.MODERATOR.bold() + "ᴍᴏᴅ";
+        }
+
+        @Nonnull
+        @Override
+        public Color nameColor() {
+            return Color.DARK_GREEN;
+        }
+
+        @Nullable
+        @Override
+        public String joinMessage() {
+            return null;
+        }
+
+        @Nullable
+        @Override
+        public String leaveMessage() {
+            return null;
+        }
+    }),
+
+    ADMIN(101, new RankFormatter() {
+        @Nonnull
+        @Override
+        public String prefix() {
+            return Color.ADMIN.bold() + "ᴀᴅᴍɪɴ";
+        }
+
+        @Nonnull
+        @Override
+        public Color nameColor() {
+            return Color.RED;
+        }
+
+        @Override
+        public boolean allowFormatting() {
+            return true;
+        }
+
+        @Nullable
+        @Override
+        public String joinMessage() {
+            return null;
+        }
+
+        @Nullable
+        @Override
+        public String leaveMessage() {
+            return null;
+        }
+    }),
+
+    CONSOLE(102, new RankFormatter() {
+        @Nonnull
+        @Override
+        public String prefix() {
+            return "[Console]";
+        }
+
+        @Nonnull
+        @Override
+        public Color nameColor() {
+            return Color.DARK_RED;
+        }
+    }),
 
     ;
 
@@ -71,6 +198,10 @@ public enum PlayerRank {
 
     public boolean isOrHigher(@Nonnull PlayerRank other) {
         return this == other || this.permissionLevel >= other.permissionLevel;
+    }
+
+    public int reverseOrdinal() {
+        return values().length - ordinal();
     }
 
     // static members

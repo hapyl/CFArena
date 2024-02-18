@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.archive.nightmare;
 
 import com.google.common.collect.Maps;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.util.Ticking;
@@ -27,7 +27,7 @@ public class OmenDebuff implements Ticking {
         }
 
         debuff.put(entity, tick);
-        entity.addEffect(GameEffectType.PARANOIA, tick, true);
+        entity.addEffect(Effects.PARANOIA, tick, true);
     }
 
     public boolean isAffected(LivingGameEntity entity) {
@@ -60,7 +60,7 @@ public class OmenDebuff implements Ticking {
             }
 
             // Fx
-            final Location eyeLocation = entity.getEyeLocation();
+            final Location eyeLocation = entity.getEyeLocation().add(0, 0.65, 0);
 
             player.spawnParticle(eyeLocation, Particle.SPELL_WITCH, 1, 0.1d, 0.1d, 0.1d, 0.01f);
             player.spawnParticle(eyeLocation, Particle.SMOKE_LARGE, 2, 0.175d, 0.175d, 0.175d, 0.02f);

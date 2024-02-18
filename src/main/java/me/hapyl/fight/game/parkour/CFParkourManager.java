@@ -4,7 +4,6 @@ import me.hapyl.fight.Main;
 import me.hapyl.fight.gui.ParkourLeaderboardGUI;
 import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.parkour.ParkourManager;
-import org.bukkit.GameMode;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,6 +12,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 
 public class CFParkourManager implements Listener {
 
@@ -31,7 +31,9 @@ public class CFParkourManager implements Listener {
         final Block clickedBlock = ev.getClickedBlock();
         final Action action = ev.getAction();
 
-        if (player.getGameMode() == GameMode.CREATIVE || clickedBlock == null || ev.getHand() == EquipmentSlot.OFF_HAND) {
+        final ItemStack item = player.getInventory().getItemInMainHand();
+
+        if (!item.getType().isAir() || clickedBlock == null || ev.getHand() == EquipmentSlot.OFF_HAND) {
             return;
         }
 

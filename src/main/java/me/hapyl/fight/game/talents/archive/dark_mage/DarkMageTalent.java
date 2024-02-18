@@ -8,8 +8,9 @@ import me.hapyl.fight.game.heroes.archive.dark_mage.DarkMage;
 import me.hapyl.fight.game.heroes.archive.dark_mage.DarkMageSpell;
 import me.hapyl.fight.game.heroes.archive.dark_mage.SpellButton;
 import me.hapyl.fight.game.heroes.archive.witcher.WitherData;
+import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
-import me.hapyl.fight.util.SmallCaps;
+import me.hapyl.fight.translate.Language;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -17,8 +18,6 @@ import org.bukkit.Sound;
 import javax.annotation.Nonnull;
 
 public abstract class DarkMageTalent extends Talent {
-
-    private final String USAGE_REMINDER = SmallCaps.format("Usage Reminder");
 
     public DarkMageTalent(String name, String description) {
         this(name, description, Material.BEDROCK);
@@ -35,7 +34,25 @@ public abstract class DarkMageTalent extends Talent {
                 %s
                                 
                 &8;;You must use your wand to cast this spell!
-                """, Color.WITHERS.bold(), getAssistDescription(), getUsage());
+                """.formatted(Color.WITHERS.bold(), getAssistDescription(), getUsage()));
+    }
+
+    @Nonnull
+    @Override
+    public String getTranslateDescription(@Nonnull Language language) {
+        return language.getFormatted("""
+                %s<talent.dark_mage.witherborn_assist>
+                <%s>
+                &f&l<talent.dark_mage.usage>: %s
+                
+                &8;;<talent.dark_mage.alt_usage>
+                """
+                .formatted(
+                        Color.WITHERS.bold(),
+                        getParentTranslatableKey() + "witherborn_assist",
+                        getUsageRaw()
+                )
+        );
     }
 
     @Nonnull
@@ -60,17 +77,25 @@ public abstract class DarkMageTalent extends Talent {
         return Response.AWAIT;
     }
 
-    public final Response executeDarkMage(GamePlayer player) {
+    public final Response executeDarkMage(@Nonnull GamePlayer player) {
         if (hasCd(player)) {
             player.sendSubtitle("&cSpell on cooldown for %ss!".formatted(BukkitUtils.roundTick(getCdTimeLeft(player))), 0, 20, 5);
             return Response.ERROR;
         }
 
-        final Response response = Talent.preconditionTalent(player);
+        final Response response = Talent.precondition(player);
 
         if (!response.isOk()) {
             player.sendTitle("&c" + response.getReason(), null, 0, 20, 5);
             return response;
+        }
+
+        // Check for lock
+        final HotbarSlots slot = Heroes.DARK_MAGE.getHero().getTalentSlotByHandle(this);
+
+        if (player.getTalentLock().isLocked(slot)) {
+            player.sendTitle("&cTalent is locked!", null, 0, 20, 5);
+            return Response.error("Talent is locked!");
         }
 
         final Response spellResponse = executeSpell(player);

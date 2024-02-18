@@ -4,6 +4,7 @@ import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.talents.InsteadOfNull;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public interface RankFormatter {
 
@@ -17,47 +18,22 @@ public interface RankFormatter {
 
     @Nonnull
     @InsteadOfNull("Empty String")
-    Color textColor();
-
-    boolean allowFormatting();
-
-    static RankFormatter of(@Nonnull String prefix) {
-        return of(prefix, Color.WHITE, Color.WHITE, false);
+    default Color textColor() {
+        return Color.WHITE;
     }
 
-    static RankFormatter of(@Nonnull String prefix, @Nonnull Color nameColor) {
-        return of(prefix, nameColor, Color.WHITE, false);
+    default boolean allowFormatting() {
+        return false;
     }
 
-    static RankFormatter of(@Nonnull String prefix, @Nonnull Color nameColor, @Nonnull Color textColor) {
-        return of(prefix, nameColor, textColor, false);
+    @Nullable
+    default String joinMessage() {
+        return "{player} &6wants to fight!";
     }
 
-    static RankFormatter of(@Nonnull String prefix, @Nonnull Color nameColor, @Nonnull Color textColor, boolean allowFormat) {
-        return new RankFormatter() {
-            @Nonnull
-            @Override
-            public String prefix() {
-                return prefix;
-            }
-
-            @Nonnull
-            @Override
-            public Color nameColor() {
-                return nameColor;
-            }
-
-            @Nonnull
-            @Override
-            public Color textColor() {
-                return textColor;
-            }
-
-            @Override
-            public boolean allowFormatting() {
-                return allowFormat;
-            }
-        };
+    @Nullable
+    default String leaveMessage() {
+        return "{player} &6has fallen!";
     }
 
 }

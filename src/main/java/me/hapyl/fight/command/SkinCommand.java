@@ -6,7 +6,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.rank.PlayerRank;
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.ux.Message;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -45,7 +44,6 @@ public class SkinCommand extends CFCommand {
 
         if (cachedSkin != null) {
             applySkin(player, null, cachedSkin);
-            cachedSkin.apply(player);
             Message.success(player, "Applied skin!");
             return;
         }
@@ -65,7 +63,7 @@ public class SkinCommand extends CFCommand {
                 final JsonElement uuid = uuidJson.get("id");
 
                 if (uuid == null) {
-                    Message.info(player, "Invalid username!");
+                    Message.error(player, "Invalid username!");
                     return;
                 }
 
@@ -97,11 +95,10 @@ public class SkinCommand extends CFCommand {
         skin.apply(player);
 
         Message.success(player, "Applied skin!");
-        Message.info(player, getUsage() + " reset to reset your skin!");
+        Message.success(player, getUsage() + " reset to reset your skin!");
 
         if (skinName != null) {
             PlayerSkin.cache.cache(skinName, skin);
-            Debug.info("Cached %s...", skinName);
         }
     }
 

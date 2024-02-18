@@ -38,7 +38,8 @@ public class NullGameInstance implements IGameInstance {
     }
 
     @Override
-    public void checkWinCondition() {
+    public boolean checkWinCondition() {
+        return false;
     }
 
     @Nonnull

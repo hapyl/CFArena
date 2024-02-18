@@ -61,7 +61,8 @@ public class MoonBase extends GameMap {
     }
 
     @Override
-    public void onStartOnce() {
+    public void onStart() {
+        super.onStart();
         final boolean b = new Random().nextBoolean();
 
         gate = (byte) (b ? 0 : 1);

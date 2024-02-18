@@ -70,7 +70,7 @@ public abstract class GamePack implements GameElement, Listener {
     }
 
     @Override
-    public void onPlayersReveal() {
+    public void onPlayersRevealed() {
         // Activate packs
         activePacks.forEach(activePack -> activePack.next(true));
     }

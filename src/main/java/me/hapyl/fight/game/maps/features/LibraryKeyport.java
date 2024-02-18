@@ -2,11 +2,13 @@ package me.hapyl.fight.game.maps.features;
 
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.BlockLocation;
+import me.hapyl.spigotutils.module.util.CollectionUtils;
 import me.hapyl.spigotutils.module.util.ThreadRandom;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.potion.PotionEffectType;
 
+import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -18,6 +20,39 @@ public class LibraryKeyport {
     public LibraryKeyport() {
         this.portals = new HashMap<>();
         this.addAll();
+    }
+
+    public boolean testPlayer(GamePlayer player) {
+        final Location location = player.getLocation();
+
+        for (BlockLocation entrance : portals.keySet()) {
+            double distance = 3.0d;
+
+            if (entrance.toLocation().distance(location) <= distance) {
+                final Location exit = getRandomExitAndMergePitch(entrance, player);
+
+                player.teleport(exit);
+                player.addPotionEffect(PotionEffectType.BLINDNESS, 1, 20);
+                player.playWorldSound(Sound.ENTITY_ENDERMAN_TELEPORT, 1.25f);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Nonnull
+    public BlockLocation getRandomButSelf(BlockLocation enter) {
+        final BlockLocation element = portals.values().toArray(new BlockLocation[] {})[ThreadRandom.nextInt(portals.values().size())];
+        return portals.get(enter) == element ? getRandomButSelf(enter) : element;
+    }
+
+    public BlockLocation getRandom() {
+        return CollectionUtils.randomElement(portals.values().toArray(new BlockLocation[] {}));
+    }
+
+    @Nonnull
+    public Set<BlockLocation> getEntrances() {
+        return this.portals.keySet();
     }
 
     private void addAll() {
@@ -43,36 +78,9 @@ public class LibraryKeyport {
         this.portals.put(entrance7, new BlockLocation(-18, 64, -107, -90, 0));
     }
 
-    public boolean testPlayer(GamePlayer player) {
-        final Location location = player.getLocation();
-
-        for (BlockLocation entrance : portals.keySet()) {
-            double distance = 3.0d;
-
-            if (entrance.toLocation().distance(location) <= distance) {
-                final Location exit = getRandomExitAndMergePitch(entrance, player);
-
-                player.teleport(exit);
-                player.addPotionEffect(PotionEffectType.BLINDNESS, 20, 1);
-                player.playWorldSound(Sound.ENTITY_ENDERMAN_TELEPORT, 1.25f);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private BlockLocation getRandomButSelf(BlockLocation enter) {
-        final BlockLocation element = portals.values().toArray(new BlockLocation[] {})[ThreadRandom.nextInt(portals.values().size())];
-        return portals.get(enter) == element ? getRandomButSelf(enter) : element;
-    }
-
     private Location getRandomExitAndMergePitch(BlockLocation enter, GamePlayer player) {
         final Location location = getRandomButSelf(enter).toLocation(true);
         location.setPitch(player.getLocation().getPitch());
         return location;
-    }
-
-    public Set<BlockLocation> getEntrances() {
-        return this.portals.keySet();
     }
 }

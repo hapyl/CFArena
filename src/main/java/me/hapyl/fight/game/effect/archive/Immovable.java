@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.effect.archive;
 
-import me.hapyl.fight.game.effect.GameEffect;
+import me.hapyl.fight.game.effect.Effect;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.EntityMemory;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.MemoryKey;
@@ -8,22 +9,20 @@ import org.bukkit.attribute.Attribute;
 
 import javax.annotation.Nonnull;
 
-public class Immovable extends GameEffect {
+public class Immovable extends Effect {
 
     private final MemoryKey key = new MemoryKey("immovable_kb");
 
     public Immovable() {
-        super("Immovable");
-        setDescription("Players are not affected by knockback.");
-        setPositive(false); // I mean kinda positive but kinda not you know but there is only one character that can do this, and it's their ability that you know kinda to make enemies like bad, so you can like easier hit them and deal damaje :|
+        super("Immovable", EffectType.NEUTRAL);
+
+        setDescription("""
+                Entities aren't affected by knockback.
+                """);
     }
 
     @Override
-    public void onTick(@Nonnull LivingGameEntity entity, int tick) {
-    }
-
-    @Override
-    public void onStart(@Nonnull LivingGameEntity entity) {
+    public void onStart(@Nonnull LivingGameEntity entity, int amplifier, int duration) {
         final EntityMemory memory = entity.getMemory();
 
         memory.remember(key, entity.getAttributeValue(Attribute.GENERIC_KNOCKBACK_RESISTANCE));
@@ -31,7 +30,7 @@ public class Immovable extends GameEffect {
     }
 
     @Override
-    public void onStop(@Nonnull LivingGameEntity entity) {
+    public void onStop(@Nonnull LivingGameEntity entity, int amplifier) {
         final EntityMemory memory = entity.getMemory();
         final double value = memory.forget(key, Double.class, 0.0d);
 

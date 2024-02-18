@@ -1,14 +1,14 @@
 package me.hapyl.fight.game.heroes.archive.troll;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.event.DamageInstance;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
@@ -31,8 +31,8 @@ public class Troll extends Hero implements Listener {
 
     private final PlayerMap<StickyCobweb> cobwebs = PlayerMap.newMap();
 
-    public Troll() {
-        super("Troll");
+    public Troll(@Nonnull Heroes handle) {
+        super(handle, "Troll");
 
         setArchetype(Archetype.STRATEGY);
 
@@ -55,7 +55,7 @@ public class Troll extends Hero implements Listener {
                 .addEnchant(Enchantment.KNOCKBACK, 1));
 
         setUltimate(new UltimateTalent(
-                "Sticky Situation", """
+                this, "Sticky Situation", """
                 Spawns a batch of cobwebs at your position that is only visible for your opponents.
                                 
                 &8;;Only one batch can exist at the same time.
@@ -108,12 +108,12 @@ public class Troll extends Hero implements Listener {
     }
 
     @Override
-    public DamageOutput processDamageAsDamager(DamageInput input) {
-        final GamePlayer killer = input.getDamagerAsPlayer();
-        final LivingGameEntity entity = input.getEntity();
+    public void processDamageAsDamager(@Nonnull DamageInstance instance) {
+        final GamePlayer killer = instance.getDamagerAsPlayer();
+        final LivingGameEntity entity = instance.getEntity();
 
         if (killer == null) {
-            return null;
+            return;
         }
 
         if (Math.random() >= 0.98) {
@@ -131,8 +131,6 @@ public class Troll extends Hero implements Listener {
 
             Achievements.LAUGHING_OUT_LOUD.complete(killer.getPlayer());
         }
-
-        return null;
     }
 
     @Override

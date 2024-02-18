@@ -2,14 +2,15 @@ package me.hapyl.fight.game.heroes.archive.librarian;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.KeepNull;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.librarian.EntityDarkness;
 import me.hapyl.fight.game.talents.archive.librarian.LibrarianTalent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Collect;
@@ -18,7 +19,6 @@ import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.chat.Gradient;
 import me.hapyl.spigotutils.module.chat.gradient.Interpolators;
-import me.hapyl.spigotutils.module.player.EffectType;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
@@ -33,8 +33,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -55,8 +53,14 @@ public class Librarian extends Hero implements ComplexHero, Listener, DisabledHe
     private final String grimoireIsMaxGradient = new Gradient("Grimoire Maxed!")
             .rgb(ChatColor.RED.getColor(), ChatColor.BLUE.getColor(), Interpolators.LINEAR);
 
-    public Librarian() {
-        super("Librarian of Void", "Mislead by the &0void&7, sacrifices were made.", Material.BOOK);
+    public Librarian(@Nonnull Heroes handle) {
+        super(handle, "Librarian of Void");
+
+        setDescription("""
+                Mislead by the &0void&7, sacrifices were made.
+                """);
+
+        setItem(Material.BOOK);
 
         talentMap.put(1, (LibrarianTalent) Talents.BLACK_HOLE.getTalent());
         talentMap.put(2, (LibrarianTalent) Talents.ENTITY_DARKNESS.getTalent());
@@ -73,6 +77,7 @@ public class Librarian extends Hero implements ComplexHero, Listener, DisabledHe
         setWeapon(new Weapon(Material.NETHERITE_SHOVEL).setName("Staff").setDamage(7.5d));
 
         setUltimate(new UltimateTalent(
+                this,
                 "Void of Blindness",
                 "Create massive void of blindness field for {duration}. Everyone who dares steps inside, will be affected by paranoia and glow. Librarian also gets a &c&ldamage &7and &b&lspeed &7boost.",
                 70
@@ -148,13 +153,13 @@ public class Librarian extends Hero implements ComplexHero, Listener, DisabledHe
 
                 Collect.nearbyEntities(castLocation, 20).forEach(entity -> {
                     if (entity.equals(player)) {
-                        player.addPotionEffect(EffectType.SPEED, 20, 1);
-                        player.addPotionEffect(EffectType.STRENGTH, 20, 0);
+                        player.addEffect(Effects.SPEED, 1, 20);
+                        // fixme -> Strength was here replace with attack in 2034 when you finally decide to fix this hero
                     }
                     else {
-                        entity.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 30, 1));
+                        entity.addEffect(Effects.GLOWING, 1, 30);
                     }
-                    entity.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 30, 1));
+                    entity.addEffect(Effects.BLINDNESS, 1, 30);
                 });
 
             }

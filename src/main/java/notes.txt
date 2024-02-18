@@ -1,6 +1,55 @@
-####################################################################
+#########################################
 
-└
+todo
+- Custom Tab
+
+- Add stats to GW
+- Remove glow after shots
+- Add clear particles to either shots and/or invis
+- Update description
+- Smoke outline blinks yep
+- ed grass
+
+#########################################
+
+
+#########################################
+
+- Allow opening the GUI just don't allow clicking
+- Test swooper
+
+- Stopping the game should display winners
+- Add open 10 instead of bulk open, or make open 10 VIP and bulk PREMIUM
+- Add fight thingy so FIGHT
+
+- Increase base damage >> 8
+- Increate ultimate range
+- Increase ultimate damage
+- Preklad
+- Less stun time
+- Stealth broke?
+- Punish more for being on a roof
+_ i'm I stupid?
+
+- Dr Ed can damage self?
+- Dr Ed Ult
+- Maybe add attack display for pytaria?
+- 0.1?
+- stun add s
+- add sound to blast pack
+
+- Make DM clone deal damage?
+- Make DM leave invis like ninja
+- Migrate to RayCawst check
+- Improve DM
+- Range CD BROKE?
+- Make cool ray red
+- Smoke blinks?
+- STUN?
+- Maybe rework Bloodfiend make him AoE:
+-- Pillar does AoE damage.
+-- Chalice STEALS health.
+-- No blood cup.
 
 ####################################################################
 
@@ -23,11 +72,6 @@
 - Frenzy death after health <= 0 resets health
 - [✔] Change flight to onReveal() not onStart() OR force flight on when setting to spectator
 
-* Bloodfiend
-- Change bloodfiend to use hp%
-- Change bloodfiend pillar to left/right
-- Fix bloodfiend blood tps to player not nearby
-
 - [✔] I BELIEVE I CAN FLY, I BELIEVE I CAN TOUCH THE SKY
 -- Should be fixed for all characters, though needs testing.
 
@@ -45,6 +89,8 @@
 
 * Passive idea for tank or support maybe
 - When hit and damage is NOT leathal but under like 5% of health = heal. Cd ofc
+
+- Museum
 
 ####################################################################
 
@@ -153,23 +199,6 @@ Bugs:
 - [✔] Fix snake parkour quit location
 - [✔] ADD TRIM COMMAND
 - [✔] Fix description from GRAY to DARK_GRAY
-
-### System Rework Notes: ###
-
-- Spawned mobs should *always* have a game entity
-associated with them; if spawned naturally, create
-default game entity.
-
-- Clone hero attribute to modify them.
-
-- "entity instanceof Player" is gonna throw a lot of errors...
-
-- Rejoining seems to be broken (ult does not recharge)
-
-############################
-
-### System Rework TEST Notes: ###
-
 - [✔] Bounty Hunter cannot SUCK
 - [✔] Return start item when cancelled
 - [✔] Witcher axii
@@ -177,30 +206,21 @@ default game entity.
 - [✔] Witcher combo shows to victim
 - [✔] Some entities should not be converted to GameEntity (ArmorStands)
 - [✔] Cauldron does not apply effect
-
 - !!! Improve custom AI, include invisibility, target the most damager ETC!!!
 - [✔] Show kill distance for projectiles only
 - [✔] Shark does not have bleed
 - [✔] Dwarf lava
 - [✔] Do something with non game entities, IDK what but do something!!!
-
 - [✔] Ninja takes fall damage
 - [✔] Ninja stars don't deal damage
-
 - [✔] HP shows in lobby (Parkour calls creation!)
 - [✔, Fixed using a work-around, need a better patch] Game PLayer is not removed after the game
---  at ClassesFightArena.jar//me.hapyl.fight.game.ui.GamePlayerUI.updateScoreboard(GamePlayerUI.java:147)
-
+--  at ClassesFightArena.jar//me.hapyl.fight.game.ui.PlayerUI.updateScoreboard(GamePlayerUI.java:147)
 - Display damage boost for nightmare
 - [✔] Taker scythe (1) does not work
 - [✔] Range weapons does not work
 - [✔] Mage cannot damage range
 - [✔] Don't set GamePlayer set 1 HP!
-
--- Super complex but worth a try:
--- Custom player (Human) AI
-
-############################
 - [Could not reproduce, neither in local nor in building server] Chalice laggs server?
 - [✔] Remove all SUCC at death
 - [✔] Batransfer multiple reset cancel task
@@ -255,7 +275,6 @@ default game entity.
 - [✔] Test DM since reworked spell casting
 - [✔] Improve DM dark spell
 - [✔] TAUNT DEAD MESSAGE IS BOLD
-
 - Add bleed FX with bloodfiend one.
 - Add remove FX to a pillar.
 - Add hypixel-like server restart
@@ -267,40 +286,9 @@ default game entity.
 - Bleed does not have damager?
 - Spectral Form has too big CD?
 - [✔] Maybe randomize candle clicks?
-- Nightmare had 80 hp? (Random class issue I think)
-- Maybe just damage with grav, not BUB DOWN BOOB BOOBA?
-- When rejoining a game, a selected class instead of random is given (I don't think this is fixable, just fucking remove rejoining who the fuck cares)
-
-############################
-
-- ACHIEVEMENT: Look at all owls in winery.
-
-- Maybe genshin slowing aura for freazly
-- Maybe add glowing for self traps
-- rework TECHIE and TAKER ult
-- add glowing on death for teammates
-- Maybe add buff when JUJU uses climb
-- make juju shot work when hit enemies
-- Possible stackoverflow when calculating wave
-- "Flying is not enabled on this server"
-
-== 1.20 ==
-- /2 CD when DM has ULT
-- Lover damage in darkness nightmare
-- Add patterns to TECHIE
-- TECHIE ult should lockdown or break linked opponents
-- Maybe rework passive to be "If have paranoia, take more damage" though it would be hard to detect who applied without using a map
-- UPGRADES PEOPLE UPGRADES not removed on death
-- Anchor dr ed particles
-
 - Input talent does not reset when predicate false?
-
 - Check for melee damage
 - Some death messages show damager when they shouldn't
-- Ender TP should give attack
-- DEAD GIFT TECHIE
-
-- !!! Allow console to use stop
 - Orc dash is very long
 - cauldron zone is not removed
 - shield does not reset on death

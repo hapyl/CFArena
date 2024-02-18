@@ -1,21 +1,70 @@
 package me.hapyl.fight.event.custom;
 
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import org.bukkit.event.HandlerList;
 
 import javax.annotation.Nonnull;
 
-public class TalentUseEvent extends GamePlayerEvent{
+/**
+ * Called <b>after</b> a {@link GamePlayer} <b>successfully</b> used a {@link Talent}.
+ */
+public class TalentUseEvent extends GamePlayerEvent {
 
     private static final HandlerList HANDLERS = new HandlerList();
 
-    public final Talent talent;
+    private final Talent talent;
 
-    public TalentUseEvent(@Nonnull GamePlayer gamePlayer, @Nonnull Talent talent) {
-        super(gamePlayer);
+    public TalentUseEvent(@Nonnull GamePlayer player, @Nonnull Talent talent) {
+        super(player);
 
         this.talent = talent;
+    }
+
+    /**
+     * Gets the talent that was used.
+     *
+     * @return the talent used.
+     */
+    @Nonnull
+    public Talent getTalent() {
+        return talent;
+    }
+
+    /**
+     * Gets the talent's handle that was used.
+     *
+     * @return the talent's handle that was used.
+     */
+    @Nonnull
+    public Talents getTalentHandle() {
+        return talent.getHandle();
+    }
+
+    /**
+     * Gets the {@link HotbarSlots} of this talent from the hero.
+     *
+     * @return the slot of this talent.
+     * @throws IllegalArgumentException if player's hero does not have this talent.
+     */
+    @Nonnull
+    public HotbarSlots getSlot() throws IllegalArgumentException {
+        return getHero().getTalentSlotByHandle(talent);
+    }
+
+    /**
+     * Gets the {@link Hero} of the {@link GamePlayer}.
+     * <p>
+     * This should always return the hero that this talent belongs to, unless talent used illegally.
+     *
+     * @return the current hero of the player.
+     */
+    @Nonnull
+    public Hero getHero() {
+        return player.getHero();
     }
 
     @Nonnull

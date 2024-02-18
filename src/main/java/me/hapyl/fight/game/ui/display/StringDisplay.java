@@ -81,6 +81,9 @@ public class StringDisplay {
         return (short) (tick * 5);
     }
 
+    public void onPrepare(@Nonnull TextDisplay display) {
+    }
+
     /**
      * Starts display if {@link #string} is not empty nor blank.
      *
@@ -102,6 +105,8 @@ public class StringDisplay {
             self.setTextOpacity((byte) -1);
             self.setText(Chat.format(string));
             self.setViewRange(viewRange);
+
+            onPrepare(self);
         }, false);
 
         onStart(text);

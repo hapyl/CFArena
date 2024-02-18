@@ -11,11 +11,14 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.GVar;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.build.NamedSignReader;
+import me.hapyl.fight.chat.ChatChannel;
 import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.database.collection.HeroStatsCollection;
 import me.hapyl.fight.database.entry.DailyRewardEntry;
 import me.hapyl.fight.database.entry.MetadataEntry;
 import me.hapyl.fight.database.entry.MetadataKey;
 import me.hapyl.fight.database.rank.PlayerRank;
+import me.hapyl.fight.event.ServerHandler;
 import me.hapyl.fight.filter.ProfanityFilter;
 import me.hapyl.fight.fx.GiantItem;
 import me.hapyl.fight.fx.Riptide;
@@ -24,20 +27,24 @@ import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.Attributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.CosmeticCollection;
+import me.hapyl.fight.game.cosmetic.Cosmetics;
+import me.hapyl.fight.game.cosmetic.DisabledCosmetic;
 import me.hapyl.fight.game.cosmetic.crate.Crates;
 import me.hapyl.fight.game.cosmetic.crate.convert.CrateConvert;
 import me.hapyl.fight.game.cosmetic.crate.convert.CrateConverts;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.dot.DamageOverTime;
 import me.hapyl.fight.game.dot.DotInstance;
 import me.hapyl.fight.game.dot.DotInstanceList;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.*;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
 import me.hapyl.fight.game.entity.cooldown.CooldownData;
 import me.hapyl.fight.game.entity.shield.Shield;
 import me.hapyl.fight.game.experience.Experience;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.archive.bloodfield.BatCloud;
 import me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend;
 import me.hapyl.fight.game.heroes.archive.bloodfield.BloodfiendData;
@@ -53,23 +60,30 @@ import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.reward.DailyReward;
 import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.engineer.Construct;
 import me.hapyl.fight.game.talents.archive.juju.Orbiting;
+import me.hapyl.fight.game.talents.archive.swooper.BlastPackEntity;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
+import me.hapyl.fight.game.talents.archive.witcher.Akciy;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.fight.game.ui.display.DamageDisplay;
 import me.hapyl.fight.game.ui.splash.SplashText;
+import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.github.Contributor;
+import me.hapyl.fight.github.Contributors;
 import me.hapyl.fight.gui.HeroPreviewGUI;
 import me.hapyl.fight.gui.LegacyAchievementGUI;
 import me.hapyl.fight.gui.styled.profile.DeliveryGUI;
 import me.hapyl.fight.gui.styled.profile.achievement.AchievementGUI;
+import me.hapyl.fight.translate.Translate;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.ChatUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.ux.Message;
+import me.hapyl.spigotutils.module.block.display.DisplayEntity;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.chat.Gradient;
 import me.hapyl.spigotutils.module.chat.LazyEvent;
@@ -110,6 +124,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.*;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -124,6 +139,7 @@ import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
 import org.joml.AxisAngle4f;
@@ -138,6 +154,7 @@ import java.io.FileWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.reflect.Field;
+import java.time.DayOfWeek;
 import java.util.List;
 import java.util.Queue;
 import java.util.*;
@@ -151,7 +168,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
     public CommandRegistry(Main main) {
         super(main);
 
-        Bukkit.getPluginManager().registerEvents(this, main);
+        CF.registerEvents(this);
         this.processor = new CommandProcessor(main);
 
         // Unregister annoying paper commands
@@ -193,6 +210,354 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new SnakeBuilderCommand("snakeBuilder"));
         register(new CrateCommandCommand("crate"));
         register(new GlobalConfigCommand("globalConfig"));
+        register(new ArtifactCommand("artifact"));
+        register(new RateHeroCommand("rateHero"));
+        register(new ScriptCommand("script"));
+        register(new TrialCommand("trial"));
+        register(new LanguageCommand("language"));
+        register(new GuessWhoCommand("guessWho"));
+        register(new InviteCommand("invite"));
+
+        // *=* Inner commands *=* //
+
+        register("stopGuessWho", (player, args) -> {
+            Manager.current().stopGuessWhoGame();
+        });
+
+        register("spawnBlastPackWallEntity", (player, args) -> {
+            final float yaw = getArgument(args, 0).toFloat();
+            final float pitch = getArgument(args, 1).toFloat();
+
+            final Location location = player.getLocation();
+            location.setYaw(yaw);
+            location.setPitch(pitch);
+
+            final DisplayEntity entity = BlastPackEntity.data.spawn(location);
+
+            Chat.sendMessage(player, "&aSpawned with %s yaw and %s pitch!".formatted(yaw, pitch));
+        });
+
+        register("debugCosmetic", (player, args) -> {
+            final Cosmetics enumCosmetic = getArgument(args, 0).toEnum(Cosmetics.class);
+
+            if (enumCosmetic == null) {
+                Chat.sendMessage(player, "&cInvalid cosmetic!");
+                return;
+            }
+
+            final Cosmetic cosmetic = enumCosmetic.getCosmetic();
+
+            Chat.sendMessage(player, "&bEnum: " + enumCosmetic.name());
+            Chat.sendMessage(player, "&3Class: " + cosmetic.getClass().getSimpleName());
+            Chat.sendMessage(player, "&bIs Valid For Crate: " + enumCosmetic.isValidForCrate());
+            Chat.sendMessage(player, "&3Name: " + cosmetic.getName());
+            Chat.sendMessage(player, "&bRarity: " + cosmetic.getRarity());
+            Chat.sendMessage(player, "&3Type: " + cosmetic.getType());
+            Chat.sendMessage(player, "&bIs Exclusive: " + cosmetic.isExclusive());
+            Chat.sendMessage(player, "&3Is Disabled: " + (cosmetic instanceof DisabledCosmetic));
+        });
+
+        register("later", (player, args) -> {
+            final int delay = getArgument(args, 0).toInt();
+            final String command = Chat.arrayToString(args, 1);
+
+            if (command.contains("later")) {
+                Chat.sendMessage(player, "&cThis command is not allowed to be scheduled.");
+                return;
+            }
+
+            if (delay <= 0) {
+                Chat.sendMessage(player, "&cDelay cannot be negative or 0.");
+                return;
+            }
+
+            Chat.sendMessage(player, "&aRunning '%s' in %s ticks.".formatted(command, delay));
+
+            GameTask.runLater(() -> {
+                player.performCommand(command);
+
+                Chat.sendMessage(player, "&aRan '%s'!".formatted(command));
+            }, delay);
+        });
+
+        register("stunMe", (player, args) -> {
+            final Akciy talent = Talents.AKCIY.getTalent(Akciy.class);
+            final GamePlayer gamePlayer = CF.getPlayer(player);
+            final int duration = getArgument(args, 0).toInt(30);
+
+            if (gamePlayer == null) {
+                Chat.sendMessage(player, "&cNo handle.");
+                return;
+            }
+
+            talent.stun(gamePlayer, duration);
+            Chat.sendMessage(player, "&aStunned for %ss!".formatted(duration));
+        });
+
+        register("anchorMe", (player, args) -> {
+            final Location location = CFUtils.anchorLocation(player.getLocation());
+
+            player.teleport(location);
+
+            PlayerLib.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f);
+        });
+
+        register("colorWithDayOfTheWeekGradient", (player, args) -> {
+            final int numericDayOfWeek = getArgument(args, 0).toInt();
+            final String stringToColor = Chat.arrayToString(args, 1);
+
+            if (numericDayOfWeek < 1 || numericDayOfWeek > 7) {
+                Chat.sendMessage(player, "&cThere are seven days in a week, not %s!".formatted(numericDayOfWeek));
+                return;
+            }
+
+            final DayOfWeek dayOfWeek = DayOfWeek.of(numericDayOfWeek);
+            final ServerHandler.WeekDayGradient gradient = ServerHandler.getGradient(dayOfWeek);
+
+            Chat.sendMessage(player, "&aColor string with %s gradient:".formatted(dayOfWeek));
+            Chat.sendMessage(player, gradient.colorString(stringToColor));
+        });
+
+        register("writeDefaultTranslations", (player, args) -> {
+            final File file = new File(getPlugin().getDataFolder() + "/defaultTranslations.yml");
+            final YamlConfiguration yaml = YamlConfiguration.loadConfiguration(file);
+
+
+            // Talents
+            for (Talents enumTalent : Talents.values()) {
+                final Talent talent = enumTalent.getTalent();
+                final String talentName = enumTalent.name().toLowerCase();
+
+                yaml.set("talent." + talentName + ".name", talent.getName());
+                yaml.set("talent." + talentName + ".description", talent.getDescription());
+            }
+
+            // Heroes
+            for (Heroes enumHero : Heroes.values()) {
+                final Hero hero = enumHero.getHero();
+                final String heroName = enumHero.name().toLowerCase();
+
+                yaml.set("hero." + heroName + ".name", hero.getName());
+                yaml.set("hero." + heroName + ".description", hero.getDescription());
+
+                // Weapon
+                final Weapon weapon = hero.getWeapon();
+
+                yaml.set("hero." + heroName + ".weapon.name", weapon.getName());
+                yaml.set("hero." + heroName + ".weapon.description", weapon.getDescription());
+
+                // Ultimate
+                final UltimateTalent ultimate = hero.getUltimate();
+
+                yaml.set("hero." + heroName + ".ultimate.name", ultimate.getName());
+                yaml.set("hero." + heroName + ".ultimate.description", ultimate.getDescription());
+            }
+
+            // Attributes
+            for (AttributeType enumAttribute : AttributeType.values()) {
+                final String attributeName = enumAttribute.name().toLowerCase();
+                final me.hapyl.fight.game.attribute.Attribute attribute = enumAttribute.attribute;
+
+                yaml.set("attribute." + attributeName, enumAttribute.toString());
+            }
+
+            // Named
+            for (Named named : Named.values()) {
+                yaml.set("named." + named.name().toLowerCase(), named.toString());
+            }
+
+            // Archetype
+            for (Archetype archetype : Archetype.values()) {
+                final String archetypeName = archetype.name().toLowerCase();
+
+                yaml.set("archetype." + archetypeName + ".name", archetype.toString());
+                yaml.set("archetype." + archetypeName + ".description", archetype.getDescription());
+            }
+
+            // Affiliation
+            for (Affiliation affiliation : Affiliation.values()) {
+                final String affiliationName = affiliation.name().toLowerCase();
+
+                yaml.set("affiliation." + affiliationName + ".name", affiliation.toString());
+                yaml.set("affiliation." + affiliationName + ".description", affiliation.getDescription());
+            }
+
+            try {
+                yaml.save(file);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Chat.sendMessage(player, "&cError saving, see console.");
+                return;
+            }
+
+            Chat.sendMessage(player, "Saved into " + file.getPath() + "!");
+        });
+
+        register("translate", (player, args) -> {
+            final String argument = getArgument(args, 0).toString();
+
+            if (argument.equalsIgnoreCase("reload")) {
+                final boolean isForce = getArgument(args, 1).toString().equalsIgnoreCase("-f");
+
+                Main.getPlugin().translate.load(isForce);
+
+                // Reset talent items
+                for (Talents enumTalent : Talents.values()) {
+                    final Talent talent = enumTalent.getTalent();
+
+                    if (talent != null) {
+                        talent.nullifyItem();
+                    }
+                }
+
+                Chat.sendMessage(player, isForce ? "&aForcefully reloaded!" : "&aReloaded!");
+                return;
+            }
+
+            final String translated = Translate.getTranslated(player, argument);
+
+            Chat.sendMessage(player, "&aTranslated:");
+            Chat.sendMessage(player, translated);
+        });
+
+        register(new SimplePlayerCommand("teammsg") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                Message.error(player, "To send a team message, prefix your message with a '" + ChatChannel.TEAM + "'!");
+                Message.error(player, "Like this: " + ChatChannel.TEAM + " " + Chat.arrayToString(args, 0).trim());
+            }
+        });
+
+        register("scaleAttribute", (player, args) -> {
+            final AttributeType attribute = getArgument(args, 0).toEnum(AttributeType.class);
+            final double value = getArgument(args, 1).toDouble();
+            final String operation = getArgument(args, 2).toString();
+
+            if (attribute == null) {
+                Chat.sendMessage(player, "&cInvalid attribute!");
+                return;
+            }
+
+            switch (operation.toLowerCase()) {
+                case "up" -> {
+                    final double scaled = attribute.scaleUp(value);
+
+                    Chat.sendMessage(player, "&aScaled value: " + scaled);
+                }
+                case "down" -> {
+                    final double scaled = attribute.scaleDown(value);
+
+                    Chat.sendMessage(player, "&aScaled value: " + scaled);
+                }
+                default -> {
+                    Chat.sendMessage(player, "&cInvalid operation! Must be either 'up' or 'down', not " + operation + "!");
+                }
+            }
+        });
+
+        register("damageMeDaddy", (player, args) -> {
+            final double damage = getArgument(args, 0).toDouble();
+            final EnumDamageCause cause = getArgument(args, 1).toEnum(EnumDamageCause.class, EnumDamageCause.ENTITY_ATTACK);
+
+            final GamePlayer gamePlayer = CF.getPlayer(player);
+
+            if (gamePlayer == null) {
+                Chat.sendMessage(player, "&c⊬↸⚍⚐⚙ \uD801\uDC69⚍ \uD801\uDC69↸⚐⍀!");
+                return;
+            }
+
+            gamePlayer.damage(damage, cause);
+            gamePlayer.sendMessage("&a⚑↸⚑⍀⚐⚐⚍⚑⚙!");
+        });
+
+        register("debugDamageCause", (player, args) -> {
+            final EnumDamageCause cause = getArgument(args, 0).toEnum(EnumDamageCause.class);
+
+            if (cause == null) {
+                Chat.sendMessage(player, "&cInvalid cause!");
+                return;
+            }
+
+            Chat.sendMessage(player, "Name: " + cause.name());
+            Chat.sendMessage(player, "Flags:");
+
+            cause.getFlags().forEach(flag -> {
+                Chat.sendMessage(player, "+ " + flag.name());
+            });
+
+        });
+
+        register("calculateGlobalStats", (player, args) -> {
+            Heroes.calculateGlobalStats();
+
+            Chat.sendMessage(player, "&aDone!");
+        });
+
+        register("promptHeroRate", (player, args) -> {
+            RateHeroCommand.allowRatingHeroIfHasNotRatedAlready(player, Manager.current().getSelectedLobbyHero(player));
+        });
+
+        register(new SimplePlayerAdminCommand("adminRateHero") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                final Heroes hero = getArgument(args, 0).toEnum(Heroes.class);
+                final PlayerRating rating = PlayerRating.fromInt(getArgument(args, 1).toInt());
+
+                if (hero == null || rating == null) {
+                    Chat.sendMessage(player, "&cOne or many arguments are null, not telling which one because fuck you!");
+                    return;
+                }
+
+                hero.getStats().setPlayerRating(player.getUniqueId(), rating);
+                Chat.sendMessage(player, "Set rating!");
+            }
+        });
+
+        register(new SimplePlayerAdminCommand("adminCalcAvgHeroRating") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                final Heroes hero = getArgument(args, 0).toEnum(Heroes.class);
+
+                if (hero == null) {
+                    Chat.sendMessage(player, "&cInvalid hero!");
+                    return;
+                }
+
+                final HeroStatsCollection stats = hero.getStats();
+                final PlayerRating averageRating = stats.getAverageRating();
+
+                Chat.sendMessage(player, "%s's average rating is: %s".formatted(hero.getName(), averageRating));
+            }
+        });
+
+        register("testLosBlocks", (player, args) -> {
+            final RayTraceResult result = player.rayTraceBlocks(50);
+            final org.bukkit.entity.Entity hitEntity = result.getHitEntity();
+            final LivingGameEntity entity = CF.getEntity(hitEntity);
+
+            if (hitEntity == null) {
+                Chat.sendMessage(player, "&cNo entity hit!");
+                return;
+            }
+
+            Chat.sendMessage(player, "&aHit: " + entity.toString());
+        });
+
+        register("testContributors", (player, args) -> {
+            final List<Contributor> contributors = Contributors.getContributors();
+
+            if (contributors.isEmpty()) {
+                Chat.sendMessage(player, "&cStill loading!");
+                return;
+            }
+
+            Chat.sendMessage(player, "&aContributors:");
+
+            for (Contributor contributor : contributors) {
+                Chat.sendMessage(player, contributor.toString());
+            }
+        });
+
         register(new SimplePlayerCommand("delivery") {
             @Override
             protected void execute(Player player, String[] args) {
@@ -203,7 +568,19 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register("spawnEntityWithGameEffects", (player, args) -> {
             LivingGameEntity entity = CF.createEntity(player.getLocation(), Entities.PIG);
 
-            entity.addEffect(GameEffectType.IMMOVABLE, 10000, true);
+            entity.addEffect(Effects.IMMOVABLE, 10000, true);
+        });
+
+        register("whenLastMoved", (player, args) -> {
+            final GamePlayer gamePlayer = CF.getPlayer(player);
+
+            if (gamePlayer == null) {
+                Chat.sendMessage(player, "&cNot in a game.");
+                return;
+            }
+
+            gamePlayer.sendMessage("Mouse=" + MoveType.MOUSE.getLastMoved(gamePlayer));
+            gamePlayer.sendMessage("Keyboard=" + MoveType.KEYBOARD.getLastMoved(gamePlayer));
         });
 
         register(new SimplePlayerAdminCommand("resetMetadata") {
@@ -292,12 +669,34 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     return;
                 }
 
-                new HeroPreviewGUI(player, enumHero, 0);
+                new HeroPreviewGUI(player, enumHero, 1);
             }
+        });
+
+        register("testAnchor", (player, args) -> {
+            final Location location = CFUtils.findRandomLocationAround(player.getLocation());
+
+            player.teleport(location);
+            Debug.info(BukkitUtils.locationToString(location));
         });
 
         register("spawnMoonwalkerBlob", (player, args) -> {
             Heroes.MOONWALKER.getHero(Moonwalker.class).getUltimate().createBlob(player.getLocation(), false);
+        });
+
+        register("whoami", (player, args) -> {
+            final GamePlayer gamePlayer = CF.getPlayer(player);
+
+            if (gamePlayer == null) {
+                Chat.sendMessage(player, "&cYou are not in a game!");
+                return;
+            }
+
+            gamePlayer.sendMessage("Your state: " + gamePlayer.getState());
+        });
+
+        register("forceAutoSyncDatabase", (player, args) -> {
+            Manager.current().getAutoSave().save();
         });
 
         register(new SimplePlayerAdminCommand("hex") {
@@ -341,6 +740,22 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
                 gamePlayer.setShield(new Shield(gamePlayer, capacity));
                 Chat.sendMessage(player, "&aApplied shield with %s capacity.", capacity);
+            }
+        });
+
+        register(new SimpleAdminCommand("loadDatabase") {
+            @Override
+            protected void execute(CommandSender sender, String[] args) {
+                final UUID uuid = UUID.fromString(args[0]);
+
+                PlayerDatabase.getDatabase(uuid);
+            }
+        });
+
+        register(new SimplePlayerAdminCommand("spawnNpcThatWillThrowError") {
+            @Override
+            protected void execute(Player player, String[] args) {
+                new HumanNPC(player.getLocation(), "name", "hypixel").showAll();
             }
         });
 
@@ -588,8 +1003,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             new LegacyAchievementGUI(player);
         });
 
-        register(new CustomItemCommand("customItem"));
-
         register("getLobbyItems", (player, args) -> {
             LobbyItems.giveAll(player);
             Chat.sendMessage(player, "&aThere you go!");
@@ -823,8 +1236,14 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 }
 
                 final boolean isProfane = ProfanityFilter.isProfane(string);
-                Chat.sendMessage(player, "'%s' is %s.", string, isProfane ? "&cis profane!" : "&ais not profane.");
+                Chat.sendMessage(player, "&a'%s' %s", string, isProfane ? "&cis profane!" : "&ais not profane.");
             }
+        });
+
+        register("cstr", (player, args) -> {
+            final String string = Chat.arrayToString(args, 0);
+
+            Chat.sendCenterMessage(player, string);
         });
 
         register("debugCrate", (player, args) -> {
@@ -919,9 +1338,21 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
                 // Glow duh
                 if (entity instanceof LivingGameEntity livingGameEntity) {
-                    livingGameEntity.addPotionEffect(PotionEffectType.GLOWING, 60, 1);
+                    livingGameEntity.addEffect(Effects.GLOWING, 60);
                 }
             }
+        });
+
+        register("rechargeIron", (player, args) -> {
+            final GamePlayer gamePlayer = CF.getPlayer(player);
+
+            if (gamePlayer == null) {
+                Chat.sendMessage(player, "&cNot in a game!");
+                return;
+            }
+
+            Heroes.ENGINEER.getHero(Engineer.class).getPlayerData(gamePlayer).setIron(Engineer.MAX_IRON);
+            Chat.sendMessage(player, "&aRecharged!");
         });
 
         register("setHeroSkin", (player, args) -> {
@@ -1151,7 +1582,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register("spawnHuskWithCCResist", (player, args) -> {
             final LivingGameEntity entity = CF.createEntity(player.getLocation(), Entities.HUSK);
 
-            entity.getAttributes().set(AttributeType.CROWD_CONTROL_RESISTANCE, 1);
+            entity.getAttributes().set(AttributeType.EFFECT_RESISTANCE, 1);
 
             Chat.sendMessage(player, "&dDone!");
         });
@@ -1494,17 +1925,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register(new SimplePlayerAdminCommand("displayDamage") {
-            @Override
-            protected void execute(Player player, String[] args) {
-                // displayDamage (damage) (crit)
-                final double damage = getArgument(args, 0).toDouble(10.0d);
-                final boolean isCrit = getArgument(args, 1).toString().equalsIgnoreCase("true");
-
-                new DamageDisplay(damage, isCrit).display(LocationHelper.getInFront(player.getLocation(), 1.0d));
-            }
-        });
-
         register(new SimplePlayerAdminCommand("debugTextDisplayOpaque") {
 
             private final Set<TextDisplay> set = Sets.newHashSet();
@@ -1807,7 +2227,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     return;
                 }
 
-                final LivingGameEntity targetEntity = Collect.targetEntity(gamePlayer, 20.0d, 0.9d, e -> e.isNot(player));
+                final LivingGameEntity targetEntity = Collect.targetEntityDot(gamePlayer, 20.0d, 0.9d, e -> e.isNot(player));
 
                 if (targetEntity == null) {
                     Chat.sendMessage(player, gamePlayer.getData());
@@ -2586,6 +3006,10 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
     private void register(SimpleCommand command) {
         processor.registerCommand(command);
+    }
+
+    private static TypeConverter getArgument(String[] args, int index) {
+        return TypeConverter.from(index >= args.length ? "" : args[index]);
     }
 
 }

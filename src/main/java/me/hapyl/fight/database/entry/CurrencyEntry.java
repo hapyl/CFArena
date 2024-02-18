@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import me.hapyl.fight.database.EnumMappedEntry;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.PlayerDatabaseEntry;
+import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
@@ -25,12 +26,20 @@ public class CurrencyEntry extends PlayerDatabaseEntry implements EnumMappedEntr
 
     public void add(Currency currency, long value) {
         set(currency, get(currency) + value);
-        currency.onIncrease(getPlayer(), value);
+
+        final Player player = getOnlinePlayer();
+        if (player != null) {
+            currency.onIncrease(player, value);
+        }
     }
 
     public void subtract(Currency currency, long value) {
         set(currency, get(currency) - value);
-        currency.onDecrease(getPlayer(), value);
+
+        final Player player = getOnlinePlayer();
+        if (player != null) {
+            currency.onDecrease(player, value);
+        }
     }
 
     public String getFormatted(Currency currency) {

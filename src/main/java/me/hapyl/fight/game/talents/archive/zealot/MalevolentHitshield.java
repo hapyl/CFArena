@@ -14,7 +14,7 @@ import javax.annotation.Nonnull;
 
 public class MalevolentHitshield extends Talent {
 
-    @DisplayField private final short shieldStrength = 10;
+    @DisplayField private final short shieldStrength = 7;
     @DisplayField private final int cooldown = Tick.fromSecond(30);
 
     public MalevolentHitshield() {

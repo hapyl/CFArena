@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.archive.nightmare;
 
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -17,7 +18,6 @@ import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerLeashEntityEvent;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 
@@ -47,9 +47,9 @@ public class ShadowShift extends Talent implements Listener {
             return Response.error(targetLocation.getError().getErrorMessage());
         }
 
-        player.addPotionEffect(PotionEffectType.BLINDNESS, immobilizationDuration, 20);
-        player.addPotionEffect(PotionEffectType.SLOW, immobilizationDuration, 20);
-        player.addPotionEffect(PotionEffectType.JUMP, immobilizationDuration, 250);
+        player.addEffect(Effects.BLINDNESS, 20, immobilizationDuration);
+        player.addEffect(Effects.SLOW, 20, immobilizationDuration);
+        player.addEffect(Effects.JUMP_BOOST, 250, immobilizationDuration);
 
         final Location location = targetLocation.getLocation();
         final LivingGameEntity entity = targetLocation.getEntity();
@@ -67,7 +67,9 @@ public class ShadowShift extends Talent implements Listener {
 
     @Nonnull
     public TargetLocation getLocationAndCheck0(GamePlayer player, double maxDistance, double dot) {
-        final LivingGameEntity target = Collect.targetEntity(player, maxDistance, dot, e -> e.hasLineOfSight(player));
+        final LivingGameEntity target = Collect.targetEntityRayCast(player, maxDistance, dot, entity -> {
+            return !player.isSelfOrTeammate(entity) && player.hasLineOfSight(entity);
+        });
 
         if (target == null) {
             return new TargetLocation(null, null, ErrorCode.NO_TARGET);

@@ -4,6 +4,8 @@ import javax.annotation.Nonnull;
 
 /**
  * Allows creating a copy of the object.
+ * <br>
+ * This exists because {@link Object#clone()} sucks balls.
  */
 public interface Copyable {
 

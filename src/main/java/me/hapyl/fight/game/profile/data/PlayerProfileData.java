@@ -1,8 +1,10 @@
 package me.hapyl.fight.game.profile.data;
 
 import com.google.common.collect.Maps;
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.profile.PlayerProfile;
+import me.hapyl.fight.util.StringSimilarity;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
@@ -44,19 +46,10 @@ public class PlayerProfileData {
             return false;
         }
 
-        String lastMessageLower = lastMessage.toLowerCase();
-        int intersections = 0;
-        int unions = 0;
+        final double similarity = StringSimilarity.similarity(message, lastMessage);
 
-        for (char c : message.toCharArray()) {
-            if (lastMessageLower.contains(String.valueOf(Character.toLowerCase(c)))) {
-                intersections++;
-            }
-            unions++;
-        }
+        Debug.info("similarity=" + similarity);
 
-        double similarity = (double) intersections / unions;
-
-        return similarity >= 0.75d;
+        return similarity >= 0.8d;
     }
 }

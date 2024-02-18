@@ -4,6 +4,8 @@ import me.hapyl.fight.Main;
 import me.hapyl.fight.game.collectible.relic.RelicHunt;
 import me.hapyl.spigotutils.module.util.DependencyInjector;
 
+import javax.annotation.Nonnull;
+
 public class Collectibles extends DependencyInjector<Main> {
 
     private final RelicHunt relicHunt;
@@ -14,6 +16,7 @@ public class Collectibles extends DependencyInjector<Main> {
         this.relicHunt = new RelicHunt(plugin);
     }
 
+    @Nonnull
     public RelicHunt getRelicHunt() {
         return relicHunt;
     }

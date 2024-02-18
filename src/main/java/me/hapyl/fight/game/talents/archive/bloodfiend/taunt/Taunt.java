@@ -2,14 +2,13 @@ package me.hapyl.fight.game.talents.archive.bloodfiend.taunt;
 
 import me.hapyl.fight.Main;
 import me.hapyl.fight.fx.SwiftTeleportAnimation;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.util.ThreadRandom;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -22,19 +21,21 @@ import java.util.function.Consumer;
 public abstract class Taunt extends GameTask {
 
     public final GamePlayer target;
+
     protected final GamePlayer player;
     private final SwiftTeleportAnimation animation;
+
     protected Location initialLocation;
+
     private int tick;
     private boolean isAnimation;
 
-    public Taunt(GamePlayer player, GamePlayer target) {
+    public Taunt(GamePlayer player, GamePlayer target, Location location) {
         this.player = player;
         this.target = target;
-        this.initialLocation = pickRandomLocation(player.getLocation(), 5);
+        this.initialLocation = location;
 
-        final Location location = player.getLocation();
-        animation = new SwiftTeleportAnimation(location, this.initialLocation) {
+        animation = new SwiftTeleportAnimation(player.getLocationBehindFromEyes(1), this.initialLocation) {
             @Override
             public void onAnimationStep(Location location) {
                 Taunt.this.onAnimationStep(location);
@@ -161,25 +162,9 @@ public abstract class Taunt extends GameTask {
     }
 
     @Nonnull
-    protected Location pickRandomLocation(Location location, int remainingTries) {
-        if (remainingTries < 0) {
-            return location;
-        }
-
-        final double x = ThreadRandom.nextDouble(-3.0d, 3.0d);
-        final double z = ThreadRandom.nextDouble(-3.0d, 3.0d);
-
-        location.add(x, 0, z);
-        if (!location.getBlock().getType().isAir()) {
-            location.subtract(x, 0, z);
-
-            return pickRandomLocation(location, --remainingTries);
-        }
-
-        // Center location to avoid animation artifacts
-        location.setX(location.getBlockX() + 0.5d);
-        location.setZ(location.getBlockZ() + 0.5d);
-
-        return CFUtils.anchorLocation(location).subtract(0, 1.35d, 0);
+    public static Location pickRandomLocation(Location location) {
+        return CFUtils.findRandomLocationAround(location).subtract(0, 1.35d, 0);
     }
+
+
 }

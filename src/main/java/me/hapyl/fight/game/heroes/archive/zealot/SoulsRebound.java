@@ -2,7 +2,7 @@ package me.hapyl.fight.game.heroes.archive.zealot;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.game.Debug;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.HeroReference;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
@@ -30,8 +30,6 @@ public class SoulsRebound extends GameTask implements HeroReference<Zealot> {
 
     @Override
     public final void run() {
-        zealot.soulsReboundMap.remove(player);
-
         damageTaken.forEach((entity, damage) -> {
             entity.damage(damage, player, EnumDamageCause.SOULS_REBOUND);
 

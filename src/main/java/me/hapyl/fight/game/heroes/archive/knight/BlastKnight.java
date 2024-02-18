@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.knight;
 
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.GameEntity;
@@ -17,6 +16,7 @@ import me.hapyl.fight.game.talents.archive.knight.StoneCastle;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
@@ -30,7 +30,7 @@ import org.bukkit.inventory.ItemStack;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class BlastKnight extends Hero implements PlayerElement, UIComponent, PlayerDataHandler, DisplayFieldProvider {
+public class BlastKnight extends Hero implements PlayerElement, UIComponent, PlayerDataHandler<BlastKnightData>, DisplayFieldProvider {
 
     public final ItemStack shieldItem = new ShieldBuilder(DyeColor.BLACK)
             .with(DyeColor.WHITE, PatternTypes.DLS)
@@ -39,20 +39,21 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Pla
             .with(DyeColor.PINK, PatternTypes.MC)
             .with(DyeColor.BLACK, PatternTypes.FLO)
             .build();
-    private final PlayerMap<BlastKnightData> dataMap = PlayerMap.newMap();
+
+    private final PlayerDataMap<BlastKnightData> dataMap = PlayerMap.newDataMap(BlastKnightData::new);
     private final Material shieldRechargeCdItem = Material.HORSE_SPAWN_EGG;
 
     @DisplayField private final double ultimateRadius = 7.0d;
     @DisplayField private final double initialShieldCapacity = 10;
     @DisplayField private final double shieldCapacity = 50;
 
-    public BlastKnight() {
-        super("Blast Knight");
+    public BlastKnight(@Nonnull Heroes handle) {
+        super(handle, "Blast Knight");
 
-        setArchetype(Archetype.DEFENSE);
+        setArchetype(Archetype.SUPPORT);
         setAffiliation(Affiliation.KINGDOM);
 
-        setDescription("Royal Knight with high-end technology gadgets.");
+        setDescription("A royal knight with high-end technology gadgets.");
         setItem("f6eaa1fd9d2d49d06a894798d3b145d3ae4dcca038b7da718c7b83a66ef264f0");
 
         final HeroAttributes attributes = getAttributes();
@@ -80,7 +81,7 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Pla
                 """, 5.0d);
 
         setUltimate(new UltimateTalent(
-                "Nanite Rush", """
+                this, "Nanite Rush", """
                 Instantly release a &dNanite Swarm&7 that &brushes&7 upwards, creating a &eshield&7 and rapidly &aregenerates&7 all existing shields.
                 """, 60
         )
@@ -90,16 +91,6 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Pla
                 .setDuration(30));
 
         DisplayFieldSerializer.copy(this, getUltimate());
-    }
-
-    @Override
-    public void onDeath(@Nonnull GamePlayer player) {
-        dataMap.removeAnd(player, PlayerData::remove);
-    }
-
-    @Override
-    public void onStop() {
-        dataMap.forEachAndClear(PlayerData::remove);
     }
 
     @Override
@@ -148,25 +139,25 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Pla
     }
 
     @Override
-    public DamageOutput processDamageAsVictim(DamageInput input) {
-        final GamePlayer player = input.getEntityAsPlayer();
-        final GameEntity damager = input.getDamager();
-        final double damage = input.getDamage();
+    public void processDamageAsVictim(@Nonnull DamageInstance instance) {
+        final GamePlayer player = instance.getEntityAsPlayer();
+        final GameEntity damager = instance.getDamager();
+        final double damage = instance.getDamage();
 
         if (!player.isBlocking() || damager == null || damage > 0.0d) {
-            return DamageOutput.OK;
+            return;
         }
 
         final double dot = player.dot(damager.getLocation());
 
         if (dot <= 0.6d) {
-            return DamageOutput.OK;
+            return;
         }
 
         final BlastKnightData data = getPlayerData(player);
 
         if (data.isShieldOnCooldown()) {
-            return DamageOutput.OK;
+            return;
         }
 
         data.incrementShieldCharge();
@@ -177,13 +168,13 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Pla
         // Fx
         player.playSound(Sound.ITEM_SHIELD_BREAK, 1.0f);
 
-        return new DamageOutput(0.0d, false);
+        instance.multiplyDamage(0.0d);
     }
 
     @Nonnull
     @Override
-    public BlastKnightData getPlayerData(@Nonnull GamePlayer player) {
-        return dataMap.computeIfAbsent(player, BlastKnightData::new);
+    public PlayerDataMap<BlastKnightData> getDataMap() {
+        return dataMap;
     }
 
     public int getShieldCharge(GamePlayer player) {

@@ -5,7 +5,7 @@ import javax.annotation.Nonnull;
 public class CooldownData {
 
     private final Cooldown cooldown;
-    private long startedAt;
+    private final long startedAt;
     private long duration;
 
     public CooldownData(@Nonnull Cooldown cooldown, long duration) {

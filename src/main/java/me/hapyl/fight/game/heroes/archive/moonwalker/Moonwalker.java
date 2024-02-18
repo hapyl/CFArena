@@ -2,29 +2,31 @@ package me.hapyl.fight.game.heroes.archive.moonwalker;
 
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.attribute.HeroAttributes;
+import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.entity.EquipmentSlot;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.UltimateCallback;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.archive.moonwalker.MoonPillarTalent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
+import me.hapyl.fight.game.ui.UIComponent;
+import me.hapyl.fight.game.weapons.ability.held.HeldData;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class Moonwalker extends Hero implements PlayerElement {
+public class Moonwalker extends Hero implements PlayerElement, DisabledHero, UIComponent {
 
-    public Moonwalker() {
-        super("Moonwalker");
+    public Moonwalker(@Nonnull Heroes handle) {
+        super(handle, "Moonwalker");
 
         setMinimumLevel(3);
         setArchetype(Archetype.RANGE);
+        setAffiliation(Affiliation.SPACE);
 
         setDescription("A traveler from another planet... or, should I say moon? Brings his skills and... planets... with himself!");
         setItem("1cf8fbd76586920c5273519927862fdc111705a1851d4d1aac450bcfd2b3a");
@@ -34,10 +36,15 @@ public class Moonwalker extends Hero implements PlayerElement {
         final Equipment equipment = getEquipment();
         equipment.setChestPlate(255, 255, 255);
         equipment.setLeggings(186, 186, 186);
-        equipment.setBoots(105, 105, 105);
+        equipment.setBoots(45, 28, 77);
 
         setWeapon(new MoonwalkerWeapon());
-        setUltimate(new MoonwalkerUltimate());
+        setUltimate(new MoonwalkerUltimate(this));
+    }
+
+    @Override
+    public MoonwalkerWeapon getWeapon() {
+        return (MoonwalkerWeapon) super.getWeapon();
     }
 
     @Nonnull
@@ -70,8 +77,8 @@ public class Moonwalker extends Hero implements PlayerElement {
 
     @Override
     public void onStart(@Nonnull GamePlayer player) {
-        player.getInventory().setItem(9, new ItemStack(Material.ARROW));
-        player.addPotionEffect(PotionEffectType.SLOW_FALLING.createEffect(999999, 2));
+        player.setItem(EquipmentSlot.ARROW, new ItemStack(Material.ARROW));
+        player.addEffect(Effects.SLOW_FALLING, 2, -1);
     }
 
     @Override
@@ -87,5 +94,14 @@ public class Moonwalker extends Hero implements PlayerElement {
     @Override
     public Talent getPassiveTalent() {
         return Talents.TARGET.getTalent();
+    }
+
+    @Nonnull
+    @Override
+    public String getString(@Nonnull GamePlayer player) {
+        final MoonwalkerWeapon weapon = getWeapon();
+        final HeldData data = weapon.ability.getHeldData(player);
+
+        return "- " + data.getUnit();
     }
 }

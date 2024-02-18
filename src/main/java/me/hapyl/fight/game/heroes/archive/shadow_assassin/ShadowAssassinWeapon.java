@@ -3,6 +3,7 @@ package me.hapyl.fight.game.heroes.archive.shadow_assassin;
 import me.hapyl.fight.game.HeroReference;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -14,7 +15,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
@@ -58,8 +58,8 @@ public class ShadowAssassinWeapon extends Weapon implements HeroReference<Shadow
         final Vector vector = location.getDirection();
 
         entity.setVelocity(new Vector(vector.getX(), 0.1d, vector.getZ()).multiply(2.13f));
-        entity.addPotionEffect(PotionEffectType.SLOW, 40, 5);
-        entity.addPotionEffect(PotionEffectType.CONFUSION, 40, 5);
+        entity.addEffect(Effects.SLOW, 5, 40);
+        entity.addEffect(Effects.NAUSEA, 5, 40);
         entity.getAttributes().decreaseTemporary(Temper.BACKSTAB, AttributeType.DEFENSE, defenseReduction, defenseReductionDuration);
 
         entity.sendMessage("&a%s stabbed you!", player.getName());

@@ -2,10 +2,16 @@ package me.hapyl.fight.game.talents;
 
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
+import me.hapyl.fight.util.collection.NonnullTuple;
+import me.hapyl.fight.util.collection.Tuple;
 import me.hapyl.fight.util.collection.player.PlayerMap;
+import org.bukkit.entity.Entity;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
+import java.util.Map;
+import java.util.function.BiConsumer;
 
 /**
  * Represents a talent, that creates something, be that entity or a pillar or anything really.
@@ -13,8 +19,9 @@ import javax.annotation.Nullable;
  */
 public abstract class CreationTalent extends Talent {
 
-    private final PlayerMap<CreationBuffer> mapped;
+    protected final PlayerMap<CreationBuffer> mapped;
     private final int maxCreations;
+
     private boolean removeAtDeath;
 
     public CreationTalent(@Nonnull String name) {
@@ -67,24 +74,15 @@ public abstract class CreationTalent extends Talent {
         this.removeAtDeath = removeAtDeath;
     }
 
-    public void uponStop() {
+    @Override
+    @OverridingMethodsMustInvokeSuper
+    public void onStop() {
+        mapped.forEachAndClear(CreationBuffer::clear);
     }
 
     @Override
-    public final void onStop() {
-        uponStop();
-
-        mapped.values().forEach(CreationBuffer::clear);
-        mapped.clear();
-    }
-
-    public void uponDeath(@Nonnull GamePlayer player) {
-    }
-
-    @Override
-    public final void onDeath(@Nonnull GamePlayer player) {
-        uponDeath(player);
-
+    @OverridingMethodsMustInvokeSuper
+    public void onDeath(@Nonnull GamePlayer player) {
         if (!removeAtDeath) {
             return;
         }
@@ -99,7 +97,7 @@ public abstract class CreationTalent extends Talent {
      * @return the first creation if present; null otherwise.
      */
     @Nullable
-    public final Creation getCreation(@Nonnull GamePlayer player) {
+    public final Creation getFirstCreation(@Nonnull GamePlayer player) {
         return getBuffer(player).peekFirst();
     }
 
@@ -111,6 +109,7 @@ public abstract class CreationTalent extends Talent {
      * @param creation - Creation.
      * @return the newly created creation.
      */
+    @Nonnull
     public final Creation newCreation(@Nonnull GamePlayer player, @Nonnull Creation creation) {
         getBuffer(player).add(creation);
         return creation;
@@ -189,4 +188,49 @@ public abstract class CreationTalent extends Talent {
     private CreationBuffer getBuffer(@Nonnull GamePlayer player) {
         return mapped.computeIfAbsent(player, v -> new CreationBuffer(player, maxCreations));
     }
+
+    @Nullable
+    public Creation getCreationByEntity(@Nullable Entity entity) {
+        final NonnullTuple<GamePlayer, Creation> tuple = getByEntity(entity);
+
+        return tuple != null ? tuple.b() : null;
+    }
+
+    @Nullable
+    public GamePlayer getCreationOwnerByEntity(@Nullable Entity entity) {
+        final NonnullTuple<GamePlayer, Creation> tuple = getByEntity(entity);
+
+        return tuple != null ? tuple.a() : null;
+    }
+
+    /**
+     * Gets a {@link NonnullTuple} with a {@link GamePlayer} and {@link Creation} by its entity.
+     *
+     * @param entity - Entity.
+     * @return a tuple or null.
+     */
+    @Nullable
+    public NonnullTuple<GamePlayer, Creation> getByEntity(@Nullable Entity entity) {
+        if (entity == null) {
+            return null;
+        }
+
+        for (Map.Entry<GamePlayer, CreationBuffer> entry : mapped.entrySet()) {
+            final GamePlayer player = entry.getKey();
+            final CreationBuffer buffer = entry.getValue();
+
+            for (Creation creation : buffer) {
+                if (creation.isCreation(entity)) {
+                    return Tuple.ofNonnull(player, creation);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public boolean isCreation(@Nullable Entity entity) {
+        return entity != null && getByEntity(entity) != null;
+    }
+
 }

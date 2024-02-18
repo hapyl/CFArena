@@ -1,16 +1,13 @@
 package me.hapyl.fight.game.heroes.archive.ronin;
 
 import com.google.common.collect.Maps;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.DisabledHero;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.UltimateCallback;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.spigotutils.module.math.Tick;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -23,13 +20,12 @@ import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Map;
 
 public class Ronin extends Hero implements Listener, DisabledHero {
 
     private final int chargeAttackCooldown = Tick.fromSecond(5);
-    private final Map<Player, ChargeAttack> chargeAttackMap;
+    private final Map<GamePlayer, ChargeAttack> chargeAttackMap;
 
     /**
      * WEAPON
@@ -50,8 +46,8 @@ public class Ronin extends Hero implements Listener, DisabledHero {
      * - Increase speed and attack.
      * - All hits apply bleed.
      */
-    public Ronin() {
-        super("Ronin");
+    public Ronin(@Nonnull Heroes handle) {
+        super(handle, "Ronin");
 
         setArchetype(Archetype.DAMAGE);
         setItem("267bf069fefb40be22724b02e6c4fbe2133ef5e112bc551a4f0042ea99dcf6a2");
@@ -63,7 +59,7 @@ public class Ronin extends Hero implements Listener, DisabledHero {
 
         setWeapon(new RoninWeapon());
 
-        setUltimate(new UltimateTalent("Harakiri", """
+        setUltimate(new UltimateTalent(this, "Harakiri", """
                                 
                 """, 30));
 
@@ -75,19 +71,18 @@ public class Ronin extends Hero implements Listener, DisabledHero {
         return (RoninWeapon) super.getWeapon();
     }
 
-    @Nullable
     @Override
-    public DamageOutput processDamageAsDamager(DamageInput input) {
-        final GamePlayer player = input.getDamagerAsPlayer();
+    public void processDamageAsDamager(@Nonnull DamageInstance instance) {
+        final GamePlayer player = instance.getDamagerAsPlayer();
         final ChargeAttack chargeAttack = chargeAttackMap.remove(player);
 
         if (chargeAttack == null) {
-            return DamageOutput.OK;
+            return;
         }
 
         final Strength strength = chargeAttack.getStrength();
 
-        return new DamageOutput(input.getDamage() * strength.multiplier);
+        instance.multiplyDamage(strength.multiplier);
     }
 
     @EventHandler()
@@ -99,11 +94,17 @@ public class Ronin extends Hero implements Listener, DisabledHero {
         if (!validatePlayer(player)
                 || (action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK)
                 || hand == EquipmentSlot.OFF_HAND
-                || player.hasCooldown(getWeapon().getType())) {
+                || player.hasCooldown(getWeapon().getMaterial())) {
             return;
         }
 
-        final ChargeAttack chargeAttack = getChargeAttack(player);
+        final GamePlayer gamePlayer = CF.getPlayer(player);
+
+        if (gamePlayer == null) {
+            return;
+        }
+
+        final ChargeAttack chargeAttack = getChargeAttack(gamePlayer);
         chargeAttack.increment();
     }
 
@@ -127,14 +128,14 @@ public class Ronin extends Hero implements Listener, DisabledHero {
         return null;
     }
 
-    public void failChargeAttack(Player player) {
+    public void failChargeAttack(GamePlayer player) {
         chargeAttackMap.remove(player);
 
-        player.setCooldown(getWeapon().getType(), chargeAttackCooldown);
+        player.setCooldown(getWeapon().getMaterial(), chargeAttackCooldown);
     }
 
     @Nonnull
-    private ChargeAttack getChargeAttack(Player player) {
+    private ChargeAttack getChargeAttack(GamePlayer player) {
         return chargeAttackMap.computeIfAbsent(player, fn -> new ChargeAttack(this, player));
     }
 }

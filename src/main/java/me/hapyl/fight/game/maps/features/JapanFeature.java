@@ -1,10 +1,9 @@
 package me.hapyl.fight.game.maps.features;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.MoveType;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.maps.MapFeature;
 import me.hapyl.fight.game.task.GameTask;
@@ -25,10 +24,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.util.Vector;
 
-import javax.annotation.Nonnull;
-import java.util.Map;
-import java.util.Set;
-
 public class JapanFeature extends MapFeature implements Listener {
 
     private final Location[] healingSakuraLocations = {
@@ -36,10 +31,7 @@ public class JapanFeature extends MapFeature implements Listener {
             BukkitUtils.defLocation(-520, 65, -6)
     };
 
-    private final Location pressurePlateLocation = BukkitUtils.defLocation(-492, 67.8, -20);
-
-    private final Map<Player, Integer> inWaterTickMap = Maps.newHashMap();
-    private final Set<GamePlayer> sakuraBlessing = Sets.newConcurrentHashSet();
+    private final Location pressurePlateLocation = BukkitUtils.defLocation(-491.5, 68.0, -19.5);
 
     private final Vector verticalVector = new Vector(0.0d, 1.9d, 0.0d);
     private final String healingMessage = new Gradient("You feel sakura's petals on your head").rgb(
@@ -47,6 +39,9 @@ public class JapanFeature extends MapFeature implements Listener {
             new java.awt.Color(191, 40, 186),
             Interpolators.LINEAR
     );
+
+    private final double healingPerPeriod = 1.0d;
+    private final int healingPeriod = 20;
 
     public JapanFeature() {
         super("Healing Sakura", """
@@ -56,34 +51,19 @@ public class JapanFeature extends MapFeature implements Listener {
 
     @Override
     public void tick(int tick) {
-        sakuraBlessing.forEach(player -> {
-            if (player == null) {
-                return;
+        if (tick % healingPeriod == 0) {
+            for (final Location location : healingSakuraLocations) {
+                Collect.nearbyPlayers(location, 8.0d).forEach(gamePlayer -> {
+                    if (!canBeHealed(gamePlayer)) {
+                        return;
+                    }
+
+                    gamePlayer.heal(healingPerPeriod);
+                    gamePlayer.sendSubtitle(healingMessage, 0, 30, 5);
+                });
             }
-
-            player.heal(1);
-        });
-
-        for (final Location location : healingSakuraLocations) {
-            Collect.nearbyPlayers(location, 8.0d).forEach(gamePlayer -> {
-                if (sakuraBlessing.contains(gamePlayer) || !canBeHealed(gamePlayer)) {
-                    return;
-                }
-
-                sakuraBlessing.add(gamePlayer);
-                gamePlayer.sendSubtitle(healingMessage, 0, 20, 5);
-            });
         }
-    }
 
-    @Override
-    public void onDeath(@Nonnull GamePlayer player) {
-        sakuraBlessing.remove(player);
-    }
-
-    @Override
-    public void onStop() {
-        inWaterTickMap.clear();
     }
 
     @Override
@@ -120,7 +100,7 @@ public class JapanFeature extends MapFeature implements Listener {
             player.playWorldSound(Sound.ENTITY_WITHER_SHOOT, 1.5f);
         }, 20);
 
-        player.addEffect(GameEffectType.FALL_DAMAGE_RESISTANCE, 60);
+        player.addEffect(Effects.FALL_DAMAGE_RESISTANCE, 60);
     }
 
     @EventHandler()
@@ -147,7 +127,7 @@ public class JapanFeature extends MapFeature implements Listener {
     }
 
     private boolean canBeHealed(GamePlayer player) {
-        return !player.hasMovedInLast(5000);
+        return !player.hasMovedInLast(MoveType.KEYBOARD, 5000);
     }
 
 }

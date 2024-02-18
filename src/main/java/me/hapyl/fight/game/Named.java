@@ -22,6 +22,10 @@ public enum Named {
     RIPTIDE(ChatColor.BOLD + "\uD83D\uDCA6", "Riptide", Color.RIPTIDE),
     BUG(ChatColor.BOLD + "🐜", "Disruptive Bug", Color.WHITE),
     ENERGY("※", "Energy", Color.AQUA),
+    OVERHEAL(ChatColor.DARK_GREEN + "⚕", "Overheal", Color.GREEN),
+    SECOND_WIND("&l\uD83E\uDD8B", "Second Wind", Color.WHITE),
+    FEROCIOUS_STRIKE("\uD83C\uDF00", "Ferocious Strike", Color.DARK_RED),
+    REFRACTION(ChatColor.BOLD + "⛺", "Refraction", Color.SKY_BLUE),
 
     ;
 
@@ -33,6 +37,11 @@ public enum Named {
         this.character = character;
         this.color = color;
         this.name = name;
+    }
+
+    @Nonnull
+    public String getCharacterColored() {
+        return color + character;
     }
 
     @Nonnull
@@ -65,4 +74,8 @@ public enum Named {
         return character + " " + name;
     }
 
+    @Nonnull
+    public String getCharacterNoColor() {
+        return ChatColor.stripColor(character);
+    }
 }

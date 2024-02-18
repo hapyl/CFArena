@@ -1,29 +1,44 @@
 package me.hapyl.fight.game.effect.archive;
 
-import me.hapyl.fight.game.effect.GameEffect;
+import me.hapyl.fight.event.custom.GameDamageEvent;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.effect.Effect;
+import me.hapyl.fight.game.effect.EffectType;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.LivingGameEntity;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
 
-public class FallDamageResistance extends GameEffect {
+public class FallDamageResistance extends Effect implements Listener {
 
     public FallDamageResistance() {
-        super("Fall Damage Resistance");
-        this.setDescription("Negates all fall damage until it's taken.");
+        super("Fall Damage Resistance", EffectType.POSITIVE);
+
+        setDescription("""
+                Negates fall damage.
+                """);
+    }
+
+    @EventHandler()
+    public void handleDamageEvent(GameDamageEvent ev) {
+        final LivingGameEntity entity = ev.getEntity();
+        final EnumDamageCause cause = ev.getCause();
+
+        if (cause != EnumDamageCause.FALL || !entity.hasEffect(Effects.FALL_DAMAGE_RESISTANCE)) {
+            return;
+        }
+
+        ev.setCancelled(true);
+        entity.removeEffect(Effects.FALL_DAMAGE_RESISTANCE);
     }
 
     @Override
-    public void onTick(@Nonnull LivingGameEntity entity, int tick) {
-
+    public void onStart(@Nonnull LivingGameEntity entity, int amplifier, int duration) {
     }
 
     @Override
-    public void onStart(@Nonnull LivingGameEntity entity) {
-
-    }
-
-    @Override
-    public void onStop(@Nonnull LivingGameEntity entity) {
-
+    public void onStop(@Nonnull LivingGameEntity entity, int amplifier) {
     }
 }

@@ -1,8 +1,7 @@
 package me.hapyl.fight.game.talents.archive.techie;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Nulls;
@@ -67,7 +66,7 @@ public class CyberCage {
 
         CF.getEntityOptional(victim).ifPresent(gameEntity -> {
             gameEntity.damage(talent.cageDamage, player);
-            gameEntity.addEffect(GameEffectType.VULNERABLE, talent.vulnerabilityDuration);
+            gameEntity.addEffect(Effects.VULNERABLE, talent.vulnerabilityDuration);
         });
 
         victim.setVelocity(marker.getLocation().toVector().subtract(victim.getLocation().toVector()).normalize());

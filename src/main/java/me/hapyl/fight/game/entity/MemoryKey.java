@@ -1,12 +1,15 @@
 package me.hapyl.fight.game.entity;
 
+import me.hapyl.fight.annotate.ForceLowercase;
+
+import javax.annotation.Nonnull;
 import java.util.Objects;
 
 public class MemoryKey {
 
     private final String name;
 
-    public MemoryKey(String name) {
+    public MemoryKey(@Nonnull @ForceLowercase String name) {
         this.name = name.toLowerCase();
     }
 

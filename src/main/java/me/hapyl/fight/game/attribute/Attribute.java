@@ -5,7 +5,7 @@ import me.hapyl.fight.util.Described;
 import org.bukkit.ChatColor;
 
 import javax.annotation.Nonnull;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 public class Attribute implements Described {
 
@@ -15,7 +15,7 @@ public class Attribute implements Described {
     private String character;
     private ChatColor color;
 
-    private Function<Double, String> toString;
+    private BiFunction<AttributeType, Double, String> toString;
 
     Attribute(String name, String description) {
         this.name = name;
@@ -52,7 +52,7 @@ public class Attribute implements Described {
         return this;
     }
 
-    public Attribute setToString(@Nonnull Function<Double, String> toString) {
+    public Attribute setToString(@Nonnull BiFunction<AttributeType, Double, String> toString) {
         this.toString = toString;
         return this;
     }
@@ -72,7 +72,7 @@ public class Attribute implements Described {
     }
 
     @Nonnull
-    public String toString(double value) {
-        return toString.apply(value);
+    public String toString(@Nonnull AttributeType type, double value) {
+        return toString.apply(type, value);
     }
 }

@@ -1,51 +1,39 @@
 package me.hapyl.fight.game.heroes.archive.orc;
 
-import com.google.common.collect.Sets;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.UltimateCallback;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.orc.OrcAxe;
 import me.hapyl.fight.game.talents.archive.orc.OrcGrowl;
-import me.hapyl.fight.game.task.PlayerGameTask;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
+import me.hapyl.fight.game.task.player.PlayerGameTask;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.math.Tick;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Set;
 
 public class Orc extends Hero implements Listener {
 
     private final PlayerMap<DamageData> damageMap = PlayerMap.newMap();
-    private final Set<PotionEffectType> negativeEffects = Sets.newHashSet();
-    private final Set<Player> awaitEffectChange = Sets.newHashSet();
 
     private final TemperInstance berserk = Temper.BERSERK_MODE.newInstance(Named.BERSERK.toString())
             .increase(AttributeType.ATTACK, 0.5d)
@@ -54,16 +42,22 @@ public class Orc extends Hero implements Listener {
             .decrease(AttributeType.DEFENSE, 0.6d) // 0.7
             .message(Named.BERSERK.getCharacter() + " &aYou're berserk!");
 
-    public Orc() {
-        super("Pakarat Rakab");
+    public Orc(@Nonnull Heroes handle) {
+        super(handle, "Pakarat Rakab");
+
+        setDescription("""
+                Half-orc half-dwarf loner.
+                """);
 
         setArchetype(Archetype.DAMAGE);
 
         final HeroAttributes attributes = getAttributes();
-        attributes.set(AttributeType.MAX_HEALTH, 125);
-        attributes.set(AttributeType.DEFENSE, 0.6d);
-        attributes.set(AttributeType.SPEED, 0.22d);
-        attributes.set(AttributeType.CRIT_CHANCE, 0.15d);
+        attributes.setHealth(125);
+        attributes.setDefense(60);
+        attributes.setSpeed(110);
+        attributes.setCritChance(15);
+        attributes.setEffectResistance(50);
+        attributes.setAttackSpeed(60);
 
         setWeapon(new OrcWeapon());
 
@@ -75,7 +69,7 @@ public class Orc extends Hero implements Listener {
         equipment.setBoots(Material.NETHERITE_BOOTS);
 
         setUltimate(
-                new UltimateTalent("Berserk", 70)
+                new UltimateTalent(this, "Berserk", 70)
                         .setType(Talent.Type.ENHANCE)
                         .setItem(Material.NETHER_WART)
                         .setDurationSec(15)
@@ -97,64 +91,20 @@ public class Orc extends Hero implements Listener {
                                 berserk.get(AttributeType.DEFENSE) * 100, AttributeType.DEFENSE
                         )
         );
-
-        negativeEffects.addAll(
-                List.of(
-                        PotionEffectType.SLOW, PotionEffectType.SLOW_DIGGING, PotionEffectType.HARM,
-                        PotionEffectType.CONFUSION, PotionEffectType.BLINDNESS, PotionEffectType.HUNGER,
-                        PotionEffectType.POISON, PotionEffectType.WITHER, PotionEffectType.DARKNESS
-                )
-        );
     }
 
-    @EventHandler()
-    public void handleNegativePotion(EntityPotionEffectEvent ev) {
-        final Entity entity = ev.getEntity();
-        final PotionEffect newEffect = ev.getNewEffect();
-        final EntityPotionEffectEvent.Action action = ev.getAction();
-
-        if (!(entity instanceof Player player) || action != EntityPotionEffectEvent.Action.ADDED) {
-            return;
-        }
-
-        if (awaitEffectChange.contains(player)) {
-            awaitEffectChange.remove(player);
-            return;
-        }
-
-        if (!validatePlayer(player) || newEffect == null) {
-            return;
-        }
-
-        final PotionEffectType type = newEffect.getType();
-        if (isNegativeEffect(type)) {
-            final PotionEffect weakerEffect = type.createEffect(
-                    Math.max(newEffect.getDuration() / 2, 0),
-                    Math.max(newEffect.getAmplifier() / 2, 0)
-            );
-
-            ev.setCancelled(true);
-
-            awaitEffectChange.add(player);
-            player.addPotionEffect(weakerEffect);
-        }
-    }
-
-    @Nullable
     @Override
-    public DamageOutput processDamageAsVictim(DamageInput input) {
-        final GamePlayer player = input.getEntityAsPlayer();
-        final EnumDamageCause cause = input.getDamageCauseOr(EnumDamageCause.NONE);
+    public void processDamageAsVictim(@Nonnull DamageInstance instance) {
+        final GamePlayer player = instance.getEntityAsPlayer();
+        final EnumDamageCause cause = instance.getCauseOr(EnumDamageCause.NONE);
 
         if (cause != EnumDamageCause.ENTITY_ATTACK) {
-            return null;
+            return;
         }
 
         if (damageMap.computeIfAbsent(player, DamageData::new).addHitAndCheck()) {
             enterBerserk(player, Tick.fromSecond(3));
         }
-
-        return null;
     }
 
     @Override
@@ -179,7 +129,7 @@ public class Orc extends Hero implements Listener {
         berserk.temper(attributes, duration);
 
         // Fx
-        new PlayerGameTask(Named.BERSERK, player) {
+        new PlayerGameTask(player, Named.BERSERK) {
             private int tick = 0;
 
             @Override
@@ -232,7 +182,4 @@ public class Orc extends Hero implements Listener {
         return Talents.ORC_PASSIVE.getTalent();
     }
 
-    private boolean isNegativeEffect(PotionEffectType type) {
-        return negativeEffects.contains(type);
-    }
 }

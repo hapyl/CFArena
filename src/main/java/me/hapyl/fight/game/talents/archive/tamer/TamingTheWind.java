@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.archive.tamer;
 
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.GameEffectType;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.InputTalent;
@@ -14,7 +14,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
@@ -76,7 +75,7 @@ public class TamingTheWind extends InputTalent implements TamerTimed {
                 @Override
                 public void onStart() {
                     entity.setVelocity(new Vector(0, 0.75, 0));
-                    entity.addEffect(GameEffectType.IMMOVABLE, duration, true);
+                    entity.addEffect(Effects.IMMOVABLE, duration, true);
                 }
 
                 @Override
@@ -105,10 +104,10 @@ public class TamingTheWind extends InputTalent implements TamerTimed {
         new EntityLevitate<>(player, duration) {
             @Override
             public void onStart() {
-                player.addPotionEffect(PotionEffectType.LEVITATION, duration, 6);
+                player.addEffect(Effects.LEVITATION, 6, duration);
 
-                player.addEffect(GameEffectType.FALL_DAMAGE_RESISTANCE, duration + 20, true);
-                player.addEffect(GameEffectType.IMMOVABLE, duration, true);
+                player.addEffect(Effects.FALL_DAMAGE_RESISTANCE, duration + 20, true);
+                player.addEffect(Effects.IMMOVABLE, duration, true);
             }
 
             @Override

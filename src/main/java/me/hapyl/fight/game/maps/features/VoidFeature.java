@@ -1,12 +1,12 @@
 package me.hapyl.fight.game.maps.features;
 
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.maps.MapFeature;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.math.Numbers;
 import org.bukkit.Sound;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 
@@ -64,7 +64,7 @@ public class VoidFeature extends MapFeature {
             case 7 -> {
                 subtitle = "Void Consuming You";
                 player.damage(30, EnumDamageCause.LIBRARY_VOID);
-                player.addPotionEffect(PotionEffectType.WITHER, 20, 0);
+                player.addEffect(Effects.WITHER, 0, 20);
             }
         }
 

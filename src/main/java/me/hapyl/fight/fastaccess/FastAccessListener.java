@@ -28,7 +28,7 @@ public class FastAccessListener implements Listener {
             return;
         }
 
-        if (Manager.current().isGameInProgress() || player.getGameMode() == GameMode.CREATIVE) {
+        if (Manager.current().isInGameOrTrial(player) || player.getGameMode() == GameMode.CREATIVE) {
             return;
         }
 

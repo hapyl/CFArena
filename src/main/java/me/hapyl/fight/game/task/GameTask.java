@@ -2,6 +2,7 @@ package me.hapyl.fight.game.task;
 
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.Debug;
+import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.talents.Timed;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -72,6 +73,15 @@ public abstract class GameTask implements Runnable {
         return this.setupTask(Bukkit.getScheduler().runTaskTimer(Main.getPlugin(), this, delay, period));
     }
 
+    public GameTask runTaskTimerAsync(long delay, long period) {
+        if (!canExecute()) {
+            return this;
+        }
+
+        this.validateDoesNotExists();
+        return this.setupTask(Bukkit.getScheduler().runTaskTimerAsynchronously(Main.getPlugin(), this, delay, period));
+    }
+
     public synchronized GameTask runTask() {
         if (!canExecute()) {
             return this;
@@ -91,11 +101,11 @@ public abstract class GameTask implements Runnable {
         return bukkitTask == null ? -1 : bukkitTask.getTaskId();
     }
 
-    // called before the task is scheduled
+    @Event
     public void onTaskStart() {
     }
 
-    // Called when the task is stopped (canceled)
+    @Event
     public void onTaskStop() {
     }
 
@@ -116,7 +126,8 @@ public abstract class GameTask implements Runnable {
         return bukkitTask.isCancelled();
     }
 
-    protected void cancel0() {
+    @Deprecated
+    public void cancel0() {
         if (bukkitTask == null) {
             Debug.warn("Tried to cancel an inactive task!");
             return;

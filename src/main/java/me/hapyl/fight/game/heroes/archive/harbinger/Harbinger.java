@@ -2,28 +2,29 @@ package me.hapyl.fight.game.heroes.archive.harbinger;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.GameDeathEvent;
-import me.hapyl.fight.event.io.DamageInput;
-import me.hapyl.fight.event.io.DamageOutput;
-import me.hapyl.fight.game.EnumDamageCause;
 import me.hapyl.fight.game.Named;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.EquipmentSlot;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.harbinger.MeleeStance;
 import me.hapyl.fight.game.talents.archive.harbinger.StanceData;
 import me.hapyl.fight.game.talents.archive.harbinger.TidalWaveTalent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
-import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.game.weapons.BowWeapon;
 import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
@@ -37,15 +38,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Set;
 
-public class Harbinger extends Hero implements Listener, UIComponent, PlayerDataHandler, DisplayFieldProvider {
+public class Harbinger extends Hero implements Listener, UIComponent, PlayerDataHandler<RiptideStatus>, DisplayFieldProvider {
 
     @DisplayField private final long meleeRiptideAmount = 100;
     @DisplayField private final long rangeRiptideAmount = 150;
@@ -58,11 +57,11 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
     @DisplayField private final int ultimateRangeRiptide = Tick.fromSecond(20);
     @DisplayField private final double ultimateRangeRadius = 4.0d;
 
-    private final PlayerMap<RiptideStatus> riptideStatus = PlayerMap.newMap();
+    private final PlayerDataMap<RiptideStatus> riptideStatus = PlayerMap.newDataMap(RiptideStatus::new);
     private final Set<Arrow> ultimateArrows = Sets.newHashSet();
 
-    public Harbinger() {
-        super("Harbinger");
+    public Harbinger(@Nonnull Heroes handle) {
+        super(handle, "Harbinger");
 
         setDescription("""
                 She is a harbinger of unknown organization. Nothing else is known.
@@ -70,6 +69,7 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
 
         setArchetype(Archetype.STRATEGY);
         setAffiliation(Affiliation.UNKNOWN);
+        setSex(Gender.FEMALE);
 
         setMinimumLevel(5);
         setItem("22a1ac2a8dd48c371482806b3963571952997a5712806e2c8060b8e7777754");
@@ -79,10 +79,10 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
         equipment.setLeggings(54, 48, 48);
         equipment.setBoots(183, 183, 180);
 
-        setWeapon(new Weapon(Material.BOW).setDamage(2.0d).setName("Bow").setDescription("Just a normal bow."));
+        setWeapon(new BowWeapon().setDamage(2.0d).setName("Bow").setDescription("Just a normal bow."));
 
         setUltimate(new UltimateTalent(
-                "Crowned Mastery", """
+                this, "Crowned Mastery", """
                 Gather the surrounding energy to execute a &cfatal strike&7 based on your &ncurrent&7 &nstance&7.
                                 
                 &6In Range Stance
@@ -130,44 +130,39 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
     }
 
     @Override
-    public DamageOutput processDamageAsDamager(DamageInput input) {
-        final GamePlayer player = input.getDamagerAsPlayer();
-        final LivingGameEntity entity = input.getEntity();
+    public void processDamageAsDamager(@Nonnull DamageInstance instance) {
+        final GamePlayer player = instance.getDamagerAsPlayer();
+        final LivingGameEntity entity = instance.getEntity();
 
-        if (player == null || !input.isEntityAttack()) {
-            return DamageOutput.OK;
+        if (player == null || !instance.isEntityAttack()) {
+            return;
         }
 
         final MeleeStance stance = getFirstTalent();
         final boolean isStanceActive = stance.isActive(player);
 
         // If in melee stance only execute on CRIT
-        if (isStanceActive && input.isCrit()) {
-            addRiptide(player, input.getEntity(), meleeRiptideAmount, false);
+        if (isStanceActive && instance.isCrit()) {
+            addRiptide(player, instance.getEntity(), meleeRiptideAmount, false);
             executeRiptideSlashIfPossible(player, entity);
         }
-
-        return DamageOutput.OK;
     }
 
-    @Nullable
     @Override
-    public DamageOutput processDamageAsDamagerProjectile(DamageInput input, Projectile projectile) {
+    public void processDamageAsDamagerProjectile(@Nonnull DamageInstance instance, Projectile projectile) {
         if (!(projectile instanceof Arrow arrow) || !arrow.isCritical()) {
-            return null;
+            return;
         }
 
-        final GamePlayer player = input.getDamagerAsPlayer();
-        final LivingGameEntity entity = input.getEntity();
+        final GamePlayer player = instance.getDamagerAsPlayer();
+        final LivingGameEntity entity = instance.getEntity();
 
         if (player == null) {
-            return DamageOutput.OK;
+            return;
         }
 
         executeRiptideSlashIfPossible(player, entity);
         addRiptide(player, entity, rangeRiptideAmount, false);
-
-        return DamageOutput.OK;
     }
 
     public void executeRiptideSlashIfPossible(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity) {
@@ -187,16 +182,6 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
                 status.stop(entity);
             }
         }
-    }
-
-    @Override
-    public void onStop() {
-        riptideStatus.clear();
-    }
-
-    @Override
-    public void onDeath(@Nonnull GamePlayer player) {
-        riptideStatus.remove(player);
     }
 
     @Override
@@ -296,16 +281,10 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
         }
 
         // Fx
-        player.addPotionEffect(PotionEffectType.SLOW, 20, 2);
+        player.addEffect(Effects.SLOW, 2, 20);
         player.playWorldSound(Sound.BLOCK_CONDUIT_AMBIENT, 2.0f);
 
         return UltimateCallback.OK;
-    }
-
-    @Nonnull
-    @Override
-    public RiptideStatus getPlayerData(@Nonnull GamePlayer player) {
-        return riptideStatus.computeIfAbsent(player, RiptideStatus::new);
     }
 
     @Override
@@ -336,6 +315,12 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
                 BukkitUtils.roundTick(data.getDurationTick()),
                 BukkitUtils.roundTick(getFirstTalent().getMaxDuration())
         );
+    }
+
+    @Nonnull
+    @Override
+    public PlayerDataMap<RiptideStatus> getDataMap() {
+        return riptideStatus;
     }
 
     private void executeUltimateArrow(GamePlayer player, Location location) {

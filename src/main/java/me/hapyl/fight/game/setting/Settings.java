@@ -18,18 +18,13 @@ import java.util.Map;
 
 public enum Settings implements EnumWrapper<Setting>, PlayerItemCreator {
 
-    // Gameplay
+    //////////////
+    // Gameplay //
+    //////////////
     SPECTATE(new Setting(
             Material.ENDER_EYE,
             "Spectate",
             "Whenever you will spectate the game instead of playing it.",
-            Category.GAMEPLAY
-    )),
-
-    RANDOM_HERO(new Setting(
-            Material.TOTEM_OF_UNDYING,
-            "Random Hero",
-            "Whenever you start the game with a random hero every time.",
             Category.GAMEPLAY
     )),
 
@@ -41,7 +36,24 @@ public enum Settings implements EnumWrapper<Setting>, PlayerItemCreator {
             true
     )),
 
-    // Chat
+    SHOW_HEALTH_AND_SHIELD_SEPARATELY(new Setting(
+            Material.SHIELD,
+            "Show Health and Shield Separately", """
+            Whenever to show health and shield amount separately, rather than combined.
+                        
+            &aIf enabled:
+            &c&c50 &c❤ &e&l50 &e🛡
+                        
+            &cIf disabled:
+            &e&l100 &e🛡
+            """,
+            Category.GAMEPLAY,
+            true
+    )),
+
+    //////////
+    // Chat //
+    //////////
     CHAT_PING(new Setting(
             Material.GOLD_INGOT,
             "Chat Notification",
@@ -53,23 +65,53 @@ public enum Settings implements EnumWrapper<Setting>, PlayerItemCreator {
     SEE_NOTIFICATIONS(new Setting(
             Material.PAPER,
             "See Notifications",
-            "Whenever you will see notifications.",
+            "Whenever you will see when someone @mentions you.",
             Category.CHAT,
             true
     )),
 
+    SHOW_DAMAGE_IN_CHAT(new Setting(
+            Material.SWEET_BERRIES,
+            "Show Damage in Chat", """
+            Whenever you'll see damage dealt and taken messages in chat.
+                                
+            &9Nerds special!
+            """,
+            Category.CHAT
+    )),
+
+    SHOW_COOLDOWN_MESSAGE(new Setting(
+            Material.CLOCK,
+            "Show Cooldown Messages & Sound", """
+            Whenever you'll see and hear ability cooldown messages.
+            """,
+            Category.CHAT,
+            true
+    )),
+
+    SEE_HERO_RATING_MESSAGE(new Setting(
+            Material.FILLED_MAP,
+            "Don't Show Hero Rating",
+            "Whenever you will get a message asking to rate a hero when you haven't yet.",
+            Category.CHAT,
+            true
+    )),
+
+    ////////
+    // UI //
+    ////////
     SHOW_YOURSELF_AS_TEAMMATE(new Setting(
             Material.PLAYER_HEAD,
             "Show Yourself as a Teammate",
             "Whenever you will see yourself as a teammate in a tab list.",
-            Category.CHAT
+            Category.UI
     )),
 
     HIDE_UI(new Setting(
             Material.GLASS_PANE,
             "Hide Game UI",
             "Whenever to hide most of the game UI elements, such as actionbar, scoreboard, damage indicators, etc.",
-            Category.CHAT
+            Category.UI
     ) {
         @Override
         public void onEnable(@Nonnull Player player) {
@@ -100,41 +142,17 @@ public enum Settings implements EnumWrapper<Setting>, PlayerItemCreator {
         }
     }),
 
-    SHOW_DAMAGE_IN_CHAT(new Setting(
-            Material.SWEET_BERRIES,
-            "Show Damage in Chat", """
-            Whenever you'll see damage dealt and taken messages in chat.
-                                
-            &9Nerds special!
-            """,
-            Category.CHAT
+    SEE_DEBUG_DATA(new Setting(
+            Material.CHAIN_COMMAND_BLOCK,
+            "See Debug Data",
+            "Whenever you will see debug data in your inventory.",
+            Category.UI,
+            false
     )),
 
-    SHOW_COOLDOWN_MESSAGE(new Setting(
-            Material.CLOCK,
-            "Show Cooldown Messages & Sound", """
-            Whenever you'll see and hear ability cooldown messages.
-            """,
-            Category.CHAT,
-            true
-    )),
-
-    SHOW_HEALTH_AND_SHIELD_SEPARATELY(new Setting(
-            Material.SHIELD,
-            "Show Health and Shield Separately", """
-            Whenever to show health and shield amount separately, rather than combined.
-                        
-            &aIf enabled:
-            &c&c50 &c❤ &e&l50 &e🛡
-                        
-            &cIf disabled:
-            &e&l100 &e🛡
-            """,
-            Category.CHAT,
-            true
-    )),
-
-    // Other
+    ///////////
+    // Other //
+    ///////////
     SEE_OTHERS_CONTRAIL(new Setting(
             Material.FIREWORK_ROCKET,
             "See Others Contrail",
@@ -142,6 +160,7 @@ public enum Settings implements EnumWrapper<Setting>, PlayerItemCreator {
             Category.OTHER,
             true
     )),
+
 
     USE_SKINS_INSTEAD_OF_ARMOR(new Setting(
             Material.LEATHER_CHESTPLATE,

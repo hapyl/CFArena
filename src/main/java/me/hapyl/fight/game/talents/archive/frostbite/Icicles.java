@@ -1,11 +1,12 @@
 package me.hapyl.fight.game.talents.archive.frostbite;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
@@ -49,7 +50,7 @@ public class Icicles extends Talent {
 
         setDescription("""
                 Summon a bunch of icicles at your &etarget&7 enemy.
-                &8;;If there are no target enemies, the cage will spawn in front of you.
+                &8;;If there are no target enemies, the icicles will spawn in front of you.
                                 
                 After a short delay, the icicles fall down, dealing &cAoE damage&7 and:
                 └ Decreases %s by &b{critChanceReduction}&7.
@@ -75,7 +76,7 @@ public class Icicles extends Talent {
             attributes.decreaseTemporary(Temper.ICE_CAGE, AttributeType.CRIT_DAMAGE, critDamageReduction, debuffDuration);
             attributes.decreaseTemporary(Temper.ICE_CAGE, AttributeType.ATTACK, attackReduction, debuffDuration);
 
-            entity.addPotionEffect(PotionEffectType.SLOW, 20, 1);
+            entity.addEffect(Effects.SLOW, 1, 20);
         });
 
         // Fx
@@ -85,7 +86,7 @@ public class Icicles extends Talent {
 
     @Override
     public Response execute(@Nonnull GamePlayer player) {
-        final LivingGameEntity targetEntity = Collect.targetEntity(player, 10, 0.7d, entity -> !entity.equals(player));
+        final LivingGameEntity targetEntity = Collect.targetEntityDot(player, 10, 0.7d, entity -> !entity.equals(player));
 
         Location location;
 
