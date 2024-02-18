@@ -70,7 +70,7 @@ public abstract class GuessWhoGUI extends StyledGUI {
     public ItemStack getItem(@Nonnull Heroes heroes) {
         final ItemBuilder builder = createItem(heroes);
 
-        if (data.isMyTurn() && data.isRuledOut(heroes)) {
+        if (data.isRuledOut(heroes)) {
             return new ItemBuilder(Material.GRAY_DYE)
                     .setName(heroes.getHero().getName())
                     .addLore()

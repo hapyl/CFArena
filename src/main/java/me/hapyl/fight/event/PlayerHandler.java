@@ -31,11 +31,11 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.team.LocalTeamManager;
-import me.hapyl.fight.game.tutorial.Tutorial;
 import me.hapyl.fight.game.weapons.BowWeapon;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.guesswho.GuessWho;
 import me.hapyl.fight.util.CFUtils;
+import me.hapyl.fight.ux.Message;
 import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.parkour.Data;
@@ -86,8 +86,7 @@ public class PlayerHandler implements Listener {
     public void handlePlayerJoin(PlayerJoinEvent ev) {
         final Player player = ev.getPlayer();
         final Manager manager = Manager.current();
-
-        manager.handlePlayer(player);
+        final PlayerProfile profile = manager.handlePlayer(player);
 
         if (manager.isGameInProgress()) {
             final GameInstance gameInstance = (GameInstance) manager.getCurrentGame();
@@ -97,15 +96,65 @@ public class PlayerHandler implements Listener {
         }
         else {
             if (!player.hasPlayedBefore()) {
-                new Tutorial(player);
+                //new Tutorial(player);
             }
-
             // Only show the join message if the game is not in progress.
             // Game instance should modify and broadcast the join message.
-            ev.setJoinMessage(Chat.format("&7[&a+&7] %s%s &ewants to fight!", player.isOp() ? "&c" : "", player.getName()));
+            ev.setJoinMessage(profile.getJoinMessage());
         }
 
-        LocalTeamManager.updateAll(player);
+        if (profile.getRank().isStaff()) {
+            Message.broadcastStaff("{} joined.", player.getName());
+        }
+
+        LocalTeamManager.updateAll();
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void handlePlayerQuit(PlayerQuitEvent ev) {
+        final Player player = ev.getPlayer();
+        final Manager manager = Manager.current();
+        final PlayerProfile profile = manager.getProfile(player);
+
+        if (profile == null) {
+            throw new NullPointerException("Player somehow left with no profile???????");
+        }
+
+        // GuessWho
+        final GuessWho guessWhoGame = manager.getGuessWhoGame();
+
+        if (guessWhoGame != null) {
+            guessWhoGame.loseBecauseLeft(player);
+        }
+
+        if (manager.isGameInProgress()) {
+            final IGameInstance game = manager.getCurrentGame();
+            final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
+
+            if (gamePlayer != null) {
+                game.getMode().onLeave((GameInstance) game, player);
+            }
+
+            ev.setQuitMessage(null);
+        }
+        else {
+            // Only show the quit message if the game is not in progress.
+            // Game instance should modify and broadcast the quit message.
+            ev.setQuitMessage(profile.getLeaveMessage());
+        }
+
+        if (profile.getRank().isStaff()) {
+            Message.broadcastStaff("{} left.", player.getName());
+        }
+
+        // Save database
+        manager.getOrCreateProfile(player).getDatabase().save();
+
+        // Delete database instance
+        PlayerDatabase.uninstantiate(player.getUniqueId());
+
+        // Delete profile
+        manager.removeProfile(player);
     }
 
     @EventHandler()
@@ -142,44 +191,6 @@ public class PlayerHandler implements Listener {
         final int cooldown = attributes.calculateRangeAttackSpeed(bowWeapon.getShotCooldown());
 
         player.setCooldownIgnoreModifier(weaponItem.getType(), cooldown);
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void handlePlayerQuit(PlayerQuitEvent ev) {
-        final Player player = ev.getPlayer();
-        final Manager manager = Manager.current();
-
-        // GuessWho
-        final GuessWho guessWhoGame = manager.getGuessWhoGame();
-
-        if (guessWhoGame != null) {
-            guessWhoGame.loseBecauseLeft(player);
-        }
-
-        if (manager.isGameInProgress()) {
-            final IGameInstance game = manager.getCurrentGame();
-            final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
-
-            if (gamePlayer != null) {
-                game.getMode().onLeave((GameInstance) game, player);
-            }
-
-            ev.setQuitMessage(null);
-        }
-        else {
-            // Only show the quit message if the game is not in progress.
-            // Game instance should modify and broadcast the quit message.
-            ev.setQuitMessage(Chat.format("&7[&c-&7] %s%s &ehas fallen!", player.isOp() ? "&c" : "", player.getName()));
-        }
-
-        // Save database
-        manager.getOrCreateProfile(player).getDatabase().save();
-
-        // Delete database instance
-        PlayerDatabase.uninstantiate(player.getUniqueId());
-
-        // Delete profile
-        manager.removeProfile(player);
     }
 
     // Prevent painting-breaking while the game is in progress

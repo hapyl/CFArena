@@ -16,7 +16,7 @@ public interface Message {
     /**
      * A prefix for staff.
      */
-    String STAFF_PREFIX = Color.CORNFLOWER_BLUE.bold() + "sᴛᴀғғ";
+    String STAFF_PREFIX = "&6[&c&l🛡 &cStaff&6]";
 
     /**
      * Sends an info message to the given {@link CommandSender}.

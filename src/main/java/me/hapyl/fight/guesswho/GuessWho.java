@@ -169,7 +169,7 @@ public class GuessWho extends GameTask implements GameElement {
         result = GameResult.LEFT;
 
         if (gamePlayer != null) {
-            gamePlayer.lose();
+            gamePlayer.triggerLose();
         }
     }
 

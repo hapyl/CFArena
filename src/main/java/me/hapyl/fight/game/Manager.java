@@ -250,7 +250,6 @@ public final class Manager extends BukkitRunnable {
         final PlayerProfile profile = new PlayerProfile(player);
 
         profiles.put(player.getUniqueId(), profile);
-
         profile.loadData();
 
         main.getExperience().triggerUpdate(player);
@@ -259,6 +258,7 @@ public final class Manager extends BukkitRunnable {
         for (PersistentNPCs enumNpc : PersistentNPCs.values()) {
             enumNpc.getNpc().onCreate(player);
         }
+
         return profile;
     }
 
@@ -390,8 +390,9 @@ public final class Manager extends BukkitRunnable {
         return gameInstance != null && gameInstance.getGameState() == State.IN_GAME;
     }
 
-    public void handlePlayer(Player player) {
-        createProfile(player);
+    @Nonnull
+    public PlayerProfile handlePlayer(Player player) {
+        final PlayerProfile profile = createProfile(player);
 
         // teleport either to spawn or the map if there is a game in progress
         final GameInstance gameInstance = getGameInstance();
@@ -412,6 +413,8 @@ public final class Manager extends BukkitRunnable {
         if (player.isOp()) {
             Chat.sendMessage(player, main.database.getDatabaseString());
         }
+
+        return profile;
     }
 
     /**
@@ -810,6 +813,7 @@ public final class Manager extends BukkitRunnable {
         return !profiles.isEmpty();
     }
 
+
     public void listProfiles() {
         final Logger logger = main.getLogger();
 
@@ -949,6 +953,9 @@ public final class Manager extends BukkitRunnable {
         return autoSave;
     }
 
+    public void forEachProfile(@Nonnull Consumer<PlayerProfile> consumer) {
+        profiles.values().forEach(consumer::accept);
+    }
 
     private void playAnimation() {
         new TitleAnimation();

@@ -1,6 +1,7 @@
 package me.hapyl.fight.guesswho.gui;
 
 import com.google.common.collect.Sets;
+import me.hapyl.fight.database.entry.GuessWhoEntry;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -50,7 +51,9 @@ public class GuessWhoRuleOutGUI extends GuessWhoGUI {
                     .addSmartLore("Forfeiting will result in a loss.", "&8&o")
                     .asIcon(), player -> {
                 data.getGame().result = GameResult.FORFEIT;
-                data.lose();
+                data.getEntry().incrementStat(GuessWhoEntry.StatType.FORFEITS);
+
+                data.triggerLose();
 
                 // Achievement
                 Achievements.FORFEIT_GUESS_WHO.complete(data.getPlayer());

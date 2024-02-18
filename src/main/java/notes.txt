@@ -1,35 +1,16 @@
 #########################################
 
+todo
+- Custom Tab
+
+- Add stats to GW
+- Remove glow after shots
+- Add clear particles to either shots and/or invis
+- Update description
+- Smoke outline blinks yep
+- ed grass
+
 #########################################
-
-Swooper
----
-
-# Weapon
-- Fire rate decreased 1.5s >> 2s
-- Can no longer manually reload (To prevent accidentally reloading while trying to stun an enemy)
-
-# Blast Pack
-- Reduce sensitivity 0.5 >> 0.37
-- Add max lifetime of 5s
-- Can only stun while armed and lifetime is at least half of the max lifetime
--- Meaning the C3 *must* be on a wall for at *least* 2.5s
-- Fixed wrong velocity calculations
-
-# You Can't See Me (Passive)
-- Renamed to "Sniper Nest"
-- Add a small cooldown when leaving this state
-- Remove the need to stand still
-- Upon entering the state, the entered location (nest) is saved
--- If player moved too far from the nest, the state is cancelled
--- If player unsneaks, the state is cancelled
--- If player takes damage, the state if cancelled
-
-Bounty Hunter
----
-
-# Grapple Hook
-- It is now easier to escape the hook.
 
 
 #########################################

@@ -76,4 +76,33 @@ public final class ProfanityFilter {
     public static boolean isInstantiated() {
         return plugin != null;
     }
+
+    @Nonnull
+    public static String replaceProfane(@Nonnull String message) {
+        final StringBuilder messageBuilder = new StringBuilder();
+        final char[] chars = (message + "\n").toCharArray();
+
+        StringBuilder builder = new StringBuilder();
+
+        for (final char c : chars) {
+            if (c == ' ' || c == '\n') {
+                messageBuilder.append(builder.toString().trim()).append(" ");
+                builder = new StringBuilder();
+                continue;
+            }
+
+            builder.append(c);
+
+            final String string = builder.toString().trim();
+
+            if (isProfane(string)) {
+                final int stringLength = string.length();
+
+                builder.replace(0, stringLength, "*".repeat(Math.min(stringLength, 6)));
+            }
+
+        }
+
+        return messageBuilder.toString();
+    }
 }

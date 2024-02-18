@@ -1,10 +1,12 @@
 package me.hapyl.fight.game.ui;
 
+import com.google.common.collect.Lists;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.database.entry.CurrencyEntry;
+import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
@@ -13,9 +15,11 @@ import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.effect.Effect;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.setting.Settings;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.team.Entry;
@@ -26,6 +30,8 @@ import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.math.nn.IntInt;
 import me.hapyl.spigotutils.module.player.song.Song;
 import me.hapyl.spigotutils.module.player.song.SongPlayer;
+import me.hapyl.spigotutils.module.player.tablist.EntryList;
+import me.hapyl.spigotutils.module.player.tablist.Tablist;
 import me.hapyl.spigotutils.module.scoreboard.Scoreboarder;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -38,6 +44,7 @@ import javax.annotation.Nonnull;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 /**
  * This controls all UI-based elements such as scoreboard, tab-list, and actionbar (while in game).
@@ -50,6 +57,8 @@ public class PlayerUI extends TickingGameTask {
     private final Player player;
     private final Scoreboarder builder;
     private final UIFormat format = UIFormat.DEFAULT;
+    private final Tablist tablist = null;
+
     private final String[] clocks = {
             "🕛", "🕐", "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕚"
     };
@@ -58,8 +67,15 @@ public class PlayerUI extends TickingGameTask {
     public PlayerUI(PlayerProfile profile) {
         this.profile = profile;
         this.player = profile.getPlayer();
+
+        // Create scoreboard
         this.builder = new Scoreboarder(Main.GAME_NAME);
         this.updateScoreboard();
+        this.builder.addPlayer(player);
+
+        // Create tablist
+        //this.tablist = new Tablist();
+        //this.tablist.show(player);
 
         if (Settings.HIDE_UI.isEnabled(player)) {
             hideScoreboard();
@@ -87,7 +103,10 @@ public class PlayerUI extends TickingGameTask {
         // update a player list and scoreboard
         final String[] headerFooter = formatHeaderFooter();
         player.setPlayerListHeaderFooter(Chat.format(headerFooter[0]), Chat.format(headerFooter[1]));
-        player.setPlayerListName(profile.getDisplay().getDisplayNameTab());
+        player.setPlayerListName(profile.getDisplay().getDisplayNameTab()); // BREAKS TABLIST THANKS SPIGOT
+        //player.setDisplayName(null);
+
+        //updateTablist(); // yeah I fucking hate my life
 
         // Yes, I know it's not really a UI thing,
         // but I ain't making another ticker just for
@@ -121,6 +140,42 @@ public class PlayerUI extends TickingGameTask {
         }
     }
 
+    private void updateTablist() {
+        final EntryList list = new EntryList();
+        list.append("&a&lᴘʟᴀʏᴇʀs");
+        list.append();
+
+        final List<PlayerProfile> profiles = Lists.newArrayList();
+
+        Manager.current().forEachProfile(profiles::add);
+
+        profiles.sort((p1, p2) -> {
+            final PlayerRank rank1 = p1.getRank();
+            final PlayerRank rank2 = p2.getRank();
+
+            return rank2.ordinal() > rank1.ordinal() ? 1 : rank1.ordinal() <= rank2.ordinal() ? -1 : 0;
+        });
+
+        final Experience experience = Main.getPlugin().getExperience();
+
+        profiles.sort((p1, p2) -> {
+            final long p1Level = experience.getLevel(p1.getPlayer());
+            final long p2Level = experience.getLevel(p2.getPlayer());
+
+            return p2Level > p1Level ? 1 : p1Level <= p2Level ? -1 : 0;
+        });
+
+        profiles.forEach(profile -> {
+            list.append(profile.getDisplay().getDisplayNameTab());
+        });
+
+        tablist.setColumn(0, list);
+    }
+
+    private ItemStack getItemFromTalent(Talent talent) {
+        return talent != null ? talent.getItem() : new ItemStack(Material.AIR);
+    }
+
     public void updateDebug() {
         final GamePlayer gamePlayer = profile.getGamePlayer();
 
@@ -132,8 +187,8 @@ public class PlayerUI extends TickingGameTask {
         final Hero hero = gamePlayer.getHero();
         final PlayerInventory inventory = player.getInventory();
 
-        final ItemStack ultimateItem = hero.getUltimate().getItem();
-        final ItemStack passiveItem = hero.getPassiveTalent().getItem();
+        final ItemStack ultimateItem = getItemFromTalent(hero.getUltimate());
+        final ItemStack passiveItem = getItemFromTalent(hero.getPassiveTalent());
 
         // Design changes if debug is enabled
         if (Settings.SEE_DEBUG_DATA.isEnabled(player)) {
@@ -270,7 +325,6 @@ public class PlayerUI extends TickingGameTask {
 
         builder.addLine("");
         builder.updateLines();
-        builder.addPlayer(player);
     }
 
     @Nonnull

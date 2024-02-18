@@ -16,7 +16,7 @@ public class SwooperPassive extends PassiveTalent {
     // FIXME (hapyl): 015, Feb 15:
     public SwooperPassive() {
         super("Sniper Nest", """
-                While &nscoping&& for a &b{standStillTime}&7, create &6Sniper Nest&7 and enter %1$s.
+                While &nscoping&& for a &b{sneakThreshold}&7, create &6Sniper Nest&7 and enter %1$s.
                                 
                 &6%1$s:
                 Become &9invisible&7 and &cincrease&7 your rifle damage.

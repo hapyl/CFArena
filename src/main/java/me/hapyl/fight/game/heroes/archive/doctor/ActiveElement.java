@@ -110,7 +110,7 @@ public class ActiveElement {
                     stand.setHeadPose(stand.getHeadPose().add(animationType.getX(), animationType.getY(), animationType.getZ()));
 
                     // block hit detection
-                    if (!fixedLocation.getBlock().getType().isAir()) {
+                    if (fixedLocation.getBlock().getType().isOccluding()) {
                         entityPoof();
                         this.cancel();
                         return;

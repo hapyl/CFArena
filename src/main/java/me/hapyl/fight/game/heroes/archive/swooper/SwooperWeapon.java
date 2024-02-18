@@ -66,6 +66,7 @@ public class SwooperWeapon extends RangeWeapon {
 
             if (data.ultimateShots <= 0) {
                 swooper.setUsingUltimate(player, false);
+                data.remove(); // remove highlighting
             }
         }
         else {

@@ -3,6 +3,7 @@ package me.hapyl.fight.game.profile;
 import com.google.common.collect.Queues;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
+import me.hapyl.fight.database.rank.RankFormatter;
 import me.hapyl.fight.dialog.ActiveDialog;
 import me.hapyl.fight.fastaccess.PlayerFastAccess;
 import me.hapyl.fight.game.Manager;
@@ -44,14 +45,16 @@ public class PlayerProfile {
 
     private final Player player;
     private final PlayerDatabase playerDatabase;
-    private final LocalTeamManager localTeamManager;
-    private final PlayerSkin originalSkin;
-    private final PlayerProfileData playerData;
-    private final PlayerInfraction infractions;
-    private final PlayerRelationship relationship;
-    private final HotbarLoadout hotbarLoadout;
-    private final PlayerFastAccess fastAccess;
     public ActiveDialog dialog;
+
+    private PlayerSkin originalSkin;
+    private PlayerProfileData playerData;
+    private PlayerInfraction infractions;
+    private PlayerRelationship relationship;
+    private HotbarLoadout hotbarLoadout;
+    private PlayerFastAccess fastAccess;
+    private LocalTeamManager localTeamManager;
+
     @Nullable
     private GamePlayer gamePlayer; // current game player
     private PlayerUI playerUI;     // ui
@@ -66,16 +69,9 @@ public class PlayerProfile {
 
         // Init database before anything else
         this.playerDatabase = PlayerDatabase.instantiate(player);
-        this.localTeamManager = new LocalTeamManager(player);
         this.loaded = false;
         this.resourcePack = false;
         this.buildMode = false;
-        this.infractions = new PlayerInfraction(this);
-        this.relationship = new PlayerRelationship(this);
-        this.playerData = new PlayerProfileData(this);
-        this.originalSkin = PlayerSkin.of(player);
-        this.hotbarLoadout = new HotbarLoadout(this);
-        this.fastAccess = new PlayerFastAccess(this);
     }
 
     public void newTrial() {
@@ -169,6 +165,14 @@ public class PlayerProfile {
 
         // Check for fullness to not create anything
         loaded = true;
+
+        this.localTeamManager = new LocalTeamManager(this);
+        this.infractions = new PlayerInfraction(this);
+        this.relationship = new PlayerRelationship(this);
+        this.playerData = new PlayerProfileData(this);
+        this.originalSkin = PlayerSkin.of(player);
+        this.hotbarLoadout = new HotbarLoadout(this);
+        this.fastAccess = new PlayerFastAccess(this);
 
         // Load some data after init method
         selectedHero = playerDatabase.getHeroEntry().getSelectedHero();
@@ -302,6 +306,27 @@ public class PlayerProfile {
     @Nonnull
     public PlayerRank getRank() {
         return playerDatabase.getRank();
+    }
+
+    @Nullable
+    public String getJoinMessage() {
+        final RankFormatter format = getRank().getFormat();
+        final String message = format.joinMessage();
+
+        return message != null ? Chat.bformat("&8[&a+&8] " + message, getDisplay().getNamePrefixed()) : null;
+    }
+
+    @Nullable
+    public String getLeaveMessage() {
+        final RankFormatter format = getRank().getFormat();
+        final String message = format.leaveMessage();
+
+        return message != null ? Chat.bformat("&8[&c-&8] " + message, getDisplay().getNamePrefixed()) : null;
+    }
+
+    @Nonnull
+    public Entry getEntry() {
+        return Entry.of(player);
     }
 
     private void createTraceDump(RuntimeException exception) {

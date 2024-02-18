@@ -1,6 +1,8 @@
 package me.hapyl.fight.guesswho;
 
 import com.google.common.collect.Lists;
+import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.database.entry.GuessWhoEntry;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.guesswho.gui.GuessWhoRuleOutGUI;
@@ -139,21 +141,29 @@ public class GuessWhoPlayer {
 
         if (opponent.guessHero == hero) {
             game.result = GameResult.GUESSED_CORRECTLY;
-            win();
+            triggerWin();
         }
         else {
             game.result = GameResult.GUESSED_INCORRECTLY;
-            opponent.win();
+            triggerLose();
         }
     }
 
     public void lose() {
         winner = false;
-        getOpponent().win();
+        final GuessWhoEntry entry = getEntry();
+
+        entry.incrementStat(GuessWhoEntry.StatType.LOSES);
+        entry.resetStat(GuessWhoEntry.StatType.WIN_STREAK);
     }
 
     public void win() {
         this.winner = true;
+
+        final GuessWhoEntry entry = getEntry();
+
+        entry.incrementStat(GuessWhoEntry.StatType.WINS);
+        entry.incrementStat(GuessWhoEntry.StatType.WIN_STREAK);
 
         game.setState(GameState.POST_GAME);
     }
@@ -181,5 +191,19 @@ public class GuessWhoPlayer {
 
     public int getBoardSize() {
         return board.size();
+    }
+
+    public GuessWhoEntry getEntry() {
+        return PlayerDatabase.getDatabase(player).guessWhoEntry;
+    }
+
+    public void triggerLose() {
+        this.lose();
+        getOpponent().win();
+    }
+
+    public void triggerWin() {
+        this.win();
+        getOpponent().lose();
     }
 }

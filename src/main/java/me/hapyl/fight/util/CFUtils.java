@@ -1026,6 +1026,10 @@ public class CFUtils {
         int index = 0;
 
         for (T t : collection) {
+            if (size == 1) {
+                return fn.apply(t);
+            }
+
             if (index == size - 1) {
                 builder.append(" and ");
             }

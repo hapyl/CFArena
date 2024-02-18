@@ -97,6 +97,8 @@ public class SwooperData extends PlayerData {
             player.spawnWorldParticle(then, Particle.DUST_COLOR_TRANSITION, 1, 0, 0, 0, 0, nestParticleData);
         });
 
+        // Ambient
+        player.spawnWorldParticle(nestLocation, Particle.SPELL_MOB_AMBIENT, 5, 1.2d, 0.4d, 1.2d, 0);
     }
 
     public boolean isTooFarAwayFromNest() {

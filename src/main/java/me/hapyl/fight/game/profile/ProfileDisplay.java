@@ -123,7 +123,9 @@ public class ProfileDisplay {
 
     @Nonnull
     public String getNamePrefixed() {
-        return rank.prefix() + " " + rank.nameColor() + customName;
+        final String prefix = rank.prefix();
+
+        return (!prefix.isEmpty() ? prefix + " " : "") + rank.nameColor() + customName;
     }
 
     @Nonnull

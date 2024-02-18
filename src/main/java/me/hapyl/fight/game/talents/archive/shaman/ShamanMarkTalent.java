@@ -44,7 +44,7 @@ public class ShamanMarkTalent extends Talent {
         super("Shaman's Mark");
 
         setDescription("""
-                Launch a projectile forward that travels up to &b{maxProjectileDistance} blocks&7.
+                Launch a projectile forward that travels up to &b{maxProjectileDistance}&7.
                                 
                 If the projectile hits an &aally&7, it applies the &6Shaman's Mark&7 onto them.
                                 

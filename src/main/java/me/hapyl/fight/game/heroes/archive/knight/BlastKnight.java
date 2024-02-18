@@ -50,7 +50,7 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Pla
     public BlastKnight(@Nonnull Heroes handle) {
         super(handle, "Blast Knight");
 
-        setArchetype(Archetype.DEFENSE);
+        setArchetype(Archetype.SUPPORT);
         setAffiliation(Affiliation.KINGDOM);
 
         setDescription("A royal knight with high-end technology gadgets.");

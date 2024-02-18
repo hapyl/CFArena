@@ -16,7 +16,6 @@ public class BlastPack extends ChargedTalent {
     @DisplayField public final int maxAirTime = 300;
     @DisplayField public final int maxLifeTime = 100;
     @DisplayField(suffix = "blocks") public final double explosionRadius = 4.0d;
-    @DisplayField public final double stunDistance = explosionRadius / 2.0d;
     @DisplayField public final int stunDuration = 40;
     @DisplayField public final double selfMagnitude = 1.5d;
     @DisplayField public final double otherMagnitude = 0.5d;
@@ -29,7 +28,6 @@ public class BlastPack extends ChargedTalent {
                 Throw an explosive &eC4&7 in front of you that &nsticks&7 to surfaces.
                                 
                 &nUse&7 &nagain&7 to &4explode&7, damaging &cenemies&7 and moving all &bentities&7.
-                &8;;If an enemy is close to explosion, they will be stunned.
                 """, 2);
 
         setType(Type.MOVEMENT);

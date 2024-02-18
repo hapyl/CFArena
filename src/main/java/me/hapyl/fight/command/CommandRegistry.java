@@ -11,7 +11,7 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.GVar;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.build.NamedSignReader;
-import me.hapyl.fight.chat.ChatHandler;
+import me.hapyl.fight.chat.ChatChannel;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.collection.HeroStatsCollection;
 import me.hapyl.fight.database.entry.DailyRewardEntry;
@@ -103,7 +103,6 @@ import me.hapyl.spigotutils.module.player.EffectType;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.DataWatcherType;
 import me.hapyl.spigotutils.module.reflect.Reflect;
-import me.hapyl.spigotutils.module.reflect.fakeplayer.FakePlayer;
 import me.hapyl.spigotutils.module.reflect.glow.Glowing;
 import me.hapyl.spigotutils.module.reflect.npc.Human;
 import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
@@ -424,8 +423,8 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new SimplePlayerCommand("teammsg") {
             @Override
             protected void execute(Player player, String[] args) {
-                Message.error(player, "To send a team message, prefix your message with a '" + ChatHandler.TEAM_MESSAGE_PREFIX + "'!");
-                Message.error(player, "Like this: " + ChatHandler.TEAM_MESSAGE_PREFIX + " " + Chat.arrayToString(args, 0).trim());
+                Message.error(player, "To send a team message, prefix your message with a '" + ChatChannel.TEAM + "'!");
+                Message.error(player, "Like this: " + ChatChannel.TEAM + " " + Chat.arrayToString(args, 0).trim());
             }
         });
 
@@ -757,27 +756,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             @Override
             protected void execute(Player player, String[] args) {
                 new HumanNPC(player.getLocation(), "name", "hypixel").showAll();
-            }
-        });
-
-        register(new SimplePlayerAdminCommand("sendFakePlayer") {
-            @Override
-            protected void execute(Player player, String[] args) {
-                final PlayerProfile profile = PlayerProfile.getProfile(player);
-                final String tabName = profile.getDisplay().getDisplayNameTab();
-
-                final String name = getArgument(args, 0).toString();
-
-                final FakePlayer fakePlayer = new FakePlayer(name.isEmpty() ? tabName : name).setSkin(player);
-                fakePlayer.show(player);
-
-                Chat.sendMessage(player, "&aShown!");
-
-                Runnables.runLater(() -> {
-                    fakePlayer.hide(player);
-                    Chat.sendMessage(player, "&cHid!");
-                }, 60);
-
             }
         });
 
