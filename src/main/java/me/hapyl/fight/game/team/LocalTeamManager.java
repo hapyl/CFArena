@@ -30,11 +30,7 @@ public class LocalTeamManager implements Ticking {
 
         final Scoreboard scoreboard = this.profile.getPlayer().getScoreboard();
 
-        // FIXME (hapyl): 018, Feb 18: Idk couldn't make it be sorted just used custom tab lol
-        // FIXME (hapyl): 018, Feb 18: Actually I think it's because the name right?
-        //  Just make the team is rank name should work
-        //  Players and owner is always in the same team anyway
-        final String teamName = "!cf-%s".formatted(player.getName());
+        final String teamName = "zzz-cf-%s".formatted(player.getName()); // force to be last on TAB so custom tab can override it
 
         Team team = scoreboard.getTeam(teamName);
 

@@ -55,6 +55,7 @@ import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.util.Formatted;
 import me.hapyl.fight.util.SmallCaps;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
+import me.hapyl.spigotutils.module.util.Compute;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -75,7 +76,7 @@ public enum Heroes implements Formatted {
 
     ARCHER(Archer::new),
     ALCHEMIST(Alchemist::new),
-    MOONWALKER(Moonwalker::new),
+    @OnReworkIgnoreForNow MOONWALKER(Moonwalker::new),
     @OnReworkIgnoreForNow HERCULES(Hercules::new),
     MAGE(Mage::new),
     PYTARIA(Pytaria::new),
@@ -121,23 +122,26 @@ public enum Heroes implements Formatted {
     public static final Heroes DEFAULT_HERO = ARCHER;
 
     private final static List<Heroes> PLAYABLE = Lists.newArrayList();
+
     private final static Map<Archetype, List<Heroes>> BY_ARCHETYPE = Maps.newHashMap();
+    private final static Map<Gender, List<Heroes>> BY_GENDER = Maps.newHashMap();
+    private final static Map<Race, List<Heroes>> BY_RACE = Maps.newHashMap();
+
     private static GlobalHeroStats globalStats;
 
     static {
-        for (Heroes hero : values()) {
-            if (!hero.isValidHero()) {
+        for (Heroes enumHero : values()) {
+            if (!enumHero.isValidHero()) {
                 continue;
             }
 
             // Store archetype for easier grab
-            final Archetype archetype = hero.hero.getArchetype();
-            final List<Heroes> byArchetype = BY_ARCHETYPE.computeIfAbsent(archetype, l -> Lists.newArrayList());
-
-            byArchetype.add(hero);
+            mapHero(enumHero, Hero::getArchetype, BY_ARCHETYPE);
+            mapHero(enumHero, Hero::getSex, BY_GENDER);
+            mapHero(enumHero, Hero::getRace, BY_RACE);
 
             // Add playable
-            PLAYABLE.add(hero);
+            PLAYABLE.add(enumHero);
         }
 
         // Global Stats Calculations
@@ -386,7 +390,16 @@ public enum Heroes implements Formatted {
      */
     @Nonnull
     public static List<Heroes> byArchetype(@Nonnull Archetype archetype) {
-        return Lists.newArrayList(BY_ARCHETYPE.computeIfAbsent(archetype, (s) -> Lists.newArrayList()));
+        return computeListCopy(BY_ARCHETYPE, archetype);
+    }
+
+    @Nonnull
+    public static List<Heroes> byGender(@Nonnull Gender gender) {
+        return computeListCopy(BY_GENDER, gender);
+    }
+
+    public static List<Heroes> byRace(@Nonnull Race race) {
+        return computeListCopy(BY_RACE, race);
     }
 
     /**
@@ -405,6 +418,14 @@ public enum Heroes implements Formatted {
         playable.removeIf(hero -> hero.isLocked(player));
 
         return CollectionUtils.randomElement(playable, DEFAULT_HERO);
+    }
+
+    private static <T> void mapHero(Heroes hero, Function<Hero, T> fn, Map<T, List<Heroes>> map) {
+        map.compute(fn.apply(hero.getHero()), Compute.listAdd(hero));
+    }
+
+    private static <T> List<Heroes> computeListCopy(Map<T, List<Heroes>> map, T t) {
+        return Lists.newArrayList(map.computeIfAbsent(t, fn -> Lists.newArrayList()));
     }
 
 }

@@ -471,7 +471,7 @@ public final class CF {
             color = "&4&l";
         }
 
-        return color + "%.0f".formatted(tps);
+        return color + "%.1f".formatted(tps);
     }
 
     /**

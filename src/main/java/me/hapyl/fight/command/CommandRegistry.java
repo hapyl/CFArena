@@ -217,6 +217,8 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new LanguageCommand("language"));
         register(new GuessWhoCommand("guessWho"));
         register(new InviteCommand("invite"));
+        register(new EmojisCommand("emojis"));
+        register(new NpcCommand("npc"));
 
         // *=* Inner commands *=* //
 
@@ -2836,7 +2838,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
                     if (strings.length > 0) {
                         Chat.sendMessage(player, "&aApplying skin...");
-                        npc.setSkinAsync(strings[0]);
+                        npc.setSkin(strings[0]);
                         return;
                     }
 

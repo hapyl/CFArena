@@ -47,6 +47,7 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler<Engine
         super(handle, "Engineer");
 
         setArchetype(Archetype.STRATEGY);
+        setGender(Gender.MALE); // male? robot, idk
 
         setDescription("""
                 A Genius with 12 PHDs. He made all of his buildings himself. Though, he uses just two of those.

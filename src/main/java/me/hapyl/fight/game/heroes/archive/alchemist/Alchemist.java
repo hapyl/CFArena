@@ -49,7 +49,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
         super(handle, "Alchemist");
 
         setArchetype(Archetype.STRATEGY);
-        setSex(Gender.FEMALE);
+        setGender(Gender.FEMALE);
 
         setDescription(
                 "An alchemist who was deceived by the creation of the abyss."

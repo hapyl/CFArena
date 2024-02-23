@@ -49,6 +49,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
 
         setArchetype(Archetype.MAGIC);
         setAffiliation(Affiliation.THE_WITHERS);
+        setGender(Gender.MALE);
 
         setDescription("A mage who was cursed by the &8&l&oDark Magic&8&o, but even it couldn't kill him...");
         setItem("e6ca63569e8728722ecc4d12020e42f086830e34e82db55cf5c8ecd51c8c8c29");

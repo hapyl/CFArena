@@ -34,6 +34,7 @@ public class Shaman extends Hero implements PlayerDataHandler<ShamanData>, UICom
 
         setAffiliation(Affiliation.THE_JUNGLE);
         setArchetype(Archetype.SUPPORT);
+        setGender(Gender.MALE);
 
         setDescription("""
                 An orc from the jungle. Always rumbles about something.
@@ -110,7 +111,7 @@ public class Shaman extends Hero implements PlayerDataHandler<ShamanData>, UICom
 
             final double damageIncrease = 1 + overhealCapped * damageIncreasePerOverheal;
 
-            ev.setDamageMultiplier(damageIncrease);
+            ev.multiplyDamage(damageIncrease);
             data.decreaseOverheal(overhealCapped);
 
             // Spawn display to notify that the damage is increased

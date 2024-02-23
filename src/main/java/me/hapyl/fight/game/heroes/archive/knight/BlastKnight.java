@@ -52,6 +52,7 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Pla
 
         setArchetype(Archetype.SUPPORT);
         setAffiliation(Affiliation.KINGDOM);
+        setGender(Gender.MALE);
 
         setDescription("A royal knight with high-end technology gadgets.");
         setItem("f6eaa1fd9d2d49d06a894798d3b145d3ae4dcca038b7da718c7b83a66ef264f0");

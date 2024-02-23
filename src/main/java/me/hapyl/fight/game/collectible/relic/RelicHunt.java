@@ -194,6 +194,10 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
         return byId.size() == foundList.size();
     }
 
+    public int getTotalRelics() {
+        return byId.size();
+    }
+
     private void registerRelics() {
         // Trial
         registerRelic(1, new Relic(Type.EMERALD, -240, 62, 243).setBlockFace(BlockFace.NORTH_EAST));

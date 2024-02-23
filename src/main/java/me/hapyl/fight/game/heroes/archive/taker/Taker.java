@@ -5,10 +5,7 @@ import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.UltimateCallback;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -46,6 +43,7 @@ public class Taker extends Hero implements UIComponent, DisplayFieldProvider {
         super(handle, "Taker");
 
         setArchetype(Archetype.DAMAGE);
+        setGender(Gender.UNKNOWN);
 
         setDescription("""
                 Will take your life away!

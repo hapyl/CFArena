@@ -26,6 +26,7 @@ public class Freazly extends Hero {
         super(handle, "Frostbite");
 
         setArchetype(Archetype.HEXBANE);
+        setGender(Gender.UNKNOWN);
         setDescription("A very cold entity to the touch.");
         setItem("cad7486b5d20823d5c24cba1850a600a7744209899828b19ccf93f69f2187058");
 

@@ -100,13 +100,6 @@ public enum Settings implements EnumWrapper<Setting>, PlayerItemCreator {
     ////////
     // UI //
     ////////
-    SHOW_YOURSELF_AS_TEAMMATE(new Setting(
-            Material.PLAYER_HEAD,
-            "Show Yourself as a Teammate",
-            "Whenever you will see yourself as a teammate in a tab list.",
-            Category.UI
-    )),
-
     HIDE_UI(new Setting(
             Material.GLASS_PANE,
             "Hide Game UI",

@@ -25,6 +25,7 @@ import me.hapyl.fight.game.trial.TrialListener;
 import me.hapyl.fight.garbage.CFGarbageCollector;
 import me.hapyl.fight.notifier.Notifier;
 import me.hapyl.fight.npc.HumanManager;
+import me.hapyl.fight.npc.runtime.RuntimeNPCManager;
 import me.hapyl.fight.protocol.ArcaneMuteProtocol;
 import me.hapyl.fight.protocol.CameraProtocol;
 import me.hapyl.fight.protocol.DismountProtocol;
@@ -50,7 +51,8 @@ public class Main extends JavaPlugin {
     public static final String GAME_NAME = Color.GOLD.bold() +
             "\uD835\uDE72\uD835\uDE95\uD835\uDE8A\uD835\uDE9C\uD835\uDE9C\uD835\uDE8E\uD835\uDE9C \uD835\uDE75\uD835\uDE92\uD835\uDE90\uD835\uDE91\uD835\uDE9D";
 
-    public static VersionInfo versionInfo = new VersionInfo("&a&lA newer look.");
+    public static final VersionInfo versionInfo = new VersionInfo("&a&lA newer look.");
+    public static final String requireEternaVersion = "2.46.4";
 
     private static long start;
     private static Main plugin;
@@ -69,6 +71,7 @@ public class Main extends JavaPlugin {
     public ScriptManager scriptManager;
     public Translate translate;
     private CrateManager crateManager;
+    private RuntimeNPCManager npcManager;
 
     @Override
     public void onEnable() {
@@ -80,7 +83,7 @@ public class Main extends JavaPlugin {
         ProfanityFilter.instantiate(this);
 
         // Initiate API
-        new EternaAPI(this);
+        new EternaAPI(this, requireEternaVersion);
 
         // Write default config
         getConfig().options().copyDefaults(true);
@@ -106,6 +109,7 @@ public class Main extends JavaPlugin {
         crateManager = new CrateManager(this);
         scriptManager = new ScriptManager(this);
         translate = new Translate(this);
+        npcManager = new RuntimeNPCManager(this);
 
         //new LampGame(this);
 
@@ -155,6 +159,10 @@ public class Main extends JavaPlugin {
 
         // Initiate runtime tests
         new Test(this);
+    }
+
+    public RuntimeNPCManager getNpcManager() {
+        return npcManager;
     }
 
     @Override

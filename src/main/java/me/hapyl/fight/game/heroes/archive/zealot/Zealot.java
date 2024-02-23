@@ -52,6 +52,8 @@ public class Zealot extends Hero implements Listener, PlayerDataHandler<ZealotDa
 
         setArchetype(Archetype.DAMAGE);
         setAffiliation(Affiliation.SPACE);
+        setGender(Gender.MALE);
+        setRace(Race.ALIEN);
 
         setItem("131530db74bac84ad9e322280c56c4e0199fbe879883b76c9cf3fd8ff19cf025");
         setWeapon(new ZealotWeapon(this));

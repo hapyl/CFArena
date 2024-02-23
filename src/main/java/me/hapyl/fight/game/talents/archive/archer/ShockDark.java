@@ -101,6 +101,10 @@ public class ShockDark extends Talent implements Listener {
                 Geometry.drawSphere(location, sphereRings, explosionRadius, redColor::display);
 
                 Collect.nearbyEntities(location, explosionRadius).forEach(target -> {
+                    if (player.isTeammate(player)) {
+                        return;
+                    }
+
                     final double distance = target.getLocation().distance(location);
                     final double damage = distance <= 1 ? explosionMaxDamage : (explosionMaxDamage - (distance * 2));
 

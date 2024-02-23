@@ -511,7 +511,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         if (getHero().isUsingUltimate(this)) {
             final long durationLeft = getHero().getUltimateDurationLeft(this);
 
-
             return "&b&lIN USE &b(%s&b)".formatted(durationLeft < 0 ? "∞" : BukkitUtils.roundTick(Tick.fromMillis(durationLeft)) + "s");
         }
 

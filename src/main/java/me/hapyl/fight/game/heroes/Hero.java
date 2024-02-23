@@ -7,7 +7,6 @@ import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.annotate.PreferredReturnValue;
 import me.hapyl.fight.annotate.PreprocessingMethod;
 import me.hapyl.fight.database.collection.HeroStatsCollection;
-import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.GameElement;
@@ -73,6 +72,7 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
     private Affiliation affiliation;
     private Archetype archetype;
     private Gender sex;
+    private Race race;
     private String description;
     private ItemStack guiTexture;
     private Weapon weapon;
@@ -102,7 +102,8 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
         this.skin = null;
         this.friendship = new HeroFriendship(this);
         this.talentsMapped = Maps.newHashMap();
-        this.sex = Gender.MALE;
+        this.sex = Gender.UNKNOWN;
+        this.race = Race.UNKNOWN;
 
         // Map talents
         mapTalent(HotbarSlots.TALENT_1);
@@ -124,8 +125,17 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
         return sex;
     }
 
-    public void setSex(@Nonnull Gender sex) {
+    public void setGender(@Nonnull Gender sex) {
         this.sex = sex;
+    }
+
+    @Nonnull
+    public Race getRace() {
+        return race;
+    }
+
+    public void setRace(@Nonnull Race race) {
+        this.race = race;
     }
 
     @Nonnull
@@ -636,6 +646,15 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
         return this.ultimate;
     }
 
+    /**
+     * Sets this hero's weapon.
+     *
+     * @param ultimate - New weapon.
+     */
+    protected void setUltimate(UltimateTalent ultimate) {
+        this.ultimate = ultimate;
+    }
+
     @Nonnull
     public PlayerRating getAverageRating() {
         final PlayerRating rating = stats.getAverageRating();
@@ -645,15 +664,6 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
 
     public int getActiveTalentsCount() {
         return talentsMapped.size();
-    }
-
-    /**
-     * Sets this hero's weapon.
-     *
-     * @param ultimate - New weapon.
-     */
-    protected void setUltimate(UltimateTalent ultimate) {
-        this.ultimate = ultimate;
     }
 
     /**

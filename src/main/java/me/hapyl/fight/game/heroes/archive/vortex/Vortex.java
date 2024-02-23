@@ -3,10 +3,7 @@ package me.hapyl.fight.game.heroes.archive.vortex;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.UltimateCallback;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -47,6 +44,7 @@ public class Vortex extends Hero implements UIComplexComponent {
         super(handle, "Vortex");
 
         setArchetype(Archetype.STRATEGY);
+        setGender(Gender.MALE);
 
         setDescription("A young boy with the power of speaking to stars...");
         setItem("2adc458dfabc20b8d587b0476280da2fb325fc616a5212784466a78b85fb7e4d");

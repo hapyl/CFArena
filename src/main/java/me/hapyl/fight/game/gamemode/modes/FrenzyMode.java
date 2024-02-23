@@ -47,7 +47,6 @@ public class FrenzyMode extends CFGameMode {
         final int playerLives = playerLivesMap.getOrDefault(player, -1);
         final LinkedValue2IntegerReverseMap<GamePlayer> reverse = LinkedValue2IntegerReverseMap.of(playerLivesMap);
 
-        builder.addLines("");
         builder.addLine("&4⚠ &c&lFrenzy: &8(&c3 ❤&8)", playerLives);
 
         reverse.forEach(3, (index, gamePlayer, live) -> {

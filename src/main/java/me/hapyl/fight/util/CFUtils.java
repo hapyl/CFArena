@@ -1044,4 +1044,24 @@ public class CFUtils {
         return builder.toString();
     }
 
+    public static String makeStringFractional(int current, int max) {
+        final float percent = (float) current / max;
+        final ChatColor color;
+
+        if (percent >= 1.0f) {
+            color = ChatColor.GREEN;
+        }
+        else if (percent >= 0.75f) {
+            color = ChatColor.GOLD;
+        }
+        else if (percent >= 0.5f) {
+            color = ChatColor.YELLOW;
+        }
+        else {
+            color = ChatColor.RED;
+        }
+
+        return "%s%s&7/&a%s".formatted(color, current, max);
+    }
+
 }

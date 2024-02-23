@@ -49,6 +49,7 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
 
         setArchetype(Archetype.RANGE);
         setAffiliation(Affiliation.MERCENARY);
+        setGender(Gender.MALE);
 
         setDescription("""
                 A mercenary sniper with a slow firing rifle.

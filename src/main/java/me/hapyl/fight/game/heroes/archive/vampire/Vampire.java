@@ -7,10 +7,7 @@ import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.DisabledHero;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.UltimateCallback;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -39,6 +36,8 @@ import java.util.List;
 import java.util.Set;
 
 public class Vampire extends Hero implements Listener, UIComplexComponent, DisabledHero {
+
+    // TODO (hapyl): 019, Feb 19: I actually want to bring this one back because VAMPIRES
 
     public final int MAX_BLOOD_STACKS = 10;
     /**
@@ -74,6 +73,9 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
         vampireData = PlayerMap.newMap();
 
         setItem("8d44756e0b4ece8d746296a3d5e297e1415f4ba17647ffe228385383d161a9");
+
+        setGender(Gender.MALE);
+        setRace(Race.VAMPIRE);
 
         final Equipment equipment = getEquipment();
         equipment.setChestPlate(Color.BLACK);
@@ -239,7 +241,8 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
             return;
         }
 
-        if (inventory.getItemInMainHand().getType() != BLOOD_MATERIAL || player.hasCooldown(BLOOD_MATERIAL) || isUsingUltimate(player)) {
+        if (inventory.getItemInMainHand().getType() != BLOOD_MATERIAL || player.hasCooldown(BLOOD_MATERIAL) ||
+                isUsingUltimate(player)) {
             return;
         }
 
