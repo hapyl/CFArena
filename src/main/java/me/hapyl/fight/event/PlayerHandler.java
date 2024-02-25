@@ -123,7 +123,7 @@ public class PlayerHandler implements Listener {
         final PlayerProfile profile = manager.getProfile(player);
 
         if (profile == null) {
-            throw new NullPointerException("Player somehow left with no profile???????");
+            return; // Don't care
         }
 
         // GuessWho

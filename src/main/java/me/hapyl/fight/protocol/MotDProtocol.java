@@ -68,7 +68,7 @@ public class MotDProtocol extends ProtocolListener {
 
     private String[] createMotD() {
         final String[] motD = new String[2];
-        motD[0] = makeMotD("&6&lᴄʟᴀssᴇs ғɪɢʜᴛ &7◆ &8v%s".formatted(CF.getVersionNoSnapshot()), CenterChat.CENTER_PX_MOTD);
+        motD[0] = makeMotD("&6&lᴄғ ᴀʀᴇɴᴀ &7◆ &8v%s".formatted(CF.getVersionNoSnapshot()), CenterChat.CENTER_PX_MOTD);
 
         final VersionInfo versionInfo = Main.versionInfo;
         final StringBuilder builder = new StringBuilder();
@@ -88,7 +88,7 @@ public class MotDProtocol extends ProtocolListener {
 
     private List<WrappedGameProfile> createHoverData() {
         return makeHoverData("""
-                &6ᴄʟᴀssᴇs ғɪɢʜᴛ
+                &6ᴄғ ᴀʀᴇɴᴀ
                 """);
     }
 

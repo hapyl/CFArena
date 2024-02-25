@@ -30,6 +30,7 @@ import me.hapyl.fight.protocol.*;
 import me.hapyl.fight.script.ScriptManager;
 import me.hapyl.fight.translate.Translate;
 import me.hapyl.spigotutils.EternaAPI;
+import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
@@ -47,7 +48,7 @@ import java.util.Objects;
 public class Main extends JavaPlugin {
 
     public static final String GAME_NAME = Color.GOLD.bold() +
-            "\uD835\uDE72\uD835\uDE95\uD835\uDE8A\uD835\uDE9C\uD835\uDE9C\uD835\uDE8E\uD835\uDE9C \uD835\uDE75\uD835\uDE92\uD835\uDE90\uD835\uDE91\uD835\uDE9D";
+            "&6&l\uD835\uDC9Eℱ \uD835\uDC9C\uD835\uDCC7ℯ\uD835\uDCC3\uD835\uDCB6";
 
     public static final VersionInfo versionInfo = new VersionInfo(
             new UpdateTopic("A newer look!", 232, 113, 44, 232, 138, 44),
@@ -146,7 +147,11 @@ public class Main extends JavaPlugin {
 
         // Update database in case of /reload
         for (final Player player : Bukkit.getOnlinePlayers()) {
-            manager.handlePlayer(player);
+            player.kickPlayer(Chat.format("""
+                    &4&lServer Reloaded!
+                    &cPlease re-connect to avoid bugs.
+                    """));
+            //manager.handlePlayer(player);
         }
 
         // Check for reload

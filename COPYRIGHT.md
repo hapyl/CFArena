@@ -1,6 +1,6 @@
-## ClassesFightArena, a Minecraft minigame plugin.
+## CFArena, a Minecraft minigame plugin.
 
-### Copyright (C) 2021-2023 hapyl
+### Copyright (C) 2021-2024 hapyl
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
