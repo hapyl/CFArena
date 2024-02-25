@@ -16,7 +16,7 @@ public enum Notification {
     HELP_COMMAND("&aLost? See the help screen:", "&e/help"),
     REPORT_BUGS(
             Notify.string("&aFound a bug? Report it here:"),
-            Notify.link("&e&lCLICK HERE", "https://github.com/hapyl/ClassesFightArena/issues")
+            Notify.link("&e&lCLICK HERE", "https://github.com/hapyl/CFArena/issues")
     ),
     //TRIAL("&aTry out the new Trial mode!", "&e/trial &c(it's broken wasn't me (real))"),
     ;

@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.profile;
 
 import com.google.common.collect.Queues;
+import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.database.rank.RankFormatter;
@@ -341,12 +342,13 @@ public class PlayerProfile {
     private void createTraceDump(RuntimeException exception) {
         final StackTraceElement[] stackTrace = exception.getStackTrace();
         final Deque<String> deque = Queues.newArrayDeque();
+        final String pluginName = Main.getPlugin().getDescription().getName();
 
         for (int i = stackTrace.length - 1; i >= 0; i--) {
             final StackTraceElement trace = stackTrace[i];
             final String classLoaderName = trace.getClassLoaderName();
 
-            if (classLoaderName == null || !classLoaderName.contains("ClassesFightArena.jar")) {
+            if (classLoaderName == null || !classLoaderName.contains(pluginName + ".jar")) {
                 continue;
             }
 

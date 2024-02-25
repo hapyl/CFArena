@@ -12,7 +12,7 @@ import java.util.List;
 // todo -> Cache and refresh like once an hour or something to not limit requests
 public class Contributors {
 
-    private static final String CONTRIBUTORS_URL = "https://api.github.com/repos/hapyl/ClassesFightArena/contributors";
+    private static final String CONTRIBUTORS_URL = "https://api.github.com/repos/hapyl/CFArena/contributors";
     private static final String USERNAME_URL = "https://api.github.com/users/";
 
     private static Contributor[] contributors;
