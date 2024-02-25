@@ -314,6 +314,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         final Player player = getEntity();
         boolean gameOver = false;
 
+        state = EntityState.DEAD;
         player.setGameMode(GameMode.SPECTATOR);
 
         playSound(Sound.ENTITY_BLAZE_DEATH, 2.0f);

@@ -2,6 +2,8 @@ package me.hapyl.fight.game.profile;
 
 import me.hapyl.fight.ux.Message;
 import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.chat.LazyEvent;
+import net.md_5.bungee.api.chat.ClickEvent;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -26,17 +28,22 @@ public class PlayerSocialConversation {
     }
 
     public void sendMessage(@Nonnull PlayerProfile to, @Nonnull String message) {
+        this.lastMessenger = to.getPlayer();
         to.getConversation().lastMessenger = profile.getPlayer();
 
-        final Player player = to.getPlayer();
-
-        Chat.sendMessage(player, formatTo.formatted(profile.getDisplay().getNamePrefixed(), message));
+        Chat.sendMessage(
+                profile.getPlayer(),
+                formatTo.formatted(to.getDisplay().getNamePrefixed(), message)
+        );
     }
 
     public void receiveMessage(@Nonnull PlayerProfile from, @Nonnull String message) {
         this.lastMessenger = from.getPlayer();
 
-        Chat.sendMessage(profile.getPlayer(), formatFrom.formatted(from.getDisplay().getNamePrefixed(), message));
+        Chat.sendMessage(
+                profile.getPlayer(),
+                formatFrom.formatted(from.getDisplay().getNamePrefixed(), message)
+        );
     }
 
     public static void talk(@Nonnull PlayerProfile sender, @Nonnull PlayerProfile receiver, @Nonnull String message) {

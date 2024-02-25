@@ -107,7 +107,7 @@ public abstract class CFGameMode {
 
     public abstract boolean testWinCondition(@Nonnull GameInstance instance);
 
-    public void formatScoreboard(Scoreboarder builder, GameInstance instance, GamePlayer player) {
+    public void formatScoreboard(@Nonnull Scoreboarder builder, @Nonnull GameInstance instance, @Nonnull GamePlayer player) {
     }
 
     public void onDeath(@Nonnull GameInstance instance, @Nonnull GamePlayer player) {

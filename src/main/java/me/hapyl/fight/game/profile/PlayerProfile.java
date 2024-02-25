@@ -360,7 +360,6 @@ public class PlayerProfile {
 
             if (classLoaderName == null
                     || !classLoaderName.contains(pluginName + ".jar")
-                    || !classLoaderName.contains("ClassesFightArena.jar") // bwc
             ) {
                 continue;
             }

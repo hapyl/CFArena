@@ -4,6 +4,8 @@ import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.util.Comparators;
+import me.hapyl.spigotutils.module.scoreboard.Scoreboarder;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
@@ -23,8 +25,30 @@ public class FreeForAll extends CFGameMode {
     }
 
     @Override
+    public void formatScoreboard(@Nonnull Scoreboarder builder, @Nonnull GameInstance instance, @Nonnull GamePlayer player) {
+        final List<GameTeam> teams = GameTeam.getTeams();
+
+        builder.addLine("&c⚔ &6&lFree for All");
+
+        teams.removeIf(team -> !team.hasAnyPlayers());
+        teams.sort(Comparators.comparingBool(GameTeam::isTeamAlive));
+
+        teams.forEach(team -> {
+            final String teamName = team.formatTeamName();
+
+            if (team.isTeamAlive()) {
+                builder.addLine(" &a● " + teamName);
+            }
+            else {
+                builder.addLine(" &c❌ %s &c&m%s".formatted(team.getFirstLetterCaps(), team.formatTeamMembers()));
+            }
+        });
+    }
+
+    @Override
     public boolean testWinCondition(@Nonnull GameInstance instance) {
         final List<GameTeam> teams = GameTeam.getTeams();
+
         teams.removeIf(team -> {
             final List<GamePlayer> players = team.getPlayers();
 

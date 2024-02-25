@@ -894,7 +894,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
 
     @Nonnull
     public String getHealthFormatted() {
-        return "&c&l%.0f".formatted(Math.ceil(health)) + " &c❤";
+        return "&c&l%.0f".formatted(Math.max(0, Math.ceil(health))) + " &c❤";
     }
 
     @Nullable

@@ -56,7 +56,7 @@ public class DeathmatchKills extends CFGameMode {
     }
 
     @Override
-    public void formatScoreboard(Scoreboarder builder, GameInstance instance, GamePlayer player) {
+    public void formatScoreboard(@Nonnull Scoreboarder builder, @Nonnull GameInstance instance, @Nonnull GamePlayer player) {
         Modes.DEATH_MATCH.getMode().formatScoreboard(builder, instance, player);
     }
 

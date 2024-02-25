@@ -58,6 +58,7 @@ public enum GameTeam implements Described, SmallCapsDescriber, Selectable, GameE
     };
 
     private static final List<GameTeam> validTeams = Lists.newArrayList();
+    private static final int AVERAGE_NICKNAME_LENGTH = 9;
     private static String[] strings;
 
     static {
@@ -318,6 +319,39 @@ public enum GameTeam implements Described, SmallCapsDescriber, Selectable, GameE
 
     public void glowEntity(@Nonnull DisplayEntity displayEntity) {
         displayEntity.getEntities().forEach(this::glowEntity);
+    }
+
+    @Nonnull
+    public String formatTeamName() {
+        return getFirstLetterCaps() + " " + ChatColor.WHITE + formatTeamMembers();
+    }
+
+    @Nonnull
+    public String formatTeamMembers() {
+        final StringBuilder builder = new StringBuilder();
+
+        int index = 0;
+        for (GamePlayer player : getPlayers()) {
+            final String playerName = player.getName();
+
+            if (index++ != 0) {
+                builder.append(", ");
+            }
+
+            builder.append(playerName.length() > AVERAGE_NICKNAME_LENGTH ? playerName.substring(0, AVERAGE_NICKNAME_LENGTH) : playerName);
+        }
+
+        return builder.toString();
+    }
+
+    public boolean hasAnyPlayers() {
+        for (Entry entry : members) {
+            if (entry.getGamePlayer() != null) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void sendMessage(Entry entry, String string, Object... format) {

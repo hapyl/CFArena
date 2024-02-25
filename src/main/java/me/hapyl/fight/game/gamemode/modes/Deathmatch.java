@@ -46,7 +46,7 @@ public class Deathmatch extends CFGameMode {
     }
 
     @Override
-    public void formatScoreboard(Scoreboarder builder, GameInstance instance, GamePlayer gamePlayer) {
+    public void formatScoreboard(@Nonnull Scoreboarder builder, @Nonnull GameInstance instance, @Nonnull GamePlayer gamePlayer) {
         final Player player = gamePlayer.getPlayer();
         final GameTeam playerTeam = gamePlayer.getTeam();
         final Map<GameTeam, Integer> topKills = getTopTeamKills(instance, SCOREBOARD_DISPLAY_LIMIT);
@@ -55,7 +55,7 @@ public class Deathmatch extends CFGameMode {
 
         final IntInt i = new IntInt(1);
         topKills.forEach((team, kills) -> {
-            builder.addLines(BFormat.format(" &e#&l{Position} &f{Name} &b🗡 &l{Kills}", i.get(), formatTeamName(team), kills));
+            builder.addLines(BFormat.format(" &e#&l{Position} &f{Name} &b🗡 &l{Kills}", i.get(), team.formatTeamName(), kills));
             i.increment();
         });
 
@@ -69,23 +69,6 @@ public class Deathmatch extends CFGameMode {
         super.displayWinners(result);
 
         // TODO (hapyl): 009, Feb 9: Add more data like TOP 5 yeah
-    }
-
-    public String formatTeamName(GameTeam team) {
-        final StringBuilder builder = new StringBuilder(team.getFirstLetterCaps()).append(" ").append(ChatColor.WHITE);
-
-        int index = 0;
-        for (GamePlayer player : team.getPlayers()) {
-            final String playerName = player.getName();
-
-            if (index++ != 0) {
-                builder.append(", ");
-            }
-
-            builder.append(playerName.length() > 6 ? playerName.substring(0, 6) : playerName);
-        }
-
-        return builder.toString();
     }
 
     public final LinkedHashMap<GameTeam, Integer> getTopTeamKills(@Nonnull IGameInstance instance, int limit) {
