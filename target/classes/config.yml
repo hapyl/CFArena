@@ -1,3 +1,0 @@
-database:
-  type: "PRODUCTION"
-  connection_link: "null"
