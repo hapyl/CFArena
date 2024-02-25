@@ -26,7 +26,7 @@ public abstract class PurchaseConfirmGUI extends PlayerGUI {
 
     private void updateInventory() {
         try {
-            final CurrencyEntry currency = PlayerDatabase.getDatabase(getPlayer()).getCurrency();
+            final CurrencyEntry currency = PlayerDatabase.getDatabase(getPlayer()).currencyEntry;
 
             setItem(13, item.createItem(getPlayer()).asIcon());
 

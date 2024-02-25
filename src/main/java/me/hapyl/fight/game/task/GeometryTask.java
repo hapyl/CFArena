@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.task;
 
 import me.hapyl.fight.game.Callback;
-import me.hapyl.fight.game.cosmetic.crate.CrateChest;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Timed;
 import org.bukkit.Location;

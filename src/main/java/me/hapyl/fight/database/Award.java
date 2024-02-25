@@ -48,8 +48,8 @@ public enum Award {
         }
 
         final PlayerDatabase playerDatabase = player.getDatabase();
-        final CurrencyEntry currency = playerDatabase.getCurrency();
-        final ExperienceEntry experience = playerDatabase.getExperienceEntry();
+        final CurrencyEntry currency = playerDatabase.currencyEntry;
+        final ExperienceEntry experience = playerDatabase.experienceEntry;
 
         currency.add(Currency.COINS, coins);
         experience.add(ExperienceEntry.Type.EXP, exp);

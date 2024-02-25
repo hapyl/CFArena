@@ -1,6 +1,7 @@
 package me.hapyl.fight.database;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.mongodb.client.MongoCollection;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.entry.*;
@@ -16,17 +17,15 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Logger;
 
-public sealed class PlayerDatabase permits OfflinePlayerDatabase {
+public sealed class PlayerDatabase implements Iterable<PlayerDatabaseEntry> permits OfflinePlayerDatabase {
 
     private static final Map<UUID, PlayerDatabase> UUID_DATABASE_MAP = Maps.newConcurrentMap();
 
-    ///////////////////
-    // ENTRIES START //
-    ///////////////////
+    // *=* Entries Start *=* //
+
     public final HeroEntry heroEntry;
     public final CurrencyEntry currencyEntry;
     public final StatisticEntry statisticEntry;
@@ -45,12 +44,16 @@ public sealed class PlayerDatabase permits OfflinePlayerDatabase {
     public final ArtifactEntry artifactEntry;
     public final RandomHeroEntry randomHeroEntry;
     public final GuessWhoEntry guessWhoEntry;
-    /////////////////
-    // ENTRIES END //
-    /////////////////
+    public final ChallengeEntry challengeEntry;
+
+    // *=* Entries End *=* //
 
     @Nonnull
     protected final OfflinePlayer player;
+
+    // This set is used to store entries, so they call be referenced by an "event"
+    private final Set<PlayerDatabaseEntry> entries;
+
     private final Database mongo;
     private final Document filter;
     private final UUID uuid;
@@ -62,40 +65,48 @@ public sealed class PlayerDatabase permits OfflinePlayerDatabase {
         this.player = Bukkit.getOfflinePlayer(uuid);
 
         this.filter = new Document("uuid", uuid.toString());
+        this.entries = Sets.newHashSet();
 
+        // Load the database
         this.load();
 
         // Load entries
-        this.currencyEntry = new CurrencyEntry(this);
-        this.statisticEntry = new StatisticEntry(this);
-        this.settingEntry = new SettingEntry(this);
-        this.experienceEntry = new ExperienceEntry(this);
-        this.cosmeticEntry = new CosmeticEntry(this);
-        this.achievementEntry = new AchievementEntry(this);
-        this.friendsEntry = new FriendsEntry(this);
-        this.collectibleEntry = new CollectibleEntry(this);
-        this.heroEntry = new HeroEntry(this);
-        this.dailyRewardEntry = new DailyRewardEntry(this);
-        this.crateEntry = new CrateEntry(this);
-        this.deliveryEntry = new DeliveryEntry(this);
-        this.hotbarEntry = new HotbarLoadoutEntry(this);
-        this.fastAccessEntry = new FastAccessEntry(this);
-        this.metadataEntry = new MetadataEntry(this);
-        this.artifactEntry = new ArtifactEntry(this);
-        this.randomHeroEntry = new RandomHeroEntry(this);
-        this.guessWhoEntry = new GuessWhoEntry(this);
+        this.currencyEntry = load(new CurrencyEntry(this));
+        this.statisticEntry = load(new StatisticEntry(this));
+        this.settingEntry = load(new SettingEntry(this));
+        this.experienceEntry = load(new ExperienceEntry(this));
+        this.cosmeticEntry = load(new CosmeticEntry(this));
+        this.achievementEntry = load(new AchievementEntry(this));
+        this.friendsEntry = load(new FriendsEntry(this));
+        this.collectibleEntry = load(new CollectibleEntry(this));
+        this.heroEntry = load(new HeroEntry(this));
+        this.dailyRewardEntry = load(new DailyRewardEntry(this));
+        this.crateEntry = load(new CrateEntry(this));
+        this.deliveryEntry = load(new DeliveryEntry(this));
+        this.hotbarEntry = load(new HotbarLoadoutEntry(this));
+        this.fastAccessEntry = load(new FastAccessEntry(this));
+        this.metadataEntry = load(new MetadataEntry(this));
+        this.artifactEntry = load(new ArtifactEntry(this));
+        this.randomHeroEntry = load(new RandomHeroEntry(this));
+        this.guessWhoEntry = load(new GuessWhoEntry(this));
+        this.challengeEntry = load(new ChallengeEntry(this));
+
+        // Call onLoad
+        entries.forEach(PlayerDatabaseEntry::onLoad);
     }
 
     PlayerDatabase(Player player) {
         this(player.getUniqueId());
     }
 
+    @Nonnull
     public Database getMongo() {
         return mongo;
     }
 
+    @Nonnull
     public Document getDocument() {
-        return document;
+        return Objects.requireNonNull(document, "Database has not yet been loaded!");
     }
 
     @Nonnull
@@ -108,40 +119,9 @@ public sealed class PlayerDatabase permits OfflinePlayerDatabase {
         return getName();
     }
 
+    @Nonnull
     public UUID getUuid() {
         return uuid;
-    }
-
-    public ExperienceEntry getExperienceEntry() {
-        return experienceEntry;
-    }
-
-    public SettingEntry getSettings() {
-        return settingEntry;
-    }
-
-    public StatisticEntry getStatistics() {
-        return statisticEntry;
-    }
-
-    public CurrencyEntry getCurrency() {
-        return currencyEntry;
-    }
-
-    public HeroEntry getHeroEntry() {
-        return heroEntry;
-    }
-
-    public CosmeticEntry getCosmetics() {
-        return cosmeticEntry;
-    }
-
-    public AchievementEntry getAchievementEntry() {
-        return achievementEntry;
-    }
-
-    public CollectibleEntry getCollectibleEntry() {
-        return collectibleEntry;
     }
 
     @Nonnull
@@ -149,6 +129,10 @@ public sealed class PlayerDatabase permits OfflinePlayerDatabase {
         final String rankString = document.get("rank", "DEFAULT");
 
         return Validate.getEnumValue(PlayerRank.class, rankString, PlayerRank.DEFAULT);
+    }
+
+    public void setRank(@Nonnull PlayerRank rank) {
+        document.put("rank", rank.name());
     }
 
     @Nonnull
@@ -160,10 +144,6 @@ public sealed class PlayerDatabase permits OfflinePlayerDatabase {
 
     public void setLanguage(@Nonnull Language language) {
         document.put("lang", language.name());
-    }
-
-    public void setRank(@Nonnull PlayerRank rank) {
-        document.put("rank", rank.name());
     }
 
     public <T> T getValue(@Nonnull String path, @Nullable T def) {
@@ -195,10 +175,15 @@ public sealed class PlayerDatabase permits OfflinePlayerDatabase {
         document.append("lastOnlineServer", CFUtils.getServerIp());
 
         try {
+            // Call onSave
+            for (PlayerDatabaseEntry entry : this) {
+                entry.onSave();
+            }
+
             final MongoCollection<Document> players = this.mongo.getPlayers();
             players.replaceOne(this.filter, this.document);
 
-            getLogger().info("Successfully saved database for %s.".formatted(playerName));
+            getLogger().info("Saved %s for %s!".formatted(getDatabaseName(), playerName));
         } catch (Exception e) {
             e.printStackTrace();
             getLogger().severe("An error occurred whilst trying to save database for %s.".formatted(playerName));
@@ -206,6 +191,10 @@ public sealed class PlayerDatabase permits OfflinePlayerDatabase {
     }
 
     public void load() {
+        if (document != null) {
+            throw new IllegalStateException("Database is already loaded!");
+        }
+
         final String playerName = player.getName();
 
         try {
@@ -226,11 +215,28 @@ public sealed class PlayerDatabase permits OfflinePlayerDatabase {
             // Update player name
             document.put("player_name", playerName);
 
-            getLogger().info("Successfully loaded %s for %s.".formatted(getClass().getSimpleName(), playerName));
+            getLogger().info("Loaded %s for %s!".formatted(getDatabaseName(), playerName));
         } catch (Exception error) {
             error.printStackTrace();
             getLogger().severe("An error occurred whilst trying to load a database for %s.".formatted(playerName));
         }
+    }
+
+    @Nonnull
+    public String getDatabaseName() {
+        return getClass().getSimpleName();
+    }
+
+    @Nonnull
+    @Override
+    public Iterator<PlayerDatabaseEntry> iterator() {
+        return entries.iterator();
+    }
+
+    private <T extends PlayerDatabaseEntry> T load(T t) {
+        entries.add(t);
+
+        return t;
     }
 
     private Logger getLogger() {

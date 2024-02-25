@@ -8,7 +8,7 @@ import me.hapyl.fight.fastaccess.FastAccessListener;
 import me.hapyl.fight.filter.ProfanityFilter;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.achievement.AchievementRegistry;
-import me.hapyl.fight.game.collectible.Collectibles;
+import me.hapyl.fight.game.collectible.relic.RelicHunt;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.CosmeticsListener;
 import me.hapyl.fight.game.cosmetic.crate.CrateManager;
@@ -26,10 +26,7 @@ import me.hapyl.fight.garbage.CFGarbageCollector;
 import me.hapyl.fight.notifier.Notifier;
 import me.hapyl.fight.npc.HumanManager;
 import me.hapyl.fight.npc.runtime.RuntimeNPCManager;
-import me.hapyl.fight.protocol.ArcaneMuteProtocol;
-import me.hapyl.fight.protocol.CameraProtocol;
-import me.hapyl.fight.protocol.DismountProtocol;
-import me.hapyl.fight.protocol.PlayerClickAtEntityProtocol;
+import me.hapyl.fight.protocol.*;
 import me.hapyl.fight.script.ScriptManager;
 import me.hapyl.fight.translate.Translate;
 import me.hapyl.spigotutils.EternaAPI;
@@ -45,31 +42,36 @@ import test.Test;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Objects;
 
 public class Main extends JavaPlugin {
 
     public static final String GAME_NAME = Color.GOLD.bold() +
             "\uD835\uDE72\uD835\uDE95\uD835\uDE8A\uD835\uDE9C\uD835\uDE9C\uD835\uDE8E\uD835\uDE9C \uD835\uDE75\uD835\uDE92\uD835\uDE90\uD835\uDE91\uD835\uDE9D";
 
-    public static final VersionInfo versionInfo = new VersionInfo("&a&lA newer look.");
-    public static final String requireEternaVersion = "2.46.4";
+    public static final VersionInfo versionInfo = new VersionInfo(
+            new UpdateTopic("A newer look!", 232, 113, 44, 232, 138, 44),
+            new UpdateTopic("Daily Bonds!", 35, 156, 22, 81, 201, 68)
+    );
+
+    public static final String requireEternaVersion = "2.46.6";
+    public static final String requireMinecraftVersion = "1.20.2";
 
     private static long start;
     private static Main plugin;
 
-    // FIXME (hapyl): 029, Jan 29: scary public non final fields 😳
-    public Manager manager;
-    public HumanManager humanManager;
-    public TaskList taskList;
-    public BoosterController boosters;
-    public Experience experience;
-    public Database database;
-    public Notifier notifier;
-    public CFParkourManager parkourManager;
-    public Collectibles collectibles;
-    public AchievementRegistry achievementRegistry;
-    public ScriptManager scriptManager;
-    public Translate translate;
+    private ScriptManager scriptManager;
+    private Translate translate;
+    private Manager manager;
+    private HumanManager humanManager;
+    private TaskList taskList;
+    private BoosterController boosters;
+    private Experience experience;
+    private Database database;
+    private Notifier notifier;
+    private CFParkourManager parkourManager;
+    private RelicHunt relicHunt;
+    private AchievementRegistry achievementRegistry;
     private CrateManager crateManager;
     private RuntimeNPCManager npcManager;
 
@@ -77,9 +79,10 @@ public class Main extends JavaPlugin {
     public void onEnable() {
         // Assign singleton & start time
         plugin = CF.plugin = this;
-
         start = System.currentTimeMillis();
 
+        // Who knows why profanity is the first
+        // thing initialized, but I'm not touching it
         ProfanityFilter.instantiate(this);
 
         // Initiate API
@@ -103,7 +106,7 @@ public class Main extends JavaPlugin {
         boosters = new BoosterController(this);
         notifier = new Notifier(this);
         parkourManager = new CFParkourManager(this);
-        collectibles = new Collectibles(this);
+        relicHunt = new RelicHunt(this);
         humanManager = new HumanManager(this);
         achievementRegistry = new AchievementRegistry(this);
         crateManager = new CrateManager(this);
@@ -161,10 +164,6 @@ public class Main extends JavaPlugin {
         new Test(this);
     }
 
-    public RuntimeNPCManager getNpcManager() {
-        return npcManager;
-    }
-
     @Override
     public void onDisable() {
         runSafe(() -> {
@@ -188,32 +187,76 @@ public class Main extends JavaPlugin {
         runSafe(this::saveConfig, "Config save.");
     }
 
+    // *=* Getters *=* //
+
+    @Nonnull
+    public RuntimeNPCManager getNpcManager() {
+        return npcManager;
+    }
+
+    @Nonnull
+    public ScriptManager getScriptManager() {
+        return scriptManager;
+    }
+
+    @Nonnull
     public Database getDatabase() {
         return database;
     }
 
+    @Nonnull
+    public Translate getTranslate() {
+        return translate;
+    }
+
+    @Nonnull
     public Experience getExperience() {
         return experience;
     }
 
+    @Nonnull
     public Manager getManager() {
         return manager;
     }
 
+    @Nonnull
     public TaskList getTaskList() {
         return taskList;
     }
 
+    @Nonnull
     public BoosterController getBoosters() {
         return boosters;
     }
 
-    public Collectibles getCollectibles() {
-        return collectibles;
+    @Nonnull
+    public RelicHunt getRelicHunt() {
+        return relicHunt;
     }
 
+    @Nonnull
     public AchievementRegistry getAchievementRegistry() {
         return achievementRegistry;
+    }
+
+    @Nonnull
+    public CrateManager getCrateManager() {
+        return crateManager;
+    }
+
+    @Nonnull
+    public HumanManager getHumanManager() {
+        return humanManager;
+    }
+
+    @Nonnull
+    public Notifier getNotifier() {
+        return notifier;
+    }
+
+    @Nonnull
+    public CFParkourManager getParkourManager() {
+        return parkourManager;
     }
 
     public void setConfigValue(@Nonnull String path, @Nullable Object value) {
@@ -230,10 +273,6 @@ public class Main extends JavaPlugin {
         }
 
         return enumValue;
-    }
-
-    public CrateManager getCrateManager() {
-        return crateManager;
     }
 
     private void registerEvents() {
@@ -268,13 +307,15 @@ public class Main extends JavaPlugin {
         new CandlebaneProtocol();
         new CameraProtocol();
         new PlayerClickAtEntityProtocol();
+        new MotDProtocol();
+        new PayloadProtocol();
         //new HandshakeProtocol();
         //new ConfusionPotionProtocol(); -> doesn't work as good as I thought :(
     }
 
-
+    @Nonnull
     public static Main getPlugin() {
-        return plugin;
+        return Objects.requireNonNull(plugin);
     }
 
     public static long getStartupTime() {

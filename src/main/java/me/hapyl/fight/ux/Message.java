@@ -26,7 +26,7 @@ public interface Message {
      * @param format  - Format.
      */
     static void info(@Nonnull CommandSender sender, @Nonnull String message, @Nullable Object... format) {
-        send(sender, Color.DEFAULT + message, format);
+        send(sender, Color.DEFAULT + message, colorFormat(Color.DEFAULT, format));
     }
 
     /**
@@ -37,7 +37,7 @@ public interface Message {
      * @param format  - Format.
      */
     static void success(@Nonnull CommandSender sender, @Nonnull String message, @Nullable Object... format) {
-        send(sender, Color.SUCCESS_DARKER + "✔ " + Color.SUCCESS + message, format);
+        send(sender, Color.SUCCESS_DARKER + "✔ " + Color.SUCCESS + message, colorFormat(Color.SUCCESS, format));
     }
 
     /**
@@ -48,7 +48,7 @@ public interface Message {
      * @param format  - Format.
      */
     static void error(@Nonnull CommandSender sender, @Nonnull String message, @Nullable Object... format) {
-        send(sender, Color.ERROR_DARKER + "✘ " + Color.ERROR + message, format);
+        send(sender, Color.ERROR_DARKER + "✘ " + Color.ERROR + message, colorFormat(Color.ERROR, format));
     }
 
     /**
@@ -59,7 +59,7 @@ public interface Message {
      * @param format  - Format.
      */
     static void warning(@Nonnull CommandSender sender, @Nonnull String message, @Nullable Object... format) {
-        send(sender, "&6[&l❗&6]&e " + message, format);
+        send(sender, "&6[&l❗&6]&e " + message, colorFormat(Color.YELLOW, format));
     }
 
     /**
@@ -88,6 +88,20 @@ public interface Message {
 
             send(online, STAFF_PREFIX + " &b" + string, format);
         });
+    }
+
+    private static Object[] colorFormat(Color color, Object... format) {
+        if (format == null) {
+            return null;
+        }
+
+        final String[] colored = new String[format.length];
+
+        for (int i = 0; i < format.length; i++) {
+            colored[i] = String.valueOf(format[i]) + color;
+        }
+
+        return colored;
     }
 
     private static void send(CommandSender sender, String message, Object... format) {

@@ -5,7 +5,7 @@ import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CrateEntry;
 import me.hapyl.fight.database.rank.PlayerRank;
-import me.hapyl.fight.game.cosmetic.crate.CrateChest;
+import me.hapyl.fight.game.cosmetic.crate.CrateLocation;
 import me.hapyl.fight.game.cosmetic.crate.CrateManager;
 import me.hapyl.fight.game.cosmetic.crate.Crates;
 import me.hapyl.fight.ux.Message;
@@ -28,7 +28,7 @@ public class CrateCommandCommand extends SimplePlayerCommand {
     protected void execute(Player player, String[] args) {
         if (args.length == 0) {
             final CrateManager manager = Main.getPlugin().getCrateManager();
-            final CrateChest closestCrate = manager.getClosest(player.getLocation());
+            final CrateLocation closestCrate = manager.getClosest(player.getLocation());
 
             if (closestCrate == null) {
                 Message.error(player, "There are no crate chests nearby!");

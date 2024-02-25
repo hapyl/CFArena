@@ -1,6 +1,6 @@
 package me.hapyl.fight.gui;
 
-import me.hapyl.fight.game.cosmetic.crate.CrateChest;
+import me.hapyl.fight.game.cosmetic.crate.CrateLocation;
 import me.hapyl.fight.game.cosmetic.crate.CrateLoot;
 import me.hapyl.fight.game.cosmetic.crate.Crates;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -13,9 +13,9 @@ import javax.annotation.Nonnull;
 public class CrateConfirmGUI extends ConfirmGUI {
 
     private final Crates crate;
-    private final CrateChest location;
+    private final CrateLocation location;
 
-    public CrateConfirmGUI(Player player, Crates crate, CrateChest location) {
+    public CrateConfirmGUI(Player player, Crates crate, CrateLocation location) {
         super(player, "YOU OWN EVERYTHING!!!");
 
         this.crate = crate;

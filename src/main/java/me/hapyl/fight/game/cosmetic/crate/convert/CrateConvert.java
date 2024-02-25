@@ -6,7 +6,7 @@ import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CrateEntry;
 import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.cosmetic.crate.CrateChest;
+import me.hapyl.fight.game.cosmetic.crate.CrateLocation;
 import me.hapyl.fight.game.cosmetic.crate.Crates;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Described;
@@ -87,7 +87,7 @@ public class CrateConvert implements Described {
             if (!canConvert(player)) {
                 // Only show the message if the first conversion and player does not have the items anymore.
                 if (converted == 0) {
-                    player.sendMessage(CrateChest.PREFIX + Color.ERROR + "You don't have the required items to convert!");
+                    player.sendMessage(CrateLocation.PREFIX + Color.ERROR + "You don't have the required items to convert!");
                 }
                 break;
             }
@@ -162,10 +162,10 @@ public class CrateConvert implements Described {
         final int converted = convert(player, times);
 
         if (converted == times) {
-            Chat.sendMessage(player, CrateChest.PREFIX + Color.GREEN + "Converted %s crates!", times);
+            Chat.sendMessage(player, CrateLocation.PREFIX + Color.GREEN + "Converted %s crates!", times);
         }
         else {
-            Chat.sendMessage(player, CrateChest.PREFIX + Color.ERROR + "Was able to convert %s out of %s crates!", converted, times);
+            Chat.sendMessage(player, CrateLocation.PREFIX + Color.ERROR + "Was able to convert %s out of %s crates!", converted, times);
         }
 
         // Fx

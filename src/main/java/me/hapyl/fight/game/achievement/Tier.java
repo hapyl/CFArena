@@ -30,7 +30,7 @@ public class Tier {
     }
 
     public void reward(Player player) {
-        PlayerDatabase.getDatabase(player).getCurrency().add(Currency.ACHIEVEMENT_POINT, getReward());
+        PlayerDatabase.getDatabase(player).currencyEntry.add(Currency.ACHIEVEMENT_POINT, getReward());
     }
 
     @Nonnull

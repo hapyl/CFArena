@@ -38,7 +38,7 @@ public class NpcCommand extends SimplePlayerAdminCommand {
         final HumanNPC npc = manager.getNpc(player);
 
         if (npc == null) {
-            Message.error(player, "You must have an NPC! &e/npc create");
+            Message.error(player, "You must have an NPC! &e/npcf create");
             return;
         }
 

@@ -7,6 +7,7 @@ import me.hapyl.fight.event.custom.PlayerPreconditionEvent;
 import me.hapyl.fight.event.custom.TalentUseEvent;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.achievement.Achievements;
+import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.cosmetic.EnumHandle;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.effect.archive.SlowingAuraEffect;
@@ -443,6 +444,9 @@ public abstract class Talent extends NonNullItemCreator
 
         // Progress achievement
         Achievements.USE_TALENTS.complete(player);
+
+        // Progress bond
+        ChallengeType.USE_TALENTS.progress(player);
 
         new TalentUseEvent(player, this).call();
     }

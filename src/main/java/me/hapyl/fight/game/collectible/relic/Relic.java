@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.collectible.relic;
 
 import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.collectible.BlockFaceInt;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.util.BlockLocation;
@@ -92,6 +93,9 @@ public class Relic {
         }
 
         PlayerDatabase.getDatabase(player).collectibleEntry.addFound(this);
+
+        // Progress bond
+        ChallengeType.COLLECT_RELIC.progress(player);
 
         // Fx
         Chat.sendMessage(player, "&d&l%s RELIC &aYou have found a relic!", getType());

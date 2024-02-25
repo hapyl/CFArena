@@ -20,7 +20,7 @@ public class GlobalConfigCommand extends CFCommand {
     }
 
     @Override
-    protected void execute(Player player, String[] args, PlayerRank rank) {
+    protected void execute(@Nonnull Player player, @Nonnull String[] args, @Nonnull PlayerRank rank) {
         // globalconfig (value) (enable/disable)
 
         final Configuration configuration = getArgument(args, 0).toEnum(Configuration.class);

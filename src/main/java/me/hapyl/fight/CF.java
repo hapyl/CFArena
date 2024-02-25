@@ -430,11 +430,6 @@ public final class CF {
         return getVersion().replace("-SNAPSHOT", "");
     }
 
-    @Nonnull
-    public static String getVersionTopic() {
-        return Main.versionInfo.getUpdateTopic();
-    }
-
     /**
      * Gets the server's most recent tps.
      *

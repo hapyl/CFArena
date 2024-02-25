@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.parkour;
 
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.parkour.*;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -183,6 +184,9 @@ public class CFParkour extends Parkour implements ParkourHandler {
                 );
             }
         }
+
+        // Progress bond
+        ChallengeType.COMPLETE_PARKOUR.progress(player);
 
         return null;
     }

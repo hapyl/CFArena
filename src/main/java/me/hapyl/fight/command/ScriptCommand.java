@@ -16,7 +16,7 @@ public class ScriptCommand extends SimpleAdminCommand {
     @Override
     protected void execute(CommandSender sender, String[] args) {
         final String argument = getArgument(args, 0).toString();
-        final ScriptManager manager = Main.getPlugin().scriptManager;
+        final ScriptManager manager = Main.getPlugin().getScriptManager();
 
         // script reload
         // script run <script>

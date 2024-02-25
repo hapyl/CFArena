@@ -96,6 +96,11 @@ public class PlayerUI extends TickingGameTask {
             updateTablist();
         }
 
+        // Yes, I'm updating dailies here, so what?
+        if (modulo(100)) {
+            profile.getChallengeList().validateSameDay();
+        }
+
         // Yes, I know it's not really a UI thing,
         // but I ain't making another ticker just for
         // debugging items.
@@ -209,7 +214,7 @@ public class PlayerUI extends TickingGameTask {
 
         // Lobby
         else if (!manager.isGameInProgress()) {
-            final CurrencyEntry currency = playerDatabase.getCurrency();
+            final CurrencyEntry currency = playerDatabase.currencyEntry;
 
             builder.addLine("&2🧑 &a&lYou, %s:", player.getName());
             builder.addLines(
@@ -362,7 +367,6 @@ public class PlayerUI extends TickingGameTask {
                                        
                         %s
                         &8Version %s
-                                                
                         """.formatted(
                         CF.getName(),
                         CF.getVersionNoSnapshot()

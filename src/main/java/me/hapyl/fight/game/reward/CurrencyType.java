@@ -20,7 +20,7 @@ public enum CurrencyType {
                 return;
             }
 
-            final ExperienceEntry experienceEntry = CF.getDatabase(player).getExperienceEntry();
+            final ExperienceEntry experienceEntry = CF.getDatabase(player).experienceEntry;
             experienceEntry.add(ExperienceEntry.Type.EXP, value);
             experienceEntry.update();
         }
@@ -31,7 +31,7 @@ public enum CurrencyType {
                 return;
             }
 
-            final ExperienceEntry experienceEntry = CF.getDatabase(player).getExperienceEntry();
+            final ExperienceEntry experienceEntry = CF.getDatabase(player).experienceEntry;
             experienceEntry.remove(ExperienceEntry.Type.EXP, value);
             experienceEntry.update();
         }
@@ -54,7 +54,7 @@ public enum CurrencyType {
             return;
         }
 
-        CF.getDatabase(player).getCurrency().add(currency, value);
+        CF.getDatabase(player).currencyEntry.add(currency, value);
     }
 
     public void decrement(@Nonnull Player player, long value) {
@@ -62,7 +62,7 @@ public enum CurrencyType {
             return;
         }
 
-        CF.getDatabase(player).getCurrency().subtract(currency, value);
+        CF.getDatabase(player).currencyEntry.subtract(currency, value);
     }
 
     @Nonnull

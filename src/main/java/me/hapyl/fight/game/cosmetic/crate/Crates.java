@@ -184,7 +184,7 @@ public enum Crates implements WeightedDrop, EnumWrapper<Crate>, Product<Long> {
         player.getDatabase().crateEntry.addCrate(crate);
 
         // Display/Fx
-        player.sendMessage(CrateChest.PREFIX + Color.SUCCESS + "Received " + crate.getName() + "!");
+        player.sendMessage(CrateLocation.PREFIX + Color.SUCCESS + "Received " + crate.getName() + "!");
 
         player.playWorldSound(Sound.ENTITY_VILLAGER_YES, 0.75f);
         player.playWorldSound(Sound.BLOCK_WOOD_PLACE, 0.75f);

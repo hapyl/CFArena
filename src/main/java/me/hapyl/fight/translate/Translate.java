@@ -106,7 +106,7 @@ public class Translate extends DependencyInjector<Main> {
 
     @Nonnull
     public static Translate current() {
-        return Main.getPlugin().translate;
+        return Main.getPlugin().getTranslate();
     }
 
     private static Language getLanguage(CommandSender sender) {

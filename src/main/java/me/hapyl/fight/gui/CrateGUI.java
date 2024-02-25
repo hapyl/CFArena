@@ -17,6 +17,7 @@ import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.fight.ux.Message;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.player.PlayerLib;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -40,9 +41,9 @@ public class CrateGUI extends StyledPageGUI<Crates> {
 
     private final PlayerDatabase database;
     private final CrateEntry entry;
-    private final CrateChest location;
+    private final CrateLocation location;
 
-    public CrateGUI(Player player, CrateChest location) {
+    public CrateGUI(Player player, CrateLocation location) {
         super(player, "Crates", Size.FOUR);
 
         this.database = PlayerDatabase.getDatabase(player);
@@ -108,7 +109,16 @@ public class CrateGUI extends StyledPageGUI<Crates> {
 
         builder.addLore();
         builder.addLore(Color.BUTTON + "Click to open!");
-        builder.addLore(Color.BUTTON + "Right Click to preview!");
+
+        final PlayerRank playerRank = database.getRank();
+
+        if (crateCount >= CrateLocation.MIN_TO_OPEN_TEN && playerRank.isOrHigher(CrateLocation.RANK_TO_OPEN_TEN)) {
+            builder.addLore(
+                    Color.BUTTON + "Shift Click to open ten! &7(%s&7)".formatted(CrateLocation.RANK_TO_OPEN_TEN.getPrefixWithFallback())
+            );
+        }
+
+        builder.addLore(Color.BUTTON_DARKER + "Right Click to preview!");
 
         return builder.asIcon();
     }
@@ -116,17 +126,31 @@ public class CrateGUI extends StyledPageGUI<Crates> {
     @Override
     public void onClick(@Nonnull Player player, @Nonnull Crates enumCrate, int index, int page, @Nonnull ClickType clickType) {
         final Crate crate = enumCrate.getCrate();
+        final PlayerRank playerRank = database.getRank();
 
         if (clickType.isRightClick()) {
             new CrateDetailsGUI(player, crate, location);
+            return;
         }
-        else {
-            if (location.isOccupied()) {
-                player.closeInventory();
-                location.sendOccupiedMessage(player);
+
+        if (location.isOccupied()) {
+            player.closeInventory();
+            location.sendOccupiedMessage(player);
+            return;
+        }
+
+        // Open ten
+        if (clickType == ClickType.SHIFT_LEFT && playerRank.isOrHigher(CrateLocation.RANK_TO_OPEN_TEN)) {
+            final long crateCount = enumCrate.getProduct(database);
+
+            if (crateCount < CrateLocation.MIN_TO_OPEN_TEN) {
+                Message.error(player, "You don't have enough crates!");
                 return;
             }
 
+            location.openMultiple(player, entry, enumCrate, CrateLocation.MIN_TO_OPEN_TEN);
+        }
+        else {
             if (crate.isOwnAllItems(player)) {
                 new CrateConfirmGUI(player, enumCrate, location);
             }
@@ -141,6 +165,12 @@ public class CrateGUI extends StyledPageGUI<Crates> {
     @Override
     public void onUpdate() {
         final Currency dust = Currency.CHEST_DUST;
+
+        setHeader(new ItemBuilder(Material.TRAPPED_CHEST)
+                .setName("&aCrates")
+                .addLore()
+                .addSmartLore("Open crates!")
+                .asIcon());
 
         setCloseMenuItem(40);
         setPanelItem(
@@ -168,9 +198,9 @@ public class CrateGUI extends StyledPageGUI<Crates> {
 
         // Open all
         final PlayerRank playerRank = database.getRank();
-        final PlayerRank rankToOpenAll = CrateChest.RANK_TO_BULK_OPEN;
-        final long totalCrates = Math.min(entry.getTotalCratesCount(), CrateChest.MAX_BULK_OPEN);
-        final boolean canOpenAll = playerRank.isOrHigher(rankToOpenAll) && totalCrates >= CrateChest.MIN_BULK_OPEN;
+        final PlayerRank rankToOpenAll = CrateLocation.RANK_TO_BULK_OPEN;
+        final long totalCrates = Math.min(entry.getTotalCratesCount(), CrateLocation.MAX_BULK_OPEN);
+        final boolean canOpenAll = playerRank.isOrHigher(rankToOpenAll) && totalCrates >= CrateLocation.MIN_BULK_OPEN;
 
         setPanelItem(
                 5,
@@ -181,13 +211,15 @@ public class CrateGUI extends StyledPageGUI<Crates> {
                                 Too many crates?
                                 Can't handle the clicking?
                                 Need to open them all?
-                                
+                                                                
                                 &aNo problem!
                                 """)
                         .addLore()
                         .addLore("Requirements:")
-                        .addLore(" &8-&7 &aAt least 10 crates %s".formatted(CFUtils.checkmark(totalCrates >= CrateChest.MIN_BULK_OPEN)))
-                        .addLore(" &8-&7 %s or higher %s".formatted(
+                        .addLore(" &8-&7 &7At least &a%s&7 crates %s".formatted(
+                                CrateLocation.MIN_BULK_OPEN,
+                                CFUtils.checkmark(totalCrates >= CrateLocation.MIN_BULK_OPEN)))
+                        .addLore(" &8-&7 %s&7 or higher %s".formatted(
                                 rankToOpenAll.getFormat().prefix(),
                                 CFUtils.checkmark(playerRank.isOrHigher(rankToOpenAll))
                         ))

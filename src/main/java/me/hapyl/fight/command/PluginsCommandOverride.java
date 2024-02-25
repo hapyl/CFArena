@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class PluginsCommandOverride extends CFCommand {
@@ -36,7 +37,7 @@ public class PluginsCommandOverride extends CFCommand {
     }
 
     @Override
-    protected void execute(Player player, String[] args, PlayerRank rank) {
+    protected void execute(@Nonnull Player player, @Nonnull String[] args, @Nonnull PlayerRank rank) {
         Chat.sendMessage(player, "&aWe use a combination of public and custom plugins:");
 
         Chat.sendMessage(player, "&bCustom plugins:");

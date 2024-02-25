@@ -10,7 +10,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
@@ -54,15 +53,6 @@ public class CFParkourManager implements Listener {
             }
         }
 
-    }
-
-    @EventHandler
-    public void handlePlayerJoinEvent(PlayerJoinEvent ev) {
-        final Player player = ev.getPlayer();
-
-        for (ParkourCourse value : ParkourCourse.values()) {
-            value.getParkour().updateLeaderboardIfExists();
-        }
     }
 
 }

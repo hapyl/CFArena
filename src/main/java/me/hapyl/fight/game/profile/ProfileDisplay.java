@@ -36,8 +36,8 @@ public class ProfileDisplay {
         this.customName = player.getName();
 
         final PlayerDatabase database = profile.getDatabase();
-        this.cosmetics = database.getCosmetics();
-        this.level = database.getExperienceEntry().get(ExperienceEntry.Type.LEVEL); // FIXME (hapyl): 013, Feb 13: ?
+        this.cosmetics = database.cosmeticEntry;
+        this.level = database.experienceEntry.get(ExperienceEntry.Type.LEVEL); // FIXME (hapyl): 013, Feb 13: ?
         this.rank = database.getRank().getFormat();
         this.prefix = getPrefix();
     }

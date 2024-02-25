@@ -5,23 +5,27 @@ import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.cosmetic.crate.Crate;
-import me.hapyl.fight.game.cosmetic.crate.CrateChest;
+import me.hapyl.fight.game.cosmetic.crate.CrateLocation;
+import me.hapyl.fight.gui.styled.ReturnData;
+import me.hapyl.fight.gui.styled.Size;
+import me.hapyl.fight.gui.styled.StyledPageGUI;
 import me.hapyl.fight.util.Filter;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.inventory.gui.PlayerPageGUI;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-public class CrateDetailsGUI extends PlayerPageGUI<Cosmetics> {
+public class CrateDetailsGUI extends StyledPageGUI<Cosmetics> {
 
     private final Crate crate;
-    private final CrateChest location;
+    private final CrateLocation location;
     private final Filter<Cosmetics, Rarity> filter;
 
-    public CrateDetailsGUI(Player player, Crate crate, CrateChest location) {
-        super(player, crate.getName(), 5);
+    public CrateDetailsGUI(Player player, Crate crate, CrateLocation location) {
+        super(player, crate.getName(), Size.FOUR);
 
         this.crate = crate;
         this.location = location;
@@ -32,19 +36,24 @@ public class CrateDetailsGUI extends PlayerPageGUI<Cosmetics> {
             }
         };
 
-        update();
+        updateContents();
     }
 
-    private void update() {
-        setContents(filter.filter(crate.getContents().listAll()));
-        openInventory(1);
+    @Nullable
+    @Override
+    public ReturnData getReturnData() {
+        return ReturnData.of("Crates", player -> new CrateGUI(player, location));
     }
 
     @Override
-    public void postProcessInventory(@Nonnull Player player, int page) {
-        setArrowBack(40, "Crates", cl -> new CrateGUI(player, location));
+    public void onUpdate() {
+        setHeader(new ItemBuilder(Material.TRAPPED_CHEST)
+                .setName("Crate Preview")
+                .addLore()
+                .addSmartLore("Preview crate contents before opening it!")
+                .asIcon());
 
-        filter.setFilterItem(this, 39, (onClick, rarity) -> update());
+        filter.setFilterItem(this, 39, (onClick, rarity) -> updateContents());
     }
 
     @Nonnull
@@ -63,6 +72,11 @@ public class CrateDetailsGUI extends PlayerPageGUI<Cosmetics> {
                 : (Color.ERROR.color("❌ You don't own this item.")));
 
         return builder.asIcon();
+    }
+
+    private void updateContents() {
+        setContents(filter.filter(crate.getContents().listAll()));
+        openInventory(1);
     }
 
 }

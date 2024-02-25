@@ -61,20 +61,16 @@ public class CFUtils {
     public static final Pattern STRIP_COLOR_PATTERN = Pattern.compile("(?i)" + '&' + "[0-9A-FK-ORX]");
     public static final Object[] DISAMBIGUATE = new Object[] {};
     public static final double ANGLE_IN_RAD = 6.283185307179586d;
-
     private static final DecimalFormat TICK_FORMAT = new DecimalFormat("0.0");
     private static final Random RANDOM = new Random();
     private static final double ANCHOR_COMPENSATION = 0.61d;
-
     private static final Map<Tag<Material>, Double> anchorCompensationMap = Map.of(
             Tag.SLABS, 0.5d,
             Tag.WOOL_CARPETS, 0.075d // This does NOT include moss carpet because fuck you
     );
-
     private static final Set<Tag<Material>> softSolidTags = Set.of(
             Tag.WOOL_CARPETS, Tag.ALL_SIGNS
     );
-
     private static String SERVER_IP;
     private static List<EffectType> ALLOWED_EFFECTS;
 
@@ -1064,4 +1060,11 @@ public class CFUtils {
         return "%s%s&7/&a%s".formatted(color, current, max);
     }
 
+    public static <T> T[] requireVarArgs(@Nullable T[] varArgs) {
+        if (varArgs == null || varArgs.length == 0) {
+            throw new IllegalArgumentException("VarArgs must not be null nor empty!");
+        }
+
+        return varArgs;
+    }
 }

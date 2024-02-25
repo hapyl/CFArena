@@ -28,11 +28,11 @@ import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.translate.Language;
 import me.hapyl.fight.translate.Translatable;
 import me.hapyl.fight.translate.TranslatedDescribed;
-import me.hapyl.fight.util.SmallCaps;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.spigotutils.module.annotate.Super;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
+import me.hapyl.spigotutils.module.util.SmallCaps;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -881,7 +881,7 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
      * Returns this hero name in SmallCaps.
      *
      * @return this hero name in SmallCaps.
-     * @see me.hapyl.fight.util.SmallCaps
+     * @see SmallCaps
      */
     public String getNameSmallCaps() {
         return SmallCaps.format(getName());

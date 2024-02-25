@@ -53,7 +53,6 @@ import me.hapyl.fight.game.heroes.archive.witcher.WitcherClass;
 import me.hapyl.fight.game.heroes.archive.zealot.Zealot;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.util.Formatted;
-import me.hapyl.fight.util.SmallCaps;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
 import me.hapyl.spigotutils.module.util.Compute;
 import org.bukkit.entity.Player;
@@ -246,7 +245,7 @@ public enum Heroes implements Formatted {
      */
     public boolean isFavourite(Player player) {
         final PlayerProfile profile = PlayerProfile.getProfile(player);
-        return profile != null && profile.getDatabase().getHeroEntry().isFavourite(this);
+        return profile != null && profile.getDatabase().heroEntry.isFavourite(this);
     }
 
     /**
@@ -261,7 +260,7 @@ public enum Heroes implements Formatted {
             return;
         }
 
-        profile.getDatabase().getHeroEntry().setFavourite(this, flag);
+        profile.getDatabase().heroEntry.setFavourite(this, flag);
     }
 
     /**
@@ -273,8 +272,8 @@ public enum Heroes implements Formatted {
     public boolean isLocked(Player player) {
         final PlayerDatabase database = PlayerDatabase.getDatabase(player);
 
-        final boolean purchased = database.getHeroEntry().isPurchased(this);
-        final boolean hasLevel = database.getExperienceEntry().get(ExperienceEntry.Type.LEVEL) >= hero.getMinimumLevel();
+        final boolean purchased = database.heroEntry.isPurchased(this);
+        final boolean hasLevel = database.experienceEntry.get(ExperienceEntry.Type.LEVEL) >= hero.getMinimumLevel();
 
         return !purchased && !hasLevel;
     }
@@ -293,7 +292,7 @@ public enum Heroes implements Formatted {
      * Returns the name of the hero in small caps.
      *
      * @return name of the hero in small caps.
-     * @see SmallCaps
+     * @see me.hapyl.spigotutils.module.util.SmallCaps
      */
     public String getNameSmallCaps() {
         return hero.getNameSmallCaps();
@@ -358,7 +357,7 @@ public enum Heroes implements Formatted {
         }
 
         playable.sort((a, b) -> {
-            final HeroEntry heroEntry = profile.getDatabase().getHeroEntry();
+            final HeroEntry heroEntry = profile.getDatabase().heroEntry;
             return (heroEntry.isFavourite(b) ? 1 : 0) - (heroEntry.isFavourite(a) ? 1 : 0);
         });
         return playable;

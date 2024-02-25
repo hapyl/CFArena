@@ -50,8 +50,15 @@ public class RewardDisplay implements Iterable<String> {
     }
 
     // Fixme -> Mojang does not support custom hover colors???
-    public void sendMessage(@Nonnull Player player, @Nonnull String message, @Nullable Object... format) {
+    //  They do, the bukkit way of §x does not work I think idk
+    public void sendHoverMessage(@Nonnull Player player, @Nonnull String message, @Nullable Object... format) {
         Chat.sendHoverableMessage(player, ChatUtils.showText(strings.toArray(new String[0])), message, format);
+    }
+
+    public void sendMessage(@Nonnull Player player) {
+        for (String string : strings) {
+            Chat.sendMessage(player, " " + string);
+        }
     }
 
     @Nonnull

@@ -411,7 +411,7 @@ public final class Manager extends BukkitRunnable {
 
         // Notify operators
         if (player.isOp()) {
-            Chat.sendMessage(player, main.database.getDatabaseString());
+            Chat.sendMessage(player, main.getDatabase().getDatabaseString());
         }
 
         return profile;

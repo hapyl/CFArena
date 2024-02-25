@@ -2,7 +2,7 @@ package me.hapyl.fight.game.collectible.relic;
 
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.util.Described;
-import me.hapyl.fight.util.SmallCaps;
+import me.hapyl.spigotutils.module.util.SmallCaps;
 
 import javax.annotation.Nonnull;
 

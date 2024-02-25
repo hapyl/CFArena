@@ -108,7 +108,7 @@ public enum Currency implements FormattedEnum, Product<Long> {
             return "null";
         }
 
-        final CurrencyEntry currency = profile.getDatabase().getCurrency();
+        final CurrencyEntry currency = profile.getDatabase().currencyEntry;
         final String formatted = currency.getFormatted(this);
 
         return getPrefixColored() + " " + getColor() + formatted;

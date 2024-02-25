@@ -6,26 +6,48 @@ import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CollectibleEntry;
 import me.hapyl.fight.database.entry.DailyRewardEntry;
+import me.hapyl.fight.database.entry.StatisticEntry;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.challenge.Challenge;
+import me.hapyl.fight.game.challenge.PlayerChallenge;
+import me.hapyl.fight.game.challenge.PlayerChallengeList;
 import me.hapyl.fight.game.collectible.relic.RelicHunt;
+import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.experience.Experience;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.profile.PlayerProfile;
+import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.util.CFUtils;
+import me.hapyl.fight.util.TimeFormat;
 import me.hapyl.spigotutils.module.player.tablist.EntryList;
 import me.hapyl.spigotutils.module.player.tablist.EntryTexture;
 import me.hapyl.spigotutils.module.player.tablist.PingBars;
 import me.hapyl.spigotutils.module.player.tablist.Tablist;
+import me.hapyl.spigotutils.module.util.SmallCaps;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 public class PlayerTablist extends Tablist {
+
+    private final static Map<StatType, String> statTypeNameMapped = Map.of(
+            StatType.KILLS, SmallCaps.format("kills"),
+            StatType.ASSISTS, SmallCaps.format("assists"),
+            StatType.DEATHS, SmallCaps.format("deaths"),
+            StatType.DAMAGE_DEALT, SmallCaps.format("damage dealt"),
+            StatType.DAMAGE_TAKEN, SmallCaps.format("damage taken"),
+            StatType.ULTIMATE_USED, SmallCaps.format("ultimate used"),
+            StatType.WINS, SmallCaps.format("wins"),
+            StatType.PLAYED, SmallCaps.format("times played")
+    );
 
     private final PlayerUI ui;
     private final PlayerProfile profile;
@@ -44,16 +66,6 @@ public class PlayerTablist extends Tablist {
         updateSystem();
         updateTheEye();
         updateStatistics();
-    }
-
-    private void updateStatistics() {
-        final EntryList entryList = new EntryList();
-
-        entryList.append("&3&lsᴛᴀᴛɪsᴛɪᴄs", EntryTexture.DARK_AQUA);
-        entryList.append();
-        entryList.append("&8Nothing here yet!");
-
-        setColumn(3, entryList);
     }
 
     private void updatePlayers() {
@@ -114,7 +126,7 @@ public class PlayerTablist extends Tablist {
                 entryList.append("&4Error! Report this!");
             }
             else {
-                entryList.append("Game: &8" + game.hexCode(), EntryTexture.GOLD);
+                entryList.append("&6&lGame: &8" + game.hexCode(), EntryTexture.GOLD);
                 entryList.append(" &7ᴍᴀᴘ: &f" + mapName);
                 entryList.append(" &7ᴛɪᴍᴇ ʟᴇғᴛ: &f" + ui.getTimeLeftString(game));
                 entryList.append(" &7sᴛᴀᴛᴜs: &f" + gamePlayer.getStatusString());
@@ -142,7 +154,7 @@ public class PlayerTablist extends Tablist {
                 for (GamePlayer teammate : gamePlayers) {
                     entryList.append("&8- &a%s &7⁑ &c&l%s  &b%s".formatted(
                             teammate.getName(),
-                            teammate.getHealthFormatted(),
+                            teammate.getHealthFormatted(player),
                             teammate.getUltimateString(ChatColor.AQUA)
                     ));
 
@@ -161,7 +173,7 @@ public class PlayerTablist extends Tablist {
                         continue;
                     }
 
-                    entryList.append("&8- %s &7(%s)".formatted(profile.getDisplay().getNamePrefixed(), profile.getHero().getName()));
+                    entryList.append("&8- %s &8(%s&8)".formatted(profile.getDisplay().getNamePrefixed(), profile.getSelectedHeroString()));
                 }
             }
 
@@ -205,7 +217,7 @@ public class PlayerTablist extends Tablist {
             final String rewardPrefix = rewardRank.getPrefixWithFallback();
 
             if (!playerRank.isOrHigher(rewardRank)) {
-                entryList.append(" %s &cCannot claim!".formatted(rewardPrefix));
+                entryList.append(" %s &cIneligible".formatted(rewardPrefix));
                 continue;
             }
 
@@ -221,7 +233,7 @@ public class PlayerTablist extends Tablist {
         entryList.append();
         entryList.append("&b&lRelic Hunt:", EntryTexture.AQUA);
 
-        final RelicHunt relicHunt = Main.getPlugin().getCollectibles().getRelicHunt();
+        final RelicHunt relicHunt = Main.getPlugin().getRelicHunt();
         final GameMaps currentMap = manager.isGameInProgress() ? manager.getCurrentMap() : GameMaps.SPAWN;
 
         final int totalRelics = relicHunt.getTotalRelics();
@@ -233,7 +245,69 @@ public class PlayerTablist extends Tablist {
         entryList.append(" &7ᴛᴏᴛᴀʟ ғᴏᴜɴᴅ: %s".formatted(CFUtils.makeStringFractional(totalRelicsFound, totalRelics)));
         entryList.append(" &7ɪɴ ᴄᴜʀʀᴇɴᴛ ᴀʀᴇᴀ: %s".formatted(CFUtils.makeStringFractional(foundInZone, relicInZone)));
 
+        // Daily challenges
+        entryList.append();
+        entryList.append(
+                "&a&lDaily Bonds: &8(%s)".formatted(TimeFormat.format(Challenge.getTimeUntilReset(), TimeFormat.HOURS)),
+                EntryTexture.GREEN
+        );
+
+        final PlayerChallengeList challengeList = profile.getChallengeList();
+
+        int index = 0;
+        for (PlayerChallenge challenge : challengeList.getChallenges()) {
+            final boolean hasClaimedRewards = challenge.hasClaimedRewards();
+
+            if (index++ != 0) {
+                entryList.append();
+            }
+
+            entryList.append(" %s%s %s".formatted(
+                    hasClaimedRewards ? Color.SUCCESS : Color.WHITE,
+                    challenge.getName(),
+                    challenge.getProgressString()
+            ));
+            entryList.append("  &7&o%s".formatted(challenge.getDescription()));
+        }
+
         setColumn(2, entryList);
+    }
+
+    private void updateStatistics() {
+        final EntryList entryList = new EntryList();
+        final Heroes hero = profile.getHero();
+        final PlayerDatabase database = profile.getDatabase();
+        final StatisticEntry statisticEntry = database.statisticEntry;
+
+        entryList.append("    &3&lsᴛᴀᴛɪsᴛɪᴄs", EntryTexture.DARK_AQUA);
+        entryList.append();
+
+        // Global stats
+        forEachStats(statisticEntry::getStat, entryList);
+
+        entryList.append();
+        entryList.append("&b&l" + hero.getName(), EntryTexture.AQUA);
+
+        forEachStats(stat -> statisticEntry.getHeroStat(hero, stat), entryList);
+
+        setColumn(3, entryList);
+    }
+
+    private void forEachStats(Function<StatType, Double> fn, EntryList list) {
+
+        int index = 0;
+        for (StatType statType : StatType.values()) {
+            final String name = statTypeNameMapped.get(statType);
+
+            if (name == null) {
+                continue;
+            }
+
+            boolean mod = index++ % 2 == 0;
+
+            final Double value = fn.apply(statType);
+            list.append(" %s: &b%,.0f".formatted((mod ? Color.GRAY : Color.GRAYER) + name, value));
+        }
     }
 
 }

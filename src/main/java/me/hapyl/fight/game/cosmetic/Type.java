@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.cosmetic;
 
-import me.hapyl.fight.util.SmallCaps;
+import me.hapyl.spigotutils.module.util.SmallCaps;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;

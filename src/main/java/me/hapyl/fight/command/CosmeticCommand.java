@@ -69,7 +69,7 @@ public class CosmeticCommand extends SimplePlayerCommand {
                     }
 
                     final PlayerDatabase database = PlayerDatabase.getDatabase(target);
-                    final CosmeticEntry cosmetics = database.getCosmetics();
+                    final CosmeticEntry cosmetics = database.cosmeticEntry;
 
                     for (Cosmetics value : Cosmetics.values()) {
                         cosmetics.addOwned(value);
@@ -87,7 +87,7 @@ public class CosmeticCommand extends SimplePlayerCommand {
                     }
 
                     final PlayerDatabase database = PlayerDatabase.getDatabase(target);
-                    final CosmeticEntry cosmetics = database.getCosmetics();
+                    final CosmeticEntry cosmetics = database.cosmeticEntry;
 
                     for (Cosmetics value : Cosmetics.values()) {
                         cosmetics.removeOwned(value);
@@ -114,7 +114,7 @@ public class CosmeticCommand extends SimplePlayerCommand {
             }
 
             final PlayerDatabase playerDatabase = PlayerDatabase.getDatabase(target);
-            final CosmeticEntry cosmetics = playerDatabase.getCosmetics();
+            final CosmeticEntry cosmetics = playerDatabase.cosmeticEntry;
             final Type cosmeticType = cosmetic.getType();
 
             final String cosmeticName = cosmetic.name();

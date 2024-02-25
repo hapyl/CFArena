@@ -86,7 +86,7 @@ public class CosmeticGUI extends StyledPageGUI<Cosmetics> {
                             .addLore(Color.BUTTON + "Click to unequip!")
                             .asIcon(),
                     player -> {
-                        final CosmeticEntry entry = CF.getDatabase(player).getCosmetics();
+                        final CosmeticEntry entry = CF.getDatabase(player).cosmeticEntry;
 
                         entry.unsetSelected(type);
                         update();

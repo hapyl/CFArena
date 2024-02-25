@@ -45,7 +45,7 @@ public class AchievementCommand extends SimplePlayerAdminCommand {
             return;
         }
 
-        final AchievementEntry database = PlayerDatabase.getDatabase(target).getAchievementEntry();
+        final AchievementEntry database = PlayerDatabase.getDatabase(target).achievementEntry;
 
         switch (args[1].toLowerCase()) {
             case "give" -> {

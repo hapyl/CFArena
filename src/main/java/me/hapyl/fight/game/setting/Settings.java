@@ -236,7 +236,7 @@ public enum Settings implements EnumWrapper<Setting>, PlayerItemCreator {
             return;
         }
 
-        profile.getDatabase().getSettings().setValue(this, flag);
+        profile.getDatabase().settingEntry.setValue(this, flag);
 
         if (flag) {
             setting.onEnable(player);
@@ -249,7 +249,7 @@ public enum Settings implements EnumWrapper<Setting>, PlayerItemCreator {
     public boolean isEnabled(Player player) {
         final PlayerProfile profile = PlayerProfile.getProfile(player);
 
-        return profile != null && profile.getDatabase().getSettings().getValue(this);
+        return profile != null && profile.getDatabase().settingEntry.getValue(this);
     }
 
     public boolean isDisabled(Player player) {

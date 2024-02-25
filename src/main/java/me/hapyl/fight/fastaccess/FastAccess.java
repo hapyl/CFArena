@@ -1,5 +1,6 @@
 package me.hapyl.fight.fastaccess;
 
+import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.registry.EnumId;
 import me.hapyl.fight.util.MaterialCooldown;
@@ -10,8 +11,23 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
+import java.util.Map;
 
 public abstract class FastAccess extends EnumId implements MaterialCooldown, PlayerItemCreator {
+
+    static final Map<Integer, PlayerRank> slowRankMap = Map.of(
+            0, PlayerRank.DEFAULT,
+            1, PlayerRank.DEFAULT,
+            2, PlayerRank.DEFAULT,
+
+            3, PlayerRank.VIP,
+            4, PlayerRank.VIP,
+            5, PlayerRank.VIP,
+
+            6, PlayerRank.PREMIUM,
+            7, PlayerRank.PREMIUM,
+            8, PlayerRank.PREMIUM
+    );
 
     private final Category category;
 

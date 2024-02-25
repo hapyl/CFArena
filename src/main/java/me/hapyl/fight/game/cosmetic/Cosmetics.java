@@ -295,11 +295,11 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
     }
 
     public boolean isUnlocked(Player player) {
-        return PlayerDatabase.getDatabase(player).getCosmetics().hasCosmetic(this);
+        return PlayerDatabase.getDatabase(player).cosmeticEntry.hasCosmetic(this);
     }
 
     public void setUnlocked(Player player, boolean flag) {
-        final CosmeticEntry cosmeticEntry = PlayerDatabase.getDatabase(player).getCosmetics();
+        final CosmeticEntry cosmeticEntry = PlayerDatabase.getDatabase(player).cosmeticEntry;
 
         if (flag) {
             cosmeticEntry.addOwned(this);
@@ -311,15 +311,15 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
     }
 
     public boolean isSelected(Player player) {
-        return PlayerDatabase.getDatabase(player).getCosmetics().getSelected(getType()) == this;
+        return PlayerDatabase.getDatabase(player).cosmeticEntry.getSelected(getType()) == this;
     }
 
     public void select(Player player) {
-        PlayerDatabase.getDatabase(player).getCosmetics().setSelected(getType(), this);
+        PlayerDatabase.getDatabase(player).cosmeticEntry.setSelected(getType(), this);
     }
 
     public void deselect(Player player) {
-        PlayerDatabase.getDatabase(player).getCosmetics().unsetSelected(getType());
+        PlayerDatabase.getDatabase(player).cosmeticEntry.unsetSelected(getType());
     }
 
     @Nonnull
@@ -374,6 +374,6 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
 
     @Nullable
     public static Cosmetics getSelected(Player player, Type type) {
-        return PlayerDatabase.getDatabase(player).getCosmetics().getSelected(type);
+        return PlayerDatabase.getDatabase(player).cosmeticEntry.getSelected(type);
     }
 }
