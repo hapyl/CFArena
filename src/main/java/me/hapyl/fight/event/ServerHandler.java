@@ -1,15 +1,11 @@
 package me.hapyl.fight.event;
 
-import me.hapyl.fight.CF;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.chat.Gradient;
 import me.hapyl.spigotutils.module.chat.gradient.Interpolator;
 import me.hapyl.spigotutils.module.chat.gradient.Interpolators;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.server.ServerListPingEvent;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
@@ -31,26 +27,6 @@ public class ServerHandler implements Listener {
             };
 
     private String[] serverMessageOfTheDay;
-
-    @EventHandler()
-    public void handleServerList(ServerListPingEvent ev) {
-        if (serverMessageOfTheDay == null) {
-
-            serverMessageOfTheDay = new String[] {
-                    // Header
-                    Chat.format("                    &6&l%s            &8v%s".formatted(
-                            "CLASSES FIGHT",
-                            CF.getVersionNoSnapshot()
-                    )),
-
-                    // Footer
-                    centerText("&f&m●-●&7( %s &7)&f&m●-●&r".formatted(CF.getVersionTopic()))
-            };
-        }
-
-        ev.setMaxPlayers(Bukkit.getOnlinePlayers().size() + 1);
-        ev.setMotd(serverMessageOfTheDay[0] + "\n" + serverMessageOfTheDay[1]);
-    }
 
     public String centerText(String text) {
         return centerText(text, 50);

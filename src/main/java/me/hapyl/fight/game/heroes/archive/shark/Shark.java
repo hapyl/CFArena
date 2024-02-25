@@ -40,8 +40,8 @@ public class Shark extends Hero implements Listener {
     public Shark(@Nonnull Heroes handle) {
         super(handle, "Shark");
 
-        setArchetype(Archetype.STRATEGY);
-        setSex(Gender.FEMALE);
+        setArchetype(Archetype.DAMAGE);
+        setGender(Gender.FEMALE);
 
         setDescription("""
                 Strong warrior from the &3Depth of Waters&8&o... not well versed in on-land fights but don't let it touch the water, or you'll regret it.

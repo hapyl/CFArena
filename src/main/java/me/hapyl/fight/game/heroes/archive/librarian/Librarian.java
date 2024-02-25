@@ -61,6 +61,7 @@ public class Librarian extends Hero implements ComplexHero, Listener, DisabledHe
                 """);
 
         setItem(Material.BOOK);
+        setGender(Gender.MALE);
 
         talentMap.put(1, (LibrarianTalent) Talents.BLACK_HOLE.getTalent());
         talentMap.put(2, (LibrarianTalent) Talents.ENTITY_DARKNESS.getTalent());

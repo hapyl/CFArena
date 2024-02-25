@@ -1,14 +1,11 @@
 package me.hapyl.fight.game.heroes.archive.km;
 
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.DisabledHero;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.UltimateCallback;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.weapons.PackedParticle;
 import me.hapyl.fight.game.weapons.range.RangeWeapon;
 import org.bukkit.Material;
@@ -26,6 +23,8 @@ public class KillingMachine extends Hero implements DisabledHero {
 
         setDescription("A machine of war that was left for scrap, until now...");
         setItem("ec2f3d5d62fd9be6d654d314c123390abfa3698d3d87c1516a453a7ee4fcbf");
+
+        setRace(Race.CYBERNETIC);
 
         final Equipment equipment = this.getEquipment();
         equipment.setChestPlate(Material.CHAINMAIL_CHESTPLATE);

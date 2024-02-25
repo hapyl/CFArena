@@ -40,6 +40,7 @@ public class Hercules extends Hero implements Listener, PlayerElement, DisabledH
         super(handle, "Hercules");
 
         setArchetype(Archetype.MOBILITY);
+        setGender(Gender.MALE);
 
         setDescription(
                 "The greatest warrior of all time - \"The Great Hercules\" descended from heaven to punish the infidels! Super-Duper strong punches give you a chance to win."

@@ -35,7 +35,7 @@ public class CollectionGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
-        final CosmeticEntry cosmetics = PlayerDatabase.getDatabase(getPlayer()).getCosmetics();
+        final CosmeticEntry cosmetics = PlayerDatabase.getDatabase(getPlayer()).cosmeticEntry;
         final SmartComponent component = newSmartComponent();
 
         setHeader(StyledItem.ICON_COSMETICS.asIcon());

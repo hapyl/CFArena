@@ -214,6 +214,19 @@ public enum AttributeType implements Described, TranslatableToString {
         }
     },
 
+    // this is for 1.21 or whatever where you can change player's height HOLY SHIT MOJANG ADDED SOMETHING COOL?
+    HEIGHT(
+            new Attribute("Height", "Height doesn't matter. Or does it?")
+                    .setChar("\uD83D\uDCCF")
+                    .setColor(ChatColor.GREEN), 1.0d
+    ) {
+        @Override
+        public double getScale() {
+            return 180; // Steve is 1.8 blocks tall so that's scale duh
+        }
+    },
+
+
     ;
 
     private static final List<String> NAMES;

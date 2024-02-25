@@ -16,6 +16,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.InputStreamReader;
 
@@ -31,7 +32,7 @@ public class SkinCommand extends CFCommand {
     }
 
     @Override
-    protected void execute(Player player, String[] args, PlayerRank rank) {
+    protected void execute(@Nonnull Player player, @Nonnull String[] args, @Nonnull PlayerRank rank) {
         final String argument = getArgument(args, 0).toString();
 
         if (argument.equalsIgnoreCase("reset")) {

@@ -29,7 +29,7 @@ public class Vulnerable extends Effect implements Listener {
         final LivingGameEntity entity = ev.getEntity();
 
         if (entity.hasEffect(Effects.VULNERABLE)) {
-            ev.setDamageMultiplier(damageMultiplier);
+            ev.multiplyDamage(damageMultiplier);
         }
     }
 

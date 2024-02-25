@@ -100,13 +100,6 @@ public enum Settings implements EnumWrapper<Setting>, PlayerItemCreator {
     ////////
     // UI //
     ////////
-    SHOW_YOURSELF_AS_TEAMMATE(new Setting(
-            Material.PLAYER_HEAD,
-            "Show Yourself as a Teammate",
-            "Whenever you will see yourself as a teammate in a tab list.",
-            Category.UI
-    )),
-
     HIDE_UI(new Setting(
             Material.GLASS_PANE,
             "Hide Game UI",
@@ -243,7 +236,7 @@ public enum Settings implements EnumWrapper<Setting>, PlayerItemCreator {
             return;
         }
 
-        profile.getDatabase().getSettings().setValue(this, flag);
+        profile.getDatabase().settingEntry.setValue(this, flag);
 
         if (flag) {
             setting.onEnable(player);
@@ -256,7 +249,7 @@ public enum Settings implements EnumWrapper<Setting>, PlayerItemCreator {
     public boolean isEnabled(Player player) {
         final PlayerProfile profile = PlayerProfile.getProfile(player);
 
-        return profile != null && profile.getDatabase().getSettings().getValue(this);
+        return profile != null && profile.getDatabase().settingEntry.getValue(this);
     }
 
     public boolean isDisabled(Player player) {

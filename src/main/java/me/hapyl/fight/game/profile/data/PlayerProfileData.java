@@ -48,8 +48,6 @@ public class PlayerProfileData {
 
         final double similarity = StringSimilarity.similarity(message, lastMessage);
 
-        Debug.info("similarity=" + similarity);
-
         return similarity >= 0.8d;
     }
 }

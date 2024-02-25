@@ -8,6 +8,7 @@ import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
+import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.EntityData;
@@ -20,6 +21,7 @@ import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.loadout.HotbarLoadout;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.parkour.CFParkour;
+import me.hapyl.fight.game.parkour.ParkourCourse;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.stats.StatType;
@@ -108,6 +110,10 @@ public class PlayerHandler implements Listener {
         }
 
         LocalTeamManager.updateAll();
+
+        for (ParkourCourse value : ParkourCourse.values()) {
+            value.getParkour().updateLeaderboardIfExists();
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -317,6 +323,9 @@ public class PlayerHandler implements Listener {
 
         // Stats
         gamePlayer.getStats().addValue(StatType.ULTIMATE_USED, 1);
+
+        // Progress bond
+        ChallengeType.USE_ULTIMATES.progress(gamePlayer);
 
         if (hero.getUltimateDuration() > 0) {
             hero.setUsingUltimate(gamePlayer, true, hero.getUltimateDuration());

@@ -7,6 +7,7 @@ import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.database.entry.DailyRewardEntry;
 import me.hapyl.fight.game.cosmetic.crate.Crates;
+import me.hapyl.fight.util.TimeFormat;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Sound;
@@ -96,11 +97,7 @@ public class DailyReward extends CurrencyReward {
         final PlayerDatabase database = getDatabase(player);
         final long nextDaily = database.dailyRewardEntry.nextDaily(type);
 
-        long seconds = nextDaily / 1000;
-        long minutes = seconds / 60;
-        long hours = minutes / 60;
-
-        return String.format("%02dh %02dm %02ds", hours, minutes % 60, seconds % 60);
+        return TimeFormat.format(nextDaily);
     }
 
 }

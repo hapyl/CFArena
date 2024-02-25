@@ -1,4 +1,4 @@
-name: "ClassesFightArena"
+name: "CFArena"
 main: "me.hapyl.fight.Main"
 version: ${version}
 api-version: "1.20"
@@ -7,3 +7,9 @@ depend: [ "EternaAPI", "ProtocolLib" ]
 authors: [ "hapyl", "sdimas74", "DiDenPro", "DirtyEl" ]
 website: "hapyl.github.io/classes_fight"
 prefix: "CF"
+database: true
+
+# my shitty internet says thank you for this feature
+#  -h
+libraries:
+  - "org.mongodb:mongo-java-driver:3.12.12"

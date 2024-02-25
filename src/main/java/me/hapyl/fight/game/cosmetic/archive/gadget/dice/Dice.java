@@ -81,7 +81,7 @@ public class Dice extends Gadget {
     @Override
     public Response execute(@Nonnull Player player) {
         final PlayerDatabase database = CF.getDatabase(player);
-        final CurrencyEntry currency = database.getCurrency();
+        final CurrencyEntry currency = database.currencyEntry;
 
         if (!currency.has(Currency.COINS, rollCost)) {
             return Response.error("You don't have enough coins to roll this dice!");

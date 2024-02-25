@@ -1,8 +1,10 @@
 package me.hapyl.fight.fastaccess;
 
+import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.profile.PlayerProfile;
+import me.hapyl.fight.ux.Message;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.GameMode;
@@ -45,9 +47,19 @@ public class FastAccessListener implements Listener {
 
         final PlayerFastAccess playerFastAccess = profile.getFastAccess();
         final int index = rawSlot - 9;
-        final FastAccess fastAccess = playerFastAccess.getFastAccess(index);
+
+        final PlayerRank rankToAccess = FastAccess.slowRankMap.get(index);
+        final PlayerRank playerRank = profile.getRank();
 
         ev.setCancelled(true);
+
+        if (!playerRank.isOrHigher(rankToAccess)) {
+            Message.error(player, "You must be {} or higher to use this slot!", rankToAccess.getPrefixWithFallback());
+            PlayerLib.villagerNo(player);
+            return;
+        }
+
+        final FastAccess fastAccess = playerFastAccess.getFastAccess(index);
 
         if (fastAccess == null) {
             new FastAccessGUI(profile, index);

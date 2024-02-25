@@ -2,7 +2,7 @@ package me.hapyl.fight.game.cosmetic.crate.convert;
 
 import com.google.common.collect.Lists;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.cosmetic.crate.CrateChest;
+import me.hapyl.fight.game.cosmetic.crate.CrateLocation;
 import me.hapyl.fight.game.cosmetic.crate.Crates;
 import me.hapyl.fight.gui.CrateGUI;
 import me.hapyl.fight.gui.styled.ReturnData;
@@ -22,9 +22,9 @@ import java.util.List;
 public class CrateConvertGUI extends StyledPageGUI<CrateConverts> {
 
     private final ItemStack emptyItem = new ItemBuilder(Material.MINECART).setName("&cNothing to convert!").asIcon();
-    private final CrateChest location;
+    private final CrateLocation location;
 
-    public CrateConvertGUI(Player player, CrateChest location) {
+    public CrateConvertGUI(Player player, CrateLocation location) {
         super(player, "Convert Crates", Size.FOUR);
         this.location = location;
 
@@ -85,5 +85,10 @@ public class CrateConvertGUI extends StyledPageGUI<CrateConverts> {
 
     @Override
     public void onUpdate() {
+        setHeader(StyledTexture.CRATE_CONVERT.toBuilder()
+                .setName("Crate Conversion")
+                .addLore()
+                .addSmartLore("Convert lower rarity crates into a higher ones!")
+                .asIcon());
     }
 }

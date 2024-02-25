@@ -51,7 +51,7 @@ public class Deathmatch extends CFGameMode {
         final GameTeam playerTeam = gamePlayer.getTeam();
         final Map<GameTeam, Integer> topKills = getTopTeamKills(instance, SCOREBOARD_DISPLAY_LIMIT);
 
-        builder.addLines("", "&6⚔ &l%s: &8(&b🗡 &l%s&8)".formatted(getName(), playerTeam.data.kills));
+        builder.addLines("&6⚔ &l%s: &8(&b🗡 &l%s&8)".formatted(getName(), playerTeam.data.kills));
 
         final IntInt i = new IntInt(1);
         topKills.forEach((team, kills) -> {

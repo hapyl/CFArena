@@ -17,11 +17,12 @@ public abstract class CFCommand extends SimplePlayerCommand {
         this.rank = rank;
     }
 
-    protected abstract void execute(Player player, String[] args, PlayerRank rank);
+    protected abstract void execute(@Nonnull Player player, @Nonnull String[] args, @Nonnull PlayerRank rank);
 
     @Override
     protected final void execute(Player player, String[] args) {
         final PlayerRank playerRank = PlayerRank.getRank(player);
+
         if (!playerRank.isOrHigher(rank)) {
             Message.Error.NOT_PERMISSIONS_NEED_RANK.send(player, rank.getPrefixWithFallback());
             return;

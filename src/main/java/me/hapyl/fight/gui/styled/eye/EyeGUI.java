@@ -31,7 +31,7 @@ public class EyeGUI extends StyledGUI {
         setHeader(StyledTexture.THE_EYE.asIcon());
 
         setItem(20, StyledTexture.RELIC_HUNT.asButton("view relics"), RelicHuntGUI::new);
-        setItem(22, StyledTexture.QUESTION.asIcon());
+        setItem(22, StyledTexture.DAILY.asButton("view bonds"), DailyGUI::new);
         setItem(24, StyledTexture.QUESTION.asIcon());
 
         // Daily rewards

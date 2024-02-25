@@ -7,6 +7,7 @@ import me.hapyl.fight.database.rank.RankFormatter;
 import me.hapyl.fight.dialog.ActiveDialog;
 import me.hapyl.fight.fastaccess.PlayerFastAccess;
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.challenge.PlayerChallengeList;
 import me.hapyl.fight.game.delivery.Deliveries;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Hero;
@@ -22,6 +23,7 @@ import me.hapyl.fight.game.team.LocalTeamManager;
 import me.hapyl.fight.game.trial.Trial;
 import me.hapyl.fight.game.ui.PlayerUI;
 import me.hapyl.fight.infraction.PlayerInfraction;
+import me.hapyl.fight.ux.Message;
 import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -54,6 +56,7 @@ public class PlayerProfile {
     private HotbarLoadout hotbarLoadout;
     private PlayerFastAccess fastAccess;
     private LocalTeamManager localTeamManager;
+    private PlayerChallengeList challengeList;
 
     @Nullable
     private GamePlayer gamePlayer; // current game player
@@ -72,6 +75,11 @@ public class PlayerProfile {
         this.loaded = false;
         this.resourcePack = false;
         this.buildMode = false;
+    }
+
+    @Nonnull
+    public PlayerChallengeList getChallengeList() {
+        return challengeList;
     }
 
     public void newTrial() {
@@ -173,9 +181,10 @@ public class PlayerProfile {
         this.originalSkin = PlayerSkin.of(player);
         this.hotbarLoadout = new HotbarLoadout(this);
         this.fastAccess = new PlayerFastAccess(this);
+        this.challengeList = new PlayerChallengeList(this);
 
         // Load some data after init method
-        selectedHero = playerDatabase.getHeroEntry().getSelectedHero();
+        selectedHero = playerDatabase.heroEntry.getSelectedHero();
         GameTeam.addMemberIfNotInTeam(this);
         playerUI = new PlayerUI(this);
 
@@ -393,6 +402,12 @@ public class PlayerProfile {
 
         if (profile != null) {
             return profile;
+        }
+
+        if (player != null) {
+            player.closeInventory();
+
+            Message.error(player, "Error getting your profile, somehow? Report this!");
         }
 
         throw new NullPointerException("No profile.");

@@ -3,18 +3,14 @@ package me.hapyl.fight.command;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.ux.Message;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.command.SimpleAdminCommand;
-import me.hapyl.spigotutils.module.util.Validate;
-import org.bukkit.Bukkit;
+import me.hapyl.spigotutils.module.command.SimpleCommand;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import javax.annotation.Nullable;
+public class RankCommand extends SimpleCommand { // Don't make this CFCommand
 
-public class RankCommand extends SimpleAdminCommand {
-
-    private final static String ARGUMENT_SET_ADMIN = "-ConfirmSetAdmin";
+    private final static String ARGUMENT_SET_ADMIN = "-ConfirmMakeStaff";
+    private final static PlayerRank MIN_RANK = PlayerRank.ADMIN;
 
     public RankCommand(String name) {
         super(name);
@@ -24,44 +20,54 @@ public class RankCommand extends SimpleAdminCommand {
 
     @Override
     protected void execute(CommandSender sender, String[] args) {
-        if (!PlayerRank.getRank(sender).isOrHigher(PlayerRank.ADMIN)) {
-            Message.Error.NOT_PERMISSIONS_NEED_RANK.send(sender, PlayerRank.ADMIN);
+        final PlayerRank rank = PlayerRank.getRank(sender);
+
+        if (!rank.isOrHigher(MIN_RANK)) {
+            Message.Error.NOT_PERMISSIONS_NEED_RANK.send(sender, MIN_RANK.getPrefixWithFallback());
             return;
         }
 
         if (args.length == 0) {
-            Chat.sendMessage(sender, "&aYour rank is %s.", PlayerRank.getRank(sender));
+            Message.success(sender, "Your rank is {}!", rank.getPrefixWithFallback());
             return;
         }
 
-        final Player target = Bukkit.getPlayer(args[0]);
-        @Nullable final PlayerRank rankToSet = args.length >= 2 ? Validate.getEnumValue(PlayerRank.class, args[1].toUpperCase()) : null;
-        final boolean confirmSetAdmin = args.length >= 3 && args[2].equals(ARGUMENT_SET_ADMIN);
+        final Player target = getArgument(args, 0).toPlayer();
+        final PlayerRank rankToSet = getArgument(args, 1).toEnum(PlayerRank.class);
+        final boolean confirmedStaff = getArgument(args, 2).toString().equals(ARGUMENT_SET_ADMIN);
 
         if (target == null) {
-            Chat.sendMessage(sender, "&c%s is not online.", args[0]);
+            Message.error(sender, "%s is not online!", args[0]);
             return;
         }
 
-        final PlayerDatabase playerDatabase = PlayerDatabase.getDatabase(target);
+        final PlayerDatabase targetDatabase = PlayerDatabase.getDatabase(target);
 
         if (rankToSet == null) {
-            final PlayerRank playerRank = playerDatabase.getRank();
+            final PlayerRank playerRank = targetDatabase.getRank();
 
-            Chat.sendMessage(sender, "&a%s's rank is %s.", target.getName(), playerRank);
+            Message.info(sender, "{}'s rank is {}.", target.getName(), playerRank.getPrefixWithFallback());
             return;
         }
 
-        if (rankToSet.isStaff() && !confirmSetAdmin) {
-            Chat.sendMessage(sender, "&cNot making &e%s&c administrator without &e%s&c argument!", target.getName(), ARGUMENT_SET_ADMIN);
+        if (rankToSet.isStaff() && !confirmedStaff) {
+            Message.error(sender, "Not making &e{} staff without &e{} argument!", target.getName(), ARGUMENT_SET_ADMIN);
             return;
         }
 
-        playerDatabase.setRank(rankToSet);
+        final PlayerRank oldRank = targetDatabase.getRank();
+        targetDatabase.setRank(rankToSet);
 
-        Chat.sendMessage(sender, "&aSet %s's rank to %s.", target.getName(), rankToSet);
-        Chat.sendMessage(target, "&aYou are now %s.", rankToSet);
+        Message.success(sender, "Set &a{}'s rank to {}!", target.getName(), rankToSet.getPrefixWithFallback());
+        Message.success(target, "You are now {}!", rankToSet.getPrefixWithFallback());
 
+        Message.broadcastStaff(
+                "{} changed {} rank {} » {}.",
+                sender.getName(),
+                target.getName(),
+                oldRank.name().toLowerCase(),
+                rankToSet.name().toLowerCase()
+        );
     }
 
 }

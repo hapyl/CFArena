@@ -47,7 +47,7 @@ public class ScriptRunner extends GameTask {
 
         if (action == null) {
             synchronized (this) {
-                Main.getPlugin().scriptManager.abandon();
+                Main.getPlugin().getScriptManager().abandon();
                 Debug.info("done!");
             }
             return;

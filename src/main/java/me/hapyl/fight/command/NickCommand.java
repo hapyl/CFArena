@@ -9,6 +9,7 @@ import me.hapyl.fight.ux.Message;
 import me.hapyl.spigotutils.module.command.DisabledCommand;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -28,7 +29,7 @@ public class NickCommand extends CFCommand implements DisabledCommand {
     }
 
     @Override
-    protected void execute(Player player, String[] args, PlayerRank rank) {
+    protected void execute(@Nonnull Player player, @Nonnull String[] args, @Nonnull PlayerRank rank) {
         if (!ProfanityFilter.isInstantiated()) {
             Message.error(player, "This feature cannot be used yet, try again in a moment!");
             return;

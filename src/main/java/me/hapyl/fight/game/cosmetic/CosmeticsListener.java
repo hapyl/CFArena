@@ -25,7 +25,7 @@ public class CosmeticsListener implements Listener {
         }
 
         // Check if player has a contrail
-        final Cosmetics selectedContrail = PlayerDatabase.getDatabase(player).getCosmetics().getSelected(Type.CONTRAIL);
+        final Cosmetics selectedContrail = PlayerDatabase.getDatabase(player).cosmeticEntry.getSelected(Type.CONTRAIL);
         if (selectedContrail == null) {
             return;
         }

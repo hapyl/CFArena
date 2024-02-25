@@ -1,9 +1,11 @@
 package me.hapyl.fight.database.entry;
 
 import com.google.common.collect.Lists;
+import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.PlayerDatabaseEntry;
 import me.hapyl.fight.game.collectible.relic.Relic;
+import me.hapyl.fight.game.collectible.relic.RelicHunt;
 import me.hapyl.fight.game.collectible.relic.Type;
 
 import java.util.List;
@@ -15,13 +17,13 @@ public class CollectibleEntry extends PlayerDatabaseEntry {
         setPath("collectibles");
     }
 
-    /**
+    /*
      * collectibles: {
-     * found: [],
-     * claimed: {
-     * TYPE:
-     * },
-     * exchange: INT
+     *  found: [],
+     *  claimed: {
+     *      TYPE:
+     *  },
+     *  exchange: INT
      * },
      */
 
@@ -65,5 +67,13 @@ public class CollectibleEntry extends PlayerDatabaseEntry {
 
     public void incrementPermanentExchangeCount(int value) {
         setValue(getPath() + ".exchange", getPermanentExchangeCount() + value);
+    }
+
+    public boolean anyMissing() {
+        final RelicHunt relicHunt = Main.getPlugin().getRelicHunt();
+        final int totalRelics = relicHunt.getTotalRelics();
+        final int size = getFoundList().size();
+
+        return size < totalRelics;
     }
 }

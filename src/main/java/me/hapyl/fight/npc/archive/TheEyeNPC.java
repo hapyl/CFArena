@@ -5,6 +5,7 @@ import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.dialog.Dialog;
 import me.hapyl.fight.dialog.DialogEntry;
 import me.hapyl.fight.game.collectible.relic.RelicHunt;
+import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.gui.styled.eye.EyeGUI;
 import me.hapyl.fight.npc.PersistentNPC;
@@ -46,7 +47,7 @@ public class TheEyeNPC extends PersistentNPC implements Ticking {
         );
 
         holograms = new PlayerHologram(getLocation().add(0, 2.25, 0));
-        relicHunt = Main.getPlugin().getCollectibles().getRelicHunt();
+        relicHunt = Main.getPlugin().getRelicHunt();
 
         startTicking(0, 20).setShutdownAction(ShutdownAction.IGNORE);
     }
@@ -69,7 +70,13 @@ public class TheEyeNPC extends PersistentNPC implements Ticking {
     @Override
     public void tick() {
         holograms.setLines(player -> {
-            final PlayerDatabase database = PlayerDatabase.getDatabase(player);
+            final PlayerProfile profile = PlayerProfile.getProfile(player);
+
+            if (profile == null) {
+                return StringArray.empty();
+            }
+
+            final PlayerDatabase database = profile.getDatabase();
 
             if (!dialog.hasTalked(player)) {
                 return StringArray.of(blink("&e[&6&l❗&e]", "&6[&e&l❗&6]"));
@@ -78,6 +85,11 @@ public class TheEyeNPC extends PersistentNPC implements Ticking {
             // Check for daily reward
             if (database.dailyRewardEntry.canClaimAny()) {
                 return StringArray.of(blink("&6&lᴅᴀɪʟʏ ʀᴇᴡᴀʀᴅ ᴀᴠᴀɪʟᴀʙʟᴇ", "&e&lᴅᴀɪʟʏ ʀᴇᴡᴀʀᴅ ᴀᴠᴀɪʟᴀʙʟᴇ"));
+            }
+
+            // Check for bonds
+            if (profile.getChallengeList().hasCompleteAndNonClaimed()) {
+                return StringArray.of(blink("&6&lᴅᴀɪʟʏ ʙᴏɴᴅ ᴄᴏᴍᴘʟᴇᴛᴇ", "&e&lᴅᴀɪʟʏ ʙᴏɴᴅ ᴄᴏᴍᴘʟᴇᴛᴇ"));
             }
 
             return StringArray.empty();

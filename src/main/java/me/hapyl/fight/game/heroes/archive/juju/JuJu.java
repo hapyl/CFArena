@@ -60,6 +60,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
 
         setArchetype(Archetype.HEXBANE);
         setAffiliation(Affiliation.THE_JUNGLE);
+        setGender(Gender.MALE);
 
         setMinimumLevel(5);
 

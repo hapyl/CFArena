@@ -6,6 +6,7 @@ import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.color.ColorFlag;
 import me.hapyl.fight.game.color.GradientColor;
 import me.hapyl.fight.util.FormattedEnum;
+import org.bukkit.ChatColor;
 
 import javax.annotation.Nonnull;
 
@@ -135,5 +136,18 @@ public enum Rarity implements RandomDrop, FormattedEnum {
                 Currency.COINS.getColor(), coinCompensation, Currency.COINS.getPrefixColored(),
                 Currency.CHEST_DUST.getColor(), dustCompensation, Currency.CHEST_DUST.getPrefix()
         );
+    }
+
+    @Nonnull
+    public ChatColor getBukkitColor() {
+        return switch (this) {
+            case COMMON -> ChatColor.GRAY;
+            case UNCOMMON -> ChatColor.DARK_GREEN;
+            case RARE -> ChatColor.BLUE;
+            case EPIC -> ChatColor.LIGHT_PURPLE;
+            case LEGENDARY -> ChatColor.GOLD;
+            case MYTHIC -> ChatColor.GREEN;
+            default -> ChatColor.WHITE;
+        };
     }
 }

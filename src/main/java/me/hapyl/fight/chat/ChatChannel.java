@@ -2,6 +2,7 @@ package me.hapyl.fight.chat;
 
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.database.rank.RankFormatter;
+import me.hapyl.fight.emoji.Emojis;
 import me.hapyl.fight.filter.ProfanityFilter;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.profile.PlayerProfile;
@@ -174,9 +175,14 @@ public enum ChatChannel {
             message = message.substring(1).trim();
         }
 
-        if (!channel.allowProfanity() && !profile.getRank().isStaff()) {
+        final PlayerRank rank = profile.getRank();
+
+        if (!channel.allowProfanity() && !rank.isStaff()) {
             message = ProfanityFilter.replaceProfane(message);
         }
+
+        // Emoji
+        message = Emojis.replaceEmojis(message, rank);
 
         channel.processMessage(profile, message);
     }

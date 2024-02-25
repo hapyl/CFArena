@@ -211,7 +211,7 @@ public class AdminCommand extends SimplePlayerAdminCommand {
                     return;
                 }
 
-                final CurrencyEntry currencyEntry = CF.getDatabase(target).getCurrency();
+                final CurrencyEntry currencyEntry = CF.getDatabase(target).currencyEntry;
                 final String currencyFormatted = currency.getFormatted();
 
                 if (argument.equalsIgnoreCase("get")) {

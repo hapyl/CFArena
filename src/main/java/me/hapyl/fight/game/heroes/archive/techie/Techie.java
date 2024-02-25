@@ -59,6 +59,8 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
 
         setArchetype(Archetype.HEXBANE);
         setAffiliation(Affiliation.UNKNOWN);
+        setGender(Gender.UNKNOWN);
+        setRace(Race.CYBERNETIC);
 
         setDescription("""
                 Anonymous hacker, who hacked his way to the fight. Specializes in locking enemies abilities.

@@ -108,7 +108,7 @@ public abstract class Reward {
 
             @Override
             public void grant(@Nonnull Player player) {
-                final CosmeticEntry entry = PlayerDatabase.getDatabase(player).getCosmetics();
+                final CosmeticEntry entry = PlayerDatabase.getDatabase(player).cosmeticEntry;
 
                 for (Cosmetics cosmetic : cosmetics) {
                     entry.addOwned(cosmetic);
@@ -117,7 +117,7 @@ public abstract class Reward {
 
             @Override
             public void revoke(@Nonnull Player player) {
-                final CosmeticEntry entry = PlayerDatabase.getDatabase(player).getCosmetics();
+                final CosmeticEntry entry = PlayerDatabase.getDatabase(player).cosmeticEntry;
 
                 for (Cosmetics cosmetic : cosmetics) {
                     entry.removeOwned(cosmetic);

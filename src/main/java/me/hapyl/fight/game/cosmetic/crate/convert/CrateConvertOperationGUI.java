@@ -3,7 +3,7 @@ package me.hapyl.fight.game.cosmetic.crate.convert;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.cosmetic.crate.CrateChest;
+import me.hapyl.fight.game.cosmetic.crate.CrateLocation;
 import me.hapyl.fight.game.cosmetic.crate.Crates;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
@@ -34,10 +34,10 @@ public class CrateConvertOperationGUI extends StyledGUI {
     };
 
     private final CrateConverts converts;
-    private final CrateChest location;
+    private final CrateLocation location;
     private final PlayerDatabase database;
 
-    public CrateConvertOperationGUI(Player player, CrateConverts converts, CrateChest location) {
+    public CrateConvertOperationGUI(Player player, CrateConverts converts, CrateLocation location) {
         super(player, "Converting " + converts.getNameStripColor(), Size.FIVE);
 
         this.converts = converts;

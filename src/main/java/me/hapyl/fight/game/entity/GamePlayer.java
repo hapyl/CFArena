@@ -13,6 +13,7 @@ import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
+import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
@@ -269,7 +270,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         getProfile().resetGamePlayer();
 
         // Save stats
-        getDatabase().getStatistics().fromPlayerStatistic(hero, stats);
+        getDatabase().statisticEntry.fromPlayerStatistic(hero, stats);
         hero.getStats().fromPlayerStatistic(stats);
 
         // Reset pings
@@ -297,6 +298,9 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         }
 
         lastPlayerDamager.heal(lastPlayerDamager.getMaxHealth() * HEALING_AT_KILL);
+
+        // Progress Bond
+        ChallengeType.KILL_ENEMIES.progress(lastPlayerDamager);
     }
 
     @Override
@@ -511,7 +515,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         if (getHero().isUsingUltimate(this)) {
             final long durationLeft = getHero().getUltimateDurationLeft(this);
 
-
             return "&b&lIN USE &b(%s&b)".formatted(durationLeft < 0 ? "∞" : BukkitUtils.roundTick(Tick.fromMillis(durationLeft)) + "s");
         }
 
@@ -585,8 +588,13 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
     @Nonnull
     @Override
     public String getHealthFormatted() {
+        return getHealthFormatted(getPlayer());
+    }
+
+    @Nonnull
+    public String getHealthFormatted(@Nonnull Player player) {
         if (shield != null) {
-            if (Settings.SHOW_HEALTH_AND_SHIELD_SEPARATELY.isEnabled(getPlayer())) {
+            if (Settings.SHOW_HEALTH_AND_SHIELD_SEPARATELY.isEnabled(player)) {
                 return super.getHealthFormatted() + " " + SHIELD_FORMAT.formatted(shield.getCapacity());
             }
             else {

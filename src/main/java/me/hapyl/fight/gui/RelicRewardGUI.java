@@ -33,7 +33,7 @@ public class RelicRewardGUI extends StyledGUI {
 
     public RelicRewardGUI(Player player) {
         super(player, "Relic Rewards", Size.FIVE);
-        relicHunt = Main.getPlugin().getCollectibles().getRelicHunt();
+        relicHunt = Main.getPlugin().getRelicHunt();
 
         openInventory();
     }

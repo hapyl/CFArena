@@ -57,7 +57,7 @@ public class TutorialArcher extends Hero implements DisabledHero, Listener {
         final double health = entity.getHealth();
 
         if (damage - health <= healthThreshold) {
-            ev.setDamageMultiplier(0.0d);
+            ev.multiplyDamage(0.0d);
 
             if (health <= healthThreshold) {
                 entity.heal(healthThreshold - health + damage);

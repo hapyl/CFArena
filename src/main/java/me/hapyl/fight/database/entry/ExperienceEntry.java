@@ -72,7 +72,7 @@ public class ExperienceEntry extends PlayerDatabaseEntry {
                 final long exp = experience.getExp(player);
 
                 if (exp < expRequired) {
-                    PlayerDatabase.getDatabase(player).getExperienceEntry().set(EXP, expRequired);
+                    PlayerDatabase.getDatabase(player).experienceEntry.set(EXP, expRequired);
                 }
             }
         },

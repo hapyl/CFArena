@@ -1,19 +1,16 @@
 package me.hapyl.fight.game.heroes.archive.ender;
 
 import me.hapyl.fight.event.custom.EnderPearlTeleportEvent;
-import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.attribute.HeroAttributes;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.UltimateCallback;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.ender.EnderPassive;
 import me.hapyl.fight.game.talents.archive.ender.TransmissionBeacon;
+import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.TickingGameTask;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -28,6 +25,7 @@ public class Ender extends Hero implements Listener {
         super(handle, "Ender");
 
         setArchetype(Archetype.MOBILITY);
+        setGender(Gender.UNKNOWN);
 
         setItem("aacb357709d8cdf1cd9c9dbe313e7bab3276ae84234982e93e13839ab7cc5d16");
         setMinimumLevel(5);

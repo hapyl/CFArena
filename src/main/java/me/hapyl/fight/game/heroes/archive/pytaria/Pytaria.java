@@ -41,7 +41,7 @@ public class Pytaria extends Hero {
         super(handle, "Pytaria");
 
         setArchetype(Archetype.DAMAGE);
-        setSex(Gender.FEMALE);
+        setGender(Gender.FEMALE);
 
         setDescription(
                 "Beautiful, yet deadly opponent with addiction to flowers. She suffered all her youth, which, in the end, only made her stronger."

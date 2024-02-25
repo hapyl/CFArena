@@ -177,7 +177,7 @@ public class Achievement extends PatternId {
 
     public final boolean setCompleteCount(Player player, int completeCount) {
         final PlayerDatabase database = PlayerDatabase.getDatabase(player);
-        final AchievementEntry entry = database.getAchievementEntry();
+        final AchievementEntry entry = database.achievementEntry;
 
         entry.setCompleteCount(this, completeCount);
 
@@ -188,13 +188,13 @@ public class Achievement extends PatternId {
     }
 
     public void awardPlayer(Player player) {
-        final CurrencyEntry currency = PlayerDatabase.getDatabase(player).getCurrency();
+        final CurrencyEntry currency = PlayerDatabase.getDatabase(player).currencyEntry;
 
         currency.add(Currency.ACHIEVEMENT_POINT, pointReward);
     }
 
     public void markComplete(Player player) {
-        final AchievementEntry entry = PlayerDatabase.getDatabase(player).getAchievementEntry();
+        final AchievementEntry entry = PlayerDatabase.getDatabase(player).achievementEntry;
 
         onComplete(player);
         entry.setCompletedAt(this, System.currentTimeMillis());
@@ -229,7 +229,7 @@ public class Achievement extends PatternId {
      * @return true if a player has completed this achievement at least once.
      */
     public final boolean hasCompletedAtLeastOnce(Player player) {
-        return PlayerDatabase.getDatabase(player).getAchievementEntry().hasCompletedAtLeastOnce(this);
+        return PlayerDatabase.getDatabase(player).achievementEntry.hasCompletedAtLeastOnce(this);
     }
 
     /**
@@ -249,7 +249,7 @@ public class Achievement extends PatternId {
      * @return the number of times a player has completed this achievement.
      */
     public final int getCompleteCount(Player player) {
-        return PlayerDatabase.getDatabase(player).getAchievementEntry().getCompleteCount(this);
+        return PlayerDatabase.getDatabase(player).achievementEntry.getCompleteCount(this);
     }
 
     /**

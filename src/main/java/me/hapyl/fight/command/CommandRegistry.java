@@ -27,6 +27,8 @@ import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.Attributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.challenge.ChallengeType;
+import me.hapyl.fight.game.challenge.PlayerChallengeList;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.CosmeticCollection;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
@@ -217,8 +219,34 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new LanguageCommand("language"));
         register(new GuessWhoCommand("guessWho"));
         register(new InviteCommand("invite"));
+        register(new EmojisCommand("emojis"));
+        register(new NpcCommand("npcf"));
 
         // *=* Inner commands *=* //
+
+        register("resetBonds", (player, args) -> {
+            PlayerProfile.getProfileOrThrow(player).getChallengeList().resetBonds();
+        });
+
+        register("progressChallenge", (player, args) -> {
+            final ChallengeType type = getArgument(args, 0).toEnum(ChallengeType.class);
+
+            if (type == null) {
+                Chat.sendMessage(player, "&cInvalid type!");
+                return;
+            }
+
+            final PlayerProfile profile = PlayerProfile.getProfileOrThrow(player);
+            final PlayerChallengeList challengeList = profile.getChallengeList();
+
+            if (!challengeList.hasOfType(type)) {
+                Chat.sendMessage(player, "&cYou don't have %s challenge!".formatted(type));
+                return;
+            }
+
+            type.progress(profile);
+            Chat.sendMessage(player, "&aDone!");
+        });
 
         register("stopGuessWho", (player, args) -> {
             Manager.current().stopGuessWhoGame();
@@ -399,7 +427,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             if (argument.equalsIgnoreCase("reload")) {
                 final boolean isForce = getArgument(args, 1).toString().equalsIgnoreCase("-f");
 
-                Main.getPlugin().translate.load(isForce);
+                Main.getPlugin().getTranslate().load(isForce);
 
                 // Reset talent items
                 for (Talents enumTalent : Talents.values()) {
@@ -2312,7 +2340,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             private GameTask task;
 
             @Override
-            protected void execute(Player player, String[] args, PlayerRank rank) {
+            protected void execute(@Nonnull Player player, @Nonnull String[] args, @Nonnull PlayerRank rank) {
                 final double offsetY = getArgument(args, 0).toDouble(0.0d);
                 final Location absoluteLocation = player.getLocation();
                 final Location location = player.getLocation().subtract(0, offsetY, 0);
@@ -2362,7 +2390,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
         register(new CFCommand("testChestAnimation", PlayerRank.ADMIN) {
             @Override
-            protected void execute(Player player, String[] args, PlayerRank rank) {
+            protected void execute(@Nonnull Player player, @Nonnull String[] args, @Nonnull PlayerRank rank) {
                 // <command> (open, close)
                 final String argument = getArgument(args, 0).toString().toLowerCase();
 
@@ -2778,7 +2806,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
             @Override
             protected void execute(Player player, String[] args) {
-                final MongoCollection<Document> collection = getPlugin().database.getPlayers();
+                final MongoCollection<Document> collection = getPlugin().getDatabase().getPlayers();
                 document = collection.find(FILTER).first();
 
                 if (document == null) {
@@ -2836,7 +2864,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
                     if (strings.length > 0) {
                         Chat.sendMessage(player, "&aApplying skin...");
-                        npc.setSkinAsync(strings[0]);
+                        npc.setSkin(strings[0]);
                         return;
                     }
 
@@ -2996,9 +3024,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
     }
 
     private void register(String name, BiConsumer<Player, String[]> consumer) {
-        processor.registerCommand(new SimplePlayerAdminCommand(name) {
+        processor.registerCommand(new CFCommand(name, PlayerRank.ADMIN) {
             @Override
-            protected void execute(Player player, String[] args) {
+            protected void execute(@Nonnull Player player, @Nonnull String[] args, @Nonnull PlayerRank rank) {
                 consumer.accept(player, args);
             }
         });

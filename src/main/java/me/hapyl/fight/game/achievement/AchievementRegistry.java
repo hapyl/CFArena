@@ -147,6 +147,6 @@ public class AchievementRegistry extends DependencyInjector<Main> {
     }
 
     public static AchievementRegistry current() {
-        return Main.getPlugin().achievementRegistry;
+        return Main.getPlugin().getAchievementRegistry();
     }
 }

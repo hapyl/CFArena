@@ -2,7 +2,7 @@ package me.hapyl.fight.database.rank;
 
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.util.SmallCaps;
+import me.hapyl.spigotutils.module.util.SmallCaps;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;

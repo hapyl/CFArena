@@ -31,17 +31,17 @@ import java.util.List;
 public class CrateManager extends DependencyInjector<Main> implements Listener, Configurable {
 
     private static final double NEARBY_DISTANCE = 3.0d;
-    private final List<CrateChest> crateChests;
+    private final List<CrateLocation> crateLocations;
 
     public CrateManager(Main plugin) {
         super(plugin);
 
-        crateChests = Lists.newArrayList();
-        crateChests.add(new CrateChest(15, 63, -4).setYawPitch(90, 0));
-        crateChests.add(new CrateChest(15, 63, 4).setYawPitch(90, 0));
+        crateLocations = Lists.newArrayList();
+        crateLocations.add(new CrateLocation(15, 63, -4).setYawPitch(90, 0));
+        crateLocations.add(new CrateLocation(15, 63, 4).setYawPitch(90, 0));
 
         // Create Holograms
-        crateChests.forEach(location -> {
+        crateLocations.forEach(location -> {
             Bukkit.getOnlinePlayers().forEach(location.hologram::create);
         });
 
@@ -55,7 +55,7 @@ public class CrateManager extends DependencyInjector<Main> implements Listener, 
                 final double y = Math.sin(Math.toRadians(tick)) * 0.25;
                 final double z = Math.cos(theta);
 
-                crateChests.forEach(location -> {
+                crateLocations.forEach(location -> {
                     location.add(0, 0.5, 0);
 
                     super.offsetLocation(location, x, y, z, loc -> {
@@ -71,7 +71,7 @@ public class CrateManager extends DependencyInjector<Main> implements Listener, 
 
                 // Update holograms
                 if (tick % 20 == 0) {
-                    crateChests.forEach(location -> {
+                    crateLocations.forEach(location -> {
                         location.hologram.setLines(player -> {
                             final long totalCrates = PlayerDatabase.getDatabase(player).crateEntry.getTotalCratesCount();
 
@@ -92,11 +92,11 @@ public class CrateManager extends DependencyInjector<Main> implements Listener, 
     }
 
     public void createHologram(Player player) {
-        crateChests.forEach(location -> location.hologram.create(player));
+        crateLocations.forEach(location -> location.hologram.create(player));
     }
 
     public void removeHologram(Player player) {
-        crateChests.forEach(crate -> crate.hologram.destroy(player));
+        crateLocations.forEach(crate -> crate.hologram.destroy(player));
     }
 
     @EventHandler()
@@ -118,7 +118,7 @@ public class CrateManager extends DependencyInjector<Main> implements Listener, 
             return;
         }
 
-        for (CrateChest location : crateChests) {
+        for (CrateLocation location : crateLocations) {
             if (clickedBlock.getLocation().distance(location) <= NEARBY_DISTANCE) {
                 ev.setCancelled(true);
                 openCrate(player, location);
@@ -127,7 +127,7 @@ public class CrateManager extends DependencyInjector<Main> implements Listener, 
         }
     }
 
-    public void openCrate(Player player, CrateChest chest) {
+    public void openCrate(Player player, CrateLocation chest) {
         if (checkDisabledAndSendError(player)) {
             return;
         }
@@ -140,10 +140,10 @@ public class CrateManager extends DependencyInjector<Main> implements Listener, 
     }
 
     @Nullable
-    public CrateChest getClosest(Location location) {
-        for (CrateChest crateChest : crateChests) {
-            if (crateChest.distance(location) <= NEARBY_DISTANCE) {
-                return crateChest;
+    public CrateLocation getClosest(Location location) {
+        for (CrateLocation crateLocation : crateLocations) {
+            if (crateLocation.distance(location) <= NEARBY_DISTANCE) {
+                return crateLocation;
             }
         }
 

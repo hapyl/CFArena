@@ -1,5 +1,7 @@
 package me.hapyl.fight.database;
 
+import me.hapyl.fight.game.Event;
+import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.spigotutils.module.chat.Chat;
 import org.bson.Document;
 import org.bukkit.OfflinePlayer;
@@ -12,8 +14,8 @@ import java.util.function.Function;
 
 public class PlayerDatabaseEntry {
 
-    private final PlayerDatabase playerDatabase;
-    private String path;
+    protected final PlayerDatabase playerDatabase;
+    protected String path;
 
     public PlayerDatabaseEntry(PlayerDatabase playerDatabase) {
         this.playerDatabase = playerDatabase;
@@ -66,8 +68,22 @@ public class PlayerDatabaseEntry {
         }
     }
 
+    /**
+     * Called right before writing the document into the remote database.
+     */
+    @Event
+    public void onSave() {
+    }
+
+    /**
+     * Called once after loading all the entries.
+     */
+    @Event
+    public void onLoad() {
+    }
+
     @Nonnull
-    protected final String getPath() throws IllegalStateException {
+    protected String getPath() throws IllegalStateException {
         if (this.path == null) {
             throw new IllegalStateException("Path is not set for " + this.getClass().getSimpleName() + "!");
         }
@@ -94,7 +110,7 @@ public class PlayerDatabaseEntry {
      * @param def   - Default value.
      * @return - Value or def if not found.
      */
-    protected final <T> T getValue(@Nonnull String paths, @Nullable T def) {
+    protected <T> T getValue(@Nonnull String paths, @Nullable T def) {
         return MongoUtils.get(getDocument(), paths, def);
     }
 
@@ -125,7 +141,7 @@ public class PlayerDatabaseEntry {
      * @param paths - Path to value.
      * @param value - Value to set.
      */
-    protected final <T> void setValue(@Nonnull String paths, @Nullable T value) {
+    protected <T> void setValue(@Nonnull String paths, @Nullable T value) {
         MongoUtils.set(getDocument(), paths, value);
     }
 
@@ -212,4 +228,15 @@ public class PlayerDatabaseEntry {
         return fetchFromDocument(getPath(), function);
     }
 
+    /**
+     * Attempts to get player's {@link PlayerProfile}.
+     *
+     * @return a player profile if the player is online; null otherwise.
+     */
+    @Nullable
+    protected PlayerProfile getProfile() {
+        final Player player = getOnlinePlayer();
+
+        return player != null ? PlayerProfile.getProfile(player) : null;
+    }
 }

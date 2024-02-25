@@ -137,7 +137,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
         if (gameResult.isWinners()) {
             for (final GamePlayer player : gameResult.getWinners()) {
                 if (!player.isDead()) { // isDead to allow respawning players to have their cosmetics
-                    cosmetic = Nulls.notNullOr(player.getDatabase().getCosmetics().getSelected(Type.WIN), DEFAULT_WIN_COSMETIC);
+                    cosmetic = Nulls.notNullOr(player.getDatabase().cosmeticEntry.getSelected(Type.WIN), DEFAULT_WIN_COSMETIC);
                     location = player.getPlayer().getLocation();
                     winner = player.getPlayer();
                     break;

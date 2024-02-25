@@ -21,11 +21,11 @@ import javax.annotation.Nonnull;
 public abstract class CrateTask extends RangeTask {
 
     protected final CrateLoot loot;
-    protected final CrateChest chest;
+    protected final CrateLocation chest;
 
     private NonnullTuple<Item, Hologram> display;
 
-    public CrateTask(@Nonnull CrateLoot loot, @Nonnull CrateChest chest) {
+    public CrateTask(@Nonnull CrateLoot loot, @Nonnull CrateLocation chest) {
         this.loot = loot;
         this.chest = chest;
 

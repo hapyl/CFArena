@@ -255,7 +255,7 @@ public class Experience extends DependencyInjector<Main> {
     }
 
     public ExperienceEntry getDatabaseEntry(Player player) {
-        return Manager.current().getOrCreateProfile(player).getDatabase().getExperienceEntry();
+        return Manager.current().getOrCreateProfile(player).getDatabase().experienceEntry;
     }
 
     public long getLevel(Player player) {

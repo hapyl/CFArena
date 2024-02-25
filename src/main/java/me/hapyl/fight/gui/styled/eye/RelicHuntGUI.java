@@ -27,7 +27,7 @@ public class RelicHuntGUI extends StyledGUI {
     public RelicHuntGUI(Player player) {
         super(player, "Relic Hunt", Size.FIVE);
 
-        relicHunt = Main.getPlugin().getCollectibles().getRelicHunt();
+        relicHunt = Main.getPlugin().getRelicHunt();
 
         openInventory();
     }

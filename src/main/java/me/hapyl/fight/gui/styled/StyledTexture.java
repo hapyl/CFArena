@@ -47,6 +47,15 @@ public final class StyledTexture extends StyledItem {
             """
     );
 
+    public static final StyledTexture DAILY = new StyledTexture(
+            "86f1c9ecbcd49842dcbe9a3d85abba6479ea46bdd424dbd9d0ef54c28bf502d7",
+            "&aDaily Bonds", """
+            &7&o;;You and I have bonds.
+                        
+            &7&o;;Experience them to gain wisdom.
+            """
+    );
+
     public static final StyledTexture CHEST = new StyledTexture(
             "47ec41e0df8e170d97f9b9af1d65edad4979c78c89b01b180f389ee08a61af82"
     );

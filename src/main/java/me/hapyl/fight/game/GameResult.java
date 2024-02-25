@@ -3,6 +3,7 @@ package me.hapyl.fight.game;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.database.Award;
+import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.game.stats.StatType;
@@ -70,6 +71,9 @@ public class GameResult {
     public void awardWinners() {
         for (GamePlayer winner : winners) {
             Award.GAME_WON.award(winner);
+
+            // Progress bond
+            ChallengeType.WIN_GAMES.progress(winner);
         }
     }
 

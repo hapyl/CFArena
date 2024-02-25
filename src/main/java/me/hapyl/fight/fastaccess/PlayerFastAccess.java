@@ -1,6 +1,7 @@
 package me.hapyl.fight.fastaccess;
 
 import me.hapyl.fight.database.entry.FastAccessEntry;
+import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -51,16 +52,30 @@ public class PlayerFastAccess {
     private ItemStack getItem(int index) {
         final FastAccess fastAccess = this.fastAccess[index];
 
-        return fastAccess != null ? fastAccess.createAsButton(profile.getPlayer()) :
-                new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE)
-                        .setName("Quick Access " + (index + 1))
-                        .addLore()
-                        .addSmartLore("Quick access buttons can be used to quickly select a class, map or other actions.")
-                        .addLore()
-                        .addLore("&8Not configured!")
-                        .addLore()
-                        .addLore(Color.BUTTON + "Click to configure!")
-                        .asIcon();
+        if (fastAccess != null) {
+            return fastAccess.createAsButton(profile.getPlayer());
+        }
+
+        final ItemBuilder builder = new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE)
+                .setName("Quick Access " + (index + 1))
+                .addLore()
+                .addSmartLore("Quick access buttons can be used to quickly select a class, map or other actions.")
+                .addLore();
+
+        final PlayerRank rankToAccess = FastAccess.slowRankMap.get(index);
+        final PlayerRank playerRank = profile.getRank();
+
+        if (playerRank.isOrHigher(rankToAccess)) {
+            builder.addLore("&8Not configured!");
+            builder.addLore();
+            builder.addLore(Color.BUTTON + "Click to configure!");
+        }
+        else {
+            builder.addLore(Color.ERROR + "Cannot configure!");
+            builder.addLore(Color.ERROR + "This slot requires " + rankToAccess.getPrefix() + Color.ERROR + "!");
+        }
+
+        return builder.asIcon();
     }
 
 }

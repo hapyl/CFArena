@@ -2,6 +2,7 @@ package me.hapyl.fight.game.cosmetic.crate;
 
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.Currency;
+import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.ux.Message;
@@ -88,6 +89,9 @@ public final class CrateLoot {
             database.currencyEntry.add(Currency.COINS, randomItem.getRarity().getCoinCompensation());
             database.currencyEntry.add(Currency.CHEST_DUST, randomItem.getRarity().getDustCompensation());
         }
+
+        // Progress bond
+        ChallengeType.OPEN_CRATE.progress(player);
     }
 
 }

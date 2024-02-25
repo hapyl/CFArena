@@ -4,12 +4,12 @@ import me.hapyl.fight.util.Described;
 
 import javax.annotation.Nonnull;
 
+// TODO (hapyl): 019, Feb 19: Maybe rename this because gender is kinda weird 
 public enum Gender implements Described {
 
     MALE("&b♂ Male"),
     FEMALE("&d♀ Female"),
-    UNKNOWN("&8❓ Uknown"),
-    ALIEN("&2\uD83D\uDC7D Alien"),
+    UNKNOWN("&8❓ Unknown"),
 
     ;
 

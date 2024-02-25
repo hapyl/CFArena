@@ -3,10 +3,7 @@ package me.hapyl.fight.game.heroes.archive.mage;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.UltimateCallback;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
@@ -34,6 +31,7 @@ public class Mage extends Hero implements UIComponent {
         super(handle, "Mage");
 
         setArchetype(Archetype.MAGIC);
+        setGender(Gender.MALE);
 
         setDescription("""
                 Necromancer with the ability to absorb soul fragments upon hitting his foes to use them as fuel for his &e&l&oSoul Eater&8&o.
