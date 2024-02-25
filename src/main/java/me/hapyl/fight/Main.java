@@ -55,7 +55,7 @@ public class Main extends JavaPlugin {
             new UpdateTopic("Daily Bonds!", 35, 156, 22, 81, 201, 68)
     );
 
-    public static final String requireEternaVersion = "2.46.6";
+    public static final String requireEternaVersion = "2.47.0";
     public static final String requireMinecraftVersion = "1.20.2";
 
     private static long start;

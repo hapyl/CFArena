@@ -4,8 +4,8 @@ import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.fight.util.Comparators;
 import me.hapyl.spigotutils.module.scoreboard.Scoreboarder;
+import me.hapyl.spigotutils.module.util.Comparators;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;

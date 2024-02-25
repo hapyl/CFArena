@@ -2912,6 +2912,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                         }
 
                         Reflect.setDataWatcherValue(minecraftEntity, DataWatcherType.BOOL, 19, true);
+                        Reflect.updateMetadata(minecraftEntity, player);
                     }
                 }.runTaskTimer(main, 0, 1);
             }

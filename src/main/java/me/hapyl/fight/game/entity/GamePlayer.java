@@ -55,7 +55,6 @@ import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.Reflect;
-import me.hapyl.spigotutils.module.reflect.ReflectPacket;
 import me.hapyl.spigotutils.module.reflect.glow.Glowing;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import net.minecraft.network.protocol.game.PacketPlayOutAnimation;
@@ -611,7 +610,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         final PlayerInventory inventory = player.getInventory();
         inventory.setHeldItemSlot(inventory.firstEmpty());
 
-        ReflectPacket.wrapAndSend(new PacketPlayOutAnimation(Reflect.getMinecraftPlayer(player), 1), player);
+        Reflect.sendPacket(player, new PacketPlayOutAnimation(Reflect.getMinecraftPlayer(player), 1));
 
         GameTask.runLater(this::snapToWeapon, 1);
 
