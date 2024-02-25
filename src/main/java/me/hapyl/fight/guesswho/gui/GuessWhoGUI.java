@@ -102,6 +102,7 @@ public abstract class GuessWhoGUI extends StyledGUI {
         }
 
         builder.addLore("Gender: " + hero.getSex());
+        builder.addLore("Race: " + hero.getRace());
         builder.addLore("Player Rating: " + hero.getAverageRating());
 
         // Talents

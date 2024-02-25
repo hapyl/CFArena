@@ -37,7 +37,7 @@ public class PluginsCommandOverride extends CFCommand {
     }
 
     @Override
-    protected void execute(@Nonnull Player player, @Nonnull String[] args, @Nonnull PlayerRank rank) {
+    protected void execute(@Nonnull Player player, @Nonnull ArgumentList args, @Nonnull PlayerRank rank) {
         Chat.sendMessage(player, "&aWe use a combination of public and custom plugins:");
 
         Chat.sendMessage(player, "&bCustom plugins:");

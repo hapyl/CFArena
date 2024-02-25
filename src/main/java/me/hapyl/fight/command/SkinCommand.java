@@ -32,8 +32,8 @@ public class SkinCommand extends CFCommand {
     }
 
     @Override
-    protected void execute(@Nonnull Player player, @Nonnull String[] args, @Nonnull PlayerRank rank) {
-        final String argument = getArgument(args, 0).toString();
+    protected void execute(@Nonnull Player player, @Nonnull ArgumentList args, @Nonnull PlayerRank rank) {
+        final String argument = args.get(0).toString();
 
         if (argument.equalsIgnoreCase("reset")) {
             PlayerSkin.reset(player);

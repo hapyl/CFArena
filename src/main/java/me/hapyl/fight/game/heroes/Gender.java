@@ -1,14 +1,14 @@
 package me.hapyl.fight.game.heroes;
 
-import me.hapyl.fight.util.Described;
+import me.hapyl.fight.util.Named;
 
 import javax.annotation.Nonnull;
 
-// TODO (hapyl): 019, Feb 19: Maybe rename this because gender is kinda weird 
-public enum Gender implements Described {
+public enum Gender implements Named {
 
     MALE("&b♂ Male"),
     FEMALE("&d♀ Female"),
+
     UNKNOWN("&8❓ Unknown"),
 
     ;
@@ -23,12 +23,6 @@ public enum Gender implements Described {
     @Override
     public String getName() {
         return name;
-    }
-
-    @Nonnull
-    @Override
-    public String getDescription() {
-        return "No.";
     }
 
     @Override

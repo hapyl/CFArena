@@ -221,6 +221,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new InviteCommand("invite"));
         register(new EmojisCommand("emojis"));
         register(new NpcCommand("npcf"));
+        register(new PersonalMessageCommand("tell"));
 
         // *=* Inner commands *=* //
 
@@ -229,7 +230,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         });
 
         register("progressChallenge", (player, args) -> {
-            final ChallengeType type = getArgument(args, 0).toEnum(ChallengeType.class);
+            final ChallengeType type = args.get(0).toEnum(ChallengeType.class);
 
             if (type == null) {
                 Chat.sendMessage(player, "&cInvalid type!");
@@ -253,8 +254,8 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         });
 
         register("spawnBlastPackWallEntity", (player, args) -> {
-            final float yaw = getArgument(args, 0).toFloat();
-            final float pitch = getArgument(args, 1).toFloat();
+            final float yaw = args.get(0).toFloat();
+            final float pitch = args.get(1).toFloat();
 
             final Location location = player.getLocation();
             location.setYaw(yaw);
@@ -266,7 +267,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         });
 
         register("debugCosmetic", (player, args) -> {
-            final Cosmetics enumCosmetic = getArgument(args, 0).toEnum(Cosmetics.class);
+            final Cosmetics enumCosmetic = args.get(0).toEnum(Cosmetics.class);
 
             if (enumCosmetic == null) {
                 Chat.sendMessage(player, "&cInvalid cosmetic!");
@@ -286,8 +287,8 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         });
 
         register("later", (player, args) -> {
-            final int delay = getArgument(args, 0).toInt();
-            final String command = Chat.arrayToString(args, 1);
+            final int delay = args.get(0).toInt();
+            final String command = Chat.arrayToString(args.array, 1);
 
             if (command.contains("later")) {
                 Chat.sendMessage(player, "&cThis command is not allowed to be scheduled.");
@@ -311,7 +312,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register("stunMe", (player, args) -> {
             final Akciy talent = Talents.AKCIY.getTalent(Akciy.class);
             final GamePlayer gamePlayer = CF.getPlayer(player);
-            final int duration = getArgument(args, 0).toInt(30);
+            final int duration = args.get(0).toInt(30);
 
             if (gamePlayer == null) {
                 Chat.sendMessage(player, "&cNo handle.");
@@ -331,8 +332,8 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         });
 
         register("colorWithDayOfTheWeekGradient", (player, args) -> {
-            final int numericDayOfWeek = getArgument(args, 0).toInt();
-            final String stringToColor = Chat.arrayToString(args, 1);
+            final int numericDayOfWeek = args.get(0).toInt();
+            final String stringToColor = Chat.arrayToString(args.array, 1);
 
             if (numericDayOfWeek < 1 || numericDayOfWeek > 7) {
                 Chat.sendMessage(player, "&cThere are seven days in a week, not %s!".formatted(numericDayOfWeek));
@@ -422,10 +423,10 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         });
 
         register("translate", (player, args) -> {
-            final String argument = getArgument(args, 0).toString();
+            final String argument = args.get(0).toString();
 
             if (argument.equalsIgnoreCase("reload")) {
-                final boolean isForce = getArgument(args, 1).toString().equalsIgnoreCase("-f");
+                final boolean isForce = args.get(1).toString().equalsIgnoreCase("-f");
 
                 Main.getPlugin().getTranslate().load(isForce);
 
@@ -457,9 +458,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         });
 
         register("scaleAttribute", (player, args) -> {
-            final AttributeType attribute = getArgument(args, 0).toEnum(AttributeType.class);
-            final double value = getArgument(args, 1).toDouble();
-            final String operation = getArgument(args, 2).toString();
+            final AttributeType attribute = args.get(0).toEnum(AttributeType.class);
+            final double value = args.get(1).toDouble();
+            final String operation = args.get(2).toString();
 
             if (attribute == null) {
                 Chat.sendMessage(player, "&cInvalid attribute!");
@@ -484,8 +485,8 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         });
 
         register("damageMeDaddy", (player, args) -> {
-            final double damage = getArgument(args, 0).toDouble();
-            final EnumDamageCause cause = getArgument(args, 1).toEnum(EnumDamageCause.class, EnumDamageCause.ENTITY_ATTACK);
+            final double damage = args.get(0).toDouble();
+            final EnumDamageCause cause = args.get(1).toEnum(EnumDamageCause.class, EnumDamageCause.ENTITY_ATTACK);
 
             final GamePlayer gamePlayer = CF.getPlayer(player);
 
@@ -499,7 +500,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         });
 
         register("debugDamageCause", (player, args) -> {
-            final EnumDamageCause cause = getArgument(args, 0).toEnum(EnumDamageCause.class);
+            final EnumDamageCause cause = args.get(0).toEnum(EnumDamageCause.class);
 
             if (cause == null) {
                 Chat.sendMessage(player, "&cInvalid cause!");
@@ -1139,7 +1140,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 return;
             }
 
-            final double damage = args.length > 0 ? Numbers.getDouble(args[0], 1.0d) : 1.0d;
+            final double damage = args.get(0).toDouble(1.0d);
 
             gamePlayer.setLastDamager(gamePlayer);
             gamePlayer.damage(damage, EnumDamageCause.ENTITY_ATTACK);
@@ -1234,7 +1235,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         });
 
         register("debugCollection", (player, args) -> {
-            final CosmeticCollection collection = Enums.byName(CosmeticCollection.class, args[0]);
+            final CosmeticCollection collection = args.get(0).toEnum(CosmeticCollection.class);
 
             if (collection == null) {
                 Message.error(player, "Invalid collection.");
@@ -1269,16 +1270,16 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         });
 
         register("cstr", (player, args) -> {
-            final String string = Chat.arrayToString(args, 0);
+            final String string = Chat.arrayToString(args.array, 0);
 
             Chat.sendCenterMessage(player, string);
         });
 
         register("debugCrate", (player, args) -> {
-            final Crates crate = Enums.byName(Crates.class, args.length == 0 ? "null" : args[0]);
+            final Crates crate = args.get(0).toEnum(Crates.class);
 
             if (crate == null) {
-                Message.error(player, "Cannot find crate named {}.", args[0]);
+                Message.error(player, "Cannot find crate named {}.", args.getString(0));
                 return;
             }
 
@@ -1390,7 +1391,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 return;
             }
 
-            final Heroes hero = Enums.byName(Heroes.class, args[0]);
+            final Heroes hero = args.get(0).toEnum(Heroes.class);
 
             if (hero == null) {
                 Chat.sendMessage(player, "&cInvalid skin!");
@@ -1524,15 +1525,15 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 return;
             }
 
-            final double a = Validate.getDouble(args[0]);
-            final double b = Validate.getDouble(args[1]);
-            final double c = Validate.getDouble(args[2]);
-            final double d = Validate.getDouble(args[3]);
+            final double a = Validate.getDouble(args.array[0]);
+            final double b = Validate.getDouble(args.array[1]);
+            final double c = Validate.getDouble(args.array[2]);
+            final double d = Validate.getDouble(args.array[3]);
 
-            final double e = Validate.getDouble(args[4]);
-            final double f = Validate.getDouble(args[5]);
-            final double g = Validate.getDouble(args[6]);
-            final double h = Validate.getDouble(args[7]);
+            final double e = Validate.getDouble(args.array[4]);
+            final double f = Validate.getDouble(args.array[5]);
+            final double g = Validate.getDouble(args.array[6]);
+            final double h = Validate.getDouble(args.array[7]);
 
             Entities.ITEM_DISPLAY.spawn(player.getLocation(), self -> {
                 self.setItemStack(ItemBuilder.playerHeadUrl("2c8c8f382667bf59f164106849c00e6dfd9ad00a72670b9de99589e4dcd00900").asIcon());
@@ -1603,7 +1604,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register("testHoverText", (player, args) -> {
             final TextComponent text = new TextComponent("Hover me");
 
-            text.setHoverEvent(ChatUtils.showText(args));
+            text.setHoverEvent(ChatUtils.showText(args.array));
             player.spigot().sendMessage(text);
         });
 
@@ -1660,7 +1661,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 return;
             }
 
-            final String arg = args[0];
+            final String arg = args.getString(0);
 
             if (arg.equalsIgnoreCase("reset")) {
                 Bukkit.resetRecipes();
@@ -1703,7 +1704,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
         register("getUuidName", (player, args) -> {
             try {
-                final UUID uuid = UUID.fromString(args[0]);
+                final UUID uuid = UUID.fromString(args.getString(0));
 
                 Chat.sendMessage(player, "&a%s belongs to %s", uuid.toString(), Bukkit.getOfflinePlayer(uuid).getName());
             } catch (Exception e) {
@@ -2340,8 +2341,8 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             private GameTask task;
 
             @Override
-            protected void execute(@Nonnull Player player, @Nonnull String[] args, @Nonnull PlayerRank rank) {
-                final double offsetY = getArgument(args, 0).toDouble(0.0d);
+            protected void execute(@Nonnull Player player, @Nonnull ArgumentList args, @Nonnull PlayerRank rank) {
+                final double offsetY = args.get(0).toDouble(0.0d);
                 final Location absoluteLocation = player.getLocation();
                 final Location location = player.getLocation().subtract(0, offsetY, 0);
 
@@ -2390,9 +2391,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
         register(new CFCommand("testChestAnimation", PlayerRank.ADMIN) {
             @Override
-            protected void execute(@Nonnull Player player, @Nonnull String[] args, @Nonnull PlayerRank rank) {
+            protected void execute(@Nonnull Player player, @Nonnull ArgumentList args, @Nonnull PlayerRank rank) {
                 // <command> (open, close)
-                final String argument = getArgument(args, 0).toString().toLowerCase();
+                final String argument = args.get(0).toString().toLowerCase();
 
                 final Block targetBlock = player.getTargetBlockExact(10);
 
@@ -2918,7 +2919,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         // these are small shortcuts not feeling creating a class D:
 
         register("start", (player, args) -> {
-            player.performCommand("cf start " + Chat.arrayToString(args, 0));
+            player.performCommand("cf start " + Chat.arrayToString(args.array, 0));
         });
 
         register(new TestNpcDeathAnimationCommand("testNpcDeathAnimation"));
@@ -2984,6 +2985,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
         commandsToRemove.add("plugins");
         commandsToRemove.add("tps");
+        commandsToRemove.add("tell");
+        commandsToRemove.add("w");
+        commandsToRemove.add("me");
 
         try {
             final SimpleCommandMap commandMap = CommandProcessor.getCommandMap();
@@ -3023,10 +3027,10 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         map.remove(commandName);
     }
 
-    private void register(String name, BiConsumer<Player, String[]> consumer) {
+    private void register(String name, BiConsumer<Player, ArgumentList> consumer) {
         processor.registerCommand(new CFCommand(name, PlayerRank.ADMIN) {
             @Override
-            protected void execute(@Nonnull Player player, @Nonnull String[] args, @Nonnull PlayerRank rank) {
+            protected void execute(@Nonnull Player player, @Nonnull ArgumentList args, @Nonnull PlayerRank rank) {
                 consumer.accept(player, args);
             }
         });

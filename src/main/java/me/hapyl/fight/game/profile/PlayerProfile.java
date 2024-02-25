@@ -58,6 +58,7 @@ public class PlayerProfile {
     private PlayerFastAccess fastAccess;
     private LocalTeamManager localTeamManager;
     private PlayerChallengeList challengeList;
+    private PlayerSocialConversation conversation;
 
     @Nullable
     private GamePlayer gamePlayer; // current game player
@@ -73,9 +74,49 @@ public class PlayerProfile {
 
         // Init database before anything else
         this.playerDatabase = PlayerDatabase.instantiate(player);
+
         this.loaded = false;
         this.resourcePack = false;
         this.buildMode = false;
+    }
+
+    // #norender
+    public void loadData() {
+        if (loaded) {
+            return;
+        }
+
+        // Check for fullness to not create anything
+        loaded = true;
+
+        this.localTeamManager = new LocalTeamManager(this);
+        this.infractions = new PlayerInfraction(this);
+        this.relationship = new PlayerRelationship(this);
+        this.playerData = new PlayerProfileData(this);
+        this.originalSkin = PlayerSkin.of(player);
+        this.hotbarLoadout = new HotbarLoadout(this);
+        this.fastAccess = new PlayerFastAccess(this);
+        this.challengeList = new PlayerChallengeList(this);
+        this.conversation = new PlayerSocialConversation(this);
+
+        // Load some data after init method
+        selectedHero = playerDatabase.heroEntry.getSelectedHero();
+        GameTeam.addMemberIfNotInTeam(this);
+        playerUI = new PlayerUI(this);
+
+        // Prompt Resource Pack
+        promptResourcePack();
+
+        // Load Deliveries
+        GameTask.runLater(() -> {
+            Deliveries.notify(player);
+        }, 20);
+    }
+    // #render
+
+    @Nonnull
+    public PlayerSocialConversation getConversation() {
+        return conversation;
     }
 
     @Nonnull
@@ -165,37 +206,6 @@ public class PlayerProfile {
     @Nonnull
     public LocalTeamManager getLocalTeamManager() {
         return localTeamManager;
-    }
-
-    public void loadData() {
-        if (loaded) {
-            return;
-        }
-
-        // Check for fullness to not create anything
-        loaded = true;
-
-        this.localTeamManager = new LocalTeamManager(this);
-        this.infractions = new PlayerInfraction(this);
-        this.relationship = new PlayerRelationship(this);
-        this.playerData = new PlayerProfileData(this);
-        this.originalSkin = PlayerSkin.of(player);
-        this.hotbarLoadout = new HotbarLoadout(this);
-        this.fastAccess = new PlayerFastAccess(this);
-        this.challengeList = new PlayerChallengeList(this);
-
-        // Load some data after init method
-        selectedHero = playerDatabase.heroEntry.getSelectedHero();
-        GameTeam.addMemberIfNotInTeam(this);
-        playerUI = new PlayerUI(this);
-
-        // Prompt Resource Pack
-        promptResourcePack();
-
-        // Load Deliveries
-        GameTask.runLater(() -> {
-            Deliveries.notify(player);
-        }, 20);
     }
 
     @Nonnull
@@ -348,7 +358,10 @@ public class PlayerProfile {
             final StackTraceElement trace = stackTrace[i];
             final String classLoaderName = trace.getClassLoaderName();
 
-            if (classLoaderName == null || !classLoaderName.contains(pluginName + ".jar")) {
+            if (classLoaderName == null
+                    || !classLoaderName.contains(pluginName + ".jar")
+                    || !classLoaderName.contains("ClassesFightArena.jar") // bwc
+            ) {
                 continue;
             }
 
@@ -388,7 +401,7 @@ public class PlayerProfile {
             Chat.sendHoverableMessage(
                     player,
                     builder.toString(),
-                    "&c&lDEBUG &e" + deque.getFirst() + " requested GamePlayer creation! &6&lHOVER"
+                    "&c&lDEBUG &e" + deque.pollFirst() + " requested GamePlayer creation! &6&lHOVER"
             );
         });
     }

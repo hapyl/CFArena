@@ -1,15 +1,16 @@
 package me.hapyl.fight.game.heroes;
 
-import me.hapyl.fight.util.Described;
+import me.hapyl.fight.game.color.Color;
+import me.hapyl.fight.util.Named;
 
 import javax.annotation.Nonnull;
 
-public enum Race implements Described {
+public enum Race implements Named {
 
-    HUMAN("&f🧑 &fHuman"),
-    ALIEN("&a👽 &fAlien"),
-    CYBERNETIC("&b🤖 &fCybernetic"),
-    VAMPIRE("&4🦇 &fVampire"),
+    HUMAN(Color.SKIN + "🧑 Human"),
+    ALIEN("&a👽 &2Alien"),
+    CYBERNETIC("&b🤖 &3Cybernetic"),
+    VAMPIRE("&4🦇 &cVampire"),
 
     UNKNOWN("&8❓ Unknown"),
 
@@ -27,9 +28,8 @@ public enum Race implements Described {
         return name;
     }
 
-    @Nonnull
     @Override
-    public String getDescription() {
+    public String toString() {
         return name;
     }
 }

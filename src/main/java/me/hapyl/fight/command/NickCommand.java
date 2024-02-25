@@ -29,7 +29,7 @@ public class NickCommand extends CFCommand implements DisabledCommand {
     }
 
     @Override
-    protected void execute(@Nonnull Player player, @Nonnull String[] args, @Nonnull PlayerRank rank) {
+    protected void execute(@Nonnull Player player, @Nonnull ArgumentList args, @Nonnull PlayerRank rank) {
         if (!ProfanityFilter.isInstantiated()) {
             Message.error(player, "This feature cannot be used yet, try again in a moment!");
             return;
@@ -43,7 +43,7 @@ public class NickCommand extends CFCommand implements DisabledCommand {
         }
 
         final ProfileDisplay display = profile.getDisplay();
-        final String newNick = getArgument(args, 0).toString();
+        final String newNick = args.get(0).toString();
 
         if (newNick.isEmpty() || newNick.equalsIgnoreCase("reset")) {
             display.resetNick();

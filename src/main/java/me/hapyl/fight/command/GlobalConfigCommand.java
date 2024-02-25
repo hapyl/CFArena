@@ -20,14 +20,14 @@ public class GlobalConfigCommand extends CFCommand {
     }
 
     @Override
-    protected void execute(@Nonnull Player player, @Nonnull String[] args, @Nonnull PlayerRank rank) {
+    protected void execute(@Nonnull Player player, @Nonnull ArgumentList args, @Nonnull PlayerRank rank) {
         // globalconfig (value) (enable/disable)
 
-        final Configuration configuration = getArgument(args, 0).toEnum(Configuration.class);
-        final String argument = getArgument(args, 1).toString().toLowerCase();
+        final Configuration configuration = args.get(0).toEnum(Configuration.class);
+        final String argument = args.get(1).toString().toLowerCase();
 
         if (configuration == null) {
-            Message.error(player, "Could not find configuration named {}!", getArgument(args, 0));
+            Message.error(player, "Could not find configuration named {}!", args.getString(0));
             return;
         }
 
