@@ -222,6 +222,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new EmojisCommand("emojis"));
         register(new NpcCommand("npcf"));
         register(new PersonalMessageCommand("tell"));
+        register(new ReplyCommand("reply"));
 
         // *=* Inner commands *=* //
 

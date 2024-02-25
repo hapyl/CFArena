@@ -1,10 +1,11 @@
 package me.hapyl.fight.game.profile;
 
+import me.hapyl.fight.ux.Message;
 import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
-import java.util.UUID;
+import javax.annotation.Nullable;
 
 public class PlayerSocialConversation {
 
@@ -12,15 +13,20 @@ public class PlayerSocialConversation {
     private static final String formatTo = "&d&l\uD83D\uDD8A &dTo %s&f: &7&o%s";
 
     private final PlayerProfile profile;
-    private UUID lastMessenger;
+    public Player lastMessenger;
 
     public PlayerSocialConversation(PlayerProfile profile) {
         this.profile = profile;
         this.lastMessenger = null;
     }
 
+    @Nullable
+    public Player getLastMessenger() {
+        return lastMessenger;
+    }
+
     public void sendMessage(@Nonnull PlayerProfile to, @Nonnull String message) {
-        to.getConversation().lastMessenger = profile.getUuid();
+        to.getConversation().lastMessenger = profile.getPlayer();
 
         final Player player = to.getPlayer();
 
@@ -28,8 +34,21 @@ public class PlayerSocialConversation {
     }
 
     public void receiveMessage(@Nonnull PlayerProfile from, @Nonnull String message) {
-        this.lastMessenger = from.getUuid();
+        this.lastMessenger = from.getPlayer();
 
         Chat.sendMessage(profile.getPlayer(), formatFrom.formatted(from.getDisplay().getNamePrefixed(), message));
+    }
+
+    public static void talk(@Nonnull PlayerProfile sender, @Nonnull PlayerProfile receiver, @Nonnull String message) {
+        if (message.isEmpty()) {
+            Message.error(sender.getPlayer(), "Cannot send empty message!");
+            return;
+        }
+
+        final PlayerSocialConversation senderConversation = sender.getConversation();
+        final PlayerSocialConversation receiverConversation = receiver.getConversation();
+
+        senderConversation.sendMessage(receiver, message);
+        receiverConversation.receiveMessage(sender, message);
     }
 }

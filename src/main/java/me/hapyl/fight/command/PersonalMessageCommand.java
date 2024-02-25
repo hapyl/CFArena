@@ -12,6 +12,7 @@ public class PersonalMessageCommand extends CFCommand {
     public PersonalMessageCommand(@Nonnull String name) {
         super(name, PlayerRank.DEFAULT);
 
+        setAliases("msg", "w");
         setUsage("/tell (player) (message...)");
     }
 
@@ -40,11 +41,7 @@ public class PersonalMessageCommand extends CFCommand {
             return;
         }
 
-        final PlayerSocialConversation playerConversation = playerProfile.getConversation();
-        playerConversation.sendMessage(targetProfile, message);
-
-        final PlayerSocialConversation targetConversation = targetProfile.getConversation();
-        targetConversation.receiveMessage(playerProfile, message);
+        PlayerSocialConversation.talk(playerProfile, targetProfile, message);
     }
 
 }
