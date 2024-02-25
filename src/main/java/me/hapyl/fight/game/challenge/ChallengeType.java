@@ -39,7 +39,7 @@ public enum ChallengeType implements EnumWrapper<Challenge> {
     ),
 
     COLLECT_RELIC(
-            new Challenge("Relic Collector", "Find a relic.") {
+            new Challenge("Archeologist", "Find a relic.") {
                 @Override
                 public boolean canGenerate(@Nonnull PlayerProfile profile) {
                     final PlayerDatabase database = profile.getDatabase();
