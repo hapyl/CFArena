@@ -319,6 +319,8 @@ public abstract class Talent extends NonNullItemCreator
         builderAttributes.addSmartLore(type.getDescription());
         builderAttributes.addLore();
 
+        builderAttributes.addLore("&f&lAttributes");
+
         // Cooldown
         if (cd > 0) {
             builderAttributes.addLore("Cooldown%s: &f&l%ss".formatted(

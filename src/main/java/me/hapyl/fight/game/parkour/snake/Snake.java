@@ -7,6 +7,7 @@ import me.hapyl.fight.util.Buffer;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Direction;
 import me.hapyl.spigotutils.module.entity.Entities;
+import me.hapyl.spigotutils.module.entity.packet.PacketEntity;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -62,6 +63,7 @@ public class Snake extends BukkitRunnable {
 
         final BlockData blockData = material.createBlockData();
 
+        // FIXME (hapyl): 026, Feb 26: FIXFIXME
         for (Location location : locations) {
             //final Location toSpawn = location.clone().subtract(0.0d, 1.0d, 0.0d);
             entities.add(Entities.BLOCK_DISPLAY.spawn(location, self -> {

@@ -51,6 +51,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 /**
@@ -1067,4 +1068,33 @@ public class CFUtils {
 
         return varArgs;
     }
+
+    public static <T> void removeIf(@Nonnull Collection<T> collection, @Nonnull Predicate<T> predicate, @Nonnull Consumer<T> andThen) {
+        collection.removeIf(t -> {
+            final boolean shouldRemove = predicate.test(t);
+
+            if (shouldRemove) {
+                andThen.accept(t);
+            }
+
+            return shouldRemove;
+        });
+    }
+
+    @Nonnull
+    public static String stNdTh(int i) {
+        if (i >= 11 && i <= 13) {
+            return i + "th";
+        }
+
+        final int lastDigit = i % 10;
+
+        return i + switch (lastDigit) {
+            case 1 -> "st";
+            case 2 -> "nd";
+            case 3 -> "rd";
+            default -> "th";
+        };
+    }
+
 }

@@ -44,6 +44,12 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
 
     private final PlayerDataMap<DarkMageData> playerData = PlayerMap.newDataMap(DarkMageData::new);
 
+    /**
+     * Redesign:
+     *
+     *
+     */
+
     public DarkMage(@Nonnull Heroes handle) {
         super(handle, "Dark Mage");
 

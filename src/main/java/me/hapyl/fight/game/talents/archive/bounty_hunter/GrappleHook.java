@@ -237,7 +237,7 @@ public class GrappleHook extends GameTask {
                 // Finishes grappling
                 if (playerLocation.distanceSquared(location) <= 1d) {
                     remove();
-                    player.addEffect(Effects.FALL_DAMAGE_RESISTANCE, 120, true);
+                    player.addEffect(Effects.FALL_DAMAGE_RESISTANCE, 600, true);
                 }
 
                 if (isVectorFinite(vector)) {

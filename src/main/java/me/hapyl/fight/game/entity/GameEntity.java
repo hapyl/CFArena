@@ -488,4 +488,9 @@ public class GameEntity {
     public boolean isForceValid() {
         return forceValid;
     }
+
+    @Nonnull
+    public Entry getEntry() {
+        return Entry.of(this);
+    }
 }

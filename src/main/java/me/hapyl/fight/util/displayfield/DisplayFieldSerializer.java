@@ -101,8 +101,15 @@ public final class DisplayFieldSerializer {
             final Object value = field.get(instance);
             String stringValue = "";
 
+            final double dp = display.dp();
+
             if (value instanceof Double decimal) {
-                stringValue = scaleFormat(decimal * scale);
+                if (dp != -1) {
+                    stringValue = ("%." + dp + "f").formatted(decimal * scale);
+                }
+                else {
+                    stringValue = scaleFormat(decimal * scale);
+                }
             }
             // Integers are always considered as ticks, use short or long for other values
             // Integers are NOT scaled with the scale!

@@ -471,7 +471,7 @@ public class PlayerHandler implements Listener {
 
             // Teammate check
             if (entityTeam != null && lastDamager != null && !gameEntity.equals(lastDamager) && entityTeam.isEntry(Entry.of(lastDamager))) {
-                lastDamager.sendMessage("&cCannot damage teammates!");
+                gameEntity.onTeammateDamage(lastDamager);
                 ev.setCancelled(true);
                 ev.setDamage(0.0d);
                 return;
@@ -924,6 +924,8 @@ public class PlayerHandler implements Listener {
             player.setInputTalent(null);
             player.snapToWeapon();
         }
+
+        talent.onUse(player);
 
         if (!checkResponse(player, response)) {
             return;

@@ -17,7 +17,6 @@ import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
-import me.hapyl.fight.game.damage.DamageFlag;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.Effects;
@@ -91,6 +90,8 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
     public static final double ASSIST_DAMAGE_PERCENT = 0.5d;
     public static final long COMBAT_TAG_DURATION = 5000L;
     public static final String SHIELD_FORMAT = "&e&l%.0f &e🛡";
+
+    private static final double MAX_HEARTS = 40.0d;
 
     private final StatContainer stats;
     private final TalentQueue talentQueue;
@@ -432,7 +433,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
      * @return player's inventory.
      * @see #setItem(HotbarSlots, ItemStack)
      * @see #snapTo(HotbarSlots)
-     * @deprecated Not deprecated, just a hands up that setting items should be done using {@link HotbarSlots}.
+     * @deprecated Not deprecated, just a heads-up that setting item should be done using {@link HotbarSlots}.
      */
     @Deprecated
     @Nonnull
@@ -553,7 +554,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         final Player player = getPlayer();
         final EnumDamageCause cause = instance.getCause();
 
-        if (shield != null && (cause != null && !cause.hasFlag(DamageFlag.PIERCING_DAMAGE))) {
+        if (shield != null && shield.canShield(cause)) {
             final double damage = instance.getDamage();
             final double capacityAfterHit = shield.takeDamage0(damage);
 
@@ -581,8 +582,11 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
 
     // Update player visual health
     public void updateHealth() {
-        entity.setMaxHealth(40.d);
-        entity.setHealth(Numbers.clamp(40.0d * health / getMaxHealth(), getMinHealth(), getMaxHealth()));
+        final double maxHealth = getMaxHealth();
+        final double maxHearts = Math.min(maxHealth, MAX_HEARTS);
+
+        entity.setMaxHealth(maxHearts);
+        entity.setHealth(Numbers.clamp(maxHearts / maxHealth * this.health, getMinHealth(), maxHealth));
     }
 
     @Nonnull
@@ -1466,6 +1470,13 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         talent.startCd(this);
     }
 
+    @Nonnull
+    public Vector getDirectionWithMovementError(double movementError) {
+        final Location location = getEyeLocation();
+
+        return location.getDirection();
+    }
+
     private List<Block> getBlocksRelative(BiFunction<Location, World, Boolean> fn, Consumer<Location> consumer) {
         final List<Block> blocks = Lists.newArrayList();
         final Location location = getEyeLocation();
@@ -1541,13 +1552,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
     public static Optional<GamePlayer> getPlayerOptional(Player player) {
         final GamePlayer gamePlayer = getExistingPlayer(player);
         return gamePlayer == null ? Optional.empty() : Optional.of(gamePlayer);
-    }
-
-    @Nonnull
-    public Vector getDirectionWithMovementError(double movementError) {
-        final Location location = getEyeLocation();
-
-        return location.getDirection();
     }
 
 }

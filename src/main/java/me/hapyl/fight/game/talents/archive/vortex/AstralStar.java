@@ -1,47 +1,164 @@
 package me.hapyl.fight.game.talents.archive.vortex;
 
+import me.hapyl.fight.CF;
+import me.hapyl.fight.event.DamageInstance;
+import me.hapyl.fight.game.Event;
+import me.hapyl.fight.game.attribute.Attributes;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.entity.Outline;
+import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.archive.vortex.Vortex;
+import me.hapyl.fight.util.Ticking;
+import me.hapyl.spigotutils.module.block.display.BlockStudioParser;
+import me.hapyl.spigotutils.module.block.display.DisplayData;
+import me.hapyl.spigotutils.module.block.display.DisplayEntity;
 import me.hapyl.spigotutils.module.entity.Entities;
+import me.hapyl.spigotutils.module.entity.EntityUtils;
+import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.spigotutils.module.reflect.glow.Glowing;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.Team;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-public class AstralStar {
+public class AstralStar implements Ticking {
 
-    protected final LivingEntity star;
+    private static final DisplayData model = BlockStudioParser.parse(
+            "/summon block_display ~-0.5 ~-0.5 ~-0.5 {Passengers:[{id:\"minecraft:item_display\",item:{id:\"minecraft:nether_star\",Count:1},item_display:\"none\",transformation:[1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f,0.0000f,0.0625f,0.0000f,0.0000f,1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:item_display\",item:{id:\"minecraft:nether_star\",Count:1},item_display:\"none\",transformation:[-0.0000f,0.0000f,-1.0000f,0.0000f,0.0000f,1.0000f,0.0000f,0.0625f,1.0000f,0.0000f,-0.0000f,0.0625f,0.0000f,0.0000f,0.0000f,1.0000f]}]}");
+
+    protected final LivingGameEntity entity;
+    protected final DisplayEntity displayEntity;
+
     private final GamePlayer player;
     private final Location location;
+    private final VortexStarTalent talent;
 
-    public AstralStar(GamePlayer player, Location location) {
+    private ChatColor currentColor;
+    private StarState state;
+
+    public AstralStar(GamePlayer player, Location location, VortexStarTalent talent) {
         this.player = player;
         this.location = location;
-        this.star = Entities.BAT.spawn(location, self -> {
-            self.setSilent(true);
-            self.setInvulnerable(true);
-            self.setInvisible(true);
-            self.setAI(false);
-            self.setAwake(false);
-            self.setGlowing(true);
-            self.setVisibleByDefault(false);
+        this.talent = talent;
+
+        location.setYaw(0.0f);
+        location.setPitch(0.0f);
+
+        this.displayEntity = model.spawnInterpolated(location);
+
+        this.entity = CF.createEntity(location.subtract(0, 0.25, 0), Entities.SLIME, slime -> {
+            slime.setGravity(false);
+            slime.setSize(2);
+            slime.setAI(false);
+            slime.setSilent(true);
+            slime.setInvisible(true);
+
+            final Attributes attributes = new Attributes();
+            attributes.setHealth(talent.healthSacrificePerStar);
+
+            final LivingGameEntity entity = new LivingGameEntity(slime, attributes) {
+                @Override
+                public void onDamageTaken(@Nonnull DamageInstance instance) {
+                    player.setOutline(Outline.RED);
+
+                    AstralStar.this.setState(StarState.BEING_ATTACKED);
+
+                    player.sendSubtitle("&cA star is being attacked!", 1, 5, 1);
+
+                    player.schedule(() -> {
+                        AstralStar.this.setState(null);
+
+                        player.setOutline(Outline.CLEAR);
+                    }, 5);
+
+                    // Fx
+                    playWorldSound(Sound.BLOCK_BELL_USE, 1.25f);
+                    playWorldSound(Sound.ENTITY_BLAZE_HURT, 0.75f);
+                }
+
+                @Override
+                public void onDeath() {
+                    super.onDeath();
+
+                    playWorldSound(Sound.ENTITY_BLAZE_DEATH, 0.25f);
+                    playWorldSound(Sound.ENTITY_PLAYER_BREATH, 0.25f);
+                }
+
+                @Override
+                public void onTeammateDamage(@Nonnull LivingGameEntity lastDamager) {
+                    lastDamager.sendMessage("&cCannot damage allied Astral Star!");
+                }
+            };
+
+            entity.setCollision(EntityUtils.Collision.DENY);
+            entity.setForceValid(true);
+            entity.setImmune(EnumDamageCause.SUFFOCATION);
+
+            player.getTeam().addEntry(entity.getEntry());
+
+            return entity;
         });
 
-        // Show bat to player
-        player.showEntity(star);
+        Heroes.VORTEX.getHero(Vortex.class).sacrificeHealth(player);
+    }
+
+    @Nonnull
+    public VortexStarTalent getTalent() {
+        return talent;
+    }
+
+    @Event
+    public void onDeath() {
+        player.playWorldSound(Sound.ENTITY_BLAZE_DEATH, 0.0f);
+        player.sendTitle("&c⭐", "&4A star was destroyed!", 5, 10, 5);
+    }
+
+    @Override
+    public void tick() {
+        final int ticks = entity.aliveTicks();
+        final Location location = displayEntity.getLocation();
+
+        final double y = Math.sin(Math.toRadians(ticks * 5)) * 0.02d;
+
+        location.setYaw(location.getYaw() + 3);
+        location.add(0, y, 0);
+
+        // SFx
+        if (ticks % 20 == 0) {
+            player.getPlayer().playSound(location, Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.RECORDS, 0.5f, 0.75f);
+        }
+
+        displayEntity.teleport(location);
     }
 
     public void setColor(@Nonnull ChatColor color) {
-        final Team team = fetchTeam("batColor_" + color.name());
+        // don't allow changing if the state is not standby or already the same color
+        if (state != null || currentColor == color) {
+            return;
+        }
 
-        team.setColor(color);
-        team.addEntry(star.getUniqueId().toString());
+        this.currentColor = color;
+
+        this.displayEntity.forEach(entity -> {
+            Glowing.glowInfinitely(entity, color, this.player.getPlayer());
+        });
+    }
+
+    public void setColorGlobal(@Nonnull ChatColor chatColor) {
+        this.displayEntity.forEach(entity -> {
+            CF.getPlayers().forEach(player -> {
+                Glowing.glowInfinitely(entity, chatColor, player.getPlayer());
+            });
+        });
     }
 
     public double dot() {
-        return player.dot(star.getLocation());
+        return player.dot(entity.getLocation());
     }
 
     @Nonnull
@@ -50,7 +167,8 @@ public class AstralStar {
     }
 
     public void remove() {
-        star.remove();
+        this.entity.forceRemove();
+        this.displayEntity.remove();
     }
 
     public void teleport(GamePlayer player) {
@@ -63,17 +181,34 @@ public class AstralStar {
     }
 
     public double distance() {
-        return star.getLocation().distance(player.getLocation());
+        return entity.getLocation().distance(player.getLocation());
     }
 
-    private Team fetchTeam(String name) {
-        final Scoreboard scoreboard = player.getScoreboard();
-        Team team = scoreboard.getTeam(name);
 
-        if (team == null) {
-            team = scoreboard.registerNewTeam(name);
+    public boolean isDead() {
+        return entity.isDead();
+    }
+
+    public double getHealth() {
+        return entity.isDead() ? 0 : entity.getHealth();
+    }
+
+    @Nullable
+    public StarState getState() {
+        return state;
+    }
+
+    public void setState(@Nullable StarState newState) {
+        StarState previousState = this.state;
+
+        if (newState != null) {
+            newState.onSet(this);
         }
 
-        return team;
+        this.state = newState;
+
+        if (previousState != null) {
+            previousState.onUnSet(this);
+        }
     }
 }

@@ -103,7 +103,7 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
         this.friendship = new HeroFriendship(this);
         this.talentsMapped = Maps.newHashMap();
         this.sex = Gender.UNKNOWN;
-        this.race = Race.UNKNOWN;
+        this.race = Race.HUMAN; // defaulted to human
 
         // Map talents
         mapTalent(HotbarSlots.TALENT_1);

@@ -35,6 +35,7 @@ import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.ai.AI;
 import me.hapyl.spigotutils.module.ai.MobAI;
 import me.hapyl.spigotutils.module.annotate.Super;
+import me.hapyl.spigotutils.module.entity.EntityUtils;
 import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.Numbers;
@@ -389,6 +390,14 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     @Nonnull
     public EntityLocation getEntityLocation() {
         return new EntityLocation(getLocation());
+    }
+
+    public void onTeammateDamage(@Nonnull LivingGameEntity lastDamager) {
+        lastDamager.sendMessage("&cCannot damage teammates!");
+    }
+
+    public void setCollision(@Nonnull EntityUtils.Collision collision) {
+        EntityUtils.setCollision(entity, collision);
     }
 
     private void setInternalNoDamageTicks(int ticks) {

@@ -9,6 +9,7 @@ import me.hapyl.spigotutils.module.util.Validate;
 import org.bson.Document;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +28,16 @@ public class CosmeticEntry extends PlayerDatabaseEntry {
         return Validate.getEnumValue(Cosmetics.class, selected.get(type.name(), ""));
     }
 
-    public void unsetSelected(Type type) {
+    public void unsetSelected(@Nonnull Cosmetics cosmetic) {
+        unsetSelected(cosmetic.getType());
         final Player player = getOnlinePlayer();
+
+        if (player != null) {
+            cosmetic.getCosmetic().onUnequip(player);
+        }
+    }
+
+    public void unsetSelected(@Nonnull Type type) {
         final Document cosmetics = getDocument().get("cosmetics", new Document());
         final Document selected = cosmetics.get("selected", new Document());
 
@@ -36,15 +45,6 @@ public class CosmeticEntry extends PlayerDatabaseEntry {
         cosmetics.put("selected", selected);
 
         getDocument().put("cosmetics", cosmetics);
-
-        // Call event
-        if (player != null) {
-            final Cosmetics selectedCosmetic = Cosmetics.getSelected(player, type);
-
-            if (selectedCosmetic != null) {
-                selectedCosmetic.getCosmetic().onUnequip(player);
-            }
-        }
     }
 
     public void setSelected(Type type, Cosmetics cosmetic) {

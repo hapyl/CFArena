@@ -1,26 +1,21 @@
 package me.hapyl.fight.game.heroes.archive.vortex;
 
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.damage.EnumDamageCause;
-import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
-import me.hapyl.fight.game.talents.archive.vortex.StarAligner;
-import me.hapyl.fight.game.talents.archive.vortex.VortexSlash;
-import me.hapyl.fight.game.talents.archive.vortex.VortexStar;
-import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.game.talents.archive.vortex.*;
+import me.hapyl.fight.game.task.player.PlayerTickingGameTask;
 import me.hapyl.fight.game.ui.UIComplexComponent;
-import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.ItemStackRandomizedData;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.math.Geometry;
-import me.hapyl.spigotutils.module.math.geometry.Draw;
-import me.hapyl.spigotutils.module.math.geometry.Quality;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.Compute;
 import org.bukkit.*;
@@ -29,16 +24,20 @@ import org.bukkit.util.Vector;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Random;
-import java.util.function.Function;
 
 public class Vortex extends Hero implements UIComplexComponent {
 
     @DisplayField private final double damagePerDreamStack = 0.15d;
     @DisplayField private final double sotsDamage = 15.0d;
-    @DisplayField private final double ultimateRange = 10.0d;
 
     private final PlayerMap<DreamStack> dreamStackMap = PlayerMap.newConcurrentMap();
+
+    private final int blinkIterations = 3;
+    private final double blinkStep = 0.75d;
+
+    @DisplayField private final double ultimateBaseDamage = 3.0d;
+    @DisplayField private final double ultimateSpeed = 0.3d;
+    @DisplayField(dp = 4) private final double ultimateSpeedStuck = ultimateSpeed / 100;
 
     public Vortex(@Nonnull Heroes handle) {
         super(handle, "Vortex");
@@ -56,16 +55,14 @@ public class Vortex extends Hero implements UIComplexComponent {
 
         setWeapon(new VortexWeapon(this));
 
-        setUltimate(new UltimateTalent(this, "All the Stars", """
-                Instantly create &b10 &eAstral Stars&7 around you.
-                                
-                After a short delay, &brapidly&7 slash between them, &cdealing damage&7 in a process before finishing with a &4final blow&7 that &bslows&7 enemies.
-                                
-                &8;;This will not affect already placed stars.
-                """, 70)
+        setUltimate(new UltimateTalent(this, "Arcana", """
+                Launch an &6Astral&7 energy in front of you that &nfollows&7 your crosshair and &brapidly&7 deals &cdamage&7 in small &cAoE&7.
+                """, 50)
                 .setItem(Material.QUARTZ)
-                .setCastDuration(15)
+                .setDurationSec(6)
                 .setCooldownSec(30));
+
+        copyDisplayFieldsToUltimate();
     }
 
     @Override
@@ -86,79 +83,46 @@ public class Vortex extends Hero implements UIComplexComponent {
     public void addDreamStack(@Nonnull GamePlayer player) {
         dreamStackMap.compute(player, Compute.nullable(fn -> new DreamStack(player, dreamStackMap), DreamStack::increment));
     }
+
     @Override
     public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        final double halfRange = ultimateRange / 2.0d;
-        final double quarterRange = halfRange / 3.0d;
+        final double damage = calculateAstralDamage(player, ultimateBaseDamage);
 
-        final Location groundLocation = player.getLocation();
-        final Location location = player.getMidpointLocation();
+        new PlayerTickingGameTask(player) {
+            private final Location location = player.getLocationInFrontFromEyes(0.75f);
 
-        final Location[] ultimateStarPoints = createLocationArray(
-                location,
-                loc -> loc.add(0, halfRange, 0),
-                loc -> loc.add(-quarterRange, 0, -quarterRange),
-                loc -> loc.add(halfRange, 0, 0),
-                loc -> loc.add(-quarterRange, 0, quarterRange),
-                loc -> loc.add(0, 0, -halfRange),
-                loc -> loc.add(0, 0, halfRange),
-                loc -> loc.add(-halfRange, 0, 0),
-                loc -> loc.add(quarterRange, 0, -quarterRange),
-                loc -> loc.add(quarterRange, 0, quarterRange)
-        );
-
-        final int castDuration = getUltimate().getCastDuration();
-        final Random random = new Random();
-
-        // Fx for stars "appearing"
-        for (Location point : ultimateStarPoints) {
-            player.spawnWorldParticle(point, Particle.FLASH, 1);
-
-            final World world = player.getWorld();
-            world.dropItem(location, new ItemStackRandomizedData(Material.NETHER_STAR), self -> {
-                self.setGravity(false);
-                self.setVelocity(new Vector(CFUtils.randomAxis(0.1d, 0.4d), random.nextDouble(0.1d, 0.2d), CFUtils.randomAxis(0.1d, 0.4d)));
-                self.setPickupDelay(10000);
-                self.setTicksLived(6000 - castDuration - 20);
-            });
-
-            player.playWorldSound(point, Sound.ITEM_TRIDENT_THROW, 0.0f);
-            player.playWorldSound(point, Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 0.0f);
-        }
-
-        return new UltimateCallback() {
             @Override
-            public void callback(@Nonnull GamePlayer player) {
-                new TickingGameTask() {
-                    private int pos = 0;
+            public void run(int tick) {
+                if (tick >= getUltimateDuration()) {
+                    cancel();
+                    return;
+                }
 
-                    @Override
-                    public void run(int tick) {
-                        if (modulo(5)) {
-                            if (pos >= ultimateStarPoints.length) {
-                                performFinalSlash(groundLocation, player);
-                                cancel();
-                                return;
-                            }
+                boolean isHit = false;
 
-                            performStarSlash(pos == 0 ? location : ultimateStarPoints[pos - 1], ultimateStarPoints[pos], player);
-                            pos++;
-                        }
-
-                        // Fx
-                        if (modulo(10)) {
-                            Geometry.drawCircleAnchored(location, ultimateRange, Quality.HIGH, new Draw(null) {
-                                @Override
-                                public void draw(@Nonnull Location location) {
-                                    player.spawnWorldParticle(location, Particle.FIREWORKS_SPARK, 1);
-                                    player.spawnWorldParticle(location, Particle.CRIT, 1, 0.1d, 0.1d, 0.1d, 0.05f);
-                                }
-                            });
-                        }
+                for (LivingGameEntity entity : Collect.nearbyEntities(location, 1.5d)) {
+                    if (player.isSelfOrTeammate(entity)) {
+                        continue;
                     }
-                }.runTaskTimer(0, 1);
+
+                    isHit = true;
+                    entity.damageTick(damage, player, EnumDamageCause.SOTS, 0);
+                }
+
+                final Vector vector = player.getEyeLocation().getDirection();
+
+                location.add(vector.multiply(isHit ? ultimateSpeedStuck : ultimateSpeed));
+
+                // Fx
+                player.spawnWorldParticle(location, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0);
+
+                if (tick % 5 == 0) {
+                    PlayerLib.playSound(location, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.25f);
+                }
             }
-        };
+        }.runTaskTimer(0, 1);
+
+        return UltimateCallback.OK;
     }
 
     public int getStack(@Nonnull GamePlayer player) {
@@ -166,40 +130,13 @@ public class Vortex extends Hero implements UIComplexComponent {
         return dreamStack != null ? dreamStack.stacks : 0;
     }
 
-    public void performStarSlash(@Nonnull Location from, @Nonnull Location end, @Nonnull GamePlayer player) {
-        // Calculate damage
-        final int stack = getStack(player);
-        final double damage = sotsDamage * (damagePerDreamStack * stack + 1);
-
-        // Perform slash
-        CFUtils.rayTracePath(from, end, 1.0d, 2.0d, entity -> {
-            if (entity.equals(player)) {
-                return;
-            }
-
-            entity.damage(damage, player, EnumDamageCause.STAR_SLASH);
-        }, location -> {
-            // Fx
-            PlayerLib.spawnParticle(location, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0);
-            PlayerLib.spawnParticle(location, Particle.CRIT, 1, 0.25d, 0.25d, 0.25d, 0.05f);
-            PlayerLib.spawnParticle(location, Particle.SPELL, 3, 0.25d, 0.25d, 0.25d, 0.02f);
-
-            PlayerLib.playSound(location, Sound.ITEM_FLINTANDSTEEL_USE, 0.75f);
-        });
+    @Override
+    public VortexStarTalent getFirstTalent() {
+        return (VortexStarTalent) Talents.VORTEX_STAR.getTalent();
     }
 
     @Override
-    public VortexSlash getFirstTalent() {
-        return (VortexSlash) Talents.VORTEX_SLASH.getTalent();
-    }
-
-    @Override
-    public VortexStar getSecondTalent() {
-        return (VortexStar) Talents.VORTEX_STAR.getTalent();
-    }
-
-    @Override
-    public StarAligner getThirdTalent() {
+    public StarAligner getSecondTalent() {
         return (StarAligner) Talents.STAR_ALIGNER.getTalent();
     }
 
@@ -211,54 +148,107 @@ public class Vortex extends Hero implements UIComplexComponent {
     @Nullable
     @Override
     public List<String> getStrings(@Nonnull GamePlayer player) {
-        final int starAmount = getSecondTalent().getStarAmount(player);
+        final int starAmount = getFirstTalent().getStarAmount(player);
         final DreamStack dreamStacks = dreamStackMap.get(player);
 
         return List.of("&6⭐ &l" + starAmount, dreamStacks == null ? "" : "&e⚡ &l" + dreamStacks.stacks);
     }
 
-    @SafeVarargs
-    private Location[] createLocationArray(Location parent, Function<Location, Location>... functions) {
-        if (functions == null) {
-            return new Location[] {};
-        }
+    public void sacrificeHealth(@Nonnull GamePlayer player) {
+        final VortexStarTalent talent = getFirstTalent();
 
-        final Location[] array = new Location[functions.length];
-
-        for (int i = 0; i < functions.length; i++) {
-            array[i] = functions[i].apply(parent.clone());
-        }
-
-        return array;
+        final EntityAttributes attributes = player.getAttributes();
+        attributes.subtractSilent(AttributeType.MAX_HEALTH, talent.healthSacrificePerStar);
     }
 
-    private void performFinalSlash(Location location, GamePlayer player) {
-        for (double i = 0; i < Math.PI * 2; i += Math.PI / 16) {
-            final double x = Math.sin(i) * ultimateRange;
-            final double z = Math.cos(i) * ultimateRange;
+    public void restoreHealth(@Nonnull GamePlayer player, @Nonnull AstralStar star) {
+        if (star.isDead()) {
+            return;
+        }
 
-            location.add(x, 0, z);
+        final VortexStarTalent talent = getFirstTalent();
+        final double health = star.getHealth();
 
-            // Damage
-            Collect.nearbyEntities(location, 2.0d).forEach(entity -> {
-                if (entity.equals(player)) {
-                    return;
+        // Return sacrificed health
+        final EntityAttributes attributes = player.getAttributes();
+        attributes.addSilent(AttributeType.MAX_HEALTH, talent.healthSacrificePerStar);
+
+        // Only heal for whatever the star's health is
+        player.heal(health);
+    }
+
+    public double calculateAstralDamage(@Nonnull GamePlayer player, double damage) {
+        final int stack = getStack(player);
+        return damage * (damagePerDreamStack * stack + 1);
+    }
+
+    public void performStarBlink(@Nonnull GamePlayer player, @Nonnull AstralStar targetStar) {
+        // Calculate damage
+        final VortexStarTalent talent = targetStar.getTalent();
+        final double damage = calculateAstralDamage(player, sotsDamage);
+
+        targetStar.setState(StarState.LINKING);
+
+        final AstralStarList stars = talent.getStars(player);
+        final Location location = player.getLocation();
+        final Location starLocation = targetStar.getLocation();
+
+        final double distance = location.distance(starLocation);
+        final Vector vector = starLocation.toVector().subtract(location.toVector()).normalize().multiply(blinkStep);
+
+        player.setGameMode(GameMode.SPECTATOR);
+
+        new AstralTask(player, targetStar) {
+
+            private double distanceTravelled = 0.0d;
+
+            @Override
+            public void onTaskStop() {
+                player.setGameMode(GameMode.SURVIVAL);
+            }
+
+            @Override
+            public void run(@Nonnull GamePlayer player, @Nonnull AstralStar star, int tick) {
+                for (int i = 0; i < blinkIterations; i++) {
+                    if (next()) {
+                        return;
+                    }
+                }
+            }
+
+            private boolean next() {
+                if (distanceTravelled >= distance) {
+                    restoreHealth(player, targetStar);
+                    stars.removeStar(targetStar);
+
+                    cancel();
+                    return true;
                 }
 
-                entity.setLastDamager(player);
-                entity.damage(1.0d, EnumDamageCause.ENTITY_ATTACK);
-                entity.addEffect(Effects.SLOW, 3, 80);
-            });
+                // Travel
+                location.add(vector);
+                player.teleport(location);
 
-            // Fx
-            PlayerLib.spawnParticle(location, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0);
-            PlayerLib.spawnParticle(location, Particle.CRIT, 1, 0.25d, 0.25d, 0.25d, 0.05f);
-            PlayerLib.spawnParticle(location, Particle.SPELL, 3, 0.25d, 0.25d, 0.25d, 0.02f);
+                // Damage
+                Collect.nearbyEntities(location, 1.5d).forEach(entity -> {
+                    if (player.isSelfOrTeammate(entity)) {
+                        return;
+                    }
 
-            PlayerLib.playSound(location, Sound.ITEM_FLINTANDSTEEL_USE, 0.75f);
+                    entity.damageNoKnockback(damage, player, EnumDamageCause.STAR_SLASH);
+                });
 
-            location.subtract(x, 0, z);
-        }
+                // Fx
+                player.spawnWorldParticle(location, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0);
+                player.spawnWorldParticle(location, Particle.CRIT, 1, 0.25d, 0.25d, 0.25d, 0.05f);
+                player.spawnWorldParticle(location, Particle.SPELL, 3, 0.25d, 0.25d, 0.25d, 0.02f);
 
+                player.playWorldSound(location, Sound.ITEM_FLINTANDSTEEL_USE, 0.75f);
+
+                distanceTravelled += blinkStep;
+                return false;
+            }
+        };
     }
+
 }

@@ -23,23 +23,21 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TaskList;
 import me.hapyl.fight.game.trial.TrialListener;
 import me.hapyl.fight.garbage.CFGarbageCollector;
+import me.hapyl.fight.github.Contributors;
 import me.hapyl.fight.notifier.Notifier;
 import me.hapyl.fight.npc.HumanManager;
 import me.hapyl.fight.npc.runtime.RuntimeNPCManager;
 import me.hapyl.fight.protocol.*;
 import me.hapyl.fight.script.ScriptManager;
 import me.hapyl.fight.translate.Translate;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.EternaAPI;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.util.Validate;
-import org.bukkit.Bukkit;
-import org.bukkit.GameRule;
-import org.bukkit.Registry;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import test.Test;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -51,8 +49,7 @@ public class Main extends JavaPlugin {
             "&6&l\uD835\uDC9Eℱ \uD835\uDC9C\uD835\uDCC7ℯ\uD835\uDCC3\uD835\uDCB6";
 
     public static final VersionInfo versionInfo = new VersionInfo(
-            new UpdateTopic("A newer look!", 232, 113, 44, 232, 138, 44),
-            new UpdateTopic("Daily Bonds!", 35, 156, 22, 81, 201, 68)
+            new UpdateTopic("Vortex & Dark Mage Changes", 138, 46, 7, 237, 152, 40)
     );
 
     public static final String requireEternaVersion = "2.47.0";
@@ -140,22 +137,42 @@ public class Main extends JavaPlugin {
         // Remove recipes and achievements
         Bukkit.clearRecipes();
         Registry.ADVANCEMENT.iterator().forEachRemaining(advancement -> {
+            Bukkit.getUnsafe().removeAdvancement(advancement.getKey());
         });
+
+        Bukkit.reloadData();
 
         // Register Commands
         new CommandRegistry(this);
 
-        // Update database in case of /reload
+        // Check for reload
+        final ReloadChecker reloadChecker = new ReloadChecker(this);
+        final int reloadCount = reloadChecker.getReloadCount();
+
+        reloadChecker.check(20);
+
+        // Kick because of /reload
         for (final Player player : Bukkit.getOnlinePlayers()) {
-            player.kickPlayer(Chat.format("""
+            final boolean isOperator = player.isOp();
+            final StringBuilder builder = new StringBuilder("""
                     &4&lServer Reloaded!
                     &cPlease re-connect to avoid bugs.
-                    """));
-            //manager.handlePlayer(player);
-        }
+                    """);
 
-        // Check for reload
-        ReloadChecker.check(this, 20);
+            if (isOperator) {
+                builder.append("""
+                                                
+                        &7&oReloading your server may lead to memory leaks,
+                        &7&o"Zip File Closed" and similar issues.
+                                            
+                        &7&oIf you encounter any, please &nrestart&7&o the server!
+                                            
+                        &8&oThis is your %s server reload!\
+                        """.formatted(CFUtils.stNdTh(reloadCount)));
+            }
+
+            player.kickPlayer(Chat.color(builder.toString()));
+        }
 
         // Clear garbage entities
         GameTask.runLater(CFGarbageCollector::clearInAllWorlds, 20);
@@ -164,9 +181,6 @@ public class Main extends JavaPlugin {
         //Contributors.loadContributors();
 
         new TrialListener();
-
-        // Initiate runtime tests
-        new Test(this);
     }
 
     @Override

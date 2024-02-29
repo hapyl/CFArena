@@ -1,7 +1,7 @@
 package me.hapyl.fight.util.shield;
 
-import me.hapyl.fight.util.Builder;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.spigotutils.module.util.Builder;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.block.Banner;

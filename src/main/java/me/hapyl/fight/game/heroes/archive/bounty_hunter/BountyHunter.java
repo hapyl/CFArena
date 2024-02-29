@@ -181,6 +181,8 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
         player.setItem(HotbarSlots.HERO_ITEM, null);
         player.addEffect(Effects.SPEED, 2, smokeDuration);
 
+        player.snapToWeapon();
+
         new TimedGameTask(smokeDuration) {
             @Override
             public void run(int tick) {

@@ -5,6 +5,7 @@ import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
+import me.hapyl.fight.game.entity.EquipmentSlot;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
@@ -27,6 +28,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
 
@@ -91,6 +93,11 @@ public class Archer extends Hero implements Listener {
         }, getUltimateDuration());
 
         return UltimateCallback.OK;
+    }
+
+    @Override
+    public void onStart(@Nonnull GamePlayer player) {
+        player.setItem(EquipmentSlot.ARROW, new ItemStack(Material.ARROW));
     }
 
     @Override
@@ -159,6 +166,8 @@ public class Archer extends Hero implements Listener {
             arrow.setColor(hawkeyeArrowColors);
 
             new GameTask() {
+                private int tick;
+
                 @Override
                 public void run() {
                     if (arrow.isDead()) {
@@ -166,8 +175,17 @@ public class Archer extends Hero implements Listener {
                         return;
                     }
 
-                    player.spawnWorldParticle(arrow.getLocation(), Particle.CRIT_MAGIC, 5, 0, 0, 0, 0);
+                    ++tick;
+
                     final Entity target = findNearestTarget(player, arrow.getLocation());
+
+                    // Fx
+                    final Location location = arrow.getLocation();
+
+                    if (tick % 2 == 0) {
+                        player.spawnWorldParticle(location, Particle.CRIT_MAGIC, 5, 0, 0, 0, 0);
+                        player.playWorldSound(location, Sound.ENTITY_ELDER_GUARDIAN_AMBIENT_LAND, 2.0f);
+                    }
 
                     if (target == null) {
                         return;
@@ -179,7 +197,9 @@ public class Archer extends Hero implements Listener {
                             .subtract(arrow.getLocation().toVector())
                             .normalize()
                             .multiply(0.7d);
+
                     arrow.setVelocity(vector);
+
                 }
             }.runTaskTimer(0, 1);
 

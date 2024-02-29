@@ -40,6 +40,7 @@ public class MechaIndustries extends TimedGameTask implements Removable {
             return entity;
         });
 
+        player.getTeam().addEntry(golem.getEntry());
         player.addEffect(Effects.INVISIBILITY, 100000, true);
 
         // Fx

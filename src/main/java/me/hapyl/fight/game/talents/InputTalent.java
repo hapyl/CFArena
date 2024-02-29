@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents;
 
+import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
@@ -113,8 +114,18 @@ public abstract class InputTalent extends Talent {
     }
 
     /**
+     * Called whenever a player uses this talent, regardless if it was successful, left or right-clicked.
+     *
+     * @param player - Player, who used the talent.
+     */
+    @Event
+    public void onUse(@Nonnull GamePlayer player) {
+    }
+
+    /**
      * Called whenever a player cancels the talent.
      */
+    @Event
     public void onCancel(@Nonnull GamePlayer player) {
     }
 
@@ -189,6 +200,7 @@ public abstract class InputTalent extends Talent {
             player.addUltimatePoints(point);
         }
     }
+
 
     private String format(InputTalentData data) {
         String string = data.getDescription();

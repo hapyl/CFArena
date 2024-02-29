@@ -212,7 +212,7 @@ public class HeroPreviewGUI extends PlayerGUI {
 
         return new ItemBuilder(talent.getItemAttributes())
                 .addLore()
-                .addLore("&eClick to hide details")
+                .addLore(Color.BUTTON + "Click to hide details")
                 .asIcon();
     }
 
@@ -226,7 +226,7 @@ public class HeroPreviewGUI extends PlayerGUI {
 
         return new ItemBuilder(talent.getItem())
                 .addLoreIf("", isDisplayAttributes)
-                .addLoreIf("&eClick for details", isDisplayAttributes)
+                .addLoreIf(Color.BUTTON + "Click for details", isDisplayAttributes)
                 .asIcon();
     }
 

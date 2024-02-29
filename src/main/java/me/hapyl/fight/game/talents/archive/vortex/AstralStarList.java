@@ -2,26 +2,24 @@ package me.hapyl.fight.game.talents.archive.vortex;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Ticking;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Particle;
 import org.bukkit.Sound;
 
 import javax.annotation.Nullable;
 import java.util.Set;
 
-public class AstralStars implements Ticking {
+public class AstralStarList implements Ticking {
 
-    private final double pickupDistance = 3.0d;
     private final double dotThreshold = 0.963d;
 
     private final GamePlayer player;
     private final Set<AstralStar> stars;
     private AstralStar targetStar;
 
-    public AstralStars(GamePlayer player) {
+    public AstralStarList(GamePlayer player) {
         this.player = player;
         this.stars = Sets.newHashSet();
     }
@@ -30,19 +28,8 @@ public class AstralStars implements Ticking {
         return stars.size();
     }
 
-    public void summonStar(Location location) {
-        stars.add(new AstralStar(player, location));
-    }
-
-    @Nullable
-    public AstralStar getFirstStarToPickup() {
-        for (AstralStar star : stars) {
-            if (star.getLocation().distance(player.getLocation()) <= pickupDistance) {
-                return star;
-            }
-        }
-
-        return null;
+    public void summonStar(Location location, VortexStarTalent talent) {
+        stars.add(new AstralStar(player, location, talent));
     }
 
     @Nullable
@@ -56,8 +43,23 @@ public class AstralStars implements Ticking {
         targetStar = null;
         double closestDot = 0.0d;
 
+        // Remove dead stars and call onDeath
+        // Note that onDeath only called when the star is killed by a player
+        CFUtils.removeIf(stars, AstralStar::isDead, star -> {
+            star.remove();
+            star.onDeath();
+        });
+
         for (AstralStar star : stars) {
+            star.tick();
             star.setColor(ChatColor.WHITE);
+
+            final StarState state = star.getState();
+
+            // Don't allow stated stars be targeted unless it's BEING ATTACKED
+            if (state != null && state != StarState.BEING_ATTACKED) {
+                continue;
+            }
 
             final double dot = star.dot();
 
@@ -69,17 +71,6 @@ public class AstralStars implements Ticking {
                     closestDot = dot;
                 }
             }
-
-            // Display star particles for other players
-            final Location location = star.getLocation();
-
-            Collect.aliveGamePlayers().forEach(other -> {
-                if (player.equals(other)) {
-                    return;
-                }
-
-                other.spawnParticle(location, Particle.CRIT, 3, 0.1d, 0.1d, 0.1d, 0.01f);
-            });
         }
 
         if (targetStar != null) {

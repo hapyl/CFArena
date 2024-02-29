@@ -1,22 +1,13 @@
 #########################################
 
-todo
-- Custom Tab
+## Bugs
 
-- Add stats to GW
-- Remove glow after shots
-- Add clear particles to either shots and/or invis
-- Update description
-- Smoke outline blinks yep
-- ed grass
+- Modify mage
+- Add command to test filters
+
+- Add hop to juju?
 
 #########################################
-
-
-#########################################
-
-- Allow opening the GUI just don't allow clicking
-- Test swooper
 
 - Stopping the game should display winners
 - Add open 10 instead of bulk open, or make open 10 VIP and bulk PREMIUM

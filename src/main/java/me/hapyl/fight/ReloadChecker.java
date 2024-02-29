@@ -21,43 +21,45 @@ import java.util.List;
 
 public final class ReloadChecker extends DependencyInjector<Main> {
 
-    private ReloadChecker(Main plugin) {
+    private int reloadCount = -1;
+
+    public ReloadChecker(Main plugin) {
         super(plugin);
+
+        try {
+            final Server server = getPlugin().getServer();
+            reloadCount = (int) server.getClass().getDeclaredField("reloadCount").get(server);
+        } catch (Exception ignored) {
+        }
     }
 
-    public static void check(Main plugin, int delay) {
-        new ReloadChecker(plugin).check(delay);
+    public int getReloadCount() {
+        return reloadCount;
     }
 
     public void check(int delay) {
         Runnables.runLater(() -> {
-            try {
-                final Server server = getPlugin().getServer();
-                final int reloadCount = (int) server.getClass().getDeclaredField("reloadCount").get(server);
+            if (reloadCount > 0) {
+                sendCenterMessageToOperatorsAndConsole("");
+                sendCenterMessageToOperatorsAndConsole("&4&lWARNING");
+                sendCenterMessageToOperatorsAndConsole("&cSever Reload Detected!");
+                sendCenterMessageToOperatorsAndConsole("");
 
-                if (reloadCount > 0) {
-                    sendCenterMessageToOperatorsAndConsole("");
-                    sendCenterMessageToOperatorsAndConsole("&4&lWARNING");
-                    sendCenterMessageToOperatorsAndConsole("&cSever Reload Detected!");
-                    sendCenterMessageToOperatorsAndConsole("");
+                sendCenterMessageToOperatorsAndConsole(
+                        "&cNote that %s does &nnot&c support &e/reload&c and it's &nshould only&c be used in development.",
+                        getPlugin().getDescription().getName()
+                );
 
-                    sendCenterMessageToOperatorsAndConsole(
-                            "&cNote that %s does &nnot&c support &e/reload&c and it's &nshould only&c be used in development.",
-                            getPlugin().getDescription().getName()
-                    );
+                sendCenterMessageToOperatorsAndConsole("");
 
-                    sendCenterMessageToOperatorsAndConsole("");
+                sendCenterMessageToOperatorsAndConsole("&cIf you are not a developer, please &lrestart&c the server instead.");
+                sendCenterMessageToOperatorsAndConsole("");
 
-                    sendCenterMessageToOperatorsAndConsole("&cIf you are not a developer, please &lrestart&c the server instead.");
-                    sendCenterMessageToOperatorsAndConsole("");
-
-                    // sfx
-                    Bukkit.getOnlinePlayers().stream().filter(Player::isOp).forEach(player -> {
-                        PlayerLib.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 0.0f);
-                        PlayerLib.playSound(player, Sound.BLOCK_NOTE_BLOCK_PLING, 0.0f);
-                    });
-                }
-            } catch (NoSuchFieldException | IllegalAccessException ignored) {
+                // sfx
+                Bukkit.getOnlinePlayers().stream().filter(Player::isOp).forEach(player -> {
+                    PlayerLib.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 0.0f);
+                    PlayerLib.playSound(player, Sound.BLOCK_NOTE_BLOCK_PLING, 0.0f);
+                });
             }
 
             Debug.keepInfo("&ePlugin started at &6" + new SimpleDateFormat("HH'h' mm'm' ss's'").format(new Date(Main.getStartupTime())));

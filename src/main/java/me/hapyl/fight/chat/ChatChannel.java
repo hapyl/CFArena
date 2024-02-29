@@ -66,15 +66,7 @@ public enum ChatChannel {
 
         @Override
         public void processMessage(@Nonnull PlayerProfile profile, @Nonnull String message) {
-            Bukkit.getOnlinePlayers().forEach(player -> {
-                final PlayerProfile otherProfile = PlayerProfile.getProfile(player);
-
-                if (otherProfile == null || !otherProfile.getRank().isStaff()) {
-                    return;
-                }
-
-                Message.broadcastStaff("&c%s: &f%s".formatted(profile.getPlayer().getName(), message));
-            });
+            Message.broadcastStaff("&c%s: &f%s".formatted(profile.getPlayer().getName(), message));
         }
     };
 

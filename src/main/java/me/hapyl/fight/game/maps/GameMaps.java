@@ -170,8 +170,9 @@ public enum GameMaps implements Selectable, Translatable {
                             """)
                     .setMaterial(Material.TOTEM_OF_UNDYING)
                     .setSize(Size.MEDIUM)
-                    .setTicksBeforeReveal(100)
                     .setWeather(WeatherType.DOWNFALL)
+                    .setTicksBeforeReveal(100)
+                    .addLocation(98, 98, -739)
     ),
 
     ;

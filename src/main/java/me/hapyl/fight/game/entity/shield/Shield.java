@@ -3,12 +3,16 @@ package me.hapyl.fight.game.entity.shield;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.PreprocessingMethod;
 import me.hapyl.fight.game.Event;
+import me.hapyl.fight.game.damage.DamageFlag;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.spigotutils.module.math.Numbers;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Set;
 
 public class Shield {
 
@@ -25,6 +29,27 @@ public class Shield {
         this.player = player;
         this.maxCapacity = maxCapacity;
         this.capacity = initialCapacity;
+    }
+
+    /**
+     * Returns true if this shield can shield form the given cause.
+     * <br>
+     * By default, shields protect from any damage but {@link EnumDamageCause#FALL}.
+     *
+     * @param cause - Cause.
+     * @return true if this shield can shield from the given cause; false otherwise.
+     */
+    public boolean canShield(@Nullable EnumDamageCause cause) {
+        if (cause == null) {
+            return true;
+        }
+
+        if (cause.hasFlag(DamageFlag.PIERCING_DAMAGE)
+                || cause == EnumDamageCause.FALL) {
+            return false;
+        }
+
+        return true;
     }
 
     public void regenerate(double amount) {

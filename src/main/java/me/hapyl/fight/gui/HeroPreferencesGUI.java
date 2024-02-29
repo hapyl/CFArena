@@ -17,7 +17,7 @@ import java.util.Set;
 
 public class HeroPreferencesGUI extends StyledGUI {
 
-    private final int[] slots = { 18, 19, 20, 21, 23, 24, 25, 26 };
+    private final int[] slots = { 19, 20, 21, 22, 23, 24, 25 };
     private final RandomHeroEntry entry;
     private final Set<Archetype> include;
 

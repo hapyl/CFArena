@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.archive.zealot;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.shield.HitShield;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
@@ -11,6 +12,7 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class MalevolentHitshield extends Talent {
 
@@ -39,6 +41,11 @@ public class MalevolentHitshield extends Talent {
                 player.playWorldSound(Sound.ENTITY_ENDERMAN_TELEPORT, (float) (2.0f - (1.5f / shieldStrength * capacity)));
                 player.spawnWorldParticle(Particle.PORTAL, 10, 0, 0, 0, 1.0f);
                 player.spawnWorldParticle(Particle.REVERSE_PORTAL, 10, 0, 0, 0, 1.0f);
+            }
+
+            @Override
+            public boolean canShield(@Nullable EnumDamageCause cause) {
+                return true; // blocks any damage
             }
 
             @Override
