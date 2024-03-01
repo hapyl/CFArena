@@ -16,6 +16,7 @@ import me.hapyl.fight.game.heroes.archive.bloodfield.impel.Impel;
 import me.hapyl.fight.game.heroes.archive.bloodfield.impel.ImpelInstance;
 import me.hapyl.fight.game.heroes.archive.bloodfield.impel.Type;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -105,11 +106,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
                         .setDamage(5.0d)
         );
 
-        final UltimateTalent ultimate = new UltimateTalent(this, "Impel", 50)
-                .setType(Talent.Type.IMPAIR)
-                .setItem(Material.MOOSHROOM_SPAWN_EGG)
-                .setDuration(impelDuration * impelTimes)
-                .setCastDuration(30);
+        final UltimateTalent ultimate = new BloodfiendUltimate();
 
         ultimate.setDescription("""
                 After a short casting time, impel all &cbitten &cenemies&7 for {duration}.
@@ -140,7 +137,6 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
             }
         }.runTaskTimer(1, 1);
     }
-
 
     @Override
     public void onPlayersRevealed(@Nonnull GamePlayer player) {
@@ -208,99 +204,6 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
         }
 
         data.reset();
-    }
-
-    @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        final BloodfiendData data = getData(player);
-        final Set<GamePlayer> succulencePlayers = data.getSucculencePlayers();
-        final Location location = player.getLocation().add(0.0d, 0.5d, 0.0d);
-
-        final HumanNPC npc = new HumanNPC(player.getLocation(), "", player.getName());
-
-        npc.showAll();
-        npc.setEquipment(player.getEquipment());
-        npc.setSitting(true);
-
-        // Draw particles
-        succulencePlayers.forEach(target -> {
-            drawTentacleParticles(location, target.getLocation(), draw -> {
-                player.spawnWorldParticle(draw, Particle.LAVA, 1, 0.1d, 0.1d, 0.1d, 0.0f);
-                player.spawnWorldParticle(draw, Particle.FLAME, 1);
-                player.spawnWorldParticle(draw, Particle.SMALL_FLAME, 3, 0.1d, 0.1d, 0.1d, 0.05f);
-            });
-        });
-
-        // Spawn bats
-        final Set<Bat> fxBats = Sets.newHashSet();
-        final Location eyeLocation = player.getEyeLocation();
-
-        for (int i = 0; i < 10; i++) {
-            fxBats.add(Entities.BAT.spawn(eyeLocation, self -> {
-                self.setAwake(true);
-                self.setInvulnerable(true);
-            }));
-        }
-
-        player.addEffect(Effects.INVISIBILITY, 10000, true);
-
-        final Bat playerBat = Entities.BAT.spawn(eyeLocation, self -> {
-            self.setAwake(true);
-            self.setInvulnerable(true);
-
-            EntityUtils.setCollision(self, EntityUtils.Collision.DENY, player.getPlayer());
-        });
-
-        final float flySpeed = player.getFlySpeed();
-
-        player.teleport(eyeLocation);
-
-        player.setFlySpeed(0.05f);
-        player.setAllowFlight(true);
-        player.setFlying(true);
-
-        // Fx
-        final GameTask batTask = new GameTask() {
-            @Override
-            public void run() {
-                playerBat.teleport(player.getLocation());
-
-                // Fx
-                PlayerLib.spawnParticle(player.getLocation(), Particle.SMOKE_NORMAL, 2, 0.15d, 0.15d, 0.15d, 0.0f);
-            }
-        }.runTaskTimer(0, 1);
-
-        player.playWorldSound(location, Sound.ENTITY_BAT_TAKEOFF, 0.25f);
-
-        playSoundAtTick(
-                location,
-                Sound.ENTITY_ELDER_GUARDIAN_CURSE,
-                0.75f,
-                0.1f,
-                0, 2, 3, 5, 6, 9, 10, 12
-        );
-
-        return new UltimateCallback() {
-            @Override
-            public void callback(@Nonnull GamePlayer player) {
-                getData(player).newImpelInstance(Bloodfiend.this, player).nextImpel(0);
-
-                fxBats.forEach(Bat::remove);
-                fxBats.clear();
-
-                player.setFlySpeed(flySpeed);
-                player.setAllowFlight(false);
-                player.setFlying(false);
-
-                data.cooldownFlight(true);
-
-                player.removeEffect(Effects.INVISIBILITY);
-
-                npc.remove();
-                playerBat.remove();
-                batTask.cancel();
-            }
-        };
     }
 
     @Override
@@ -428,7 +331,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
         }
 
         // Ultimate bat
-        if (isUsingUltimate(player)) {
+        if (player.isUsingUltimate()) {
             ev.setCancelled(true);
             return;
         }
@@ -526,6 +429,113 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
                 return false;
             }
         }.runTaskTimer(0, 1);
+    }
+
+    private class BloodfiendUltimate extends UltimateTalent {
+
+        public BloodfiendUltimate() {
+            super("Impel", 50);
+
+            setType(Talent.Type.IMPAIR);
+            setItem(Material.MOOSHROOM_SPAWN_EGG);
+            setDuration(impelDuration * impelTimes);
+            setCastDuration(30);
+        }
+
+        @Nonnull
+        @Override
+        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+            final BloodfiendData data = getData(player);
+            final Set<GamePlayer> succulencePlayers = data.getSucculencePlayers();
+            final Location location = player.getLocation().add(0.0d, 0.5d, 0.0d);
+
+            final HumanNPC npc = new HumanNPC(player.getLocation(), "", player.getName());
+
+            npc.showAll();
+            npc.setEquipment(player.getEquipment());
+            npc.setSitting(true);
+
+            // Draw particles
+            succulencePlayers.forEach(target -> {
+                drawTentacleParticles(location, target.getLocation(), draw -> {
+                    player.spawnWorldParticle(draw, Particle.LAVA, 1, 0.1d, 0.1d, 0.1d, 0.0f);
+                    player.spawnWorldParticle(draw, Particle.FLAME, 1);
+                    player.spawnWorldParticle(draw, Particle.SMALL_FLAME, 3, 0.1d, 0.1d, 0.1d, 0.05f);
+                });
+            });
+
+            // Spawn bats
+            final Set<Bat> fxBats = Sets.newHashSet();
+            final Location eyeLocation = player.getEyeLocation();
+
+            for (int i = 0; i < 10; i++) {
+                fxBats.add(Entities.BAT.spawn(eyeLocation, self -> {
+                    self.setAwake(true);
+                    self.setInvulnerable(true);
+                }));
+            }
+
+            player.addEffect(Effects.INVISIBILITY, 10000, true);
+
+            final Bat playerBat = Entities.BAT.spawn(eyeLocation, self -> {
+                self.setAwake(true);
+                self.setInvulnerable(true);
+
+                EntityUtils.setCollision(self, EntityUtils.Collision.DENY, player.getPlayer());
+            });
+
+            final float flySpeed = player.getFlySpeed();
+
+            player.teleport(eyeLocation);
+
+            player.setFlySpeed(0.05f);
+            player.setAllowFlight(true);
+            player.setFlying(true);
+
+            // Fx
+            final GameTask batTask = new GameTask() {
+                @Override
+                public void run() {
+                    playerBat.teleport(player.getLocation());
+
+                    // Fx
+                    PlayerLib.spawnParticle(player.getLocation(), Particle.SMOKE_NORMAL, 2, 0.15d, 0.15d, 0.15d, 0.0f);
+                }
+            }.runTaskTimer(0, 1);
+
+            player.playWorldSound(location, Sound.ENTITY_BAT_TAKEOFF, 0.25f);
+
+            playSoundAtTick(
+                    location,
+                    Sound.ENTITY_ELDER_GUARDIAN_CURSE,
+                    0.75f,
+                    0.1f,
+                    0, 2, 3, 5, 6, 9, 10, 12
+            );
+
+
+            return new UltimateResponse() {
+                @Override
+                public void onCastFinished(@Nonnull GamePlayer player) {
+                    getData(player).newImpelInstance(Bloodfiend.this, player).nextImpel(0);
+
+                    fxBats.forEach(Bat::remove);
+                    fxBats.clear();
+
+                    player.setFlySpeed(flySpeed);
+                    player.setAllowFlight(false);
+                    player.setFlying(false);
+
+                    data.cooldownFlight(true);
+
+                    player.removeEffect(Effects.INVISIBILITY);
+
+                    npc.remove();
+                    playerBat.remove();
+                    batTask.cancel();
+                }
+            };
+        }
     }
 
 }

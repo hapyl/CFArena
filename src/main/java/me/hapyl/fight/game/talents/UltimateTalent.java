@@ -1,18 +1,27 @@
 package me.hapyl.fight.game.talents;
 
 import com.google.common.collect.Lists;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.annotate.PreferredReturnValue;
+import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.achievement.Achievements;
+import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.PlayerDataHandler;
+import me.hapyl.fight.game.heroes.UltimateResponse;
+import me.hapyl.fight.game.setting.Settings;
+import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
-import me.hapyl.fight.translate.Language;
-import me.hapyl.fight.translate.TranslateKey;
+import me.hapyl.fight.game.task.player.PlayerGameTask;
+import me.hapyl.fight.util.CFUtils;
+import me.hapyl.fight.util.collection.player.PlayerDataMap;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayFieldData;
 import me.hapyl.fight.util.displayfield.DisplayFieldDataProvider;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -20,68 +29,128 @@ import java.util.function.Consumer;
 
 /**
  * Represents an ultimate talent.
- * <div>
- * Note that this is not actual executor for ultimate,
- * the hero class is. This is essentially just a data for the ultimate.
- * </div>
  */
-public class UltimateTalent extends Talent implements DisplayFieldDataProvider {
+public abstract class UltimateTalent extends Talent implements DisplayFieldDataProvider {
+
+    public static final UltimateTalent UNFINISHED_ULTIMATE = new UltimateTalent("Unfinished Ultimate", 12345) {
+        @Nonnull
+        @Override
+        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+            return UltimateResponse.error("This ultimate is now finished!");
+        }
+    };
 
     private final List<DisplayFieldData> dataFields;
 
-    private final Hero hero;
     private final int cost;
     private Sound sound;
     private float pitch;
     private int castDuration;
 
-    public UltimateTalent(Hero hero, String name, int pointCost) {
-        this(hero, name, "", pointCost);
+    public UltimateTalent(String name, int pointCost) {
+        this(name, "", pointCost);
     }
 
-    public UltimateTalent(Hero hero, String name, String info, int pointCost) {
+    public UltimateTalent(String name, String info, int pointCost) {
         super(name, info, Type.DAMAGE);
 
-        this.hero = hero;
-        cost = pointCost;
-        sound = Sound.ENTITY_ENDER_DRAGON_GROWL;
-        pitch = 2.0f;
-        dataFields = Lists.newArrayList();
+        this.cost = pointCost;
+        this.sound = Sound.ENTITY_ENDER_DRAGON_GROWL;
+        this.pitch = 2.0f;
+        this.dataFields = Lists.newArrayList();
 
         setDuration(0);
     }
 
+    /**
+     * Unleashes this hero's ultimate.
+     *
+     * @return the ultimate callback. The callback will be executed if, and only if the ultimate has a cast duration.
+     */
     @Nonnull
-    @Override
-    public String getTranslateName(@Nonnull Language language) {
-        return language.getFormatted(new TranslateKey(getParentTranslatableKey() + "name"));
+    @PreferredReturnValue("UltimateCallback#OK")
+    public abstract UltimateResponse useUltimate(@Nonnull GamePlayer player);
+
+    public final void execute1(@Nonnull GamePlayer player) {
+        if (hasCd(player)) {
+            if (player.isSettingEnabled(Settings.SHOW_COOLDOWN_MESSAGE)) {
+                player.sendMessage(
+                        "&4&l※ &cYour ultimate is on cooldown for %s!",
+                        CFUtils.decimalFormatTick(getCdTimeLeft(player))
+                );
+            }
+            return;
+        }
+
+        if (player.isUsingUltimate()) {
+            player.sendMessage("&4&l※ &cYou are already using ultimate!");
+            return;
+        }
+
+        final UltimateResponse response = useUltimate(player);
+
+        // Predicate fails
+        if (response.isError()) {
+            player.sendMessage(
+                    "&4&l※ &cCannot use ultimate! %s",
+                    response.getReason()
+            );
+            return;
+        }
+
+        // *=* Ultimate Successfully Executed *=* //
+
+        startCd(player);
+        player.setUltPoints(0);
+
+        // Call onCastFinished
+        if (castDuration > 0) {
+            player.schedule(response::onCastFinished, castDuration);
+        }
+
+        final int duration = getDuration();
+
+        // Call onUltimateEnd
+        if (duration > 0) {
+            player.setUsingUltimate(true);
+
+            player.schedule(() -> {
+                // Make the player is still using ultimate!
+                // If not, it was cancelled manually, which is ok.
+                if (!player.isUsingUltimate()) {
+                    return;
+                }
+
+                player.setUsingUltimate(false);
+                response.onUltimateEnd(player);
+            }, duration);
+        }
+
+        // Stats
+        player.getStats().addValue(StatType.ULTIMATE_USED, 1);
+
+        // Progress bond
+        ChallengeType.USE_ULTIMATES.progress(player);
+
+        // Achievement
+        Achievements.USE_ULTIMATES.complete(player);
+
+        // Notify
+        CF.getPlayers().forEach(other -> {
+            other.sendMessage("&b&l※ &b%s used &3&l%s&b!".formatted((player.equals(other) ? "You" : player.getName()), getName()));
+            other.playSound(sound, pitch);
+        });
     }
 
-    @Nonnull
     @Override
-    public String getTranslateDescription(@Nonnull Language language) {
-        return language.getFormatted(new TranslateKey(getParentTranslatableKey() + "description"));
-    }
-
-    @Nonnull
-    @Override
-    public String getParentTranslatableKey() {
-        return hero.getParentTranslatableKey() + "ultimate.";
+    @Deprecated(forRemoval = true)
+    public final Response execute(@Nonnull GamePlayer player) {
+        throw new IllegalStateException("execute1(GamePlayer)");
     }
 
     @Override
     public UltimateTalent setType(@Nonnull Type type) {
         super.setType(type);
-        return this;
-    }
-
-    public UltimateTalent appendDescription(String description, Object... format) {
-        addDescription(description, format);
-        return this;
-    }
-
-    public UltimateTalent appendAttributeDescription(String key, Object value) {
-        addAttributeDescription(key, value);
         return this;
     }
 
@@ -155,28 +224,6 @@ public class UltimateTalent extends Talent implements DisplayFieldDataProvider {
         return this;
     }
 
-    @Override
-    public Response execute(@Nonnull GamePlayer player) throws IllegalStateException {
-        throw new IllegalStateException("Ultimate not implemented");
-    }
-
-    /**
-     * Must return true in order for talent to execute. If returns false show a message.
-     *
-     * @param player - player to test.
-     * @see UltimateTalent#predicateMessage()
-     * @deprecated use Hero instead
-     */
-    @Deprecated
-    public boolean predicateUltimate(Player player) {
-        return true;
-    }
-
-    @Deprecated
-    public String predicateMessage() {
-        return "invalid class call, use 'Hero#useUltimate' instead";
-    }
-
     public UltimateTalent defaultCdFromCost() {
         return setCdFromCost(2);
     }
@@ -206,4 +253,5 @@ public class UltimateTalent extends Talent implements DisplayFieldDataProvider {
     public String getTalentClassType() {
         return "Ultimate";
     }
+
 }

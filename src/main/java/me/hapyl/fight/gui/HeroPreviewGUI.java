@@ -11,7 +11,6 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.gui.styled.StyledTexture;
-import me.hapyl.fight.translate.Language;
 import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -41,13 +40,11 @@ public class HeroPreviewGUI extends PlayerGUI {
 
     private final Heroes heroes;
     private final Set<Talent> attributeDisplay;
-    private final Language language;
 
     public HeroPreviewGUI(Player player, Heroes heroes, int returnPage) {
         super(player, "Hero Preview - " + heroes.getHero().getName(), 5);
         this.heroes = heroes;
         this.attributeDisplay = Sets.newHashSet();
-        this.language = Language.getPlayerLanguage(player);
 
         update(returnPage);
     }

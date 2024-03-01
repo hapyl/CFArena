@@ -44,7 +44,7 @@ public class Response {
     }
 
     @Nonnull
-    public static Response error(String reason, Object... format) {
+    public static Response error(@Nonnull String reason, @Nullable Object... format) {
         return new Response(reason.formatted(format), Type.ERROR);
     }
 

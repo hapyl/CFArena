@@ -12,6 +12,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.harbinger.MeleeStance;
@@ -80,23 +81,7 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
         equipment.setBoots(183, 183, 180);
 
         setWeapon(new BowWeapon().setDamage(2.0d).setName("Bow").setDescription("Just a normal bow."));
-
-        setUltimate(new UltimateTalent(
-                this, "Crowned Mastery", """
-                Gather the surrounding energy to execute a &cfatal strike&7 based on your &ncurrent&7 &nstance&7.
-                                
-                &6In Range Stance
-                Shoots a magic arrow in front of you that explodes upon impact, dealing moderate &cAoE damage&7 and applying %1$s.
-                                
-                &6In Melee Stance
-                Performs a slash around you that deals significant &cAoE damage&7.
-                                
-                If an enemy is affected by %1$s, the damage is &cincreased&7 and the %1$s is removed.
-                """.formatted(Named.RIPTIDE),
-                70
-        ).setItem(Material.DIAMOND).setDuration(40));
-
-        copyDisplayFieldsToUltimate();
+        setUltimate(new HarbingerUltimate());
     }
 
     @EventHandler()
@@ -200,94 +185,6 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
     }
 
     @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        final Location location = player.getEyeLocation();
-        final RiptideStatus riptide = getPlayerData(player);
-
-        // Stance Check
-        final boolean isMeleeStance = getFirstTalent().isActive(player);
-
-        // Melee Stance
-        if (isMeleeStance) {
-            new TickingGameTask() {
-                private final double mathPi2 = Math.PI * 2;
-
-                private double d = 0;
-                private double radius = 1.0d;
-
-                @Override
-                public void run(int tick) {
-                    if (d > mathPi2) {
-                        cancel();
-                        return;
-                    }
-
-                    final double x = Math.sin(d) * radius;
-                    final double y = Math.sin(Math.toRadians(tick)) * 0.25d;
-                    final double z = Math.cos(d) * radius;
-
-                    location.add(x, y, z);
-
-                    // Affect
-                    Collect.nearbyEntities(location, 2.0d).forEach(entity -> {
-                        if (player.isSelfOrTeammate(entity)) {
-                            return;
-                        }
-
-                        final boolean affected = riptide.isAffected(entity);
-                        riptide.stop(entity);
-
-                        entity.setLastDamager(player);
-                        entity.damage(
-                                affected ? ultimateMeleeDamage * ultimateMeleeRiptideDamageMultiplier : ultimateMeleeDamage,
-                                EnumDamageCause.RIPTIDE
-                        );
-                        entity.setNoDamageTicks(30); // Prevent multiple damage
-                    });
-
-                    // Fx
-                    player.spawnWorldParticle(location, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0.1f);
-                    player.spawnWorldParticle(location, Particle.FALLING_WATER, 3, 0.5, 0, 0.5, 0.01f);
-
-                    player.playWorldSound(location, Sound.ENTITY_DROWNED_HURT, (float) (0.5f + (1.0f / Math.PI * 2 * d)));
-
-                    location.subtract(x, y, z);
-
-                    d += Math.PI / 5;
-                    radius += (ultimateMeleeRadius - 1) / mathPi2 / d;
-                }
-            }.runTaskTimer(15, 1);
-        }
-        // Ranged Stance
-        else {
-            final Vector direction = location.getDirection();
-
-            final Arrow arrow = player.getWorld()
-                    .spawnArrow(
-                            location.add(direction.setY(0.0d).multiply(2)).add(0.0d, 3.0d, 0.0d),
-                            direction.normalize().multiply(0.75d).setY(0.25),
-                            0.15f,
-                            0
-                    );
-
-            arrow.setShooter(player.getPlayer());
-            arrow.setCritical(false);
-            arrow.setColor(Color.AQUA);
-
-            ultimateArrows.add(arrow);
-
-            // Fx
-            player.playWorldSound(Sound.ITEM_CROSSBOW_SHOOT, 0.75f);
-        }
-
-        // Fx
-        player.addEffect(Effects.SLOW, 2, 20);
-        player.playWorldSound(Sound.BLOCK_CONDUIT_AMBIENT, 2.0f);
-
-        return UltimateCallback.OK;
-    }
-
-    @Override
     public MeleeStance getFirstTalent() {
         return (MeleeStance) Talents.STANCE.getTalent();
     }
@@ -365,4 +262,115 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
         }.runTaskTimer(0, 1);
     }
 
+    private class HarbingerUltimate extends UltimateTalent {
+        public HarbingerUltimate() {
+            super("Crowned Mastery", 70);
+
+            setDescription("""
+                    Gather the surrounding energy to execute a &cfatal strike&7 based on your &ncurrent&7 &nstance&7.
+                                    
+                    &6In Range Stance
+                    Shoots a magic arrow in front of you that explodes upon impact, dealing moderate &cAoE damage&7 and applying %1$s.
+                                    
+                    &6In Melee Stance
+                    Performs a slash around you that deals significant &cAoE damage&7.
+                                    
+                    If an enemy is affected by %1$s, the damage is &cincreased&7 and the %1$s is removed.
+                    """.formatted(Named.RIPTIDE));
+
+            setItem(Material.DIAMOND);
+            setDuration(40);
+
+            copyDisplayFieldsFrom(Harbinger.this);
+        }
+
+        @Nonnull
+        @Override
+        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+            final Location location = player.getEyeLocation();
+            final RiptideStatus riptide = getPlayerData(player);
+
+            // Stance Check
+            final boolean isMeleeStance = getFirstTalent().isActive(player);
+
+            // Melee Stance
+            if (isMeleeStance) {
+                new TickingGameTask() {
+                    private final double mathPi2 = Math.PI * 2;
+
+                    private double d = 0;
+                    private double radius = 1.0d;
+
+                    @Override
+                    public void run(int tick) {
+                        if (d > mathPi2) {
+                            cancel();
+                            return;
+                        }
+
+                        final double x = Math.sin(d) * radius;
+                        final double y = Math.sin(Math.toRadians(tick)) * 0.25d;
+                        final double z = Math.cos(d) * radius;
+
+                        location.add(x, y, z);
+
+                        // Affect
+                        Collect.nearbyEntities(location, 2.0d).forEach(entity -> {
+                            if (player.isSelfOrTeammate(entity)) {
+                                return;
+                            }
+
+                            final boolean affected = riptide.isAffected(entity);
+                            riptide.stop(entity);
+
+                            entity.setLastDamager(player);
+                            entity.damage(
+                                    affected ? ultimateMeleeDamage * ultimateMeleeRiptideDamageMultiplier : ultimateMeleeDamage,
+                                    EnumDamageCause.RIPTIDE
+                            );
+                            entity.setNoDamageTicks(30); // Prevent multiple damage
+                        });
+
+                        // Fx
+                        player.spawnWorldParticle(location, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0.1f);
+                        player.spawnWorldParticle(location, Particle.FALLING_WATER, 3, 0.5, 0, 0.5, 0.01f);
+
+                        player.playWorldSound(location, Sound.ENTITY_DROWNED_HURT, (float) (0.5f + (1.0f / Math.PI * 2 * d)));
+
+                        location.subtract(x, y, z);
+
+                        d += Math.PI / 5;
+                        radius += (ultimateMeleeRadius - 1) / mathPi2 / d;
+                    }
+                }.runTaskTimer(15, 1);
+            }
+            // Ranged Stance
+            else {
+                final Vector direction = location.getDirection();
+
+                final Arrow arrow = player.getWorld()
+                        .spawnArrow(
+                                location.add(direction.setY(0.0d).multiply(2)).add(0.0d, 3.0d, 0.0d),
+                                direction.normalize().multiply(0.75d).setY(0.25),
+                                0.15f,
+                                0
+                        );
+
+                arrow.setShooter(player.getPlayer());
+                arrow.setCritical(false);
+                arrow.setColor(Color.AQUA);
+
+                ultimateArrows.add(arrow);
+
+                // Fx
+                player.playWorldSound(Sound.ITEM_CROSSBOW_SHOOT, 0.75f);
+            }
+
+            // Fx
+            player.addEffect(Effects.SLOW, 2, 20);
+            player.playWorldSound(Sound.BLOCK_CONDUIT_AMBIENT, 2.0f);
+
+            return UltimateResponse.OK;
+        }
+    }
 }

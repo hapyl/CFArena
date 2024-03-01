@@ -10,6 +10,7 @@ import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
@@ -53,37 +54,7 @@ public class Hercules extends Hero implements Listener, PlayerElement, DisabledH
         equipment.setBoots(Material.LEATHER_BOOTS);
 
         setWeapon(new HerculesWeapon());
-
-        setUltimate(new UltimateTalent(
-                this, "Crush the Ground",
-                "Call upon divine power to increase your &ejump height &7and &cplunging damage&7 for {duration}.",
-                50
-        ).setDuration(240).setItem(Material.NETHERITE_HELMET).setCooldownSec(30));
-    }
-
-    @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        // Fx
-        new GameTask() {
-            private int tick = 0;
-
-            @Override
-            public void run() {
-                if (tick % 4 == 0) {
-                    if (tick <= 20) {
-                        player.addEffect(Effects.SLOW, tick / 4, 4);
-                        player.playSound(Sound.ENTITY_WITHER_SHOOT, (float) (0.5d + (0.1d * tick / 4)));
-                    }
-                    else {
-                        cancel();
-                        player.playSound(Sound.ENTITY_WITHER_HURT, 1.25f);
-                    }
-                }
-                ++tick;
-            }
-        }.runTaskTimer(0, 1);
-
-        return UltimateCallback.OK;
+        setUltimate(new HerculesUltimate());
     }
 
     @Override
@@ -133,6 +104,45 @@ public class Hercules extends Hero implements Listener, PlayerElement, DisabledH
         }
     }
 
+    @EventHandler()
+    public void handlePlayerJump(PlayerStatisticIncrementEvent ev) {
+        final GamePlayer player = CF.getPlayer(ev);
+
+        if (validatePlayer(player) && ev.getStatistic() == Statistic.JUMP && player != null && player.isUsingUltimate()) {
+            final Vector velocity = player.getVelocity();
+            player.setVelocity(velocity.setY(0.75f));
+        }
+    }
+
+    @EventHandler
+    public void handleUltimate(PlayerToggleSneakEvent ev) {
+        final GamePlayer player = CF.getPlayer(ev.getPlayer());
+
+        if (player != null && validatePlayer(player) && player.isSneaking() && canPlunge(player) && !isPlunging(player)) {
+            performPlunge(player, getPlungeDistance(player));
+        }
+    }
+
+    @Override
+    public void onStop(@Nonnull GamePlayer player) {
+        player.removeTag("plunging");
+    }
+
+    @Override
+    public Talent getFirstTalent() {
+        return Talents.HERCULES_DASH.getTalent();
+    }
+
+    @Override
+    public Talent getSecondTalent() {
+        return Talents.HERCULES_UPDRAFT.getTalent();
+    }
+
+    @Override
+    public Talent getPassiveTalent() {
+        return Talents.PLUNGE.getTalent();
+    }
+
     private void giveTridentBack(Player player, boolean lessCooldown) {
         if (!fragileTrident.containsKey(player)) {
             return;
@@ -146,25 +156,6 @@ public class Hercules extends Hero implements Listener, PlayerElement, DisabledH
         player.updateInventory();
 
         fragileTrident.remove(player);
-    }
-
-    @EventHandler()
-    public void handlePlayerJump(PlayerStatisticIncrementEvent ev) {
-        final GamePlayer player = CF.getPlayer(ev.getPlayer());
-
-        if (ev.getStatistic() == Statistic.JUMP && isUsingUltimate(player)) {
-            final Vector velocity = player.getVelocity();
-            player.setVelocity(velocity.setY(0.75f));
-        }
-    }
-
-    @EventHandler
-    public void handleUltimate(PlayerToggleSneakEvent ev) {
-        final GamePlayer player = CF.getPlayer(ev.getPlayer());
-
-        if (player != null && validatePlayer(player) && player.isSneaking() && canPlunge(player) && !isPlunging(player)) {
-            performPlunge(player, getPlungeDistance(player));
-        }
     }
 
     private int getPlungeDistance(GamePlayer player) {
@@ -214,7 +205,7 @@ public class Hercules extends Hero implements Listener, PlayerElement, DisabledH
                         }
 
                         target.damage(
-                                isUsingUltimate(player) ? plungeDamage * 2 : plungeDamage,
+                                player.isUsingUltimate() ? plungeDamage * 2 : plungeDamage,
                                 player,
                                 EnumDamageCause.PLUNGE
                         );
@@ -225,11 +216,6 @@ public class Hercules extends Hero implements Listener, PlayerElement, DisabledH
         }.runTaskTimer(0, 1);
     }
 
-    @Override
-    public void onStop(@Nonnull GamePlayer player) {
-        player.removeTag("plunging");
-    }
-
     private boolean isPlunging(GamePlayer player) {
         return player.hasTag("plunging");
     }
@@ -238,19 +224,44 @@ public class Hercules extends Hero implements Listener, PlayerElement, DisabledH
         return getPlungeDistance(player) > 3;
     }
 
-    @Override
-    public Talent getFirstTalent() {
-        return Talents.HERCULES_DASH.getTalent();
-    }
+    private class HerculesUltimate extends UltimateTalent {
+        public HerculesUltimate() {
+            super("Crush the Ground", 50);
 
-    @Override
-    public Talent getSecondTalent() {
-        return Talents.HERCULES_UPDRAFT.getTalent();
-    }
 
-    @Override
-    public Talent getPassiveTalent() {
-        return Talents.PLUNGE.getTalent();
-    }
+            setDescription("""
+                    Call upon divine power to increase your &ejump height &7and &cplunging damage&7 for {duration}.
+                    """);
 
+            setItem(Material.NETHERITE_HELMET);
+            setDurationSec(12);
+            setCooldownSec(30);
+        }
+
+        @Nonnull
+        @Override
+        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+            // Fx
+            new GameTask() {
+                private int tick = 0;
+
+                @Override
+                public void run() {
+                    if (tick % 4 == 0) {
+                        if (tick <= 20) {
+                            player.addEffect(Effects.SLOW, tick / 4, 4);
+                            player.playSound(Sound.ENTITY_WITHER_SHOOT, (float) (0.5d + (0.1d * tick / 4)));
+                        }
+                        else {
+                            cancel();
+                            player.playSound(Sound.ENTITY_WITHER_HURT, 1.25f);
+                        }
+                    }
+                    ++tick;
+                }
+            }.runTaskTimer(0, 1);
+
+            return UltimateResponse.OK;
+        }
+    }
 }

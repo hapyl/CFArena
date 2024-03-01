@@ -6,6 +6,7 @@ import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.Collect;
@@ -35,28 +36,27 @@ public class MoonwalkerUltimate extends UltimateTalent {
     @DisplayField private final double meteoriteDamage = 50.0d;
     @DisplayField(suffix = "blocks") private final double distanceFromLanding = 15;
 
-    public MoonwalkerUltimate(@Nonnull Hero hero) {
-        super(
-                hero, "Moonteorite",
-                """
-                        Summon a huge meteorite at the &etarget&7 location.
-                                                
-                        Upon landing, it creates a huge explosion, dealing massive damage and applying &6&lCorrosion&7 for &b{corrosionTime}&7.
-                        """,
-                80
-        );
+    public MoonwalkerUltimate() {
+        super("Moonteorite", 80);
 
+        setDescription("""
+                Summon a huge meteorite at the &etarget&7 location.
+                                        
+                Upon landing, it creates a huge explosion, dealing massive damage and applying &6&lCorrosion&7 for &b{corrosionTime}&7.
+                """);
+
+        setItem(Material.END_STONE_BRICKS);
         setDuration(30);
         setCooldownSec(45);
-        setItem(Material.END_STONE_BRICKS);
     }
 
+    @Nonnull
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
         final Block targetBlock = Heroes.MOONWALKER.getHero(Moonwalker.class).getTargetBlock(player);
 
         if (targetBlock == null) {
-            return Response.error("Invalid block!");
+            return UltimateResponse.error("Invalid block!");
         }
 
         final Location landingLocation = targetBlock.getRelative(BlockFace.UP).getLocation();
@@ -118,7 +118,8 @@ public class MoonwalkerUltimate extends UltimateTalent {
 
         // Fx
         player.playSound(Sound.ENTITY_WITHER_DEATH, 0.0f);
-        return Response.OK;
+
+        return UltimateResponse.OK;
     }
 
     public void createBlob(Location center, boolean last) {

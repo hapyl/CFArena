@@ -80,7 +80,6 @@ import me.hapyl.fight.gui.HeroPreviewGUI;
 import me.hapyl.fight.gui.LegacyAchievementGUI;
 import me.hapyl.fight.gui.styled.profile.DeliveryGUI;
 import me.hapyl.fight.gui.styled.profile.achievement.AchievementGUI;
-import me.hapyl.fight.translate.Translate;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.ChatUtils;
 import me.hapyl.fight.util.Collect;
@@ -99,7 +98,6 @@ import me.hapyl.spigotutils.module.inventory.gui.GUI;
 import me.hapyl.spigotutils.module.inventory.gui.PlayerGUI;
 import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import me.hapyl.spigotutils.module.math.Cuboid;
-import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.math.nn.IntInt;
 import me.hapyl.spigotutils.module.player.EffectType;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -216,7 +214,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new RateHeroCommand("rateHero"));
         register(new ScriptCommand("script"));
         register(new TrialCommand("trial"));
-        register(new LanguageCommand("language"));
         register(new GuessWhoCommand("guessWho"));
         register(new InviteCommand("invite"));
         register(new EmojisCommand("emojis"));
@@ -421,33 +418,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
 
             Chat.sendMessage(player, "Saved into " + file.getPath() + "!");
-        });
-
-        register("translate", (player, args) -> {
-            final String argument = args.get(0).toString();
-
-            if (argument.equalsIgnoreCase("reload")) {
-                final boolean isForce = args.get(1).toString().equalsIgnoreCase("-f");
-
-                Main.getPlugin().getTranslate().load(isForce);
-
-                // Reset talent items
-                for (Talents enumTalent : Talents.values()) {
-                    final Talent talent = enumTalent.getTalent();
-
-                    if (talent != null) {
-                        talent.nullifyItem();
-                    }
-                }
-
-                Chat.sendMessage(player, isForce ? "&aForcefully reloaded!" : "&aReloaded!");
-                return;
-            }
-
-            final String translated = Translate.getTranslated(player, argument);
-
-            Chat.sendMessage(player, "&aTranslated:");
-            Chat.sendMessage(player, translated);
         });
 
         register(new SimplePlayerCommand("teammsg") {

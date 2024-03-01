@@ -65,7 +65,7 @@ public class SwooperWeapon extends RangeWeapon {
             data.ultimateShots--;
 
             if (data.ultimateShots <= 0) {
-                swooper.setUsingUltimate(player, false);
+                player.setUsingUltimate(false);
                 data.remove(); // remove highlighting
             }
         }
@@ -103,7 +103,7 @@ public class SwooperWeapon extends RangeWeapon {
                 }
 
                 if (strongShot) {
-                    damage *= swooper.ultimateDamageMultiplier;
+                    damage *= swooper.getUltimate().ultimateDamageMultiplier;
                 }
 
                 return damage;

@@ -90,7 +90,7 @@ public enum EnumDamageCause {
     FEET_ATTACK(DamageCause.of("probably lost their toe", "isn't that right, {damager}?")),
     SUBMERGE(DamageCause.of("didn't know that Sharks bite", "but thanks to the {damager}, not they do")),
     SOTS(DamageCause.nonCrit("couldn't hide from the stars", "of")),
-    STAR_SLASH(DamageCause.of("was slashed in half", "by")),
+    STAR_SLASH(DamageCause.nonCrit("was slashed in half", "by")),
     RAINFIRE(DamageCause.of("thought it's raining, but in reality it was {damager}'s arrows...")),
     SWEEP(DamageCause.of("was swept to death", "by")),
     RIFLE(DamageCause.of("had their brain exploded in cool slow-mo", "by")),

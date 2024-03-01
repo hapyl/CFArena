@@ -11,6 +11,7 @@ import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.orc.OrcAxe;
@@ -66,29 +67,7 @@ public class Orc extends Hero implements Listener {
         equipment.setLeggings(20, 19, 51);
         equipment.setBoots(Material.NETHERITE_BOOTS);
 
-        setUltimate(
-                new UltimateTalent(this, "Berserk", 70)
-                        .setType(Talent.Type.ENHANCE)
-                        .setItem(Material.NETHER_WART)
-                        .setDurationSec(15)
-                        .setCooldownSec(30)
-                        .appendDescription(
-                                """
-                                        Enter %s for {duration}.
-                                                                        
-                                        While active, gain:
-                                        • &aIncreased %s.
-                                        • &aIncreased %s.
-                                        • &aIncreased %s.
-                                        • &c%.0f %s.
-                                        """,
-                                Named.BERSERK,
-                                AttributeType.ATTACK,
-                                AttributeType.SPEED,
-                                AttributeType.CRIT_CHANCE,
-                                berserk.get(AttributeType.DEFENSE) * 100, AttributeType.DEFENSE
-                        )
-        );
+        setUltimate(new OrcUltimate());
     }
 
     @Override
@@ -103,13 +82,6 @@ public class Orc extends Hero implements Listener {
         if (damageMap.computeIfAbsent(player, DamageData::new).addHitAndCheck()) {
             enterBerserk(player, Tick.fromSecond(3));
         }
-    }
-
-    @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        enterBerserk(player, getUltimateDuration());
-
-        return UltimateCallback.OK;
     }
 
     @Override
@@ -180,4 +152,37 @@ public class Orc extends Hero implements Listener {
         return Talents.ORC_PASSIVE.getTalent();
     }
 
+    private class OrcUltimate extends UltimateTalent {
+        public OrcUltimate() {
+            super("Berserk", 70);
+
+            setDescription("""
+                    Enter %s for {duration}.
+                                                    
+                    While active, gain:
+                    • &aIncreased %s.
+                    • &aIncreased %s.
+                    • &aIncreased %s.
+                    • &c%.0f %s.
+                    """.formatted(Named.BERSERK,
+                    AttributeType.ATTACK,
+                    AttributeType.SPEED,
+                    AttributeType.CRIT_CHANCE,
+                    berserk.get(AttributeType.DEFENSE) * 100, AttributeType.DEFENSE
+            ));
+
+            setType(Talent.Type.ENHANCE);
+            setItem(Material.NETHER_WART);
+            setDurationSec(15);
+            setCooldownSec(30);
+        }
+
+        @Nonnull
+        @Override
+        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+            enterBerserk(player, getUltimateDuration());
+
+            return UltimateResponse.OK;
+        }
+    }
 }

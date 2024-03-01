@@ -116,7 +116,7 @@ public enum ChatChannel {
             return;
         }
 
-        final StringBuilder builder = new StringBuilder(profile.getDisplay().getDisplayName());
+        final StringBuilder builder = new StringBuilder(profile.getDisplay().toString());
 
         // Tag receiver
         final String atReceiverName = ("@" + receiver.getName()).toLowerCase(Locale.ROOT);

@@ -10,7 +10,6 @@ import me.hapyl.fight.game.heroes.archive.dark_mage.SpellButton;
 import me.hapyl.fight.game.heroes.archive.witcher.WitherData;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
-import me.hapyl.fight.translate.Language;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -35,24 +34,6 @@ public abstract class DarkMageTalent extends Talent {
                                 
                 &8;;You must use your wand to cast this spell!
                 """.formatted(Color.WITHERS.bold(), getAssistDescription(), getUsage()));
-    }
-
-    @Nonnull
-    @Override
-    public String getTranslateDescription(@Nonnull Language language) {
-        return language.getFormatted("""
-                %s<talent.dark_mage.witherborn_assist>
-                <%s>
-                &f&l<talent.dark_mage.usage>: %s
-                
-                &8;;<talent.dark_mage.alt_usage>
-                """
-                .formatted(
-                        Color.WITHERS.bold(),
-                        getParentTranslatableKey() + "witherborn_assist",
-                        getUsageRaw()
-                )
-        );
     }
 
     @Nonnull

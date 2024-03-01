@@ -7,6 +7,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
@@ -35,10 +36,6 @@ public class Vortex extends Hero implements UIComplexComponent {
     private final int blinkIterations = 3;
     private final double blinkStep = 0.75d;
 
-    @DisplayField private final double ultimateBaseDamage = 3.0d;
-    @DisplayField private final double ultimateSpeed = 0.3d;
-    @DisplayField(dp = 4) private final double ultimateSpeedStuck = ultimateSpeed / 100;
-
     public Vortex(@Nonnull Heroes handle) {
         super(handle, "Vortex");
 
@@ -54,15 +51,7 @@ public class Vortex extends Hero implements UIComplexComponent {
         equipment.setBoots(255, 140, 26);
 
         setWeapon(new VortexWeapon(this));
-
-        setUltimate(new UltimateTalent(this, "Arcana", """
-                Launch an &6Astral&7 energy in front of you that &nfollows&7 your crosshair and &brapidly&7 deals &cdamage&7 in small &cAoE&7.
-                """, 50)
-                .setItem(Material.QUARTZ)
-                .setDurationSec(6)
-                .setCooldownSec(30));
-
-        copyDisplayFieldsToUltimate();
+        setUltimate(new VortexUltimate());
     }
 
     @Override
@@ -82,47 +71,6 @@ public class Vortex extends Hero implements UIComplexComponent {
 
     public void addDreamStack(@Nonnull GamePlayer player) {
         dreamStackMap.compute(player, Compute.nullable(fn -> new DreamStack(player, dreamStackMap), DreamStack::increment));
-    }
-
-    @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        final double damage = calculateAstralDamage(player, ultimateBaseDamage);
-
-        new PlayerTickingGameTask(player) {
-            private final Location location = player.getLocationInFrontFromEyes(0.75f);
-
-            @Override
-            public void run(int tick) {
-                if (tick >= getUltimateDuration()) {
-                    cancel();
-                    return;
-                }
-
-                boolean isHit = false;
-
-                for (LivingGameEntity entity : Collect.nearbyEntities(location, 1.5d)) {
-                    if (player.isSelfOrTeammate(entity)) {
-                        continue;
-                    }
-
-                    isHit = true;
-                    entity.damageTick(damage, player, EnumDamageCause.SOTS, 0);
-                }
-
-                final Vector vector = player.getEyeLocation().getDirection();
-
-                location.add(vector.multiply(isHit ? ultimateSpeedStuck : ultimateSpeed));
-
-                // Fx
-                player.spawnWorldParticle(location, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0);
-
-                if (tick % 5 == 0) {
-                    PlayerLib.playSound(location, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.25f);
-                }
-            }
-        }.runTaskTimer(0, 1);
-
-        return UltimateCallback.OK;
     }
 
     public int getStack(@Nonnull GamePlayer player) {
@@ -251,4 +199,73 @@ public class Vortex extends Hero implements UIComplexComponent {
         };
     }
 
+    private class VortexUltimate extends UltimateTalent {
+
+        @DisplayField private final double ultimateBaseDamage = 1.0d;
+        @DisplayField private final double ultimateSpeed = 0.3d;
+        @DisplayField(dp = 3) private final double ultimateSpeedStuck = ultimateSpeed / 10;
+
+        public VortexUltimate() {
+            super("Arcana", 50);
+
+            setDescription("""
+                    Launch an &6Astral&7 energy in front of you that &nfollows&7 your crosshair and &brapidly&7 deals &cdamage&7 in small &cAoE&7.
+                    """);
+
+            setItem(Material.QUARTZ);
+            setDurationSec(6);
+            setCooldownSec(30);
+        }
+
+        @Nonnull
+        @Override
+        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+            final double damage = calculateAstralDamage(player, ultimateBaseDamage);
+
+            new PlayerTickingGameTask(player) {
+                private final Location location = player.getLocationInFrontFromEyes(0.75f);
+
+                @Override
+                public void run(int tick) {
+                    if (tick >= getUltimateDuration()) {
+                        cancel();
+                        return;
+                    }
+
+                    boolean isHit = false;
+
+                    for (LivingGameEntity entity : Collect.nearbyEntities(location, 1.5d)) {
+                        if (player.isSelfOrTeammate(entity)) {
+                            continue;
+                        }
+
+                        isHit = true;
+
+                        entity.modifyKnockback(0.8, self -> {
+                            self.damageTick(damage, player, EnumDamageCause.SOTS, 0);
+                        });
+                    }
+
+                    final Vector vector = player.getEyeLocation().getDirection();
+
+                    final Vector nextVector = vector.multiply(isHit ? ultimateSpeedStuck : ultimateSpeed);
+
+                    location.add(nextVector);
+
+                    if (!location.getBlock().isPassable()) {
+                        location.subtract(nextVector);
+                    }
+
+                    // Fx
+                    player.spawnWorldParticle(location, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0);
+
+                    if (tick % 5 == 0) {
+                        PlayerLib.playSound(location, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.25f);
+                    }
+                }
+            }.runTaskTimer(0, 1);
+
+            return UltimateResponse.OK;
+        }
+    }
 }

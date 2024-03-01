@@ -262,7 +262,6 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
             final Hero hero = enumHero.getHero();
 
             hero.onStop();
-            hero.clearUsingUltimate();
 
             if (hero instanceof PlayerDataHandler<?> handler) {
                 handler.resetPlayerData();

@@ -25,7 +25,7 @@ public interface TamerTimed extends Timed {
     }
 
     default boolean isUsingUltimate(@Nonnull GamePlayer player) {
-        return getHero().isUsingUltimate(player);
+        return player.isUsingUltimate();
     }
 
     private int getDuration0() {

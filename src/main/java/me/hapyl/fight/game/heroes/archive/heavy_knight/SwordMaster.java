@@ -53,51 +53,7 @@ public class SwordMaster extends Hero implements PlayerDataHandler<SwordMasterDa
         equipment.setBoots(Material.NETHERITE_BOOTS);
 
         setWeapon(new SwordMasterWeapon());
-
-        setUltimate(new UltimateTalent(this, "Ultimate Sacrifice", """
-                Instantly drop &nall&7 your &farmor&7 in exchange for more &4power&7, becoming a glass cannon.
-                                
-                &8;;You also benefit from lower talent cooldowns.
-                """, 60)
-                .setType(Talent.Type.ENHANCE)
-                .setItem(Material.NETHERITE_INGOT)
-                .setDurationSec(3));
-    }
-
-    @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        temperInstance.temper(player, getUltimateDuration());
-
-        // Remove armor for Fx
-        final EntityEquipment equipment = player.getEquipment();
-        equipment.setHelmet(null, true);
-        equipment.setChestplate(null, true);
-        equipment.setLeggings(null, true);
-        equipment.setBoots(null, true);
-
-        // Fx
-        player.playWorldSound(Sound.ENTITY_IRON_GOLEM_DAMAGE, 0.75f);
-        player.spawnWorldParticle(
-                player.getMidpointLocation(),
-                Particle.ITEM_CRACK,
-                20,
-                0.15,
-                0.4,
-                0.15,
-                0.25f,
-                new ItemStack(Material.NETHERITE_INGOT)
-        );
-
-        return UltimateCallback.OK;
-    }
-
-    @Override
-    public void onUltimateEnd(@Nonnull GamePlayer player) {
-        getEquipment().equip(player);
-
-        // Fx
-        player.playWorldSound(Sound.ITEM_ARMOR_EQUIP_NETHERITE, 0.0f);
-        player.playWorldSound(Sound.ITEM_ARMOR_EQUIP_NETHERITE, 0.75f);
+        setUltimate(new SwordMasterUltimate());
     }
 
     @Override
@@ -128,5 +84,58 @@ public class SwordMaster extends Hero implements PlayerDataHandler<SwordMasterDa
 
     public static boolean addSuccessfulTalent(@Nonnull GamePlayer player, @Nonnull Talent talent) {
         return Heroes.SWORD_MASTER.getHero(SwordMaster.class).getPlayerData(player).buffer.offer(talent);
+    }
+
+    private class SwordMasterUltimate extends UltimateTalent {
+        public SwordMasterUltimate() {
+            super("Ultimate Sacrifice", 60);
+
+            setDescription("""
+                    Instantly drop &nall&7 your &farmor&7 in exchange for more &4power&7, becoming a glass cannon.
+                                    
+                    &8;;You also benefit from lower talent cooldowns.
+                    """);
+
+            setType(Talent.Type.ENHANCE);
+            setItem(Material.NETHERITE_INGOT);
+            setDurationSec(3);
+        }
+
+        @Nonnull
+        @Override
+        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+            temperInstance.temper(player, getUltimateDuration());
+
+            // Remove armor for Fx
+            final EntityEquipment equipment = player.getEquipment();
+            equipment.setHelmet(null, true);
+            equipment.setChestplate(null, true);
+            equipment.setLeggings(null, true);
+            equipment.setBoots(null, true);
+
+            // Fx
+            player.playWorldSound(Sound.ENTITY_IRON_GOLEM_DAMAGE, 0.75f);
+            player.spawnWorldParticle(
+                    player.getMidpointLocation(),
+                    Particle.ITEM_CRACK,
+                    20,
+                    0.15,
+                    0.4,
+                    0.15,
+                    0.25f,
+                    new ItemStack(Material.NETHERITE_INGOT)
+            );
+
+            return new UltimateResponse() {
+                @Override
+                public void onUltimateEnd(@Nonnull GamePlayer player) {
+                    getEquipment().equip(player);
+
+                    // Fx
+                    player.playWorldSound(Sound.ITEM_ARMOR_EQUIP_NETHERITE, 0.0f);
+                    player.playWorldSound(Sound.ITEM_ARMOR_EQUIP_NETHERITE, 0.75f);
+                }
+            };
+        }
     }
 }

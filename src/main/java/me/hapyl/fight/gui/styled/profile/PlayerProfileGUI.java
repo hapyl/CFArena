@@ -9,7 +9,6 @@ import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
 import me.hapyl.fight.gui.styled.StyledItem;
 import me.hapyl.fight.gui.styled.profile.achievement.AchievementGUI;
-import me.hapyl.fight.translate.Language;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
@@ -73,14 +72,6 @@ public class PlayerProfileGUI extends StyledGUI {
                 HotbarLoadoutGUI::new
         );
 
-        final Language language = profile.getDatabase().getLanguage();
-
-        // Language
-        //setPanelItem(2,
-        //        ItemBuilder.playerHeadUrl(language.getHeadTexture())
-        //                .setName(language.getTranslated("language.language"))
-        //                .asIcon(), player -> new LanguageGUI(profile)
-        //);
     }
 
 }

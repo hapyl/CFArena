@@ -15,6 +15,7 @@ import me.hapyl.fight.game.entity.Outline;
 import me.hapyl.fight.game.entity.shield.Shield;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.rogue.SecondWind;
@@ -59,13 +60,6 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
             .increase(AttributeType.ATTACK, 1.32d)
             .decrease(AttributeType.COOLDOWN_MODIFIER, 0.5d);
 
-    @DisplayField private final double explosionRadius = 4.0d;
-    @DisplayField private final double explosionDamage = 30.0d;
-    @DisplayField private final int maxExplosionDelay = Tick.fromSecond(3);
-    @DisplayField private final double magnitude = 0.75d;
-    @DisplayField private final double yMagnitude = 0.21d;
-    @DisplayField private final int bleedDuration = 60;
-
     public Rogue(@Nonnull Heroes handle) {
         super(handle, "Rogue");
 
@@ -102,16 +96,7 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
                         .setDamage(3.0d)
         );
 
-        setUltimate(new UltimateTalent(this, "Pipe Bomb", """
-                Toss a hand-made pipe bomb in front of you that &4explodes&7 upon contact with an &cenemy&7 or a &bblock&7, dealing &cdamage&7 in moderate &cAoE&7 and applies &4Bleeding&7.
-
-                If at least &none&7 enemy was &chit&7, &nrefresh&7 %s charges.
-                """.formatted(Named.SECOND_WIND), 60)
-                .setItem(Material.LIGHTNING_ROD)
-                .setSound(Sound.ENTITY_CREEPER_PRIMED, 1.0f)
-        );
-
-        copyDisplayFieldsToUltimate();
+        setUltimate(new RogueUltimate());
     }
 
     @EventHandler()
@@ -154,74 +139,6 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
         entity.modifyKnockback(d -> 0.7d, then -> {
             then.damageTick(instance.getInitialDamage(), damager, EnumDamageCause.ROGUE_ATTACK, attackSpeedTick);
         });
-    }
-
-    @Nullable
-    @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        final World world = player.getWorld();
-        final Location location = player.getMidpointLocation();
-        final Item item = world.dropItem(location, new ItemStack(Material.LIGHTNING_ROD));
-
-        item.setPickupDelay(10000);
-        item.setUnlimitedLifetime(true);
-        item.setVelocity(location.getDirection().normalize().multiply(magnitude).setY(yMagnitude));
-
-        // Explode
-        new TickingGameTask() {
-            @Override
-            public void run(int tick) {
-                final LivingGameEntity targetEntity = Collect.nearestEntity(item.getLocation(), 0.25d, entity -> {
-                    return !player.isSelfOrTeammate(entity);
-                });
-
-                if (targetEntity != null || item.isOnGround() || tick > maxExplosionDelay) {
-                    explode();
-                    return;
-                }
-
-                // Fx
-                final Location location = item.getLocation();
-
-                player.playWorldSound(location, Sound.BLOCK_NOTE_BLOCK_HAT, tick % 2 == 0 ? 0.5f : 1.0f);
-                player.spawnWorldParticle(location, Particle.CRIT, 1);
-            }
-
-            private void explode() {
-                final Location location = item.getLocation();
-                boolean hitEnemy = false;
-
-                for (LivingGameEntity entity : Collect.nearbyEntities(location, explosionRadius)) {
-                    if (player.isSelfOrTeammate(entity)) {
-                        return;
-                    }
-
-                    if (!hitEnemy) {
-                        hitEnemy = true;
-                    }
-
-                    entity.damageNoKnockback(explosionDamage, player, EnumDamageCause.PIPE_BOMB);
-                    entity.addEffect(Effects.BLEED, bleedDuration);
-                }
-                ;
-
-                // Refresh passive
-                if (hitEnemy) {
-                    getPlayerData(player).refreshSecondWindCharges();
-                }
-
-                // Fx
-                player.playWorldSound(location, Sound.ENTITY_GENERIC_EXPLODE, 1.25f);
-                Geometry.drawSphere(location, explosionRadius * 3, explosionRadius,
-                        loc -> player.spawnWorldParticle(loc, Particle.WAX_ON, 1, 0, 0, 0, 5)
-                );
-
-                item.remove();
-                cancel();
-            }
-        }.runTaskTimer(0, 1);
-
-        return UltimateCallback.OK;
     }
 
     @Override
@@ -289,4 +206,94 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
         return charges == 1 ? character : "&8" + Named.SECOND_WIND.getCharacter();
     }
 
+    private class RogueUltimate extends UltimateTalent {
+
+        @DisplayField private final double explosionRadius = 4.0d;
+        @DisplayField private final double explosionDamage = 30.0d;
+        @DisplayField private final int maxExplosionDelay = Tick.fromSecond(3);
+        @DisplayField private final double magnitude = 0.75d;
+        @DisplayField private final double yMagnitude = 0.21d;
+        @DisplayField private final int bleedDuration = 60;
+
+        public RogueUltimate() {
+            super("Pipe Bomb", 60);
+
+            setDescription("""
+                    Toss a hand-made pipe bomb in front of you that &4explodes&7 upon contact with an &cenemy&7 or a &bblock&7, dealing &cdamage&7 in moderate &cAoE&7 and applies &4Bleeding&7.
+
+                    If at least &none&7 enemy was &chit&7, &nrefresh&7 %s charges.
+                    """.formatted(Named.SECOND_WIND));
+
+            setItem(Material.LIGHTNING_ROD);
+            setSound(Sound.ENTITY_CREEPER_PRIMED, 1.0f);
+        }
+
+        @Nonnull
+        @Override
+        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+            final World world = player.getWorld();
+            final Location location = player.getMidpointLocation();
+            final Item item = world.dropItem(location, new ItemStack(Material.LIGHTNING_ROD));
+
+            item.setPickupDelay(10000);
+            item.setUnlimitedLifetime(true);
+            item.setVelocity(location.getDirection().normalize().multiply(magnitude).setY(yMagnitude));
+
+            // Explode
+            new TickingGameTask() {
+                @Override
+                public void run(int tick) {
+                    final LivingGameEntity targetEntity = Collect.nearestEntity(item.getLocation(), 0.25d, entity -> {
+                        return !player.isSelfOrTeammate(entity);
+                    });
+
+                    if (targetEntity != null || item.isOnGround() || tick > maxExplosionDelay) {
+                        explode();
+                        return;
+                    }
+
+                    // Fx
+                    final Location location = item.getLocation();
+
+                    player.playWorldSound(location, Sound.BLOCK_NOTE_BLOCK_HAT, tick % 2 == 0 ? 0.5f : 1.0f);
+                    player.spawnWorldParticle(location, Particle.CRIT, 1);
+                }
+
+                private void explode() {
+                    final Location location = item.getLocation();
+                    boolean hitEnemy = false;
+
+                    for (LivingGameEntity entity : Collect.nearbyEntities(location, explosionRadius)) {
+                        if (player.isSelfOrTeammate(entity)) {
+                            return;
+                        }
+
+                        if (!hitEnemy) {
+                            hitEnemy = true;
+                        }
+
+                        entity.damageNoKnockback(explosionDamage, player, EnumDamageCause.PIPE_BOMB);
+                        entity.addEffect(Effects.BLEED, bleedDuration);
+                    }
+                    ;
+
+                    // Refresh passive
+                    if (hitEnemy) {
+                        getPlayerData(player).refreshSecondWindCharges();
+                    }
+
+                    // Fx
+                    player.playWorldSound(location, Sound.ENTITY_GENERIC_EXPLODE, 1.25f);
+                    Geometry.drawSphere(location, explosionRadius * 3, explosionRadius,
+                            loc -> player.spawnWorldParticle(loc, Particle.WAX_ON, 1, 0, 0, 0, 5)
+                    );
+
+                    item.remove();
+                    cancel();
+                }
+            }.runTaskTimer(0, 1);
+
+            return UltimateResponse.OK;
+        }
+    }
 }

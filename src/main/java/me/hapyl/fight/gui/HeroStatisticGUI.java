@@ -11,7 +11,6 @@ import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
-import me.hapyl.fight.translate.Language;
 import me.hapyl.fight.util.Numeric;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;

@@ -1061,16 +1061,6 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         modifyKnockback(fn.apply(getKnockback()), consumer);
     }
 
-    // Yes, this is a hack, so?
-    public void modifyKnockbackTick(@Nonnull Function<Double, Double> fn, @Nonnull Consumer<LivingGameEntity> consumer) {
-        final double kb = getKnockback();
-
-        setKnockback(fn.apply(kb));
-        consumer.accept(this);
-
-        GameTask.runLater(() -> setKnockback(kb), 2);
-    }
-
     public void setTargetClosest() {
         final LivingGameEntity living = Collect.nearestEntityPrioritizePlayers(getLocation(), 10, t -> true);
 

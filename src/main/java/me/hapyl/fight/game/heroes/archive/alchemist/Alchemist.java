@@ -14,6 +14,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
@@ -121,26 +122,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
                 })
                 .add(new MadnessEffect("&lis... confusing?", PotionEffectType.CONFUSION, 15, 0));
 
-        setUltimate(new UltimateTalent(
-                this,
-                "Alchemical Madness",
-                "Call upon the darkest spells to cast random &c&lNegative &7effect on your foes for &b15s &7and random &a&lPositive &7effect on yourself for &b30s&7.",
-                50
-        ).setCooldownSec(30)
-                .setType(Talent.Type.ENHANCE)
-                .setItem(Material.FERMENTED_SPIDER_EYE)
-                .setSound(ENTITY_WITCH_AMBIENT, 0.5f));
-    }
-
-    @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        final MadnessEffect positiveEffect = positiveEffects.getRandomElement();
-        final MadnessEffect negativeEffect = negativeEffects.getRandomElement();
-
-        positiveEffect.applyEffects(player, player);
-        Collect.enemyPlayers(player).forEach(alivePlayer -> negativeEffect.applyEffects(player, alivePlayer));
-
-        return UltimateCallback.OK;
+        setUltimate(new AlchemistUltimate());
     }
 
     @Override
@@ -282,5 +264,30 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
         return "&a";
     }
 
+    private class AlchemistUltimate extends UltimateTalent {
+        public AlchemistUltimate() {
+            super("Alchemical Madness", 50);
 
+            setDescription("""
+                    Call upon the darkest spells to cast random &c&lNegative &7effect on your foes for &b15s &7and random &a&lPositive &7effect on yourself for &b30s&7.
+                    """);
+
+            setType(Talent.Type.ENHANCE);
+            setItem(Material.FERMENTED_SPIDER_EYE);
+            setSound(ENTITY_WITCH_AMBIENT, 0.5f);
+            setCooldownSec(30);
+        }
+
+        @Nonnull
+        @Override
+        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+            final MadnessEffect positiveEffect = positiveEffects.getRandomElement();
+            final MadnessEffect negativeEffect = negativeEffects.getRandomElement();
+
+            positiveEffect.applyEffects(player, player);
+            Collect.enemyPlayers(player).forEach(alivePlayer -> negativeEffect.applyEffects(player, alivePlayer));
+
+            return UltimateResponse.OK;
+        }
+    }
 }

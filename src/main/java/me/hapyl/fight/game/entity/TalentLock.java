@@ -81,6 +81,12 @@ public class TalentLock implements Ticking {
             return false;
         }
 
+        final Integer oldLock = lock.get(slot);
+
+        if (tick < oldLock) {
+            return true;
+        }
+
         lock.put(slot, tick);
         return true;
     }

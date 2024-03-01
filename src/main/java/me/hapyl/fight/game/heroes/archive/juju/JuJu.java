@@ -10,6 +10,7 @@ import me.hapyl.fight.game.entity.EquipmentSlot;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.juju.ArrowShield;
@@ -77,16 +78,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
                 .setDescription("A bow made of anything you can find in the middle of the jungle.")
                 .setDamage(4.0d));
 
-        setUltimate(
-                new UltimateTalent(this, ArrowType.POISON_IVY.getName(), 60)
-                        .setType(Talent.Type.IMPAIR)
-                        .setItem(Material.SPIDER_EYE)
-                        .setDurationSec(4),
-                then -> {
-                    then.copyDisplayFieldsFrom(Talents.POISON_ZONE.getTalent());
-                    then.setDescription(ArrowType.POISON_IVY.getTalentDescription(then));
-                }
-        );
+        setUltimate(new JujuUltimate());
     }
 
     public void setArrowType(GamePlayer player, ArrowType type, int duration) {
@@ -182,24 +174,6 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
         else {
             player.swingOffHand();
         }
-    }
-
-    @Override
-    public boolean predicateUltimate(@Nonnull GamePlayer player) {
-        return getArrowType(player) == null;
-    }
-
-    @Override
-    public String predicateMessage(@Nonnull GamePlayer player) {
-        return "Cannot use while " + getSecondTalent().getName() + " is active!";
-    }
-
-    @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        setArrowType(player, ArrowType.POISON_IVY, getUltimateDuration());
-        player.snapToWeapon();
-
-        return UltimateCallback.OK;
     }
 
     @EventHandler()
@@ -391,4 +365,32 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
         return isHuggingWall(player.getLocation().add(0, player.getEyeHeight() / 2, 0));
     }
 
+    private class JujuUltimate extends UltimateTalent {
+        public JujuUltimate() {
+            super(ArrowType.POISON_IVY.getName(), 60);
+
+            setDescription(ArrowType.POISON_IVY.getTalentDescription(this));
+
+            setType(Talent.Type.IMPAIR);
+            setItem(Material.SPIDER_EYE);
+            setDurationSec(4);
+
+            copyDisplayFieldsFrom(Talents.POISON_ZONE.getTalent());
+        }
+
+        @Nonnull
+        @Override
+        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+            final ArrowType type = getArrowType(player);
+
+            if (type != null) {
+                return UltimateResponse.error("Already using %s!".formatted(type.getName()));
+            }
+
+            setArrowType(player, ArrowType.POISON_IVY, getUltimateDuration());
+            player.snapToWeapon();
+
+            return UltimateResponse.OK;
+        }
+    }
 }

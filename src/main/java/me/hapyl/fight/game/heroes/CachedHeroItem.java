@@ -4,8 +4,6 @@ import com.google.common.collect.Maps;
 import me.hapyl.fight.database.collection.HeroStatsCollection;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.translate.Language;
-import me.hapyl.fight.translate.TranslatedDescribed;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Described;
 import me.hapyl.fight.util.Named;
@@ -92,7 +90,7 @@ public class CachedHeroItem {
                 final ItemBuilder builder = new ItemBuilder(hero.getItem());
                 final Archetype archetype = hero.getArchetype();
                 final Affiliation affiliation = hero.getAffiliation();
-                final Gender gender = hero.getSex();
+                final Gender gender = hero.getGender();
                 final Race race = hero.getRace();
 
                 builder.setName(hero.toString());
@@ -146,109 +144,6 @@ public class CachedHeroItem {
             if (named instanceof Described described) {
                 builder.addSmartLore(described.getDescription(), "&8&o");
             }
-        }
-    }
-
-    @Deprecated
-    public enum TranslatedType {
-        SELECT {
-            @Nonnull
-            @Override
-            ItemStack createItem(@Nonnull CachedHeroItem item, @Nonnull Language language) {
-                final Hero hero = item.hero;
-                final HeroStatsCollection stats = item.stats;
-                final PlayerRating averageRating = stats.getAverageRating();
-
-                final TranslatedDescribed archetype = hero.getArchetype(language);
-                final TranslatedDescribed affiliation = hero.getAffiliation(language);
-
-                final ItemBuilder builder = new ItemBuilder(hero.getItem())
-                        .setName(hero.getTranslateName(language))
-                        .addLore("&8/hero " + hero.getHandle().name().toLowerCase(Locale.ROOT))
-                        .addLore()
-                        .addLore(language.getFormatted("&7<archetype.name>: " + archetype.getName()))
-                        .addLoreIf(
-                                language.getFormatted("&7<affiliation.name>: " + affiliation.getName()),
-                                hero.getAffiliation() != Affiliation.NOT_SET
-                        )
-                        .addLoreIf(language.getFormatted("&7<player_rating.name>: " + averageRating), averageRating != null)
-                        .addLore();
-
-                final HeroAttributes attributes = hero.getAttributes();
-                builder.addLore(language.getFormatted("&e&l<attributes>: "));
-                builder.addLore(attributes.getLore(language, AttributeType.MAX_HEALTH));
-                builder.addLore(attributes.getLore(language, AttributeType.ATTACK));
-                builder.addLore(attributes.getLore(language, AttributeType.DEFENSE));
-                builder.addLore(attributes.getLore(language, AttributeType.SPEED));
-
-                builder.addLore();
-                builder.addTextBlockLore(hero.getTranslateDescription(language), "&8&o", 35, CFUtils.DISAMBIGUATE);
-
-                if (hero instanceof ComplexHero) {
-                    final TranslatedDescribed complexHero = new TranslatedDescribed(language, "complex_hero");
-
-                    builder.addLore();
-                    builder.addLore(complexHero.getName());
-                    builder.addSmartLore(complexHero.getDescription());
-                }
-
-                // Usage
-                builder.addLore().addLore(language.getTranslated("gui.button.select")).addLore(language.getTranslated("gui.button.details"));
-
-                return builder.asIcon();
-            }
-        },
-        DETAILS {
-            @Nonnull
-            @Override
-            ItemStack createItem(@Nonnull CachedHeroItem item, @Nonnull Language language) {
-                final Hero hero = item.hero;
-                final HeroStatsCollection stats = item.stats;
-
-                final ItemBuilder builder = new ItemBuilder(hero.getItem());
-                final TranslatedDescribed archetype = hero.getArchetype(language);
-                final TranslatedDescribed affiliation = hero.getAffiliation(language);
-
-                builder.setName(hero.toString())
-                        .addLore()
-                        .addLore(language.getFormatted("&7<archetype.name>: " + archetype.getName()))
-                        .addSmartLore(archetype.getDescription(), "&8&o");
-
-                // Affiliation
-                if (hero.getAffiliation() != Affiliation.NOT_SET) {
-                    builder.addLore();
-                    builder.addLore(language.getFormatted("&7<affiliation.name>: " + affiliation.getName()));
-                    builder.addSmartLore(affiliation.getDescription(), "&8&o");
-                }
-
-                // Player rating
-                final PlayerRating averageRating = stats.getAverageRating();
-                if (averageRating != null) {
-                    builder.addLore();
-                    builder.addLore(language.getFormatted("&7<player_rating.name>: " + averageRating));
-                    builder.addSmartLore(language.getTranslated("player_rating.description"), "&8&o");
-                }
-
-                // Attributes
-                builder.addLore().addLore(language.getFormatted("&e&l<attributes>:"));
-                final HeroAttributes attributes = hero.getAttributes();
-
-                attributes.forEachMandatoryAndNonDefault((type, value) -> {
-                    builder.addLore(language.getFormatted(
-                            " &7<attribute.%s>: &7".formatted(type.name().toLowerCase()) + type.attribute.toString(type, value))
-                    );
-                });
-
-                builder.addLore();
-                builder.addTextBlockLore(hero.getTranslateDescription(language), "&8&o", 35, CFUtils.DISAMBIGUATE);
-
-                return builder.asIcon();
-            }
-        };
-
-        @Nonnull
-        ItemStack createItem(@Nonnull CachedHeroItem cachedHeroItem, @Nonnull Language language) {
-            throw new IllegalStateException();
         }
     }
 

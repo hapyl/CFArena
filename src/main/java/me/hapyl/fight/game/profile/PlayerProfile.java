@@ -199,8 +199,8 @@ public class PlayerProfile {
     }
 
     @Nonnull
-    public ProfileDisplay getDisplay() {
-        return new ProfileDisplay(this);
+    public PlayerDisplay getDisplay() {
+        return new PlayerDisplay(playerDatabase);
     }
 
     @Nonnull

@@ -11,6 +11,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -37,7 +38,8 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
 
     private final double ultimateDamage = 20.0d;
 
-    private final ItemStack throwingStar = new ItemBuilder(Material.NETHER_STAR, "THROWING_STAR").setName("Throwing Star")
+    private final ItemStack throwingStar = new ItemBuilder(Material.NETHER_STAR, "THROWING_STAR")
+            .setName("Throwing Star &6(Right Click)")
             .setAmount(5)
             .addClickEvent(player -> {
                 final GamePlayer gamePlayer = CF.getPlayer(player);
@@ -50,6 +52,7 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
             })
             .withCooldown(10)
             .build();
+
     private final int doubleJumpCooldown = Tick.fromSecond(5);
 
     public Ninja(@Nonnull Heroes handle) {
@@ -72,12 +75,7 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
         equipment.setBoots(Material.CHAINMAIL_BOOTS);
 
         setWeapon(new NinjaWeapon());
-
-        setUltimate(new UltimateTalent(
-                this, "Throwing Stars",
-                "Equip &b5&7 dead-accurate &6throwing stars&7 that deal &c%.0f&7 damage upon hitting an enemy.".formatted(ultimateDamage),
-                70
-        ).setItem(Material.NETHER_STAR).setSound(Sound.ITEM_TRIDENT_RIPTIDE_1, 0.75f));
+        setUltimate(new NinjaUltimate());
     }
 
     @Override
@@ -99,16 +97,6 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
         player.playWorldSound(Sound.ENTITY_SQUID_HURT, 0.75f);
 
         entity.spawnWorldParticle(Particle.SWEEP_ATTACK, 1);
-    }
-
-    @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        setUsingUltimate(player, true);
-
-        player.setItemAndSnap(HotbarSlots.HERO_ITEM, throwingStar);
-        player.setCooldown(throwingStar.getType(), 20);
-
-        return UltimateCallback.OK;
     }
 
     @Override
@@ -220,7 +208,7 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
         item.setAmount(item.getAmount() - 1);
 
         if (item.getAmount() <= 0) {
-            setUsingUltimate(player, false);
+            player.setUsingUltimate(false);
             player.snapToWeapon();
         }
 
@@ -235,5 +223,29 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
         );
 
         player.playWorldSound(Sound.ITEM_TRIDENT_THROW, 1.5f);
+    }
+
+    private class NinjaUltimate extends UltimateTalent {
+        public NinjaUltimate() {
+            super("Throwing Stars", 70);
+
+            setDescription("""
+                    Equip &b5&7 dead-accurate &6throwing stars&7 that deal &c%.0f&7 damage upon hitting an enemy.
+                    """.formatted(ultimateDamage));
+
+            setItem(Material.NETHER_STAR);
+            setSound(Sound.ITEM_TRIDENT_RIPTIDE_1, 0.75f);
+        }
+
+        @Nonnull
+        @Override
+        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+            player.setUsingUltimate(true);
+
+            player.setItemAndSnap(HotbarSlots.HERO_ITEM, throwingStar);
+            player.setCooldown(throwingStar.getType(), 20);
+
+            return UltimateResponse.OK;
+        }
     }
 }

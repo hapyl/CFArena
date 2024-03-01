@@ -6,7 +6,6 @@ import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.spigotutils.module.math.Tick;
 import org.bukkit.Material;
@@ -60,10 +59,6 @@ public class Ronin extends Hero implements Listener, DisabledHero {
 
         setWeapon(new RoninWeapon());
 
-        setUltimate(new UltimateTalent(this, "Harakiri", """
-                                
-                """, 30));
-
         chargeAttackMap = Maps.newConcurrentMap();
     }
 
@@ -107,11 +102,6 @@ public class Ronin extends Hero implements Listener, DisabledHero {
 
         final ChargeAttack chargeAttack = getChargeAttack(gamePlayer);
         chargeAttack.increment();
-    }
-
-    @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        return UltimateCallback.OK;
     }
 
     @Override

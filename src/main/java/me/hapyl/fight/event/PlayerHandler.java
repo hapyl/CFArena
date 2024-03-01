@@ -268,79 +268,29 @@ public class PlayerHandler implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handlePlayerSwapEvent(PlayerSwapHandItemsEvent ev) {
-        final GamePlayer gamePlayer = CF.getPlayer(ev.getPlayer());
+        final GamePlayer player = CF.getPlayer(ev.getPlayer());
 
-        if (gamePlayer == null) {
+        if (player == null) {
             return;
         }
 
         ev.setCancelled(true);
 
-        if (!gamePlayer.isAbleToUseAbilities()) {
+        if (!player.isAbleToUseAbilities()) {
             return;
         }
 
         // Ultimate is not ready
-        if (!gamePlayer.isUltimateReady()) {
-            gamePlayer.sendTitle("&4&l※", "&cYour ultimate isn't ready!", 5, 15, 5);
-            gamePlayer.sendMessage("&4&l※ &cYour ultimate isn't ready!");
+        if (!player.isUltimateReady()) {
+            player.sendTitle("&4&l※", "&cYour ultimate isn't ready!", 5, 15, 5);
+            player.sendMessage("&4&l※ &cYour ultimate isn't ready!");
             return;
         }
 
-        final Hero hero = gamePlayer.getHero();
+        final Hero hero = player.getHero();
         final UltimateTalent ultimate = hero.getUltimate();
 
-        // Ultimate is on cooldown
-        if (ultimate.hasCd(gamePlayer)) {
-            if (gamePlayer.isSettingEnabled(Settings.SHOW_COOLDOWN_MESSAGE)) {
-                gamePlayer.sendMessage(
-                        "&4&l※ &cYour ultimate is on cooldown for %s!",
-                        CFUtils.decimalFormatTick(ultimate.getCdTimeLeft(gamePlayer))
-                );
-            }
-            return;
-        }
-
-        // Predicate fails
-        if (!hero.predicateUltimate(gamePlayer)) {
-            gamePlayer.sendMessage(
-                    "&4&l※ &cCannot use ultimate! %s",
-                    hero.predicateMessage(gamePlayer)
-            );
-            return;
-        }
-
-        // Already using ultimate
-        if (hero.isUsingUltimate(gamePlayer)) {
-            gamePlayer.sendMessage("&4&l※ &cYou are already using ultimate!");
-            return;
-        }
-
-        // Ultimate used
-        hero.useUltimate0(gamePlayer);
-        ultimate.startCd(gamePlayer);
-        gamePlayer.setUltPoints(0);
-
-        // Stats
-        gamePlayer.getStats().addValue(StatType.ULTIMATE_USED, 1);
-
-        // Progress bond
-        ChallengeType.USE_ULTIMATES.progress(gamePlayer);
-
-        if (hero.getUltimateDuration() > 0) {
-            hero.setUsingUltimate(gamePlayer, true, hero.getUltimateDuration());
-        }
-
-        // Achievement
-        Achievements.USE_ULTIMATES.complete(gamePlayer);
-
-        for (final Player online : Bukkit.getOnlinePlayers()) {
-            Chat.sendMessage(
-                    online,
-                    "&b&l※ &b%s used &l%s&7!".formatted((gamePlayer.is(online) ? "You" : gamePlayer.getName()), ultimate.getName())
-            );
-            PlayerLib.playSound(online, ultimate.getSound(), ultimate.getPitch());
-        }
+        ultimate.execute1(player);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

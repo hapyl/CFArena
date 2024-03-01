@@ -35,15 +35,20 @@ public class GameEntity {
     private final Set<String> tags;
     @Nonnull
     protected LivingEntity entity;
-    private boolean forceValid;
     // By default, GameEntity is a 'base' class, which allows for
     // faster and better checks for if entity is valid.
-    protected boolean base = false;
+    protected boolean base = true;
+    // Kinda "magic" boolean value for entity valid state.
+    //  TRUE forces entity to be valid.
+    //  FALSE forces entity to be invalid.
+    //  NULL (default) will use a isValid() check.
+    private Boolean validState;
 
     public GameEntity(@Nonnull LivingEntity entity) {
         this.uuid = entity.getUniqueId();
         this.tags = Sets.newHashSet();
         this.entity = entity;
+        this.validState = null;
     }
 
     @Nonnull
@@ -125,11 +130,22 @@ public class GameEntity {
         return entity.getWorld();
     }
 
-    public boolean isValid() {
-        return isValid(null);
-    }
-
+    /**
+     * Checks if this entity is valid for game validations, such as damage, etc.
+     *
+     * @param player - Player to check the team.
+     * @return true if this entity is valid, false otherwise.
+     */
     public boolean isValid(@Nullable GamePlayer player) {
+        if (base) { // Base entities are never valid
+            return false;
+        }
+
+        // Check for state
+        if (validState != null) {
+            return validState;
+        }
+
         // null entities, self or armor stands are not valid
         if (equals(player) || entity instanceof ArmorStand) {
             return false;
@@ -171,11 +187,13 @@ public class GameEntity {
         }
 
         // Force valid check
-        if (forceValid) {
-            return true;
-        }
+
 
         return entity.hasAI() && !entity.isInvulnerable();
+    }
+
+    public boolean isValid() {
+        return isValid(null);
     }
 
     public boolean hasLineOfSight(@Nonnull GameEntity entity) {
@@ -362,6 +380,10 @@ public class GameEntity {
         return entity.getVelocity();
     }
 
+    public void setVelocity(Vector vector) {
+        entity.setVelocity(vector);
+    }
+
     /**
      * Gets the absolute velocity.
      */
@@ -370,11 +392,6 @@ public class GameEntity {
         final Vector velocity = getVelocity();
 
         return new Vector(Math.abs(velocity.getX()), Math.abs(velocity.getY()), Math.abs(velocity.getZ()));
-    }
-
-
-    public void setVelocity(Vector vector) {
-        entity.setVelocity(vector);
     }
 
     @Nonnull
@@ -481,12 +498,13 @@ public class GameEntity {
         return entity.hasGravity();
     }
 
-    public void setForceValid(boolean forceValid) {
-        this.forceValid = forceValid;
+    @Nullable
+    public Boolean getValidState() {
+        return validState;
     }
 
-    public boolean isForceValid() {
-        return forceValid;
+    public void setValidState(@Nullable Boolean newState) {
+        validState = newState;
     }
 
     @Nonnull

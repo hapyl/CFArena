@@ -11,6 +11,7 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.TalentLock;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -38,9 +39,6 @@ import java.util.List;
 import java.util.Set;
 
 public class Techie extends Hero implements UIComplexComponent, Listener, PlayerDataHandler<TechieData>, DisplayFieldProvider {
-
-    @DisplayField private final int lockdownTalentLockDuration = Tick.fromSecond(30);
-    @DisplayField private final double ultimateDistance = 20;
 
     private final int neuralTheftPeriod = 200;
     private final int neuralTheftDuration = 40;
@@ -85,20 +83,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
                 .setDamage(6.0d)
                 .addEnchant(Enchantment.KNOCKBACK, 1));
 
-        setUltimate(new UltimateTalent(this, "Lockdown", """
-                Equip a &bhacking device&7; after a &nlong&7 &3casting time&7, &coverload&7 all implanted %s&fs.
-                                
-                &cOverloading&7 the &fbugs&7 &cimplodes&7 them, causing affected enemies' &btalents&7 to be &dlocked&7.
-                &8;;Overloading bugs causes them to break.
-                                
-                In addition, all &cenemies&7 &4lose&7 &nhalf&7 of their %s.
-                """.formatted(Named.BUG, Named.ENERGY), 100)
-                .setType(Talent.Type.IMPAIR)
-                .setItem(Material.IRON_BARS)
-                .setCooldownSec(30)
-        );
-
-        copyDisplayFieldsTo(getUltimate());
+        setUltimate(new TechieUltimate());
     }
 
     @EventHandler()
@@ -173,78 +158,6 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
     }
 
     @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        new DeviceHack() {
-            private double distance = 1;
-            private final double distancePerTick = (ultimateDistance - distance) / getCastingTime();
-
-            @Override
-            public void onHack(@Nonnull GamePlayer player) {
-                final TechieData data = getPlayerData(player);
-
-                data.forEachAndRemove((entity) -> {
-                    boolean shouldRemove = entity.getLocation().distance(player.getLocation()) <= distance;
-
-                    if (!shouldRemove) {
-                        return false;
-                    }
-
-                    temperInstance.temper(entity, lockdownTalentLockDuration);
-
-                    if (!(entity instanceof GamePlayer entityPlayer)) {
-                        return true;
-                    }
-
-                    final TalentLock talentLock = entityPlayer.getTalentLock();
-                    talentLock.setLockAll(lockdownTalentLockDuration);
-
-                    entityPlayer.setUltPoints(entityPlayer.getUltPoints() / 2);
-
-                    // Fx
-                    entityPlayer.sendSubtitle("&4&lʟᴏᴄᴋᴅᴏᴡɴ", 5, 20, 5);
-                    entityPlayer.playSound(Sound.BLOCK_ANVIL_LAND, 0.0f);
-
-                    return true;
-                });
-            }
-
-            @Override
-            public void onTick(@Nonnull GamePlayer player, int tick) {
-                final Location location = player.getLocation();
-
-                // Area Fx
-                for (double d = 0; d < Math.PI * 2; d += Math.PI / (tick + 2)) {
-                    final double x = Math.sin(d) * distance;
-                    final double y = Math.sin(Math.toRadians(tick / 2.0d)) * 0.2;
-                    final double z = Math.cos(d) * distance;
-
-                    location.add(x, y, z);
-
-                    player.spawnWorldParticle(location, Particle.SPELL_WITCH, 1);
-                    player.spawnWorldParticle(location, Particle.SPELL, 1);
-
-                    location.subtract(x, y, z);
-                }
-
-                // Player Fx
-                player.spawnWorldParticle(Particle.SPELL_WITCH, 10, 0.1d, 0.6d, 0.1d, 1);
-                player.spawnWorldParticle(Particle.CRIT_MAGIC, 10, 0.1d, 0.6d, 0.1d, 1);
-
-                player.playWorldSound(Sound.ENTITY_IRON_GOLEM_HURT, (float) (1.0f + (1.0f / ultimateDistance * distance)));
-
-                distance += distancePerTick;
-            }
-
-            @Override
-            public int getCastingTime() {
-                return 60;
-            }
-        }.startDevice(player);
-
-        return UltimateCallback.OK;
-    }
-
-    @Override
     public Talent getFirstTalent() {
         return Talents.SABOTEUR.getTalent();
     }
@@ -270,5 +183,101 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
     @Override
     public PlayerDataMap<TechieData> getDataMap() {
         return playerData;
+    }
+
+    private class TechieUltimate extends UltimateTalent {
+
+        @DisplayField private final int lockdownTalentLockDuration = Tick.fromSecond(30);
+        @DisplayField private final double ultimateDistance = 20;
+
+        public TechieUltimate() {
+            super("Lockdown", 100);
+
+            setDescription("""
+                    Equip a &bhacking device&7; after a &nlong&7 &3casting time&7, &coverload&7 all implanted %s&fs.
+                                    
+                    &cOverloading&7 the &fbugs&7 &cimplodes&7 them, causing affected enemies' &btalents&7 to be &dlocked&7.
+                    &8;;Overloading bugs causes them to break.
+                                    
+                    In addition, all &cenemies&7 &4lose&7 &nhalf&7 of their %s.
+                    """.formatted(Named.BUG, Named.ENERGY));
+
+            setType(Talent.Type.IMPAIR);
+            setItem(Material.IRON_BARS);
+            setCooldownSec(30);
+        }
+
+        @Nonnull
+        @Override
+        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+            new DeviceHack() {
+                private double distance = 1;
+                private final double distancePerTick = (ultimateDistance - distance) / getCastingTime();
+
+                @Override
+                public void onHack(@Nonnull GamePlayer player) {
+                    final TechieData data = getPlayerData(player);
+
+                    data.forEachAndRemove((entity) -> {
+                        boolean shouldRemove = entity.getLocation().distance(player.getLocation()) <= distance;
+
+                        if (!shouldRemove) {
+                            return false;
+                        }
+
+                        temperInstance.temper(entity, lockdownTalentLockDuration);
+
+                        if (!(entity instanceof GamePlayer entityPlayer)) {
+                            return true;
+                        }
+
+                        final TalentLock talentLock = entityPlayer.getTalentLock();
+                        talentLock.setLockAll(lockdownTalentLockDuration);
+
+                        entityPlayer.setUltPoints(entityPlayer.getUltPoints() / 2);
+
+                        // Fx
+                        entityPlayer.sendSubtitle("&4&lʟᴏᴄᴋᴅᴏᴡɴ", 5, 20, 5);
+                        entityPlayer.playSound(Sound.BLOCK_ANVIL_LAND, 0.0f);
+
+                        return true;
+                    });
+                }
+
+                @Override
+                public void onTick(@Nonnull GamePlayer player, int tick) {
+                    final Location location = player.getLocation();
+
+                    // Area Fx
+                    for (double d = 0; d < Math.PI * 2; d += Math.PI / (tick + 2)) {
+                        final double x = Math.sin(d) * distance;
+                        final double y = Math.sin(Math.toRadians(tick / 2.0d)) * 0.2;
+                        final double z = Math.cos(d) * distance;
+
+                        location.add(x, y, z);
+
+                        player.spawnWorldParticle(location, Particle.SPELL_WITCH, 1);
+                        player.spawnWorldParticle(location, Particle.SPELL, 1);
+
+                        location.subtract(x, y, z);
+                    }
+
+                    // Player Fx
+                    player.spawnWorldParticle(Particle.SPELL_WITCH, 10, 0.1d, 0.6d, 0.1d, 1);
+                    player.spawnWorldParticle(Particle.CRIT_MAGIC, 10, 0.1d, 0.6d, 0.1d, 1);
+
+                    player.playWorldSound(Sound.ENTITY_IRON_GOLEM_HURT, (float) (1.0f + (1.0f / ultimateDistance * distance)));
+
+                    distance += distancePerTick;
+                }
+
+                @Override
+                public int getCastingTime() {
+                    return 60;
+                }
+            }.startDevice(player);
+
+            return UltimateResponse.OK;
+        }
     }
 }

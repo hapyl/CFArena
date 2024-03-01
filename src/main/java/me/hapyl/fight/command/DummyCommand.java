@@ -24,7 +24,7 @@ public class DummyCommand extends SimplePlayerAdminCommand {
             return new LivingGameEntity(self);
         });
 
-        entity.setForceValid(true);
+        entity.setValidState(true);
 
         Chat.sendMessage(player, "&aSpawned dummy.");
     }

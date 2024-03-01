@@ -11,6 +11,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
@@ -60,11 +61,7 @@ public class Shark extends Hero implements Listener {
                 .setDescription("Using one's claws is a better idea than using a stick, don't you think so?")
                 .setDamage(7.0d));
 
-        setUltimate(new UltimateTalent(
-                this, "Ocean Madness",
-                "Creates a &bShark Aura &7that follow you for {duration} and imitates water.",
-                70
-        ).setItem(Material.WATER_BUCKET).setDuration(120).setSound(Sound.AMBIENT_UNDERWATER_ENTER, 0.0f).setCooldownSec(60));
+        setUltimate(new SharkUltimate());
     }
 
     @Override
@@ -72,39 +69,11 @@ public class Shark extends Hero implements Listener {
         player.addEffect(Effects.WATER_BREATHING, -1);
     }
 
-    @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        setState(player, true, getUltimateDuration());
-
-        new GameTask() {
-            private int tick = getUltimateDuration();
-
-            @Override
-            public void run() {
-                if (tick < 0) {
-                    setState(player, false, 0);
-                    this.cancel();
-                    return;
-                }
-
-                final Location location = player.getLocation();
-
-                // Fx
-                Geometry.drawCircle(location, 3.5d, Quality.HIGH, new WorldParticle(Particle.WATER_DROP));
-                Geometry.drawCircle(location, 1.0d, Quality.VERY_HIGH, new WorldParticle(Particle.WATER_SPLASH));
-
-                --tick;
-            }
-        }.runTaskTimer(0, 1);
-
-        return UltimateCallback.OK;
-    }
-
     @EventHandler()
     public void handlePlayerMove(PlayerMoveEvent ev) {
         final GamePlayer player = CF.getPlayer(ev.getPlayer());
 
-        if (player == null || !validatePlayer(player) || isUsingUltimate(player)) {
+        if (player == null || !validatePlayer(player) || player.isUsingUltimate()) {
             return;
         }
 
@@ -162,5 +131,50 @@ public class Shark extends Hero implements Listener {
     @Override
     public Talent getPassiveTalent() {
         return Talents.CLAW_CRITICAL.getTalent();
+    }
+
+    private class SharkUltimate extends UltimateTalent {
+        public SharkUltimate() {
+            super("Ocean Madness", 70);
+
+            setDescription("""
+                    Creates a &bShark Aura &7that follow you for {duration} and imitates water.
+                    """);
+
+            setItem(Material.WATER_BUCKET);
+            setSound(Sound.AMBIENT_UNDERWATER_ENTER, 0.0f);
+            setDurationSec(6);
+            setCooldownSec(60);
+
+        }
+
+        @Nonnull
+        @Override
+        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+            setState(player, true, getUltimateDuration());
+
+            new GameTask() {
+                private int tick = getUltimateDuration();
+
+                @Override
+                public void run() {
+                    if (tick < 0) {
+                        setState(player, false, 0);
+                        this.cancel();
+                        return;
+                    }
+
+                    final Location location = player.getLocation();
+
+                    // Fx
+                    Geometry.drawCircle(location, 3.5d, Quality.HIGH, new WorldParticle(Particle.WATER_DROP));
+                    Geometry.drawCircle(location, 1.0d, Quality.VERY_HIGH, new WorldParticle(Particle.WATER_SPLASH));
+
+                    --tick;
+                }
+            }.runTaskTimer(0, 1);
+
+            return UltimateResponse.OK;
+        }
     }
 }

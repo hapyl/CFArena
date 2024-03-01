@@ -13,6 +13,7 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.archive.witcher.WitherData;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -46,8 +47,6 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
 
     /**
      * Redesign:
-     *
-     *
      */
 
     public DarkMage(@Nonnull Heroes handle) {
@@ -69,39 +68,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
         equipment.setBoots(153, 51, 51);
 
         setWeapon(new DarkMageWeapon());
-
-        setUltimate(new UltimateTalent(this, "Witherborn", """
-                Raised by the &8Withers&7, they will always assist you in battle.
-                                
-                While &cattacking&7, the &8Wither&7 will unleash a &acoordinated&7 attack.
-                                
-                While &acasting&7 a spell, it will be &aimproved&7, and the cooldown is &breduced&7.
-                                
-                After {duration}, the &8Wither&7 will leave.
-                """, 70)
-                .setType(Talent.Type.ENHANCE)
-                .setItem(Material.WITHER_SKELETON_SKULL)
-                .setDurationSec(12)
-                .setCooldownSec(30)
-                .setSound(Sound.ENTITY_WITHER_SPAWN, 2.0f)
-                .appendAttributeDescription("Assist Delay", WitherData.ASSIST_DELAY / 50)
-                .appendAttributeDescription("Assist Hits", WitherData.ASSIST_HITS)
-                .appendAttributeDescription("Assist Damage", WitherData.ASSIST_DAMAGE_TOTAL)
-        );
-    }
-
-    @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        final EntityAttributes attributes = player.getAttributes();
-
-        getPlayerData(player).newWither();
-        attributes.decreaseTemporary(Temper.WITHERBORN, AttributeType.COOLDOWN_MODIFIER, ultimateCooldownBoost, getUltimateDuration());
-        return UltimateCallback.OK;
-    }
-
-    @Override
-    public void onUltimateEnd(@Nonnull GamePlayer player) {
-        getPlayerData(player).removeWither();
+        setUltimate(new DarkMageUltimate());
     }
 
     @Override
@@ -267,4 +234,46 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
         }
     }
 
+    private class DarkMageUltimate extends UltimateTalent {
+        public DarkMageUltimate() {
+            super("Witherborn", 70);
+
+            setDescription("""
+                    Raised by the &8Withers&7, they will always assist you in battle.
+                                    
+                    While &cattacking&7, the &8Wither&7 will unleash a &acoordinated&7 attack.
+                                    
+                    While &acasting&7 a spell, it will be &aimproved&7, and the cooldown is &breduced&7.
+                                    
+                    After {duration}, the &8Wither&7 will leave.
+                    """);
+
+            setType(Talent.Type.ENHANCE);
+            setItem(Material.WITHER_SKELETON_SKULL);
+            setSound(Sound.ENTITY_WITHER_SPAWN, 2.0f);
+            setDurationSec(12);
+            setCooldownSec(30);
+
+            addAttributeDescription("Assist Delay", WitherData.ASSIST_DELAY / 50);
+            addAttributeDescription("Assist Hits", WitherData.ASSIST_HITS);
+            addAttributeDescription("Assist Damage", WitherData.ASSIST_DAMAGE_TOTAL);
+        }
+
+        @Nonnull
+        @Override
+        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+            final EntityAttributes attributes = player.getAttributes();
+
+            getPlayerData(player).newWither();
+            attributes.decreaseTemporary(Temper.WITHERBORN, AttributeType.COOLDOWN_MODIFIER, ultimateCooldownBoost, getUltimateDuration());
+
+            return new UltimateResponse() {
+                @Override
+                public void onUltimateEnd(@Nonnull GamePlayer player) {
+                    getPlayerData(player).removeWither();
+                }
+            };
+
+        }
+    }
 }

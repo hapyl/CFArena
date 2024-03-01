@@ -96,21 +96,21 @@ public enum Heroes implements Formatted {
     SWOOPER(Swooper::new),
     TAMER(Tamer::new),
     SHARK(Shark::new),
-    LIBRARIAN(Librarian::new),
+    @OnReworkIgnoreForNow LIBRARIAN(Librarian::new),
     TECHIE(Techie::new),
-    WAR_MACHINE(KillingMachine::new),
+    @OnReworkIgnoreForNow WAR_MACHINE(KillingMachine::new),
     HARBINGER(Harbinger::new),
     SHAMAN(Shaman::new),
     HEALER(Healer::new),
-    VAMPIRE(Vampire::new),
+    @OnReworkIgnoreForNow VAMPIRE(Vampire::new),
     BOUNTY_HUNTER(BountyHunter::new),
     SWORD_MASTER(SwordMaster::new),
     ENGINEER(Engineer::new),
     ORC(Orc::new),
     BLOODFIEND(Bloodfiend::new),
     ZEALOT(Zealot::new),
-    RONIN(Ronin::new),
-    JESTER(Jester::new),
+    @OnReworkIgnoreForNow RONIN(Ronin::new),
+    @OnReworkIgnoreForNow JESTER(Jester::new),
     ROGUE(Rogue::new),
 
     // *=* Tutorial Hero *=* //
@@ -136,7 +136,7 @@ public enum Heroes implements Formatted {
 
             // Store archetype for easier grab
             mapHero(enumHero, Hero::getArchetype, BY_ARCHETYPE);
-            mapHero(enumHero, Hero::getSex, BY_GENDER);
+            mapHero(enumHero, Hero::getGender, BY_GENDER);
             mapHero(enumHero, Hero::getRace, BY_RACE);
 
             // Add playable

@@ -14,9 +14,6 @@ import me.hapyl.fight.game.effect.archive.SlowingAuraEffect;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.game.talents.*;
-import me.hapyl.fight.translate.Language;
-import me.hapyl.fight.translate.Translatable;
-import me.hapyl.fight.translate.TranslateKey;
 import me.hapyl.fight.util.Condition;
 import me.hapyl.fight.util.Described;
 import me.hapyl.fight.util.Final;
@@ -29,6 +26,7 @@ import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Material;
+import org.bukkit.Translatable;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -42,14 +40,10 @@ import java.util.function.Consumer;
 @AutoRegisteredListener
 public abstract class Talent extends NonNullItemCreator
         implements GameElement, PlayerElement, DisplayFieldProvider,
-        Nameable, Timed, Cooldown, EnumHandle<Talents>, Translatable, Comparable<Talent> {
+        Nameable, Timed, Cooldown, EnumHandle<Talents>, Comparable<Talent> {
 
-    public static final Talent NULL = null;
-    public static int DYNAMIC = -1;
     private final List<String> attributeDescription;
     private final Final<Talents> handle;
-    protected TranslateKey translateName;
-    protected TranslateKey translateDescription;
     private Type type;
     private String name;
     @Nonnull
@@ -101,26 +95,6 @@ public abstract class Talent extends NonNullItemCreator
         this.handle = new Final<>();
     }
 
-    @Nonnull
-    @Override
-    public String getTranslateName(@Nonnull Language language) {
-        if (translateName == null) {
-            return name;
-        }
-
-        return language.getFormatted(translateName);
-    }
-
-    @Nonnull
-    @Override
-    public String getTranslateDescription(@Nonnull Language language) {
-        if (translateDescription == null) {
-            return description;
-        }
-
-        return language.getFormatted(translateDescription);
-    }
-
     // defaults to 1 point per 10 seconds of cooldown
     public void defaultPointGeneration() {
         point = calcPointGeneration(cd);
@@ -135,8 +109,6 @@ public abstract class Talent extends NonNullItemCreator
     @Override
     public void setHandle(@Nonnull Talents handle) {
         this.handle.set(handle);
-        this.translateName = new TranslateKey("talent." + handle.name() + ".name");
-        this.translateDescription = new TranslateKey("talent." + handle.name() + ".description");
     }
 
     public void setAltUsage(String altUsage) {
@@ -563,12 +535,6 @@ public abstract class Talent extends NonNullItemCreator
 
     public void startCdInferentially(@Nonnull GamePlayer player) {
         startCd(player, 100000);
-    }
-
-    @Nonnull
-    @Override
-    public String getParentTranslatableKey() {
-        return "talent." + handle.getOrThrow().name().toLowerCase() + ".";
     }
 
     @Nonnull

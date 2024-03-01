@@ -1,5 +1,6 @@
 package me.hapyl.fight.util.displayfield;
 
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 
@@ -101,11 +102,11 @@ public final class DisplayFieldSerializer {
             final Object value = field.get(instance);
             String stringValue = "";
 
-            final double dp = display.dp();
+            final int dp = display.dp();
 
             if (value instanceof Double decimal) {
                 if (dp != -1) {
-                    stringValue = ("%." + dp + "f").formatted(decimal * scale);
+                    stringValue = String.format("%.0" + dp + "f", decimal * scale);
                 }
                 else {
                     stringValue = scaleFormat(decimal * scale);

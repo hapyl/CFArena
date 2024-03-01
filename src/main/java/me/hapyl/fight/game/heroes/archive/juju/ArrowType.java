@@ -85,7 +85,7 @@ public enum ArrowType implements Described {
             final JuJu juju = Heroes.JUJU.getHero(JuJu.class);
 
             juju.unequipArrow(player, this);
-            juju.setUsingUltimate(player, false);
+            player.setUsingUltimate(false);
         }
     };
 

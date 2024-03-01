@@ -1,5 +1,15 @@
 # [⚙] System Changes
 
+### ※ Ultimate Changes
+
+**There are some big backend changes, so expect bugs!**
+
+* Ultimates are now handled by a class, rather than a hero.
+* Optimize on how ultimates are handled.
+* And more nerdy stuff.
+
+### Other changes
+
 * Shields no longer block fall damage by default.
 * Added sound FX to Archer's Hackeye arrows.
 * Relic Hunt now shows it if there are no Relics in the current area.
@@ -7,6 +17,9 @@
 * Updated Health Pack SFX.
 * Using Bounty Hunter's Smoke Bomb now snaps to the weapon.
 * Max Health below 40 is now shown with less max hearts.
+* Increased the max length of a username display from 5 >> 9.
+* Remove translations.
+    * Dev comment: *`Fuck translations, learn english.`*.
 
 ---
 
@@ -46,6 +59,7 @@ Summoning stars spends **max health**, meaning you cannot regenerate past it.
     * Teleport is not instant anymore.
     * Upon finishing teleport, collect the **star**, regain sacrificed health and regenerate health based on that
       star's remaining health.
+    * The link damage can no longer crit.
 
 ### Like a Dream (Passive)
 
@@ -70,5 +84,6 @@ Any Vortex ability damage is considered **astral** damage, meaning it is boosted
 * Fixed Engineer's Turret shooting its own creator while in the mecha form.
 * Fixed Taker not getting bones if enemy hit was recently damaged.
 * Fixed Dice not removing after rolling a 6.
+* Fixed Talent Lock overriding the longer lock.
 
 ---

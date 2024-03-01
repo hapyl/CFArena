@@ -23,13 +23,11 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TaskList;
 import me.hapyl.fight.game.trial.TrialListener;
 import me.hapyl.fight.garbage.CFGarbageCollector;
-import me.hapyl.fight.github.Contributors;
 import me.hapyl.fight.notifier.Notifier;
 import me.hapyl.fight.npc.HumanManager;
 import me.hapyl.fight.npc.runtime.RuntimeNPCManager;
 import me.hapyl.fight.protocol.*;
 import me.hapyl.fight.script.ScriptManager;
-import me.hapyl.fight.translate.Translate;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.EternaAPI;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -49,7 +47,7 @@ public class Main extends JavaPlugin {
             "&6&l\uD835\uDC9Eℱ \uD835\uDC9C\uD835\uDCC7ℯ\uD835\uDCC3\uD835\uDCB6";
 
     public static final VersionInfo versionInfo = new VersionInfo(
-            new UpdateTopic("Vortex & Dark Mage Changes", 138, 46, 7, 237, 152, 40)
+            new UpdateTopic("Vortex Changes", 138, 46, 7, 237, 152, 40)
     );
 
     public static final String requireEternaVersion = "2.47.0";
@@ -59,7 +57,6 @@ public class Main extends JavaPlugin {
     private static Main plugin;
 
     private ScriptManager scriptManager;
-    private Translate translate;
     private Manager manager;
     private HumanManager humanManager;
     private TaskList taskList;
@@ -109,7 +106,6 @@ public class Main extends JavaPlugin {
         achievementRegistry = new AchievementRegistry(this);
         crateManager = new CrateManager(this);
         scriptManager = new ScriptManager(this);
-        translate = new Translate(this);
         npcManager = new RuntimeNPCManager(this);
 
         //new LampGame(this);
@@ -221,11 +217,6 @@ public class Main extends JavaPlugin {
     @Nonnull
     public Database getDatabase() {
         return database;
-    }
-
-    @Nonnull
-    public Translate getTranslate() {
-        return translate;
     }
 
     @Nonnull

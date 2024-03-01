@@ -46,7 +46,6 @@ import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.display.AscendingDisplay;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.translate.Language;
 import me.hapyl.fight.util.*;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
@@ -100,6 +99,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
     private final PlayerPing playerPing;
     private final Map<MoveType, Long> lastMoved;
     public boolean blockDismount;
+    public long usedUltimateAt;
     private int sneakTicks;
     @Nonnull
     private PlayerProfile profile;
@@ -513,7 +513,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         final UltimateTalent ultimate = getUltimate();
         final String pointsString = "&b&l%s&b/&b&l%s".formatted(getUltPoints(), getUltPointsNeeded());
 
-        if (getHero().isUsingUltimate(this)) {
+        if (isUsingUltimate()) {
             final long durationLeft = getHero().getUltimateDurationLeft(this);
 
             return "&b&lIN USE &b(%s&b)".formatted(durationLeft < 0 ? "∞" : BukkitUtils.roundTick(Tick.fromMillis(durationLeft)) + "s");
@@ -635,6 +635,47 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         schedule(() -> inventory.setItem(org.bukkit.inventory.EquipmentSlot.OFF_HAND, offhandItem), 3);
     }
 
+    /**
+     * Returns true if the player is using ultimate.
+     *
+     * @return true if the player is using ultimate; false otherwise.
+     */
+    public boolean isUsingUltimate() {
+        return usedUltimateAt > 0;
+    }
+
+    /**
+     * Sets if the player is using ultimate.
+     *
+     * @param usingUltimate - Is using ultimate.
+     */
+    public void setUsingUltimate(boolean usingUltimate) {
+        if (usingUltimate) {
+            usedUltimateAt = System.currentTimeMillis();
+        }
+        else {
+            usedUltimateAt = 0L;
+        }
+    }
+
+    /**
+     * Sets that the player is using ultimate and unsets it after a given duration.
+     * <br>
+     * This is mostly used with manual ultimates, with dynamic duration.
+     *
+     * @param duration - Duration.
+     */
+    public void setUsingUltimate(int duration) {
+        setUsingUltimate(true);
+
+        new PlayerGameTask(this, EntityState.ALIVE) {
+            @Override
+            public void run() {
+                setUsingUltimate(false);
+            }
+        }.runTaskLater(duration);
+    }
+
     public void triggerOnDeath() {
         this.onDeath();
 
@@ -644,6 +685,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
 
         currentGame.getEnumMap().getMap().onDeath(this);
         hero.onDeath(this);
+        usedUltimateAt = 0L;
 
         if (hero instanceof PlayerDataHandler<?> handler) {
             handler.removePlayerData(this);
@@ -672,7 +714,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
     public void addUltimatePoints(int points) {
         final Player player = getEntity();
         // cannot give points if using ultimate or dead
-        if (getHero().isUsingUltimate(this) || !this.isAlive() || this.ultPoints >= this.getUltPointsNeeded()) {
+        if (isUsingUltimate() || !this.isAlive() || this.ultPoints >= this.getUltPointsNeeded()) {
             return;
         }
 
@@ -826,7 +868,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
 
         state = EntityState.ALIVE;
         ultPoints = 0;
-        hero.setUsingUltimate(this, false);
+        setUsingUltimate(false);
         setHealth(this.getMaxHealth());
 
         player.getInventory().clear();
@@ -1221,11 +1263,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         giveTalentItem(slot, talent);
     }
 
-    @Nonnull
-    public Language getLanguage() {
-        return profile.getDatabase().getLanguage();
-    }
-
     public void giveTalentItem(@Nonnull HotbarSlots slot, @Nonnull Talent talent) {
         final PlayerInventory inventory = getInventory();
         final ItemStack talentItem = talent.getItem();
@@ -1458,10 +1495,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         return timeSinceLastMoved >= 100L;
     }
 
-    public boolean isUsingUltimate() {
-        return getHero().isUsingUltimate(this);
-    }
-
     public boolean hasCooldown(@Nonnull Talent talent) {
         return hasCooldown(talent.getMaterial());
     }
@@ -1476,6 +1509,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
 
         return location.getDirection();
     }
+
 
     private List<Block> getBlocksRelative(BiFunction<Location, World, Boolean> fn, Consumer<Location> consumer) {
         final List<Block> blocks = Lists.newArrayList();

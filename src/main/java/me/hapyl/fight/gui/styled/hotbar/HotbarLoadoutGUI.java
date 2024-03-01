@@ -13,7 +13,6 @@ import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
 import me.hapyl.fight.gui.styled.StyledItem;
 import me.hapyl.fight.gui.styled.profile.PlayerProfileGUI;
-import me.hapyl.fight.translate.Language;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.NoProfileException;
 import me.hapyl.fight.ux.Message;
@@ -60,14 +59,12 @@ public class HotbarLoadoutGUI extends StyledGUI implements EventListener {
         loadout = profile.getHotbarLoadout();
         itemToSlotMap = Maps.newHashMap();
 
-        final Language language = Language.getPlayerLanguage(player);
-
         putToMap(HotbarSlots.WEAPON, hero.getWeapon().getItem());
-        putToMap(HotbarSlots.TALENT_1, hero.getTalentItem(HotbarSlots.TALENT_1, language));
-        putToMap(HotbarSlots.TALENT_2, hero.getTalentItem(HotbarSlots.TALENT_2, language));
-        putToMap(HotbarSlots.TALENT_3, hero.getTalentItem(HotbarSlots.TALENT_3, language));
-        putToMap(HotbarSlots.TALENT_4, hero.getTalentItem(HotbarSlots.TALENT_4, language));
-        putToMap(HotbarSlots.TALENT_5, hero.getTalentItem(HotbarSlots.TALENT_5, language));
+        putToMap(HotbarSlots.TALENT_1, hero.getTalentItem(HotbarSlots.TALENT_1));
+        putToMap(HotbarSlots.TALENT_2, hero.getTalentItem(HotbarSlots.TALENT_2));
+        putToMap(HotbarSlots.TALENT_3, hero.getTalentItem(HotbarSlots.TALENT_3));
+        putToMap(HotbarSlots.TALENT_4, hero.getTalentItem(HotbarSlots.TALENT_4));
+        putToMap(HotbarSlots.TALENT_5, hero.getTalentItem(HotbarSlots.TALENT_5));
         putToMap(HotbarSlots.HERO_ITEM, null);
 
         setEventListener(this);

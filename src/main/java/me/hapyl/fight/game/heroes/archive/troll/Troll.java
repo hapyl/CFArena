@@ -8,6 +8,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -52,16 +53,7 @@ public class Troll extends Hero implements Listener {
                 .setDamage(4.0)
                 .addEnchant(Enchantment.KNOCKBACK, 1));
 
-        setUltimate(new UltimateTalent(
-                this, "Sticky Situation", """
-                Spawns a batch of cobwebs at your position that is only visible for your opponents.
-                                
-                &8;;Only one batch can exist at the same time.
-                """, 40
-        ).setSound(Sound.ENTITY_SPIDER_AMBIENT, 1.0f)
-                .setType(Talent.Type.IMPAIR)
-                .setItem(Material.COBWEB)
-                .setCooldownSec(20));
+        setUltimate(new TrollUltimate());
     }
 
     @EventHandler
@@ -95,14 +87,6 @@ public class Troll extends Hero implements Listener {
         if (oldCobwebs != null) {
             oldCobwebs.remove();
         }
-    }
-
-    @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        clearCobwebs(player);
-
-        cobwebs.put(player, new StickyCobweb(player));
-        return UltimateCallback.OK;
     }
 
     @Override
@@ -144,5 +128,31 @@ public class Troll extends Hero implements Listener {
     @Override
     public Talent getPassiveTalent() {
         return Talents.TROLL_PASSIVE.getTalent();
+    }
+
+    private class TrollUltimate extends UltimateTalent {
+        public TrollUltimate() {
+            super("Sticky Situation", 40);
+
+            setDescription("""
+                    Spawns a batch of cobwebs at your position that is only visible for your opponents.
+                                    
+                    &8;;Only one batch can exist at the same time.
+                    """);
+
+            setSound(Sound.ENTITY_SPIDER_AMBIENT, 1.0f);
+            setType(Talent.Type.IMPAIR);
+            setItem(Material.COBWEB);
+            setCooldownSec(20);
+        }
+
+        @Nonnull
+        @Override
+        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+            clearCobwebs(player);
+
+            cobwebs.put(player, new StickyCobweb(player));
+            return UltimateResponse.OK;
+        }
     }
 }

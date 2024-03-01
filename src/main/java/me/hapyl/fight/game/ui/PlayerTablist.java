@@ -96,7 +96,7 @@ public class PlayerTablist extends Tablist {
         });
 
         for (PlayerProfile profile : profiles) {
-            final String displayNameTab = profile.getDisplay().getDisplayNameTab();
+            final String displayNameTab = profile.getDisplay().toStringTab();
 
             entryList.append(displayNameTab, EntryTexture.of(profile.getPlayer()), PingBars.byValue(player.getPing()));
         }

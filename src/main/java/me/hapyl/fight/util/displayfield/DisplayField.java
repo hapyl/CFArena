@@ -55,6 +55,6 @@ public @interface DisplayField {
      *
      * @return the decimal point.
      */
-    double dp() default -1;
+    int dp() default -1;
 
 }

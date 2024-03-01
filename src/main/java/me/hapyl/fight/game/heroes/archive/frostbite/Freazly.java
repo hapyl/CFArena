@@ -6,6 +6,7 @@ import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.task.GameTask;
@@ -36,7 +37,7 @@ public class Freazly extends Hero {
         equipment.setBoots(Color.fromRGB(45, 54, 69));
 
         setWeapon(new FrostbiteWeapon());
-        setUltimate(new FrostbiteUltimate(this, 60));
+        setUltimate(new FrostbiteUltimate(60));
     }
 
     @Override
@@ -61,13 +62,6 @@ public class Freazly extends Hero {
     @Override
     public FrostbiteUltimate getUltimate() {
         return (FrostbiteUltimate) super.getUltimate();
-    }
-
-    @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        new EternalFreeze(player, getUltimate());
-
-        return UltimateCallback.OK;
     }
 
     @Override

@@ -9,6 +9,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -63,20 +64,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
         furyEquipment.setBoots(Color.BLACK);
 
         setWeapon(new ShadowAssassinWeapon(this));
-
-        setUltimate(new UltimateTalent(
-                this, "Extreme Focus", """
-                Enter {name} for {duration}.
-                                
-                While active, your &amelee&7 attacks will &nnot&7 miss if an enemy is close enough and has no cover.
-                                
-                You cannot perform &eShadow Stab&7 while {name} is active.
-                """, 80
-        )
-                .setDurationSec(10)
-                .setCooldownSec(40)
-                .setType(Talent.Type.ENHANCE)
-                .setItem(Material.GOLDEN_CARROT));
+        setUltimate(new ShadowAssassinUltimate());
 
         getUltimate().addAttributeDescription("Cooldown Per Hit", nevermissCd);
     }
@@ -97,20 +85,6 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
         playerData.remove(player);
     }
 
-    @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        player.setCooldown(getWeapon().getMaterial(), 0);
-
-        // Fx
-        player.playWorldSound(Sound.BLOCK_BEACON_ACTIVATE, 1.75f);
-        player.playWorldSound(Sound.BLOCK_BEACON_AMBIENT, 1.75f);
-        player.addEffect(Effects.SLOW, getUltimateDuration());
-
-        GameTask.runLater(() -> player.playWorldSound(Sound.BLOCK_BEACON_DEACTIVATE, 1.85f), getUltimateDuration());
-
-        return UltimateCallback.OK;
-    }
-
     @EventHandler()
     public void handleUltimate(PlayerInteractEvent ev) {
         final GamePlayer player = CF.getPlayer(ev.getPlayer());
@@ -120,7 +94,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
                 || ev.getHand() == EquipmentSlot.OFF_HAND
                 || ev.getAction() == Action.PHYSICAL
                 || !validatePlayer(player)
-                || !isUsingUltimate(player)
+                || !player.isUsingUltimate()
                 || player.hasCooldown(weapon.getMaterial())) {
             return;
         }
@@ -256,9 +230,43 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
 
     private boolean validateCanBackStab(GamePlayer player, LivingGameEntity entity) {
         return entity != null
-                && !isUsingUltimate(player)
+                && !player.isUsingUltimate()
                 && player != entity
                 && !player.hasCooldown(getWeapon().getMaterial()) && player.isHeldSlot(HotbarSlots.WEAPON);
     }
 
+    private class ShadowAssassinUltimate extends UltimateTalent {
+        public ShadowAssassinUltimate() {
+            super("Extreme Focus", 80);
+
+            setDescription("""
+                    Enter {name} for {duration}.
+                                    
+                    While active, your &amelee&7 attacks will &nnot&7 miss if an enemy is close enough and has no cover.
+                                    
+                    You cannot perform &eShadow Stab&7 while {name} is active.
+                    """);
+
+            setType(Talent.Type.ENHANCE);
+            setItem(Material.GOLDEN_CARROT);
+            setDurationSec(10);
+            setCooldownSec(40);
+        }
+
+        @Nonnull
+        @Override
+        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+            // FIXME (hapyl): 001, Mar 1: Change for reach attribute if it's 1.21 or whatever the fuck it is
+            player.setCooldown(getWeapon().getMaterial(), 0);
+
+            // Fx
+            player.playWorldSound(Sound.BLOCK_BEACON_ACTIVATE, 1.75f);
+            player.playWorldSound(Sound.BLOCK_BEACON_AMBIENT, 1.75f);
+            player.addEffect(Effects.SLOW, getUltimateDuration());
+
+            GameTask.runLater(() -> player.playWorldSound(Sound.BLOCK_BEACON_DEACTIVATE, 1.85f), getUltimateDuration());
+
+            return UltimateResponse.OK;
+        }
+    }
 }

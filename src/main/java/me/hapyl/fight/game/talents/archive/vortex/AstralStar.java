@@ -16,7 +16,6 @@ import me.hapyl.spigotutils.module.block.display.DisplayData;
 import me.hapyl.spigotutils.module.block.display.DisplayEntity;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.entity.EntityUtils;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.glow.Glowing;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -96,7 +95,7 @@ public class AstralStar implements Ticking {
             };
 
             entity.setCollision(EntityUtils.Collision.DENY);
-            entity.setForceValid(true);
+            entity.setValidState(true);
             entity.setImmune(EnumDamageCause.SUFFOCATION);
 
             player.getTeam().addEntry(entity.getEntry());

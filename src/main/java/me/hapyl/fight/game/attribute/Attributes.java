@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.attribute;
 
 import com.google.common.collect.Maps;
-import me.hapyl.fight.translate.Language;
 import me.hapyl.fight.util.WeakCopy;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.LivingEntity;
@@ -325,11 +324,6 @@ public class Attributes implements WeakCopy {
     @Nonnull
     public String getLore(AttributeType type) {
         return " &7" + type.getName() + ": " + getStar(type);
-    }
-
-    @Nonnull
-    public String getLore(@Nonnull Language language, @Nonnull AttributeType type) {
-        return " &7" + language.getTranslated("attribute." + type.name().toLowerCase()) + ": " + getStar(type);
     }
 
     @Nonnull

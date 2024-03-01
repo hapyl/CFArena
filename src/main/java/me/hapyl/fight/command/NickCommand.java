@@ -4,7 +4,7 @@ import com.google.common.collect.Sets;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.filter.ProfanityFilter;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.game.profile.ProfileDisplay;
+import me.hapyl.fight.game.profile.PlayerDisplay;
 import me.hapyl.fight.ux.Message;
 import me.hapyl.spigotutils.module.command.DisabledCommand;
 import org.bukkit.entity.Player;
@@ -42,7 +42,7 @@ public class NickCommand extends CFCommand implements DisabledCommand {
             return;
         }
 
-        final ProfileDisplay display = profile.getDisplay();
+        final PlayerDisplay display = profile.getDisplay();
         final String newNick = args.get(0).toString();
 
         if (newNick.isEmpty() || newNick.equalsIgnoreCase("reset")) {

@@ -9,6 +9,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -38,8 +39,6 @@ import java.util.concurrent.TimeUnit;
 
 public class Swooper extends Hero implements Listener, UIComplexComponent, PlayerDataHandler<SwooperData>, TickingHero {
 
-    @DisplayField public final double ultimateRadius = 100.0d;
-    @DisplayField public final double ultimateDamageMultiplier = 2.5d;
     private final PlayerDataMap<SwooperData> playerData = PlayerMap.newDataMap(player -> new SwooperData(this, player));
     private final double knockbackChance = 0.12d;
     private final int stunDuration = 40;
@@ -66,27 +65,7 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
         equipment.setBoots(25, 53, 102);
 
         setWeapon(new SwooperWeapon(this));
-
-        setUltimate(new UltimateTalent(this, "Echolocation", """
-                Instantly cast a &awave&7 outwards that &bscans&7 for enemies.
-                                
-                After a short delay, &bhighlight&7 all hit &cenemies&7.
-                                
-                Also, gain &4&l🧨 &cOvercharge&7 shots, that have &aincreased &cdamage&7 and can &nshoot&7 &nthrough&7 walls.
-                                
-                &8;;Ultimate is considered as active until all Overcharge shots are fired.
-                """, 60) {
-            @Override
-            public int getDuration() {
-                return -1; // because of casting time
-            }
-        }
-                .setType(Talent.Type.ENHANCE)
-                .setItem(Material.PURPLE_GLAZED_TERRACOTTA)
-                .setSound(Sound.ENTITY_ELDER_GUARDIAN_AMBIENT, 2.0f)
-                .setCastDuration(20));
-
-        copyDisplayFieldsToUltimate();
+        setUltimate(new SwooperUltimate());
     }
 
     @Override
@@ -192,47 +171,6 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
 
     @Nullable
     @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        setUsingUltimate(player, true);
-
-        final WorldBorder border = Bukkit.createWorldBorder();
-        final SwooperData data = getPlayerData(player);
-
-        border.setCenter(player.getLocation());
-        border.setSize(2.0d);
-        border.setSize(ultimateRadius * 2, TimeUnit.MILLISECONDS, getUltimate().getCastDuration() * 50L);
-
-        player.setWorldBorder(border);
-
-        // Fx
-        player.playWorldSound(Sound.ENTITY_ELDER_GUARDIAN_CURSE, 0.75f);
-        player.playWorldSound(Sound.ENTITY_ELDER_GUARDIAN_CURSE, 1.25f);
-
-        return new UltimateCallback() {
-            @Override
-            public void callback(@Nonnull GamePlayer player) {
-                player.setWorldBorder(null);
-
-                final int enemyCount = Collect.enemyPlayers(player).size();
-
-                data.ultimateShots = enemyCount <= 1 ? 2 : 3;
-
-                Collect.nearbyEntities(player.getLocation(), ultimateRadius).forEach(entity -> {
-                    if (player.isSelfOrTeammate(entity)) {
-                        return;
-                    }
-
-                    data.addHighlighted(entity);
-
-                    // Fx
-                    player.playSound(entity.getLocation(), Sound.ENTITY_ILLUSIONER_CAST_SPELL, 1.25f);
-                });
-            }
-        };
-    }
-
-    @Nullable
-    @Override
     public List<String> getStrings(@Nonnull GamePlayer player) {
         final SwooperData data = getPlayerData(player);
         final SwooperPassive talent = getPassiveTalent();
@@ -292,4 +230,80 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
         return playerData;
     }
 
+    @Override
+    public SwooperUltimate getUltimate() {
+        return (SwooperUltimate) super.getUltimate();
+    }
+
+    public class SwooperUltimate extends UltimateTalent {
+
+        @DisplayField public final double ultimateRadius = 100.0d;
+        @DisplayField public final double ultimateDamageMultiplier = 2.5d;
+
+        public SwooperUltimate() {
+            super("Echolocation", 60);
+
+            setDescription("""
+                    Instantly cast a &awave&7 outwards that &bscans&7 for enemies.
+                                    
+                    After a short delay, &bhighlight&7 all hit &cenemies&7.
+                                    
+                    Also, gain &4&l🧨 &cOvercharge&7 shots, that have &aincreased &cdamage&7 and can &nshoot&7 &nthrough&7 walls.
+                                    
+                    &8;;Ultimate is considered as active until all Overcharge shots are fired.
+                    """);
+
+            setType(Talent.Type.ENHANCE);
+            setItem(Material.PURPLE_GLAZED_TERRACOTTA);
+            setSound(Sound.ENTITY_ELDER_GUARDIAN_AMBIENT, 2.0f);
+            setCastDuration(20);
+
+        }
+
+        @Override
+        public int getDuration() {
+            return -1; // because of casting time
+        }
+
+        @Nonnull
+        @Override
+        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+            player.setUsingUltimate(true);
+
+            final WorldBorder border = Bukkit.createWorldBorder();
+            final SwooperData data = getPlayerData(player);
+
+            border.setCenter(player.getLocation());
+            border.setSize(2.0d);
+            border.setSize(ultimateRadius * 2, TimeUnit.MILLISECONDS, getUltimate().getCastDuration() * 50L);
+
+            player.setWorldBorder(border);
+
+            // Fx
+            player.playWorldSound(Sound.ENTITY_ELDER_GUARDIAN_CURSE, 0.75f);
+            player.playWorldSound(Sound.ENTITY_ELDER_GUARDIAN_CURSE, 1.25f);
+
+            return new UltimateResponse() {
+                @Override
+                public void onCastFinished(@Nonnull GamePlayer player) {
+                    player.setWorldBorder(null);
+
+                    final int enemyCount = Collect.enemyPlayers(player).size();
+
+                    data.ultimateShots = enemyCount <= 1 ? 2 : 3;
+
+                    Collect.nearbyEntities(player.getLocation(), ultimateRadius).forEach(entity -> {
+                        if (player.isSelfOrTeammate(entity)) {
+                            return;
+                        }
+
+                        data.addHighlighted(entity);
+
+                        // Fx
+                        player.playSound(entity.getLocation(), Sound.ENTITY_ILLUSIONER_CAST_SPELL, 1.25f);
+                    });
+                }
+            };
+        }
+    }
 }
