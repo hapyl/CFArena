@@ -34,7 +34,7 @@ public enum EnumDamageCause {
     VOID(DamageCause.minecraft("fell into the void", "with help from")),
     POISON(DamageCause.minecraft("poisoned to death", "by")
             .setDamageFormat(instance -> {
-                return "%.0f ☣".formatted(instance.getDamage());
+                return "&a%.0f ☣".formatted(instance.getDamage());
             })),
     MAGIC(DamageCause.minecraft("magically died", "with help from")),
     WITHER(DamageCause.minecraft("withered to death", "by")),

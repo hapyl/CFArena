@@ -14,7 +14,8 @@ import javax.annotation.Nonnull;
 public class VortexStarTalent extends Talent {
 
     @DisplayField private final short maximumStars = 5;
-    @DisplayField public final double healthSacrificePerStar = 80d / maximumStars;
+    @DisplayField public final double healthSacrificePerStar = 100d / maximumStars;
+    @DisplayField public final double maxStarDamage = healthSacrificePerStar / 5;
 
     private final PlayerMap<AstralStarList> stars = PlayerMap.newMap();
 

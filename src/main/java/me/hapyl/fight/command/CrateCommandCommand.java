@@ -8,7 +8,7 @@ import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.cosmetic.crate.CrateLocation;
 import me.hapyl.fight.game.cosmetic.crate.CrateManager;
 import me.hapyl.fight.game.cosmetic.crate.Crates;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.command.SimplePlayerCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -31,7 +31,7 @@ public class CrateCommandCommand extends SimplePlayerCommand {
             final CrateLocation closestCrate = manager.getClosest(player.getLocation());
 
             if (closestCrate == null) {
-                Message.error(player, "There are no crate chests nearby!");
+                Notifier.error(player, "There are no crate chests nearby!");
                 return;
             }
 
@@ -40,13 +40,13 @@ public class CrateCommandCommand extends SimplePlayerCommand {
         }
 
         if (!PlayerRank.getRank(player).isOrHigher(PlayerRank.ADMIN)) {
-            Message.Error.NOT_PERMISSIONS_NEED_RANK.send(player, PlayerRank.ADMIN);
+            Notifier.Error.NOT_PERMISSIONS_NEED_RANK.send(player, PlayerRank.ADMIN);
             return;
         }
 
         // crate (player) (give, remove, has) (crate)
         if (args.length != 3) {
-            Message.Error.NOT_ENOUGH_ARGUMENTS.send(player);
+            Notifier.Error.NOT_ENOUGH_ARGUMENTS.send(player);
             return;
         }
 
@@ -55,12 +55,12 @@ public class CrateCommandCommand extends SimplePlayerCommand {
         final Crates crate = getArgument(args, 2).toEnum(Crates.class);
 
         if (target == null) {
-            Message.Error.PLAYER_NOT_ONLINE.send(player);
+            Notifier.Error.PLAYER_NOT_ONLINE.send(player);
             return;
         }
 
         if (crate == null) {
-            Message.Error.INVALID_ENUMERABLE_ARGUMENT.send(player, Arrays.toString(Crates.values()));
+            Notifier.Error.INVALID_ENUMERABLE_ARGUMENT.send(player, Arrays.toString(Crates.values()));
             return;
         }
 
@@ -70,31 +70,31 @@ public class CrateCommandCommand extends SimplePlayerCommand {
         switch (argument) {
             case "give" -> {
                 crates.addCrate(crate);
-                Message.success(player, "Gave {} {} crate.", target.getName(), crate);
+                Notifier.success(player, "Gave {} {} crate.", target.getName(), crate);
             }
 
             case "remove" -> {
                 if (!crates.hasCrate(crate)) {
-                    Message.error(player, "{} doesn't have any crates!", target.getName());
+                    Notifier.error(player, "{} doesn't have any crates!", target.getName());
                     return;
                 }
 
                 crates.removeCrate(crate);
-                Message.success(player, "Removed {} crate from {}.", crate, target.getName());
+                Notifier.success(player, "Removed {} crate from {}.", crate, target.getName());
             }
 
             case "has" -> {
                 final long count = crates.getCrates(crate);
 
                 if (count > 0) {
-                    Message.success(player, "{} has {} {} crates.", target.getName(), count, crate);
+                    Notifier.success(player, "{} has {} {} crates.", target.getName(), count, crate);
                 }
                 else {
-                    Message.error(player, "{} doesn't have any {} crates!", target.getName(), crate);
+                    Notifier.error(player, "{} doesn't have any {} crates!", target.getName(), crate);
                 }
             }
 
-            default -> Message.error(player, "Invalid usage!");
+            default -> Notifier.error(player, "Invalid usage!");
         }
     }
 }

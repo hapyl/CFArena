@@ -2,6 +2,7 @@ package me.hapyl.fight.game.heroes.archive.vortex;
 
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
+import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -44,6 +45,9 @@ public class Vortex extends Hero implements UIComplexComponent {
 
         setDescription("A young boy with the power of speaking to stars...");
         setItem("2adc458dfabc20b8d587b0476280da2fb325fc616a5212784466a78b85fb7e4d");
+
+        final HeroAttributes attributes = getAttributes();
+        attributes.setHealth(120);
 
         final Equipment equipment = getEquipment();
         equipment.setChestPlate(102, 51, 0);
@@ -201,9 +205,10 @@ public class Vortex extends Hero implements UIComplexComponent {
 
     private class VortexUltimate extends UltimateTalent {
 
-        @DisplayField private final double ultimateBaseDamage = 1.0d;
+        @DisplayField private final double ultimateBaseDamage = 1d;
         @DisplayField private final double ultimateSpeed = 0.3d;
-        @DisplayField(dp = 3) private final double ultimateSpeedStuck = ultimateSpeed / 10;
+        @DisplayField(dp = 3) private final double ultimateSpeedStuck = 0.05d;
+        @DisplayField(percentage = true) private final double knockback = 0.1d;
 
         public VortexUltimate() {
             super("Arcana", 50);
@@ -213,7 +218,7 @@ public class Vortex extends Hero implements UIComplexComponent {
                     """);
 
             setItem(Material.QUARTZ);
-            setDurationSec(6);
+            setDurationSec(5);
             setCooldownSec(30);
         }
 
@@ -241,8 +246,8 @@ public class Vortex extends Hero implements UIComplexComponent {
 
                         isHit = true;
 
-                        entity.modifyKnockback(0.8, self -> {
-                            self.damageTick(damage, player, EnumDamageCause.SOTS, 0);
+                        entity.modifyKnockback(1 - knockback, self -> {
+                            self.damageTick(damage, player, EnumDamageCause.SOTS, 2);
                         });
                     }
 
@@ -257,7 +262,7 @@ public class Vortex extends Hero implements UIComplexComponent {
                     }
 
                     // Fx
-                    player.spawnWorldParticle(location, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0);
+                    player.spawnWorldParticle(location, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 3);
 
                     if (tick % 5 == 0) {
                         PlayerLib.playSound(location, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.25f);

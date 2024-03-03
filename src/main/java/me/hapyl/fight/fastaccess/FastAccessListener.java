@@ -4,7 +4,7 @@ import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.GameMode;
@@ -54,7 +54,7 @@ public class FastAccessListener implements Listener {
         ev.setCancelled(true);
 
         if (!playerRank.isOrHigher(rankToAccess)) {
-            Message.error(player, "You must be {} or higher to use this slot!", rankToAccess.getPrefixWithFallback());
+            Notifier.error(player, "You must be {} or higher to use this slot!", rankToAccess.getPrefixWithFallback());
             PlayerLib.villagerNo(player);
             return;
         }

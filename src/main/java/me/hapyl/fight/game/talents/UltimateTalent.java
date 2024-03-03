@@ -8,6 +8,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.SoundEffect;
 import me.hapyl.fight.game.heroes.PlayerDataHandler;
 import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.setting.Settings;
@@ -71,20 +72,23 @@ public abstract class UltimateTalent extends Talent implements DisplayFieldDataP
     @PreferredReturnValue("UltimateCallback#OK")
     public abstract UltimateResponse useUltimate(@Nonnull GamePlayer player);
 
-    public final void execute1(@Nonnull GamePlayer player) {
+    @Override
+    public final Response execute(@Nonnull GamePlayer player) {
         if (hasCd(player)) {
             if (player.isSettingEnabled(Settings.SHOW_COOLDOWN_MESSAGE)) {
                 player.sendMessage(
                         "&4&l※ &cYour ultimate is on cooldown for %s!",
                         CFUtils.decimalFormatTick(getCdTimeLeft(player))
                 );
+                player.playSound(SoundEffect.ERROR);
             }
-            return;
+            return null;
         }
 
         if (player.isUsingUltimate()) {
             player.sendMessage("&4&l※ &cYou are already using ultimate!");
-            return;
+            player.playSound(SoundEffect.ERROR);
+            return null;
         }
 
         final UltimateResponse response = useUltimate(player);
@@ -95,7 +99,8 @@ public abstract class UltimateTalent extends Talent implements DisplayFieldDataP
                     "&4&l※ &cCannot use ultimate! %s",
                     response.getReason()
             );
-            return;
+            player.playSound(SoundEffect.ERROR);
+            return null;
         }
 
         // *=* Ultimate Successfully Executed *=* //
@@ -140,12 +145,8 @@ public abstract class UltimateTalent extends Talent implements DisplayFieldDataP
             other.sendMessage("&b&l※ &b%s used &3&l%s&b!".formatted((player.equals(other) ? "You" : player.getName()), getName()));
             other.playSound(sound, pitch);
         });
-    }
 
-    @Override
-    @Deprecated(forRemoval = true)
-    public final Response execute(@Nonnull GamePlayer player) {
-        throw new IllegalStateException("execute1(GamePlayer)");
+        return null;
     }
 
     @Override

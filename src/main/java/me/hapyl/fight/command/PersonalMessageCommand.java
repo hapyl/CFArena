@@ -3,7 +3,8 @@ package me.hapyl.fight.command;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.profile.PlayerSocialConversation;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
+import me.hapyl.spigotutils.module.util.ArgumentList;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -29,7 +30,7 @@ public class PersonalMessageCommand extends CFCommand {
         final String message = args.makeStringArray(1);
 
         if (target == null) {
-            Message.error(player, "This player is not online!");
+            Notifier.error(player, "This player is not online!");
             return;
         }
 
@@ -37,7 +38,7 @@ public class PersonalMessageCommand extends CFCommand {
         final PlayerProfile targetProfile = PlayerProfile.getProfile(target);
 
         if (playerProfile == null || targetProfile == null) {
-            Message.error(player, "Error sending message!");
+            Notifier.error(player, "Error sending message!");
             return;
         }
 

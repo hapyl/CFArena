@@ -74,6 +74,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -1079,7 +1080,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
 
     @Nonnull
     public EntityEquipment getEquipment() {
-        return getPlayer().getEquipment();
+        return Objects.requireNonNull(getPlayer().getEquipment());
     }
 
     public boolean isSwimming() {

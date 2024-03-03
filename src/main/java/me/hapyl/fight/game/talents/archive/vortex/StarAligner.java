@@ -16,12 +16,12 @@ import org.bukkit.Sound;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
-import java.util.function.LongUnaryOperator;
 
 public class StarAligner extends InputTalent {
 
     @DisplayField private final double implodeDistance = 5.0d;
-    @DisplayField private final int implodeDelay = 25;
+    @DisplayField private final int implodeDelay = 15;
+    @DisplayField private final double damageHealthMultiplier = 2.0d;
 
     public StarAligner() {
         super("Astral Vision");
@@ -81,7 +81,7 @@ public class StarAligner extends InputTalent {
 
         final Vortex hero = Heroes.VORTEX.getHero(Vortex.class);
         final AstralStarList stars = hero.getFirstTalent().getStars(player);
-        final double damage = hero.calculateAstralDamage(player, targetStar.getHealth());
+        final double damage = hero.calculateAstralDamage(player, targetStar.getHealth() * damageHealthMultiplier);
         final Location location = targetStar.getLocation();
 
         targetStar.setState(StarState.EXPLODING);

@@ -34,7 +34,6 @@ public class AstralStar implements Ticking {
     protected final DisplayEntity displayEntity;
 
     private final GamePlayer player;
-    private final Location location;
     private final VortexStarTalent talent;
 
     private ChatColor currentColor;
@@ -42,7 +41,6 @@ public class AstralStar implements Ticking {
 
     public AstralStar(GamePlayer player, Location location, VortexStarTalent talent) {
         this.player = player;
-        this.location = location;
         this.talent = talent;
 
         location.setYaw(0.0f);
@@ -78,6 +76,8 @@ public class AstralStar implements Ticking {
                     // Fx
                     playWorldSound(Sound.BLOCK_BELL_USE, 1.25f);
                     playWorldSound(Sound.ENTITY_BLAZE_HURT, 0.75f);
+
+                    instance.setDamage(Math.min(instance.getDamage(), talent.maxStarDamage));
                 }
 
                 @Override
@@ -120,7 +120,7 @@ public class AstralStar implements Ticking {
     @Override
     public void tick() {
         final int ticks = entity.aliveTicks();
-        final Location location = displayEntity.getLocation();
+        final Location location = entity.getLocation();
 
         final double y = Math.sin(Math.toRadians(ticks * 5)) * 0.02d;
 
@@ -131,6 +131,12 @@ public class AstralStar implements Ticking {
         if (ticks % 20 == 0) {
             player.getPlayer().playSound(location, Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.RECORDS, 0.5f, 0.75f);
         }
+
+        entity.teleport(location);
+
+        // Sync star entity
+        location.add(0, 0.5, 0);
+        location.setPitch(0f);
 
         displayEntity.teleport(location);
     }
@@ -162,7 +168,7 @@ public class AstralStar implements Ticking {
 
     @Nonnull
     public Location getLocation() {
-        return location;
+        return entity.getLocation();
     }
 
     public void remove() {
@@ -172,6 +178,7 @@ public class AstralStar implements Ticking {
 
     public void teleport(GamePlayer player) {
         final Location playerLocation = player.getLocation();
+        final Location location = getLocation();
 
         location.setYaw(playerLocation.getYaw());
         location.setPitch(playerLocation.getPitch());

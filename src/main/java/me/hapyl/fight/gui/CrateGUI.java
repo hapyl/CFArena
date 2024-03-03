@@ -14,7 +14,7 @@ import me.hapyl.fight.gui.styled.StyledPageGUI;
 import me.hapyl.fight.gui.styled.StyledTexture;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.ItemStacks;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
@@ -144,7 +144,7 @@ public class CrateGUI extends StyledPageGUI<Crates> {
             final long crateCount = enumCrate.getProduct(database);
 
             if (crateCount < CrateLocation.MIN_TO_OPEN_TEN) {
-                Message.error(player, "You don't have enough crates!");
+                Notifier.error(player, "You don't have enough crates!");
                 return;
             }
 
@@ -233,7 +233,7 @@ public class CrateGUI extends StyledPageGUI<Crates> {
                         return;
                     }
 
-                    Message.error(player, "Cannot open the crates!");
+                    Notifier.error(player, "Cannot open the crates!");
                 }
         );
 

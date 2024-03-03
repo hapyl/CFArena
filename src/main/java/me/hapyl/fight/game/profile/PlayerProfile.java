@@ -24,7 +24,7 @@ import me.hapyl.fight.game.team.LocalTeamManager;
 import me.hapyl.fight.game.trial.Trial;
 import me.hapyl.fight.game.ui.PlayerUI;
 import me.hapyl.fight.infraction.PlayerInfraction;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -421,7 +421,7 @@ public class PlayerProfile {
         if (player != null) {
             player.closeInventory();
 
-            Message.error(player, "Error getting your profile, somehow? Report this!");
+            Notifier.error(player, "Error getting your profile, somehow? Report this!");
         }
 
         throw new NullPointerException("No profile.");

@@ -6,7 +6,7 @@ import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.heroes.equipment.Slot;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.npc.runtime.RuntimeNPCManager;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
 import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
 import me.hapyl.spigotutils.module.reflect.npc.ItemSlot;
@@ -31,14 +31,14 @@ public class NpcCommand extends SimplePlayerAdminCommand {
         if (arg0.equalsIgnoreCase("create")) {
             manager.createNpc(player, player.getLocation()).show(player);
 
-            Message.success(player, "Created NPC!");
+            Notifier.success(player, "Created NPC!");
             return;
         }
 
         final HumanNPC npc = manager.getNpc(player);
 
         if (npc == null) {
-            Message.error(player, "You must have an NPC! &e/npcf create");
+            Notifier.error(player, "You must have an NPC! &e/npcf create");
             return;
         }
 
@@ -46,13 +46,13 @@ public class NpcCommand extends SimplePlayerAdminCommand {
             case "remove" -> {
                 manager.removeNpc(player, npc);
 
-                Message.success(player, "Removed NPC!");
+                Notifier.success(player, "Removed NPC!");
             }
 
             case "tp" -> {
                 npc.teleport(player.getLocation());
 
-                Message.success(player, "Teleported to your location!");
+                Notifier.success(player, "Teleported to your location!");
             }
         }
 
@@ -82,37 +82,37 @@ public class NpcCommand extends SimplePlayerAdminCommand {
                         case "helmet" -> {
                             npc.setItem(ItemSlot.HEAD, item);
 
-                            Message.success(player, "Changed helmet!");
+                            Notifier.success(player, "Changed helmet!");
                         }
                         case "chest" -> {
                             npc.setItem(ItemSlot.CHEST, item);
 
-                            Message.success(player, "Changed chestplate!");
+                            Notifier.success(player, "Changed chestplate!");
                         }
                         case "legs" -> {
                             npc.setItem(ItemSlot.LEGS, item);
 
-                            Message.success(player, "Changed leggings!");
+                            Notifier.success(player, "Changed leggings!");
                         }
                         case "feet" -> {
                             npc.setItem(ItemSlot.FEET, item);
 
-                            Message.success(player, "Changed boots!");
+                            Notifier.success(player, "Changed boots!");
                         }
 
                         case "weapon" -> {
                             npc.setItem(ItemSlot.MAINHAND, item);
 
-                            Message.success(player, "Changed mainhand item!");
+                            Notifier.success(player, "Changed mainhand item!");
                         }
 
                         case "offhand" -> {
                             npc.setItem(ItemSlot.OFFHAND, item);
 
-                            Message.success(player, "Changed offhand item!");
+                            Notifier.success(player, "Changed offhand item!");
                         }
 
-                        default -> Message.error(
+                        default -> Notifier.error(
                                 player,
                                 "Invalid argument! Must be either 'helmet', 'chest', 'legs', 'feet', 'weapon' or 'offhand'!"
                         );
@@ -124,18 +124,18 @@ public class NpcCommand extends SimplePlayerAdminCommand {
 
                     if (hero == null) {
                         npc.setSkin(arg1);
-                        Message.success(player, "Set skin to '%s!".formatted(arg1));
+                        Notifier.success(player, "Set skin to '%s!".formatted(arg1));
                     }
                     else {
                         final PlayerSkin heroSkin = hero.getHero().getSkin();
 
                         if (heroSkin == null) {
-                            Message.error(player, "This hero doesn't have a skin!");
+                            Notifier.error(player, "This hero doesn't have a skin!");
                             return;
                         }
 
                         npc.setSkin(heroSkin.getTexture(), heroSkin.getSignature());
-                        Message.success(player, "Applied %s skin to the NPC!".formatted(hero.getName()));
+                        Notifier.success(player, "Applied %s skin to the NPC!".formatted(hero.getName()));
                     }
                 }
 
@@ -149,10 +149,10 @@ public class NpcCommand extends SimplePlayerAdminCommand {
                         location.setPitch(pitch);
 
                         npc.teleport(location);
-                        Message.success(player, "Rotated NPC!");
+                        Notifier.success(player, "Rotated NPC!");
                     }
                     else {
-                        Message.error(player, "Not enough arguments, provide 'yaw:float' and 'pitch:float'!");
+                        Notifier.error(player, "Not enough arguments, provide 'yaw:float' and 'pitch:float'!");
                     }
                 }
             }

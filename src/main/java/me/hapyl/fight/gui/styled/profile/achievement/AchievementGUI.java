@@ -11,7 +11,7 @@ import me.hapyl.fight.gui.styled.StyledGUI;
 import me.hapyl.fight.gui.styled.StyledItem;
 import me.hapyl.fight.gui.styled.profile.PlayerProfileGUI;
 import me.hapyl.fight.util.NoProfileException;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.entity.Player;
@@ -77,7 +77,7 @@ public class AchievementGUI extends StyledGUI implements StrictlyLobbyGUI {
     }
 
     private void comingSoon(Player player) {
-        Message.error(player, "This feature is coming soon!");
+        Notifier.error(player, "This feature is coming soon!");
         PlayerLib.villagerNo(player);
     }
 }

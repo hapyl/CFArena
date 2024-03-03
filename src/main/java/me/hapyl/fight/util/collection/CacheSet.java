@@ -14,13 +14,13 @@ import java.util.function.Function;
 public class CacheSet<K> implements Set<K> {
 
     private final Set<Entry> set;
-    private final long expireAfter;
+    private final long expireAfterMillis;
 
-    public CacheSet(long expireAfter) {
-        Validate.isTrue(expireAfter > 0, "Expiration time cannot be negative.");
+    public CacheSet(long expireAfterMillis) {
+        Validate.isTrue(expireAfterMillis > 0, "Expiration time cannot be negative.");
 
         this.set = new HashSet<>();
-        this.expireAfter = expireAfter;
+        this.expireAfterMillis = expireAfterMillis;
     }
 
     @Override
@@ -134,7 +134,7 @@ public class CacheSet<K> implements Set<K> {
 
     @Override
     public final String toString() {
-        final StringBuilder builder = new StringBuilder("Cache{e=" + expireAfter + ",v=[");
+        final StringBuilder builder = new StringBuilder("Cache{e=" + expireAfterMillis + ",v=[");
 
         int index = 0;
         for (K k : this) {
@@ -164,7 +164,7 @@ public class CacheSet<K> implements Set<K> {
         }
 
         public boolean isExpired() {
-            return System.currentTimeMillis() - addedAt >= expireAfter;
+            return System.currentTimeMillis() - addedAt >= expireAfterMillis;
         }
 
         @Override

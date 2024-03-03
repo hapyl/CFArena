@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.EquipmentSlot;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -19,22 +20,19 @@ import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComplexComponent;
 import me.hapyl.fight.game.weapons.BowWeapon;
-import me.hapyl.fight.util.Iterators;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Tick;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
@@ -45,7 +43,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 public class JuJu extends Hero implements Listener, UIComplexComponent {
@@ -54,7 +51,8 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
     private final Map<Arrow, ArrowType> arrowType = Maps.newHashMap();
 
     private final Set<GamePlayer> climbing = Sets.newHashSet();
-    private final int CLIMB_COOLDOWN = Tick.fromSecond(10);
+    private final int climbCooldown = Tick.fromSecond(6);
+    private final BlockData climbingBlockData = Material.GRAY_CONCRETE.createBlockData();
 
     public JuJu(@Nonnull Heroes handle) {
         super(handle, "Juju");
@@ -112,42 +110,6 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
     }
 
     @EventHandler()
-    public void handleJumping(PlayerMoveEvent ev) {
-        final Player player = ev.getPlayer();
-
-        if (!validatePlayer(player)) {
-            return;
-        }
-
-        final GamePlayer gamePlayer = CF.getPlayer(player);
-
-        if (gamePlayer == null) {
-            return;
-        }
-
-        final Location from = ev.getFrom();
-        final Location to = ev.getTo();
-
-        if (player.hasCooldown(getPassiveTalent().getMaterial())
-                || climbing.contains(gamePlayer)
-                || to == null
-                || to.getY() <= from.getY()
-                || gamePlayer.isOnGround()) { // I mean just don't hack lol
-            return;
-        }
-
-        final boolean huggingWall = isHuggingWall(gamePlayer);
-
-        // Have to check for 2 blocks at the
-        // start to avoid annoying 1 block climbing.
-        if (!huggingWall || !isHuggingWall(player.getEyeLocation())) {
-            return;
-        }
-
-        climbing.add(gamePlayer);
-    }
-
-    @EventHandler()
     public void handleSneaking(PlayerToggleSneakEvent ev) {
         final Player player = ev.getPlayer();
         final GamePlayer gamePlayer = CF.getPlayer(player);
@@ -168,7 +130,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
         // Fx
         gamePlayer.playWorldSound(Sound.BLOCK_LADDER_STEP, 0.0f);
 
-        if (new Random().nextBoolean()) {
+        if (gamePlayer.random.nextBoolean()) {
             player.swingMainHand();
         }
         else {
@@ -212,7 +174,6 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
 
     @Override
     public void onDeath(@Nonnull GamePlayer player) {
-        climbing.remove(player);
         final ArrowData data = playerArrows.remove(player);
 
         if (data != null) {
@@ -249,36 +210,69 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
         final int climbCooldown = player.getCooldown(getPassiveTalent().getMaterial());
 
         return List.of(
-                climbCooldown <= 0 ? "" : "&7&l🧗 " + Tick.round(climbCooldown) + "s",
+                climbCooldown <= 0 ? "" : "&7&l\uD83E\uDE9C " + Tick.round(climbCooldown) + "s",
                 type == null ? "" : "&a🎯 &l" + type.getName()
         );
     }
 
     @Override
     public void onStart() {
+        final Material climbCooldownMaterial = getPassiveTalent().getMaterial();
+
         new GameTask() {
             @Override
             public void run() {
-                // Climbing
-                Iterators.iterate(climbing, (remover, player) -> {
-                    if (!isHuggingWall(player)) {
-                        remover.remove();
-                        player.setCooldown(getPassiveTalent().getMaterial(), CLIMB_COOLDOWN);
+                getPlayers().forEach(player -> {
+                    if (player.isDeadOrRespawning()) {
+                        climbing.remove(player);
+                        return;
+                    }
+
+                    if (player.hasCooldown(climbCooldownMaterial)) {
+                        return;
+                    }
+
+                    final boolean isHuggingWall = isHuggingWall(player);
+
+                    // Enter
+                    if ((isHuggingWall && isHuggingWall(player.getEyeLocation()))
+                            && !climbing.contains(player)
+                            && !player.isOnGround()) {
+                        player.playWorldSound(Sound.ENTITY_HORSE_ARMOR, 0.75f);
+                        player.playWorldSound(Sound.BLOCK_LADDER_STEP, 0.75f);
+
+                        player.setAllowFlight(true);
+                        climbing.add(player);
+                    }
+                    else if (climbing.contains(player)) {
+                        // Loop
+                        if (isHuggingWall) {
+                            player.addPotionEffect(PotionEffectType.SLOW_FALLING, 1, 2);
+                            player.addPotionEffect(PotionEffectType.SLOW, 3, 2);
+
+                            player.sendSubtitle("&8&l\uD83E\uDE9C&8\uD83E\uDE9C&8&l\uD83E\uDE9C", 0, 2, 0);
+
+                            // Fx
+                            player.spawnWorldParticle(player.getLocation(), Particle.FALLING_DUST, 3, 0.1, 0, 0.1, 0, climbingBlockData);
+                            return;
+                        }
+
+                        // Stopped Climbing
+                        climbing.remove(player);
+                        player.setAllowFlight(false);
+                        player.setCooldown(climbCooldownMaterial, climbCooldown);
 
                         // Add a little boost
                         final Location location = player.getLocation();
-                        final Vector vector = location.getDirection().normalize().multiply(0.8d).add(new Vector(0.0d, 0.25d, 0.0d));
+                        final Vector vector = location.getDirection().normalize().multiply(0.4d).add(new Vector(0.0d, 0.5d, 0.0d));
 
                         player.setVelocity(vector);
-                        player.addEffect(Effects.SLOW_FALLING, 1, 10);
+                        player.addEffect(Effects.SLOW_FALLING, 1, 15);
                         player.addEffect(Effects.FALL_DAMAGE_RESISTANCE, 100);
 
                         // Fx
                         player.playWorldSound(Sound.ENTITY_HORSE_SADDLE, 0.75f);
-                        return;
                     }
-
-                    player.addPotionEffect(PotionEffectType.SLOW_FALLING.createEffect(2, 1));
                 });
 
                 // Arrows
@@ -296,6 +290,29 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
                 });
             }
         }.runTaskTimer(0, 1);
+    }
+
+    @EventHandler()
+    public void handleFlight(PlayerToggleFlightEvent ev) {
+        final GamePlayer player = CF.getPlayer(ev);
+
+        if (player == null || !validatePlayer(player)) {
+            return;
+        }
+
+        final Location location = player.getLocation();
+        location.setYaw(location.getYaw() + 180);
+
+        player.teleport(location);
+        final Vector vector = location.getDirection().multiply(0.75d);
+
+        player.setVelocity(vector);
+
+        ev.setCancelled(true);
+        player.setAllowFlight(false);
+
+        // Fx
+        player.playWorldSound(Sound.ENTITY_CAMEL_DASH, 0.75f);
     }
 
     @Override
@@ -358,7 +375,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
         final Vector direction = location.getDirection();
         final Location inFront = location.add(direction.normalize().setY(0.0d));
 
-        return inFront.getBlock().getType().isOccluding();
+        return !inFront.getBlock().isPassable();
     }
 
     private boolean isHuggingWall(GamePlayer player) {
@@ -369,11 +386,12 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
         public JujuUltimate() {
             super(ArrowType.POISON_IVY.getName(), 60);
 
-            setDescription(ArrowType.POISON_IVY.getTalentDescription(this));
-
             setType(Talent.Type.IMPAIR);
             setItem(Material.SPIDER_EYE);
             setDurationSec(4);
+
+            // Keep below duration
+            setDescription(ArrowType.POISON_IVY.getTalentDescription(this));
 
             copyDisplayFieldsFrom(Talents.POISON_ZONE.getTalent());
         }

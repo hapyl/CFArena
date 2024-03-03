@@ -368,6 +368,8 @@ public class LivingGameEntity extends GameEntity implements Ticking {
 
         tick = Numbers.clamp(tick, 0, maximumNoDamageTicks);
 
+        // TODO (hapyl): 002, Mar 2: Maybe add per cause cd?
+
         if (getInternalNoDamageTicks() > 0) { // noDamageTicks > 0 ||
             return;
         }

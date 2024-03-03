@@ -5,6 +5,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.collect.Lists;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.Main;
 import me.hapyl.fight.annotate.ForceCloned;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.damage.EnumDamageCause;
@@ -34,6 +35,7 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.EulerAngle;
@@ -1095,6 +1097,15 @@ public class CFUtils {
             case 3 -> "rd";
             default -> "th";
         };
+    }
+
+    public static void later(@Nonnull Runnable runnable, int delay) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                runnable.run();
+            }
+        }.runTaskLater(Main.getPlugin(), delay);
     }
 
 }

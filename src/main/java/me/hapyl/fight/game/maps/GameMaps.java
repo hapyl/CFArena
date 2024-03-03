@@ -7,6 +7,7 @@ import me.hapyl.fight.game.maps.maps.DragonsGorge;
 import me.hapyl.fight.game.maps.maps.DwarfVault;
 import me.hapyl.fight.game.maps.maps.MoonBase;
 import me.hapyl.fight.game.maps.winery.WineryMap;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.Material;
@@ -197,6 +198,11 @@ public enum GameMaps implements Selectable {
 
     @Override
     public void select(@Nonnull Player player) {
+        if (Manager.current().getCurrentMap() == this) {
+            Notifier.error(player, "This map is already selected!");
+            return;
+        }
+
         Manager.current().setCurrentMap(this);
 
         Chat.broadcast("&2&lMAP! &a%s selected &l%s&a!", player.getName(), getName());

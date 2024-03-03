@@ -45,6 +45,7 @@ public sealed class PlayerDatabase implements Iterable<PlayerDatabaseEntry> perm
     public final RandomHeroEntry randomHeroEntry;
     public final GuessWhoEntry guessWhoEntry;
     public final ChallengeEntry challengeEntry;
+    public final SkinEntry skinEntry;
 
     // *=* Entries End *=* //
 
@@ -90,6 +91,7 @@ public sealed class PlayerDatabase implements Iterable<PlayerDatabaseEntry> perm
         this.randomHeroEntry = load(new RandomHeroEntry(this));
         this.guessWhoEntry = load(new GuessWhoEntry(this));
         this.challengeEntry = load(new ChallengeEntry(this));
+        this.skinEntry = load(new SkinEntry(this));
 
         // Call onLoad
         entries.forEach(PlayerDatabaseEntry::onLoad);

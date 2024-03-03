@@ -8,6 +8,7 @@ import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.datafixers.util.Pair;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.profile.PlayerProfile;
+import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.reflect.Reflect;
 import me.hapyl.spigotutils.module.util.Runnables;
 import net.minecraft.network.protocol.Packet;
@@ -105,23 +106,21 @@ public class PlayerSkin {
         final int heldItemSlot = inventory.getHeldItemSlot();
 
         final net.minecraft.world.level.World mcWorld = Reflect.getMinecraftWorld(playerWorld);
-        final ResourceKey<DimensionManager> rkDimension = mcWorld.aa(); // dimensionTypeId()
-        final ResourceKey<net.minecraft.world.level.World> rkWorld = mcWorld.ac(); // dimension()
 
         final PacketPlayOutRespawn respawnPacket = new PacketPlayOutRespawn(
-                new CommonPlayerSpawnInfo(
-                        rkDimension, rkWorld, playerWorld.getSeed(),
-                        getNmsGameMode(player.getGameMode()),
-                        getNmsGameMode(player.getPreviousGameMode()),
-                        false,
-                        false,
-                        Optional.empty(),
-                        0
-                ), (byte) 0
+                mcPlayer.d(mcWorld.getMinecraftWorld()), (byte) 0
         );
 
         sendPacket(player, respawnPacket);
-        mcPlayer.w(); // onUpdateAbilities()
+        mcPlayer.y(); // onUpdateAbilities()
+
+        // Load chunk (wtf?)
+        final PacketPlayOutGameStateChange packetLoadChunk = new PacketPlayOutGameStateChange(
+                PacketPlayOutGameStateChange.n,
+                0.0f
+        );
+
+        sendPacket(player, packetLoadChunk);
 
         // Update player position
         final PacketPlayOutPosition positionPacket = new PacketPlayOutPosition(
@@ -150,7 +149,7 @@ public class PlayerSkin {
         }
 
         // Update effects
-        final Collection<MobEffect> activeEffects = mcPlayer.er(); // getActiveEffects()
+        final Collection<MobEffect> activeEffects = mcPlayer.es(); // getActiveEffects()
         activeEffects.forEach(effect -> {
             final PacketPlayOutEntityEffect packetEffect = new PacketPlayOutEntityEffect(player.getEntityId(), effect);
             sendPacket(player, packetEffect);

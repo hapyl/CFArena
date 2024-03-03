@@ -14,7 +14,7 @@ import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
 import me.hapyl.fight.gui.styled.StyledItem;
 import me.hapyl.fight.gui.styled.eye.RelicHuntGUI;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -29,7 +29,7 @@ import java.util.List;
 public class RelicRewardGUI extends StyledGUI {
 
     private final RelicHunt relicHunt;
-    private final int PERMANENT_EXCHANGE_RATE = 5;
+
 
     public RelicRewardGUI(Player player) {
         super(player, "Relic Rewards", Size.FIVE);
@@ -99,16 +99,7 @@ public class RelicRewardGUI extends StyledGUI {
                     });
                 }
                 else {
-                    final int totalRelics = relicsByType.size();
-                    final int foundRelics = foundRelicsByType.size();
-                    final boolean anyClaimable = totalRelics > 0 && foundRelics > 0;
-
-                    final boolean canClaim = switch (index) {
-                        case 1 -> anyClaimable;
-                        case 2 -> anyClaimable && foundRelics >= (totalRelics / 2);
-                        case 3 -> anyClaimable && foundRelics >= totalRelics;
-                        default -> false;
-                    };
+                    final boolean canClaim = entry.canClaim(type, index);
 
                     if (canClaim) {
                         builder.glow();
@@ -118,7 +109,7 @@ public class RelicRewardGUI extends StyledGUI {
                             reward.grant(player);
                             entry.setClaimed(type, finalIndex, true);
 
-                            Message.success(player, "Claimed!");
+                            Notifier.success(player, "Claimed!");
                             PlayerLib.playSound(player, Sound.BLOCK_CHEST_LOCKED, 0.75f);
                             PlayerLib.playSound(player, Sound.BLOCK_CHEST_CLOSE, 1.25f);
 
@@ -128,7 +119,7 @@ public class RelicRewardGUI extends StyledGUI {
                     else {
                         builder.addLore(Color.ERROR + "Cannot claim yet!");
                         setItem(tierSlot, builder.asIcon(), click -> {
-                            Message.error(player, "Cannot claim yet!");
+                            Notifier.error(player, "Cannot claim yet!");
                             PlayerLib.playSound(player, Sound.BLOCK_ANVIL_LAND, 1.0f);
                         });
                     }
@@ -153,7 +144,7 @@ public class RelicRewardGUI extends StyledGUI {
             builder.addLore(Color.SUCCESS + "Already claimed!");
 
             setItem(25, builder.asIcon(), click -> {
-                Message.error(player, "Already claimed!");
+                Notifier.error(player, "Already claimed!");
                 PlayerLib.villagerNo(player);
             });
         }
@@ -165,7 +156,7 @@ public class RelicRewardGUI extends StyledGUI {
                 setItem(25, builder.asIcon(), click -> {
                     cosmetic.setUnlocked(player, true);
 
-                    Message.success(player, "Claimed!");
+                    Notifier.success(player, "Claimed!");
                     PlayerLib.villagerYes(player);
                     PlayerLib.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1.0f);
 
@@ -176,7 +167,7 @@ public class RelicRewardGUI extends StyledGUI {
                 builder.addLore(Color.ERROR + "Cannot claim yet!");
 
                 setItem(25, builder.asIcon(), click -> {
-                    Message.error(player, "Cannot claim yet!");
+                    Notifier.error(player, "Cannot claim yet!");
                     PlayerLib.playSound(player, Sound.BLOCK_ANVIL_LAND, 1.0f);
                 });
             }
@@ -186,7 +177,7 @@ public class RelicRewardGUI extends StyledGUI {
         final List<Relic> foundList = relicHunt.getFoundList(player);
         final int totalExchanged = entry.getPermanentExchangeCount();
         final int canExchange = foundList.size() - totalExchanged;
-        final int exchangeTier = totalExchanged / PERMANENT_EXCHANGE_RATE + 1;
+        final int exchangeTier = totalExchanged / CollectibleEntry.PERMANENT_EXCHANGE_RATE + 1;
         final Reward reward = relicHunt.getExchangeReward(exchangeTier);
 
         final ItemBuilder exchangeBuilder = new ItemBuilder(Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE);
@@ -201,11 +192,11 @@ public class RelicRewardGUI extends StyledGUI {
         reward.formatBuilder(player, exchangeBuilder);
         exchangeBuilder.addLore();
 
-        if (canExchange < PERMANENT_EXCHANGE_RATE) {
-            exchangeBuilder.addLore(Color.ERROR + "Cannot exchange! (%s/%s)", canExchange, PERMANENT_EXCHANGE_RATE);
+        if (canExchange < CollectibleEntry.PERMANENT_EXCHANGE_RATE) {
+            exchangeBuilder.addLore(Color.ERROR + "Cannot exchange! (%s/%s)", canExchange, CollectibleEntry.PERMANENT_EXCHANGE_RATE);
 
             setItem(34, exchangeBuilder.asIcon(), click -> {
-                Message.error(player, "Cannot exchange!");
+                Notifier.error(player, "Cannot exchange!");
                 PlayerLib.playSound(player, Sound.BLOCK_ANVIL_LAND, 1.0f);
             });
         }
@@ -214,9 +205,9 @@ public class RelicRewardGUI extends StyledGUI {
 
             setItem(34, exchangeBuilder.asIcon(), click -> {
                 reward.grant(player);
-                entry.incrementPermanentExchangeCount(PERMANENT_EXCHANGE_RATE);
+                entry.incrementPermanentExchangeCount(CollectibleEntry.PERMANENT_EXCHANGE_RATE);
 
-                Message.success(player, "Successfully exchanged!");
+                Notifier.success(player, "Successfully exchanged!");
                 PlayerLib.playSound(player, Sound.ENTITY_FIREWORK_ROCKET_TWINKLE, 2.0f);
 
                 update();

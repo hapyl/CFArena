@@ -7,7 +7,7 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.guesswho.GuessWho;
 import me.hapyl.fight.guesswho.GuessWhoPlayer;
 import me.hapyl.fight.util.PlayerInvite;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.command.SimplePlayerCommand;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.entity.Player;
@@ -56,11 +56,11 @@ public class GuessWhoCommand extends SimplePlayerCommand {
                 final PlayerDatabase database = PlayerDatabase.getDatabase(player);
                 final GuessWhoEntry entry = database.guessWhoEntry;
 
-                Message.success(player, "Your GuessWho stats:");
-                Message.info(player, " &aTotal Wins: %s".formatted(entry.getStat(GuessWhoEntry.StatType.WINS)));
-                Message.info(player, " &aTotal Loses: %s".formatted(entry.getStat(GuessWhoEntry.StatType.LOSES)));
-                Message.info(player, " &aTotal Forfeits: %s".formatted(entry.getStat(GuessWhoEntry.StatType.FORFEITS)));
-                Message.info(player, " &aWin Streak: %s".formatted(entry.getStat(GuessWhoEntry.StatType.WIN_STREAK)));
+                Notifier.success(player, "Your GuessWho stats:");
+                Notifier.info(player, " &aTotal Wins: %s".formatted(entry.getStat(GuessWhoEntry.StatType.WINS)));
+                Notifier.info(player, " &aTotal Loses: %s".formatted(entry.getStat(GuessWhoEntry.StatType.LOSES)));
+                Notifier.info(player, " &aTotal Forfeits: %s".formatted(entry.getStat(GuessWhoEntry.StatType.FORFEITS)));
+                Notifier.info(player, " &aWin Streak: %s".formatted(entry.getStat(GuessWhoEntry.StatType.WIN_STREAK)));
 
                 PlayerLib.plingNote(player, 2.0f);
                 return;
@@ -70,17 +70,17 @@ public class GuessWhoCommand extends SimplePlayerCommand {
 
             // TODO (hapyl): 018, Feb 18: I might allow multiple instances later but I'll think about it
             if (manager.isGuessWhoGameInProgress()) {
-                Message.error(player, "A guess who game is already in progress!");
+                Notifier.error(player, "A guess who game is already in progress!");
                 return;
             }
 
             if (target == null) {
-                Message.error(player, "This player is not online!");
+                Notifier.error(player, "This player is not online!");
                 return;
             }
 
             if (target == player) {
-                Message.error(player, "You cannot invite yourself, weirdo.");
+                Notifier.error(player, "You cannot invite yourself, weirdo.");
                 return;
             }
 
@@ -88,14 +88,14 @@ public class GuessWhoCommand extends SimplePlayerCommand {
             final PlayerRank targetRank = PlayerRank.getRank(target);
 
             if (targetRank.isStaff() && !playerRank.isStaff()) {
-                Message.error(player, "You cannot invite this player!");
+                Notifier.error(player, "You cannot invite this player!");
                 return;
             }
 
             final PlayerInvite existingInvite = PlayerInvite.byUUID(player.getUniqueId());
 
             if (existingInvite != null) {
-                Message.error(player, "You already have an outgoing invite!");
+                Notifier.error(player, "You already have an outgoing invite!");
                 return;
             }
 
@@ -103,7 +103,7 @@ public class GuessWhoCommand extends SimplePlayerCommand {
                 @Override
                 public void onAccept() {
                     if (manager.isGuessWhoGameInProgress()) {
-                        Message.error(player, "A guess who game is already in progress!");
+                        Notifier.error(player, "A guess who game is already in progress!");
                         return;
                     }
 
@@ -112,7 +112,7 @@ public class GuessWhoCommand extends SimplePlayerCommand {
 
                 @Override
                 public void onDecline() {
-                    Message.error(player, "{} has declined you invite.", target.getName());
+                    Notifier.error(player, "{} has declined you invite.", target.getName());
                 }
             };
         }

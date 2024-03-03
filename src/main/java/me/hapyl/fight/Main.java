@@ -47,11 +47,12 @@ public class Main extends JavaPlugin {
             "&6&l\uD835\uDC9Eℱ \uD835\uDC9C\uD835\uDCC7ℯ\uD835\uDCC3\uD835\uDCB6";
 
     public static final VersionInfo versionInfo = new VersionInfo(
-            new UpdateTopic("Vortex Changes", 138, 46, 7, 237, 152, 40)
+            new UpdateTopic("Hello, 1.20.4!", 13, 82, 191, 87, 150, 250),
+            new UpdateTopic("Vortex Changes", 224, 113, 34, 224, 143, 85)
     );
 
-    public static final String requireEternaVersion = "2.47.0";
-    public static final String requireMinecraftVersion = "1.20.2";
+    public static final String requireEternaVersion = "2.50.0";
+    public static final String requireMinecraftVersion = "1.20.4";
 
     private static long start;
     private static Main plugin;

@@ -1,7 +1,7 @@
 package me.hapyl.fight.command;
 
 import me.hapyl.fight.fx.SwiftTeleportAnimation;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
 import me.hapyl.spigotutils.module.entity.Entities;
 import org.bukkit.Location;
@@ -19,7 +19,7 @@ public class SwiftTeleportCommand extends SimplePlayerAdminCommand {
         final Block block = player.getTargetBlockExact(50);
 
         if (block == null) {
-            Message.error(player, "Invalid location!");
+            Notifier.error(player, "Invalid location!");
             return;
         }
 

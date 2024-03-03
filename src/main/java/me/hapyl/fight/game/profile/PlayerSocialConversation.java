@@ -1,9 +1,7 @@
 package me.hapyl.fight.game.profile;
 
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.chat.LazyEvent;
-import net.md_5.bungee.api.chat.ClickEvent;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -48,7 +46,7 @@ public class PlayerSocialConversation {
 
     public static void talk(@Nonnull PlayerProfile sender, @Nonnull PlayerProfile receiver, @Nonnull String message) {
         if (message.isEmpty()) {
-            Message.error(sender.getPlayer(), "Cannot send empty message!");
+            Notifier.error(sender.getPlayer(), "Cannot send empty message!");
             return;
         }
 

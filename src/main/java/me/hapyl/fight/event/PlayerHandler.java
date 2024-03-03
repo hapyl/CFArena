@@ -5,10 +5,8 @@ import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
 import me.hapyl.fight.game.*;
-import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
-import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.EntityData;
@@ -37,7 +35,7 @@ import me.hapyl.fight.game.weapons.BowWeapon;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.guesswho.GuessWho;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.parkour.Data;
@@ -106,7 +104,7 @@ public class PlayerHandler implements Listener {
         }
 
         if (profile.getRank().isStaff()) {
-            Message.broadcastStaff("{} joined.", player.getName());
+            Notifier.broadcastStaff("{} joined.", player.getName());
         }
 
         LocalTeamManager.updateAll();
@@ -150,7 +148,7 @@ public class PlayerHandler implements Listener {
         }
 
         if (profile.getRank().isStaff()) {
-            Message.broadcastStaff("{} left.", player.getName());
+            Notifier.broadcastStaff("{} left.", player.getName());
         }
 
         // Save database
@@ -290,7 +288,7 @@ public class PlayerHandler implements Listener {
         final Hero hero = player.getHero();
         final UltimateTalent ultimate = hero.getUltimate();
 
-        ultimate.execute1(player);
+        ultimate.execute(player);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

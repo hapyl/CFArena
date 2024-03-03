@@ -3,7 +3,8 @@ package me.hapyl.fight.command;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.profile.PlayerSocialConversation;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
+import me.hapyl.spigotutils.module.util.ArgumentList;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -21,7 +22,7 @@ public class ReplyCommand extends CFCommand {
         final PlayerProfile profile = PlayerProfile.getProfile(player);
 
         if (profile == null) {
-            Message.error(player, "Error getting your profile!");
+            Notifier.error(player, "Error getting your profile!");
             return;
         }
 
@@ -29,14 +30,14 @@ public class ReplyCommand extends CFCommand {
         final Player lastMessenger = conversation.getLastMessenger();
 
         if (lastMessenger == null) {
-            Message.error(player, "No one to reply to!");
+            Notifier.error(player, "No one to reply to!");
             return;
         }
 
         final PlayerProfile targetProfile = PlayerProfile.getProfile(lastMessenger);
 
         if (targetProfile == null) {
-            Message.error(player, "The player you're trying to reply is no longer online.");
+            Notifier.error(player, "The player you're trying to reply is no longer online.");
             conversation.lastMessenger = null;
             return;
         }

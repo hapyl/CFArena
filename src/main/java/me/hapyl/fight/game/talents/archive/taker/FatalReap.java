@@ -34,7 +34,7 @@ public class FatalReap extends Talent {
         setDescription("""
                 Instantly swipe your scythe to unleash a &8devastating attack&7 that shatters your opponents' &fbones&7, dealing &c{damagePercent}&7 of their &c&ncurrent health&7 as &4damage&7.
                                 
-                Convert &b{spiritualBoneGeneration}&7 broken bones directly into %s.
+                Convert &b{spiritualBoneGeneration}&7 broken bones from each hit enemy directly into %s.
                 """, Named.SPIRITUAL_BONES);
 
         setItem(Material.NETHERITE_HOE);
@@ -66,7 +66,7 @@ public class FatalReap extends Talent {
         final SpiritualBones bones = Heroes.TAKER.getHero(Taker.class).getBones(player);
 
         // Give bones
-        bones.add(hitEntities.size(), true);
+        bones.add(hitEntities.size() * spiritualBoneGeneration, true);
         hitEntities.clear();
 
         // Fx

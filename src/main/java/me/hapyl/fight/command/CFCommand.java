@@ -1,8 +1,9 @@
 package me.hapyl.fight.command;
 
 import me.hapyl.fight.database.rank.PlayerRank;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.command.SimplePlayerCommand;
+import me.hapyl.spigotutils.module.util.ArgumentList;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -24,7 +25,7 @@ public abstract class CFCommand extends SimplePlayerCommand {
         final PlayerRank playerRank = PlayerRank.getRank(player);
 
         if (!playerRank.isOrHigher(rank)) {
-            Message.Error.NOT_PERMISSIONS_NEED_RANK.send(player, rank.getPrefixWithFallback());
+            Notifier.Error.NOT_PERMISSIONS_NEED_RANK.send(player, rank.getPrefixWithFallback());
             return;
         }
 

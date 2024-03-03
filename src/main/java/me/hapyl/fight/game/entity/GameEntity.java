@@ -151,8 +151,8 @@ public class GameEntity {
             return false;
         }
 
-        // dead or base entities are not valid
-        if (entity.isDead() || base) { // entity.isInvisible()
+        // dead entities are not valid
+        if (entity.isDead()) { // entity.isInvisible()
             return false;
         }
 
@@ -185,9 +185,6 @@ public class GameEntity {
 
             return true;
         }
-
-        // Force valid check
-
 
         return entity.hasAI() && !entity.isInvulnerable();
     }
@@ -297,16 +294,24 @@ public class GameEntity {
         sendTitle("", subtitle, fadeIn, stay, fadeOut);
     }
 
-    public void sendActionbar(String text, Object... objects) {
+    public void sendActionbar(@Nonnull String text, @Nullable Object... objects) {
         asPlayer(player -> Chat.sendActionbar(player, text, objects));
     }
 
-    public void playSound(Sound sound, final float pitch) {
+    public void playSound(@Nonnull Sound sound, float pitch) {
         asPlayer(player -> PlayerLib.playSound(player, sound, Numbers.clamp(pitch, 0.0f, 2.0f)));
     }
 
-    public void playSound(Location location, Sound sound, float pitch) {
+    public void playSound(@Nonnull Location location, @Nonnull Sound sound, float pitch) {
         asPlayer(player -> PlayerLib.playSound(player, location, sound, pitch));
+    }
+
+    public void playSound(@Nonnull SoundEffect effect) {
+        if (!(this instanceof GamePlayer player)) {
+            return;
+        }
+
+        effect.play(player);
     }
 
     public void playWorldSound(Location location, Sound sound, float pitch) {
@@ -323,7 +328,7 @@ public class GameEntity {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public final boolean equals(Object o) {
         if (this == o) {
             return true;
         }
@@ -336,7 +341,7 @@ public class GameEntity {
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         return Objects.hash(uuid);
     }
 

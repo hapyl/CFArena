@@ -8,7 +8,7 @@ import me.hapyl.fight.game.reward.DailyReward;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
 import me.hapyl.fight.gui.styled.StyledTexture;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -44,7 +44,7 @@ public class EyeGUI extends StyledGUI {
             final PlayerRank rankRequired = type.rank;
 
             if (reward == null) {
-                Message.error(player, "Error loading rewards, try again before reporting this!");
+                Notifier.error(player, "Error loading rewards, try again before reporting this!");
                 closeInventory();
                 return;
             }
@@ -88,7 +88,7 @@ public class EyeGUI extends StyledGUI {
             if (canClaim) {
                 setClick(slot, click -> {
                     if (!playerRank.isOrHigher(rankRequired)) {
-                        Message.error(player, lowRankString);
+                        Notifier.error(player, lowRankString);
                         PlayerLib.villagerNo(player);
                     }
                     else {

@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.command.RateHeroCommand;
+import me.hapyl.fight.database.Award;
 import me.hapyl.fight.database.entry.RandomHeroEntry;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.color.Color;
@@ -29,8 +30,10 @@ import me.hapyl.fight.game.ui.PlayerUI;
 import me.hapyl.fight.garbage.CFGarbageCollector;
 import me.hapyl.fight.guesswho.GuessWho;
 import me.hapyl.fight.npc.PersistentNPCs;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Ticking;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.util.collection.CacheSet;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
@@ -58,6 +61,8 @@ import java.util.stream.Collectors;
 public final class Manager extends BukkitRunnable {
 
     public final Set<UUID> ignoredEntities;
+    public final CacheSet<Player> goldenGg = new CacheSet<>(10_000);
+
     private final Main main;
     private final Set<EntityType> ignoredTypes = Sets.newHashSet(
             EntityType.ARMOR_STAND,
@@ -72,7 +77,6 @@ public final class Manager extends BukkitRunnable {
     private final Map<UUID, PlayerProfile> profiles;
     private final SkinEffectManager skinEffectManager;
     private final AutoSync autoSave;
-
     @Nonnull private GameMaps currentMap;
     @Nonnull private Modes currentMode;
     private StartCountdown startCountdown;
@@ -350,6 +354,10 @@ public final class Manager extends BukkitRunnable {
     public <T extends GameEntity> T getEntity(@Nonnull UUID uuid, @Nonnull Class<T> clazz) {
         final GameEntity entity = entities.get(uuid);
 
+        if (entity == null) {
+            return null;
+        }
+
         if (!clazz.isInstance(entity)) {
             return null;
         }
@@ -557,6 +565,9 @@ public final class Manager extends BukkitRunnable {
         this.gameInstance = new GameInstance(getCurrentMode(), getCurrentMap());
         this.gameInstance.onStart();
 
+        // Init skin manager
+        this.skinEffectManager.onStart();
+
         for (final GamePlayer gamePlayer : CF.getPlayers()) {
             final Player player = gamePlayer.getPlayer();
 
@@ -622,7 +633,7 @@ public final class Manager extends BukkitRunnable {
      * Stops the current game instance.
      */
     public void stopCurrentGame() {
-        if (this.gameInstance == null || this.gameInstance.getGameState() == State.POST_GAME) {
+        if (this.gameInstance == null || this.gameInstance.getGameState() != State.IN_GAME) {
             return;
         }
 
@@ -657,7 +668,14 @@ public final class Manager extends BukkitRunnable {
         // Remove garbage entities
         CFGarbageCollector.clearInAllWorlds();
 
-        entities.forEach((uuid, entity) -> entity.onStop(gameInstance));
+        entities.forEach((uuid, entity) -> {
+            entity.onStop(gameInstance);
+
+            if (entity instanceof GamePlayer player) {
+                goldenGg.add(player.getPlayer());
+            }
+
+        });
         entities.clear();
 
         if (debugData.any()) {
@@ -667,6 +685,17 @@ public final class Manager extends BukkitRunnable {
 
         // Spawn Fireworks
         gameInstance.executeWinCosmetic();
+    }
+
+    public boolean goldenGg(@Nonnull Player player) {
+        if (!goldenGg.contains(player)) {
+            return false;
+        }
+
+        CFUtils.later(() -> Award.GG.award(PlayerProfile.getProfileOrThrow(player)), 1);
+
+        goldenGg.remove(player);
+        return true;
     }
 
     public void resetPlayer(@Nonnull Player player) {
@@ -762,7 +791,7 @@ public final class Manager extends BukkitRunnable {
         player.closeInventory();
 
         PlayerLib.villagerYes(player);
-        Message.success(player, "Selected %s!".formatted(heroes.getFormatted(Color.SUCCESS)));
+        Notifier.success(player, "Selected %s!".formatted(heroes.getFormatted(Color.SUCCESS)));
 
         final RandomHeroEntry entry = profile.getDatabase().randomHeroEntry;
 
@@ -770,7 +799,7 @@ public final class Manager extends BukkitRunnable {
             entry.setEnabled(false);
             entry.setLastSelectedHero(null); // Forget last hero because yes
 
-            Message.info(player, "&b&lRandom Hero Select &bwas &c&ndisabled&b because you selected a hero manually!");
+            Notifier.info(player, "&b&lRandom Hero Select &bwas &c&ndisabled&b because you selected a hero manually!");
         }
     }
 

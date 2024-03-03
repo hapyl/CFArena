@@ -5,6 +5,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.engineer.Engineer;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
+import me.hapyl.fight.util.Blocks;
 import me.hapyl.spigotutils.module.block.display.BlockStudioParser;
 import me.hapyl.spigotutils.module.block.display.DisplayData;
 import org.bukkit.Location;
@@ -44,6 +45,10 @@ public abstract class EngineerTalent extends Talent {
 
         if (targetBlock == null) {
             return Response.error("&cNo valid block in sight!");
+        }
+
+        if (!Blocks.isValid(targetBlock)) {
+            return Response.error("Cannot place turret on this block!");
         }
 
         final Block block = targetBlock.getRelative(BlockFace.UP);

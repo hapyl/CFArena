@@ -2,7 +2,7 @@ package me.hapyl.fight.game.cosmetic;
 
 import me.hapyl.fight.Main;
 import me.hapyl.fight.util.Formatted;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -97,7 +97,7 @@ public abstract class Cosmetic extends CollectionItem implements Formatted, Enum
 
         if (this instanceof DisabledCosmetic) {
             if (player != null) {
-                Message.error(player, "This cosmetic is currently disabled, sorry!");
+                Notifier.error(player, "This cosmetic is currently disabled, sorry!");
             }
             return;
         }

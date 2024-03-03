@@ -40,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 public class Swooper extends Hero implements Listener, UIComplexComponent, PlayerDataHandler<SwooperData>, TickingHero {
 
     private final PlayerDataMap<SwooperData> playerData = PlayerMap.newDataMap(player -> new SwooperData(this, player));
+
     private final double knockbackChance = 0.12d;
     private final int stunDuration = 40;
 

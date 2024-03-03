@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.chat.messagebuilder.MessageBuilder;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -45,7 +45,7 @@ public abstract class PlayerInvite extends BukkitRunnable {
         invitees.forEach(player -> this.states.put(player, State.NEUTRAL));
 
         // Notify
-        Message.success(inviter, "Invite has been sent!");
+        Notifier.success(inviter, "Invite has been sent!");
 
         final String playerMessage = "&b[&3✉&b] %s &ahas invited you to &2%s&a!".formatted(PlayerProfile.getProfileOrThrow(inviter)
                 .getDisplay()
@@ -92,7 +92,7 @@ public abstract class PlayerInvite extends BukkitRunnable {
         }
 
         // Notify players
-        Message.error(inviter, "Your invite has expired!");
+        Notifier.error(inviter, "Your invite has expired!");
     }
 
     @Nonnull

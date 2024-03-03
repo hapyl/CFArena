@@ -7,7 +7,7 @@ import me.hapyl.fight.game.heroes.PlayerRating;
 import me.hapyl.fight.game.reward.Reward;
 import me.hapyl.fight.game.reward.Rewards;
 import me.hapyl.fight.game.setting.Settings;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.chat.CenterChat;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.command.SimplePlayerCommand;
@@ -43,12 +43,12 @@ public class RateHeroCommand extends SimplePlayerCommand {
         final PlayerRating playerRating = PlayerRating.fromInt(rating);
 
         if (hero == null) {
-            Message.error(player, "Invalid hero!");
+            Notifier.error(player, "Invalid hero!");
             return;
         }
 
         if (playerRating == null) {
-            Message.error(player, "Invalid rating!");
+            Notifier.error(player, "Invalid rating!");
             return;
         }
 
@@ -59,13 +59,13 @@ public class RateHeroCommand extends SimplePlayerCommand {
 
         if (!hasRated) {
             if (canRateHero == null) {
-                Message.error(player, "You cannot rate this hero yet!");
+                Notifier.error(player, "You cannot rate this hero yet!");
                 return;
             }
         }
 
         if (hero != canRateHero) {
-            Message.error(player, "&cThis is not the hero you are allowed to rate!");
+            Notifier.error(player, "&cThis is not the hero you are allowed to rate!");
             return;
         }
 
@@ -73,11 +73,11 @@ public class RateHeroCommand extends SimplePlayerCommand {
         stats.setPlayerRating(uuid, playerRating);
 
         if (hasRated) {
-            Message.success(player, "Changed {} rating to {}!", hero.getName(), playerRating.getName());
+            Notifier.success(player, "Changed {} rating to {}!", hero.getName(), playerRating.getName());
         }
         else {
-            Message.success(player, "Rated {} as {}!", hero.getName(), playerRating.getName());
-            Message.success(player, "Thank you for rating this hero, your feedback is appreciated!");
+            Notifier.success(player, "Rated {} as {}!", hero.getName(), playerRating.getName());
+            Notifier.success(player, "Thank you for rating this hero, your feedback is appreciated!");
 
             final Reward reward = Rewards.HERO_RATING_FIRST_TIME.getReward();
 

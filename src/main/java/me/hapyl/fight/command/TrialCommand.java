@@ -3,7 +3,7 @@ package me.hapyl.fight.command;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.trial.Trial;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.command.SimplePlayerCommand;
 import org.bukkit.entity.Player;
 
@@ -19,12 +19,12 @@ public class TrialCommand extends SimplePlayerCommand {
         final PlayerProfile profile = PlayerProfile.getProfile(player);
 
         if (Manager.current().isGameInProgress()) {
-            Message.error(player, "Cannot start trial while the game is in progress!");
+            Notifier.error(player, "Cannot start trial while the game is in progress!");
             return;
         }
 
         if (profile == null) {
-            Message.error(player, "No profile somehow.");
+            Notifier.error(player, "No profile somehow.");
             return;
         }
 
@@ -32,12 +32,12 @@ public class TrialCommand extends SimplePlayerCommand {
 
         if (trial != null) {
             profile.stopTrial();
-            Message.success(player, "Stopped the trial!");
+            Notifier.success(player, "Stopped the trial!");
             return;
         }
 
         profile.newTrial();
-        Message.success(player, "Starting new trial...");
+        Notifier.success(player, "Starting new trial...");
     }
 
 }

@@ -10,7 +10,7 @@
 
 ### Other changes
 
-* Shields no longer block fall damage by default.
+* **Shields no longer block fall damage by default.*
 * Added sound FX to Archer's Hackeye arrows.
 * Relic Hunt now shows it if there are no Relics in the current area.
 * Increase Bounty Hunter's Fall Damage Resistance duration after using Grapple Hook.
@@ -18,8 +18,9 @@
 * Using Bounty Hunter's Smoke Bomb now snaps to the weapon.
 * Max Health below 40 is now shown with less max hearts.
 * Increased the max length of a username display from 5 >> 9.
-* Remove translations.
-    * Dev comment: *`Fuck translations, learn english.`*.
+* Add messages above The Eye's head:
+    * If the player can claim any relic reward.
+    * If the player can level up their Relic Stabilizer.
 
 ---
 
@@ -71,6 +72,15 @@ Summoning stars spends **max health**, meaning you cannot regenerate past it.
 * The energy deals rapid damage and knocks enemies back.
 
 Any Vortex ability damage is considered **astral** damage, meaning it is boosted by the passive!
+
+Juju
+---
+
+### Climb (Passive)
+
+* Optimize climbing.
+* Juju can now jump of the wall in the opposite direction.
+* Reduce cooldown 10s >> 6s.
 
 ---
 
