@@ -305,7 +305,7 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
             cosmeticEntry.addOwned(this);
         }
         else {
-            cosmeticEntry.unsetSelected(getType());
+            cosmeticEntry.unsetSelected(this);
             cosmeticEntry.removeOwned(this);
         }
     }

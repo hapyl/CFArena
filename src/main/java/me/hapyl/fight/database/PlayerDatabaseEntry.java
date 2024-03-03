@@ -3,6 +3,7 @@ package me.hapyl.fight.database;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.util.Enums;
 import org.bson.Document;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -112,6 +113,17 @@ public class PlayerDatabaseEntry {
      */
     protected <T> T getValue(@Nonnull String paths, @Nullable T def) {
         return MongoUtils.get(getDocument(), paths, def);
+    }
+
+    @Nullable
+    protected <T extends Enum<T>> T getEnumValue(@Nonnull String paths, @Nonnull Class<T> clazz) {
+        final String value = getValue(paths, "");
+
+        return Enums.byName(clazz, value);
+    }
+
+    protected <T extends Enum<T>> void setEnumValue(@Nonnull String paths, @Nullable T value) {
+        setValue(paths, value != null ? value.name().toLowerCase() : null);
     }
 
     /**

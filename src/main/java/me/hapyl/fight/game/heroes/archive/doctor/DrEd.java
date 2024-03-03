@@ -6,6 +6,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -49,14 +50,7 @@ public class DrEd extends Hero implements UIComponent {
         equipment.setBoots(71, 107, 107);
 
         setWeapon(new GravityGun());
-
-        setUltimate(new UltimateTalent(this, "Upgrades People, Upgrades!", 70)
-                .appendDescription("""
-                        Grants Dr. Ed an upgraded version of &a%s&7 for {duration} that is capable of capturing entities' flesh and energy, allowing manipulating them.
-                        """, getWeapon().getName())
-                .setType(Talent.Type.IMPAIR)
-                .setItem(Material.GOLDEN_HORSE_ARMOR)
-                .setDuration(200));
+        setUltimate(new DrEdUltimate());
 
         playerShield = PlayerMap.newMap();
     }
@@ -96,10 +90,6 @@ public class DrEd extends Hero implements UIComponent {
         }.runTaskTimer(0, 1);
     }
 
-    private void scheduleNextShield(GamePlayer player, int delay) {
-        GameTask.runLater(() -> getShield(player).newElement(), Tick.fromSecond(delay));
-    }
-
     @Override
     public void onStart(@Nonnull GamePlayer player) {
         // New shield
@@ -131,14 +121,6 @@ public class DrEd extends Hero implements UIComponent {
     }
 
     @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        player.setItemAndSnap(HotbarSlots.HERO_ITEM, ultimateWeapon.getItem());
-        player.schedule(() -> ultimateWeapon.stop(player), getUltimateDuration());
-
-        return UltimateCallback.OK;
-    }
-
-    @Override
     public Talent getFirstTalent() {
         return Talents.CONFUSION_POTION.getTalent();
     }
@@ -163,5 +145,36 @@ public class DrEd extends Hero implements UIComponent {
         }
 
         return "&6🛡 " + Chat.capitalize(shield.getType());
+    }
+
+    private void scheduleNextShield(GamePlayer player, int delay) {
+        GameTask.runLater(() -> getShield(player).newElement(), Tick.fromSecond(delay));
+    }
+
+    private class DrEdUltimate extends UltimateTalent {
+        public DrEdUltimate() {
+            super("Upgrades People, Upgrades!", 70);
+
+            setDescription("""
+                    Grants Dr. Ed an upgraded version of &a%s&7 for {duration} that is capable of capturing entities' flesh and energy, allowing manipulating them.
+                    """.formatted(getWeapon().getName()));
+
+            setType(Talent.Type.IMPAIR);
+            setItem(Material.GOLDEN_HORSE_ARMOR);
+            setDurationSec(10);
+        }
+
+        @Nonnull
+        @Override
+        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+            player.setItemAndSnap(HotbarSlots.HERO_ITEM, ultimateWeapon.getItem());
+
+            return new UltimateResponse() {
+                @Override
+                public void onUltimateEnd(@Nonnull GamePlayer player) {
+                    ultimateWeapon.stop(player);
+                }
+            };
+        }
     }
 }

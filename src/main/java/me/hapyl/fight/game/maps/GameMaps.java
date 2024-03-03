@@ -7,7 +7,7 @@ import me.hapyl.fight.game.maps.maps.DragonsGorge;
 import me.hapyl.fight.game.maps.maps.DwarfVault;
 import me.hapyl.fight.game.maps.maps.MoonBase;
 import me.hapyl.fight.game.maps.winery.WineryMap;
-import me.hapyl.fight.translate.Translatable;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.Material;
@@ -18,7 +18,7 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum GameMaps implements Selectable, Translatable {
+public enum GameMaps implements Selectable {
 
     // non-playable map, storing here for easy coordinate grab and consistency
     TRAINING_GROUNDS(new NonPlayableGameMap("Training Grounds", "Test heroes abilities here!", -250, 64, 250, -90, 0)),
@@ -170,8 +170,9 @@ public enum GameMaps implements Selectable, Translatable {
                             """)
                     .setMaterial(Material.TOTEM_OF_UNDYING)
                     .setSize(Size.MEDIUM)
-                    .setTicksBeforeReveal(100)
                     .setWeather(WeatherType.DOWNFALL)
+                    .setTicksBeforeReveal(100)
+                    .addLocation(98, 98, -739)
     ),
 
     ;
@@ -195,14 +196,13 @@ public enum GameMaps implements Selectable, Translatable {
         return Manager.current().getCurrentMap() == this;
     }
 
-    @Nonnull
-    @Override
-    public String getParentTranslatableKey() {
-        return "map." + name().toLowerCase() + ".";
-    }
-
     @Override
     public void select(@Nonnull Player player) {
+        if (Manager.current().getCurrentMap() == this) {
+            Notifier.error(player, "This map is already selected!");
+            return;
+        }
+
         Manager.current().setCurrentMap(this);
 
         Chat.broadcast("&2&lMAP! &a%s selected &l%s&a!", player.getName(), getName());

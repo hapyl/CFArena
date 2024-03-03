@@ -60,7 +60,7 @@ public abstract class MageSpell implements Formatted, Timed {
     public final Response execute(@Nonnull GamePlayer player) {
         final Mage mage = Heroes.MAGE.getHero(Mage.class);
 
-        mage.setUsingUltimate(player, true, getDuration());
+        player.setUsingUltimate(getDuration());
         useSpell(player);
 
         player.snapToWeapon();

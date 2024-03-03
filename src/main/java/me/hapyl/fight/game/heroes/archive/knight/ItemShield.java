@@ -12,10 +12,10 @@ import org.bukkit.inventory.ItemStack;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Shield {
+public class ItemShield {
     private final Map<Integer, ItemStack> shieldMap;
 
-    public Shield() {
+    public ItemShield() {
         shieldMap = new HashMap<>();
         this.createShields();
     }

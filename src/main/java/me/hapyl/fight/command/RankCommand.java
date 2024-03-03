@@ -2,7 +2,7 @@ package me.hapyl.fight.command;
 
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.command.SimpleCommand;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -23,12 +23,12 @@ public class RankCommand extends SimpleCommand { // Don't make this CFCommand
         final PlayerRank rank = PlayerRank.getRank(sender);
 
         if (!rank.isOrHigher(MIN_RANK)) {
-            Message.Error.NOT_PERMISSIONS_NEED_RANK.send(sender, MIN_RANK.getPrefixWithFallback());
+            Notifier.Error.NOT_PERMISSIONS_NEED_RANK.send(sender, MIN_RANK.getPrefixWithFallback());
             return;
         }
 
         if (args.length == 0) {
-            Message.success(sender, "Your rank is {}!", rank.getPrefixWithFallback());
+            Notifier.success(sender, "Your rank is {}!", rank.getPrefixWithFallback());
             return;
         }
 
@@ -37,7 +37,7 @@ public class RankCommand extends SimpleCommand { // Don't make this CFCommand
         final boolean confirmedStaff = getArgument(args, 2).toString().equals(ARGUMENT_SET_ADMIN);
 
         if (target == null) {
-            Message.error(sender, "%s is not online!", args[0]);
+            Notifier.error(sender, "%s is not online!", args[0]);
             return;
         }
 
@@ -46,22 +46,22 @@ public class RankCommand extends SimpleCommand { // Don't make this CFCommand
         if (rankToSet == null) {
             final PlayerRank playerRank = targetDatabase.getRank();
 
-            Message.info(sender, "{}'s rank is {}.", target.getName(), playerRank.getPrefixWithFallback());
+            Notifier.info(sender, "{}'s rank is {}.", target.getName(), playerRank.getPrefixWithFallback());
             return;
         }
 
         if (rankToSet.isStaff() && !confirmedStaff) {
-            Message.error(sender, "Not making &e{} staff without &e{} argument!", target.getName(), ARGUMENT_SET_ADMIN);
+            Notifier.error(sender, "Not making &e{} staff without &e{} argument!", target.getName(), ARGUMENT_SET_ADMIN);
             return;
         }
 
         final PlayerRank oldRank = targetDatabase.getRank();
         targetDatabase.setRank(rankToSet);
 
-        Message.success(sender, "Set &a{}'s rank to {}!", target.getName(), rankToSet.getPrefixWithFallback());
-        Message.success(target, "You are now {}!", rankToSet.getPrefixWithFallback());
+        Notifier.success(sender, "Set &a{}'s rank to {}!", target.getName(), rankToSet.getPrefixWithFallback());
+        Notifier.success(target, "You are now {}!", rankToSet.getPrefixWithFallback());
 
-        Message.broadcastStaff(
+        Notifier.broadcastStaff(
                 "{} changed {} rank {} » {}.",
                 sender.getName(),
                 target.getName(),

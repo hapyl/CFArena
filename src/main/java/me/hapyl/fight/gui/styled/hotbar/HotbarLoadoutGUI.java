@@ -13,10 +13,9 @@ import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
 import me.hapyl.fight.gui.styled.StyledItem;
 import me.hapyl.fight.gui.styled.profile.PlayerProfileGUI;
-import me.hapyl.fight.translate.Language;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.NoProfileException;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.CancelType;
 import me.hapyl.spigotutils.module.inventory.gui.EventListener;
@@ -60,14 +59,12 @@ public class HotbarLoadoutGUI extends StyledGUI implements EventListener {
         loadout = profile.getHotbarLoadout();
         itemToSlotMap = Maps.newHashMap();
 
-        final Language language = Language.getPlayerLanguage(player);
-
         putToMap(HotbarSlots.WEAPON, hero.getWeapon().getItem());
-        putToMap(HotbarSlots.TALENT_1, hero.getTalentItem(HotbarSlots.TALENT_1, language));
-        putToMap(HotbarSlots.TALENT_2, hero.getTalentItem(HotbarSlots.TALENT_2, language));
-        putToMap(HotbarSlots.TALENT_3, hero.getTalentItem(HotbarSlots.TALENT_3, language));
-        putToMap(HotbarSlots.TALENT_4, hero.getTalentItem(HotbarSlots.TALENT_4, language));
-        putToMap(HotbarSlots.TALENT_5, hero.getTalentItem(HotbarSlots.TALENT_5, language));
+        putToMap(HotbarSlots.TALENT_1, hero.getTalentItem(HotbarSlots.TALENT_1));
+        putToMap(HotbarSlots.TALENT_2, hero.getTalentItem(HotbarSlots.TALENT_2));
+        putToMap(HotbarSlots.TALENT_3, hero.getTalentItem(HotbarSlots.TALENT_3));
+        putToMap(HotbarSlots.TALENT_4, hero.getTalentItem(HotbarSlots.TALENT_4));
+        putToMap(HotbarSlots.TALENT_5, hero.getTalentItem(HotbarSlots.TALENT_5));
         putToMap(HotbarSlots.HERO_ITEM, null);
 
         setEventListener(this);
@@ -143,13 +140,13 @@ public class HotbarLoadoutGUI extends StyledGUI implements EventListener {
 
         if (!event.getClick().isLeftClick()) {
             wrongClicks++;
-            Message.error(player, (wrongClicks > 0 && wrongClicks % 5 == 0) ? "LEFT CLICK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" : "Left click!");
+            Notifier.error(player, (wrongClicks > 0 && wrongClicks % 5 == 0) ? "LEFT CLICK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" : "Left click!");
             event.setCancelled(true);
             return;
         }
 
         if (slot == 35) {
-            Message.error(player, "This slot cannot be modified!");
+            Notifier.error(player, "This slot cannot be modified!");
             event.setCancelled(true);
             return;
         }
@@ -196,19 +193,19 @@ public class HotbarLoadoutGUI extends StyledGUI implements EventListener {
                 continue;
             }
 
-            Message.error(player, "Cannot save! Loadout is missing '{}'!", value.getName());
+            Notifier.error(player, "Cannot save! Loadout is missing '{}'!", value.getName());
             PlayerLib.villagerNo(player);
             return;
         }
 
         if (loadout.isIdentical(newLoadout)) {
-            Message.error(player, "The provided layout is identical to the current one!");
+            Notifier.error(player, "The provided layout is identical to the current one!");
             PlayerLib.villagerNo(player);
             return;
         }
 
         loadout.setLoadout(newLoadout);
-        Message.success(player, "Successfully set new loadout!");
+        Notifier.success(player, "Successfully set new loadout!");
 
         player.closeInventory();
     }

@@ -9,6 +9,7 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
@@ -83,24 +84,9 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
         equipment.setBoots(Color.BLACK);
 
         setWeapon(Material.GHAST_TEAR, "Fang", 5.0d);
-
-        final UltimateTalent ultimate = new UltimateTalent(this, "Sanguineous Morphology", """
-                Transform into a bat and fly freely for {duration}.
-                                
-                After duration ends, transform back into vampire and gain the opposite amount of blood you had upon casting and summon &eDracula Jr&7.
-                &8;;Eg: 10 -> 0, 7 -> 3, 2 -> 8 etc.
-                                
-                &6;;You cannot deal damage nor gain blood during the duration!
-                """, 60)
-                .setDurationSec(6)
-                .setCooldownSec(20)
-                .setTexture("473af69ed9bf67e2f5403dd7d28bbe32034749bbfb635ac1789a412053cdcbf0");
-
-        setUltimate(ultimate);
     }
 
-    @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
+    public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
         final VampireData data = vampireData.get(player);
         final int bloodAtUse = data.getBlood();
         final int bloodAfterUse = MAX_BLOOD_STACKS - bloodAtUse;
@@ -167,7 +153,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
             }
         }.runTaskTimer(0, 1);
 
-        return UltimateCallback.OK;
+        return UltimateResponse.OK;
     }
 
     @Override
@@ -199,7 +185,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
             return;
         }
 
-        if (isUsingUltimate(player)) {
+        if (player.isUsingUltimate()) {
             if (instance.getCause() == EnumDamageCause.LIGHTNING) {
                 return;
             }
@@ -241,8 +227,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
             return;
         }
 
-        if (inventory.getItemInMainHand().getType() != BLOOD_MATERIAL || player.hasCooldown(BLOOD_MATERIAL) ||
-                isUsingUltimate(player)) {
+        if (inventory.getItemInMainHand().getType() != BLOOD_MATERIAL || player.hasCooldown(BLOOD_MATERIAL) || player.isUsingUltimate()) {
             return;
         }
 
@@ -282,7 +267,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
             @Override
             public void run() {
                 CF.getAlivePlayers(Heroes.VAMPIRE).forEach(player -> {
-                    if (!Manager.current().isGameInProgress() || isUsingUltimate(player)) {
+                    if (!Manager.current().isGameInProgress() || player.isUsingUltimate()) {
                         return;
                     }
 

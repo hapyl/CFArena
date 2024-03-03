@@ -15,10 +15,12 @@ import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.IProtocolListener;
 import me.hapyl.spigotutils.module.entity.Entities;
+import me.hapyl.spigotutils.module.reflect.Reflect;
 import me.hapyl.spigotutils.module.reflect.protocol.ProtocolListener;
 import net.minecraft.server.MinecraftServer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -204,6 +206,23 @@ public final class CF {
         return manager.getPlayer(uuid);
     }
 
+    /**
+     * Gets a {@link GamePlayer} by their {@link OfflinePlayer}.
+     *
+     * @param player - Offline player.
+     * @return a game player; or null.
+     */
+    @Nullable
+    public static GamePlayer getPlayer(@Nonnull OfflinePlayer player) {
+        return manager.getPlayer(player.getUniqueId());
+    }
+
+    /**
+     * Gets a {@link GamePlayer} from a {@link PlayerEvent}.
+     *
+     * @param ev - Event.
+     * @return a game player; or null.
+     */
     @Nullable
     public static GamePlayer getPlayer(@Nonnull PlayerEvent ev) {
         final Player player = ev.getPlayer();
@@ -436,7 +455,7 @@ public final class CF {
      * @return the server's most recent tps.
      */
     public static double getTps() {
-        return Math.min(MinecraftServer.getServer().recentTps[0], 20);
+        return Math.min(Reflect.getMinecraftServer().recentTps[0], 20);
     }
 
     @Nonnull
@@ -445,7 +464,7 @@ public final class CF {
         final double tps = getTps();
 
         if (tps >= 20) {
-            color = "&2&l";
+            color = "&2";
         }
         else if (tps >= 19) {
             color = "&a";

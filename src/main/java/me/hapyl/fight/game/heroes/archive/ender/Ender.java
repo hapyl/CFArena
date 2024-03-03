@@ -6,6 +6,7 @@ import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.ender.EnderPassive;
@@ -43,34 +44,10 @@ public class Ender extends Hero implements Listener {
         equipment.setBoots(136, 0, 204);
 
         setWeapon(new EnderWeapon());
-
-        setUltimate(new UltimateTalent(
-                this, "Transmission!",
-                "Instantly teleport to your &b&lTransmission &b&lBeacon &7and collect it for further use.",
-                50
-        )
-                .setType(Talent.Type.MOVEMENT)
-                .setItem(Material.SHULKER_SHELL)
-                .setCooldownSec(20)
-                .setSound(Sound.ENTITY_GUARDIAN_HURT_LAND, 0.75f));
+        setUltimate(new EnderUltimate());
 
     }
 
-    @Override
-    public boolean predicateUltimate(@Nonnull GamePlayer player) {
-        return getSecondTalent().hasBeacon(player);
-    }
-
-    @Override
-    public String predicateMessage(@Nonnull GamePlayer player) {
-        return "Transmission Beacon is not placed!";
-    }
-
-    @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        getSecondTalent().teleportToBeacon(player);
-        return UltimateCallback.OK;
-    }
 
     @EventHandler()
     public void handleTeleportEvent(EnderPearlTeleportEvent ev) {
@@ -114,5 +91,32 @@ public class Ender extends Hero implements Listener {
     @Override
     public EnderPassive getPassiveTalent() {
         return (EnderPassive) Talents.ENDER_PASSIVE.getTalent();
+    }
+
+    private class EnderUltimate extends UltimateTalent {
+        public EnderUltimate() {
+            super("Transmission!", 50);
+
+            setDescription("""
+                    Instantly teleport to your &b&lTransmission &b&lBeacon &7and collect it for further use.
+                    """);
+
+            setType(Talent.Type.MOVEMENT);
+            setItem(Material.SHULKER_SHELL);
+            setSound(Sound.ENTITY_GUARDIAN_HURT_LAND, 0.75f);
+            setCooldownSec(20);
+        }
+
+        @Nonnull
+        @Override
+        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+            if (!getSecondTalent().hasBeacon(player)) {
+                return UltimateResponse.error("The beacon is not placed!");
+            }
+
+            getSecondTalent().teleportToBeacon(player);
+
+            return UltimateResponse.OK;
+        }
     }
 }

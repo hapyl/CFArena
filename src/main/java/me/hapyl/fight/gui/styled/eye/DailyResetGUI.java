@@ -8,7 +8,7 @@ import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
@@ -88,7 +88,7 @@ public class DailyResetGUI extends StyledGUI {
                     setItem(slot, builder
                             .addLore(Color.ERROR + "Not enough rubies!")
                             .asIcon(), player -> {
-                        Message.error(player, "You don't have enough rubies!");
+                        Notifier.error(player, "You don't have enough rubies!");
                         PlayerLib.villagerNo(player);
                     });
                 }
@@ -146,7 +146,7 @@ public class DailyResetGUI extends StyledGUI {
                     .addLore(Color.BUTTON + "Click to reset!")
                     .asIcon(), player -> {
                 if (!entry.has(Currency.RUBIES, rubyPriceTotal)) {
-                    Message.error(player, "You somehow don't have the rubies anymore!");
+                    Notifier.error(player, "You somehow don't have the rubies anymore!");
                     player.closeInventory();
                     return;
                 }
@@ -159,8 +159,8 @@ public class DailyResetGUI extends StyledGUI {
                 player.closeInventory();
 
                 // Fx
-                Message.success(player, "Reset bonds!");
-                Message.info(player, " &4- " + Currency.RUBIES.formatProduct(3L));
+                Notifier.success(player, "Reset bonds!");
+                Notifier.info(player, " &4- " + Currency.RUBIES.formatProduct(3L));
 
                 PlayerLib.playSound(Sound.ENTITY_ILLUSIONER_PREPARE_MIRROR, 1.25f);
                 PlayerLib.playSound(Sound.ENTITY_ILLUSIONER_MIRROR_MOVE, 0.75f);

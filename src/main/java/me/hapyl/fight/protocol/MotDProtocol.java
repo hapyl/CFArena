@@ -40,14 +40,6 @@ public class MotDProtocol extends ProtocolListener {
 
     @Override
     public void onPacketSending(@Nonnull PacketEvent event) {
-        if (motD[0] == null) {
-            createMotD();
-        }
-
-        if (hoverData.isEmpty()) {
-            createHoverData();
-        }
-
         final PacketContainer packet = event.getPacket();
         final StructureModifier<WrappedServerPing> serverPings = packet.getServerPings();
         final WrappedServerPing ping = new WrappedServerPing();
@@ -56,10 +48,11 @@ public class MotDProtocol extends ProtocolListener {
         ping.setFavicon(favicon); // FIXME (hapyl): 024, Feb 24: This doesn't work for some reason
         ping.setPlayers(hoverData);
 
+        ping.setVersionProtocol(serverPings.read(0).getVersionProtocol());
         ping.setEnforceSecureChat(false);
         ping.setPlayersVisible(true);
 
-        ping.setVersionName("§cCF is on §4%s§c!".formatted(Main.requireMinecraftVersion));
+        ping.setVersionName("§6[§cCF is on §4%s§c!§6]".formatted(Main.requireMinecraftVersion));
         ping.setPlayersOnline(0);
         ping.setPlayersMaximum(-1);
 
@@ -107,7 +100,6 @@ public class MotDProtocol extends ProtocolListener {
         return list;
     }
 
-    // FIXME (hapyl): 024, Feb 24: Doesn't work for some reason
     private WrappedServerPing.CompressedImage loadFavicon() {
         try {
             final Main plugin = Main.getPlugin();

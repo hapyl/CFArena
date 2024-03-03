@@ -96,6 +96,9 @@ public class DiceRoll extends TickingGameTask {
             PlayerLib.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 0.75f);
             PlayerLib.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1.0f);
             PlayerLib.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1.25f);
+
+            // Remove selected here
+
         }
 
         GameTask.runLater(() -> {

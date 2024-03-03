@@ -3,8 +3,8 @@ package me.hapyl.fight.game.heroes.archive.km;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.weapons.PackedParticle;
 import me.hapyl.fight.game.weapons.range.RangeWeapon;
@@ -39,17 +39,9 @@ public class KillingMachine extends Hero implements DisabledHero {
                 .setDamage(5.0d)
                 .setName("Rifle"));
 
-        this.setUltimate(new UltimateTalent(
-                this,
-                "Overload",
-                "Overload yourself for {duration}. While overloaded, your fire-rate is increased by &b100% &7and all opponents are highlighted.",
-                60
-        ).setDurationSec(12).setItem(Material.LIGHTNING_ROD).setSound(Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 0.0f));
-
     }
 
-    @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
+    public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
         // Glow Self
         //final Glowing glowing = new Glowing(player, ChatColor.RED, getUltimateDuration());
         //final List<GamePlayer> alivePlayers = Manager.current().getCurrentGame().getAlivePlayers();
@@ -73,7 +65,7 @@ public class KillingMachine extends Hero implements DisabledHero {
         //
         //glowing.glow();
 
-        return UltimateCallback.OK;
+        return UltimateResponse.OK;
     }
 
     @Override

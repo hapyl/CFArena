@@ -28,18 +28,14 @@ import me.hapyl.fight.npc.HumanManager;
 import me.hapyl.fight.npc.runtime.RuntimeNPCManager;
 import me.hapyl.fight.protocol.*;
 import me.hapyl.fight.script.ScriptManager;
-import me.hapyl.fight.translate.Translate;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.EternaAPI;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.util.Validate;
-import org.bukkit.Bukkit;
-import org.bukkit.GameRule;
-import org.bukkit.Registry;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import test.Test;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -51,18 +47,17 @@ public class Main extends JavaPlugin {
             "&6&l\uD835\uDC9Eℱ \uD835\uDC9C\uD835\uDCC7ℯ\uD835\uDCC3\uD835\uDCB6";
 
     public static final VersionInfo versionInfo = new VersionInfo(
-            new UpdateTopic("A newer look!", 232, 113, 44, 232, 138, 44),
-            new UpdateTopic("Daily Bonds!", 35, 156, 22, 81, 201, 68)
+            new UpdateTopic("Hello, 1.20.4!", 13, 82, 191, 87, 150, 250),
+            new UpdateTopic("Vortex Changes", 224, 113, 34, 224, 143, 85)
     );
 
-    public static final String requireEternaVersion = "2.46.6";
-    public static final String requireMinecraftVersion = "1.20.2";
+    public static final String requireEternaVersion = "2.50.0";
+    public static final String requireMinecraftVersion = "1.20.4";
 
     private static long start;
     private static Main plugin;
 
     private ScriptManager scriptManager;
-    private Translate translate;
     private Manager manager;
     private HumanManager humanManager;
     private TaskList taskList;
@@ -112,7 +107,6 @@ public class Main extends JavaPlugin {
         achievementRegistry = new AchievementRegistry(this);
         crateManager = new CrateManager(this);
         scriptManager = new ScriptManager(this);
-        translate = new Translate(this);
         npcManager = new RuntimeNPCManager(this);
 
         //new LampGame(this);
@@ -140,22 +134,42 @@ public class Main extends JavaPlugin {
         // Remove recipes and achievements
         Bukkit.clearRecipes();
         Registry.ADVANCEMENT.iterator().forEachRemaining(advancement -> {
+            Bukkit.getUnsafe().removeAdvancement(advancement.getKey());
         });
+
+        Bukkit.reloadData();
 
         // Register Commands
         new CommandRegistry(this);
 
-        // Update database in case of /reload
+        // Check for reload
+        final ReloadChecker reloadChecker = new ReloadChecker(this);
+        final int reloadCount = reloadChecker.getReloadCount();
+
+        reloadChecker.check(20);
+
+        // Kick because of /reload
         for (final Player player : Bukkit.getOnlinePlayers()) {
-            player.kickPlayer(Chat.format("""
+            final boolean isOperator = player.isOp();
+            final StringBuilder builder = new StringBuilder("""
                     &4&lServer Reloaded!
                     &cPlease re-connect to avoid bugs.
-                    """));
-            //manager.handlePlayer(player);
-        }
+                    """);
 
-        // Check for reload
-        ReloadChecker.check(this, 20);
+            if (isOperator) {
+                builder.append("""
+                                                
+                        &7&oReloading your server may lead to memory leaks,
+                        &7&o"Zip File Closed" and similar issues.
+                                            
+                        &7&oIf you encounter any, please &nrestart&7&o the server!
+                                            
+                        &8&oThis is your %s server reload!\
+                        """.formatted(CFUtils.stNdTh(reloadCount)));
+            }
+
+            player.kickPlayer(Chat.color(builder.toString()));
+        }
 
         // Clear garbage entities
         GameTask.runLater(CFGarbageCollector::clearInAllWorlds, 20);
@@ -164,9 +178,6 @@ public class Main extends JavaPlugin {
         //Contributors.loadContributors();
 
         new TrialListener();
-
-        // Initiate runtime tests
-        new Test(this);
     }
 
     @Override
@@ -207,11 +218,6 @@ public class Main extends JavaPlugin {
     @Nonnull
     public Database getDatabase() {
         return database;
-    }
-
-    @Nonnull
-    public Translate getTranslate() {
-        return translate;
     }
 
     @Nonnull

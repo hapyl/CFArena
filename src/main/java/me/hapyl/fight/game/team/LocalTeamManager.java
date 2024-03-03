@@ -3,7 +3,7 @@ package me.hapyl.fight.game.team;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.game.profile.ProfileDisplay;
+import me.hapyl.fight.game.profile.PlayerDisplay;
 import me.hapyl.fight.game.ui.UIFormat;
 import me.hapyl.fight.util.Ticking;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -61,8 +61,8 @@ public class LocalTeamManager implements Ticking {
                 });
             }
             else {
-                final ProfileDisplay display = profile.getDisplay();
-                final String displayName = display.getFormat();
+                final PlayerDisplay display = profile.getDisplay();
+                final String displayName = display.toString(PlayerDisplay.LOBBY_BITMASK);
 
                 team.setPrefix(displayName.substring(0, Math.min(displayName.length(), 64)));
                 team.setSuffix("");

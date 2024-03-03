@@ -40,6 +40,6 @@ public class PayloadProtocol extends ProtocolListener {
         );
 
         packetContainer.setMeta(meta, true);
-        Reflect.sendPacket(packetContainer, player);
+        Reflect.sendPacket(player, packetContainer);
     }
 }

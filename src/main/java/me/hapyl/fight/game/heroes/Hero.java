@@ -4,8 +4,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.AutoRegisteredListener;
-import me.hapyl.fight.annotate.PreferredReturnValue;
-import me.hapyl.fight.annotate.PreprocessingMethod;
 import me.hapyl.fight.database.collection.HeroStatsCollection;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Event;
@@ -23,11 +21,7 @@ import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
-import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.translate.Language;
-import me.hapyl.fight.translate.Translatable;
-import me.hapyl.fight.translate.TranslatedDescribed;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.spigotutils.module.annotate.Super;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -45,7 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Consumer;
 
 /**
  * Base Hero class.
@@ -57,21 +50,20 @@ import java.util.function.Consumer;
  * @see PlayerElement
  */
 @AutoRegisteredListener
-public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Heroes>, Rankable, Translatable, DisplayFieldProvider {
+public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Heroes>, Rankable, DisplayFieldProvider {
 
     private final Heroes enumHero;
     private final HeroStatsCollection stats;
     private final HeroAttributes attributes;
     private final Equipment equipment;
     private final String name;
-    private final Map<GamePlayer, Long> usedUltimateAt;
-    private final Map<GamePlayer, GameTask> reverseTasks;
     private final CachedHeroItem cachedHeroItem;
     private final HeroFriendship friendship;
     private final Map<Talent, HotbarSlots> talentsMapped;
+
     private Affiliation affiliation;
     private Archetype archetype;
-    private Gender sex;
+    private Gender gender;
     private Race race;
     private String description;
     private ItemStack guiTexture;
@@ -90,20 +82,18 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
         this.description = "No description provided.";
         this.guiTexture = new ItemStack(Material.RED_BED);
         this.weapon = new Weapon(Material.WOODEN_SWORD);
-        this.usedUltimateAt = Maps.newHashMap();
-        this.reverseTasks = Maps.newConcurrentMap();
         this.equipment = new Equipment();
         this.attributes = new HeroAttributes(this);
         this.affiliation = Affiliation.NOT_SET;
         this.archetype = Archetype.NOT_SET;
         this.minimumLevel = 0;
-        this.ultimate = new UltimateTalent(this, "Unknown Ultimate", "This hero's ultimate talent is not yet implemented!", 12345);
         this.cachedHeroItem = new CachedHeroItem(this);
+        this.ultimate = UltimateTalent.UNFINISHED_ULTIMATE;
         this.skin = null;
         this.friendship = new HeroFriendship(this);
         this.talentsMapped = Maps.newHashMap();
-        this.sex = Gender.UNKNOWN;
-        this.race = Race.UNKNOWN;
+        this.gender = Gender.UNKNOWN;
+        this.race = Race.HUMAN; // defaulted to human
 
         // Map talents
         mapTalent(HotbarSlots.TALENT_1);
@@ -121,12 +111,12 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
     }
 
     @Nonnull
-    public Gender getSex() {
-        return sex;
+    public Gender getGender() {
+        return gender;
     }
 
     public void setGender(@Nonnull Gender sex) {
-        this.sex = sex;
+        this.gender = sex;
     }
 
     @Nonnull
@@ -136,38 +126,6 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
 
     public void setRace(@Nonnull Race race) {
         this.race = race;
-    }
-
-    @Nonnull
-    @Override
-    public String getParentTranslatableKey() {
-        return "hero." + getHandle().name().toLowerCase() + ".";
-    }
-
-    @Nullable
-    public ItemStack getTalentItem(@Nonnull HotbarSlots slot, @Nonnull Language language) {
-        final Talent talent = getTalent(slot);
-
-        return talent != null ? talent.getItem(/* language */) : null;
-    }
-
-    @Nonnull
-    public TranslatedDescribed getArchetype(@Nonnull Language language) {
-        return new TranslatedDescribed(language, "archetype." + archetype.name().toLowerCase());
-    }
-
-    @Nonnull
-    public TranslatedDescribed getAffiliation(@Nonnull Language language) {
-        return new TranslatedDescribed(language, "affiliation." + affiliation.name().toLowerCase());
-    }
-
-    @Nonnull
-    public TranslatedDescribed getUltimate(@Nonnull Language language) {
-        return new TranslatedDescribed(language, getParentTranslatableKey() + "ultimate");
-    }
-
-    public TranslatedDescribed getWeapon(@Nonnull Language language) {
-        return new TranslatedDescribed(language, getParentTranslatableKey() + "weapon");
     }
 
     @Override
@@ -309,31 +267,13 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
     }
 
     /**
-     * Sets if player is currently using their ultimate, preventing them from gaining points and using their ultimate again.
-     * This is automatically handled if {@link this#setUltimateDuration(int)} if used.
-     *
-     * @param player - Player.
-     * @param flag   - New flag.
-     */
-    public final void setUsingUltimate(GamePlayer player, boolean flag) {
-        if (flag) {
-            usedUltimateAt.put(player, System.currentTimeMillis());
-        }
-        else {
-            usedUltimateAt.remove(player);
-            cancelOldReverseTask(player);
-            onUltimateEnd(player);
-        }
-    }
-
-    /**
      * Returns ticks when player used their ultimate. Or -1 if they haven't used yet.
      *
      * @param player - Player.
      * @return ticks when player used their ultimate. Or -1 if they haven't used yet.
      */
     public long getUsedUltimateAt(GamePlayer player) {
-        return usedUltimateAt.getOrDefault(player, -1L);
+        return player.usedUltimateAt;
     }
 
     /**
@@ -350,37 +290,6 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
         }
 
         return duration - (System.currentTimeMillis() - getUsedUltimateAt(player));
-    }
-
-    /**
-     * Clears all players who are currently using their ultimate.
-     */
-    public void clearUsingUltimate() {
-        usedUltimateAt.clear();
-    }
-
-    /**
-     * Sets if player is currently using their ultimate, then removes them after duration.
-     */
-    public final void setUsingUltimate(GamePlayer player, boolean flag, int reverseAfter) {
-        setUsingUltimate(player, flag);
-
-        cancelOldReverseTask(player);
-
-        reverseTasks.put(
-                player,
-                GameTask.runLater(() -> setUsingUltimate(player, !flag), reverseAfter)
-        );
-    }
-
-    /**
-     * Returns true if player is currently using their ultimate.
-     *
-     * @param player - Player.
-     * @return true if player is currently using their ultimate.
-     */
-    public final boolean isUsingUltimate(@Nullable GamePlayer player) {
-        return player != null && usedUltimateAt.containsKey(player);
     }
 
     /**
@@ -472,13 +381,18 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
     }
 
     /**
-     * Unleashes this hero's ultimate.
+     * Gets this hero's ultimate.
      *
-     * @return the ultimate callback. The callback will be executed if, and only if the ultimate has a cast duration.
+     * @return this hero's ultimate.
      */
-    @Nullable
-    @PreferredReturnValue("UltimateCallback#OK")
-    public abstract UltimateCallback useUltimate(@Nonnull GamePlayer player);
+    public UltimateTalent getUltimate() {
+        return ultimate;
+    }
+
+    public void setUltimate(@Nonnull UltimateTalent ultimate) {
+        this.ultimate = ultimate;
+        copyDisplayFieldsTo(ultimate);
+    }
 
     /**
      * Returns this hero a talent.
@@ -600,59 +514,11 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
     }
 
     /**
-     * Called whenever player's ultimate is over.
-     *
-     * @param player - Player.
-     */
-    public void onUltimateEnd(@Nonnull GamePlayer player) {
-    }
-
-    /**
-     * Predicate for ultimate. Return true if a player is able to use their ultimate, false otherwise.
-     *
-     * @param player - Player, who is trying to use ultimate.
-     * @return true if a player is able to use their ultimate, false otherwise.
-     */
-    public boolean predicateUltimate(@Nonnull GamePlayer player) {
-        return true;
-    }
-
-    /**
-     * Return the message that will be displayed if player CANNOT use their ultimate, aka {@link #predicateUltimate(GamePlayer)} returns false.
-     *
-     * @param player - Player, who is trying to use ultimate.
-     * @return the message that will be displayed if player CANNOT use their ultimate.
-     */
-
-    public String predicateMessage(@Nonnull GamePlayer player) {
-        return "Unable to use now.";
-    }
-
-    /**
      * Called whenever player respawns.
      *
      * @param player - Player.
      */
     public void onRespawn(@Nonnull GamePlayer player) {
-    }
-
-    /**
-     * Returns this hero ultimate.
-     *
-     * @return this hero ultimate.
-     */
-    @Nonnull
-    public UltimateTalent getUltimate() {
-        return this.ultimate;
-    }
-
-    /**
-     * Sets this hero's weapon.
-     *
-     * @param ultimate - New weapon.
-     */
-    protected void setUltimate(UltimateTalent ultimate) {
-        this.ultimate = ultimate;
     }
 
     @Nonnull
@@ -674,21 +540,6 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
      */
     public boolean isValidIfInvisible(@Nonnull GamePlayer player) {
         return false;
-    }
-
-    @PreprocessingMethod
-    public final void useUltimate0(GamePlayer player) {
-        final int castDuration = ultimate.getCastDuration();
-        final UltimateCallback callback = useUltimate(player);
-
-        if (castDuration > 0 && callback != null) {
-            new GameTask() {
-                @Override
-                public void run() {
-                    callback.callback(player);
-                }
-            }.runTaskLater(castDuration);
-        }
     }
 
     /**
@@ -767,6 +618,13 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
         final GamePlayer gamePlayer = CF.getPlayer(player);
 
         return gamePlayer != null && validatePlayer(gamePlayer);
+    }
+
+    @Nullable
+    public ItemStack getTalentItem(@Nonnull HotbarSlots slot) {
+        final Talent talent = getTalent(slot);
+
+        return talent != null ? talent.getItem() : null;
     }
 
     @Nullable
@@ -918,11 +776,6 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
         return Objects.hash(enumHero);
     }
 
-    protected void setUltimate(UltimateTalent ultimate, Consumer<UltimateTalent> andThen) {
-        setUltimate(ultimate);
-        andThen.accept(ultimate);
-    }
-
     @Override
     protected Object clone() throws CloneNotSupportedException {
         throw new CloneNotSupportedException("Heroes cannot be cloned.");
@@ -942,11 +795,4 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
         talentsMapped.put(talent, slot);
     }
 
-    private void cancelOldReverseTask(GamePlayer player) {
-        final GameTask oldTask = reverseTasks.remove(player);
-
-        if (oldTask != null && !oldTask.isCancelled()) {
-            oldTask.cancel();
-        }
-    }
 }

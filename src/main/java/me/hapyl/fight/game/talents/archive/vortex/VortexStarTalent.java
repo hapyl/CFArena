@@ -11,39 +11,40 @@ import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
 
-public class VortexStar extends Talent {
+public class VortexStarTalent extends Talent {
 
-    @DisplayField private final short maximumStars = 7;
-    @DisplayField private final int pickupCooldown = 30;
-    @DisplayField private final int summonCooldown = 100;
+    @DisplayField private final short maximumStars = 5;
+    @DisplayField public final double healthSacrificePerStar = 100d / maximumStars;
+    @DisplayField public final double maxStarDamage = healthSacrificePerStar / 5;
 
-    private final PlayerMap<AstralStars> stars = PlayerMap.newMap();
+    private final PlayerMap<AstralStarList> stars = PlayerMap.newMap();
 
-    public VortexStar() {
+    public VortexStarTalent() {
         super("Astral Star");
 
         setDescription("""
-                Summon an &eAstral Star&7 at your current location.
-                &8&o;;If used nearby a star, it will be picked up.
+                &4Sacrifice &c{healthSacrificePerStar} ❤&7 to summon an &eAstral Star&7 at your &ncurrent&7 location.
                                 
-                &7&o;;The stars are your guide! But only &b&o{maximumStars}&7&o can exist at the same time.
+                The &estar&7 inherits the &4sacrificed &c❤&7 and &ncan&7 be destroyed.
+                                
+                &c;;If the star is destroyed, the sacrificed health will &nnot&c be returned!
+                                
+                &8;;Up to {maximumStars} stars can exist simultaneously.
                 """);
 
         setType(Type.CREATABLE);
         setItem(Material.NETHER_STAR);
-        setCooldown(DYNAMIC);
+        setCooldown(100);
     }
 
     @Override
     public void onDeath(@Nonnull GamePlayer player) {
-        getStars(player).clear();
-        stars.remove(player);
+        stars.removeAnd(player, AstralStarList::clear);
     }
 
     @Override
     public void onStop() {
-        stars.values().forEach(AstralStars::clear);
-        stars.clear();
+        stars.forEachAndClear(AstralStarList::clear);
     }
 
     public int getStarAmount(GamePlayer player) {
@@ -51,8 +52,8 @@ public class VortexStar extends Talent {
     }
 
     @Nonnull
-    public AstralStars getStars(GamePlayer player) {
-        return stars.computeIfAbsent(player, AstralStars::new);
+    public AstralStarList getStars(GamePlayer player) {
+        return stars.computeIfAbsent(player, AstralStarList::new);
     }
 
     @Override
@@ -60,26 +61,20 @@ public class VortexStar extends Talent {
         new GameTask() {
             @Override
             public void run() {
-                stars.values().forEach(AstralStars::tick);
+                stars.values().forEach(AstralStarList::tick);
             }
-        }.runTaskTimer(0, 3);
+        }.runTaskTimer(0, 1);
     }
 
     @Override
     public Response execute(@Nonnull GamePlayer player) {
         final int starsAmount = getStarAmount(player);
-        final AstralStars stars = getStars(player);
-        final AstralStar nearestStar = stars.getFirstStarToPickup();
+        final AstralStarList stars = getStars(player);
 
-        if (nearestStar != null) {
-            stars.removeStar(nearestStar);
-            startCd(player, pickupCooldown);
+        final double health = player.getHealth();
 
-            // Fx
-            player.playSound(Sound.BLOCK_BELL_RESONATE, 1.95f);
-            player.sendMessage("&e⭐ &aPicked up an Astral Star.");
-
-            return Response.AWAIT;
+        if (health < healthSacrificePerStar + 1) {
+            return Response.error("Not enough health!");
         }
 
         if (starsAmount >= maximumStars) {
@@ -87,8 +82,7 @@ public class VortexStar extends Talent {
             return Response.error("Out of Astral Stars!");
         }
 
-        stars.summonStar(player.getEyeLocation());
-        startCd(player, summonCooldown);
+        stars.summonStar(player.getEyeLocation(), this);
 
         // Fx
         player.playSound(Sound.BLOCK_BELL_USE, 1.75f);

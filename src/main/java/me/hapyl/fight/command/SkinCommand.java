@@ -7,7 +7,8 @@ import com.google.gson.JsonObject;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
+import me.hapyl.spigotutils.module.util.ArgumentList;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -32,12 +33,12 @@ public class SkinCommand extends CFCommand {
     }
 
     @Override
-    protected void execute(@Nonnull Player player, @Nonnull String[] args, @Nonnull PlayerRank rank) {
-        final String argument = getArgument(args, 0).toString();
+    protected void execute(@Nonnull Player player, @Nonnull ArgumentList args, @Nonnull PlayerRank rank) {
+        final String argument = args.get(0).toString();
 
         if (argument.equalsIgnoreCase("reset")) {
             PlayerSkin.reset(player);
-            Message.success(player, "Reset your skin!");
+            Notifier.success(player, "Reset your skin!");
             return;
         }
 
@@ -45,11 +46,11 @@ public class SkinCommand extends CFCommand {
 
         if (cachedSkin != null) {
             applySkin(player, null, cachedSkin);
-            Message.success(player, "Applied skin!");
+            Notifier.success(player, "Applied skin!");
             return;
         }
 
-        Message.info(player, ChatColor.ITALIC + "Fetching skin...");
+        Notifier.info(player, ChatColor.ITALIC + "Fetching skin...");
 
         new BukkitRunnable() {
             @Override
@@ -57,28 +58,28 @@ public class SkinCommand extends CFCommand {
                 final JsonObject uuidJson = getJson(nameToUuidRequest.formatted(argument));
 
                 if (uuidJson == null) {
-                    Message.error(player, "Invalid username!");
+                    Notifier.error(player, "Invalid username!");
                     return;
                 }
 
                 final JsonElement uuid = uuidJson.get("id");
 
                 if (uuid == null) {
-                    Message.error(player, "Invalid username!");
+                    Notifier.error(player, "Invalid username!");
                     return;
                 }
 
                 final JsonObject profileObject = getJson(uuidToProfileRequest.formatted(uuid.getAsString()));
 
                 if (profileObject == null) {
-                    Message.error(player, "Could not get profile, try again in a minute.");
+                    Notifier.error(player, "Could not get profile, try again in a minute.");
                     return;
                 }
 
                 final JsonArray jsonArray = profileObject.get("properties").getAsJsonArray();
 
                 if (jsonArray.isEmpty()) {
-                    Message.error(player, "Somehow there are no textures for {}!", argument);
+                    Notifier.error(player, "Somehow there are no textures for {}!", argument);
                     return;
                 }
 
@@ -95,8 +96,8 @@ public class SkinCommand extends CFCommand {
     private void applySkin(Player player, String skinName, PlayerSkin skin) {
         skin.apply(player);
 
-        Message.success(player, "Applied skin!");
-        Message.success(player, getUsage() + " reset to reset your skin!");
+        Notifier.success(player, "Applied skin!");
+        Notifier.success(player, getUsage() + " reset to reset your skin!");
 
         if (skinName != null) {
             PlayerSkin.cache.cache(skinName, skin);

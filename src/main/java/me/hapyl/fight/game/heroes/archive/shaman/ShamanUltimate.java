@@ -7,6 +7,7 @@ import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -25,8 +26,8 @@ public class ShamanUltimate extends UltimateTalent {
             .newInstance()
             .increase(AttributeType.EFFECT_RESISTANCE, effectResIncrease);
 
-    public ShamanUltimate(@Nonnull Hero hero) {
-        super(hero, "Spiritual Cleansing", 45);
+    public ShamanUltimate() {
+        super("Spiritual Cleansing", 45);
 
         setDescription("""
                 Instantly cleanse all &cnegative&7 effects from nearby &aallies&7.
@@ -40,8 +41,9 @@ public class ShamanUltimate extends UltimateTalent {
         setCooldownSec(30);
     }
 
+    @Nonnull
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
         Collect.nearbyEntities(player.getLocation(), increaseRadius).forEach(entity -> {
             if (!player.isSelfOrTeammate(entity)) {
                 return;
@@ -71,6 +73,6 @@ public class ShamanUltimate extends UltimateTalent {
         player.playWorldSound(Sound.ENTITY_ILLUSIONER_CAST_SPELL, 1.25f);
         player.playWorldSound(Sound.ENTITY_ILLUSIONER_PREPARE_MIRROR, 1.25f);
 
-        return Response.OK;
+        return UltimateResponse.OK;
     }
 }

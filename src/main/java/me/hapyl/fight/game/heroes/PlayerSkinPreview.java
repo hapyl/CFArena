@@ -1,10 +1,14 @@
 package me.hapyl.fight.game.heroes;
 
+import me.hapyl.fight.game.cosmetic.skin.Skin;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.Slot;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.task.TickingGameTask;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
+import me.hapyl.spigotutils.module.reflect.npc.ItemSlot;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -12,19 +16,37 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class PlayerSkinPreview extends TickingGameTask {
 
-    private final double rotationPerTick = 2;
+    private static final double FULL_CIRCLE_PLUS_A_LITTLE_BIT = 365;
+    private static final double ROTATION_PER_TICK = 2;
 
-    private final Player player;
-    private final PlayerSkin skin;
+    public final Player player;
+    public final Hero hero;
+    public final PlayerSkin skin;
+    public final Equipment equipment;
+
     protected HumanNPC npc;
     private double rotation = 0;
 
-    public PlayerSkinPreview(@Nonnull Player player, @Nonnull PlayerSkin skin) {
+    public PlayerSkinPreview(@Nonnull Player player, Hero hero, Skin skin) {
+        this(
+                player,
+                skin == null ? hero : skin.getHero().getHero(),
+                skin == null ? hero.getEquipment() : skin.getEquipment()
+        );
+    }
+
+    PlayerSkinPreview(@Nonnull Player player, @Nonnull Hero hero, @Nullable Equipment equipment) {
         this.player = player;
-        this.skin = skin;
+        this.hero = hero;
+
+        final PlayerSkin heroSkin = hero.getSkin();
+        this.skin = heroSkin != null ? heroSkin : PlayerSkin.of(player);
+
+        this.equipment = equipment;
 
         final Location location = player.getLocation();
         final Vector direction = location.getDirection().normalize().setY(0.0d);
@@ -40,12 +62,21 @@ public class PlayerSkinPreview extends TickingGameTask {
         location.setDirection(directionTowardsPlayer);
 
         if (!location.getBlock().isEmpty()) {
-            Message.error(player, "Could not preview skin because there is nowhere to put it! (Move away from blocks)");
+            Notifier.error(player, "Could not preview skin because there is nowhere to put it! (Move away from blocks)");
             return;
         }
 
         npc = new HumanNPC(location, null);
         npc.setSkin(skin.getTexture(), skin.getSignature());
+
+        if (equipment != null) {
+            npc.setItem(ItemSlot.HEAD, equipment.getItem(Slot.HELMET));
+            npc.setItem(ItemSlot.CHEST, equipment.getItem(Slot.CHESTPLATE));
+            npc.setItem(ItemSlot.LEGS, equipment.getItem(Slot.LEGGINGS));
+            npc.setItem(ItemSlot.FEET, equipment.getItem(Slot.BOOTS));
+            npc.setItem(ItemSlot.MAINHAND, hero.getWeapon().getItem());
+        }
+
         npc.show(player);
 
         runTaskTimer(1, 1);
@@ -60,7 +91,7 @@ public class PlayerSkinPreview extends TickingGameTask {
 
         final Location location = npc.getLocation();
 
-        if (rotation > 360) {
+        if (rotation > FULL_CIRCLE_PLUS_A_LITTLE_BIT) {
             npc.remove();
             cancel();
 
@@ -70,14 +101,15 @@ public class PlayerSkinPreview extends TickingGameTask {
         }
 
         // Swing
-        if (rotation > 0 && rotation % (100 / rotationPerTick) == 0) {
+        if (rotation > 0 && rotation % (100 / ROTATION_PER_TICK) == 0) {
             npc.swingMainHand();
             PlayerLib.playSound(player, location, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.0f);
         }
 
-        location.setYaw((float) (location.getYaw() + rotationPerTick));
+        location.setYaw((float) (location.getYaw() + ROTATION_PER_TICK));
         npc.teleport(location);
 
-        rotation += rotationPerTick;
+        rotation += ROTATION_PER_TICK;
     }
+
 }

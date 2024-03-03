@@ -5,15 +5,7 @@ import javax.annotation.Nonnull;
 /**
  * An entry with name and description, usually an enum.
  */
-public interface Described {
-
-    /**
-     * Gets a name of this object.
-     *
-     * @return name of the object.
-     */
-    @Nonnull
-    String getName();
+public interface Described extends Named {
 
     /**
      * Gets a description of this object.

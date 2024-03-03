@@ -5,10 +5,8 @@ import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
 import me.hapyl.fight.game.*;
-import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
-import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.EntityData;
@@ -37,7 +35,7 @@ import me.hapyl.fight.game.weapons.BowWeapon;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.guesswho.GuessWho;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.parkour.Data;
@@ -106,7 +104,7 @@ public class PlayerHandler implements Listener {
         }
 
         if (profile.getRank().isStaff()) {
-            Message.broadcastStaff("{} joined.", player.getName());
+            Notifier.broadcastStaff("{} joined.", player.getName());
         }
 
         LocalTeamManager.updateAll();
@@ -150,7 +148,7 @@ public class PlayerHandler implements Listener {
         }
 
         if (profile.getRank().isStaff()) {
-            Message.broadcastStaff("{} left.", player.getName());
+            Notifier.broadcastStaff("{} left.", player.getName());
         }
 
         // Save database
@@ -268,79 +266,29 @@ public class PlayerHandler implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handlePlayerSwapEvent(PlayerSwapHandItemsEvent ev) {
-        final GamePlayer gamePlayer = CF.getPlayer(ev.getPlayer());
+        final GamePlayer player = CF.getPlayer(ev.getPlayer());
 
-        if (gamePlayer == null) {
+        if (player == null) {
             return;
         }
 
         ev.setCancelled(true);
 
-        if (!gamePlayer.isAbleToUseAbilities()) {
+        if (!player.isAbleToUseAbilities()) {
             return;
         }
 
         // Ultimate is not ready
-        if (!gamePlayer.isUltimateReady()) {
-            gamePlayer.sendTitle("&4&l※", "&cYour ultimate isn't ready!", 5, 15, 5);
-            gamePlayer.sendMessage("&4&l※ &cYour ultimate isn't ready!");
+        if (!player.isUltimateReady()) {
+            player.sendTitle("&4&l※", "&cYour ultimate isn't ready!", 5, 15, 5);
+            player.sendMessage("&4&l※ &cYour ultimate isn't ready!");
             return;
         }
 
-        final Hero hero = gamePlayer.getHero();
+        final Hero hero = player.getHero();
         final UltimateTalent ultimate = hero.getUltimate();
 
-        // Ultimate is on cooldown
-        if (ultimate.hasCd(gamePlayer)) {
-            if (gamePlayer.isSettingEnabled(Settings.SHOW_COOLDOWN_MESSAGE)) {
-                gamePlayer.sendMessage(
-                        "&4&l※ &cYour ultimate is on cooldown for %s!",
-                        CFUtils.decimalFormatTick(ultimate.getCdTimeLeft(gamePlayer))
-                );
-            }
-            return;
-        }
-
-        // Predicate fails
-        if (!hero.predicateUltimate(gamePlayer)) {
-            gamePlayer.sendMessage(
-                    "&4&l※ &cCannot use ultimate! %s",
-                    hero.predicateMessage(gamePlayer)
-            );
-            return;
-        }
-
-        // Already using ultimate
-        if (hero.isUsingUltimate(gamePlayer)) {
-            gamePlayer.sendMessage("&4&l※ &cYou are already using ultimate!");
-            return;
-        }
-
-        // Ultimate used
-        hero.useUltimate0(gamePlayer);
-        ultimate.startCd(gamePlayer);
-        gamePlayer.setUltPoints(0);
-
-        // Stats
-        gamePlayer.getStats().addValue(StatType.ULTIMATE_USED, 1);
-
-        // Progress bond
-        ChallengeType.USE_ULTIMATES.progress(gamePlayer);
-
-        if (hero.getUltimateDuration() > 0) {
-            hero.setUsingUltimate(gamePlayer, true, hero.getUltimateDuration());
-        }
-
-        // Achievement
-        Achievements.USE_ULTIMATES.complete(gamePlayer);
-
-        for (final Player online : Bukkit.getOnlinePlayers()) {
-            Chat.sendMessage(
-                    online,
-                    "&b&l※ &b%s used &l%s&7!".formatted((gamePlayer.is(online) ? "You" : gamePlayer.getName()), ultimate.getName())
-            );
-            PlayerLib.playSound(online, ultimate.getSound(), ultimate.getPitch());
-        }
+        ultimate.execute(player);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -471,7 +419,7 @@ public class PlayerHandler implements Listener {
 
             // Teammate check
             if (entityTeam != null && lastDamager != null && !gameEntity.equals(lastDamager) && entityTeam.isEntry(Entry.of(lastDamager))) {
-                lastDamager.sendMessage("&cCannot damage teammates!");
+                gameEntity.onTeammateDamage(lastDamager);
                 ev.setCancelled(true);
                 ev.setDamage(0.0d);
                 return;
@@ -924,6 +872,8 @@ public class PlayerHandler implements Listener {
             player.setInputTalent(null);
             player.snapToWeapon();
         }
+
+        talent.onUse(player);
 
         if (!checkResponse(player, response)) {
             return;

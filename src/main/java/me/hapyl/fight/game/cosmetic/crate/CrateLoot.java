@@ -5,7 +5,7 @@ import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Rarity;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -51,7 +51,7 @@ public final class CrateLoot {
 
     public void createLoot() {
         if (loot != null) {
-            Message.error(player, "Loot already generated!");
+            Notifier.error(player, "Loot already generated!");
             return;
         }
 
@@ -60,20 +60,20 @@ public final class CrateLoot {
         final Rarity randomRarity = (Rarity) crate.getSchema().random();
 
         if (randomRarity == null) {
-            Message.Error.CANNOT_FETCH_CRATE_ITEM.send(player, "randomRarity");
+            Notifier.Error.CANNOT_FETCH_CRATE_ITEM.send(player, "randomRarity");
             return;
         }
 
         final Cosmetics randomItem = contents.randomItem(randomRarity);
 
         if (randomItem == null) {
-            Message.Error.CANNOT_FETCH_CRATE_ITEM.send(player, "randomItem");
+            Notifier.Error.CANNOT_FETCH_CRATE_ITEM.send(player, "randomItem");
             return;
         }
 
         // Check if player still has a crate
         if (!database.crateEntry.hasCrate(enumCrate)) {
-            Message.Error.CANNOT_FIND_CRATE.send(player, enumCrate.getCrate().getName());
+            Notifier.Error.CANNOT_FIND_CRATE.send(player, enumCrate.getCrate().getName());
             return;
         }
 

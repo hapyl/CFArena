@@ -8,6 +8,7 @@ import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.tamer.MineOBall;
@@ -68,22 +69,7 @@ public class Tamer extends Hero implements Listener, UIComponent {
                 .setId("tamer_weapon")
                 .setDamage(2.0d)); // This is melee damage, weapon damage is handled in the event
 
-        setUltimate(new UltimateTalent(this, "Improve! Overcome!", """
-                Improve the &bduration&7 and &aeffectiveness&7 of your talents and beasts.
-                """, 50)
-                .setType(Talent.Type.ENHANCE)
-                .setItem(Material.LINGERING_POTION, builder -> {
-                    builder.setPotionColor(Color.ORANGE);
-                })
-                .setCooldownSec(70)
-                .setDurationSec(60)
-        );
-    }
-
-    @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        // TODO -> Add FX
-        return UltimateCallback.OK;
+        setUltimate(new TamerUltimate());
     }
 
     public ActiveTamerPack getPlayerPack(GamePlayer player) {
@@ -192,4 +178,28 @@ public class Tamer extends Hero implements Listener, UIComponent {
         return pack.getName() + " " + pack.getPack().toString(pack) + " &e⌚ " + CFUtils.decimalFormatTick(duration);
     }
 
+    private class TamerUltimate extends UltimateTalent {
+        public TamerUltimate() {
+            super("Improve! Overcome!", 50);
+
+            setDescription("""
+                    Improve the &bduration&7 and &aeffectiveness&7 of your talents and beasts.
+                    """);
+
+            setType(Talent.Type.ENHANCE);
+            setItem(Material.LINGERING_POTION, builder -> {
+                builder.setPotionColor(Color.ORANGE);
+            });
+            setCooldownSec(70);
+            setDurationSec(60);
+
+        }
+
+        @Nonnull
+        @Override
+        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+            // TODO -> Add FX
+            return UltimateResponse.OK;
+        }
+    }
 }

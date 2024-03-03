@@ -3,8 +3,6 @@ package me.hapyl.fight.game.attribute;
 import com.google.common.collect.Lists;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.translate.Language;
-import me.hapyl.fight.translate.TranslatableToString;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Described;
 import me.hapyl.spigotutils.module.math.Numbers;
@@ -13,7 +11,7 @@ import org.bukkit.ChatColor;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public enum AttributeType implements Described, TranslatableToString {
+public enum AttributeType implements Described {
 
     MAX_HEALTH(
             new Attribute("Health", "Maximum health of an entity.") {
@@ -335,12 +333,6 @@ public enum AttributeType implements Described, TranslatableToString {
         final ChatColor color = attribute.getColor();
 
         return color + attribute.getCharacter() + " " + color + getName() + "&7";
-    }
-
-    @Nonnull
-    @Override
-    public String toString(@Nonnull Language language) {
-        return toString();
     }
 
     @Nonnull

@@ -51,15 +51,15 @@ public class Entry {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(uuid);
+    }
+
+    @Override
     public String toString() {
         final Player player = getPlayer();
 
         return player != null ? player.getName() : uuid.toString();
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(uuid);
     }
 
     public boolean isNotPlayer() {

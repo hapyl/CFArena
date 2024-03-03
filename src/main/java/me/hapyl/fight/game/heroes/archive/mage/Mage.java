@@ -5,6 +5,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
@@ -46,29 +47,7 @@ public class Mage extends Hero implements UIComponent {
 
         setWeapon(new MageWeapon(this));
 
-        setUltimate(new UltimateTalent(
-                this, "Magical Trainings", """
-                Retrieve two ancient spells and use one of them to your advantage!
-                                        
-                %s
-                %s
-                Only one of the spells can be used at the same time, and you will &nnot&7 gain &b&l※ &7until spell is over.
-                """.formatted(spellWyvernHeart.getFormatted(), spellDragonSkin.getFormatted()),
-                50
-        ).setItem(Material.WRITABLE_BOOK)
-                .setType(Talent.Type.ENHANCE)
-                .setCooldownSec(-1));
-    }
-
-    @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        setUsingUltimate(player, true);
-
-        player.setItem(HotbarSlots.TALENT_3, spellWyvernHeart.getSpellItem());
-        player.setItem(HotbarSlots.TALENT_5, spellDragonSkin.getSpellItem());
-        player.snapTo(HotbarSlots.TALENT_4);
-
-        return UltimateCallback.OK;
+        setUltimate(new MageUltimate());
     }
 
     @Override
@@ -120,5 +99,36 @@ public class Mage extends Hero implements UIComponent {
     public @Nonnull String getString(@Nonnull GamePlayer player) {
         final int souls = getSouls(player);
         return "&e⦾ &l" + souls + (souls == maxSoulsAmount ? " FULL!" : "");
+    }
+
+    private class MageUltimate extends UltimateTalent {
+        public MageUltimate() {
+            super("Magical Trainings", 50);
+
+
+            setDescription("""
+                    Retrieve two ancient spells and use one of them to your advantage!
+                                            
+                    %s
+                    %s
+                    Only one of the spells can be used at the same time, and you will &nnot&7 gain &b&l※ &7until spell is over.
+                    """.formatted(spellWyvernHeart.getFormatted(), spellDragonSkin.getFormatted()));
+
+            setItem(Material.WRITABLE_BOOK);
+            setType(Talent.Type.ENHANCE);
+            setCooldownSec(-1);
+        }
+
+        @Nonnull
+        @Override
+        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+            player.setUsingUltimate(true);
+
+            player.setItem(HotbarSlots.TALENT_3, spellWyvernHeart.getSpellItem());
+            player.setItem(HotbarSlots.TALENT_5, spellDragonSkin.getSpellItem());
+            player.snapTo(HotbarSlots.TALENT_4);
+
+            return UltimateResponse.OK;
+        }
     }
 }

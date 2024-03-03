@@ -84,16 +84,14 @@ public class PersistentNPC extends HumanNPC {
     }
 
     @Override
-    public final void show(@Nonnull Player... players) {
-        for (Player player : players) {
-            if (!shouldCreate(player)) {
-                return;
-            }
-
-            stopTalking();
-            super.show(player);
-            onSpawn(player);
+    public final void show(@Nonnull Player player) {
+        if (!shouldCreate(player)) {
+            return;
         }
+
+        stopTalking();
+        super.show(player);
+        onSpawn(player);
     }
 
     @Override

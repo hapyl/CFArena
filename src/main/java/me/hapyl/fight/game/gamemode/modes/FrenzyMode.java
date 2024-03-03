@@ -43,7 +43,7 @@ public class FrenzyMode extends CFGameMode {
     }
 
     @Override
-    public void formatScoreboard(Scoreboarder builder, GameInstance instance, GamePlayer player) {
+    public void formatScoreboard(@Nonnull Scoreboarder builder, @Nonnull GameInstance instance, @Nonnull GamePlayer player) {
         final int playerLives = playerLivesMap.getOrDefault(player, -1);
         final LinkedValue2IntegerReverseMap<GamePlayer> reverse = LinkedValue2IntegerReverseMap.of(playerLivesMap);
 

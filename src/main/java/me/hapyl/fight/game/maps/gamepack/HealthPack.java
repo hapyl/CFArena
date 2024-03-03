@@ -23,7 +23,9 @@ public class HealthPack extends GamePack {
         player.heal(HEALTH_POINTS);
 
         player.sendTitle("&c♥&4❤&c♥", "&a+&l%s".formatted(HEALTH_POINTS), 0, 15, 5);
-        player.playWorldSound(Sound.ENTITY_CHICKEN_EGG, 1.0f);
+
+        player.playWorldSound(Sound.ENTITY_ILLUSIONER_CAST_SPELL, 1.25f);
+        player.playWorldSound(Sound.ENTITY_PLAYER_LEVELUP, 2.0f);
     }
 
     @Override

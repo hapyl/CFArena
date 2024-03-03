@@ -35,7 +35,7 @@ public class Swayblade extends Talent {
         final Location location = player.getLocationInFrontFromEyes(1);
 
         Collect.nearbyEntities(location, radius).forEach(entity -> {
-            if (player.isSelfOrTeammate(entity)) {
+            if (player.isSelfOrTeammateOrHasEffectResistance(entity)) {
                 return;
             }
 

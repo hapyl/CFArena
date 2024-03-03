@@ -9,7 +9,7 @@ import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledPageGUI;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.GUI;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -132,18 +132,18 @@ public class CosmeticGUI extends StyledPageGUI<Cosmetics> {
         final Cosmetic cosmetic = content.getCosmetic();
 
         if (!content.isUnlocked(player)) {
-            Message.error(player, "This cosmetic is locked!");
+            Notifier.error(player, "This cosmetic is locked!");
             PlayerLib.villagerNo(player);
             return;
         }
 
         if (content.isSelected(player)) {
             content.deselect(player);
-            Message.success(player, Color.ERROR + "Deselected {Cosmetic}!", cosmetic.getName());
+            Notifier.success(player, Color.ERROR + "Deselected {Cosmetic}!", cosmetic.getName());
         }
         else {
             content.select(player);
-            Message.success(player, "Selected {Cosmetic} as {Type}!", cosmetic.getName(), cosmetic.getType().getName());
+            Notifier.success(player, "Selected {Cosmetic} as {Type}!", cosmetic.getName(), cosmetic.getType().getName());
         }
 
         PlayerLib.plingNote(player, 2.0f);

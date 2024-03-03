@@ -81,7 +81,7 @@ public class TrialObjectiveShock extends TrialObjective {
 
             @Override
             public void andThen(@Nonnull TrialEntity trialEntity) {
-                trialEntity.setForceValid(true);
+                trialEntity.setValidState(true);
             }
         });
     }

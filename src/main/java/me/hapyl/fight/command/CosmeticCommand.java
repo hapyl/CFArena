@@ -7,7 +7,7 @@ import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.cosmetic.gui.CollectionGUI;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.command.SimplePlayerCommand;
 import me.hapyl.spigotutils.module.util.Validate;
@@ -64,7 +64,7 @@ public class CosmeticCommand extends SimplePlayerCommand {
                     final Player target = Bukkit.getPlayer(args[1]);
 
                     if (target == null) {
-                        Message.Error.PLAYER_NOT_ONLINE.send(player, args[1]);
+                        Notifier.Error.PLAYER_NOT_ONLINE.send(player, args[1]);
                         return;
                     }
 
@@ -75,14 +75,14 @@ public class CosmeticCommand extends SimplePlayerCommand {
                         cosmetics.addOwned(value);
                     }
 
-                    Message.success(player, "Gave all cosmetics to {}.", target.getName());
+                    Notifier.success(player, "Gave all cosmetics to {}.", target.getName());
                     Chat.sendMessage(target, "&aAn admin gave you all the cosmetics. Wow!");
                 }
                 case "removeall" -> {
                     final Player target = Bukkit.getPlayer(args[1]);
 
                     if (target == null) {
-                        Message.Error.PLAYER_NOT_ONLINE.send(player, args[1]);
+                        Notifier.Error.PLAYER_NOT_ONLINE.send(player, args[1]);
                         return;
                     }
 
@@ -93,7 +93,7 @@ public class CosmeticCommand extends SimplePlayerCommand {
                         cosmetics.removeOwned(value);
                     }
 
-                    Message.success(player, "Removed all cosmetics from {}.", target.getName());
+                    Notifier.success(player, "Removed all cosmetics from {}.", target.getName());
                     Chat.sendMessage(target, "&aAn admin took away all your cosmetics.");
                 }
             }

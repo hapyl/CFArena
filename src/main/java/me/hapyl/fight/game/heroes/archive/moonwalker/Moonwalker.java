@@ -7,11 +7,14 @@ import me.hapyl.fight.game.entity.EquipmentSlot;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.archive.moonwalker.MoonPillarTalent;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.ability.held.HeldData;
+import me.hapyl.fight.util.collection.player.PlayerDataMap;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
@@ -19,7 +22,9 @@ import org.bukkit.inventory.ItemStack;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class Moonwalker extends Hero implements PlayerElement, DisabledHero, UIComponent {
+public class Moonwalker extends Hero implements DisabledHero, PlayerDataHandler<MoonwalkerData>, PlayerElement, UIComponent {
+
+    private final PlayerDataMap<MoonwalkerData> playerData = PlayerMap.newDataMap(MoonwalkerData::new);
 
     public Moonwalker(@Nonnull Heroes handle) {
         super(handle, "Moonwalker");
@@ -41,7 +46,7 @@ public class Moonwalker extends Hero implements PlayerElement, DisabledHero, UIC
         equipment.setBoots(45, 28, 77);
 
         setWeapon(new MoonwalkerWeapon());
-        setUltimate(new MoonwalkerUltimate(this));
+        setUltimate(new MoonwalkerUltimate());
     }
 
     @Override
@@ -58,23 +63,6 @@ public class Moonwalker extends Hero implements PlayerElement, DisabledHero, UIC
     @Nullable
     public Block getTargetBlock(GamePlayer player) {
         return player.getTargetBlockExact(25);
-    }
-
-    @Override
-    public boolean predicateUltimate(@Nonnull GamePlayer player) {
-        return getTargetBlock(player) != null;
-    }
-
-    @Override
-    public String predicateMessage(@Nonnull GamePlayer player) {
-        return "Not a valid block!";
-    }
-
-    @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        getUltimate().execute(player);
-
-        return UltimateCallback.OK;
     }
 
     @Override
@@ -105,5 +93,11 @@ public class Moonwalker extends Hero implements PlayerElement, DisabledHero, UIC
         final HeldData data = weapon.ability.getHeldData(player);
 
         return "- " + data.getUnit();
+    }
+
+    @Nonnull
+    @Override
+    public PlayerDataMap<MoonwalkerData> getDataMap() {
+        return playerData;
     }
 }

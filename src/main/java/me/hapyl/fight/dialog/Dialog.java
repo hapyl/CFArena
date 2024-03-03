@@ -6,7 +6,7 @@ import me.hapyl.fight.database.entry.MetadataKey;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.registry.EnumId;
 import me.hapyl.fight.util.Keyed;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -37,7 +37,7 @@ public class Dialog extends EnumId implements Keyed<MetadataKey> {
         final PlayerProfile profile = PlayerProfile.getProfile(player);
 
         if (profile == null) {
-            Message.error(player, "Cannot start dialog because you don't have a profile somehow?");
+            Notifier.error(player, "Cannot start dialog because you don't have a profile somehow?");
             return;
         }
 

@@ -39,6 +39,7 @@ public class PhysGun extends Weapon {
         final CaptureData data = capturedEntity.remove(player);
 
         player.setItem(HotbarSlots.HERO_ITEM, null);
+        player.setUsingUltimate(false);
         player.snapToWeapon();
 
         if (data == null) {

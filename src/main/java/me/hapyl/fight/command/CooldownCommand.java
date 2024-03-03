@@ -54,7 +54,7 @@ public class CooldownCommand extends SimplePlayerAdminCommand {
         }
 
         gamePlayer.getUltimate().stopCd(gamePlayer);
-        gamePlayer.getHero().setUsingUltimate(gamePlayer, false);
+        gamePlayer.setUsingUltimate(false);
 
         gamePlayer.sendMessage("&aReset cooldowns!");
     }

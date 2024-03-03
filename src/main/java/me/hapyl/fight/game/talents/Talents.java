@@ -100,7 +100,7 @@ import me.hapyl.fight.game.talents.archive.vampire.BatSwarm;
 import me.hapyl.fight.game.talents.archive.vampire.VampirePet;
 import me.hapyl.fight.game.talents.archive.vortex.StarAligner;
 import me.hapyl.fight.game.talents.archive.vortex.VortexSlash;
-import me.hapyl.fight.game.talents.archive.vortex.VortexStar;
+import me.hapyl.fight.game.talents.archive.vortex.VortexStarTalent;
 import me.hapyl.fight.game.talents.archive.witcher.*;
 import me.hapyl.fight.game.talents.archive.zealot.BrokenHeartRadiation;
 import me.hapyl.fight.game.talents.archive.zealot.FerociousStrikes;
@@ -308,16 +308,16 @@ public enum Talents {
      * {@link me.hapyl.fight.game.heroes.archive.vortex.Vortex}
      */
     VORTEX_SLASH(new VortexSlash()),
-    VORTEX_STAR(new VortexStar()),
+    VORTEX_STAR(new VortexStarTalent()),
     STAR_ALIGNER(new StarAligner()),
     LIKE_A_DREAM(new PassiveTalent(
             "Like a Dream", """
-            Using %1$s grants you one stack of %2$s&7.
+            &6Linking&7 to an &eAstral Star&7 grants you one stack of %1$s&7.
                         
-            Each %2$s&7 stack increases &6Astral Slash&7 DMG by &b15%%&7.
+            Each %1$s&7 stack increases your &6astral&7 damage by &b15%%&7.
                         
             &8;;Lose one stack after not gaining a stack for 5s.
-            """.formatted(Talents.STAR_ALIGNER.getName(), Named.ASTRAL_SPARK),
+            """.formatted(Named.ASTRAL_SPARK),
             Material.RED_BED
     )),
 
@@ -395,8 +395,9 @@ public enum Talents {
             "Climb", """
             Raised by the &ajungle&7, Juju mastered the ability to &2climb&7 &nanything&7.
 
-            &6&lJUMP&7 no the wall to grab onto it and &bdescend&7 slowly.
-            &6&lSNEAK&7 to climb upwards.
+            &6Jump&7 on a wall to grab onto it and &bdesccent&7 slowly.
+            &6Sneak&7 to climb upwards.
+            &6Double Jump&7 to dash backwards.
             """, Material.LEATHER_BOOTS
     )),
 

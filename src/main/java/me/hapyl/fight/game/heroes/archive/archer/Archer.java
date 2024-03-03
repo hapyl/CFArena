@@ -2,9 +2,10 @@ package me.hapyl.fight.game.heroes.archive.archer;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
-import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.entity.EquipmentSlot;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
@@ -27,6 +28,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
 
@@ -66,31 +68,15 @@ public class Archer extends Hero implements Listener {
         equipment.setLeggings(75, 75, 87);
         equipment.setBoots(51, 51, 51);
 
-        setUltimate(new UltimateTalent(
-                this,
-                "Boom Bow",
-                "Equip a &6&lBOOM BOW &7for {duration} that fires explosive arrows that explode on impact dealing with massive &ftrue damage&7.",
-                60
-        ).setItem(Material.BLAZE_POWDER)
-                .setDurationSec(6)
-                .setCooldownSec(20)
-                .setSound(Sound.ITEM_CROSSBOW_SHOOT, 0.25f));
+        setUltimate(new ArcherUltimate());
 
         getUltimate().addAttributeDescription("Explosion Radius", explosionRadius + " blocks");
         getUltimate().addAttributeDescription("Explosion Damage", explosionDamage);
     }
 
     @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        player.setItemAndSnap(HotbarSlots.HERO_ITEM, boomBow.getItem());
-        player.setCooldown(boomBow.getMaterial(), boomBowPerShotCd);
-
-        GameTask.runLater(() -> {
-            player.setItem(HotbarSlots.HERO_ITEM, null);
-            player.snapToWeapon();
-        }, getUltimateDuration());
-
-        return UltimateCallback.OK;
+    public void onStart(@Nonnull GamePlayer player) {
+        player.setItem(EquipmentSlot.ARROW, new ItemStack(Material.ARROW));
     }
 
     @Override
@@ -140,7 +126,11 @@ public class Archer extends Hero implements Listener {
             // Handle ultimate arrows
             final Color color = arrow.getColor();
 
-            if (isUsingUltimate(player) && color == null) {
+            if (!validatePlayer(player)) {
+                return;
+            }
+
+            if (player.isUsingUltimate() && color == null) {
                 boomArrows.add(arrow);
 
                 player.setCooldown(boomBow.getMaterial(), boomBowPerShotCd);
@@ -148,7 +138,7 @@ public class Archer extends Hero implements Listener {
             }
 
             // Handle hawkeye arrows
-            if (!validatePlayer(player) || !player.isHeldSlot(HotbarSlots.WEAPON) || !arrow.isCritical() || !player.isSneaking()) {
+            if (!player.isHeldSlot(HotbarSlots.WEAPON) || !arrow.isCritical() || !player.isSneaking()) {
                 return;
             }
 
@@ -159,6 +149,8 @@ public class Archer extends Hero implements Listener {
             arrow.setColor(hawkeyeArrowColors);
 
             new GameTask() {
+                private int tick;
+
                 @Override
                 public void run() {
                     if (arrow.isDead()) {
@@ -166,8 +158,17 @@ public class Archer extends Hero implements Listener {
                         return;
                     }
 
-                    player.spawnWorldParticle(arrow.getLocation(), Particle.CRIT_MAGIC, 5, 0, 0, 0, 0);
+                    ++tick;
+
                     final Entity target = findNearestTarget(player, arrow.getLocation());
+
+                    // Fx
+                    final Location location = arrow.getLocation();
+
+                    if (tick % 2 == 0) {
+                        player.spawnWorldParticle(location, Particle.CRIT_MAGIC, 5, 0, 0, 0, 0);
+                        player.playWorldSound(location, Sound.ENTITY_ELDER_GUARDIAN_AMBIENT_LAND, 2.0f);
+                    }
 
                     if (target == null) {
                         return;
@@ -179,7 +180,9 @@ public class Archer extends Hero implements Listener {
                             .subtract(arrow.getLocation().toVector())
                             .normalize()
                             .multiply(0.7d);
+
                     arrow.setVelocity(vector);
+
                 }
             }.runTaskTimer(0, 1);
 
@@ -207,6 +210,38 @@ public class Archer extends Hero implements Listener {
     private Entity findNearestTarget(GamePlayer shooter, Location location) {
         final LivingGameEntity gameEntity = Collect.nearestEntity(location, 3.0d, shooter);
         return gameEntity == null ? null : gameEntity.getEntity();
+    }
+
+    private class ArcherUltimate extends UltimateTalent {
+        public ArcherUltimate() {
+            super("Boom Bow", 60);
+
+            setDescription("""
+                    Equip a &6&lBOOM BOW &7for {duration} that fires explosive arrows that explode on impact dealing with massive &ftrue damage&7.
+                    """);
+
+            setItem(Material.BLAZE_POWDER);
+            setSound(Sound.ITEM_CROSSBOW_SHOOT, 0.25f);
+
+            setDurationSec(6);
+            setCooldownSec(20);
+        }
+
+        @Nonnull
+        @Override
+        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+            player.setItemAndSnap(HotbarSlots.HERO_ITEM, boomBow.getItem());
+            player.setCooldown(boomBow.getMaterial(), boomBowPerShotCd);
+
+            return new UltimateResponse() {
+                @Override
+                public void onUltimateEnd(@Nonnull GamePlayer player) {
+                    player.setItem(HotbarSlots.HERO_ITEM, null);
+                    player.snapToWeapon();
+                }
+            };
+
+        }
     }
 
 }

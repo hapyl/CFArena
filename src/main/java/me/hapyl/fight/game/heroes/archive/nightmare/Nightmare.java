@@ -8,6 +8,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
@@ -54,17 +55,7 @@ public class Nightmare extends Hero implements DisplayFieldProvider {
         equipment.setLeggings(40, 0, 153);
         equipment.setBoots(30, 0, 153);
 
-        setUltimate(new UltimateTalent(
-                this, "Your Worst Nightmare",
-                "Applies the &4👻 &c&lOmen&7 to all living opponents for {duration}.",
-                55
-        ).setDuration(240)
-                .setType(Talent.Type.IMPAIR)
-                .setItem(Material.BLACK_DYE)
-                .setCooldownSec(30)
-                .setSound(Sound.ENTITY_WITCH_CELEBRATE, 0.0f));
-
-        copyDisplayFieldsToUltimate();
+        setUltimate(new NightmareUltimate());
     }
 
     @Override
@@ -109,24 +100,6 @@ public class Nightmare extends Hero implements DisplayFieldProvider {
     }
 
     @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        final OmenDebuff debuff = getDebuff(player);
-        final Set<GamePlayer> enemies = Collect.enemyPlayers(player);
-        final int enemiesSize = enemies.size();
-
-        if (enemiesSize == 0) {
-            player.sendMessage("&4👻 &cOmen didn't affect anything!");
-        }
-        else {
-            player.sendMessage("&4👻 &aOmen affected %s enemies!", enemiesSize);
-        }
-
-        enemies.forEach(enemy -> debuff.setOmen(enemy, getUltimateDuration()));
-
-        return UltimateCallback.OK;
-    }
-
-    @Override
     public void processDamageAsDamager(@Nonnull DamageInstance instance) {
         final GamePlayer damager = instance.getDamagerAsPlayer();
         final LivingGameEntity entity = instance.getEntity();
@@ -157,5 +130,40 @@ public class Nightmare extends Hero implements DisplayFieldProvider {
     @Override
     public Talent getPassiveTalent() {
         return Talents.IN_THE_SHADOWS.getTalent();
+    }
+
+    private class NightmareUltimate extends UltimateTalent {
+        public NightmareUltimate() {
+            super("Your Worst Nightmare", 55);
+
+            setDescription("""
+                    Applies the &4👻 &c&lOmen&7 to all living opponents for {duration}.
+                    """);
+
+            setType(Talent.Type.IMPAIR);
+            setItem(Material.BLACK_DYE);
+            setSound(Sound.ENTITY_WITCH_CELEBRATE, 0.0f);
+            setDurationSec(12);
+            setCooldownSec(30);
+        }
+
+        @Nonnull
+        @Override
+        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+            final OmenDebuff debuff = getDebuff(player);
+            final Set<GamePlayer> enemies = Collect.enemyPlayers(player);
+            final int enemiesSize = enemies.size();
+
+            if (enemiesSize == 0) {
+                player.sendMessage("&4👻 &cOmen didn't affect anything!");
+            }
+            else {
+                player.sendMessage("&4👻 &aOmen affected %s enemies!", enemiesSize);
+            }
+
+            enemies.forEach(enemy -> debuff.setOmen(enemy, getUltimateDuration()));
+
+            return UltimateResponse.OK;
+        }
     }
 }

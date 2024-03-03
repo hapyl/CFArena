@@ -5,7 +5,7 @@ import me.hapyl.fight.game.achievement.Achievement;
 import me.hapyl.fight.game.achievement.AchievementRegistry;
 import me.hapyl.fight.game.achievement.Category;
 import me.hapyl.fight.util.ItemStacks;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.PlayerPageGUI;
 import me.hapyl.spigotutils.module.inventory.gui.SlotPattern;
@@ -33,7 +33,7 @@ public class LegacyAchievementGUI extends PlayerPageGUI<Achievement> {
 
         registry = Main.getPlugin().getAchievementRegistry();
 
-        Message.error(player, "&lKeep in mind this is a legacy GUI, and it will not be updated or/and fixed!");
+        Notifier.error(player, "&lKeep in mind this is a legacy GUI, and it will not be updated or/and fixed!");
 
         setCategory(category);
         openInventory(1);

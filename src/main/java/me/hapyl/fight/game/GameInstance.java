@@ -43,6 +43,7 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
+import javax.swing.text.BadLocationException;
 import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
@@ -185,8 +186,8 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
 
     @Override
     public boolean checkWinCondition() {
-        if (gameState == State.POST_GAME) {
-            return true;
+        if (gameState != State.IN_GAME) {
+            return false;
         }
 
         if (mode.testWinCondition(this)) {
@@ -262,7 +263,6 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
             final Hero hero = enumHero.getHero();
 
             hero.onStop();
-            hero.clearUsingUltimate();
 
             if (hero instanceof PlayerDataHandler<?> handler) {
                 handler.resetPlayerData();

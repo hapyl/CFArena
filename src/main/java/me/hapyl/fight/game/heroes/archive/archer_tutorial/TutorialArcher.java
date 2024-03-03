@@ -8,7 +8,7 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.UltimateCallback;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.heroes.archive.archer.Archer;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talents;
@@ -37,7 +37,20 @@ public class TutorialArcher extends Hero implements DisabledHero, Listener {
         equipment.setFromEquipment(archer.getEquipment());
 
         setWeapon(archer.getWeapon());
-        setUltimate(new UltimateTalent(this, "BOOM BOW", 5));
+        setUltimate(new TutorialArcherUltimate());
+    }
+
+    private class TutorialArcherUltimate extends UltimateTalent {
+
+        public TutorialArcherUltimate() {
+            super("BOOM BOW", 5);
+        }
+
+        @Nonnull
+        @Override
+        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+            return UltimateResponse.OK;
+        }
     }
 
     @EventHandler()
@@ -73,12 +86,6 @@ public class TutorialArcher extends Hero implements DisabledHero, Listener {
     @Override
     public void onStop(@Nonnull GamePlayer player) {
 
-    }
-
-    @Nullable
-    @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        return null;
     }
 
     @Override

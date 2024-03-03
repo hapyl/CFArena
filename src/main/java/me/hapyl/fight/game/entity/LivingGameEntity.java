@@ -35,6 +35,7 @@ import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.ai.AI;
 import me.hapyl.spigotutils.module.ai.MobAI;
 import me.hapyl.spigotutils.module.annotate.Super;
+import me.hapyl.spigotutils.module.entity.EntityUtils;
 import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.Numbers;
@@ -367,6 +368,8 @@ public class LivingGameEntity extends GameEntity implements Ticking {
 
         tick = Numbers.clamp(tick, 0, maximumNoDamageTicks);
 
+        // TODO (hapyl): 002, Mar 2: Maybe add per cause cd?
+
         if (getInternalNoDamageTicks() > 0) { // noDamageTicks > 0 ||
             return;
         }
@@ -389,6 +392,14 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     @Nonnull
     public EntityLocation getEntityLocation() {
         return new EntityLocation(getLocation());
+    }
+
+    public void onTeammateDamage(@Nonnull LivingGameEntity lastDamager) {
+        lastDamager.sendMessage("&cCannot damage teammates!");
+    }
+
+    public void setCollision(@Nonnull EntityUtils.Collision collision) {
+        EntityUtils.setCollision(entity, collision);
     }
 
     private void setInternalNoDamageTicks(int ticks) {
@@ -894,7 +905,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
 
     @Nonnull
     public String getHealthFormatted() {
-        return "&c&l%.0f".formatted(Math.ceil(health)) + " &c❤";
+        return "&c&l%.0f".formatted(Math.max(0, Math.ceil(health))) + " &c❤";
     }
 
     @Nullable
@@ -1050,16 +1061,6 @@ public class LivingGameEntity extends GameEntity implements Ticking {
 
     public void modifyKnockback(@Nonnull Function<Double, Double> fn, @Nonnull Consumer<LivingGameEntity> consumer) {
         modifyKnockback(fn.apply(getKnockback()), consumer);
-    }
-
-    // Yes, this is a hack, so?
-    public void modifyKnockbackTick(@Nonnull Function<Double, Double> fn, @Nonnull Consumer<LivingGameEntity> consumer) {
-        final double kb = getKnockback();
-
-        setKnockback(fn.apply(kb));
-        consumer.accept(this);
-
-        GameTask.runLater(() -> setKnockback(kb), 2);
     }
 
     public void setTargetClosest() {

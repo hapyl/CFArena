@@ -6,6 +6,7 @@ import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.util.BFormat;
 import me.hapyl.spigotutils.module.util.Validate;
 import net.md_5.bungee.api.ChatColor;
+import org.checkerframework.checker.units.qual.C;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -85,6 +86,7 @@ public class Color {
     public static final Color BUTTON_DARKER = BUTTON.darken(0.8f);
     public static final Color M_YELLOW = new Color("#FFD700");
     public static final Color GRAYER = GRAY.darken(0.8f);
+    public static final Color SKIN = new Color("#ffdbac");
 
     // *-----------------------------------------------------*
 

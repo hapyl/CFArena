@@ -5,6 +5,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.collect.Lists;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.Main;
 import me.hapyl.fight.annotate.ForceCloned;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.damage.EnumDamageCause;
@@ -34,6 +35,7 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.EulerAngle;
@@ -51,6 +53,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 /**
@@ -1067,4 +1070,42 @@ public class CFUtils {
 
         return varArgs;
     }
+
+    public static <T> void removeIf(@Nonnull Collection<T> collection, @Nonnull Predicate<T> predicate, @Nonnull Consumer<T> andThen) {
+        collection.removeIf(t -> {
+            final boolean shouldRemove = predicate.test(t);
+
+            if (shouldRemove) {
+                andThen.accept(t);
+            }
+
+            return shouldRemove;
+        });
+    }
+
+    @Nonnull
+    public static String stNdTh(int i) {
+        if (i >= 11 && i <= 13) {
+            return i + "th";
+        }
+
+        final int lastDigit = i % 10;
+
+        return i + switch (lastDigit) {
+            case 1 -> "st";
+            case 2 -> "nd";
+            case 3 -> "rd";
+            default -> "th";
+        };
+    }
+
+    public static void later(@Nonnull Runnable runnable, int delay) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                runnable.run();
+            }
+        }.runTaskLater(Main.getPlugin(), delay);
+    }
+
 }

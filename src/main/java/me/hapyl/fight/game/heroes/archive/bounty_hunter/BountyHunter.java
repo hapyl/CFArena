@@ -11,6 +11,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -86,15 +87,7 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
         equipment.setLeggings(80, 97, 68);
         equipment.setBoots(160, 101, 64, TrimPattern.SILENCE, TrimMaterial.IRON);
 
-        setUltimate(new UltimateTalent(
-                this, "Backstab", """
-                Instantly &bteleport&7 behind the &etarget&7 player, &cstabbing&7 them from behind.
-                """, 70
-        )
-                .setItem(Material.SHEARS)
-                .setDurationSec(1)
-                .defaultCdFromCost());
-
+        setUltimate(new BountyHunterUltimate());
         copyDisplayFieldsTo(getUltimate());
     }
 
@@ -108,49 +101,6 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
             player.setItem(HotbarSlots.HERO_ITEM, smokeBomb);
             player.sendTitle("&7💣", "&e&lSMOKE BOMB TRIGGERED", 5, 20, 5);
         }
-    }
-
-    @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        final ShadowShift.TargetLocation targetOutput = getBackstabLocation(player);
-
-        if (targetOutput.getError() != ShadowShift.ErrorCode.OK) {
-            return UltimateCallback.OK; // should never happen
-        }
-
-        final Location playerLocation = player.getLocation();
-        final Location location = targetOutput.getLocation();
-        final LivingGameEntity target = targetOutput.getEntity();
-
-        player.teleport(location);
-        target.damage(backstabDamage, player, EnumDamageCause.BACKSTAB);
-
-        // Fx
-        player.sendMessage("&aBackstabbed &7%s&a!", target.getName());
-        target.sendMessage("&cYou were backstabbed by &7%s&c!", player.getName());
-
-        player.playWorldSound(location, Sound.ENTITY_ENDER_DRAGON_FLAP, 0.0f);
-        player.playWorldSound(location, Sound.ENTITY_IRON_GOLEM_REPAIR, 1.25f);
-
-        player.swingMainHand();
-
-        spawnPoofParticle(playerLocation);
-        spawnPoofParticle(location);
-
-        return UltimateCallback.OK;
-    }
-
-    @Override
-    public boolean predicateUltimate(@Nonnull GamePlayer player) {
-        final ShadowShift.TargetLocation location = getBackstabLocation(player);
-
-        return location.getError() == ShadowShift.ErrorCode.OK;
-    }
-
-    @Override
-    public String predicateMessage(@Nonnull GamePlayer player) {
-        final ShadowShift.TargetLocation location = getBackstabLocation(player);
-        return location.getError().getErrorMessage();
     }
 
     @Override
@@ -180,6 +130,8 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
     private void useSmokeBomb(GamePlayer player, Location location) {
         player.setItem(HotbarSlots.HERO_ITEM, null);
         player.addEffect(Effects.SPEED, 2, smokeDuration);
+
+        player.snapToWeapon();
 
         new TimedGameTask(smokeDuration) {
             @Override
@@ -213,5 +165,50 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
 
         // Sfx
         player.playWorldSound(Sound.BLOCK_FIRE_EXTINGUISH, 0.75f);
+    }
+
+    private class BountyHunterUltimate extends UltimateTalent {
+        public BountyHunterUltimate() {
+            super("Backstab", 70);
+
+            setDescription("""
+                    Instantly &bteleport&7 behind the &etarget&7 player, &cstabbing&7 them from behind.
+                    """);
+
+            setItem(Material.SHEARS);
+            setDurationSec(1);
+            defaultCdFromCost();
+        }
+
+        @Nonnull
+        @Override
+        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+            final ShadowShift.TargetLocation targetOutput = getBackstabLocation(player);
+
+            if (targetOutput.getError() != ShadowShift.ErrorCode.OK) {
+                return UltimateResponse.error(targetOutput.getError().getErrorMessage());
+            }
+
+            final Location playerLocation = player.getLocation();
+            final Location location = targetOutput.getLocation();
+            final LivingGameEntity target = targetOutput.getEntity();
+
+            player.teleport(location);
+            target.damage(backstabDamage, player, EnumDamageCause.BACKSTAB);
+
+            // Fx
+            player.sendMessage("&aBackstabbed &7%s&a!", target.getName());
+            target.sendMessage("&cYou were backstabbed by &7%s&c!", player.getName());
+
+            player.playWorldSound(location, Sound.ENTITY_ENDER_DRAGON_FLAP, 0.0f);
+            player.playWorldSound(location, Sound.ENTITY_IRON_GOLEM_REPAIR, 1.25f);
+
+            player.swingMainHand();
+
+            spawnPoofParticle(playerLocation);
+            spawnPoofParticle(location);
+
+            return UltimateResponse.OK;
+        }
     }
 }

@@ -4,6 +4,7 @@ import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.database.rank.RankFormatter;
 import me.hapyl.fight.emoji.Emojis;
 import me.hapyl.fight.filter.ProfanityFilter;
+import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.profile.relationship.PlayerRelationship;
@@ -11,7 +12,7 @@ import me.hapyl.fight.game.profile.relationship.Relationship;
 import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Bukkit;
@@ -21,6 +22,8 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public enum ChatChannel {
 
@@ -33,7 +36,7 @@ public enum ChatChannel {
             final GameTeam playerTeam = GameTeam.getEntryTeam(Entry.of(player));
 
             if (playerTeam == null) {
-                Message.error(player, "You are not in a team!");
+                Notifier.error(player, "You are not in a team!");
                 return;
             }
 
@@ -66,18 +69,11 @@ public enum ChatChannel {
 
         @Override
         public void processMessage(@Nonnull PlayerProfile profile, @Nonnull String message) {
-            Bukkit.getOnlinePlayers().forEach(player -> {
-                final PlayerProfile otherProfile = PlayerProfile.getProfile(player);
-
-                if (otherProfile == null || !otherProfile.getRank().isStaff()) {
-                    return;
-                }
-
-                Message.broadcastStaff("&c%s: &f%s".formatted(profile.getPlayer().getName(), message));
-            });
+            Notifier.broadcastStaff("&c%s: &f%s".formatted(profile.getPlayer().getName(), message));
         }
     };
 
+    private static final Pattern ggPattern = Pattern.compile("\\b(gg|ggs|good game)\\b", Pattern.CASE_INSENSITIVE);
     private final String prefix;
 
     ChatChannel(String prefix) {
@@ -120,11 +116,12 @@ public enum ChatChannel {
 
     private void formatAndSendMessage(Player sender, String message, Player receiver) {
         final PlayerProfile profile = PlayerProfile.getProfile(sender);
+
         if (profile == null) {
             return;
         }
 
-        final StringBuilder builder = new StringBuilder(profile.getDisplay().getDisplayName());
+        final StringBuilder builder = new StringBuilder(profile.getDisplay().toString());
 
         // Tag receiver
         final String atReceiverName = ("@" + receiver.getName()).toLowerCase(Locale.ROOT);
@@ -182,8 +179,24 @@ public enum ChatChannel {
         }
 
         // Emoji
-        message = Emojis.replaceEmojis(message, rank);
+        message = Emojis.replaceEmojis(message, profile);
+
+        // Golden GG
+        final Matcher matcher = ggPattern.matcher(message);
+
+        if (matcher.find()) {
+            final boolean isGoldenGg = Manager.current().goldenGg(profile.getPlayer());
+
+            if (isGoldenGg) {
+                message = matcher.replaceFirst(match -> {
+                    final String group = match.group();
+
+                    return "&6" + group + profile.getRank().getFormat().textColor();
+                });
+            }
+        }
 
         channel.processMessage(profile, message);
     }
+
 }

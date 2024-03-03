@@ -96,7 +96,7 @@ public class PlayerTablist extends Tablist {
         });
 
         for (PlayerProfile profile : profiles) {
-            final String displayNameTab = profile.getDisplay().getDisplayNameTab();
+            final String displayNameTab = profile.getDisplay().toStringTab();
 
             entryList.append(displayNameTab, EntryTexture.of(profile.getPlayer()), PingBars.byValue(player.getPing()));
         }
@@ -240,10 +240,16 @@ public class PlayerTablist extends Tablist {
         final int totalRelicsFound = collectibleEntry.getFoundList().size();
 
         final int relicInZone = relicHunt.byZone(currentMap).size();
-        final int foundInZone = relicHunt.getFoundListIn(player, currentMap).size();
 
         entryList.append(" &7ᴛᴏᴛᴀʟ ғᴏᴜɴᴅ: %s".formatted(CFUtils.makeStringFractional(totalRelicsFound, totalRelics)));
-        entryList.append(" &7ɪɴ ᴄᴜʀʀᴇɴᴛ ᴀʀᴇᴀ: %s".formatted(CFUtils.makeStringFractional(foundInZone, relicInZone)));
+
+        if (relicInZone == 0) {
+            entryList.append(" &7ɪɴ ᴄᴜʀʀᴇɴᴛ ᴀʀᴇᴀ: &cNone!");
+        }
+        else {
+            final int foundInZone = relicHunt.getFoundListIn(player, currentMap).size();
+            entryList.append(" &7ɪɴ ᴄᴜʀʀᴇɴᴛ ᴀʀᴇᴀ: %s".formatted(CFUtils.makeStringFractional(foundInZone, relicInZone)));
+        }
 
         // Daily challenges
         entryList.append();

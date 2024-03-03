@@ -17,7 +17,6 @@ import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
-import me.hapyl.fight.game.damage.DamageFlag;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.Effects;
@@ -47,7 +46,6 @@ import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.display.AscendingDisplay;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.translate.Language;
 import me.hapyl.fight.util.*;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
@@ -55,7 +53,6 @@ import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.Reflect;
-import me.hapyl.spigotutils.module.reflect.ReflectPacket;
 import me.hapyl.spigotutils.module.reflect.glow.Glowing;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import net.minecraft.network.protocol.game.PacketPlayOutAnimation;
@@ -77,6 +74,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -93,6 +91,8 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
     public static final long COMBAT_TAG_DURATION = 5000L;
     public static final String SHIELD_FORMAT = "&e&l%.0f &e🛡";
 
+    private static final double MAX_HEARTS = 40.0d;
+
     private final StatContainer stats;
     private final TalentQueue talentQueue;
     private final PlayerTaskList taskList;
@@ -100,6 +100,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
     private final PlayerPing playerPing;
     private final Map<MoveType, Long> lastMoved;
     public boolean blockDismount;
+    public long usedUltimateAt;
     private int sneakTicks;
     @Nonnull
     private PlayerProfile profile;
@@ -314,6 +315,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         final Player player = getEntity();
         boolean gameOver = false;
 
+        state = EntityState.DEAD;
         player.setGameMode(GameMode.SPECTATOR);
 
         playSound(Sound.ENTITY_BLAZE_DEATH, 2.0f);
@@ -432,7 +434,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
      * @return player's inventory.
      * @see #setItem(HotbarSlots, ItemStack)
      * @see #snapTo(HotbarSlots)
-     * @deprecated Not deprecated, just a hands up that setting items should be done using {@link HotbarSlots}.
+     * @deprecated Not deprecated, just a heads-up that setting item should be done using {@link HotbarSlots}.
      */
     @Deprecated
     @Nonnull
@@ -512,7 +514,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         final UltimateTalent ultimate = getUltimate();
         final String pointsString = "&b&l%s&b/&b&l%s".formatted(getUltPoints(), getUltPointsNeeded());
 
-        if (getHero().isUsingUltimate(this)) {
+        if (isUsingUltimate()) {
             final long durationLeft = getHero().getUltimateDurationLeft(this);
 
             return "&b&lIN USE &b(%s&b)".formatted(durationLeft < 0 ? "∞" : BukkitUtils.roundTick(Tick.fromMillis(durationLeft)) + "s");
@@ -553,7 +555,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         final Player player = getPlayer();
         final EnumDamageCause cause = instance.getCause();
 
-        if (shield != null && (cause != null && !cause.hasFlag(DamageFlag.PIERCING_DAMAGE))) {
+        if (shield != null && shield.canShield(cause)) {
             final double damage = instance.getDamage();
             final double capacityAfterHit = shield.takeDamage0(damage);
 
@@ -581,8 +583,11 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
 
     // Update player visual health
     public void updateHealth() {
-        entity.setMaxHealth(40.d);
-        entity.setHealth(Numbers.clamp(40.0d * health / getMaxHealth(), getMinHealth(), getMaxHealth()));
+        final double maxHealth = getMaxHealth();
+        final double maxHearts = Math.min(maxHealth, MAX_HEARTS);
+
+        entity.setMaxHealth(maxHearts);
+        entity.setHealth(Numbers.clamp(maxHearts / maxHealth * this.health, getMinHealth(), maxHealth));
     }
 
     @Nonnull
@@ -610,7 +615,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         final PlayerInventory inventory = player.getInventory();
         inventory.setHeldItemSlot(inventory.firstEmpty());
 
-        ReflectPacket.wrapAndSend(new PacketPlayOutAnimation(Reflect.getMinecraftPlayer(player), 1), player);
+        Reflect.sendPacket(player, new PacketPlayOutAnimation(Reflect.getMinecraftPlayer(player), 1));
 
         GameTask.runLater(this::snapToWeapon, 1);
 
@@ -631,6 +636,47 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         schedule(() -> inventory.setItem(org.bukkit.inventory.EquipmentSlot.OFF_HAND, offhandItem), 3);
     }
 
+    /**
+     * Returns true if the player is using ultimate.
+     *
+     * @return true if the player is using ultimate; false otherwise.
+     */
+    public boolean isUsingUltimate() {
+        return usedUltimateAt > 0;
+    }
+
+    /**
+     * Sets if the player is using ultimate.
+     *
+     * @param usingUltimate - Is using ultimate.
+     */
+    public void setUsingUltimate(boolean usingUltimate) {
+        if (usingUltimate) {
+            usedUltimateAt = System.currentTimeMillis();
+        }
+        else {
+            usedUltimateAt = 0L;
+        }
+    }
+
+    /**
+     * Sets that the player is using ultimate and unsets it after a given duration.
+     * <br>
+     * This is mostly used with manual ultimates, with dynamic duration.
+     *
+     * @param duration - Duration.
+     */
+    public void setUsingUltimate(int duration) {
+        setUsingUltimate(true);
+
+        new PlayerGameTask(this, EntityState.ALIVE) {
+            @Override
+            public void run() {
+                setUsingUltimate(false);
+            }
+        }.runTaskLater(duration);
+    }
+
     public void triggerOnDeath() {
         this.onDeath();
 
@@ -640,6 +686,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
 
         currentGame.getEnumMap().getMap().onDeath(this);
         hero.onDeath(this);
+        usedUltimateAt = 0L;
 
         if (hero instanceof PlayerDataHandler<?> handler) {
             handler.removePlayerData(this);
@@ -668,7 +715,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
     public void addUltimatePoints(int points) {
         final Player player = getEntity();
         // cannot give points if using ultimate or dead
-        if (getHero().isUsingUltimate(this) || !this.isAlive() || this.ultPoints >= this.getUltPointsNeeded()) {
+        if (isUsingUltimate() || !this.isAlive() || this.ultPoints >= this.getUltPointsNeeded()) {
             return;
         }
 
@@ -822,7 +869,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
 
         state = EntityState.ALIVE;
         ultPoints = 0;
-        hero.setUsingUltimate(this, false);
+        setUsingUltimate(false);
         setHealth(this.getMaxHealth());
 
         player.getInventory().clear();
@@ -1033,7 +1080,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
 
     @Nonnull
     public EntityEquipment getEquipment() {
-        return getPlayer().getEquipment();
+        return Objects.requireNonNull(getPlayer().getEquipment());
     }
 
     public boolean isSwimming() {
@@ -1215,11 +1262,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         }
 
         giveTalentItem(slot, talent);
-    }
-
-    @Nonnull
-    public Language getLanguage() {
-        return profile.getDatabase().getLanguage();
     }
 
     public void giveTalentItem(@Nonnull HotbarSlots slot, @Nonnull Talent talent) {
@@ -1454,10 +1496,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         return timeSinceLastMoved >= 100L;
     }
 
-    public boolean isUsingUltimate() {
-        return getHero().isUsingUltimate(this);
-    }
-
     public boolean hasCooldown(@Nonnull Talent talent) {
         return hasCooldown(talent.getMaterial());
     }
@@ -1465,6 +1503,14 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
     public void startCooldown(@Nonnull Talent talent) {
         talent.startCd(this);
     }
+
+    @Nonnull
+    public Vector getDirectionWithMovementError(double movementError) {
+        final Location location = getEyeLocation();
+
+        return location.getDirection();
+    }
+
 
     private List<Block> getBlocksRelative(BiFunction<Location, World, Boolean> fn, Consumer<Location> consumer) {
         final List<Block> blocks = Lists.newArrayList();
@@ -1541,13 +1587,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
     public static Optional<GamePlayer> getPlayerOptional(Player player) {
         final GamePlayer gamePlayer = getExistingPlayer(player);
         return gamePlayer == null ? Optional.empty() : Optional.of(gamePlayer);
-    }
-
-    @Nonnull
-    public Vector getDirectionWithMovementError(double movementError) {
-        final Location location = getEyeLocation();
-
-        return location.getDirection();
     }
 
 }

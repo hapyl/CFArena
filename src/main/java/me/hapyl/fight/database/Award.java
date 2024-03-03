@@ -5,9 +5,14 @@ import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.database.entry.ExperienceEntry;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.game.stats.StatType;
+import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Sound;
+import org.bukkit.entity.Player;
+import org.bukkit.util.StringUtil;
 
 import javax.annotation.Nonnull;
 
@@ -17,6 +22,7 @@ public enum Award {
     PLAYER_ASSISTED("Assisted Elimination", 5, 2),
     GAME_WON("Winner", 100, 50),
     MINUTE_PLAYED("Minute Played", 1, 1),
+    GG("Karma", 0, 5),
 
     ;
 
@@ -42,25 +48,46 @@ public enum Award {
         return exp;
     }
 
-    public void award(@Nonnull GamePlayer player) {
-        if (Manager.current().isDebug()) {
-            return;
-        }
-
-        final PlayerDatabase playerDatabase = player.getDatabase();
+    public void award(@Nonnull PlayerProfile profile) {
+        final PlayerDatabase playerDatabase = profile.getDatabase();
         final CurrencyEntry currency = playerDatabase.currencyEntry;
         final ExperienceEntry experience = playerDatabase.experienceEntry;
 
         currency.add(Currency.COINS, coins);
         experience.add(ExperienceEntry.Type.EXP, exp);
 
+        final Player player = profile.getPlayer();
+
+        final StringBuilder builder = new StringBuilder("&a+ ");
+
+        appendIf(builder, "%s Coins &8& ".formatted(Currency.COINS.getColor().color(coins)), coins > 0);
+        appendIf(builder, "&9%s Experience".formatted(exp), exp > 0);
+
+        builder.append(" &7(%s)".formatted(reason));
+
+        Chat.sendMessage(player, builder.toString());
+        PlayerLib.playSound(player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.25f);
+    }
+
+    public void award(@Nonnull GamePlayer player) {
+        if (Manager.current().isDebug()) {
+            return;
+        }
+
+        this.award(player.getProfile());
+
         // Progress Stats
         final StatContainer stats = player.getStats();
         stats.addValue(StatType.COINS, coins);
         stats.addValue(StatType.EXP, exp);
+    }
 
-        player.sendMessage("&a+ &6&l%s Coins &7& &b&l%s Exp &7(%s)", getCoins(), getExp(), getReason());
-        player.playSound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.25f);
+    private void appendIf(StringBuilder builder, String message, boolean bool) {
+        if (!bool) {
+            return;
+        }
+
+        builder.append(message);
     }
 
 }

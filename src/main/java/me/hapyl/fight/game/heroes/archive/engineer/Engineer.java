@@ -6,6 +6,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.engineer.Construct;
@@ -35,10 +36,10 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler<Engine
 
     public static final int MAX_IRON = 10;
 
+    public final Weapon ironFist = new Weapon(Material.IRON_BLOCK).setDamage(10.0d).setName("&6&lIron Fist");
+
     @DisplayField public final double ultimateInWaterDamage = 10;
     @DisplayField public final int ultimateHitCd = 5;
-
-    public final Weapon ironFist = new Weapon(Material.IRON_BLOCK).setDamage(10.0d).setName("&6&lIron Fist");
 
     private final int ironRechargeRate = 60;
     private final PlayerDataMap<EngineerData> playerData = PlayerMap.newDataMap(player -> new EngineerData(player, this));
@@ -67,19 +68,7 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler<Engine
         equipment.setLeggings(0, 0, 0);
         equipment.setBoots(0, 0, 0);
 
-        setUltimate(new UltimateTalent(
-                this, "Mecha-Industries", """
-                Instantly create a &fmech suit&7 and pilot it for {duration}.
-                                
-                The suit provides &cattack&7 power.
-                &8;;Looks like a wire sticking out of it, probably should keep away from water.
-                """, 70
-        ).setItem(Material.IRON_SWORD)
-                .setDurationSec(25)
-                .setCooldownSec(35)
-                .setSound(Sound.BLOCK_ANVIL_USE, 0.25f));
-
-        copyDisplayFieldsToUltimate();
+        setUltimate(new EngineerUltimate());
     }
 
     @EventHandler()
@@ -158,17 +147,7 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler<Engine
 
     @Override
     public boolean processInvisibilityDamage(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity, double damage) {
-        return !isUsingUltimate(player);
-    }
-
-    @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        final EngineerData data = getPlayerData(player);
-        data.createMechaIndustries(this);
-
-        player.schedule(data::removeMechaIndustries, getUltimateDuration());
-
-        return UltimateCallback.OK;
+        return !player.isUsingUltimate();
     }
 
     public int getIron(GamePlayer player) {
@@ -249,5 +228,36 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler<Engine
 
     private void swingMechaHand(GamePlayer player) {
         getPlayerData(player).swingMechaIndustriesHand();
+    }
+
+    private class EngineerUltimate extends UltimateTalent {
+
+        public EngineerUltimate() {
+            super("Mecha-Industries", 70);
+
+            setDescription("""
+                    Instantly create a &fmech suit&7 and pilot it for {duration}.
+                                    
+                    The suit provides &cattack&7 power.
+                    &8;;Looks like a wire sticking out of it, probably should keep away from water.
+                    """);
+
+            setItem(Material.IRON_SWORD);
+            setDurationSec(25);
+            setCooldownSec(35);
+            setSound(Sound.BLOCK_ANVIL_USE, 0.25f);
+
+        }
+
+        @Nonnull
+        @Override
+        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+            final EngineerData data = getPlayerData(player);
+            data.createMechaIndustries(Engineer.this);
+
+            player.schedule(data::removeMechaIndustries, getUltimateDuration());
+
+            return UltimateResponse.OK;
+        }
     }
 }

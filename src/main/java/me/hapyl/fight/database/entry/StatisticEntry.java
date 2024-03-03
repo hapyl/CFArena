@@ -19,17 +19,18 @@ public class StatisticEntry extends PlayerDatabaseEntry {
     }
 
     public void fromPlayerStatistic(Heroes hero, StatContainer stat) {
-        stat.nonNegativeValuesMapped().forEach(this::addStat);
+        stat.nonNegativeValuesMapped().forEach((statType, value) -> {
+            addStat(statType, value);
+            addHeroStat(hero, statType, value);
+        });
 
         addStat(StatType.PLAYED, 1);
+        addHeroStat(hero, StatType.PLAYED, 1);
 
         if (stat.isWinner()) {
             addStat(StatType.WINS, 1);
+            addHeroStat(hero, StatType.WINS, 1);
         }
-
-        addHeroStat(hero, StatType.KILLS, stat.getValue(StatType.KILLS));
-        addHeroStat(hero, StatType.DEATHS, stat.getValue(StatType.DEATHS));
-        addHeroStat(hero, StatType.PLAYED, 1);
 
         stat.getUsedAbilities().forEach((talent, value) -> addAbilityUsage(hero, talent, value));
     }

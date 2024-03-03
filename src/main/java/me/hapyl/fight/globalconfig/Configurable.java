@@ -1,7 +1,7 @@
 package me.hapyl.fight.globalconfig;
 
 import me.hapyl.fight.Main;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
 import org.bukkit.command.CommandSender;
 
 import javax.annotation.Nonnull;
@@ -15,7 +15,7 @@ public interface Configurable {
         final boolean disabled = isDisabled();
 
         if (disabled) {
-            Message.error(sender, "This feature is currently disabled!");
+            Notifier.error(sender, "This feature is currently disabled!");
         }
 
         return disabled;

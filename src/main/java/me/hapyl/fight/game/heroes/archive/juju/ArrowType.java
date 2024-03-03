@@ -24,7 +24,6 @@ import javax.annotation.Nonnull;
 public enum ArrowType implements Described {
 
     ELUSIVE("Elusive Arrows", "Bloom upon impact into &a&omultiple&7&o arrows, dealing &c&oAoE &c&odamage&7&o.") {
-
         @Override
         public void onTick(GamePlayer player, Arrow arrow) {
             PlayerLib.spawnParticle(arrow.getLocation(), Particle.TOTEM, 3, 0, 0, 0, 0);
@@ -69,11 +68,10 @@ public enum ArrowType implements Described {
         }
     },
     POISON_IVY(
-            "Poison Ivy Arrow",
-            Chat.bformat("""
-                    Creates a &a&otoxic zone&7&o upon impact that reduces {}&7&o and deals &brapid&7&o damage.
-                    """, AttributeType.DEFENSE
-            )
+            "Poison Ivy Arrow", """
+            Creates a &a&otoxic zone&7&o upon impact that reduces %s&7&o and deals &brapid&7&o damage.
+            """.formatted(AttributeType.DEFENSE)
+
     ) {
         @Override
         public void onHit(GamePlayer player, Arrow arrow) {
@@ -85,7 +83,7 @@ public enum ArrowType implements Described {
             final JuJu juju = Heroes.JUJU.getHero(JuJu.class);
 
             juju.unequipArrow(player, this);
-            juju.setUsingUltimate(player, false);
+            player.setUsingUltimate(false);
         }
     };
 

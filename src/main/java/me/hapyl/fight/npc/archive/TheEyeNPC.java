@@ -2,6 +2,7 @@ package me.hapyl.fight.npc.archive;
 
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.database.entry.CollectibleEntry;
 import me.hapyl.fight.dialog.Dialog;
 import me.hapyl.fight.dialog.DialogEntry;
 import me.hapyl.fight.game.collectible.relic.RelicHunt;
@@ -20,8 +21,6 @@ public class TheEyeNPC extends PersistentNPC implements Ticking {
 
     private final PlayerHologram holograms;
     private final RelicHunt relicHunt;
-    private int tick;
-
     private final Dialog dialog = new Dialog("eye_first_talk")
             .addEntries(DialogEntry.npc(
                     this,
@@ -37,6 +36,7 @@ public class TheEyeNPC extends PersistentNPC implements Ticking {
                     "There is one &drelic&r right next to me, I can see this one clearly.",
                     "Talk to me again to &osee&r your &dRelic Hunt&r progress."
             ));
+    private int tick;
 
     public TheEyeNPC() {
         super(-5.5d, 62.0d, 6.5d, -135f, 0, "The Eye");
@@ -79,17 +79,28 @@ public class TheEyeNPC extends PersistentNPC implements Ticking {
             final PlayerDatabase database = profile.getDatabase();
 
             if (!dialog.hasTalked(player)) {
-                return StringArray.of(blink("&e[&6&l❗&e]", "&6[&e&l❗&6]"));
+                return blink("ᴏ̨ᴜᴇsᴛ ᴀᴠᴀɪʟᴀʙʟᴇ");
             }
 
             // Check for daily reward
             if (database.dailyRewardEntry.canClaimAny()) {
-                return StringArray.of(blink("&6&lᴅᴀɪʟʏ ʀᴇᴡᴀʀᴅ ᴀᴠᴀɪʟᴀʙʟᴇ", "&e&lᴅᴀɪʟʏ ʀᴇᴡᴀʀᴅ ᴀᴠᴀɪʟᴀʙʟᴇ"));
+                return blink("ᴅᴀɪʟʏ ʀᴇᴡᴀʀᴅ ᴀᴠᴀɪʟᴀʙʟᴇ");
             }
 
             // Check for bonds
             if (profile.getChallengeList().hasCompleteAndNonClaimed()) {
-                return StringArray.of(blink("&6&lᴅᴀɪʟʏ ʙᴏɴᴅ ᴄᴏᴍᴘʟᴇᴛᴇ", "&e&lᴅᴀɪʟʏ ʙᴏɴᴅ ᴄᴏᴍᴘʟᴇᴛᴇ"));
+                return blink("ᴅᴀɪʟʏ ʙᴏɴᴅ ᴄᴏᴍᴘʟᴇᴛᴇ");
+            }
+
+            // Check for relic rewards
+            final CollectibleEntry collectibleEntry = database.collectibleEntry;
+
+            if (collectibleEntry.canClaimAnyTier()) {
+                return blink("ᴄᴀɴ ᴄʟᴀɪᴍ ʀᴇʟɪᴄ ʀᴇᴡᴀʀᴅs");
+            }
+
+            if (collectibleEntry.canLevelUpStabilizer()) {
+                return blink("ᴄᴀɴ ʟᴇᴠᴇʟ ᴜᴘ ʀᴇʟɪᴄ sᴛᴀʙɪʟɪᴢᴇʀ");
             }
 
             return StringArray.empty();
@@ -98,11 +109,10 @@ public class TheEyeNPC extends PersistentNPC implements Ticking {
         tick++;
     }
 
-    private String blink(String a, String b) {
-        return blink(a, b, 2);
+    private StringArray blink(@Nonnull String message) {
+        return StringArray.of(
+                (tick % 2 == 0 ? "&6&l" : "&e&l") + message
+        );
     }
 
-    private String blink(String a, String b, int modulo) {
-        return tick % modulo == 0 ? a : b;
-    }
 }

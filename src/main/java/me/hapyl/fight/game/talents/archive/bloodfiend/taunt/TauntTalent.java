@@ -8,7 +8,6 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend;
 import me.hapyl.fight.game.heroes.archive.bloodfield.BloodfiendData;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
-import me.hapyl.fight.translate.Language;
 import org.bukkit.Location;
 
 import javax.annotation.Nonnull;
@@ -32,21 +31,6 @@ public abstract class TauntTalent<T extends Taunt> extends Talent {
 
         addNlDescription("&c&lHow to Remove:");
         addNlDescription(getHowToRemove());
-    }
-
-    @Nonnull
-    @Override
-    public String getTranslateDescription(@Nonnull Language language) {
-        return language.getFormatted("""
-                <talent.bloodfiend.taunt.description>
-                <talent.bloodfiend.taunt.while_active>
-                <%s>
-                <talent.bloodfiend.taunt.how_to_remove>
-                <%s>
-                """.formatted(
-                getParentTranslatableKey() + "description",
-                getParentTranslatableKey() + "description_2"
-        ));
     }
 
     @Override

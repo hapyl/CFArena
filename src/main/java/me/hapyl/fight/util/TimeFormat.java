@@ -31,13 +31,13 @@ public final class TimeFormat {
      * Formats the given millis with a given bit mask.
      *
      * @param millis - Millis.
-     * @param mask   - Bitmask.
+     * @param bits   - Bitmask.
      *               Default bitmask is <code>HOURS | MINUTES | SECONDS</code>
      * @return the formatted millis.
      */
     @Nonnull
-    public static String format(final long millis, @Nullable final byte... mask) {
-        byte bitMask = makeBitMask(mask);
+    public static String format(final long millis, @Nullable final byte... bits) {
+        byte bitMask = Bitmask.makeMask(DEFAULT_BIT_MASK, bits);
 
         final long seconds = millis / 1000;
         final long minutes = seconds / 60;
@@ -45,37 +45,23 @@ public final class TimeFormat {
 
         final StringBuilder builder = new StringBuilder();
 
-        if ((bitMask & HOURS) != 0) {
+        if (Bitmask.isMasked(bitMask, HOURS)) {
             builder.append("%02dh ".formatted(hours));
         }
 
-        if ((bitMask & MINUTES) != 0) {
+        if (Bitmask.isMasked(bitMask, MINUTES)) {
             builder.append("%02dm ".formatted(minutes % 60));
         }
 
-        if ((bitMask & SECONDS) != 0) {
+        if (Bitmask.isMasked(bitMask, SECONDS)) {
             builder.append("%02ds ".formatted(seconds % 60));
         }
 
-        if ((bitMask & MILLIS) != 0) {
+        if (Bitmask.isMasked(bitMask, MILLIS)) {
             builder.append("%03dms ".formatted(millis % 1000));
         }
 
         return builder.toString().trim();
-    }
-
-    public static byte makeBitMask(@Nullable byte... mask) {
-        if (mask == null || mask.length == 0) {
-            return DEFAULT_BIT_MASK;
-        }
-
-        byte bitMask = 0;
-
-        for (byte b : mask) {
-            bitMask |= b;
-        }
-
-        return bitMask;
     }
 
 }

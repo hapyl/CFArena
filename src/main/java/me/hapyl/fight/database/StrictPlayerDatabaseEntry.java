@@ -14,7 +14,7 @@ public class StrictPlayerDatabaseEntry extends PlayerDatabaseEntry {
 
     protected final Document root;
 
-    protected StrictPlayerDatabaseEntry(@Nonnull PlayerDatabase database, @Nonnull String path) {
+    public StrictPlayerDatabaseEntry(@Nonnull PlayerDatabase database, @Nonnull String path) {
         super(database);
         this.root = database.getDocument();
         this.path = path;

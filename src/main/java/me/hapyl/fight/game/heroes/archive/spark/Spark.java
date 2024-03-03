@@ -7,6 +7,7 @@ import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
@@ -38,69 +39,7 @@ public class Spark extends Hero implements PlayerElement {
         equipment.setBoots(Color.ORANGE);
 
         setWeapon(new SparkWeapon());
-
-        setUltimate(new UltimateTalent(
-                this, "Run it Back", """
-                Instantly place a marker at your current location for {duration}.
-                                        
-                Upon death or after duration ends, safely teleport to the marked location with health you had upon activating the ability.
-                """,
-                80
-        )
-                .setType(Talent.Type.ENHANCE)
-                .setItem(Material.TOTEM_OF_UNDYING)
-                .setDurationSec(6)
-                .setCooldownSec(40));
-
-    }
-
-    @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        final Location location = getSafeLocation(player.getLocation());
-        final double health = player.getHealth();
-
-        setUsingUltimate(player, true);
-
-        markerLocation.put(player, new RunInBackData(player, location, health));
-        player.setVisualFire(true);
-
-        new TimedGameTask(getUltimateDuration()) {
-            @Override
-            public void run(int tick) {
-                if (getMarker(player) == null) {
-                    player.setVisualFire(false);
-                    cancel();
-                    return;
-                }
-
-                final int percent = tick * 10 / maxTick;
-                player.sendSubtitle("&6🔥".repeat(percent) + "&8🔥".repeat(10 - percent), 0, 10, 0);
-
-                // Fx
-                player.spawnWorldParticle(player.getLocation().add(0.0d, 0.5d, 0.0d), Particle.FLAME, 1, 1.0d, 0.5d, 1.0d, 0.05f);
-
-                // Fx at marker
-                player.spawnWorldParticle(location, Particle.LANDING_LAVA, 1, 0.2d, 0.2, 0.2d, 0.05f);
-                player.spawnWorldParticle(location, Particle.DRIP_LAVA, 1, 0.2d, 0.2, 0.2d, 0.05f);
-            }
-
-            @Override
-            public void onLastTick() {
-                rebirthPlayer(player);
-            }
-        }.runTaskTimer(0, 1);
-
-        return UltimateCallback.OK;
-    }
-
-    @Override
-    public boolean predicateUltimate(@Nonnull GamePlayer player) {
-        return isSafeLocation(player.getLocation());
-    }
-
-    @Override
-    public String predicateMessage(@Nonnull GamePlayer player) {
-        return "Location is not safe!";
+        setUltimate(new SparkUltimate());
     }
 
     public void rebirthPlayer(@Nonnull GamePlayer player) {
@@ -147,9 +86,9 @@ public class Spark extends Hero implements PlayerElement {
         }
 
         // Check for ultimate death
-        if (isUsingUltimate(player) && instance.getDamage() >= player.getHealth()) {
+        if (player.isUsingUltimate() && instance.getDamage() >= player.getHealth()) {
             rebirthPlayer(player);
-            setUsingUltimate(player, false);
+            player.setUsingUltimate(false);
 
             instance.setCancelled(true);
             return;
@@ -185,10 +124,6 @@ public class Spark extends Hero implements PlayerElement {
         return markerLocation.get(player);
     }
 
-    private boolean isSafeLocation(Location location) {
-        return getSafeLocation(location) != null;
-    }
-
     private Location getSafeLocation(Location location) {
         final World world = location.getWorld();
 
@@ -198,12 +133,72 @@ public class Spark extends Hero implements PlayerElement {
 
         for (int i = 10; i > 0; i--) {
             if (location.getBlock().getRelative(BlockFace.DOWN).getType().isSolid()) {
-                break;
+                return location;
             }
 
             location.subtract(0, 1, 0);
         }
 
-        return location;
+        return null;
+    }
+
+    private class SparkUltimate extends UltimateTalent {
+        public SparkUltimate() {
+            super("Run it Back", 80);
+
+            setDescription("""
+                    Instantly place a marker at your current location for {duration}.
+                                            
+                    Upon death or after duration ends, safely teleport to the marked location with health you had upon activating the ability.
+                    """);
+
+            setType(Talent.Type.ENHANCE);
+            setItem(Material.TOTEM_OF_UNDYING);
+            setDurationSec(6);
+            setCooldownSec(40);
+        }
+
+        @Nonnull
+        @Override
+        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+            final Location location = getSafeLocation(player.getLocation());
+
+            if (location == null) {
+                return UltimateResponse.error("Location is not safe!");
+            }
+
+            final double health = player.getHealth();
+
+            markerLocation.put(player, new RunInBackData(player, location, health));
+            player.setVisualFire(true);
+
+            new TimedGameTask(getUltimateDuration()) {
+                @Override
+                public void run(int tick) {
+                    if (getMarker(player) == null) {
+                        player.setVisualFire(false);
+                        cancel();
+                        return;
+                    }
+
+                    final int percent = tick * 10 / maxTick;
+                    player.sendSubtitle("&6🔥".repeat(percent) + "&8🔥".repeat(10 - percent), 0, 10, 0);
+
+                    // Fx
+                    player.spawnWorldParticle(player.getLocation().add(0.0d, 0.5d, 0.0d), Particle.FLAME, 1, 1.0d, 0.5d, 1.0d, 0.05f);
+
+                    // Fx at marker
+                    player.spawnWorldParticle(location, Particle.LANDING_LAVA, 1, 0.2d, 0.2, 0.2d, 0.05f);
+                    player.spawnWorldParticle(location, Particle.DRIP_LAVA, 1, 0.2d, 0.2, 0.2d, 0.05f);
+                }
+
+                @Override
+                public void onLastTick() {
+                    rebirthPlayer(player);
+                }
+            }.runTaskTimer(0, 1);
+
+            return UltimateResponse.OK;
+        }
     }
 }

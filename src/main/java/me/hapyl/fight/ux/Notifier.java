@@ -2,16 +2,20 @@ package me.hapyl.fight.ux;
 
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.color.Color;
+import me.hapyl.fight.game.entity.SoundEffect;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BFormat;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public interface Message {
+public interface Notifier {
 
     /**
      * A prefix for staff.
@@ -30,7 +34,7 @@ public interface Message {
     }
 
     /**
-     * Sends an success message to the given {@link CommandSender}.
+     * Sends a success message to the given {@link CommandSender}.
      *
      * @param sender  - Sender.
      * @param message - Message.
@@ -88,6 +92,14 @@ public interface Message {
 
             send(online, STAFF_PREFIX + " &b" + string, format);
         });
+    }
+
+    static void sound(@Nonnull Player player, @Nonnull Sound sound, float pitch) {
+        PlayerLib.playSound(player, sound, pitch);
+    }
+
+    static void sound(@Nonnull Player player, @Nonnull SoundEffect effect) {
+        effect.play(player);
     }
 
     private static Object[] colorFormat(Color color, Object... format) {

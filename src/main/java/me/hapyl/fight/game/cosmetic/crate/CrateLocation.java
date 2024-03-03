@@ -12,7 +12,7 @@ import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.ItemStackRandomizedData;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.hologram.PlayerHologram;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -70,7 +70,7 @@ public class CrateLocation extends Location {
     }
 
     public void sendOccupiedMessage(@Nonnull Player player) {
-        Message.error(player, "{} already opening a crate!", occupiedBy == player ? "You are" : occupiedBy.getName() + " is");
+        Notifier.error(player, "{} already opening a crate!", occupiedBy == player ? "You are" : occupiedBy.getName() + " is");
     }
 
     public boolean checkOccupiedAndSendError(@Nonnull Player player) {

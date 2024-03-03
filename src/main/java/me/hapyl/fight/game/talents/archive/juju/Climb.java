@@ -65,7 +65,7 @@ public class Climb extends Talent {
         player.addEffect(Effects.SPEED, 1, 60);
         player.playSound(Sound.BLOCK_SLIME_BLOCK_BREAK, 0.75f);
 
-        if (!Heroes.JUJU.getHero().isUsingUltimate(player)) {
+        if (!player.isUsingUltimate()) {
             taskController(player);
         }
 

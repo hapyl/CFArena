@@ -8,6 +8,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.archive.shaman.TotemTalent;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
@@ -56,7 +57,7 @@ public class Shaman extends Hero implements PlayerDataHandler<ShamanData>, UICom
         equipment.setChestPlate(110, 94, 74);
         equipment.setLeggings(57, 40, 90);
 
-        setUltimate(new ShamanUltimate(this));
+        setUltimate(new ShamanUltimate());
     }
 
     @EventHandler()
@@ -119,13 +120,6 @@ public class Shaman extends Hero implements PlayerDataHandler<ShamanData>, UICom
             entity.playWorldSound(Sound.ENTITY_CAT_HISS, 1.25f);
             return;
         }
-    }
-
-    @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        getUltimate().execute(player);
-
-        return UltimateCallback.OK;
     }
 
     @Override

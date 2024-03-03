@@ -6,6 +6,7 @@ import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.librarian.EntityDarkness;
@@ -77,12 +78,6 @@ public class Librarian extends Hero implements ComplexHero, Listener, DisabledHe
 
         setWeapon(new Weapon(Material.NETHERITE_SHOVEL).setName("Staff").setDamage(7.5d));
 
-        setUltimate(new UltimateTalent(
-                this,
-                "Void of Blindness",
-                "Create massive void of blindness field for {duration}. Everyone who dares steps inside, will be affected by paranoia and glow. Librarian also gets a &c&ldamage &7and &b&lspeed &7boost.",
-                70
-        ).setItem(Material.SQUID_SPAWN_EGG).setDuration(240));
     }
 
     @Override
@@ -134,8 +129,7 @@ public class Librarian extends Hero implements ComplexHero, Listener, DisabledHe
         return grimoireMap.getOrDefault(player, new Grimoire(player)).getUsedAtLevel();
     }
 
-    @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
+    public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
         final Location castLocation = player.getLocation().add(0.0d, 0.5d, 0.0d);
         PlayerLib.playSound(castLocation, Sound.ENTITY_SQUID_SQUIRT, 0.0f);
 
@@ -166,7 +160,7 @@ public class Librarian extends Hero implements ComplexHero, Listener, DisabledHe
             }
         }.runTaskTimer(0, 10);
 
-        return UltimateCallback.OK;
+        return UltimateResponse.OK;
     }
 
     @Override
@@ -192,7 +186,7 @@ public class Librarian extends Hero implements ComplexHero, Listener, DisabledHe
     @Override
     @KeepNull
     public Talent getFifthTalent() {
-        return Talent.NULL;
+        return null;
     }
 
     @Override

@@ -199,7 +199,7 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
     }
 
     private void registerRelics() {
-        // Trial
+        // Trial fixme This one is considered lobby
         registerRelic(1, new Relic(Type.EMERALD, -240, 62, 243).setBlockFace(BlockFace.NORTH_EAST));
 
         // Lobby

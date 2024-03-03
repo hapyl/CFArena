@@ -8,6 +8,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.pytaria.FlowerBreeze;
@@ -65,73 +66,13 @@ public class Pytaria extends Hero {
         equipment.setLeggings(54, 158, 110, TrimPattern.SILENCE, TrimMaterial.IRON);
         equipment.setBoots(179, 204, 204, TrimPattern.SILENCE, TrimMaterial.IRON);
 
-        setUltimate(new PytariaUltimate(this));
+        setUltimate(new PytariaUltimate());
     }
 
     @Nonnull
     @Override
     public PytariaUltimate getUltimate() {
         return (PytariaUltimate) super.getUltimate();
-    }
-
-    @Override
-    public UltimateCallback useUltimate(@Nonnull GamePlayer player) {
-        final Location location = player.getLocation();
-        final Vector vector = location.getDirection();
-
-        location.add(vector.setY(0).multiply(5));
-        location.add(0, 7, 0);
-
-        final Bee bee = Entities.BEE.spawn(location, me -> {
-            me.setSilent(true);
-            me.setAI(false);
-        });
-
-        final double finalDamage = calculateDamage(player, 25.0d, EnumDamageCause.FEEL_THE_BREEZE);
-        final LivingGameEntity entity = Collect.nearestEntityPrioritizePlayers(location, 50, check -> !player.isSelfOrTeammate(check));
-
-        player.playWorldSound(location, Sound.ENTITY_BEE_LOOP_AGGRESSIVE, 1.0f);
-
-        new TickingGameTask() {
-            @Override
-            public void run(int tick) {
-                if (tick >= getUltimate().getCastDuration()) {
-                    cancel();
-                    return;
-                }
-
-                getLockLocation(bee, entity);
-            }
-        }.runTaskTimer(0, 1);
-
-        return new UltimateCallback() {
-            @Override
-            public void callback(@Nonnull GamePlayer player) {
-                final Location lockLocation = getLockLocation(bee, entity);
-                bee.remove();
-
-                Collect.nearbyEntities(lockLocation, 1.0d).forEach(victim -> {
-                    victim.damage(finalDamage, player, EnumDamageCause.FEEL_THE_BREEZE);
-                });
-
-                // Heal
-                final double health = player.getHealth();
-                final double maxHealth = player.getMaxHealth();
-                final double healingAmount = (maxHealth - health) * getUltimate().healthRegenPercent / maxHealth;
-
-                player.heal(healingAmount);
-                player.sendMessage("&6🐝 &aHealed for &c&l%.0f&c❤&a!", healingAmount);
-
-                // Fx
-                PlayerLib.stopSound(Sound.ENTITY_BEE_LOOP_AGGRESSIVE);
-
-                player.spawnWorldParticle(location, Particle.EXPLOSION_NORMAL, 5, 0.2, 0.2, 0.2, 0.1f);
-                player.playWorldSound(location, Sound.ENTITY_BEE_DEATH, 1.5f);
-
-                player.spawnWorldParticle(lockLocation, Particle.EXPLOSION_LARGE, 3, 0.5, 0, 0.5, 0);
-                player.playWorldSound(lockLocation, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 1.25f);
-            }
-        };
     }
 
     @Override
@@ -207,12 +148,12 @@ public class Pytaria extends Hero {
         return location;
     }
 
-    public static class PytariaUltimate extends UltimateTalent {
+    private class PytariaUltimate extends UltimateTalent {
 
         @DisplayField public final short healthRegenPercent = 40;
 
-        public PytariaUltimate(@Nonnull Hero hero) {
-            super(hero, "Feel the Breeze", 60);
+        public PytariaUltimate() {
+            super("Feel the Breeze", 60);
 
             setCooldownSec(50);
             setDuration(60);
@@ -230,6 +171,67 @@ public class Pytaria extends Hero {
             setCastDuration(50);
             setSound(Sound.ENTITY_BEE_DEATH, 0.0f);
             setTexture("d4579f1ea3864269c2148d827c0887b0c5ed43a975b102a01afb644efb85ccfd");
+        }
+
+        @Nonnull
+        @Override
+        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+            final Location location = player.getLocation();
+            final Vector vector = location.getDirection();
+
+            location.add(vector.setY(0).multiply(5));
+            location.add(0, 7, 0);
+
+            final Bee bee = Entities.BEE.spawn(location, me -> {
+                me.setSilent(true);
+                me.setAI(false);
+            });
+
+            final double finalDamage = calculateDamage(player, 25.0d, EnumDamageCause.FEEL_THE_BREEZE);
+            final LivingGameEntity entity = Collect.nearestEntityPrioritizePlayers(location, 50, check -> !player.isSelfOrTeammate(check));
+
+            player.playWorldSound(location, Sound.ENTITY_BEE_LOOP_AGGRESSIVE, 1.0f);
+
+            new TickingGameTask() {
+                @Override
+                public void run(int tick) {
+                    if (tick >= getUltimate().getCastDuration()) {
+                        cancel();
+                        return;
+                    }
+
+                    getLockLocation(bee, entity);
+                }
+            }.runTaskTimer(0, 1);
+
+            return new UltimateResponse() {
+                @Override
+                public void onCastFinished(@Nonnull GamePlayer player) {
+                    final Location lockLocation = getLockLocation(bee, entity);
+                    bee.remove();
+
+                    Collect.nearbyEntities(lockLocation, 1.0d).forEach(victim -> {
+                        victim.damage(finalDamage, player, EnumDamageCause.FEEL_THE_BREEZE);
+                    });
+
+                    // Heal
+                    final double health = player.getHealth();
+                    final double maxHealth = player.getMaxHealth();
+                    final double healingAmount = (maxHealth - health) * getUltimate().healthRegenPercent / maxHealth;
+
+                    player.heal(healingAmount);
+                    player.sendMessage("&6🐝 &aHealed for &c&l%.0f&c❤&a!", healingAmount);
+
+                    // Fx
+                    PlayerLib.stopSound(Sound.ENTITY_BEE_LOOP_AGGRESSIVE);
+
+                    player.spawnWorldParticle(location, Particle.EXPLOSION_NORMAL, 5, 0.2, 0.2, 0.2, 0.1f);
+                    player.playWorldSound(location, Sound.ENTITY_BEE_DEATH, 1.5f);
+
+                    player.spawnWorldParticle(lockLocation, Particle.EXPLOSION_LARGE, 3, 0.5, 0, 0.5, 0);
+                    player.playWorldSound(lockLocation, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 1.25f);
+                }
+            };
         }
     }
 }

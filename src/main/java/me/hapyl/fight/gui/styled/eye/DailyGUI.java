@@ -13,7 +13,7 @@ import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
 import me.hapyl.fight.gui.styled.StyledTexture;
 import me.hapyl.fight.util.TimeFormat;
-import me.hapyl.fight.ux.Message;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
@@ -83,7 +83,7 @@ public class DailyGUI extends StyledGUI {
                 builder.addLore(Color.ERROR + "Already claimed!");
 
                 setItem(rewardsSlot, builder.asIcon(), player -> {
-                    Message.error(player, "Already claimed!");
+                    Notifier.error(player, "Already claimed!");
                     PlayerLib.playSound(player, Sound.BLOCK_ANVIL_LAND, 1.0f);
                 });
             }
@@ -92,7 +92,7 @@ public class DailyGUI extends StyledGUI {
                     builder.addLore(Color.ERROR + "Cannot claim yet!");
 
                     setItem(rewardsSlot, builder.asIcon(), player -> {
-                        Message.error(player, "You cannot claim this yet!");
+                        Notifier.error(player, "You cannot claim this yet!");
                         PlayerLib.playSound(player, Sound.BLOCK_ANVIL_LAND, 1.0f);
                     });
                 }
@@ -102,7 +102,7 @@ public class DailyGUI extends StyledGUI {
 
                     setItem(rewardsSlot, builder.asIcon(), player -> {
                         if (playerChallenge.hasClaimedRewards()) {
-                            Message.error(player, "You have already claimed this reward! If you haven't, report this!");
+                            Notifier.error(player, "You have already claimed this reward! If you haven't, report this!");
                             player.closeInventory();
                             return;
                         }
@@ -111,7 +111,7 @@ public class DailyGUI extends StyledGUI {
 
                         reward.grant(player);
 
-                        Message.success(player, "Claimed bond rewards:");
+                        Notifier.success(player, "Claimed bond rewards:");
                         display.sendMessage(player);
 
                         PlayerLib.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 2.0f);
@@ -140,7 +140,7 @@ public class DailyGUI extends StyledGUI {
         if (hasResetToday) {
             setItem(52, builder.addLore(Color.ERROR + "You have already set today's bonds!").asIcon(),
                     player -> {
-                        Message.error(player, Color.ERROR + "You have already reset today's bonds!");
+                        Notifier.error(player, Color.ERROR + "You have already reset today's bonds!");
                         PlayerLib.villagerNo(player);
                     }
             );

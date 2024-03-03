@@ -6,7 +6,7 @@ import com.mongodb.client.MongoCollection;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.entry.*;
 import me.hapyl.fight.database.rank.PlayerRank;
-import me.hapyl.fight.translate.Language;
+import me.hapyl.fight.game.profile.PlayerDisplay;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.module.util.Enums;
 import me.hapyl.spigotutils.module.util.Validate;
@@ -45,6 +45,7 @@ public sealed class PlayerDatabase implements Iterable<PlayerDatabaseEntry> perm
     public final RandomHeroEntry randomHeroEntry;
     public final GuessWhoEntry guessWhoEntry;
     public final ChallengeEntry challengeEntry;
+    public final SkinEntry skinEntry;
 
     // *=* Entries End *=* //
 
@@ -90,6 +91,7 @@ public sealed class PlayerDatabase implements Iterable<PlayerDatabaseEntry> perm
         this.randomHeroEntry = load(new RandomHeroEntry(this));
         this.guessWhoEntry = load(new GuessWhoEntry(this));
         this.challengeEntry = load(new ChallengeEntry(this));
+        this.skinEntry = load(new SkinEntry(this));
 
         // Call onLoad
         entries.forEach(PlayerDatabaseEntry::onLoad);
@@ -97,6 +99,16 @@ public sealed class PlayerDatabase implements Iterable<PlayerDatabaseEntry> perm
 
     PlayerDatabase(Player player) {
         this(player.getUniqueId());
+    }
+
+    /**
+     * Gets a new {@link PlayerDisplay}.
+     *
+     * @return player display.
+     */
+    @Nonnull
+    public PlayerDisplay getDisplay() {
+        return new PlayerDisplay(this);
     }
 
     @Nonnull
@@ -135,17 +147,6 @@ public sealed class PlayerDatabase implements Iterable<PlayerDatabaseEntry> perm
         document.put("rank", rank.name());
     }
 
-    @Nonnull
-    public Language getLanguage() {
-        final String lang = document.get("lang", Language.ENGLISH.name());
-
-        return Enums.byName(Language.class, lang, Language.ENGLISH);
-    }
-
-    public void setLanguage(@Nonnull Language language) {
-        document.put("lang", language.name());
-    }
-
     public <T> T getValue(@Nonnull String path, @Nullable T def) {
         return MongoUtils.get(document, path, def);
     }
@@ -166,6 +167,10 @@ public sealed class PlayerDatabase implements Iterable<PlayerDatabaseEntry> perm
     @Nonnull
     public String getName() {
         return document.get("player_name", "null");
+    }
+
+    public void setName(@Nonnull String newName) {
+        // TODO (hapyl): 001, Mar 1:
     }
 
     public void save() {
@@ -231,6 +236,11 @@ public sealed class PlayerDatabase implements Iterable<PlayerDatabaseEntry> perm
     @Override
     public Iterator<PlayerDatabaseEntry> iterator() {
         return entries.iterator();
+    }
+
+    @Nullable
+    public Player getOnlinePlayer() {
+        return Bukkit.getPlayer(uuid);
     }
 
     private <T extends PlayerDatabaseEntry> T load(T t) {
