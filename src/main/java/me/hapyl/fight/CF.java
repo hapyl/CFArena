@@ -14,6 +14,8 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.IProtocolListener;
+import me.hapyl.spigotutils.module.command.CommandProcessor;
+import me.hapyl.spigotutils.module.command.SimpleCommand;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.reflect.Reflect;
 import me.hapyl.spigotutils.module.reflect.protocol.ProtocolListener;
@@ -26,6 +28,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerEvent;
+import org.checkerframework.checker.units.qual.C;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -43,6 +46,7 @@ public final class CF {
 
     static Main plugin;
     static Manager manager;
+    static CommandProcessor commandProcessor;
 
     private CF() {
     }
@@ -519,4 +523,16 @@ public final class CF {
         return Main.GAME_NAME;
     }
 
+    @Nonnull
+    public static CommandProcessor getCommandProcessor() {
+        if (commandProcessor == null) {
+            commandProcessor = new CommandProcessor(getPlugin());
+        }
+
+        return commandProcessor;
+    }
+
+    public static void registerCommand(@Nonnull SimpleCommand command) {
+        getCommandProcessor().registerCommand(command);
+    }
 }

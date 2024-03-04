@@ -42,6 +42,7 @@ import me.hapyl.spigotutils.module.parkour.ParkourManager;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import me.hapyl.spigotutils.module.util.Runnables;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
 import org.bukkit.*;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -983,7 +984,7 @@ public final class Manager extends BukkitRunnable {
     }
 
     public void forEachProfile(@Nonnull Consumer<PlayerProfile> consumer) {
-        profiles.values().forEach(consumer::accept);
+        profiles.values().forEach(consumer);
     }
 
     private void playAnimation() {

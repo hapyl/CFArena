@@ -5,7 +5,6 @@ import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.EquipmentSlot;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -142,10 +141,11 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
     public void handleBowShoot(ProjectilePostLaunchEvent ev) {
         final Projectile projectile = ev.getProjectile();
 
-        if (!(projectile instanceof Arrow arrow) || !(ev.getShooter() instanceof GamePlayer player)) {
+        if (!(projectile instanceof Arrow arrow)) {
             return;
         }
 
+        final GamePlayer player = ev.getShooter();
         final ArrowData arrowData = playerArrows.get(player);
 
         if (arrowData == null) {
@@ -304,7 +304,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
         location.setYaw(location.getYaw() + 180);
 
         player.teleport(location);
-        final Vector vector = location.getDirection().multiply(0.75d);
+        final Vector vector = location.getDirection().multiply(1.25d);
 
         player.setVelocity(vector);
 

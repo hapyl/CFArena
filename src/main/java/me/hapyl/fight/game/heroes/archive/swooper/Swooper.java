@@ -143,7 +143,7 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
             final boolean canActivePassive = data.sneakTicks >= passiveTalent.sneakThreshold;
 
             if (data.isStealthMode()) {
-                if (!canActivePassive || data.isTooFarAwayFromNest()) {
+                if (!canActivePassive || data.isTooFarAwayFromNest() || data.isEnemyWithinNest()) {
                     data.sneakTicks = 0;
                     data.setStealthMode(false);
                 }

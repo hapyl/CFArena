@@ -208,7 +208,7 @@ public class Vortex extends Hero implements UIComplexComponent {
         @DisplayField private final double ultimateBaseDamage = 1d;
         @DisplayField private final double ultimateSpeed = 0.3d;
         @DisplayField(dp = 3) private final double ultimateSpeedStuck = 0.05d;
-        @DisplayField(percentage = true) private final double knockback = 0.1d;
+        @DisplayField(percentage = true) private final double knockback = 0.3d;
 
         public VortexUltimate() {
             super("Arcana", 50);
@@ -252,7 +252,6 @@ public class Vortex extends Hero implements UIComplexComponent {
                     }
 
                     final Vector vector = player.getEyeLocation().getDirection();
-
                     final Vector nextVector = vector.multiply(isHit ? ultimateSpeedStuck : ultimateSpeed);
 
                     location.add(nextVector);
@@ -262,7 +261,7 @@ public class Vortex extends Hero implements UIComplexComponent {
                     }
 
                     // Fx
-                    player.spawnWorldParticle(location, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 3);
+                    player.spawnWorldParticle(location, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0.0f);
 
                     if (tick % 5 == 0) {
                         PlayerLib.playSound(location, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.25f);

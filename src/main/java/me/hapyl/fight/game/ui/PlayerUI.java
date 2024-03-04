@@ -59,6 +59,8 @@ public class PlayerUI extends TickingGameTask {
 
         // Create scoreboard
         this.builder = new Scoreboarder(Main.GAME_NAME);
+        this.builder.setHideNumbers(true);
+
         this.updateScoreboard();
         this.builder.addPlayer(player);
 

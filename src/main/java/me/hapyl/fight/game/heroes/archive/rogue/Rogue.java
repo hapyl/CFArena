@@ -2,6 +2,7 @@ package me.hapyl.fight.game.heroes.archive.rogue;
 
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.GameDeathEvent;
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
@@ -24,6 +25,7 @@ import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.ItemStackRandomizedData;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -233,7 +235,7 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
         public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
             final World world = player.getWorld();
             final Location location = player.getMidpointLocation();
-            final Item item = world.dropItem(location, new ItemStack(Material.LIGHTNING_ROD));
+            final Item item = world.dropItem(location, new ItemStackRandomizedData(Material.LIGHTNING_ROD));
 
             item.setPickupDelay(10000);
             item.setUnlimitedLifetime(true);
@@ -265,7 +267,7 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
 
                     for (LivingGameEntity entity : Collect.nearbyEntities(location, explosionRadius)) {
                         if (player.isSelfOrTeammate(entity)) {
-                            return;
+                            continue;
                         }
 
                         if (!hitEnemy) {
@@ -275,7 +277,6 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
                         entity.damageNoKnockback(explosionDamage, player, EnumDamageCause.PIPE_BOMB);
                         entity.addEffect(Effects.BLEED, bleedDuration);
                     }
-                    ;
 
                     // Refresh passive
                     if (hitEnemy) {

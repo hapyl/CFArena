@@ -82,6 +82,7 @@ public class ActivePack extends TickingGameTask {
         pack.displayParticle(entityLocation);
     }
 
+    // FIXME (hapyl): 004, Mar 4: This displays 0.1s for some reason sometimes
     public final void pickup0(@Nonnull GamePlayer player) {
         // Hacked pack logic
         if (hacked != null) {
@@ -114,6 +115,7 @@ public class ActivePack extends TickingGameTask {
 
     public void next(boolean start) {
         nextSpawn = start ? pack.getSpawnPeriod() / 2 : pack.getSpawnPeriod();
+        platform.setCustomNameVisible(false); // Force hide name
 
         new GameTask() {
             @Override

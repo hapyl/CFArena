@@ -24,9 +24,9 @@ import java.util.Set;
 
 public class ShockDark extends Talent implements Listener {
 
-    @DisplayField(suffix = "blocks") private final double explosionRadius = 3.7d;
-    @DisplayField private final double explosionMaxDamage = 15.0d;
-    @DisplayField private final int explosionWindup = 18;
+    @DisplayField(suffix = "blocks") private final double explosionRadius = 4.0d;
+    @DisplayField private final double explosionMaxDamage = 20.0d;
+    @DisplayField private final int explosionWindup = 26;
 
     private final ParticleBuilder blueColor = ParticleBuilder.redstoneDust(Color.fromRGB(89, 255, 233));
     private final ParticleBuilder redColor = ParticleBuilder.redstoneDust(Color.RED);
@@ -44,8 +44,7 @@ public class ShockDark extends Talent implements Listener {
 
         setType(Type.DAMAGE);
         setItem(Material.LIGHT_BLUE_DYE);
-        setCooldown(120);
-        setPoint(0);
+        setCooldownSec(5);
 
         shockArrows = Sets.newHashSet();
     }

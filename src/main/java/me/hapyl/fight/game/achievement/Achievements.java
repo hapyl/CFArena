@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 
+// This enum is not a registry! (wow) Rather a wrapper.
 public enum Achievements {
 
     PLAY_FIRST_GAME("So That's How It Is", "Play your very first game."),

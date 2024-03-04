@@ -8,10 +8,13 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.PlayerData;
 import me.hapyl.fight.game.talents.archive.swooper.SwooperPassive;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.reflect.glow.Glowing;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.block.data.BlockData;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -23,6 +26,8 @@ public class SwooperData extends PlayerData {
             org.bukkit.Color.fromRGB(46, 59, 79),
             org.bukkit.Color.fromRGB(42, 68, 110), 1
     );
+
+    private static final BlockData nestParticleData2 = Material.GRAY_CONCRETE.createBlockData();
 
     private final Swooper swooper;
     private final Set<LivingGameEntity> highlightedEntities;
@@ -98,7 +103,7 @@ public class SwooperData extends PlayerData {
         });
 
         // Ambient
-        player.spawnWorldParticle(nestLocation, Particle.SPELL_MOB_AMBIENT, 5, 1.2d, 0.4d, 1.2d, 0);
+        player.spawnWorldParticle(nestLocation, Particle.FALLING_DUST, 2, 0.8d, 0.4d, 0.8d, 0, nestParticleData2);
     }
 
     public boolean isTooFarAwayFromNest() {
@@ -138,6 +143,24 @@ public class SwooperData extends PlayerData {
     @Nonnull
     public String makeBars() {
         return Named.REFRACTION.getCharacterColored() + " " + makeBar(sneakTicks);
+    }
+
+    public boolean isEnemyWithinNest() {
+        if (nestLocation == null) {
+            return false;
+        }
+
+        final double maxNestStrayDistance = swooper.getPassiveTalent().maxNestStrayDistance;
+
+        for (LivingGameEntity entity : Collect.nearbyEntities(nestLocation, maxNestStrayDistance)) {
+            if (player.isSelfOrTeammate(entity)) {
+                continue;
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     private String makeBar(int i) {

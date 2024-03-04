@@ -13,7 +13,6 @@ import me.hapyl.fight.game.weapons.ability.Ability;
 import me.hapyl.fight.game.weapons.ability.AbilityType;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
@@ -30,11 +29,9 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
 
     public static final double HEADSHOT_THRESHOLD = 0.75d;
     public static final double HEADSHOT_MULTIPLIER = 1.5d;
-    public static final double RANGE_KNOCKBACK = 0.5d;
 
     private final PlayerMap<Integer> playerAmmo;
     protected double shift;
-    protected double knockback;
     protected double movementError;
 
     private int reloadTime;
@@ -58,13 +55,11 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
         this.maxAmmo = 8;
         this.reloadTime = 100;
         this.movementError = 0.3d;
-        this.knockback = RANGE_KNOCKBACK;
 
         this.particleHit = PackedParticle.EMPTY;
         this.particleTick = PackedParticle.EMPTY;
 
         setAbility(AbilityType.RIGHT_CLICK, new AbilityShoot());
-        setAbility(AbilityType.LEFT_CLICK, new AbilityReload());
     }
 
     public double getMovementError() {
@@ -74,16 +69,6 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
     public RangeWeapon setMovementError(double movementError) {
         this.movementError = movementError;
         return this;
-    }
-
-    /**
-     * Sets this weapon knockback multiplier between 0-1.
-     * The lower, the less knockback entity will take, where 0 is no knockback.
-     *
-     * @param knockback - New knockback.
-     */
-    public void setKnockback(double knockback) {
-        this.knockback = Numbers.clamp(1 - knockback, 0.0f, 1.0d);
     }
 
     @Override
@@ -307,24 +292,6 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
     private void playShootSound(Location location) {
         if (sound != null) {
             PlayerLib.playSound(location, sound, pitch);
-        }
-    }
-
-    public class AbilityReload extends Ability {
-
-        public AbilityReload() {
-            super("Reload!", "Reload your weapon manually.");
-        }
-
-        @Nullable
-        @Override
-        public Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
-            if (player.hasCooldown(getMaterial()) || getPlayerAmmo(player) >= maxAmmo) {
-                return null;
-            }
-
-            reload(player);
-            return Response.AWAIT;
         }
     }
 

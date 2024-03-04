@@ -25,8 +25,10 @@ import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.InputTalent;
+import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
+import me.hapyl.fight.game.talents.archive.witcher.Akciy;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
@@ -42,6 +44,7 @@ import me.hapyl.spigotutils.module.parkour.Data;
 import me.hapyl.spigotutils.module.parkour.ParkourManager;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
@@ -73,9 +76,12 @@ import java.util.Set;
  */
 public class PlayerHandler implements Listener {
 
-    private static final double VELOCITY_MAX_Y = 4.821600093841552d;
-    public final double RANGE_SCALE = 8.933d;
+    public static final double RANGE_KNOCKBACK_RESISTANCE = 0.7d;
+    public static final double VELOCITY_MAX_Y = 4.821600093841552d;
+
+    public final double RANGE_SCALE = 6.28d;
     public final double DAMAGE_LIMIT = Short.MAX_VALUE;
+
     private final Set<EntityDamageEvent.DamageCause> instantDeathCauses =
             Set.of(EntityDamageEvent.DamageCause.VOID);
 
@@ -278,6 +284,12 @@ public class PlayerHandler implements Listener {
             return;
         }
 
+        // Check for stun
+        if (Talents.AKCIY.getTalent(Akciy.class).isStunned(player)) {
+            player.sendMessage("&4&l※ &cCannot use ultimate while stunned!");
+            return;
+        }
+
         // Ultimate is not ready
         if (!player.isUltimateReady()) {
             player.sendTitle("&4&l※", "&cYour ultimate isn't ready!", 5, 15, 5);
@@ -375,6 +387,7 @@ public class PlayerHandler implements Listener {
                     // Scale it down according to a super cool formula for players
                     if (projectile.getShooter() instanceof Player player && projectile instanceof AbstractArrow arrow) {
                         final GamePlayer gamePlayer = CF.getPlayer(player);
+
                         if (gamePlayer != null) {
                             final Weapon weapon = gamePlayer.getHero().getWeapon();
                             final double weaponDamage = weapon.getDamage();
@@ -499,6 +512,17 @@ public class PlayerHandler implements Listener {
                     gameEntity.executeFerocity(instance.damage, lastDamager, ferocityStrikes);
                 }
             }
+        }
+
+        // Yes, this is a hack before I love everyone
+        if (finalProjectile != null && lastDamager != null) {
+            final double kbResist = gameEntity.getAttributeValue(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
+
+            gameEntity.setAttributeValue(Attribute.GENERIC_KNOCKBACK_RESISTANCE, RANGE_KNOCKBACK_RESISTANCE);
+
+            GameTask.runLater(() -> {
+                gameEntity.setAttributeValue(Attribute.GENERIC_KNOCKBACK_RESISTANCE, kbResist);
+            }, 1);
         }
 
         // Don't damage anything, only visually
@@ -805,13 +829,13 @@ public class PlayerHandler implements Listener {
         final Projectile entity = ev.getEntity();
         final ProjectileSource shooter = entity.getShooter();
 
-        if (!(shooter instanceof LivingEntity living)) {
+        if (!(shooter instanceof Player playerShooter)) {
             return;
         }
 
-        final LivingGameEntity livingGameEntity = CF.getEntity(living);
+        final GamePlayer player = CF.getPlayer(playerShooter);
 
-        if (livingGameEntity == null) {
+        if (player == null) {
             return;
         }
 
@@ -821,7 +845,7 @@ public class PlayerHandler implements Listener {
         new GameTask() {
             @Override
             public void run() {
-                new ProjectilePostLaunchEvent(livingGameEntity, entity).call();
+                new ProjectilePostLaunchEvent(player, entity).call();
             }
         }.runTaskLater(1);
     }

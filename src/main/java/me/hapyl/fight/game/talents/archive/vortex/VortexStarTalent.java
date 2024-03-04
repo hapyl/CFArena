@@ -34,7 +34,7 @@ public class VortexStarTalent extends Talent {
 
         setType(Type.CREATABLE);
         setItem(Material.NETHER_STAR);
-        setCooldown(100);
+        setCooldown(50);
     }
 
     @Override

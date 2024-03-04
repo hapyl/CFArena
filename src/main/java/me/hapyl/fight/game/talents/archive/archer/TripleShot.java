@@ -27,8 +27,7 @@ public class TripleShot extends Talent {
 
         setType(Type.DAMAGE);
         setItem(Material.ARROW);
-        setCooldown(75);
-        setPoint(0);
+        setCooldown(90);
     }
 
     @Override

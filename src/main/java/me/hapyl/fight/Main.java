@@ -1,5 +1,6 @@
 package me.hapyl.fight;
 
+import me.hapyl.fight.build.UpdateBlockHackReplacer;
 import me.hapyl.fight.chat.ChatHandler;
 import me.hapyl.fight.command.CommandRegistry;
 import me.hapyl.fight.database.Database;
@@ -18,6 +19,7 @@ import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.maps.features.BoosterController;
 import me.hapyl.fight.game.maps.gamepack.GamePackListener;
 import me.hapyl.fight.game.parkour.CFParkourManager;
+import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.talents.archive.bloodfiend.candlebane.CandlebaneProtocol;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TaskList;
@@ -31,6 +33,7 @@ import me.hapyl.fight.script.ScriptManager;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.EternaAPI;
 import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.player.tablist.Tablist;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -53,6 +56,7 @@ public class Main extends JavaPlugin {
 
     public static final String requireEternaVersion = "2.50.0";
     public static final String requireMinecraftVersion = "1.20.4";
+    public static final boolean isProtocolStillBrokenAndBreaksOnReload = true;
 
     private static long start;
     private static Main plugin;
@@ -150,6 +154,11 @@ public class Main extends JavaPlugin {
 
         // Kick because of /reload
         for (final Player player : Bukkit.getOnlinePlayers()) {
+            if (isProtocolStillBrokenAndBreaksOnReload) {
+                Manager.current().handlePlayer(player);
+                continue;
+            }
+
             final boolean isOperator = player.isOp();
             final StringBuilder builder = new StringBuilder("""
                     &4&lServer Reloaded!
@@ -177,6 +186,9 @@ public class Main extends JavaPlugin {
         // Load contributors
         //Contributors.loadContributors();
 
+        // Load update hack
+        new UpdateBlockHackReplacer();
+
         new TrialListener();
     }
 
@@ -201,6 +213,16 @@ public class Main extends JavaPlugin {
         }, "Game instance stop.");
 
         runSafe(this::saveConfig, "Config save.");
+
+        runSafe(() -> {
+            Bukkit.getOnlinePlayers().forEach(player -> {
+                final Tablist oldTablist = Tablist.getPlayerTabList(player);
+
+                if (oldTablist != null) {
+                    oldTablist.destroy();
+                }
+            });
+        }, "Tablist removal.");
     }
 
     // *=* Getters *=* //

@@ -40,20 +40,18 @@ public final class ReloadChecker extends DependencyInjector<Main> {
     public void check(int delay) {
         Runnables.runLater(() -> {
             if (reloadCount > 0) {
-                sendCenterMessageToOperatorsAndConsole("");
-                sendCenterMessageToOperatorsAndConsole("&4&lWARNING");
-                sendCenterMessageToOperatorsAndConsole("&cSever Reload Detected!");
-                sendCenterMessageToOperatorsAndConsole("");
-
-                sendCenterMessageToOperatorsAndConsole(
-                        "&cNote that %s does &nnot&c support &e/reload&c and it's &nshould only&c be used in development.",
-                        getPlugin().getDescription().getName()
-                );
-
-                sendCenterMessageToOperatorsAndConsole("");
-
-                sendCenterMessageToOperatorsAndConsole("&cIf you are not a developer, please &lrestart&c the server instead.");
-                sendCenterMessageToOperatorsAndConsole("");
+                sendCenterMessageToOperatorsAndConsole("""
+                                                
+                        &4&lWARING
+                        &cServer Reload Detected!
+                                                
+                        &cNote that &l%s&c does &nnot&c support &e/reload&c since it causes all sorts of errors and memory leaks.
+                        
+                        &cIf you are a developer, unless you &nabsolutely&c know what you are doing, you should not &e/reload&c the server!
+                                                
+                        &4Please &e/restart&4 your server before reporting an error!
+                                                
+                        """.formatted(getPlugin().getDescription().getName()));
 
                 // sfx
                 Bukkit.getOnlinePlayers().stream().filter(Player::isOp).forEach(player -> {
@@ -66,25 +64,30 @@ public final class ReloadChecker extends DependencyInjector<Main> {
         }, delay);
     }
 
-    private void sendCenterMessageToOperatorsAndConsole(String message, @Nullable Object... format) {
+    private void sendCenterMessageToOperatorsAndConsole(String message) {
         final List<CommandSender> senders = Collect.onlineOperatorsAndConsole();
 
-        if (message.isEmpty() || message.isBlank()) {
-            senders.forEach(sender -> {
-                Chat.sendMessage(sender, "", format);
-            });
-            return;
+        final String[] messages = message.split("\n");
+        for (String s : messages) {
+            if (s.isEmpty() || s.isBlank()) {
+                senders.forEach(sender -> {
+                    Chat.sendMessage(sender, "");
+                });
+                continue;
+            }
+
+            final List<String> strings = ItemBuilder.splitString("&c", Chat.format(s), 50);
+
+            for (String string : strings) {
+                final String centerString = CenterChat.makeString(string);
+
+                senders.forEach(sender -> {
+                    Chat.sendMessage(sender, centerString);
+                });
+            }
         }
 
-        final List<String> strings = ItemBuilder.splitString("&c", Chat.format(message, format), 50);
 
-        for (String string : strings) {
-            final String centerString = CenterChat.makeString(string);
-
-            senders.forEach(sender -> {
-                Chat.sendMessage(sender, centerString, format);
-            });
-        }
     }
 
 }

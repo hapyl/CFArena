@@ -14,7 +14,7 @@ import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
-public class GameManagementGUI extends StyledGUI implements StrictlyLobbyGUI {
+public class GameManagementGUI extends StyledGUI {
 
     public GameManagementGUI(Player player) {
         super(player, "Game Management", Size.FOUR);

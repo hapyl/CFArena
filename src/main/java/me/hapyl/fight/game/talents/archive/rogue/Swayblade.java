@@ -15,8 +15,8 @@ import javax.annotation.Nonnull;
 public class Swayblade extends Talent {
 
     @DisplayField(suffix = "blocks") private final double radius = 2.5d;
-    @DisplayField private final float maxYawShift = 45.0f;
-    @DisplayField private final float maxPitchShift = 25.0f;
+    @DisplayField private final float maxYawShift = 60.0f;
+    @DisplayField private final float maxPitchShift = 40.0f;
 
     public Swayblade() {
         super("Swayblade");

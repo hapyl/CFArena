@@ -10,6 +10,7 @@ import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.archive.alchemist.CauldronAbility;
 import me.hapyl.fight.game.talents.archive.alchemist.RandomPotion;
+import me.hapyl.fight.game.talents.archive.archer.HawkeyePassive;
 import me.hapyl.fight.game.talents.archive.archer.ShockDark;
 import me.hapyl.fight.game.talents.archive.archer.TripleShot;
 import me.hapyl.fight.game.talents.archive.bloodfiend.BloodCup;
@@ -139,12 +140,7 @@ public enum Talents {
      */
     TRIPLE_SHOT(new TripleShot()),
     SHOCK_DARK(new ShockDark()),
-    HAWKEYE_ARROW(new PassiveTalent(
-            "Hawkeye Arrow",
-            "Fully charged shots while sneaking have &b25%&7 chance to fire a hawkeye arrow that homes to nearby enemies.",
-            Material.ENDER_EYE,
-            Talent.Type.DAMAGE
-    )),
+    HAWKEYE_ARROW(new HawkeyePassive()),
 
     /**
      * {@link me.hapyl.fight.game.heroes.archive.alchemist.Alchemist}

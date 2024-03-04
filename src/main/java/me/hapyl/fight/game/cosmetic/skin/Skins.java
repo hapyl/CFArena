@@ -39,6 +39,15 @@ public enum Skins {
     }
 
     @Nonnull
+    public <T extends Skin> T getSkin(@Nonnull Class<T> clazz) {
+        if (clazz.isInstance(skin)) {
+            return clazz.cast(skin);
+        }
+
+        throw new ClassCastException("%s cannot be cast to %s!".formatted(skin.getClass().getSimpleName(), clazz.getSimpleName()));
+    }
+
+    @Nonnull
     public static List<Skins> byHero(@Nonnull Heroes hero) {
         final List<Skins> list = Lists.newArrayList();
 

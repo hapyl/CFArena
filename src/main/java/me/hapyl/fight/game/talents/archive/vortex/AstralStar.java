@@ -96,6 +96,7 @@ public class AstralStar implements Ticking {
 
             entity.setCollision(EntityUtils.Collision.DENY);
             entity.setValidState(true);
+            entity.setInformImmune(false);
             entity.setImmune(EnumDamageCause.SUFFOCATION);
 
             player.getTeam().addEntry(entity.getEntry());
