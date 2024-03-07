@@ -3,6 +3,7 @@ package me.hapyl.fight.game.heroes.archive.ronin;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
+import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
@@ -21,7 +22,7 @@ import org.bukkit.inventory.meta.trim.TrimPattern;
 import javax.annotation.Nonnull;
 import java.util.Map;
 
-public class Ronin extends Hero implements Listener, DisabledHero {
+public class Ronin extends Hero implements Listener, Disabled {
 
     private final int chargeAttackCooldown = Tick.fromSecond(5);
     private final Map<GamePlayer, ChargeAttack> chargeAttackMap;

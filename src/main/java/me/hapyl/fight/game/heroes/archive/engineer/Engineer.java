@@ -131,7 +131,7 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler<Engine
         final GamePlayer player = CF.getPlayer(ev.getPlayer());
         final Action action = ev.getAction();
 
-        if (ev.getHand() == EquipmentSlot.OFF_HAND) {
+        if (player == null || ev.getHand() == EquipmentSlot.OFF_HAND) {
             return;
         }
 

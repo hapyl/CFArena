@@ -983,6 +983,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         return instance.getBaseValue();
     }
 
+    // FIXME (hapyl): 008, Mar 8: please refactor this to getEntityData()
     @Nonnull
     public EntityData getData() {
         return entityData;

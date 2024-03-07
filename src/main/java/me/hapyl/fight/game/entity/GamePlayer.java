@@ -49,6 +49,7 @@ import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.display.AscendingDisplay;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.*;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Numbers;
@@ -1279,10 +1280,24 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
 
         // Apply equipment
         if (skin == null || Settings.USE_SKINS_INSTEAD_OF_ARMOR.isDisabled(getPlayer())) {
-            final Skins currentSkin = getSelectedSkin();
+            final Skins enumSkin = getSelectedSkin();
 
-            if (currentSkin != null) {
-                currentSkin.getSkin().equip(this);
+            if (enumSkin != null) {
+                final Skin skinHandle = enumSkin.getSkin();
+
+                // Don't select disabled skins
+                if (skinHandle instanceof Disabled) {
+                    getDatabase().skinEntry.setSelected(getEnumHero(), null);
+
+                    sendMessage("");
+                    sendMessage("&cYou have a disabled skin selected! We had to change it, sorry!");
+                    sendMessage("");
+
+                    equipment.equip(this);
+                }
+                else {
+                    skinHandle.equip(this);
+                }
             }
             else {
                 equipment.equip(this);

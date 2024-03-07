@@ -1,9 +1,12 @@
 package me.hapyl.fight.game.heroes.archive.km;
 
+import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.Race;
 import me.hapyl.fight.game.heroes.UltimateResponse;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.weapons.PackedParticle;
@@ -14,7 +17,7 @@ import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
 
-public class KillingMachine extends Hero implements DisabledHero {
+public class KillingMachine extends Hero implements Disabled {
 
     private final int weaponCd = 35;
 

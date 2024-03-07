@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.moonwalker;
 
+import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.effect.Effects;
@@ -21,7 +22,7 @@ import org.bukkit.inventory.ItemStack;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class Moonwalker extends Hero implements DisabledHero, PlayerDataHandler<MoonwalkerData>, PlayerElement, UIComponent {
+public class Moonwalker extends Hero implements Disabled, PlayerDataHandler<MoonwalkerData>, PlayerElement, UIComponent {
 
     private final PlayerDataMap<MoonwalkerData> playerData = PlayerMap.newDataMap(MoonwalkerData::new);
 

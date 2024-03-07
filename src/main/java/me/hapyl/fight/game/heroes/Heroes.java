@@ -8,6 +8,7 @@ import me.hapyl.fight.database.collection.HeroStatsCollection;
 import me.hapyl.fight.database.entry.ExperienceEntry;
 import me.hapyl.fight.database.entry.HeroEntry;
 import me.hapyl.fight.exception.HandleNotSetException;
+import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -159,7 +160,7 @@ public enum Heroes implements Formatted {
     }
 
     public boolean isValidHero() {
-        return !(hero instanceof DisabledHero);
+        return !(hero instanceof Disabled);
     }
 
     /**

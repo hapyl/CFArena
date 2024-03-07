@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
+import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -36,7 +37,7 @@ import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Set;
 
-public class Vampire extends Hero implements Listener, UIComplexComponent, DisabledHero {
+public class Vampire extends Hero implements Listener, UIComplexComponent, Disabled {
 
     // TODO (hapyl): 019, Feb 19: I actually want to bring this one back because VAMPIRES
 

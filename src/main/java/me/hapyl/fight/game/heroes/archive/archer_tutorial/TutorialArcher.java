@@ -1,11 +1,11 @@
 package me.hapyl.fight.game.heroes.archive.archer_tutorial;
 
 import me.hapyl.fight.event.custom.GameDamageEvent;
+import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.UltimateResponse;
@@ -20,8 +20,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-public class TutorialArcher extends Hero implements DisabledHero, Listener {
+public class TutorialArcher extends Hero implements Disabled, Listener {
 
     private final Archer archer = Heroes.ARCHER.getHero(Archer.class);
     private final double healthThreshold = 25d;
@@ -39,17 +40,10 @@ public class TutorialArcher extends Hero implements DisabledHero, Listener {
         setUltimate(new TutorialArcherUltimate());
     }
 
-    private class TutorialArcherUltimate extends UltimateTalent {
-
-        public TutorialArcherUltimate() {
-            super("BOOM BOW", 5);
-        }
-
-        @Nonnull
-        @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-            return UltimateResponse.OK;
-        }
+    @Nullable
+    @Override
+    public String disableReason() {
+        return "Enforce non selectability.";
     }
 
     @EventHandler()
@@ -100,6 +94,19 @@ public class TutorialArcher extends Hero implements DisabledHero, Listener {
     @Override
     public Talent getPassiveTalent() {
         return null;
+    }
+
+    private class TutorialArcherUltimate extends UltimateTalent {
+
+        public TutorialArcherUltimate() {
+            super("BOOM BOW", 5);
+        }
+
+        @Nonnull
+        @Override
+        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+            return UltimateResponse.OK;
+        }
     }
 
 }

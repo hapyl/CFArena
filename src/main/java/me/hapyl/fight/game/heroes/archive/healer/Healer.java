@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.healer;
 
-import me.hapyl.fight.game.heroes.DisabledHero;
+import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.Talents;
@@ -9,7 +9,7 @@ import me.hapyl.fight.game.talents.archive.techie.Talent;
 
 import javax.annotation.Nonnull;
 
-public class Healer extends Hero implements DisabledHero {
+public class Healer extends Hero implements Disabled {
 
     public Healer(@Nonnull Heroes handle) {
         super(handle, "Healer");

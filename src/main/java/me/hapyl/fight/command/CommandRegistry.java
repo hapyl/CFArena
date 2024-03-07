@@ -404,7 +404,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             Chat.sendMessage(player, "&bRarity: " + cosmetic.getRarity());
             Chat.sendMessage(player, "&3Type: " + cosmetic.getType());
             Chat.sendMessage(player, "&bIs Exclusive: " + cosmetic.isExclusive());
-            Chat.sendMessage(player, "&3Is Disabled: " + (cosmetic instanceof DisabledCosmetic));
+            Chat.sendMessage(player, "&3Is Disabled: " + (cosmetic instanceof Disabled));
         });
 
         register("later", (player, args) -> {

@@ -1,12 +1,11 @@
 package me.hapyl.fight.game.cosmetic.skin;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.game.cosmetic.skin.archer.AbstractSkinArcher;
+import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.cosmetic.skin.archer.SkinGreenArcher;
 import me.hapyl.fight.game.cosmetic.skin.archer.SkinRedHood;
 import me.hapyl.fight.game.cosmetic.skin.bk.SkinRoyalKnight;
 import me.hapyl.fight.game.cosmetic.skin.shark.SkinMegalodon;
-import me.hapyl.fight.game.heroes.DisabledHero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.archer.Archer;
 import me.hapyl.fight.game.heroes.archive.knight.BlastKnight;
@@ -54,7 +53,7 @@ public enum Skins {
         for (Skins enumSkin : values()) {
             final Skin skin = enumSkin.skin;
 
-            if (skin.getHero() == hero && !(skin instanceof DisabledHero)) {
+            if (skin.getHero() == hero && !(skin instanceof Disabled)) {
                 list.add(enumSkin);
             }
         }

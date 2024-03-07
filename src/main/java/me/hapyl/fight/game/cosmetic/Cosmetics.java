@@ -3,6 +3,7 @@ package me.hapyl.fight.game.cosmetic;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CosmeticEntry;
+import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.archive.*;
 import me.hapyl.fight.game.cosmetic.archive.gadget.FireworkGadget;
@@ -260,7 +261,7 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
 
     static {
         for (Cosmetics enumCosmetic : values()) {
-            if (enumCosmetic.cosmetic instanceof DisabledCosmetic) {
+            if (enumCosmetic.cosmetic instanceof Disabled) {
                 continue;
             }
 
@@ -287,7 +288,7 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
     }
 
     public boolean isValidForCrate() {
-        return !(cosmetic instanceof DisabledCosmetic) && !cosmetic.isExclusive();
+        return !(cosmetic instanceof Disabled) && !cosmetic.isExclusive();
     }
 
     @Nonnull

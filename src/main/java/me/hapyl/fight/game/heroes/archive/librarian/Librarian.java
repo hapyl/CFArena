@@ -2,6 +2,7 @@ package me.hapyl.fight.game.heroes.archive.librarian;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.KeepNull;
+import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
@@ -43,7 +44,7 @@ import java.util.Map;
  * This hero is pain in the ass...
  * Slots are hardcoded, make sure not to change them.
  */
-public class Librarian extends Hero implements ComplexHero, Listener, DisabledHero {
+public class Librarian extends Hero implements ComplexHero, Listener, Disabled {
 
     private final Map<Integer, LibrarianTalent> talentMap = new HashMap<>();
     private final PlayerMap<Grimoire> grimoireMap = PlayerMap.newMap();
