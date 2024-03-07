@@ -7,7 +7,7 @@ import me.hapyl.fight.event.custom.GameDeathEvent;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
-import me.hapyl.fight.game.entity.EquipmentSlot;
+import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
@@ -171,7 +171,7 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
 
     @Override
     public void onStart(@Nonnull GamePlayer player) {
-        player.setItem(EquipmentSlot.ARROW, new ItemStack(Material.ARROW));
+        player.setItem(EquipmentSlots.ARROW, new ItemStack(Material.ARROW));
     }
 
     @Override

@@ -1,4 +1,4 @@
-package me.hapyl.fight.game.maps.features;
+package me.hapyl.fight.game.maps.features.library;
 
 import me.hapyl.fight.game.maps.MapFeature;
 import me.hapyl.fight.garbage.CFGarbageCollector;
@@ -19,10 +19,10 @@ import org.bukkit.event.entity.EntityDamageEvent;
 public class LibraryCat extends MapFeature implements Listener {
 
     private final Location[] catLocations = {
-            asLocation(20, 75, -118),
-            asLocation(23, 78, -117),
-            asLocation(18, 75, -121),
-            asLocation(17, 74.5d, -118)
+            asLocation(4021, 75, -18),
+            asLocation(4023, 78, -17),
+            asLocation(4018, 75, -21),
+            asLocation(4017, 74.5, -18)
     };
 
     private int currentCatPos;

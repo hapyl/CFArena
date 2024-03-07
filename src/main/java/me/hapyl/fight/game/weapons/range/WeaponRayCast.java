@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.weapons.range;
 
 import me.hapyl.fight.annotate.OverridingMethodsMustImplementEvents;
+import me.hapyl.fight.event.PlayerHandler;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -127,7 +128,7 @@ public class WeaponRayCast {
 
         final boolean isHeadShot = isHeadShot(location, target);
 
-        target.modifyKnockback(weapon.knockback, then -> {
+        target.modifyKnockback(PlayerHandler.RANGE_KNOCKBACK_RESISTANCE, then -> {
             onHit(then, isHeadShot);
         });
 

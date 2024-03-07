@@ -10,6 +10,7 @@ import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.archive.alchemist.CauldronAbility;
 import me.hapyl.fight.game.talents.archive.alchemist.RandomPotion;
+import me.hapyl.fight.game.talents.archive.archer.HawkeyePassive;
 import me.hapyl.fight.game.talents.archive.archer.ShockDark;
 import me.hapyl.fight.game.talents.archive.archer.TripleShot;
 import me.hapyl.fight.game.talents.archive.bloodfiend.BloodCup;
@@ -31,6 +32,7 @@ import me.hapyl.fight.game.talents.archive.ender.TransmissionBeacon;
 import me.hapyl.fight.game.talents.archive.engineer.EngineerRecall;
 import me.hapyl.fight.game.talents.archive.engineer.EngineerSentry;
 import me.hapyl.fight.game.talents.archive.engineer.EngineerTurret;
+import me.hapyl.fight.game.talents.archive.frostbite.IcyShardsPassive;
 import me.hapyl.fight.game.talents.archive.frostbite.IceBarrier;
 import me.hapyl.fight.game.talents.archive.frostbite.IceCageTalent;
 import me.hapyl.fight.game.talents.archive.frostbite.Icicles;
@@ -139,12 +141,7 @@ public enum Talents {
      */
     TRIPLE_SHOT(new TripleShot()),
     SHOCK_DARK(new ShockDark()),
-    HAWKEYE_ARROW(new PassiveTalent(
-            "Hawkeye Arrow",
-            "Fully charged shots while sneaking have &b25%&7 chance to fire a hawkeye arrow that homes to nearby enemies.",
-            Material.ENDER_EYE,
-            Talent.Type.DAMAGE
-    )),
+    HAWKEYE_ARROW(new HawkeyePassive()),
 
     /**
      * {@link me.hapyl.fight.game.heroes.archive.alchemist.Alchemist}
@@ -282,9 +279,9 @@ public enum Talents {
     SHADOW_ASSASSIN_CLONE(new ShadowAssassinClone()),
     SHADOW_ENERGY(new PassiveTalent(
             "Shadow Energy", """
-            Accumulate %1$s while using abilities in &9Stealth&7 mode.
+            Accumulate %1$s while using talents in &9Stealth&7 mode.
                         
-            Spend %1$s to use empowered abilities in &cFury&7 mode.
+            Spend %1$s to use empowered talents in &cFury&7 mode.
             """.formatted(Named.SHADOW_ENERGY),
             Material.CHORUS_FRUIT,
             Talent.Type.ENHANCE
@@ -333,6 +330,7 @@ public enum Talents {
     ICICLES(new Icicles()),
     ICE_CAGE(new IceCageTalent()),
     ICE_BARRIER(new IceBarrier()),
+    ICY_SHARDS(new IcyShardsPassive()),
     CHILL_AURA(new PassiveTalent("Chill Aura", """
             You emmit a &bchill aura&7, that &bslows&7 and decreases enemies %s in small AoE.
             """.formatted(AttributeType.ATTACK_SPEED), Material.LIGHT_BLUE_DYE)),
@@ -344,9 +342,13 @@ public enum Talents {
     SLOWING_AURA(new SlowingAura()),
     HEALING_AURA(new HealingAura()),
     SHADOW_CLONE(new ShadowClone()),
-    DARK_MAGE_PASSIVE(new PassiveTalent("Wither Blood", """
-            Upon taking &cdamage&7, there is a small chance to &8wither&7 the attacker.
-            """, Material.WITHER_ROSE, Talent.Type.IMPAIR)),
+    DARK_MAGE_PASSIVE(new PassiveTalent(
+            "Wither Rose", """
+            Dealing &4damage&7 plants a %1$s&7 into the &cenemy&7.
+                        
+            &nEach&7 stack of %1$s increases the &nduration&7 of your ultimate.
+            """.formatted(Named.WITHER_ROSE), Material.WITHER_ROSE)
+    ),
 
     /**
      * {@link me.hapyl.fight.game.heroes.archive.knight.BlastKnight}
@@ -557,7 +559,8 @@ public enum Talents {
     ENGINEER_RECALL(new EngineerRecall()),
     ENGINEER_PASSIVE(new PassiveTalent("Magnetic Attraction", """
             Every few seconds you'll receive an Iron Ingot.
-            Use it to build stuff!""", Material.IRON_INGOT)),
+            Use it to build stuff!
+            """, Material.IRON_INGOT)),
 
     /**
      * {@link me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend}

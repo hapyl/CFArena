@@ -1,32 +1,32 @@
 package me.hapyl.fight.game.talents.archive.dark_mage;
 
-import me.hapyl.fight.game.TalentReference;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.util.Collect;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.npc.ClickType;
 import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
 import me.hapyl.spigotutils.module.reflect.npc.NPCPose;
 import org.bukkit.Location;
 import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
-import static org.bukkit.Sound.*;
+public class ShadowCloneNPC extends HumanNPC {
 
-public class ShadowCloneNPC extends HumanNPC implements TalentReference<ShadowClone> {
-
-    public final GamePlayer player;
+    private final GamePlayer player;
     private final ShadowClone talent;
-    protected boolean ultimate;
+    private final GameTask task;
 
-    private boolean valid;
+    private final double health;
+    private final int energy;
+    private final int[] cooldowns;
+
+    private int lifeTime;
 
     public ShadowCloneNPC(ShadowClone talent, GamePlayer player) {
         super(CFUtils.anchorLocation(player.getLocation()), "", player.getName());
@@ -34,8 +34,37 @@ public class ShadowCloneNPC extends HumanNPC implements TalentReference<ShadowCl
         this.talent = talent;
         this.player = player;
 
+        // Store data
+        this.health = player.getHealth();
+        this.energy = player.getUltPoints();
+
+        final Hero hero = player.getHero();
+
+        this.cooldowns = new int[] {
+                hero.getFirstTalent().getCdTimeLeft(player),
+                hero.getSecondTalent().getCdTimeLeft(player),
+                hero.getThirdTalent().getCdTimeLeft(player)
+        };
+
+        this.lifeTime = talent.getDuration();
+        this.task = new GameTask() {
+            @Override
+            public void run() {
+                if (lifeTime-- > 0) {
+                    return;
+                }
+
+                talent.clones.remove(player, ShadowCloneNPC.this);
+
+                player.sendSubtitle("&cYour clone dissipated!", 0, 20, 0);
+                player.playWorldSound(getLocation(), Sound.ENTITY_GHAST_SCREAM, 0.75f);
+
+                remove();
+                playRemoveFx();
+            }
+        }.runTaskTimer(0, 1);
+
         // Spawn
-        player.addEffect(Effects.INVISIBILITY, talent.getDuration());
         showAll();
         setEquipment(player.getEquipment());
 
@@ -46,34 +75,52 @@ public class ShadowCloneNPC extends HumanNPC implements TalentReference<ShadowCl
             setPose(NPCPose.CROUCHING);
         }
 
-        valid = true;
-    }
-
-    public boolean isUltimate() {
-        return ultimate;
+        // Fx
+        player.playWorldSound(Sound.ENTITY_ILLUSIONER_MIRROR_MOVE, 0.25f);
+        player.playWorldSound(Sound.ENTITY_ILLUSIONER_PREPARE_MIRROR, 1.25f);
     }
 
     @Override
-    public void onClick(@Nonnull Player player, @Nonnull ClickType type) {
-        if (this.player.is(player)) {
-            return;
-        }
-
-        if (ultimate) {
-            blind(player);
-        }
-        else {
-            explode(player);
-        }
+    public String toString() {
+        return "&3\uD83E\uDE9E &b" + CFUtils.decimalFormatTick(lifeTime);
     }
 
-    public void remove(int delay) {
-        if (delay <= 0) {
-            remove();
+    @Override
+    public void onClick(@Nonnull Player click, @Nonnull ClickType type) {
+        final GamePlayer clickedPlayer = CF.getPlayer(click);
+
+        if (player.isSelfOrTeammate(clickedPlayer)) {
             return;
         }
 
-        GameTask.runLater(this::remove, delay);
+        if (type != ClickType.ATTACK) {
+            return;
+        }
+
+        remove();
+
+        talent.clones.remove(player, this);
+        talent.startCd(player);
+
+        // Fx
+        final Location location = getLocation();
+
+        player.playWorldSound(location, Sound.BLOCK_GLASS_BREAK, 0.0f);
+        player.playWorldSound(location, Sound.ENTITY_PLAYER_HURT, 0.75f);
+
+        playRemoveFx();
+
+        player.sendSubtitle("&cYou clone was destroyed!", 0, 20, 0);
+    }
+
+    @Override
+    public void remove() {
+        super.remove();
+        task.cancel();
+    }
+
+    public void playRemoveFx() {
+        player.spawnWorldParticle(getLocation(), Particle.SMOKE_LARGE, 20, 0.1, 0.5, 0.1, 0.5f);
     }
 
     @Nonnull
@@ -81,72 +128,25 @@ public class ShadowCloneNPC extends HumanNPC implements TalentReference<ShadowCl
         return talent;
     }
 
-    @Override
-    @Deprecated
-    public void remove() {
-        super.remove();
-    }
+    public void teleport() {
+        player.teleport(getLocation());
 
-    public void blind(@Nonnull Player clicker) {
-        lookAt(clicker.getLocation());
+        player.setHealth(health);
+        player.setUltPoints(energy);
 
-        // Fx
-        PlayerLib.addEffect(clicker, PotionEffectType.SLOW, 60, 4);
-        PlayerLib.addEffect(clicker, PotionEffectType.DARKNESS, 60, 4);
+        final Hero hero = player.getHero();
 
-        final Location location = getLocation();
+        hero.getFirstTalent().startCd(player, cooldowns[0]);
+        hero.getSecondTalent().startCd(player, cooldowns[1]);
+        hero.getThirdTalent().startCd(player, cooldowns[2]);
 
-        player.playWorldSound(location, ENTITY_WITCH_CELEBRATE, 2.0f);
-        player.playWorldSound(location, ENTITY_WITHER_SHOOT, 0.75f);
-    }
-
-    public void explode(@Nullable Player clicker, int delay) {
-        valid = false;
-
-        if (delay <= 0) {
-            explode(clicker);
-            return;
-        }
-
-        GameTask.runLater(() -> explode(clicker), delay);
-    }
-
-    public void explode(@Nullable Player clicker) {
-        if (!valid) {
-            return;
-        }
-
-        valid = false;
-
-        final ShadowClone talent = getTalent();
-        final Location location = getLocation();
-
-        // Turn towards target
-        if (clicker != null) {
-            blind(clicker);
-
-            // Add a little delay before removing hit NPC, so it doesn't look weird
-            remove(30);
-        }
-        else {
-            remove();
-        }
-
-        // Damage
-        Collect.nearbyEntities(location, talent.damageRadius).forEach(target -> {
-            if (target.equals(player)) {
-                return; // don't damage self
-            }
-
-            target.damage(talent.damage, target);
-            target.addEffect(Effects.SLOW, 2, 60);
-            target.addEffect(Effects.BLINDNESS, 2, 60);
-        });
+        remove();
 
         // Fx
-        player.spawnWorldParticle(location.add(0.0d, 1.0d, 0.0d), Particle.SMOKE_LARGE, 30, 0.25d, 0.5d, 0.25d, 0.05f);
-        player.playWorldSound(location, ENTITY_SQUID_SQUIRT, 0.25f);
-    }
+        player.playWorldSound(Sound.ENTITY_ILLUSIONER_MIRROR_MOVE, 0.75f);
+        player.playWorldSound(Sound.ENTITY_ENDERMAN_TELEPORT, 1.25f);
 
+        player.addEffect(Effects.BLINDNESS, 20);
+    }
 
 }

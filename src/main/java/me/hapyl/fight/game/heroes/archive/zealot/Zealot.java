@@ -42,7 +42,7 @@ public class Zealot extends Hero implements Listener, PlayerDataHandler<ZealotDa
         setWeapon(new ZealotWeapon(this));
 
         final HeroAttributes attributes = getAttributes();
-        attributes.setFerocity(50);
+        attributes.setFerocity(25);
 
         final Equipment equipment = getEquipment();
         equipment.setChestPlate(104, 166, 232, TrimPattern.SILENCE, TrimMaterial.DIAMOND);

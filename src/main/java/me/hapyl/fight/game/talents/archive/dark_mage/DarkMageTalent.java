@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.talents.archive.dark_mage;
 
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.archive.dark_mage.DarkMage;
+import me.hapyl.fight.game.heroes.archive.dark_mage.DarkMageData;
 import me.hapyl.fight.game.heroes.archive.dark_mage.DarkMageSpell;
 import me.hapyl.fight.game.heroes.archive.dark_mage.SpellButton;
 import me.hapyl.fight.game.heroes.archive.witcher.WitherData;
@@ -27,17 +27,11 @@ public abstract class DarkMageTalent extends Talent {
 
         addDescription("""
                                 
-                %sWitherborn Assist
-                %s
-                                
                 %s
                                 
                 &8;;You must use your wand to cast this spell!
-                """.formatted(Color.WITHERS.bold(), getAssistDescription(), getUsage()));
+                """.formatted(getUsage()));
     }
-
-    @Nonnull
-    public abstract String getAssistDescription();
 
     @Nonnull
     public abstract SpellButton first();
@@ -47,28 +41,55 @@ public abstract class DarkMageTalent extends Talent {
 
     public abstract Response executeSpell(@Nonnull GamePlayer player);
 
-    public void assist(@Nonnull WitherData data) {
+    public int getDuration(@Nonnull GamePlayer player) {
+        final int duration = super.getDuration();
+
+        if (!hasWither(player)) {
+            return duration;
+        }
+
+        return (int) (duration * (1 + getUltimate().durationIncrease));
+    }
+
+    @Override
+    @Deprecated
+    public int getDuration() {
+        return super.getDuration();
+    }
+
+    @Override
+    public void startCd(@Nonnull GamePlayer player) {
+        if (!hasWither(player)) {
+            super.startCd(player);
+            return;
+        }
+
+        final DarkMage.DarkMageUltimate ultimate = getUltimate();
+
+        startCd(player, (int) (getCooldown() * ultimate.cooldownReduction));
     }
 
     @Override
     public final Response execute(@Nonnull GamePlayer player) {
-        player.sendTitle(getUsageRaw(), null, 10, 30, 10);
+        player.sendTitle(getUsageRaw(), null, 5, 20, 5);
+
         player.playSound(Sound.ENTITY_GLOW_SQUID_DEATH, 0.75f);
         player.playSound(Sound.ITEM_BOOK_PAGE_TURN, 0.0f);
+
         return Response.AWAIT;
     }
 
-    public final Response executeDarkMage(@Nonnull GamePlayer player) {
+    public final void executeDarkMage(@Nonnull GamePlayer player) {
         if (hasCd(player)) {
             player.sendSubtitle("&cSpell on cooldown for %ss!".formatted(BukkitUtils.roundTick(getCdTimeLeft(player))), 0, 20, 5);
-            return Response.ERROR;
+            return;
         }
 
         final Response response = Talent.precondition(player);
 
         if (!response.isOk()) {
             player.sendTitle("&c" + response.getReason(), null, 0, 20, 5);
-            return response;
+            return;
         }
 
         // Check for lock
@@ -76,29 +97,39 @@ public abstract class DarkMageTalent extends Talent {
 
         if (player.getTalentLock().isLocked(slot)) {
             player.sendTitle("&cTalent is locked!", null, 0, 20, 5);
-            return Response.error("Talent is locked!");
+            Response.error("Talent is locked!");
+            return;
         }
 
         final Response spellResponse = executeSpell(player);
 
-        if (!spellResponse.isOk()) {
+        if (spellResponse.isError()) {
             player.sendTitle("&c" + spellResponse.getReason(), null, 0, 20, 5);
-            return spellResponse;
+            return;
         }
 
-        startCd(player);
+        if (!spellResponse.isAwait()) {
+            startCd(player);
+        }
+
         postProcessTalent(player);
 
         player.sendTitle("&aCasted: %s&a!".formatted(getName()), null, 0, 10, 5);
-        return response;
     }
 
     public final boolean test(DarkMageSpell darkMageSpell) {
         return darkMageSpell.getFirst() == first() && darkMageSpell.getSecond() == second();
     }
 
-    protected boolean hasWither(GamePlayer player) {
-        return getWither(player) != null;
+    protected DarkMage.DarkMageUltimate getUltimate() {
+        return (DarkMage.DarkMageUltimate) Heroes.DARK_MAGE.getHero(DarkMage.class).getUltimate();
+    }
+
+    protected boolean hasWither(@Nonnull GamePlayer player) {
+        final DarkMage darkMage = Heroes.DARK_MAGE.getHero(DarkMage.class);
+        final DarkMageData data = darkMage.getPlayerData(player);
+
+        return data.getWitherData() != null;
     }
 
     protected WitherData getWither(GamePlayer player) {

@@ -26,6 +26,7 @@ public enum Named {
     SECOND_WIND("&l\uD83E\uDD8B", "Second Wind", Color.WHITE),
     FEROCIOUS_STRIKE("\uD83C\uDF00", "Ferocious Strike", Color.DARK_RED),
     REFRACTION(ChatColor.BOLD + "⛺", "Refraction", Color.SKY_BLUE),
+    WITHER_ROSE(ChatColor.DARK_GRAY + "\uD83C\uDF39", "Wither Rose", Color.WITHERS),
 
     ;
 

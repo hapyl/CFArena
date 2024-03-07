@@ -16,6 +16,7 @@ import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.reflect.protocol.ProtocolListener;
 
 import javax.annotation.Nonnull;
+import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
@@ -45,7 +46,7 @@ public class MotDProtocol extends ProtocolListener {
         final WrappedServerPing ping = new WrappedServerPing();
 
         ping.setMotD(motD[0] + "\n" + motD[1]);
-        ping.setFavicon(favicon); // FIXME (hapyl): 024, Feb 24: This doesn't work for some reason
+        ping.setFavicon(favicon);
         ping.setPlayers(hoverData);
 
         ping.setVersionProtocol(serverPings.read(0).getVersionProtocol());
@@ -53,8 +54,11 @@ public class MotDProtocol extends ProtocolListener {
         ping.setPlayersVisible(true);
 
         ping.setVersionName("§6[§cCF is on §4%s§c!§6]".formatted(Main.requireMinecraftVersion));
-        ping.setPlayersOnline(0);
-        ping.setPlayersMaximum(-1);
+
+        final int playerCount = CF.getOnlinePlayerCount();
+
+        ping.setPlayersOnline(playerCount);
+        ping.setPlayersMaximum(playerCount + 1);
 
         serverPings.write(0, ping);
     }
@@ -81,8 +85,9 @@ public class MotDProtocol extends ProtocolListener {
 
     private List<WrappedGameProfile> createHoverData() {
         return makeHoverData("""
-                &6ᴄғ ᴀʀᴇɴᴀ
-                """);
+                &e&l&k|| &6Website: &b&kno website
+                &e&l&k|| &6Game Version: &b%s
+                """.formatted(CF.getVersionNoSnapshot()));
     }
 
     private String makeMotD(String string, int length) {
@@ -109,11 +114,20 @@ public class MotDProtocol extends ProtocolListener {
                 return null;
             }
 
-            return WrappedServerPing.CompressedImage.fromPng(resource);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            final WrappedServerPing.CompressedImage compressedImage = WrappedServerPing.CompressedImage.fromPng(resource);
+            final BufferedImage bufferedImage = compressedImage.getImage();
 
-        return null;
+            final int width = bufferedImage.getWidth();
+            final int height = bufferedImage.getHeight();
+
+            if (width != 64 || height != 64) {
+                throw new IllegalArgumentException("Favicon must be 64x64, not %sx%s!".formatted(width, height));
+            }
+
+            return compressedImage;
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Error loading favicon! " + e.getMessage());
+        }
     }
+
 }

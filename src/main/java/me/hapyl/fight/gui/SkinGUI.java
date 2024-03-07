@@ -8,6 +8,8 @@ import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.cosmetic.skin.Skin;
 import me.hapyl.fight.game.cosmetic.skin.Skins;
+import me.hapyl.fight.game.cosmetic.skin.trait.SkinTrait;
+import me.hapyl.fight.game.cosmetic.skin.trait.SkinTraitType;
 import me.hapyl.fight.game.entity.SoundEffect;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -16,6 +18,7 @@ import me.hapyl.fight.game.heroes.equipment.Slot;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.*;
@@ -27,6 +30,7 @@ import org.bukkit.inventory.ItemStack;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Map;
 
 public class SkinGUI extends StyledGUI {
 
@@ -86,7 +90,7 @@ public class SkinGUI extends StyledGUI {
         if (enumSkin == null) {
             builder = ItemBuilder.playerHeadUrl(hero.getTextureUrl());
             builder.setName("%s's Default Skin".formatted(hero.getName()));
-            builder.addLore(Rarity.LEGENDARY.toString("sᴋɪɴ"));
+            builder.addLore(Rarity.LEGENDARY.toString("skin"));
             builder.addLore();
             builder.addSmartLore("This is the default attire!", "&7&o");
             builder.addLore();
@@ -96,10 +100,33 @@ public class SkinGUI extends StyledGUI {
 
             builder = new ItemBuilder(skin.getEquipment().getItem(Slot.HELMET));
             builder.setName(skin.getName());
-            builder.addLore(skin.getRarity().toString("sᴋɪɴ"));
+            builder.addLore(skin.getRarity().toString("skin"));
             builder.addLore();
-            builder.addSmartLore(skin.getDescription(), "&7&o");
+            builder.addTextBlockLore(skin.getDescription(), "&7&o", 35, CFUtils.DISAMBIGUATE);
             builder.addLore();
+
+            final Map<SkinTraitType<?>, SkinTrait> traits = skin.getTraits();
+
+            if (!traits.isEmpty()) {
+                builder.addLore("&6&lSpecial Effects");
+                builder.addLore();
+
+                int index = 0;
+
+                for (Map.Entry<SkinTraitType<?>, SkinTrait> entry : traits.entrySet()) {
+                    final SkinTraitType<?> type = entry.getKey();
+                    final SkinTrait trait = entry.getValue();
+
+                    if (index++ != 0) {
+                        builder.addLore();
+                    }
+
+                    builder.addLore(" &b%s &8(%s)".formatted(trait.getName(), type.getName()));
+                    builder.addSmartLore(trait.getDescription(), "&7  ");
+                }
+
+                builder.addLore();
+            }
         }
 
         if (selectedSkin == enumSkin) {
@@ -200,8 +227,11 @@ public class SkinGUI extends StyledGUI {
                     }
                 }
             }
+
         }
 
+        // Preview
+        builder.addLore(Color.BUTTON_DARKER + "Right Click to preview!");
         click.setAction(ClickType.RIGHT, player -> {
             closeInventory();
 

@@ -27,7 +27,7 @@ public class ShortyShotgun extends Talent {
     @DisplayField(suffix = "blocks") private final double bleedThreshold = 1.0d;
     @DisplayField private final int bleedDuration = 100;
     @DisplayField private final short pellets = 12;
-    @DisplayField private final double maxDamagePerPellet = 7.0d;
+    @DisplayField private final double maxDamagePerPellet = 5.0d;
     @DisplayField private final double spread = 0.5d;
     @DisplayField(suffix = "blocks") private final double maxDistance = 3.0d;
 
@@ -40,14 +40,14 @@ public class ShortyShotgun extends Talent {
                 Shoot you double barrel to deal &cdamage&7 that &nfalls&7 &noff&7 with &bdistance&7.
                                 
                 If hit &cenemy&7 is &bclose enough&7, they will &cBleed&7 and will be &bVulnerable&7 for &b{bleedDuration}&7.
-                &8;;Additionally, if used while on a &6Grapple Hook&7, the damage is increased.
+                &8;;Additionally, if used while on a Grapple Hook, the damage is increased.
                                
-                &8;;This ability can be shot twice consecutively before reloading.
+                &8;;This talent can be used twice consecutively before reloading.
                 """);
 
         setItem(Material.CROSSBOW);
         setStartAmount(2);
-        setCooldown(50);
+        setCooldown(60);
     }
 
     @Override

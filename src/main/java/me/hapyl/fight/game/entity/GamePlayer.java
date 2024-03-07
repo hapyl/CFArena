@@ -17,6 +17,8 @@ import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
+import me.hapyl.fight.game.cosmetic.skin.Skin;
+import me.hapyl.fight.game.cosmetic.skin.Skins;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.Effects;
@@ -78,6 +80,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * This class controls all in-game player data.
@@ -102,6 +105,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
     public boolean blockDismount;
     public long usedUltimateAt;
     private int sneakTicks;
+    private int deathWishTicks; // TODO (hapyl): 004, Mar 4: <<
     @Nonnull
     private PlayerProfile profile;
     private int ultPoints;
@@ -137,6 +141,26 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
     @Nonnull
     public TalentLock getTalentLock() {
         return talentLock;
+    }
+
+    public void callSkinIfHas(@Nonnull Consumer<Skin> consumer) {
+        final Skins enumSkin = getSelectedSkin();
+
+        if (enumSkin != null) {
+            consumer.accept(enumSkin.getSkin());
+        }
+    }
+
+    @Nullable
+    public Skins getSelectedSkin() {
+        return getSelectedSkin(getEnumHero());
+    }
+
+    @Nullable
+    public Skins getSelectedSkin(@Nonnull Heroes hero) {
+        final PlayerDatabase database = getDatabase();
+
+        return database.skinEntry.getSelected(hero);
     }
 
     @Override
@@ -178,7 +202,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         markLastMoved();
         setHealth(getMaxHealth());
 
-        player.setLastDamageCause(null);
+        player.setLastDamageCause(null); // FIXME (hapyl): 004, Mar 4: idk
         player.getInventory().clear();
         player.setMaxHealth(40.0d); // why deprecate
         player.setHealth(40.0d);
@@ -289,6 +313,11 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
 
         final GameEntity lastDamager = entityData.getLastDamager();
 
+        // Call skin
+        callSkinIfHas(skin -> {
+            skin.onDeath(this, lastDamager);
+        });
+
         if (!(lastDamager instanceof GamePlayer lastPlayerDamager)) {
             return;
         }
@@ -331,21 +360,29 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
                 final IGameInstance gameInstance = Manager.current().getCurrentGame();
                 final GameTeam team = gameKiller.getTeam();
 
+                // Add team kills
+                if (team != null) {
+                    team.data.kills++;
+                }
+
+                // Check for first blood AFTER adding a kill
+                final boolean isFirstBlood = gameInstance.getTotalKills() == 1;
+
                 if (gameKiller instanceof GamePlayer gamePlayerKiller) {
                     final StatContainer killerStats = gamePlayerKiller.getStats();
 
                     killerStats.addValue(StatType.KILLS, 1);
                     gamePlayerKiller.killStreak++;
                     Award.PLAYER_ELIMINATION.award(gamePlayerKiller);
-                }
 
-                // Add team kills
-                if (team != null) {
-                    team.data.kills++;
+                    // Progress bond
+                    if (isFirstBlood) {
+                        ChallengeType.FIRST_BLOOD.progress(gamePlayerKiller);
+                    }
                 }
 
                 // Check for first blood
-                if (gameInstance.getTotalKills() == 1) {
+                if (isFirstBlood) {
                     Achievements.FIRST_BLOOD.complete(team);
                 }
             }
@@ -911,6 +948,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         return this.getPlayer() == player;
     }
 
+    @Nonnull
     public PlayerDatabase getDatabase() {
         return profile.getDatabase();
     }
@@ -1165,7 +1203,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         profile.getPlayer().getInventory().setItem(index, item == null ? ItemStacks.AIR : item);
     }
 
-    public void setItem(@Nonnull EquipmentSlot slot, @Nullable ItemStack item) {
+    public void setItem(@Nonnull EquipmentSlots slot, @Nullable ItemStack item) {
         slot.setItem(getInventory(), item);
     }
 
@@ -1230,6 +1268,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
     public void equipPlayer(@Nonnull Hero hero) {
         final PlayerInventory inventory = getInventory();
         final HotbarLoadout loadout = getProfile().getHotbarLoadout();
+
         final int weaponSlot = loadout.getInventorySlotBySlot(HotbarSlots.WEAPON);
 
         inventory.setHeldItemSlot(weaponSlot);
@@ -1239,12 +1278,18 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         final Equipment equipment = hero.getEquipment();
 
         // Apply equipment
-        if (skin == null) {
-            equipment.equip(this);
+        if (skin == null || Settings.USE_SKINS_INSTEAD_OF_ARMOR.isDisabled(getPlayer())) {
+            final Skins currentSkin = getSelectedSkin();
+
+            if (currentSkin != null) {
+                currentSkin.getSkin().equip(this);
+            }
+            else {
+                equipment.equip(this);
+            }
         }
-        else if (Settings.USE_SKINS_INSTEAD_OF_ARMOR.isDisabled(getPlayer())) {
-            equipment.equip(this);
-        }
+
+        Manager.current().getCurrentMap().getMap().onStart(this);
 
         hero.onStart(this);
         hero.getWeapon().onStart(this);
@@ -1511,6 +1556,85 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         return location.getDirection();
     }
 
+    public boolean isValidForCosmetics() {
+        if (hasEffect(Effects.INVISIBILITY)) {
+            return false;
+        }
+
+        if (isDeadOrRespawning()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Gets a value from the given skin, or default is skin is not selected.
+     */
+    @Nonnull
+    public <S extends Skin, R> R getSkinValue(@Nonnull Class<S> clazz, @Nonnull Function<S, R> fn, @Nonnull R def) {
+        final Skins enumSkin = getSelectedSkin();
+
+        if (enumSkin == null) {
+            return def;
+        }
+
+        final Skin skin = enumSkin.getSkin();
+
+        if (!clazz.isInstance(skin)) {
+            // Actually don't throw error because people are stupid, including me, just warn
+            Debug.warn("Invalid skin cast! Expected '%s', got '%s'!".formatted(skin.getClass().getSimpleName(), clazz.getSimpleName()));
+            //throw makeSkinCastError(enumSkin, clazz);
+            return def;
+        }
+
+        final R value = fn.apply(clazz.cast(skin));
+
+        // Default if the return value was null
+        // because that means the skin does not
+        // change the appearance of this item.
+        if (value == null) {
+            return def;
+        }
+
+        return value;
+    }
+
+    /**
+     * Runs a code for the given skin.
+     * <br>
+     * This method is meant to be used like so:
+     * <pre>
+     *     if (!player.runSkin(Skin.class, skin -> skin.helloWorld())) {
+     *         defaultHelloWorld();
+     *     }
+     * </pre>
+     *
+     * @return true if the skin code was executed; false otherwise.
+     */
+    public <S extends Skin> boolean runSkin(@Nonnull Class<S> clazz, @Nonnull Function<S, Boolean> consumer) {
+        final Skins enumSkin = getSelectedSkin();
+
+        if (enumSkin == null) {
+            return false;
+        }
+
+        final Skin skin = enumSkin.getSkin();
+
+        if (!clazz.isInstance(skin)) {
+            Debug.warn("Invalid skin cast! Expected '%s', got '%s'!".formatted(skin.getClass().getSimpleName(), clazz.getSimpleName()));
+            return false;
+            //throw makeSkinCastError(enumSkin, clazz);
+        }
+
+        // Return the method value, the method can
+        // return 'false' to indicate "Use default value."
+        return consumer.apply(clazz.cast(skin));
+    }
+
+    private IllegalArgumentException makeSkinCastError(Skins skin, Class<?> clazz) {
+        return new IllegalArgumentException("Skin '%s' must extend '%'!".formatted(skin.name(), clazz.getSimpleName()));
+    }
 
     private List<Block> getBlocksRelative(BiFunction<Location, World, Boolean> fn, Consumer<Location> consumer) {
         final List<Block> blocks = Lists.newArrayList();

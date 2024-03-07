@@ -79,9 +79,6 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
                         .setDamage(6.0d)
         );
 
-        final HeroAttributes attributes = getAttributes();
-        attributes.setDefense(100);
-
         final Equipment equipment = getEquipment();
         equipment.setChestPlate(50, 54, 57, TrimPattern.SILENCE, TrimMaterial.NETHERITE);
         equipment.setLeggings(80, 97, 68);
@@ -97,6 +94,7 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
         final double damage = instance.getDamage();
         final double health = player.getHealth();
 
+        // FIXME (hapyl): 008, Mar 8: what the fuck
         if (health > 50 && (health - damage <= (player.getMaxHealth() / 2.0d))) {
             player.setItem(HotbarSlots.HERO_ITEM, smokeBomb);
             player.sendTitle("&7💣", "&e&lSMOKE BOMB TRIGGERED", 5, 20, 5);

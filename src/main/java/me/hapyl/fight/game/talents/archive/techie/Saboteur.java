@@ -31,7 +31,7 @@ import java.util.List;
 
 public class Saboteur extends TechieTalent implements HeroReference<Techie> {
 
-    @DisplayField private final double hackDistance = 5.0d;
+    @DisplayField private final double hackDistance = 8.0d;
     @DisplayField private final double hackedSupplyDamage = 10;
     @DisplayField(scaleFactor = 100) private final double hackedSupplyAttackReduction = 0.25d;
     @DisplayField(scaleFactor = 500) private final double hackedSupplySeedReduction = 0.06d; // 30%
@@ -46,7 +46,7 @@ public class Saboteur extends TechieTalent implements HeroReference<Techie> {
 
         setType(Type.IMPAIR);
         setItem(Material.IRON_TRAPDOOR);
-        setCooldownSec(12);
+        setCooldownSec(8);
         setCastingTime(10);
     }
 
@@ -116,6 +116,8 @@ public class Saboteur extends TechieTalent implements HeroReference<Techie> {
                         player.playWorldSound(Sound.ENTITY_BLAZE_HURT, 0.75f);
 
                         player.sendTitle("&bʜᴀᴄᴋᴇᴅ ʙʏ", "&3" + this.player.getName(), 0, 20, 5);
+
+                        temperInstance.temper(player, impairDuration);
                         data.bugRandomly(player);
                     }
                 };

@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.archive.witcher;
 
 import com.google.common.collect.Maps;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.event.custom.PlayerPreconditionEvent;
 import me.hapyl.fight.game.Response;
@@ -10,8 +11,10 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.util.Collect;
 import org.bukkit.Material;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityShootBowEvent;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
@@ -90,6 +93,25 @@ public class Akciy extends Talent implements Listener {
         }
 
         ev.setCancelled(true, "Stunned!");
+    }
+
+    @EventHandler()
+    public void handleBowShoot(EntityShootBowEvent ev) {
+        final LivingGameEntity entity = CF.getEntity(ev.getEntity());
+
+        if (entity == null) {
+            return;
+        }
+
+        if (!isStunned(entity)) {
+            return;
+        }
+
+        ev.setCancelled(true);
+    }
+
+    public boolean isStunned(@Nonnull LivingGameEntity entity) {
+        return axiiDatamap.containsKey(entity);
     }
 
     public void stun(@Nonnull LivingGameEntity entity, int duration) {

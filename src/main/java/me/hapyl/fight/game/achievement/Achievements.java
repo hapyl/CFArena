@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 
+// This enum is not a registry! (wow) Rather a wrapper.
 public enum Achievements {
 
     PLAY_FIRST_GAME("So That's How It Is", "Play your very first game."),
@@ -91,6 +92,11 @@ public enum Achievements {
             new HiddenAchievement("MY TOTEM!!", "Throw a totem outside this world.")
     ),
 
+    // Witcher
+    COMBO(
+            new HiddenAchievement("C-c-combo!", "Get a combo streak of twenty or higher.")
+    ),
+
     ////////////////////////
     // OTHER ACHIEVEMENTS //
     ////////////////////////
@@ -145,6 +151,10 @@ public enum Achievements {
 
     FORFEIT_GUESS_WHO(
             new HiddenAchievement("I'm Not a Chicken!", "Forfeit a game of Guess Who!")
+    ),
+
+    APRIL_FOOLS(
+            new HiddenAchievement("April Fools!", "Join the sever on april fools week.")
     ),
 
     ;

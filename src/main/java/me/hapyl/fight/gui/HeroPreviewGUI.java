@@ -2,7 +2,7 @@ package me.hapyl.fight.gui;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.heroes.CachedHeroItem;
+import me.hapyl.fight.game.heroes.HeroPlayerItemMaker;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -11,7 +11,6 @@ import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
-import me.hapyl.fight.gui.styled.StyledTexture;
 import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -50,14 +49,14 @@ public class HeroPreviewGUI extends StyledGUI {
     @Nullable
     @Override
     public ReturnData getReturnData() {
-        return ReturnData.of("Hero Selection", player -> new HeroSelectGUI(player, returnPage));
+        return ReturnData.of("Hero Selection", player -> new HeroSelectGUI(player, returnPage), 2);
     }
 
     @Override
     public void onUpdate() {
         final Hero hero = enumHero.getHero();
 
-        setHeader(hero.getCachedHeroItem().getItem(CachedHeroItem.Type.DETAILS));
+        setHeader(hero.getItemMaker().makeItem(HeroPlayerItemMaker.Type.DETAILS, player));
 
         // Fill with panels
         fillColumn(0, ItemStacks.BLACK_BAR);

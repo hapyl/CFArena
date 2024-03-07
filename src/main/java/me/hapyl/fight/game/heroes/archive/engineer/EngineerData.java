@@ -18,18 +18,21 @@ import javax.annotation.Nullable;
 public class EngineerData extends PlayerData implements HeroReference<Engineer> {
 
     private final Engineer engineer;
+
     private final TemperInstance temperInstance = Temper.MECHA_INDUSTRY.newInstance()
             .decrease(AttributeType.SPEED, 0.05d); // 25%
+
+    @Nullable private Construct construct;
+    @Nullable private MechaIndustries mecha;
+
     private int iron;
-    @Nullable
-    private Construct construct;
-    @Nullable
-    private MechaIndustries mecha;
 
     public EngineerData(GamePlayer player, Engineer engineer) {
         super(player);
 
         this.engineer = engineer;
+
+        setIron(engineer.startIron);
     }
 
     @Nonnull
@@ -43,7 +46,7 @@ public class EngineerData extends PlayerData implements HeroReference<Engineer> 
     }
 
     public void setIron(int iron) {
-        this.iron = Numbers.clamp(iron, 0, Engineer.MAX_IRON);
+        this.iron = Numbers.clamp(iron, 0, engineer.maxIron);
 
         // Update iron
         player.setItem(

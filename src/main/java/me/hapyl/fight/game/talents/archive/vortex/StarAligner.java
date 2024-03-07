@@ -20,7 +20,7 @@ import javax.annotation.Nonnull;
 public class StarAligner extends InputTalent {
 
     @DisplayField private final double implodeDistance = 5.0d;
-    @DisplayField private final int implodeDelay = 15;
+    @DisplayField private final int implodeDelay = 20;
     @DisplayField private final double damageHealthMultiplier = 2.0d;
 
     public StarAligner() {

@@ -26,7 +26,7 @@ public class ZealotWeapon extends Weapon implements HeroReference<Zealot> {
         this.zealot = zealot;
 
         setId("zealot_weapon");
-        setDamage(2.5d);
+        setDamage(2.0d);
 
         setName("Psionic Blade");
         setDescription("""

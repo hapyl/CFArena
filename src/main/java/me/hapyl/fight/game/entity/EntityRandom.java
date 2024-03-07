@@ -78,6 +78,12 @@ public class EntityRandom extends Random {
         return varargs[nextInt(varargs.length)];
     }
 
+    public boolean checkBound(double chance) {
+        final float v = nextFloat();
+
+        return v >= chance;
+    }
+
     private RuntimeException illegalArgument(String message) {
         return new IllegalArgumentException(message);
     }

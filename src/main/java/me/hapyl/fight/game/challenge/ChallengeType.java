@@ -3,6 +3,7 @@ package me.hapyl.fight.game.challenge;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CollectibleEntry;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.util.EnumWrapper;
 import me.hapyl.spigotutils.module.chat.Chat;
@@ -10,6 +11,7 @@ import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.Enums;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.checkerframework.checker.units.qual.A;
 
 import javax.annotation.Nonnull;
 
@@ -38,6 +40,42 @@ public enum ChallengeType implements EnumWrapper<Challenge> {
                     .setMax(10)
     ),
 
+    PLAY_GAMES(
+            new Challenge("Ready Player One", "Play {} games.")
+                    .setMin(2)
+                    .setMax(3)
+    ),
+
+    PLAY_GUESS_WHO(
+            new Challenge("The Guesser", "Play a game of Guess Who.")
+                    .setMax(1)
+    ),
+
+    // Archetype related bonds, have to be hard codded because bonds are enums
+    PLAY_HERO_DAMAGE(new ArchetypeChallenge("Brute Force", Archetype.DAMAGE)),
+    PLAY_HERO_RANGE(new ArchetypeChallenge("Bullseye", Archetype.RANGE)),
+    PLAY_HERO_MAGIC(new ArchetypeChallenge("Mage", Archetype.MAGIC)),
+    PLAY_HERO_MOBILITY(new ArchetypeChallenge("I'm Fast Boi", Archetype.MOBILITY)),
+    PLAY_HERO_STRATEGY(new ArchetypeChallenge("The Thinker", Archetype.STRATEGY)),
+    PLAY_HERO_SUPPORT(new ArchetypeChallenge("Support", Archetype.SUPPORT)),
+    PLAY_HERO_HEXBANE(new ArchetypeChallenge("Black Widow", Archetype.HEXBANE)),
+
+    // *=* Uncommon *=* //
+
+    OPEN_CRATE(
+            new Challenge("Gambler", "Open {} crates.")
+                    .setRarity(ChallengeRarity.UNCOMMON)
+                    .setMax(3)
+    ),
+
+    FIRST_BLOOD(
+            new Challenge("First Blood!", "Cause first blood in a game.")
+                    .setRarity(ChallengeRarity.UNCOMMON)
+                    .setMax(1)
+    ),
+
+    // *=* Rare *=* //
+
     COLLECT_RELIC(
             new Challenge("Archeologist", "Find a relic.") {
                 @Override
@@ -52,17 +90,12 @@ public enum ChallengeType implements EnumWrapper<Challenge> {
                     .setMax(1)
     ),
 
-    OPEN_CRATE(
-            new Challenge("Gambler", "Open {} crates.")
-                    .setRarity(ChallengeRarity.UNCOMMON)
-                    .setMax(3)
-    ),
-
     COMPLETE_PARKOUR(
             new Challenge("Parkour parkour!", "Complete any parkour.")
                     .setRarity(ChallengeRarity.RARE)
                     .setMax(1)
     ),
+
 
     ;
 
@@ -141,5 +174,18 @@ public enum ChallengeType implements EnumWrapper<Challenge> {
 
         return PlayerChallenge.of(randomValue);
     }
+
+    public static void progressArchetypeBond(@Nonnull GamePlayer player, @Nonnull Archetype heroArchetype) {
+        switch (heroArchetype) {
+            case DAMAGE -> PLAY_HERO_DAMAGE.progress(player);
+            case RANGE -> PLAY_HERO_RANGE.progress(player);
+            case MAGIC -> PLAY_HERO_MAGIC.progress(player);
+            case MOBILITY -> PLAY_HERO_MOBILITY.progress(player);
+            case STRATEGY -> PLAY_HERO_STRATEGY.progress(player);
+            case SUPPORT -> PLAY_HERO_SUPPORT.progress(player);
+            case HEXBANE -> PLAY_HERO_HEXBANE.progress(player);
+        }
+    }
+
 
 }

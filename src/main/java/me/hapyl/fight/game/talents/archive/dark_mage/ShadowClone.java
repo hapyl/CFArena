@@ -17,30 +17,52 @@ import javax.annotation.Nullable;
 
 public class ShadowClone extends DarkMageTalent {
 
-    @DisplayField(suffix = "blocks")
-    protected final double damageRadius = 3.0d;
-    @DisplayField
-    protected final double damage = 3.0d;
-
-    private final PlayerMap<ShadowCloneNPC> clones = PlayerMap.newMap();
+    protected final PlayerMap<ShadowCloneNPC> clones = PlayerMap.newMap();
 
     public ShadowClone() {
         super("Shadow Clone", """
-                Create a reflection of &nyourself&7 at your current location and become &binvisible&7.
+                Create a &breflection&7 of &nyourself&7 at your &ncurrent&7 &nlocation&7 for a maximum of {duration}.
                                 
-                After a &abrief delay&7 or whenever the clone is &cdamaged&7, it &4explodes&7, &cdamaging&7 and &eimpairing&7 nearby enemies.
+                The clone &ninherits&7 your &cHealth&7, &bEnergy&7, and &acooldowns&7.
+                                
+                Cast this spell again to &bteleport&7 to the &8clone&7, &arestoring&7 yourself to the &3reflected&7 version of yourself.
+                        
+                &cThe clone is very fragile!
+        
+                &8;;Using your ultimate will remove the clone.
                 """);
 
         setType(Type.IMPAIR);
         setItem(Material.NETHERITE_SCRAP);
-        setDurationSec(3);
-        setCooldownSec(15);
+        setDurationSec(15);
+        setCooldownSec(20);
     }
 
-    @Nonnull
     @Override
-    public String getAssistDescription() {
-        return "The clone will &bpersist&7 until you &ntake damage&7, nullifying the damage and &bteleporting&7 you to its location.";
+    public void onDeath(@Nonnull GamePlayer player) {
+        clones.removeAnd(player, ShadowCloneNPC::remove);
+    }
+
+    @Override
+    public void onStop(@Nonnull GamePlayer player) {
+        clones.forEachAndClear(ShadowCloneNPC::remove);
+    }
+
+    @Override
+    public Response executeSpell(@Nonnull GamePlayer player) {
+        final ShadowCloneNPC previousClone = clones.remove(player);
+
+        if (previousClone != null) {
+            previousClone.teleport();
+            return Response.OK;
+        }
+
+        clones.put(player, new ShadowCloneNPC(this, player));
+
+        // Fx
+        startCd(player, 5);
+
+        return Response.AWAIT;
     }
 
     @Nonnull
@@ -60,46 +82,12 @@ public class ShadowClone extends DarkMageTalent {
         return clones.get(player);
     }
 
-    @Override
-    public Response executeSpell(@Nonnull GamePlayer player) {
-        final HumanNPC previousClone = clones.remove(player);
+    public void removeClone(GamePlayer player) {
+        final ShadowCloneNPC clone = clones.remove(player);
 
-        if (previousClone != null) {
-            previousClone.remove();
-            player.sendMessage("&aYour previous clone was removed!");
+        if (clone != null) {
+            clone.remove();
         }
-
-        final ShadowCloneNPC shadowClone = new ShadowCloneNPC(this, player);
-        final WitherData witherData = getWither(player);
-        final int duration = getDuration();
-
-        // Only explode if not using ultimate
-        if (witherData != null) {
-            final Wither wither = witherData.wither; // Hide the wither too
-            shadowClone.ultimate = true;
-
-            Reflect.hideEntity(wither);
-            GameTask.runLater(() -> {
-                if (wither.isDead()) {
-                    return;
-                }
-
-                Reflect.showEntity(wither);
-            }, duration);
-        }
-        else {
-            GameTask.runLater(() -> {
-                shadowClone.explode(null);
-                clones.remove(player);
-            }, duration);
-        }
-
-        clones.put(player, shadowClone);
-        return Response.OK;
     }
 
-    public void removeClone(@Nonnull ShadowCloneNPC clone) {
-        clone.remove(0);
-        clones.remove(clone.player);
-    }
 }

@@ -24,7 +24,7 @@ public class Slash extends Talent {
 
     @DisplayField private final double distance = 3.0d;
     @DisplayField private final int effectDuration = Tick.fromSecond(4);
-    @DisplayField private final double damage = 6.0d;
+    @DisplayField private final double damage = 4.0d;
     @DisplayField private final double strongDamage = 10.0d;
 
     private final TemperInstance temperInstance = Temper.POWER_SLASH.newInstance()

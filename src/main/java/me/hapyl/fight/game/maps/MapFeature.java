@@ -16,9 +16,9 @@ public abstract class MapFeature implements Described, GameElement, PlayerElemen
     private final String name;
     private final String description;
 
-    public MapFeature(String name, String info) {
+    public MapFeature(String name, String description) {
         this.name = name;
-        this.description = info;
+        this.description = description;
 
         if (this instanceof Listener listener) {
             CF.registerEvents(listener);

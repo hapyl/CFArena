@@ -14,7 +14,7 @@ import javax.annotation.Nonnull;
 
 public class PayloadProtocol extends ProtocolListener {
 
-    private final String brandName = "&6&lClasses Fight&r";
+    private final String brandName = "§b§lEterna§r";
     private final String meta = "_customBrand";
 
     public PayloadProtocol() {
@@ -36,7 +36,7 @@ public class PayloadProtocol extends ProtocolListener {
 
         final PacketContainer packetContainer = new PacketContainer(
                 PacketType.Play.Server.CUSTOM_PAYLOAD,
-                new ClientboundCustomPayloadPacket(new BrandPayload(Chat.color(brandName)))
+                new ClientboundCustomPayloadPacket(new BrandPayload(brandName))
         );
 
         packetContainer.setMeta(meta, true);

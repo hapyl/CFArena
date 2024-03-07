@@ -149,6 +149,8 @@ public class BloodChalice extends Taunt implements TalentReference<BloodChaliceT
 
         CFUtils.forEach(stand, Entity::remove);
 
+        getTalent().startCd(player);
+
         // Fx
         asPlayers(player -> {
             player.playSound(location, Sound.BLOCK_GLASS_BREAK, 0.0f);

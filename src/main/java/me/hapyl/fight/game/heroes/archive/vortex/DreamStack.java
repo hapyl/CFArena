@@ -40,6 +40,7 @@ public class DreamStack implements Cancellable {
         player.playSound(Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1.75f);
         player.schedule(this::showStacks, 1);
 
+        reschedule();
         return this;
     }
 

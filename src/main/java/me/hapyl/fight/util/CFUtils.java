@@ -64,16 +64,20 @@ public class CFUtils {
     public static final Pattern STRIP_COLOR_PATTERN = Pattern.compile("(?i)" + '&' + "[0-9A-FK-ORX]");
     public static final Object[] DISAMBIGUATE = new Object[] {};
     public static final double ANGLE_IN_RAD = 6.283185307179586d;
+
     private static final DecimalFormat TICK_FORMAT = new DecimalFormat("0.0");
     private static final Random RANDOM = new Random();
     private static final double ANCHOR_COMPENSATION = 0.61d;
+
     private static final Map<Tag<Material>, Double> anchorCompensationMap = Map.of(
             Tag.SLABS, 0.5d,
             Tag.WOOL_CARPETS, 0.075d // This does NOT include moss carpet because fuck you
     );
+
     private static final Set<Tag<Material>> softSolidTags = Set.of(
             Tag.WOOL_CARPETS, Tag.ALL_SIGNS
     );
+
     private static String SERVER_IP;
     private static List<EffectType> ALLOWED_EFFECTS;
 
@@ -1108,4 +1112,41 @@ public class CFUtils {
         }.runTaskLater(Main.getPlugin(), delay);
     }
 
+    @Nonnull
+    public static String reverseString(@Nonnull String input) {
+        final StringBuilder builder = new StringBuilder();
+        final String[] strings = input.split(" ");
+
+        for (int i = strings.length - 1; i >= 0; i--) {
+            if (i != strings.length) {
+                builder.append(" ");
+            }
+
+            final char[] chars = strings[i].toCharArray();
+
+            for (int j = chars.length - 1; j >= 0; j--) {
+                builder.append(chars[j]);
+            }
+        }
+
+        return builder.toString().trim();
+    }
+
+    public static boolean blockLocationEquals(@Nonnull Location location1, @Nonnull Location location2) {
+        final World world = location1.getWorld();
+
+        if (world == null || world != location2.getWorld()) {
+            return false;
+        }
+
+        final int blockX = location1.getBlockX();
+        final int blockY = location1.getBlockY();
+        final int blockZ = location1.getBlockZ();
+
+        final int blockX2 = location2.getBlockX();
+        final int blockY2 = location2.getBlockY();
+        final int blockZ2 = location2.getBlockZ();
+
+        return blockX == blockX2 && blockY == blockY2 && blockZ == blockZ2;
+    }
 }

@@ -46,7 +46,6 @@ public class Mage extends Hero implements UIComponent {
         equipment.setBoots(Material.NETHERITE_BOOTS, TrimPattern.TIDE, TrimMaterial.AMETHYST);
 
         setWeapon(new MageWeapon(this));
-
         setUltimate(new MageUltimate());
     }
 

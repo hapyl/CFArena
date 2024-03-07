@@ -2,6 +2,7 @@ package me.hapyl.fight.game.maps.maps;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.maps.GameMap;
 import me.hapyl.fight.game.maps.MapFeature;
@@ -14,26 +15,35 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
+import java.awt.image.ShortLookupTable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 public class DragonsGorge extends GameMap {
 
+    private final ProgressBarBuilder progressBar = new ProgressBarBuilder("❄", ChatColor.AQUA, 15);
+
     public DragonsGorge() {
         super("Dragon's Gorge");
 
         setDescription("A gorge with a dragon in it. What could go wrong?");
         setMaterial(Material.DARK_OAK_BOAT);
-        setSize(Size.MEDIUM);
+        setSize(Size.SMALL);
         setTicksBeforeReveal(100);
 
         addFeature(new MapFeature("Sheer Cold", """
                 This water is so cold! Better keep an eye on your cold-o-meter!
                 """) {
 
-            private final Map<Player, Float> coldMeter = new HashMap<>();
+            private final Map<GamePlayer, Float> coldMeter = new HashMap<>();
+
             private final float maxColdValue = 100.0f;
+            private final double damage = 10.0d;
+
+            private final float incrementDefault = 0.25f;
+            private final float decrementDefault = 0.1f;
+            private final float decrementInLight = 0.3f;
 
             @Override
             public void onStop() {
@@ -44,50 +54,57 @@ public class DragonsGorge extends GameMap {
             public void tick(int tick) {
                 final Collection<GamePlayer> players = CF.getPlayers();
 
-                players.forEach(gamePlayer -> {
-                    final Player player = gamePlayer.getPlayer();
-
-                    // Reset dead player
-                    if (!gamePlayer.isAlive() && coldMeter.containsKey(player)) {
+                players.forEach(player -> {
+                    if (player.isDeadOrRespawning()) {
                         coldMeter.remove(player);
                         return;
                     }
 
                     final byte lightLevel = player.getLocation().getBlock().getLightFromBlocks();
-                    final float newValue = addColdValue(player, player.isInWater() ? 0.25f : lightLevel >= 2 ? -0.3f : -0.1f);
+                    final float newValue = coldMeter.compute(player, (p, v) -> {
+                        final boolean inWater = p.isInWater();
+                        v = v != null ? v : 0;
 
-                    if (newValue < 0) {
+                        if (inWater) {
+                            v += incrementDefault;
+                        }
+                        else {
+                            v -= lightLevel >= 2 ? decrementInLight : decrementDefault;
+                        }
+
+                        return Numbers.clamp(v, 0, maxColdValue);
+                    });
+
+                    if (newValue <= 0) {
                         return;
                     }
 
-                    // Punish
-                    if (tick % 20 == 0) {
-                        // Display cold meter
-                        if (newValue > 0) {
-                            gamePlayer.sendTitle("", ProgressBarBuilder.of("❄", ChatColor.AQUA, newValue, maxColdValue), 0, 25, 5);
-                        }
+                    final boolean isModulo = tick % 20 == 0;
 
-                        // For FX
-                        player.setFreezeTicks((int) Math.min(player.getMaxFreezeTicks(), newValue));
+                    // Display
+                    if (isModulo) {
+                        player.sendSubtitle(progressBar.build((int) newValue, (int) (maxColdValue)), 0, 25, 5);
+                    }
 
-                        if (isBetween(newValue, 25, 50)) { // Low hitting ticks
-                            gamePlayer.damage(4.0d, EnumDamageCause.COLD);
-                        }
-                        else if (isBetween(newValue, 50, 100)) { // High hitting ticks and warning
-                            gamePlayer.damage(6.0d, EnumDamageCause.COLD);
-                        }
-                        else if (newValue >= maxColdValue) { // Instant Death
-                            //GamePlayer.damageEntity(player, 1000.0d, null, EnumDamageCause.COLD);
-                            // Replace 1000 damage to prevent achievement abuse
-                            gamePlayer.setLastDamageCause(EnumDamageCause.COLD);
-                            gamePlayer.die(true);
-                        }
+                    player.setFreezeTicks((int) Math.min(player.getMaxFreezeTicks(), newValue));
+
+                    if (isBetween(newValue, 25, 50)) {
+                        player.addEffect(Effects.SLOW, 1, 5);
+                    }
+                    else if (isBetween(newValue, 50, 75)) {
+                        player.addEffect(Effects.SLOW, 2, 5);
+                    }
+                    else if (isBetween(newValue, 75, 100)) {
+                        player.addEffect(Effects.SLOW, 3, 5);
+                    }
+                    else if (newValue >= maxColdValue && isModulo) {
+                        player.damage(damage, EnumDamageCause.COLD);
 
                         // Fx
-                        if (newValue >= 60) {
-                            PlayerLib.playSound(player, Sound.BLOCK_GLASS_BREAK, Numbers.clamp(1.0f - newValue / maxColdValue, 0.0f, 2.0f));
-                        }
+                        player.playWorldSound(Sound.ENTITY_PLAYER_HURT_FREEZE, 1.5f - (1.0f / maxColdValue * newValue));
+                        player.playWorldSound(Sound.BLOCK_GLASS_BREAK, 1.5f - (1.0f / maxColdValue * newValue));
                     }
+
                 });
             }
 
@@ -95,22 +112,19 @@ public class DragonsGorge extends GameMap {
                 return value >= min && value < max;
             }
 
-            private float addColdValue(Player player, float value) {
+            private float addColdValue(GamePlayer player, float value) {
                 coldMeter.put(player, Numbers.clamp(getColdValue(player) + value, 0.0f, maxColdValue));
                 return getColdValue(player);
             }
 
-            private float getColdValue(Player player) {
+            private float getColdValue(GamePlayer player) {
                 return coldMeter.getOrDefault(player, 0.0f);
             }
 
         });
 
-        //new Booster(-153, 64, 102, -1.9, 0.75, 1.9);
-        //new Booster(-169, 64, 118, 1.9, 0.75, -1.9);
-
-        this.addLocation(-143, 64, 86);
-        this.addLocation(-150, 64, 100);
-        this.addLocation(-172, 64, 119);
+        this.addLocation(4509, 64.5, 0, 90f, 0f);
+        this.addLocation(4514, 65, -14, 90f, 0f);
+        this.addLocation(4470, 64.5, 19, -90f, 0f);
     }
 }

@@ -77,17 +77,13 @@ public class DarkMageSpell extends PlayerData {
 
     public void cast(@Nonnull DarkMageData data) {
         final DarkMageTalent talent = getTalent();
-        final WitherData witherData = data.getWitherData();
 
         if (talent == null) {
             return;
         }
 
         // Assist
-        if (talent.executeDarkMage(player).isOk() && witherData != null) {
-            talent.assist(witherData);
-        }
-
+        talent.executeDarkMage(player);
         remove();
     }
 

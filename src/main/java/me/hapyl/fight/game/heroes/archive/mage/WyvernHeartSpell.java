@@ -11,13 +11,13 @@ import javax.annotation.Nonnull;
 
 public class WyvernHeartSpell extends MageSpell {
 
-    @DisplayField(suffix = "❤") private final double healingAmount = 25.0d;
-    @DisplayField(scaleFactor = 100) private final double attackDecrease = 0.99d;
+    @DisplayField(suffix = "❤") private final double healingAmount = 50.0d;
+    @DisplayField(scaleFactor = 100) private final double attackDecrease = 0.98d;
 
     public WyvernHeartSpell() {
         super("Heart of Wyvern", "Consume to &cheal&7 yourself, gain &bspeed&7 boost but suffer %s reduction.".formatted(AttributeType.ATTACK), Material.FERMENTED_SPIDER_EYE);
 
-        setDurationSec(25);
+        setDurationSec(10);
     }
 
     @Override

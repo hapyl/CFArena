@@ -17,7 +17,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public abstract class GameManagementSubGUI<T extends Enum<T> & Selectable> extends StyledGUI implements StrictlyLobbyGUI {
+public abstract class GameManagementSubGUI<T extends Enum<T> & Selectable> extends StyledGUI {
 
     private final List<T> values;
 

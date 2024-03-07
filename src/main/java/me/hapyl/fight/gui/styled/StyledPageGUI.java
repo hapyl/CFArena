@@ -33,6 +33,10 @@ public abstract class StyledPageGUI<T> extends PlayerPageGUI<T> implements Style
 
     @Override
     public final void postProcessInventory(@Nonnull Player player, int page) {
+        if (checkCanOpen(player)) {
+            return;
+        }
+
         StaticStyledGUI.updateInventory(this);
 
         // Override page arrows

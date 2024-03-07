@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.archive.archer;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.game.cosmetic.skin.archer.AbstractSkinArcher;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -24,9 +25,9 @@ import java.util.Set;
 
 public class ShockDark extends Talent implements Listener {
 
-    @DisplayField(suffix = "blocks") private final double explosionRadius = 3.7d;
-    @DisplayField private final double explosionMaxDamage = 15.0d;
-    @DisplayField private final int explosionWindup = 18;
+    @DisplayField(suffix = "blocks") private final double explosionRadius = 4.0d;
+    @DisplayField private final double explosionMaxDamage = 20.0d;
+    @DisplayField private final int explosionWindup = 26;
 
     private final ParticleBuilder blueColor = ParticleBuilder.redstoneDust(Color.fromRGB(89, 255, 233));
     private final ParticleBuilder redColor = ParticleBuilder.redstoneDust(Color.RED);
@@ -44,8 +45,7 @@ public class ShockDark extends Talent implements Listener {
 
         setType(Type.DAMAGE);
         setItem(Material.LIGHT_BLUE_DYE);
-        setCooldown(120);
-        setPoint(0);
+        setCooldownSec(5);
 
         shockArrows = Sets.newHashSet();
     }
@@ -81,7 +81,7 @@ public class ShockDark extends Talent implements Listener {
     @Override
     public Response execute(@Nonnull GamePlayer player) {
         final Arrow arrow = player.launchProjectile(Arrow.class, self -> {
-            self.setColor(arrowColor);
+            self.setColor(player.getSkinValue(AbstractSkinArcher.class, AbstractSkinArcher::getShockDartArrowColor, arrowColor));
         });
 
         shockArrows.add(arrow);
@@ -92,6 +92,18 @@ public class ShockDark extends Talent implements Listener {
     }
 
     private void executeShockExplosion(GamePlayer player, Location location) {
+        final ParticleBuilder blueColor = player.getSkinValue(
+                AbstractSkinArcher.class,
+                AbstractSkinArcher::getShockDartBlueColor,
+                this.blueColor
+        );
+
+        final ParticleBuilder redColor = player.getSkinValue(
+                AbstractSkinArcher.class,
+                AbstractSkinArcher::getShockDartRedColor,
+                this.redColor
+        );
+
         Geometry.drawSphere(location, sphereRings, explosionRadius, blueColor::display);
         playAndCut(location, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 2f, explosionWindup);
 

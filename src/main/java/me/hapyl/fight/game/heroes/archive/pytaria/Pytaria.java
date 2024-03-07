@@ -30,9 +30,9 @@ import javax.annotation.Nonnull;
 
 public class Pytaria extends Hero {
 
-    private final double maxAttack = 1.5d;
-    private final double maxCritChance = 1.5d;
-    private final double minDefense = 0.2d;
+    private final double maxAttack = 1.2d;
+    private final double maxCritChance = 0.8d;
+    private final double minDefense = 0.3d;
 
     private final double attackScale;
     private final double critChanceScale;
@@ -50,16 +50,20 @@ public class Pytaria extends Hero {
         setItem("7bb0752f9fa87a693c2d0d9f29549375feb6f76952da90d68820e7900083f801");
 
         final HeroAttributes attributes = getAttributes();
-        attributes.set(AttributeType.MAX_HEALTH, 125.0d);
-        attributes.set(AttributeType.ATTACK, 0.9d);
+        attributes.set(AttributeType.MAX_HEALTH, 120.0d);
+        attributes.set(AttributeType.ATTACK, 0.8d);
         attributes.set(AttributeType.CRIT_CHANCE, 0.2d);
-        attributes.set(AttributeType.CRIT_DAMAGE, 0.4d);
+        attributes.set(AttributeType.CRIT_DAMAGE, 0.5d);
 
         this.attackScale = maxAttack - attributes.get(AttributeType.ATTACK);
         this.critChanceScale = maxCritChance - attributes.get(AttributeType.CRIT_CHANCE);
         this.defenseScale = attributes.get(AttributeType.DEFENSE) - minDefense;
 
-        setWeapon(new Weapon(Material.ALLIUM).setName("Annihilallium").setDamage(8.0).setDescription("A beautiful flower, nothing more."));
+        setWeapon(new Weapon(Material.ALLIUM)
+                .setName("Annihilallium")
+                .setDescription("A beautiful flower, nothing more.")
+                .setDamage(8.0)
+        );
 
         final Equipment equipment = getEquipment();
         equipment.setChestPlate(222, 75, 85);

@@ -145,7 +145,7 @@ public enum AttributeType implements Described {
     },
 
     COOLDOWN_MODIFIER(
-            new Attribute("Cooldown Modifier", "The modifier of your cooldown abilities.")
+            new Attribute("Cooldown Modifier", "The modifier of your cooldown talents.")
                     .setChar("\uD83D\uDD02")
                     .setColor(ChatColor.DARK_GREEN)
                     .setToString(AttributeType::doubleFormatPercent),

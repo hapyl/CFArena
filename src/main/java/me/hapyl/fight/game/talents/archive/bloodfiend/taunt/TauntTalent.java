@@ -61,7 +61,9 @@ public abstract class TauntTalent<T extends Taunt> extends Talent {
         }
 
         playerTaunt.put(player, createTaunt(player, mostRecentBitPlayer, location));
-        return Response.OK;
+        startCd(player, 100000);
+
+        return Response.AWAIT;
     }
 
     @Nullable

@@ -1,79 +1,13 @@
-#########################################
 
-[✔] Double map select
-[✔] Lower juju climb cd
-[✔] Add slow falling to juju
+###############################
 
-Less particles for swooper
-Arrows can't damage swooper?
-Add golden gg
-Heavy knight
-Dont allow ending game if already ended
-Don't allow turret barrier
-buff techie
-[✔] Star is too easy to break
-[✔] You can move stars (Probably turrets too?)
-[✔] Bones taker
+###############################
 
-#########################################
-
-Vortex Test Changes
----
-
-### Attributes
-* Increase Max Health 100 >> 120.
-
-### Astral Star
-* Increase summon cost 16 >> 20.
-* Stars cannot take more than 1/5 of their max health as damage.
-
-### Astral Vision
-* Decrease implode delay 1.25s >> 0.75s.
-* Increase damage `health` >> `health * 2`.
-
-### Like a Dream (Passive)
-* Add SFX.
-
-### Arcana (Ultimate)
-* Increase "stuck" speed 0.03 >> 0.05.
-* Decrease knockback 20% >> 10%.
-* Increase attack cooldown 0 (1) >> 2.
-* Decrease duration 6s >> 5s.
-
-#########################################
-
-- Stopping the game should display winners
-- Add open 10 instead of bulk open, or make open 10 VIP and bulk PREMIUM
+- Add funky sort for VIP?
+- Change head texture to be skin yes
+- Try to fix Swooper blink
+- Buff Techie
 - Add fight thingy so FIGHT
-
-- Increase base damage >> 8
-- Increate ultimate range
-- Increase ultimate damage
-- Preklad
-- Less stun time
-- Stealth broke?
-- Punish more for being on a roof
-_ i'm I stupid?
-
-- Dr Ed can damage self?
-- Dr Ed Ult
-- Maybe add attack display for pytaria?
-- 0.1?
-- stun add s
-- add sound to blast pack
-
-- Make DM clone deal damage?
-- Make DM leave invis like ninja
-- Migrate to RayCawst check
-- Improve DM
-- Range CD BROKE?
-- Make cool ray red
-- Smoke blinks?
-- STUN?
-- Maybe rework Bloodfiend make him AoE:
--- Pillar does AoE damage.
--- Chalice STEALS health.
--- No blood cup.
 
 ####################################################################
 
@@ -103,18 +37,6 @@ _ i'm I stupid?
 
 * Frenzy
 - Make last life have a red outline
-
-* Zealot
-- Add guardian effect when hit by beam
-- Make ferocity only work on melee
-
-* New feature
-- DoT? Thoughts?
-
-* Passive idea for tank or support maybe
-- When hit and damage is NOT leathal but under like 5% of health = heal. Cd ofc
-
-- Museum
 
 ####################################################################
 

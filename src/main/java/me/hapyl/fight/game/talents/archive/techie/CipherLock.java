@@ -24,20 +24,20 @@ import javax.annotation.Nullable;
 public class CipherLock extends TechieTalent {
 
     @DisplayField private final double maxFlightTime = Tick.fromSecond(3);
-    @DisplayField private final int impairDuration = Tick.fromSecond(15);
+    @DisplayField private final int impairDuration = Tick.fromSecond(20);
 
     private final double step = 3;
     private final TemperInstance temperInstance = Temper.CIPHER_LOCK.newInstance()
-            .decrease(AttributeType.ATTACK, 0.2d)
-            .decrease(AttributeType.SPEED, 0.02d); // 10%
+            .decrease(AttributeType.ATTACK, 0.2d)  //
+            .decrease(AttributeType.SPEED, 0.04d); // 20%
 
     public CipherLock() {
         super("Cipher Lock");
 
         setType(Type.IMPAIR);
         setItem(Material.SPECTRAL_ARROW);
-        setCooldownSec(20);
-        setCastingTime(20);
+        setCooldownSec(16);
+        setCastingTime(15);
     }
 
     @Nonnull

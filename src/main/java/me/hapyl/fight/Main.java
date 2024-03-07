@@ -1,5 +1,6 @@
 package me.hapyl.fight;
 
+import me.hapyl.fight.build.UpdateBlockHackReplacer;
 import me.hapyl.fight.chat.ChatHandler;
 import me.hapyl.fight.command.CommandRegistry;
 import me.hapyl.fight.database.Database;
@@ -18,6 +19,7 @@ import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.maps.features.BoosterController;
 import me.hapyl.fight.game.maps.gamepack.GamePackListener;
 import me.hapyl.fight.game.parkour.CFParkourManager;
+import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.talents.archive.bloodfiend.candlebane.CandlebaneProtocol;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TaskList;
@@ -31,6 +33,7 @@ import me.hapyl.fight.script.ScriptManager;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.EternaAPI;
 import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.player.tablist.Tablist;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -44,15 +47,16 @@ import java.util.Objects;
 public class Main extends JavaPlugin {
 
     public static final String GAME_NAME = Color.GOLD.bold() +
-            "&6&l\uD835\uDC9Eℱ \uD835\uDC9C\uD835\uDCC7ℯ\uD835\uDCC3\uD835\uDCB6";
+            "&6&lᴄғ &eᴀʀᴇɴᴀ";
 
     public static final VersionInfo versionInfo = new VersionInfo(
             new UpdateTopic("Hello, 1.20.4!", 13, 82, 191, 87, 150, 250),
-            new UpdateTopic("Vortex Changes", 224, 113, 34, 224, 143, 85)
+            new UpdateTopic("⚖ Everything needs balance.", 52, 173, 24, 100, 179, 82)
     );
 
     public static final String requireEternaVersion = "2.50.0";
     public static final String requireMinecraftVersion = "1.20.4";
+    public static final boolean isProtocolStillBrokenAndBreaksOnReload = true;
 
     private static long start;
     private static Main plugin;
@@ -70,6 +74,7 @@ public class Main extends JavaPlugin {
     private AchievementRegistry achievementRegistry;
     private CrateManager crateManager;
     private RuntimeNPCManager npcManager;
+    private ReloadChecker reloadChecker;
 
     @Override
     public void onEnable() {
@@ -129,6 +134,9 @@ public class Main extends JavaPlugin {
             world.setGameRule(GameRule.NATURAL_REGENERATION, false);
             world.setGameRule(GameRule.KEEP_INVENTORY, true);
             world.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
+            world.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
+            world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
+            world.setGameRule(GameRule.RANDOM_TICK_SPEED, 0);
         }
 
         // Remove recipes and achievements
@@ -143,39 +151,17 @@ public class Main extends JavaPlugin {
         new CommandRegistry(this);
 
         // Check for reload
-        final ReloadChecker reloadChecker = new ReloadChecker(this);
-        final int reloadCount = reloadChecker.getReloadCount();
-
-        reloadChecker.check(20);
-
-        // Kick because of /reload
-        for (final Player player : Bukkit.getOnlinePlayers()) {
-            final boolean isOperator = player.isOp();
-            final StringBuilder builder = new StringBuilder("""
-                    &4&lServer Reloaded!
-                    &cPlease re-connect to avoid bugs.
-                    """);
-
-            if (isOperator) {
-                builder.append("""
-                                                
-                        &7&oReloading your server may lead to memory leaks,
-                        &7&o"Zip File Closed" and similar issues.
-                                            
-                        &7&oIf you encounter any, please &nrestart&7&o the server!
-                                            
-                        &8&oThis is your %s server reload!\
-                        """.formatted(CFUtils.stNdTh(reloadCount)));
-            }
-
-            player.kickPlayer(Chat.color(builder.toString()));
-        }
+        this.reloadChecker = new ReloadChecker(this);
+        this.reloadChecker.check(20);
 
         // Clear garbage entities
         GameTask.runLater(CFGarbageCollector::clearInAllWorlds, 20);
 
         // Load contributors
         //Contributors.loadContributors();
+
+        // Load update hack
+        new UpdateBlockHackReplacer();
 
         new TrialListener();
     }
@@ -185,6 +171,29 @@ public class Main extends JavaPlugin {
         runSafe(() -> {
             for (final Player player : Bukkit.getOnlinePlayers()) {
                 Manager.current().getOrCreateProfile(player).getDatabase().save();
+
+                final int reloadCount = reloadChecker.getReloadCount();
+
+                final boolean isOperator = player.isOp();
+                final StringBuilder builder = new StringBuilder("""
+                        &4&lServer Reloaded!
+                        &cPlease re-connect to avoid bugs.
+                        """);
+
+                // FIXME (hapyl): 008, Mar 8: This technically says restart on server stop
+                if (isOperator) {
+                    builder.append("""
+                                                    
+                            &7&oReloading your server may lead to memory leaks,
+                            &7&o"Zip File Closed" and similar issues.
+                                                
+                            &7&oIf you encounter any, please &nrestart&7&o the server!
+                                                
+                            &8&oThis is your %s server reload!\
+                            """.formatted(CFUtils.stNdTh(reloadCount + 1)));
+                }
+
+                player.kickPlayer(Chat.color(builder.toString()));
             }
         }, "Player database save.");
 
@@ -201,6 +210,16 @@ public class Main extends JavaPlugin {
         }, "Game instance stop.");
 
         runSafe(this::saveConfig, "Config save.");
+
+        runSafe(() -> {
+            Bukkit.getOnlinePlayers().forEach(player -> {
+                final Tablist oldTablist = Tablist.getPlayerTabList(player);
+
+                if (oldTablist != null) {
+                    oldTablist.destroy();
+                }
+            });
+        }, "Tablist removal.");
     }
 
     // *=* Getters *=* //

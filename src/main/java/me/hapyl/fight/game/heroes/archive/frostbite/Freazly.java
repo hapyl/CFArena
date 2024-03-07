@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.frostbite;
 
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
@@ -7,6 +8,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.heroes.UltimateResponse;
+import me.hapyl.fight.game.talents.archive.frostbite.IcyShardsPassive;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.task.GameTask;
@@ -58,6 +60,24 @@ public class Freazly extends Hero {
         }.runTaskTimer(0, 10);
     }
 
+    @Override
+    public void processDamageAsVictim(@Nonnull DamageInstance instance) {
+        final IcyShardsPassive talent = getPassiveTalent();
+        final GamePlayer player = instance.getEntityAsPlayer();
+
+        if (player.hasCooldown(talent.getMaterial())) {
+            return;
+        }
+
+        if (player.random.nextFloat() > talent.chance) {
+            return;
+        }
+
+        // Launch icicles
+        talent.launchIcicles(player);
+        talent.startCd(player);
+    }
+
     @Nonnull
     @Override
     public FrostbiteUltimate getUltimate() {
@@ -75,8 +95,8 @@ public class Freazly extends Hero {
     }
 
     @Override
-    public Talent getPassiveTalent() {
-        return Talents.CHILL_AURA.getTalent();
+    public IcyShardsPassive getPassiveTalent() {
+        return (IcyShardsPassive) Talents.ICY_SHARDS.getTalent();
     }
 
 }

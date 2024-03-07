@@ -38,21 +38,23 @@ public final class StaticStyledGUI {
                 );
             }
 
-            setReturn(gui, gui.getSize() - 8);
+            setReturn(gui);
         }
 
         gui.onUpdate();
     }
 
-    public static <T extends PlayerGUI & Styled> void setReturn(@Nonnull T gui, int slot) {
+    public static <T extends PlayerGUI & Styled> void setReturn(@Nonnull T gui) {
         final ReturnData returnData = gui.getReturnData();
 
         if (returnData == null) {
             return;
         }
 
+        final int slot = returnData.getSlot();
+
         gui.setItem(
-                slot,
+                gui.getSize() - (9 - slot),
                 StyledTexture.ARROW_LEFT.toBuilder().setName("&aGo Back").addLore("To " + returnData.getName()).asIcon(),
                 player -> {
                     final Action<Player> action = returnData.getAction();

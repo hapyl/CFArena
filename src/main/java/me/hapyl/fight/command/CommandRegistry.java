@@ -31,10 +31,7 @@ import me.hapyl.fight.game.attribute.Attributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.challenge.PlayerChallengeList;
-import me.hapyl.fight.game.cosmetic.Cosmetic;
-import me.hapyl.fight.game.cosmetic.CosmeticCollection;
-import me.hapyl.fight.game.cosmetic.Cosmetics;
-import me.hapyl.fight.game.cosmetic.DisabledCosmetic;
+import me.hapyl.fight.game.cosmetic.*;
 import me.hapyl.fight.game.cosmetic.crate.Crates;
 import me.hapyl.fight.game.cosmetic.crate.convert.CrateConvert;
 import me.hapyl.fight.game.cosmetic.crate.convert.CrateConverts;
@@ -67,6 +64,7 @@ import me.hapyl.fight.game.reward.DailyReward;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.engineer.Construct;
+import me.hapyl.fight.game.talents.archive.frostbite.IcyShardsPassive;
 import me.hapyl.fight.game.talents.archive.juju.Orbiting;
 import me.hapyl.fight.game.talents.archive.swooper.BlastPackEntity;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
@@ -77,6 +75,7 @@ import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.splash.SplashText;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.garbage.CFGarbageCollector;
 import me.hapyl.fight.github.Contributor;
 import me.hapyl.fight.github.Contributors;
 import me.hapyl.fight.gui.HeroPreviewGUI;
@@ -129,6 +128,7 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.*;
+import org.bukkit.entity.Display;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -223,13 +223,61 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new NpcCommand("npcf"));
         register(new PersonalMessageCommand("tell"));
         register(new ReplyCommand("reply"));
+        register(new GotoCommand("world"));
 
         // *=* Inner commands *=* //
 
+        register("clearGarbageEntities", (player, args) -> {
+            final int cleared = CFGarbageCollector.clearInAllWorlds();
+
+            Chat.sendMessage(player, "Removed %s entities.".formatted(cleared));
+        });
+
+        register("launchIcicles", (player, args) -> {
+            final GamePlayer gamePlayer = CF.getPlayer(player);
+
+            if (gamePlayer == null) {
+                Chat.sendMessage(player, "&cNo handle!");
+                return;
+            }
+
+            final IcyShardsPassive talent = (IcyShardsPassive) Talents.ICY_SHARDS.getTalent();
+            talent.launchIcicles(gamePlayer);
+        });
+
+        register("toStringRarity", (player, args) -> {
+            final Rarity rarity = args.get(0).toEnum(Rarity.class);
+            final String string = args.makeStringArray(1);
+
+            if (rarity == null) {
+                Chat.sendMessage(player, "&cInvalid rarity!");
+                return;
+            }
+
+            final String value = rarity.toString(string);
+
+            Chat.sendMessage(player, "&aOutput:");
+            Chat.sendMessage(player, value);
+        });
+
         register("adminSkin", (player, args) -> {
+            // adminSkin equip SKIN
             // adminSkin set HERO SKIN
             // adminSkin remove HERO SKIN
             // adminSkin give HERO SKIN
+
+            if (args.length == 2 && args.getString(0).equalsIgnoreCase("equip")) {
+                final Skins skin = args.get(1).toEnum(Skins.class);
+
+                if (skin == null) {
+                    Notifier.error(player, "Invalid skin!");
+                    return;
+                }
+
+                skin.getSkin().equip(player);
+                Notifier.success(player, "Equipped {} skin!", skin.getSkin().getName());
+                return;
+            }
 
             final String string = args.get(0).toString().toLowerCase();
             final Heroes hero = args.get(1).toEnum(Heroes.class);
@@ -1426,7 +1474,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 return;
             }
 
-            Heroes.ENGINEER.getHero(Engineer.class).getPlayerData(gamePlayer).setIron(Engineer.MAX_IRON);
+            Heroes.ENGINEER.getHero(Engineer.class).getPlayerData(gamePlayer).setIron(100);
             Chat.sendMessage(player, "&aRecharged!");
         });
 

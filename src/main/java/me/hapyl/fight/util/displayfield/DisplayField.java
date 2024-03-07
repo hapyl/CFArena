@@ -1,5 +1,7 @@
 package me.hapyl.fight.util.displayfield;
 
+import me.hapyl.fight.game.attribute.AttributeType;
+
 import javax.annotation.Nonnull;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -56,5 +58,8 @@ public @interface DisplayField {
      * @return the decimal point.
      */
     int dp() default -1;
+
+    @Nonnull
+    AttributeType attribute() default AttributeType.MAX_HEALTH;
 
 }

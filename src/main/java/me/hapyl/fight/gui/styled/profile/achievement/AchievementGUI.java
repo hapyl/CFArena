@@ -4,7 +4,6 @@ import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.gui.StrictlyLobbyGUI;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
@@ -18,7 +17,7 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
 
-public class AchievementGUI extends StyledGUI implements StrictlyLobbyGUI {
+public class AchievementGUI extends StyledGUI {
 
     private final PlayerProfile profile;
 

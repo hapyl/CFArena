@@ -2,10 +2,14 @@ package me.hapyl.fight.game.heroes.archive.dark_mage;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
+import me.hapyl.fight.event.custom.GameDeathEvent;
+import me.hapyl.fight.game.Debug;
+import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -20,10 +24,15 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.dark_mage.ShadowClone;
 import me.hapyl.fight.game.talents.archive.dark_mage.ShadowCloneNPC;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
+import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.ui.UIComplexComponent;
+import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
+import me.hapyl.spigotutils.module.math.Tick;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -34,20 +43,14 @@ import org.bukkit.inventory.EquipmentSlot;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Random;
 
 import static org.bukkit.Sound.*;
 
-public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataHandler<DarkMageData> {
-
-    @DisplayField private final double passiveChance = 0.12d;
-    @DisplayField private final double ultimateCooldownBoost = 0.5d;
+public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataHandler<DarkMageData>, UIComplexComponent {
 
     private final PlayerDataMap<DarkMageData> playerData = PlayerMap.newDataMap(DarkMageData::new);
-
-    /**
-     * Redesign:
-     */
 
     public DarkMage(@Nonnull Heroes handle) {
         super(handle, "Dark Mage");
@@ -56,7 +59,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
         setAffiliation(Affiliation.THE_WITHERS);
         setGender(Gender.MALE);
 
-        setDescription("A mage who was cursed by the &8&l&oDark Magic&8&o, but even it couldn't kill him...");
+        setDescription("A mage, who was cursed by the &8&l&oDark Magic&8&o, but even it couldn't kill him...");
         setItem("e6ca63569e8728722ecc4d12020e42f086830e34e82db55cf5c8ecd51c8c8c29");
 
         final HeroAttributes attributes = getAttributes();
@@ -72,53 +75,43 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
     }
 
     @Override
-    public void processDamageAsVictim(@Nonnull DamageInstance instance) {
-        final ShadowClone talent = getFourthTalent();
-        final GamePlayer player = instance.getEntityAsPlayer();
-        final LivingGameEntity entity = instance.getDamager();
-        final ShadowCloneNPC clone = talent.getClone(player);
+    public void onStart() {
+        new GameTask() {
+            @Override
+            public void run() {
+                playerData.values()
+                        .forEach(data -> data.forEach(entity -> data.player.spawnParticle(
+                                entity.getLocation().add(0, 2.5, 0),
+                                Particle.SMOKE_NORMAL,
+                                5,
+                                0.1,
+                                0.1,
+                                0.1,
+                                0.01f
+                        )));
+            }
+        }.runTaskTimer(0, 5);
+    }
 
-        // Handle passive
-        if (entity != null && new Random().nextDouble() < passiveChance) {
-            entity.addEffect(Effects.WITHER_BLOOD, 60, true);
+    @EventHandler()
+    public void handleDataOtherDeath(GameDeathEvent ev) {
+        final LivingGameEntity entity = ev.getEntity();
 
-            entity.sendMessage("&8☠ &c%s poisoned your blood!", player.getName());
-            player.sendMessage("&8☠ &aYou poisoned %s's blood!", entity.getName());
-        }
-
-        // Handle clone
-        if (clone != null && clone.isUltimate()) {
-            player.teleport(clone.getLocation());
-            talent.removeClone(clone);
-
-            // Fx
-            player.sendMessage("&aYour %s nullified the damage!", talent.getName());
-
-            player.addEffect(Effects.BLINDNESS, 1, 10);
-
-            player.playSound(ENTITY_ENDERMAN_TELEPORT, 1.0f);
-            player.playSound(ENTITY_PLAYER_BREATH, 1.0f);
-            player.playSound(ENTITY_GHAST_SCREAM, 0.75f);
-
-            instance.setCancelled(true);
-        }
+        playerData.values().forEach(data -> data.remove(entity));
     }
 
     @Override
     public void processDamageAsDamager(@Nonnull DamageInstance instance) {
-        final GamePlayer gamePlayer = instance.getDamagerAsPlayer();
+        final GamePlayer player = instance.getDamagerAsPlayer();
         final LivingGameEntity entity = instance.getEntity();
 
-        // Skip witherboard damage
-        if (gamePlayer == null || instance.getCause() == EnumDamageCause.WITHERBORN || !instance.isEntityAttack()) {
+        // Skip Wither Rose
+        if (player == null || player.isUsingUltimate() || !instance.isEntityAttack()) {
             return;
         }
 
-        final WitherData data = getWither(gamePlayer);
-
-        if (data != null) {
-            data.assistAttack(entity);
-        }
+        final DarkMageData data = getPlayerData(player);
+        data.addWithered(entity);
     }
 
     @EventHandler()
@@ -151,11 +144,6 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
         ev.setCancelled(true);
     }
 
-    @Nullable
-    public WitherData getWither(GamePlayer player) {
-        return getPlayerData(player).getWitherData();
-    }
-
     @Override
     public Talent getFirstTalent() {
         return Talents.BLINDING_CURSE.getTalent();
@@ -186,6 +174,18 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
     @Override
     public PlayerDataMap<DarkMageData> getDataMap() {
         return playerData;
+    }
+
+    @Nullable
+    @Override
+    public List<String> getStrings(@Nonnull GamePlayer player) {
+        final ShadowClone talent = getFourthTalent();
+        final ShadowCloneNPC clone = talent.getClone(player);
+        final DarkMageData data = getPlayerData(player);
+
+        final int witheredCount = data.getWitheredCount();
+
+        return List.of("%s %s".formatted(Named.WITHER_ROSE.getCharacter(), witheredCount), clone != null ? clone.toString() : "");
     }
 
     // [hapyl's rant about interaction detection]
@@ -234,46 +234,53 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
         }
     }
 
-    private class DarkMageUltimate extends UltimateTalent {
+    public class DarkMageUltimate extends UltimateTalent {
+
+        @DisplayField(percentage = true) public final double cooldownReduction = 0.5d;
+        @DisplayField(percentage = true) public final double durationIncrease = 0.3d;
+        @DisplayField private final int durationIncreasePerStack = 30;
+        @DisplayField private final int baseDuration = Tick.fromSecond(12);
+
         public DarkMageUltimate() {
-            super("Witherborn", 70);
+            super("Witherborn", 60);
 
             setDescription("""
-                    Raised by the &8Withers&7, they will always assist you in battle.
-                                    
-                    While &cattacking&7, the &8Wither&7 will unleash a &acoordinated&7 attack.
-                                    
-                    While &acasting&7 a spell, it will be &aimproved&7, and the cooldown is &breduced&7.
-                                    
-                    After {duration}, the &8Wither&7 will leave.
-                    """);
+                    Raised by the %1$sWithers&7, they will &nalways&7 assist you in battle.
+
+                    The %1$swither&7 will &nimprove&7 your &bspells&7 by increasing their &bduration&7 and decreasing &acooldowns&7.
+
+                    Each stack of %2$s will &nincrease&7 the &bduration&7 of the %1$swither&7.
+                                        
+                    &8;;You cannot plant Wither Roses while the ultimate is active!
+                    """.formatted(Color.WITHERS, Named.WITHER_ROSE));
 
             setType(Talent.Type.ENHANCE);
             setItem(Material.WITHER_SKELETON_SKULL);
             setSound(Sound.ENTITY_WITHER_SPAWN, 2.0f);
-            setDurationSec(12);
-            setCooldownSec(30);
 
-            addAttributeDescription("Assist Delay", WitherData.ASSIST_DELAY / 50);
-            addAttributeDescription("Assist Hits", WitherData.ASSIST_HITS);
-            addAttributeDescription("Assist Damage", WitherData.ASSIST_DAMAGE_TOTAL);
+            setCooldownSec(30);
         }
 
         @Nonnull
         @Override
         public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-            final EntityAttributes attributes = player.getAttributes();
+            final DarkMageData playerData = getPlayerData(player);
 
-            getPlayerData(player).newWither();
-            attributes.decreaseTemporary(Temper.WITHERBORN, AttributeType.COOLDOWN_MODIFIER, ultimateCooldownBoost, getUltimateDuration());
+            // Remove clone if present
+            final ShadowClone talent = getFourthTalent();
+            talent.removeClone(player);
 
-            return new UltimateResponse() {
-                @Override
-                public void onUltimateEnd(@Nonnull GamePlayer player) {
-                    getPlayerData(player).removeWither();
-                }
-            };
+            final int witheredCount = playerData.getWitheredCount();
+            final int duration = baseDuration + (durationIncreasePerStack * witheredCount);
 
+            player.setUsingUltimate(duration);
+
+            playerData.resetWitheredCountWithFx();
+            playerData.newWither(duration);
+
+            player.schedule(playerData::removeWither, duration);
+
+            return UltimateResponse.OK;
         }
     }
 }

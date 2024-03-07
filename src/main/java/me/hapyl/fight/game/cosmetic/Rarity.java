@@ -5,8 +5,13 @@ import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.color.ColorFlag;
 import me.hapyl.fight.game.color.GradientColor;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.FormattedEnum;
+import me.hapyl.fight.util.UpsideDownText;
+import me.hapyl.spigotutils.module.util.SmallCaps;
 import org.bukkit.ChatColor;
+import org.bukkit.util.StringUtil;
+import org.sqlite.util.StringUtils;
 
 import javax.annotation.Nonnull;
 
@@ -20,26 +25,31 @@ public enum Rarity implements RandomDrop, FormattedEnum {
             "ᴄᴏᴍᴍᴏɴ",
             100, 1, 0.35f
     ),
+
     UNCOMMON(
             new Color("#12e63d"),
             "ᴜɴᴄᴏᴍᴍᴏɴ",
             200, 2, 0.25f
     ),
+
     RARE(
             new Color("#1283db"),
             "ʀᴀʀᴇ",
             500, 5, 0.20f
     ),
+
     EPIC(
             new GradientColor("#e314b6", "#ad0789").setFlags(ColorFlag.BOLD),
             "ᴇᴘɪᴄ",
             1_000, 10, 0.10f
     ),
+
     LEGENDARY(
             new GradientColor("#faa61e", "#fa7a1e").setFlags(ColorFlag.BOLD),
             "ʟᴇɢᴇɴᴅᴀʀʏ",
-            2_000, 20, 0.07f
+            2_000, 20, 0.06f
     ),
+
     MYTHIC(
             new GradientColor("#8df7ad", "#02a602").setFlags(ColorFlag.BOLD),
             "ᴍʏᴛʜɪᴄᴀʟ",
@@ -57,10 +67,42 @@ public enum Rarity implements RandomDrop, FormattedEnum {
         public String suffix() {
             return SUFFIX;
         }
+    },
+
+    CURSED(
+            new GradientColor("#a62017", "#cf4b42").setFlags(ColorFlag.BOLD),
+            "pǝsɹnɔ",
+            25_000, 100, 0.01f
+    ) {
+        @Nonnull
+        @Override
+        public String prefix() {
+            return "&8&l&k||| ";
+        }
+
+        @Override
+        public String suffix() {
+            return " &8&l&k|||";
+        }
+
+        @Nonnull
+        @Override
+        public String toString(@Nonnull String suffix) {
+
+            return prefix() + color.color(makeSuffix(suffix) + " " + name) + suffix();
+        }
+
+        @Nonnull
+        @Override
+        public String makeSuffix(@Nonnull String string) {
+            return UpsideDownText.format(CFUtils.reverseString(string));
+        }
+
     };
 
-    private final Color color;
-    private final String name;
+    protected final Color color;
+    protected final String name;
+
     private final long coinCompensation;
     private final long dustCompensation;
     private final float dropChance;
@@ -118,7 +160,12 @@ public enum Rarity implements RandomDrop, FormattedEnum {
 
     @Nonnull
     public String toString(@Nonnull String suffix) {
-        return prefix() + color.color(name + " " + suffix) + suffix();
+        return prefix() + color.color(name + " " + makeSuffix(suffix)) + suffix();
+    }
+
+    @Nonnull
+    public String makeSuffix(@Nonnull String string) {
+        return SmallCaps.format(string);
     }
 
     @Nonnull

@@ -25,7 +25,8 @@ public class SwooperWeapon extends RangeWeapon {
 
     private final PackedParticle[] particles = {
             new PackedParticle(Particle.FIREWORKS_SPARK),
-            new PackedParticle(Particle.FLAME)
+            new PackedParticle(Particle.FLAME),
+            new PackedParticle(Particle.SPELL_MOB_AMBIENT).setAmount(0).setOffsetX(1).setOffsetY(1).setOffsetZ(1).setSpeed(1)
     };
 
     public SwooperWeapon(Swooper swooper) {
@@ -78,7 +79,11 @@ public class SwooperWeapon extends RangeWeapon {
             @Nonnull
             @Override
             public PackedParticle getParticleTick() {
-                return particles[strongShot ? 1 : 0];
+                if (strongShot) {
+                    return particles[1];
+                }
+
+                return particles[data.isStealthMode() ? 2 : 0];
             }
 
             @Nonnull

@@ -3,6 +3,9 @@ package me.hapyl.fight.game.heroes.archive.shadow_assassin;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Named;
+import me.hapyl.fight.game.attribute.Attribute;
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -40,6 +43,11 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
     public final Equipment furyEquipment = new Equipment();
 
     private final int nevermissCd = 20;
+    private final double nevermissDistance = 10.0d;
+
+    public final double attackIncrease;
+    public final double speedDecrease;
+
     private final PlayerMap<Data> playerData = PlayerMap.newMap();
 
     public ShadowAssassin(@Nonnull Heroes handle) {
@@ -47,11 +55,19 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
 
         setArchetype(Archetype.STRATEGY);
         setGender(Gender.UNKNOWN);
+        setRace(Race.UNKNOWN);
 
         setDescription("""
                 An assassin with anger management issues from dimension of shadows. Capable of switching between being &9&oStealth&8&o, and &c&oFurious&8&o.
                 """);
         setItem("d7fcfa5b0af855f314606a5cd2b597475286a152d1ee08d9949a6386cbc46a8e");
+
+        final HeroAttributes attributes = getAttributes();
+        attributes.setAttack(70);
+        attributes.setSpeed(120);
+
+        this.attackIncrease = AttributeType.ATTACK.getDefaultValue() - attributes.get(AttributeType.ATTACK);
+        this.speedDecrease = attributes.get(AttributeType.SPEED) - AttributeType.SPEED.getDefaultValue();
 
         final Equipment equipment = getEquipment();
         equipment.setChestPlate(14, 23, 41);
@@ -225,7 +241,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
 
     @Nullable
     private LivingGameEntity getNearestEntity(GamePlayer player) {
-        return Collect.targetEntityDot(player, 10, 0.5d, t -> t.hasLineOfSight(player));
+        return Collect.targetEntityDot(player, nevermissDistance, 0.5d, t -> t.hasLineOfSight(player));
     }
 
     private boolean validateCanBackStab(GamePlayer player, LivingGameEntity entity) {
@@ -242,7 +258,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
             setDescription("""
                     Enter {name} for {duration}.
                                     
-                    While active, your &amelee&7 attacks will &nnot&7 miss if an enemy is close enough and has no cover.
+                    While active, your &amelee&7 attacks will &nnot&7 miss if an &cenemy&7 is within your line of sight.
                                     
                     You cannot perform &eShadow Stab&7 while {name} is active.
                     """);

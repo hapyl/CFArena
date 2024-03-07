@@ -28,10 +28,9 @@ public class FrostbiteWeapon extends RangeWeapon {
                 """);
 
         setDamage(5.0d);
-        setCooldown(25);
-        setReloadTimeSec(4);
+        setCooldown(20);
+        setReloadTimeSec(3);
         setMaxAmmo(4);
-        setKnockback(0.0d);
     }
 
     @Nonnull

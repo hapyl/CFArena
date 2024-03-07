@@ -1,4 +1,4 @@
-package me.hapyl.fight.game.maps.features;
+package me.hapyl.fight.game.maps.features.japan;
 
 import me.hapyl.fight.game.maps.MapFeature;
 import org.bukkit.event.Listener;

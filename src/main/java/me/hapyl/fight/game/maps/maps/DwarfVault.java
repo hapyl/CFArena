@@ -18,9 +18,9 @@ import javax.annotation.Nonnull;
 
 public class DwarfVault extends GameMap implements Listener {
 
-    public final BoundingBoxCollector LAVA_BOUNDING_BOX = new BoundingBoxCollector(1464, 44, 1539, 1531, 60, 1614);
-    public final double DAMAGE = 20.0d;
-    public final Vector PUSH_VELOCITY = new Vector(0.0d, 3.1d, 0.0d);
+    public final BoundingBoxCollector lavaBoundingBox = new BoundingBoxCollector(5973, 24, -36, 6029, 33, 36);
+    public final Vector lavaPushVector = new Vector(0.0d, 3.1d, 0.0d);
+    public final double lavaDamage = 20.0d;
 
     public DwarfVault() {
         super("Dwarfs' Vault");
@@ -30,15 +30,13 @@ public class DwarfVault extends GameMap implements Listener {
         setSize(Size.MEDIUM);
         setTicksBeforeReveal(100);
 
-        addLocation(1500, 91, 1570);
-        addLocation(1500, 91, 1532);
-        addLocation(1500, 92, 1515);
-        addLocation(1500, 90, 1500);
-        addLocation(1500, 91, 1478);
-        addLocation(1512, 91, 1486);
-        addLocation(1519, 102, 1499);
-        addLocation(1499, 102, 1522);
-        addLocation(1479, 102, 1501);
+        addLocation(6000, 64, 0, 180f, 0f);
+        addLocation(6000, 64, -40);
+        addLocation(6000, 62.25, -70);
+        addLocation(6020, 75, -70, 90f, 0f);
+        addLocation(5980, 75, -70, -90f, 0f);
+        addLocation(6000, 75, -49, -180f, 0f);
+        addLocation(6011.0, 64, -82.0, 90f, 0f);
 
         addFeature(new MapFeature("Bouncy Lava", """
                 Hot but bouncy lava that allows you to get back to the platform.
@@ -46,7 +44,7 @@ public class DwarfVault extends GameMap implements Listener {
             @Override
             public void tick(int tick) {
                 if (tick % 20 == 0) {
-                    LAVA_BOUNDING_BOX.collect(getWorld(), null).forEach(DwarfVault.this::launchUp);
+                    lavaBoundingBox.collect(getWorld(), null).forEach(DwarfVault.this::launchUp);
                 }
             }
         });
@@ -61,7 +59,7 @@ public class DwarfVault extends GameMap implements Listener {
             return;
         }
 
-        if (LAVA_BOUNDING_BOX.isWithin(entity)) {
+        if (lavaBoundingBox.isWithin(entity)) {
             launchUp(entity);
             ev.setCancelled(true);
         }
@@ -72,8 +70,8 @@ public class DwarfVault extends GameMap implements Listener {
             return;
         }
 
-        entity.setVelocity(PUSH_VELOCITY);
-        entity.damage(DAMAGE, EnumDamageCause.DWARF_LAVA);
+        entity.setVelocity(lavaPushVector);
+        entity.damage(lavaDamage, EnumDamageCause.DWARF_LAVA);
         entity.startCooldown(Cooldown.DWARF_LAVA);
 
         // Fx

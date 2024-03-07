@@ -1,5 +1,6 @@
 package me.hapyl.fight.event.custom;
 
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.HandlerList;
@@ -10,14 +11,14 @@ import javax.annotation.Nullable;
 /**
  * A better version of {@link org.bukkit.event.entity.ProjectileLaunchEvent}.
  */
-public class ProjectilePostLaunchEvent extends GameEntityEvent {
+public class ProjectilePostLaunchEvent extends GamePlayerEvent {
 
     private static final HandlerList HANDLER_LIST = new HandlerList();
 
     private final Projectile projectile;
 
-    public ProjectilePostLaunchEvent(@Nonnull LivingGameEntity entity, @Nonnull Projectile projectile) {
-        super(entity);
+    public ProjectilePostLaunchEvent(@Nonnull GamePlayer player, @Nonnull Projectile projectile) {
+        super(player);
         this.projectile = projectile;
     }
 
@@ -26,9 +27,9 @@ public class ProjectilePostLaunchEvent extends GameEntityEvent {
         return projectile;
     }
 
-    @Nullable
-    public LivingGameEntity getShooter() {
-        return entity;
+    @Nonnull
+    public GamePlayer getShooter() {
+        return player;
     }
 
     @Nonnull

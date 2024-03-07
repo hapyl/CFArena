@@ -1,6 +1,8 @@
 package me.hapyl.fight.game.heroes.archive.shadow_assassin;
 
 import me.hapyl.fight.game.HeroReference;
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
@@ -45,6 +47,18 @@ public class Data implements HeroReference<ShadowAssassin> {
 
         mode = newMode;
         mode.switchTo(player, hero);
+
+        // Attributes
+        final EntityAttributes attributes = player.getAttributes();
+
+        if (mode == AssassinMode.FURY) {
+            attributes.add(AttributeType.ATTACK, hero.attackIncrease);
+            attributes.subtract(AttributeType.SPEED, hero.speedDecrease);
+        }
+        else {
+            attributes.subtract(AttributeType.ATTACK, hero.attackIncrease);
+            attributes.add(AttributeType.SPEED, hero.speedDecrease);
+        }
 
         // Damage & Fx
         Collect.nearbyEntities(player, 1.5d).forEach(entity -> {

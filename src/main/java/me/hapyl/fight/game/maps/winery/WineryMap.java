@@ -23,10 +23,10 @@ public class WineryMap extends GameMap {
     private final int howlPeriod = Tick.fromMinute(3);
     private final double howlRange = 42.0d;
     private final WineryOwl[] owls = new WineryOwl[] {
-            new WineryOwl(233, 80, 178),
-            new WineryOwl(186, 76, 167),
-            new WineryOwl(156, 76, 247),
-            new WineryOwl(264, 77, 211),
+            new WineryOwl(5064, 77, 11),
+            new WineryOwl(5033, 80, -22),
+            new WineryOwl(4986, 76, -33),
+            new WineryOwl(4956, 76, 47),
     };
 
     public WineryMap() {
@@ -36,22 +36,23 @@ public class WineryMap extends GameMap {
         setMaterial(Material.SWEET_BERRIES);
         setTicksBeforeReveal(100);
 
-        addLocation(201, 64, 199);
-        addLocation(201, 64, 235, -180f, 0.0f);
-        addLocation(184, 66, 224, -90f, 0.0f);
-        addLocation(185, 60, 213, 90.0f, 0.0f);
-        addLocation(219, 74, 217, 90.0f, 0.0f);
-        addLocation(228, 64, 235, 90.0f, 0.0f);
+        addLocation(5001, 64, 0);
+        addLocation(5020, 66.65, 18);
+        addLocation(5002, 64, 45, -180f, 0f);
+        addLocation(4985, 60, 14);
+        addLocation(5019, 74, 17, -180f, 0f);
+        addLocation(4967, 64, 21, -90f, 0f);
+        addLocation(4985, 66, 36, -180f, 0f);
 
-        addPackLocation(PackType.HEALTH, 171.5, 64.0, 214.5);
-        addPackLocation(PackType.HEALTH, 227.5, 74.0, 218.5);
-        addPackLocation(PackType.HEALTH, 178.5, 60.0, 235.5);
-        addPackLocation(PackType.HEALTH, 235.5, 61.0, 216.5);
+        addPackLocation(PackType.HEALTH, 4978, 60, 35);
+        addPackLocation(PackType.HEALTH, 5035, 61, 16);
+        addPackLocation(PackType.HEALTH, 4972, 64, 13);
+        addPackLocation(PackType.HEALTH, 5026, 74, 19);
 
-        addPackLocation(PackType.CHARGE, 201.5, 73.0, 217.5);
-        addPackLocation(PackType.CHARGE, 166.5, 64.0, 231.5);
-        addPackLocation(PackType.CHARGE, 223.5, 84.0, 227.5);
-        addPackLocation(PackType.CHARGE, 190.5, 60.0, 215.5);
+        addPackLocation(PackType.CHARGE, 4990, 60, 15);
+        addPackLocation(PackType.CHARGE, 4982, 81, 30);
+        addPackLocation(PackType.CHARGE, 4982, 81, 30);
+        addPackLocation(PackType.CHARGE, 4972, 64, 35);
 
         setWeather(WeatherType.DOWNFALL);
         setTime(18000);
@@ -62,7 +63,7 @@ public class WineryMap extends GameMap {
             public void onStart() {
                 GameTask.runTaskTimer(task -> {
                     // Howl
-                    final Location location = BukkitUtils.defLocation(201.5, 64.0, 217.5);
+                    final Location location = BukkitUtils.defLocation(5001, 64, 17);
                     final World world = location.getWorld();
 
                     location.add(new Random().nextDouble(-howlRange, howlRange), 0.0d, new Random().nextDouble(-howlRange, howlRange));

@@ -20,9 +20,11 @@ import javax.annotation.Nonnull;
 
 public class EngineerTurret extends EngineerTalent {
 
-    @DisplayField private final double damage = 5;
-    @DisplayField private final double radius = 16;
-    @DisplayField private int delayBetweenShots = 20;
+    @DisplayField private final double damage = 3;
+    @DisplayField private final double radius = 32;
+
+    @DisplayField private int delayBetweenShots = 15;
+    @DisplayField private int damageIncreasePerLevel = 2;
 
     // This is the base of the turret (the bottom side)
     // It will be spawned with the main block display.
@@ -31,14 +33,16 @@ public class EngineerTurret extends EngineerTalent {
     );
 
     public EngineerTurret() {
-        super("Sentry", 6);
+        super("Sentry", 1);
 
         setDescription("""
                 Create a &cSentry&7 that will shoot the &enearest &cenemy&7.
                 """);
 
         setItem(Material.NETHERITE_SCRAP);
+
         setCooldownSec(35);
+        setUpgradeCost(3);
 
         // Set the TOP data here, per level.
         // It is up to modeler to make the model properly, so it rotates around itself.
@@ -65,13 +69,13 @@ public class EngineerTurret extends EngineerTalent {
             @Nonnull
             @Override
             public ImmutableArray<Double> healthScaled() {
-                return ImmutableArray.of(15d, 25d, 35d);
+                return ImmutableArray.of(40d, 60d, 80d);
             }
 
             @Nonnull
             @Override
             public ImmutableArray<Integer> durationScaled() {
-                return ImmutableArray.of(15, 25, 35);
+                return ImmutableArray.of(30, 40, 50);
             }
 
             @Override
@@ -131,10 +135,10 @@ public class EngineerTurret extends EngineerTalent {
                         }
 
                         targetEntity.setLastDamager(player);
-                        targetEntity.damage(damage, EnumDamageCause.SENTRY_SHOT);
+                        targetEntity.damage(damage + (getLevel() * damageIncreasePerLevel), EnumDamageCause.SENTRY_SHOT);
                         return true;
                     }
-                }.runTaskTimer(0, 1);
+                }.setIterations(3).runTaskTimer(0, 1);
 
                 // Fx
                 player.playWorldSound(location, Sound.ENTITY_BLAZE_SHOOT, 1.25f);

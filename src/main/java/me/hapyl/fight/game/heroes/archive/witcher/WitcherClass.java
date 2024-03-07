@@ -86,17 +86,16 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
             combo.setEntity(entity.getEntity());
         }
 
-        if (!combo.validateSameEntity(entity.getEntity())) {
-            combo.reset();
-        }
-
-        if (combo.validateCanCombo()) {
-            combo.incrementCombo();
-        }
-        else {
+        if (!combo.validateSameEntity(entity.getEntity()) || combo.isTimedOut()) {
             combo.reset();
             return;
         }
+
+        if (!combo.validateCanCombo()) {
+            return;
+        }
+
+        combo.incrementCombo();
 
         final int comboHits = combo.getCombo();
 

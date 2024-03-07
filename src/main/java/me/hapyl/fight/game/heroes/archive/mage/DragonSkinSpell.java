@@ -13,7 +13,8 @@ import javax.annotation.Nonnull;
 
 public class DragonSkinSpell extends MageSpell {
 
-    @DisplayField private final double attackIncrease = 1.2;
+    @DisplayField private final double attackIncrease = 1.2d;
+    @DisplayField private final double defenseIncrease = 0.7d;
 
     public DragonSkinSpell() {
         super(
@@ -22,7 +23,7 @@ public class DragonSkinSpell extends MageSpell {
                 Material.PHANTOM_MEMBRANE
         );
 
-        setDurationSec(10);
+        setDurationSec(8);
     }
 
     @Override
@@ -34,6 +35,7 @@ public class DragonSkinSpell extends MageSpell {
         player.addEffect(Effects.JUMP_BOOST, 250, duration);
 
         attributes.increaseTemporary(Temper.WYVERN_HEART, AttributeType.ATTACK, attackIncrease, duration);
+        attributes.increaseTemporary(Temper.WYVERN_HEART, AttributeType.DEFENSE, defenseIncrease, duration);
 
         // Fx
         player.spawnWorldParticle(player.getLocation().add(0.0d, 1.0d, 0.0d), Particle.CRIT_MAGIC, 40, 0.1, 0.1, 0.1, 1);

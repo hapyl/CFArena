@@ -1,6 +1,7 @@
 package me.hapyl.fight.util.displayfield;
 
 import me.hapyl.fight.game.Debug;
+import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 
@@ -95,22 +96,21 @@ public final class DisplayFieldSerializer {
             suffixSpace = false;
         }
 
+        if (display.attribute() != AttributeType.MAX_HEALTH) {
+            scale = display.attribute().getScale();
+        }
+
         try {
             field.setAccessible(true);
 
             // Format field value
             final Object value = field.get(instance);
-            String stringValue = "";
+            String stringValue;
 
             final int dp = display.dp();
 
             if (value instanceof Double decimal) {
-                if (dp != -1) {
-                    stringValue = String.format("%.0" + dp + "f", decimal * scale);
-                }
-                else {
-                    stringValue = scaleFormat(decimal * scale);
-                }
+                stringValue = dp != -1 ? String.format("%.0" + dp + "f", decimal * scale) : scaleFormat(decimal * scale);
             }
             // Integers are always considered as ticks, use short or long for other values
             // Integers are NOT scaled with the scale!
@@ -122,6 +122,10 @@ public final class DisplayFieldSerializer {
             }
             else if (value instanceof String string) {
                 stringValue = string;
+            }
+            // Default to toString() to custom objects can override the value
+            else {
+                stringValue = value.toString();
             }
 
             return stringValue + (suffix.isBlank() || suffix.isEmpty() ? "" : (suffixSpace ? " " : "") + suffix);

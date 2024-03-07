@@ -6,6 +6,7 @@ import me.hapyl.fight.game.heroes.archive.dark_mage.SpellButton;
 import me.hapyl.fight.game.heroes.archive.witcher.WitherData;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.LocationUtil;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -18,29 +19,18 @@ public class HealingAura extends DarkMageTalent {
 
     @DisplayField(suffix = "blocks") private final double radius = 2.5d;
     @DisplayField private final double healing = 2.0d;
-    @DisplayField private final double assistHealing = 25.0d;
+    @DisplayField private final double instantHealing = 10.0d;
     @DisplayField private final int healingPeriod = 15;
 
     public HealingAura() {
         super("Healing Aura", """
-                Create a &ahealing&7 circle at your location that periodically &aheals&7 &nall&7 nearby players.
+                Instantly heal for &c{instantHealing} ❤&7 and create a &ahealing&7 aura at your &ncurrent&7 &nlocation&7 that &aheals&7 &nall&7 nearby players.
                 """);
 
         setType(Type.SUPPORT);
         setItem(Material.APPLE);
-        setDurationSec(10);
+        setDurationSec(6);
         setCooldownSec(30);
-    }
-
-    @Nonnull
-    @Override
-    public String getAssistDescription() {
-        return "Instantly &aheal&7 for &c%.0f ❤&7.".formatted(assistHealing);
-    }
-
-    @Override
-    public void assist(@Nonnull WitherData data) {
-        data.player.heal(assistHealing);
     }
 
     @Nonnull
@@ -57,7 +47,10 @@ public class HealingAura extends DarkMageTalent {
 
     @Override
     public Response executeSpell(@Nonnull GamePlayer player) {
-        final Location location = player.getLocation();
+        final Location location = player.getLocation().add(0, 1, 0);
+
+        player.heal(instantHealing);
+
         new TimedGameTask(this) {
             private double theta = 0;
 
@@ -67,19 +60,20 @@ public class HealingAura extends DarkMageTalent {
                 if (modulo(healingPeriod)) {
                     Collect.nearbyPlayers(location, radius).forEach(target -> {
                         target.heal(healing);
-                        target.playSound(Sound.BLOCK_GRASS_HIT, 1.0f);
+                        target.playWorldSound(Sound.BLOCK_GRASS_HIT, 1.0f);
                     });
                 }
 
                 // Fx
-                final double x = radius * Math.sin(theta);
-                final double z = radius * Math.cos(theta);
+                final double x = Math.sin(theta) * radius;
+                final double y = Math.sin(Math.toRadians(tick) * 16) * 0.4;
+                final double z = Math.cos(theta) * radius;
 
-                location.add(x, 0, z);
-                player.spawnWorldParticle(location, Particle.VILLAGER_HAPPY, 2, 0.01, 0, 0.01, 0);
-                location.subtract(x, 0, z);
+                LocationUtil.modify(location, x, y, z, then -> {
+                    player.spawnWorldParticle(then, Particle.VILLAGER_HAPPY, 2, 0.01, 0, 0.01, 0);
+                });
 
-                theta = theta >= Math.PI * 2 ? 0 : theta + Math.PI / 32;
+                theta += Math.PI / 26;
             }
         }.runTaskTimer(0, 1);
 

@@ -1,7 +1,12 @@
 package me.hapyl.fight.gui.styled;
 
+import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.entity.SoundEffect;
+import me.hapyl.fight.ux.Notifier;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scoreboard.Scoreboard;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -32,4 +37,15 @@ public interface Styled {
     default boolean isSetCloseButton() {
         return true;
     }
+
+    default boolean checkCanOpen(@Nonnull Player player) {
+        if (Manager.current().isGameInProgress()) {
+            Notifier.error(player, "You cannot open this GUI in a game!");
+            Notifier.sound(player, SoundEffect.ERROR);
+            return true;
+        }
+
+        return false;
+    }
+
 }

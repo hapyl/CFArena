@@ -149,7 +149,7 @@ public class Spark extends Hero implements PlayerElement {
             setDescription("""
                     Instantly place a marker at your current location for {duration}.
                                             
-                    Upon death or after duration ends, safely teleport to the marked location with health you had upon activating the ability.
+                    Upon death or after duration ends, safely teleport to the marked location with health you had upon activating the talent.
                     """);
 
             setType(Talent.Type.ENHANCE);

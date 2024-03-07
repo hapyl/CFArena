@@ -30,7 +30,7 @@ public enum Temper implements SmallCapsDescriber {
     ICE_CAGE,
     ETERNAL_FREEZE(false),
     SHADOWSTRIKE,
-    WITHERBORN(false),
+    SLOWING_AURA,
     STONE_CASTLE,
     MECHA_INDUSTRY,
     TAMING_THE_TIME(false),
@@ -59,6 +59,8 @@ public enum Temper implements SmallCapsDescriber {
     EXTRA_CUTS,
     THROWING_KNIFE,
     SMOKE_BOMB,
+    ICY_SHARDS,
+    DARKNESS,
 
     /* Keep semicolon on this line for easier addition. */;
 

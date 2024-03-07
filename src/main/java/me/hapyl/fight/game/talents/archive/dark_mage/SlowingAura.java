@@ -9,10 +9,11 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.archive.dark_mage.SpellButton;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.LocationUtil;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.geometry.Draw;
-import me.hapyl.spigotutils.module.math.geometry.Quality;
+import me.hapyl.spigotutils.module.math.geometry.Drawable;
+import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -23,32 +24,30 @@ import org.bukkit.block.BlockFace;
 import javax.annotation.Nonnull;
 
 import static org.bukkit.Sound.BLOCK_HONEY_BLOCK_SLIDE;
+import static org.bukkit.Sound.BLOCK_PISTON_EXTEND;
 
 public class SlowingAura extends DarkMageTalent {
 
     @DisplayField(suffix = "blocks") private final short maxDistance = 20;
-    @DisplayField private final double radius = 4.0d;
+    @DisplayField private final double radius = 5.0d;
     @DisplayField private final double cdIncrease = 0.5d;
+    @DisplayField private final int interruptionPeriod = 30;
+    @DisplayField private final int impairDuration = 60;
 
-    private final int taskPeriod = 5;
+    private final Drawable particle = location -> {
+        PlayerLib.spawnParticle(location, Particle.SPELL, 2, 0.1d, 0.1d, 0.1d, 0);
+        PlayerLib.spawnParticle(location, Particle.DUST_PLUME, 1, 0.1d, 0.1d, 0.1d, 0);
+    };
 
     public SlowingAura() {
         super("Slowing Aura", """
-                Creates a &fslowness pool&7 at your &etarget&7 block that slows enemies.
-                                
-                &8;;The aura does not slow its creator.
-                """);
+                Creates a &fslowness pool&7 at your &etarget&7 block that &3slows&7, increases %s and &4interrupts&7 &cenemies&7 actions.
+                """.formatted(AttributeType.COOLDOWN_MODIFIER));
 
         setType(Type.IMPAIR);
         setItem(Material.BONE_MEAL);
         setDurationSec(4);
         setCooldownSec(10);
-    }
-
-    @Nonnull
-    @Override
-    public String getAssistDescription() {
-        return "The aura will also increase %s and periodically &4interrupt&7 actions.".formatted(AttributeType.COOLDOWN_MODIFIER);
     }
 
     @Nonnull
@@ -74,51 +73,44 @@ public class SlowingAura extends DarkMageTalent {
         final Location location = targetBlock.getRelative(BlockFace.UP).getLocation();
 
         new TimedGameTask(this) {
+
+            private double d;
+
             @Override
             public void run(int tick) {
                 // Affect
-                Collect.nearbyPlayers(location, radius).forEach(entity -> {
-                    if (entity.equals(player)) {
-                        return; // Don't slow Dark Mage
+                Collect.nearbyEntities(location, radius).forEach(entity -> {
+                    if (player.isSelfOrTeammate(entity)) {
+                        return;
                     }
 
                     entity.addEffect(Effects.SLOW, 3, 10);
 
-                    // Witherborn assist
-                    if (hasWither(player)) {
-                        final EntityAttributes attributes = entity.getAttributes();
-                        attributes.increaseTemporary(Temper.WITHERBORN, AttributeType.COOLDOWN_MODIFIER, cdIncrease, 40);
+                    final EntityAttributes attributes = entity.getAttributes();
+                    attributes.increaseTemporary(Temper.SLOWING_AURA, AttributeType.COOLDOWN_MODIFIER, cdIncrease, impairDuration);
 
-                        // Interrupt
-                        if (modulo(20)) {
-                            entity.interrupt();
-                        }
+                    // Interrupt
+                    if (modulo(interruptionPeriod) && entity instanceof GamePlayer playerEntity) {
+                        playerEntity.interrupt();
                     }
                 });
 
                 // Fx
                 player.playWorldSound(location, BLOCK_HONEY_BLOCK_SLIDE, 0.0f);
 
-                Geometry.drawCircle(location, radius, Quality.HIGH, new Draw(Particle.SPELL) {
-                    @Override
-                    public void draw(Location location) {
-                        final World world = location.getWorld();
-                        if (world != null) {
-                            world.spawnParticle(
-                                    this.getParticle(),
-                                    location.getX(),
-                                    location.getY(),
-                                    location.getZ(),
-                                    2, 0.1d, 0.1d, 0.1d, null
-                            );
-                        }
-                    }
-                });
+                final double x = Math.sin(d) * radius;
+                final double y = Math.sin(Math.toRadians(tick) * 8) * 0.3d;
+                final double z = Math.cos(d) * radius;
+
+                LocationUtil.modify(location, x, y, z, particle::draw);
+                LocationUtil.modify(location, z, -y, x, particle::draw);
+
+                d += Math.PI / 32;
             }
 
-        }.setIncrement(taskPeriod).runTaskTimer(0, taskPeriod);
-
+        }.runTaskTimer(0, 1);
 
         return Response.OK;
     }
+
 }

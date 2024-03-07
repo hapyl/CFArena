@@ -4,6 +4,8 @@ import me.hapyl.fight.game.cosmetic.skin.Skin;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.heroes.equipment.Slot;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
+import me.hapyl.fight.game.setting.Setting;
+import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -35,7 +37,7 @@ public class PlayerSkinPreview extends TickingGameTask {
         this(
                 player,
                 skin == null ? hero : skin.getHero().getHero(),
-                skin == null ? hero.getEquipment() : skin.getEquipment()
+                skin == null ? (Settings.USE_SKINS_INSTEAD_OF_ARMOR.isEnabled(player) ? null : hero.getEquipment()) : skin.getEquipment()
         );
     }
 
@@ -52,7 +54,7 @@ public class PlayerSkinPreview extends TickingGameTask {
         final Vector direction = location.getDirection().normalize().setY(0.0d);
 
         location.add(direction.multiply(2.0d));
-        location.add(0.0d, 0.25d, 0.0d);
+        location.add(0.0d, 0.05d, 0.0d);
 
         final Vector directionTowardsPlayer = player.getLocation()
                 .toVector()
@@ -74,9 +76,9 @@ public class PlayerSkinPreview extends TickingGameTask {
             npc.setItem(ItemSlot.CHEST, equipment.getItem(Slot.CHESTPLATE));
             npc.setItem(ItemSlot.LEGS, equipment.getItem(Slot.LEGGINGS));
             npc.setItem(ItemSlot.FEET, equipment.getItem(Slot.BOOTS));
-            npc.setItem(ItemSlot.MAINHAND, hero.getWeapon().getItem());
         }
 
+        npc.setItem(ItemSlot.MAINHAND, hero.getWeapon().getItem());
         npc.show(player);
 
         runTaskTimer(1, 1);

@@ -3,11 +3,10 @@ package me.hapyl.fight.game.heroes.archive.moonwalker;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.effect.Effects;
-import me.hapyl.fight.game.entity.EquipmentSlot;
+import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.archive.moonwalker.MoonPillarTalent;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
@@ -67,7 +66,7 @@ public class Moonwalker extends Hero implements DisabledHero, PlayerDataHandler<
 
     @Override
     public void onStart(@Nonnull GamePlayer player) {
-        player.setItem(EquipmentSlot.ARROW, new ItemStack(Material.ARROW));
+        player.setItem(EquipmentSlots.ARROW, new ItemStack(Material.ARROW));
         player.addEffect(Effects.SLOW_FALLING, 2, -1);
     }
 

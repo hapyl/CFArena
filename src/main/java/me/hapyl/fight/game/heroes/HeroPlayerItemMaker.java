@@ -1,47 +1,55 @@
 package me.hapyl.fight.game.heroes;
 
-import com.google.common.collect.Maps;
+import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.collection.HeroStatsCollection;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
+import me.hapyl.fight.game.cosmetic.skin.Skins;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Described;
 import me.hapyl.fight.util.Named;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Locale;
-import java.util.Map;
 
-public class CachedHeroItem {
+public class HeroPlayerItemMaker {
 
     private final Hero hero;
     private final HeroStatsCollection stats;
 
-    private final Map<Type, ItemStack> itemMap;
-    //private final Map<Type, Map<Language, ItemStack>> itemMap;
-
-    public CachedHeroItem(Hero hero) {
+    public HeroPlayerItemMaker(Hero hero) {
         this.hero = hero;
         this.stats = hero.getStats();
-
-        this.itemMap = Maps.newHashMap();
     }
 
     @Nonnull
-    public ItemStack getItem(@Nonnull Type type) {
-        return itemMap.computeIfAbsent(type, fn -> type.createItem(this));
+    public ItemStack makeItem(@Nonnull Type type, @Nonnull Player player) {
+        final ItemBuilder builder = makeBuilder(type, player);
+        final Skins skin = PlayerDatabase.getDatabase(player).skinEntry.getSelected(hero.getHandle());
+
+        if (skin != null) {
+            builder.setHeadTextureUrl(skin.getSkin().getEquipment().getHelmetTexture());
+        }
+
+        return builder.asIcon();
+    }
+
+    @Nonnull
+    public ItemBuilder makeBuilder(@Nonnull Type type, @Nonnull Player player) {
+        return type.createItem(this, player);
     }
 
     public enum Type {
         SELECT {
             @Nonnull
             @Override
-            ItemStack createItem(@Nonnull CachedHeroItem item) {
-                final Hero hero = item.hero;
-                final PlayerRating averageRating = item.stats.getAverageRating();
+            ItemBuilder createItem(@Nonnull HeroPlayerItemMaker maker, @Nonnull Player player) {
+                final Hero hero = maker.hero;
+                final PlayerRating averageRating = maker.stats.getAverageRating();
 
                 final ItemBuilder builder = new ItemBuilder(hero.getItem())
                         .setName(hero.toString())
@@ -76,16 +84,16 @@ public class CachedHeroItem {
                 // Usage
                 builder.addLore().addLore("&eLeft Click to select").addLore("&6Right Click for details");
 
-                return builder.asIcon();
+                return builder;
             }
         },
 
         DETAILS {
             @Nonnull
             @Override
-            ItemStack createItem(@Nonnull CachedHeroItem item) {
-                final Hero hero = item.hero;
-                final HeroStatsCollection stats = item.stats;
+            ItemBuilder createItem(@Nonnull HeroPlayerItemMaker maker, @Nonnull Player player) {
+                final Hero hero = maker.hero;
+                final HeroStatsCollection stats = maker.stats;
 
                 final ItemBuilder builder = new ItemBuilder(hero.getItem());
                 final Archetype archetype = hero.getArchetype();
@@ -124,12 +132,12 @@ public class CachedHeroItem {
                 builder.addLore();
                 builder.addTextBlockLore(hero.getDescription(), "&8&o", 35, CFUtils.DISAMBIGUATE);
 
-                return builder.asIcon();
+                return builder;
             }
         };
 
         @Nonnull
-        ItemStack createItem(@Nonnull CachedHeroItem cachedHeroItem) {
+        ItemBuilder createItem(@Nonnull HeroPlayerItemMaker item, @Nonnull Player player) {
             throw new IllegalStateException();
         }
 

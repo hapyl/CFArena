@@ -7,7 +7,6 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.PlayerElement;
-import me.hapyl.fight.game.StaticServerEvent;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.maps.gamepack.ChangePack;
@@ -252,19 +251,13 @@ public class GameMap implements GameElement, PlayerElement {
      *
      * @return a random location.
      */
-    @SuppressWarnings("unchecked")
     @Nonnull
-    public final Location getLocation() {
-        // FIXME (hapyl): 005, Apr 5, 2023: Hardcoding for now, because don't want to rework the whole system for a joke
-        if (StaticServerEvent.isAprilFools()) {
-            if (name.equalsIgnoreCase("arena")) {
-                return GameMaps.ARENA_APRIL_FOOLS.getMap().getLocation();
-            }
-            else if (name.equalsIgnoreCase("spawn")) {
-                return GameMaps.SPAWN_APRIL_FOOLS.getMap().getLocation();
-            }
+    public Location getLocation() {
+        if (locations.size() == 1) {
+            return locations.get(0).getLocation();
         }
 
+        // Inspired by NASA! (real)
         int tries = 0;
         while (tries++ < Byte.MAX_VALUE) {
             final PredicateLocation predicateLocation = CollectionUtils.randomElement(locations, locations.get(0));
@@ -339,7 +332,7 @@ public class GameMap implements GameElement, PlayerElement {
             throw new IllegalStateException("game pack %s not initiated?".formatted(type.name()));
         }
 
-        gamePacks.get(type).addLocation(BukkitUtils.defLocation(x, y, z));
+        gamePacks.get(type).addLocation(BukkitUtils.defLocation(x + 0.5, y, z + 0.5));
         return this;
     }
 

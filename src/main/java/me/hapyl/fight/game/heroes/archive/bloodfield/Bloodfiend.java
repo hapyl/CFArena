@@ -62,10 +62,10 @@ import java.util.function.BiConsumer;
 
 public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplexComponent {
 
-    @DisplayField public final short impelTimes = 4;
-    @DisplayField public final int impelDuration = 40;
+    @DisplayField public final short impelTimes = 3;
+    @DisplayField public final int impelDuration = 30;
     @DisplayField public final int impelCd = 10;
-    @DisplayField public final double impelDamage = 30.0d;
+    @DisplayField public final double impelDamage = 25d;
 
     private final Map<GamePlayer, BloodfiendData> playerData = Maps.newConcurrentMap();
 

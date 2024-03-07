@@ -19,20 +19,20 @@ public class WinerySteamFeature extends MapFeature {
 
         geysers = Sets.newHashSet();
 
-        createGeyser(182, 67, 214, Direction.NORTH)
+        createGeyser(4982, 67, 14, Direction.NORTH)
                 .setMinDelay(Tick.fromSecond(8))
                 .setMaxDelay(Tick.fromSecond(16))
                 .setDuration(Tick.fromSecond(2))
                 .setRange(6);
 
-        createGeyser(183, 67, 227, Direction.EAST)
+        createGeyser(4983, 67, 21, Direction.EAST)
                 .setMinDelay(Tick.fromSecond(8))
                 .setMaxDelay(Tick.fromSecond(16))
                 .setDuration(Tick.fromSecond(2))
                 .setRange(4);
 
-        createGeyser(185, 62, 227, Direction.DOWN);
-        createGeyser(186, 62, 215, Direction.DOWN);
+        createGeyser(4986, 62, 27, Direction.DOWN);
+        createGeyser(4984, 62, 21, Direction.DOWN);
     }
 
     private Steam createGeyser(int x, int y, int z, Direction direction) {

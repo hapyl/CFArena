@@ -16,6 +16,8 @@ import org.checkerframework.checker.units.qual.K;
 
 public class SkinEffectManager implements Listener, GameElement {
 
+    public static final long STANDING_STILL_THRESHOLD = 1_000L;
+
     public SkinEffectManager(Main main) {
         main.getServer().getPluginManager().registerEvents(this, main);
     }
@@ -28,7 +30,7 @@ public class SkinEffectManager implements Listener, GameElement {
                 for (final GamePlayer player : CF.getAlivePlayers()) {
                     final PlayerProfile profile = PlayerProfile.getProfile(player.getPlayer());
 
-                    if (profile == null) {
+                    if (!player.isValidForCosmetics() || profile == null) {
                         continue;
                     }
 
@@ -41,14 +43,11 @@ public class SkinEffectManager implements Listener, GameElement {
 
                     final Skin skin = selectedSkin.getSkin();
 
-                    if (skin instanceof SkinEffectHandler handler) {
-                        if (!player.hasMovedInLast(MoveType.KEYBOARD, 1000)) {
-                            handler.onStandingStill(player);
-                        }
-
-                        handler.onTick(player, tick);
+                    if (!player.hasMovedInLast(MoveType.KEYBOARD, STANDING_STILL_THRESHOLD)) {
+                        skin.onStandingStill(player);
                     }
 
+                    skin.onTick(player, tick);
                 }
             }
         }.runTaskTimer(1, 1);
@@ -56,6 +55,6 @@ public class SkinEffectManager implements Listener, GameElement {
 
     @Override
     public void onStop() {
-
     }
+
 }
