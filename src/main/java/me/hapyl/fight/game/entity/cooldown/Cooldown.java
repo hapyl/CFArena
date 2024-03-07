@@ -13,6 +13,7 @@ public enum Cooldown {
     WITCH_POTION,
     CC_MESSAGE(1000),
     AMNESIA,
+    JAPAN_BOOSTER(300),
     ;
 
     public final long duration;

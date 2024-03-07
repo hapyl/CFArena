@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.archive.witcher;
 
+import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.entity.GamePlayer;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
@@ -8,7 +9,8 @@ import javax.annotation.Nullable;
 
 public class Combo {
 
-	private static final long DELAY_BETWEEN_HITS = 2500;
+	private static final long MIN_DELAY_BETWEEN_COMBO = 500;
+	private static final long MAX_DELAY_BETWEEN_COMBO = 2500;
 
 	private final GamePlayer player;
 
@@ -33,10 +35,17 @@ public class Combo {
 	public void incrementCombo() {
 		this.combo += 1;
 		this.lastHit = System.currentTimeMillis();
+
+		// Achievement
+		if (combo >= 16) {
+			Achievements.COMBO.complete(player);
+		}
 	}
 
 	public boolean validateCanCombo() {
-		return this.lastHit == 0 || (System.currentTimeMillis() - this.lastHit) < DELAY_BETWEEN_HITS;
+		final long l = System.currentTimeMillis() - this.lastHit;
+
+		return this.lastHit == 0 || l >= MIN_DELAY_BETWEEN_COMBO;
 	}
 
 	public boolean validateSameEntity(LivingEntity entity) {
@@ -57,7 +66,6 @@ public class Combo {
 	}
 
 	public int getCombo() {
-		validateCanCombo();
 		return combo;
 	}
 
@@ -65,4 +73,9 @@ public class Combo {
 		return lastHit;
 	}
 
+	public boolean isTimedOut() {
+		final long l = System.currentTimeMillis() - lastHit;
+
+		return lastHit != 0 && l >= MAX_DELAY_BETWEEN_COMBO;
+	}
 }

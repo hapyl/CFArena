@@ -24,8 +24,8 @@ public class ShamanMarkTalent extends Talent {
 
     @DisplayField protected final int outOfSightDuration = Tick.fromSecond(2);
     @DisplayField private final double speedIncrease = 0.1d; // 50%
-    @DisplayField private final double attackIncrease = 0.25d;
-    @DisplayField private final double attackSpeedIncrease = 0.2d;
+    @DisplayField private final double attackIncrease = 0.5d;
+    @DisplayField private final double attackSpeedIncrease = 0.5d;
 
     protected final TemperInstance temperInstance = Temper.SHAMANS_MARK.newInstance("&a\uD83D\uDC38 &2sʜᴀᴍᴀɴ's ᴍᴀʀᴋ")
             .increase(AttributeType.SPEED, speedIncrease)

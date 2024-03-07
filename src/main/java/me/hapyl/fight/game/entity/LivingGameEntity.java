@@ -758,6 +758,13 @@ public class LivingGameEntity extends GameEntity implements Ticking {
 
         if (willDie) {
             die(true);
+
+            // call skin
+            final GamePlayer playerDamager = instance.getDamagerAsPlayer();
+
+            if (playerDamager != null && !playerDamager.equals(this)) {
+                playerDamager.callSkinIfHas(skin -> skin.onKill(playerDamager, this));
+            }
         }
 
         // Damage indicator

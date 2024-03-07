@@ -21,8 +21,8 @@ public class CandlebaneTalent extends TauntTalent<Candlebane> {
         super("Candlebane Pillar");
 
         setItem(Material.RED_CANDLE);
-        setDurationSec(35);
-        setCooldownSec(45);
+        setDurationSec(60);
+        setCooldownSec(20);
     }
 
     @Nonnull

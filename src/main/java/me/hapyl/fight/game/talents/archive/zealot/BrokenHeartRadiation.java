@@ -19,15 +19,15 @@ import javax.annotation.Nonnull;
 
 public class BrokenHeartRadiation extends Talent {
 
-    @DisplayField private final double beamLength = 4;
-    @DisplayField private final double beamDamage = 10.0d;
+    @DisplayField private final double beamLength = 5;
+    @DisplayField private final double beamDamage = 5.0d;
 
     @DisplayField(scaleFactor = 100.0d, suffix = "%", suffixSpace = false)
     private final double mendingReduction = 0.25d;
     @DisplayField(scaleFactor = 100.0d, suffix = "%", suffixSpace = false)
     private final double defenseReduction = 0.33d;
 
-    @DisplayField private final int effectDuration = 250;
+    @DisplayField private final int effectDuration = 180;
 
     private final TemperInstance temperInstance = Temper.RADIATION.newInstance()
             .decrease(AttributeType.VITALITY, mendingReduction)

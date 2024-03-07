@@ -303,7 +303,7 @@ public class PlayerUI extends TickingGameTask {
         final StringBuilder builder = new StringBuilder();
 
         // Display active effects
-        builder.append("\n\n&e&lᴀᴄᴛɪᴠᴇ ᴇғғᴇᴄᴛs:\n");
+        builder.append("\n&e&lᴀᴄᴛɪᴠᴇ ᴇғғᴇᴄᴛs:\n");
         final GamePlayer gp = GamePlayer.getExistingPlayer(this.player);
         if (gp == null || gp.getActiveEffects().isEmpty()) {
             builder.append("&8None!");

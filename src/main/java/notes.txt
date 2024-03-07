@@ -1,26 +1,13 @@
-#########################################
 
-Changes to Range Heroes:
+###############################
 
+###############################
 
-#########################################
-
-- Arrows can't damage swooper?
-- buff techie
+- Add funky sort for VIP?
+- Change head texture to be skin yes
+- Try to fix Swooper blink
+- Buff Techie
 - Add fight thingy so FIGHT
-
-- Make DM clone deal damage?
-- Make DM leave invis like ninja
-- Migrate to RayCawst check
-- Improve DM
-- Range CD BROKE?
-- Make cool ray red
-- Smoke blinks?
-- STUN?
-- Maybe rework Bloodfiend make him AoE:
--- Pillar does AoE damage.
--- Chalice STEALS health.
--- No blood cup.
 
 ####################################################################
 
@@ -50,18 +37,6 @@ Changes to Range Heroes:
 
 * Frenzy
 - Make last life have a red outline
-
-* Zealot
-- Add guardian effect when hit by beam
-- Make ferocity only work on melee
-
-* New feature
-- DoT? Thoughts?
-
-* Passive idea for tank or support maybe
-- When hit and damage is NOT leathal but under like 5% of health = heal. Cd ofc
-
-- Museum
 
 ####################################################################
 

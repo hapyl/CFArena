@@ -74,6 +74,9 @@ public class GameResult {
 
             // Progress bond
             ChallengeType.WIN_GAMES.progress(winner);
+
+            // Call skin
+            winner.callSkinIfHas(skin -> skin.onWin(winner));
         }
     }
 

@@ -81,7 +81,7 @@ public class ActiveGameEffect implements Ticking {
     @Override
     public void tick() {
         // Stop ticking
-        if (remainingTicks <= 0 || entity.isDead()) {
+        if (remainingTicks == 0 || entity.isDead()) {
             forceStop();
             return;
         }

@@ -114,6 +114,10 @@ public class PlayerProfile {
     }
     // #render
 
+    public void setOriginalSkin(@Nonnull PlayerSkin originalSkin) {
+        this.originalSkin = originalSkin;
+    }
+
     @Nonnull
     public PlayerSocialConversation getConversation() {
         return conversation;
@@ -347,6 +351,10 @@ public class PlayerProfile {
     @Nonnull
     public Entry getEntry() {
         return Entry.of(player);
+    }
+
+    public void applyOriginalSkin() {
+        originalSkin.apply(player);
     }
 
     private void createTraceDump(RuntimeException exception) {

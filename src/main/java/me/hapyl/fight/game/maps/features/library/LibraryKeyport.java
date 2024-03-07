@@ -1,4 +1,4 @@
-package me.hapyl.fight.game.maps.features;
+package me.hapyl.fight.game.maps.features.library;
 
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.BlockLocation;
@@ -33,7 +33,7 @@ public class LibraryKeyport {
 
                 player.teleport(exit);
                 player.addPotionEffect(PotionEffectType.BLINDNESS, 1, 20);
-                player.playWorldSound(Sound.ENTITY_ENDERMAN_TELEPORT, 1.25f);
+                player.playWorldSound(Sound.ENTITY_ILLUSIONER_MIRROR_MOVE, 0.75f);
                 return true;
             }
         }
@@ -56,26 +56,25 @@ public class LibraryKeyport {
     }
 
     private void addAll() {
-
         // Entrances
-        final BlockLocation entrance0 = new BlockLocation(-9, 75, -77);
-        final BlockLocation entrance1 = new BlockLocation(-9, 75, -125);
-        final BlockLocation entrance2 = new BlockLocation(-22, 75, -107);
-        final BlockLocation entrance3 = new BlockLocation(9, 75, -126);
-        final BlockLocation entrance4 = new BlockLocation(25, 75, -107);
-        final BlockLocation entrance5 = new BlockLocation(25, 65, -107);
-        final BlockLocation entrance6 = new BlockLocation(9, 65, -127);
-        final BlockLocation entrance7 = new BlockLocation(-22, 65, -107);
+        final BlockLocation entrance0 = new BlockLocation(3977, 65, -7);
+        final BlockLocation entrance1 = new BlockLocation(4009, 65, -27);
+        final BlockLocation entrance2 = new BlockLocation(4023, 65, -7);
+        final BlockLocation entrance3 = new BlockLocation(3977, 75, -7);
+        final BlockLocation entrance4 = new BlockLocation(3991, 75, -26);
+        final BlockLocation entrance5 = new BlockLocation(4009, 75, -27);
+        final BlockLocation entrance6 = new BlockLocation(4023, 75, -7);
+        final BlockLocation entrance7 = new BlockLocation(3991, 75, 24);
 
         // Exits
-        this.portals.put(entrance0, new BlockLocation(-9, 74, -80, -180, 0));
-        this.portals.put(entrance1, new BlockLocation(-9, 74, -122));
-        this.portals.put(entrance2, new BlockLocation(-18, 74, -107, -90, 0));
-        this.portals.put(entrance3, new BlockLocation(9, 74, -122));
-        this.portals.put(entrance4, new BlockLocation(21, 74, -107, 90, 0));
-        this.portals.put(entrance5, new BlockLocation(21, 64, -107, 90, 0));
-        this.portals.put(entrance6, new BlockLocation(9, 64, -123));
-        this.portals.put(entrance7, new BlockLocation(-18, 64, -107, -90, 0));
+        this.portals.put(entrance0, new BlockLocation(3982, 64, -7, -90f, 0f));
+        this.portals.put(entrance1, new BlockLocation(4009, 64, -22));
+        this.portals.put(entrance2, new BlockLocation(4019, 64, -7, 90f, 0f));
+        this.portals.put(entrance3, new BlockLocation(3982, 74, -7, -90f, 0f));
+        this.portals.put(entrance4, new BlockLocation(3991, 74, -21));
+        this.portals.put(entrance5, new BlockLocation(4009, 74, -22));
+        this.portals.put(entrance6, new BlockLocation(4018, 74, -7, 90f, 0f));
+        this.portals.put(entrance7, new BlockLocation(3991, 74, 19, -180f, 0f));
     }
 
     private Location getRandomExitAndMergePitch(BlockLocation enter, GamePlayer player) {

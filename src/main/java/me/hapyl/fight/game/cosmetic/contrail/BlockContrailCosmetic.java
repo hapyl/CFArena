@@ -1,11 +1,13 @@
 package me.hapyl.fight.game.cosmetic.contrail;
 
 import com.google.common.collect.Lists;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.State;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Rarity;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
@@ -69,15 +71,14 @@ public class BlockContrailCosmetic extends ContrailCosmetic {
             return false;
         }
 
-        final Manager manager = Manager.current();
-        final IGameInstance currentGame = manager.getCurrentGame();
+        final GamePlayer gamePlayer = CF.getPlayer(player);
 
         // Not in game
-        if (!currentGame.isReal()) {
+        if (gamePlayer == null) {
             return true;
         }
 
-        return !player.hasPotionEffect(PotionEffectType.INVISIBILITY) && currentGame.getGameState() == State.IN_GAME;
+        return gamePlayer.isValidForCosmetics();
     }
 
     public boolean isNotValid(Player player, Block block) {

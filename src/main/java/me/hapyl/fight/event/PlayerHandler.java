@@ -721,6 +721,7 @@ public class PlayerHandler implements Listener {
 
         if (Manager.current().isGameInProgress()) {
             final GamePlayer gamePlayer = CF.getPlayer(player);
+
             if (gamePlayer == null) {
                 return;
             }
@@ -738,10 +739,16 @@ public class PlayerHandler implements Listener {
 
             gamePlayer.markLastMoved(MoveType.KEYBOARD);
 
+            // Call Skin::onMove
+            if (gamePlayer.isValidForCosmetics()) {
+                gamePlayer.callSkinIfHas(skin -> skin.onMove(gamePlayer, to));
+            }
+
             // Handle no moving
             if (!gamePlayer.canMove()) {
                 ev.setCancelled(true);
             }
+
         }
     }
 

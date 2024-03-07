@@ -28,6 +28,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerEvent;
+import org.bukkit.projectiles.ProjectileSource;
 import org.checkerframework.checker.units.qual.C;
 
 import javax.annotation.Nonnull;
@@ -535,4 +536,5 @@ public final class CF {
     public static void registerCommand(@Nonnull SimpleCommand command) {
         getCommandProcessor().registerCommand(command);
     }
+
 }

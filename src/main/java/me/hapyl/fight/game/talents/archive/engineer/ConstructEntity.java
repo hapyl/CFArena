@@ -1,14 +1,18 @@
 package me.hapyl.fight.game.talents.archive.engineer;
 
 import me.hapyl.fight.CF;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Removable;
+import me.hapyl.fight.util.LocationUtil;
 import me.hapyl.fight.util.Ticking;
 import me.hapyl.spigotutils.module.block.display.DisplayEntity;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.util.Vector;
 
@@ -16,6 +20,7 @@ import javax.annotation.Nonnull;
 
 public class ConstructEntity implements Removable, Ticking {
 
+    private final GamePlayer player;
     private final Construct construct;
 
     // This entity is used as a "collision" and damage check.
@@ -27,28 +32,43 @@ public class ConstructEntity implements Removable, Ticking {
     // Current display entity
     private DisplayEntity displayEntity;
 
-    public ConstructEntity(Construct construct) {
+    public ConstructEntity(GamePlayer player, Construct construct) {
+        this.player = player;
         this.construct = construct;
 
         final Location location = construct.location;
 
-        this.entity = CF.createEntity(location, Entities.SLIME, self -> {
-            final double health = construct.healthScaled().get(0, 10.0d);
+        this.entity = CF.createEntity(LocationUtil.addAsNew(location, 0, construct.talent.yOffset / 2, 0),
+                Entities.SLIME, self -> {
+                    final double health = construct.healthScaled().get(0, 10.0d);
 
-            self.setSilent(true);
-            self.setInvisible(true);
-            self.setAI(false);
-            self.setSize(3);
-            self.setMaxHealth(health);
-            self.setHealth(health);
+                    self.setSilent(true);
+                    self.setInvisible(true);
+                    self.setAI(false);
+                    self.setSize(3);
+                    self.setMaxHealth(health);
+                    self.setHealth(health);
 
-            final LivingGameEntity entity = new LivingGameEntity(self);
-            entity.setImmune(EnumDamageCause.SUFFOCATION);
-            entity.setInformImmune(false);
-            entity.setCustomName(construct.getName());
+                    final LivingGameEntity entity = new LivingGameEntity(self) {
+                        @Override
+                        public void onDamageTaken(@Nonnull DamageInstance instance) {
+                            player.playWorldSound(location, Sound.ENTITY_IRON_GOLEM_HURT, 1.5f);
+                        }
 
-            return entity;
-        });
+                        @Override
+                        public void onTeammateDamage(@Nonnull LivingGameEntity lastDamager) {
+                            lastDamager.sendMessage("Cannot damage allied Construct!");
+                        }
+                    };
+                    entity.setImmune(EnumDamageCause.SUFFOCATION);
+                    entity.setInformImmune(false);
+                    entity.setCustomName(construct.getName());
+
+                    player.getTeam().addEntry(entity.getEntry());
+
+                    return entity;
+                }
+        );
 
         final EngineerTalent talent = construct.talent;
 

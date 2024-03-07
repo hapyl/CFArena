@@ -1,18 +1,31 @@
 package me.hapyl.fight.game.cosmetic.skin;
 
+import com.google.common.collect.Maps;
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.cosmetic.RubyPurchasable;
+import me.hapyl.fight.game.cosmetic.skin.trait.SkinTrait;
+import me.hapyl.fight.game.cosmetic.skin.trait.SkinTraitType;
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.util.Described;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
-public abstract class Skin implements Described, RubyPurchasable {
+public class Skin implements Described, RubyPurchasable, SkinEffectHandler {
 
     private final Heroes hero;
     private final Equipment equipment;
+    private final Map<SkinTraitType<?>, SkinTrait> traits = Maps.newHashMap();
+
     private Rarity rarity;
 
     private String name;
@@ -64,7 +77,7 @@ public abstract class Skin implements Described, RubyPurchasable {
         return description;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(@Nonnull String description) {
         this.description = description;
     }
 
@@ -78,8 +91,82 @@ public abstract class Skin implements Described, RubyPurchasable {
         return hero;
     }
 
-    public void equip(Player player) {
-        getEquipment().equip(player);
+    public void equip(@Nonnull Player player) {
+        equipment.equip(player);
     }
+
+    public void equip(@Nonnull GamePlayer player) {
+        equipment.equip(player);
+    }
+
+    @Override
+    public void onTick(@Nonnull GamePlayer player, int tick) {
+        callTrait(SkinTraitType.TICK, trait -> trait.onTick(player, tick));
+    }
+
+    @Override
+    public void onKill(@Nonnull GamePlayer player, @Nonnull GameEntity victim) {
+        callTrait(SkinTraitType.KILL, trait -> trait.onKill(player, victim));
+    }
+
+    @Override
+    public void onDeath(@Nonnull GamePlayer player, @Nullable GameEntity killer) {
+        callTrait(SkinTraitType.DEATH, trait -> trait.onDeath(player, killer));
+    }
+
+    @Override
+    public void onMove(@Nonnull GamePlayer player, @Nonnull Location to) {
+        callTrait(SkinTraitType.MOVE, trait -> trait.onMove(player, to));
+    }
+
+    @Override
+    public void onStandingStill(@Nonnull GamePlayer player) {
+        callTrait(SkinTraitType.STILL, trait -> trait.onStandingStill(player));
+    }
+
+    @Override
+    public void onWin(@Nonnull GamePlayer player) {
+        callTrait(SkinTraitType.WIN, trait -> trait.onWin(player));
+    }
+
+    /**
+     * Gets a {@link SkinTrait} with the given {@link SkinTraitType}.
+     *
+     * @param type - Type.
+     * @return the skin trait, or null if skin doesn't have a trait with that type.
+     */
+    @Nullable
+    public <T extends SkinTrait> T getTrait(@Nonnull SkinTraitType<T> type) {
+        final SkinTrait trait = traits.get(type);
+
+        if (trait == null) {
+            return null;
+        }
+
+        return type.cast(trait);
+    }
+
+    /**
+     * Gets a copy of this {@link Skin} {@link SkinTrait}.
+     *
+     * @return a copy of this skin's traits.
+     */
+    @Nonnull
+    public Map<SkinTraitType<?>, SkinTrait> getTraits() {
+        return Maps.newHashMap(traits);
+    }
+
+    protected <T extends SkinTrait> void setTrait(@Nonnull SkinTraitType<T> type, @Nonnull T trait) {
+        traits.put(type, trait);
+    }
+
+    private <T extends SkinTrait> void callTrait(SkinTraitType<T> type, Consumer<T> consumer) {
+        final T trait = getTrait(type);
+
+        if (trait != null) {
+            consumer.accept(trait);
+        }
+    }
+
 
 }

@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.AutoRegisteredListener;
+import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.collection.HeroStatsCollection;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Event;
@@ -12,6 +13,7 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.cosmetic.EnumHandle;
+import me.hapyl.fight.game.cosmetic.skin.Skins;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
@@ -19,6 +21,7 @@ import me.hapyl.fight.game.heroes.equipment.Slot;
 import me.hapyl.fight.game.heroes.friendship.HeroFriendship;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
+import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -57,7 +60,7 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
     private final HeroAttributes attributes;
     private final Equipment equipment;
     private final String name;
-    private final CachedHeroItem cachedHeroItem;
+    private final HeroPlayerItemMaker itemMaker;
     private final HeroFriendship friendship;
     private final Map<Talent, HotbarSlots> talentsMapped;
 
@@ -87,7 +90,7 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
         this.affiliation = Affiliation.NOT_SET;
         this.archetype = Archetype.NOT_SET;
         this.minimumLevel = 0;
-        this.cachedHeroItem = new CachedHeroItem(this);
+        this.itemMaker = new HeroPlayerItemMaker(this);
         this.ultimate = UltimateTalent.UNFINISHED_ULTIMATE;
         this.skin = null;
         this.friendship = new HeroFriendship(this);
@@ -170,8 +173,8 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
     }
 
     @Nonnull
-    public CachedHeroItem getCachedHeroItem() {
-        return cachedHeroItem;
+    public HeroPlayerItemMaker getItemMaker() {
+        return itemMaker;
     }
 
     /**
@@ -322,10 +325,45 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
     }
 
     /**
+     * Gets either this hero's head texture item, or, if the player has a skin, the skin's texture.
+     *
+     * @param player - Player.
+     */
+    @Nonnull
+    public ItemStack getItem(@Nonnull GamePlayer player) {
+        final Skins skin = player.getSelectedSkin(enumHero);
+
+        if (skin == null) {
+            return getItem();
+        }
+
+        return skin.getSkin().getEquipment().getItem(Slot.HELMET);
+    }
+
+    @Nonnull
+    public ItemStack getItem(@Nonnull Player player) {
+        final PlayerProfile profile = PlayerProfile.getProfile(player);
+
+        if (profile == null) {
+            return getItem();
+        }
+
+        final PlayerDatabase database = profile.getDatabase();
+        final Skins skin = database.skinEntry.getSelected(profile.getHero());
+
+        if (skin == null) {
+            return getItem();
+        }
+
+        return skin.getSkin().getEquipment().getItem(Slot.HELMET);
+    }
+
+    /**
      * Returns this hero GUI item, defaults to RED_BED.
      *
      * @return this hero GUI item, defaults to RED_BED.
      */
+    @Nonnull
     public ItemStack getItem() {
         return (guiTexture.getType() == Material.RED_BED) ? getEquipment().getItem(Slot.HELMET) : guiTexture;
     }

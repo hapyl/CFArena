@@ -6,7 +6,7 @@ import org.bukkit.inventory.PlayerInventory;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public enum EquipmentSlot {
+public enum EquipmentSlots {
     // bukkit
     HAND(org.bukkit.inventory.EquipmentSlot.HAND),
     OFF_HAND(org.bukkit.inventory.EquipmentSlot.OFF_HAND),
@@ -26,11 +26,11 @@ public enum EquipmentSlot {
     @Nullable
     public final org.bukkit.inventory.EquipmentSlot bukkitSlot;
 
-    EquipmentSlot(@Nullable org.bukkit.inventory.EquipmentSlot bukkitSlot) {
+    EquipmentSlots(@Nullable org.bukkit.inventory.EquipmentSlot bukkitSlot) {
         this.bukkitSlot = bukkitSlot;
     }
 
-    EquipmentSlot() {
+    EquipmentSlots() {
         this(null);
     }
 

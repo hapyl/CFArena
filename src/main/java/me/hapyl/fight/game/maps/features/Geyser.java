@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.maps.features;
 
 import com.google.common.collect.Sets;
+import me.hapyl.fight.annotate.DoNotMutate;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
@@ -129,7 +130,7 @@ public class Geyser {
     public void affectEntityTick(@Nonnull LivingGameEntity entity, int tick) {
     }
 
-    public void affectLocationTick(@Nonnull Location location, int tick) {
+    public void affectLocationTick(@Nonnull @DoNotMutate Location location, int tick) {
         PlayerLib.spawnParticle(location, Particle.EXPLOSION_NORMAL, 1, 0.1, 0.1, 0.1, 0.05f);
         PlayerLib.spawnParticle(location, Particle.SMOKE_NORMAL, 1, 0.1, 0.1, 0.1, 0.05f);
 
@@ -143,8 +144,9 @@ public class Geyser {
 
         for (double d = 0; d < range; d += 1) {
             direction.modifyLocation(location, d, loc -> {
-                affectedEntities.addAll(Collect.nearbyEntities(loc, 0.5d));
-                affectLocationTick(BukkitUtils.newLocation(loc), tick);
+                affectLocationTick(loc, tick);
+
+                affectedEntities.addAll(Collect.nearbyEntities(loc, 1.0d));
             });
         }
 

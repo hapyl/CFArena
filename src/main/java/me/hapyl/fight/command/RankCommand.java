@@ -62,11 +62,11 @@ public class RankCommand extends SimpleCommand { // Don't make this CFCommand
         Notifier.success(target, "You are now {}!", rankToSet.getPrefixWithFallback());
 
         Notifier.broadcastStaff(
-                "{} changed {} rank {} » {}.",
+                "{} changed {} rank '{}' » '{}'.",
                 sender.getName(),
                 target.getName(),
-                oldRank.name().toLowerCase(),
-                rankToSet.name().toLowerCase()
+                oldRank.getPrefixWithFallback(),
+                rankToSet.getPrefixWithFallback()
         );
     }
 

@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.maps.winery;
 
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.maps.features.Geyser;
@@ -22,4 +23,5 @@ public class Steam extends Geyser {
 
         entity.damage(1, EnumDamageCause.STEAM);
     }
+
 }

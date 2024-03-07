@@ -16,16 +16,16 @@ import javax.annotation.Nonnull;
 
 public class BloodChaliceTalent extends TauntTalent<BloodChalice> implements Listener {
 
-    @DisplayField(percentage = true) public final double healingPercent = 0.5d;
-    @DisplayField protected final short chaliceHealth = 3;
+    @DisplayField(percentage = true) public final double healingPercent = 0.8d;
+    @DisplayField protected final short chaliceHealth = 2;
 
     public BloodChaliceTalent() {
         super("Blood Chalice");
 
         setType(Type.SUPPORT);
         setItem(Material.SKELETON_SKULL);
-        setDurationSec(20);
-        setCooldownSec(30);
+        setDurationSec(30);
+        setCooldownSec(15);
     }
 
     @Nonnull

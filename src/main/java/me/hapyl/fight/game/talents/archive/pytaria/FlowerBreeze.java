@@ -21,7 +21,7 @@ import java.util.function.Consumer;
 
 public class FlowerBreeze extends Talent {
 
-    @DisplayField(scaleFactor = 100.0d) public final double attackIncrease = 0.5d;
+    @DisplayField(scaleFactor = 100.0d) public final double attackIncrease = 0.3d;
     @DisplayField(scaleFactor = 100.0d) public final double defenseIncrease = 1.5d;
     @DisplayField private final double healthSacrifice = 15.0d;
 
@@ -37,6 +37,7 @@ public class FlowerBreeze extends Talent {
             Material.CORNFLOWER,
             Material.AZURE_BLUET
     };
+
     private final TemperInstance temper =
             Temper.FLOWER_BREEZE.newInstance("Flower Breeze")
                     .increase(AttributeType.ATTACK, attackIncrease)
@@ -51,8 +52,8 @@ public class FlowerBreeze extends Talent {
 
         setType(Type.ENHANCE);
         setItem(Material.RED_DYE);
-        setDuration(80);
-        setCooldown(getDuration() * 4);
+        setDurationSec(3);
+        setCooldownSec(16);
     }
 
     @Override

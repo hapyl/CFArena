@@ -117,6 +117,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
         this.gameState = gameState;
     }
 
+    @Nonnull
     public GameReport getGameReport() {
         return gameReport;
     }

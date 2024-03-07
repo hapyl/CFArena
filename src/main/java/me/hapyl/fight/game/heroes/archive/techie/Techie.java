@@ -61,7 +61,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
         setRace(Race.CYBERNETIC);
 
         setDescription("""
-                Anonymous hacker, who hacked his way to the fight. Specializes in locking enemies abilities.
+                Anonymous hacker, who hacked his way to the fight. Specializes in locking enemies talents.
                 """);
 
         setItem("4e3b15e5eb0ada16e2e1751644bdc28e0ceae8d398439a6b8037d4da097b9c37");
@@ -80,6 +80,9 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
         equipment.setBoots(Material.NETHERITE_BOOTS, TrimPattern.WARD, TrimMaterial.NETHERITE);
 
         setWeapon(new Weapon(Material.IRON_SWORD).setName("Nano Sword")
+                .setDescription("""
+                        A sword made with nano energy.
+                        """)
                 .setDamage(6.0d)
                 .addEnchant(Enchantment.KNOCKBACK, 1));
 
@@ -189,9 +192,10 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
 
         @DisplayField private final int lockdownTalentLockDuration = Tick.fromSecond(30);
         @DisplayField private final double ultimateDistance = 20;
+        @DisplayField(percentage = true) private final double ultimateLosePercent = 0.75d;
 
         public TechieUltimate() {
-            super("Lockdown", 100);
+            super("Lockdown", 90);
 
             setDescription("""
                     Equip a &bhacking device&7; after a &nlong&7 &3casting time&7, &coverload&7 all implanted %s&fs.
@@ -199,7 +203,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
                     &cOverloading&7 the &fbugs&7 &cimplodes&7 them, causing affected enemies' &btalents&7 to be &dlocked&7.
                     &8;;Overloading bugs causes them to break.
                                     
-                    In addition, all &cenemies&7 &4lose&7 &nhalf&7 of their %s.
+                    In addition, all &cenemies&7 &4lose&7 &b&n{ultimateLosePercent}&7 of their %s.
                     """.formatted(Named.BUG, Named.ENERGY));
 
             setType(Talent.Type.IMPAIR);
@@ -234,7 +238,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
                         final TalentLock talentLock = entityPlayer.getTalentLock();
                         talentLock.setLockAll(lockdownTalentLockDuration);
 
-                        entityPlayer.setUltPoints(entityPlayer.getUltPoints() / 2);
+                        entityPlayer.setUltPoints((int) (entityPlayer.getUltPoints() * (1 - ultimateLosePercent)));
 
                         // Fx
                         entityPlayer.sendSubtitle("&4&lʟᴏᴄᴋᴅᴏᴡɴ", 5, 20, 5);
@@ -273,7 +277,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
 
                 @Override
                 public int getCastingTime() {
-                    return 60;
+                    return 40;
                 }
             }.startDevice(player);
 

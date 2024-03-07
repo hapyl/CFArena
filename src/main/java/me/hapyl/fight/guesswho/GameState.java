@@ -3,6 +3,7 @@ package me.hapyl.fight.guesswho;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.achievement.Achievements;
+import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Bukkit;
@@ -73,6 +74,10 @@ public enum GameState {
 
             // Achievements
             Achievements.WIN_GUESS_WHO.complete(winnerPlayer);
+
+            // Progress bond
+            ChallengeType.PLAY_GUESS_WHO.progress(game.player1.getPlayer());
+            ChallengeType.PLAY_GUESS_WHO.progress(game.player2.getPlayer());
 
             // Free manager
             Manager.current().stopGuessWhoGame();

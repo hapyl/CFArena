@@ -1,23 +1,32 @@
 package me.hapyl.fight.game.heroes.archive.swooper;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.EntityLocation;
+import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.PlayerData;
 import me.hapyl.fight.game.talents.archive.swooper.SwooperPassive;
+import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.reflect.glow.Glowing;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.projectiles.ProjectileSource;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class SwooperData extends PlayerData {
@@ -58,14 +67,13 @@ public class SwooperData extends PlayerData {
 
         // Enter mode
         if (stealth) {
-            player.hidePlayer();
             nestLocation = player.getEntityLocation().add(0, 0.15, 0);
 
             // Fx
             player.playWorldSound(Sound.ENTITY_ILLUSIONER_MIRROR_MOVE, 0.75f);
         }
         else {
-            player.showPlayer();
+            showPlayer();
             nestLocation = null;
 
             // Start cooldown
@@ -161,6 +169,39 @@ public class SwooperData extends PlayerData {
         }
 
         return false;
+    }
+
+    // This is a very hacky way of hiding the player,
+    // but allowing projectiles to damage him.
+    public void hidePlayer() {
+        // Add invisibility
+        player.addPotionEffect(PotionEffectType.INVISIBILITY, 1, 3);
+
+        // Hide equipment
+        makeEquipmentMap(false);
+
+        // Remove arrows
+        player.getPlayer().setArrowsInBody(0);
+    }
+
+    public void showPlayer() {
+        makeEquipmentMap(true);
+    }
+
+    private void makeEquipmentMap(boolean real) {
+        final Map<EquipmentSlot, ItemStack> map = Maps.newHashMap();
+
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            map.put(slot, real ? player.getEquipment().getItem(slot) : null);
+        }
+
+        Bukkit.getOnlinePlayers().forEach(online -> {
+            if (player.is(online) || player.getTeam().isEntry(Entry.of(online))) {
+                return;
+            }
+
+            online.sendEquipmentChange(player.getPlayer(), map);
+        });
     }
 
     private String makeBar(int i) {

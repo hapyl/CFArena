@@ -123,7 +123,6 @@ public class Candlebane extends Taunt implements TalentReference<CandlebaneTalen
         final ClickType currentClick = getCurrentClick();
 
         if (currentClick != click) {
-            whoClicked.damage(1, player);
             whoClicked.sendSubtitle("&c&lWRONG CLICK!", 0, 10, 10);
 
             whoClicked.playSound(initialLocation, Sound.ENTITY_CHICKEN_EGG, 0.0f);
@@ -168,6 +167,8 @@ public class Candlebane extends Taunt implements TalentReference<CandlebaneTalen
             display.remove();
         }
 
+        getTalent().startCd(player);
+
         // Fx
         spawnParticle(
                 initialLocation.add(0.0d, reference.pillarHeight / 2.0d, 0.0d),
@@ -195,18 +196,23 @@ public class Candlebane extends Taunt implements TalentReference<CandlebaneTalen
     @Override
     public void run(int tick) {
         final int timeLeft = getTimeLeft();
-        final ArmorStand last = parts.getLast();
+        final ArmorStand last = parts.peekLast();
         final ClickType currentClick = getCurrentClick();
 
         // Damage
-        if (tick % reference.interval == 0) {
-            target.setLastDamager(player);
-            target.damage(reference.damagePerInterval, EnumDamageCause.CANDLEBANE);
+        if (tick > 0 && tick % reference.interval == 0) {
+            if (last != null && target.hasLineOfSight(last)) {
+                target.setLastDamager(player);
+                target.damageTick(reference.damagePerInterval, EnumDamageCause.CANDLEBANE, 0);
 
-            // Draw lines
-            hero.drawTentacleParticles(initialLocation.clone().add(0, 3, 0), target.getLocation(), draw -> {
-                player.spawnWorldParticle(draw, Particle.DUST_COLOR_TRANSITION, 2, 0.1, 0.1, 0.1, TRANSITION);
-            });
+                // Draw lines
+                hero.drawTentacleParticles(initialLocation.clone().add(0, 3, 0), target.getLocation(), draw -> {
+                    player.spawnWorldParticle(draw, Particle.DUST_COLOR_TRANSITION, 2, 0.1, 0.1, 0.1, TRANSITION);
+                });
+            }
+            else {
+                player.playWorldSound(initialLocation, Sound.ITEM_LODESTONE_COMPASS_LOCK, 0.75f);
+            }
         }
 
         display.teleport(getDisplayLocation());

@@ -8,6 +8,7 @@ import org.bukkit.Material;
 import javax.annotation.Nonnull;
 
 public class ShadowSwitch extends ShadowAssassinTalent {
+
     public ShadowSwitch() {
         super("Shadow Switch");
 
@@ -29,6 +30,8 @@ public class ShadowSwitch extends ShadowAssassinTalent {
 
             setDescription("""
                     Deal small &cAoE damage&7 and switch to &cFury&7 mode.
+                    
+                    &8;;Your damage capabilities are enhanced while in Fury mode!
                     """);
             setCooldownSec(2);
         }

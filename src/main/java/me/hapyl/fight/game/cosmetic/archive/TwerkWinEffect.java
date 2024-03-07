@@ -26,7 +26,9 @@ public class TwerkWinEffect extends WinCosmetic {
     public TwerkWinEffect() {
         super(
                 "Twerk It!",
-                "Imagine yourself shaking what your mama gave you. So get ready to wiggle those hips and show off those moves",
+                """
+                        Shake it!
+                        """,
                 Rarity.LEGENDARY
         );
 

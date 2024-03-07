@@ -46,7 +46,7 @@ public class DamageResonance extends TotemResonance {
             }
 
             entity.setLastDamager(player);
-            entity.damage(damage, EnumDamageCause.TOTEM);
+            entity.damageTick(damage, EnumDamageCause.TOTEM, 0);
         });
 
         // Fx

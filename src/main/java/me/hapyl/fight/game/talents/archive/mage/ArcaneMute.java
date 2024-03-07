@@ -6,6 +6,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -13,21 +14,24 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class ArcaneMute extends Talent {
+
+    @DisplayField private final double maxDistance = 20;
+
     public ArcaneMute() {
         super(
                 "Arcane Mute",
-                "Use on a targeted player to silence them, preventing them from using talents for {duration}."
+                "Use on a &etargeted&7 player to &bsilence&7 them, &cpreventing&7 them from using &atalents&7 for {duration}."
         );
 
         setType(Type.IMPAIR);
         setItem(Material.FEATHER);
         setDurationSec(4);
-        setCooldownSec(35);
+        setCooldownSec(20);
     }
 
     @Override
     public Response execute(@Nonnull GamePlayer player) {
-        final LivingGameEntity target = getTargetEntity(player, 20);
+        final LivingGameEntity target = getTargetEntity(player, maxDistance);
 
         if (target == null) {
             return Response.error("No valid target!");
@@ -45,7 +49,7 @@ public class ArcaneMute extends Talent {
     }
 
     @Nullable
-    public LivingGameEntity getTargetEntity(GamePlayer player, int range) {
+    public LivingGameEntity getTargetEntity(GamePlayer player, double range) {
         return Collect.targetEntityDot(
                 player,
                 range,

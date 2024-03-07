@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.archive.archer;
 
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.cosmetic.skin.archer.AbstractSkinArcher;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.archive.techie.Talent;
@@ -61,7 +62,7 @@ public class TripleShot extends Talent {
 
     private Arrow spawnArrow(GamePlayer player) {
         return player.launchProjectile(Arrow.class, self -> {
-            self.setColor(arrowColor);
+            self.setColor(player.getSkinValue(AbstractSkinArcher.class, AbstractSkinArcher::getTripleShotArrowColor, arrowColor));
             self.setCritical(false);
             self.setShooter(player.getPlayer());
         });

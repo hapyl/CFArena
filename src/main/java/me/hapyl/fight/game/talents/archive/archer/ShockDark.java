@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.archive.archer;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.game.cosmetic.skin.archer.AbstractSkinArcher;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -80,7 +81,7 @@ public class ShockDark extends Talent implements Listener {
     @Override
     public Response execute(@Nonnull GamePlayer player) {
         final Arrow arrow = player.launchProjectile(Arrow.class, self -> {
-            self.setColor(arrowColor);
+            self.setColor(player.getSkinValue(AbstractSkinArcher.class, AbstractSkinArcher::getShockDartArrowColor, arrowColor));
         });
 
         shockArrows.add(arrow);
@@ -91,6 +92,18 @@ public class ShockDark extends Talent implements Listener {
     }
 
     private void executeShockExplosion(GamePlayer player, Location location) {
+        final ParticleBuilder blueColor = player.getSkinValue(
+                AbstractSkinArcher.class,
+                AbstractSkinArcher::getShockDartBlueColor,
+                this.blueColor
+        );
+
+        final ParticleBuilder redColor = player.getSkinValue(
+                AbstractSkinArcher.class,
+                AbstractSkinArcher::getShockDartRedColor,
+                this.redColor
+        );
+
         Geometry.drawSphere(location, sphereRings, explosionRadius, blueColor::display);
         playAndCut(location, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 2f, explosionWindup);
 

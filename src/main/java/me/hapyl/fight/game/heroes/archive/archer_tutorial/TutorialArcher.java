@@ -2,7 +2,7 @@ package me.hapyl.fight.game.heroes.archive.archer_tutorial;
 
 import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.entity.EquipmentSlot;
+import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.DisabledHero;
@@ -20,7 +20,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class TutorialArcher extends Hero implements DisabledHero, Listener {
 
@@ -80,7 +79,7 @@ public class TutorialArcher extends Hero implements DisabledHero, Listener {
 
     @Override
     public void onStart(@Nonnull GamePlayer player) {
-        player.setItem(EquipmentSlot.ARROW, new ItemStack(Material.ARROW));
+        player.setItem(EquipmentSlots.ARROW, new ItemStack(Material.ARROW));
     }
 
     @Override

@@ -245,6 +245,7 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
     @Deprecated FIREWORKS(new FireworksWinEffect().setExclusive(true)),
     AVALANCHE(new AvalancheWinEffect()),
     TWERK(new TwerkWinEffect()),
+    HELL_BOUND(new HellboundWinEffect()),
 
     /////////////
     // Gadgets //

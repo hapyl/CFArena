@@ -148,6 +148,7 @@ public enum EnumDamageCause {
     PIPE_BOMB(DamageCause.nonCrit("was blown away by {damager}'s Pipe Bomb").setTrueDamage()),
     UPPERCUT(DamageCause.nonCrit("was upperCUT", "by")),
     RANGE_ATTACK(DamageCause.of("was shot", "by")),
+    ICICLE(DamageCause.nonCrit("was pierced by an icicle", "by")),
 
     ;
 

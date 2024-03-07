@@ -23,15 +23,8 @@ public class LimboFeature extends VoidFeature implements Listener {
         super("The Sea of Nothingness", """
                 A very mysterious sea surrounds this island.
                                 
-                If you decide to slim in it, prepare for pain.
+                If you decide to swim in it, prepare for pain.
                 """);
-    }
-
-    @Override
-    public void onStart() {
-        CF.getPlayers().forEach(player -> {
-            player.addEffect(Effects.NIGHT_VISION, Effect.INFINITE_DURATION);
-        });
     }
 
     @EventHandler()

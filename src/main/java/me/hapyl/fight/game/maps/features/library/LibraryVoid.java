@@ -1,10 +1,11 @@
-package me.hapyl.fight.game.maps.features;
+package me.hapyl.fight.game.maps.features.library;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.custom.GameEntityContactPortalEvent;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.maps.features.VoidFeature;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.BlockLocation;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -72,10 +73,11 @@ public class LibraryVoid extends VoidFeature implements Listener {
             @Override
             public void run() {
                 portals.getEntrances().forEach(blockLoc -> {
-                    final Location location = blockLoc.toLocation().add(0.0d, 1.0d, 0.0d);
+                    final Location location = blockLoc.toLocation().add(0.0d, 1.5d, 0.0d);
 
-                    PlayerLib.spawnParticle(location, Particle.PORTAL, 20, 0.1d, 1.5d, 0.1d, 1.0f);
-                    PlayerLib.spawnParticle(location, Particle.ENCHANTMENT_TABLE, 10, 0.1d, 1.5d, 0.1d, 1.0f);
+                    PlayerLib.spawnParticle(location, Particle.PORTAL, 10, 0.2d, 1.5d, 0.2d, 1.0f);
+                    PlayerLib.spawnParticle(location, Particle.REVERSE_PORTAL, 10, 0.2d, 1.5d, 0.2d, 0.5f);
+                    PlayerLib.spawnParticle(location, Particle.ENCHANTMENT_TABLE, 10, 0.2d, 1.5d, 0.2d, 1.0f);
                 });
 
                 if (tick % 200 == 0) {

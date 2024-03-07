@@ -28,11 +28,18 @@ public class Equipment implements Described, Lore {
     private String name;
     private String description;
     private String flavorText;
+    private String helmetTexture;
 
     public Equipment() {
         this.items = new ItemStack[6];
         this.name = "";
         this.description = "";
+        this.helmetTexture = "";
+    }
+
+    @Nonnull
+    public String getHelmetTexture() {
+        return helmetTexture;
     }
 
     @Nonnull
@@ -92,6 +99,8 @@ public class Equipment implements Described, Lore {
     }
 
     public void setTexture(@Nonnull String texture64) {
+        helmetTexture = texture64;
+
         setHelmet(ItemBuilder.playerHeadUrl(texture64).cleanToItemSack());
     }
 

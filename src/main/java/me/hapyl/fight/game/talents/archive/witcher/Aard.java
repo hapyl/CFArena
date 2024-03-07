@@ -37,7 +37,7 @@ public class Aard extends Talent {
 
         // Fx
         player.playWorldSound(inFront, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 0.25f);
-        player.spawnWorldParticle(inFront, Particle.EXPLOSION_LARGE, 1, 0, 0, 0, 0);
+        player.spawnWorldParticle(inFront, Particle.GUST, 1, 0, 0, 0, 0);
 
         return Response.OK;
     }

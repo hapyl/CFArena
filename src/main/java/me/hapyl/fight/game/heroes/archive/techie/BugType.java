@@ -14,9 +14,9 @@ import java.util.HashSet;
 
 public enum BugType implements Described {
 
-    TYPE_A("&4ᚨ", "Decreases %s.".formatted(AttributeType.ATTACK), AttributeType.ATTACK, 0.2d),
-    TYPE_D("&2ᛞ", "Decreases %s.".formatted(AttributeType.DEFENSE), AttributeType.DEFENSE, 0.1d),
-    TYPE_S("&bᛊ", "Decreases %s.".formatted(AttributeType.SPEED), AttributeType.SPEED, 0.02d), // 10%
+    TYPE_A("&4ᚨ", "Decreases %s.".formatted(AttributeType.ATTACK), AttributeType.ATTACK, 0.5d),
+    TYPE_D("&2ᛞ", "Decreases %s.".formatted(AttributeType.DEFENSE), AttributeType.DEFENSE, 0.3d),
+    TYPE_S("&bᛊ", "Decreases %s.".formatted(AttributeType.SPEED), AttributeType.SPEED, 0.03d), // 15%
 
     ;
 

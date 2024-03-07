@@ -1,15 +1,20 @@
 package me.hapyl.fight.game.maps;
 
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.event.ServerEvents;
 import me.hapyl.fight.game.maps.features.*;
+import me.hapyl.fight.game.maps.features.japan.JapanFeature;
+import me.hapyl.fight.game.maps.features.library.LibraryCat;
+import me.hapyl.fight.game.maps.features.library.LibraryVoid;
 import me.hapyl.fight.game.maps.gamepack.PackType;
 import me.hapyl.fight.game.maps.maps.DragonsGorge;
 import me.hapyl.fight.game.maps.maps.DwarfVault;
-import me.hapyl.fight.game.maps.maps.MoonBase;
+import me.hapyl.fight.game.maps.maps.moon.MoonBase;
 import me.hapyl.fight.game.maps.winery.WineryMap;
 import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.util.Validate;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.WeatherType;
 import org.bukkit.entity.Player;
@@ -20,30 +25,49 @@ import java.util.List;
 
 public enum GameMaps implements Selectable {
 
-    // non-playable map, storing here for easy coordinate grab and consistency
-    TRAINING_GROUNDS(new NonPlayableGameMap("Training Grounds", "Test heroes abilities here!", -250, 64, 250, -90, 0)),
-    SPAWN(new NonPlayableGameMap("Spawn", "You spawn here!", 0, 64, 0).setMaterial(Material.NETHER_STAR)),
-    GUESS_WHO(new NonPlayableGameMap("Guess Who", "It's the 'Guess Who' arena!", 1234, 90, 1234)),
-
     // april fools maps (replaces spawn and arena with classic maps)
-    ARENA_APRIL_FOOLS(new NonPlayableGameMap("Classic Arena", "A classic arena from Classes Fight v1.0", -900, 63, 0, 180.0f, 0.0f)),
-    SPAWN_APRIL_FOOLS(new NonPlayableGameMap("Classic Spawn", "A classic spawn from Classes Fight v1.0", -1000, 63, 0)),
+    SPAWN_APRIL_FOOLS(new NonPlayableGameMap("Classic Spawn", "A classic spawn from Classes Fight v1.0", -500, 64, 0, -180, 0f)),
+    ARENA_APRIL_FOOLS(new NonPlayableGameMap("Classic Arena", "A classic arena from Classes Fight v1.0", -1000, 64, 0)),
+
+    // non-playable map, storing here for easy coordinate grab and consistency
+    TRAINING_GROUNDS(new NonPlayableGameMap("Training Grounds", "Test heroes talents here!", -1500, 64, 0, -90, 0)),
+    SPAWN(new NonPlayableGameMap("Spawn", "You spawn here!", 0, 64, 0) {
+        @Nonnull
+        @Override
+        public Location getLocation() {
+            if (ServerEvents.APRIL_FOOLS.isActive()) {
+                return SPAWN_APRIL_FOOLS.getMap().getLocation();
+            }
+
+            return super.getLocation();
+        }
+    }.setMaterial(Material.NETHER_STAR)),
 
     // == Playable Maps Separator ==
 
     ARENA(
-            new GameMap("Arena")
+            new GameMap("Arena") {
+                @Nonnull
+                @Override
+                public Location getLocation() {
+                    if (ServerEvents.APRIL_FOOLS.isActive()) {
+                        return ARENA_APRIL_FOOLS.getMap().getLocation();
+                    }
+
+                    return super.getLocation();
+                }
+            }
                     .setDescription("A great arena to fight on!")
                     .setMaterial(Material.COARSE_DIRT)
                     .setSize(Size.MEDIUM)
                     .setTicksBeforeReveal(100)
-                    .addLocation(100, 64, 0)
-                    .addPackLocation(PackType.HEALTH, 79.5, 77.0, 22.5)
-                    .addPackLocation(PackType.HEALTH, 100.5, 63.0, 13.5)
-                    .addPackLocation(PackType.HEALTH, 89.5, 66.0, -24.5)
-                    .addPackLocation(PackType.CHARGE, 116.5, 63.0, 8.5)
-                    .addPackLocation(PackType.CHARGE, 87.5, 65.0, -4.5)
-                    .addPackLocation(PackType.CHARGE, 112.5, 72.0, -29.5)
+                    .addLocation(500, 64, 0)
+                    .addPackLocation(PackType.HEALTH, 479, 77, 22)
+                    .addPackLocation(PackType.HEALTH, 500, 63, 13)
+                    .addPackLocation(PackType.HEALTH, 489, 66, -26)
+                    .addPackLocation(PackType.CHARGE, 516, 63, 8)
+                    .addPackLocation(PackType.CHARGE, 487, 65, -5)
+                    .addPackLocation(PackType.CHARGE, 513, 72, -32)
     ),
 
     JAPAN(
@@ -53,7 +77,7 @@ public enum GameMaps implements Selectable {
                     .setSize(Size.LARGE)
                     .setTicksBeforeReveal(160)
                     .addFeature(new JapanFeature())
-                    .addLocation(-492, 64, 6, 180, 0)
+                    .addLocation(1000, 64, 6, 180, 0)
     ),
 
     GREENHOUSE(
@@ -62,7 +86,10 @@ public enum GameMaps implements Selectable {
                     .setSize(Size.SMALL)
                     .setMaterial(Material.OAK_SAPLING)
                     .setTicksBeforeReveal(100)
-                    .addLocation(-99, 64, -6)
+                    .addLocation(1514, 65.1, 0, 90f, 0f)
+                    .addLocation(1500, 65.1, -14)
+                    .addLocation(1486, 65, 0, -90f, 0f)
+                    .addLocation(1500, 65, 14, -180f, 0f)
     ),
 
     RAILWAY(
@@ -71,8 +98,8 @@ public enum GameMaps implements Selectable {
                     .setMaterial(Material.RAIL)
                     .setSize(Size.LARGE)
                     .setTicksBeforeReveal(120)
-                    .addLocation(32, 70, 99)
-                    .addLocation(-16, 70, 99)
+                    .addLocation(1984.0, 70, 0.0, -90f, 0f)
+                    .addLocation(2034.0, 70, 0.0, 90f, 0)
     ),
 
     MIDJOURNEY(
@@ -85,9 +112,11 @@ public enum GameMaps implements Selectable {
                     .setMaterial(Material.CRIMSON_NYLIUM)
                     .setSize(Size.MEDIUM)
                     .setTicksBeforeReveal(100)
-                    .addLocation(306, 66, -200)
-                    .addLocation(319, 73, -200)
-                    .addLocation(273, 75, -200)
+                    .addLocation(2500, 64, 0, -90f, 0f)
+                    .addLocation(2472, 72, 0, -90f, 0f)
+                    .addLocation(2518, 70, 0, 90f, 0f)
+                    .addLocation(2500, 72, 27, -180f, 0f)
+                    .addLocation(2500, 72, -27)
     ),
 
     RAILWAY_STATION(
@@ -96,19 +125,19 @@ public enum GameMaps implements Selectable {
                     .setMaterial(Material.POWERED_RAIL)
                     .setSize(Size.LARGE)
                     .setTicksBeforeReveal(100)
-                    .addLocation(10, 72, 217)
-                    .addLocation(10, 72, 184)
-                    .addLocation(20, 64, 200)
-                    .addLocation(-2, 64, 200)
-                    .addLocation(41, 72, 200)
-                    .addLocation(-19, 76, 200)
-                    .addLocation(2, 52, 200)
-                    .addPackLocation(PackType.HEALTH, -20.5, 76.0, 199.5)
-                    .addPackLocation(PackType.HEALTH, 10.5, 71.0, 200.5)
-                    .addPackLocation(PackType.HEALTH, 10.5, 72.0, 222.5)
-                    .addPackLocation(PackType.HEALTH, 45.5, 64.0, 203.5)
-                    .addPackLocation(PackType.CHARGE, 10.5, 72.0, 169.5)
-                    .addPackLocation(PackType.CHARGE, 45.5, 64.0, 211.5)
+                    .addLocation(3000, 64, 0, -90f, 0f)
+                    .addLocation(3041, 72, 0, 90f, 0f)
+                    .addLocation(3010, 72, -18)
+                    .addLocation(3010, 72, -18, -180f, 0f)
+                    .addLocation(3001, 52, 0, -90f, 0f)
+                    .addLocation(2981, 76, 0, -90f, 0f)
+                    .addLocation(3020, 64, 0, -90f, 0f)
+                    .addPackLocation(PackType.HEALTH, 3045, 64, 3)
+                    .addPackLocation(PackType.HEALTH, 3045, 64, -11)
+                    .addPackLocation(PackType.HEALTH, 3010, 71, 0)
+                    .addPackLocation(PackType.HEALTH, 3010, 72, 21)
+                    .addPackLocation(PackType.CHARGE, 3045, 64, 11)
+                    .addPackLocation(PackType.CHARGE, 3010, 72, -35)
     ),
 
     CLOUDS(
@@ -118,7 +147,15 @@ public enum GameMaps implements Selectable {
                     .setSize(Size.MASSIVE)
                     .setTicksBeforeReveal(120)
                     .addFeature(new CloudFeatures())
-                    .addLocation(500, 64, 500)
+                    .addLocation(3500, 64, 0, -180f, 0f)
+                    .addLocation(3521, 63.5, -17)
+                    .addLocation(3489, 63, 24, -90f, 0f)
+                    .addLocation(3547, 68, -11, 90f, 0f)
+                    .addPackLocation(PackType.HEALTH, 3521, 60, -17)
+                    .addPackLocation(PackType.HEALTH, 3523, 54, -46)
+                    .addPackLocation(PackType.HEALTH, 3504, 88, -69)
+                    .addPackLocation(PackType.CHARGE, 3502, 51, -13)
+                    .addPackLocation(PackType.CHARGE, 3525, 73, -12)
     ),
 
     LIBRARY(
@@ -129,37 +166,22 @@ public enum GameMaps implements Selectable {
                     .setTicksBeforeReveal(100)
                     .addFeature(new LibraryVoid())
                     .addFeature(new LibraryCat())
-                    .addLocation(0, 64, -90, -180, 0)
-                    .addLocation(-10, 74, -95, -180, 0)
-                    .addLocation(9, 74, -95, -180, 0)
-                    .addPackLocation(PackType.HEALTH, -9.5, 74.0, -113.5)
-                    .addPackLocation(PackType.HEALTH, -10.5, 65.0, -113.5)
-                    .addPackLocation(PackType.HEALTH, 15.5, 67.0, -104.5)
-                    .addPackLocation(PackType.HEALTH, 0.5, 72.0, -123.5)
-                    .addPackLocation(PackType.CHARGE, -8.5, 74.0, -93.5)
-                    .addPackLocation(PackType.CHARGE, 13.5, 66.0, -113.5)
-                    .addPackLocation(PackType.CHARGE, 18.5, 74.0, -115.5)
+                    .addLocation(4000, 64.1, 0, -180f, 0f)
+                    .addLocation(3991, 74, 5, -180f, 0f)
+                    .addLocation(4018, 74, -7, 90f, 0f)
+                    .addPackLocation(PackType.HEALTH, 3990, 65, -15)
+                    .addPackLocation(PackType.HEALTH, 4015, 67, -4)
+                    .addPackLocation(PackType.HEALTH, 4000, 72, -29)
+                    .addPackLocation(PackType.HEALTH, 3991, 74, -13)
+                    .addPackLocation(PackType.CHARGE, 4013, 66.5, -14)
+                    .addPackLocation(PackType.CHARGE, 3960, 75, 5)
     ),
 
     DRAGONS_GORGE(new DragonsGorge()), // complex map, stored in separate file
     WINERY(new WineryMap()), // complex map, stored in separate file
     MOON_BASE(new MoonBase()), // complex map, stored in separate file
     DWARF_VAULT(new DwarfVault()),
-    LIMBO(
-            new GameMap("Limbo")
-                    .setDescription("""
-                            A lighthouse.
-                            """)
-                    .setMaterial(Material.SCULK_VEIN)
-                    .setSize(Size.LARGE)
-                    .setTicksBeforeReveal(100)
-                    .setTime(18000)
-                    .addFeature(new LimboFeature())
-                    .addLocation(-831, 68, -237)
-                    .addLocation(-830, 47, -267)
-                    .addLocation(-830, 47, -267)
-                    .addLocation(-832, 112, -218)
-    ),
+    LIMBO(new LimboMap()),
 
     FORGOTTEN_CHURCH(
             new GameMap("Forgotten Church")
@@ -172,7 +194,7 @@ public enum GameMaps implements Selectable {
                     .setSize(Size.MEDIUM)
                     .setWeather(WeatherType.DOWNFALL)
                     .setTicksBeforeReveal(100)
-                    .addLocation(98, 98, -739)
+                    .addLocation(7000, 64, 0)
     ),
 
     ;

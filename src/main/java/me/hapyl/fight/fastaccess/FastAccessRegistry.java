@@ -49,7 +49,7 @@ public class FastAccessRegistry extends SimpleRegistry<FastAccess> {
                     final PlayerProfile profile = PlayerProfile.getProfile(player);
                     final Heroes currentHero = profile != null ? profile.getHero() : Heroes.ARCHER;
 
-                    return new ItemBuilder(enumHero.getHero().getItem())
+                    return new ItemBuilder(enumHero.getHero().getItem(player))
                             .setName("Select " + enumHero.getName())
                             .addLore()
                             .addSmartLore("Changes the current hero of yours.", "&8&o")

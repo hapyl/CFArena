@@ -34,9 +34,12 @@ import javax.annotation.Nullable;
 
 public class Engineer extends Hero implements Listener, PlayerDataHandler<EngineerData>, UIComponent, DisplayFieldProvider {
 
-    public static final int MAX_IRON = 10;
+    protected final int maxIron = 10;
+    protected final int startIron = 2;
 
-    public final Weapon ironFist = new Weapon(Material.IRON_BLOCK).setDamage(10.0d).setName("&6&lIron Fist");
+    public final Weapon ironFist = new Weapon(Material.IRON_BLOCK)
+            .setDamage(8.0d)
+            .setName("&6&lIron Fist");
 
     @DisplayField public final double ultimateInWaterDamage = 10;
     @DisplayField public final int ultimateHitCd = 5;
@@ -59,8 +62,9 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler<Engine
         setWeapon(new Weapon(Material.IRON_HOE)
                 .setName("Prototype Wrench")
                 .setDescription("""
-                        A Prototype Wrench for all the needs.
-                        It... Probably hurts to be hit with it."""
+                        A prototype wrench for all the needs.
+                        It... probably hurts to be hit with it.
+                        """
                 ).setDamage(5.0d));
 
         final Equipment equipment = getEquipment();
@@ -167,7 +171,13 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler<Engine
         new GameTask() {
             @Override
             public void run() {
-                Heroes.ENGINEER.getAlivePlayers().forEach(player -> addIron(player, 1));
+                getAlivePlayers().forEach(player -> {
+                    if (player.isUsingUltimate()) {
+                        return;
+                    }
+
+                    addIron(player, 1);
+                });
             }
         }.runTaskTimer(ironRechargeRate, ironRechargeRate);
     }
@@ -191,6 +201,11 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler<Engine
     @Override
     public Talent getPassiveTalent() {
         return Talents.ENGINEER_PASSIVE.getTalent();
+    }
+
+    @Override
+    public EngineerUltimate getUltimate() {
+        return (EngineerUltimate) super.getUltimate();
     }
 
     public void removeConstruct(@Nonnull GamePlayer player) {
@@ -230,10 +245,13 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler<Engine
         getPlayerData(player).swingMechaIndustriesHand();
     }
 
-    private class EngineerUltimate extends UltimateTalent {
+    public class EngineerUltimate extends UltimateTalent {
+
+        @DisplayField public final double mechaHealth = 100;
+        @DisplayField public final double mechaDefense = 150;
 
         public EngineerUltimate() {
-            super("Mecha-Industries", 70);
+            super("Mecha-Industries", 50);
 
             setDescription("""
                     Instantly create a &fmech suit&7 and pilot it for {duration}.
@@ -243,7 +261,7 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler<Engine
                     """);
 
             setItem(Material.IRON_SWORD);
-            setDurationSec(25);
+            setDurationSec(12);
             setCooldownSec(35);
             setSound(Sound.BLOCK_ANVIL_USE, 0.25f);
 

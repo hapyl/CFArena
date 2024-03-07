@@ -4,8 +4,9 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
+import me.hapyl.fight.game.cosmetic.skin.archer.AbstractSkinArcher;
 import me.hapyl.fight.game.damage.EnumDamageCause;
-import me.hapyl.fight.game.entity.EquipmentSlot;
+import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
@@ -20,7 +21,6 @@ import me.hapyl.fight.game.weapons.BowWeapon;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
@@ -37,8 +37,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Archer extends Hero implements Listener {
-
-    // TODO (hapyl): 004, Mar 4: IT'S TIME
 
     public final Weapon boomBow = new Weapon(Material.BOW).setDamage(1.0d).setName("&6&lBOOM BOW");
 
@@ -76,7 +74,7 @@ public class Archer extends Hero implements Listener {
 
     @Override
     public void onStart(@Nonnull GamePlayer player) {
-        player.setItem(EquipmentSlot.ARROW, new ItemStack(Material.ARROW));
+        player.setItem(EquipmentSlots.ARROW, new ItemStack(Material.ARROW));
     }
 
     @Override
@@ -91,8 +89,21 @@ public class Archer extends Hero implements Listener {
 
                     final Location location = arrow.getLocation();
 
-                    PlayerLib.spawnParticle(location, Particle.FLAME, 2, 0, 0, 0, 0.015f);
-                    PlayerLib.playSound(location, Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 2.0f);
+                    if (arrow.getShooter() instanceof Player player) {
+                        final GamePlayer gamePlayer = CF.getPlayer(player);
+
+                        if (gamePlayer == null) {
+                            return;
+                        }
+
+                        if (gamePlayer.runSkin(AbstractSkinArcher.class, skin -> skin.boomArrowTick(gamePlayer, location))) {
+                            return;
+                        }
+
+                        gamePlayer.spawnWorldParticle(location, Particle.FLAME, 2, 0, 0, 0, 0.015f);
+                        gamePlayer.playWorldSound(location, Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 2.0f);
+                    }
+
                 });
             }
         }.runTaskTimer(0, 2);
@@ -149,7 +160,9 @@ public class Archer extends Hero implements Listener {
                 return;
             }
 
-            arrow.setColor(hawkeyeArrowColors);
+            arrow.setColor(
+                    player.getSkinValue(AbstractSkinArcher.class, AbstractSkinArcher::getHawkeyeArrowColor, hawkeyeArrowColors)
+            );
 
             new GameTask() {
                 private int tick;
@@ -169,8 +182,10 @@ public class Archer extends Hero implements Listener {
                     final Location location = arrow.getLocation();
 
                     if (tick % 2 == 0) {
-                        player.spawnWorldParticle(location, Particle.CRIT_MAGIC, 5, 0, 0, 0, 0);
-                        player.playWorldSound(location, Sound.ENTITY_ELDER_GUARDIAN_AMBIENT_LAND, 2.0f);
+                        if (!player.runSkin(AbstractSkinArcher.class, skin -> skin.hawkeyeArrowTick(player, location))) {
+                            player.spawnWorldParticle(location, Particle.CRIT_MAGIC, 5, 0, 0, 0, 0);
+                            player.playWorldSound(location, Sound.ENTITY_ELDER_GUARDIAN_AMBIENT_LAND, 2.0f);
+                        }
                     }
 
                     if (target == null) {

@@ -34,10 +34,10 @@ public class Orc extends Hero implements Listener {
     private final PlayerMap<DamageData> damageMap = PlayerMap.newMap();
 
     private final TemperInstance berserk = Temper.BERSERK_MODE.newInstance(Named.BERSERK.toString())
-            .increase(AttributeType.ATTACK, 0.5d)
+            .increase(AttributeType.ATTACK, 0.4d)
             .increase(AttributeType.SPEED, 0.05d)
             .increase(AttributeType.CRIT_CHANCE, 0.4d)
-            .decrease(AttributeType.DEFENSE, 0.6d) // 0.7
+            .decrease(AttributeType.DEFENSE, 0.6d)
             .message(Named.BERSERK.getCharacter() + " &aYou're berserk!");
 
     public Orc(@Nonnull Heroes handle) {
@@ -51,11 +51,11 @@ public class Orc extends Hero implements Listener {
         setGender(Gender.MALE);
 
         final HeroAttributes attributes = getAttributes();
-        attributes.setHealth(125);
+        attributes.setHealth(120);
         attributes.setDefense(60);
         attributes.setSpeed(110);
         attributes.setCritChance(15);
-        attributes.setEffectResistance(50);
+        attributes.setEffectResistance(35);
         attributes.setAttackSpeed(60);
 
         setWeapon(new OrcWeapon());
@@ -173,8 +173,8 @@ public class Orc extends Hero implements Listener {
 
             setType(Talent.Type.ENHANCE);
             setItem(Material.NETHER_WART);
-            setDurationSec(15);
-            setCooldownSec(30);
+            setDurationSec(10);
+            setCooldownSec(20);
         }
 
         @Nonnull

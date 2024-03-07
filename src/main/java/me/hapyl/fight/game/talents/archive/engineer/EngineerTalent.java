@@ -17,6 +17,7 @@ import javax.annotation.Nonnull;
 public abstract class EngineerTalent extends Talent {
 
     private final int ironCost;
+    private int upgradeCost = 2;
     private final DisplayData[] displayData = new DisplayData[Construct.MAX_LEVEL];
 
     protected double yOffset = 2.0d;
@@ -27,6 +28,14 @@ public abstract class EngineerTalent extends Talent {
         this.ironCost = Math.max(1, ironCost);
 
         setType(Type.CREATABLE);
+    }
+
+    public void setUpgradeCost(int upgradeCost) {
+        this.upgradeCost = upgradeCost;
+    }
+
+    public int getUpgradeCost() {
+        return upgradeCost;
     }
 
     @Nonnull

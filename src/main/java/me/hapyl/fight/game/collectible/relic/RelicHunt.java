@@ -200,7 +200,7 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
 
     private void registerRelics() {
         // Trial fixme This one is considered lobby
-        registerRelic(1, new Relic(Type.EMERALD, -240, 62, 243).setBlockFace(BlockFace.NORTH_EAST));
+        registerRelic(1, new Relic(Type.EMERALD, -1490, 62, -7).setBlockFace(BlockFace.NORTH_EAST));
 
         // Lobby
         registerRelic(100, new Relic(Type.AMETHYST, 27, 66, 8));
@@ -212,33 +212,33 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
         registerRelic(106, new Relic(Type.SAPPHIRE, -9, 61, 6));
 
         // Arena
-        registerRelic(200, new Relic(Type.SAPPHIRE, 70, 70, 18).setZone(GameMaps.ARENA));
-        registerRelic(201, new Relic(Type.EMERALD, 66, 78, -5).setZone(GameMaps.ARENA));
-        registerRelic(202, new Relic(Type.EMERALD, 62, 80, 14).setZone(GameMaps.ARENA));
-        registerRelic(203, new Relic(Type.EMERALD, 112, 68, -30).setZone(GameMaps.ARENA));
+        registerRelic(200, new Relic(Type.SAPPHIRE, 470, 70, 18).setZone(GameMaps.ARENA));
+        registerRelic(201, new Relic(Type.EMERALD, 462, 80, 14).setZone(GameMaps.ARENA));
+        registerRelic(202, new Relic(Type.EMERALD, 512, 68, -30).setZone(GameMaps.ARENA));
+        registerRelic(203, new Relic(Type.EMERALD, 466, 78, -5).setZone(GameMaps.ARENA));
 
         // Japan - Reversed Ids in 300-399 range
         // Skipping for now, since rebuilding -h
 
         // Greenhouse
-        registerRelic(400, new Relic(Type.EMERALD, -98, 62, -21).setZone(GameMaps.GREENHOUSE));
-        registerRelic(401, new Relic(Type.EMERALD, -99, 71, -1).setZone(GameMaps.GREENHOUSE));
+        registerRelic(400, new Relic(Type.EMERALD, 1503, 69, -2).setZone(GameMaps.GREENHOUSE));
+        registerRelic(401, new Relic(Type.EMERALD, 1501, 62, -20).setZone(GameMaps.GREENHOUSE));
 
         // Railway (Old)
-        registerRelic(500, new Relic(Type.SAPPHIRE, 38, 63, 101).setZone(GameMaps.RAILWAY));
-        registerRelic(501, new Relic(Type.SAPPHIRE, 36, 65, 77).setZone(GameMaps.RAILWAY));
-        registerRelic(502, new Relic(Type.EMERALD, -9, 66, 117).setZone(GameMaps.RAILWAY));
+        registerRelic(500, new Relic(Type.SAPPHIRE, 2038, 63, 1).setZone(GameMaps.RAILWAY));
+        registerRelic(501, new Relic(Type.SAPPHIRE, 2036, 65, -23).setZone(GameMaps.RAILWAY));
+        registerRelic(502, new Relic(Type.EMERALD, 1991, 66, 17).setZone(GameMaps.RAILWAY));
 
         // Winery
-        registerRelic(600, new Relic(Type.SAPPHIRE, 231, 62, 216).setZone(GameMaps.WINERY));
-        registerRelic(601, new Relic(Type.DIAMOND, 223, 62, 190).setZone(GameMaps.WINERY).setBlockFace(BlockFace.EAST_SOUTH_EAST));
+        registerRelic(600, new Relic(Type.SAPPHIRE, 5031, 62, 16).setZone(GameMaps.WINERY));
+        registerRelic(601, new Relic(Type.DIAMOND, 5023, 62, -10).setZone(GameMaps.WINERY).setBlockFace(BlockFace.EAST_SOUTH_EAST));
 
         // Library
-        registerRelic(700, new Relic(Type.AMETHYST, -21, 78, -119).setZone(GameMaps.LIBRARY).setBlockFace(BlockFace.SOUTH_WEST));
-        registerRelic(701, new Relic(Type.DIAMOND, 18, 72, -115).setZone(GameMaps.LIBRARY).setBlockFace(BlockFace.NORTH_EAST));
+        registerRelic(700, new Relic(Type.AMETHYST, 3979, 78, -19).setZone(GameMaps.LIBRARY).setBlockFace(BlockFace.SOUTH_WEST));
+        registerRelic(701, new Relic(Type.DIAMOND, 4018, 72, -15).setZone(GameMaps.LIBRARY).setBlockFace(BlockFace.NORTH_EAST));
 
         // Limbo
-        registerRelic(800, new Relic(Type.ROSE_QUARTZ, -823, 51, -215).setZone(GameMaps.LIMBO).setBlockFace(BlockFace.SOUTH_WEST));
+        registerRelic(800, new Relic(Type.ROSE_QUARTZ, 6509, -1, 106).setZone(GameMaps.LIMBO).setBlockFace(BlockFace.SOUTH_WEST));
     }
 
     private <K, V> void computeMapList(final Map<K, List<V>> map, K key, final Consumer<List<V>> consumer) {

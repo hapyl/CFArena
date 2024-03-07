@@ -8,11 +8,14 @@ import me.hapyl.fight.command.RateHeroCommand;
 import me.hapyl.fight.database.Award;
 import me.hapyl.fight.database.entry.RandomHeroEntry;
 import me.hapyl.fight.game.achievement.Achievements;
+import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.competetive.Tournament;
 import me.hapyl.fight.game.cosmetic.skin.SkinEffectManager;
 import me.hapyl.fight.game.entity.*;
+import me.hapyl.fight.game.event.ServerEvents;
 import me.hapyl.fight.game.gamemode.Modes;
+import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.lobby.LobbyItems;
@@ -44,6 +47,8 @@ import me.hapyl.spigotutils.module.util.BukkitUtils;
 import me.hapyl.spigotutils.module.util.Runnables;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -62,7 +67,7 @@ import java.util.stream.Collectors;
 public final class Manager extends BukkitRunnable {
 
     public final Set<UUID> ignoredEntities;
-    public final CacheSet<Player> goldenGg = new CacheSet<>(10_000);
+    public final CacheSet<Player> goldenGg = new CacheSet<>(15_000);
 
     private final Main main;
     private final Set<EntityType> ignoredTypes = Sets.newHashSet(
@@ -263,6 +268,9 @@ public final class Manager extends BukkitRunnable {
         for (PersistentNPCs enumNpc : PersistentNPCs.values()) {
             enumNpc.getNpc().onCreate(player);
         }
+
+        // Call server events
+        ServerEvents.getActiveEvents().forEach(event -> event.onJoin(profile));
 
         return profile;
     }
@@ -674,8 +682,15 @@ public final class Manager extends BukkitRunnable {
 
             if (entity instanceof GamePlayer player) {
                 goldenGg.add(player.getPlayer());
-            }
 
+                // Progress bonds
+                ChallengeType.PLAY_GAMES.progress(player);
+
+                // Progress archetype bond
+                final Archetype heroArchetype = player.getHero().getArchetype();
+
+                ChallengeType.progressArchetypeBond(player, heroArchetype);
+            }
         });
         entities.clear();
 
@@ -712,6 +727,13 @@ public final class Manager extends BukkitRunnable {
 
         for (PotionEffect potionEffect : player.getActivePotionEffects()) {
             player.removePotionEffect(potionEffect.getType());
+        }
+
+        // Make attack speed 1000 YEP
+        final AttributeInstance attribute = player.getAttribute(Attribute.GENERIC_ATTACK_SPEED);
+
+        if (attribute != null) {
+            attribute.setBaseValue(1_000);
         }
     }
 

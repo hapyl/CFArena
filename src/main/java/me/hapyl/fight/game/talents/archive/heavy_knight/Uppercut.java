@@ -23,7 +23,7 @@ public class Uppercut extends Talent {
 
     @DisplayField private final double range = 5.0d;
     @DisplayField private final double height = 3.0d;
-    @DisplayField private final double damage = 5.0d;
+    @DisplayField private final double damage = 2.5d;
 
     public Uppercut() {
         super("Uppercut");

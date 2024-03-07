@@ -14,8 +14,8 @@ import javax.annotation.Nonnull;
 
 public class TwinClaws extends Talent implements Listener {
 
-    @DisplayField protected final double twinClawDamage = 20.0d;
-    @DisplayField(scaleFactor = 100, suffix = "%", suffixSpace = false) protected final double bittenDamageIncrease = 0.5d;
+    @DisplayField protected final double twinClawDamage = 10.0d;
+    @DisplayField(scaleFactor = 100, suffix = "%", suffixSpace = false) protected final double bittenDamageIncrease = 1.5d;
 
     public TwinClaws() {
         super("Twin Claws");
@@ -35,7 +35,6 @@ public class TwinClaws extends Talent implements Listener {
     @Override
     public Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocation().add(0.0d, 0.5d, 0.0d);
-        final World world = player.getWorld();
 
         final Vector vectorFront = location.getDirection().normalize().multiply(0.5d);
         final Location locationFront = location.clone().add(vectorFront);

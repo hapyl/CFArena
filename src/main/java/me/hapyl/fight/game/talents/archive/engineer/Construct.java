@@ -34,11 +34,11 @@ public abstract class Construct extends TickingGameTask {
         this.player = player;
         this.location = location;
         this.level = 0;
-        this.upgradeCost = 2;
+        this.upgradeCost = talent.getUpgradeCost();
         this.talent = talent;
         this.hero = Heroes.ENGINEER.getHero(Engineer.class);
 
-        this.entity = new ConstructEntity(this);
+        this.entity = new ConstructEntity(player, this);
 
         onCreate();
     }

@@ -8,6 +8,13 @@ import javax.annotation.Nonnull;
 public interface Described extends Named {
 
     /**
+     * {@inheritDoc}
+     */
+    @Nonnull
+    @Override
+    String getName();
+
+    /**
      * Gets a description of this object.
      *
      * @return description of this object.

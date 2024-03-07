@@ -21,12 +21,12 @@ public class MageTransmission extends Talent {
     public MageTransmission() {
         super(
                 "Transmission",
-                "Instantly teleport to your target block, but lose the ability to move for a short duration."
+                "Instantly &bteleport&7 to your &etarget&7 block, but lose the ability to &nmove&7 for a short duration."
         );
 
         setType(Type.MOVEMENT);
         setItem(Material.ENDER_PEARL);
-        setCooldownSec(30);
+        setCooldownSec(16);
     }
 
     @Override
@@ -40,17 +40,13 @@ public class MageTransmission extends Talent {
         location.setYaw(player.getLocation().getYaw());
         location.setPitch(player.getLocation().getPitch());
 
-        if (location.distance(player.getLocation()) >= maxDistance) {
-            return Response.error("Too far away!");
-        }
-
         if (!location.getBlock().getType().isAir() || location.getBlock().getRelative(BlockFace.UP).getType().isOccluding()) {
             return Response.error("Location is not safe!");
         }
 
         player.teleport(location);
         player.addEffect(Effects.SLOW, 10, 20);
-        player.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.65f);
+        player.playWorldSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.65f);
 
         if (location.getWorld() != null) {
             location.getWorld().playEffect(location, Effect.ENDER_SIGNAL, 0);
@@ -60,7 +56,7 @@ public class MageTransmission extends Talent {
     }
 
     private Location getTargetLocation(GamePlayer player) {
-        final Block block = player.getTargetBlockExact(30);
+        final Block block = player.getTargetBlockExact((int) maxDistance);
 
         if (block == null) {
             return null;
