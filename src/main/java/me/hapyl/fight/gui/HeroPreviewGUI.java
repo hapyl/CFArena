@@ -6,7 +6,7 @@ import me.hapyl.fight.game.heroes.HeroPlayerItemMaker;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
+import me.hapyl.fight.game.talents.techie.Talent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
@@ -156,10 +156,11 @@ public class HeroPreviewGUI extends StyledGUI {
 
                     Chat.sendMessage(
                             player,
-                            "&a%s %s %s from your favourites.",
-                            (favourite ? "Removed" : "Added"),
-                            hero.getName(),
-                            (favourite ? "from" : "to")
+                            "&a%s %s %s from your favourites.".formatted(
+                                    (favourite ? "Removed" : "Added"),
+                                    hero.getName(),
+                                    (favourite ? "from" : "to")
+                            )
                     );
 
                     plingAndUpdate();

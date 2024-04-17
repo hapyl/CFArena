@@ -155,7 +155,7 @@ public class HeroSelectGUI extends StyledPageGUI<Heroes> {
 
         if (enumHero.isLocked(player)) {
             return StyledItem.LOCKED_HERO.toBuilder()
-                    .addLore("&7Reach level &b%s &7to unlock!", hero.getMinimumLevel())
+                    .addLore("&7Reach level &b%s &7to unlock!".formatted(hero.getMinimumLevel()))
                     .asIcon();
         }
         else {

@@ -18,8 +18,8 @@ public class SkinRedHood extends AbstractSkinArcher {
     private final BlockData hawkeyeData = Material.RED_GLAZED_TERRACOTTA.createBlockData();
     private final BlockData boomData = Material.ORANGE_STAINED_GLASS.createBlockData();
 
-    private final ParticleBuilder blueColor = ParticleBuilder.redstoneDust(Color.fromRGB(255, 161, 89));
-    private final ParticleBuilder redColor = ParticleBuilder.redstoneDust(Color.fromRGB(179, 55, 11));
+    private final ParticleBuilder blueColor = ParticleBuilder.redstoneDust(Color.fromRGB(255, 161, 89), 1);
+    private final ParticleBuilder redColor = ParticleBuilder.redstoneDust(Color.fromRGB(179, 55, 11), 1);
 
     public SkinRedHood() {
         setName("Red Hood");

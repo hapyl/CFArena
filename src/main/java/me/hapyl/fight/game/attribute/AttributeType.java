@@ -224,6 +224,12 @@ public enum AttributeType implements Described {
         }
     },
 
+    ENERGY_RECHARGE(
+            new Attribute("Energy Recharge", "Multiplier on how fast you generate energy.")
+                    .setChar("♻")
+                    .setColor(ChatColor.DARK_AQUA),
+            1.0d
+    ),
 
     ;
 

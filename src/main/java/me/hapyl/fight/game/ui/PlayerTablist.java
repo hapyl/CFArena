@@ -24,6 +24,7 @@ import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.TimeFormat;
+import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.tablist.EntryList;
 import me.hapyl.spigotutils.module.player.tablist.EntryTexture;
 import me.hapyl.spigotutils.module.player.tablist.PingBars;
@@ -241,14 +242,14 @@ public class PlayerTablist extends Tablist {
 
         final int relicInZone = relicHunt.byZone(currentMap).size();
 
-        entryList.append(" &7ᴛᴏᴛᴀʟ ғᴏᴜɴᴅ: %s".formatted(CFUtils.makeStringFractional(totalRelicsFound, totalRelics)));
+        entryList.append(" &7ᴛᴏᴛᴀʟ ғᴏᴜɴᴅ: %s".formatted(Chat.makeStringFractional(totalRelicsFound, totalRelics)));
 
         if (relicInZone == 0) {
             entryList.append(" &7ɪɴ ᴄᴜʀʀᴇɴᴛ ᴀʀᴇᴀ: &cNone!");
         }
         else {
             final int foundInZone = relicHunt.getFoundListIn(player, currentMap).size();
-            entryList.append(" &7ɪɴ ᴄᴜʀʀᴇɴᴛ ᴀʀᴇᴀ: %s".formatted(CFUtils.makeStringFractional(foundInZone, relicInZone)));
+            entryList.append(" &7ɪɴ ᴄᴜʀʀᴇɴᴛ ᴀʀᴇᴀ: %s".formatted(Chat.makeStringFractional(foundInZone, relicInZone)));
         }
 
         // Daily challenges

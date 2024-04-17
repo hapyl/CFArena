@@ -246,7 +246,7 @@ public class PlayerSkin {
             return new PlayerSkin(property.value(), property.signature());
         }
 
-        Debug.warn("Could not get %s's textures, using default. (Offline mode?)", player.getName());
+        Debug.warn("Could not get %s's textures, using default. (Offline mode?)".formatted(player.getName()));
         return new PlayerSkin("", "");
     }
 

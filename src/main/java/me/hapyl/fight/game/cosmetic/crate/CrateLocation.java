@@ -129,10 +129,11 @@ public class CrateLocation extends Location {
 
                 Chat.sendMessage(
                         online,
-                        PREFIX + "%s has gotten %s from %s!",
-                        player.getName(),
-                        cosmetic.getFormatted() + Color.DEFAULT,
-                        crateLoot.getEnumCrate().getCrate().getName()
+                        PREFIX + "%s has gotten %s from %s!".formatted(
+                                player.getName(),
+                                cosmetic.getFormatted() + Color.DEFAULT,
+                                crateLoot.getEnumCrate().getCrate().getName()
+                        )
                 );
             });
         }

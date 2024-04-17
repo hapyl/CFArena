@@ -4,6 +4,7 @@ import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.PlayerInvite;
 import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.command.SimplePlayerCommand;
+import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
@@ -18,7 +19,7 @@ public class InviteCommand extends SimplePlayerCommand {
     protected void execute(Player player, String[] args) {
         if (args.length == 2) {
             final String stringUUID = getArgument(args, 0).toString();
-            final UUID uuid = CFUtils.getUUIDfromString(stringUUID);
+            final UUID uuid = BukkitUtils.getUUIDfromString(stringUUID);
 
             if (uuid == null) {
                 Notifier.error(player, "Invalid UUID!");

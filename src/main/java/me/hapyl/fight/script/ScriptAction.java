@@ -4,6 +4,6 @@ import javax.annotation.Nonnull;
 
 public interface ScriptAction {
 
-    boolean execute(@Nonnull ScriptRunner runner);
+    void execute(@Nonnull ScriptRunner runner);
 
 }

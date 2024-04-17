@@ -21,6 +21,7 @@ import me.hapyl.spigotutils.module.math.Numbers;
 import org.bukkit.Location;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
 /**
@@ -98,31 +99,38 @@ public class EntityAttributes extends Attributes implements PlayerElement {
         return strikes;
     }
 
-    /**
-     * Increases an attribute <b>temporary</b>.
-     *
-     * @param temper   - Temper of the increase.
-     * @param type     - Type to attribute to increase.
-     *                 If temper already affects attributes, the new temper will
-     *                 override the old temper.
-     * @param value    - Increase amount.
-     * @param duration - Duration of increase.
-     */
     public void increaseTemporary(@Nonnull Temper temper, @Nonnull AttributeType type, double value, int duration) {
-        increaseTemporary(temper, type, value, duration, false);
+        increaseTemporary(temper, type, value, duration, false, null);
     }
 
-    public void increaseTemporary(@Nonnull Temper temper, @Nonnull AttributeType type, double value, int duration, boolean silent) {
+    public void increaseTemporary(@Nonnull Temper temper, @Nonnull AttributeType type, double value, int duration, @Nullable LivingGameEntity applier) {
+        increaseTemporary(temper, type, value, duration, false, applier);
+    }
+
+    /**
+     * Increases an {@link AttributeType} temporary.
+     *
+     * @param temper   - Temper.
+     * @param type     - Attribute type.
+     * @param value    - Value.
+     * @param duration - Duration.
+     * @param silent   - Should be silent.
+     * @param applier  - Who increased the attribute.
+     *                 <b>This delegates to whoever applied the attribute, like a teammate who buffed or an enemy who debuffed!</b>
+     */
+    public void increaseTemporary(@Nonnull Temper temper, @Nonnull AttributeType type, double value, int duration, boolean silent, @Nullable LivingGameEntity applier) {
         if (new AttributeTemperEvent(entity, temper, type, value, duration, silent).callAndCheck()) {
             return;
         }
 
         final boolean newTemper = !tempers.has(temper, type);
-        tempers.add(temper, type, value, duration);
+        final boolean isBuff = type.getDisplayType(value, -value);
+
+        tempers.add(temper, type, value, duration, isBuff, applier);
 
         // do not spawn if player already has this temper
         if (!silent && temper.isDisplay() && newTemper) {
-            display(type, type.getDisplayType(value, -value));
+            display(type, isBuff);
         }
 
         triggerUpdate(type);
@@ -138,6 +146,10 @@ public class EntityAttributes extends Attributes implements PlayerElement {
      */
     public void decreaseTemporary(@Nonnull Temper temper, @Nonnull AttributeType type, double value, int duration) {
         increaseTemporary(temper, type, -value, duration);
+    }
+
+    public void decreaseTemporary(@Nonnull Temper temper, @Nonnull AttributeType type, double value, int duration, @Nullable LivingGameEntity applier) {
+        increaseTemporary(temper, type, -value, duration, applier);
     }
 
     /**

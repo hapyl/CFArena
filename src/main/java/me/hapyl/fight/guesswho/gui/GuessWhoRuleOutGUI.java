@@ -66,23 +66,6 @@ public class GuessWhoRuleOutGUI extends GuessWhoGUI {
 
         final boolean hasRuledOutAny = hasRuledOutAny();
 
-        final ItemBuilder builder = new ItemBuilder(hasRuledOutAny ? Material.RED_DYE : Material.GRAY_DYE)
-                .setName("Switch to Guessing Mode")
-                .addLore();
-
-        if (hasRuledOutAny) {
-            builder.addLore(Color.ERROR + "Cannot switch!");
-            setPanelItem(6, builder.asIcon());
-        }
-        else {
-            builder.addSmartLore("Ready to guess, sure you know the answer?");
-            builder.addLore();
-            builder.addLore(Color.BUTTON + "Click to switch!");
-            builder.addSmartLore("You can only guess once!", "&c&o");
-            builder.addSmartLore("Guessing incorrectly will result in a loss!", "&c&o");
-            setPanelItem(6, builder.asIcon(), player -> new GuessWhoGuessGUI(data));
-        }
-
         // Next turn
         final ItemBuilder endTurnBuilder = new ItemBuilder(Material.GOLD_BLOCK)
                 .setName("End Turn")
@@ -130,12 +113,24 @@ public class GuessWhoRuleOutGUI extends GuessWhoGUI {
             builder.addLore(Color.BUTTON + "Click to remove!");
         }
         else {
-            if (isLastHero()) {
-                builder.addLore(Color.ERROR + "Cannot rule out!");
-                builder.addSmartLore("It's the last hero, either end turn or guess!", "&a&o");
+            // If haven't rules out and the last hero on board, guess
+            if (boardCount == 1) {
+                if (ruledOut.isEmpty()) {
+                    builder.addLore(Color.BUTTON + "Click to guess!");
+                    builder.addSmartLore("It's the last hero, have to guess!", "&a&o");
+                }
+                else {
+                    builder.addLore(Color.ERROR + "Cannot guess this round!");
+                }
             }
             else {
-                builder.addLore(Color.BUTTON + "Click to mark for ruling out!");
+                // If it's the last hero, don't allow ruling out
+                if (isLastHeroIncludingRuledOut()) {
+                    builder.addLore(Color.ERROR + "Cannot rule out the last hero!");
+                    return builder;
+                }
+
+                builder.addLore(Color.BUTTON + "Click to rule out!");
             }
         }
 
@@ -150,19 +145,24 @@ public class GuessWhoRuleOutGUI extends GuessWhoGUI {
             return;
         }
 
+        if (boardCount == 1) {
+            data.guess(hero);
+            return;
+        }
+
         if (ruledOut.contains(hero)) {
             ruledOut.remove(hero);
             data.playSound(Sound.BLOCK_END_PORTAL_FRAME_FILL, 0.0f);
         }
         else {
-            if (isLastHero()) {
-                data.sendMessage("Cannot rule out because it's the last hero, either end turn or guess!");
-                data.playSound(Sound.ENTITY_VILLAGER_NO, 1.0f);
+            if (data.isRuledOut(hero)) {
+                data.sendMessage("This hero is ruled out!");
                 return;
             }
 
-            if (data.isRuledOut(hero)) {
-                data.sendMessage("This hero is ruled out!");
+            if (isLastHeroIncludingRuledOut()) {
+                data.sendMessage("&cCannot rule out the last hero!");
+                data.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f);
                 return;
             }
 
@@ -173,11 +173,12 @@ public class GuessWhoRuleOutGUI extends GuessWhoGUI {
         update();
     }
 
-    private boolean isLastHero() {
+    private boolean isLastHeroIncludingRuledOut() {
         return boardCount - ruledOut.size() <= 1;
     }
 
     private boolean hasRuledOutAny() {
         return !ruledOut.isEmpty();
     }
+
 }

@@ -6,7 +6,9 @@ import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.damage.DamageFlag;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.ui.display.AscendingDisplay;
 import me.hapyl.spigotutils.module.math.Numbers;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
@@ -16,7 +18,7 @@ import java.util.Set;
 
 public class Shield {
 
-    private final GamePlayer player;
+    protected final GamePlayer player;
     private final double maxCapacity;
 
     protected double capacity;
@@ -159,6 +161,10 @@ public class Shield {
     public final void onRemove0() {
         player.removePotionEffect(PotionEffectType.ABSORPTION);
         onRemove();
+    }
+
+    public void display(double damage, @Nonnull Location location) {
+        new AscendingDisplay("&e🛡 &6%.0f".formatted(damage), 20).display(player.getEyeLocation());
     }
 
     private void updateShield() {

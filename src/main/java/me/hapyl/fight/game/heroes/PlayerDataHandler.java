@@ -33,6 +33,19 @@ public interface PlayerDataHandler<T extends PlayerData> {
     }
 
     /**
+     * Gets the data for the given player.
+     * <br>
+     * This method returns null if the data is not present.
+     *
+     * @param player - Player.
+     * @return the data or null.
+     */
+    @Nonnull
+    default T getPlayerDataOrNull(@Nonnull GamePlayer player) {
+        return getDataMap().get(player);
+    }
+
+    /**
      * Removes the data for the given player from the map and call {@link PlayerData#remove()}.
      * <br>
      * <b>This is automatically called upon {@link GamePlayer} "death" if player's {@link Hero} implements this interface.</b>

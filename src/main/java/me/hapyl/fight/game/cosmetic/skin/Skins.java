@@ -7,9 +7,9 @@ import me.hapyl.fight.game.cosmetic.skin.archer.SkinRedHood;
 import me.hapyl.fight.game.cosmetic.skin.bk.SkinRoyalKnight;
 import me.hapyl.fight.game.cosmetic.skin.shark.SkinMegalodon;
 import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.archive.archer.Archer;
-import me.hapyl.fight.game.heroes.archive.knight.BlastKnight;
-import me.hapyl.fight.game.heroes.archive.shark.Shark;
+import me.hapyl.fight.game.heroes.archer.Archer;
+import me.hapyl.fight.game.heroes.knight.BlastKnight;
+import me.hapyl.fight.game.heroes.shark.Shark;
 
 import javax.annotation.Nonnull;
 import java.util.List;

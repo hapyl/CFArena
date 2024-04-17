@@ -4,6 +4,7 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.Award;
@@ -24,6 +25,7 @@ import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.ping.PlayerPing;
 import me.hapyl.fight.game.entity.shield.Shield;
+import me.hapyl.fight.game.entity.task.PlayerTaskList;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
@@ -40,21 +42,21 @@ import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.talents.TalentQueue;
 import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
+import me.hapyl.fight.game.talents.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.player.IPlayerTask;
 import me.hapyl.fight.game.task.player.PlayerGameTask;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.fight.game.ui.display.AscendingDisplay;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.*;
-import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.chat.messagebuilder.Format;
+import me.hapyl.spigotutils.module.chat.messagebuilder.Keybind;
+import me.hapyl.spigotutils.module.chat.messagebuilder.MessageBuilder;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.math.Tick;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.Reflect;
 import me.hapyl.spigotutils.module.reflect.glow.Glowing;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
@@ -68,6 +70,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
@@ -75,10 +78,7 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -109,12 +109,13 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
     private int deathWishTicks; // TODO (hapyl): 004, Mar 4: <<
     @Nonnull
     private PlayerProfile profile;
-    private int ultPoints;
+    private double energy;
     private double ultimateModifier;
     private long combatTag;
     private int killStreak;
     private InputTalent inputTalent;
     private Shield shield;
+    private boolean deflecting;
 
     @SuppressWarnings("all")
     public GamePlayer(@Nonnull PlayerProfile profile) {
@@ -142,6 +143,14 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
     @Nonnull
     public TalentLock getTalentLock() {
         return talentLock;
+    }
+
+    public boolean isDeflecting() {
+        return deflecting;
+    }
+
+    public void setDeflecting(boolean deflecting) {
+        this.deflecting = deflecting;
     }
 
     public void callSkinIfHas(@Nonnull Consumer<Skin> consumer) {
@@ -219,14 +228,20 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         player.setGlowing(false);
         player.setWalkSpeed((float) attributes.get(AttributeType.SPEED));
         player.setMaximumNoDamageTicks(20);
-        player.getActivePotionEffects().forEach(effect -> this.entity.removePotionEffect(effect.getType()));
+        player.getActivePotionEffects().forEach(effect -> {
+            if (effect.getDuration() == PotionEffect.INFINITE_DURATION) {
+                return;
+            }
+
+            this.entity.removePotionEffect(effect.getType());
+        });
 
         // Reset attributes
         applyAttributes();
 
         setOutline(Outline.CLEAR);
 
-        getData().getDamageTaken().clear();
+        getEntityData().getDamageTaken().clear();
         wasHit = false;
         inputTalent = null;
         shield = null;
@@ -400,25 +415,33 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         }
 
         // Award assists
+        Set<GamePlayer> assistingPlayers = Sets.newHashSet();
+
         entityData.getDamageTaken().forEach((damager, damage) -> {
-            if (lastDamager == null || lastDamager.is(damager) || damager == entity/*should not happen*/) {
+            if (lastDamager.is(damager) || damager == entity) {
+                return;
+            }
+
+            final GamePlayer damagerPlayer = CF.getPlayer(damager);
+
+            if (damagerPlayer == null) {
                 return;
             }
 
             final double percentDamageDealt = damage / getMaxHealth();
-            final GamePlayer damagerPlayer = CF.getPlayer(damager);
 
-            if (damagerPlayer != null) {
-                final StatContainer damagerStats = damagerPlayer.getStats();
-
-                if (percentDamageDealt < ASSIST_DAMAGE_PERCENT) {
-                    return;
-                }
-
-                Award.PLAYER_ASSISTED.award(this);
-                damagerStats.addValue(StatType.ASSISTS, 1);
+            if (percentDamageDealt < ASSIST_DAMAGE_PERCENT) {
+                return;
             }
+
+            assistingPlayers.add(damagerPlayer);
         });
+
+        // Also award for buffs/debuffs
+
+
+        // Award.PLAYER_ASSISTED.award(this);
+        //                damagerStats.addValue(StatType.ASSISTS, 1);
 
         stats.addValue(StatType.DEATHS, 1);
 
@@ -548,9 +571,15 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         return getUltimateString(ChatColor.AQUA);
     }
 
+    public float getUltimateChargePercent() {
+        final int ultimateCost = getUltimateCost();
+
+        return (float) (energy / ultimateCost);
+    }
+
     public String getUltimateString(ChatColor readyColor) {
         final UltimateTalent ultimate = getUltimate();
-        final String pointsString = "&b&l%s&b/&b&l%s".formatted(getUltPoints(), getUltPointsNeeded());
+        final String pointsString = "&b&l%.0f%%".formatted(getUltimateChargePercent() * 100);
 
         if (isUsingUltimate()) {
             final long durationLeft = getHero().getUltimateDurationLeft(this);
@@ -559,7 +588,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         }
 
         if (ultimate.hasCd(this)) {
-            return "&7%s &b(%ss)".formatted(pointsString, BukkitUtils.roundTick(ultimate.getCdTimeLeft(this)));
+            return "&8%s &b(%ss)".formatted(pointsString, BukkitUtils.roundTick(ultimate.getCdTimeLeft(this)));
         }
         else if (isUltimateReady()) {
             return readyColor + "&lREADY";
@@ -574,15 +603,15 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
     }
 
     public void clearEffects() {
-        getData().clearEffects();
+        getEntityData().clearEffects();
     }
 
     public void clearEffect(Effects type) {
-        getData().clearEffect(type);
+        getEntityData().clearEffect(type);
     }
 
     public boolean isUltimateReady() {
-        return this.ultPoints >= getHero().getUltimate().getCost();
+        return this.energy >= getHero().getUltimate().getCost();
     }
 
     public void updateScoreboardTeams(boolean toLobby) {
@@ -599,7 +628,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
 
             // Always display shield damage
             if (damage > 0) {
-                new AscendingDisplay("&e🛡 &6%.0f".formatted(damage), 20).display(player.getEyeLocation());
+                shield.display(damage, player.getEyeLocation());
             }
 
             // Shield took damage
@@ -725,6 +754,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         currentGame.getEnumMap().getMap().onDeath(this);
         hero.onDeath(this);
         usedUltimateAt = 0L;
+        deflecting = false;
 
         if (hero instanceof PlayerDataHandler<?> handler) {
             handler.removePlayerData(this);
@@ -750,20 +780,31 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         return getHero().getUltimate();
     }
 
-    public void addUltimatePoints(int points) {
+    public void addEnergy(int points) {
         final Player player = getEntity();
+        final int ultimateCost = this.getUltimateCost();
+
         // cannot give points if using ultimate or dead
-        if (isUsingUltimate() || !this.isAlive() || this.ultPoints >= this.getUltPointsNeeded()) {
+        if (isUsingUltimate() || isDeadOrRespawning() || this.energy >= ultimateCost) {
             return;
         }
 
-        this.ultPoints = Numbers.clamp(this.ultPoints + points, 0, getHero().getUltimate().getCost());
+        final double energyScaled = points * getAttributes().get(AttributeType.ENERGY_RECHARGE);
+
+        this.energy = Numbers.clamp(energy + energyScaled, 0, ultimateCost);
 
         // show once at broadcast
-        if (this.ultPoints >= this.getUltPointsNeeded()) {
-            Chat.sendMessage(player, "&b&l※ &bYou ultimate is ready! Press &e&lF &bto use it!");
-            Chat.sendTitle(player, "", "&aYou ultimate is ready!", 5, 15, 5);
-            PlayerLib.playSound(player, Sound.BLOCK_CONDUIT_DEACTIVATE, 2.0f);
+        if (this.energy >= ultimateCost) {
+            final MessageBuilder builder = new MessageBuilder();
+
+            builder.append("&b&l※ &bYour ultimate is ready! Press ");
+            builder.append(Keybind.SWAP_HANDS).color(ChatColor.YELLOW).format(Format.BOLD);
+            builder.append("&b to use it!");
+
+            builder.send(player);
+
+            sendTitle("&3※&b&l※&3※", "&a&lULTIMATE READY!", 5, 15, 5);
+            playSound(Sound.BLOCK_CONDUIT_DEACTIVATE, 2.0f);
         }
     }
 
@@ -906,7 +947,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         final Hero hero = getHero();
 
         state = EntityState.ALIVE;
-        ultPoints = 0;
+        energy = 0;
         setUsingUltimate(false);
         setHealth(this.getMaxHealth());
 
@@ -929,16 +970,16 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         addPotionEffect(PotionEffectType.BLINDNESS, 1, 20);
     }
 
-    public int getUltPointsNeeded() {
+    public int getUltimateCost() {
         return getHero().getUltimate().getCost();
     }
 
-    public int getUltPoints() {
-        return ultPoints;
+    public double getEnergy() {
+        return energy;
     }
 
-    public void setUltPoints(int ultPoints) {
-        this.ultPoints = ultPoints;
+    public void setEnergy(double energy) {
+        this.energy = energy;
     }
 
     public boolean compare(GamePlayer gamePlayer) {

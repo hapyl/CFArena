@@ -10,4 +10,8 @@ public interface Cooldown {
         return setCooldown(cooldownSec * 20);
     }
 
+    default Cooldown setCooldownMillis(int millis) {
+        return setCooldown(millis / 50);
+    }
+
 }

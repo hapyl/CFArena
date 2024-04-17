@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents;
 
-import me.hapyl.fight.game.talents.archive.techie.Talent;
+import me.hapyl.fight.game.talents.techie.Talent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -18,7 +18,7 @@ public class InputTalentData implements Timed, Cooldown {
 
     protected int duration;
     protected int pointGeneration;
-    protected Talent.Type type;
+    protected TalentType type;
 
     private int cooldown;
 
@@ -29,7 +29,7 @@ public class InputTalentData implements Timed, Cooldown {
     public InputTalentData(@Nonnull String action) {
         this.action = action;
         this.description = action;
-        this.type = Talent.Type.DAMAGE;
+        this.type = TalentType.DAMAGE;
     }
 
     public InputTalentData setCooldownSec(int sec) {
@@ -41,11 +41,11 @@ public class InputTalentData implements Timed, Cooldown {
     }
 
     @Nonnull
-    public Talent.Type getType() {
+    public TalentType getType() {
         return type;
     }
 
-    public void setType(@Nonnull Talent.Type type) {
+    public void setType(@Nonnull TalentType type) {
         this.type = type;
     }
 

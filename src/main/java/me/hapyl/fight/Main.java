@@ -1,6 +1,5 @@
 package me.hapyl.fight;
 
-import me.hapyl.fight.build.UpdateBlockHackReplacer;
 import me.hapyl.fight.chat.ChatHandler;
 import me.hapyl.fight.command.CommandRegistry;
 import me.hapyl.fight.database.Database;
@@ -19,8 +18,7 @@ import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.maps.features.BoosterController;
 import me.hapyl.fight.game.maps.gamepack.GamePackListener;
 import me.hapyl.fight.game.parkour.CFParkourManager;
-import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.game.talents.archive.bloodfiend.candlebane.CandlebaneProtocol;
+import me.hapyl.fight.game.talents.bloodfiend.candlebane.CandlebaneProtocol;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TaskList;
 import me.hapyl.fight.game.trial.TrialListener;
@@ -30,12 +28,14 @@ import me.hapyl.fight.npc.HumanManager;
 import me.hapyl.fight.npc.runtime.RuntimeNPCManager;
 import me.hapyl.fight.protocol.*;
 import me.hapyl.fight.script.ScriptManager;
-import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.EternaAPI;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.tablist.Tablist;
 import me.hapyl.spigotutils.module.util.Validate;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.GameRule;
+import org.bukkit.Registry;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -43,6 +43,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;
+import java.util.Vector;
 
 public class Main extends JavaPlugin {
 
@@ -50,13 +51,11 @@ public class Main extends JavaPlugin {
             "&6&lᴄғ &eᴀʀᴇɴᴀ";
 
     public static final VersionInfo versionInfo = new VersionInfo(
-            new UpdateTopic("Hello, 1.20.4!", 13, 82, 191, 87, 150, 250),
-            new UpdateTopic("⚖ Everything needs balance.", 52, 173, 24, 100, 179, 82)
+            new UpdateTopic("WHO'S THERE", 52, 173, 24, 100, 179, 82)
     );
 
-    public static final String requireEternaVersion = "2.50.0";
+    public static final String requireEternaVersion = "2.52.0";
     public static final String requireMinecraftVersion = "1.20.4";
-    public static final boolean isProtocolStillBrokenAndBreaksOnReload = true;
 
     private static long start;
     private static Main plugin;
@@ -137,15 +136,21 @@ public class Main extends JavaPlugin {
             world.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
             world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
             world.setGameRule(GameRule.RANDOM_TICK_SPEED, 0);
+
+            // Unload nether and the end
+            switch (world.getEnvironment()) {
+                // Do NOT unload the end because it breaks portals
+                case NETHER -> Bukkit.unloadWorld(world, false);
+            }
         }
 
         // Remove recipes and achievements
-        Bukkit.clearRecipes();
         Registry.ADVANCEMENT.iterator().forEachRemaining(advancement -> {
             Bukkit.getUnsafe().removeAdvancement(advancement.getKey());
         });
 
         Bukkit.reloadData();
+        Bukkit.clearRecipes();
 
         // Register Commands
         new CommandRegistry(this);
@@ -161,7 +166,7 @@ public class Main extends JavaPlugin {
         //Contributors.loadContributors();
 
         // Load update hack
-        new UpdateBlockHackReplacer();
+        //new UpdateBlockHackReplacer();
 
         new TrialListener();
     }
@@ -190,7 +195,7 @@ public class Main extends JavaPlugin {
                             &7&oIf you encounter any, please &nrestart&7&o the server!
                                                 
                             &8&oThis is your %s server reload!\
-                            """.formatted(CFUtils.stNdTh(reloadCount + 1)));
+                            """.formatted(Chat.stNdTh(reloadCount + 1)));
                 }
 
                 player.kickPlayer(Chat.color(builder.toString()));

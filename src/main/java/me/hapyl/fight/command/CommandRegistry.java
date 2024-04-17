@@ -20,7 +20,6 @@ import me.hapyl.fight.database.entry.MetadataEntry;
 import me.hapyl.fight.database.entry.MetadataKey;
 import me.hapyl.fight.database.entry.SkinEntry;
 import me.hapyl.fight.database.rank.PlayerRank;
-import me.hapyl.fight.event.ServerHandler;
 import me.hapyl.fight.filter.ProfanityFilter;
 import me.hapyl.fight.fx.GiantItem;
 import me.hapyl.fight.fx.Riptide;
@@ -47,13 +46,15 @@ import me.hapyl.fight.game.entity.cooldown.CooldownData;
 import me.hapyl.fight.game.entity.shield.Shield;
 import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.heroes.archive.bloodfield.BatCloud;
-import me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend;
-import me.hapyl.fight.game.heroes.archive.bloodfield.BloodfiendData;
-import me.hapyl.fight.game.heroes.archive.dark_mage.AnimatedWither;
-import me.hapyl.fight.game.heroes.archive.doctor.ElementType;
-import me.hapyl.fight.game.heroes.archive.engineer.Engineer;
-import me.hapyl.fight.game.heroes.archive.moonwalker.Moonwalker;
+import me.hapyl.fight.game.heroes.bloodfield.BatCloud;
+import me.hapyl.fight.game.heroes.bloodfield.Bloodfiend;
+import me.hapyl.fight.game.heroes.bloodfield.BloodfiendData;
+import me.hapyl.fight.game.heroes.dark_mage.AnimatedWither;
+import me.hapyl.fight.game.heroes.doctor.ElementType;
+import me.hapyl.fight.game.heroes.engineer.Engineer;
+import me.hapyl.fight.game.heroes.moonwalker.Moonwalker;
+import me.hapyl.fight.game.heroes.nyx.Nyx;
+import me.hapyl.fight.game.heroes.nyx.NyxData;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.lobby.StartCountdown;
@@ -62,13 +63,14 @@ import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.reward.DailyReward;
 import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.archive.engineer.Construct;
-import me.hapyl.fight.game.talents.archive.frostbite.IcyShardsPassive;
-import me.hapyl.fight.game.talents.archive.juju.Orbiting;
-import me.hapyl.fight.game.talents.archive.swooper.BlastPackEntity;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
-import me.hapyl.fight.game.talents.archive.witcher.Akciy;
+import me.hapyl.fight.game.talents.engineer.Construct;
+import me.hapyl.fight.game.talents.frostbite.IcyShardsPassive;
+import me.hapyl.fight.game.talents.juju.Orbiting;
+import me.hapyl.fight.game.talents.swooper.BlastPackEntity;
+import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.witcher.Akciy;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.team.Entry;
@@ -82,6 +84,9 @@ import me.hapyl.fight.gui.HeroPreviewGUI;
 import me.hapyl.fight.gui.LegacyAchievementGUI;
 import me.hapyl.fight.gui.styled.profile.DeliveryGUI;
 import me.hapyl.fight.gui.styled.profile.achievement.AchievementGUI;
+import me.hapyl.fight.script.Script;
+import me.hapyl.fight.script.ScriptAction;
+import me.hapyl.fight.script.Scripts;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.ChatUtils;
 import me.hapyl.fight.util.Collect;
@@ -112,7 +117,6 @@ import me.hapyl.spigotutils.module.reflect.npc.NPCPose;
 import me.hapyl.spigotutils.module.util.*;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.world.entity.Entity;
-import org.apache.commons.lang.reflect.FieldUtils;
 import org.bson.Document;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -122,10 +126,8 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.block.Skull;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.*;
 import org.bukkit.entity.Display;
@@ -156,8 +158,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
-import java.lang.reflect.Field;
-import java.time.DayOfWeek;
 import java.util.List;
 import java.util.Queue;
 import java.util.*;
@@ -166,6 +166,8 @@ import java.util.stream.Collectors;
 
 public class CommandRegistry extends DependencyInjector<Main> implements Listener {
 
+    private static Set<String> commands = Sets.newHashSet();
+
     private final CommandProcessor processor;
 
     public CommandRegistry(Main main) {
@@ -173,9 +175,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
         CF.registerEvents(this);
         this.processor = new CommandProcessor(main);
-
-        // Unregister annoying paper commands
-        unregisterAnnoyingPaperCommandsThatICannotOverride();
 
         register(new HeroCommand("hero"));
         register(new GameCommand("cf"));
@@ -224,8 +223,52 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new PersonalMessageCommand("tell"));
         register(new ReplyCommand("reply"));
         register(new GotoCommand("world"));
+        register(new DumpHeroData("dumpHeroData"));
 
         // *=* Inner commands *=* //
+
+        registerDebug("maxChaosStacks", (player, args) -> {
+            final NyxData data = Heroes.NYX.getHero(Nyx.class).getPlayerData(player);
+
+            for (int i = 0; i < NyxData.MAX_CHAOS_STACKS; i++) {
+                data.incrementChaosStacks();
+            }
+
+            player.sendMessage("&aDone!");
+        });
+
+        register("makeMeDeflective", (player, args) -> {
+            final GamePlayer gamePlayer = CF.getPlayer(player);
+
+            if (gamePlayer == null) {
+                Chat.sendMessage(player, "&cNo handle.");
+                return;
+            }
+
+            gamePlayer.setDeflecting(!gamePlayer.isDeflecting());
+            gamePlayer.sendMessage(gamePlayer.isDeflecting() ? "&aYou are now deflecting." : "&cYou are no longer deflecting.");
+        });
+
+        register("debugScript", (player, args) -> {
+            final String id = args.getString(0);
+            final Script script = Scripts.byId(id);
+
+            if (script == null) {
+                Chat.sendMessage(player, "&cInvalid script!");
+                return;
+            }
+
+            final LinkedList<ScriptAction> actions = script.copyActions();
+
+            int index = 1;
+            ChatColor color = ChatColor.AQUA;
+
+            for (ScriptAction action : actions) {
+                Chat.sendMessage(player, "%s [%s] %s: %s".formatted(color, index++, action.getClass().getSimpleName(), action.toString()));
+
+                color = color == ChatColor.AQUA ? ChatColor.DARK_AQUA : ChatColor.AQUA;
+            }
+        });
 
         register("clearGarbageEntities", (player, args) -> {
             final int cleared = CFGarbageCollector.clearInAllWorlds();
@@ -450,22 +493,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             player.teleport(location);
 
             PlayerLib.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f);
-        });
-
-        register("colorWithDayOfTheWeekGradient", (player, args) -> {
-            final int numericDayOfWeek = args.get(0).toInt();
-            final String stringToColor = Chat.arrayToString(args.array, 1);
-
-            if (numericDayOfWeek < 1 || numericDayOfWeek > 7) {
-                Chat.sendMessage(player, "&cThere are seven days in a week, not %s!".formatted(numericDayOfWeek));
-                return;
-            }
-
-            final DayOfWeek dayOfWeek = DayOfWeek.of(numericDayOfWeek);
-            final ServerHandler.WeekDayGradient gradient = ServerHandler.getGradient(dayOfWeek);
-
-            Chat.sendMessage(player, "&aColor string with %s gradient:".formatted(dayOfWeek));
-            Chat.sendMessage(player, gradient.colorString(stringToColor));
         });
 
         register("writeDefaultTranslations", (player, args) -> {
@@ -766,7 +793,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     }
                 }.runTaskLater(tick);
 
-                Chat.sendMessage(player, "&aCreated with level %s and %s delay.", level, tick);
+                Chat.sendMessage(player, "&aCreated with level %s and %s delay.".formatted(level, tick));
             }
         });
 
@@ -776,7 +803,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 final double amount = getArgument(args, 0).toDouble();
 
                 player.setAbsorptionAmount(amount);
-                Chat.sendMessage(player, "&aSet absorption amount to %s!", amount);
+                Chat.sendMessage(player, "&aSet absorption amount to %s!".formatted(amount));
             }
         });
 
@@ -838,14 +865,14 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new SimplePlayerAdminCommand("countTalentTypes") {
             @Override
             protected void execute(Player player, String[] args) {
-                final Map<Talent.Type, Integer> typeCount = Maps.newHashMap();
+                final Map<TalentType, Integer> typeCount = Maps.newHashMap();
 
-                for (Talent.Type type : Talent.Type.values()) {
+                for (TalentType type : TalentType.values()) {
                     typeCount.compute(type, Compute.intAdd());
                 }
 
                 Chat.sendMessage(player, "&aHere's a total of talent counts:");
-                typeCount.forEach((type, count) -> Chat.sendMessage(player, " &2%s: %s", type.getName(), count));
+                typeCount.forEach((type, count) -> Chat.sendMessage(player, " &2%s: %s".formatted(type.getName(), count)));
             }
         });
 
@@ -862,7 +889,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 final double capacity = getArgument(args, 0).toDouble(20);
 
                 gamePlayer.setShield(new Shield(gamePlayer, capacity));
-                Chat.sendMessage(player, "&aApplied shield with %s capacity.", capacity);
+                Chat.sendMessage(player, "&aApplied shield with %s capacity.".formatted(capacity));
             }
         });
 
@@ -896,7 +923,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 final int canConvertTimes = convert.canConvertTimes(player);
 
                 if (canConvertTimes > 0) {
-                    Chat.sendMessage(player, "&aYou can convert %s times!", canConvertTimes);
+                    Chat.sendMessage(player, "&aYou can convert %s times!".formatted(canConvertTimes));
                 }
                 else {
                     Chat.sendMessage(player, "&cYou don't have enough items to convert!");
@@ -1026,11 +1053,11 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
                 final boolean isLock = talentLock.setLock(slot, lock);
                 if (!isLock) {
-                    Chat.sendMessage(player, "&cCannot lock '%s'!", slot.getName());
+                    Chat.sendMessage(player, "&cCannot lock '%s'!".formatted(slot.getName()));
                     return;
                 }
 
-                Chat.sendMessage(player, "&aLocked '%s' for %s!", slot.getName(), CFUtils.decimalFormatTick(lock));
+                Chat.sendMessage(player, "&aLocked '%s' for %s!".formatted(slot.getName(), CFUtils.decimalFormatTick(lock)));
             }
         });
 
@@ -1085,7 +1112,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
                 if (degree != -1) {
                     item.rotate(degree);
-                    Chat.sendMessage(player, "&aRotated %s degrees.", degree);
+                    Chat.sendMessage(player, "&aRotated %s degrees.".formatted(degree));
                     return;
                 }
 
@@ -1150,7 +1177,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 }
 
                 entity.spawn(player.getLocation());
-                Chat.sendMessage(player, "&aSpawned %s!", entity.type);
+                Chat.sendMessage(player, "&aSpawned %s!".formatted(entity.type));
             }
 
             @Nullable
@@ -1222,7 +1249,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 }
 
                 player.addPotionEffect(effectType.getType().createEffect(effectDuration, 1));
-                Chat.sendMessage(player, "&aApplied %s for %s!", effectType, effectDuration);
+                Chat.sendMessage(player, "&aApplied %s for %s!".formatted(effectType, effectDuration));
             }
         });
 
@@ -1359,7 +1386,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 }
 
                 final boolean isProfane = ProfanityFilter.isProfane(string);
-                Chat.sendMessage(player, "&a'%s' %s", string, isProfane ? "&cis profane!" : "&ais not profane.");
+                Chat.sendMessage(player, "&a'%s' %s".formatted(string, isProfane ? "&cis profane!" : "&ais not profane."));
             }
         });
 
@@ -1449,7 +1476,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register("dumpEntities", (player, args) -> {
             final Set<GameEntity> entities = CF.getEntities();
 
-            Chat.sendMessage(player, "&aEntity Dump (%s)", entities.size());
+            Chat.sendMessage(player, "&aEntity Dump (%s)".formatted(entities.size()));
 
             boolean lighterColor = true;
             for (GameEntity entity : entities) {
@@ -1657,7 +1684,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 }
 
                 if (args.length == 0) {
-                    final Map<DamageOverTime, DotInstanceList> dotMap = gamePlayer.getData().getDotMap();
+                    final Map<DamageOverTime, DotInstanceList> dotMap = gamePlayer.getEntityData().getDotMap();
 
                     if (dotMap.isEmpty()) {
                         gamePlayer.sendMessage("&cNo active dots!");
@@ -1783,7 +1810,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     }
 
                     Runnables.runSync(() -> {
-                        Chat.sendMessage(player, "&aDumped into &e%s&a!", path.getAbsolutePath());
+                        Chat.sendMessage(player, "&aDumped into &e%s&a!".formatted(path.getAbsolutePath()));
                     });
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -1800,7 +1827,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             try {
                 final UUID uuid = UUID.fromString(args.getString(0));
 
-                Chat.sendMessage(player, "&a%s belongs to %s", uuid.toString(), Bukkit.getOfflinePlayer(uuid).getName());
+                Chat.sendMessage(player, "&a%s belongs to %s".formatted(uuid.toString(), Bukkit.getOfflinePlayer(uuid).getName()));
             } catch (Exception e) {
                 Chat.sendMessage(player, "&cProvide a valid uuid!");
             }
@@ -1871,7 +1898,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 meta.setTrim(new ArmorTrim(trim == null ? TrimMaterial.QUARTZ : trim.getMaterial(), pattern));
                 item.setItemMeta(meta);
 
-                Chat.sendMessage(player, "&aSet %s pattern.", pattern.getKey().getKey());
+                Chat.sendMessage(player, "&aSet %s pattern.".formatted(pattern.getKey().getKey()));
             }
         });
 
@@ -1897,13 +1924,13 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                         final ElementType elementType = Enums.byName(ElementType.class, split[1]);
 
                         if (material == null) {
-                            Chat.sendMessage(player, "&4ERROR @ %s! &cMaterial %s is invalid!", index, split[0]);
+                            Chat.sendMessage(player, "&4ERROR @ %s! &cMaterial %s is invalid!".formatted(index, split[0]));
                             reader.close();
                             return;
                         }
 
                         if (elementType == null) {
-                            Chat.sendMessage(player, "&4ERROR @ %s! &cType %s is invalid!", index, split[1]);
+                            Chat.sendMessage(player, "&4ERROR @ %s! &cType %s is invalid!".formatted(index, split[1]));
                             reader.close();
                             return;
                         }
@@ -1949,7 +1976,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                         writer.append("\n");
                     }
 
-                    Runnables.runSync(() -> Chat.sendMessage(player, "&aDumped into &e%s&a!", fileOut.getAbsolutePath()));
+                    Runnables.runSync(() -> Chat.sendMessage(player, "&aDumped into &e%s&a!".formatted(fileOut.getAbsolutePath())));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -2044,7 +2071,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     ));
                 });
 
-                Chat.sendMessage(player, "&aSpawned with %s.", transformation);
+                Chat.sendMessage(player, "&aSpawned with %s.".formatted(transformation));
             }
         });
 
@@ -2131,7 +2158,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     location.subtract(vector);
                 }
 
-                Chat.sendMessage(player, "&aRotated with %s, %s, %s!", x, y, z);
+                Chat.sendMessage(player, "&aRotated with %s, %s, %s!".formatted(x, y, z));
             }
         });
 
@@ -2245,17 +2272,21 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             protected void execute(CommandSender sender, String[] args) {
                 Chat.sendMessage(
                         sender,
-                        "&6Current Memory Usage: &a%s/%s mb (Max: %s mb)",
-                        (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / GIGABYTE,
-                        Runtime.getRuntime().totalMemory() / GIGABYTE,
-                        Runtime.getRuntime().maxMemory() / GIGABYTE
+                        "&6Current Memory Usage: &a%s/%s mb (Max: %s mb)".formatted(
+                                (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / GIGABYTE,
+                                Runtime.getRuntime().totalMemory() / GIGABYTE,
+                                Runtime.getRuntime().maxMemory() / GIGABYTE
+                        )
                 );
 
                 final OperatingSystemMXBean mx = ManagementFactory.getOperatingSystemMXBean();
 
                 if (mx instanceof com.sun.management.OperatingSystemMXBean sunOsBean) {
                     double cpuLoad = sunOsBean.getCpuLoad();
-                    Chat.sendMessage(sender, "&6CPU Load: &a%.1f%%" + (cpuLoad <= 0.0d ? " &cNot supported?" : ""), cpuLoad * 100);
+                    Chat.sendMessage(
+                            sender,
+                            ("&6CPU Load: &a%.1f%%" + (cpuLoad <= 0.0d ? " &cNot supported?" : "")).formatted(cpuLoad * 100)
+                    );
                 }
             }
         });
@@ -2353,11 +2384,11 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 final LivingGameEntity targetEntity = Collect.targetEntityDot(gamePlayer, 20.0d, 0.9d, e -> e.isNot(player));
 
                 if (targetEntity == null) {
-                    Chat.sendMessage(player, gamePlayer.getData());
+                    Chat.sendMessage(player, gamePlayer.getEntityData());
                     return;
                 }
 
-                Chat.sendMessage(player, targetEntity.getData());
+                Chat.sendMessage(player, targetEntity.getEntityData());
             }
         });
 
@@ -2371,7 +2402,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
                 if (queue == null) {
                     queue = reader.readAsQueue();
-                    Chat.sendMessage(player, "&aFound %s signs. Use the command again to teleport to the next one.", queue.size());
+                    Chat.sendMessage(player, "&aFound %s signs. Use the command again to teleport to the next one.".formatted(queue.size()));
                     return;
                 }
 
@@ -2391,7 +2422,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
                 Chat.sendClickableHoverableMessage(
                         player,
-                        LazyEvent.runCommand("/tp %s %s %s", location.getX(), location.getY(), location.getZ()),
+                        LazyEvent.runCommand("/tp %s %s %s".formatted(location.getX(), location.getY(), location.getZ())),
                         LazyEvent.showText("&eClick to teleport!"),
                         "&6&lCLICK TO TELEPORT"
                 );
@@ -2538,7 +2569,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     });
                 });
 
-                Chat.sendMessage(player, "&aRespawned %s packs.", i);
+                Chat.sendMessage(player, "&aRespawned %s packs.".formatted(i));
             }
         });
 
@@ -2564,14 +2595,13 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 if (newValue == -999) {
                     Chat.sendMessage(
                             player,
-                            "&aCurrent attack speed: %s",
-                            attribute.getBaseValue()
+                            "&aCurrent attack speed: %s".formatted(attribute.getBaseValue())
                     );
                     return;
                 }
 
                 attribute.setBaseValue(newValue);
-                Chat.sendMessage(player, "&aSet value to %s!", newValue);
+                Chat.sendMessage(player, "&aSet value to %s!".formatted(newValue));
             }
         });
 
@@ -2763,7 +2793,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                         writer.write(json);
 
                         Runnables.runSync(() -> {
-                            Chat.sendMessage(player, "&aDumped into &e%s&a!", path.getAbsolutePath());
+                            Chat.sendMessage(player, "&aDumped into &e%s&a!".formatted(path.getAbsolutePath()));
                         });
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -2850,7 +2880,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                         Two paragraphs, wow!
                                                         
                         &c;;And I know your name, %s!
-                        """, player.getName()).asIcon());
+                        """.formatted(player.getName())).asIcon());
             }
         });
 
@@ -2876,7 +2906,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
                     @Override
                     public void onStart() {
-                        Chat.sendMessage(player, "&aStarted %s->%s with speed %s", from, to, speed);
+                        Chat.sendMessage(player, "&aStarted %s->%s with speed %s".formatted(from, to, speed));
                     }
 
                     @Override
@@ -2914,7 +2944,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
                     if (arg0.equalsIgnoreCase("dump")) {
                         document.forEach((k, v) -> {
-                            Debug.info("%s = %s", k, v);
+                            Debug.info("%s = %s".formatted(k, v));
                         });
                         return;
                     }
@@ -2925,7 +2955,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                         if (arg0.equalsIgnoreCase("get")) {
                             final String get = document.get(arg1, "null");
 
-                            Chat.sendMessage(player, "&e%s = &6%s", arg1, get);
+                            Chat.sendMessage(player, "&e%s = &6%s".formatted(arg1, get));
                         }
                         else if (arg0.equalsIgnoreCase("set")) {
                             if (args.length < 3) {
@@ -2937,7 +2967,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
                             Runnables.runAsync(() -> {
                                 document = collection.findOneAndUpdate(document, Updates.set(arg1, toSet));
-                                Chat.sendMessage(player, "&aSet and update %s.", toSet);
+                                Chat.sendMessage(player, "&aSet and update %s.".formatted(toSet));
                             });
                         }
                     }
@@ -3067,59 +3097,40 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 final double calcDamage = damage / (defense * Attributes.DEFENSE_SCALING + (1 - Attributes.DEFENSE_SCALING));
 
                 Notifier.success(player, "Done!");
-                Chat.sendMessage(player, "&a%.1f &8= %s DMG & %s DEF", calcDamage, damage, defense);
+                Chat.sendMessage(player, "&a%.1f &8= %s DMG & %s DEF".formatted(calcDamage, damage, defense));
+            }
+        });
+
+        register("showCommands", (player, args) -> {
+            Debug.info("Here is a list of commands:");
+
+            ChatColor color = ChatColor.AQUA;
+
+            for
+            (String command : commands) {
+                Debug.info(" " + color + command);
+                color = color == ChatColor.AQUA ? ChatColor.DARK_AQUA : ChatColor.AQUA;
             }
         });
 
     }
 
-    // Have to use reflection here, since Paper is really annoying.
-    @SuppressWarnings("all")
-    private void unregisterAnnoyingPaperCommandsThatICannotOverride() {
-        Set<String> commandsToRemove = Sets.newHashSet();
+    private void registerDebug(String name, BiConsumer<GamePlayer, ArgumentList> consumer) {
+        register(name, (player, args) -> {
+            final GamePlayer gamePlayer = CF.getPlayer(player);
 
-        commandsToRemove.add("plugins");
-        commandsToRemove.add("tps");
-        commandsToRemove.add("tell");
-        commandsToRemove.add("w");
-        commandsToRemove.add("me");
-
-        try {
-            final SimpleCommandMap commandMap = CommandProcessor.getCommandMap();
-            final Iterator<Command> iterator = commandMap.getCommands().iterator();
-            final Field field = FieldUtils.getDeclaredField(SimpleCommandMap.class, "knownCommands", true);
-            final Map<String, Command> map = (Map<String, Command>) field.get(commandMap);
-
-            for (String commandName : commandsToRemove) {
-                final Command command = commandMap.getCommand(commandName);
-
-                if (command == null) {
-                    continue;
-                }
-
-                // unregister aliases as well
-                for (String alias : command.getAliases()) {
-                    map.remove(alias);
-                }
-
-                //command.unregister(commandMap);
-                map.remove(commandName);
+            if (gamePlayer == null) {
+                Chat.sendMessage(player, "&4You must be in game to use this command!");
+                return;
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+            if (!Manager.current().isDebug()) {
+                Chat.sendMessage(player, "&4You must be in debug mode to use this command!");
+                return;
+            }
 
-    private void unregisterAlias(String commandName, SimpleCommandMap commandMap, Map<String, Command> map) {
-        final Command command = commandMap.getCommand(commandName);
-
-        if (command == null) {
-            return;
-        }
-
-        command.unregister(commandMap);
-        map.remove(commandName);
+            consumer.accept(gamePlayer, args);
+        });
     }
 
     private void register(String name, BiConsumer<Player, ArgumentList> consumer) {
@@ -3133,10 +3144,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
     private void register(SimpleCommand command) {
         processor.registerCommand(command);
-    }
-
-    private static TypeConverter getArgument(String[] args, int index) {
-        return TypeConverter.from(index >= args.length ? "" : args[index]);
     }
 
 }

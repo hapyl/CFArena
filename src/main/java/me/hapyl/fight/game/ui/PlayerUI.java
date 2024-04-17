@@ -16,9 +16,10 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.setting.Settings;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
+import me.hapyl.fight.game.talents.techie.Talent;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.spigotutils.Eterna;
 import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -172,7 +173,7 @@ public class PlayerUI extends TickingGameTask {
                     temperBuilder.addLore("&a&l" + data.temper.name());
                     data.values.forEach((type, temper) -> {
                         temperBuilder.addLore(" " + type.toString());
-                        temperBuilder.addLore(" %s for %s", temper.value, temper.toString());
+                        temperBuilder.addLore(" %s for %s".formatted(temper.value, temper.toString()));
                     });
                 });
             }
@@ -218,7 +219,7 @@ public class PlayerUI extends TickingGameTask {
         else if (!manager.isGameInProgress()) {
             final CurrencyEntry currency = playerDatabase.currencyEntry;
 
-            builder.addLine("&2🧑 &a&lYou, %s:", player.getName());
+            builder.addLine("&2🧑 &a&lYou, %s:".formatted(player.getName()));
             builder.addLines(
                     " &7ʀᴀɴᴋ: " + profile.getRank().getPrefixWithFallback(),
                     " &7ʜᴇʀᴏ: " + profile.getSelectedHeroString(),
@@ -244,14 +245,13 @@ public class PlayerUI extends TickingGameTask {
                     );
 
                     for (GamePlayer alivePlayer : CF.getAlivePlayers()) {
-                        builder.addLine(
-                                " &6%s %s &f%s %s &c.1f ❤",
+                        builder.addLine(" &6%s %s &f%s %s &c%.1f ❤".formatted(
                                 alivePlayer.getHero().getNameSmallCaps(),
                                 alivePlayer.getTeam().getFirstLetterCaps(),
                                 alivePlayer.getName(),
                                 UIFormat.DIV,
                                 alivePlayer.getHealth()
-                        );
+                        ));
                     }
                 }
                 // In Game
@@ -284,6 +284,10 @@ public class PlayerUI extends TickingGameTask {
         this.builder.getObjective().setDisplaySlot(DisplaySlot.SIDEBAR);
     }
 
+    protected String getTimeLeftString(IGameInstance game) {
+        return manager.isDebug() ? "∞" : new SimpleDateFormat("mm:ss").format(game.getTimeLeftRaw());
+    }
+
     private void updateTablist() {
         tablist.update();
     }
@@ -293,10 +297,6 @@ public class PlayerUI extends TickingGameTask {
     }
 
     private void animateScoreboard() {
-    }
-
-    protected String getTimeLeftString(IGameInstance game) {
-        return manager.isDebug() ? "∞" : new SimpleDateFormat("mm:ss").format(game.getTimeLeftRaw());
     }
 
     private StringBuilder buildGameFooter() {
@@ -318,7 +318,14 @@ public class PlayerUI extends TickingGameTask {
                 builder.append(effect.getType().getColor());
                 builder.append(effect.getName());
                 builder.append(" &f- ");
-                builder.append(new SimpleDateFormat("mm:ss").format(active.getRemainingTicks() * 50));
+
+                if (active.isInfiniteDuration()) {
+                    builder.append("∞");
+                }
+                else {
+                    builder.append(new SimpleDateFormat("mm:ss").format(active.getRemainingTicks() * 50));
+                }
+
                 builder.append(" ");
 
                 i.increment();
@@ -340,7 +347,8 @@ public class PlayerUI extends TickingGameTask {
         }
 
         // Display NBS player if playing a song
-        final SongPlayer songPlayer = EternaPlugin.getPlugin().getSongPlayer();
+        final SongPlayer songPlayer = Eterna.getRegistry().songPlayer;
+
         if (songPlayer.getCurrentSong() != null) {
             final Song song = songPlayer.getCurrentSong();
             final StringBuilder builder = new StringBuilder();

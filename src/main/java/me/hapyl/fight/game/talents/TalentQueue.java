@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents;
 
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
+import me.hapyl.fight.game.talents.techie.Talent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

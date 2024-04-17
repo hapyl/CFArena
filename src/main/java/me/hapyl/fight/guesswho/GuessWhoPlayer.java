@@ -129,7 +129,7 @@ public class GuessWhoPlayer {
         board.removeAll(toRuleOut);
 
         // Fx
-        sendMessage("Ruled out " + CFUtils.makeStringCommaAnd(toRuleOut, Heroes::getNameSmallCaps) + "!");
+        sendMessage("Ruled out " + Chat.makeStringCommaAnd(toRuleOut, Heroes::getNameSmallCaps) + "!");
         playSound(Sound.BLOCK_NOTE_BLOCK_PLING, 2.0f);
     }
 

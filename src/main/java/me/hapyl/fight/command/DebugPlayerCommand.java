@@ -46,10 +46,10 @@ public class DebugPlayerCommand extends SimplePlayerAdminCommand {
 
                 // name: Type = value
                 if (color) {
-                    Chat.sendMessage(player, "&f%s: &o%s &f= &f&l%s", name, type, value);
+                    Chat.sendMessage(player, "&f%s: &o%s &f= &f&l%s".formatted(name, type, value));
                 }
                 else {
-                    Chat.sendMessage(player, "&e%s: &o%s &e= &e&l%s", name, type, value);
+                    Chat.sendMessage(player, "&e%s: &o%s &e= &e&l%s".formatted(name, type, value));
                 }
 
                 color = !color;

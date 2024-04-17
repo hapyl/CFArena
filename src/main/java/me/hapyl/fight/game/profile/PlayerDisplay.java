@@ -125,7 +125,7 @@ public class PlayerDisplay {
 
     @Nonnull
     public String toStringTab() {
-        return Chat.format("%s %s", this, formatPing());
+        return Chat.format("%s %s".formatted(this, formatPing()));
     }
 
     @Nonnull

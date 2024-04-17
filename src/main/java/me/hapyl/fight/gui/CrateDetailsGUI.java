@@ -65,7 +65,7 @@ public class CrateDetailsGUI extends StyledPageGUI<Cosmetics> {
         final float dropChance = crate.getSchema().getDropChance(rarity) / crate.getContents().getItemsAsCopy(rarity).size();
 
         builder.addLore();
-        builder.addLore(Color.DEFAULT.color("Drop Chance: &l%.1f%%"), dropChance * 100);
+        builder.addLore(Color.DEFAULT.color("Drop Chance: &l%.1f%%".formatted(dropChance * 100)));
         builder.addSmartLore("Drop chances displayed for individual items.", "&8&o");
         builder.addLore(cosmetics.isUnlocked(player)
                 ? (Color.SUCCESS.color("✔ You own this item!"))

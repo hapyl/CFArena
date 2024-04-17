@@ -3,104 +3,39 @@ package me.hapyl.fight.script;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
 import me.hapyl.spigotutils.module.util.DependencyInjector;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
-import java.io.File;
 import java.util.Map;
 
 public class ScriptManager extends DependencyInjector<Main> {
 
-    private final Map<String, Script> scripts;
-    private final String folderPath = Main.getPlugin().getDataFolder() + "\\scripts";
-
-    protected ScriptRunner runner;
+    private final Map<String, ScriptRunner> runningScripts;
 
     public ScriptManager(Main plugin) {
         super(plugin);
 
-        this.scripts = Maps.newHashMap();
+        this.runningScripts = Maps.newHashMap();
     }
 
-    public boolean run(@Nonnull String name) {
-        final Script script = scripts.get(name);
+    public ScriptRunner run(@Nonnull Script script) {
+        final String id = script.getId();
 
-        if (script == null) {
-            return false;
+        if (runningScripts.containsKey(id)) {
+            return runningScripts.get(id);
         }
 
-        return run(script);
+        final ScriptRunner runner = new ScriptRunner(script);
+        runningScripts.put(id, runner);
+
+        return runner;
     }
 
-    public boolean run(@Nonnull Script script) {
-        if (runner != null) {
-            return false;
-        }
-
-        runner = new ScriptRunner(script);
-        return true;
+    public boolean free(@Nonnull Script script) {
+        return runningScripts.remove(script.getId()) != null;
     }
 
-    public void reload() {
-        scripts.clear();
-
-        final File folder = new File(folderPath);
-
-        if (!folder.exists()) {
-            folder.mkdir();
-        }
-
-        parseFolderAsync(folder);
+    public boolean isRunning(@Nonnull Script script) {
+        return runningScripts.containsKey(script.getId());
     }
 
-    public void abandon() {
-        if (runner == null) {
-            return;
-        }
-
-        runner.cancel();
-        runner = null;
-    }
-
-    private void parseFolderAsync(File folder) {
-        if (folder == null) {
-            throw new NullPointerException("File cannot be null.");
-        }
-
-        if (!folder.isDirectory()) {
-            throw new IllegalArgumentException("File must be a directory!");
-        }
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                final File[] files = folder.listFiles();
-
-                if (files == null) {
-                    return;
-                }
-
-                for (File file : files) {
-                    if (file.isDirectory()) {
-                        parseFolderAsync(file);
-                    }
-                    else {
-                        String path = file.getPath().replace(folderPath + "\\", "").replace("\\", "/");
-                        final int index = path.lastIndexOf(".script");
-
-                        if (index == -1) {
-                            continue;
-                        }
-
-                        path = path.substring(0, index);
-
-                        final Script script = new Script(path);
-                        script.load();
-
-                        scripts.put(path, script);
-                    }
-                }
-            }
-        }.runTaskAsynchronously(Main.getPlugin());
-    }
 }

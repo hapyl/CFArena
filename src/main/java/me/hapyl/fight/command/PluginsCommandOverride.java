@@ -18,14 +18,15 @@ public class PluginsCommandOverride extends CFCommand {
     private final List<Plugin> customPlugins;
 
     public PluginsCommandOverride() {
-        super("plugins", PlayerRank.DEFAULT);
+        super("showPlugins", PlayerRank.DEFAULT);
 
-        setAliases("pl");
+        setAliases("plugins", "pl");
 
         publicPlugins = Lists.newArrayList();
         customPlugins = Lists.newArrayList();
 
         final PluginManager pluginManager = Bukkit.getPluginManager();
+
         for (Plugin plugin : pluginManager.getPlugins()) {
             if (plugin.getDescription().getAuthors().contains("hapyl")) {
                 customPlugins.add(plugin);
@@ -51,7 +52,7 @@ public class PluginsCommandOverride extends CFCommand {
 
     private void displayPlugins(Player player, List<Plugin> plugins) {
         for (Plugin plugin : plugins) {
-            Chat.sendMessage(player, "&e- &6%s &8(%s)", plugin.getName(), plugin.getDescription().getVersion());
+            Chat.sendMessage(player, "&e- &6%s &8(%s)".formatted(plugin.getName(), plugin.getDescription().getVersion()));
         }
     }
 

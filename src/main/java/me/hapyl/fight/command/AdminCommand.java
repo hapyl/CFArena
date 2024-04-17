@@ -217,7 +217,7 @@ public class AdminCommand extends SimplePlayerAdminCommand {
                 if (argument.equalsIgnoreCase("get")) {
                     final long targetValue = currencyEntry.get(currency);
 
-                    Chat.sendMessage(player, "&a%s has %,d %s.", target.getName(), targetValue, currencyFormatted);
+                    Chat.sendMessage(player, "&a%s has %,d %s.".formatted(target.getName(), targetValue, currencyFormatted));
                     return;
                 }
 
@@ -225,19 +225,19 @@ public class AdminCommand extends SimplePlayerAdminCommand {
                     case "set" -> {
                         currencyEntry.set(currency, value);
                         sendMessage(player, "&aSet %s's %s to &l%s&a.", target.getName(), currencyFormatted, value);
-                        Chat.sendMessage(target, "&aAn admin set your %s to %s.", currencyFormatted, value);
+                        Chat.sendMessage(target, "&aAn admin set your %s to %s.".formatted(currencyFormatted, value));
                     }
 
                     case "add" -> {
                         currencyEntry.add(currency, value);
                         sendMessage(player, "&aAdded &l%s&a %s to %s.", value, currencyFormatted, target.getName());
-                        Chat.sendMessage(target, "&aAn admin gave you %s %s.", currencyFormatted, value);
+                        Chat.sendMessage(target, "&aAn admin gave you %s %s.".formatted(currencyFormatted, value));
                     }
 
                     case "remove" -> {
                         currencyEntry.subtract(currency, value);
                         sendMessage(player, "&aRemoved &l%s&a %s from %s.", value, currencyFormatted, target.getName());
-                        Chat.sendMessage(target, "&aAn admin removed %s %s from you.", value, currencyFormatted);
+                        Chat.sendMessage(target, "&aAn admin removed %s %s from you.".formatted(value, currencyFormatted));
                     }
 
                     default -> sendError(player, "&cInvalid arguments!");
@@ -266,11 +266,11 @@ public class AdminCommand extends SimplePlayerAdminCommand {
     }
 
     private void sendError(Player player, String message, Object... format) {
-        Chat.sendMessage(player, PREFIX + "&4Error! &c" + message, format);
+        Chat.sendMessage(player, (PREFIX + "&4Error! &c" + message).formatted(format));
     }
 
     private void sendMessage(Player player, String message, Object... format) {
-        Chat.sendMessage(player, PREFIX + message, format);
+        Chat.sendMessage(player, (PREFIX + message).formatted(format));
     }
 
 }

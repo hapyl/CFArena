@@ -58,7 +58,7 @@ public class Inquisitor extends OverlayGameEntityType {
         @Nullable
         @Override
         public String[] getExtraHologramLines() {
-            return new String[] { Chat.format("&c+%s%% damage", AttributeType.ATTACK.getDecimalFormatted(attributes)) };
+            return new String[] { Chat.format("&c+%s%% damage".formatted(AttributeType.ATTACK.getDecimalFormatted(attributes))) };
         }
 
         @Override

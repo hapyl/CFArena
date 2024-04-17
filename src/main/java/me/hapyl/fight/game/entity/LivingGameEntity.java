@@ -27,11 +27,8 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.display.*;
-import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.DirectionalMatrix;
-import me.hapyl.fight.util.Ticking;
-import me.hapyl.spigotutils.EternaPlugin;
+import me.hapyl.fight.util.*;
+import me.hapyl.spigotutils.Eterna;
 import me.hapyl.spigotutils.module.ai.AI;
 import me.hapyl.spigotutils.module.ai.MobAI;
 import me.hapyl.spigotutils.module.annotate.Super;
@@ -402,6 +399,16 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         EntityUtils.setCollision(entity, collision);
     }
 
+    public double scaleHealth(double mul) {
+        return Mth.scale(health, mul);
+    }
+
+    public double scaleAttribute(@Nonnull AttributeType attributeType, double mul) {
+        final double v = attributes.get(attributeType);
+
+        return Mth.scale(v, mul);
+    }
+
     private void setInternalNoDamageTicks(int ticks) {
         cooldown.startCooldown(Cooldown.NO_DAMAGE, ticks * 50L);
     }
@@ -664,7 +671,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     }
 
     public void setGlowingColor(@Nonnull GamePlayer player, @Nonnull ChatColor color) {
-        final Glowing glowing = EternaPlugin.getPlugin().getRegistry().glowingManager.getGlowing(player.getPlayer(), entity);
+        final Glowing glowing = Eterna.getRegistry().glowingRegistry.getGlowing(player.getPlayer(), entity);
 
         if (glowing != null) {
             glowing.setColor(color);
@@ -942,6 +949,12 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         return entity != null && GameTeam.isTeammate(Entry.of(this), Entry.of(entity));
     }
 
+    public boolean isEnemy(@Nullable LivingGameEntity entity) {
+        return entity != null
+                && !equals(entity) // explicit self check since isTeammate is false for self-checks
+                && !GameTeam.isTeammate(getEntry(), entity.getEntry());
+    }
+
     @Override
     public String toString() {
         return "LivingGameEntity{" + entity.getType() + "@" + entity.getUniqueId() + "}";
@@ -983,12 +996,12 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         return instance.getBaseValue();
     }
 
-    // FIXME (hapyl): 008, Mar 8: please refactor this to getEntityData()
     @Nonnull
-    public EntityData getData() {
+    public EntityData getEntityData() {
         return entityData;
     }
 
+    @Nonnull
     public String getStatusString() {
         return state.string;
     }

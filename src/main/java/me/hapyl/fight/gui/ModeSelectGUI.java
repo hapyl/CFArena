@@ -51,8 +51,8 @@ public class ModeSelectGUI extends GameManagementSubGUI<Modes> {
                 );
 
         builder.addLore("&f&lMode Info:");
-        builder.addLore(" Minimum Players: %s", minimumPlayersSuffix);
-        builder.addLore(" Time Limit: &a%s", mode.getTimeLimitFormatted());
+        builder.addLore(" Minimum Players: %s".formatted(minimumPlayersSuffix));
+        builder.addLore(" Time Limit: &a%s".formatted(mode.getTimeLimitFormatted()));
 
         return builder;
     }

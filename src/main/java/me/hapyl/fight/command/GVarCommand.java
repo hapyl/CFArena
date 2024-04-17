@@ -44,16 +44,17 @@ public class GVarCommand extends SimpleAdminCommand {
 
         if (args.length == 1) {
             if (object == null) {
-                Chat.sendMessage(sender, "&4Error! &cThere is no GVar named '%s'!", name);
+                Chat.sendMessage(sender, "&4Error! &cThere is no GVar named '%s'!".formatted(name));
                 return;
             }
 
             Chat.sendMessage(
                     sender,
-                    "&2Success! &aGVar '%s' has value of '%s' of type '%s'.",
-                    name,
-                    object,
-                    object.getClass().getSimpleName()
+                    "&2Success! &aGVar '%s' has value of '%s' of type '%s'.".formatted(
+                            name,
+                            object,
+                            object.getClass().getSimpleName()
+                    )
             );
             return;
         }
@@ -122,16 +123,17 @@ public class GVarCommand extends SimpleAdminCommand {
                 if (!oldValueTypeName.equalsIgnoreCase(newValueTypeName)) {
                     Chat.sendMessage(
                             sender,
-                            "&4Error! &cThe old value has different type! Expected '%s', got '%s'!",
-                            oldValueTypeName,
-                            newValueTypeName
+                            "&4Error! &cThe old value has a different type! Expected '%s', got '%s'!".formatted(
+                                    oldValueTypeName,
+                                    newValueTypeName
+                            )
                     );
                     return;
                 }
             }
 
             GVar.set(name, newValue);
-            Chat.sendMessage(sender, "&2Success! &aSet GVar '%s' to '%s'!", name, newValue);
+            Chat.sendMessage(sender, "&2Success! &aSet GVar '%s' to '%s'!".formatted(name, newValue));
         } catch (Exception e) {
             Chat.sendMessage(sender, "&4Error! &cCould not convert types, see console!");
             e.printStackTrace();

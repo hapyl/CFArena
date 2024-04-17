@@ -98,7 +98,7 @@ public class Relic {
         ChallengeType.COLLECT_RELIC.progress(player);
 
         // Fx
-        Chat.sendMessage(player, "&d&l%s RELIC &aYou have found a relic!", getType());
+        Chat.sendMessage(player, "&d&l%s RELIC &aYou have found a relic!".formatted(getType()));
         PlayerLib.playSound(player, Sound.AMBIENT_CAVE, 2.0f);
     }
 

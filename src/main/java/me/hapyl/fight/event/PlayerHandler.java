@@ -1,6 +1,8 @@
 package me.hapyl.fight.event;
 
+import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
@@ -27,8 +29,8 @@ import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
-import me.hapyl.fight.game.talents.archive.witcher.Akciy;
+import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.witcher.Akciy;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
@@ -38,10 +40,10 @@ import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.guesswho.GuessWho;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.ux.Notifier;
-import me.hapyl.spigotutils.EternaPlugin;
+import me.hapyl.spigotutils.Eterna;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.parkour.Data;
-import me.hapyl.spigotutils.module.parkour.ParkourManager;
+import me.hapyl.spigotutils.module.parkour.ParkourRegistry;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -61,6 +63,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
@@ -68,6 +71,7 @@ import org.bukkit.util.Vector;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -79,11 +83,15 @@ public class PlayerHandler implements Listener {
     public static final double RANGE_KNOCKBACK_RESISTANCE = 0.7d;
     public static final double VELOCITY_MAX_Y = 4.821600093841552d;
 
+    public final double[] bowScale = { 6.0d, 11.0d };
+
     public final double RANGE_SCALE = 6.28d;
     public final double DAMAGE_LIMIT = Short.MAX_VALUE;
 
-    private final Set<EntityDamageEvent.DamageCause> instantDeathCauses =
-            Set.of(EntityDamageEvent.DamageCause.VOID);
+    private final Set<EntityDamageEvent.DamageCause> instantDeathCauses
+            = Set.of(EntityDamageEvent.DamageCause.VOID);
+
+    private final Map<Projectile, DeflectedProjectile> deflectedProjectiles = Maps.newHashMap();
 
     public PlayerHandler() {
     }
@@ -345,8 +353,8 @@ public class PlayerHandler implements Listener {
         }
 
         final double initialDamage = ev.getDamage();
-        final DamageInstance instance = new DamageInstance(gameEntity, ev.getDamage());
-        final EntityData data = gameEntity.getData();
+        DamageInstance instance = new DamageInstance(gameEntity, ev.getDamage());
+        final EntityData data = gameEntity.getEntityData();
 
         // REASSIGNMENT STATE
         // If an entity wasn't hit by using DamageHandler, we
@@ -389,15 +397,13 @@ public class PlayerHandler implements Listener {
                         final GamePlayer gamePlayer = CF.getPlayer(player);
 
                         if (gamePlayer != null) {
+                            final double scale = arrow.isCritical() ? bowScale[1] : bowScale[0];
+                            final double scaleFactor = instance.damage / scale;
+
                             final Weapon weapon = gamePlayer.getHero().getWeapon();
                             final double weaponDamage = weapon.getDamage();
-                            final double scaleFactor = 1 + (instance.damage / RANGE_SCALE);
 
                             instance.damage = weaponDamage * scaleFactor;
-
-                            if (arrow.isCritical()) {
-                                instance.damage *= 1.5d;
-                            }
                         }
                     }
 
@@ -432,10 +438,19 @@ public class PlayerHandler implements Listener {
 
             // Teammate check
             if (entityTeam != null && lastDamager != null && !gameEntity.equals(lastDamager) && entityTeam.isEntry(Entry.of(lastDamager))) {
-                gameEntity.onTeammateDamage(lastDamager);
-                ev.setCancelled(true);
-                ev.setDamage(0.0d);
-                return;
+                boolean cancelDamage = true;
+
+                if (lastDamager instanceof GamePlayer lastPlayerDamager) {
+                    cancelDamage = lastPlayerDamager.getHero().processTeammateDamage(lastPlayerDamager, gameEntity, instance);
+                }
+
+                if (cancelDamage) {
+                    gameEntity.onTeammateDamage(lastDamager);
+
+                    ev.setCancelled(true);
+                    ev.setDamage(0.0d);
+                    return;
+                }
             }
 
             // Player victim checks
@@ -451,6 +466,41 @@ public class PlayerHandler implements Listener {
 
         // Calculate damage before calling events
         instance.calculateDamage();
+
+        // A little hack to make fully charged arrows crit
+        if (finalProjectile instanceof Arrow arrow) {
+            if (arrow.isCritical()) {
+                instance.setCrit(true);
+            }
+        }
+
+        // Deflect
+        if (finalProjectile != null) {
+            final DeflectedProjectile deflectedProjectile = deflectedProjectiles.remove(finalProjectile);
+
+            if (deflectedProjectile != null) {
+                instance.setDamage(deflectedProjectile.damage);
+                instance.setLastDamager(deflectedProjectile.damager);
+            }
+            else if (gameEntity instanceof GamePlayer gamePlayer) {
+                if (gamePlayer.isDeflecting()) {
+                    final Vector velocity = finalProjectile.getVelocity();
+                    final double length = velocity.length() * 0.75d;
+
+                    // FIXME (hapyl): 027, Mar 27: add dot check
+                    
+                    final Vector projectileVelocity = gamePlayer.getEyeDirection();
+                    projectileVelocity.multiply(length);
+
+                    final Projectile projectile = gamePlayer.getEntity().launchProjectile(finalProjectile.getClass(), projectileVelocity);
+
+                    deflectedProjectiles.put(projectile, new DeflectedProjectile(projectile, gamePlayer, instance.getDamage()));
+
+                    ev.setCancelled(true);
+                    return;
+                }
+            }
+        }
 
         // CALL DAMAGE EVENT
 
@@ -756,7 +806,7 @@ public class PlayerHandler implements Listener {
     public void handleSlotClick(InventoryClickEvent ev) {
         if (ev.getClick() == ClickType.DROP && ev.getWhoClicked() instanceof Player player && player.getGameMode() == GameMode.CREATIVE) {
             ev.setCancelled(true);
-            Chat.sendMessage(player, "&aClicked %s slot.", String.valueOf(ev.getRawSlot()));
+            Chat.sendMessage(player, "&aClicked %s slot.".formatted(ev.getRawSlot()));
             PlayerLib.playSound(player, Sound.BLOCK_LEVER_CLICK, 2.0f);
         }
     }
@@ -871,8 +921,8 @@ public class PlayerHandler implements Listener {
 
         ev.setCancelled(true);
 
-        final ParkourManager parkourManager = EternaPlugin.getPlugin().getParkourManager();
-        final Data data = parkourManager.getData(player);
+        final ParkourRegistry parkourRegistry = Eterna.getRegistry().parkourRegistry;
+        final Data data = parkourRegistry.getData(player);
 
         if (data == null) {
             return;

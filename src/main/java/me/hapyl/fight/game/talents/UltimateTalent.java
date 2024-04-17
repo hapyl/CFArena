@@ -3,21 +3,16 @@ package me.hapyl.fight.game.talents;
 import com.google.common.collect.Lists;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.PreferredReturnValue;
-import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.SoundEffect;
-import me.hapyl.fight.game.heroes.PlayerDataHandler;
 import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.stats.StatType;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
-import me.hapyl.fight.game.task.player.PlayerGameTask;
+import me.hapyl.fight.game.talents.techie.Talent;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.util.collection.player.PlayerDataMap;
-import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayFieldData;
 import me.hapyl.fight.util.displayfield.DisplayFieldDataProvider;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -53,7 +48,7 @@ public abstract class UltimateTalent extends Talent implements DisplayFieldDataP
     }
 
     public UltimateTalent(String name, String info, int pointCost) {
-        super(name, info, Type.DAMAGE);
+        super(name, info, TalentType.DAMAGE);
 
         this.cost = pointCost;
         this.sound = Sound.ENTITY_ENDER_DRAGON_GROWL;
@@ -106,7 +101,7 @@ public abstract class UltimateTalent extends Talent implements DisplayFieldDataP
         // *=* Ultimate Successfully Executed *=* //
 
         startCd(player);
-        player.setUltPoints(0);
+        player.setEnergy(0);
 
         // Call onCastFinished
         if (castDuration > 0) {
@@ -150,7 +145,7 @@ public abstract class UltimateTalent extends Talent implements DisplayFieldDataP
     }
 
     @Override
-    public UltimateTalent setType(@Nonnull Type type) {
+    public UltimateTalent setType(@Nonnull TalentType type) {
         super.setType(type);
         return this;
     }

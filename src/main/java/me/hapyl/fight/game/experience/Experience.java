@@ -190,7 +190,7 @@ public class Experience extends DependencyInjector<Main> {
         Chat.sendMessage(player, "");
 
         Chat.sendCenterMessage(player, LEVEL_UP_GRADIENT);
-        Chat.sendCenterMessage(player, "&eYou are now level %s!", level);
+        Chat.sendCenterMessage(player, "&eYou are now level %s!".formatted(level));
 
         final List<Reward> rewards = getRewards(level);
 

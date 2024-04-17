@@ -207,7 +207,7 @@ public enum Settings implements EnumWrapper<Setting>, PlayerItemCreator {
 
         final ItemBuilder builder = new ItemBuilder(setting.getMaterial())
                 .setName((isEnabled ? Color.SUCCESS : Color.ERROR) + setting.getName())
-                .addLore("&8%s Setting", Chat.capitalize(setting.getCategory()))
+                .addLore("&8%s Setting".formatted(Chat.capitalize(setting.getCategory())))
                 .addLore()
                 .addTextBlockLore(setting.getDescription())
                 .addLore();

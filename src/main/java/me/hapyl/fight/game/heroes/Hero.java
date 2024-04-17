@@ -23,7 +23,7 @@ import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
+import me.hapyl.fight.game.talents.techie.Talent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.spigotutils.module.annotate.Super;
@@ -511,7 +511,7 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
      * @param projectile - Projectile.
      */
     @Event
-    public void processDamageAsDamagerProjectile(@Nonnull DamageInstance instance, Projectile projectile) {
+    public void processDamageAsDamagerProjectile(@Nonnull DamageInstance instance, @Nonnull Projectile projectile) {
     }
 
     /**
@@ -524,6 +524,19 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
      */
     public boolean processInvisibilityDamage(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity, double damage) {
         player.sendMessage("&cCannot deal damage while invisible!");
+        return true;
+    }
+
+    /**
+     * Called whenever player damages an allied entity.
+     *
+     * @param player   - Player, who damaged the entity.
+     * @param entity   - Entity who was damager.
+     * @param instance - The current damage instance.
+     * @return true if the damage should be cancelled; false otherwise.
+     */
+    @Event
+    public boolean processTeammateDamage(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity, DamageInstance instance) {
         return true;
     }
 

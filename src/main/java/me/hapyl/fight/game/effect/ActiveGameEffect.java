@@ -75,7 +75,7 @@ public class ActiveGameEffect implements Ticking {
             type.getEffect().onStop(entity, amplifier);
         }
 
-        entity.getData().clearEffect(type);
+        entity.getEntityData().clearEffect(type);
     }
 
     @Override
@@ -103,6 +103,10 @@ public class ActiveGameEffect implements Ticking {
         if (remainingTicks != -1) {
             forceStop();
         }
+    }
+
+    public boolean isInfiniteDuration() {
+        return remainingTicks == -1;
     }
 
     private void start() {

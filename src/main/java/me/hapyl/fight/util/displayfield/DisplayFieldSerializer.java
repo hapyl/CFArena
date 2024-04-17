@@ -1,5 +1,6 @@
 package me.hapyl.fight.util.displayfield;
 
+import com.google.common.collect.Lists;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.util.CFUtils;
@@ -30,6 +31,14 @@ public final class DisplayFieldSerializer {
      * @param formatter - Formatter.
      */
     public static void serialize(@Nonnull ItemBuilder builder, @Nonnull DisplayFieldProvider provider, @Nonnull DisplayFieldFormatter formatter) {
+        final List<String> fields = serialize(provider, formatter);
+
+        fields.forEach(builder::addLore);
+    }
+
+    public static List<String> serialize(@Nonnull DisplayFieldProvider provider,  @Nonnull DisplayFieldFormatter formatter) {
+        final List<String> fields = Lists.newArrayList();
+
         for (Field field : provider.getClass().getDeclaredFields()) {
             if (!field.isAnnotationPresent(DisplayField.class)) {
                 continue;
@@ -37,14 +46,9 @@ public final class DisplayFieldSerializer {
 
             final DisplayField displayField = field.getAnnotation(DisplayField.class);
             final String formatDisplayField = format(displayField, formatter, field, provider);
-            final String extra = displayField.extra();
 
             if (!formatDisplayField.isEmpty()) {
-                builder.addLore(formatDisplayField);
-            }
-
-            if (!extra.isEmpty()) {
-                builder.addSmartLore(extra, " &8&o");
+                fields.add(formatDisplayField);
             }
         }
 
@@ -52,18 +56,16 @@ public final class DisplayFieldSerializer {
         if (provider instanceof DisplayFieldDataProvider dataProvider) {
             final List<DisplayFieldData> displayFieldData = dataProvider.getDisplayFieldData();
 
-            if (displayFieldData.isEmpty()) {
-                return;
-            }
-
             displayFieldData.forEach(data -> {
                 final String formatData = format(data.displayField, formatter, data.field, data.instance);
 
                 if (!formatData.isEmpty()) {
-                    builder.addLore(formatData);
+                    fields.add(formatData);
                 }
             });
         }
+
+        return fields;
     }
 
     /**

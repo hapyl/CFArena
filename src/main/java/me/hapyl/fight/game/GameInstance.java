@@ -43,7 +43,6 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
-import javax.swing.text.BadLocationException;
 import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
@@ -193,7 +192,6 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
 
         if (mode.testWinCondition(this)) {
             Manager.current().stopCurrentGame();
-
             return true;
         }
 
@@ -362,7 +360,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
 
         if (Manager.current().isDebug()) {
             alivePlayers.forEach(player -> {
-                player.setUltPoints(player.getUltPointsNeeded());
+                player.setEnergy(player.getUltimateCost());
             });
             return;
         }
@@ -390,7 +388,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
         // Auto-Points
         if (gameState == State.IN_GAME && modulo(20)) {
             alivePlayers.forEach(player -> {
-                player.addUltimatePoints(1);
+                player.addEnergy(1);
             });
         }
 

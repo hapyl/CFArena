@@ -130,7 +130,7 @@ public abstract class CFGameMode {
         }
 
         Chat.broadcast("");
-        Chat.broadcast("&c%s left while fighting and was removed from the game!", player.getName());
+        Chat.broadcast("&c%s left while fighting and was removed from the game!".formatted(player.getName()));
         Chat.broadcast("");
 
         gamePlayer.setState(EntityState.DEAD);
@@ -153,7 +153,7 @@ public abstract class CFGameMode {
         final GamePlayer gamePlayer = profile.getOrCreateGamePlayer();
 
         gamePlayer.setSpectator(true);
-        Chat.broadcast("&a%s joined the game as a spectator!", player.getName());
+        Chat.broadcast("&a%s joined the game as a spectator!".formatted(player.getName()));
 
         GameTask.runLater(() -> {
             gamePlayer.sendSubtitle("&aYou are currently spectating!", 0, 20, 0);

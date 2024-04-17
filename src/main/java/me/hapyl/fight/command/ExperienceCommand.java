@@ -42,7 +42,7 @@ public class ExperienceCommand extends SimplePlayerAdminCommand {
             switch (arg) {
                 case "fix" -> {
                     experience.fixRewards(target);
-                    Chat.sendMessage(player, "&aFixing rewards for %s...", target.getName());
+                    Chat.sendMessage(player, "&aFixing rewards for %s...".formatted(target.getName()));
                 }
 
                 case "reset" -> {
@@ -55,7 +55,7 @@ public class ExperienceCommand extends SimplePlayerAdminCommand {
 
                 case "levelup" -> {
                     experience.levelUp(target, false);
-                    Chat.sendMessage(player, "&aLevelling up %s...", target.getName());
+                    Chat.sendMessage(player, "&aLevelling up %s...".formatted(target.getName()));
                 }
             }
 
@@ -100,19 +100,19 @@ public class ExperienceCommand extends SimplePlayerAdminCommand {
 
                 }
 
-                Chat.sendMessage(player, "&aSet %s's experience %s to %s.", target.getName(), type.getName(), value);
+                Chat.sendMessage(player, "&aSet %s's experience %s to %s.".formatted(target.getName(), type.getName(), value));
             }
 
             case "add" -> {
                 database.add(type, value);
                 experience.triggerUpdate(target);
-                Chat.sendMessage(player, "&aAdded %s experience %s for %s.", type.getName(), value, target.getName());
+                Chat.sendMessage(player, "&aAdded %s experience %s for %s.".formatted(type.getName(), value, target.getName()));
             }
 
             case "remove" -> {
                 database.remove(type, value);
                 experience.triggerUpdate(target);
-                Chat.sendMessage(player, "&aRemoved %s experience %s for %s.", type.getName(), value, target.getName());
+                Chat.sendMessage(player, "&aRemoved %s experience %s for %s.".formatted(type.getName(), value, target.getName()));
             }
 
             default -> Chat.sendMessage(player, "&cInvalid operation.");

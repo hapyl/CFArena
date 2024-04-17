@@ -74,7 +74,7 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
             final Player player = display.getPlayer();
             final String name = player == null ? "Someones" : player.getName();
 
-            item.setCustomName(Chat.format("&c&l%s's Dookie", name));
+            item.setCustomName(Chat.format("&c&l%s's Dookie".formatted(name)));
             item.setCustomNameVisible(true);
             item.setVelocity(new Vector(0.0d, 0.2d, 0.0d));
 

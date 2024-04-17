@@ -14,13 +14,18 @@ public class ScriptRunner extends GameTask {
     private final LinkedList<ScriptAction> actions;
     private int wait;
 
-    public ScriptRunner(Script script) {
+    public ScriptRunner(@Nonnull Script script) {
         this.script = script;
         this.actions = script.copyActions();
         this.wait = 0;
 
         setShutdownAction(ShutdownAction.IGNORE);
-        runTaskTimerAsync(0, 1);
+
+        // Making this async would add performance, but I don't think it's needed,
+        // feel free to make this async if needed, remember to synchronize actions calls.
+        runTaskTimer(1, 1);
+
+        script.onStart();
     }
 
     @Nonnull
@@ -46,14 +51,21 @@ public class ScriptRunner extends GameTask {
         final ScriptAction action = actions.pollFirst();
 
         if (action == null) {
-            synchronized (this) {
-                Main.getPlugin().getScriptManager().abandon();
-                Debug.info("done!");
-            }
+            script.onEnd();
+            Main.getPlugin().getScriptManager().free(script);
+
+            cancel();
             return;
         }
 
         action.execute(this);
+    }
+
+    public void forceCancel() {
+        actions.clear();
+        script.onEnd();
+
+        cancel();
     }
 
 }

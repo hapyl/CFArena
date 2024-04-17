@@ -37,11 +37,12 @@ import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Ticking;
 import me.hapyl.fight.util.collection.CacheSet;
 import me.hapyl.fight.ux.Notifier;
+import me.hapyl.spigotutils.Eterna;
 import me.hapyl.spigotutils.EternaPlugin;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Tick;
-import me.hapyl.spigotutils.module.parkour.ParkourManager;
+import me.hapyl.spigotutils.module.parkour.ParkourRegistry;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import me.hapyl.spigotutils.module.util.Runnables;
@@ -484,7 +485,7 @@ public final class Manager extends BukkitRunnable {
         }
 
         currentMode = mode;
-        Chat.broadcast("&aChanged current game mode to %s.", mode.getMode().getName());
+        Chat.broadcast("&aChanged current game mode to %s.".formatted(mode.getMode().getName()));
 
         // save to config
         Main.getPlugin().setConfigValue("current-mode", mode.name().toLowerCase(Locale.ROOT));
@@ -557,7 +558,7 @@ public final class Manager extends BukkitRunnable {
             }
 
             if (size != teamPlayers) {
-                Chat.broadcast("&6&lUnbalanced Team! &e%s has more players than other teams.", populatedTeam.getName());
+                Chat.broadcast("&6&lUnbalanced Team! &e%s has more players than other teams.".formatted(populatedTeam.getName()));
             }
         }
 
@@ -565,9 +566,10 @@ public final class Manager extends BukkitRunnable {
         stopGuessWhoGame();
 
         // Stop parkour
-        final ParkourManager parkourManager = EternaPlugin.getPlugin().getParkourManager();
+        final ParkourRegistry parkourRegistry = Eterna.getRegistry().parkourRegistry;
+
         for (Player player : Bukkit.getOnlinePlayers()) {
-            parkourManager.quitParkour(player);
+            parkourRegistry.quitParkour(player);
         }
 
         // Create new instance and call onStart methods
@@ -602,10 +604,8 @@ public final class Manager extends BukkitRunnable {
 
         if (!debug.is(DebugData.Flag.DEBUG)) {
             Chat.broadcast("&a&l➺ &aAll players have been hidden!");
-            Chat.broadcast(
-                    "&a&l➺ &aThey have &e%ss &ato spread before being revealed.",
-                    BukkitUtils.roundTick(currentMap.getMap().getTimeBeforeReveal())
-            );
+            Chat.broadcast("&a&l➺ &aThey have &e%ss &ato spread before being revealed.".formatted(
+                    BukkitUtils.roundTick(currentMap.getMap().getTimeBeforeReveal())));
         }
         else {
             this.gameInstance.setTimeLeft(10000000000L);
@@ -677,24 +677,10 @@ public final class Manager extends BukkitRunnable {
         // Remove garbage entities
         CFGarbageCollector.clearInAllWorlds();
 
-        entities.forEach((uuid, entity) -> {
-            entity.onStop(gameInstance);
-
-            if (entity instanceof GamePlayer player) {
-                goldenGg.add(player.getPlayer());
-
-                // Progress bonds
-                ChallengeType.PLAY_GAMES.progress(player);
-
-                // Progress archetype bond
-                final Archetype heroArchetype = player.getHero().getArchetype();
-
-                ChallengeType.progressArchetypeBond(player, heroArchetype);
-            }
-        });
+        entities.forEach((uuid, entity) -> entity.onStop(gameInstance));
         entities.clear();
 
-        if (debugData.any()) {
+        if (debugData.or(DebugData.Flag.DEBUG)) {
             onStop();
             return;
         }
@@ -747,21 +733,28 @@ public final class Manager extends BukkitRunnable {
 
         // teleport players to spawn
         for (final Player player : Bukkit.getOnlinePlayers()) {
+            final Heroes hero = getSelectedLobbyHero(player);
+            final Archetype archetype = hero.getHero().getArchetype();
+
             resetPlayer(player);
+
+            goldenGg.add(player);
 
             // Progress achievement
             Achievements.PLAY_FIRST_GAME.complete(player);
 
-            LobbyItems.giveAll(player);
-        }
+            // Progress bonds
+            ChallengeType.PLAY_GAMES.progress(player);
 
-        // Hero Rating
-        Runnables.runLater(() -> {
-            Bukkit.getOnlinePlayers().forEach(player -> {
-                final Heroes hero = getSelectedLobbyHero(player);
-                RateHeroCommand.allowRatingHeroIfHasNotRatedAlready(player, hero);
-            });
-        }, 60);
+            // Progress archetype bond
+            ChallengeType.progressArchetypeBond(player, archetype);
+
+            // Give lobby items
+            LobbyItems.giveAll(player);
+
+            // Delay rating because too much text
+            Runnables.runLater(() -> RateHeroCommand.allowRatingHeroIfHasNotRatedAlready(player, hero), 60);
+        }
 
         if (autoSave.scheduleSave) {
             autoSave.save();

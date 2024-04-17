@@ -3,6 +3,7 @@ package me.hapyl.fight.game.attribute.temper;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.util.collection.ConcurrentTable;
 
 import javax.annotation.Nonnull;
@@ -42,12 +43,12 @@ public final class AttributeTemperTable implements Iterable<TemperData> {
         this.tempers = new ConcurrentTable<>();
     }
 
-    public void add(@Nonnull Temper temper, @Nonnull AttributeType type, double value, int duration) {
+    public void add(@Nonnull Temper temper, @Nonnull AttributeType type, double value, int duration, boolean isBuff, @Nullable LivingGameEntity applier) {
         if (tempers.contains(temper, type)) {
             remove(temper, type);
         }
 
-        tempers.put(temper, type, new AttributeTemper(value, duration) {
+        tempers.put(temper, type, new AttributeTemper(value, duration, isBuff, applier) {
             @Override
             public void run() {
                 remove(temper, type);

@@ -28,7 +28,7 @@ public class SettingCommand extends SimplePlayerCommand {
 
             final Settings setting = Validate.getEnumValue(Settings.class, args[0]);
             if (setting == null) {
-                Chat.sendMessage(player, "&cInvalid setting \"%s\"!", args[0]);
+                Chat.sendMessage(player, "&cInvalid setting \"%s\"!".formatted(args[0]));
                 return;
             }
 

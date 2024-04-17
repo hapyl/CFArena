@@ -86,8 +86,8 @@ public class ExperienceGUI extends StyledGUI {
             builder.setName((isPrestige ? "&e&l" : "&e") + "Level " + level);
             builder.addLore("&8Next Level");
             builder.addLore();
-            builder.addLore("&7Progress: &e%s&7/&a%s", expScaled, expScaledNext);
-            builder.addLore(experience.getProgressBar(player) + " &8%.2f%%", (float) expScaled / (float) expScaledNext * 100.0f);
+            builder.addLore("&7Progress: &e%s&7/&a%s".formatted(expScaled, expScaledNext));
+            builder.addLore(experience.getProgressBar(player) + " &8%.2f%%".formatted((float) expScaled / (float) expScaledNext * 100.0f));
         }
         else {
             // Reached level

@@ -23,7 +23,7 @@ public enum EnumDamageCause {
     ENTITY_ATTACK(DamageCause.of("was killed", "by")),
     // Use this for normal attacks that should not crit if too lazy to create a custom damage cause
     ENTITY_ATTACK_NON_CRIT(ENTITY_ATTACK.damageCause.createCopy().setCanCrit(false)),
-    PROJECTILE(DamageCause.minecraft("was shot", "by").setCanCrit(true).setProjectile(true)),
+    PROJECTILE(DamageCause.minecraft("was shot", "by").setProjectile(true)),
     FALL(DamageCause.minecraft("fell to their death", "while escaping from")),
     FIRE(DamageCause.minecraft("was toasted", "with help from").setDamageFormat(instance -> "&6%.0f 🔥".formatted(instance.getDamage()))),
     FIRE_TICK(FIRE.damageCause),
@@ -149,6 +149,8 @@ public enum EnumDamageCause {
     UPPERCUT(DamageCause.nonCrit("was upperCUT", "by")),
     RANGE_ATTACK(DamageCause.of("was shot", "by")),
     ICICLE(DamageCause.nonCrit("was pierced by an icicle", "by")),
+    CELESTE_ARROW(DamageCause.nonCrit("was shot", "by")),
+    CHAOS(DamageCause.nonCrit("was chaotically killed", "by")),
 
     ;
 

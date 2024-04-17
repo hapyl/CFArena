@@ -81,7 +81,7 @@ public class DailyReward extends CurrencyReward {
         rewardEntry.increaseStreak(type);
 
         // Fx
-        Chat.sendMessage(player, "&aYou have claimed your daily %s&a rewards!", type.toString());
+        Chat.sendMessage(player, "&aYou have claimed your daily %s&a rewards!".formatted(type.toString()));
 
         PlayerLib.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 0.0f);
         PlayerLib.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 2.0f);

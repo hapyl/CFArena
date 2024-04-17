@@ -1,6 +1,5 @@
 package me.hapyl.fight.event;
 
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.damage.EnumDamageCause;
@@ -28,6 +27,7 @@ public class DamageInstance implements Cancellable {
 
     private LivingGameEntity damager;
     private boolean cancel;
+    private double critIncrease = -1;
 
     public DamageInstance(@Nonnull LivingGameEntity entity, double damage) {
         this.entity = entity;
@@ -42,6 +42,30 @@ public class DamageInstance implements Cancellable {
      */
     public boolean isCrit() {
         return isCrit;
+    }
+
+    public void setCrit(boolean crit) {
+        if (damager == null) {
+            return;
+        }
+
+        final EntityAttributes attributes = damager.getAttributes();
+
+        if (crit && !isCrit) {
+            isCrit = true;
+
+            critIncrease = damage * attributes.get(AttributeType.CRIT_DAMAGE);
+            damage += critIncrease;
+        }
+        else if (!crit && isCrit) {
+            isCrit = false;
+
+            // Don't decrement crit if hasn't crit
+            if (critIncrease != -1) {
+                damage -= critIncrease;
+                critIncrease = -1;
+            }
+        }
     }
 
     /**
@@ -72,6 +96,15 @@ public class DamageInstance implements Cancellable {
     @Nullable
     public EnumDamageCause getCause() {
         return cause;
+    }
+
+    /**
+     * Sets the {@link EnumDamageCause} of this damage.
+     *
+     * @param cause - New cause.
+     */
+    public void setCause(@Nullable EnumDamageCause cause) {
+        this.cause = cause;
     }
 
     /**
@@ -209,11 +242,13 @@ public class DamageInstance implements Cancellable {
         if (damager != null) {
             final EntityAttributes damagerAttributes = damager.getAttributes();
 
-            damage = damagerAttributes.calculateOutgoingDamage(damage);
-            isCrit = (cause != null && cause.isCanCrit()) && damagerAttributes.isCritical();
+            damage = damagerAttributes.calculateOutgoingDamage(initialDamage);
 
-            if (isCrit) {
-                damage += damage * damagerAttributes.get(AttributeType.CRIT_DAMAGE);
+            // Calculate crit
+            final boolean shouldCrit = (cause != null && cause.isCanCrit()) && damagerAttributes.isCritical();
+
+            if (shouldCrit) {
+                setCrit(true);
             }
         }
 

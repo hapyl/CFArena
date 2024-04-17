@@ -102,7 +102,7 @@ public class SkinGUI extends StyledGUI {
             builder.setName(skin.getName());
             builder.addLore(skin.getRarity().toString("skin"));
             builder.addLore();
-            builder.addTextBlockLore(skin.getDescription(), "&7&o", 35, CFUtils.DISAMBIGUATE);
+            builder.addTextBlockLore(skin.getDescription(), "&7&o", 35);
             builder.addLore();
 
             final Map<SkinTraitType<?>, SkinTrait> traits = skin.getTraits();

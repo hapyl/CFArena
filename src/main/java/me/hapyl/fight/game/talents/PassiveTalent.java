@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents;
 
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
+import me.hapyl.fight.game.talents.techie.Talent;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
@@ -14,10 +14,10 @@ public class PassiveTalent extends Talent {
     }
 
     public PassiveTalent(@Nonnull String name, @Nonnull String description, @Nonnull Material material) {
-        this(name, description, material, Type.ENHANCE);
+        this(name, description, material, TalentType.ENHANCE);
     }
 
-    public PassiveTalent(@Nonnull String name, @Nonnull String description, @Nonnull Material item, @Nonnull Type type) {
+    public PassiveTalent(@Nonnull String name, @Nonnull String description, @Nonnull Material item, @Nonnull TalentType type) {
         super(name, description, type);
 
         setItem(item);

@@ -12,7 +12,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.StaticFormat;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
+import me.hapyl.fight.game.talents.techie.Talent;
 import me.hapyl.fight.game.weapons.ability.Ability;
 import me.hapyl.fight.game.weapons.ability.AbilityType;
 import me.hapyl.fight.game.weapons.range.RangeWeapon;
@@ -51,7 +51,7 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
     private String id;
 
     public Weapon(@Nonnull Material material) {
-        this(material, "name a weapon idot", "add description idot", 1);
+        this(material, "Unnamed weapon.", "No description provided.", 1);
     }
 
     public Weapon(@Nonnull Material material, @Nonnull String name, @Nonnull String about, double damage) {
@@ -60,7 +60,7 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
         this.description = about;
         this.damage = damage;
         this.enchants = Lists.newArrayList();
-        this.abilities = Maps.newHashMap();
+        this.abilities = Maps.newLinkedHashMap();
     }
 
     public void removeAbility(@Nonnull AbilityType type) {
@@ -217,14 +217,7 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
         }
 
         // Display abilities
-        // Note that RIGHT CLICK and LEFT CLICK abilities REQUIRE id's
-        for (AbilityType type : AbilityType.values()) {
-            final Ability ability = abilities.get(type);
-
-            if (ability == null) {
-                continue;
-            }
-
+        abilities.forEach((type, ability) -> {
             builder.addLore();
             builder.addLore("&eAbility: " + ability.getName() + Color.BUTTON.bold() + " " + type.toString());
 
@@ -273,7 +266,7 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
                     case BOW, CROSSBOW, TRIDENT, FISHING_ROD, SHIELD -> function.setCancelClicks(false);
                 }
             }
-        }
+        });
 
         appendLore(builder);
 

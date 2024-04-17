@@ -57,11 +57,11 @@ public class Dice extends Gadget {
             getHandle().setUnlocked(player, false);
             rollJackpot.grant(player);
 
-            Chat.sendMessage(player, "&6&lDICE! &eYou rolled a %s&e and earned:", side.toString());
+            Chat.sendMessage(player, "&6&lDICE! &eYou rolled a %s&e and earned:".formatted( side.toString()));
             display.forEach(string -> Chat.sendMessage(player, string));
         }
         else {
-            Chat.sendMessage(player, "&6&lDICE! &eYou rolled a %s&e!", side.toString());
+            Chat.sendMessage(player, "&6&lDICE! &eYou rolled a %s&e!".formatted(side.toString()));
         }
     }
 

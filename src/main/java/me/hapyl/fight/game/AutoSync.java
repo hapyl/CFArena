@@ -50,7 +50,7 @@ public class AutoSync {
             benchmark.end();
             long millis = benchmark.getResult().asMillis();
 
-            Chat.broadcast("&a&oDatabase synced! &8(%sms)", millis);
+            Chat.broadcast("&a&oDatabase synced! &8(%sms)".formatted(millis));
         } catch (Exception e) {
             Chat.broadcast("&4&lCould not save database, report this!");
             e.printStackTrace();

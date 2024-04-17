@@ -32,7 +32,7 @@ public class HeroCommand extends SimplePlayerCommand {
             final Heroes hero = Validate.getEnumValue(Heroes.class, args[0]);
 
             if (hero == null) {
-                Chat.sendMessage(player, "&cNo such hero as '%s'!", args[0]);
+                Chat.sendMessage(player, "&cNo such hero as '%s'!".formatted(args[0]));
                 return;
             }
 

@@ -129,6 +129,16 @@ public class Attributes implements WeakCopy {
         return isCritical ? damage + (damage * AttributeType.CRIT_DAMAGE.get(this)) : damage;
     }
 
+    public final double calculateAttribute(@Nonnull AttributeType type, double mul) {
+        final double value = get(type);
+
+        return value == 0 ? 0 : value == 1 ? mul : value * mul;
+    }
+
+    public final double calculateAttributeScaled(@Nonnull AttributeType type, double mul) {
+        return calculateAttribute(type, mul * 100);
+    }
+
     /**
      * Gets the {@link AttributeType#MAX_HEALTH} value for this attribute.
      *

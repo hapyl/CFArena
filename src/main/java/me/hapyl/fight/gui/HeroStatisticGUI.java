@@ -7,7 +7,7 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.PassiveTalent;
 import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
+import me.hapyl.fight.game.talents.techie.Talent;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
@@ -55,7 +55,7 @@ public class HeroStatisticGUI extends StyledGUI {
                         .addLore()
                         .addLore("Archetype: " + hero.getArchetype())
                         .addLore()
-                        .addTextBlockLore(hero.getDescription(), "&8&o", ItemBuilder.DEFAULT_SMART_SPLIT_CHAR_LIMIT, (Object[]) null)
+                        .addTextBlockLore(hero.getDescription(), "&8&o", ItemBuilder.DEFAULT_SMART_SPLIT_CHAR_LIMIT)
                         .addLore()
                         .addSmartLore("This hero is ranked &b#%s&7.".formatted(hero.getRank()))
                         .addSmartLore(

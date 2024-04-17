@@ -49,6 +49,11 @@ public class GotoCommand extends SimplePlayerAdminCommand {
             }
         }
 
+        if (player.getWorld() == world) {
+            Notifier.error(player, "You are already in this world!");
+            return;
+        }
+
         moveToWorld(player, world);
     }
 

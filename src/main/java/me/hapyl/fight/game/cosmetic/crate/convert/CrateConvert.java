@@ -154,7 +154,7 @@ public class CrateConvert implements Described {
                 suffix = " " + CFUtils.checkmark(playerAmount >= amountScaled);
             }
 
-            builder.addLore(" &8- &7%s" + suffix, product.formatProduct(amountScaled));
+            builder.addLore(" &8- &7%s".formatted(product.formatProduct(amountScaled)) + suffix);
         });
     }
 
@@ -162,13 +162,16 @@ public class CrateConvert implements Described {
         final int converted = convert(player, times);
 
         if (converted == times) {
-            Chat.sendMessage(player, CrateLocation.PREFIX + Color.GREEN + "Converted %s crates!", times);
+            Chat.sendMessage(player, CrateLocation.PREFIX + Color.GREEN + "Converted %s crates!".formatted(times));
         }
         else {
-            Chat.sendMessage(player, CrateLocation.PREFIX + Color.ERROR + "Was able to convert %s out of %s crates!", converted, times);
+            Chat.sendMessage(
+                    player,
+                    CrateLocation.PREFIX + Color.ERROR + "Was able to convert %s out of %s crates!".formatted(converted, times)
+            );
         }
 
-        // Fx
+        // TODO -> Fx
     }
 
     private <K> long computeLongAndReturnPreviousValue(Map<K, Long> map, K k, long amount) {
