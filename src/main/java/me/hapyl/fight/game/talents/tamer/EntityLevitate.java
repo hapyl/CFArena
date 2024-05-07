@@ -51,7 +51,7 @@ public class EntityLevitate<T extends LivingGameEntity> extends TickingGameTask 
         final Location location = entity.getLocation();
 
         // Fx
-        entity.spawnWorldParticle(location, Particle.EXPLOSION_NORMAL, 1, 0.1d, 0.0d, 0.1d, 0.025f);
+        entity.spawnWorldParticle(location, Particle.POOF, 1, 0.1d, 0.0d, 0.1d, 0.025f);
         entity.playWorldSound(initialLocation, Sound.ENTITY_EGG_THROW, 0.5f + (1.5f / duration * tick));
 
         onTick();

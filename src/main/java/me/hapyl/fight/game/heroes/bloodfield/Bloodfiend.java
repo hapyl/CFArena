@@ -27,7 +27,7 @@ import me.hapyl.fight.game.talents.bloodfiend.candlebane.Candlebane;
 import me.hapyl.fight.game.talents.bloodfiend.candlebane.CandlebaneTalent;
 import me.hapyl.fight.game.talents.bloodfiend.chalice.BloodChalice;
 import me.hapyl.fight.game.talents.bloodfiend.chalice.BloodChaliceTalent;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.UIComplexComponent;
@@ -500,7 +500,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
                     playerBat.teleport(player.getLocation());
 
                     // Fx
-                    PlayerLib.spawnParticle(player.getLocation(), Particle.SMOKE_NORMAL, 2, 0.15d, 0.15d, 0.15d, 0.0f);
+                    PlayerLib.spawnParticle(player.getLocation(), Particle.SMOKE, 2, 0.15d, 0.15d, 0.15d, 0.0f);
                 }
             }.runTaskTimer(0, 1);
 

@@ -71,7 +71,7 @@ public class StickyCobweb extends GameTask {
             block.getState().update(true, false); // sync between players
 
             // Fx
-            PlayerLib.spawnParticle(location, Particle.EXPLOSION_NORMAL, 3, 0.1, 0.1, 0.1, 0.02f);
+            PlayerLib.spawnParticle(location, Particle.POOF, 3, 0.1, 0.1, 0.1, 0.02f);
             PlayerLib.playSound(location, Sound.BLOCK_WOOL_PLACE, 0.0f);
             PlayerLib.playSound(location, Sound.BLOCK_WOOL_BREAK, 0.0f);
 

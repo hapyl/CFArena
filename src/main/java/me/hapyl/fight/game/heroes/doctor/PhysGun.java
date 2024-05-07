@@ -72,7 +72,7 @@ public class PhysGun extends Weapon {
                 stop(player);
 
                 entity.setVelocity(player.getLocation().getDirection().multiply(2.0d));
-                entity.spawnWorldParticle(location, Particle.EXPLOSION_NORMAL, 10, 0.2, 0.05, 0.2, 0.02f);
+                entity.spawnWorldParticle(location, Particle.POOF, 10, 0.2, 0.05, 0.2, 0.02f);
                 entity.playWorldSound(location, Sound.ITEM_CROSSBOW_SHOOT, 0.5f);
                 return Response.OK;
             }

@@ -10,7 +10,7 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.taker.SpiritualBones;
 import me.hapyl.fight.game.heroes.taker.Taker;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;

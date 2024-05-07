@@ -13,7 +13,7 @@ import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.witcher.Irden;
 import me.hapyl.fight.game.talents.witcher.Kven;
 import me.hapyl.fight.game.task.player.PlayerTimedGameTask;

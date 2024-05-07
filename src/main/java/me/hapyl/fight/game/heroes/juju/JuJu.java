@@ -16,7 +16,7 @@ import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.juju.ArrowShield;
 import me.hapyl.fight.game.talents.juju.TricksOfTheJungle;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComplexComponent;
 import me.hapyl.fight.game.weapons.BowWeapon;
@@ -249,7 +249,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
                         // Loop
                         if (isHuggingWall) {
                             player.addPotionEffect(PotionEffectType.SLOW_FALLING, 1, 2);
-                            player.addPotionEffect(PotionEffectType.SLOW, 3, 2);
+                            player.addPotionEffect(PotionEffectType.SLOWNESS, 3, 2);
 
                             player.sendSubtitle("&8&l\uD83E\uDE9C&8\uD83E\uDE9C&8&l\uD83E\uDE9C", 0, 2, 0);
 

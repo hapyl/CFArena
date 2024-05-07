@@ -104,7 +104,7 @@ public class LibraryCat extends MapFeature implements Listener {
             return;
         }
 
-        PlayerLib.spawnParticle(cat.getLocation(), Particle.SPELL_MOB, 0, 0, 0, 0, 1);
+        PlayerLib.spawnParticle(cat.getLocation(), Particle.EFFECT, 0, 0, 0, 0, 1);
     }
 
     public Cat getCat() {

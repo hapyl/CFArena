@@ -64,7 +64,7 @@ public class SlimeGunk extends TickingGameTask {
 
         // Fx
         for (Block block : affectedBlocks) {
-            player.spawnWorldParticle(block.getLocation(), Particle.BLOCK_CRACK, 5, 0.449d, 0.1d, 0.449d, talent.blockData);
+            player.spawnWorldParticle(block.getLocation(), Particle.BLOCK, 5, 0.449d, 0.1d, 0.449d, talent.blockData);
         }
 
         player.playWorldSound(location, Sound.ENTITY_PLAYER_HURT_SWEET_BERRY_BUSH, 0.75f);

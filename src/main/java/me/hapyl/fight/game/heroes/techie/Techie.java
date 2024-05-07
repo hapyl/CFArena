@@ -17,7 +17,7 @@ import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.techie.DeviceHack;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.game.ui.UIComplexComponent;
@@ -261,15 +261,15 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
 
                         location.add(x, y, z);
 
-                        player.spawnWorldParticle(location, Particle.SPELL_WITCH, 1);
-                        player.spawnWorldParticle(location, Particle.SPELL, 1);
+                        player.spawnWorldParticle(location, Particle.WITCH, 1);
+                        player.spawnWorldParticle(location, Particle.EFFECT, 1);
 
                         location.subtract(x, y, z);
                     }
 
                     // Player Fx
-                    player.spawnWorldParticle(Particle.SPELL_WITCH, 10, 0.1d, 0.6d, 0.1d, 1);
-                    player.spawnWorldParticle(Particle.CRIT_MAGIC, 10, 0.1d, 0.6d, 0.1d, 1);
+                    player.spawnWorldParticle(Particle.WITCH, 10, 0.1d, 0.6d, 0.1d, 1);
+                    player.spawnWorldParticle(Particle.ENCHANTED_HIT, 10, 0.1d, 0.6d, 0.1d, 1);
 
                     player.playWorldSound(Sound.ENTITY_IRON_GOLEM_HURT, (float) (1.0f + (1.0f / ultimateDistance * distance)));
 

@@ -5,7 +5,7 @@ import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.loadout.HotbarLoadout;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.ChargedTalent;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.Ticking;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.math.Numbers;

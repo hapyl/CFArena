@@ -40,8 +40,8 @@ public class BlindingCurse extends DarkMageTalent {
     private final Draw curseDraw = new Draw(null) {
         @Override
         public void draw(@Nonnull Location location) {
-            PlayerLib.spawnParticle(location, Particle.SMOKE_LARGE, 1, 0.01d, 0.01d, 0.01d, 0.025f);
-            PlayerLib.spawnParticle(location, Particle.SMOKE_NORMAL, 2, 0.02d, 0.02d, 0.02d, 0.025f);
+            PlayerLib.spawnParticle(location, Particle.LARGE_SMOKE, 1, 0.01d, 0.01d, 0.01d, 0.025f);
+            PlayerLib.spawnParticle(location, Particle.SMOKE, 2, 0.02d, 0.02d, 0.02d, 0.025f);
         }
     };
 

@@ -10,7 +10,7 @@ import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
@@ -136,8 +136,8 @@ public class Icicles extends Talent {
                                 final Location standLocation = armorStand.getLocation().add(0.0d, 3.5d, 0.0d);
 
                                 // Fx
-                                player.spawnWorldParticle(standLocation, Particle.EXPLOSION_NORMAL, 5, 0.25d, 0.0d, 0.25d, 0);
-                                player.spawnWorldParticle(standLocation, Particle.CRIT_MAGIC, 5, 0.25d, 0.0d, 0.25d, 0);
+                                player.spawnWorldParticle(standLocation, Particle.POOF, 5, 0.25d, 0.0d, 0.25d, 0);
+                                player.spawnWorldParticle(standLocation, Particle.ENCHANTED_HIT, 5, 0.25d, 0.0d, 0.25d, 0);
 
                                 armorStand.remove();
                             });
@@ -202,7 +202,7 @@ public class Icicles extends Talent {
 
             private void spawnParticles() {
                 player.spawnWorldParticle(location, Particle.SNOWFLAKE, 1, 0, 0, 0, 0.025f);
-                player.spawnWorldParticle(location, Particle.BLOCK_CRACK, 1, 0, 0, 0, Material.ICE.createBlockData());
+                player.spawnWorldParticle(location, Particle.BLOCK, 1, 0, 0, 0, Material.ICE.createBlockData());
             }
         }.runTaskTimer(0, 1);
 

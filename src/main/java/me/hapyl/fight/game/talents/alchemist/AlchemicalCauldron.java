@@ -25,6 +25,8 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
 
+import javax.annotation.Nonnull;
+
 public class AlchemicalCauldron extends TickingGameTask {
 
     private final double progressPerTick = 1.75d;
@@ -97,12 +99,7 @@ public class AlchemicalCauldron extends TickingGameTask {
             spawnParticle(location);
 
             // Draw the zone
-            Geometry.drawCircle(location, 4.5d, Quality.SUPER_HIGH, new Draw(Particle.SPELL) {
-                @Override
-                public void draw(Location location) {
-                    spawnParticle(location);
-                }
-            });
+            Geometry.drawCircle(location, 4.5d, Quality.SUPER_HIGH, this::spawnParticle);
 
             // Damage players in zone
             Collect.nearbyEntities(location, 4.5d).forEach(entity -> {
@@ -189,7 +186,18 @@ public class AlchemicalCauldron extends TickingGameTask {
             return;
         }
 
-        world.spawnParticle(Particle.SPELL_MOB, location.getX() + 0.5d, location.getY(), location.getZ() + 0.5d, 0, 0.000, 0.471, 0.031, 1);
+        world.spawnParticle(
+                Particle.ENTITY_EFFECT,
+                location.getX() + 0.5d,
+                location.getY(),
+                location.getZ() + 0.5d,
+                0,
+                0,
+                0,
+                0,
+                1,
+                org.bukkit.Color.fromRGB(0, 120, 8)
+        );
     }
 
     private ArmorStand createStand(Location location) {

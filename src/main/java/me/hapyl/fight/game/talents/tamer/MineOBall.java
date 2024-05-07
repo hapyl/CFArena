@@ -6,7 +6,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.tamer.pack.ActiveTamerPack;
 import me.hapyl.fight.game.talents.tamer.pack.TamerPack;
 import me.hapyl.fight.game.talents.tamer.pack.TamerPacks;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.collection.player.PlayerMap;

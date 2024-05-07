@@ -483,12 +483,12 @@ public class LivingGameEntity extends GameEntity implements Ticking {
 
         // Fx
         Geometry.drawCircle(location, explosionRadius, Quality.NORMAL, new WorldParticle(Particle.CRIT));
-        Geometry.drawCircle(location, explosionRadius + 0.5d, Quality.NORMAL, new WorldParticle(Particle.ENCHANTMENT_TABLE));
+        Geometry.drawCircle(location, explosionRadius + 0.5d, Quality.NORMAL, new WorldParticle(Particle.ENCHANT));
 
         final int amountScaled = (int) (explosionRadius * 1.5d);
         final double offsetScaled = (explosionRadius - 2) * 0.8d;
 
-        spawnWorldParticle(location, Particle.EXPLOSION_LARGE, amountScaled, offsetScaled, 0, offsetScaled, 0);
+        spawnWorldParticle(location, Particle.EXPLOSION, amountScaled, offsetScaled, 0, offsetScaled, 0);
         playWorldSound(location, Sound.ENTITY_GENERIC_EXPLODE, 1);
     }
 

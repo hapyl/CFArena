@@ -69,7 +69,7 @@ public class Blink extends ChargedTalent {
         }
 
         // Fx before TP
-        PlayerLib.spawnParticle(player.getEyeLocation(), Particle.EXPLOSION_NORMAL, 20, 0.1, 0.3, 0.1, 0.1f);
+        PlayerLib.spawnParticle(player.getEyeLocation(), Particle.POOF, 20, 0.1, 0.3, 0.1, 0.1f);
 
         // Teleport the player to the destination location
         final Location dest = start.clone().add(direction.multiply(maxDistance)).add(0.0d, 0.5d, 0.0d);

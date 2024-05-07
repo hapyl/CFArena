@@ -1,6 +1,6 @@
 package me.hapyl.fight.game;
 
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 
 import javax.annotation.Nonnull;
 

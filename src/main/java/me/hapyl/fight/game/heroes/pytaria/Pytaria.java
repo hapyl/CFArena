@@ -12,7 +12,7 @@ import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.pytaria.FlowerBreeze;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -146,7 +146,7 @@ public class Pytaria extends Hero {
                 return location;
             }
 
-            world.spawnParticle(Particle.REDSTONE, location, 1, 0, 0, 0, 0, new Particle.DustOptions(Color.RED, 0.5f));
+            world.spawnParticle(Particle.DUST, location, 1, 0, 0, 0, 0, new Particle.DustOptions(Color.RED, 0.5f));
         }
 
         return location;
@@ -229,10 +229,10 @@ public class Pytaria extends Hero {
                     // Fx
                     PlayerLib.stopSound(Sound.ENTITY_BEE_LOOP_AGGRESSIVE);
 
-                    player.spawnWorldParticle(location, Particle.EXPLOSION_NORMAL, 5, 0.2, 0.2, 0.2, 0.1f);
+                    player.spawnWorldParticle(location, Particle.EXPLOSION, 5, 0.2, 0.2, 0.2, 0.1f);
                     player.playWorldSound(location, Sound.ENTITY_BEE_DEATH, 1.5f);
 
-                    player.spawnWorldParticle(lockLocation, Particle.EXPLOSION_LARGE, 3, 0.5, 0, 0.5, 0);
+                    player.spawnWorldParticle(lockLocation, Particle.EXPLOSION_EMITTER, 3, 0.5, 0, 0.5, 0);
                     player.playWorldSound(lockLocation, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 1.25f);
                 }
             };

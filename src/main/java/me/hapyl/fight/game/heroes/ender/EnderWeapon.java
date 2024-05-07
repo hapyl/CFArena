@@ -129,7 +129,7 @@ public class EnderWeapon extends Weapon {
                         final double z = Math.cos(windupTime) * distance;
 
                         location.add(x, y, z);
-                        player.spawnParticle(location, Particle.SPELL_WITCH, 3, 0, 0, 0, 0.1f);
+                        player.spawnParticle(location, Particle.WITCH, 3, 0, 0, 0, 0.1f);
                         location.subtract(x, y, z);
 
                         // Sound Fx

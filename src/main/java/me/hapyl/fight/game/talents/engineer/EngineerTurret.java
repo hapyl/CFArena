@@ -125,7 +125,7 @@ public class EngineerTurret extends EngineerTalent {
 
                     @Override
                     public boolean step(@Nonnull Location location) {
-                        player.spawnWorldParticle(location, Particle.CRIT_MAGIC, 1);
+                        player.spawnWorldParticle(location, Particle.ENCHANTED_HIT, 1);
 
                         // Hit detection
                         final LivingGameEntity targetEntity = Collect.nearestEntity(location, 1, entity -> {

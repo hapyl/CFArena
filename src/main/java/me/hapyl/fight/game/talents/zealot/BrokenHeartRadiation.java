@@ -9,7 +9,7 @@ import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -33,7 +33,7 @@ public class BrokenHeartRadiation extends Talent {
     private final TemperInstance temperInstance = Temper.RADIATION.newInstance()
             .decrease(AttributeType.VITALITY, mendingReduction)
             .decrease(AttributeType.DEFENSE, defenseReduction)
-            .onApply(entity -> entity.spawnParticle(entity.getLocation(), Particle.MOB_APPEARANCE, 1, 0, 0, 0, 0));
+            .onApply(entity -> entity.spawnParticle(entity.getLocation(), Particle.ELDER_GUARDIAN, 1, 0, 0, 0, 0));
 
     public BrokenHeartRadiation() {
         super("Broken Heart Radiation");

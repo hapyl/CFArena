@@ -13,7 +13,7 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.heavy_knight.Slash;
 import me.hapyl.fight.game.talents.heavy_knight.Updraft;
 import me.hapyl.fight.game.talents.heavy_knight.Uppercut;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Material;
@@ -118,7 +118,7 @@ public class SwordMaster extends Hero implements PlayerDataHandler<SwordMasterDa
             player.playWorldSound(Sound.ENTITY_IRON_GOLEM_DAMAGE, 0.75f);
             player.spawnWorldParticle(
                     player.getMidpointLocation(),
-                    Particle.ITEM_CRACK,
+                    Particle.ITEM,
                     20,
                     0.15,
                     0.4,

@@ -78,7 +78,7 @@ public class ElectrocuteCosmetic extends Cosmetic {
                 chamber.forEach(ArmorStand::remove);
                 chamber.clear();
 
-                PlayerLib.spawnParticle(location, Particle.EXPLOSION_NORMAL, 10, 0.0d, 0.4d, 0.0d, 0.1f);
+                PlayerLib.spawnParticle(location, Particle.POOF, 10, 0.0d, 0.4d, 0.0d, 0.1f);
                 return;
             }
 

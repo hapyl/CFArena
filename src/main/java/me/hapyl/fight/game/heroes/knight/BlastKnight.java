@@ -13,7 +13,7 @@ import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.knight.Discharge;
 import me.hapyl.fight.game.talents.knight.StoneCastle;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.Collect;
@@ -205,7 +205,7 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Pla
                     // Fx
                     final float pitch = 0.5f + (1.5f / maxTick * tick);
 
-                    player.spawnWorldParticle(location, Particle.SPELL_WITCH, 50, ultimateRadius / 4, 0.1d, ultimateRadius / 4, 1f);
+                    player.spawnWorldParticle(location, Particle.WITCH, 50, ultimateRadius / 4, 0.1d, ultimateRadius / 4, 1f);
 
                     player.playWorldSound(location, Sound.ITEM_FLINTANDSTEEL_USE, pitch);
                     player.playWorldSound(location, Sound.ENTITY_ENDER_DRAGON_FLAP, pitch);

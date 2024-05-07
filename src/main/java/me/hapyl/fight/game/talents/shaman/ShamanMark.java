@@ -61,7 +61,7 @@ public class ShamanMark extends TickingGameTask {
         }
 
         // Fx
-        Geometry.drawLine(player.getMidpointLocation(), entity.getMidpointLocation(), 0.5d, new WorldParticle(Particle.SPELL_WITCH));
+        Geometry.drawLine(player.getMidpointLocation(), entity.getMidpointLocation(), 0.5d, new WorldParticle(Particle.WITCH));
     }
 
     private void debug() {

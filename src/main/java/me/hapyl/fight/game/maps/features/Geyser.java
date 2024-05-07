@@ -131,8 +131,8 @@ public class Geyser {
     }
 
     public void affectLocationTick(@Nonnull @DoNotMutate Location location, int tick) {
-        PlayerLib.spawnParticle(location, Particle.EXPLOSION_NORMAL, 1, 0.1, 0.1, 0.1, 0.05f);
-        PlayerLib.spawnParticle(location, Particle.SMOKE_NORMAL, 1, 0.1, 0.1, 0.1, 0.05f);
+        PlayerLib.spawnParticle(location, Particle.POOF, 1, 0.1, 0.1, 0.1, 0.05f);
+        PlayerLib.spawnParticle(location, Particle.SMOKE, 1, 0.1, 0.1, 0.1, 0.05f);
 
         if (tick % 30 == 0) {
             PlayerLib.playSound(location, Sound.BLOCK_REDSTONE_TORCH_BURNOUT, new Random().nextFloat(0.5f, 0.85f));

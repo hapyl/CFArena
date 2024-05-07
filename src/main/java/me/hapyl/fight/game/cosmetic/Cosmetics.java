@@ -32,7 +32,7 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
     BLOOD(new Cosmetic("Blood", "A classic redstone particles mimicking blood.", Type.KILL, Rarity.COMMON, Material.REDSTONE) {
         @Override
         public void onDisplay(Display display) {
-            display.particle(Particle.BLOCK_CRACK, 20, 0.4d, 0.4d, 0.4d, 0.0f, Bukkit.createBlockData(Material.REDSTONE_BLOCK));
+            display.particle(Particle.BLOCK, 20, 0.4d, 0.4d, 0.4d, 0.0f, Bukkit.createBlockData(Material.REDSTONE_BLOCK));
             display.sound(Sound.BLOCK_STONE_BREAK, 0.0f);
         }
     }),

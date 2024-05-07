@@ -26,7 +26,7 @@ public enum ArrowType implements Described {
     ELUSIVE("Elusive Arrows", "Bloom upon impact into &a&omultiple&7&o arrows, dealing &c&oAoE &c&odamage&7&o.") {
         @Override
         public void onTick(GamePlayer player, Arrow arrow) {
-            PlayerLib.spawnParticle(arrow.getLocation(), Particle.TOTEM, 3, 0, 0, 0, 0);
+            PlayerLib.spawnParticle(arrow.getLocation(), Particle.TOTEM_OF_UNDYING, 3, 0, 0, 0, 0);
         }
 
         @Override

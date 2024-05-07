@@ -38,6 +38,6 @@ public class DragonSkinSpell extends MageSpell {
         attributes.increaseTemporary(Temper.WYVERN_HEART, AttributeType.DEFENSE, defenseIncrease, duration);
 
         // Fx
-        player.spawnWorldParticle(player.getLocation().add(0.0d, 1.0d, 0.0d), Particle.CRIT_MAGIC, 40, 0.1, 0.1, 0.1, 1);
+        player.spawnWorldParticle(player.getLocation().add(0.0d, 1.0d, 0.0d), Particle.ENCHANTED_HIT, 40, 0.1, 0.1, 0.1, 1);
     }
 }

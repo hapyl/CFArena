@@ -5,7 +5,7 @@ import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.shield.HitShield;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.math.Tick;
 import org.bukkit.Material;
@@ -55,7 +55,7 @@ public class MalevolentHitshield extends Talent {
 
                 player.playWorldSound(Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 0.75f);
                 player.playWorldSound(Sound.ENTITY_ENDERMAN_HURT, 0.25f);
-                player.spawnWorldParticle(Particle.SPELL_WITCH, 25, 0.5d, 0.5d, 0.5d, 1.0f);
+                player.spawnWorldParticle(Particle.WITCH, 25, 0.5d, 0.5d, 0.5d, 1.0f);
 
                 player.sendMessage("&5🛡 &dYour shield broke!");
             }

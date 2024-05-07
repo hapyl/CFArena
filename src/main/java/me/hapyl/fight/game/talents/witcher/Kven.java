@@ -3,7 +3,7 @@ package me.hapyl.fight.game.talents.witcher;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -77,7 +77,7 @@ public class Kven extends Talent {
                 for (int i = 0; i < shieldCharge; i++) {
                     boolean swapSide = i % 2 == 0;
                     location.add(swapSide ? x : z, offset, swapSide ? z : x);
-                    PlayerLib.spawnParticle(location, Particle.ENCHANTMENT_TABLE, 1, 0, 0, 0, 0);
+                    PlayerLib.spawnParticle(location, Particle.ENCHANT, 1, 0, 0, 0, 0);
                     location.subtract(swapSide ? x : z, offset, swapSide ? z : x);
                     offset += 0.2d;
                 }

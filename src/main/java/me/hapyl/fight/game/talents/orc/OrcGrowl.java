@@ -6,7 +6,7 @@ import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.math.Geometry;
@@ -50,7 +50,7 @@ public class OrcGrowl extends Talent {
     public Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocation();
 
-        player.addPotionEffect(PotionEffectType.SLOW, 3, 20);
+        player.addPotionEffect(PotionEffectType.SLOWNESS, 3, 20);
 
         Collect.nearbyEntities(location, distance).forEach(entity -> {
             if (player.isSelfOrTeammate(entity)) {
@@ -61,7 +61,7 @@ public class OrcGrowl extends Talent {
         });
 
         // Fx
-        Geometry.drawCircleAnchored(location, distance, Quality.HIGH, new WorldParticle(Particle.CRIT_MAGIC, 3, 0, 0, 0, 0.025f), 1.0d);
+        Geometry.drawCircleAnchored(location, distance, Quality.HIGH, new WorldParticle(Particle.ENCHANTED_HIT, 3, 0, 0, 0, 0.025f), 1.0d);
         player.playWorldSound(location, Sound.ENTITY_ENDER_DRAGON_GROWL, 2.0f);
 
         return Response.OK;

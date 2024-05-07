@@ -56,7 +56,7 @@ public class ShamanUltimate extends UltimateTalent {
             // Fx
             final Location location = entity.getLocation();
 
-            entity.spawnWorldParticle(location, Particle.SPELL_MOB, 20, 0.25d, 0.5d, 0.25d, 0.7f);
+            entity.spawnWorldParticle(location, Particle.EFFECT, 20, 0.25d, 0.5d, 0.25d, 0.7f);
             entity.playWorldSound(Sound.ENTITY_WITCH_DRINK, 0.0f);
 
             if (player == entity) {

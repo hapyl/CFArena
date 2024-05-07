@@ -33,7 +33,7 @@ public class SlowingAura extends DarkMageTalent {
     @DisplayField private final int impairDuration = 60;
 
     private final Drawable particle = location -> {
-        PlayerLib.spawnParticle(location, Particle.SPELL, 2, 0.1d, 0.1d, 0.1d, 0);
+        PlayerLib.spawnParticle(location, Particle.EFFECT, 2, 0.1d, 0.1d, 0.1d, 0);
         PlayerLib.spawnParticle(location, Particle.DUST_PLUME, 1, 0.1d, 0.1d, 0.1d, 0);
     };
 

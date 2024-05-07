@@ -59,7 +59,7 @@ public class SpiritualBones implements Ticking {
     public void remove(int amount) {
         this.bones = Math.max(this.bones - amount, 0);
         Nulls.runIfNotNull(armorStands.pollLast(), entity -> {
-            PlayerLib.spawnParticle(entity.getLocation().add(0.0d, 1.25d, 0.0d), Particle.EXPLOSION_NORMAL, 5, 0.2d, 0.2d, 0.2d, 0.015f);
+            PlayerLib.spawnParticle(entity.getLocation().add(0.0d, 1.25d, 0.0d), Particle.POOF, 5, 0.2d, 0.2d, 0.2d, 0.015f);
             entity.remove();
         });
     }

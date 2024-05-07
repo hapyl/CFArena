@@ -49,12 +49,12 @@ public class RiptideStatus extends PlayerData implements Ticking {
             final Location location = entity.getEyeLocation().add(0.0d, 0.2d, 0.0d);
 
             // Make sure to spawn particle to only player
-            player.spawnParticle(location, Particle.WATER_SPLASH, 1, 0.15d, 0.5d, 0.15d, 0.01f);
+            player.spawnParticle(location, Particle.SPLASH, 1, 0.15d, 0.5d, 0.15d, 0.01f);
             player.spawnParticle(location, Particle.GLOW, 1, 0.15d, 0.15d, 0.5d, 0.025f);
 
             // This is just for the effect
             entity.addPotionEffect(PotionEffectType.SPEED, 0, 20);
-            entity.addPotionEffect(PotionEffectType.SLOW, 0, 20);
+            entity.addPotionEffect(PotionEffectType.SLOWNESS, 0, 20);
         });
     }
 

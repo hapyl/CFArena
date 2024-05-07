@@ -107,7 +107,7 @@ public class MoonwalkerUltimate extends UltimateTalent {
                     landingLocation.add(x, 0, z);
 
                     player.spawnWorldParticle(landingLocation, Particle.CRIT, 2, 0.1d, 0.05d, 0.1d, 0.5f);
-                    player.spawnWorldParticle(landingLocation, Particle.SNOW_SHOVEL, 1, 0.1d, 0.05d, 0.1d, 1.0f);
+                    player.spawnWorldParticle(landingLocation, Particle.ITEM_SNOWBALL, 1, 0.1d, 0.05d, 0.1d, 1.0f);
 
                     landingLocation.subtract(x, 0, z);
                 }
@@ -220,8 +220,8 @@ public class MoonwalkerUltimate extends UltimateTalent {
         });
 
         // FX
-        PlayerLib.spawnParticle(location, Particle.EXPLOSION_HUGE, 1, 0.8d, 0.2d, 0.8d, 0.0f);
-        PlayerLib.spawnParticle(location, Particle.EXPLOSION_NORMAL, 15, 5d, 2d, 5d, 0.0f);
+        PlayerLib.spawnParticle(location, Particle.EXPLOSION_EMITTER, 1, 0.8d, 0.2d, 0.8d, 0.0f);
+        PlayerLib.spawnParticle(location, Particle.POOF, 15, 5d, 2d, 5d, 0.0f);
 
         PlayerLib.playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 0.0f);
         PlayerLib.playSound(location, Sound.ENTITY_WITHER_HURT, 0.25f);

@@ -7,7 +7,7 @@ import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.spigotutils.module.math.Tick;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

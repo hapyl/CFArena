@@ -28,6 +28,7 @@ import me.hapyl.fight.npc.HumanManager;
 import me.hapyl.fight.npc.runtime.RuntimeNPCManager;
 import me.hapyl.fight.protocol.*;
 import me.hapyl.fight.script.ScriptManager;
+import me.hapyl.fight.util.strict.StrictValidator;
 import me.hapyl.spigotutils.EternaAPI;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.tablist.Tablist;
@@ -51,11 +52,11 @@ public class Main extends JavaPlugin {
             "&6&lᴄғ &eᴀʀᴇɴᴀ";
 
     public static final VersionInfo versionInfo = new VersionInfo(
-            new UpdateTopic("WHO'S THERE", 52, 173, 24, 100, 179, 82)
+            new UpdateTopic("1.20.6, here I come!", 49, 147, 232, 7, 97, 176)
     );
 
-    public static final String requireEternaVersion = "2.52.0";
-    public static final String requireMinecraftVersion = "1.20.4";
+    public static final String requireEternaVersion = "3.0.0";
+    public static final String requireMinecraftVersion = "1.20.6";
 
     private static long start;
     private static Main plugin;
@@ -169,6 +170,8 @@ public class Main extends JavaPlugin {
         //new UpdateBlockHackReplacer();
 
         new TrialListener();
+
+        StrictValidator.validateAll(this);
     }
 
     @Override

@@ -18,7 +18,7 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.harbinger.MeleeStance;
 import me.hapyl.fight.game.talents.harbinger.StanceData;
 import me.hapyl.fight.game.talents.harbinger.TidalWaveTalent;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.task.TimedGameTask;

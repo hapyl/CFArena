@@ -2,7 +2,6 @@ package me.hapyl.fight.game.heroes.rogue;
 
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.GameDeathEvent;
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
@@ -20,7 +19,7 @@ import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.rogue.SecondWind;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -36,12 +35,10 @@ import org.bukkit.*;
 import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UIComponent, DisplayFieldProvider, Listener {
 
@@ -194,7 +191,7 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
         player.playWorldSound(Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 1.25f);
         player.playWorldSound(Sound.ENTITY_ZOMBIE_VILLAGER_CONVERTED, 1.75f);
 
-        player.spawnWorldParticle(Particle.TOTEM, 15, 0.1, 0.3, 0.1, 0.75f);
+        player.spawnWorldParticle(Particle.TOTEM_OF_UNDYING, 15, 0.1, 0.3, 0.1, 0.75f);
 
         //player.playEffect(EntityEffect.TOTEM_RESURRECT); Too obstructive
     }

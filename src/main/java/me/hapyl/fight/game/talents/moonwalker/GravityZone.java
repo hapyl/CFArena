@@ -9,7 +9,7 @@ import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.player.PlayerLib;
@@ -33,7 +33,7 @@ public class GravityZone extends Talent {
     public GravityZone() {
         super("Gravity Pull", """
                 Create a gravity zone at the &etarget&7 location that will charge over time.
-                                
+                T                
                 While charging, pull all enemies within range up and slow them down.
                                 
                 When charged, slam all enemies within range down and deal damage to them.
@@ -105,12 +105,12 @@ public class GravityZone extends Talent {
 
                 // Fx
                 modifyLocationAnd(location, Math.sin(theta) * radius, y, Math.cos(theta) * radius, loc -> {
-                    PlayerLib.spawnParticle(location, Particle.SPELL_WITCH, 5);
+                    PlayerLib.spawnParticle(location, Particle.WITCH, 5);
                 });
 
                 // Fx backwards
                 modifyLocationAnd(location, Math.cos(theta) * radius, y, Math.sin(theta) * radius, loc -> {
-                    PlayerLib.spawnParticle(location, Particle.SPELL_WITCH, 5);
+                    PlayerLib.spawnParticle(location, Particle.WITCH, 5);
                 });
 
                 // Fx

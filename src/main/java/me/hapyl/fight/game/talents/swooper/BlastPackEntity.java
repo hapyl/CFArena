@@ -137,7 +137,7 @@ public class BlastPackEntity extends TickingGameTask {
         // Fx
         player.playWorldSound(location, Sound.ENTITY_GENERIC_EXPLODE, 1.75f);
 
-        Geometry.drawSphere(location, (talent.explosionRadius * 2) + 1, talent.explosionRadius, new WorldParticle(Particle.FIREWORKS_SPARK));
+        Geometry.drawSphere(location, (talent.explosionRadius * 2) + 1, talent.explosionRadius, new WorldParticle(Particle.FIREWORK));
     }
 
     @Override

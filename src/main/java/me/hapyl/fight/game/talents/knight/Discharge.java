@@ -8,7 +8,7 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.knight.BlastKnight;
 import me.hapyl.fight.game.heroes.knight.BlastKnightData;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -118,10 +118,10 @@ public class Discharge extends Talent implements Listener, HeroReference<BlastKn
         });
 
         // Fx
-        player.spawnWorldParticle(location, Particle.SMOKE_NORMAL, 50, 1.25d, 0.5d, 1.25d, 0.5f);
-        player.spawnWorldParticle(location, Particle.FIREWORKS_SPARK, 50, 1.25d, 0.5d, 1.25d, 0.5f);
-        player.spawnWorldParticle(location, Particle.SPELL_WITCH, 50, 1.25d, 0.5d, 1.25d, 1.0f);
-        player.spawnWorldParticle(location, Particle.EXPLOSION_LARGE, 1, 0.0d, 0.5d, 0.0d, 0.0f);
+        player.spawnWorldParticle(location, Particle.SMOKE, 50, 1.25d, 0.5d, 1.25d, 0.5f);
+        player.spawnWorldParticle(location, Particle.FIREWORK, 50, 1.25d, 0.5d, 1.25d, 0.5f);
+        player.spawnWorldParticle(location, Particle.WITCH, 50, 1.25d, 0.5d, 1.25d, 1.0f);
+        player.spawnWorldParticle(location, Particle.EXPLOSION, 1, 0.0d, 0.5d, 0.0d, 0.0f);
 
         player.playWorldSound(location, Sound.ITEM_SHIELD_BREAK, 0.0f);
         player.playWorldSound(location, Sound.ENTITY_BLAZE_HURT, 0.0f);

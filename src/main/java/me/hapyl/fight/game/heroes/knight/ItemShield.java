@@ -44,7 +44,7 @@ public class ItemShield {
         // 2
         shieldMap.put(2, new ShieldBuilder()
                 .with(PatternType.STRIPE_TOP)
-                .with(DyeColor.WHITE, PatternType.RHOMBUS_MIDDLE)
+                .with(DyeColor.WHITE, PatternType.RHOMBUS)
                 .with(PatternType.STRIPE_BOTTOM)
                 .with(PatternType.STRIPE_DOWNLEFT)
                 .with(DyeColor.WHITE, PatternType.BORDER)
@@ -63,7 +63,7 @@ public class ItemShield {
         // 4
         shieldMap.put(4, new ShieldBuilder()
                 .with(PatternType.STRIPE_LEFT)
-                .with(DyeColor.WHITE, PatternType.HALF_HORIZONTAL_MIRROR)
+                .with(DyeColor.WHITE, PatternType.HALF_HORIZONTAL_BOTTOM)
                 .with(PatternType.STRIPE_RIGHT)
                 .with(PatternType.STRIPE_MIDDLE)
                 .with(DyeColor.WHITE, PatternType.BORDER)
@@ -72,7 +72,7 @@ public class ItemShield {
         // 5
         shieldMap.put(5, new ShieldBuilder()
                 .with(PatternType.STRIPE_BOTTOM)
-                .with(DyeColor.WHITE, PatternType.RHOMBUS_MIDDLE)
+                .with(DyeColor.WHITE, PatternType.RHOMBUS)
                 .with(PatternType.STRIPE_TOP)
                 .with(PatternType.STRIPE_DOWNRIGHT)
                 .with(DyeColor.WHITE, PatternType.BORDER)
@@ -109,7 +109,7 @@ public class ItemShield {
         // 9
         shieldMap.put(9, new ShieldBuilder()
                 .with(PatternType.STRIPE_LEFT)
-                .with(DyeColor.WHITE, PatternType.HALF_HORIZONTAL_MIRROR)
+                .with(DyeColor.WHITE, PatternType.HALF_HORIZONTAL_BOTTOM)
                 .with(PatternType.STRIPE_MIDDLE)
                 .with(PatternType.STRIPE_TOP)
                 .with(PatternType.STRIPE_RIGHT)

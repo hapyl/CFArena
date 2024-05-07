@@ -16,7 +16,7 @@ import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.ninja.NinjaSmoke;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.MaterialCooldown;
@@ -131,7 +131,7 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
 
         // Fx
         player.playWorldSound(Sound.ENTITY_BAT_TAKEOFF, 1.2f);
-        player.spawnWorldParticle(Particle.EXPLOSION_NORMAL, 5, 0.2d, 0.0d, 0.2d, 0.03f);
+        player.spawnWorldParticle(Particle.POOF, 5, 0.2d, 0.0d, 0.2d, 0.03f);
     }
 
     @Override
@@ -164,7 +164,7 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
 
         // Fx
         player.playWorldSound(Sound.ITEM_SHIELD_BREAK, 0.75f);
-        player.spawnWorldParticle(entity.getEyeLocation(), Particle.VILLAGER_ANGRY, 5, 0.2d, 0.2d, 0.2d, 0.0f);
+        player.spawnWorldParticle(entity.getEyeLocation(), Particle.ANGRY_VILLAGER, 5, 0.2d, 0.2d, 0.2d, 0.0f);
 
         // Return task
         player.schedule(weapon::give, weapon.stunCd);
@@ -218,7 +218,7 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
                 0.5d,
                 ultimateDamage,
                 EnumDamageCause.THROWING_STARS,
-                location -> player.spawnWorldParticle(location, Particle.FIREWORKS_SPARK, 1, 0.0d, 0.0d, 0.0d, 0.015f),
+                location -> player.spawnWorldParticle(location, Particle.FIREWORK, 1, 0.0d, 0.0d, 0.0d, 0.015f),
                 entity -> player.playWorldSound(entity.getLocation(), Sound.ITEM_TRIDENT_HIT, 2.0f)
         );
 

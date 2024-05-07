@@ -75,8 +75,8 @@ public class CyberCage {
         Glowing.glow(victim, ChatColor.RED, 40, player);
 
         // Zoom Fx
-        PlayerLib.addEffect(victim, PotionEffectType.SLOW, 20, 300);
-        PlayerLib.addEffect(victim, PotionEffectType.SLOW, 80, 1);
+        PlayerLib.addEffect(victim, PotionEffectType.SLOWNESS, 20, 300);
+        PlayerLib.addEffect(victim, PotionEffectType.SLOWNESS, 80, 1);
         PlayerLib.addEffect(victim, PotionEffectType.BLINDNESS, 30, 1);
 
         // Fx
@@ -150,7 +150,7 @@ public class CyberCage {
             return;
         }
 
-        PlayerLib.spawnParticle(location.add(0.0d, 1.0d, 0.0d), Particle.SNOWBALL, 1, 0, 0, 0, 0.01f);
+        PlayerLib.spawnParticle(location.add(0.0d, 1.0d, 0.0d), Particle.ITEM_SNOWBALL, 1, 0, 0, 0, 0.01f);
     }
 
     @Nullable

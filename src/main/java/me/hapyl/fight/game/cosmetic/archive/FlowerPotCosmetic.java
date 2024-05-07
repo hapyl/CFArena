@@ -39,7 +39,7 @@ public class FlowerPotCosmetic extends Cosmetic {
         GameTask.runLater(() -> {
             location.getBlock().getState().update(true, false);
 
-            PlayerLib.spawnParticle(location, Particle.EXPLOSION_NORMAL, 3, 0.15, 0.15, 0.15, 0.05f);
+            PlayerLib.spawnParticle(location, Particle.POOF, 3, 0.15, 0.15, 0.15, 0.05f);
         }, 60).setShutdownAction(ShutdownAction.IGNORE);
     }
 }

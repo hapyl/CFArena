@@ -6,7 +6,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -88,7 +88,7 @@ public class TransmissionBeacon extends Talent implements Listener {
                         world.playSound(location, Sound.BLOCK_BEACON_POWER_SELECT, 1, 0.0f);
                     }
 
-                    PlayerLib.spawnParticle(location, Particle.SPELL_WITCH, 1, 0.1d, 0.1d, 0.1d, 0.05f);
+                    PlayerLib.spawnParticle(location, Particle.WITCH, 1, 0.1d, 0.1d, 0.1d, 0.05f);
                     PlayerLib.spawnParticle(location, Particle.PORTAL, 1, 0.1d, 0.1d, 0.1d, 0.01f);
                     PlayerLib.spawnParticle(location, Particle.REVERSE_PORTAL, 1, 0.1d, 0.1d, 0.1d, 0.01f);
                     PlayerLib.spawnParticle(location, Particle.DRAGON_BREATH, 1, 0.1d, 0.1d, 0.1d, 0.025f);

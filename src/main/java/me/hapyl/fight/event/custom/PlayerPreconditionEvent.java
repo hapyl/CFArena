@@ -2,7 +2,7 @@ package me.hapyl.fight.event.custom;
 
 import me.hapyl.fight.event.CancellableWithReason;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.weapons.Weapon;
 import org.bukkit.event.HandlerList;
 

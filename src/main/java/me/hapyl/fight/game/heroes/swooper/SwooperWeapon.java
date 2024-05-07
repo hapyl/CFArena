@@ -24,9 +24,9 @@ public class SwooperWeapon extends RangeWeapon {
     private final double scopeMultiplier = 2.0d;
 
     private final PackedParticle[] particles = {
-            new PackedParticle(Particle.FIREWORKS_SPARK),
+            new PackedParticle(Particle.FIREWORK),
             new PackedParticle(Particle.FLAME),
-            new PackedParticle(Particle.SPELL_MOB_AMBIENT).setAmount(0).setOffsetX(1).setOffsetY(1).setOffsetZ(1).setSpeed(1)
+            new PackedParticle(Particle.INSTANT_EFFECT).setAmount(0).setOffsetX(1).setOffsetY(1).setOffsetZ(1).setSpeed(1)
     };
 
     public SwooperWeapon(Swooper swooper) {

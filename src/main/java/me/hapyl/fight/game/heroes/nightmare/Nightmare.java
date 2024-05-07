@@ -12,7 +12,7 @@ import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Collect;
@@ -93,7 +93,7 @@ public class Nightmare extends Hero implements DisplayFieldProvider {
                         temperInstance.temper(player, 30);
 
                         player.spawnWorldParticle(Particle.LAVA, 5, 0.15d, 0.15d, 0.15d, 0.01f);
-                        player.spawnWorldParticle(Particle.SMOKE_LARGE, 5, 0.15d, 0.15d, 0.15d, 0.01f);
+                        player.spawnWorldParticle(Particle.LARGE_SMOKE, 5, 0.15d, 0.15d, 0.15d, 0.01f);
                     }
                 }
             }

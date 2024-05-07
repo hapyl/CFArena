@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.techie;
 
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.displayfield.DisplayField;
 
 import javax.annotation.Nonnull;

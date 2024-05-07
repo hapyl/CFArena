@@ -7,7 +7,7 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.shadow_assassin.AssassinMode;
 import me.hapyl.fight.game.heroes.shadow_assassin.ShadowAssassin;
 import me.hapyl.fight.game.heroes.shadow_assassin.ShadowAssassinData;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 
 import javax.annotation.Nonnull;
 

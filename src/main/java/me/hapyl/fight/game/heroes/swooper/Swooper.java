@@ -15,7 +15,7 @@ import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.swooper.SwooperPassive;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.witcher.Akciy;
 import me.hapyl.fight.game.ui.UIComplexComponent;
 import me.hapyl.fight.util.CFUtils;
@@ -168,7 +168,7 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
             // Zoom check
             final HotbarSlots heldSlot = player.getHeldSlot();
             if (heldSlot != HotbarSlots.WEAPON) {
-                player.removePotionEffect(PotionEffectType.SLOW);
+                player.removePotionEffect(PotionEffectType.SLOWNESS);
             }
         });
     }
@@ -204,11 +204,11 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
         }
 
         if (ev.isSneaking()) {
-            player.addPotionEffectIndefinitely(PotionEffectType.SLOW, 4);
+            player.addPotionEffectIndefinitely(PotionEffectType.SLOWNESS, 4);
             player.playWorldSound(Sound.ITEM_SPYGLASS_USE, 1.25f);
         }
         else {
-            player.removePotionEffect(PotionEffectType.SLOW);
+            player.removePotionEffect(PotionEffectType.SLOWNESS);
             player.playWorldSound(Sound.ITEM_SPYGLASS_USE, 0.75f);
         }
     }

@@ -3,7 +3,6 @@ package me.hapyl.fight.game.heroes.bounty_hunter;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.StrictTalentPlacement;
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
@@ -18,7 +17,7 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.bounty_hunter.GrappleHookTalent;
 import me.hapyl.fight.game.talents.bounty_hunter.ShortyShotgun;
 import me.hapyl.fight.game.talents.nightmare.ShadowShift;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Collect;
@@ -118,7 +117,7 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
     }
 
     private void spawnPoofParticle(Location location) {
-        PlayerLib.spawnParticle(location, Particle.SMOKE_LARGE, 20, 0.0d, 0.5d, 0.0d, 0.25f);
+        PlayerLib.spawnParticle(location, Particle.LARGE_SMOKE, 20, 0.0d, 0.5d, 0.0d, 0.25f);
     }
 
     private ShadowShift.TargetLocation getBackstabLocation(GamePlayer player) {
@@ -142,7 +141,7 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
                 // Fx
                 player.spawnWorldParticle(
                         location,
-                        Particle.SMOKE_LARGE,
+                        Particle.LARGE_SMOKE,
                         20,
                         smokeRadiusScaled,
                         smokeRadiusScaled,
@@ -151,7 +150,7 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
                 );
                 player.spawnWorldParticle(
                         location,
-                        Particle.SMOKE_NORMAL,
+                        Particle.SMOKE,
                         20,
                         smokeRadiusScaled,
                         smokeRadiusScaled,

@@ -3,7 +3,7 @@ package me.hapyl.fight.game.talents.shark;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
@@ -115,7 +115,7 @@ public class SubmergeTalent extends Talent {
                 //affectedBlocks.add(block);
 
                 PlayerLib.spawnParticle(fixedLocation, Particle.BUBBLE_COLUMN_UP, 3, 0.2, 0.1, 0.2, 0.1f);
-                PlayerLib.spawnParticle(fixedLocation, Particle.WATER_SPLASH, 1, 0.2, 0.1, 0.2, 0.1f);
+                PlayerLib.spawnParticle(fixedLocation, Particle.SPLASH, 1, 0.2, 0.1, 0.2, 0.1f);
 
                 // Hit detection
                 Collect.nearbyEntities(fixedLocation, 1.0d).forEach(victim -> {

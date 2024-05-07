@@ -11,7 +11,7 @@ import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.vortex.*;
 import me.hapyl.fight.game.task.player.PlayerTickingGameTask;
 import me.hapyl.fight.game.ui.UIComplexComponent;
@@ -193,7 +193,7 @@ public class Vortex extends Hero implements UIComplexComponent {
                 // Fx
                 player.spawnWorldParticle(location, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0);
                 player.spawnWorldParticle(location, Particle.CRIT, 1, 0.25d, 0.25d, 0.25d, 0.05f);
-                player.spawnWorldParticle(location, Particle.SPELL, 3, 0.25d, 0.25d, 0.25d, 0.02f);
+                player.spawnWorldParticle(location, Particle.EFFECT, 3, 0.25d, 0.25d, 0.25d, 0.02f);
 
                 player.playWorldSound(location, Sound.ITEM_FLINTANDSTEEL_USE, 0.75f);
 

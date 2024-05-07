@@ -69,7 +69,7 @@ import me.hapyl.fight.game.talents.engineer.Construct;
 import me.hapyl.fight.game.talents.frostbite.IcyShardsPassive;
 import me.hapyl.fight.game.talents.juju.Orbiting;
 import me.hapyl.fight.game.talents.swooper.BlastPackEntity;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.witcher.Akciy;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
@@ -1562,7 +1562,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     location.add(vector);
                     location.add(0, y, 0);
 
-                    PlayerLib.spawnParticle(location, Particle.VILLAGER_HAPPY, 1);
+                    PlayerLib.spawnParticle(location, Particle.HAPPY_VILLAGER, 1);
                     location.subtract(0, y, 0);
                 }
 
@@ -2123,7 +2123,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     vector.rotateAroundZ(tick);
 
                     location.add(vector);
-                    PlayerLib.spawnParticle(location, Particle.CRIT_MAGIC, 1);
+                    PlayerLib.spawnParticle(location, Particle.ENCHANTED_HIT, 1);
                     location.subtract(vector);
                 }
             }.runTaskTimer(0, 1);
@@ -2154,7 +2154,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     }
 
                     location.add(vector);
-                    PlayerLib.spawnParticle(location, Particle.VILLAGER_HAPPY, 1);
+                    PlayerLib.spawnParticle(location, Particle.HAPPY_VILLAGER, 1);
                     location.subtract(vector);
                 }
 
@@ -2257,7 +2257,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     location.add(x, y, z);
 
                     // Do something
-                    player.getWorld().spawnParticle(Particle.VILLAGER_HAPPY, location, 1);
+                    player.getWorld().spawnParticle(Particle.HAPPY_VILLAGER, location, 1);
 
                     location.subtract(x, y, z);
                 }
@@ -2484,7 +2484,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     public void run() {
                         for (int i = 0; i < 10; i++) {
                             absoluteLocation.add(i, 0, 0);
-                            PlayerLib.spawnParticle(absoluteLocation, Particle.VILLAGER_HAPPY, 1);
+                            PlayerLib.spawnParticle(absoluteLocation, Particle.HAPPY_VILLAGER, 1);
                             absoluteLocation.subtract(i, 0, 0);
                         }
                     }

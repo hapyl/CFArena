@@ -70,7 +70,7 @@ public class Inquisitor extends OverlayGameEntityType {
             if (attributes.get(AttributeType.ATTACK) >= 6.0d) {
                 forceRemove();
                 getNpc().remove();
-                spawnWorldParticle(Particle.EXPLOSION_LARGE, 1);
+                spawnWorldParticle(Particle.EXPLOSION_EMITTER, 1);
                 return;
             }
         }

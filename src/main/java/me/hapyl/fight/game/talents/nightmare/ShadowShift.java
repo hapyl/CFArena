@@ -9,7 +9,7 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.nightmare.Nightmare;
 import me.hapyl.fight.game.heroes.nightmare.OmenDebuff;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -61,7 +61,7 @@ public class ShadowShift extends Talent implements Listener {
 
         // Fx
         player.playWorldSound(location, Sound.ENTITY_ENDERMAN_SCREAM, 1.0f);
-        player.spawnParticle(location, Particle.EXPLOSION_NORMAL, 3, 0.1d, 0.1d, 0.1d, 0.04f);
+        player.spawnParticle(location, Particle.POOF, 3, 0.1d, 0.1d, 0.1d, 0.04f);
 
         return Response.OK;
     }

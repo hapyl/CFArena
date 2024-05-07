@@ -3,7 +3,7 @@ package me.hapyl.fight.game.heroes.geo;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 
 import javax.annotation.Nonnull;
 

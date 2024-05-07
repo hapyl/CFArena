@@ -7,7 +7,7 @@ import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -67,7 +67,7 @@ public class Irden extends Talent {
     public void affect(@Nonnull GamePlayer player, @Nonnull Location location, int tick) {
         if (tick % 20 == 0 || tick == (getDuration() - 1)) {
             Geometry.drawCircle(location, radius, Quality.HIGH, loc -> {
-                player.spawnWorldParticle(loc, Particle.SPELL_WITCH, 3, 0.1d, 0.1d, 0.1d, 0.05f);
+                player.spawnWorldParticle(loc, Particle.WITCH, 3, 0.1d, 0.1d, 0.1d, 0.05f);
                 player.spawnWorldParticle(loc, Particle.DUST_COLOR_TRANSITION, 3, 0.1d, 0.1d, 0.1d, dustTransition);
             });
         }

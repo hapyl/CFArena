@@ -98,7 +98,7 @@ public class PlayerSkinPreview extends TickingGameTask {
             cancel();
 
             // Fx
-            PlayerLib.spawnParticle(player, location.add(0, 1, 0), Particle.EXPLOSION_NORMAL, 20, 0.25d, 1d, 0.25d, 0.025f);
+            PlayerLib.spawnParticle(player, location.add(0, 1, 0), Particle.POOF, 20, 0.25d, 1d, 0.25d, 0.025f);
             return;
         }
 

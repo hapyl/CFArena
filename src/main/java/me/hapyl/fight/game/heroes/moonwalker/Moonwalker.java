@@ -11,7 +11,7 @@ import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.moonwalker.MoonPassive;
 import me.hapyl.fight.game.talents.moonwalker.MoonPillarTalent;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;

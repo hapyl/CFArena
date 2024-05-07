@@ -106,8 +106,8 @@ public class DarkCover extends ShadowAssassinTalent {
             self.detonate();
         });
 
-        player.spawnWorldParticle(location, Particle.SPELL_WITCH, 10, 0.5d, 0.5d, 0.5d, 1);
-        player.spawnWorldParticle(location, Particle.EXPLOSION_LARGE, 1, 0d, 0d, 0d, 1);
+        player.spawnWorldParticle(location, Particle.WITCH, 10, 0.5d, 0.5d, 0.5d, 1);
+        player.spawnWorldParticle(location, Particle.POOF, 1, 0d, 0d, 0d, 1);
 
         player.playWorldSound(location, Sound.ENTITY_ENDER_DRAGON_HURT, 0.0f);
         player.playWorldSound(location, Sound.ENTITY_ENDERMAN_HURT, 0.75f);
@@ -133,14 +133,14 @@ public class DarkCover extends ShadowAssassinTalent {
 
         if (flag) {
             player.spawnWorldParticle(location, Particle.CRIT, 20, 0, 0.2, 0, 1.0f);
-            player.spawnWorldParticle(location, Particle.CRIT_MAGIC, 20, 0, 0.2, 0, 0.5f);
+            player.spawnWorldParticle(location, Particle.ENCHANTED_HIT, 20, 0, 0.2, 0, 0.5f);
             player.spawnWorldParticle(location, Particle.WARPED_SPORE, 10, 0, 0.5, 0, 0);
             player.playWorldSound(location, Sound.ENTITY_ENDERMAN_TELEPORT, 1.75f);
 
             player.sendTitle("&8&l\uD83E\uDEA3", "&7In Dark Cover", 0, 200000, 0);
         }
         else {
-            player.spawnWorldParticle(location, Particle.ENCHANTMENT_TABLE, 10, 0, 0, 0, 2);
+            player.spawnWorldParticle(location, Particle.ENCHANT, 10, 0, 0, 0, 2);
             player.playWorldSound(location, Sound.ENTITY_ENDERMAN_TELEPORT, 1.25f);
 
             player.clearTitle();

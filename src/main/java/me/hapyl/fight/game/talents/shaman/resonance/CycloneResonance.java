@@ -69,8 +69,8 @@ public class CycloneResonance extends TotemResonance {
 
                     location.add(x, y, z);
 
-                    player.spawnWorldParticle(location, Particle.SPELL_INSTANT, 1);
-                    player.spawnWorldParticle(location, Particle.SPELL_MOB, 0, 1.0d, 1.0d, 1.0d, 1.0f);
+                    player.spawnWorldParticle(location, Particle.INSTANT_EFFECT, 1);
+                    player.spawnWorldParticle(location, Particle.EFFECT, 0, 1.0d, 1.0d, 1.0d, 1.0f);
 
                     location.subtract(x, y, z);
                 }

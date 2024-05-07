@@ -53,7 +53,7 @@ public class BlackHole extends LibrarianTalent {
                 final double x = (tick16 * Math.sin(i + tick60));
                 final double z = (tick16 * Math.cos(i + tick60));
                 location.add(x, tick120, z);
-                PlayerLib.spawnParticle(location, Particle.SPELL_WITCH, 1, 0, 0, 0, 0);
+                PlayerLib.spawnParticle(location, Particle.WITCH, 1, 0, 0, 0, 0);
                 location.subtract(x, tick120, z);
             }
 

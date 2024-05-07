@@ -7,6 +7,7 @@ import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.Collect;
@@ -137,8 +138,8 @@ public class CipherLock extends TechieTalent {
                 // Travel Fx
                 // Only display on first iteration
                 if (i == 0) {
-                    player.spawnWorldParticle(location, Particle.SPELL_WITCH, 1);
-                    player.spawnWorldParticle(location, Particle.CRIT_MAGIC, 1);
+                    player.spawnWorldParticle(location, Particle.WITCH, 1);
+                    player.spawnWorldParticle(location, Particle.ENCHANTED_HIT, 1);
 
                     player.playWorldSound(
                             location,

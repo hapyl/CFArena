@@ -16,7 +16,7 @@ public class Riptide extends Effect {
 
     @Override
     public void onStart(@Nonnull LivingGameEntity entity, int amplifier, int duration) {
-        entity.addPotionEffectIndefinitely(PotionEffectType.SLOW, 0);
+        entity.addPotionEffectIndefinitely(PotionEffectType.SLOWNESS, 0);
         entity.addPotionEffectIndefinitely(PotionEffectType.SPEED, 0);
 
         entity.playSound(Sound.AMBIENT_UNDERWATER_ENTER, 1.25f);
@@ -24,7 +24,7 @@ public class Riptide extends Effect {
 
     @Override
     public void onStop(@Nonnull LivingGameEntity entity, int amplifier) {
-        entity.removePotionEffect(PotionEffectType.SLOW);
+        entity.removePotionEffect(PotionEffectType.SLOWNESS);
         entity.removePotionEffect(PotionEffectType.SPEED);
 
         entity.playSound(Sound.AMBIENT_UNDERWATER_ENTER, 1.75f);

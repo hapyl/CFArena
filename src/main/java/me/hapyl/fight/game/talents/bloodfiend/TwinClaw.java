@@ -122,7 +122,7 @@ public class TwinClaw extends TickingGameTask implements TalentReference<TwinCla
         cancel();
 
         // Fx
-        player.spawnWorldParticle(location, Particle.EXPLOSION_NORMAL, 20, 0.5d, 0.6d, 0.5d, 0.1f);
+        player.spawnWorldParticle(location, Particle.POOF, 20, 0.5d, 0.6d, 0.5d, 0.1f);
     }
 
     @Nonnull

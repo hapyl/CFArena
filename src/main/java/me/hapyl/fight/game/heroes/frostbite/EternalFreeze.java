@@ -78,7 +78,7 @@ public class EternalFreeze extends TimedGameTask {
         // For particles, we have to add a little Y offset because of armor stands
         location.add(0.0d, 1.975, 0.0d);
         player.spawnWorldParticle(location, Particle.SNOWFLAKE, 3, 0.5d, 0.5d, 0.5d, 0.25f);
-        player.spawnWorldParticle(location, Particle.SNOWBALL, 3, 0.5d, 0.5d, 0.5d, 0.25f);
+        player.spawnWorldParticle(location, Particle.ITEM_SNOWBALL, 3, 0.5d, 0.5d, 0.5d, 0.25f);
         player.spawnWorldParticle(location, Particle.SPIT, 1, 0.2d, 0.2d, 0.2d, 0.25f);
         location.subtract(0.0d, 1.975, 0.0d);
 

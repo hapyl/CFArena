@@ -186,7 +186,7 @@ public class ActiveElement {
     private void entityPoof() {
         final Location fixedLocation = entity.getLocation().add(0.0d, 1.5d, 0.0d);
         PlayerLib.playSound(fixedLocation, this.material.createBlockData().getSoundGroup().getBreakSound(), 0.75f);
-        PlayerLib.spawnParticle(fixedLocation, Particle.EXPLOSION_NORMAL, 3, 0.1d, 0.05d, 0.1d, 0.02f);
+        PlayerLib.spawnParticle(fixedLocation, Particle.POOF, 3, 0.1d, 0.05d, 0.1d, 0.02f);
         entity.remove();
     }
 

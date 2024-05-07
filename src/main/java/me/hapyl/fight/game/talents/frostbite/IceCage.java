@@ -85,7 +85,7 @@ public class IceCage extends TimedGameTask implements Removable, TalentReference
             // Fx
             final Location location = block.getLocation().add(0.5d, 0.5d, 0.5d);
 
-            player.spawnWorldParticle(location, Particle.BLOCK_CRACK, 5, 0.1, 0.1, 0.1, blockData);
+            player.spawnWorldParticle(location, Particle.BLOCK, 5, 0.1, 0.1, 0.1, blockData);
             player.playWorldSound(location, Sound.BLOCK_GLASS_BREAK, 1.25f);
         });
 

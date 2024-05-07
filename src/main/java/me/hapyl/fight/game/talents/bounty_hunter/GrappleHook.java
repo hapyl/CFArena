@@ -54,7 +54,7 @@ public class GrappleHook extends GameTask {
 
         if (hookedEntity != null) {
             hook.teleport(hookedEntity.getLocation());
-            hook.getWorld().spawnParticle(Particle.ITEM_CRACK, hook.getLocation(),
+            hook.getWorld().spawnParticle(Particle.ITEM, hook.getLocation(),
                     5,
                     0.125,
                     0.125,

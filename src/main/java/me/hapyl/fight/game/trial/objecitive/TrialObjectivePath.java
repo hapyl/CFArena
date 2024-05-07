@@ -48,7 +48,7 @@ public class TrialObjectivePath extends Cuboid implements GameElement, Ticking {
             final Location location = getCenter();
 
             player.playSound(location, data.getSoundGroup().getBreakSound(), 0.0f);
-            player.spawnParticle(location, Particle.BLOCK_CRACK, 5, 0.8d, 0.8d, 0.8d, 1, data);
+            player.spawnParticle(location, Particle.BLOCK, 5, 0.8d, 0.8d, 0.8d, 1, data);
         }, 5);
     }
 

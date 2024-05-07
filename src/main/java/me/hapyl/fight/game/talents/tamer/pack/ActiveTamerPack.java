@@ -129,7 +129,7 @@ public class ActiveTamerPack implements Ticking, Removable {
             final Location location = entity.getEyeLocation();
 
             // Fx
-            entity.spawnWorldParticle(location, Particle.EXPLOSION_NORMAL, 15, 0.25d, 0.5d, 0.25d, 0.02f);
+            entity.spawnWorldParticle(location, Particle.POOF, 15, 0.25d, 0.5d, 0.25d, 0.02f);
             entity.playWorldSound(location, Sound.ENTITY_ELDER_GUARDIAN_AMBIENT_LAND, 0.2f);
 
             // Actually remove the entity

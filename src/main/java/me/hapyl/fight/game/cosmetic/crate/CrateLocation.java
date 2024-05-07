@@ -291,7 +291,7 @@ public class CrateLocation extends Location {
             @Override
             public void run() {
                 spawnedItems.forEach(item -> {
-                    PlayerLib.spawnParticle(item.getLocation(), Particle.EXPLOSION_NORMAL, 3);
+                    PlayerLib.spawnParticle(item.getLocation(), Particle.POOF, 3);
 
                     item.remove();
                 });

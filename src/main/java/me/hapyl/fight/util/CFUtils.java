@@ -446,8 +446,8 @@ public class CFUtils {
 
         // Fx
         Geometry.drawCircle(location, range, Quality.NORMAL, new WorldParticle(Particle.CRIT));
-        Geometry.drawCircle(location, range + 0.5d, Quality.NORMAL, new WorldParticle(Particle.ENCHANTMENT_TABLE));
-        PlayerLib.spawnParticle(location, Particle.EXPLOSION_HUGE, 1, 1, 0, 1, 0);
+        Geometry.drawCircle(location, range + 0.5d, Quality.NORMAL, new WorldParticle(Particle.ENCHANT));
+        PlayerLib.spawnParticle(location, Particle.EXPLOSION_EMITTER, 1, 1, 0, 1, 0);
         PlayerLib.playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 1.0f);
     }
 

@@ -11,7 +11,6 @@ import me.hapyl.fight.game.entity.SoundEffect;
 import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.stats.StatType;
-import me.hapyl.fight.game.talents.techie.Talent;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.displayfield.DisplayFieldData;
 import me.hapyl.fight.util.displayfield.DisplayFieldDataProvider;

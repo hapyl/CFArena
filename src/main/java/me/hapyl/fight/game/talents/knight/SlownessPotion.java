@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.knight;
 
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -15,7 +15,7 @@ import javax.annotation.Nonnull;
 public class SlownessPotion extends Talent {
 
     private final ItemStack potionItem = new ItemBuilder(Material.SPLASH_POTION).setPotionColor(Color.BLACK)
-            .setPotionMeta(PotionEffectType.SLOW, 5, 80, Color.GRAY)
+            .setPotionMeta(PotionEffectType.SLOWNESS, 5, 80, Color.GRAY)
             .build();
 
     public SlownessPotion() {

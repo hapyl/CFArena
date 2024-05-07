@@ -8,7 +8,7 @@ import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerMap;
@@ -92,8 +92,8 @@ public class ArrowShield extends Talent implements Listener {
         });
 
         // Fx
-        player.spawnWorldParticle(location, Particle.TOTEM, 25, 0, 0, 0, 0.75f);
-        player.spawnWorldParticle(location, Particle.VILLAGER_HAPPY, 5, 0.25d, 0.25d, 0.25d, 0.0f);
+        player.spawnWorldParticle(location, Particle.TOTEM_OF_UNDYING, 25, 0, 0, 0, 0.75f);
+        player.spawnWorldParticle(location, Particle.HAPPY_VILLAGER, 5, 0.25d, 0.25d, 0.25d, 0.0f);
 
         player.playWorldSound(location, Sound.ENCHANT_THORNS_HIT, 0.75f);
         player.playWorldSound(location, Sound.ENCHANT_THORNS_HIT, 1.25f);
@@ -152,7 +152,7 @@ public class ArrowShield extends Talent implements Listener {
                     arrow.teleport(location);
 
                     // Fx
-                    player.spawnWorldParticle(location, Particle.TOTEM, 1, 0, 0, 0, 0.05f);
+                    player.spawnWorldParticle(location, Particle.TOTEM_OF_UNDYING, 1, 0, 0, 0, 0.05f);
 
                     location.subtract(x, 1, z);
                     ++pos;
@@ -188,7 +188,7 @@ public class ArrowShield extends Talent implements Listener {
         final List<Arrow> arrows = getArrows(player);
 
         arrows.forEach(entity -> {
-            player.spawnWorldParticle(entity.getLocation(), Particle.EXPLOSION_NORMAL, 3, 0, 0, 0, 0.01f);
+            player.spawnWorldParticle(entity.getLocation(), Particle.POOF, 3, 0, 0, 0, 0.01f);
             entity.remove();
         });
 

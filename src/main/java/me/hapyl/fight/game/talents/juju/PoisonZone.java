@@ -7,7 +7,7 @@ import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -58,13 +58,13 @@ public class PoisonZone extends Talent {
                     final double z = Math.cos(theta + 2 * i) * radius;
 
                     location.add(x, 0, z);
-                    player.spawnWorldParticle(location, Particle.TOTEM, 3, 0.1d, 0.05d, 0.1d, 0.025f);
-                    player.spawnWorldParticle(location, Particle.VILLAGER_HAPPY, 1, 0.1d, 0.1d, 0.1d, 0);
+                    player.spawnWorldParticle(location, Particle.TOTEM_OF_UNDYING, 3, 0.1d, 0.05d, 0.1d, 0.025f);
+                    player.spawnWorldParticle(location, Particle.HAPPY_VILLAGER, 1, 0.1d, 0.1d, 0.1d, 0);
                     location.subtract(x, 0, z);
                 }
 
                 // Scatter particles
-                player.spawnWorldParticle(location, Particle.TOTEM, 10, radius, 0.25d, radius, 0.1f);
+                player.spawnWorldParticle(location, Particle.TOTEM_OF_UNDYING, 10, radius, 0.25d, radius, 0.1f);
 
                 // Theta
                 theta += Math.PI / 16;

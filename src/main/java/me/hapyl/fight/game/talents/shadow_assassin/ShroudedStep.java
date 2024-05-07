@@ -5,7 +5,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.shadow_assassin.ShadowAssassin;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -76,7 +76,7 @@ public class ShroudedStep extends Talent {
                     entity.damage(decoyExplosionDamage, player, EnumDamageCause.DECOY);
                 });
 
-                PlayerLib.spawnParticle(decoyLocation, Particle.CRIT_MAGIC, 50, 0.5d, 0.5d, 0.5d, 0.01f);
+                PlayerLib.spawnParticle(decoyLocation, Particle.ENCHANTED_HIT, 50, 0.5d, 0.5d, 0.5d, 0.01f);
                 PlayerLib.playSound(decoyLocation, Sound.ENTITY_SILVERFISH_DEATH, 0.0f);
             }
 
@@ -105,7 +105,7 @@ public class ShroudedStep extends Talent {
                 // Travel finished
                 if (distance < 0 || entity.isDead() || player.isDead()) {
                     if (distance < 0) {
-                        PlayerLib.spawnParticle(entityLocation, Particle.CRIT_MAGIC, 10, 0, 0, 0, 0.5f);
+                        PlayerLib.spawnParticle(entityLocation, Particle.ENCHANTED_HIT, 10, 0, 0, 0, 0.5f);
                         entity.remove();
                     }
                     cancel();

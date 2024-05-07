@@ -103,7 +103,7 @@ public class DiceRoll extends TickingGameTask {
 
         GameTask.runLater(() -> {
             stand.remove();
-            PlayerLib.spawnParticle(location.add(0.0d, 1.0d, 0.0d), Particle.EXPLOSION_NORMAL, 5, 0.1d, 0.1d, 0.1d, 0.05f);
+            PlayerLib.spawnParticle(location.add(0.0d, 1.0d, 0.0d), Particle.POOF, 5, 0.1d, 0.1d, 0.1d, 0.05f);
         }, 20);
     }
 }

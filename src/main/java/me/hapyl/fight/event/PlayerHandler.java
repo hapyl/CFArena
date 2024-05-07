@@ -2,7 +2,6 @@ package me.hapyl.fight.event;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
@@ -27,10 +26,7 @@ import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.InputTalent;
-import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.techie.Talent;
-import me.hapyl.fight.game.talents.witcher.Akciy;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
@@ -45,7 +41,10 @@ import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.parkour.Data;
 import me.hapyl.spigotutils.module.parkour.ParkourRegistry;
 import me.hapyl.spigotutils.module.player.PlayerLib;
-import org.bukkit.*;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -63,7 +62,6 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
@@ -286,29 +284,11 @@ public class PlayerHandler implements Listener {
             return;
         }
 
+        final Hero hero = player.getHero();
+
         ev.setCancelled(true);
 
-        if (!player.isAbleToUseAbilities()) {
-            return;
-        }
-
-        // Check for stun
-        if (Talents.AKCIY.getTalent(Akciy.class).isStunned(player)) {
-            player.sendMessage("&4&l※ &cCannot use ultimate while stunned!");
-            return;
-        }
-
-        // Ultimate is not ready
-        if (!player.isUltimateReady()) {
-            player.sendTitle("&4&l※", "&cYour ultimate isn't ready!", 5, 15, 5);
-            player.sendMessage("&4&l※ &cYour ultimate isn't ready!");
-            return;
-        }
-
-        final Hero hero = player.getHero();
-        final UltimateTalent ultimate = hero.getUltimate();
-
-        ultimate.execute(player);
+        hero.eventHandler.handlePlayerSwapHandItemsEvent(player, ev);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

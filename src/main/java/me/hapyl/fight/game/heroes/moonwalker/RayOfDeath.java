@@ -39,7 +39,7 @@ public class RayOfDeath extends PlayerTickingGameTask {
 
     public void onStep(Location location) {
         // Fx
-        player.spawnWorldParticle(location, Particle.SPELL_WITCH, 1);
+        player.spawnWorldParticle(location, Particle.WITCH, 1);
     }
 
     public void onHit(LivingGameEntity entity) {

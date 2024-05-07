@@ -1,4 +1,4 @@
-package me.hapyl.fight.game.talents.techie;
+package me.hapyl.fight.game.talents;
 
 import com.google.common.collect.Lists;
 import me.hapyl.fight.annotate.AutoRegisteredListener;
@@ -13,12 +13,12 @@ import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.effect.archive.SlowingAuraEffect;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.stats.StatContainer;
-import me.hapyl.fight.game.talents.*;
 import me.hapyl.fight.util.Condition;
 import me.hapyl.fight.util.Final;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.fight.util.displayfield.DisplayFieldSerializer;
+import me.hapyl.fight.util.strict.StrictPackage;
 import me.hapyl.spigotutils.module.annotate.Super;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.math.Numbers;
@@ -36,6 +36,7 @@ import java.util.function.Consumer;
  * Base talent.
  */
 @AutoRegisteredListener
+@StrictPackage("me.hapyl.fight.game.talents")
 public abstract class Talent extends NonNullItemCreator
         implements GameElement, PlayerElement, DisplayFieldProvider,
         Nameable, Timed, Cooldown, EnumHandle<Talents>, Comparable<Talent> {

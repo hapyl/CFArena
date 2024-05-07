@@ -8,7 +8,7 @@ import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.doctor.ElementType;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -24,7 +24,6 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -203,7 +202,7 @@ public class HarvestBlocks extends Talent {
                     entity.damage(damage, player, EnumDamageCause.GRAVITY_GUN);
                 });
 
-                player.spawnWorldParticle(location, Particle.EXPLOSION_HUGE, 1);
+                player.spawnWorldParticle(location, Particle.EXPLOSION_EMITTER, 1);
                 player.playWorldSound(location, Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 0.0f);
             }
 

@@ -5,7 +5,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.pytaria.Pytaria;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -100,8 +100,8 @@ public class FlowerEscape extends Talent {
                             final double z = Math.cos(d) * radius;
 
                             location.add(x, 1.0d, z);
-                            player.spawnWorldParticle(location, Particle.TOTEM, 1, 0, 0, 0, 0.05f);
-                            player.spawnWorldParticle(location, Particle.SMOKE_NORMAL, 1, 0, 0, 0, 0.05f);
+                            player.spawnWorldParticle(location, Particle.TOTEM_OF_UNDYING, 1, 0, 0, 0, 0.05f);
+                            player.spawnWorldParticle(location, Particle.SMOKE, 1, 0, 0, 0, 0.05f);
                             location.subtract(x, 1.0d, z);
                         }
                     }
@@ -112,7 +112,7 @@ public class FlowerEscape extends Talent {
 
                 if (lastTick) {
                     player.playWorldSound(location, Sound.ITEM_TOTEM_USE, 2.0f);
-                    player.spawnWorldParticle(location, Particle.SPELL_MOB, 20, 0.25d, 0.25d, 0.25d, 0.1f);
+                    player.spawnWorldParticle(location, Particle.EFFECT, 20, 0.25d, 0.25d, 0.25d, 0.1f);
                 }
             }
         }.runTaskTimer(1, 1);

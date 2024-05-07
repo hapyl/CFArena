@@ -18,7 +18,7 @@ import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.dark_mage.ShadowClone;
 import me.hapyl.fight.game.talents.dark_mage.ShadowCloneNPC;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComplexComponent;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
@@ -73,7 +73,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
                 playerData.values()
                         .forEach(data -> data.forEach(entity -> data.player.spawnParticle(
                                 entity.getLocation().add(0, 2.5, 0),
-                                Particle.SMOKE_NORMAL,
+                                Particle.SMOKE,
                                 5,
                                 0.1,
                                 0.1,

@@ -3,7 +3,7 @@ package me.hapyl.fight.game.talents.shadow_assassin;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.collection.player.PlayerMap;
@@ -146,7 +146,7 @@ public class ShadowPrism extends Talent {
         GameTask.runTaskTimerTimes((task, i) -> {
             final Location eyeLocation = player.getEyeLocation();
             if (i != 0) {
-                PlayerLib.spawnParticle(eyeLocation, Particle.CRIT_MAGIC, 10, 0.5d, 0.5d, 0.5d, 0.0f);
+                PlayerLib.spawnParticle(eyeLocation, Particle.ENCHANTED_HIT, 10, 0.5d, 0.5d, 0.5d, 0.0f);
                 PlayerLib.spawnParticle(eyeLocation, Particle.PORTAL, 10, 0.5d, 0.5d, 0.5d, 0.0f);
                 PlayerLib.playSound(eyeLocation, Sound.ENTITY_SHULKER_AMBIENT, 2.0f - (i * pitchPerTick));
                 return;

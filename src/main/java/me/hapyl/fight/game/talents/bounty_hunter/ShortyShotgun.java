@@ -8,7 +8,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -100,7 +100,7 @@ public class ShortyShotgun extends Talent {
             final LivingGameEntity entity = Collect.nearestEntity(location, 1.0d, player);
 
             // Had to put fx here since breaking
-            player.spawnWorldParticle(location, Particle.BLOCK_CRACK, 1, 0, 0, 0, Material.COAL_BLOCK.createBlockData());
+            player.spawnWorldParticle(location, Particle.BLOCK, 1, 0, 0, 0, Material.COAL_BLOCK.createBlockData());
 
             if (entity != null) {
                 // Check for bleed

@@ -39,7 +39,7 @@ public class Vulnerable extends Effect implements Listener {
             displayParticles(
                     entity.getEyeLocation().add(0.0d, 0.5d, 0.0d),
                     entity,
-                    new EffectParticle(Particle.VILLAGER_ANGRY, 1)
+                    new EffectParticle(Particle.ANGRY_VILLAGER, 1)
             );
         }
     }

@@ -3,7 +3,7 @@ package me.hapyl.fight.game.talents.ender;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -13,8 +13,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDismountEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
-import org.spigotmc.event.entity.EntityDismountEvent;
 
 import javax.annotation.Nonnull;
 import java.util.HashSet;

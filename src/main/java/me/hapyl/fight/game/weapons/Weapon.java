@@ -12,7 +12,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.StaticFormat;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.weapons.ability.Ability;
 import me.hapyl.fight.game.weapons.ability.AbilityType;
 import me.hapyl.fight.game.weapons.range.RangeWeapon;
@@ -305,7 +305,7 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
         builder.setUnbreakable(true);
 
         if (material == Material.BOW || material == Material.CROSSBOW) {
-            builder.addEnchant(Enchantment.ARROW_INFINITE, 1);
+            builder.addEnchant(Enchantment.INFINITY, 1);
         }
 
         if (material == Material.TRIDENT) {

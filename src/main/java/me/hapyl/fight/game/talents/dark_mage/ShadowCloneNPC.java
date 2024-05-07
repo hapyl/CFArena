@@ -120,7 +120,7 @@ public class ShadowCloneNPC extends HumanNPC {
     }
 
     public void playRemoveFx() {
-        player.spawnWorldParticle(getLocation(), Particle.SMOKE_LARGE, 20, 0.1, 0.5, 0.1, 0.5f);
+        player.spawnWorldParticle(getLocation(), Particle.LARGE_SMOKE, 20, 0.1, 0.5, 0.1, 0.5f);
     }
 
     @Nonnull

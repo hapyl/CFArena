@@ -14,7 +14,7 @@ import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.spigotutils.module.entity.Entities;
@@ -167,8 +167,8 @@ public class Shark extends Hero implements Listener {
                     final Location location = player.getLocation();
 
                     // Fx
-                    Geometry.drawCircle(location, 3.5d, Quality.HIGH, new WorldParticle(Particle.WATER_DROP));
-                    Geometry.drawCircle(location, 1.0d, Quality.VERY_HIGH, new WorldParticle(Particle.WATER_SPLASH));
+                    Geometry.drawCircle(location, 3.5d, Quality.HIGH, new WorldParticle(Particle.DRIPPING_WATER));
+                    Geometry.drawCircle(location, 1.0d, Quality.VERY_HIGH, new WorldParticle(Particle.SPLASH));
 
                     --tick;
                 }

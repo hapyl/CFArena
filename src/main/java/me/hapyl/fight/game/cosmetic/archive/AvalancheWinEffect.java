@@ -57,7 +57,7 @@ public class AvalancheWinEffect extends WinCosmetic {
                 // Fx
                 final Location fxLocation = block.getLocation().add(0.0d, 1.0d, 0.0d);
 
-                PlayerLib.spawnParticle(fxLocation, Particle.SNOWBALL, 1, 0.15d, 0.25d, 0.15d, 0.05f);
+                PlayerLib.spawnParticle(fxLocation, Particle.ITEM_SNOWBALL, 1, 0.15d, 0.25d, 0.15d, 0.05f);
                 PlayerLib.spawnParticle(fxLocation, Particle.SNOWFLAKE, 2, 0.1d, 0.25d, 0.11d, 0.01f);
 
                 PlayerLib.playSound(

@@ -7,7 +7,7 @@ import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.RetainSet;
@@ -94,7 +94,7 @@ public class SmokeBomb extends Talent {
                 // Fx
                 player.spawnWorldParticle(
                         location,
-                        Particle.SMOKE_LARGE,
+                        Particle.LARGE_SMOKE,
                         20,
                         radiusScaled,
                         radiusScaled,
@@ -104,7 +104,7 @@ public class SmokeBomb extends Talent {
 
                 player.spawnWorldParticle(
                         location,
-                        Particle.SMOKE_NORMAL,
+                        Particle.SMOKE,
                         20,
                         radiusScaled,
                         radiusScaled,

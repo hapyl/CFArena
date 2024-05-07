@@ -23,9 +23,10 @@ import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
+import me.hapyl.fight.util.strict.StrictPackage;
 import me.hapyl.spigotutils.module.annotate.Super;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
@@ -53,6 +54,7 @@ import java.util.Set;
  * @see PlayerElement
  */
 @AutoRegisteredListener
+@StrictPackage("me.hapyl.fight.game.heroes")
 public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Heroes>, Rankable, DisplayFieldProvider {
 
     private final Heroes enumHero;
@@ -63,6 +65,8 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
     private final HeroPlayerItemMaker itemMaker;
     private final HeroFriendship friendship;
     private final Map<Talent, HotbarSlots> talentsMapped;
+
+    @Nonnull public HeroEventHandler eventHandler;
 
     private Affiliation affiliation;
     private Archetype archetype;
@@ -111,6 +115,8 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
         if (this instanceof Listener listener) {
             CF.registerEvents(listener);
         }
+
+        this.eventHandler = new HeroEventHandler(this);
     }
 
     @Nonnull

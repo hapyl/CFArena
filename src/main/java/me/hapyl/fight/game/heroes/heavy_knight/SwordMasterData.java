@@ -2,7 +2,7 @@ package me.hapyl.fight.game.heroes.heavy_knight;
 
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.PlayerData;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 
 import javax.annotation.Nonnull;
 

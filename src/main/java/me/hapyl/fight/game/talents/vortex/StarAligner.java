@@ -56,14 +56,14 @@ public class StarAligner extends InputTalent {
     @Nonnull
     @Override
     public Response onEquip(@Nonnull GamePlayer player) {
-        player.addPotionEffectIndefinitely(PotionEffectType.SLOW, 3);
+        player.addPotionEffectIndefinitely(PotionEffectType.SLOWNESS, 3);
 
         return Response.OK;
     }
 
     @Override
     public void onUse(@Nonnull GamePlayer player) {
-        player.removePotionEffect(PotionEffectType.SLOW);
+        player.removePotionEffect(PotionEffectType.SLOWNESS);
     }
 
     @Override
@@ -101,7 +101,7 @@ public class StarAligner extends InputTalent {
                     });
 
                     // Fx
-                    player.spawnWorldParticle(location, Particle.EXPLOSION_LARGE, 5, 0.5, 0.5, 0.5, 1);
+                    player.spawnWorldParticle(location, Particle.POOF, 5, 0.5, 0.5, 0.5, 1);
                     player.spawnWorldParticle(location, Particle.CRIT, 10, 0.5d, 0.5d, 0.5d, 0.025f);
                     player.spawnWorldParticle(
                             location,

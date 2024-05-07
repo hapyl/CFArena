@@ -152,7 +152,7 @@ public class Candlebane extends Taunt implements TalentReference<CandlebaneTalen
             // Fx
             asPlayers(player -> {
                 player.playSound(initialLocation, Sound.ENTITY_PLAYER_LEVELUP, 1.75f);
-                player.spawnParticle(initialLocation, Particle.VILLAGER_HAPPY, 15, 0.25d, 0.25d, 0.25d, 0.0f);
+                player.spawnParticle(initialLocation, Particle.HAPPY_VILLAGER, 15, 0.25d, 0.25d, 0.25d, 0.0f);
             });
         }
     }
@@ -172,7 +172,7 @@ public class Candlebane extends Taunt implements TalentReference<CandlebaneTalen
         // Fx
         spawnParticle(
                 initialLocation.add(0.0d, reference.pillarHeight / 2.0d, 0.0d),
-                Particle.EXPLOSION_NORMAL,
+                Particle.POOF,
                 15,
                 0.25d,
                 1.0d,

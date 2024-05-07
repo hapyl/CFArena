@@ -43,7 +43,7 @@ public class WitherData extends PlayerData {
 
                 final Location location = wither.getLocation();
 
-                player.spawnWorldParticle(location, Particle.SMOKE_LARGE, 5, 0.25d, 0.25d, 0.25d, 0.025f);
+                player.spawnWorldParticle(location, Particle.LARGE_SMOKE, 5, 0.25d, 0.25d, 0.25d, 0.025f);
                 wither.remove();
             }
 

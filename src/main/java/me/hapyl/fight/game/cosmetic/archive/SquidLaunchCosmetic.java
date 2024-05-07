@@ -49,7 +49,7 @@ public class SquidLaunchCosmetic extends Cosmetic {
                 }
 
                 squid.setVelocity(new Vector(0, 0.35, 0));
-                display.particle(squid.getLocation(), Particle.EXPLOSION_NORMAL, 5, 0.1d, 0.1d, 0.1d, 0.1f);
+                display.particle(squid.getLocation(), Particle.POOF, 5, 0.1d, 0.1d, 0.1d, 0.1f);
                 display.sound(Sound.ENTITY_CHICKEN_EGG, (0.0f + (tick * 0.1f)));
             }
         }.runTaskTimer(0, 2);

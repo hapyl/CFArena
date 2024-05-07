@@ -64,7 +64,7 @@ public class BatCloud implements Ticking {
                 bat.remove();
 
                 // Fx
-                PlayerLib.spawnParticle(location, Particle.SMOKE_NORMAL, 3, 0.1d, 0.1d, 0.1d, 0.025f);
+                PlayerLib.spawnParticle(location, Particle.SMOKE, 3, 0.1d, 0.1d, 0.1d, 0.025f);
             }
 
             PlayerLib.playSound(player.getLocation(), Sound.ENTITY_BAT_DEATH, 1.25f);

@@ -56,7 +56,7 @@ public class FrostbiteWeapon extends RangeWeapon {
                 bullet.teleport(location);
 
                 player.spawnWorldParticle(location, Particle.SNOWFLAKE, 1);
-                player.spawnWorldParticle(location, Particle.SNOWBALL, 1, 0.05d, 0.05d, 0.05d, 0.025f);
+                player.spawnWorldParticle(location, Particle.ITEM_SNOWBALL, 1, 0.05d, 0.05d, 0.05d, 0.025f);
             }
 
             @Override

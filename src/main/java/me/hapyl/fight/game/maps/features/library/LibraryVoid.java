@@ -77,7 +77,7 @@ public class LibraryVoid extends VoidFeature implements Listener {
 
                     PlayerLib.spawnParticle(location, Particle.PORTAL, 10, 0.2d, 1.5d, 0.2d, 1.0f);
                     PlayerLib.spawnParticle(location, Particle.REVERSE_PORTAL, 10, 0.2d, 1.5d, 0.2d, 0.5f);
-                    PlayerLib.spawnParticle(location, Particle.ENCHANTMENT_TABLE, 10, 0.2d, 1.5d, 0.2d, 1.0f);
+                    PlayerLib.spawnParticle(location, Particle.ENCHANT, 10, 0.2d, 1.5d, 0.2d, 1.0f);
                 });
 
                 if (tick % 200 == 0) {

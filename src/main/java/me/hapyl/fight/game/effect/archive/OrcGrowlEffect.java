@@ -36,7 +36,7 @@ public class OrcGrowlEffect extends Effect {
     public void onStart(@Nonnull LivingGameEntity entity, int amplifier, int duration) {
         final EntityAttributes attributes = entity.getAttributes();
 
-        entity.addPotionEffectIndefinitely(PotionEffectType.SLOW, 4);
+        entity.addPotionEffectIndefinitely(PotionEffectType.SLOWNESS, 4);
         attributes.subtractSilent(AttributeType.ATTACK, attackReduction);
     }
 
@@ -44,7 +44,7 @@ public class OrcGrowlEffect extends Effect {
     public void onStop(@Nonnull LivingGameEntity entity, int amplifier) {
         final EntityAttributes attributes = entity.getAttributes();
 
-        entity.removePotionEffect(PotionEffectType.SLOW);
+        entity.removePotionEffect(PotionEffectType.SLOWNESS);
         attributes.addSilent(AttributeType.ATTACK, attackReduction);
     }
 

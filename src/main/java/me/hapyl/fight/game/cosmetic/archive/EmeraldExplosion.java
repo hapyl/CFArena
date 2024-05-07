@@ -29,8 +29,8 @@ public class EmeraldExplosion extends Cosmetic {
             display.item(CollectionUtils.randomElement(MATERIALS, MATERIALS[0]), 60);
         }
 
-        display.particle(Particle.VILLAGER_HAPPY, 10, 0.5d, 0.25d, 0.5d, 0.0f);
-        display.particle(Particle.TOTEM, 20, 0.0d, 0.0d, 0.0d, 0.5f);
+        display.particle(Particle.HAPPY_VILLAGER, 10, 0.5d, 0.25d, 0.5d, 0.0f);
+        display.particle(Particle.TOTEM_OF_UNDYING, 20, 0.0d, 0.0d, 0.0d, 0.5f);
 
         new TickingGameTask() {
             @Override

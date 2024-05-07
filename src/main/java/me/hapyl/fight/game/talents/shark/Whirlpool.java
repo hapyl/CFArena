@@ -3,7 +3,7 @@ package me.hapyl.fight.game.talents.shark;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.math.Geometry;
@@ -69,7 +69,7 @@ public class Whirlpool extends Talent {
                     PlayerLib.playSound(location, Sound.AMBIENT_UNDERWATER_ENTER, 0.75f);
                 }
 
-                Geometry.drawCircleAnchored(location, range, Quality.VERY_HIGH, new WorldParticle(Particle.WATER_WAKE), 0.5d);
+                Geometry.drawCircleAnchored(location, range, Quality.VERY_HIGH, new WorldParticle(Particle.SPLASH), 0.5d);
             }
         }.runTaskTimer(0, 1);
 
@@ -78,7 +78,7 @@ public class Whirlpool extends Talent {
 
     public void createWhirlpool(Location location, double size, int delay) {
         GameTask.runLater(() -> {
-            Geometry.drawCircle(location, size, Quality.VERY_HIGH, new WorldParticle(Particle.WATER_BUBBLE));
+            Geometry.drawCircle(location, size, Quality.VERY_HIGH, new WorldParticle(Particle.BUBBLE));
             Geometry.drawCircle(location, size, Quality.VERY_HIGH, new WorldParticle(Particle.BUBBLE_POP));
         }, delay);
     }

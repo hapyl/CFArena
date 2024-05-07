@@ -55,7 +55,7 @@ public class CloneNPC extends HumanNPC implements Ticking {
     public void disappear() {
         final Location location = getLocation().add(0.0d, 0.75d, 0.0d);
 
-        PlayerLib.spawnParticle(location, Particle.SMOKE_LARGE, 20, 0.25d, 0.6d, 0.25d, 0.025f);
+        PlayerLib.spawnParticle(location, Particle.LARGE_SMOKE, 20, 0.25d, 0.6d, 0.25d, 0.025f);
         remove();
     }
 

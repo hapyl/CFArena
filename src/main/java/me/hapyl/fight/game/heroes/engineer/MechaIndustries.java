@@ -46,7 +46,7 @@ public class MechaIndustries extends TimedGameTask implements Removable {
         player.addEffect(Effects.INVISIBILITY, 100000, true);
 
         // Fx
-        player.spawnWorldParticle(Particle.EXPLOSION_HUGE, 1);
+        player.spawnWorldParticle(Particle.EXPLOSION_EMITTER, 1);
 
         runTaskTimer(0, 1);
     }
@@ -60,7 +60,7 @@ public class MechaIndustries extends TimedGameTask implements Removable {
 
         // Fx
         player.playWorldSound(Sound.ENTITY_IRON_GOLEM_DEATH, 0.75f);
-        player.spawnWorldParticle(Particle.EXPLOSION_HUGE, 1);
+        player.spawnWorldParticle(Particle.EXPLOSION_EMITTER, 1);
     }
 
     @Override
@@ -80,7 +80,7 @@ public class MechaIndustries extends TimedGameTask implements Removable {
         golem.teleport(player);
 
         // Fx
-        player.spawnWorldParticle(Particle.VILLAGER_ANGRY, 1, 0.8, 0.8, 0.8, 0);
+        player.spawnWorldParticle(Particle.HAPPY_VILLAGER, 1, 0.8, 0.8, 0.8, 0);
     }
 
     @Override

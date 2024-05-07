@@ -159,7 +159,7 @@ public class TamingTheWind extends InputTalent implements TamerTimed {
                     final double z = Math.cos(theta + 0.2 * (i + tick)) * radius;
 
                     location.add(x, 0, z);
-                    PlayerLib.spawnParticle(location, Particle.SPELL, 1);
+                    PlayerLib.spawnParticle(location, Particle.EFFECT, 1);
                     location.subtract(x, 0, z);
 
                     theta += (Math.PI * 2 / swirls);

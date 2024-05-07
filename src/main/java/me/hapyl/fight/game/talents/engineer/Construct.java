@@ -168,7 +168,7 @@ public abstract class Construct extends TickingGameTask {
         player.playWorldSound(location, Sound.BLOCK_ANVIL_USE, 0.75f);
         player.playWorldSound(location, Sound.ENTITY_IRON_GOLEM_REPAIR, 1.25f);
 
-        player.spawnWorldParticle(location, Particle.VILLAGER_HAPPY, 10, 0.25d, 0.25d, 0.25, 0f);
+        player.spawnWorldParticle(location, Particle.HAPPY_VILLAGER, 10, 0.25d, 0.25d, 0.25, 0f);
 
         player.sendMessage("&6&l🔧 &eLevelled up %s to level &l%s&e!", getName(), getLevelRoman());
         return true;

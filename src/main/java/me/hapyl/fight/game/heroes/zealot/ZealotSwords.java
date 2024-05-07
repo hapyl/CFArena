@@ -71,7 +71,7 @@ public class ZealotSwords extends PlayerGameTask implements Removable, MaterialC
         for (Giant giant : giants) {
             giant.remove();
 
-            player.spawnWorldParticle(giant.getEyeLocation(), Particle.EXPLOSION_NORMAL, 5, 0.25d, 0.5d, 0.25d, 0.05f);
+            player.spawnWorldParticle(giant.getEyeLocation(), Particle.POOF, 5, 0.25d, 0.5d, 0.25d, 0.05f);
         }
     }
 

@@ -210,8 +210,8 @@ public class Taker extends Hero implements UIComponent, DisplayFieldProvider {
 
                         location.add(x, y, z);
 
-                        player.spawnWorldParticle(location, Particle.SMOKE_LARGE, 1);
-                        player.spawnWorldParticle(location, Particle.SMOKE_NORMAL, 1);
+                        player.spawnWorldParticle(location, Particle.LARGE_SMOKE, 1);
+                        player.spawnWorldParticle(location, Particle.SMOKE, 1);
 
                         location.subtract(x, y, z);
                     }
@@ -251,8 +251,8 @@ public class Taker extends Hero implements UIComponent, DisplayFieldProvider {
 
                                 // Hit Fx
                                 player.spawnWorldParticle(hitLocation, Particle.SWEEP_ATTACK, 20, 1, 1, 1, 0.0f);
-                                player.spawnWorldParticle(hitLocation, Particle.SMOKE_LARGE, 20, 1, 1, 1, 0.0f);
-                                player.spawnWorldParticle(hitLocation, Particle.SPELL_MOB, 20, 1, 1, 1, 0.0f);
+                                player.spawnWorldParticle(hitLocation, Particle.LARGE_SMOKE, 20, 1, 1, 1, 0.0f);
+                                player.spawnWorldParticle(hitLocation, Particle.EFFECT, 20, 1, 1, 1, 0.0f);
 
                                 player.playWorldSound(hitLocation, Sound.ITEM_TRIDENT_THROW, 0.0f);
                                 player.playWorldSound(hitLocation, Sound.ENTITY_WITHER_HURT, 0.75f);

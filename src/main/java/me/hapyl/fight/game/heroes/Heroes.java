@@ -22,6 +22,7 @@ import me.hapyl.fight.game.heroes.doctor.DrEd;
 import me.hapyl.fight.game.heroes.ender.Ender;
 import me.hapyl.fight.game.heroes.engineer.Engineer;
 import me.hapyl.fight.game.heroes.frostbite.Freazly;
+import me.hapyl.fight.game.heroes.gunner.Gunner;
 import me.hapyl.fight.game.heroes.harbinger.Harbinger;
 import me.hapyl.fight.game.heroes.healer.Healer;
 import me.hapyl.fight.game.heroes.heavy_knight.SwordMaster;
@@ -120,6 +121,8 @@ public enum Heroes implements Formatted {
     GEO(Geo::new),
     AURORA(Aurora::new),
     NYX(Nyx::new),
+
+    GUNNER(Gunner::new),
 
     // *=* Tutorial Hero *=* //
     TUTORIAL_ARCHER(TutorialArcher::new),

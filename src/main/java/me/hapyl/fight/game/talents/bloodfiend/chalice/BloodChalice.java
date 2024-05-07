@@ -108,7 +108,7 @@ public class BloodChalice extends Taunt implements TalentReference<BloodChaliceT
         asPlayers(player -> {
             player.spawnParticle(
                     baseLocation.add(0.0d, 0.76d, 0.0d),
-                    Particle.REDSTONE,
+                    Particle.DUST,
                     1,
                     0.2d,
                     0.2d,
@@ -154,7 +154,7 @@ public class BloodChalice extends Taunt implements TalentReference<BloodChaliceT
         // Fx
         asPlayers(player -> {
             player.playSound(location, Sound.BLOCK_GLASS_BREAK, 0.0f);
-            player.spawnParticle(location, Particle.EXPLOSION_NORMAL, 15, 0.1d, 0.1d, 0.1d, 0.05f);
+            player.spawnParticle(location, Particle.POOF, 15, 0.1d, 0.1d, 0.1d, 0.05f);
         });
     }
 

@@ -70,7 +70,7 @@ public class SkinRedHood extends AbstractSkinArcher {
 
     @Override
     public boolean hawkeyeArrowTick(GamePlayer player, Location location) {
-        player.spawnWorldParticle(location, Particle.BLOCK_DUST, 5, 0, 0, 0, 0, hawkeyeData);
+        player.spawnWorldParticle(location, Particle.BLOCK, 5, 0, 0, 0, 0, hawkeyeData);
         player.playWorldSound(location, Sound.ENTITY_ELDER_GUARDIAN_AMBIENT_LAND, 1.75f);
 
         return true;
@@ -79,7 +79,7 @@ public class SkinRedHood extends AbstractSkinArcher {
     @Override
     public boolean boomArrowTick(GamePlayer gamePlayer, Location location) {
         gamePlayer.spawnWorldParticle(location, Particle.WAX_ON, 2, 0, 0, 0, 1);
-        gamePlayer.spawnWorldParticle(location, Particle.BLOCK_DUST, 2, 0, 0, 0, 1, boomData);
+        gamePlayer.spawnWorldParticle(location, Particle.BLOCK, 2, 0, 0, 0, 1, boomData);
 
         gamePlayer.playWorldSound(location, Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 1.75f);
 

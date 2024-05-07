@@ -19,7 +19,7 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.shadow_assassin.DarkCover;
 import me.hapyl.fight.game.talents.shadow_assassin.PlayerCloneList;
 import me.hapyl.fight.game.talents.shadow_assassin.ShadowAssassinClone;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.Collect;
@@ -140,7 +140,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
                         return;
                     }
 
-                    player.spawnWorldParticle(Particle.ENCHANTMENT_TABLE, 5, 0.5, 1, 0.5, 1f);
+                    player.spawnWorldParticle(Particle.ENCHANT, 5, 0.5, 1, 0.5, 1f);
                 });
             }
         }.runTaskTimer(0, 5);

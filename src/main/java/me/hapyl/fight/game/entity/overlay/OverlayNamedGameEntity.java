@@ -109,7 +109,7 @@ public class OverlayNamedGameEntity extends NamedGameEntity<Zombie> implements S
 
         GameTask.runLater(() -> {
             npc.remove();
-            PlayerLib.spawnParticle(location.add(0.0d, 0.5d, 0.0d), Particle.EXPLOSION_NORMAL, 15, 0.1d, 0.33d, 0.1d, 0.0f);
+            PlayerLib.spawnParticle(location.add(0.0d, 0.5d, 0.0d), Particle.POOF, 15, 0.1d, 0.33d, 0.1d, 0.0f);
         }, 15).setShutdownAction(ShutdownAction.IGNORE);
     }
 

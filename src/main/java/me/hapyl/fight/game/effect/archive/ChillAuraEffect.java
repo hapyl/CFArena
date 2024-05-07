@@ -19,12 +19,12 @@ public class ChillAuraEffect extends Effect {
 
     @Override
     public void onStart(@Nonnull LivingGameEntity entity, int amplifier, int duration) {
-        entity.addPotionEffectIndefinitely(PotionEffectType.SLOW, 0);
+        entity.addPotionEffectIndefinitely(PotionEffectType.SLOWNESS, 0);
     }
 
     @Override
     public void onStop(@Nonnull LivingGameEntity entity, int amplifier) {
-        entity.removePotionEffect(PotionEffectType.SLOW);
+        entity.removePotionEffect(PotionEffectType.SLOWNESS);
     }
 
     @Override

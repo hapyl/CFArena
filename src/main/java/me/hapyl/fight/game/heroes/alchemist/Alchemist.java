@@ -18,7 +18,7 @@ import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -73,7 +73,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
         equipment.setChestPlate(31, 5, 3, TrimPattern.SHAPER, TrimMaterial.COPPER);
 
         positiveEffects.add(new MadnessEffect("made you &lFASTER", PotionEffectType.SPEED, 30, 2))
-                .add(new MadnessEffect("gave you &lJUMP BOOST", PotionEffectType.JUMP, 30, 1))
+                .add(new MadnessEffect("gave you &lJUMP BOOST", PotionEffectType.JUMP_BOOST, 30, 1))
                 .add(new MadnessEffect("made you &lSTRONGER", 30) {
                     @Override
                     public void affect(@Nonnull GamePlayer player, @Nonnull GamePlayer victim) {
@@ -112,7 +112,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
                         victim.getEntityData().setLastDamager(player);
                     }
                 })
-                .add(new MadnessEffect("&lslowed you", PotionEffectType.SLOW, 15, 2))
+                .add(new MadnessEffect("&lslowed you", PotionEffectType.SLOWNESS, 15, 2))
                 .add(new MadnessEffect("&lmade you weaker", null, 15, 0) {
                     @Override
                     public void affect(@Nonnull GamePlayer player, @Nonnull GamePlayer victim) {
@@ -121,7 +121,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
                         entityAttributes.decreaseTemporary(Temper.ALCHEMIST, AttributeType.ATTACK, 0.5d, duration);
                     }
                 })
-                .add(new MadnessEffect("&lis... confusing?", PotionEffectType.CONFUSION, 15, 0));
+                .add(new MadnessEffect("&lis... confusing?", PotionEffectType.NAUSEA, 15, 0));
 
         setUltimate(new AlchemistUltimate());
     }

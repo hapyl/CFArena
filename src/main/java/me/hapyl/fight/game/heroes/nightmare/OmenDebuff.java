@@ -62,8 +62,8 @@ public class OmenDebuff implements Ticking {
             // Fx
             final Location eyeLocation = entity.getEyeLocation().add(0, 0.65, 0);
 
-            player.spawnParticle(eyeLocation, Particle.SPELL_WITCH, 1, 0.1d, 0.1d, 0.1d, 0.01f);
-            player.spawnParticle(eyeLocation, Particle.SMOKE_LARGE, 2, 0.175d, 0.175d, 0.175d, 0.02f);
+            player.spawnParticle(eyeLocation, Particle.WITCH, 1, 0.1d, 0.1d, 0.1d, 0.01f);
+            player.spawnParticle(eyeLocation, Particle.LARGE_SMOKE, 2, 0.175d, 0.175d, 0.175d, 0.02f);
         }
     }
 

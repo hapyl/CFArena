@@ -3,8 +3,7 @@ package me.hapyl.fight.game.heroes.dark_mage;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.PlayerData;
-import me.hapyl.fight.game.heroes.witcher.WitherData;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.dark_mage.DarkMageTalent;
 import org.bukkit.Sound;
 

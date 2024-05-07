@@ -15,6 +15,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.util.INamable;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EnumItemSlot;
@@ -149,9 +150,9 @@ public class PlayerSkin {
         }
 
         // Update effects
-        final Collection<MobEffect> activeEffects = mcPlayer.es(); // getActiveEffects()
+        final Collection<MobEffect> activeEffects = mcPlayer.ex(); // getActiveEffects()
         activeEffects.forEach(effect -> {
-            final PacketPlayOutEntityEffect packetEffect = new PacketPlayOutEntityEffect(player.getEntityId(), effect);
+            final PacketPlayOutEntityEffect packetEffect = new PacketPlayOutEntityEffect(player.getEntityId(), effect, false);
             sendPacket(player, packetEffect);
         });
 
@@ -208,6 +209,7 @@ public class PlayerSkin {
             case LEGS -> EnumItemSlot.d;
             case CHEST -> EnumItemSlot.e;
             case HEAD -> EnumItemSlot.f;
+            case BODY -> EnumItemSlot.g;
         };
     }
 

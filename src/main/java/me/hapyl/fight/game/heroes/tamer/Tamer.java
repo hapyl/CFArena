@@ -16,7 +16,7 @@ import me.hapyl.fight.game.talents.tamer.MineOBall;
 import me.hapyl.fight.game.talents.tamer.TamingTheWind;
 import me.hapyl.fight.game.talents.tamer.pack.ActiveTamerPack;
 import me.hapyl.fight.game.talents.tamer.pack.DrWitch;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.CFUtils;

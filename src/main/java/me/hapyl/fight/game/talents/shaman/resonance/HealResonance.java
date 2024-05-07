@@ -48,7 +48,7 @@ public class HealResonance extends TotemResonance {
         });
 
         // Fx
-        Geometry.drawCircleAnchored(location, healingRadius, Quality.VERY_HIGH, new WorldParticle(Particle.VILLAGER_HAPPY));
+        Geometry.drawCircleAnchored(location, healingRadius, Quality.VERY_HIGH, new WorldParticle(Particle.HAPPY_VILLAGER));
         player.playWorldSound(location, Sound.BLOCK_GRASS_STEP, 0.0f);
     }
 }

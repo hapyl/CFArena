@@ -10,7 +10,7 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.alchemist.Alchemist;
 import me.hapyl.fight.game.heroes.alchemist.CauldronEffect;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.collection.RandomTable;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
