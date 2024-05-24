@@ -59,7 +59,6 @@ import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.lobby.StartCountdown;
 import me.hapyl.fight.game.maps.gamepack.GamePack;
-import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.reward.DailyReward;
 import me.hapyl.fight.game.talents.Talents;
@@ -108,6 +107,7 @@ import me.hapyl.spigotutils.module.math.Cuboid;
 import me.hapyl.spigotutils.module.math.nn.IntInt;
 import me.hapyl.spigotutils.module.player.EffectType;
 import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.spigotutils.module.player.PlayerSkin;
 import me.hapyl.spigotutils.module.reflect.DataWatcherType;
 import me.hapyl.spigotutils.module.reflect.Reflect;
 import me.hapyl.spigotutils.module.reflect.glow.Glowing;
@@ -1507,7 +1507,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
         register("setHeroSkin", (player, args) -> {
             if (args.length == 0) {
-                PlayerSkin.reset(player);
+                PlayerProfile.getProfileOrThrow(player).resetSkin();
                 Chat.sendMessage(player, "&eReset!");
                 return;
             }

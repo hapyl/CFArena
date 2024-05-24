@@ -5,9 +5,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import me.hapyl.fight.Main;
+import me.hapyl.fight.cache.Caches;
 import me.hapyl.fight.database.rank.PlayerRank;
-import me.hapyl.fight.game.playerskin.PlayerSkin;
+import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.ux.Notifier;
+import me.hapyl.spigotutils.module.player.PlayerSkin;
 import me.hapyl.spigotutils.module.util.ArgumentList;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -35,14 +37,20 @@ public class SkinCommand extends CFCommand {
     @Override
     protected void execute(@Nonnull Player player, @Nonnull ArgumentList args, @Nonnull PlayerRank rank) {
         final String argument = args.get(0).toString();
+        final PlayerProfile profile = PlayerProfile.getProfile(player);
+
+        if (profile == null) {
+            Notifier.error(player, "You don't have a profile somehow! Report this!!!!!!!!!!!");
+            return;
+        }
 
         if (argument.equalsIgnoreCase("reset")) {
-            PlayerSkin.reset(player);
+            profile.resetSkin();
             Notifier.success(player, "Reset your skin!");
             return;
         }
 
-        PlayerSkin cachedSkin = PlayerSkin.cache.getCached(argument);
+        final PlayerSkin cachedSkin = Caches.PLAYER_SKIN.getCached(argument);
 
         if (cachedSkin != null) {
             applySkin(player, null, cachedSkin);
@@ -100,7 +108,7 @@ public class SkinCommand extends CFCommand {
         Notifier.success(player, getUsage() + " reset to reset your skin!");
 
         if (skinName != null) {
-            PlayerSkin.cache.cache(skinName, skin);
+            Caches.PLAYER_SKIN.cache(skinName, skin);
         }
     }
 

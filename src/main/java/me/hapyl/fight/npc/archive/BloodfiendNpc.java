@@ -3,9 +3,9 @@ package me.hapyl.fight.npc.archive;
 import me.hapyl.fight.dialog.Dialog;
 import me.hapyl.fight.dialog.DialogEntry;
 import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.npc.PersistentNPC;
 import me.hapyl.fight.util.StringRandom;
+import me.hapyl.spigotutils.module.player.PlayerSkin;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

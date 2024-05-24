@@ -2,12 +2,12 @@ package me.hapyl.fight.game.entity.overlay;
 
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.entity.NamedGameEntity;
-import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.spigotutils.module.ai.AI;
 import me.hapyl.spigotutils.module.ai.MobAI;
 import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.spigotutils.module.player.PlayerSkin;
 import me.hapyl.spigotutils.module.reflect.npc.ClickType;
 import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
 import me.hapyl.spigotutils.module.reflect.npc.NPCAnimation;

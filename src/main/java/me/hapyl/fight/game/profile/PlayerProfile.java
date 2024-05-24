@@ -1,7 +1,5 @@
 package me.hapyl.fight.game.profile;
 
-import com.google.common.collect.Queues;
-import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.database.rank.RankFormatter;
@@ -14,7 +12,6 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.loadout.HotbarLoadout;
-import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.profile.data.PlayerProfileData;
 import me.hapyl.fight.game.profile.relationship.PlayerRelationship;
 import me.hapyl.fight.game.task.GameTask;
@@ -27,14 +24,12 @@ import me.hapyl.fight.infraction.PlayerInfraction;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.chat.Chat;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import me.hapyl.spigotutils.module.player.PlayerSkin;
 import org.bukkit.entity.Player;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Deque;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -115,10 +110,6 @@ public class PlayerProfile {
     }
     // #render
 
-    public void setOriginalSkin(@Nonnull PlayerSkin originalSkin) {
-        this.originalSkin = originalSkin;
-    }
-
     @Nonnull
     public PlayerSocialConversation getConversation() {
         return conversation;
@@ -185,6 +176,16 @@ public class PlayerProfile {
     @Nonnull
     public PlayerSkin getOriginalSkin() {
         return originalSkin;
+    }
+
+    public void setOriginalSkin(@Nonnull PlayerSkin originalSkin) {
+        this.originalSkin = originalSkin;
+    }
+
+    public void resetSkin() {
+        if (originalSkin != null) {
+            originalSkin.apply(player);
+        }
     }
 
     public boolean isBuildMode() {

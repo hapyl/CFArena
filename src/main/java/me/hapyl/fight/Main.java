@@ -18,7 +18,7 @@ import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.maps.features.BoosterController;
 import me.hapyl.fight.game.maps.gamepack.GamePackListener;
 import me.hapyl.fight.game.parkour.CFParkourManager;
-import me.hapyl.fight.game.talents.bloodfiend.candlebane.CandlebaneProtocol;
+import me.hapyl.fight.game.talents.bloodfiend.candlebane.CandlebaneListener;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TaskList;
 import me.hapyl.fight.game.trial.TrialListener;
@@ -44,7 +44,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;
-import java.util.Vector;
 
 public class Main extends JavaPlugin {
 
@@ -116,9 +115,8 @@ public class Main extends JavaPlugin {
 
         //new LampGame(this);
 
-        // Register events and protocol listeners
+        // Register events listeners
         registerEvents();
-        registerProtocol();
 
         // Preset game rules
         for (final World world : Bukkit.getWorlds()) {
@@ -328,6 +326,13 @@ public class Main extends JavaPlugin {
         pluginManager.registerEvents(new OverlayListener(), this);
         pluginManager.registerEvents(new CFGarbageCollector(), this);
         pluginManager.registerEvents(new FastAccessListener(), this);
+        pluginManager.registerEvents(new ArcaneMuteListener(), this);
+
+        pluginManager.registerEvents(new DismountProtocol(), this);
+        pluginManager.registerEvents(new CandlebaneListener(), this);
+        pluginManager.registerEvents(new CameraListener(), this);
+        pluginManager.registerEvents(new PlayerClickAtEntityProtocol(), this);
+        pluginManager.registerEvents(new MotDProtocol(), this);
     }
 
     private void runSafe(Runnable runnable, String handler) {
@@ -337,18 +342,6 @@ public class Main extends JavaPlugin {
             getLogger().severe("Cannot run %s onDisable()!".formatted(handler));
             e.printStackTrace();
         }
-    }
-
-    private void registerProtocol() {
-        new ArcaneMuteProtocol();
-        new DismountProtocol();
-        new CandlebaneProtocol();
-        new CameraProtocol();
-        new PlayerClickAtEntityProtocol();
-        new MotDProtocol();
-        new PayloadProtocol();
-        //new HandshakeProtocol();
-        //new ConfusionPotionProtocol(); -> doesn't work as good as I thought :(
     }
 
     @Nonnull

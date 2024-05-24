@@ -1,7 +1,5 @@
 package me.hapyl.fight.game.entity;
 
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.events.PacketContainer;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -33,7 +31,6 @@ import me.hapyl.fight.game.heroes.PlayerDataHandler;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.loadout.HotbarLoadout;
 import me.hapyl.fight.game.loadout.HotbarSlots;
-import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.stats.StatContainer;
@@ -57,6 +54,7 @@ import me.hapyl.spigotutils.module.chat.messagebuilder.MessageBuilder;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.math.Numbers;
 import me.hapyl.spigotutils.module.math.Tick;
+import me.hapyl.spigotutils.module.player.PlayerSkin;
 import me.hapyl.spigotutils.module.reflect.Reflect;
 import me.hapyl.spigotutils.module.reflect.glow.Glowing;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
@@ -212,7 +210,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         markLastMoved();
         setHealth(getMaxHealth());
 
-        player.setLastDamageCause(null); // FIXME (hapyl): 004, Mar 4: idk
+        // player.setLastDamageCause(null); // FIXME (hapyl): 004, Mar 4: idk
         player.getInventory().clear();
         player.setMaxHealth(40.0d); // why deprecate
         player.setHealth(40.0d);
@@ -293,7 +291,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         final PlayerSkin skin = hero.getHero().getSkin();
 
         if (Settings.USE_SKINS_INSTEAD_OF_ARMOR.isEnabled(player) && skin != null) {
-            PlayerSkin.reset(player);
+            profile.resetSkin();
         }
 
         showPlayer();
@@ -1063,10 +1061,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
 
     public void setSneaking(boolean b) {
         getPlayer().setSneaking(b);
-    }
-
-    public void sendPacket(@Nonnull PacketContainer packet) {
-        ProtocolLibrary.getProtocolManager().sendServerPacket(getPlayer(), packet);
     }
 
     public <T> void spawnParticle(Location location, Particle particle, int amount, double x, double y, double z, float speed, T data) {

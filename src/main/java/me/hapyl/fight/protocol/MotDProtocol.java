@@ -1,72 +1,40 @@
 package me.hapyl.fight.protocol;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.reflect.StructureModifier;
-import com.comphenix.protocol.wrappers.WrappedGameProfile;
-import com.comphenix.protocol.wrappers.WrappedServerPing;
-import com.google.common.collect.Lists;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.UpdateTopic;
 import me.hapyl.fight.VersionInfo;
 import me.hapyl.spigotutils.module.chat.CenterChat;
 import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.reflect.protocol.ProtocolListener;
+import org.bukkit.Bukkit;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.server.ServerListPingEvent;
+import org.bukkit.util.CachedServerIcon;
 
-import javax.annotation.Nonnull;
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
-import java.util.List;
-import java.util.UUID;
 
-public class MotDProtocol extends ProtocolListener {
+public class MotDProtocol implements Listener {
 
-    private final WrappedServerPing.CompressedImage favicon;
-    private final List<WrappedGameProfile> hoverData;
-    private final String[] motD;
+    private final CachedServerIcon cachedServerIcon;
+    private final String motD;
 
     public MotDProtocol() {
-        super(PacketType.Status.Server.SERVER_INFO);
-
-        this.favicon = loadFavicon();
-        this.hoverData = createHoverData();
-        this.motD = createMotD();
+        cachedServerIcon = loadFavicon();
+        motD = createMotD();
     }
 
-    @Override
-    public void onPacketReceiving(@Nonnull PacketEvent event) {
+    @EventHandler()
+    public void handleServerListPingEvent(ServerListPingEvent ev) {
+        ev.setServerIcon(cachedServerIcon);
+        ev.setMotd(motD);
+
+        ev.setMaxPlayers(CF.getOnlinePlayerCount() + 1);
     }
 
-    @Override
-    public void onPacketSending(@Nonnull PacketEvent event) {
-        final PacketContainer packet = event.getPacket();
-        final StructureModifier<WrappedServerPing> serverPings = packet.getServerPings();
-        final WrappedServerPing ping = new WrappedServerPing();
-
-        ping.setMotD(motD[0] + "\n" + motD[1]);
-        ping.setFavicon(favicon);
-        ping.setPlayers(hoverData);
-
-        ping.setVersionProtocol(serverPings.read(0).getVersionProtocol());
-        ping.setEnforceSecureChat(false);
-        ping.setPlayersVisible(true);
-
-        ping.setVersionName("§6[§cCF is on §4%s§c!§6]".formatted(Main.requireMinecraftVersion));
-
-        final int playerCount = CF.getOnlinePlayerCount();
-
-        ping.setPlayersOnline(playerCount);
-        ping.setPlayersMaximum(playerCount + 1);
-
-        serverPings.write(0, ping);
-    }
-
-    private String[] createMotD() {
-        final String[] motD = new String[2];
-        motD[0] = makeMotD("&6&lᴄғ ᴀʀᴇɴᴀ &7◆ &8v%s".formatted(CF.getVersionNoSnapshot()), CenterChat.CENTER_PX_MOTD);
-
+    private String createMotD() {
         final VersionInfo versionInfo = Main.versionInfo;
         final StringBuilder builder = new StringBuilder();
 
@@ -79,33 +47,16 @@ public class MotDProtocol extends ProtocolListener {
             builder.append(topic.getTopic());
         }
 
-        motD[1] = makeMotD(builder.toString(), CenterChat.CENTER_PX_MOTD);
-        return motD;
+        return makeMotD("&6&lᴄғ ᴀʀᴇɴᴀ &7◆ &8v%s".formatted(CF.getVersionNoSnapshot()))
+                + "\n"
+                + makeMotD(builder.toString());
     }
 
-    private List<WrappedGameProfile> createHoverData() {
-        return makeHoverData("""
-                &e&l&k|| &6Website: &b&kno website
-                &e&l&k|| &6Game Version: &b%s
-                """.formatted(CF.getVersionNoSnapshot()));
+    private String makeMotD(String string) {
+        return Chat.color(CenterChat.makeString(string, CenterChat.CENTER_PX_MOTD));
     }
 
-    private String makeMotD(String string, int length) {
-        return Chat.color(CenterChat.makeString(string, length));
-    }
-
-    private List<WrappedGameProfile> makeHoverData(String i) {
-        final List<WrappedGameProfile> list = Lists.newArrayList();
-        final String[] splits = i.split("\n");
-
-        for (String split : splits) {
-            list.add(new WrappedGameProfile(UUID.randomUUID(), Chat.color(split)));
-        }
-
-        return list;
-    }
-
-    private WrappedServerPing.CompressedImage loadFavicon() {
+    private CachedServerIcon loadFavicon() {
         try {
             final Main plugin = Main.getPlugin();
             final InputStream resource = plugin.getResource("favicon.png");
@@ -114,17 +65,16 @@ public class MotDProtocol extends ProtocolListener {
                 return null;
             }
 
-            final WrappedServerPing.CompressedImage compressedImage = WrappedServerPing.CompressedImage.fromPng(resource);
-            final BufferedImage bufferedImage = compressedImage.getImage();
+            final BufferedImage image = ImageIO.read(resource);
 
-            final int width = bufferedImage.getWidth();
-            final int height = bufferedImage.getHeight();
+            final int width = image.getWidth();
+            final int height = image.getHeight();
 
             if (width != 64 || height != 64) {
                 throw new IllegalArgumentException("Favicon must be 64x64, not %sx%s!".formatted(width, height));
             }
 
-            return compressedImage;
+            return Bukkit.loadServerIcon(image);
         } catch (Exception e) {
             throw new IllegalArgumentException("Error loading favicon! " + e.getMessage());
         }

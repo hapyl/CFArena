@@ -1,6 +1,5 @@
 package me.hapyl.fight;
 
-import com.comphenix.protocol.events.PacketEvent;
 import me.hapyl.fight.database.Database;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.Manager;
@@ -13,13 +12,10 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.IProtocolListener;
 import me.hapyl.spigotutils.module.command.CommandProcessor;
 import me.hapyl.spigotutils.module.command.SimpleCommand;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.reflect.Reflect;
-import me.hapyl.spigotutils.module.reflect.protocol.ProtocolListener;
-import net.minecraft.server.MinecraftServer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -28,8 +24,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerEvent;
-import org.bukkit.projectiles.ProjectileSource;
-import org.checkerframework.checker.units.qual.C;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -400,27 +394,6 @@ public final class CF {
         for (Listener listener : listeners) {
             registerEvents(listener);
         }
-    }
-
-    /**
-     * Registers a {@link IProtocolListener} interface with a {@link ProtocolListener}.
-     *
-     * @param listener - Listener.
-     * @return ProtocolListener.
-     */
-    @Nonnull
-    public static ProtocolListener registerProtocolListener(@Nonnull IProtocolListener listener) {
-        return new ProtocolListener(listener.getPacketType()) {
-            @Override
-            public void onPacketReceiving(@Nonnull PacketEvent packetEvent) {
-                listener.onPacketReceiving(packetEvent);
-            }
-
-            @Override
-            public void onPacketSending(@Nonnull PacketEvent packetEvent) {
-                listener.onPacketSending(packetEvent);
-            }
-        };
     }
 
     /**

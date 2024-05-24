@@ -3,7 +3,7 @@ package me.hapyl.fight.game.entity.overlay;
 import me.hapyl.fight.game.entity.GameEntityType;
 import me.hapyl.fight.game.entity.NamedGameEntity;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.playerskin.PlayerSkin;
+import me.hapyl.spigotutils.module.player.PlayerSkin;
 import org.bukkit.entity.Zombie;
 
 import javax.annotation.Nonnull;
